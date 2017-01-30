@@ -368,7 +368,7 @@ var
   AfrmImportProcess: TfrmImportProcess;
   AParameterExcelDM2: TParameterExcelDM2;
   AParametricErrorTable: TParametricErrorTable;
-//  AQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
+  // AQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
   AQuerySearchDaughterParameter: TQuerySearchDaughterParameter;
   AQuerySearchMainParameter: TQuerySearchMainParameter;
   ARootTreeNode: TStringTreeNode;
@@ -1019,7 +1019,16 @@ begin
   // Привязываем компоненты к кратким описаниям
   AQuerySearchDescriptions := TQuerySearchDescriptions.Create(Self);
   try
-    AQuerySearchDescriptions.UpdateComponentDescriptions;
+    AQuerySearchDescriptions.FDQuery.Open;
+    // Если после исключения ошибок осталось что привязывать
+    if AQuerySearchDescriptions.FDQuery.RecordCount > 0 then
+    begin
+      AQuerySearchDescriptions.Process(
+        procedure
+        begin
+          AQuerySearchDescriptions.UpdateComponentDescriptions
+        end, 'Выполняем привязку кратких описаний');
+    end;
   finally
     FreeAndNil(AQuerySearchDescriptions);
   end;

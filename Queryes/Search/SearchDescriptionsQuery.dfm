@@ -7,12 +7,13 @@ inherited QuerySearchDescriptions: TQuerySearchDescriptions
     ExplicitWidth = 91
   end
   inherited FDQuery: TFDQuery
-    Active = True
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select p.*, d.ID as DescrID'
       'from descriptions2 d'
-      'join products p on upper(d.ComponentName) = upper(p.Value)')
+      
+        'join products p on d.ComponentName = p.Value and p.ParentProduct' +
+        'Id is null')
   end
   object FDUpdateSQL: TFDUpdateSQL
     ModifySQL.Strings = (
