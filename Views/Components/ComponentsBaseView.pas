@@ -392,25 +392,6 @@ begin
   if ComponentsBaseMasterDetail <> nil then
   begin
     MyInitializeComboBoxColumn;
-    {
-      // Инициализируем Lookup колонки
-      InitializeLookupColumn(MainView, clManufacturerId.DataBinding.FieldName,
-      ComponentsBaseMasterDetail.Manufacturers.DataSource, lsEditList, 'Name');
-
-      InitializeLookupColumn(MainView, clBodyId.DataBinding.FieldName,
-      ComponentsBaseMasterDetail.Manufacturers.DataSource, lsEditFixedList,
-      'BodyType');
-
-      // Инициализируем Lookup колонки
-      InitializeLookupColumn(cxGridDBBandedTableView2,
-      clManufacturerId.DataBinding.FieldName,
-      ComponentsBaseMasterDetail.Manufacturers.DataSource, lsEditList, 'Name');
-
-      InitializeLookupColumn(cxGridDBBandedTableView2,
-      clBodyId.DataBinding.FieldName,
-      ComponentsBaseMasterDetail.BodyTypes.DataSource, lsEditFixedList,
-      'BodyType');
-    }
   end;
 end;
 

@@ -15,11 +15,13 @@ uses
 
 type
   TQueryProducts = class(TQueryProductsBase)
-    procedure FDQueryBeforeOpen(DataSet: TDataSet);
   private
     FNeedUpdateCount: Boolean;
     FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     procedure DoAfterInsert(Sender: TObject);
+    procedure DoAfterOpen(Sender: TObject);
+// TODO: DoBeforeOpen
+//  procedure DoBeforeOpen(Sender: TObject);
     function GetQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     function GetTotalCount: Integer;
     { Private declarations }
@@ -54,6 +56,7 @@ begin
   inherited Create(AOwner);
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
 // TODO: AddStringList
@@ -196,21 +199,29 @@ begin
   StorehouseId.AsInteger := ParentValue;
 end;
 
-procedure TQueryProducts.FDQueryBeforeOpen(DataSet: TDataSet);
+procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
-  // если поля уже создали
-  if FDQuery.Fields.Count > 0 then
-    Exit;
-
-  FDQuery.FieldDefs.Update;
-  if FDQuery.FieldDefs.IndexOf('ExcelRowNum') < 0 then
-    FDQuery.FieldDefs.Add('ExcelRowNum', ftInteger);
-
-  CreateDefaultFields(False);
   FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
-  // FDQuery.FieldByName('Price').OnGetText := HideNullGetText;
-  FDQuery.FieldByName('ExcelRowNum').FieldKind := fkInternalCalc;
+  // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
 end;
+
+// TODO: DoBeforeOpen
+//procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
+//begin
+//(*
+//// если поля уже создали
+//if FDQuery.Fields.Count > 0 then
+//  Exit;
+//
+//FDQuery.FieldDefs.Update;
+//if FDQuery.FieldDefs.IndexOf('ExcelRowNum') < 0 then
+//  FDQuery.FieldDefs.Add('ExcelRowNum', ftInteger);
+//
+//CreateDefaultFields(False);
+//
+//FDQuery.FieldByName('ExcelRowNum').FieldKind := fkInternalCalc;
+//*)
+//end;
 
 function TQueryProducts.GetQueryStoreHouseProductsCount
   : TQueryStoreHouseProductsCount;

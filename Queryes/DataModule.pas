@@ -13,7 +13,8 @@ uses
   ComponentsExMasterDetailUnit, System.Contnrs, System.Generics.Collections,
   ComponentsMasterDetailUnit, BodyTypesQuery, ComponentsSearchMasterDetailUnit,
   ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
-  ProductsBaseQuery, ProductsSearchQuery, StoreHouseListQuery;
+  ProductsBaseQuery, ProductsSearchQuery, StoreHouseListQuery,
+  CustomComponentsQuery;
 
 type
   TDM = class(TForm)
@@ -87,7 +88,7 @@ begin
     Add(qProductsSearch); // Поиск на складе и редактирование найденного
     Add(qStoreHouseList); // Склады (выпадающий список)
     Add(StoreHouseMasterDetail.qStoreHouseList); // Склады - главное
-    Add(StoreHouseMasterDetail.qProducts); // Содержимое текущего склада
+//    Add(StoreHouseMasterDetail.qProducts); // Содержимое текущего склада
     Add(ComponentsSearchMasterDetail.qComponentsSearch);
     // Поиск среди компонентов (главное)
     Add(ComponentsSearchMasterDetail.qComponentsDetailsSearch);

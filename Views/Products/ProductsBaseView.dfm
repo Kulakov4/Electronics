@@ -85,7 +85,7 @@ inherited ViewProductsBase: TViewProductsBase
       end
       object clDescription: TcxGridDBBandedColumn
         Caption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
-        DataBinding.FieldName = 'DescriptionId'
+        DataBinding.FieldName = 'Description'
         PropertiesClassName = 'TcxBlobEditProperties'
         Properties.BlobEditKind = bekMemo
         Width = 143

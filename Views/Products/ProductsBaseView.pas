@@ -28,7 +28,7 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox, cxLabel;
+  cxDBLookupComboBox, cxLabel, SearchParameterValues;
 
 type
   TViewProductsBase = class(TfrmGrid)
@@ -75,12 +75,17 @@ type
 
   private
     FQueryProductsBase: TQueryProductsBase;
+    FQuerySearchParameterValues: TQuerySearchParameterValues;
+    function GetQuerySearchParameterValues: TQuerySearchParameterValues;
+    procedure MyInitializeComboBoxColumn;
     procedure SetQueryProductsBase(const Value: TQueryProductsBase);
     { Private declarations }
   protected
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo; const AErrorMessage,
         AEmptyErrorMessage: string);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
+    property QuerySearchParameterValues: TQuerySearchParameterValues read
+        GetQuerySearchParameterValues;
   public
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
@@ -93,12 +98,15 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, Winapi.ShellAPI, SplashXP, DialogUnit, SettingsController;
+uses System.IOUtils, Winapi.ShellAPI, SplashXP, DialogUnit, SettingsController,
+  ParameterValuesUnit, cxDropDownEdit;
 
 procedure TViewProductsBase.actCommitExecute(Sender: TObject);
 begin
   FQueryProductsBase.ApplyUpdates;
   UpdateView;
+  // Заново заполняем выпадающие списки данными
+  MyInitializeComboBoxColumn;
 end;
 
 procedure TViewProductsBase.actRollbackExecute(Sender: TObject);
@@ -164,6 +172,32 @@ begin
 
 end;
 
+function TViewProductsBase.GetQuerySearchParameterValues:
+    TQuerySearchParameterValues;
+begin
+  if FQuerySearchParameterValues = nil then
+    FQuerySearchParameterValues := TQuerySearchParameterValues.Create(Self);
+
+  Result := FQuerySearchParameterValues;
+end;
+
+procedure TViewProductsBase.MyInitializeComboBoxColumn;
+begin
+  // Ищем возможные значения производителя для выпадающего списка
+  QuerySearchParameterValues.Search(TParameterValues.ProducerParameterID);
+
+  // Инициализируем Combobox колонки
+  InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
+    lsEditList, QuerySearchParameterValues.Value);
+
+  // Ищем возможные значения корпусов для выпадающего списка
+  QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
+
+  InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
+    lsEditList, QuerySearchParameterValues.Value);
+
+end;
+
 procedure TViewProductsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo; const
     AErrorMessage, AEmptyErrorMessage: string);
 var
@@ -194,9 +228,13 @@ begin
 
     if FQueryProductsBase <> nil then
     begin
-      // Привязываем вью к данным\
+      // Привязываем представление к данным\
       cxGridDBBandedTableView.DataController.DataSource :=
         FQueryProductsBase.DataSource;
+
+
+      // Инициализируем выпадающие списки
+      MyInitializeComboBoxColumn;
     end;
 
     UpdateView;

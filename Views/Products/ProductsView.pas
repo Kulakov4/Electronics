@@ -353,7 +353,6 @@ begin
 
     if QueryProducts <> nil then
     begin
-
       // Подписываемся на события
       TNotifyEventWrap.Create(QueryProducts.Master.BeforeScrollI, BeforeLoad,
         FEventList);
@@ -369,6 +368,9 @@ begin
 
       TNotifyEventWrap.Create(QueryProducts.AfterDelete,
         AfterDelete, FEventList);
+
+      Assert(clProducer.DataBinding.FieldName <> '');
+      Assert(MainView.GetColumnByFieldName(clProducer.DataBinding.FieldName).DataBinding.FieldName <> '');
     end;
 
     UpdateView;
