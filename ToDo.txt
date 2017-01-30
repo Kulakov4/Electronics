@@ -1,0 +1,29 @@
+Избавиться от TLanguageConstants				-- Избавился
+Избавиться от ClipboardManager					-- Закомментировал
+Избавиться от ExcelController					-- Закомментировал
+Избавиться от TClb.GetRows						-- Закомментировал
+Избавиться от frStorehouse						-- Избавился
+Избавиться от ParametersForCategories			-- Крутой рекурсивный запрос
+Переделать TModCheckDatabase в синглетон		-- Сделал статический класс
+TfrmQueryComponentsRecords ???					-- Избавился
+Кнопка "Сохранить всё" не работает				-- Исправил
+
+Полное удаление надо теперь обработать заново FFullDeleted
+Обработать удаление неиспользуемых компонентов
+
+Разобраться с Connection.StartTransaction в TParametersForCategories
+В справочнике параметров не добавляется наименование сразу после поиска
+
+Справочник корпусов. Есть корпус, но нет вариантов этого корпуса. Left join первичный ключ
+
+Удалить ExternalID из таблицы StoreHouse		
+Посмотреть необходимость события AfterDataChange
+LocateOrAppend и AddNewValue реализовать на уровне frmDataModule
+А может быть DataSource не должно работать в связке с DataSet???
+Разобраться с ErrorForm, ImportProcessForm и другими формами ошибок
+
+Избавиться от ComponentsBaseMasterDetail.Manufacturers
+Проверить можно ли избавиться от QuerySearchBodyType
+Проверить можно ли избавиться от QuerySearchMainComponent
+
+TQueryAllMainComponents - это надо переделать
