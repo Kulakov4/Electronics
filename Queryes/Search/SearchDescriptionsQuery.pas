@@ -46,10 +46,18 @@ begin
 end;
 
 procedure TQuerySearchDescriptions.UpdateComponentDescriptions;
+var
+  i: Integer;
 begin
   Assert(FDQuery.Active);
+
+  // начинаем транзакцию, если она ещё не началась
+  if (not FDQuery.Connection.InTransaction) then
+    FDQuery.Connection.StartTransaction;
+
   FDQuery.Last;
   FDQuery.First;
+  i := 0;
 
   CallOnProcessEvent;
   while not FDQuery.Eof do
@@ -61,10 +69,21 @@ begin
       FDQuery.Edit;
       DescriptionID.AsInteger := DescrID.AsInteger;
       FDQuery.Post;
-      CallOnProcessEvent;
+      Inc(i);
+
+      // Уже много записей обновили в рамках одной транзакции
+      if i >= 1000 then
+      begin
+        i := 0;
+        FDQuery.Connection.Commit;
+        FDQuery.Connection.StartTransaction;
+      end;
     end;
     FDQuery.Next;
+    CallOnProcessEvent;
   end;
+
+  FDQuery.Connection.Commit;
 
 end;
 
