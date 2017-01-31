@@ -154,7 +154,9 @@ uses
   SearchParametersForCategoryQuery in 'Queryes\Search\SearchParametersForCategoryQuery.pas' {QuerySearchParametersForCategory: TFrame},
   QueryWithDataSourceUnit in 'Queryes\QueryWithDataSourceUnit.pas' {QueryWithDataSource: TFrame},
   BaseEventsQuery in 'Queryes\BaseEventsQuery.pas' {QueryBaseEvents: TFrame},
-  QueryWithMasterUnit in 'Queryes\QueryWithMasterUnit.pas' {QueryWithMaster: TFrame};
+  QueryWithMasterUnit in 'Queryes\QueryWithMasterUnit.pas' {QueryWithMaster: TFrame},
+  HandlingQueryUnit in 'Queryes\HandlingQueryUnit.pas' {HandlingQuery: TFrame},
+  ProcRefUnit in 'Helpers\ProcRefUnit.pas';
 
 {$R *.res}
 

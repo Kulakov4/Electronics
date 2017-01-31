@@ -9,32 +9,23 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, ProgressInfo, BaseQuery, SearchQuery;
+  NotifyEvents, ProgressInfo, HandlingQueryUnit, SearchQuery, BaseQuery;
 
 type
   // Ссылка на метод обрабатывающий таблицу в памяти
   TProcRef = reference to procedure();
 
 
-  TQuerySearchDescriptions = class(TQueryBase)
+  TQuerySearchDescriptions = class(THandlingQuery)
     FDUpdateSQL: TFDUpdateSQL;
   private
-    FOnProgress: TNotifyEventsEx;
-    FPI: TProgressInfo;
     function GetDescrID: TField;
     function GetDescriptionID: TField;
     { Private declarations }
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    procedure CallOnProcessEvent;
-    procedure Process(AProcRef: TProcRef; const ACaption: string); overload;
-    procedure Process(AProcRef: TProcRef; ANotifyEventRef: TNotifyEventRef);
-        overload;
     procedure UpdateComponentDescriptions;
     property DescrID: TField read GetDescrID;
     property DescriptionID: TField read GetDescriptionID;
-    property OnProgress: TNotifyEventsEx read FOnProgress;
     { Public declarations }
   end;
 
@@ -43,28 +34,6 @@ implementation
 {$R *.dfm}
 
 uses ProgressBarForm;
-
-constructor TQuerySearchDescriptions.Create(AOwner: TComponent);
-begin
-  inherited;
-  FPI := TProgressInfo.Create;
-  FOnProgress := TNotifyEventsEx.Create(Self);
-end;
-
-destructor TQuerySearchDescriptions.Destroy;
-begin
-  FreeAndNil(FPI);
-  inherited;
-end;
-
-procedure TQuerySearchDescriptions.CallOnProcessEvent;
-begin
-  Assert(FDQuery.Active);
-  Assert(FPI <> nil);
-  FPI.TotalRecords := FDQuery.RecordCount;
-  FPI.ProcessRecords := FDQuery.RecNo;
-  OnProgress.CallEventHandlers(FPI)
-end;
 
 function TQuerySearchDescriptions.GetDescrID: TField;
 begin
@@ -76,51 +45,11 @@ begin
   Result := Field('DescriptionID');
 end;
 
-procedure TQuerySearchDescriptions.Process(AProcRef: TProcRef; const ACaption:
-    string);
-var
-  AfrmProgressBar: TfrmProgressBar;
-begin
-  Assert(Assigned(AProcRef));
-
-  AfrmProgressBar := TfrmProgressBar.Create(nil);
-  try
-    if not ACaption.IsEmpty then
-      AfrmProgressBar.Caption := ACaption;
-    AfrmProgressBar.Show;
-
-    // Вызываем метод-обработку табличных данных
-    Process(AProcRef,
-      procedure(ASender: TObject)
-      begin
-        AfrmProgressBar.ProgressInfo.Assign(ASender as TProgressInfo);
-      end);
-  finally
-    FreeAndNil(AfrmProgressBar);
-  end;
-end;
-
-procedure TQuerySearchDescriptions.Process(AProcRef: TProcRef; ANotifyEventRef:
-    TNotifyEventRef);
-var
-  ne: TNotifyEventR;
-begin
-  Assert(Assigned(AProcRef));
-
-  // Подписываем кого-то на событие
-  ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
-  try
-    // Вызываем метод, обрабатывающий нашу таблицу
-    AProcRef;
-  finally
-    // Отписываем кого-то от события
-    FreeAndNil(ne);
-  end;
-end;
-
 procedure TQuerySearchDescriptions.UpdateComponentDescriptions;
 begin
   Assert(FDQuery.Active);
+  FDQuery.Last;
+  FDQuery.First;
 //  FDQuery.Close;
 //  FDQuery.Open;
 

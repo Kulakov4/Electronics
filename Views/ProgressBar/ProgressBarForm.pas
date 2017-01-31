@@ -23,7 +23,7 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue;
+  dxSkinXmas2008Blue, ProcRefUnit;
 
 type
   TfrmProgressBar = class;
@@ -38,6 +38,8 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    class procedure Process(AHandling: IHandling; AProcRef: TProcRef;
+      const ACaption: string); static;
     property ProgressInfo: TProgressInfo read FProgressInfo;
     { Public declarations }
   end;
@@ -62,6 +64,31 @@ begin
   cxpbMain.Position := FProgressInfo.Position;
 
   Application.ProcessMessages;
+end;
+
+class procedure TfrmProgressBar.Process(AHandling: IHandling;
+  AProcRef: TProcRef; const ACaption: string);
+var
+  AfrmProgressBar: TfrmProgressBar;
+begin
+  Assert(Assigned(AProcRef));
+
+  AfrmProgressBar := TfrmProgressBar.Create(nil);
+  try
+    if not ACaption.IsEmpty then
+      AfrmProgressBar.Caption := ACaption;
+    AfrmProgressBar.Show;
+
+    // Вызываем метод-обработку табличных данных
+    AHandling.Process(AProcRef,
+      procedure(ASender: TObject)
+      begin
+        AfrmProgressBar.ProgressInfo.Assign(ASender as TProgressInfo);
+      end);
+  finally
+    FreeAndNil(AfrmProgressBar);
+  end;
+
 end;
 
 end.

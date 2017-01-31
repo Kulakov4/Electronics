@@ -1020,14 +1020,13 @@ begin
   AQuerySearchDescriptions := TQuerySearchDescriptions.Create(Self);
   try
     AQuerySearchDescriptions.FDQuery.Open;
+
     // Если после исключения ошибок осталось что привязывать
     if AQuerySearchDescriptions.FDQuery.RecordCount > 0 then
     begin
-      AQuerySearchDescriptions.Process(
-        procedure
-        begin
-          AQuerySearchDescriptions.UpdateComponentDescriptions
-        end, 'Выполняем привязку кратких описаний');
+      TfrmProgressBar.Process(AQuerySearchDescriptions,
+        AQuerySearchDescriptions.UpdateComponentDescriptions,
+        'Выполняем привязку кратких описаний');
     end;
   finally
     FreeAndNil(AQuerySearchDescriptions);

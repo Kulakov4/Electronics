@@ -1,0 +1,2 @@
+inherited HandlingQuery: THandlingQuery
+end
