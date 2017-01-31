@@ -90,7 +90,7 @@ begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
     ASender.FieldByName(PKFieldName).AsInteger :=
-      QuerySearchDetailComponent.ID.AsInteger;
+      QuerySearchDetailComponent.PKValue;
   end;
 
   Assert(ASender.FieldByName(PKFieldName).AsInteger > 0);

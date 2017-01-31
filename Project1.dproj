@@ -272,11 +272,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchQuery.pas">
-            <Form>QuerySearch</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Search\SearchComponentQuery.pas">
             <Form>QuerySearchComponent</Form>
             <FormType>dfm</FormType>

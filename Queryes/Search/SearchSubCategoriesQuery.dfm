@@ -1,9 +1,4 @@
 inherited QuerySearchSubCategories: TQuerySearchSubCategories
-  inherited LabelSearch: TLabel
-    Width = 103
-    Caption = 'SearchSubCategories'
-    ExplicitWidth = 103
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'

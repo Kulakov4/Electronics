@@ -60,7 +60,7 @@ begin
     rc := QuerySearchMainParameter.Search(sPackagePinsParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FPackagePinsParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FPackagePinsParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FPackagePinsParameterID;
@@ -77,7 +77,7 @@ begin
     rc := QuerySearchMainParameter.Search(sDatasheetParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FDatasheetParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FDatasheetParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FDatasheetParameterID;
@@ -94,7 +94,7 @@ begin
     rc := QuerySearchMainParameter.Search(sDiagramParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FDiagramParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FDiagramParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FDiagramParameterID;
@@ -111,7 +111,7 @@ begin
     rc := QuerySearchMainParameter.Search(sDrawingParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FDrawingParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FDrawingParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FDrawingParameterID;
@@ -128,7 +128,7 @@ begin
     rc := QuerySearchMainParameter.Search(sProducerParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FProducerParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FProducerParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FProducerParameterID;
@@ -145,7 +145,7 @@ begin
     rc := QuerySearchMainParameter.Search(sImageParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FImageParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FImageParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FImageParameterID;
@@ -162,7 +162,7 @@ begin
     rc := QuerySearchMainParameter.Search(sDescriptionParamTableName);
     // Что делать если не нашли?
     Assert(rc = 1);
-    FDescriptionParameterID := QuerySearchMainParameter.ID.AsInteger;
+    FDescriptionParameterID := QuerySearchMainParameter.PKValue;
   end;
 
   Result := FDescriptionParameterID;

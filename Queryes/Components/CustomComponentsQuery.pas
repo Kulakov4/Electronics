@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
   SearchComponentCategoryQuery, SearchComponentCategoryQuery2,
-  SearchCategoryQuery, SearchQuery, SearchProductParameterValuesQuery,
+  SearchCategoryQuery, SearchProductParameterValuesQuery,
   System.Generics.Collections, QueryWithDataSourceUnit;
 
 type
@@ -296,10 +296,10 @@ begin
     end;
 
     Assert(QuerySearchProductParameterValues.FDQuery.RecordCount = 1);
-    Assert(QuerySearchProductParameterValues.ID.AsInteger > 0);
+    Assert(QuerySearchProductParameterValues.PKValue > 0);
 
     AIDProductUnionParameters.Value :=
-      QuerySearchProductParameterValues.ID.Value;
+      QuerySearchProductParameterValues.PKValue;
   end;
 end;
 

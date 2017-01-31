@@ -103,8 +103,8 @@ begin
 
   if Result then
   begin
-    IDComponent.AsInteger := FQuerySearchComponent.ID.AsInteger; {DM.fdqFindComponent.FieldByName('ID').AsInteger};
-    IDParentComponent.AsInteger := FQuerySearchComponent.ParentProductID.AsInteger; {DM.fdqFindComponent.FieldByName('ParentProductID').AsInteger};
+    IDComponent.AsInteger := FQuerySearchComponent.PKValue;
+    IDParentComponent.AsInteger := FQuerySearchComponent.ParentProductID.AsInteger;
   end
   else
   begin
@@ -187,7 +187,7 @@ begin
 
   if Result then
   begin
-    IDComponent.AsInteger := QuerySearchComponent.ID.AsInteger;
+    IDComponent.AsInteger := QuerySearchComponent.PKValue;
     IDParentComponent.AsInteger := QuerySearchComponent.ParentProductID.AsInteger;
   end
   else

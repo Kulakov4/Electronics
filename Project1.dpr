@@ -57,7 +57,6 @@ uses
   ParametersDetailQuery in 'Queryes\ParametersForCategories\ParametersDetailQuery.pas' {frmParametersDetailQuery: TFrame},
   ParametersForCategoriesMasterDetailUnit in 'Queryes\ParametersForCategories\ParametersForCategoriesMasterDetailUnit.pas' {ParametersForCategoriesMasterDetail: TFrame},
   TreeListQuery in 'Queryes\TreeList\TreeListQuery.pas' {QueryTreeList: TFrame},
-  SearchQuery in 'Queryes\Search\SearchQuery.pas' {QuerySearch: TFrame},
   SearchComponentQuery in 'Queryes\Search\SearchComponentQuery.pas' {QuerySearchComponent: TFrame},
   SearchMainComponent in 'Queryes\Search\SearchMainComponent.pas' {QuerySearchMainComponent: TFrame},
   SearchProductCategoryByExternalID in 'Queryes\Search\SearchProductCategoryByExternalID.pas' {QuerySearchProductCategoryByExternalID: TFrame},

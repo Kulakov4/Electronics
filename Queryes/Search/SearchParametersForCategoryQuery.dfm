@@ -1,9 +1,4 @@
 inherited QuerySearchParametersForCategory: TQuerySearchParametersForCategory
-  inherited LabelSearch: TLabel
-    Width = 149
-    Caption = 'SearchParametersForCategory'
-    ExplicitWidth = 149
-  end
   inherited FDQuery: TFDQuery
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
@@ -22,6 +17,7 @@ inherited QuerySearchParametersForCategory: TQuerySearchParametersForCategory
       FieldName = 'Id'
       Origin = 'Id'
       ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
     end
     object FDQueryProductCategoryId: TIntegerField
       FieldName = 'ProductCategoryId'

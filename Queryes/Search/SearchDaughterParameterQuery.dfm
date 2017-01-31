@@ -1,9 +1,4 @@
 inherited QuerySearchDaughterParameter: TQuerySearchDaughterParameter
-  inherited LabelSearch: TLabel
-    Width = 128
-    Caption = 'SearchDaughterParameter'
-    ExplicitWidth = 128
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'

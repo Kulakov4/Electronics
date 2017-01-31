@@ -1,9 +1,4 @@
 inherited QuerySearchParameterValues: TQuerySearchParameterValues
-  inherited LabelSearch: TLabel
-    Width = 114
-    Caption = 'SearchParameterValues'
-    ExplicitWidth = 114
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select distinct Value'

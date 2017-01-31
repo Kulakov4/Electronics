@@ -416,7 +416,7 @@ begin
 
           Result.Edit;
           Result.IDComponent.AsInteger :=
-            QuerySearchMainComponent2.ID.AsInteger;
+            QuerySearchMainComponent2.PKValue;
           Result.Post;
 
           // Проверяем, может файл документации уже был загружен ранее

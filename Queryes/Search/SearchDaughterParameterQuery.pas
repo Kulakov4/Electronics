@@ -4,20 +4,22 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, SearchQuery, FireDAC.Stan.Intf,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
-  TQuerySearchDaughterParameter = class(TQuerySearch)
+  TQuerySearchDaughterParameter = class(TQueryBase)
   private
-    function GetID: TField;
+    function GetParentParameter: TField;
+    function GetValue: TField;
     { Private declarations }
   public
     procedure Append(const AValue: String);
     function Search(const AValue: String; AParentID: Integer): Integer; overload;
-    property ID: TField read GetID;
+    property ParentParameter: TField read GetParentParameter;
+    property Value: TField read GetValue;
     { Public declarations }
   end;
 
@@ -33,14 +35,19 @@ begin
   AParentParameter := FDQuery.ParamByName('ParentParameter').AsInteger;
   Assert(AParentParameter > 0);
   FDQuery.Append;
-  FDQuery.FieldByName('Value').AsString := AValue;
-  FDQuery.FieldByName('ParentParameter').AsInteger := AParentParameter;
+  Value.AsString := AValue;
+  ParentParameter.AsInteger := AParentParameter;
   FDQuery.Post;
 end;
 
-function TQuerySearchDaughterParameter.GetID: TField;
+function TQuerySearchDaughterParameter.GetParentParameter: TField;
 begin
-  Result := FDQuery.FieldByName('ID');
+  Result := Field('ParentParameter');
+end;
+
+function TQuerySearchDaughterParameter.GetValue: TField;
+begin
+  Result := Field('Value');
 end;
 
 function TQuerySearchDaughterParameter.Search(const AValue: String; AParentID:

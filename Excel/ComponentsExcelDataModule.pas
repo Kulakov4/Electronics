@@ -191,7 +191,7 @@ begin
   begin
     // Запоминаем код родительского компонента
     Edit;
-    IDMainComponent.AsInteger := FQuerySearchMainComponent.ID.AsInteger;
+    IDMainComponent.AsInteger := FQuerySearchMainComponent.PKValue;
     Post;
 
     MarkAsError(etWarring);

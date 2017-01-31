@@ -1,9 +1,4 @@
 inherited QuerySearchCategoriesPath: TQuerySearchCategoriesPath
-  inherited LabelSearch: TLabel
-    Width = 107
-    Caption = 'SearchCategoriesPath'
-    ExplicitWidth = 107
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'with recursive m(ID, Value, Path, Depth) as'

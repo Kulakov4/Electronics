@@ -238,7 +238,7 @@ begin
   Edit;
 
   if Result then
-    IDComponent.AsInteger := FQuerySearchComponent.ID.AsInteger //DM.fdqFindComponent.FieldByName('ID').AsInteger
+    IDComponent.AsInteger := FQuerySearchComponent.PKValue
   else
   begin
    // Запоминаем, что в этой строке ошибка

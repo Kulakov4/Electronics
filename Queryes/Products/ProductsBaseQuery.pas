@@ -107,7 +107,7 @@ begin
     begin
       // Если такой компонент уже есть
       // Запоминаем найденный первичный ключ
-      ARH.Field[ProductID.FieldName] := QuerySearchMainComponent2.ID.AsInteger;
+      ARH.Field[ProductID.FieldName] := QuerySearchMainComponent2.PKValue;
 
       // Заполняем пустые поля значениями с сервера
       ARH2 := TDBRecord.Fill(ASender, QuerySearchMainComponent2.FDQuery, PKFieldName);

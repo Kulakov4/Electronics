@@ -1,9 +1,4 @@
 inherited QuerySearchProductCategoryByID: TQuerySearchProductCategoryByID
-  inherited LabelSearch: TLabel
-    Width = 138
-    Caption = 'SearchProductCategoryByID'
-    ExplicitWidth = 138
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'

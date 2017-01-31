@@ -1,9 +1,4 @@
 inherited QuerySearchComponentCategory: TQuerySearchComponentCategory
-  inherited LabelSearch: TLabel
-    Width = 133
-    Caption = 'SearchComponentCategory'
-    ExplicitWidth = 133
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
