@@ -7,10 +7,11 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, DataModuleFrame, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
+  QueryWithDataSourceUnit;
 
 type
-  TfrmQuerySubGroups = class(TfrmDataModule)
+  TfrmQuerySubGroups = class(TQueryWithDataSource)
   private
     procedure DoAfterDBEvents(Sender: TObject);
     function GetIsRecordReadOnly: Boolean;

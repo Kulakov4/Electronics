@@ -17,12 +17,6 @@ object frmDataModule: TfrmDataModule
     Font.Style = [fsBold]
     ParentFont = False
   end
-  object DataSource: TDataSource
-    DataSet = FDQuery
-    OnDataChange = DataSourceDataChange
-    Left = 17
-    Top = 25
-  end
   object FDQuery: TFDQuery
     BeforeOpen = FDQueryBeforeOpen
     AfterOpen = FDQueryAfterOpen
@@ -38,7 +32,7 @@ object frmDataModule: TfrmDataModule
     BeforeScroll = FDQueryBeforeScroll
     AfterScroll = FDQueryAfterScroll
     Connection = DMRepository.dbConnection
-    Left = 81
+    Left = 9
     Top = 25
   end
 end

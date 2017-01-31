@@ -9,13 +9,14 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  BodyTypesBranchQuery, ApplyQueryFrame, BodyTypesExcelDataModule3;
+  BodyTypesBranchQuery, ApplyQueryFrame, BodyTypesExcelDataModule3,
+  QueryWithDataSourceUnit;
 
 const
   WM_arInsert = WM_USER + 139;
 
 type
-  TQueryBodyTypes2 = class(TfrmDataModule)
+  TQueryBodyTypes2 = class(TQueryWithDataSource)
     qBodyVariations: TfrmApplyQuery;
     fdqUnusedBodyTypes: TFDQuery;
     qBodyTypes: TfrmApplyQuery;

@@ -151,7 +151,8 @@ uses
   SearchProductParameterValuesQuery in 'Queryes\Search\SearchProductParameterValuesQuery.pas' {QuerySearchProductParameterValues: TFrame},
   TableWithProgress in 'Helpers\TableWithProgress.pas',
   SearchSubCategoriesQuery in 'Queryes\Search\SearchSubCategoriesQuery.pas' {QuerySearchSubCategories: TFrame},
-  SearchParametersForCategoryQuery in 'Queryes\Search\SearchParametersForCategoryQuery.pas' {QuerySearchParametersForCategory: TFrame};
+  SearchParametersForCategoryQuery in 'Queryes\Search\SearchParametersForCategoryQuery.pas' {QuerySearchParametersForCategory: TFrame},
+  QueryWithDataSourceUnit in 'Queryes\QueryWithDataSourceUnit.pas' {QueryWithDataSource: TFrame};
 
 {$R *.res}
 

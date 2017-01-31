@@ -10,10 +10,11 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, NotifyEvents, SearchComponentCategoryQuery,
   SearchComponentCategoryQuery2, SearchCategoryQuery, SearchQuery,
-  SearchProductParameterValuesQuery, System.Generics.Collections;
+  SearchProductParameterValuesQuery, System.Generics.Collections,
+  QueryWithDataSourceUnit;
 
 type
-  TQueryCustomComponents = class(TfrmDataModule)
+  TQueryCustomComponents = class(TQueryWithDataSource)
     qProducts: TfrmApplyQuery;
   private
     FParameterFields: TDictionary<Integer,String>;

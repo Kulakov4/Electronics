@@ -9,10 +9,10 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, ManufacturersExcelDataModule;
+  NotifyEvents, ManufacturersExcelDataModule, QueryWithDataSourceUnit;
 
 type
-  TQueryManufacturers2 = class(TfrmDataModule)
+  TQueryManufacturers2 = class(TQueryWithDataSource)
     FDQueryID: TFDAutoIncField;
     FDQueryName: TWideStringField;
     fdqDropUnused: TFDQuery;

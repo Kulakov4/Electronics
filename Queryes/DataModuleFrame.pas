@@ -16,14 +16,12 @@ const
   WM_DS_AFTER_SCROLL = WM_USER + 556;
   WM_DS_AFTER_POST = WM_USER + 557;
   WM_NEED_POST = WM_USER + 558;
-  WM_ON_DATA_CHANGE = WM_USER + 559;
+
 
 type
   TfrmDataModule = class(TFrame)
-    DataSource: TDataSource;
     FDQuery: TFDQuery;
     Label1: TLabel;
-    procedure DataSourceDataChange(Sender: TObject; Field: TField);
     procedure FDQueryAfterInsert(DataSet: TDataSet);
     procedure FDQueryAfterScroll(DataSet: TDataSet);
     procedure FDQueryBeforeInsert(DataSet: TDataSet);
@@ -66,12 +64,10 @@ type
     FMaster: TfrmDataModule;
     FNeedLoad: Boolean;
     FNeedRefresh: Boolean;
-    FOnDataChange: TNotifyEventsEx;
     FPKFieldName: String;
     FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
     FResiveAfterPostMessage: Boolean;
-    FResiveOnDataChangeMessage: Boolean;
     FUseAfterPostMessage: Boolean;
     procedure DoAfterClose(Sender: TObject);
     procedure DoAfterMasterScroll(Sender: TObject);
@@ -105,8 +101,6 @@ type
       message WM_DS_AFTER_POST;
     procedure ProcessBeforeScrollMessage(var Message: TMessage);
       message WM_DS_BEFORE_SCROLL;
-    procedure ProcessOnDataChange(var Message: TMessage);
-      message WM_ON_DATA_CHANGE;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -168,7 +162,6 @@ type
     property PKValue: Integer read GetPKValue;
     property UseAfterPostMessage: Boolean read FUseAfterPostMessage
       write FUseAfterPostMessage;
-    property OnDataChange: TNotifyEventsEx read FOnDataChange;
     { Public declarations }
   published
   end;
@@ -193,8 +186,6 @@ begin
   FAutoTransaction := True;
 
   // Создаём события
-  FOnDataChange := TNotifyEventsEx.Create(Self);
-
   FBeforeScroll := TNotifyEventsEx.Create(Self);
   FBeforeScrollI := TNotifyEventsEx.Create(Self);
   FAfterScroll := TNotifyEventsEx.Create(Self);
@@ -225,7 +216,6 @@ begin
   FResiveAfterPostMessage := True;
 
   FUseAfterPostMessage := True;
-  FResiveOnDataChangeMessage := True;
 
   // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
@@ -408,16 +398,6 @@ begin
     begin
       FieldDefs[i].CreateField(FDQuery);
     end;
-  end;
-end;
-
-procedure TfrmDataModule.DataSourceDataChange(Sender: TObject; Field: TField);
-begin
-  // если есть подписчики
-  if (FOnDataChange.Count > 0) and (FResiveOnDataChangeMessage) then
-  begin
-    FResiveOnDataChangeMessage := False;
-    PostMessage(Handle, WM_ON_DATA_CHANGE, 0, 0);
   end;
 end;
 
@@ -864,12 +844,6 @@ procedure TfrmDataModule.ProcessBeforeScrollMessage(var Message: TMessage);
 begin
   FBeforeScroll.CallEventHandlers(FDQuery);
   FResiveBeforeScrollMessage := True;
-end;
-
-procedure TfrmDataModule.ProcessOnDataChange(var Message: TMessage);
-begin
-  FOnDataChange.CallEventHandlers(Self);
-  FResiveOnDataChangeMessage := True;
 end;
 
 procedure TfrmDataModule.RefreshQuery;

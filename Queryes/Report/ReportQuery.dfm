@@ -4,9 +4,6 @@ inherited QueryReports: TQueryReports
     Caption = 'Report'
     ExplicitWidth = 45
   end
-  inherited DataSource: TDataSource
-    AutoEdit = False
-  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '

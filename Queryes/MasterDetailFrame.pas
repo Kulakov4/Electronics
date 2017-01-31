@@ -6,19 +6,19 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
-  FireDAC.Comp.Client, DataModuleFrame, System.Contnrs;
+  FireDAC.Comp.Client, DataModuleFrame, System.Contnrs, QueryWithDataSourceUnit;
 
 type
   TfrmMasterDetail = class(TFrame)
     GridPanel1: TGridPanel;
   private
-    FDetail: TfrmDataModule;
+    FDetail: TQueryWithDataSource;
     FEventList: TObjectList;
-    FMain: TfrmDataModule;
+    FMain: TQueryWithDataSource;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
-    procedure SetDetail(const Value: TfrmDataModule);
-    procedure SetMain(const Value: TfrmDataModule);
+    procedure SetDetail(const Value: TQueryWithDataSource);
+    procedure SetMain(const Value: TQueryWithDataSource);
     { Private declarations }
   protected
     procedure CheckMasterAndDetail;
@@ -34,8 +34,8 @@ type
     procedure TryPost;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
-    property Detail: TfrmDataModule read FDetail write SetDetail;
-    property Main: TfrmDataModule read FMain write SetMain;
+    property Detail: TQueryWithDataSource read FDetail write SetDetail;
+    property Main: TQueryWithDataSource read FMain write SetMain;
     { Public declarations }
   end;
 
@@ -140,7 +140,7 @@ begin
   Connection.Commit;
 end;
 
-procedure TfrmMasterDetail.SetDetail(const Value: TfrmDataModule);
+procedure TfrmMasterDetail.SetDetail(const Value: TQueryWithDataSource);
 begin
   if FDetail <> Value then
   begin
@@ -149,7 +149,7 @@ begin
   end;
 end;
 
-procedure TfrmMasterDetail.SetMain(const Value: TfrmDataModule);
+procedure TfrmMasterDetail.SetMain(const Value: TQueryWithDataSource);
 begin
   if FMain <> Value then
   begin

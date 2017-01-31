@@ -12,13 +12,13 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls,
   System.Generics.Collections, ApplyQueryFrame, BodyTypesExcelDataModule3,
-  NotifyEvents;
+  NotifyEvents, QueryWithDataSourceUnit;
 
 const
   WM_arInsert = WM_USER + 139;
 
 type
-  TQueryBodyTypesTree = class(TfrmDataModule)
+  TQueryBodyTypesTree = class(TQueryWithDataSource)
     qBodyTypes: TfrmApplyQuery;
     qBodyVariations: TfrmApplyQuery;
     procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
