@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PopupForm, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles, cxTL,
   cxTLdxBarBuiltInMenu, cxInplaceContainer, cxTLData, cxDBTL, TreeListQuery,
-  cxClasses, dxBar, cxTextEdit, cxBarEditItem, NotifyEvents, DataModuleFrame,
+  cxClasses, dxBar, cxTextEdit, cxBarEditItem, NotifyEvents,
   cxMaskEdit, cxMemo, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxBarPainter,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
   dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,

@@ -18,7 +18,7 @@ uses
   HRTimer in 'Helpers\HRTimer.pas',
   OpenDocumentUnit in 'Helpers\OpenDocumentUnit.pas',
   RepositoryDataModule in 'Queryes\RepositoryDataModule.pas' {DMRepository: TDataModule},
-  DataModuleFrame in 'Queryes\DataModuleFrame.pas' {frmDataModule: TFrame},
+  BaseQuery in 'Queryes\BaseQuery.pas' {QueryBase: TFrame},
   MasterDetailFrame in 'Queryes\MasterDetailFrame.pas' {frmMasterDetail: TFrame},
   CustomErrorTable in 'Excel\CustomErrorTable.pas',
   FieldInfoUnit in 'Excel\FieldInfoUnit.pas',

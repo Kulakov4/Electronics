@@ -3,10 +3,10 @@ unit ParametersForCategoriesMasterDetailUnit;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MasterDetailFrame, Vcl.ExtCtrls,
-  DataModuleFrame, ParametersDetailQuery,
-  ParameterTypesQuery;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  MasterDetailFrame, Vcl.ExtCtrls, ParametersDetailQuery,
+  ParameterTypesQuery, QueryWithDataSourceUnit, BaseQuery;
 
 type
   TParametersForCategoriesMasterDetail = class(TfrmMasterDetail)

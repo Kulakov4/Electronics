@@ -9,7 +9,7 @@ uses
   System.Generics.Collections, NotifyEvents, FireDAC.Comp.DataSet,
   Manufacturers2Query, BodyTypesQuery2, ExcelDataModule, CustomErrorTable,
   DocFieldInfo, SearchMainComponent, MasterDetailFrame, BodyTypesQuery,
-  DataModuleFrame, ComponentsBaseDetailQuery, CustomComponentsQuery,
+  ComponentsBaseDetailQuery, CustomComponentsQuery,
   SearchMainComponent2;
 
 type

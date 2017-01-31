@@ -4,10 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MasterDetailFrame, Vcl.ExtCtrls,
-  DataModuleFrame, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
-  NotifyEvents, BodyTypesExcelDataModule3, BodyTypesBranchQuery;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  MasterDetailFrame, Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2,
+  FireDAC.Comp.Client, NotifyEvents, BodyTypesExcelDataModule3,
+  BodyTypesBranchQuery, QueryWithDataSourceUnit, BaseQuery;
 
 type
   TBodyTypesMasterDetail = class(TfrmMasterDetail)

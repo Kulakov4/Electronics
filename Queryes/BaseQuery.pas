@@ -1,4 +1,4 @@
-unit DataModuleFrame;
+unit BaseQuery;
 
 interface
 
@@ -19,7 +19,7 @@ const
 
 
 type
-  TfrmDataModule = class(TFrame)
+  TQueryBase = class(TFrame)
     FDQuery: TFDQuery;
     Label1: TLabel;
     procedure FDQueryAfterInsert(DataSet: TDataSet);
@@ -61,7 +61,7 @@ type
     FDetailParameterName: string;
     FIsModifedClone: TFDMemTable;
     FLock: Boolean;
-    FMaster: TfrmDataModule;
+    FMaster: TQueryBase;
     FNeedLoad: Boolean;
     FNeedRefresh: Boolean;
     FPKFieldName: String;
@@ -81,7 +81,7 @@ type
     procedure InitializeFields;
     procedure SetAutoTransaction(const Value: Boolean);
     procedure SetLock(const Value: Boolean);
-    procedure SetMaster(const Value: TfrmDataModule);
+    procedure SetMaster(const Value: TQueryBase);
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -155,7 +155,7 @@ type
       write FDetailParameterName;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property Lock: Boolean read FLock write SetLock;
-    property Master: TfrmDataModule read FMaster write SetMaster;
+    property Master: TQueryBase read FMaster write SetMaster;
     property NeedRefresh: Boolean read FNeedRefresh;
     property ParentValue: Integer read GetParentValue;
     property PKFieldName: String read FPKFieldName;
@@ -173,7 +173,7 @@ uses System.Math, RepositoryDataModule;
 {$R *.dfm}
 { TfrmDataModule }
 
-constructor TfrmDataModule.Create(AOwner: TComponent);
+constructor TQueryBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
@@ -227,7 +227,7 @@ begin
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
-destructor TfrmDataModule.Destroy;
+destructor TQueryBase.Destroy;
 begin
   FreeAndNil(FEventList); // отписываемся от всех событий
   FreeAndNil(FMasterEventList); // отписываемся от всех событий Мастера
@@ -235,7 +235,7 @@ begin
   inherited;
 end;
 
-procedure TfrmDataModule.AppendRows(AFieldName: string; AValues:
+procedure TQueryBase.AppendRows(AFieldName: string; AValues:
     TArray<String>);
 var
   AValue: string;
@@ -251,19 +251,19 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.ApplyDelete(ASender: TDataSet);
+procedure TQueryBase.ApplyDelete(ASender: TDataSet);
 begin
 end;
 
-procedure TfrmDataModule.ApplyInsert(ASender: TDataSet);
+procedure TQueryBase.ApplyInsert(ASender: TDataSet);
 begin
 end;
 
-procedure TfrmDataModule.ApplyUpdate(ASender: TDataSet);
+procedure TQueryBase.ApplyUpdate(ASender: TDataSet);
 begin
 end;
 
-procedure TfrmDataModule.ApplyUpdates;
+procedure TQueryBase.ApplyUpdates;
 begin
   if not FDQuery.CachedUpdates then
     raise Exception.Create('Не включен режим кэширования записей на клиенте');
@@ -274,12 +274,12 @@ begin
   FDQuery.CommitUpdates;
 end;
 
-procedure TfrmDataModule.FDQueryAfterInsert(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterInsert(DataSet: TDataSet);
 begin
   FAfterInsert.CallEventHandlers(FDQuery);
 end;
 
-procedure TfrmDataModule.FDQueryAfterScroll(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterScroll(DataSet: TDataSet);
 begin
   // Если предыдущее сообщение о скроле уже получили
   if FResiveAfterScrollMessage then
@@ -293,12 +293,12 @@ begin
   // FAfterScroll.CallEventHandlers(FDQuery);
 end;
 
-procedure TfrmDataModule.FDQueryBeforeInsert(DataSet: TDataSet);
+procedure TQueryBase.FDQueryBeforeInsert(DataSet: TDataSet);
 begin
   FBeforeInsert.CallEventHandlers(FDQuery);
 end;
 
-procedure TfrmDataModule.FDQueryBeforeScroll(DataSet: TDataSet);
+procedure TQueryBase.FDQueryBeforeScroll(DataSet: TDataSet);
 begin
   FBeforeScrollI.CallEventHandlers(FDQuery);
 
@@ -311,24 +311,24 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.DefaultOnGetText(Sender: TField; var Text: string;
+procedure TQueryBase.DefaultOnGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
   Text := VarToStr(Sender.Value);
 end;
 
-procedure TfrmDataModule.FDQueryAfterDelete(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterDelete(DataSet: TDataSet);
 begin
   FAfterDelete.CallEventHandlers(FDQuery);
 end;
 
-procedure TfrmDataModule.FDQueryBeforeDelete(DataSet: TDataSet);
+procedure TQueryBase.FDQueryBeforeDelete(DataSet: TDataSet);
 begin
   FBeforeDelete.CallEventHandlers(FDQuery);
 end;
 
 // Есть-ли изменения не сохранённые в БД
-function TfrmDataModule.GetHaveAnyChanges: Boolean;
+function TQueryBase.GetHaveAnyChanges: Boolean;
 begin
   Result := FDQuery.State in [dsEdit, dsInsert];
   if Result then
@@ -347,7 +347,7 @@ begin
 
 end;
 
-procedure TfrmDataModule.HideNullGetText(Sender: TField; var Text: string;
+procedure TQueryBase.HideNullGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
   if VarIsNull(Sender.Value) or (Sender.Value = 0) then
@@ -356,19 +356,19 @@ begin
     Text := Sender.Value;
 end;
 
-function TfrmDataModule.GetPKValue: Integer;
+function TQueryBase.GetPKValue: Integer;
 begin
   Result := FDQuery.FieldByName(FPKFieldName).AsInteger;
 end;
 
-procedure TfrmDataModule.CancelUpdates;
+procedure TQueryBase.CancelUpdates;
 begin
   // отменяем все сделанные изменения на стороне клиента
   TryCancel;
   FDQuery.CancelUpdates;
 end;
 
-procedure TfrmDataModule.CascadeDelete;
+procedure TQueryBase.CascadeDelete;
 begin
   Assert(FMaster <> nil);
   Assert(FMaster.FDQuery.RecordCount > 0);
@@ -376,7 +376,7 @@ begin
   CascadeDelete(FMaster.PKValue, DetailParameterName);
 end;
 
-procedure TfrmDataModule.CascadeDelete(const AIDMaster: Integer;
+procedure TQueryBase.CascadeDelete(const AIDMaster: Integer;
   const ADetailKeyFieldName: String);
 begin
   Assert(AIDMaster > 0);
@@ -385,7 +385,7 @@ begin
   DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
 end;
 
-procedure TfrmDataModule.CreateDefaultFields(AUpdate: Boolean);
+procedure TQueryBase.CreateDefaultFields(AUpdate: Boolean);
 var
   i: Integer;
 begin
@@ -401,7 +401,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.DeleteByFilter(const AFilterExpression: string);
+procedure TQueryBase.DeleteByFilter(const AFilterExpression: string);
 Var
   AClone: TFDMemTable;
 begin
@@ -445,7 +445,7 @@ begin
 
 end;
 
-procedure TfrmDataModule.DeleteList(var AList: TList<Variant>);
+procedure TQueryBase.DeleteList(var AList: TList<Variant>);
 var
   V: Variant;
 begin
@@ -469,24 +469,24 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.DeleteSelfDetail(AIDMaster: Variant);
+procedure TQueryBase.DeleteSelfDetail(AIDMaster: Variant);
 begin
   // По умолчанию нет подчинённых своих-же записей
 end;
 
-procedure TfrmDataModule.DoAfterClose(Sender: TObject);
+procedure TQueryBase.DoAfterClose(Sender: TObject);
 begin
   // Если ранее создали клона
   if FIsModifedClone <> nil then
     FIsModifedClone.Close;
 end;
 
-procedure TfrmDataModule.DoAfterMasterScroll(Sender: TObject);
+procedure TQueryBase.DoAfterMasterScroll(Sender: TObject);
 begin
   TryLoad;
 end;
 
-procedure TfrmDataModule.DoAfterOpen(Sender: TObject);
+procedure TQueryBase.DoAfterOpen(Sender: TObject);
 var
   i: Integer;
 begin
@@ -499,7 +499,7 @@ begin
     FDQuery.Fields[i].Alignment := taLeftJustify;
 end;
 
-procedure TfrmDataModule.DoBeforePost(Sender: TObject);
+procedure TQueryBase.DoBeforePost(Sender: TObject);
 var
   i: Integer;
   S: string;
@@ -516,7 +516,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.DoOnNeedPost(var Message: TMessage);
+procedure TQueryBase.DoOnNeedPost(var Message: TMessage);
 var
   AID: Integer;
 begin
@@ -525,30 +525,30 @@ begin
     TryPost;
 end;
 
-procedure TfrmDataModule.DoOnStartTransaction(Sender: TObject);
+procedure TQueryBase.DoOnStartTransaction(Sender: TObject);
 begin
   // начинаем транзакцию, если она ещё не началась
   if (not AutoTransaction) and (not FDQuery.Connection.InTransaction) then
     FDQuery.Connection.StartTransaction;
 end;
 
-procedure TfrmDataModule.FDQueryAfterClose(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterClose(DataSet: TDataSet);
 begin
   FAfterClose.CallEventHandlers(Self);
 end;
 
-procedure TfrmDataModule.FDQueryAfterEdit(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterEdit(DataSet: TDataSet);
 begin
   FAfterEdit.CallEventHandlers(Self);
 end;
 
-procedure TfrmDataModule.FDQueryAfterOpen(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterOpen(DataSet: TDataSet);
 begin
   InitializeFields;
   FAfterOpen.CallEventHandlers(FDQuery);
 end;
 
-procedure TfrmDataModule.FDQueryAfterPost(DataSet: TDataSet);
+procedure TQueryBase.FDQueryAfterPost(DataSet: TDataSet);
 begin
   // Если используем сообщение
   if UseAfterPostMessage then
@@ -565,22 +565,22 @@ begin
     FAfterPost.CallEventHandlers(FDQuery);
 end;
 
-procedure TfrmDataModule.FDQueryBeforeEdit(DataSet: TDataSet);
+procedure TQueryBase.FDQueryBeforeEdit(DataSet: TDataSet);
 begin
   FBeforeEdit.CallEventHandlers(Self);
 end;
 
-procedure TfrmDataModule.FDQueryBeforeOpen(DataSet: TDataSet);
+procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
 begin
   FBeforeOpen.CallEventHandlers(Self);
 end;
 
-procedure TfrmDataModule.FDQueryBeforePost(DataSet: TDataSet);
+procedure TQueryBase.FDQueryBeforePost(DataSet: TDataSet);
 begin
   FBeforePost.CallEventHandlers(Self);
 end;
 
-procedure TfrmDataModule.DoOnQueryUpdateRecord(ASender: TDataSet; ARequest:
+procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet; ARequest:
     TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
     TFDUpdateRowOptions);
 begin
@@ -610,18 +610,18 @@ begin
   end;
 end;
 
-function TfrmDataModule.Field(const AFieldName: String): TField;
+function TQueryBase.Field(const AFieldName: String): TField;
 begin
   Result := FDQuery.FieldByName(AFieldName);
 end;
 
-function TfrmDataModule.GetActual: Boolean;
+function TQueryBase.GetActual: Boolean;
 begin
   Result := FDQuery.Active and not NeedRefresh;
 
 end;
 
-function TfrmDataModule.GetCashedRecordBalance: Integer;
+function TQueryBase.GetCashedRecordBalance: Integer;
 var
   AClone: TFDMemTable;
 begin
@@ -674,7 +674,7 @@ begin
 
 end;
 
-function TfrmDataModule.GetFieldValues(AFieldName: string;
+function TQueryBase.GetFieldValues(AFieldName: string;
   ADelimiter: String = ','): String;
 var
   AClone: TFDMemTable;
@@ -704,13 +704,13 @@ begin
   end;
 end;
 
-function TfrmDataModule.GetParentValue: Integer;
+function TQueryBase.GetParentValue: Integer;
 begin
   Assert(DetailParameterName <> '');
   Result := FDQuery.Params.ParamByName(DetailParameterName).AsInteger;
 end;
 
-procedure TfrmDataModule.InitializeFields;
+procedure TQueryBase.InitializeFields;
 var
   i: Integer;
 begin
@@ -725,7 +725,7 @@ begin
   end;
 end;
 
-function TfrmDataModule.IsModifed(APKValue: Variant): Boolean;
+function TQueryBase.IsModifed(APKValue: Variant): Boolean;
 var
   AFDDataSet: TFDDataSet;
   OK: Boolean;
@@ -751,7 +751,7 @@ begin
   Result := AFDDataSet.UpdateStatus in [usModified, usInserted]
 end;
 
-procedure TfrmDataModule.Load(AIDParent: Integer);
+procedure TQueryBase.Load(AIDParent: Integer);
 begin
   Assert(DetailParameterName <> '');
 
@@ -769,7 +769,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.Load;
+procedure TQueryBase.Load;
 var
   AIDParent: Integer;
 begin
@@ -779,7 +779,7 @@ begin
   Load(AIDParent);
 end;
 
-procedure TfrmDataModule.Load(const AParamNames: array of string;
+procedure TQueryBase.Load(const AParamNames: array of string;
   const AParamValues: array of Variant);
 var
   i: Integer;
@@ -800,17 +800,17 @@ begin
   end;
 end;
 
-function TfrmDataModule.LocateByPK(APKValue: Variant): Boolean;
+function TQueryBase.LocateByPK(APKValue: Variant): Boolean;
 begin
   Result := FDQuery.LocateEx(FPKFieldName, APKValue);
 end;
 
-procedure TfrmDataModule.PostPostMessage;
+procedure TQueryBase.PostPostMessage;
 begin
   PostMessage(Handle, WM_NEED_POST, PKValue, 0);
 end;
 
-procedure TfrmDataModule.TryLoad;
+procedure TQueryBase.TryLoad;
 begin
   // Будем обновляться, т.к. мы подчинены мастеру
   if not Lock then
@@ -819,7 +819,7 @@ begin
     FNeedLoad := True;
 end;
 
-procedure TfrmDataModule.TryRefresh;
+procedure TQueryBase.TryRefresh;
 begin
   // Будем обновляться, т.к. мы подчинены мастеру
   if not Lock then
@@ -828,25 +828,25 @@ begin
     FNeedRefresh := True;
 end;
 
-procedure TfrmDataModule.ProcessAfterScrollMessage(var Message: TMessage);
+procedure TQueryBase.ProcessAfterScrollMessage(var Message: TMessage);
 begin
   FAfterScroll.CallEventHandlers(FDQuery);
   FResiveAfterScrollMessage := True;
 end;
 
-procedure TfrmDataModule.ProcessAfterPostMessage(var Message: TMessage);
+procedure TQueryBase.ProcessAfterPostMessage(var Message: TMessage);
 begin
   FAfterPost.CallEventHandlers(FDQuery);
   FResiveAfterPostMessage := True;
 end;
 
-procedure TfrmDataModule.ProcessBeforeScrollMessage(var Message: TMessage);
+procedure TQueryBase.ProcessBeforeScrollMessage(var Message: TMessage);
 begin
   FBeforeScroll.CallEventHandlers(FDQuery);
   FResiveBeforeScrollMessage := True;
 end;
 
-procedure TfrmDataModule.RefreshQuery;
+procedure TQueryBase.RefreshQuery;
 begin
   FNeedRefresh := False;
   FDQuery.DisableControls;
@@ -859,7 +859,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.SetAutoTransaction(const Value: Boolean);
+procedure TQueryBase.SetAutoTransaction(const Value: Boolean);
 begin
   if FAutoTransaction <> Value then
   begin
@@ -884,7 +884,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.SetLock(const Value: Boolean);
+procedure TQueryBase.SetLock(const Value: Boolean);
 begin
   if FLock <> Value then
   begin
@@ -904,7 +904,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.SetMaster(const Value: TfrmDataModule);
+procedure TQueryBase.SetMaster(const Value: TQueryBase);
 begin
   if FMaster <> Value then
   begin
@@ -923,7 +923,7 @@ begin
   end;
 end;
 
-procedure TfrmDataModule.TryEdit;
+procedure TQueryBase.TryEdit;
 begin
   Assert(FDQuery.Active);
 
@@ -931,7 +931,7 @@ begin
     FDQuery.Edit;
 end;
 
-procedure TfrmDataModule.TryPost;
+procedure TQueryBase.TryPost;
 begin
   // если заблокировано и не активно
   if Lock and (not FDQuery.Active) then
@@ -943,7 +943,7 @@ begin
     FDQuery.Post;
 end;
 
-procedure TfrmDataModule.TryCancel;
+procedure TQueryBase.TryCancel;
 begin
   Assert(FDQuery.Active);
 
@@ -951,7 +951,7 @@ begin
     FDQuery.Cancel;
 end;
 
-procedure TfrmDataModule.TryAppend;
+procedure TQueryBase.TryAppend;
 begin
   Assert(FDQuery.Active);
 

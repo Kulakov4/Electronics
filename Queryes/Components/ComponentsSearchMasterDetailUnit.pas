@@ -5,10 +5,11 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, DataModuleFrame,
+  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls,
   ComponentsSearchQuery, ComponentsDetailsSearchQuery, MasterDetailFrame,
   ComponentsBaseMasterDetailUnit, ComponentsBaseDetailQuery,
-  CustomComponentsQuery, SearchComponentsByValues, MainComponentsQuery;
+  CustomComponentsQuery, SearchComponentsByValues, MainComponentsQuery,
+  QueryWithDataSourceUnit, BaseQuery;
 
 type
   TComponentsSearchMasterDetail = class(TComponentsBaseMasterDetail)

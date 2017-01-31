@@ -204,7 +204,7 @@ var
 implementation
 
 uses
-  Winapi.ShellAPI, DataModuleFrame, RepositoryDataModule,
+  Winapi.ShellAPI, RepositoryDataModule,
   DialogUnit, DescriptionsForm, ParametersForm, ManufacturersForm,
   SettingsController, BodyTypesTreeForm, BodyTypesGridQuery, ReportsForm,
   ReportQuery, RecommendedReplacementExcelDataModule,

@@ -4,15 +4,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, DataModuleFrame, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option,
-  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
-  FireDAC.DApt.Intf,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls,
-  System.Generics.Collections, ApplyQueryFrame, BodyTypesExcelDataModule3,
-  NotifyEvents, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, System.Generics.Collections,
+  ApplyQueryFrame, BodyTypesExcelDataModule3, NotifyEvents,
+  QueryWithDataSourceUnit;
 
 const
   WM_arInsert = WM_USER + 139;

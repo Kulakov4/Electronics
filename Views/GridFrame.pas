@@ -4,16 +4,15 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics, cxControls,
-  cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
-  cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB, cxDBData, cxGridLevel,
-  cxClasses, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridDBTableView, cxGrid, dxBar, ColumnsBarButtonsHelper,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxStyles,
+  cxCustomData, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB,
+  cxDBData, cxGridLevel, cxClasses, cxGridCustomView, cxGridCustomTableView,
+  cxGridTableView, cxGridDBTableView, cxGrid, dxBar, ColumnsBarButtonsHelper,
   cxGridBandedTableView, cxGridDBBandedTableView, System.Actions, Vcl.ActnList,
-  System.Contnrs, Vcl.ComCtrls, Vcl.Menus,
-  cxGridCustomPopupMenu, cxGridPopupMenu, dxSkinsCore, dxSkinBlack, dxSkinBlue,
-  dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
+  System.Contnrs, Vcl.ComCtrls, Vcl.Menus, cxGridCustomPopupMenu,
+  cxGridPopupMenu, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
+  dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
   dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
   dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
@@ -28,7 +27,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
-  DataModuleFrame;
+  BaseQuery;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -91,9 +90,8 @@ type
     function GetDBBandedTableView(ALevel: Cardinal): TcxGridDBBandedTableView;
     function GetRow(ALevel: Cardinal; ARowIndex: Integer = -1)
       : TcxCustomGridRow;
-    procedure LocateAndFocus(AMaster, ADetail: TfrmDataModule;
-      ADetailID: Integer; const AMasterKeyFieldName,
-      AFocusedColumnFieldName: string);
+    procedure LocateAndFocus(AMaster, ADetail: TQueryBase; ADetailID: Integer;
+        const AMasterKeyFieldName, AFocusedColumnFieldName: string);
     procedure MyApplyBestFit; virtual;
     procedure PostMyApplyBestFitEvent;
     procedure UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
@@ -407,9 +405,8 @@ begin
   end;
 end;
 
-procedure TfrmGrid.LocateAndFocus(AMaster, ADetail: TfrmDataModule;
-  ADetailID: Integer; const AMasterKeyFieldName,
-  AFocusedColumnFieldName: string);
+procedure TfrmGrid.LocateAndFocus(AMaster, ADetail: TQueryBase; ADetailID:
+    Integer; const AMasterKeyFieldName, AFocusedColumnFieldName: string);
 var
   AColumn: TcxGridDBBandedColumn;
   //AcxGridMasterDataRow: TcxGridMasterDataRow;

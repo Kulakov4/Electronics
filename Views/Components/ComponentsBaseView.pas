@@ -30,7 +30,7 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  DataModuleFrame, CustomComponentsQuery, SearchBodyType, SearchParameterValues,
+  CustomComponentsQuery, SearchBodyType, SearchParameterValues,
   cxTextEdit, cxBlobEdit;
 
 type

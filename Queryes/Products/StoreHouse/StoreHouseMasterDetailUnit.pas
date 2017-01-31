@@ -5,8 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MasterDetailFrame, Vcl.ExtCtrls,
-  DataModuleFrame, StoreHouseListQuery, ProductsBaseQuery, ProductsQuery,
-  CustomComponentsQuery;
+  StoreHouseListQuery, ProductsBaseQuery, ProductsQuery,
+  CustomComponentsQuery, QueryWithDataSourceUnit, BaseQuery;
 
 type
   TStoreHouseMasterDetail = class(TfrmMasterDetail)

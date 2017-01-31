@@ -1,4 +1,4 @@
-object frmDataModule: TfrmDataModule
+object QueryBase: TQueryBase
   Left = 0
   Top = 0
   Width = 125

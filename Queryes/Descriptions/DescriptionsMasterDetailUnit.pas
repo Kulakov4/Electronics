@@ -4,11 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MasterDetailFrame, Vcl.ExtCtrls,
-  DataModuleFrame, DescriptionsMasterQuery, DescriptionsDetailQuery,
-  FireDAC.Comp.Client, FireDAC.Stan.Intf, Manufacturers2Query,
-  NotifyEvents, DescriptionsExcelDataModule;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  MasterDetailFrame, Vcl.ExtCtrls, DescriptionsMasterQuery,
+  DescriptionsDetailQuery, FireDAC.Comp.Client, FireDAC.Stan.Intf,
+  Manufacturers2Query, NotifyEvents, DescriptionsExcelDataModule,
+  QueryWithDataSourceUnit, BaseQuery;
 
 type
   TDescriptionsMasterDetail = class(TfrmMasterDetail)

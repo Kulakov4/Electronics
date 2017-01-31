@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
-  FireDAC.Comp.Client, DataModuleFrame, System.Contnrs, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, System.Contnrs, QueryWithDataSourceUnit;
 
 type
   TfrmMasterDetail = class(TFrame)

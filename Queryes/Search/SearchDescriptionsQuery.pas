@@ -23,7 +23,7 @@ type
     FPI: TProgressInfo;
     { Private declarations }
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure CallOnProcessEvent;
     procedure Process(AProcRef: TProcRef; const ACaption: string); overload;

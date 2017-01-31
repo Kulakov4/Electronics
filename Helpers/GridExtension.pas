@@ -7,7 +7,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxClasses,
   cxControls, cxGridCustomView, cxGrid, StdCtrls, cxCustomData,
   cxGridBandedTableView,
-  System.Classes, cxGridDBBandedTableView, Data.DB, DataModuleFrame;
+  System.Classes, cxGridDBBandedTableView, Data.DB;
 
 type
 

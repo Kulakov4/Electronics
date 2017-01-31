@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.UI.Intf, FireDAC.VCLUI.Wait,
-  FireDAC.Stan.Intf, FireDAC.Comp.UI, DataModuleFrame, TreeListQuery,
+  FireDAC.Stan.Intf, FireDAC.Comp.UI, TreeListQuery,
   ChildCategoriesQuery, MasterDetailFrame, BodyTypesMasterDetailUnit,
   BodyTypesTreeQuery, DescriptionsMasterDetailUnit, Manufacturers2Query,
   ParametersMasterDetailUnit, ComponentsBaseMasterDetailUnit,
@@ -14,7 +14,7 @@ uses
   ComponentsMasterDetailUnit, BodyTypesQuery, ComponentsSearchMasterDetailUnit,
   ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
   ProductsBaseQuery, ProductsSearchQuery, StoreHouseListQuery,
-  CustomComponentsQuery;
+  CustomComponentsQuery, BaseQuery, QueryWithDataSourceUnit;
 
 type
   TDM = class(TForm)
@@ -35,7 +35,7 @@ type
     StoreHouseMasterDetail: TStoreHouseMasterDetail;
     qStoreHouseList: TQueryStoreHouseList;
   private
-    FDataSetList: TList<TfrmDataModule>;
+    FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
     FMasterDetailList: TList<TfrmMasterDetail>;
     // FRecommendedReplacement: TRecommendedReplacementThread;
@@ -77,7 +77,7 @@ begin
   FEventList := TObjectList.Create;
 
   // Заполняем список датасетов в том порядке, в котором их надо открывать
-  FDataSetList := TList<TfrmDataModule>.Create;
+  FDataSetList := TList<TQueryBase>.Create;
   with FDataSetList do
   begin
     Add(qTreeList);

@@ -5,16 +5,15 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, DataModuleFrame,
-  ComponentsQuery, ComponentsDetailQuery, Data.DB,
-  ComponentsBaseMasterDetailUnit, ComponentsCountQuery,
-  ComponentsMainCountQuery, ComponentsDetailCountQuery, NotifyEvents,
-  System.Generics.Collections, ComponentsBaseDetailQuery,
+  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, ComponentsQuery,
+  ComponentsDetailQuery, Data.DB, ComponentsBaseMasterDetailUnit,
+  ComponentsCountQuery, ComponentsMainCountQuery, ComponentsDetailCountQuery,
+  NotifyEvents, System.Generics.Collections, ComponentsBaseDetailQuery,
   FireDAC.Comp.DataSet, ComponentBodyTypesExcelDataModule, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, ProgressInfo,
   ComponentsExcelDataModule, CustomErrorTable, CustomComponentsQuery,
-  MainComponentsQuery;
+  MainComponentsQuery, BaseQuery, QueryWithDataSourceUnit;
 
 type
   TAutomaticLoadErrorTable = class(TCustomErrorTable)

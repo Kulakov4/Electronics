@@ -13,7 +13,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, ParametersMasterDetailUnit,
   cxDBLookupComboBox, cxBlobEdit, FireDAC.Comp.Client, cxTextEdit,
-  DataModuleFrame, HRTimer, DragHelper, ParametersExcelDataModule, dxSkinsCore,
+  HRTimer, DragHelper, ParametersExcelDataModule, dxSkinsCore,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
   dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
   dxSkinDevExpressStyle, dxSkinFoggy, dxSkinGlassOceans, dxSkinHighContrast,
@@ -174,7 +174,7 @@ implementation
 Uses NotifyEvents, DialogUnit, ImportErrorForm,
   SplashXP, ColumnsBarButtonsHelper, CustomExcelTable,
   RepositoryDataModule, System.Generics.Collections, System.Math,
-  SettingsController, System.IOUtils, ProjectConst, System.StrUtils;
+  SettingsController, System.IOUtils, ProjectConst, System.StrUtils, BaseQuery;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
@@ -979,7 +979,7 @@ end;
 
 procedure TViewParameters.DoAfterEditValueChanged(var Message: TMessage);
 begin
-  TfrmDataModule(Message.WParam).TryPost;
+  TQueryBase(Message.WParam).TryPost;
 end;
 
 procedure TViewParameters.DoOnDataChange(Sender: TObject);

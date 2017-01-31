@@ -6,12 +6,12 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ComponentsBaseMasterDetailUnit,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, DataModuleFrame,
+  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls,
   ComponentsQuery, ComponentsExQuery, ComponentsBaseDetailQuery,
   ComponentsDetailQuery, ComponentsDetailExQuery, ParametersForCategoryQuery,
   ProductParametersQuery, Data.DB, FireDAC.Stan.Option, FireDAC.Comp.DataSet,
   CustomComponentsQuery, System.Contnrs, MainComponentsQuery,
-  System.Generics.Collections;
+  System.Generics.Collections, QueryWithDataSourceUnit, BaseQuery;
 
 type
   TComponentsExMasterDetail = class(TComponentsBaseMasterDetail)

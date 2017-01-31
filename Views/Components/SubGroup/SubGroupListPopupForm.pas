@@ -9,7 +9,7 @@ uses
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
   cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB, cxDBData, cxGridLevel,
   cxClasses, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridDBTableView, cxGrid, SubGroupsQuery, DataModuleFrame, System.Contnrs,
+  cxGridDBTableView, cxGrid, SubGroupsQuery, System.Contnrs,
   cxEditRepositoryItems, cxExtEditRepositoryItems, TreeListQuery,
   System.Actions, Vcl.ActnList, dxBar, Vcl.ImgList, CategoriesTreePopupForm,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxBarPainter,
