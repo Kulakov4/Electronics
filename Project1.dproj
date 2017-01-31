@@ -631,7 +631,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Helpers\ExcelFileLoader.pas"/>
         <DCCReference Include="Queryes\Search\SearchMainComponent2.pas">
             <Form>QuerySearchMainComponent2</Form>
             <FormType>dfm</FormType>

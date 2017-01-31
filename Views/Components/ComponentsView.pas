@@ -118,8 +118,7 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, SplashXP, Vcl.Clipbrd, SettingsController,
   Vcl.FileCtrl, System.IOUtils, System.Types, ProgressInfo, System.Math,
-  ErrorTable, FireDAC.Comp.DataSet, ImportProcessForm, ProjectConst,
-  ExcelFileLoader;
+  ErrorTable, FireDAC.Comp.DataSet, ImportProcessForm, ProjectConst;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -170,7 +169,11 @@ begin
   AComponentsExcelDM := TComponentsExcelDM.Create(Self);
   try
     // Первый этап - загружаем данные из Excel файла
-    TExcelData.Load(AFileName, AComponentsExcelDM);
+    TfrmProgressBar.Process(AComponentsExcelDM,
+      procedure
+      begin
+        AComponentsExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка компонентов из Excel документа');
 
     // Второй этап - отображаем окно с ошибками
     OK := AComponentsExcelDM.ExcelTable.Errors.RecordCount = 0;
@@ -205,12 +208,12 @@ begin
     begin
       BeginUpdate;
       try
-        TExcelData.Save(AComponentsExcelDM.ExcelTable,
-          procedure(AExcelTable: TCustomExcelTable)
+        TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
+          procedure
           begin
             ComponentsMasterDetail.InsertRecordList
               (AComponentsExcelDM.ExcelTable);
-          end);
+          end, 'Сохранение компонентов в БД');
       finally
         EndUpdate;
       end;

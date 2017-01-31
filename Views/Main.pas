@@ -217,7 +217,7 @@ uses
   ImportErrorForm, SplashXP, ComponentsBaseMasterDetailUnit, ErrorForm,
   cxGridDBBandedTableView, System.IOUtils, FieldInfoUnit,
   SearchMainParameterQuery, ImportProcessForm, SearchDaughterParameterQuery,
-  ProgressInfo, ProgressBarForm, ExcelFileLoader, BodyTypesQuery, Vcl.FileCtrl,
+  ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,
   SearchDescriptionsQuery, SearchSubCategoriesQuery,
   SearchComponentCategoryQuery2;
 
@@ -305,7 +305,11 @@ begin
     AComponentBodyTypesExcelDM.BodyTypesDataSet := DM.qBodyTypes.FDQuery;
 
     // Загружаем данные из excel файла
-    TExcelData.Load(AFileName, AComponentBodyTypesExcelDM);
+    TfrmProgressBar.Process(AComponentBodyTypesExcelDM,
+      procedure
+      begin
+        AComponentBodyTypesExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка корпусных данных');
 
     OK := AComponentBodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -336,12 +340,12 @@ begin
     if OK then
     begin
       // Сохраняем данные в БД
-      TExcelData.Save(AComponentBodyTypesExcelDM.ExcelTable,
-        procedure(AExcelTable: TCustomExcelTable)
+      TfrmProgressBar.Process(AComponentBodyTypesExcelDM.ExcelTable,
+        procedure
         begin
           ViewComponents.ComponentsMasterDetail.LoadBodyList
             (AComponentBodyTypesExcelDM.ExcelTable);
-        end);
+        end, 'Сохранение корпусных данных в БД');
     end;
 
   finally
@@ -514,7 +518,11 @@ begin
       AParameterExcelDM2 := TParameterExcelDM2.Create(Self, AFieldsInfo);
       try
         // Загружаем данные из Excel файла
-        TExcelData.Load(AFileName, AParameterExcelDM2);
+        TfrmProgressBar.Process(AParameterExcelDM2,
+          procedure
+          begin
+            AParameterExcelDM2.LoadExcelFile(AFileName);
+          end, 'Загрузка параметрических данных');
 
         // Если в ходе загрузки данных произошли ошибки (компонент не найден)
         if AParameterExcelDM2.ExcelTable.Errors.RecordCount > 0 then
@@ -536,12 +544,12 @@ begin
         if OK then
         begin
           // Сохраняем данные в БД
-          TExcelData.Save(AParameterExcelDM2.ExcelTable,
-            procedure(AExcelTable: TCustomExcelTable)
+          TfrmProgressBar.Process(AParameterExcelDM2.ExcelTable,
+            procedure
             begin
               TParameterValues.LoadParameterValues
                 (AParameterExcelDM2.ExcelTable, true);
-            end);
+            end, 'Сохранение параметрических данных в БД');
         end;
 
       finally
@@ -1056,16 +1064,12 @@ begin
           // Если после исключения ошибок осталось что привязывать
           if ALoadDocTable.RecordCount > 0 then
           begin
-            ALoadDocTable.Process(
+            TfrmProgressBar.Process(ALoadDocTable,
               procedure
               begin
                 ViewComponents.ComponentsMasterDetail.LinkToDocFiles
                   (ALoadDocTable)
-              end, 'Выполняем привязку');
-
-            // Выполняем привязку
-            // ViewComponents.ComponentsMasterDetail.LinkToDocFiles
-            // (ALoadDocTable);
+              end, 'Выполняем привязку файлов документации');
             Result := true;
           end;
         end;

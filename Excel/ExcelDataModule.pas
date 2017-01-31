@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, Vcl.OleServer, Excel2010,
   System.Generics.Collections, FireDAC.Comp.Client, CustomErrorTable,
   FieldInfoUnit, NotifyEvents, ProgressInfo, CustomExcelTable, ErrorTable,
-  Data.DB, Graphics;
+  Data.DB, Graphics, ProcRefUnit;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -35,7 +35,7 @@ type
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TExcelDM = class(TDataModule)
+  TExcelDM = class(TDataModule, IHandling)
     EA: TExcelApplication;
     EWS: TExcelWorksheet;
     EWB: TExcelWorkbook;
@@ -67,6 +67,8 @@ type
     procedure LoadExcelFileInThread(const AFileName: String);
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
+    procedure Process(AProcRef: TProcRef; ANotifyEventRef: TNotifyEventRef);
+        overload;
     property CustomExcelTable: TCustomExcelTable read FCustomExcelTable;
     property OnProgress: TNotifyEventsEx read FOnProgress;
     property OnThreadTerminate: TNotifyEventsEx read FOnThreadTerminate;
@@ -436,6 +438,24 @@ begin
   EWS.Disconnect;
   EWB.Disconnect;
   EA.Disconnect;
+end;
+
+procedure TExcelDM.Process(AProcRef: TProcRef; ANotifyEventRef:
+    TNotifyEventRef);
+var
+  ne: TNotifyEventR;
+begin
+  Assert(Assigned(AProcRef));
+
+  // Подписываем кого-то на событие о прогрессе загрузки данных
+  ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
+  try
+    // Вызываем метод, обрабатывающий нашу таблицу
+    AProcRef;
+  finally
+    // Отписываем кого-то от события
+    FreeAndNil(ne);
+  end;
 end;
 
 constructor THeaderInfoTable.Create(AOwner: TComponent);

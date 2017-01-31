@@ -3,13 +3,10 @@ unit TableWithProgress;
 interface
 
 uses
-  FireDAC.Comp.Client, ProgressInfo, NotifyEvents, System.Classes;
+  FireDAC.Comp.Client, ProgressInfo, NotifyEvents, System.Classes, ProcRefUnit;
 
 type
-  // Ссылка на метод обрабатывающий таблицу в памяти
-  TProcRef = reference to procedure();
-
-  TTableWithProgress = class(TFDMemTable)
+  TTableWithProgress = class(TFDMemTable, IHandling)
   private
     FOnProgress: TNotifyEventsEx;
     FPI: TProgressInfo;
@@ -19,7 +16,6 @@ type
     procedure CallOnProcessEvent;
     procedure Process(AProcRef: TProcRef;
       ANotifyEventRef: TNotifyEventRef); overload;
-    procedure Process(AProcRef: TProcRef; const ACaption: string); overload;
     property OnProgress: TNotifyEventsEx read FOnProgress;
   end;
 
@@ -64,30 +60,6 @@ begin
   finally
     // Отписываем кого-то от события
     FreeAndNil(ne);
-  end;
-end;
-
-procedure TTableWithProgress.Process(AProcRef: TProcRef;
-  const ACaption: string);
-var
-  AfrmProgressBar: TfrmProgressBar;
-begin
-  Assert(Assigned(AProcRef));
-
-  AfrmProgressBar := TfrmProgressBar.Create(nil);
-  try
-    if not ACaption.IsEmpty then
-      AfrmProgressBar.Caption := ACaption;
-    AfrmProgressBar.Show;
-
-    // Вызываем метод-обработку табличных данных
-    Process(AProcRef,
-      procedure(ASender: TObject)
-      begin
-        AfrmProgressBar.ProgressInfo.Assign(ASender as TProgressInfo);
-      end);
-  finally
-    FreeAndNil(AfrmProgressBar);
   end;
 end;
 

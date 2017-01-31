@@ -137,7 +137,6 @@ uses
   SearchDetailComponentQuery in 'Queryes\Search\SearchDetailComponentQuery.pas' {QuerySearchDetailComponent: TFrame},
   SearchMainParameterQuery in 'Queryes\Search\SearchMainParameterQuery.pas' {QuerySearchMainParameter: TFrame},
   SearchDaughterParameterQuery in 'Queryes\Search\SearchDaughterParameterQuery.pas' {QuerySearchDaughterParameter: TFrame},
-  ExcelFileLoader in 'Helpers\ExcelFileLoader.pas',
   SearchMainComponent2 in 'Queryes\Search\SearchMainComponent2.pas' {QuerySearchMainComponent2: TFrame},
   SearchComponentsByValues in 'Queryes\Search\SearchComponentsByValues.pas' {QuerySearchComponentsByValues: TFrame},
   MainComponentsQuery in 'Queryes\Components\MainComponentsQuery.pas' {QueryMainComponents: TFrame},

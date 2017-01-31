@@ -66,8 +66,7 @@ type
 implementation
 
 uses System.Types, System.StrUtils, LostComponentsQuery, RepositoryDataModule,
-  BodyTypesQuery2, BodyTypesQuery, ErrorTable, TreeListQuery, System.IOUtils,
-  ExcelFileLoader;
+  BodyTypesQuery2, BodyTypesQuery, ErrorTable, TreeListQuery, System.IOUtils;
 
 {$R *.dfm}
 { TfrmComponentsMasterDetail }

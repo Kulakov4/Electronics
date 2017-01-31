@@ -486,6 +486,9 @@ begin
     AQueryAllMainComponents.AutoTransaction := False;
 
     ALoadDocTable.First;
+    // Извещаем всех о прогрессе
+    ALoadDocTable.CallOnProcessEvent;
+
     while not ALoadDocTable.Eof do
     begin
       if not ALoadDocTable.IDComponent.IsNull then
