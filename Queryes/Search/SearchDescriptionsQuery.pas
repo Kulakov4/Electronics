@@ -5,22 +5,24 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, SearchQuery, FireDAC.Stan.Intf,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, ProgressInfo;
+  NotifyEvents, ProgressInfo, BaseQuery, SearchQuery;
 
 type
   // Ссылка на метод обрабатывающий таблицу в памяти
   TProcRef = reference to procedure();
 
 
-  TQuerySearchDescriptions = class(TQuerySearch)
+  TQuerySearchDescriptions = class(TQueryBase)
     FDUpdateSQL: TFDUpdateSQL;
   private
     FOnProgress: TNotifyEventsEx;
     FPI: TProgressInfo;
+    function GetDescrID: TField;
+    function GetDescriptionID: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -30,6 +32,8 @@ type
     procedure Process(AProcRef: TProcRef; ANotifyEventRef: TNotifyEventRef);
         overload;
     procedure UpdateComponentDescriptions;
+    property DescrID: TField read GetDescrID;
+    property DescriptionID: TField read GetDescriptionID;
     property OnProgress: TNotifyEventsEx read FOnProgress;
     { Public declarations }
   end;
@@ -60,6 +64,16 @@ begin
   FPI.TotalRecords := FDQuery.RecordCount;
   FPI.ProcessRecords := FDQuery.RecNo;
   OnProgress.CallEventHandlers(FPI)
+end;
+
+function TQuerySearchDescriptions.GetDescrID: TField;
+begin
+  Result := Field('DescrID');
+end;
+
+function TQuerySearchDescriptions.GetDescriptionID: TField;
+begin
+  Result := Field('DescriptionID');
 end;
 
 procedure TQuerySearchDescriptions.Process(AProcRef: TProcRef; const ACaption:
@@ -114,12 +128,11 @@ begin
   while not FDQuery.Eof do
   begin
     // Связываем компоненты со своими описаниями
-    if FDQuery.FieldByName('DescriptionID').AsInteger <>
-      FDQuery.FieldByName('DescrID').AsInteger then
+    if DescriptionID.AsInteger  <>
+      DescrID.AsInteger then
     begin
       FDQuery.Edit;
-      FDQuery.FieldByName('DescriptionID').AsInteger :=
-        FDQuery.FieldByName('DescrID').AsInteger;
+      DescriptionID.AsInteger := DescrID.AsInteger;
       FDQuery.Post;
       CallOnProcessEvent;
     end;

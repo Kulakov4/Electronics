@@ -1,11 +1,6 @@
 inherited QuerySearchDescriptions: TQuerySearchDescriptions
   Width = 157
   ExplicitWidth = 157
-  inherited LabelSearch: TLabel
-    Width = 91
-    Caption = 'SearchDescriptions'
-    ExplicitWidth = 91
-  end
   inherited FDQuery: TFDQuery
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
@@ -29,6 +24,6 @@ inherited QuerySearchDescriptions: TQuerySearchDescriptions
       'FROM PRODUCTS'
       'WHERE ID = :ID')
     Left = 96
-    Top = 48
+    Top = 24
   end
 end

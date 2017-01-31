@@ -57,6 +57,8 @@ type
       const AParamValues: array of Variant); overload;
     function LocateByPK(APKValue: Variant): Boolean;
     procedure RefreshQuery; virtual;
+    function Search(const AParamNames: array of string; const AParamValues: array
+        of Variant): Integer; overload;
     procedure TryEdit;
     procedure TryPost; virtual;
     procedure TryCancel;
@@ -447,6 +449,28 @@ begin
   finally
     FDQuery.EnableControls;
   end;
+end;
+
+function TQueryBase.Search(const AParamNames: array of string; const
+    AParamValues: array of Variant): Integer;
+var
+  i: Integer;
+begin
+  Assert(Low(AParamNames) = Low(AParamValues));
+  Assert(High(AParamNames) = High(AParamValues));
+
+  FDQuery.DisableControls;
+  try
+    FDQuery.Close;
+    for i := Low(AParamNames) to High(AParamNames) do
+    begin
+      FDQuery.ParamByName(AParamNames[i]).Value := AParamValues[i];
+    end;
+    FDQuery.Open;
+  finally
+    FDQuery.EnableControls;
+  end;
+  Result := FDQuery.RecordCount;
 end;
 
 procedure TQueryBase.TryEdit;
