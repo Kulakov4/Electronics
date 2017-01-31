@@ -50,8 +50,6 @@ begin
   Assert(FDQuery.Active);
   FDQuery.Last;
   FDQuery.First;
-//  FDQuery.Close;
-//  FDQuery.Open;
 
   CallOnProcessEvent;
   while not FDQuery.Eof do
