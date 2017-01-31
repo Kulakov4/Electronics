@@ -18,19 +18,6 @@ object QueryBase: TQueryBase
     ParentFont = False
   end
   object FDQuery: TFDQuery
-    BeforeOpen = FDQueryBeforeOpen
-    AfterOpen = FDQueryAfterOpen
-    AfterClose = FDQueryAfterClose
-    BeforeInsert = FDQueryBeforeInsert
-    AfterInsert = FDQueryAfterInsert
-    BeforeEdit = FDQueryBeforeEdit
-    AfterEdit = FDQueryAfterEdit
-    BeforePost = FDQueryBeforePost
-    AfterPost = FDQueryAfterPost
-    BeforeDelete = FDQueryBeforeDelete
-    AfterDelete = FDQueryAfterDelete
-    BeforeScroll = FDQueryBeforeScroll
-    AfterScroll = FDQueryAfterScroll
     Connection = DMRepository.dbConnection
     Left = 9
     Top = 25

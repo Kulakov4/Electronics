@@ -943,7 +943,7 @@ begin
     FMark := ComponentsExMasterDetail.Mark;
     TNotifyEventWrap.Create(ComponentsExMasterDetail.qComponentsEx.AfterLoad,
       DoAfterLoad, FEventList);
-    TNotifyEventWrap.Create(ComponentsExMasterDetail.qComponentsEx.AfterRefresh,
+    TNotifyEventWrap.Create(ComponentsExMasterDetail.qComponentsEx.AfterOpen,
       DoAfterLoad, FEventList);
 
     InitializeDefaultCreatedBands(MainView,

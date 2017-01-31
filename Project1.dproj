@@ -703,6 +703,16 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Queryes\BaseEventsQuery.pas">
+            <Form>QueryBaseEvents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryWithMasterUnit.pas">
+            <Form>QueryWithMaster</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <None Include="ModelSupport_Project1\default.txaPackage"/>
         <None Include="ModelSupport_Project1\default.txvpck"/>
         <None Include="ModelSupport_Project1\CustomComponentsQuery\default.txvpck"/>

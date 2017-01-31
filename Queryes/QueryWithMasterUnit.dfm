@@ -1,0 +1,2 @@
+inherited QueryWithMaster: TQueryWithMaster
+end
