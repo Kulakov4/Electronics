@@ -26,8 +26,8 @@ uses
 type
   TfrmImportProcess = class(TfrmCustomError)
     Panel1: TPanel;
-    cxButton1: TcxButton;
-    procedure cxButton1Click(Sender: TObject);
+    cxbtnOK: TcxButton;
+    procedure cxbtnOKClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
@@ -52,7 +52,7 @@ begin
   FDone := False;
 end;
 
-procedure TfrmImportProcess.cxButton1Click(Sender: TObject);
+procedure TfrmImportProcess.cxbtnOKClick(Sender: TObject);
 begin
   inherited;
   Close;

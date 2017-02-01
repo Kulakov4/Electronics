@@ -1017,10 +1017,13 @@ const AIDCategory: Integer): Boolean;
 var
   AAbsentDocTable: TAbsentDocTable;
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
+  ADocFilesTable: TDocFilesTable;
   AfrmError: TfrmError;
   AfrmImportError: TfrmImportError;
-  ALoadDocTable: TLoadDocTable;
+  AfrmImportProcess: TfrmImportProcess;
+  ALinkedDocTable: TLinkedDocTable;
   AQuerySearchDescriptions: TQuerySearchDescriptions;
+  OK: Boolean;
 begin
   Result := False;
 
@@ -1040,50 +1043,56 @@ begin
     FreeAndNil(AQuerySearchDescriptions);
   end;
 
-  // Просим создать привязки между файлами и компонентами
-  ALoadDocTable := ViewComponents.ComponentsMasterDetail.LoadDocFiles
-    (ADocFieldInfos, AIDCategory);
+  // Создаём таблицу со всеми файлами документации
+  ADocFilesTable := TDocFilesTable.Create(Self);
   try
+    // Просим загрузить список файлов
+    ADocFilesTable.LoadDocFiles(ADocFieldInfos);
+
+    TfrmProgressBar.Process(ADocFilesTable,
+      procedure
+      begin
+        // Просим создать привязки между файлами и компонентами
+        ALinkedDocTable := ViewComponents.ComponentsMasterDetail.ProcessDocFiles
+          (ADocFilesTable, AIDCategory);
+      end, 'Анализ найденных файлов документации');
+
     // Если есть что привязывать
-    if ALoadDocTable.RecordCount > 0 then
+    if ALinkedDocTable.RecordCount > 0 then
     begin
-      AfrmImportError := TfrmImportError.Create(Self);
+      // Отображаем список файлов которые будем привязывать
+      AfrmImportProcess := TfrmImportProcess.Create(Self);
       try
-        AfrmImportError.Caption := 'Ошибки привязки файлов';
-        AfrmImportError.ErrorTable := ALoadDocTable;
-        // Показываем что мы собираемся привязывать
-        if AfrmImportError.ShowModal = mrOk then
+        with AfrmImportProcess do
         begin
-          // Если выбрали "Пропустить существующие файлы"
-          if AfrmImportError.ContinueType = ctSkip then
-            ALoadDocTable.SkipErrorAndWarrings;
-
-          if AfrmImportError.ContinueType = ctAll then
-            ALoadDocTable.SkipError;
-
-          // Если после исключения ошибок осталось что привязывать
-          if ALoadDocTable.RecordCount > 0 then
+          cxbtnOK.Caption := '&Далее';
+          Done := true;
+          ErrorTable := ALinkedDocTable;
+          // Показываем что мы собираемся привязывать
+          if ShowModal = mrOk then
           begin
-            TfrmProgressBar.Process(ALoadDocTable,
+            // Если после исключения ошибок осталось что привязывать
+            TfrmProgressBar.Process(ALinkedDocTable,
               procedure
               begin
                 ViewComponents.ComponentsMasterDetail.LinkToDocFiles
-                  (ALoadDocTable)
+                  (ALinkedDocTable)
               end, 'Выполняем привязку файлов документации');
             Result := true;
           end;
-        end;
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
 
+        end;
+
+      finally
+        FreeAndNil(AfrmImportProcess);
+      end;
     end
     else
     begin
       TDialog.Create.ComponentsDocFilesNotFound;
     end;
   finally
-    FreeAndNil(ALoadDocTable);
+    FreeAndNil(ADocFilesTable);
   end;
 
   // Проверяем на отсутсвующие файлы
@@ -1108,7 +1117,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(ALoadDocTable);
+    FreeAndNil(ALinkedDocTable);
   end;
 
 end;

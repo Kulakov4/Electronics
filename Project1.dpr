@@ -154,7 +154,8 @@ uses
   BaseEventsQuery in 'Queryes\BaseEventsQuery.pas' {QueryBaseEvents: TFrame},
   QueryWithMasterUnit in 'Queryes\QueryWithMasterUnit.pas' {QueryWithMaster: TFrame},
   HandlingQueryUnit in 'Queryes\HandlingQueryUnit.pas' {HandlingQuery: TFrame},
-  ProcRefUnit in 'Helpers\ProcRefUnit.pas';
+  ProcRefUnit in 'Helpers\ProcRefUnit.pas',
+  SearchMainComponent3 in 'Queryes\Search\SearchMainComponent3.pas' {QuerySearchMainComponent3: TFrame};
 
 {$R *.res}
 

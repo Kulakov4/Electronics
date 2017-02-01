@@ -58,7 +58,7 @@ inherited frmImportProcess: TfrmImportProcess
     DesignSize = (
       878
       54)
-    object cxButton1: TcxButton
+    object cxbtnOK: TcxButton
       Left = 699
       Top = 9
       Width = 171
@@ -68,7 +68,7 @@ inherited frmImportProcess: TfrmImportProcess
       Default = True
       ModalResult = 1
       TabOrder = 0
-      OnClick = cxButton1Click
+      OnClick = cxbtnOKClick
     end
   end
 end
