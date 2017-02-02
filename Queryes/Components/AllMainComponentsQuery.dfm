@@ -5,7 +5,6 @@ inherited QueryAllMainComponents: TQueryAllMainComponents
     ExplicitWidth = 126
   end
   inherited FDQuery: TFDQuery
-    OnUpdateRecord = FDQueryUpdateRecord
     SQL.Strings = (
       'select '
       '    p.Id,'
