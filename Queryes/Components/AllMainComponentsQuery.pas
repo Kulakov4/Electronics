@@ -12,8 +12,6 @@ uses
 
 type
   TQueryAllMainComponents = class(TQueryMainComponents)
-    procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
-        var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
   private
     procedure DoAfterOpen(Sender: TObject);
     { Private declarations }
@@ -26,11 +24,14 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents;
+uses NotifyEvents, ParameterValuesUnit;
 
 constructor TQueryAllMainComponents.Create(AOwner: TComponent);
 begin
   inherited;
+  // Поля Description (описание) в нашем запросе нет
+  ParameterFields.Remove(TParameterValues.DescriptionParameterID);
+
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList );
 end;
 
@@ -40,14 +41,6 @@ var
 begin
   for AField in FDQuery.Fields do
     AField.ReadOnly := False;
-end;
-
-procedure TQueryAllMainComponents.FDQueryUpdateRecord(ASender: TDataSet;
-    ARequest: TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
-begin
-;
-  inherited;
 end;
 
 end.

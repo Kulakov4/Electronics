@@ -345,7 +345,7 @@ end;
 procedure TViewBodyTypesTree.cxEditRepositoryButtonItem1PropertiesButtonClick
   (Sender: TObject; AButtonIndex: Integer);
 begin
-  TDocument.Create.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
+  TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
     QueryBodyTypesTree.OutlineDrawing.AsString,
     'Файл чертежа корпуса с именем %s не найден', 'Чертёж корпуса не задан',
     sBodyTypesFilesExt);
@@ -453,7 +453,7 @@ end;
 procedure TViewBodyTypesTree.lcImagePropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
-  TDocument.Create.Open(Handle, TSettings.Create.BodyTypesImageFolder,
+  TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
     QueryBodyTypesTree.Image.AsString,
     'Файл изображения корпуса с именем %s не найден',
     'Файл изображения корпуса не задан', sBodyTypesFilesExt);
@@ -462,7 +462,7 @@ end;
 procedure TViewBodyTypesTree.lcLandPatternPropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
-  TDocument.Create.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
+  TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
     QueryBodyTypesTree.LandPattern.AsString,
     'Файл чертежа посадочной площадки корпуса с именем %s не найден',
     'Чертёж посадочной площадки корпуса не задан', sBodyTypesFilesExt);

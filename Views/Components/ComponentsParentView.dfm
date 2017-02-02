@@ -135,16 +135,6 @@ inherited ViewComponentsParent: TViewComponentsParent
       ImageIndex = 14
       OnExecute = actRollbackExecute
     end
-    object actOpenDiagram: TAction
-      Caption = 'Dm'
-      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1093#1077#1084#1091
-      OnExecute = actOpenDiagramExecute
-    end
-    object actLoadDiagram: TAction
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
-      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
-      OnExecute = actLoadDiagramExecute
-    end
     object actOpenDatasheet: TAction
       Caption = 'Dt'
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
@@ -154,6 +144,16 @@ inherited ViewComponentsParent: TViewComponentsParent
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       OnExecute = actLoadDatasheetExecute
+    end
+    object actOpenDiagram: TAction
+      Caption = 'Dm'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1093#1077#1084#1091
+      OnExecute = actOpenDiagramExecute
+    end
+    object actLoadDiagram: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+      OnExecute = actLoadDiagramExecute
     end
     object actOpenImage: TAction
       Caption = 'Im'

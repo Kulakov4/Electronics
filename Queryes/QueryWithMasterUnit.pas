@@ -51,7 +51,6 @@ end;
 function TQueryWithMaster.GetActual: Boolean;
 begin
   Result := FDQuery.Active and not NeedRefresh;
-
 end;
 
 procedure TQueryWithMaster.Load;

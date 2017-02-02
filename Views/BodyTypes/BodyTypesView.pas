@@ -377,7 +377,7 @@ procedure TViewBodyTypes.clImagePropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
   inherited;
-  TDocument.Create.Open(Handle, TSettings.Create.BodyTypesImageFolder,
+  TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
     BodyTypesMasterDetail.qBodyTypes2.Image.AsString,
     'Файл изображения корпуса с именем %s не найден',
     'Файл изображения корпуса не задан', sBodyTypesFilesExt);
@@ -386,7 +386,7 @@ end;
 procedure TViewBodyTypes.clLandPatternPropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
-  TDocument.Create.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
+  TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
     BodyTypesMasterDetail.qBodyTypes2.LandPattern.AsString,
     'Файл чертежа посадочной площадки корпуса с именем %s не найден',
     'Чертёж посадочной площадки корпуса не задан', sBodyTypesFilesExt);
@@ -396,7 +396,7 @@ procedure TViewBodyTypes.clOutlineDrawingPropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
   inherited;
-  TDocument.Create.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
+  TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
     BodyTypesMasterDetail.qBodyTypes2.OutlineDrawing.AsString,
     'Файл чертежа корпуса с именем %s не найден', 'Чертёж корпуса не задан',
     sBodyTypesFilesExt);

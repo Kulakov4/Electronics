@@ -117,7 +117,7 @@ type
 implementation
 
 uses LostComponentsQuery, RepositoryDataModule, System.Math, System.IOUtils,
-  SettingsController, System.Types, FilesController, AllMainComponentsQuery,
+  SettingsController, System.Types, AllMainComponentsQuery,
   ProjectConst, StrHelper, BaseQuery;
 
 {$R *.dfm}
@@ -192,6 +192,7 @@ var
   ADocFieldInfo: TDocFieldInfo;
   AErrorMessage: string;
   AFolder: string;
+  AFullName: string;
   f: TArray<String>;
   S: string;
 begin
@@ -234,8 +235,8 @@ begin
         // Если компонент имеет файл документации
         if S <> '' then
         begin
-          if not TFilesController.Create.FileExists(ADocFieldInfo.Folder, S,
-            sBodyTypesFilesExt) then
+          AFullName := TPath.Combine(ADocFieldInfo.Folder, S);
+          if not TFile.Exists(AFullName) then
             AErrorMessage :=
               Format('Cвязан с файлом %s, но файл не найден', [S]);
         end
@@ -355,7 +356,8 @@ var
 begin
   if not AFileName.IsEmpty then
   begin
-    S := TPath.GetFileNameWithoutExtension(AFileName);
+    // В БД храним путь до файла относительно папки с документацией
+    S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
     Main.TryEdit;
     Main.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
     Main.TryPost;

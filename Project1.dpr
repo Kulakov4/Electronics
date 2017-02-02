@@ -12,7 +12,6 @@ uses
   SettingsController in 'Helpers\SettingsController.pas',
   DocFieldInfo in 'Helpers\DocFieldInfo.pas',
   DragHelper in 'Helpers\DragHelper.pas',
-  FilesController in 'Helpers\FilesController.pas',
   FormsHelper in 'Helpers\FormsHelper.pas',
   GridExtension in 'Helpers\GridExtension.pas',
   HRTimer in 'Helpers\HRTimer.pas',

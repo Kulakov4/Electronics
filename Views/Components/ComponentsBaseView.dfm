@@ -57,6 +57,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Default = True
             Kind = bkEllipsis
           end>
+        OnGetDataText = clDatasheetGetDataText
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 3
@@ -77,6 +78,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Default = True
             Kind = bkEllipsis
           end>
+        OnGetDataText = clDatasheetGetDataText
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 4
@@ -97,6 +99,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Default = True
             Kind = bkEllipsis
           end>
+        OnGetDataText = clDatasheetGetDataText
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 5
@@ -117,6 +120,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Default = True
             Kind = bkEllipsis
           end>
+        OnGetDataText = clDatasheetGetDataText
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 6
@@ -240,6 +244,14 @@ inherited ViewComponentsBase: TViewComponentsBase
       0)
   end
   inherited ActionList: TActionList
+    inherited actOpenDatasheet: TAction [7]
+    end
+    inherited actLoadDatasheet: TAction [8]
+    end
+    inherited actOpenDiagram: TAction [9]
+    end
+    inherited actLoadDiagram: TAction [10]
+    end
     object actSettings: TAction
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       ImageIndex = 18

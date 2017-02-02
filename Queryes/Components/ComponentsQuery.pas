@@ -24,6 +24,9 @@ type
     { Private declarations }
   protected
     procedure AddNewValue(const AValue: string); virtual;
+    procedure DoAfterOpen(Sender: TObject);
+    procedure OnDatasheetGetText(Sender: TField; var Text: String;
+      DisplayText: Boolean);
     property QuerySearchProductCategoryByID: TQuerySearchProductCategoryByID
       read GetQuerySearchProductCategoryByID;
   public
@@ -47,6 +50,7 @@ begin
   inherited Create(AOwner);
   DetailParameterName := 'vProductCategoryId';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
 procedure TQueryComponents.AddNewValue(const AValue: string);
@@ -61,6 +65,14 @@ procedure TQueryComponents.DoAfterInsert(Sender: TObject);
 begin
   // Заполняем SubGroup внешним идентификатором текущей категории компонентов
   FDQuery.FieldByName('SubGroup').AsString := CurProductCategoriesExternalID;
+end;
+
+procedure TQueryComponents.DoAfterOpen(Sender: TObject);
+begin
+  Datasheet.OnGetText := OnDatasheetGetText;
+  Diagram.OnGetText := OnDatasheetGetText;
+  Drawing.OnGetText := OnDatasheetGetText;
+  Image.OnGetText := OnDatasheetGetText;
 end;
 
 function TQueryComponents.GetCurProductCategoriesExternalID: string;
@@ -90,6 +102,13 @@ begin
   if not Result then
     AddNewValue(AValue);
 
+end;
+
+procedure TQueryComponents.OnDatasheetGetText(Sender: TField; var Text: String;
+  DisplayText: Boolean);
+begin
+  if not Sender.AsString.IsEmpty then
+    Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
 end;
 
 end.

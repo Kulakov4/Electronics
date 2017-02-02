@@ -45,9 +45,8 @@ implementation
 {$R *.dfm}
 
 uses System.Generics.Collections, LostComponentsQuery, DBRecordHolder,
-  System.IOUtils,
-  SettingsController, FilesController, RepositoryDataModule, NotifyEvents,
-  ParameterValuesUnit;
+  System.IOUtils, SettingsController, RepositoryDataModule, NotifyEvents,
+  ParameterValuesUnit, StrHelper;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
@@ -250,19 +249,14 @@ end;
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
-  targetFileName: string;
-  targetFolder: string;
+  S: String;
 begin
-
-  // Определяемся с папкой в которую будем загружать файл
-  targetFolder := TPath.Combine(TSettings.Create.DataBasePath,
-    ADocFieldInfo.Folder);
-  targetFileName := TFilesController.Create.UploadFile(AFileName, targetFolder);
-
-  if not targetFileName.IsEmpty then
+  if not AFileName.IsEmpty then
   begin
+    // В БД храним путь до файла относительно папки с документацией
+    S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
     TryEdit;
-    FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := AFileName;
+    FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
     TryPost;
   end;
 end;

@@ -82,6 +82,8 @@ type
       const AText: TCaption);
     procedure clBodyIdPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
+    procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem; ARecordIndex:
+        Integer; var AText: string);
     procedure cxGridPopupMenuPopupMenus0Popup(ASenderMenu: TComponent;
       AHitTest: TcxCustomGridHitTest; X, Y: Integer);
   private
@@ -280,6 +282,14 @@ procedure TViewComponentsBase.clBodyIdPropertiesNewLookupDisplayText
 begin
   inherited;
   // DM.BodyTypesMasterDetail.qBodyTypes2.AddNewValue(AText);
+end;
+
+procedure TViewComponentsBase.clDatasheetGetDataText(Sender:
+    TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
+begin
+  inherited;
+  if not AText.IsEmpty then
+    AText := TPath.GetFileNameWithoutExtension(AText);
 end;
 
 procedure TViewComponentsBase.clManufacturerIdPropertiesNewLookupDisplayText

@@ -843,28 +843,10 @@ end;
 
 procedure TViewComponentsParent.OpenDoc(ADocFieldInfo: TDocFieldInfo;
   const AErrorMessage, AEmptyErrorMessage: string);
-// var
-// AFileName: string;
 begin
-  TDocument.Create.Open(Handle, ADocFieldInfo.Folder,
+  TDocument.Open(Handle, ADocFieldInfo.Folder,
     ComponentsBaseMasterDetail.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
     .AsString, AErrorMessage, AEmptyErrorMessage, sBodyTypesFilesExt);
-  {
-    if ComponentsBaseMasterDetail.Main.FDQuery.FieldByName
-    (ADocFieldInfo.FieldName).AsString <> '' then
-    begin
-    AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
-    ADocFieldInfo.Folder), ComponentsBaseMasterDetail.Main.FDQuery.FieldByName
-    (ADocFieldInfo.FieldName).AsString);
-
-    if FileExists(AFileName) then
-    ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
-    else
-    TDialog.Create.ErrorMessageDialog(Format(AErrorMessage, [AFileName]));
-    end
-    else
-    TDialog.Create.ErrorMessageDialog(AEmptyErrorMessage);
-  }
 end;
 
 procedure TViewComponentsParent.SetComponentsBaseMasterDetail
@@ -1076,10 +1058,27 @@ end;
 
 procedure TViewComponentsParent.UploadDoc(ADocFieldInfo: TDocFieldInfo);
 var
+  S: String;
   sourceFileName: string;
 begin
+  S := ComponentsBaseMasterDetail.MainComponentsQuery.Field(ADocFieldInfo.FieldName).AsString;
+  // Если файл документации ранее был уже задан
+  if S <> '' then
+  begin
+    // Получаем полный путь до файла
+    S := TPath.Combine( ADocFieldInfo.Folder, S );
+    // Получаем папку в которой лежит ранее заданный файл документации
+    S := TPath.GetDirectoryName(S);
+    // если такого пути уже не существует
+    if not TDirectory.Exists(S) then
+      S := ADocFieldInfo.Folder;
+  end
+  else
+    S := ADocFieldInfo.Folder;
+
+
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog(ADocFieldInfo.Folder);
+  sourceFileName := TDialog.Create.OpenPictureDialog( S );
   if sourceFileName.IsEmpty then
     Exit;
   ComponentsBaseMasterDetail.LoadDocFile(sourceFileName, ADocFieldInfo);
