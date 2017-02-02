@@ -1,11 +1,11 @@
-unit ImportErrorForm;
+unit ImportProcessForm;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CustomErrorForm, Data.DB, GridFrame,
-  ImportErrorView, Vcl.ExtCtrls, cxGraphics, cxLookAndFeels,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, GridFrame,
+  Vcl.ExtCtrls, cxGraphics, cxLookAndFeels,
   cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
   dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
   dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -21,58 +21,56 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, System.Actions, Vcl.ActnList,
-  cxControls, cxContainer, cxEdit, cxLabel;
+  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, GridView, GridViewForm;
 
 type
-  TContinueType = (ctAll, ctSkip);
-
-  TfrmImportError = class(TfrmCustomError)
-    pmContinue: TPopupMenu;
-    N1: TMenuItem;
-    N2: TMenuItem;
-    ActionList1: TActionList;
-    actAll: TAction;
-    actSkip: TAction;
+  TfrmImportProcess = class(TfrmGridView)
     Panel1: TPanel;
-    cxlblTotalErrors: TcxLabel;
-    cxButton2: TcxButton;
-    cxButton1: TcxButton;
-    procedure actAllExecute(Sender: TObject);
-    procedure actSkipExecute(Sender: TObject);
+    cxbtnOK: TcxButton;
+    procedure cxbtnOKClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
-    FContinueType: TContinueType;
+    FDone: Boolean;
     { Private declarations }
-  protected
-    procedure AssignErrorTable; override;
   public
-    property ContinueType: TContinueType read FContinueType;
+    constructor Create(AOwner: TComponent); override;
+    property Done: Boolean read FDone write FDone;
     { Public declarations }
   end;
+
+var
+  frmImportProcess: TfrmImportProcess;
 
 implementation
 
 {$R *.dfm}
 
-procedure TfrmImportError.actAllExecute(Sender: TObject);
+constructor TfrmImportProcess.Create(AOwner: TComponent);
 begin
   inherited;
-  FContinueType := ctAll;
-  ModalResult := mrOk;
-
+  FDone := False;
 end;
 
-procedure TfrmImportError.actSkipExecute(Sender: TObject);
+procedure TfrmImportProcess.cxbtnOKClick(Sender: TObject);
 begin
   inherited;
-  FContinueType := ctSkip;
+  Close;
   ModalResult := mrOk;
 end;
 
-procedure TfrmImportError.AssignErrorTable;
+procedure TfrmImportProcess.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   inherited;
-  cxlblTotalErrors.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+  Action := caFree;
+  frmImportProcess := nil;
+end;
+
+procedure TfrmImportProcess.FormCloseQuery(Sender: TObject; var CanClose:
+    Boolean);
+begin
+  inherited;
+  CanClose := Done;
 end;
 
 end.

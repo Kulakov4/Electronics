@@ -9,25 +9,24 @@ inherited frmImportError: TfrmImportError
   inherited MainPanel: TPanel
     Width = 860
     Height = 397
-    ExplicitWidth = 853
-    ExplicitHeight = 395
-    inherited ViewImportError: TViewImportError
+    ExplicitWidth = 860
+    ExplicitHeight = 397
+    inherited ViewImportError: TViewGrid
       Width = 858
       Height = 395
-      ExplicitWidth = 851
-      ExplicitHeight = 393
+      ExplicitWidth = 858
+      ExplicitHeight = 395
       inherited cxGrid: TcxGrid
         Width = 858
         Height = 348
-        ExplicitWidth = 851
-        ExplicitHeight = 346
+        ExplicitWidth = 858
+        ExplicitHeight = 348
       end
       inherited StatusBar: TStatusBar
         Top = 376
         Width = 858
-        Visible = False
-        ExplicitTop = 374
-        ExplicitWidth = 851
+        ExplicitTop = 376
+        ExplicitWidth = 858
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -54,8 +53,6 @@ inherited frmImportError: TfrmImportError
     Height = 61
     Align = alBottom
     TabOrder = 1
-    ExplicitTop = 395
-    ExplicitWidth = 853
     DesignSize = (
       860
       61)
@@ -77,7 +74,6 @@ inherited frmImportError: TfrmImportError
       Kind = cxbkDropDownButton
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 505
     end
     object cxButton1: TcxButton
       Left = 686
@@ -89,7 +85,6 @@ inherited frmImportError: TfrmImportError
       Caption = #1054#1090#1084#1077#1085#1072
       ModalResult = 2
       TabOrder = 2
-      ExplicitLeft = 679
     end
   end
   object pmContinue: TPopupMenu

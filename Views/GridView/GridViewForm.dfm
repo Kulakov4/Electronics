@@ -1,5 +1,5 @@
-inherited frmCustomError: TfrmCustomError
-  Caption = 'frmCustomError'
+inherited frmGridView: TfrmGridView
+  Caption = 'frmGridView'
   PixelsPerInch = 96
   TextHeight = 16
   object MainPanel: TPanel
@@ -9,7 +9,7 @@ inherited frmCustomError: TfrmCustomError
     Height = 299
     Align = alClient
     TabOrder = 0
-    inline ViewImportError: TViewImportError
+    inline ViewImportError: TViewGrid
       Left = 1
       Top = 1
       Width = 633

@@ -10,10 +10,10 @@ uses
   Manufacturers2Query, BodyTypesQuery2, ExcelDataModule, CustomErrorTable,
   DocFieldInfo, SearchMainComponent, MasterDetailFrame, BodyTypesQuery,
   ComponentsBaseDetailQuery, CustomComponentsQuery,
-  SearchMainComponent2, ProcRefUnit, SearchMainComponent3;
+  SearchMainComponent2, ProcRefUnit, SearchMainComponent3, TableWithProgress;
 
 type
-  TComponentsErrorTable = class(TCustomErrorTable)
+  TComponentErrorTable = class(TCustomErrorTable)
   private
     function GetComponentName: TField;
     function GetDescription: TField;
@@ -30,7 +30,7 @@ type
     property Folder: TField read GetFolder;
   end;
 
-  TLinkedDocTable = class(TCustomErrorTable)
+  TLinkedDocTable = class(TTableWithProgress)
   private
     function GetComponentName: TField;
     function GetFieldName: TField;
@@ -49,14 +49,14 @@ type
     property IDComponent: TField read GetIDComponent;
   end;
 
-  TAbsentDocTable = class(TComponentsErrorTable)
+  TAbsentDocTable = class(TComponentErrorTable)
   private
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddError(const AFolder, AComponentName, AErrorMessage: string);
   end;
 
-  TDocFilesTable = class(TCustomErrorTable)
+  TDocFilesTable = class(TTableWithProgress)
   private
     function GetFieldName: TField;
     function GetFileName: TField;
@@ -64,6 +64,20 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure LoadDocFiles(ADocFieldInfos: TList<TDocFieldInfo>);
+    property FieldName: TField read GetFieldName;
+    property FileName: TField read GetFileName;
+    property RootFolder: TField read GetRootFolder;
+  end;
+
+  TPossibleLinkDocTable = class(TTableWithProgress)
+  private
+    function GetComponentName: TField;
+    function GetFieldName: TField;
+    function GetFileName: TField;
+    function GetRootFolder: TField;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ComponentName: TField read GetComponentName;
     property FieldName: TField read GetFieldName;
     property FileName: TField read GetFileName;
     property RootFolder: TField read GetRootFolder;
@@ -98,8 +112,13 @@ type
     procedure LinkToDocFiles(ALinkedDocTable: TLinkedDocTable);
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
+    function PrepareLinksToDocFiles(APossibleLinkDocTable
+      : TPossibleLinkDocTable; const AComponentsDataSet: TTableWithProgress)
+      : TLinkedDocTable;
     function ProcessDocFiles(ADocFilesTable: TDocFilesTable;
       const AIDCategory: Integer): TLinkedDocTable;
+    function ProcessDocFiles2(ADocFilesTable: TDocFilesTable)
+      : TPossibleLinkDocTable;
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterApplyUpdates: TNotifyEventsEx read FAfterApplyUpdates;
@@ -364,6 +383,60 @@ begin
   end;
 end;
 
+function TComponentsBaseMasterDetail.PrepareLinksToDocFiles
+  (APossibleLinkDocTable: TPossibleLinkDocTable;
+  const AComponentsDataSet: TTableWithProgress): TLinkedDocTable;
+begin
+  Assert(APossibleLinkDocTable <> nil);
+  Assert(AComponentsDataSet <> nil);
+  Result := TLinkedDocTable.Create(Self);
+
+  // Список всех компонентов
+  AComponentsDataSet.First;
+  AComponentsDataSet.CallOnProcessEvent;
+
+  while not AComponentsDataSet.Eof do
+  begin
+    // Ищем есть ли для этого компонента подходящий файл
+    if APossibleLinkDocTable.LocateEx
+      (APossibleLinkDocTable.ComponentName.FieldName,
+      AComponentsDataSet.FieldByName('Value').AsString, []) then
+    begin
+      with Result do
+      begin
+        Append;
+
+        FieldName.AsString := APossibleLinkDocTable.FieldName.AsString;
+
+        // В базе данных будем сохранять относительное имя файла
+        FileName.AsString := StrHelper.GetRelativeFileName
+          ( APossibleLinkDocTable.FileName.AsString,
+          APossibleLinkDocTable.RootFolder.AsString);
+
+        // Отображаемое в отчёте имя файла
+        VisibleFileName.AsString := TPath.GetFileNameWithoutExtension(FileName.AsString);
+
+
+        // Относительный путь из папок в которых находится файл
+        Folder.AsString :=
+          TPath.Combine( TPath.GetFileName(APossibleLinkDocTable.RootFolder.AsString),
+          TPath.GetDirectoryName(FileName.AsString) );
+
+
+        ComponentName.AsString := APossibleLinkDocTable.ComponentName.AsString;
+
+
+        IDComponent.AsInteger :=  AComponentsDataSet.FieldByName('ID').AsInteger;
+
+        Post;
+      end;
+    end;
+    AComponentsDataSet.Next;
+    AComponentsDataSet.CallOnProcessEvent;
+  end;
+
+end;
+
 function TComponentsBaseMasterDetail.ProcessDocFiles(ADocFilesTable
   : TDocFilesTable; const AIDCategory: Integer): TLinkedDocTable;
 
@@ -383,7 +456,8 @@ function TComponentsBaseMasterDetail.ProcessDocFiles(ADocFilesTable
         (ADocFilesTable.FileName.AsString, ADocFilesTable.RootFolder.AsString);
 
       // Отображаемое в отчёте имя файла
-      VisibleFileName.AsString := TPath.GetFileName(ADocFilesTable.FileName.AsString);
+      VisibleFileName.AsString :=
+        TPath.GetFileName(ADocFilesTable.FileName.AsString);
 
       // Относительный путь из папок в которых находится файл
       Folder.AsString :=
@@ -472,7 +546,7 @@ begin
     begin
       Assert(not d[0].IsEmpty);
       if QuerySearchMainComponent2.Search(d[0]) > 0 then
-        Append(d[0], QuerySearchMainComponent2.PKValue);
+        LocateAndAppend(d[0], QuerySearchMainComponent2);
     end
     else
     begin
@@ -498,6 +572,80 @@ begin
             ADocFilesTable.CallOnProcessEvent;
           end;
         end;
+      end;
+    end;
+
+    ADocFilesTable.Next;
+    ADocFilesTable.CallOnProcessEvent;
+  end;
+end;
+
+function TComponentsBaseMasterDetail.ProcessDocFiles2(ADocFilesTable
+  : TDocFilesTable): TPossibleLinkDocTable;
+
+  procedure Append(const AComponentName: String);
+  begin
+    Assert(not AComponentName.IsEmpty);
+
+    Result.Append;
+    Result.FileName.AsString := ADocFilesTable.FileName.AsString;
+    Result.RootFolder.AsString := ADocFilesTable.RootFolder.AsString;
+    Result.FieldName.AsString := ADocFilesTable.FieldName.AsString;
+    Result.ComponentName.AsString := AComponentName;
+    Result.Post;
+  end;
+
+var
+  AFileName: string;
+  d: TArray<String>;
+  i: Integer;
+  OK: Boolean;
+  R0: MySplitRec;
+  R1: MySplitRec;
+
+begin
+  Assert(ADocFilesTable <> nil);
+
+  // Создаём таблицу с теми файлами которые мы будем сопоставлять компонентам
+  Result := TPossibleLinkDocTable.Create(Self);
+
+  ADocFilesTable.First;
+  ADocFilesTable.CallOnProcessEvent;
+
+  // Цикл по всем найденным файлам
+  while not ADocFilesTable.Eof do
+  begin
+    AFileName := TPath.GetFileNameWithoutExtension
+      (ADocFilesTable.FileName.AsString);
+
+    // Разделяем имя файла на границы диапазона
+    d := AFileName.Split(['-']);
+
+    // Если файл документации предназначен для одного компонента
+    if Length(d) = 1 then
+    begin
+      Append(d[0]);
+    end
+    else
+    begin
+      // Надо вычленить номера начала и конца диапазона
+      R0 := MySplit(d[0]);
+      R1 := MySplit(d[1]);
+
+      // ('Компонент в начале диапазона должен имееть номер меньше чем номер компонента в конце диапазона');
+      // ('Компонент в начале диапазона должен имееть номер');
+      // ('Компоненты в начале и в конце диапазона должны отличаться только номерами');
+      OK := (R0.Number < R1.Number) and (R0.Number > 0) and (R0.Name = R1.Name);
+
+      if OK then
+      begin
+        // Цикл по всем номерам компонентов, входящих в диапазон
+        for i := R0.Number to R1.Number do
+        begin
+          Append(Format('%s%d', [R0.Name, i]));
+          ADocFilesTable.CallOnProcessEvent;
+        end;
+
       end;
     end;
 
@@ -601,27 +749,27 @@ begin
   Post;
 end;
 
-function TComponentsErrorTable.GetComponentName: TField;
+function TComponentErrorTable.GetComponentName: TField;
 begin
   Result := FieldByName('ComponentName');
 end;
 
-function TComponentsErrorTable.GetDescription: TField;
+function TComponentErrorTable.GetDescription: TField;
 begin
   Result := FieldByName('Description');
 end;
 
-function TComponentsErrorTable.GetError: TField;
+function TComponentErrorTable.GetError: TField;
 begin
   Result := FieldByName('Error');
 end;
 
-function TComponentsErrorTable.GetFolder: TField;
+function TComponentErrorTable.GetFolder: TField;
 begin
   Result := FieldByName('Folder');
 end;
 
-procedure TComponentsErrorTable.SetErrorMessage(AMessage: string);
+procedure TComponentErrorTable.SetErrorMessage(AMessage: string);
 begin
   Assert(Active);
 
@@ -632,7 +780,7 @@ begin
   Post;
 end;
 
-procedure TComponentsErrorTable.SetWarringMessage(AMessage: string);
+procedure TComponentErrorTable.SetWarringMessage(AMessage: string);
 begin
   Assert(RecordCount > 0);
 
@@ -643,13 +791,13 @@ begin
   Post;
 end;
 
-procedure TComponentsErrorTable.SkipError;
+procedure TComponentErrorTable.SkipError;
 begin
   Filter := Format('(Error = null) or (Error = ''%s'')', [WarringMessage]);
   Filtered := True;
 end;
 
-procedure TComponentsErrorTable.SkipErrorAndWarrings;
+procedure TComponentErrorTable.SkipErrorAndWarrings;
 begin
   Filter := '(Error = null)';
   Filtered := True;
@@ -728,6 +876,40 @@ begin
     AddFiles(ADocFieldInfo, ADocFieldInfo.Folder);
   end;
 
+end;
+
+constructor TPossibleLinkDocTable.Create(AOwner: TComponent);
+begin
+  inherited;
+  FieldDefs.Add('FileName', ftString, 1000);
+  FieldDefs.Add('RootFolder', ftString, 500);
+  FieldDefs.Add('FieldName', ftString, 100);
+  FieldDefs.Add('ComponentName', ftString, 200);
+  IndexDefs.Add('idxComponentName', 'ComponentName', []);
+
+  CreateDataSet;
+
+  Open;
+end;
+
+function TPossibleLinkDocTable.GetComponentName: TField;
+begin
+  Result := FieldByName('ComponentName');
+end;
+
+function TPossibleLinkDocTable.GetFieldName: TField;
+begin
+  Result := FieldByName('FieldName');
+end;
+
+function TPossibleLinkDocTable.GetFileName: TField;
+begin
+  Result := FieldByName('FileName');
+end;
+
+function TPossibleLinkDocTable.GetRootFolder: TField;
+begin
+  Result := FieldByName('RootFolder');
 end;
 
 end.

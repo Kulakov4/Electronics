@@ -12,7 +12,7 @@ inherited frmImportProcess: TfrmImportProcess
     Height = 473
     ExplicitWidth = 878
     ExplicitHeight = 473
-    inherited ViewImportError: TViewImportError
+    inherited ViewImportError: TViewGrid
       Width = 876
       Height = 471
       ExplicitWidth = 876
@@ -26,7 +26,6 @@ inherited frmImportProcess: TfrmImportProcess
       inherited StatusBar: TStatusBar
         Top = 452
         Width = 876
-        Visible = False
         ExplicitTop = 452
         ExplicitWidth = 876
       end

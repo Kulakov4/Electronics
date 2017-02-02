@@ -9,24 +9,24 @@ inherited frmError: TfrmError
   inherited MainPanel: TPanel
     Width = 812
     Height = 379
-    ExplicitWidth = 846
-    ExplicitHeight = 385
-    inherited ViewImportError: TViewImportError
+    ExplicitWidth = 812
+    ExplicitHeight = 379
+    inherited ViewImportError: TViewGrid
       Width = 810
       Height = 377
-      ExplicitWidth = 844
-      ExplicitHeight = 383
+      ExplicitWidth = 810
+      ExplicitHeight = 377
       inherited cxGrid: TcxGrid
         Width = 810
         Height = 330
-        ExplicitWidth = 844
-        ExplicitHeight = 336
+        ExplicitWidth = 810
+        ExplicitHeight = 330
       end
       inherited StatusBar: TStatusBar
         Top = 358
         Width = 810
-        ExplicitTop = 364
-        ExplicitWidth = 844
+        ExplicitTop = 358
+        ExplicitWidth = 810
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -53,8 +53,6 @@ inherited frmError: TfrmError
     Height = 68
     Align = alBottom
     TabOrder = 1
-    ExplicitTop = 400
-    ExplicitWidth = 913
     DesignSize = (
       812
       68)
@@ -63,7 +61,7 @@ inherited frmError: TfrmError
       Top = 21
       Caption = 'cxlblTotalErrors'
     end
-    object cxButton1: TcxButton
+    object cxbtnOK: TcxButton
       Left = 633
       Top = 14
       Width = 171
@@ -73,7 +71,6 @@ inherited frmError: TfrmError
       Default = True
       ModalResult = 1
       TabOrder = 1
-      ExplicitLeft = 734
     end
   end
 end

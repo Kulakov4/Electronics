@@ -375,7 +375,7 @@ begin
 
     frmImportProcess := TfrmImportProcess.Create(Self);
     frmImportProcess.Caption := 'Загрузка компонентов';
-    frmImportProcess.ErrorTable := AutomaticLoadErrorTable;
+    frmImportProcess.DataSet := AutomaticLoadErrorTable;
     // Показываем отчёт
     frmImportProcess.Show;
 

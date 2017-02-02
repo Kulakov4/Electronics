@@ -219,7 +219,8 @@ uses
   SearchMainParameterQuery, ImportProcessForm, SearchDaughterParameterQuery,
   ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,
   SearchDescriptionsQuery, SearchSubCategoriesQuery,
-  SearchComponentCategoryQuery2;
+  SearchComponentCategoryQuery2, AllMainComponentsQuery, TableWithProgress,
+  AllMainComponentsQuery2, GridViewForm;
 
 {$R *.dfm}
 
@@ -369,7 +370,8 @@ var
   AFieldName: String;
   AFieldsInfo: TList<TFieldInfo>;
   AFileName: string;
-  AfrmImportProcess: TfrmImportProcess;
+  AfrmError: TfrmError;
+  AfrmGridView: TfrmGridView;
   AParameterExcelDM2: TParameterExcelDM2;
   AParametricErrorTable: TParametricErrorTable;
   // AQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
@@ -495,17 +497,18 @@ begin
         Exit;
       end;
 
+      // Если среди параметров есть ошибки (не найденные)
       OK := AParametricErrorTable.RecordCount = 0;
       if not OK then
       begin
-        AfrmImportProcess := TfrmImportProcess.Create(Self);
+        AfrmGridView := TfrmGridView.Create(Self);
         try
-          AfrmImportProcess.Done := true;
-          AfrmImportProcess.ErrorTable := AParametricErrorTable;
+          AfrmGridView.Caption := 'Ошибки среди параметров';
+          AfrmGridView.DataSet := AParametricErrorTable;
           // Показываем что мы собираемся привязывать
-          OK := AfrmImportProcess.ShowModal = mrOk;
+          OK := AfrmGridView.ShowModal = mrOk;
         finally
-          FreeAndNil(AfrmImportProcess);
+          FreeAndNil(AfrmGridView);
         end;
 
       end;
@@ -527,18 +530,15 @@ begin
         // Если в ходе загрузки данных произошли ошибки (компонент не найден)
         if AParameterExcelDM2.ExcelTable.Errors.RecordCount > 0 then
         begin
-          AfrmImportProcess := TfrmImportProcess.Create(Self);
+          AfrmError := TfrmError.Create(Self);
           try
-            AfrmImportProcess.Done := true;
-            AfrmImportProcess.ErrorTable :=
-              AParameterExcelDM2.ExcelTable.Errors;
+            AfrmError.ErrorTable := AParameterExcelDM2.ExcelTable.Errors;
             // Показываем ошибки
-            OK := AfrmImportProcess.ShowModal = mrOk;
+            OK := AfrmError.ShowModal = mrOk;
             AParameterExcelDM2.ExcelTable.ExcludeErrors(etError);
           finally
-            FreeAndNil(AfrmImportProcess);
+            FreeAndNil(AfrmError);
           end;
-
         end;
 
         if OK then
@@ -1018,11 +1018,12 @@ var
   AAbsentDocTable: TAbsentDocTable;
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
   ADocFilesTable: TDocFilesTable;
-  AfrmError: TfrmError;
-  AfrmImportError: TfrmImportError;
-  AfrmImportProcess: TfrmImportProcess;
+  AfrmGridView: TfrmGridView;
   ALinkedDocTable: TLinkedDocTable;
+  APossibleLinkDocTable: TPossibleLinkDocTable;
+  AQueryAllMainComponents: TQueryAllMainComponents2;
   AQuerySearchDescriptions: TQuerySearchDescriptions;
+  ATableWithProgress: TTableWithProgress;
   OK: Boolean;
 begin
   Result := False;
@@ -1052,47 +1053,73 @@ begin
     TfrmProgressBar.Process(ADocFilesTable,
       procedure
       begin
-        // Просим создать привязки между файлами и компонентами
-        ALinkedDocTable := ViewComponents.ComponentsMasterDetail.ProcessDocFiles
-          (ADocFilesTable, AIDCategory);
+        // Просим проанализировать, к каким компонентам можно привязать эти файлы
+        APossibleLinkDocTable := ViewComponents.ComponentsMasterDetail.
+          ProcessDocFiles2(ADocFilesTable);
       end, 'Анализ найденных файлов документации');
-
-    // Если есть что привязывать
-    if ALinkedDocTable.RecordCount > 0 then
-    begin
-      // Отображаем список файлов которые будем привязывать
-      AfrmImportProcess := TfrmImportProcess.Create(Self);
-      try
-        with AfrmImportProcess do
-        begin
-          cxbtnOK.Caption := '&Далее';
-          Done := true;
-          ErrorTable := ALinkedDocTable;
-          // Показываем что мы собираемся привязывать
-          if ShowModal = mrOk then
-          begin
-            // Если после исключения ошибок осталось что привязывать
-            TfrmProgressBar.Process(ALinkedDocTable,
-              procedure
-              begin
-                ViewComponents.ComponentsMasterDetail.LinkToDocFiles
-                  (ALinkedDocTable)
-              end, 'Выполняем привязку файлов документации');
-            Result := true;
-          end;
-
-        end;
-
-      finally
-        FreeAndNil(AfrmImportProcess);
-      end;
-    end
-    else
-    begin
-      TDialog.Create.ComponentsDocFilesNotFound;
-    end;
   finally
     FreeAndNil(ADocFilesTable);
+  end;
+
+  // Если есть что привязывать
+  if APossibleLinkDocTable.RecordCount > 0 then
+  begin
+    // Список всех компонентов
+    AQueryAllMainComponents := TQueryAllMainComponents2.Create(Self);
+    try
+      // Загружаем все компоненты
+      AQueryAllMainComponents.RefreshQuery;
+      // Создаём набор данных в памяти
+      ATableWithProgress := TTableWithProgress.Create(Self);
+      try
+        AQueryAllMainComponents.FDQuery.Last;
+        // Клонируем курсор
+        ATableWithProgress.CloneCursor(AQueryAllMainComponents.FDQuery);
+        ATableWithProgress.Last;
+
+        TfrmProgressBar.Process(ATableWithProgress,
+          procedure
+          begin
+            // Просим найти подходящую привязку между компонентами и файлами
+            ALinkedDocTable := ViewComponents.ComponentsMasterDetail.
+              PrepareLinksToDocFiles(APossibleLinkDocTable, ATableWithProgress);
+          end, 'Поиск подходящих файлов документации');
+
+      finally
+        FreeAndNil(ATableWithProgress);
+      end;
+    finally
+      FreeAndNil(AQueryAllMainComponents);
+    end;
+
+    // Отображаем список файлов которые будем привязывать
+    AfrmGridView := TfrmGridView.Create(Self);
+    try
+      with AfrmGridView do
+      begin
+        // cxbtnOK.Caption := '&Далее';
+        DataSet := ALinkedDocTable;
+        // Показываем что мы собираемся привязывать
+        OK := ShowModal = mrOk;
+      end;
+    finally
+      FreeAndNil(AfrmGridView);
+    end;
+
+    if OK then
+    begin
+      // Если после исключения ошибок осталось что привязывать
+      TfrmProgressBar.Process(ALinkedDocTable,
+        procedure
+        begin
+          ViewComponents.ComponentsMasterDetail.LinkToDocFiles(ALinkedDocTable)
+        end, 'Выполняем привязку файлов документации');
+      Result := true;
+    end;
+  end
+  else
+  begin
+    TDialog.Create.ComponentsDocFilesNotFound;
   end;
 
   // Проверяем на отсутсвующие файлы
@@ -1102,18 +1129,18 @@ begin
     // Если есть компоненты для которых отсутствует документация
     if AAbsentDocTable.RecordCount > 0 then
     begin
-      AfrmError := TfrmError.Create(Self);
+      AfrmGridView := TfrmGridView.Create(Self);
       try
-        AfrmError.ErrorTable := AAbsentDocTable;
-        AcxGridDBBandedColumn := AfrmError.ViewImportError.MainView.
+        AfrmGridView.DataSet := AAbsentDocTable;
+        AcxGridDBBandedColumn := AfrmGridView.ViewImportError.MainView.
           GetColumnByFieldName(AAbsentDocTable.Folder.FieldName);
         Assert(AcxGridDBBandedColumn <> nil);
         AcxGridDBBandedColumn.GroupIndex := 0;
         AcxGridDBBandedColumn.Visible := False;
         // Показываем ошибки
-        AfrmError.ShowModal;
+        AfrmGridView.ShowModal;
       finally
-        FreeAndNil(AfrmError);
+        FreeAndNil(AfrmGridView);
       end;
     end;
   finally

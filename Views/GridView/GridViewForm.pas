@@ -1,26 +1,26 @@
-unit CustomErrorForm;
+unit GridViewForm;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, GridFrame, ImportErrorView,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, GridFrame, GridView,
   Vcl.ExtCtrls, CustomErrorTable, Data.DB;
 
 type
-  TfrmCustomError = class(TfrmRoot)
+  TfrmGridView = class(TfrmRoot)
     MainPanel: TPanel;
-    ViewImportError: TViewImportError;
+    ViewImportError: TViewGrid;
     DataSource: TDataSource;
   private
-    FErrorTable: TCustomErrorTable;
-    procedure SetErrorTable(const Value: TCustomErrorTable);
+    FDataSet: TDataSet;
+    procedure SetDataSet(const Value: TDataSet);
     { Private declarations }
   protected
     procedure AssignErrorTable; virtual;
   public
-    property ErrorTable: TCustomErrorTable read FErrorTable write SetErrorTable;
+    property DataSet: TDataSet read FDataSet write SetDataSet;
     { Public declarations }
   end;
 
@@ -28,9 +28,9 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmCustomError.AssignErrorTable;
+procedure TfrmGridView.AssignErrorTable;
 begin
-  DataSource.DataSet := FErrorTable;
+  DataSource.DataSet := FDataSet;
   // Подключаем представление к данным
   ViewImportError.MainView.DataController.DataSource := DataSource;
   ViewImportError.MainView.DataController.CreateAllItems(True);
@@ -38,12 +38,12 @@ begin
   ViewImportError.ApplyBestFitEx;
 end;
 
-procedure TfrmCustomError.SetErrorTable(const Value: TCustomErrorTable);
+procedure TfrmGridView.SetDataSet(const Value: TDataSet);
 begin
-  if FErrorTable <> Value then
+  if FDataSet <> Value then
   begin
-    FErrorTable := Value;
-    if FErrorTable <> nil then
+    FDataSet := Value;
+    if FDataSet <> nil then
     begin
       AssignErrorTable;
     end

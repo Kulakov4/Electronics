@@ -1,4 +1,4 @@
-unit ImportErrorView;
+unit GridView;
 
 interface
 
@@ -28,7 +28,7 @@ uses
   cxGridDBBandedTableView, cxGrid;
 
 type
-  TViewImportError = class(TfrmGrid)
+  TViewGrid = class(TfrmGrid)
     actExportToExcel: TAction;
     dxBarButton1: TdxBarButton;
     procedure actExportToExcelExecute(Sender: TObject);
@@ -41,7 +41,7 @@ type
   end;
 
 var
-  ViewImportError: TViewImportError;
+  ViewGrid: TViewGrid;
 
 implementation
 
@@ -49,7 +49,7 @@ uses DialogUnit;
 
 {$R *.dfm}
 
-procedure TViewImportError.actExportToExcelExecute(Sender: TObject);
+procedure TViewGrid.actExportToExcelExecute(Sender: TObject);
 var
   AFileName: String;
 begin
@@ -61,7 +61,7 @@ begin
   ExportViewToExcel(MainView, AFileName);
 end;
 
-procedure TViewImportError.MyCreateColumnsBarButtons;
+procedure TViewGrid.MyCreateColumnsBarButtons;
 begin
   CreateColumnsBarButtons;
 end;

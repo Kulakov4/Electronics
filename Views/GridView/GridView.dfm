@@ -1,4 +1,4 @@
-inherited ViewImportError: TViewImportError
+inherited ViewGrid: TViewGrid
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OptionsData.Deleting = False

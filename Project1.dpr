@@ -123,14 +123,14 @@ uses
   NotifyEvents in 'Helpers\NotifyEvents.pas',
   Sequence in 'Helpers\Sequence.pas',
   AllMainComponentsQuery in 'Queryes\Components\AllMainComponentsQuery.pas' {QueryAllMainComponents: TFrame},
-  ImportErrorView in 'Views\ImportError\ImportErrorView.pas' {ViewImportError: TFrame},
+  GridView in 'Views\GridView\GridView.pas' {ViewGrid: TFrame},
   SearchComponentCategoryQuery in 'Queryes\Search\SearchComponentCategoryQuery.pas' {QuerySearchComponentCategory: TFrame},
   SearchCategoryQuery in 'Queryes\Search\SearchCategoryQuery.pas' {QuerySearchCategory: TFrame},
   SearchComponentCategoryQuery2 in 'Queryes\Search\SearchComponentCategoryQuery2.pas' {QuerySearchComponentCategory2: TFrame},
-  CustomErrorForm in 'Views\ImportError\CustomErrorForm.pas' {frmCustomError},
-  ImportErrorForm in 'Views\ImportError\ImportErrorForm.pas' {frmImportError},
-  ErrorForm in 'Views\ImportError\ErrorForm.pas' {frmError},
-  ImportProcessForm in 'Views\ImportError\ImportProcessForm.pas' {frmImportProcess},
+  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
+  ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
+  ErrorForm in 'Views\GridView\ErrorForm\ErrorForm.pas' {frmError},
+  ImportProcessForm in 'Views\GridView\ImportProcessForm.pas' {frmImportProcess},
   CustomComponentsQuery in 'Queryes\Components\CustomComponentsQuery.pas' {QueryCustomComponents: TFrame},
   SearchProductCategoryByID in 'Queryes\Search\SearchProductCategoryByID.pas' {QuerySearchProductCategoryByID: TFrame},
   SearchDetailComponentQuery in 'Queryes\Search\SearchDetailComponentQuery.pas' {QuerySearchDetailComponent: TFrame},
@@ -154,7 +154,9 @@ uses
   QueryWithMasterUnit in 'Queryes\QueryWithMasterUnit.pas' {QueryWithMaster: TFrame},
   HandlingQueryUnit in 'Queryes\HandlingQueryUnit.pas' {HandlingQuery: TFrame},
   ProcRefUnit in 'Helpers\ProcRefUnit.pas',
-  SearchMainComponent3 in 'Queryes\Search\SearchMainComponent3.pas' {QuerySearchMainComponent3: TFrame};
+  SearchMainComponent3 in 'Queryes\Search\SearchMainComponent3.pas' {QuerySearchMainComponent3: TFrame},
+  Unit1 in 'Unit1.pas',
+  AllMainComponentsQuery2 in 'Queryes\Components\AllMainComponentsQuery2.pas' {QueryAllMainComponents2: TFrame};
 
 {$R *.res}
 
