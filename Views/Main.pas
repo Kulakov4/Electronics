@@ -1097,6 +1097,7 @@ begin
     try
       with AfrmGridView do
       begin
+        Caption := 'Файлы документации и компоненты';
         // cxbtnOK.Caption := '&Далее';
         DataSet := ALinkedDocTable;
         // Показываем что мы собираемся привязывать
@@ -1131,6 +1132,7 @@ begin
     begin
       AfrmGridView := TfrmGridView.Create(Self);
       try
+        AfrmGridView.Caption := 'Компоненты для которых отсутствует документация';
         AfrmGridView.DataSet := AAbsentDocTable;
         AcxGridDBBandedColumn := AfrmGridView.ViewImportError.MainView.
           GetColumnByFieldName(AAbsentDocTable.Folder.FieldName);

@@ -589,8 +589,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\GridView\GridViewForm.pas">
-            <Form>frmGridView</Form>
+        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
+            <Form>frmCustomGridView</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
@@ -717,11 +717,14 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Unit1.pas"/>
         <DCCReference Include="Queryes\Components\AllMainComponentsQuery2.pas">
             <Form>QueryAllMainComponents2</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\GridViewForm.pas">
+            <Form>frmGridView</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <None Include="ModelSupport_Project1\default.txaPackage"/>
         <None Include="ModelSupport_Project1\default.txvpck"/>

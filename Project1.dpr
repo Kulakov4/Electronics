@@ -127,7 +127,7 @@ uses
   SearchComponentCategoryQuery in 'Queryes\Search\SearchComponentCategoryQuery.pas' {QuerySearchComponentCategory: TFrame},
   SearchCategoryQuery in 'Queryes\Search\SearchCategoryQuery.pas' {QuerySearchCategory: TFrame},
   SearchComponentCategoryQuery2 in 'Queryes\Search\SearchComponentCategoryQuery2.pas' {QuerySearchComponentCategory2: TFrame},
-  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
+  CustomGridViewForm in 'Views\GridView\CustomGridViewForm.pas' {frmCustomGridView},
   ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
   ErrorForm in 'Views\GridView\ErrorForm\ErrorForm.pas' {frmError},
   ImportProcessForm in 'Views\GridView\ImportProcessForm.pas' {frmImportProcess},
@@ -155,8 +155,8 @@ uses
   HandlingQueryUnit in 'Queryes\HandlingQueryUnit.pas' {HandlingQuery: TFrame},
   ProcRefUnit in 'Helpers\ProcRefUnit.pas',
   SearchMainComponent3 in 'Queryes\Search\SearchMainComponent3.pas' {QuerySearchMainComponent3: TFrame},
-  Unit1 in 'Unit1.pas',
-  AllMainComponentsQuery2 in 'Queryes\Components\AllMainComponentsQuery2.pas' {QueryAllMainComponents2: TFrame};
+  AllMainComponentsQuery2 in 'Queryes\Components\AllMainComponentsQuery2.pas' {QueryAllMainComponents2: TFrame},
+  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView};
 
 {$R *.res}
 

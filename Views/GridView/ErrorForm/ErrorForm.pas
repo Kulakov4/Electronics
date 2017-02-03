@@ -22,19 +22,16 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, Data.DB, GridFrame,
   Vcl.ExtCtrls, cxControls, cxContainer, cxEdit, cxLabel, GridView,
-  GridViewForm, CustomErrorTable;
+  CustomErrorTable, GridViewForm, CustomGridViewForm;
 
 type
   TfrmError = class(TfrmGridView)
-    Panel1: TPanel;
-    cxlblTotalErrors: TcxLabel;
-    cxbtnOK: TcxButton;
   private
     function GetErrorTable: TCustomErrorTable;
     procedure SetErrorTable(const Value: TCustomErrorTable);
     { Private declarations }
   protected
-    procedure AssignErrorTable; override;
+    procedure AssignDataSet; override;
   public
     property ErrorTable: TCustomErrorTable read GetErrorTable write SetErrorTable;
     { Public declarations }
@@ -44,10 +41,11 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmError.AssignErrorTable;
+procedure TfrmError.AssignDataSet;
 begin
   inherited;
-  cxlblTotalErrors.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+  if (ErrorTable <> nil) and (ErrorTable.Active) then
+    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
 end;
 
 function TfrmError.GetErrorTable: TCustomErrorTable;

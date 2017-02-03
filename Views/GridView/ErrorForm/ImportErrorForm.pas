@@ -22,8 +22,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, System.Actions, Vcl.ActnList,
-  cxControls, cxContainer, cxEdit, cxLabel, GridView, GridViewForm,
-  CustomErrorTable;
+  cxControls, cxContainer, cxEdit, cxLabel, GridView,
+  CustomErrorTable, GridViewForm, CustomGridViewForm;
 
 type
   TContinueType = (ctAll, ctSkip);
@@ -35,10 +35,7 @@ type
     ActionList1: TActionList;
     actAll: TAction;
     actSkip: TAction;
-    Panel1: TPanel;
-    cxlblTotalErrors: TcxLabel;
-    cxButton2: TcxButton;
-    cxButton1: TcxButton;
+    cxbtnCancel: TcxButton;
     procedure actAllExecute(Sender: TObject);
     procedure actSkipExecute(Sender: TObject);
   private
@@ -47,7 +44,7 @@ type
     procedure SetErrorTable(const Value: TCustomErrorTable);
     { Private declarations }
   protected
-    procedure AssignErrorTable; override;
+    procedure AssignDataSet; override;
   public
     property ContinueType: TContinueType read FContinueType;
     property ErrorTable: TCustomErrorTable read GetErrorTable write SetErrorTable;
@@ -73,10 +70,11 @@ begin
   ModalResult := mrOk;
 end;
 
-procedure TfrmImportError.AssignErrorTable;
+procedure TfrmImportError.AssignDataSet;
 begin
   inherited;
-  cxlblTotalErrors.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+  if (DataSet <> nil) and (DataSet.Active) then
+    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
 end;
 
 function TfrmImportError.GetErrorTable: TCustomErrorTable;

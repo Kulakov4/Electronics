@@ -1,31 +1,31 @@
 inherited frmImportError: TfrmImportError
   Caption = #1054#1096#1080#1073#1082#1080' '#1087#1088#1080' '#1079#1072#1075#1088#1091#1079#1082#1077
-  ClientHeight = 458
-  ClientWidth = 860
-  ExplicitWidth = 876
-  ExplicitHeight = 497
+  ClientHeight = 465
+  ClientWidth = 855
+  ExplicitWidth = 871
+  ExplicitHeight = 504
   PixelsPerInch = 96
   TextHeight = 16
   inherited MainPanel: TPanel
-    Width = 860
+    Width = 855
     Height = 397
     ExplicitWidth = 860
-    ExplicitHeight = 397
+    ExplicitHeight = 329
     inherited ViewImportError: TViewGrid
-      Width = 858
+      Width = 853
       Height = 395
       ExplicitWidth = 858
-      ExplicitHeight = 395
+      ExplicitHeight = 327
       inherited cxGrid: TcxGrid
-        Width = 858
+        Width = 853
         Height = 348
         ExplicitWidth = 858
-        ExplicitHeight = 348
+        ExplicitHeight = 280
       end
       inherited StatusBar: TStatusBar
         Top = 376
-        Width = 858
-        ExplicitTop = 376
+        Width = 853
+        ExplicitTop = 308
         ExplicitWidth = 858
       end
       inherited dxBarManager: TdxBarManager
@@ -46,45 +46,36 @@ inherited frmImportError: TfrmImportError
       end
     end
   end
-  object Panel1: TPanel [1]
-    Left = 0
+  inherited PanelBottom: TPanel
     Top = 397
-    Width = 860
-    Height = 61
-    Align = alBottom
-    TabOrder = 1
+    Width = 855
+    ExplicitTop = 390
+    ExplicitWidth = 860
     DesignSize = (
-      860
-      61)
-    object cxlblTotalErrors: TcxLabel
-      Left = 8
-      Top = 21
-      Caption = 'cxlblTotalErrors'
+      855
+      68)
+    inherited lblStatus: TLabel
+      Top = 26
+      ExplicitTop = 26
     end
-    object cxButton2: TcxButton
-      Left = 512
-      Top = 12
-      Width = 161
-      Height = 33
+    inherited cxbtnOK: TcxButton
+      Left = 467
       Action = actAll
-      Anchors = [akRight, akBottom]
-      Cancel = True
-      Default = True
       DropDownMenu = pmContinue
       Kind = cxbkDropDownButton
-      ModalResult = 2
-      TabOrder = 1
+      ExplicitLeft = 466
     end
-    object cxButton1: TcxButton
-      Left = 686
-      Top = 12
-      Width = 161
-      Height = 33
+    object cxbtnCancel: TcxButton
+      Left = 662
+      Top = 16
+      Width = 177
+      Height = 36
       Anchors = [akRight, akBottom]
       Cancel = True
       Caption = #1054#1090#1084#1077#1085#1072
       ModalResult = 2
-      TabOrder = 2
+      TabOrder = 1
+      ExplicitLeft = 661
     end
   end
   object pmContinue: TPopupMenu

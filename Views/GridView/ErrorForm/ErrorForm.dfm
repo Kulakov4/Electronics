@@ -1,32 +1,32 @@
 inherited frmError: TfrmError
   Caption = #1054#1096#1080#1073#1082#1080
   ClientHeight = 447
-  ClientWidth = 812
-  ExplicitWidth = 828
+  ClientWidth = 834
+  ExplicitWidth = 850
   ExplicitHeight = 486
   PixelsPerInch = 96
   TextHeight = 16
   inherited MainPanel: TPanel
-    Width = 812
+    Width = 834
     Height = 379
-    ExplicitWidth = 812
-    ExplicitHeight = 379
+    ExplicitWidth = 834
+    ExplicitHeight = 311
     inherited ViewImportError: TViewGrid
-      Width = 810
+      Width = 832
       Height = 377
-      ExplicitWidth = 810
-      ExplicitHeight = 377
+      ExplicitWidth = 832
+      ExplicitHeight = 309
       inherited cxGrid: TcxGrid
-        Width = 810
+        Width = 832
         Height = 330
-        ExplicitWidth = 810
-        ExplicitHeight = 330
+        ExplicitWidth = 832
+        ExplicitHeight = 262
       end
       inherited StatusBar: TStatusBar
         Top = 358
-        Width = 810
-        ExplicitTop = 358
-        ExplicitWidth = 810
+        Width = 832
+        ExplicitTop = 290
+        ExplicitWidth = 832
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -46,31 +46,14 @@ inherited frmError: TfrmError
       end
     end
   end
-  object Panel1: TPanel [1]
-    Left = 0
+  inherited PanelBottom: TPanel
     Top = 379
-    Width = 812
-    Height = 68
-    Align = alBottom
-    TabOrder = 1
-    DesignSize = (
-      812
-      68)
-    object cxlblTotalErrors: TcxLabel
-      Left = 16
-      Top = 21
-      Caption = 'cxlblTotalErrors'
-    end
-    object cxbtnOK: TcxButton
-      Left = 633
-      Top = 14
-      Width = 171
-      Height = 38
-      Anchors = [akRight, akBottom]
-      Caption = 'OK'
-      Default = True
-      ModalResult = 1
-      TabOrder = 1
+    Width = 834
+    ExplicitTop = 379
+    ExplicitWidth = 834
+    inherited cxbtnOK: TcxButton
+      Left = 640
+      ExplicitLeft = 640
     end
   end
 end

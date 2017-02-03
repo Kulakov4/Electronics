@@ -21,10 +21,10 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, GridView, GridViewForm;
+  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, GridView, CustomGridViewForm;
 
 type
-  TfrmImportProcess = class(TfrmGridView)
+  TfrmImportProcess = class(TfrmCustomGridView)
     Panel1: TPanel;
     cxbtnOK: TcxButton;
     procedure cxbtnOKClick(Sender: TObject);
