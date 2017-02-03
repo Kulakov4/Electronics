@@ -46,11 +46,8 @@ inherited QueryMainParameters: TQueryMainParameters
       
         '  :NEW_PARENTPARAMETER, :NEW_ISCUSTOMPARAMETER, :NEW_IDPARAMETER' +
         'TYPE);'
-      'SELECT LAST_INSERT_ROWID() AS ID, "ORDER" AS "ORDER"'
-      'FROM UNIONPARAMETERS'
-      'WHERE ID = LAST_INSERT_ROWID();'
       ''
-      'SELECT LAST_INSERT_ROWID() AS ID'
+      'SELECT LAST_INSERT_ROWID() AS ID, "ORDER" AS "ORDER"'
       'FROM UNIONPARAMETERS'
       'WHERE ID = LAST_INSERT_ROWID();')
     ModifySQL.Strings = (

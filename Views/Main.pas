@@ -1018,10 +1018,11 @@ var
   AAbsentDocTable: TAbsentDocTable;
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
   ADocFilesTable: TDocFilesTable;
+  AField: TField;
   AfrmGridView: TfrmGridView;
   ALinkedDocTable: TLinkedDocTable;
   APossibleLinkDocTable: TPossibleLinkDocTable;
-  AQueryAllMainComponents: TQueryAllMainComponents2;
+  AQueryAllMainComponents: TQueryAllMainComponents;
   AQuerySearchDescriptions: TQuerySearchDescriptions;
   ATableWithProgress: TTableWithProgress;
   OK: Boolean;
@@ -1065,10 +1066,11 @@ begin
   if APossibleLinkDocTable.RecordCount > 0 then
   begin
     // Список всех компонентов
-    AQueryAllMainComponents := TQueryAllMainComponents2.Create(Self);
+    AQueryAllMainComponents := TQueryAllMainComponents.Create(Self);
     try
       // Загружаем все компоненты
-      AQueryAllMainComponents.RefreshQuery;
+//      AQueryAllMainComponents.RefreshQuery;
+      AQueryAllMainComponents.Load(['ID'], [0]);
       // Создаём набор данных в памяти
       ATableWithProgress := TTableWithProgress.Create(Self);
       try
@@ -1077,14 +1079,23 @@ begin
         ATableWithProgress.CloneCursor(AQueryAllMainComponents.FDQuery);
         ATableWithProgress.Last;
 
+//        for AField in ATableWithProgress.Fields do
+//          AField.ReadOnly := False;
+
+//        AQueryAllMainComponents.AutoTransaction := False;
+//        if (not AQueryAllMainComponents.FDQuery.Connection.InTransaction) then
+//            AQueryAllMainComponents.FDQuery.Connection.StartTransaction;
+
         TfrmProgressBar.Process(ATableWithProgress,
           procedure
           begin
             // Просим найти подходящую привязку между компонентами и файлами
             ALinkedDocTable := ViewComponents.ComponentsMasterDetail.
-              PrepareLinksToDocFiles(APossibleLinkDocTable, ATableWithProgress);
+              PrepareLinksToDocFiles(APossibleLinkDocTable, ATableWithProgress,
+              ADocFieldInfos, AQueryAllMainComponents.FDQuery.Connection);
           end, 'Поиск подходящих файлов документации');
 
+//        AQueryAllMainComponents.FDQuery.Connection.Commit;
       finally
         FreeAndNil(ATableWithProgress);
       end;

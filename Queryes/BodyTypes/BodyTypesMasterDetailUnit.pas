@@ -7,7 +7,8 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   MasterDetailFrame, Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2,
   FireDAC.Comp.Client, NotifyEvents, BodyTypesExcelDataModule3,
-  BodyTypesBranchQuery, QueryWithDataSourceUnit, BaseQuery;
+  BodyTypesBranchQuery, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
+  QueryWithMasterUnit;
 
 type
   TBodyTypesMasterDetail = class(TfrmMasterDetail)

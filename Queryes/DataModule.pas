@@ -14,7 +14,8 @@ uses
   ComponentsMasterDetailUnit, BodyTypesQuery, ComponentsSearchMasterDetailUnit,
   ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
   ProductsBaseQuery, ProductsSearchQuery, StoreHouseListQuery,
-  CustomComponentsQuery, BaseQuery, QueryWithDataSourceUnit;
+  CustomComponentsQuery, BaseQuery, QueryWithDataSourceUnit, BaseEventsQuery,
+  QueryWithMasterUnit;
 
 type
   TDM = class(TForm)

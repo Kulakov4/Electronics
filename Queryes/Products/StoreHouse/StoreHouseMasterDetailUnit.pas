@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MasterDetailFrame, Vcl.ExtCtrls,
   StoreHouseListQuery, ProductsBaseQuery, ProductsQuery,
-  CustomComponentsQuery, QueryWithDataSourceUnit, BaseQuery;
+  CustomComponentsQuery, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
+  QueryWithMasterUnit;
 
 type
   TStoreHouseMasterDetail = class(TfrmMasterDetail)

@@ -41,7 +41,10 @@ end;
 
 function TProgressInfo.GetPosition: Double;
 begin
-  Result := IfThen(TotalRecords > 0, ProcessRecords * 100 / TotalRecords, 0)
+  if TotalRecords > 0 then
+    Result := ProcessRecords * 100 / TotalRecords
+  else
+    Result := 0;
 end;
 
 end.

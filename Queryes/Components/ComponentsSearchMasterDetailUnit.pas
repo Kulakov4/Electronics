@@ -9,7 +9,7 @@ uses
   ComponentsSearchQuery, ComponentsDetailsSearchQuery, MasterDetailFrame,
   ComponentsBaseMasterDetailUnit, ComponentsBaseDetailQuery,
   CustomComponentsQuery, SearchComponentsByValues, MainComponentsQuery,
-  QueryWithDataSourceUnit, BaseQuery;
+  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit;
 
 type
   TComponentsSearchMasterDetail = class(TComponentsBaseMasterDetail)

@@ -8,7 +8,7 @@ uses
   MasterDetailFrame, Vcl.ExtCtrls, DescriptionsMasterQuery,
   DescriptionsDetailQuery, FireDAC.Comp.Client, FireDAC.Stan.Intf,
   Manufacturers2Query, NotifyEvents, DescriptionsExcelDataModule,
-  QueryWithDataSourceUnit, BaseQuery;
+  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit;
 
 type
   TDescriptionsMasterDetail = class(TfrmMasterDetail)

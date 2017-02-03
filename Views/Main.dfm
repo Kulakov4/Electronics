@@ -49,10 +49,6 @@ object frmMain: TfrmMain
     object tsStructure: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnlMain: TPanel
         Left = 0
         Top = 0

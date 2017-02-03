@@ -13,7 +13,8 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, ProgressInfo,
   ComponentsExcelDataModule, CustomErrorTable, CustomComponentsQuery,
-  MainComponentsQuery, BaseQuery, QueryWithDataSourceUnit;
+  MainComponentsQuery, BaseQuery, QueryWithDataSourceUnit, BaseEventsQuery,
+  QueryWithMasterUnit;
 
 type
   TAutomaticLoadErrorTable = class(TCustomErrorTable)

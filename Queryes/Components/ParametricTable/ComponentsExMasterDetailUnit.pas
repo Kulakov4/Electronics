@@ -11,7 +11,8 @@ uses
   ComponentsDetailQuery, ComponentsDetailExQuery, ParametersForCategoryQuery,
   ProductParametersQuery, Data.DB, FireDAC.Stan.Option, FireDAC.Comp.DataSet,
   CustomComponentsQuery, System.Contnrs, MainComponentsQuery,
-  System.Generics.Collections, QueryWithDataSourceUnit, BaseQuery;
+  System.Generics.Collections, QueryWithDataSourceUnit, BaseQuery,
+  BaseEventsQuery, QueryWithMasterUnit;
 
 type
   TComponentsExMasterDetail = class(TComponentsBaseMasterDetail)

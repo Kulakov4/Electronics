@@ -39,7 +39,8 @@ type
     class property DrawingParameterID: Integer read GetDrawingParameterID;
     class property ProducerParameterID: Integer read GetProducerParameterID;
     class property ImageParameterID: Integer read GetImageParameterID;
-    class property DescriptionParameterID: Integer read GetDescriptionParameterID;
+    class property DescriptionParameterID: Integer
+      read GetDescriptionParameterID;
   end;
 
 implementation
@@ -50,16 +51,12 @@ uses
   ProjectConst, SearchComponentCategoryQuery2, SearchParametersForCategoryQuery;
 
 class function TParameterValues.GetPackagePinsParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Package/Pins (Корпус/Кол-во выводов)
   if FPackagePinsParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sPackagePinsParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sPackagePinsParamTableName, True);
     FPackagePinsParameterID := QuerySearchMainParameter.PKValue;
   end;
 
@@ -67,16 +64,12 @@ begin
 end;
 
 class function TParameterValues.GetDatasheetParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Datasheet (техническая спецификация)
   if FDatasheetParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sDatasheetParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sDatasheetParamTableName, True);
     FDatasheetParameterID := QuerySearchMainParameter.PKValue;
   end;
 
@@ -84,16 +77,12 @@ begin
 end;
 
 class function TParameterValues.GetDiagramParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Diagram (структурная схема)
   if FDiagramParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sDiagramParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sDiagramParamTableName, True);
     FDiagramParameterID := QuerySearchMainParameter.PKValue;
   end;
 
@@ -101,16 +90,12 @@ begin
 end;
 
 class function TParameterValues.GetDrawingParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Drawing (чертёж)
   if FDrawingParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sDrawingParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sDrawingParamTableName, True);
     FDrawingParameterID := QuerySearchMainParameter.PKValue;
   end;
 
@@ -118,16 +103,12 @@ begin
 end;
 
 class function TParameterValues.GetProducerParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Producer (производитель)
   if FProducerParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sProducerParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sProducerParamTableName, True);
     FProducerParameterID := QuerySearchMainParameter.PKValue;
   end;
 
@@ -135,16 +116,12 @@ begin
 end;
 
 class function TParameterValues.GetImageParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Image (изображение)
   if FImageParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sImageParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sImageParamTableName, True);
     FImageParameterID := QuerySearchMainParameter.PKValue;
   end;
 
@@ -152,16 +129,12 @@ begin
 end;
 
 class function TParameterValues.GetDescriptionParameterID: Integer;
-var
-  rc: Integer;
 begin
   // Надо поределить код параметра с табличным именем Description (описание)
   if FDescriptionParameterID = 0 then
   begin
-    // Ищем параметр
-    rc := QuerySearchMainParameter.Search(sDescriptionParamTableName);
-    // Что делать если не нашли?
-    Assert(rc = 1);
+    // Ищем параметр либо добавляем его
+    QuerySearchMainParameter.SearchOrAppend(sDescriptionParamTableName, True);
     FDescriptionParameterID := QuerySearchMainParameter.PKValue;
   end;
 

@@ -11,7 +11,7 @@ uses
   System.Generics.Collections, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  QueryWithDataSourceUnit, BaseQuery;
+  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit;
 
 type
   TParametersMasterDetail2 = class(TfrmMasterDetail)

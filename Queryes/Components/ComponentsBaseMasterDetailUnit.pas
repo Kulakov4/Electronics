@@ -72,12 +72,14 @@ type
   TPossibleLinkDocTable = class(TTableWithProgress)
   private
     function GetComponentName: TField;
+    function GetRange: TField;
     function GetFieldName: TField;
     function GetFileName: TField;
     function GetRootFolder: TField;
   public
     constructor Create(AOwner: TComponent); override;
     property ComponentName: TField read GetComponentName;
+    property Range: TField read GetRange;
     property FieldName: TField read GetFieldName;
     property FileName: TField read GetFileName;
     property RootFolder: TField read GetRootFolder;
@@ -113,7 +115,8 @@ type
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function PrepareLinksToDocFiles(APossibleLinkDocTable
-      : TPossibleLinkDocTable; const AComponentsDataSet: TTableWithProgress)
+      : TPossibleLinkDocTable; const AComponentsDataSet: TTableWithProgress;
+      ADocFieldInfos: TList<TDocFieldInfo>; AConnection: TFDCustomConnection)
       : TLinkedDocTable;
     function ProcessDocFiles(ADocFilesTable: TDocFilesTable;
       const AIDCategory: Integer): TLinkedDocTable;
@@ -385,7 +388,15 @@ end;
 
 function TComponentsBaseMasterDetail.PrepareLinksToDocFiles
   (APossibleLinkDocTable: TPossibleLinkDocTable;
-  const AComponentsDataSet: TTableWithProgress): TLinkedDocTable;
+  const AComponentsDataSet: TTableWithProgress;
+  ADocFieldInfos: TList<TDocFieldInfo>; AConnection: TFDCustomConnection)
+  : TLinkedDocTable;
+var
+  ADocFieldInfo: TDocFieldInfo;
+  ASQL: string;
+  i: Integer;
+  rc: Integer;
+  S: String;
 begin
   Assert(APossibleLinkDocTable <> nil);
   Assert(AComponentsDataSet <> nil);
@@ -395,46 +406,104 @@ begin
   AComponentsDataSet.First;
   AComponentsDataSet.CallOnProcessEvent;
 
-  while not AComponentsDataSet.Eof do
-  begin
-    // Ищем есть ли для этого компонента подходящий файл
-    if APossibleLinkDocTable.LocateEx
-      (APossibleLinkDocTable.ComponentName.FieldName,
-      AComponentsDataSet.FieldByName('Value').AsString, []) then
+  AConnection.StartTransaction;
+  try
+    i := 0;
+    while not AComponentsDataSet.Eof do
     begin
-      with Result do
+      // Цикл по всем типам файлов
+      for ADocFieldInfo in ADocFieldInfos do
       begin
-        Append;
 
-        FieldName.AsString := APossibleLinkDocTable.FieldName.AsString;
+        // Ищем есть ли для этого компонента подходящие файлы подходящего типа
+        APossibleLinkDocTable.Filter := Format('%s = ''%s'' and %s = ''%s''',
+          [APossibleLinkDocTable.ComponentName.FieldName,
+          AComponentsDataSet.FieldByName('Value').AsString,
+          APossibleLinkDocTable.FieldName.FieldName, ADocFieldInfo.FieldName]);
+        APossibleLinkDocTable.Filtered := True;
+        {
+          if APossibleLinkDocTable.LocateEx
+          (APossibleLinkDocTable.ComponentName.FieldName,
+          AComponentsDataSet.FieldByName('Value').AsString, []) then
+        }
+        APossibleLinkDocTable.First;
+        rc := APossibleLinkDocTable.RecordCount;
+        if rc > 1 then
+          beep;
 
-        // В базе данных будем сохранять относительное имя файла
-        FileName.AsString := StrHelper.GetRelativeFileName
-          ( APossibleLinkDocTable.FileName.AsString,
-          APossibleLinkDocTable.RootFolder.AsString);
+        // while not APossibleLinkDocTable.Eof do
+        // begin
+        if rc > 0 then
+        begin
+          with Result do
+          begin
+            S := StrHelper.GetRelativeFileName
+              (APossibleLinkDocTable.FileName.AsString,
+              APossibleLinkDocTable.RootFolder.AsString);
 
-        // Отображаемое в отчёте имя файла
-        VisibleFileName.AsString := TPath.GetFileNameWithoutExtension(FileName.AsString);
+            ASQL := 'INSERT INTO ProductUnionParameters' +
+              '(UnionParameterID, Value, ProductID) ' +
+              Format('Values (%d, ''%s'', %d)', [ADocFieldInfo.IDParameter, S,
+              AComponentsDataSet.FieldByName('ID').AsInteger]);
 
+            AConnection.ExecSQL(ASQL);
+            Inc(i);
 
-        // Относительный путь из папок в которых находится файл
-        Folder.AsString :=
-          TPath.Combine( TPath.GetFileName(APossibleLinkDocTable.RootFolder.AsString),
-          TPath.GetDirectoryName(FileName.AsString) );
+            if i >= 1000 then
+            begin
+              AConnection.Commit;
+              AConnection.StartTransaction;
+              i := 0;
+            end;
 
+            (*
+              AComponentsDataSet.Edit;
+              AComponentsDataSet.FieldByName
+              (APossibleLinkDocTable.FieldName.AsString).AsString := S;
+              AComponentsDataSet.Post;
 
-        ComponentName.AsString := APossibleLinkDocTable.ComponentName.AsString;
+              Append;
 
+              FieldName.AsString := APossibleLinkDocTable.FieldName.AsString;
 
-        IDComponent.AsInteger :=  AComponentsDataSet.FieldByName('ID').AsInteger;
+              // В базе данных будем сохранять относительное имя файла
+              FileName.AsString := StrHelper.GetRelativeFileName
+              (APossibleLinkDocTable.FileName.AsString,
+              APossibleLinkDocTable.RootFolder.AsString);
 
-        Post;
+              S := APossibleLinkDocTable.RootFolder.AsString + '\' +
+              FileName.AsString;
+
+              // Отображаемое в отчёте имя файла
+              VisibleFileName.AsString := TPath.GetFileNameWithoutExtension
+              (FileName.AsString);
+
+              // Относительный путь из папок в которых находится файл
+              Folder.AsString :=
+              TPath.Combine
+              (TPath.GetFileName(APossibleLinkDocTable.RootFolder.AsString),
+              TPath.GetDirectoryName(FileName.AsString));
+
+              ComponentName.AsString :=
+              APossibleLinkDocTable.ComponentName.AsString;
+
+              IDComponent.AsInteger := AComponentsDataSet.FieldByName('ID')
+              .AsInteger;
+
+              Post;
+            *)
+          end;
+        end;
+        // APossibleLinkDocTable.Next;
       end;
-    end;
-    AComponentsDataSet.Next;
-    AComponentsDataSet.CallOnProcessEvent;
-  end;
+      AComponentsDataSet.Next;
+      AComponentsDataSet.CallOnProcessEvent;
 
+    end;
+    AConnection.Commit;
+  except
+    AConnection.Rollback;
+  end;
 end;
 
 function TComponentsBaseMasterDetail.ProcessDocFiles(ADocFilesTable
@@ -583,7 +652,7 @@ end;
 function TComponentsBaseMasterDetail.ProcessDocFiles2(ADocFilesTable
   : TDocFilesTable): TPossibleLinkDocTable;
 
-  procedure Append(const AComponentName: String);
+  procedure Append(const AComponentName: String; const ARange: cardinal);
   begin
     Assert(not AComponentName.IsEmpty);
 
@@ -592,6 +661,7 @@ function TComponentsBaseMasterDetail.ProcessDocFiles2(ADocFilesTable
     Result.RootFolder.AsString := ADocFilesTable.RootFolder.AsString;
     Result.FieldName.AsString := ADocFilesTable.FieldName.AsString;
     Result.ComponentName.AsString := AComponentName;
+    Result.Range.AsInteger := ARange;
     Result.Post;
   end;
 
@@ -624,7 +694,7 @@ begin
     // Если файл документации предназначен для одного компонента
     if Length(d) = 1 then
     begin
-      Append(d[0]);
+      Append(d[0], 1);
     end
     else
     begin
@@ -642,7 +712,7 @@ begin
         // Цикл по всем номерам компонентов, входящих в диапазон
         for i := R0.Number to R1.Number do
         begin
-          Append(Format('%s%d', [R0.Name, i]));
+          Append(Format('%s%d', [R0.Name, i]), R1.Number - R0.Number);
           ADocFilesTable.CallOnProcessEvent;
         end;
 
@@ -885,16 +955,25 @@ begin
   FieldDefs.Add('RootFolder', ftString, 500);
   FieldDefs.Add('FieldName', ftString, 100);
   FieldDefs.Add('ComponentName', ftString, 200);
-  IndexDefs.Add('idxComponentName', 'ComponentName', []);
+  FieldDefs.Add('Range', ftInteger);
+  IndexDefs.Add('idxOrder', 'ComponentName;Range', []);
 
   CreateDataSet;
+  IndexName := 'idxOrder';
+  Indexes[0].Active := True;
 
   Open;
+
 end;
 
 function TPossibleLinkDocTable.GetComponentName: TField;
 begin
   Result := FieldByName('ComponentName');
+end;
+
+function TPossibleLinkDocTable.GetRange: TField;
+begin
+  Result := FieldByName('Range');
 end;
 
 function TPossibleLinkDocTable.GetFieldName: TField;
