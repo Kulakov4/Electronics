@@ -22,7 +22,7 @@ type
     constructor Create(Collection: TRecordHolder; AField: TField;
       const ANewFieldName: string); reintroduce; overload;
     property FieldName: String read FFieldName write SetFieldName;
-    property Value: Variant read FValue;
+    property Value: Variant read FValue write FValue;
   end;
 
   TRecordHolder = class(TCollection)
@@ -34,11 +34,12 @@ type
   public
     constructor Create(DataSet: TDataSet); reintroduce; overload;
     constructor Create; overload;
-    procedure Attach(DataSet: TDataSet);
+    procedure Attach(DataSet: TDataSet; const AExceptFieldNames: String = '');
     procedure Detach;
     function FieldEx(const FieldName: String; NullSubstitute: Variant): Variant;
     function Find(const FieldName: string): TFieldHolder;
     procedure Put(DataSet: TDataSet);
+    procedure UpdateNullValues(ASource: TRecordHolder);
     property Field[const FieldName: String]: Variant read GetField
       write SetField;
     property Items[Index: Integer]: TFieldHolder read GetItems
@@ -120,18 +121,26 @@ begin
   inherited Create(TFieldHolder);
 end;
 
-procedure TRecordHolder.Attach(DataSet: TDataSet);
+procedure TRecordHolder.Attach(DataSet: TDataSet;
+  const AExceptFieldNames: String = '');
 Var
-  i: Integer;
+  AField: TField;
+  S: string;
 begin
   Assert(DataSet <> nil);
-  Clear;
   if (not DataSet.Active) or DataSet.IsEmpty then
     raise Exception.Create
       ('Ошибка при сохранении записи из набора данных. Набор данных не открыт или пуст');
-  for i := 0 to DataSet.FieldCount - 1 do
+
+  S := ';' + AExceptFieldNames.ToUpper + ';';
+
+  Clear;
+
+  for AField in DataSet.Fields do
   begin
-    TFieldHolder.Create(Self, DataSet.Fields[i]);
+    // Если это поле не в списке полей для исключения
+    if S.IndexOf(';' + AField.FieldName.ToUpper + ';') < 0 then
+      TFieldHolder.Create(Self, AField);
   end;
 end;
 
@@ -228,6 +237,26 @@ end;
 procedure TRecordHolder.SetItems(Index: Integer; const Value: TFieldHolder);
 begin
   inherited SetItem(Index, Value);
+end;
+
+procedure TRecordHolder.UpdateNullValues(ASource: TRecordHolder);
+var
+  AFieldHolder: TFieldHolder;
+  i: Integer;
+begin
+  // Обновляет пустые значения полей на значения из ASource
+  for i := 0 to Count - 1 do
+  begin
+    // Если NULL или пустая строка
+    if VarIsNull(Items[i].Value) or VarToStr(Items[i].Value).Trim.IsEmpty then
+    begin
+      AFieldHolder := ASource.Find(Items[i].FieldName);
+      // Нашли такое же поле не NULL и не пустая строка
+      if (AFieldHolder <> nil) and (not VarIsNull(AFieldHolder.Value)) and
+        (not VarToStr(AFieldHolder.Value).Trim.IsEmpty) then
+        Items[i].Value := AFieldHolder.Value;
+    end;
+  end;
 end;
 
 class function TDBRecord.GetFieldsDic(ADataSet: TDataSet)

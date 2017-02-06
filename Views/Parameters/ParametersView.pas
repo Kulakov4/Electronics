@@ -171,10 +171,10 @@ implementation
 
 {$R *.dfm}
 
-Uses NotifyEvents, DialogUnit, ImportErrorForm,
-  SplashXP, ColumnsBarButtonsHelper, CustomExcelTable,
-  RepositoryDataModule, System.Generics.Collections, System.Math,
-  SettingsController, System.IOUtils, ProjectConst, System.StrUtils, BaseQuery;
+Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
+  CustomExcelTable, RepositoryDataModule, System.Generics.Collections,
+  System.Math, SettingsController, System.IOUtils, ProjectConst,
+  System.StrUtils, BaseQuery, ProgressBarForm;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
@@ -319,10 +319,10 @@ end;
 
 procedure TViewParameters.actFilterByTableNameExecute(Sender: TObject);
 var
-//  AColumn: TcxGridDBBandedColumn;
-  //AcxGridMasterDataRow: TcxGridMasterDataRow;
+  // AColumn: TcxGridDBBandedColumn;
+  // AcxGridMasterDataRow: TcxGridMasterDataRow;
   AID: Integer;
-  //AView: TcxGridDBBandedTableView;
+  // AView: TcxGridDBBandedTableView;
   S: string;
 begin
   actFilterByTableName.Checked := not actFilterByTableName.Checked;
@@ -473,7 +473,7 @@ var
   AID: Integer;
   d: Boolean;
 begin
-//  if ParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0 then
+  // if ParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0 then
   AID := ParametersMasterDetail.qMainParameters.PKValue;
 
   d := not ParametersMasterDetail.qMainParameters.ShowDublicate;
@@ -1011,12 +1011,19 @@ end;
 procedure TViewParameters.InsertParametersList(AList: TParametersExcelTable);
 begin
   cxGridDBBandedTableView.BeginUpdate();
-  MessageForm.Show(sLoading, sForming);
+  // MessageForm.Show(sLoading, sForming);
   try
-    ParametersMasterDetail.InsertList(AList);
+    // ParametersMasterDetail.InsertList(AList);
+
+    TfrmProgressBar.Process(AList,
+      procedure
+      begin
+        ParametersMasterDetail.InsertList(AList);
+      end, 'Обновление параметров в БД');
+
   finally
     cxGridDBBandedTableView.EndUpdate;
-    MessageForm.Close;
+    // MessageForm.Close;
   end;
 end;
 
@@ -1028,18 +1035,30 @@ var
 begin
   AParametersExcelDM := TParametersExcelDM.Create(Self);
   try
-    MessageForm.Show(sLoading, sWaitExcelLoading);
-    try
-      AParametersExcelDM.ExcelTable.ParametersDataSet :=
-        ParametersMasterDetail.qMainParameters.FDQuery;
-      if not AFileName.IsEmpty then
-        AParametersExcelDM.LoadExcelFile(AFileName)
-      else
-        AParametersExcelDM.LoadFromActiveSheet;
-    finally
-      MessageForm.Close;
-    end;
+    AParametersExcelDM.ExcelTable.ParametersDataSet :=
+      ParametersMasterDetail.qMainParameters.FDQuery;
 
+    TfrmProgressBar.Process(AParametersExcelDM,
+      procedure
+      begin
+        if not AFileName.IsEmpty then
+          AParametersExcelDM.LoadExcelFile(AFileName)
+        else
+          AParametersExcelDM.LoadFromActiveSheet;
+      end, 'Загрузка параметров из Excel документа');
+    {
+      MessageForm.Show(sLoading, sWaitExcelLoading);
+      try
+      AParametersExcelDM.ExcelTable.ParametersDataSet :=
+      ParametersMasterDetail.qMainParameters.FDQuery;
+      if not AFileName.IsEmpty then
+      AParametersExcelDM.LoadExcelFile(AFileName)
+      else
+      AParametersExcelDM.LoadFromActiveSheet;
+      finally
+      MessageForm.Close;
+      end;
+    }
     OK := AParametersExcelDM.ExcelTable.Errors.RecordCount = 0;
 
     if not OK then
@@ -1251,9 +1270,11 @@ begin
   actFilterByTableName.Caption := IfThen(actFilterByTableName.Checked,
     'Снять фильтр', S);
 
-  actShowDublicate.Enabled := OK and (FParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0);
-  actShowDublicate.Caption := IfThen(actShowDublicate.Checked,
-    'Показать всё', 'Всё дубликаты');
+  actShowDublicate.Enabled := OK and
+    (actShowDublicate.Checked or
+    (FParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0));
+  actShowDublicate.Caption := IfThen(actShowDublicate.Checked, 'Показать всё',
+    'Всё дубликаты');
 
   UpdateTotalCount;
 end;

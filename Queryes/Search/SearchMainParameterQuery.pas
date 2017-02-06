@@ -18,8 +18,9 @@ type
     function GetTableName: TField;
     { Private declarations }
   public
-    function Search(const ATableName: String; AIsCustomParameter: Boolean = False):
+    function Search(const ATableName: String; AIsCustomParameter: Boolean):
         Integer; overload;
+    function Search(const ATableName: String): Integer; overload;
     procedure SearchOrAppend(const ATableName: String; AIsCustomParameter: Boolean
         = False);
     property IsCustomParameter: TField read GetIsCustomParameter;
@@ -53,11 +54,18 @@ begin
 end;
 
 function TQuerySearchMainParameter.Search(const ATableName: String;
-    AIsCustomParameter: Boolean = False): Integer;
+    AIsCustomParameter: Boolean): Integer;
 begin
   Assert(not ATableName.IsEmpty);
 
   Result := Search(['TableName', 'IsCustomParameter'], [ATableName, AIsCustomParameter]);
+end;
+
+function TQuerySearchMainParameter.Search(const ATableName: String): Integer;
+begin
+  Assert(not ATableName.IsEmpty);
+
+  Result := Search(['TableName'], [ATableName]);
 end;
 
 procedure TQuerySearchMainParameter.SearchOrAppend(const ATableName: String;

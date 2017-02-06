@@ -1018,7 +1018,7 @@ var
   AAbsentDocTable: TAbsentDocTable;
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
   ADocFilesTable: TDocFilesTable;
-  AField: TField;
+//  AField: TField;
   AfrmGridView: TfrmGridView;
   ALinkedDocTable: TLinkedDocTable;
   APossibleLinkDocTable: TPossibleLinkDocTable;

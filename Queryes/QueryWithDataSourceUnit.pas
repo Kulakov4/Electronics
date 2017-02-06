@@ -107,7 +107,7 @@ var
 begin
   for i := 0 to FDQuery.FieldCount - 1 do
   begin
-    if (FDQuery.Fields[i] is TStringField) and (not FDQuery.Fields[i].ReadOnly)
+    if (FDQuery.Fields[i] is TStringField) and (not FDQuery.Fields[i].ReadOnly and not FDQuery.Fields[i].IsNull)
     then
     begin
       S := FDQuery.Fields[i].AsString.Trim;

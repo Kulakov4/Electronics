@@ -543,7 +543,7 @@ function TComponentsBaseMasterDetail.ProcessDocFiles(ADocFilesTable
     AQueryBase: TQueryBase);
   var
     AIDComponent: Integer;
-    i: Integer;
+//    i: Integer;
     OK: Boolean;
     AOldFileName: String;
     V: Variant;
@@ -904,7 +904,7 @@ procedure TDocFilesTable.LoadDocFiles(ADocFieldInfos: TList<TDocFieldInfo>);
 
   procedure AddFiles(ADocFieldInfo: TDocFieldInfo; const AFolder: String);
   Var
-    ASubFolder: string;
+//    ASubFolder: string;
     m: TStringDynArray;
     S: string;
   begin

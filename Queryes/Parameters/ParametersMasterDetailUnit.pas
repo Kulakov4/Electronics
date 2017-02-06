@@ -135,6 +135,7 @@ begin
   qMainParameters.FDQuery.DisableControls;
   try
     AParametersExcelTable.First;
+    AParametersExcelTable.CallOnProcessEvent;
     while not AParametersExcelTable.Eof do
     begin
       AParameterType := AParametersExcelTable.ParameterType.AsString;
@@ -159,6 +160,7 @@ begin
         raise;
       end;
       AParametersExcelTable.Next;
+      AParametersExcelTable.CallOnProcessEvent;
     end;
   finally
     AParametersExcelTable.EnableControls;

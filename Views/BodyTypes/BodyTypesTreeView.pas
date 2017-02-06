@@ -114,9 +114,10 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, NotifyEvents, SplashXP, BodyTypesExcelDataModule3,
-  ImportErrorForm, DialogUnit, CustomExcelTable, System.Generics.Collections, System.Math, FireDAC.Comp.Client,
-  OpenDocumentUnit, ProjectConst, cxGrid, cxGridLevel, BodyTypesGridQuery,
-  cxGridExportLink, BodyTypesGridView, SettingsController, System.IOUtils;
+  ImportErrorForm, DialogUnit, CustomExcelTable, System.Generics.Collections,
+  System.Math, FireDAC.Comp.Client, OpenDocumentUnit, ProjectConst, cxGrid,
+  cxGridLevel, BodyTypesGridQuery, cxGridExportLink, BodyTypesGridView,
+  SettingsController, System.IOUtils, ProgressBarForm;
 
 procedure TViewBodyTypesTree.actAddBodyTypeExecute(Sender: TObject);
 var
@@ -236,10 +237,11 @@ begin
 
   ABodyTypesExcelDM := TBodyTypesExcelDM3.Create(Self);
   try
+    ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
+     QueryBodyTypesTree.FDQuery;
+
     MessageForm.Show(sLoading, sWaitExcelLoading);
     try
-      ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
-        QueryBodyTypesTree.FDQuery;
       ABodyTypesExcelDM.LoadExcelFile(AFileName);
     finally
       MessageForm.Close;
