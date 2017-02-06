@@ -117,8 +117,8 @@ implementation
 
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
-  System.Types, ProgressInfo, System.Math,  ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst;
+  System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
+  ImportProcessForm, ProjectConst, ManufacturersForm, Manufacturers2Query;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -327,11 +327,33 @@ var
   AFileName: string;
   AFileNames: TList<String>;
   AFolderName: string;
+  AQueryManufacturers2: TQueryManufacturers2;
   AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
+  frmManufacturers: TfrmManufacturers;
   i: Integer;
   m: TStringDynArray;
   S: string;
 begin
+  // Сначала выберем производителя из справочника
+  AQueryManufacturers2 := TQueryManufacturers2.Create(Self);
+  AQueryManufacturers2.RefreshQuery;
+  frmManufacturers := TfrmManufacturers.Create(Self);
+  try
+    frmManufacturers.ViewManufacturers.QueryManufacturers :=
+      AQueryManufacturers2;
+    if frmManufacturers.ShowModal <> mrOk then
+      Exit;
+  finally
+    FreeAndNil(frmManufacturers);
+  end;
+
+  if AQueryManufacturers2.FDQuery.RecordCount = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
+      'Необходимо добавить производителя загружаемых компонентов.');
+    Exit;
+  end;
+
   AFileName := TDialog.Create.OpenDialog(TExcelFilesFolderOpenDialog,
     TSettings.Create.LastFolderForComponentsLoad);
   if AFileName = '' then
