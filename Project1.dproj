@@ -88,7 +88,6 @@
         <DCCReference Include="Helpers\DBRecordHolder.pas"/>
         <DCCReference Include="Helpers\DialogUnit.pas"/>
         <DCCReference Include="Helpers\StrHelper.pas"/>
-        <DCCReference Include="Helpers\SplashXP.pas"/>
         <DCCReference Include="Helpers\ProjectConst.pas"/>
         <DCCReference Include="Helpers\ClipboardUnit.pas"/>
         <DCCReference Include="Helpers\ColumnsBarButtonsHelper.pas"/>
@@ -1372,13 +1371,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>

@@ -81,6 +81,7 @@ begin
   try
     // Цикл по всем записям, которые будем добавлять
     ADescriptionsExcelTable.First;
+    ADescriptionsExcelTable.CallOnProcessEvent;
     while not ADescriptionsExcelTable.Eof do
     begin
       qDescriptionsMaster.LocateOrAppend(ADescriptionsExcelTable.ComponentType.AsString);
@@ -102,6 +103,7 @@ begin
       qDescriptionsDetail.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;
+      ADescriptionsExcelTable.CallOnProcessEvent;
     end;
 
   finally

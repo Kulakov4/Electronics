@@ -87,9 +87,9 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, SplashXP, System.Generics.Defaults,
-  RepositoryDataModule, System.IOUtils, Winapi.ShellAPI, ClipboardUnit,
-  {ClipboardManager, }System.Math, ProjectConst, DialogUnit;
+uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
+  System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
+  DialogUnit;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var

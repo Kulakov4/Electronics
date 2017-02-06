@@ -75,9 +75,8 @@ implementation
 {$R *.dfm}
 
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
-  ManufacturersExcelDataModule, ImportErrorForm, SplashXP,
-  CustomExcelTable, System.Math, SettingsController,
-  System.IOUtils, ProjectConst;
+  ManufacturersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
+  SettingsController, System.IOUtils, ProjectConst, ProgressBarForm;
 
 procedure TViewManufacturers.actAddExecute(Sender: TObject);
 begin
@@ -95,7 +94,7 @@ begin
     QueryManufacturers.ApplyUpdates;
 
     // Начинаем новую транзакцию
-    //FQueryManufacturers.FDQuery.Connection.StartTransaction;
+    // FQueryManufacturers.FDQuery.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -162,7 +161,8 @@ var
   AfrmImportError: TfrmImportError;
   OK: Boolean;
 begin
-  AFileName := TDialog.Create.OpenExcelFile(TSettings.Create.LastFolderForExcelFile);
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForExcelFile);
 
   if AFileName.IsEmpty then
     Exit; // отказались от выбора файла
@@ -170,16 +170,16 @@ begin
   // Сохраняем эту папку в настройках
   TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
 
-
   AManufacturersExcelDM := TManufacturersExcelDM.Create(Self);
   try
-    MessageForm.Show(sLoading, sWaitExcelLoading);
-    try
-      AManufacturersExcelDM.ExcelTable.ManufacturersDataSet := QueryManufacturers.FDQuery;
-      AManufacturersExcelDM.LoadExcelFile(AFileName);
-    finally
-      MessageForm.Close;
-    end;
+    AManufacturersExcelDM.ExcelTable.ManufacturersDataSet :=
+      QueryManufacturers.FDQuery;
+
+    TfrmProgressBar.Process(AManufacturersExcelDM,
+      procedure
+      begin
+        AManufacturersExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка данных о производителе');
 
     OK := AManufacturersExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -210,11 +210,14 @@ begin
     if OK then
     begin
       cxGrid.BeginUpdate;
-      MessageForm.Show(sLoading, sForming);
       try
-        QueryManufacturers.InsertRecordList(AManufacturersExcelDM.ExcelTable);
+        TfrmProgressBar.Process(AManufacturersExcelDM.ExcelTable,
+          procedure
+          begin
+            QueryManufacturers.InsertRecordList
+              (AManufacturersExcelDM.ExcelTable);
+          end, 'Сохранение данных о производителях в БД');
       finally
-        MessageForm.Close;
         cxGrid.EndUpdate;
       end;
     end;
@@ -233,7 +236,7 @@ begin
     QueryManufacturers.CancelUpdates;
 
     // Начинаем новую транзакцию
-    //FQueryManufacturers.FDQuery.Connection.StartTransaction;
+    // FQueryManufacturers.FDQuery.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -250,7 +253,7 @@ end;
 
 procedure TViewManufacturers.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   if (Key = 13) and (AItem = clName) then
     cxGridDBBandedTableView.DataController.Post();
@@ -274,7 +277,7 @@ begin
       TNotifyEventWrap.Create(FQueryManufacturers.OnDataChange, DoOnDataChange);
 
       // Будем работать в рамках транзакции
-      //FQueryManufacturers.FDQuery.Connection.StartTransaction;
+      // FQueryManufacturers.FDQuery.Connection.StartTransaction;
     end
     else
     begin
@@ -314,20 +317,23 @@ end;
 procedure TViewManufacturers.UpdateView;
 var
   AView: TcxGridDBBandedTableView;
-  Ok: Boolean;
+  OK: Boolean;
 begin
   AView := FocusedTableView;
-  Ok := (QueryManufacturers <> nil) and (QueryManufacturers.FDQuery.Active);
+  OK := (QueryManufacturers <> nil) and (QueryManufacturers.FDQuery.Active);
 
   actAdd.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
-  actDelete.Enabled := OK and (AView <> nil) and (AView.DataController.RecordCount > 0);
+  actDelete.Enabled := OK and (AView <> nil) and
+    (AView.DataController.RecordCount > 0);
 
-  actCommit.Enabled := OK and (QueryManufacturers.FDQuery.Connection.InTransaction);
+  actCommit.Enabled := OK and
+    (QueryManufacturers.FDQuery.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actExportToExcelDocument.Enabled := OK and (QueryManufacturers.FDQuery.RecordCount > 0);
+  actExportToExcelDocument.Enabled := OK and
+    (QueryManufacturers.FDQuery.RecordCount > 0);
 
   UpdateTotalCount;
 end;

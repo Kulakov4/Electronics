@@ -327,6 +327,7 @@ begin
   ABodyTypesExcelTable.DisableControls;
   try
     ABodyTypesExcelTable.First;
+    ABodyTypesExcelTable.CallOnProcessEvent;
     while not ABodyTypesExcelTable.Eof do
     begin
       // ищем или добавляем корень - вид корпуса
@@ -359,6 +360,7 @@ begin
       FDQuery.Post;
 
       ABodyTypesExcelTable.Next;
+      ABodyTypesExcelTable.CallOnProcessEvent;
     end;
 
   finally

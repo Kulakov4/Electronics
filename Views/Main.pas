@@ -204,17 +204,16 @@ var
 implementation
 
 uses
-  Winapi.ShellAPI, RepositoryDataModule,
-  DialogUnit, DescriptionsForm, ParametersForm, ManufacturersForm,
-  SettingsController, BodyTypesTreeForm, BodyTypesGridQuery, ReportsForm,
-  ReportQuery, RecommendedReplacementExcelDataModule,
-  ComponentBodyTypesExcelDataModule, ParametricTableForm,
-  BodyTypesMasterDetailUnit, DescriptionsMasterDetailUnit,
+  Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
+  ParametersForm, ManufacturersForm,  SettingsController, BodyTypesTreeForm,
+  BodyTypesGridQuery, ReportsForm, ReportQuery,
+  RecommendedReplacementExcelDataModule,  ComponentBodyTypesExcelDataModule,
+  ParametricTableForm,  BodyTypesMasterDetailUnit, DescriptionsMasterDetailUnit,
   ParametersMasterDetailUnit, ComponentsExMasterDetailUnit,
   ComponentsMasterDetailUnit, ComponentsSearchMasterDetailUnit,
   ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
   BodyTypesForm, ProjectConst, PathSettingsForm, AutoBindingForm,
-  ImportErrorForm, SplashXP, ComponentsBaseMasterDetailUnit, ErrorForm,
+  ImportErrorForm, ComponentsBaseMasterDetailUnit, ErrorForm,
   cxGridDBBandedTableView, System.IOUtils, FieldInfoUnit,
   SearchMainParameterQuery, ImportProcessForm, SearchDaughterParameterQuery,
   ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,

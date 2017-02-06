@@ -105,9 +105,9 @@ type
 implementation
 
 uses
-  DescriptionsExcelDataModule, DialogUnit, SplashXP, ImportErrorForm,
-  NotifyEvents, cxGridExportLink, CustomExcelTable, System.Math,
-  SettingsController, System.IOUtils, ProjectConst;
+  DescriptionsExcelDataModule, DialogUnit, ImportErrorForm, NotifyEvents,
+  cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
+  System.IOUtils, ProjectConst, ProgressBarForm;
 
 {$R *.dfm}
 
@@ -144,7 +144,7 @@ begin
     DescriptionsMasterDetail.Commit;
 
     // Начинаем новую транзакцию
-    //DescriptionsMasterDetail.Connection.StartTransaction;
+    // DescriptionsMasterDetail.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -213,7 +213,8 @@ var
   AfrmImportError: TfrmImportError;
   OK: Boolean;
 begin
-  AFileName := TDialog.Create.OpenExcelFile(TSettings.Create.LastFolderForExcelFile);
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForExcelFile);
 
   if AFileName.IsEmpty then
     Exit; // отказались от выбора файла
@@ -221,17 +222,16 @@ begin
   // Сохраняем эту папку в настройках
   TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
 
-
   ADescriptionsExcelDM := TDescriptionsExcelDM.Create(Self);
   try
-    MessageForm.Show(sLoading, sWaitExcelLoading);
-    try
-      ADescriptionsExcelDM.ExcelTable.DescriptionsDataSet :=
-        DescriptionsMasterDetail.qDescriptionsDetail.FDQuery;
-      ADescriptionsExcelDM.LoadExcelFile(AFileName);
-    finally
-      MessageForm.Close;
-    end;
+    ADescriptionsExcelDM.ExcelTable.DescriptionsDataSet :=
+      DescriptionsMasterDetail.qDescriptionsDetail.FDQuery;
+
+    TfrmProgressBar.Process(ADescriptionsExcelDM,
+      procedure
+      begin
+        ADescriptionsExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка кратких описаний из Excel документа');
 
     OK := ADescriptionsExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -263,12 +263,14 @@ begin
     if OK then
     begin
       cxGrid.BeginUpdate;
-      MessageForm.Show(sLoading, sForming);
       try
-        DescriptionsMasterDetail.InsertRecordList
-          (ADescriptionsExcelDM.ExcelTable);
+        TfrmProgressBar.Process(ADescriptionsExcelDM.ExcelTable,
+          procedure
+          begin
+            DescriptionsMasterDetail.InsertRecordList
+              (ADescriptionsExcelDM.ExcelTable);
+          end, 'Сохранение кратких описаний в БД');
       finally
-        MessageForm.Close;
         cxGrid.EndUpdate;
       end;
     end;
@@ -287,7 +289,7 @@ begin
     DescriptionsMasterDetail.Rollback;
 
     // Начинаем новую транзакцию
-    //DescriptionsMasterDetail.Connection.StartTransaction;
+    // DescriptionsMasterDetail.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -536,7 +538,7 @@ begin
 
     // Будем работать в рамках транзакции
     // Транзакцию начинают сами компоненты
-    //FDescriptionsMasterDetail.Connection.StartTransaction;
+    // FDescriptionsMasterDetail.Connection.StartTransaction;
   end;
   UpdateView;
 end;
@@ -556,7 +558,7 @@ begin
       Dec(X, StatusBar.Panels[I].Width);
     end;
   end;
-  x := IfThen(x >= 0, x, 0);
+  X := IfThen(X >= 0, X, 0);
   StatusBar.Panels[EmptyPanelIndex].Width := X;
 end;
 
@@ -587,7 +589,8 @@ begin
 
   actDelete.Enabled := OK and (AView.DataController.RecordCount > 0);
 
-  actCommit.Enabled := OK and (DescriptionsMasterDetail.Connection.InTransaction );
+  actCommit.Enabled := OK and
+    (DescriptionsMasterDetail.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 

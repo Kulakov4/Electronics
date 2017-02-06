@@ -1011,10 +1011,7 @@ end;
 procedure TViewParameters.InsertParametersList(AList: TParametersExcelTable);
 begin
   cxGridDBBandedTableView.BeginUpdate();
-  // MessageForm.Show(sLoading, sForming);
   try
-    // ParametersMasterDetail.InsertList(AList);
-
     TfrmProgressBar.Process(AList,
       procedure
       begin
@@ -1023,7 +1020,6 @@ begin
 
   finally
     cxGridDBBandedTableView.EndUpdate;
-    // MessageForm.Close;
   end;
 end;
 
@@ -1046,19 +1042,7 @@ begin
         else
           AParametersExcelDM.LoadFromActiveSheet;
       end, 'Загрузка параметров из Excel документа');
-    {
-      MessageForm.Show(sLoading, sWaitExcelLoading);
-      try
-      AParametersExcelDM.ExcelTable.ParametersDataSet :=
-      ParametersMasterDetail.qMainParameters.FDQuery;
-      if not AFileName.IsEmpty then
-      AParametersExcelDM.LoadExcelFile(AFileName)
-      else
-      AParametersExcelDM.LoadFromActiveSheet;
-      finally
-      MessageForm.Close;
-      end;
-    }
+
     OK := AParametersExcelDM.ExcelTable.Errors.RecordCount = 0;
 
     if not OK then

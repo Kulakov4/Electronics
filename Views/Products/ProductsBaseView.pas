@@ -98,7 +98,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, Winapi.ShellAPI, SplashXP, DialogUnit, SettingsController,
+uses System.IOUtils, Winapi.ShellAPI, DialogUnit, SettingsController,
   ParameterValuesUnit, cxDropDownEdit;
 
 procedure TViewProductsBase.actCommitExecute(Sender: TObject);

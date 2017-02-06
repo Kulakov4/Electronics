@@ -107,11 +107,10 @@ type
 
 implementation
 
-uses BodyTypesExcelDataModule3, ImportErrorForm, DialogUnit, SplashXP,
-  RepositoryDataModule, NotifyEvents,
-  ColumnsBarButtonsHelper, CustomExcelTable, OpenDocumentUnit,
-  ProjectConst, SettingsController, PathSettingsForm, System.Math,
-  System.IOUtils;
+uses BodyTypesExcelDataModule3, ImportErrorForm, DialogUnit,
+  RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
+  OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
+  System.Math, System.IOUtils, ProgressBarForm;
 
 {$R *.dfm}
 
@@ -233,14 +232,14 @@ begin
 
   ABodyTypesExcelDM := TBodyTypesExcelDM3.Create(Self);
   try
-    MessageForm.Show(sLoading, sWaitExcelLoading);
-    try
-      ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
-        BodyTypesMasterDetail.qBodyTypes2.FDQuery;
-      ABodyTypesExcelDM.LoadExcelFile(AFileName);
-    finally
-      MessageForm.Close;
-    end;
+    ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
+      BodyTypesMasterDetail.qBodyTypes2.FDQuery;
+
+    TfrmProgressBar.Process(ABodyTypesExcelDM,
+      procedure
+      begin
+        ABodyTypesExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка корпусных данных');
 
     OK := ABodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -271,11 +270,14 @@ begin
     if OK then
     begin
       cxGrid.BeginUpdate;
-      MessageForm.Show(sLoading, sForming);
       try
-        BodyTypesMasterDetail.InsertRecordList(ABodyTypesExcelDM.ExcelTable);
+        TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
+          procedure
+          begin
+            BodyTypesMasterDetail.InsertRecordList
+              (ABodyTypesExcelDM.ExcelTable);
+          end, 'Сохранение корпусных данных в БД');
       finally
-        MessageForm.Close;
         cxGrid.EndUpdate;
       end;
     end;
@@ -374,7 +376,7 @@ begin
 end;
 
 procedure TViewBodyTypes.clImagePropertiesButtonClick(Sender: TObject;
-  AButtonIndex: Integer);
+AButtonIndex: Integer);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
@@ -384,7 +386,7 @@ begin
 end;
 
 procedure TViewBodyTypes.clLandPatternPropertiesButtonClick(Sender: TObject;
-  AButtonIndex: Integer);
+AButtonIndex: Integer);
 begin
   TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
     BodyTypesMasterDetail.qBodyTypes2.LandPattern.AsString,
@@ -393,7 +395,7 @@ begin
 end;
 
 procedure TViewBodyTypes.clOutlineDrawingPropertiesButtonClick(Sender: TObject;
-  AButtonIndex: Integer);
+AButtonIndex: Integer);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
@@ -410,7 +412,7 @@ end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 var
   AColumn: TcxGridDBBandedColumn;
   S: string;
@@ -441,7 +443,7 @@ end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   if (Key = 13) and (AItem = clBodyType) then
     cxGridDBBandedTableView.DataController.Post();

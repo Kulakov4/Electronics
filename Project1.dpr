@@ -5,7 +5,6 @@ uses
   DBRecordHolder in 'Helpers\DBRecordHolder.pas',
   DialogUnit in 'Helpers\DialogUnit.pas',
   StrHelper in 'Helpers\StrHelper.pas',
-  SplashXP in 'Helpers\SplashXP.pas',
   ProjectConst in 'Helpers\ProjectConst.pas',
   ClipboardUnit in 'Helpers\ClipboardUnit.pas',
   ColumnsBarButtonsHelper in 'Helpers\ColumnsBarButtonsHelper.pas',

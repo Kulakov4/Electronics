@@ -116,9 +116,9 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
-  DialogUnit, SplashXP, Vcl.Clipbrd, SettingsController,
-  Vcl.FileCtrl, System.IOUtils, System.Types, ProgressInfo, System.Math,
-  ErrorTable, FireDAC.Comp.DataSet, ImportProcessForm, ProjectConst;
+  DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
+  System.Types, ProgressInfo, System.Math,  ErrorTable, FireDAC.Comp.DataSet,
+  ImportProcessForm, ProjectConst;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin

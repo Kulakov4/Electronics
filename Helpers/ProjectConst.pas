@@ -34,8 +34,6 @@ resourcestring
 
   sDefaultDatabaseFileName = 'database.db';
 
-  sПривязка = 'Привязка';
-  sПривязкаКомпонентовКДокументации = 'Привязка компонентов к документации';
   sDoYouWantToDeleteComponent =
     'Вы действительно хотите удалить выделенные компоненты из текущей категории?';
   sDoYouWantToDeleteComponentFromAll =
@@ -44,16 +42,11 @@ resourcestring
   sDatabase = 'Database';
   sPleaseWrite = 'Пожалуйста, введите наименование';
   sNoExcelSheets = 'В выбранной Excel книге нет ни одного листа';
-  sLoading = 'Загрузка';
-  sForming = 'Формирование';
-  //sSorting = 'Подождите, происходит сортировка.';
-  sWaitExcelLoading = 'Подождите, идёт обработка документа Excel';
   sDoYouWantToDeleteProducts =
     'Вы действительно хотите удалить выделенные компоненты со склада?';
   sDoYouWantToSaveChanges = 'Изменения не были сохранены. Сохранить изменения?';
   sError = 'Ошибка';
   sSaving = 'Сохранение';
-  //sNothingSelected = 'Не выбрано ни одного файла.';
   sLocalizationFileName = 'bin\Localization.ini';
 
   sProducerParamTableName = 'Producer';

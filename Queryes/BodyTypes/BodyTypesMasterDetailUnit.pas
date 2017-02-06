@@ -86,6 +86,7 @@ begin
   ABodyTypesExcelTable.DisableControls;
   try
     ABodyTypesExcelTable.First;
+    ABodyTypesExcelTable.CallOnProcessEvent;
     while not ABodyTypesExcelTable.Eof do
     begin
       // ищем или добавляем корень - вид корпуса
@@ -100,34 +101,13 @@ begin
         ABodyTypesExcelTable.Image.AsString);
 
       ABodyTypesExcelTable.Next;
+      ABodyTypesExcelTable.CallOnProcessEvent;
     end;
 
   finally
     ABodyTypesExcelTable.EnableControls;
   end;
 
-  {
-
-    qBodyTypes2.FDQuery.Close;
-    qBodyKinds.FDQuery.Close;
-
-
-    // Создаём набор данных ввиде дерева
-    AQueryBodyTypesTree := TQueryBodyTypesTree.Create(Application.MainForm);
-    try
-    //    AQueryBodyTypesTree.FDQuery.Name := 'FDQuery1';
-    AQueryBodyTypesTree.RefreshQuery;
-    // Просим дерево загрузить данные из excel файла
-    AQueryBodyTypesTree.InsertRecordList(ABodyTypesExcelTable);
-    AQueryBodyTypesTree.ApplyUpdates;
-    finally
-    AQueryBodyTypesTree.FDQuery.Close;
-    FreeAndNil(AQueryBodyTypesTree);
-    end;
-
-    qBodyKinds.FDQuery.Open;
-    qBodyTypes2.FDQuery.Open;
-  }
 end;
 
 end.

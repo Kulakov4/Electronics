@@ -113,7 +113,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, NotifyEvents, SplashXP, BodyTypesExcelDataModule3,
+uses RepositoryDataModule, NotifyEvents, BodyTypesExcelDataModule3,
   ImportErrorForm, DialogUnit, CustomExcelTable, System.Generics.Collections,
   System.Math, FireDAC.Comp.Client, OpenDocumentUnit, ProjectConst, cxGrid,
   cxGridLevel, BodyTypesGridQuery, cxGridExportLink, BodyTypesGridView,
@@ -238,14 +238,13 @@ begin
   ABodyTypesExcelDM := TBodyTypesExcelDM3.Create(Self);
   try
     ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
-     QueryBodyTypesTree.FDQuery;
+      QueryBodyTypesTree.FDQuery;
 
-    MessageForm.Show(sLoading, sWaitExcelLoading);
-    try
-      ABodyTypesExcelDM.LoadExcelFile(AFileName);
-    finally
-      MessageForm.Close;
-    end;
+    TfrmProgressBar.Process(ABodyTypesExcelDM,
+      procedure
+      begin
+        ABodyTypesExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка корпусных данных');
 
     OK := ABodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -276,11 +275,13 @@ begin
     if OK then
     begin
       cxDBTreeList.BeginUpdate;
-      MessageForm.Show(sLoading, sForming);
       try
-        QueryBodyTypesTree.InsertRecordList(ABodyTypesExcelDM.ExcelTable);
+        TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
+          procedure
+          begin
+            QueryBodyTypesTree.InsertRecordList(ABodyTypesExcelDM.ExcelTable);
+          end, 'Сохранение корпусных данных в БД');
       finally
-        MessageForm.Close;
         cxDBTreeList.EndUpdate;
       end;
     end;
@@ -321,24 +322,24 @@ begin
 end;
 
 procedure TViewBodyTypesTree.cxDBTreeListEdited(Sender: TcxCustomTreeList;
-  AColumn: TcxTreeListColumn);
+AColumn: TcxTreeListColumn);
 begin;
 end;
 
 procedure TViewBodyTypesTree.cxDBTreeListEditing(Sender: TcxCustomTreeList;
-  AColumn: TcxTreeListColumn; var Allow: Boolean);
+AColumn: TcxTreeListColumn; var Allow: Boolean);
 begin
   MySyncData(Sender.FocusedNode as TcxDBTreeListNode);
 end;
 
 procedure TViewBodyTypesTree.cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
-  ANode: TcxTreeListNode; var IsGroup: Boolean);
+ANode: TcxTreeListNode; var IsGroup: Boolean);
 begin
   IsGroup := IsGroupNode(ANode);
 end;
 
 procedure TViewBodyTypesTree.cxDBTreeListKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+Shift: TShiftState);
 begin
   if Key = 13 then
     QueryBodyTypesTree.TryPost;
@@ -387,7 +388,7 @@ begin
 end;
 
 procedure TViewBodyTypesTree.ExportViewToExcel(ADataSource: TDataSource;
-  AFileName: string);
+AFileName: string);
 var
   Grid: TcxGrid;
   Level: TcxGridLevel;
@@ -453,7 +454,7 @@ begin
 end;
 
 procedure TViewBodyTypesTree.lcImagePropertiesButtonClick(Sender: TObject;
-  AButtonIndex: Integer);
+AButtonIndex: Integer);
 begin
   TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
     QueryBodyTypesTree.Image.AsString,
@@ -462,7 +463,7 @@ begin
 end;
 
 procedure TViewBodyTypesTree.lcLandPatternPropertiesButtonClick(Sender: TObject;
-  AButtonIndex: Integer);
+AButtonIndex: Integer);
 begin
   TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
     QueryBodyTypesTree.LandPattern.AsString,
@@ -472,7 +473,7 @@ end;
 
 procedure TViewBodyTypesTree.lcOutlineDrawingGetEditProperties
   (Sender: TcxTreeListColumn; ANode: TcxTreeListNode;
-  var EditProperties: TcxCustomEditProperties);
+var EditProperties: TcxCustomEditProperties);
 begin
   if ANode = nil then
     Exit;

@@ -103,6 +103,7 @@ begin
   try
     // Цикл по всем записям, которые будем добавлять
     AManufacturesExcelTable.First;
+    AManufacturesExcelTable.CallOnProcessEvent;
     while not AManufacturesExcelTable.Eof do
     begin
       FDQuery.Append;
@@ -117,6 +118,7 @@ begin
       TryPost;
 
       AManufacturesExcelTable.Next;
+      AManufacturesExcelTable.CallOnProcessEvent;
     end;
 
   finally
