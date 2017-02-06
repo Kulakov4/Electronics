@@ -80,10 +80,12 @@ begin
 
   TNotifyEventWrap.Create(qComponentsDetail.BeforePost, DoBeforeDetailPost);
 
-  // TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete);
-  // TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete);
-  // TNotifyEventWrap.Create(qComponentsDetail.AfterPost, AfterComponentPostOrDelete);
-  // TNotifyEventWrap.Create(qComponentsDetail.AfterDelete, AfterComponentPostOrDelete);
+  TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete);
+  TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete);
+  TNotifyEventWrap.Create(qComponentsDetail.AfterPost,
+    AfterComponentPostOrDelete);
+  TNotifyEventWrap.Create(qComponentsDetail.AfterDelete,
+    AfterComponentPostOrDelete);
 end;
 
 procedure TComponentsMasterDetail.AfterComponentPostOrDelete(Sender: TObject);
