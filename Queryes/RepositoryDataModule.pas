@@ -9,7 +9,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, Data.DB, FireDAC.Comp.Client, Vcl.ImgList,
-  Vcl.Controls, cxGraphics, cxStyles, System.ImageList;
+  Vcl.Controls, cxGraphics, cxStyles, System.ImageList, NotifyEvents;
 
 type
   TDMRepository = class(TDataModule)
@@ -29,14 +29,17 @@ type
     cxImageList: TcxImageList;
     cxStyleRepository: TcxStyleRepository;
     cxStyle1: TcxStyle;
+    procedure dbConnectionAfterCommit(Sender: TObject);
     // TODO: cxFieldValueWithExpandPropertiesButtonClick
     // procedure cxFieldValueWithExpandPropertiesButtonClick(Sender: TObject;
     // AButtonIndex: Integer);
   private
+    FAfterCommit: TNotifyEventsEx;
     procedure LocalizeDevExpress;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     { Public declarations }
   end;
 
@@ -55,8 +58,16 @@ constructor TDMRepository.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  FAfterCommit := TNotifyEventsEx.Create(Self);
+
   // локализуем девэкспресс
   LocalizeDevExpress();
+end;
+
+procedure TDMRepository.dbConnectionAfterCommit(Sender: TObject);
+begin
+  // Извещаем всех о коммите
+  FAfterCommit.CallEventHandlers(Sender);
 end;
 
 // TODO: cxFieldValueWithExpandPropertiesButtonClick

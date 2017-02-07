@@ -74,7 +74,9 @@ object DMRepository: TDMRepository
       'LockingMode=Normal'
       'Database=C:\Public\Database\database.db'
       'DriverID=SQLite')
+    Connected = True
     LoginPrompt = False
+    AfterCommit = dbConnectionAfterCommit
     Left = 152
     Top = 16
   end

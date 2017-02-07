@@ -1,8 +1,8 @@
 inherited QueryManufacturers2: TQueryManufacturers2
   Width = 204
-  Height = 90
+  Height = 78
   ExplicitWidth = 204
-  ExplicitHeight = 90
+  ExplicitHeight = 78
   inherited Label1: TLabel
     Width = 104
     Caption = 'Manufacturers2'
@@ -48,6 +48,6 @@ inherited QueryManufacturers2: TQueryManufacturers2
       '    )'
       ')')
     Left = 144
-    Top = 26
+    Top = 24
   end
 end

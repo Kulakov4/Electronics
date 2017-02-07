@@ -175,7 +175,7 @@ inherited ViewComponentsBase: TViewComponentsBase
       object clDescription2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Description'
         Position.BandIndex = 1
-        Position.ColIndex = 8
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
       object clDatasheet2: TcxGridDBBandedColumn
@@ -185,7 +185,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Properties.ReadOnly = True
         Width = 100
         Position.BandIndex = 1
-        Position.ColIndex = 2
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
       object clDiagram2: TcxGridDBBandedColumn
@@ -195,7 +195,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Properties.ReadOnly = True
         Width = 100
         Position.BandIndex = 1
-        Position.ColIndex = 3
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
       object clDrawing2: TcxGridDBBandedColumn
@@ -205,7 +205,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Properties.ReadOnly = True
         Width = 100
         Position.BandIndex = 1
-        Position.ColIndex = 4
+        Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clImage2: TcxGridDBBandedColumn
@@ -215,7 +215,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Properties.ReadOnly = True
         Width = 100
         Position.BandIndex = 1
-        Position.ColIndex = 5
+        Position.ColIndex = 6
         Position.RowIndex = 0
       end
       object clPackagePins2: TcxGridDBBandedColumn
@@ -223,7 +223,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         DataBinding.FieldName = 'PackagePins'
         MinWidth = 120
         Position.BandIndex = 1
-        Position.ColIndex = 6
+        Position.ColIndex = 7
         Position.RowIndex = 0
       end
       object clParentProductId2: TcxGridDBBandedColumn
@@ -231,7 +231,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 1
-        Position.ColIndex = 7
+        Position.ColIndex = 8
         Position.RowIndex = 0
       end
     end
@@ -244,14 +244,6 @@ inherited ViewComponentsBase: TViewComponentsBase
       0)
   end
   inherited ActionList: TActionList
-    inherited actOpenDatasheet: TAction [7]
-    end
-    inherited actLoadDatasheet: TAction [8]
-    end
-    inherited actOpenDiagram: TAction [9]
-    end
-    inherited actLoadDiagram: TAction [10]
-    end
     object actSettings: TAction
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       ImageIndex = 18

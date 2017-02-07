@@ -12,7 +12,7 @@ inherited frmImportProcess: TfrmImportProcess
     Height = 473
     ExplicitWidth = 878
     ExplicitHeight = 473
-    inherited ViewImportError: TViewGrid
+    inherited ViewGrid: TViewGrid
       Width = 876
       Height = 471
       ExplicitWidth = 876
@@ -39,10 +39,8 @@ inherited frmImportProcess: TfrmImportProcess
       inherited cxGridPopupMenu: TcxGridPopupMenu
         PopupMenus = <
           item
-            GridView = ViewImportError.cxGridDBBandedTableView
             HitTypes = [gvhtCell]
             Index = 0
-            PopupMenu = ViewImportError.pmGrid
           end>
       end
     end

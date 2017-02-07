@@ -117,11 +117,15 @@ type
     dxBarSubItem4: TdxBarSubItem;
     actLoadFromExcelFolder: TAction;
     dxBarButton6: TdxBarButton;
+    dxBarButton7: TdxBarButton;
+    actLoadFromExcelDocument: TAction;
+    dxBarButton8: TdxBarButton;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingExecute(Sender: TObject);
     procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
+    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
     procedure actRenameTreeNodeExecute(Sender: TObject);
@@ -159,6 +163,7 @@ type
     procedure tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
     procedure tsComponentsShow(Sender: TObject);
+    procedure dxBarButton7Click(Sender: TObject);
   private
     F1: Boolean;
     FCategoryPath: string;
@@ -167,7 +172,6 @@ type
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
     procedure DoBeforeParametricTableFormClose(Sender: TObject);
-    procedure DoOnLoadBodyTypes(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
     procedure DoOnLoadParametricTable(Sender: TObject);
@@ -181,6 +185,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
+    function TakeProducer: String;
     { Public declarations }
   end;
 
@@ -205,10 +210,10 @@ implementation
 
 uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
-  ParametersForm, ManufacturersForm,  SettingsController, BodyTypesTreeForm,
+  ParametersForm, ManufacturersForm, SettingsController, BodyTypesTreeForm,
   BodyTypesGridQuery, ReportsForm, ReportQuery,
-  RecommendedReplacementExcelDataModule,  ComponentBodyTypesExcelDataModule,
-  ParametricTableForm,  BodyTypesMasterDetailUnit, DescriptionsMasterDetailUnit,
+  RecommendedReplacementExcelDataModule, ComponentBodyTypesExcelDataModule,
+  ParametricTableForm, BodyTypesMasterDetailUnit, DescriptionsMasterDetailUnit,
   ParametersMasterDetailUnit, ComponentsExMasterDetailUnit,
   ComponentsMasterDetailUnit, ComponentsSearchMasterDetailUnit,
   ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
@@ -219,7 +224,7 @@ uses
   ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,
   SearchDescriptionsQuery, SearchSubCategoriesQuery,
   SearchComponentCategoryQuery2, AllMainComponentsQuery, TableWithProgress,
-  AllMainComponentsQuery2, GridViewForm;
+  AllMainComponentsQuery2, GridViewForm, Manufacturers2Query, TreeListQuery;
 
 {$R *.dfm}
 
@@ -358,9 +363,86 @@ begin
   ViewComponents.ComponentsMasterDetail.ReOpen;
 end;
 
-procedure TfrmMain.actLoadFromExcelFolderExecute(Sender: TObject);
+procedure TfrmMain.actLoadFromExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: string;
+  AProducer: String;
+  AQueryTreeList: TQueryTreeList;
+  m: TArray<String>;
+  S: string;
 begin
-  ViewComponents.actLoadFromExcelFolder.Execute;
+  AProducer := TakeProducer;
+  if AProducer.IsEmpty then
+    Exit;
+
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForComponentsLoad);
+
+  if AFileName.IsEmpty then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForComponentsLoad :=
+    TPath.GetDirectoryName(AFileName);
+
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+
+  m := S.Split([' ']);
+  if Length(m) = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+    Exit;
+  end;
+
+  try
+    // Проверяем что первая часть содержит целочисленный код категории
+    m[0].ToInteger;
+  except
+    TDialog.Create.ErrorMessageDialog
+      ('В начале имени файла должен быть код категории');
+    Exit;
+  end;
+
+  AQueryTreeList := TQueryTreeList.Create(Self);
+  try
+    AQueryTreeList.FilterByExternalID(m[0]);
+    if AQueryTreeList.FDQuery.RecordCount = 0 then
+    begin
+      TDialog.Create.ErrorMessageDialog
+        (Format('Категория %s не найдена', [m[0]]));
+      Exit;
+    end;
+
+    // Переходим в дереве категорий на загружаемую категорию
+    DM.qTreeList.LocateByPK(AQueryTreeList.PKValue);
+  finally
+    FreeAndNil(AQueryTreeList);
+  end;
+
+  ViewComponents.LoadFromExcelDocument(AFileName, AProducer);
+end;
+
+procedure TfrmMain.actLoadFromExcelFolderExecute(Sender: TObject);
+var
+  AFileName: string;
+  AFolderName: string;
+  AProducer: String;
+begin
+  // Выбираем производителя
+  AProducer := TakeProducer;
+  if AProducer.IsEmpty then
+    Exit;
+
+  AFileName := TDialog.Create.OpenDialog(TExcelFilesFolderOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad);
+  if AFileName.IsEmpty then
+    Exit;
+
+  AFolderName := TPath.GetDirectoryName(AFileName);
+
+  TSettings.Create.LastFolderForComponentsLoad := AFolderName;
+
+  ViewComponents.LoadFromExcelFolder(AFolderName, AProducer);
 end;
 
 procedure TfrmMain.actLoadParametricTableExecute(Sender: TObject);
@@ -826,11 +908,6 @@ begin
   frmParametricTable := nil;
 end;
 
-procedure TfrmMain.DoOnLoadBodyTypes(Sender: TObject);
-begin
-  actLoadBodyTypes.Execute;
-end;
-
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if DM.HaveAnyChanges then
@@ -891,9 +968,6 @@ begin
       // Привязываем представления к данным
       ViewComponents.ComponentsMasterDetail := DM.ComponentsMasterDetail;
 
-      // Подписываемся на событие о загрузке корпусных данных
-      TNotifyEventWrap.Create(ViewComponents.OnLoadBodyTypesEvent,
-        DoOnLoadBodyTypes, FEventList);
       // Подписываемся на событие о отображении параметрической таблицы
       TNotifyEventWrap.Create(ViewComponents.OnShowParametricTableEvent,
         DoOnShowParametricTable, FEventList);
@@ -994,6 +1068,12 @@ begin
 
 end;
 
+procedure TfrmMain.dxBarButton7Click(Sender: TObject);
+begin
+  inherited;
+  DM.qTreeList.LocateByPK(152);
+end;
+
 procedure TfrmMain.DoOnLoadParametricTable(Sender: TObject);
 begin
   actLoadParametricTable.Execute;
@@ -1017,7 +1097,7 @@ var
   AAbsentDocTable: TAbsentDocTable;
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
   ADocFilesTable: TDocFilesTable;
-//  AField: TField;
+  // AField: TField;
   AfrmGridView: TfrmGridView;
   ALinkedDocTable: TLinkedDocTable;
   APossibleLinkDocTable: TPossibleLinkDocTable;
@@ -1068,7 +1148,7 @@ begin
     AQueryAllMainComponents := TQueryAllMainComponents.Create(Self);
     try
       // Загружаем все компоненты
-//      AQueryAllMainComponents.RefreshQuery;
+      // AQueryAllMainComponents.RefreshQuery;
       AQueryAllMainComponents.Load(['ID'], [0]);
       // Создаём набор данных в памяти
       ATableWithProgress := TTableWithProgress.Create(Self);
@@ -1078,12 +1158,12 @@ begin
         ATableWithProgress.CloneCursor(AQueryAllMainComponents.FDQuery);
         ATableWithProgress.Last;
 
-//        for AField in ATableWithProgress.Fields do
-//          AField.ReadOnly := False;
+        // for AField in ATableWithProgress.Fields do
+        // AField.ReadOnly := False;
 
-//        AQueryAllMainComponents.AutoTransaction := False;
-//        if (not AQueryAllMainComponents.FDQuery.Connection.InTransaction) then
-//            AQueryAllMainComponents.FDQuery.Connection.StartTransaction;
+        // AQueryAllMainComponents.AutoTransaction := False;
+        // if (not AQueryAllMainComponents.FDQuery.Connection.InTransaction) then
+        // AQueryAllMainComponents.FDQuery.Connection.StartTransaction;
 
         TfrmProgressBar.Process(ATableWithProgress,
           procedure
@@ -1094,7 +1174,7 @@ begin
               ADocFieldInfos, AQueryAllMainComponents.FDQuery.Connection);
           end, 'Поиск подходящих файлов документации');
 
-//        AQueryAllMainComponents.FDQuery.Connection.Commit;
+        // AQueryAllMainComponents.FDQuery.Connection.Commit;
       finally
         FreeAndNil(ATableWithProgress);
       end;
@@ -1142,9 +1222,10 @@ begin
     begin
       AfrmGridView := TfrmGridView.Create(Self);
       try
-        AfrmGridView.Caption := 'Компоненты для которых отсутствует документация';
+        AfrmGridView.Caption :=
+          'Компоненты для которых отсутствует документация';
         AfrmGridView.DataSet := AAbsentDocTable;
-        AcxGridDBBandedColumn := AfrmGridView.ViewImportError.MainView.
+        AcxGridDBBandedColumn := AfrmGridView.ViewGrid.MainView.
           GetColumnByFieldName(AAbsentDocTable.Folder.FieldName);
         Assert(AcxGridDBBandedColumn <> nil);
         AcxGridDBBandedColumn.GroupIndex := 0;
@@ -1170,6 +1251,42 @@ begin
     Result := frmSettings.ShowModal;
   finally
     frmSettings.Free;
+  end;
+end;
+
+function TfrmMain.TakeProducer: String;
+var
+  AfrmManufacturers: TfrmManufacturers;
+  AQueryManufacturers2: TQueryManufacturers2;
+begin
+  Result := '';
+  // Сначала выберем производителя из справочника
+  AQueryManufacturers2 := TQueryManufacturers2.Create(Self);
+  try
+    AQueryManufacturers2.RefreshQuery;
+    AfrmManufacturers := TfrmManufacturers.Create(Self);
+    try
+      AfrmManufacturers.Caption := 'Выберите производителя';
+      AfrmManufacturers.btnOk.ModalResult := mrOk;
+
+      AfrmManufacturers.ViewManufacturers.QueryManufacturers :=
+        AQueryManufacturers2;
+      if AfrmManufacturers.ShowModal <> mrOk then
+        Exit;
+    finally
+      FreeAndNil(AfrmManufacturers);
+    end;
+
+    if AQueryManufacturers2.FDQuery.RecordCount = 0 then
+    begin
+      TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
+        'Необходимо добавить производителя загружаемых компонентов.');
+      Exit;
+    end;
+
+    Result := AQueryManufacturers2.Name.AsString;
+  finally
+    FreeAndNil(AQueryManufacturers2);
   end;
 end;
 

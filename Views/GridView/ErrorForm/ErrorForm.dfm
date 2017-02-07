@@ -10,22 +10,22 @@ inherited frmError: TfrmError
     Width = 834
     Height = 379
     ExplicitWidth = 834
-    ExplicitHeight = 311
-    inherited ViewImportError: TViewGrid
+    ExplicitHeight = 379
+    inherited ViewGrid: TViewGrid
       Width = 832
       Height = 377
       ExplicitWidth = 832
-      ExplicitHeight = 309
+      ExplicitHeight = 377
       inherited cxGrid: TcxGrid
         Width = 832
         Height = 330
         ExplicitWidth = 832
-        ExplicitHeight = 262
+        ExplicitHeight = 330
       end
       inherited StatusBar: TStatusBar
         Top = 358
         Width = 832
-        ExplicitTop = 290
+        ExplicitTop = 358
         ExplicitWidth = 832
       end
       inherited dxBarManager: TdxBarManager
@@ -34,15 +34,6 @@ inherited frmError: TfrmError
           0
           28
           0)
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewImportError.cxGridDBBandedTableView
-            HitTypes = [gvhtCell]
-            Index = 0
-            PopupMenu = ViewImportError.pmGrid
-          end>
       end
     end
   end

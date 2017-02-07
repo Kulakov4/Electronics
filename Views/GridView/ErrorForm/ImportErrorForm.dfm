@@ -9,24 +9,24 @@ inherited frmImportError: TfrmImportError
   inherited MainPanel: TPanel
     Width = 855
     Height = 397
-    ExplicitWidth = 860
-    ExplicitHeight = 329
-    inherited ViewImportError: TViewGrid
+    ExplicitWidth = 855
+    ExplicitHeight = 397
+    inherited ViewGrid: TViewGrid
       Width = 853
       Height = 395
-      ExplicitWidth = 858
-      ExplicitHeight = 327
+      ExplicitWidth = 853
+      ExplicitHeight = 395
       inherited cxGrid: TcxGrid
         Width = 853
         Height = 348
-        ExplicitWidth = 858
-        ExplicitHeight = 280
+        ExplicitWidth = 853
+        ExplicitHeight = 348
       end
       inherited StatusBar: TStatusBar
         Top = 376
         Width = 853
-        ExplicitTop = 308
-        ExplicitWidth = 858
+        ExplicitTop = 376
+        ExplicitWidth = 853
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -35,22 +35,13 @@ inherited frmImportError: TfrmImportError
           28
           0)
       end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewImportError.cxGridDBBandedTableView
-            HitTypes = [gvhtCell]
-            Index = 0
-            PopupMenu = ViewImportError.pmGrid
-          end>
-      end
     end
   end
   inherited PanelBottom: TPanel
     Top = 397
     Width = 855
-    ExplicitTop = 390
-    ExplicitWidth = 860
+    ExplicitTop = 397
+    ExplicitWidth = 855
     DesignSize = (
       855
       68)
@@ -63,7 +54,7 @@ inherited frmImportError: TfrmImportError
       Action = actAll
       DropDownMenu = pmContinue
       Kind = cxbkDropDownButton
-      ExplicitLeft = 466
+      ExplicitLeft = 467
     end
     object cxbtnCancel: TcxButton
       Left = 662
@@ -75,7 +66,6 @@ inherited frmImportError: TfrmImportError
       Caption = #1054#1090#1084#1077#1085#1072
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 661
     end
   end
   object pmContinue: TPopupMenu

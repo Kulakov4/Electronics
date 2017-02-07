@@ -126,10 +126,6 @@ inherited ViewComponents: TViewComponents
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxBarSubItem1'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarSubItem2'
         end>
     end
@@ -139,10 +135,6 @@ inherited ViewComponents: TViewComponents
       Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
       Visible = ivAlways
       ImageIndex = 5
-    end
-    object dxbrbtnPasteFromExcel: TdxBarButton
-      Action = actLoadFromExcelDocument
-      Category = 0
     end
     object dxbrbtnParametricTable: TdxBarButton
       Action = actShowParametricTable
@@ -212,22 +204,6 @@ inherited ViewComponents: TViewComponents
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarSubItem1: TdxBarSubItem
-      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
-      Category = 0
-      Visible = ivAlways
-      ImageIndex = 21
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxbrbtnPasteFromExcel'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton1'
-        end>
-    end
     object dxBarSubItem2: TdxBarSubItem
       Caption = #1044#1072#1085#1085#1099#1077
       Category = 0
@@ -256,10 +232,6 @@ inherited ViewComponents: TViewComponents
           ItemName = 'dxBarButton4'
         end>
     end
-    object dxBarButton1: TdxBarButton
-      Action = actLoadFromExcelFolder
-      Category = 0
-    end
     object dxBarButton2: TdxBarButton
       Caption = #1044#1072#1085#1085#1099#1077' '#1087#1086' '#1089#1090#1072#1090#1091#1089#1091' '#1080#1079#1076#1077#1083#1080#1103
       Category = 0
@@ -278,24 +250,13 @@ inherited ViewComponents: TViewComponents
     end
   end
   inherited ActionList: TActionList
-    object actLoadFromExcelDocument: TAction [15]
-      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 23
-      OnExecute = actLoadFromExcelDocumentExecute
-    end
-    object actLoadFromExcelFolder: TAction [16]
-      Caption = #1048#1079' '#1087#1072#1087#1082#1080' '#1076#1086#1082#1091#1084#1077#1085#1090#1086#1074' Excel'
-      ImageIndex = 24
-      OnExecute = actLoadFromExcelFolderExecute
-    end
-    object actShowParametricTable: TAction [17]
+    object actShowParametricTable: TAction [15]
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       Hint = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       ImageIndex = 11
       OnExecute = actShowParametricTableExecute
     end
-    object actLoadBodyTypes: TAction [20]
+    object actLoadBodyTypes: TAction [18]
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 25
       OnExecute = actLoadBodyTypesExecute

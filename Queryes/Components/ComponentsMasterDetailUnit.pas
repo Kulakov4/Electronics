@@ -56,10 +56,11 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AValues: TArray<String>);
     procedure Commit; override;
-    procedure InsertRecordList(AComponentsExcelTable: TComponentsExcelTable);
+    procedure InsertRecordList(AComponentsExcelTable: TComponentsExcelTable; const
+        AProducer: string);
     procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
-      AutomaticLoadErrorTable: TAutomaticLoadErrorTable);
+        AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
   end;
@@ -160,15 +161,16 @@ begin
     QueryComponentsDetailCount.FDQuery.Close;
     QueryComponentsDetailCount.FDQuery.Open;
 
-    // FNeedUpdateCount := false;
+    FNeedUpdateCount := false;
   end;
   x := QueryComponentsMainCount.Count + QueryComponentsDetailCount.Count;
   Result := x;
 end;
 
-procedure TComponentsMasterDetail.InsertRecordList(AComponentsExcelTable
-  : TComponentsExcelTable);
+procedure TComponentsMasterDetail.InsertRecordList(AComponentsExcelTable:
+    TComponentsExcelTable; const AProducer: string);
 begin
+  Assert(not AProducer.IsEmpty);
   Assert(not qComponents.AutoTransaction);
   Assert(not qComponentsDetail.AutoTransaction);
 
@@ -184,7 +186,8 @@ begin
       AComponentsExcelTable.CallOnProcessEvent;
       while not AComponentsExcelTable.Eof do
       begin
-        qComponents.LocateOrAppend(AComponentsExcelTable.MainValue.AsString);
+        // Добавляем компонент в базу данных
+        qComponents.LocateOrAppend(AComponentsExcelTable.MainValue.AsString, AProducer);
         if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
         begin
           // если ещё не добавляли доп. подгруппы
@@ -261,8 +264,9 @@ begin
 
 end;
 
-procedure TComponentsMasterDetail.LoadFromExcelFolder(AFileNames: TList<String>;
-  AutomaticLoadErrorTable: TAutomaticLoadErrorTable);
+procedure TComponentsMasterDetail.LoadFromExcelFolder(AFileNames:
+    TList<String>; AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const
+    AProducer: String);
 var
   AComponentsExcelDM: TComponentsExcelDM;
   AFullFileName: string;
@@ -298,7 +302,7 @@ begin
         if Length(m) = 0 then
         begin
           AutomaticLoadErrorTable.LocateOrAppendData(AFileName,
-            AQueryTreeList.Value.AsString, 'Имя файла должно содержать пробел',
+            '', 'Имя файла должно содержать пробел',
             'Ошибка');
           Continue;
         end;
@@ -363,7 +367,7 @@ begin
             AComponentsExcelDM.ExcelTable.Process(
               procedure
               begin
-                InsertRecordList(AComponentsExcelDM.ExcelTable)
+                InsertRecordList(AComponentsExcelDM.ExcelTable, AProducer)
               end,
               procedure(ASender: TObject)
               Var

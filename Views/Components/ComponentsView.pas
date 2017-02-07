@@ -46,9 +46,7 @@ type
     dxbrbtnApply: TdxBarButton;
     dxbsiLoad: TdxBarSubItem;
     dxbrbtnPasteFromBuffer: TdxBarButton;
-    actLoadFromExcelDocument: TAction;
     actShowParametricTable: TAction;
-    dxbrbtnPasteFromExcel: TdxBarButton;
     dxbrbtnParametricTable: TdxBarButton;
     dxbb1: TdxBarButton;
     dxbrsbtmLoad: TdxBarSubItem;
@@ -62,17 +60,12 @@ type
     dxbrbtnLoadTemp: TdxBarButton;
     dxbbParametricTable: TdxBarButton;
     dxbbSettings: TdxBarButton;
-    dxBarSubItem1: TdxBarSubItem;
     dxBarSubItem2: TdxBarSubItem;
-    actLoadFromExcelFolder: TAction;
-    dxBarButton1: TdxBarButton;
     dxBarButton2: TdxBarButton;
     dxBarButton3: TdxBarButton;
     actLoadParametricTable: TAction;
     dxBarButton4: TdxBarButton;
     procedure actLoadBodyTypesExecute(Sender: TObject);
-    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
-    procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
     procedure actLoadStatusExecute(Sender: TObject);
     procedure actShowParametricTableExecute(Sender: TObject);
@@ -87,10 +80,10 @@ type
     procedure DoOnUpdateDetailCount(Sender: TObject);
     procedure DoOnUpdateMainComponentCount(Sender: TObject);
     function GetComponentsMasterDetail: TComponentsMasterDetail;
-    procedure LoadFromExcelFolder;
     procedure SetComponentsMasterDetail(const Value: TComponentsMasterDetail);
     procedure UpdateSelectedCount;
     procedure UpdateTotalComponentCount;
+    property OnLoadBodyTypesEvent: TNotifyEventsEx read FOnLoadBodyTypesEvent;
     { Private declarations }
   protected
     procedure CreateCountEvents;
@@ -101,12 +94,13 @@ type
     destructor Destroy; override;
     procedure BeginUpdate; override;
     procedure EndUpdate; override;
+    procedure LoadFromExcelDocument(const AFileName, AProducer: string);
+    procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
     procedure UpdateView; override;
     property ComponentsMasterDetail: TComponentsMasterDetail
       read GetComponentsMasterDetail write SetComponentsMasterDetail;
     property OnShowParametricTableEvent: TNotifyEventsEx
       read FOnShowParametricTableEvent;
-    property OnLoadBodyTypesEvent: TNotifyEventsEx read FOnLoadBodyTypesEvent;
     property OnLoadParametricTable: TNotifyEventsEx read FOnLoadParametricTable;
     { Public declarations }
   end;
@@ -118,7 +112,7 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst, ManufacturersForm, Manufacturers2Query;
+  ImportProcessForm, ProjectConst, ManufacturersForm;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -147,86 +141,6 @@ begin
   // Извещаем о том, что нужно загрузить корпусные данные
   FOnLoadBodyTypesEvent.CallEventHandlers(Self);
   // FBodyTypesLoad.Load;
-end;
-
-procedure TViewComponents.actLoadFromExcelDocumentExecute(Sender: TObject);
-var
-  AComponentsExcelDM: TComponentsExcelDM;
-  AFileName: string;
-  AfrmImportError: TfrmImportError;
-  OK: Boolean;
-begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForComponentsLoad);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForComponentsLoad :=
-    TPath.GetDirectoryName(AFileName);
-
-  AComponentsExcelDM := TComponentsExcelDM.Create(Self);
-  try
-    // Первый этап - загружаем данные из Excel файла
-    TfrmProgressBar.Process(AComponentsExcelDM,
-      procedure
-      begin
-        AComponentsExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка компонентов из Excel документа');
-
-    // Второй этап - отображаем окно с ошибками
-    OK := AComponentsExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-      AfrmImportError := TfrmImportError.Create(Self);
-      try
-        AfrmImportError.ErrorTable := AComponentsExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-        if OK then
-        begin
-          if AfrmImportError.ContinueType = ctSkip then
-          begin
-            // Убираем записи с ошибками и предупреждениями
-            AComponentsExcelDM.ExcelTable.ExcludeErrors(etWarring);
-          end
-          else
-          begin
-            // Убираем записи с ошибками
-            AComponentsExcelDM.ExcelTable.ExcludeErrors(etError);
-          end;
-        end;
-
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
-    end;
-
-    // Третий этап - сохраняем в базе данных
-    if OK then
-    begin
-      BeginUpdate;
-      try
-        TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
-          procedure
-          begin
-            ComponentsMasterDetail.InsertRecordList
-              (AComponentsExcelDM.ExcelTable);
-          end, 'Сохранение компонентов в БД');
-      finally
-        EndUpdate;
-      end;
-    end;
-  finally
-    FreeAndNil(AComponentsExcelDM);
-  end;
-  UpdateView;
-end;
-
-procedure TViewComponents.actLoadFromExcelFolderExecute(Sender: TObject);
-begin
-  LoadFromExcelFolder;
 end;
 
 procedure TViewComponents.actLoadParametricTableExecute(Sender: TObject);
@@ -265,7 +179,7 @@ begin
     StatusBar.Panels[0].Text :=
       Format('%d', [ComponentsMasterDetail.qComponents.FDQuery.RecordCount]);
 
-    // UpdateTotalComponentCount;
+    UpdateTotalComponentCount;
   end;
 end;
 
@@ -322,46 +236,87 @@ begin
   Result := ComponentsBaseMasterDetail as TComponentsMasterDetail;
 end;
 
-procedure TViewComponents.LoadFromExcelFolder;
+procedure TViewComponents.LoadFromExcelDocument(const AFileName, AProducer:
+    string);
+var
+  AComponentsExcelDM: TComponentsExcelDM;
+  AfrmImportError: TfrmImportError;
+  OK: Boolean;
+begin
+  Assert(not AFileName.IsEmpty);
+  Assert(not AProducer.IsEmpty);
+
+
+  AComponentsExcelDM := TComponentsExcelDM.Create(Self);
+  try
+    // Первый этап - загружаем данные из Excel файла
+    TfrmProgressBar.Process(AComponentsExcelDM,
+      procedure
+      begin
+        AComponentsExcelDM.LoadExcelFile(AFileName);
+      end, 'Загрузка компонентов из Excel документа');
+
+    // Второй этап - отображаем окно с ошибками
+    OK := AComponentsExcelDM.ExcelTable.Errors.RecordCount = 0;
+
+    if not OK then
+    begin
+      AfrmImportError := TfrmImportError.Create(Self);
+      try
+        AfrmImportError.ErrorTable := AComponentsExcelDM.ExcelTable.Errors;
+        OK := AfrmImportError.ShowModal = mrOk;
+        if OK then
+        begin
+          if AfrmImportError.ContinueType = ctSkip then
+          begin
+            // Убираем записи с ошибками и предупреждениями
+            AComponentsExcelDM.ExcelTable.ExcludeErrors(etWarring);
+          end
+          else
+          begin
+            // Убираем записи с ошибками
+            AComponentsExcelDM.ExcelTable.ExcludeErrors(etError);
+          end;
+        end;
+
+      finally
+        FreeAndNil(AfrmImportError);
+      end;
+    end;
+
+    // Третий этап - сохраняем в базе данных
+    if OK then
+    begin
+      BeginUpdate;
+      try
+        TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
+          procedure
+          begin
+            ComponentsMasterDetail.InsertRecordList
+              (AComponentsExcelDM.ExcelTable, AProducer);
+          end, 'Сохранение компонентов в БД');
+      finally
+        EndUpdate;
+      end;
+    end;
+  finally
+    FreeAndNil(AComponentsExcelDM);
+  end;
+  UpdateView;
+end;
+
+procedure TViewComponents.LoadFromExcelFolder(const AFolderName, AProducer:
+    string);
 var
   AFileName: string;
   AFileNames: TList<String>;
-  AFolderName: string;
-  AQueryManufacturers2: TQueryManufacturers2;
   AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
-  frmManufacturers: TfrmManufacturers;
   i: Integer;
   m: TStringDynArray;
   S: string;
 begin
-  // Сначала выберем производителя из справочника
-  AQueryManufacturers2 := TQueryManufacturers2.Create(Self);
-  AQueryManufacturers2.RefreshQuery;
-  frmManufacturers := TfrmManufacturers.Create(Self);
-  try
-    frmManufacturers.ViewManufacturers.QueryManufacturers :=
-      AQueryManufacturers2;
-    if frmManufacturers.ShowModal <> mrOk then
-      Exit;
-  finally
-    FreeAndNil(frmManufacturers);
-  end;
-
-  if AQueryManufacturers2.FDQuery.RecordCount = 0 then
-  begin
-    TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
-      'Необходимо добавить производителя загружаемых компонентов.');
-    Exit;
-  end;
-
-  AFileName := TDialog.Create.OpenDialog(TExcelFilesFolderOpenDialog,
-    TSettings.Create.LastFolderForComponentsLoad);
-  if AFileName = '' then
-    Exit;
-
-  AFolderName := TPath.GetDirectoryName(AFileName);
-
-  TSettings.Create.LastFolderForComponentsLoad := AFolderName;
+  Assert(not AFolderName.IsEmpty);
+  Assert(not AProducer.IsEmpty);
 
   m := TDirectory.GetFiles(AFolderName,
     function(const Path: string; const SearchRec: TSearchRec): Boolean
@@ -406,7 +361,7 @@ begin
     BeginUpdate; // Замораживаем представление
     try
       ComponentsMasterDetail.LoadFromExcelFolder(AFileNames,
-        AutomaticLoadErrorTable);
+        AutomaticLoadErrorTable, AProducer);
     finally
       // Разрешаем закрыть форму
       frmImportProcess.Done := True;
@@ -472,8 +427,6 @@ procedure TViewComponents.UpdateView;
 begin
   inherited;
 
-  actLoadFromExcelDocument.Enabled := not actCommit.Enabled;
-  actLoadFromExcelFolder.Enabled := not actCommit.Enabled;
   actLoadBodyTypes.Enabled := not actCommit.Enabled;
 
   dxbsiLoad.Enabled := not actCommit.Enabled;

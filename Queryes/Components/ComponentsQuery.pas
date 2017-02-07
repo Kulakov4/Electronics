@@ -23,7 +23,7 @@ type
     function GetQuerySearchProductCategoryByID: TQuerySearchProductCategoryByID;
     { Private declarations }
   protected
-    procedure AddNewValue(const AValue: string); virtual;
+    procedure AddNewValue(const AValue, AProducer: string); virtual;
     procedure DoAfterOpen(Sender: TObject);
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
@@ -31,7 +31,7 @@ type
       read GetQuerySearchProductCategoryByID;
   public
     constructor Create(AOwner: TComponent); override;
-    function LocateOrAppend(const AValue: string): Boolean;
+    function LocateOrAppend(const AValue, AProducer: string): Boolean;
     property CurProductCategoriesExternalID: string
       read GetCurProductCategoriesExternalID;
     { Public declarations }
@@ -53,11 +53,13 @@ begin
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryComponents.AddNewValue(const AValue: string);
+procedure TQueryComponents.AddNewValue(const AValue, AProducer: string);
 begin
   Assert(not AValue.Trim.IsEmpty);
+  Assert(not AProducer.Trim.IsEmpty);
   FDQuery.Append;
   Value.AsString := AValue;
+  Producer.AsString := AProducer;
   FDQuery.Post;
 end;
 
@@ -95,12 +97,13 @@ begin
   Result := FQuerySearchProductCategoryByID;
 end;
 
-function TQueryComponents.LocateOrAppend(const AValue: string): Boolean;
+function TQueryComponents.LocateOrAppend(const AValue, AProducer: string):
+    Boolean;
 begin
   // Ищем компонент по имени без учёта регистра
   Result := FDQuery.LocateEx(Value.FieldName, AValue, [lxoCaseInsensitive]);
   if not Result then
-    AddNewValue(AValue);
+    AddNewValue(AValue, AProducer);
 
 end;
 

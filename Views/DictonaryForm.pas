@@ -56,12 +56,14 @@ procedure TfrmDictonary.actCancelExecute(Sender: TObject);
 begin
   CancelUpdates;
   Close;
+  ModalResult := mrCancel;
 end;
 
 procedure TfrmDictonary.actOkExecute(Sender: TObject);
 begin
   ApplyUpdates;
   Close;
+  ModalResult := mrOK;
 end;
 
 procedure TfrmDictonary.FormClose(Sender: TObject; var Action: TCloseAction);

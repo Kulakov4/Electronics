@@ -64,7 +64,6 @@ type
     clPackagePins2: TcxGridDBBandedColumn;
     clDescription: TcxGridDBBandedColumn;
     clDescription2: TcxGridDBBandedColumn;
-    procedure actCommitExecute(Sender: TObject);
     procedure actPasteAsSubComponentsExecute(Sender: TObject);
     procedure actPastePackagePinsExecute(Sender: TObject);
     procedure actPasteMainComponentsExecute(Sender: TObject);
@@ -90,6 +89,7 @@ type
     FQuerySearchBodyType: TQuerySearchBodyType;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
     FQuerySubGroups: TfrmQuerySubGroups;
+    procedure DoAfterCommit(Sender: TObject);
     function GetFocusedQuery: TQueryCustomComponents;
     function GetQuerySearchBodyType: TQuerySearchBodyType;
     function GetQuerySearchParameterValues: TQuerySearchParameterValues;
@@ -141,14 +141,6 @@ end;
 destructor TViewComponentsBase.Destroy;
 begin
   inherited;
-end;
-
-procedure TViewComponentsBase.actCommitExecute(Sender: TObject);
-begin
-  inherited;
-
-  // Заново заполняем выпадающие списки данными
-  MyInitializeComboBoxColumn;
 end;
 
 procedure TViewComponentsBase.actPasteAsSubComponentsExecute(Sender: TObject);
@@ -395,12 +387,20 @@ begin
   inherited;;
 end;
 
+procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);
+begin
+  // Инициализируем выпадающие столбцы
+  MyInitializeComboBoxColumn;
+end;
+
 procedure TViewComponentsBase.DoOnMasterDetailChange;
 begin
   inherited;
 
   if ComponentsBaseMasterDetail <> nil then
   begin
+    // Подписываемся на событие о коммите
+    TNotifyEventWrap.Create( DMRepository.AfterCommit, DoAfterCommit, FEventList);
     MyInitializeComboBoxColumn;
   end;
 end;

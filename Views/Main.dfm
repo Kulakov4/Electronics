@@ -820,6 +820,10 @@ object frmMain: TfrmMain
         item
           Visible = True
           ItemName = 'dxbrbtnSettings'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
       OneOnRow = True
       Row = 1
@@ -960,6 +964,10 @@ object frmMain: TfrmMain
         item
           Visible = True
           ItemName = 'dxBarButton6'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end>
     end
     object dxBarSubItem4: TdxBarSubItem
@@ -979,6 +987,17 @@ object frmMain: TfrmMain
     end
     object dxBarButton6: TdxBarButton
       Action = actLoadFromExcelFolder
+      Category = 0
+    end
+    object dxBarButton7: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton7Click
+    end
+    object dxBarButton8: TdxBarButton
+      Action = actLoadFromExcelDocument
       Category = 0
     end
   end
@@ -1082,6 +1101,11 @@ object frmMain: TfrmMain
       Caption = #1048#1079' '#1087#1072#1087#1082#1080' '#1076#1086#1082#1091#1084#1077#1085#1090#1086#1074' Excel'
       ImageIndex = 24
       OnExecute = actLoadFromExcelFolderExecute
+    end
+    object actLoadFromExcelDocument: TAction
+      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 6
+      OnExecute = actLoadFromExcelDocumentExecute
     end
   end
 end
