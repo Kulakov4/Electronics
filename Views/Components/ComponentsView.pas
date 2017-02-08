@@ -44,7 +44,6 @@ type
     dxbrbtnDeleteMain: TdxBarButton;
     dxbrbtnDeleteFromAllCategories: TdxBarButton;
     dxbrbtnApply: TdxBarButton;
-    dxbsiLoad: TdxBarSubItem;
     dxbrbtnPasteFromBuffer: TdxBarButton;
     actShowParametricTable: TAction;
     dxbrbtnParametricTable: TdxBarButton;
@@ -54,28 +53,15 @@ type
     dxbrbtnLoadImages: TdxBarButton;
     dxbrbtnLoadSchemes: TdxBarButton;
     dxbrbtnLoadDrawings: TdxBarButton;
-    actLoadBodyTypes: TAction;
-    dxbrbtnLoadBodyTypes: TdxBarButton;
-    dxbrbtnLoadRecommendedReplacement: TdxBarButton;
-    dxbrbtnLoadTemp: TdxBarButton;
     dxbbParametricTable: TdxBarButton;
     dxbbSettings: TdxBarButton;
-    dxBarSubItem2: TdxBarSubItem;
-    dxBarButton2: TdxBarButton;
     dxBarButton3: TdxBarButton;
-    actLoadParametricTable: TAction;
-    dxBarButton4: TdxBarButton;
-    procedure actLoadBodyTypesExecute(Sender: TObject);
-    procedure actLoadParametricTableExecute(Sender: TObject);
-    procedure actLoadStatusExecute(Sender: TObject);
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
     procedure StatusBarResize(Sender: TObject);
   private
     FCountEvents: TObjectList;
-    FOnLoadBodyTypesEvent: TNotifyEventsEx;
-    FOnLoadParametricTable: TNotifyEventsEx;
     FOnShowParametricTableEvent: TNotifyEventsEx;
     procedure DoOnUpdateDetailCount(Sender: TObject);
     procedure DoOnUpdateMainComponentCount(Sender: TObject);
@@ -83,7 +69,6 @@ type
     procedure SetComponentsMasterDetail(const Value: TComponentsMasterDetail);
     procedure UpdateSelectedCount;
     procedure UpdateTotalComponentCount;
-    property OnLoadBodyTypesEvent: TNotifyEventsEx read FOnLoadBodyTypesEvent;
     { Private declarations }
   protected
     procedure CreateCountEvents;
@@ -96,12 +81,10 @@ type
     procedure EndUpdate; override;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
-    procedure UpdateView; override;
     property ComponentsMasterDetail: TComponentsMasterDetail
       read GetComponentsMasterDetail write SetComponentsMasterDetail;
     property OnShowParametricTableEvent: TNotifyEventsEx
       read FOnShowParametricTableEvent;
-    property OnLoadParametricTable: TNotifyEventsEx read FOnLoadParametricTable;
     { Public declarations }
   end;
 
@@ -120,38 +103,14 @@ begin
 
   FCountEvents := TObjectList.Create;
 
-  // Событие о загрузке корпусных данных
-  FOnLoadBodyTypesEvent := TNotifyEventsEx.Create(Self);
-
   // Событие о отображении формы с параметрической таблицей
   FOnShowParametricTableEvent := TNotifyEventsEx.Create(Self);
-
-  // Событие о загрузке данных в параметрическую таблицу
-  FOnLoadParametricTable := TNotifyEventsEx.Create(Self);
 end;
 
 destructor TViewComponents.Destroy;
 begin
   FreeAndNil(FCountEvents);
   inherited;
-end;
-
-procedure TViewComponents.actLoadBodyTypesExecute(Sender: TObject);
-begin
-  // Извещаем о том, что нужно загрузить корпусные данные
-  FOnLoadBodyTypesEvent.CallEventHandlers(Self);
-  // FBodyTypesLoad.Load;
-end;
-
-procedure TViewComponents.actLoadParametricTableExecute(Sender: TObject);
-begin
-  // Извещаем о необходимости загрузить данные параметрической таблицы
-  FOnLoadParametricTable.CallEventHandlers(Self);
-end;
-
-procedure TViewComponents.actLoadStatusExecute(Sender: TObject);
-begin
-  inherited;;
 end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);
@@ -421,15 +380,6 @@ begin
   // Общее число компонентов на в БД
   StatusBar.Panels[4].Text := Format('Всего: %d',
     [ComponentsMasterDetail.TotalCount]);
-end;
-
-procedure TViewComponents.UpdateView;
-begin
-  inherited;
-
-  actLoadBodyTypes.Enabled := not actCommit.Enabled;
-
-  dxbsiLoad.Enabled := not actCommit.Enabled;
 end;
 
 end.

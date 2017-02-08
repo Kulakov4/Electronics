@@ -117,7 +117,6 @@ type
     dxBarSubItem4: TdxBarSubItem;
     actLoadFromExcelFolder: TAction;
     dxBarButton6: TdxBarButton;
-    dxBarButton7: TdxBarButton;
     actLoadFromExcelDocument: TAction;
     dxBarButton8: TdxBarButton;
     procedure actAddTreeNodeExecute(Sender: TObject);
@@ -163,7 +162,6 @@ type
     procedure tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
     procedure tsComponentsShow(Sender: TObject);
-    procedure dxBarButton7Click(Sender: TObject);
   private
     F1: Boolean;
     FCategoryPath: string;
@@ -174,7 +172,6 @@ type
     procedure DoBeforeParametricTableFormClose(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
-    procedure DoOnLoadParametricTable(Sender: TObject);
     function GetLevel(ANode: TcxTreeListNode): Integer;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
@@ -405,6 +402,7 @@ begin
 
   AQueryTreeList := TQueryTreeList.Create(Self);
   try
+    AQueryTreeList.RefreshQuery;
     AQueryTreeList.FilterByExternalID(m[0]);
     if AQueryTreeList.FDQuery.RecordCount = 0 then
     begin
@@ -971,9 +969,6 @@ begin
       // ѕодписываемс€ на событие о отображении параметрической таблицы
       TNotifyEventWrap.Create(ViewComponents.OnShowParametricTableEvent,
         DoOnShowParametricTable, FEventList);
-      // ѕодписываемс€ на событие о загрузке данных параметрической таблицы
-      TNotifyEventWrap.Create(ViewComponents.OnLoadParametricTable,
-        DoOnLoadParametricTable, FEventList);
 
       ViewComponentsSearch.ComponentsSearchMasterDetail :=
         DM.ComponentsSearchMasterDetail;
@@ -1066,17 +1061,6 @@ begin
 
   frmParametricTable.Show;
 
-end;
-
-procedure TfrmMain.dxBarButton7Click(Sender: TObject);
-begin
-  inherited;
-  DM.qTreeList.LocateByPK(152);
-end;
-
-procedure TfrmMain.DoOnLoadParametricTable(Sender: TObject);
-begin
-  actLoadParametricTable.Execute;
 end;
 
 procedure TfrmMain.FormResize(Sender: TObject);
