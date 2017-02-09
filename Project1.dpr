@@ -52,7 +52,7 @@ uses
   ChildCategoriesQuery in 'Queryes\ChildCategories\ChildCategoriesQuery.pas' {QueryChildCategories: TFrame},
   ParameterTypesQuery in 'Queryes\ParametersForCategories\ParameterTypesQuery.pas' {QueryParameterTypes: TFrame},
   ParametersForCategories in 'Queryes\ParametersForCategories\ParametersForCategories.pas',
-  ParametersDetailQuery in 'Queryes\ParametersForCategories\ParametersDetailQuery.pas' {frmParametersDetailQuery: TFrame},
+  ParametersDetailQuery in 'Queryes\ParametersForCategories\ParametersDetailQuery.pas' {QueryParametersDetail: TFrame},
   ParametersForCategoriesMasterDetailUnit in 'Queryes\ParametersForCategories\ParametersForCategoriesMasterDetailUnit.pas' {ParametersForCategoriesMasterDetail: TFrame},
   TreeListQuery in 'Queryes\TreeList\TreeListQuery.pas' {QueryTreeList: TFrame},
   SearchComponentQuery in 'Queryes\Search\SearchComponentQuery.pas' {QuerySearchComponent: TFrame},

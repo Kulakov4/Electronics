@@ -11,8 +11,8 @@ uses
 
 type
   TParametersForCategoriesMasterDetail = class(TfrmMasterDetail)
-    qParametersDetail: TfrmParametersDetailQuery;
     qParameterTypes: TQueryParameterTypes;
+    qParametersDetail: TQueryParametersDetail;
   private
     { Private declarations }
   public

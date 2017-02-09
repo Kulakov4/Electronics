@@ -11,7 +11,7 @@ uses
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit;
 
 type
-  TfrmParametersDetailQuery = class(TQueryWithDataSource)
+  TQueryParametersDetail = class(TQueryWithDataSource)
     procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
   private
@@ -28,13 +28,13 @@ implementation
 
 uses ParametersForCategories, NotifyEvents;
 
-constructor TfrmParametersDetailQuery.Create(AOwner: TComponent);
+constructor TQueryParametersDetail.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   DetailParameterName := 'ProductCategoryId';
 end;
 
-procedure TfrmParametersDetailQuery.FDQueryUpdateRecord(ASender: TDataSet;
+procedure TQueryParametersDetail.FDQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var

@@ -1,4 +1,4 @@
-inherited frmParametersDetailQuery: TfrmParametersDetailQuery
+inherited QueryParametersDetail: TQueryParametersDetail
   inherited Label1: TLabel
     Width = 113
     Caption = 'ParametersDetail'
@@ -33,8 +33,7 @@ inherited frmParametersDetailQuery: TfrmParametersDetailQuery
       '            WHERE ProductCategoryId = :ProductCategoryId'
       '       )'
       '       upfc ON upfc.UnionParameterId = pg.id'
-      ' WHERE pg.IsCustomParameter = 0 AND '
-      '       pg.ParentParameter IS NULL'
+      ' WHERE pg.ParentParameter IS NULL'
       '       and pg.IDParameterType = :IDParameterType'
       ' ORDER BY pg.[Order]       ')
     ParamData = <
