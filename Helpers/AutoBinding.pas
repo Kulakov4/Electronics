@@ -14,13 +14,13 @@ type
 
   TDocFilesTable = class(TTableWithProgress)
   private
-    function GetFieldName: TField;
+    function GetIDParameter: TField;
     function GetFileName: TField;
     function GetRootFolder: TField;
   public
     constructor Create(AOwner: TComponent); override;
     procedure LoadDocFiles(ADocFieldInfos: TList<TDocFieldInfo>);
-    property FieldName: TField read GetFieldName;
+    property IDParameter: TField read GetIDParameter;
     property FileName: TField read GetFileName;
     property RootFolder: TField read GetRootFolder;
   end;
@@ -42,14 +42,13 @@ type
   private
     function GetComponentName: TField;
     function GetRange: TField;
-    function GetFieldName: TField;
     function GetFileName: TField;
     function GetRootFolder: TField;
+  protected
   public
     constructor Create(AOwner: TComponent); override;
     property ComponentName: TField read GetComponentName;
     property Range: TField read GetRange;
-    property FieldName: TField read GetFieldName;
     property FileName: TField read GetFileName;
     property RootFolder: TField read GetRootFolder;
   end;
@@ -70,17 +69,18 @@ type
   TAutoBind = class(TObject)
   private
     class function AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
-      : TPossibleLinkDocTable; static;
+      : TDictionary<Integer, TPossibleLinkDocTable>; static;
     class function CheckAbsentDocFiles(ADocFieldInfos: TList<TDocFieldInfo>;
       const AFDQuery: TFDQuery): TAbsentDocTable; static;
-    class function LinkToDocFiles(APossibleLinkDocTable: TPossibleLinkDocTable;
+    class function LinkToDocFiles(APossibleLinkDocTables
+      : TDictionary<Integer, TPossibleLinkDocTable>;
       const AComponentsDataSet: TTableWithProgress;
       ADocFieldInfos: TList<TDocFieldInfo>; AConnection: TFDCustomConnection;
       const ANoRange: Boolean): TErrorLinkedDocTable; static;
     class function MySplit(const S: String): MySplitRec; static;
   protected
   public
-    class procedure BindDescriptions; static;
+    class procedure BindDescriptions(const AIDCategory: Integer); static;
     class procedure BindDocs(ADocFieldInfos: TList<TDocFieldInfo>;
       const AFDQuery: TFDQuery; const ANoRange, ACheckAbsentDocFiles
       : Boolean); static;
@@ -93,19 +93,28 @@ uses cxGridDbBandedTableView, GridViewForm, ProgressBarForm, System.SysUtils,
   System.StrUtils, ProjectConst;
 
 class function TAutoBind.AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
-  : TPossibleLinkDocTable;
+  : TDictionary<Integer, TPossibleLinkDocTable>;
 
-  procedure Append(const AComponentName: String; const ARange: cardinal);
+  procedure Append(AIDParameter: Integer; const AComponentName: String;
+    const ARange: cardinal);
   begin
+    Assert(AIDParameter > 0);
     Assert(not AComponentName.IsEmpty);
 
-    Result.Append;
-    Result.FileName.AsString := ADocFilesTable.FileName.AsString;
-    Result.RootFolder.AsString := ADocFilesTable.RootFolder.AsString;
-    Result.FieldName.AsString := ADocFilesTable.FieldName.AsString;
-    Result.ComponentName.AsString := AComponentName;
-    Result.Range.AsInteger := ARange;
-    Result.Post;
+    // Если такой таблицы в памяти ещё не существовало
+    if not Result.ContainsKey(AIDParameter) then
+      Result.Add( AIDParameter, TPossibleLinkDocTable.Create(nil) );
+
+    with Result[AIDParameter] do
+    begin
+      Append;
+      FileName.AsString := ADocFilesTable.FileName.AsString;
+      RootFolder.AsString := ADocFilesTable.RootFolder.AsString;
+      ComponentName.AsString := AComponentName;
+      Range.AsInteger := ARange;
+      Post;
+
+    end;
   end;
 
 var
@@ -119,8 +128,8 @@ var
 begin
   Assert(ADocFilesTable <> nil);
 
-  // Создаём таблицу с теми файлами которые мы будем сопоставлять компонентам
-  Result := TPossibleLinkDocTable.Create(nil);
+  // Создаём словарь из таблиц с теми файлами которые мы будем сопоставлять компонентам
+  Result := TDictionary<Integer, TPossibleLinkDocTable>.Create;
 
   ADocFilesTable.First;
   ADocFilesTable.CallOnProcessEvent;
@@ -137,7 +146,7 @@ begin
     // Если файл документации предназначен для одного компонента
     if Length(d) = 1 then
     begin
-      Append(d[0], 1);
+      Append(ADocFilesTable.IDParameter.AsInteger, d[0], 1);
     end
     else
     begin
@@ -155,7 +164,8 @@ begin
         // Цикл по всем номерам компонентов, входящих в диапазон
         for i := R0.Number to R1.Number do
         begin
-          Append(Format('%s%d', [R0.Name, i]), R1.Number - R0.Number);
+          Append(ADocFilesTable.IDParameter.AsInteger,
+            Format('%s%d', [R0.Name, i]), R1.Number - R0.Number);
           ADocFilesTable.CallOnProcessEvent;
         end;
 
@@ -167,16 +177,20 @@ begin
   end;
 end;
 
-class procedure TAutoBind.BindDescriptions;
+class procedure TAutoBind.BindDescriptions(const AIDCategory: Integer);
 var
   AQuerySearchDescriptions: TQuerySearchDescriptions;
 begin
   // Привязываем компоненты к кратким описаниям
   AQuerySearchDescriptions := TQuerySearchDescriptions.Create(nil);
   try
-    AQuerySearchDescriptions.FDQuery.Open;
+    // Если какя-то отдельная категория
+    if AIDCategory > 0 then
+      AQuerySearchDescriptions.Search(AIDCategory)
+    else
+      AQuerySearchDescriptions.FDQuery.Open;
 
-    // Если после исключения ошибок осталось что привязывать
+    // Если найдены компоненты, которые можно привязать
     if AQuerySearchDescriptions.FDQuery.RecordCount > 0 then
     begin
       TfrmProgressBar.Process(AQuerySearchDescriptions,
@@ -197,9 +211,18 @@ var
   ADocFilesTable: TDocFilesTable;
   AfrmGridView: TfrmGridView;
   AErrorLinkedDocTable: TErrorLinkedDocTable;
-  APossibleLinkDocTable: TPossibleLinkDocTable;
+  AIDParameter: Integer;
+  APossibleLinkDocTables: TDictionary<Integer, TPossibleLinkDocTable>;
   ATableWithProgress: TTableWithProgress;
+  OK: Boolean;
 begin
+  Assert(AFDQuery <> nil);
+  if AFDQuery.RecordCount = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog
+      ('Нет компонентов в выбранной категории либо в БД');
+    Exit;
+  end;
 
   // Создаём таблицу со всеми файлами документации
   ADocFilesTable := TDocFilesTable.Create(nil);
@@ -211,14 +234,22 @@ begin
       procedure
       begin
         // Просим проанализировать, к каким компонентам можно привязать эти файлы
-        APossibleLinkDocTable := AnalizeDocFiles(ADocFilesTable);
+        APossibleLinkDocTables := AnalizeDocFiles(ADocFilesTable);
       end, 'Анализ найденных файлов документации', sFiles);
   finally
     FreeAndNil(ADocFilesTable);
   end;
 
+  OK := False;
+  for AIDParameter in APossibleLinkDocTables.Keys do
+  begin
+    OK := APossibleLinkDocTables[AIDParameter].RecordCount > 0;
+    if OK then
+      break;
+  end;
+
   // Если есть что привязывать
-  if APossibleLinkDocTable.RecordCount > 0 then
+  if OK then
   begin
     ATableWithProgress := TTableWithProgress.Create(nil);
     try
@@ -231,7 +262,7 @@ begin
         procedure
         begin
           // Просим привязать компоненты к файлам
-          AErrorLinkedDocTable := LinkToDocFiles(APossibleLinkDocTable,
+          AErrorLinkedDocTable := LinkToDocFiles(APossibleLinkDocTables,
             ATableWithProgress, ADocFieldInfos, AFDQuery.Connection, ANoRange);
         end, 'Поиск подходящих файлов документации', sComponents);
 
@@ -261,6 +292,14 @@ begin
   begin
     TDialog.Create.ComponentsDocFilesNotFound;
   end;
+
+  for AIDParameter in APossibleLinkDocTables.Keys do
+  begin
+    // Разрушаем таблицу в памяти
+    APossibleLinkDocTables[AIDParameter].Free;
+  end;
+  // Разрушаем сам словарь
+  FreeAndNil(APossibleLinkDocTables);
 
   // Если нужно вывести отчёт об отсутсвующих файлах документации
   if ACheckAbsentDocFiles then
@@ -364,11 +403,13 @@ begin
   Result.First;
 end;
 
-class function TAutoBind.LinkToDocFiles(APossibleLinkDocTable
-  : TPossibleLinkDocTable; const AComponentsDataSet: TTableWithProgress;
+class function TAutoBind.LinkToDocFiles(APossibleLinkDocTables
+  : TDictionary<Integer, TPossibleLinkDocTable>;
+const AComponentsDataSet: TTableWithProgress;
 ADocFieldInfos: TList<TDocFieldInfo>; AConnection: TFDCustomConnection;
 const ANoRange: Boolean): TErrorLinkedDocTable;
-  procedure AppendError;
+
+  procedure AppendError(APossibleLinkDocTable: TPossibleLinkDocTable);
   Var
     AFolder: string;
     S: String;
@@ -400,13 +441,14 @@ const ANoRange: Boolean): TErrorLinkedDocTable;
 
 var
   ADocFieldInfo: TDocFieldInfo;
+  APossibleLinkDocTable: TPossibleLinkDocTable;
   ASQL: string;
   i: Integer;
   OK: Boolean;
   rc: Integer;
   S: String;
 begin
-  Assert(APossibleLinkDocTable <> nil);
+  Assert(APossibleLinkDocTables <> nil);
   Assert(AComponentsDataSet <> nil);
   Result := TErrorLinkedDocTable.Create(nil);
 
@@ -417,8 +459,6 @@ begin
 
   // Будем работать в рамках одной транзакции
   AConnection.StartTransaction;
-  // APossibleLinkDocTable.BeginBatch();
-  APossibleLinkDocTable.DisableControls;
   try
     i := 0;
     while not AComponentsDataSet.Eof do
@@ -427,63 +467,68 @@ begin
       for ADocFieldInfo in ADocFieldInfos do
       begin
         // Если компонент ещё не имеет файла документации данного вида
-        if AComponentsDataSet.FieldByName(ADocFieldInfo.FieldName).AsString.IsEmpty
-        then
+        if (AComponentsDataSet.FieldByName(ADocFieldInfo.FieldName)
+          .AsString.IsEmpty) then
         begin
-          // Ищем есть ли для этого компонента подходящие файлы подходящего типа
-          APossibleLinkDocTable.Filter := Format('%s = ''%s'' and %s = ''%s''',
-            [APossibleLinkDocTable.ComponentName.FieldName,
-            AComponentsDataSet.FieldByName('Value').AsString,
-            APossibleLinkDocTable.FieldName.FieldName,
-            ADocFieldInfo.FieldName]);
-          APossibleLinkDocTable.Filtered := True;
-
-          rc := APossibleLinkDocTable.RecordCount;
-          // Если нашли хотя-бы один подходящий файл
-          if rc > 0 then
+          // Если для этого параметра существует таблица с возможными файлами
+          if APossibleLinkDocTables.ContainsKey(ADocFieldInfo.IDParameter) then
           begin
-            // Первая запись - с самым узким диапазоном
-            APossibleLinkDocTable.First;
-            // Если подходящих файлов ровно 1 либо можно выбрать с самым узким диапазоном
-            OK := (rc = 1) or (not ANoRange);
-            // Если подходящих файлов несколько
-            if not OK then
+            APossibleLinkDocTable := APossibleLinkDocTables
+              [ADocFieldInfo.IDParameter];
+            // Ищем есть ли для этого компонента подходящие файлы подходящего типа
+            APossibleLinkDocTable.Filter :=
+              Format('%s = %s', [APossibleLinkDocTable.ComponentName.FieldName,
+              QuotedStr(AComponentsDataSet.FieldByName('Value').AsString)]);
+            APossibleLinkDocTable.Filtered := True;
+
+            rc := APossibleLinkDocTable.RecordCount;
+            // Если нашли хотя-бы один подходящий файл
+            if rc > 0 then
             begin
-              // Имя файла без расширения
-              S := TPath.GetFileNameWithoutExtension
-                (APossibleLinkDocTable.FileName.AsString);
-              // если первый из нескольких файлов в точности равен названию компонента
-              OK := string.Compare(S,
-                APossibleLinkDocTable.ComponentName.AsString, True) = 0;
-              // Всё таки несколько файлов и ни один очно компоненту не соответствует
+              // Первая запись - с самым узким диапазоном
+              APossibleLinkDocTable.First;
+              // Если подходящих файлов ровно 1 либо можно выбрать с самым узким диапазоном
+              OK := (rc = 1) or (not ANoRange);
+              // Если подходящих файлов несколько
               if not OK then
               begin
-                // Добавляем сообщение об ошибке
-                AppendError;
-              end;
-            end;
-
-            if OK then
-            begin
-              with Result do
-              begin
-                S := StrHelper.GetRelativeFileName
-                  (APossibleLinkDocTable.FileName.AsString,
-                  APossibleLinkDocTable.RootFolder.AsString);
-
-                ASQL := 'INSERT INTO ProductUnionParameters' +
-                  '(UnionParameterID, Value, ProductID) ' +
-                  Format('Values (%d, ''%s'', %d)', [ADocFieldInfo.IDParameter,
-                  S, AComponentsDataSet.FieldByName('ID').AsInteger]);
-
-                AConnection.ExecSQL(ASQL);
-                Inc(i);
-
-                if i >= 1000 then
+                // Имя файла без расширения
+                S := TPath.GetFileNameWithoutExtension
+                  (APossibleLinkDocTable.FileName.AsString);
+                // если первый из нескольких файлов в точности равен названию компонента
+                OK := string.Compare(S,
+                  APossibleLinkDocTable.ComponentName.AsString, True) = 0;
+                // Всё таки несколько файлов и ни один очно компоненту не соответствует
+                if not OK then
                 begin
-                  AConnection.Commit;
-                  AConnection.StartTransaction;
-                  i := 0;
+                  // Добавляем сообщение об ошибке
+                  AppendError(APossibleLinkDocTable);
+                end;
+              end;
+
+              if OK then
+              begin
+                with Result do
+                begin
+                  S := StrHelper.GetRelativeFileName
+                    (APossibleLinkDocTable.FileName.AsString,
+                    APossibleLinkDocTable.RootFolder.AsString);
+
+                  ASQL := 'INSERT INTO ProductUnionParameters' +
+                    '(UnionParameterID, Value, ProductID) ' +
+                    Format('Values (%d, ''%s'', %d)',
+                    [ADocFieldInfo.IDParameter, S,
+                    AComponentsDataSet.FieldByName('ID').AsInteger]);
+
+                  AConnection.ExecSQL(ASQL);
+                  Inc(i);
+
+                  if i >= 1000 then
+                  begin
+                    AConnection.Commit;
+                    AConnection.StartTransaction;
+                    i := 0;
+                  end;
                 end;
               end;
             end;
@@ -495,8 +540,6 @@ begin
     end;
   finally
     AConnection.Commit;
-    APossibleLinkDocTable.EnableControls;
-    // APossibleLinkDocTable.EndBatch;
     AComponentsDataSet.EndBatch;
   end;
 end;
@@ -575,16 +618,16 @@ begin
   inherited;
   FieldDefs.Add('FileName', ftString, 1000);
   FieldDefs.Add('RootFolder', ftString, 500);
-  FieldDefs.Add('FieldName', ftString, 100);
+  FieldDefs.Add('IDParameter', ftInteger);
 
   CreateDataSet;
 
   Open;
 end;
 
-function TDocFilesTable.GetFieldName: TField;
+function TDocFilesTable.GetIDParameter: TField;
 begin
-  Result := FieldByName('FieldName');
+  Result := FieldByName('IDParameter');
 end;
 
 function TDocFilesTable.GetFileName: TField;
@@ -616,7 +659,7 @@ procedure TDocFilesTable.LoadDocFiles(ADocFieldInfos: TList<TDocFieldInfo>);
         Append;
         RootFolder.AsString := ADocFieldInfo.Folder;
         FileName.AsString := S;
-        FieldName.AsString := ADocFieldInfo.FieldName;
+        IDParameter.AsInteger := ADocFieldInfo.IDParameter;
         Post;
       end;
     end;
@@ -650,7 +693,6 @@ begin
   inherited;
   FieldDefs.Add('FileName', ftString, 1000);
   FieldDefs.Add('RootFolder', ftString, 500);
-  FieldDefs.Add('FieldName', ftString, 100);
   FieldDefs.Add('ComponentName', ftString, 200);
   FieldDefs.Add('Range', ftInteger);
   IndexDefs.Add('idxOrder', 'ComponentName;Range', []);
@@ -671,11 +713,6 @@ end;
 function TPossibleLinkDocTable.GetRange: TField;
 begin
   Result := FieldByName('Range');
-end;
-
-function TPossibleLinkDocTable.GetFieldName: TField;
-begin
-  Result := FieldByName('FieldName');
 end;
 
 function TPossibleLinkDocTable.GetFileName: TField;

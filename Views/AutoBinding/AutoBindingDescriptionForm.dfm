@@ -29,7 +29,6 @@ object frmAutoBindingDescriptions: TfrmAutoBindingDescriptions
     ModalResult = 12
     TabOrder = 0
     WordWrap = True
-    ExplicitTop = 221
   end
   object cxbtnCategoryDB: TcxButton
     Left = 173
@@ -41,7 +40,6 @@ object frmAutoBindingDescriptions: TfrmAutoBindingDescriptions
     ModalResult = 1
     TabOrder = 1
     WordWrap = True
-    ExplicitTop = 221
   end
   object cxbtnCancel: TcxButton
     Left = 338
@@ -54,7 +52,6 @@ object frmAutoBindingDescriptions: TfrmAutoBindingDescriptions
     ModalResult = 2
     TabOrder = 2
     WordWrap = True
-    ExplicitTop = 221
   end
   object dxCheckGroupBox1: TdxCheckGroupBox
     Left = 8
@@ -78,10 +75,12 @@ object frmAutoBindingDescriptions: TfrmAutoBindingDescriptions
     object actAll: TAction
       Caption = #1042' '#1087#1086#1083#1085#1086#1084' '#1086#1073#1098#1105#1084#1077' '#1041#1044
       Hint = #1042' '#1087#1086#1083#1085#1086#1084' '#1086#1073#1098#1105#1084#1077' '#1041#1044
+      OnUpdate = actAllUpdate
     end
     object actCategory: TAction
       Caption = #1042' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1082#1072#1090#1077#1075#1086#1088#1080#1080
       Hint = #1042' '#1074#1099#1073#1088#1072#1085#1085#1086#1081' '#1082#1072#1090#1077#1075#1086#1088#1080#1080
+      OnUpdate = actAllUpdate
     end
   end
 end

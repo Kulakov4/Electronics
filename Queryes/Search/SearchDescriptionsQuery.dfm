@@ -8,7 +8,10 @@ inherited QuerySearchDescriptions: TQuerySearchDescriptions
       'from descriptions2 d'
       
         'join products p on d.ComponentName = p.Value and p.ParentProduct' +
-        'Id is null')
+        'Id is null'
+      
+        '--join productproductcategories ppc on ppc.ProductId = p.Id and ' +
+        'ppc.ProductCategoryId = :ProductCategoryId')
   end
   object FDUpdateSQL: TFDUpdateSQL
     ModifySQL.Strings = (

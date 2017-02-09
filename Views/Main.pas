@@ -255,14 +255,21 @@ end;
 
 procedure TfrmMain.actAutoBindingDescriptionsExecute(Sender: TObject);
 var
+  AIDCategory: Integer;
   frmAutoBindingDescriptions: TfrmAutoBindingDescriptions;
   MR: Integer;
 begin
   frmAutoBindingDescriptions := TfrmAutoBindingDescriptions.Create(Self);
   try
     MR := frmAutoBindingDescriptions.ShowModal;
+    case MR of
+      mrOk: AIDCategory := DM.qTreeList.PKValue;
+      mrAll: AIDCategory := 0;
+    else
+      AIDCategory := -1;
+    end;
     if MR <> mrCancel then
-      TAutoBind.BindDescriptions;
+      TAutoBind.BindDescriptions(AIDCategory);
   finally
     FreeAndNil(frmAutoBindingDescriptions);
   end;
@@ -291,9 +298,18 @@ begin
         AFDQuery := ViewComponents.ComponentsMasterDetail.qComponents.FDQuery
     end;
     if AFDQuery <> nil then
+    begin
       TAutoBind.BindDocs(frmAutoBindingDoc.Docs, AFDQuery,
         frmAutoBindingDoc.cxrbNoRange.Checked,
         frmAutoBindingDoc.cxcbAbsentDoc.Checked);
+
+      // Если привязывали текущую категорию
+      if AFDQuery = ViewComponents.ComponentsMasterDetail.qComponents.FDQuery then
+      begin
+        ViewComponents.ComponentsMasterDetail.ReOpen;
+      end;
+
+    end;
   finally
     FreeAndNil(frmAutoBindingDoc);
     if AQueryAllMainComponents <> nil then

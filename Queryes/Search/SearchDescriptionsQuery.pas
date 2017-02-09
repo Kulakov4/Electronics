@@ -12,10 +12,6 @@ uses
   NotifyEvents, ProgressInfo, HandlingQueryUnit;
 
 type
-  // Ссылка на метод обрабатывающий таблицу в памяти
-  TProcRef = reference to procedure();
-
-
   TQuerySearchDescriptions = class(THandlingQuery)
     FDUpdateSQL: TFDUpdateSQL;
   private
@@ -23,6 +19,7 @@ type
     function GetDescriptionID: TField;
     { Private declarations }
   public
+    function Search(const AIDCategory: Integer): Integer; overload;
     procedure UpdateComponentDescriptions;
     property DescrID: TField read GetDescrID;
     property DescriptionID: TField read GetDescriptionID;
@@ -43,6 +40,27 @@ end;
 function TQuerySearchDescriptions.GetDescriptionID: TField;
 begin
   Result := Field('DescriptionID');
+end;
+
+function TQuerySearchDescriptions.Search(const AIDCategory: Integer): Integer;
+var
+  S: String;
+begin
+  Assert(AIDCategory > 0);
+
+  S := FDQuery.SQL.Text;
+
+  // Убираем из текста SQL запроса комментарий
+  FDQuery.SQL.Text := S.Replace('--', '');
+
+  // Настраиваем появившийся параметр
+  with FDQuery.ParamByName('ProductCategoryId') do
+  begin
+    ParamType := ptInput;
+    DataType := ftInteger;
+  end;
+
+  Result := Search(['ProductCategoryId'], [AIDCategory]);
 end;
 
 procedure TQuerySearchDescriptions.UpdateComponentDescriptions;

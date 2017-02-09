@@ -33,6 +33,7 @@ type
     actCategory: TAction;
     dxCheckGroupBox1: TdxCheckGroupBox;
     CheckBox1: TCheckBox;
+    procedure actAllUpdate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -42,5 +43,10 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TfrmAutoBindingDescriptions.actAllUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := True;
+end;
 
 end.
