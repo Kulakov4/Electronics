@@ -811,7 +811,7 @@ object frmMain: TfrmMain
         end
         item
           Visible = True
-          ItemName = 'dxBarButton1'
+          ItemName = 'dxBarSubItem5'
         end
         item
           Visible = True
@@ -921,11 +921,6 @@ object frmMain: TfrmMain
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton1: TdxBarButton
-      Action = actAutoBinding
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
     object dxBarSubItem2: TdxBarSubItem
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       Category = 0
@@ -987,6 +982,30 @@ object frmMain: TfrmMain
     end
     object dxBarButton8: TdxBarButton
       Action = actLoadFromExcelDocument
+      Category = 0
+    end
+    object dxBarSubItem5: TdxBarSubItem
+      Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 29
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
+        end>
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actAutoBindingDoc
+      Category = 0
+    end
+    object dxBarButton7: TdxBarButton
+      Action = actAutoBindingDescriptions
       Category = 0
     end
   end
@@ -1055,12 +1074,6 @@ object frmMain: TfrmMain
       Caption = #1042#1099#1093#1086#1076
       OnExecute = actExitExecute
     end
-    object actAutoBinding: TAction
-      Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
-      Hint = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
-      ImageIndex = 29
-      OnExecute = actAutoBindingExecute
-    end
     object actDeleteTreeNode: TAction
       Caption = #1059#1076#1072#1083#1080#1090#1100
       Hint = #1059#1076#1072#1083#1080#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
@@ -1095,6 +1108,16 @@ object frmMain: TfrmMain
       Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 6
       OnExecute = actLoadFromExcelDocumentExecute
+    end
+    object actAutoBindingDoc: TAction
+      Caption = #1050' '#1092#1072#1081#1083#1072#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
+      ImageIndex = 29
+      OnExecute = actAutoBindingDocExecute
+    end
+    object actAutoBindingDescriptions: TAction
+      Caption = #1050' '#1082#1088#1072#1090#1082#1080#1084' '#1086#1087#1080#1089#1072#1085#1080#1103#1084
+      ImageIndex = 29
+      OnExecute = actAutoBindingDescriptionsExecute
     end
   end
 end

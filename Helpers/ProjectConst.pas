@@ -57,6 +57,11 @@ resourcestring
   sImageParamTableName = 'Image';
   sDescriptionParamTableName = 'Description';
 
+  sRows = 'строк';
+  sRecords = 'записей';
+  sComponents = 'компонентов';
+  sFiles = 'файлов';
+
 implementation
 
 end.

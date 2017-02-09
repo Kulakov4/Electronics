@@ -33,13 +33,17 @@ type
     cxlblProgress: TcxLabel;
     cxpbMain: TcxProgressBar;
   private
+    FProgressBarLabel: string;
     FProgressInfo: TProgressInfo;
     procedure DoOnAssign(Sender: TObject);
     { Private declarations }
+  protected
+    property ProgressBarLabel: string read FProgressBarLabel write
+        FProgressBarLabel;
   public
     constructor Create(AOwner: TComponent); override;
-    class procedure Process(AHandling: IHandling; AProcRef: TProcRef;
-      const ACaption: string); static;
+    class procedure Process(AHandling: IHandling; AProcRef: TProcRef; const
+        ACaption, ARowSubstitute: string); static;
     property ProgressInfo: TProgressInfo read FProgressInfo;
     { Public declarations }
   end;
@@ -53,21 +57,22 @@ uses NotifyEvents;
 constructor TfrmProgressBar.Create(AOwner: TComponent);
 begin
   inherited;
+  FProgressBarLabel := 'Обработано строк';
   FProgressInfo := TProgressInfo.Create;
   TNotifyEventWrap.Create(FProgressInfo.OnAssign, DoOnAssign);
 end;
 
 procedure TfrmProgressBar.DoOnAssign(Sender: TObject);
 begin
-  cxlblProgress.Caption := Format('Обработано строк: %d из %d',
-    [FProgressInfo.ProcessRecords, FProgressInfo.TotalRecords]);
+  cxlblProgress.Caption := Format('%s: %d из %d',
+    [FProgressBarLabel, FProgressInfo.ProcessRecords, FProgressInfo.TotalRecords]);
   cxpbMain.Position := FProgressInfo.Position;
 
   Application.ProcessMessages;
 end;
 
-class procedure TfrmProgressBar.Process(AHandling: IHandling;
-  AProcRef: TProcRef; const ACaption: string);
+class procedure TfrmProgressBar.Process(AHandling: IHandling; AProcRef:
+    TProcRef; const ACaption, ARowSubstitute: string);
 var
   AfrmProgressBar: TfrmProgressBar;
 begin
@@ -77,6 +82,10 @@ begin
   try
     if not ACaption.IsEmpty then
       AfrmProgressBar.Caption := ACaption;
+
+    if not ARowSubstitute.IsEmpty then
+      AfrmProgressBar.FProgressBarLabel := Format('Обработано %s', [ARowSubstitute]);
+
     AfrmProgressBar.Show;
 
     // Вызываем метод-обработку табличных данных

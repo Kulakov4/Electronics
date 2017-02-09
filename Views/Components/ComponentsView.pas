@@ -213,7 +213,7 @@ begin
       procedure
       begin
         AComponentsExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка компонентов из Excel документа');
+      end, 'Загрузка компонентов из Excel документа', sRows);
 
     // Второй этап - отображаем окно с ошибками
     OK := AComponentsExcelDM.ExcelTable.Errors.RecordCount = 0;
@@ -253,7 +253,7 @@ begin
           begin
             ComponentsMasterDetail.InsertRecordList
               (AComponentsExcelDM.ExcelTable, AProducer);
-          end, 'Сохранение компонентов в БД');
+          end, 'Сохранение компонентов в БД', sRecords);
       finally
         EndUpdate;
       end;

@@ -118,7 +118,6 @@ uses
   ModCheckDatabase in 'Helpers\ModCheckDatabase.pas',
   DataModule in 'Queryes\DataModule.pas' {DM},
   Main in 'Views\Main.pas' {frmMain},
-  AutoBindingForm in 'Views\AutoBindingForm.pas' {frmAutoBinding},
   NotifyEvents in 'Helpers\NotifyEvents.pas',
   Sequence in 'Helpers\Sequence.pas',
   AllMainComponentsQuery in 'Queryes\Components\AllMainComponentsQuery.pas' {QueryAllMainComponents: TFrame},
@@ -155,7 +154,10 @@ uses
   ProcRefUnit in 'Helpers\ProcRefUnit.pas',
   SearchMainComponent3 in 'Queryes\Search\SearchMainComponent3.pas' {QuerySearchMainComponent3: TFrame},
   AllMainComponentsQuery2 in 'Queryes\Components\AllMainComponentsQuery2.pas' {QueryAllMainComponents2: TFrame},
-  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView};
+  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
+  AutoBindingDocForm in 'Views\AutoBinding\AutoBindingDocForm.pas' {frmAutoBindingDoc},
+  AutoBindingDescriptionForm in 'Views\AutoBinding\AutoBindingDescriptionForm.pas' {frmAutoBindingDescriptions},
+  AutoBinding in 'Helpers\AutoBinding.pas';
 
 {$R *.res}
 

@@ -557,10 +557,6 @@
             <Form>frmMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Views\AutoBindingForm.pas">
-            <Form>frmAutoBinding</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Helpers\NotifyEvents.pas"/>
         <DCCReference Include="Helpers\Sequence.pas"/>
         <DCCReference Include="Queryes\Components\AllMainComponentsQuery.pas">
@@ -725,6 +721,15 @@
             <Form>frmGridView</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Views\AutoBinding\AutoBindingDocForm.pas">
+            <Form>frmAutoBindingDoc</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\AutoBinding\AutoBindingDescriptionForm.pas">
+            <Form>frmAutoBindingDescriptions</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\AutoBinding.pas"/>
         <None Include="ModelSupport_Project1\default.txaPackage"/>
         <None Include="ModelSupport_Project1\default.txvpck"/>
         <None Include="ModelSupport_Project1\CustomComponentsQuery\default.txvpck"/>

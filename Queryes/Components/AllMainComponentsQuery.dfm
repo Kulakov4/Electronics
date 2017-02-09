@@ -85,7 +85,7 @@ inherited QueryAllMainComponents: TQueryAllMainComponents
         Name = 'ID'
         DataType = ftInteger
         ParamType = ptInput
-        Value = Null
+        Value = 0
       end>
   end
 end

@@ -103,8 +103,6 @@ type
     actSaveAll: TAction;
     dxBarButton4: TdxBarButton;
     actExit: TAction;
-    actAutoBinding: TAction;
-    dxBarButton1: TdxBarButton;
     actDeleteTreeNode: TAction;
     actRenameTreeNode: TAction;
     actAddTreeNode: TAction;
@@ -119,8 +117,14 @@ type
     dxBarButton6: TdxBarButton;
     actLoadFromExcelDocument: TAction;
     dxBarButton8: TdxBarButton;
+    dxBarSubItem5: TdxBarSubItem;
+    actAutoBindingDoc: TAction;
+    actAutoBindingDescriptions: TAction;
+    dxBarButton1: TdxBarButton;
+    dxBarButton7: TdxBarButton;
     procedure actAddTreeNodeExecute(Sender: TObject);
-    procedure actAutoBindingExecute(Sender: TObject);
+    procedure actAutoBindingDescriptionsExecute(Sender: TObject);
+    procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
@@ -177,8 +181,6 @@ type
     procedure UpdateCaption;
     { Private declarations }
   protected
-    function LoadFromDirectory(ADocFieldInfos: TList<TDocFieldInfo>;
-      const AIDCategory: Integer): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
@@ -214,14 +216,15 @@ uses
   ParametersMasterDetailUnit, ComponentsExMasterDetailUnit,
   ComponentsMasterDetailUnit, ComponentsSearchMasterDetailUnit,
   ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
-  BodyTypesForm, ProjectConst, PathSettingsForm, AutoBindingForm,
-  ImportErrorForm, ComponentsBaseMasterDetailUnit, ErrorForm,
-  cxGridDBBandedTableView, System.IOUtils, FieldInfoUnit,
-  SearchMainParameterQuery, ImportProcessForm, SearchDaughterParameterQuery,
-  ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,
-  SearchDescriptionsQuery, SearchSubCategoriesQuery,
+  BodyTypesForm, ProjectConst, PathSettingsForm, ImportErrorForm,
+  ComponentsBaseMasterDetailUnit, ErrorForm, cxGridDBBandedTableView,
+  System.IOUtils, FieldInfoUnit, SearchMainParameterQuery, ImportProcessForm,
+  SearchDaughterParameterQuery, ProgressInfo, ProgressBarForm, BodyTypesQuery,
+  Vcl.FileCtrl, SearchDescriptionsQuery, SearchSubCategoriesQuery,
   SearchComponentCategoryQuery2, AllMainComponentsQuery, TableWithProgress,
-  AllMainComponentsQuery2, GridViewForm, Manufacturers2Query, TreeListQuery;
+  AllMainComponentsQuery2, GridViewForm, Manufacturers2Query, TreeListQuery,
+  AutoBindingDocForm, AutoBindingDescriptionForm, FireDAC.Comp.Client,
+  AutoBinding;
 
 {$R *.dfm}
 
@@ -250,22 +253,51 @@ begin
   end;
 end;
 
-procedure TfrmMain.actAutoBindingExecute(Sender: TObject);
+procedure TfrmMain.actAutoBindingDescriptionsExecute(Sender: TObject);
 var
-  frmAutoBinding: TfrmAutoBinding;
+  frmAutoBindingDescriptions: TfrmAutoBindingDescriptions;
   MR: Integer;
 begin
-  frmAutoBinding := TfrmAutoBinding.Create(Self);
+  frmAutoBindingDescriptions := TfrmAutoBindingDescriptions.Create(Self);
   try
-    MR := frmAutoBinding.ShowModal;
+    MR := frmAutoBindingDescriptions.ShowModal;
+    if MR <> mrCancel then
+      TAutoBind.BindDescriptions;
+  finally
+    FreeAndNil(frmAutoBindingDescriptions);
+  end;
+end;
+
+procedure TfrmMain.actAutoBindingDocExecute(Sender: TObject);
+var
+  AFDQuery: TFDQuery;
+  AQueryAllMainComponents: TQueryAllMainComponents;
+  frmAutoBindingDoc: TfrmAutoBindingDoc;
+  MR: Integer;
+begin
+  AQueryAllMainComponents := nil;
+  AFDQuery := nil;
+  frmAutoBindingDoc := TfrmAutoBindingDoc.Create(Self);
+  try
+    MR := frmAutoBindingDoc.ShowModal;
     case MR of
       mrAll:
-        LoadFromDirectory(frmAutoBinding.Docs, 1);
+        begin
+          AQueryAllMainComponents := TQueryAllMainComponents.Create(Self);
+          AQueryAllMainComponents.RefreshQuery;
+          AFDQuery := AQueryAllMainComponents.FDQuery;
+        end;
       mrOk:
-        LoadFromDirectory(frmAutoBinding.Docs, DM.qTreeList.PKValue);
+        AFDQuery := ViewComponents.ComponentsMasterDetail.qComponents.FDQuery
     end;
+    if AFDQuery <> nil then
+      TAutoBind.BindDocs(frmAutoBindingDoc.Docs, AFDQuery,
+        frmAutoBindingDoc.cxrbNoRange.Checked,
+        frmAutoBindingDoc.cxcbAbsentDoc.Checked);
   finally
-    FreeAndNil(frmAutoBinding);
+    FreeAndNil(frmAutoBindingDoc);
+    if AQueryAllMainComponents <> nil then
+      FreeAndNil(AQueryAllMainComponents);
   end;
 end;
 
@@ -311,7 +343,7 @@ begin
       procedure
       begin
         AComponentBodyTypesExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка корпусных данных');
+      end, 'Загрузка корпусных данных', sRows);
 
     OK := AComponentBodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -347,7 +379,7 @@ begin
         begin
           ViewComponents.ComponentsMasterDetail.LoadBodyList
             (AComponentBodyTypesExcelDM.ExcelTable);
-        end, 'Сохранение корпусных данных в БД');
+        end, 'Сохранение корпусных данных в БД', sRecords);
     end;
 
   finally
@@ -604,7 +636,7 @@ begin
           procedure
           begin
             AParameterExcelDM2.LoadExcelFile(AFileName);
-          end, 'Загрузка параметрических данных');
+          end, 'Загрузка параметрических данных', sRows);
 
         // Если в ходе загрузки данных произошли ошибки (компонент не найден)
         if AParameterExcelDM2.ExcelTable.Errors.RecordCount > 0 then
@@ -628,7 +660,7 @@ begin
             begin
               TParameterValues.LoadParameterValues
                 (AParameterExcelDM2.ExcelTable, true);
-            end, 'Сохранение параметрических данных в БД');
+            end, 'Сохранение параметрических данных в БД', sRecords);
         end;
 
       finally
@@ -1073,157 +1105,6 @@ begin
   Result := 1;
   if ANode.Parent <> nil then
     Result := Result + GetLevel(ANode.Parent);
-end;
-
-function TfrmMain.LoadFromDirectory(ADocFieldInfos: TList<TDocFieldInfo>;
-const AIDCategory: Integer): Boolean;
-var
-  AAbsentDocTable: TAbsentDocTable;
-  AcxGridDBBandedColumn: TcxGridDBBandedColumn;
-  ADocFilesTable: TDocFilesTable;
-  // AField: TField;
-  AfrmGridView: TfrmGridView;
-  ALinkedDocTable: TLinkedDocTable;
-  APossibleLinkDocTable: TPossibleLinkDocTable;
-  AQueryAllMainComponents: TQueryAllMainComponents;
-  AQuerySearchDescriptions: TQuerySearchDescriptions;
-  ATableWithProgress: TTableWithProgress;
-  OK: Boolean;
-begin
-  Result := False;
-
-  // Привязываем компоненты к кратким описаниям
-  AQuerySearchDescriptions := TQuerySearchDescriptions.Create(Self);
-  try
-    AQuerySearchDescriptions.FDQuery.Open;
-
-    // Если после исключения ошибок осталось что привязывать
-    if AQuerySearchDescriptions.FDQuery.RecordCount > 0 then
-    begin
-      TfrmProgressBar.Process(AQuerySearchDescriptions,
-        AQuerySearchDescriptions.UpdateComponentDescriptions,
-        'Выполняем привязку кратких описаний');
-    end;
-  finally
-    FreeAndNil(AQuerySearchDescriptions);
-  end;
-
-  // Создаём таблицу со всеми файлами документации
-  ADocFilesTable := TDocFilesTable.Create(Self);
-  try
-    // Просим загрузить список файлов
-    ADocFilesTable.LoadDocFiles(ADocFieldInfos);
-
-    TfrmProgressBar.Process(ADocFilesTable,
-      procedure
-      begin
-        // Просим проанализировать, к каким компонентам можно привязать эти файлы
-        APossibleLinkDocTable := ViewComponents.ComponentsMasterDetail.
-          ProcessDocFiles2(ADocFilesTable);
-      end, 'Анализ найденных файлов документации');
-  finally
-    FreeAndNil(ADocFilesTable);
-  end;
-
-  // Если есть что привязывать
-  if APossibleLinkDocTable.RecordCount > 0 then
-  begin
-    // Список всех компонентов
-    AQueryAllMainComponents := TQueryAllMainComponents.Create(Self);
-    try
-      // Загружаем все компоненты
-      // AQueryAllMainComponents.RefreshQuery;
-      AQueryAllMainComponents.Load(['ID'], [0]);
-      // Создаём набор данных в памяти
-      ATableWithProgress := TTableWithProgress.Create(Self);
-      try
-        AQueryAllMainComponents.FDQuery.Last;
-        // Клонируем курсор
-        ATableWithProgress.CloneCursor(AQueryAllMainComponents.FDQuery);
-        ATableWithProgress.Last;
-
-        // for AField in ATableWithProgress.Fields do
-        // AField.ReadOnly := False;
-
-        // AQueryAllMainComponents.AutoTransaction := False;
-        // if (not AQueryAllMainComponents.FDQuery.Connection.InTransaction) then
-        // AQueryAllMainComponents.FDQuery.Connection.StartTransaction;
-
-        TfrmProgressBar.Process(ATableWithProgress,
-          procedure
-          begin
-            // Просим найти подходящую привязку между компонентами и файлами
-            ALinkedDocTable := ViewComponents.ComponentsMasterDetail.
-              PrepareLinksToDocFiles(APossibleLinkDocTable, ATableWithProgress,
-              ADocFieldInfos, AQueryAllMainComponents.FDQuery.Connection);
-          end, 'Поиск подходящих файлов документации');
-
-        // AQueryAllMainComponents.FDQuery.Connection.Commit;
-      finally
-        FreeAndNil(ATableWithProgress);
-      end;
-    finally
-      FreeAndNil(AQueryAllMainComponents);
-    end;
-
-    // Отображаем список файлов которые будем привязывать
-    AfrmGridView := TfrmGridView.Create(Self);
-    try
-      with AfrmGridView do
-      begin
-        Caption := 'Файлы документации и компоненты';
-        // cxbtnOK.Caption := '&Далее';
-        DataSet := ALinkedDocTable;
-        // Показываем что мы собираемся привязывать
-        OK := ShowModal = mrOk;
-      end;
-    finally
-      FreeAndNil(AfrmGridView);
-    end;
-
-    if OK then
-    begin
-      // Если после исключения ошибок осталось что привязывать
-      TfrmProgressBar.Process(ALinkedDocTable,
-        procedure
-        begin
-          ViewComponents.ComponentsMasterDetail.LinkToDocFiles(ALinkedDocTable)
-        end, 'Выполняем привязку файлов документации');
-      Result := true;
-    end;
-  end
-  else
-  begin
-    TDialog.Create.ComponentsDocFilesNotFound;
-  end;
-
-  // Проверяем на отсутсвующие файлы
-  AAbsentDocTable := ViewComponents.ComponentsMasterDetail.CheckAbsentDocFiles
-    (ADocFieldInfos, AIDCategory);
-  try
-    // Если есть компоненты для которых отсутствует документация
-    if AAbsentDocTable.RecordCount > 0 then
-    begin
-      AfrmGridView := TfrmGridView.Create(Self);
-      try
-        AfrmGridView.Caption :=
-          'Компоненты для которых отсутствует документация';
-        AfrmGridView.DataSet := AAbsentDocTable;
-        AcxGridDBBandedColumn := AfrmGridView.ViewGrid.MainView.
-          GetColumnByFieldName(AAbsentDocTable.Folder.FieldName);
-        Assert(AcxGridDBBandedColumn <> nil);
-        AcxGridDBBandedColumn.GroupIndex := 0;
-        AcxGridDBBandedColumn.Visible := False;
-        // Показываем ошибки
-        AfrmGridView.ShowModal;
-      finally
-        FreeAndNil(AfrmGridView);
-      end;
-    end;
-  finally
-    FreeAndNil(ALinkedDocTable);
-  end;
-
 end;
 
 function TfrmMain.ShowSettingsEditor: Integer;

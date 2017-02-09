@@ -1016,7 +1016,7 @@ begin
       procedure
       begin
         ParametersMasterDetail.InsertList(AList);
-      end, 'Обновление параметров в БД');
+      end, 'Обновление параметров в БД', sRecords);
 
   finally
     cxGridDBBandedTableView.EndUpdate;
@@ -1041,7 +1041,7 @@ begin
           AParametersExcelDM.LoadExcelFile(AFileName)
         else
           AParametersExcelDM.LoadFromActiveSheet;
-      end, 'Загрузка параметров из Excel документа');
+      end, 'Загрузка параметров из Excel документа', sRows);
 
     OK := AParametersExcelDM.ExcelTable.Errors.RecordCount = 0;
 

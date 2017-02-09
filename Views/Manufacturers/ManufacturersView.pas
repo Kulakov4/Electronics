@@ -179,7 +179,7 @@ begin
       procedure
       begin
         AManufacturersExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка данных о производителе');
+      end, 'Загрузка данных о производителе', sRows);
 
     OK := AManufacturersExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -216,7 +216,7 @@ begin
           begin
             QueryManufacturers.InsertRecordList
               (AManufacturersExcelDM.ExcelTable);
-          end, 'Сохранение данных о производителях в БД');
+          end, 'Сохранение данных о производителях в БД', sRecords);
       finally
         cxGrid.EndUpdate;
       end;

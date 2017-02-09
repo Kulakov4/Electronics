@@ -239,7 +239,7 @@ begin
       procedure
       begin
         ABodyTypesExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка корпусных данных');
+      end, 'Загрузка корпусных данных', sRows);
 
     OK := ABodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -276,7 +276,7 @@ begin
           begin
             BodyTypesMasterDetail.InsertRecordList
               (ABodyTypesExcelDM.ExcelTable);
-          end, 'Сохранение корпусных данных в БД');
+          end, 'Сохранение корпусных данных в БД', sRecords);
       finally
         cxGrid.EndUpdate;
       end;

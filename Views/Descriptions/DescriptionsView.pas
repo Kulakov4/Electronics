@@ -231,7 +231,7 @@ begin
       procedure
       begin
         ADescriptionsExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка кратких описаний из Excel документа');
+      end, 'Загрузка кратких описаний из Excel документа', sRows);
 
     OK := ADescriptionsExcelDM.ExcelTable.Errors.RecordCount = 0;
 
@@ -269,7 +269,7 @@ begin
           begin
             DescriptionsMasterDetail.InsertRecordList
               (ADescriptionsExcelDM.ExcelTable);
-          end, 'Сохранение кратких описаний в БД');
+          end, 'Сохранение кратких описаний в БД', sRecords);
       finally
         cxGrid.EndUpdate;
       end;
