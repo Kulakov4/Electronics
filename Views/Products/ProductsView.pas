@@ -48,9 +48,12 @@ type
     dxbrbtnPasteFromExcel: TdxBarButton;
     dxBarButton1: TdxBarButton;
     dxBarButton2: TdxBarButton;
+    actPasteComponents: TAction;
+    N2: TMenuItem;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
+    procedure actPasteComponentsExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actPasteFromExcelExecute(Sender: TObject);
     procedure actPasteFromExcelSheetExecute(Sender: TObject);
@@ -77,6 +80,7 @@ type
     procedure UpdateSelectedCount;
     { Private declarations }
   protected
+    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
   public
     procedure UpdateView; override;
     property QueryProducts: TQueryProducts read GetQueryProducts
@@ -90,7 +94,7 @@ implementation
 
 uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
-  DialogUnit;
+  DialogUnit, Vcl.Clipbrd;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var
@@ -137,6 +141,22 @@ begin
       UpdateView;
     end;
   end;
+end;
+
+procedure TViewProducts.actPasteComponentsExecute(Sender: TObject);
+var
+  m: TArray<String>;
+begin
+  m := TClb.Create.GetRowsAsArray;
+  if Length(m) = 0 then
+    Exit;
+
+  // Просим добавить компоненты на склад
+  QueryProducts.AppendRows(QueryProducts.Value.FieldName, m);
+
+  PutInTheCenterFocusedRecord(MainView);
+
+  UpdateView;
 end;
 
 procedure TViewProducts.actPasteFromBufferExecute(Sender: TObject);
@@ -340,6 +360,23 @@ end;
 function TViewProducts.GetQueryProducts: TQueryProducts;
 begin
   Result := QueryProductsBase as TQueryProducts;
+end;
+
+procedure TViewProducts.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
+Var
+  Ok: Boolean;
+begin
+  Ok := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
+
+  actPasteComponents.Enabled := Ok and
+    (AColumn.GridView.Level = cxGridLevel) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+
+  Ok := (AColumn <> nil);
+
+  actPasteComponents.Visible := Ok and
+    (AColumn.GridView.Level = cxGridLevel) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 end;
 
 procedure TViewProducts.SetQueryProducts(const Value: TQueryProducts);

@@ -157,7 +157,11 @@ uses
   GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
   AutoBindingDocForm in 'Views\AutoBinding\AutoBindingDocForm.pas' {frmAutoBindingDoc},
   AutoBindingDescriptionForm in 'Views\AutoBinding\AutoBindingDescriptionForm.pas' {frmAutoBindingDescriptions},
-  AutoBinding in 'Helpers\AutoBinding.pas';
+  AutoBinding in 'Helpers\AutoBinding.pas',
+  SearchComponentsByValuesLike in 'Queryes\Search\SearchComponentsByValuesLike.pas' {QuerySearchComponentsByValuesLike: TFrame},
+  SearchComponentsByValuesBase in 'Queryes\Search\SearchComponentsByValuesBase.pas' {QuerySearchComponentsByValuesBase: TFrame},
+  SearchDaughterComponentQuery in 'Queryes\Search\SearchDaughterComponentQuery.pas' {QuerySearchDaughterComponent: TFrame},
+  SearchMainComponentByID in 'Queryes\Search\SearchMainComponentByID.pas' {QuerySearchMainComponentByID: TFrame};
 
 {$R *.res}
 

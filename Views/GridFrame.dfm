@@ -120,6 +120,7 @@ object frmGrid: TfrmGrid
         Index = 0
         PopupMenu = pmGrid
       end>
+    OnPopup = cxGridPopupMenuPopup
     Left = 512
     Top = 184
   end

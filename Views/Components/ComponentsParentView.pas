@@ -180,9 +180,7 @@ begin
   // Копируем в новое представление все колонки
   AView.Assign(cxGridDBBandedTableView);
 
-//  ACol := cxGridDBBandedTableView.GetColumnByFieldName('Producer');
-
-
+  // ACol := cxGridDBBandedTableView.GetColumnByFieldName('Producer');
 
   // После копирования создались новые колонки.
   // Но они почему-то не на своих местах
@@ -645,12 +643,11 @@ procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 var
-  AcxGridDBBandedColumn: TcxGridDBBandedColumn;
+  AColumn: TcxGridDBBandedColumn;
 begin
-  AcxGridDBBandedColumn := AItem as TcxGridDBBandedColumn;
+  AColumn := AItem as TcxGridDBBandedColumn;
   if (Key = 13) and
-    (AcxGridDBBandedColumn.DataBinding.FieldName = clValue.DataBinding.FieldName)
-  then
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
   begin
     Sender.DataController.Post();
     UpdateView;
@@ -712,7 +709,6 @@ begin
       // если удалить всё
       if All then
       begin
-
 
         if AController.SelectedRowCount > 0 then
         begin
@@ -1061,12 +1057,13 @@ var
   S: String;
   sourceFileName: string;
 begin
-  S := ComponentsBaseMasterDetail.MainComponentsQuery.Field(ADocFieldInfo.FieldName).AsString;
+  S := ComponentsBaseMasterDetail.MainComponentsQuery.Field
+    (ADocFieldInfo.FieldName).AsString;
   // Если файл документации ранее был уже задан
   if S <> '' then
   begin
     // Получаем полный путь до файла
-    S := TPath.Combine( ADocFieldInfo.Folder, S );
+    S := TPath.Combine(ADocFieldInfo.Folder, S);
     // Получаем папку в которой лежит ранее заданный файл документации
     S := TPath.GetDirectoryName(S);
     // если такого пути уже не существует
@@ -1076,9 +1073,8 @@ begin
   else
     S := ADocFieldInfo.Folder;
 
-
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog( S );
+  sourceFileName := TDialog.Create.OpenPictureDialog(S);
   if sourceFileName.IsEmpty then
     Exit;
   ComponentsBaseMasterDetail.LoadDocFile(sourceFileName, ADocFieldInfo);

@@ -108,6 +108,7 @@ inherited ViewProductsBase: TViewProductsBase
             Kind = bkEllipsis
           end>
         Properties.Images = DMRepository.cxImageList
+        OnGetDataText = clDatasheetGetDataText
         Width = 138
         Position.BandIndex = 1
         Position.ColIndex = 3

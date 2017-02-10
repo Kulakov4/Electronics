@@ -48,8 +48,12 @@ type
     procedure clValueGetProperties(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure cxFieldValueWithExpandPropertiesChange(Sender: TObject);
+    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+      Shift: TShiftState);
   private
     function GetComponentsSearchMasterDetail: TComponentsSearchMasterDetail;
+    procedure Search(ALike: Boolean);
     procedure SetComponentsSearchMasterDetail(const Value
       : TComponentsSearchMasterDetail);
     { Private declarations }
@@ -101,15 +105,7 @@ end;
 
 procedure TViewComponentsSearch.actSearchExecute(Sender: TObject);
 begin
-  MainView.BeginUpdate(lsimPending);
-  try
-    ComponentsSearchMasterDetail.Search;
-    UpdateView;
-  finally
-    MainView.EndUpdate;
-  end;
-  FocusColumnEditor(0, 'Value');
-  PostApplyBestFit;
+  Search(False);
 end;
 
 procedure TViewComponentsSearch.clValueGetProperties
@@ -135,6 +131,21 @@ begin
     IsSearchEnabled or not S.IsEmpty;
 end;
 
+procedure TViewComponentsSearch.cxGridDBBandedTableViewEditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+var
+  AColumn: TcxGridDbBandedColumn;
+begin
+  inherited;
+  AColumn := AItem as TcxGridDbBandedColumn;
+  if (Key = 13) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
+  begin
+    Search(True);
+  end;
+end;
+
 function TViewComponentsSearch.GetComponentsSearchMasterDetail
   : TComponentsSearchMasterDetail;
 begin
@@ -151,6 +162,21 @@ begin
     (ComponentsSearchMasterDetail.qComponentsSearch.Mode = SearchMode);
 
   actPasteAsSubComponents.Visible := False;
+end;
+
+procedure TViewComponentsSearch.Search(ALike: Boolean);
+begin
+  MainView.BeginUpdate(lsimPending);
+  try
+    ComponentsSearchMasterDetail.Search(ALike);
+    UpdateView;
+
+    MainView.ViewData.Collapse(True);
+  finally
+    MainView.EndUpdate;
+  end;
+  FocusColumnEditor(0, 'Value');
+  PostApplyBestFit;
 end;
 
 procedure TViewComponentsSearch.SetComponentsSearchMasterDetail

@@ -10,25 +10,42 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, DocFieldInfo, SearchMainComponent2, StoreHouseListQuery,
-  SearchProductParameterValuesQuery, CustomComponentsQuery;
+  SearchProductParameterValuesQuery, CustomComponentsQuery,
+  SearchDaughterComponentQuery, SearchMainComponentByID;
 
 type
+  TComponentNameParts = record
+    Name: String;
+    Number: cardinal;
+    Ending: String;
+  end;
+
   TQueryProductsBase = class(TQueryCustomComponents)
     qStoreHouseProducts: TfrmApplyQuery;
   private
+    FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchMainComponent2: TQuerySearchMainComponent2;
+    FQuerySearchMainComponentByID: TQuerySearchMainComponentByID;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    function GetComponentFamily: String;
     function GetProductID: TField;
+    function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetQuerySearchMainComponent2: TQuerySearchMainComponent2;
+    function GetQuerySearchMainComponentByID: TQuerySearchMainComponentByID;
     function GetStorehouseId: TField;
+    function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
+    property QuerySearchDaughterComponent: TQuerySearchDaughterComponent
+      read GetQuerySearchDaughterComponent;
     property QuerySearchMainComponent2: TQuerySearchMainComponent2
       read GetQuerySearchMainComponent2;
+    property QuerySearchMainComponentByID: TQuerySearchMainComponentByID
+      read GetQuerySearchMainComponentByID;
   public
     constructor Create(AOwner: TComponent); override;
     procedure ApplyUpdates; override;
@@ -46,7 +63,7 @@ implementation
 
 uses System.Generics.Collections, LostComponentsQuery, DBRecordHolder,
   System.IOUtils, SettingsController, RepositoryDataModule, NotifyEvents,
-  ParameterValuesUnit, StrHelper;
+  ParameterValuesUnit, StrHelper, System.StrUtils;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
@@ -76,61 +93,77 @@ end;
 
 procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet);
 var
+  AComponentFamily: String;
   AFieldHolder: TFieldHolder;
   APK: TField;
   AProductID: TField;
   ARH: TRecordHolder;
   ARH2: TRecordHolder;
+  AValue: TField;
+  rc: Integer;
   // ASenderField: TField;
 begin
   APK := ASender.FieldByName(PKFieldName);
   AProductID := ASender.FieldByName(ProductID.FieldName);
+  AValue := ASender.FieldByName(Value.FieldName);
 
   ARH := TRecordHolder.Create(ASender);
   try
 
     // Если такого компонента ещё нет
-    if QuerySearchMainComponent2.Search(ASender.FieldByName(Value.FieldName)
+    if QuerySearchDaughterComponent.Search(ASender.FieldByName(Value.FieldName)
       .AsString) = 0 then
     begin
+      // 1) надо вычислить к какому семейству он относится
+      AComponentFamily := GetComponentFamily;
+      // 2) Надо поискать такое семейство
+      if QuerySearchMainComponent2.Search(AComponentFamily) = 0 then
+      begin
+        // нет ни такого семейства, ни такого компонента
+        // Надо добавить и семейство, и компонент
+        ARH.Field[Value.FieldName] := AComponentFamily;
+
+        // Добавляем в базу семейство компонентов
+        qProducts.InsertRecord(ARH);
+
+        ARH.Field[Value.FieldName] := AValue.Value;
+        ARH.Field['ParentProductID'] := qProducts.PKValue;
+
+      end
+      else
+      begin
+        // Такое семейство в базе уже есть
+        ARH.Field['ParentProductID'] := QuerySearchMainComponent2.PKValue;
+      end;
+
+      // Добавляем в базу сам компонент
       qProducts.InsertRecord(ARH);
-      // Первичный ключ должны получить от сервера
-      Assert(qProducts.PKValue > 0);
 
       ARH.Field[ProductID.FieldName] := qProducts.PKValue;
+      AProductID.AsInteger := qProducts.PKValue;
 
       // Обрабатываем значения параметров
       UpdateParamValue(ProductID.FieldName, ASender);
+
     end
     else
     begin
       // Если такой компонент уже есть
       // Запоминаем найденный первичный ключ
-      ARH.Field[ProductID.FieldName] := QuerySearchMainComponent2.PKValue;
+      ARH.Field[ProductID.FieldName] := QuerySearchDaughterComponent.PKValue;
+      AProductID.AsInteger := QuerySearchDaughterComponent.PKValue;
 
-      // Заполняем пустые поля значениями с сервера
-      ARH2 := TDBRecord.Fill(ASender, QuerySearchMainComponent2.FDQuery, PKFieldName);
+      // Ищем семейство найденного компонента
+      rc := QuerySearchMainComponentByID.Search
+        (QuerySearchDaughterComponent.ParentProductID.AsInteger);
+      Assert(rc = 1);
+
+      // Запоминаем поля семейства компонента
+      ARH2 := TRecordHolder.Create(QuerySearchMainComponentByID.FDQuery);
       try
-        // Если есть поля, которые нужно обновить
-        if ARH2.Count > 0 then
-        begin
-          // Обновляем те поля, которые есть у компонента
-          qProducts.UpdateRecord(ARH2);
-
-          // А можно ли менять категории компонентов на складе?
-
-          {
-            // Если на сервере иное значение подгруппы
-            if ARH2.Find(SubGroup.FieldName) <> nil then
-            begin
-            ASubGroup.AsString := CombineSubgroup(ASubGroup.AsString,
-            QuerySearchMainComponent2.SubGroup.AsString)
-            end;
-          }
-          // Обрабатываем значения параметров
-          UpdateParamValue(ProductID.FieldName, ASender);
-        end;
-
+        // Все пустые поля заполняем значениями из семейства
+        ARH.UpdateNullValues(ARH2);
+        ARH.Put(ASender);
       finally
         FreeAndNil(ARH2);
       end;
@@ -228,9 +261,32 @@ begin
     TParameterValues.ImageParameterID;
 end;
 
+function TQueryProductsBase.GetComponentFamily: String;
+var
+  ComponentNameParts: TComponentNameParts;
+begin
+  Assert(not Value.AsString.IsEmpty);
+  Result := Value.AsString;
+
+  // Разделяем имя компонента на части
+  ComponentNameParts := SplitComponentName(Value.AsString);
+
+  Result := IfThen(ComponentNameParts.Number = 0, ComponentNameParts.Name,
+    Format('%s%d', [ComponentNameParts.Name, ComponentNameParts.Number]))
+end;
+
 function TQueryProductsBase.GetProductID: TField;
 begin
   Result := Field('ProductID');
+end;
+
+function TQueryProductsBase.GetQuerySearchDaughterComponent
+  : TQuerySearchDaughterComponent;
+begin
+  if FQuerySearchDaughterComponent = nil then
+    FQuerySearchDaughterComponent := TQuerySearchDaughterComponent.Create(Self);
+
+  Result := FQuerySearchDaughterComponent;
 end;
 
 function TQueryProductsBase.GetQuerySearchMainComponent2
@@ -239,6 +295,14 @@ begin
   if FQuerySearchMainComponent2 = nil then
     FQuerySearchMainComponent2 := TQuerySearchMainComponent2.Create(Self);
   Result := FQuerySearchMainComponent2;
+end;
+
+function TQueryProductsBase.GetQuerySearchMainComponentByID
+  : TQuerySearchMainComponentByID;
+begin
+  if FQuerySearchMainComponentByID = nil then
+    FQuerySearchMainComponentByID := TQuerySearchMainComponentByID.Create(Self);
+  Result := FQuerySearchMainComponentByID;
 end;
 
 function TQueryProductsBase.GetStorehouseId: TField;
@@ -258,6 +322,48 @@ begin
     TryEdit;
     FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
     TryPost;
+  end;
+end;
+
+function TQueryProductsBase.SplitComponentName(const S: string)
+  : TComponentNameParts;
+var
+  Count: Integer;
+  StartIndex: Integer;
+begin
+  // Предполагаем что компонент начинается с буквы, за которыми следуют цифры
+  Result.Name := S;
+  Result.Number := 0;
+  Result.Ending := '';
+
+  Count := 1;
+
+  // Пока в начале строки не находим цифру
+  while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 0,
+    Count) = -1 do
+  begin
+    Inc(Count);
+
+    // Если в строке вообще нет цифр
+    if Count > S.Length then
+      Exit;
+  end;
+
+  Result.Name := S.Substring(0, Count - 1);
+  StartIndex := Count - 1;
+
+  // Пока в строке находим цифру
+  while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    StartIndex) = StartIndex do
+    Inc(StartIndex);
+
+  Dec(StartIndex);
+
+  // Если нашли хотя-бы одну цифру
+  if StartIndex >= Count then
+  begin
+    Result.Number := StrToInt(S.Substring(Count - 1, StartIndex - Count));
+    Result.Ending := S.Substring(StartIndex + 1);
   end;
 end;
 

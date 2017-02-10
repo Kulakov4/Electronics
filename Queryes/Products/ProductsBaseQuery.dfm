@@ -91,6 +91,10 @@ inherited QueryProductsBase: TQueryProductsBase
   inherited qProducts: TfrmApplyQuery [2]
   end
   inherited FDQuery: TFDQuery [3]
-    Left = 73
+    Left = 17
+  end
+  inherited DataSource: TDataSource
+    Left = 80
+    Top = 25
   end
 end

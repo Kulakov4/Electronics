@@ -70,6 +70,8 @@ type
     procedure actOpenImageExecute(Sender: TObject);
     procedure actOpenDatasheetExecute(Sender: TObject);
     procedure actRollback2Execute(Sender: TObject);
+    procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem; ARecordIndex:
+        Integer; var AText: string);
     procedure clPriceGetDisplayText(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AText: string);
 
@@ -162,6 +164,14 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TViewProductsBase.clDatasheetGetDataText(Sender:
+    TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
+begin
+  inherited;
+  if not AText.IsEmpty then
+    AText := TPath.GetFileNameWithoutExtension(AText);
 end;
 
 procedure TViewProductsBase.clPriceGetDisplayText

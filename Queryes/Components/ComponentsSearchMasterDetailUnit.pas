@@ -9,7 +9,8 @@ uses
   ComponentsSearchQuery, ComponentsDetailsSearchQuery, MasterDetailFrame,
   ComponentsBaseMasterDetailUnit, ComponentsBaseDetailQuery,
   CustomComponentsQuery, SearchComponentsByValues, MainComponentsQuery,
-  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit;
+  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
+  SearchComponentsByValuesLike;
 
 type
   TComponentsSearchMasterDetail = class(TComponentsBaseMasterDetail)
@@ -17,16 +18,22 @@ type
     qComponentsDetailsSearch: TQueryComponentsDetailsSearch;
   private
     FQuerySearchComponentsByValues: TQuerySearchComponentsByValues;
+    FQuerySearchComponentsByValuesLike: TQuerySearchComponentsByValuesLike;
     function GetQuerySearchComponentsByValues: TQuerySearchComponentsByValues;
+    function GetQuerySearchComponentsByValuesLike
+      : TQuerySearchComponentsByValuesLike;
     { Private declarations }
   protected
-    property QuerySearchComponentsByValues: TQuerySearchComponentsByValues read
-        GetQuerySearchComponentsByValues;
+    property QuerySearchComponentsByValues: TQuerySearchComponentsByValues
+      read GetQuerySearchComponentsByValues;
+    property QuerySearchComponentsByValuesLike
+      : TQuerySearchComponentsByValuesLike
+      read GetQuerySearchComponentsByValuesLike;
   public
     constructor Create(AOwner: TComponent); override;
     procedure ApplyUpdates; override;
     procedure ClearSearchResult;
-    procedure Search;
+    procedure Search(ALike: Boolean);
     { Public declarations }
   end;
 
@@ -34,7 +41,7 @@ implementation
 
 {$R *.dfm}
 
-uses SearchInterfaceUnit, RepositoryDataModule;
+uses SearchInterfaceUnit, RepositoryDataModule, SearchComponentsByValuesBase;
 
 constructor TComponentsSearchMasterDetail.Create(AOwner: TComponent);
 begin
@@ -58,44 +65,62 @@ begin
   qComponentsSearch.ClearSearchResult;
 end;
 
-function TComponentsSearchMasterDetail.GetQuerySearchComponentsByValues:
-    TQuerySearchComponentsByValues;
+function TComponentsSearchMasterDetail.GetQuerySearchComponentsByValues
+  : TQuerySearchComponentsByValues;
 begin
   if FQuerySearchComponentsByValues = nil then
-    FQuerySearchComponentsByValues := TQuerySearchComponentsByValues.Create(Self);
+    FQuerySearchComponentsByValues :=
+      TQuerySearchComponentsByValues.Create(Self);
 
   Result := FQuerySearchComponentsByValues;
 end;
 
-procedure TComponentsSearchMasterDetail.Search;
+function TComponentsSearchMasterDetail.GetQuerySearchComponentsByValuesLike
+  : TQuerySearchComponentsByValuesLike;
+begin
+  if FQuerySearchComponentsByValuesLike = nil then
+    FQuerySearchComponentsByValuesLike :=
+      TQuerySearchComponentsByValuesLike.Create(Self);
+
+  Result := FQuerySearchComponentsByValuesLike;
+end;
+
+procedure TComponentsSearchMasterDetail.Search(ALike: Boolean);
 var
+  ASearchQuery: TQuerySearchComponentsByValuesBase;
   s: string;
   sDetail: string;
   sParent: string;
   sParent2: string;
 begin
   // Получаем список значений по которым будем осуществлять поиск
-  s := qComponentsSearch.GetFieldValues(qComponentsSearch.Value.FieldName).Trim([',']);
+  s := qComponentsSearch.GetFieldValues(qComponentsSearch.Value.FieldName)
+    .Trim([',']).ToUpper;
 
   { необходимо получить все идентификаторы которые есть по значениям. Далее, определить что это, обычная или родительская запись
     и запомнить эти идентификаторы }
 
-  QuerySearchComponentsByValues.Search(s);
+  if ALike then
+    ASearchQuery := QuerySearchComponentsByValuesLike
+  else
+    ASearchQuery := QuerySearchComponentsByValues;
 
+  ASearchQuery.Search(s);
 
   // Фильтруем - оставляем только главные компоненты
-  QuerySearchComponentsByValues.FDQuery.Filter := 'ParentProductId = NULL';
-  QuerySearchComponentsByValues.FDQuery.Filtered := True;
+  ASearchQuery.FDQuery.Filter := 'ParentProductId = NULL';
+  ASearchQuery.FDQuery.Filtered := True;
 
-  s := QuerySearchComponentsByValues.GetFieldValues('ID').Trim([',']);
+  s := ASearchQuery.GetFieldValues('ID').Trim([',']);
   sParent := s;
 
   // Фильтруем - оставляем только дочерние компоненты
-  QuerySearchComponentsByValues.FDQuery.Filter := 'ParentProductId <> NULL';
-  QuerySearchComponentsByValues.FDQuery.Filtered := True;
+  ASearchQuery.FDQuery.Filter := 'ParentProductId <> NULL';
+  ASearchQuery.FDQuery.Filtered := True;
 
-  sParent2 := QuerySearchComponentsByValues.GetFieldValues('ParentProductId').Trim([',']);
-  sDetail := QuerySearchComponentsByValues.GetFieldValues('Id').Trim([',']);
+  sParent2 := ASearchQuery.GetFieldValues('ParentProductId')
+    .Trim([',']);
+  sDetail := ASearchQuery.GetFieldValues('Id').Trim([',']);
 
   if not sParent2.IsEmpty then
     sParent := Format('%s,%s', [sParent, sParent2]);

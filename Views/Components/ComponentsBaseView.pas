@@ -75,16 +75,12 @@ type
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure cxerpiSubGroup_PropertiesCloseUp(Sender: TObject);
     procedure cxerpiSubGroup_PropertiesInitPopup(Sender: TObject);
-    procedure cxGridPopupMenuPopup(ASenderMenu: TComponent;
-      AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
     procedure clManufacturerIdPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
     procedure clBodyIdPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem; ARecordIndex:
         Integer; var AText: string);
-    procedure cxGridPopupMenuPopupMenus0Popup(ASenderMenu: TComponent;
-      AHitTest: TcxCustomGridHitTest; X, Y: Integer);
   private
     FQuerySearchBodyType: TQuerySearchBodyType;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
@@ -98,7 +94,7 @@ type
     { Private declarations }
   protected
     procedure DoOnMasterDetailChange; override;
-    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); virtual;
+    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
     property QuerySearchBodyType: TQuerySearchBodyType
       read GetQuerySearchBodyType;
     property QuerySearchParameterValues: TQuerySearchParameterValues
@@ -229,16 +225,6 @@ begin
   m := TClb.Create.GetRowsAsArray;
   if (Length(m) = 0) or (GetFocusedQuery = nil) then
     Exit;
-  {
-    if (not ComponentsBaseMasterDetail.Manufacturers.Locate(m[0])) then
-    begin
-    // если пользователь согласился добавить такого производителя в справочник
-    if TDialog.Create.AddManufacturerDialog(m[0]) then
-    ComponentsBaseMasterDetail.Manufacturers.AddNewValue(m[0])
-    else
-    Exit;
-    end;
-  }
 
   AIDList := GetSelectedIDs;
   try
@@ -360,33 +346,6 @@ begin
   frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
 end;
 
-procedure TViewComponentsBase.cxGridPopupMenuPopup(ASenderMenu: TComponent;
-  AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
-var
-  AColumn: TcxGridDBBandedColumn;
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-begin
-  inherited;
-  AColumn := nil;
-
-  if (AHitTest is TcxGridRecordCellHitTest) then
-  begin
-    AcxGridRecordCellHitTest := (AHitTest as TcxGridRecordCellHitTest);
-    if AcxGridRecordCellHitTest.Item is TcxGridDBBandedColumn then
-    begin
-      AColumn := AcxGridRecordCellHitTest.Item as TcxGridDBBandedColumn;
-    end;
-  end;
-
-  OnGridPopupMenuPopup(AColumn);
-end;
-
-procedure TViewComponentsBase.cxGridPopupMenuPopupMenus0Popup
-  (ASenderMenu: TComponent; AHitTest: TcxCustomGridHitTest; X, Y: Integer);
-begin
-  inherited;;
-end;
-
 procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);
 begin
   // Инициализируем выпадающие столбцы
@@ -465,8 +424,8 @@ begin
 
 end;
 
-procedure TViewComponentsBase.OnGridPopupMenuPopup
-  (AColumn: TcxGridDBBandedColumn);
+procedure TViewComponentsBase.OnGridPopupMenuPopup(AColumn:
+    TcxGridDBBandedColumn);
 Var
   Ok: Boolean;
 begin

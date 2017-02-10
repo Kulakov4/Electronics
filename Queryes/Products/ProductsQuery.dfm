@@ -13,7 +13,7 @@ inherited QueryProducts: TQueryProducts
       'select'
       '       sp.Id,'
       '       pp.DescriptionId,'
-      '       pp.Value,'
+      '       dp.Value,'
       '       pp.subGroup,'
       '       pp.ParentProductId, '
       '       sp.StorehouseId,'
@@ -45,6 +45,7 @@ inherited QueryProducts: TQueryProducts
       '       d.Description'
       'from'
       'StorehouseProducts sp'
+      'join Products dp on sp.ProductId = dp.Id'
       'join'
       '('
       '    select '
@@ -54,11 +55,15 @@ inherited QueryProducts: TQueryProducts
       '            p.ParentProductId,'
       '            GROUP_CONCAT(pc.ExternalId) subGroup'
       '    from Products p'
-      '    JOIN ProductProductCategories ppc ON ppc.ProductId = p.Id'
-      '    JOIN ProductCategories pc ON pc.Id = ppc.ProductCategoryId'
+      
+        '    LEFT JOIN ProductProductCategories ppc ON ppc.ProductId = p.' +
+        'Id'
+      
+        '    LEFT JOIN ProductCategories pc ON pc.Id = ppc.ProductCategor' +
+        'yId'
       '    where p.ParentProductId is null'
       '    group by p.id'
-      ') pp on sp.ProductId = pp.Id'
+      ') pp on dp.ParentProductId = pp.Id'
       
         'LEFT JOIN ProductUnionParameters pup ON pup.ProductID = pp.Id AN' +
         'D pup.UnionParameterId = :ProducerParameterID'

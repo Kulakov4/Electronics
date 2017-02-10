@@ -113,6 +113,7 @@ end;
 
 procedure TQueryComponentsSearch.DoAfterOpen(Sender: TObject);
 var
+  AField: TField;
   I: Integer;
 begin
   // Фильтруем клоны
@@ -141,6 +142,11 @@ begin
 
   // Выбираем нужный режим транзакции
   AutoTransaction := Mode = SearchMode;
+
+  if Mode = RecordsMode then
+    for AField in FDQuery.Fields do
+      AField.ReadOnly := False;
+
 end;
 
 function TQueryComponentsSearch.GetCurrentMode: TContentMode;

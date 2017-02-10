@@ -52,6 +52,8 @@ type
       Shift: TShiftState);
     procedure cxGridDBBandedTableViewMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure cxGridPopupMenuPopup(ASenderMenu: TComponent; AHitTest:
+        TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
   private
     function GetMainView: TcxGridDBBandedTableView;
     { Private declarations }
@@ -74,6 +76,7 @@ type
     procedure InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
       AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
       AField: TField);
+    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -200,6 +203,27 @@ procedure TfrmGrid.cxGridDBBandedTableViewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TfrmGrid.cxGridPopupMenuPopup(ASenderMenu: TComponent; AHitTest:
+    TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+var
+  AColumn: TcxGridDBBandedColumn;
+  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
+begin
+  inherited;
+  AColumn := nil;
+
+  if (AHitTest is TcxGridRecordCellHitTest) then
+  begin
+    AcxGridRecordCellHitTest := (AHitTest as TcxGridRecordCellHitTest);
+    if AcxGridRecordCellHitTest.Item is TcxGridDBBandedColumn then
+    begin
+      AColumn := AcxGridRecordCellHitTest.Item as TcxGridDBBandedColumn;
+    end;
+  end;
+
+  OnGridPopupMenuPopup(AColumn);
 end;
 
 procedure TfrmGrid.DoOnMyApplyBestFit(var Message: TMessage);
@@ -490,6 +514,10 @@ function TfrmGrid.GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
 begin
   Assert(ALevel <> nil);
   Result := ALevel.GridView as TcxGridDBBandedTableView;
+end;
+
+procedure TfrmGrid.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
+begin
 end;
 
 end.
