@@ -105,7 +105,7 @@ inherited ViewComponentsParent: TViewComponentsParent
     object actDeleteFromAllCategories: TAction
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
       Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
-      ImageIndex = 2
+      ImageIndex = 33
       OnExecute = actDeleteFromAllCategoriesExecute
     end
     object actDelete: TAction

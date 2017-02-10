@@ -5,15 +5,17 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ProductsBaseView, cxGraphics, cxControls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ProductsBaseView, cxGraphics,
+  cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
   cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB, cxDBData, cxGridLevel,
   cxClasses, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, dxBar,
   cxGridDBTableView, System.Actions, Vcl.ActnList, ProductsQuery,
-  Vcl.ComCtrls, System.Generics.Collections, cxTextEdit, cxBlobEdit, cxButtonEdit, cxSpinEdit,
+  Vcl.ComCtrls, System.Generics.Collections, cxTextEdit, cxBlobEdit,
+  cxButtonEdit, cxSpinEdit,
   cxCurrencyEdit, GridFrame, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus,
-  {ExcelController, }dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
+  {ExcelController,} dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
   dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
@@ -44,7 +46,6 @@ type
     actPasteFromExcelSheet: TAction;
     dxbrbtnPasteFromBuffer: TdxBarButton;
     dxbrbtnPasteFromExcel: TdxBarButton;
-    dxbrbtnPasteFromExcelSheet: TdxBarButton;
     dxBarButton1: TdxBarButton;
     dxBarButton2: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
@@ -55,10 +56,10 @@ type
     procedure actPasteFromExcelSheetExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure cxGridDBBandedTableViewSelectionChanged(Sender:
-        TcxCustomGridTableView);
-    procedure cxGridDBBandedTableViewDataControllerCompare(
-      ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
+    procedure cxGridDBBandedTableViewSelectionChanged
+      (Sender: TcxCustomGridTableView);
+    procedure cxGridDBBandedTableViewDataControllerCompare(ADataController
+      : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
     procedure StatusBarResize(Sender: TObject);
   private
@@ -69,17 +70,17 @@ type
     procedure BeforeLoad(Sender: TObject);
     function GetQueryProducts: TQueryProducts;
     procedure SetQueryProducts(const Value: TQueryProducts);
-// TODO: SortList
-//  function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
-//    : TList<TProductRecord>;
+    // TODO: SortList
+    // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
+    // : TList<TProductRecord>;
     procedure UpdateProductCount;
     procedure UpdateSelectedCount;
     { Private declarations }
   protected
   public
     procedure UpdateView; override;
-    property QueryProducts: TQueryProducts read GetQueryProducts write
-        SetQueryProducts;
+    property QueryProducts: TQueryProducts read GetQueryProducts
+      write SetQueryProducts;
     { Public declarations }
   end;
 
@@ -101,7 +102,7 @@ begin
 
   AView.DataController.Append;
 
-  AColumn := AView.GetColumnByFieldName( QueryProducts.Value.FieldName );
+  AColumn := AView.GetColumnByFieldName(QueryProducts.Value.FieldName);
   // Site обеспечивает доступ к элементам размещённым на cxGrid
   AView.Site.SetFocus;
   // Показываем редактор для колонки
@@ -112,8 +113,7 @@ end;
 
 procedure TViewProducts.actCommitExecute(Sender: TObject);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
 procedure TViewProducts.actDeleteExecute(Sender: TObject);
@@ -140,97 +140,97 @@ begin
 end;
 
 procedure TViewProducts.actPasteFromBufferExecute(Sender: TObject);
-//var
-//  ARows: TArray<String>;
+// var
+// ARows: TArray<String>;
 begin
   TDialog.Create.MethodNotImplemended;
-{
-  Assert(QueryProducts <> nil);
-  ARows := TClb.Create.GetRowsAsArray;
+  {
+    Assert(QueryProducts <> nil);
+    ARows := TClb.Create.GetRowsAsArray;
 
-  cxGridDBBandedTableView.BeginUpdate();
-  try
+    cxGridDBBandedTableView.BeginUpdate();
+    try
     QueryProducts.AddStringList(ARows);
-  finally
+    finally
     cxGridDBBandedTableView.EndUpdate;
-  end;
-}
+    end;
+  }
 end;
 
 procedure TViewProducts.actPasteFromExcelExecute(Sender: TObject);
 {
-var
+  var
   AExcelController: TExcelController;
   AList: TList<TProductRecord>;
   dr, ASortMode: Integer;
 }
 begin
   TDialog.Create.MethodNotImplemended;
-{
-  dr := Application.MessageBox(PChar(TLanguageConstants.IsShouldSort),
+  {
+    dr := Application.MessageBox(PChar(TLanguageConstants.IsShouldSort),
     // нужно ли сортировать
     PChar(TLanguageConstants.Question), MB_YESNO + MB_ICONQUESTION);
 
-  ASortMode := 0;
-  if dr = mrYes then
+    ASortMode := 0;
+    if dr = mrYes then
     ASortMode := 1;
 
-  AExcelController := TExcelController.Create;
-  MessageForm.Show(sLoading, sWaitExcelLoading);
-  try
+    AExcelController := TExcelController.Create;
+    MessageForm.Show(sLoading, sWaitExcelLoading);
+    try
     AList := AExcelController.ReadFile;
-  finally
+    finally
     AExcelController.Free;
     MessageForm.Close;
-  end;
-  if AList.Count = 0 then
+    end;
+    if AList.Count = 0 then
     Exit;
 
-  // if dr = mrYes then   //сортировать?
-  // begin
-  MessageForm.Show(sLoading, sSorting);
-  AList := SortList(AList, ASortMode);
-  MessageForm.Close;
-  // end;
+    // if dr = mrYes then   //сортировать?
+    // begin
+    MessageForm.Show(sLoading, sSorting);
+    AList := SortList(AList, ASortMode);
+    MessageForm.Close;
+    // end;
 
-  QueryProducts.TryPost;
+    QueryProducts.TryPost;
 
-  cxGridDBBandedTableView.BeginUpdate();
-  MessageForm.Show(sLoading, sForming);
-  try
+    cxGridDBBandedTableView.BeginUpdate();
+    MessageForm.Show(sLoading, sForming);
+    try
     QueryProducts.InsertRecordList(AList);
-  finally
+    finally
     MessageForm.Close;
     cxGridDBBandedTableView.EndUpdate;
-  end;
-}
+    end;
+  }
 end;
 
 procedure TViewProducts.actPasteFromExcelSheetExecute(Sender: TObject);
 {
-var
+  var
   AClipboardManager: TClipboardManager;
   ARows: TStringList;
 }
 begin
   TDialog.Create.MethodNotImplemended;
-{
-  AClipboardManager := TClipboardManager.Create;
-  try
+  {
+    AClipboardManager := TClipboardManager.Create;
+    try
     ARows := AClipboardManager.GetRowsExcel;
-  finally
+    finally
     FreeAndNil(AClipboardManager);
-  end;
+    end;
 
-  cxGridDBBandedTableView.BeginUpdate();
-  MessageForm.Show(sLoading, sForming);
-  try
+    cxGridDBBandedTableView.BeginUpdate();
+    MessageForm.Show(sLoading, sForming);
+    try
     QueryProducts.InsertRecordList( QueryProducts.ConvertRowsToRecords(ARows));
-  finally
+    finally
     MessageForm.Close;
     cxGridDBBandedTableView.EndUpdate;
-  end;
-}
+    end;
+  }
 end;
 
 procedure TViewProducts.actRefreshExecute(Sender: TObject);
@@ -240,8 +240,7 @@ end;
 
 procedure TViewProducts.actRollbackExecute(Sender: TObject);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
 procedure TViewProducts.AfterDelete(Sender: TObject);
@@ -273,8 +272,8 @@ begin
     raise EAbort.Create('Cancel scroll');
 end;
 
-procedure TViewProducts.cxGridDBBandedTableViewDataControllerCompare(
-  ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
+procedure TViewProducts.cxGridDBBandedTableViewDataControllerCompare
+  (ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
   AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
 var
   AVar1, AVar2: Integer;
@@ -332,8 +331,8 @@ begin
   end;
 end;
 
-procedure TViewProducts.cxGridDBBandedTableViewSelectionChanged(
-    Sender: TcxCustomGridTableView);
+procedure TViewProducts.cxGridDBBandedTableViewSelectionChanged
+  (Sender: TcxCustomGridTableView);
 begin
   UpdateSelectedCount;
 end;
@@ -360,17 +359,16 @@ begin
       // Подписываемся на события
       TNotifyEventWrap.Create(QueryProducts.AfterLoad, AfterLoad, FEventList);
 
-      TNotifyEventWrap.Create(QueryProducts.AfterOpen, AfterOpen,
-        FEventList);
+      TNotifyEventWrap.Create(QueryProducts.AfterOpen, AfterOpen, FEventList);
 
-      TNotifyEventWrap.Create(QueryProducts.AfterPost, AfterPost,
-        FEventList);
+      TNotifyEventWrap.Create(QueryProducts.AfterPost, AfterPost, FEventList);
 
-      TNotifyEventWrap.Create(QueryProducts.AfterDelete,
-        AfterDelete, FEventList);
+      TNotifyEventWrap.Create(QueryProducts.AfterDelete, AfterDelete,
+        FEventList);
 
       Assert(clProducer.DataBinding.FieldName <> '');
-      Assert(MainView.GetColumnByFieldName(clProducer.DataBinding.FieldName).DataBinding.FieldName <> '');
+      Assert(MainView.GetColumnByFieldName(clProducer.DataBinding.FieldName)
+        .DataBinding.FieldName <> '');
     end;
 
     UpdateView;
@@ -378,74 +376,74 @@ begin
 end;
 
 // TODO: SortList
-//{ Сортировка в рамках одной группы компонентов }
-//function TViewProducts.SortList(AList: TList<TProductRecord>;
-//ASortMode: Integer): TList<TProductRecord>;
-//var
-//AComparison: TComparison<TProductRecord>;
-//// AComparisonByExcelRow: TComparison<TProductRecord>;
-//ATempList: TList<TProductRecord>;
-//i: Integer;
-//begin
-//// пользовательское сравнение по значению
-//if ASortMode = 1 then
-//begin
-//  AComparison := function(const Left, Right: TProductRecord): Integer
-//    begin
-//      Result := CompareText(Left.Value, Right.Value);
-//      if Result = 0 then
-//      begin
-//        Result := Left.ExcelRowNumber - Right.ExcelRowNumber;
-//        if Result > 0 then
-//          Result := 1;
-//        if Result < 0 then
-//          Result := -1;
-//      end;
-//    end;
-//end;
-//if ASortMode = 0 then
-//begin
-//  // Сортировка по номеру строки
-//  AComparison := function(const Left, Right: TProductRecord): Integer
-//    begin
-//      Result := Left.ExcelRowNumber - Right.ExcelRowNumber;
-//      if Result > 0 then
-//        Result := 1;
-//      if Result < 0 then
-//        Result := -1;
-//    end;
-//end;
+// { Сортировка в рамках одной группы компонентов }
+// function TViewProducts.SortList(AList: TList<TProductRecord>;
+// ASortMode: Integer): TList<TProductRecord>;
+// var
+// AComparison: TComparison<TProductRecord>;
+/// / AComparisonByExcelRow: TComparison<TProductRecord>;
+// ATempList: TList<TProductRecord>;
+// i: Integer;
+// begin
+/// / пользовательское сравнение по значению
+// if ASortMode = 1 then
+// begin
+// AComparison := function(const Left, Right: TProductRecord): Integer
+// begin
+// Result := CompareText(Left.Value, Right.Value);
+// if Result = 0 then
+// begin
+// Result := Left.ExcelRowNumber - Right.ExcelRowNumber;
+// if Result > 0 then
+// Result := 1;
+// if Result < 0 then
+// Result := -1;
+// end;
+// end;
+// end;
+// if ASortMode = 0 then
+// begin
+// // Сортировка по номеру строки
+// AComparison := function(const Left, Right: TProductRecord): Integer
+// begin
+// Result := Left.ExcelRowNumber - Right.ExcelRowNumber;
+// if Result > 0 then
+// Result := 1;
+// if Result < 0 then
+// Result := -1;
+// end;
+// end;
 //
-//Result := TList<TProductRecord>.Create();
-//ATempList := TList<TProductRecord>.Create();
-//for i := 0 to AList.Count - 1 do // берем весь список
-//begin
-//  if (ATempList.Count > 0) then // если временный список не пустой
-//  begin
-//    if (ATempList.Last.ComponentGroup <> AList[i].ComponentGroup) then
-//    // и совпадает группа компонентов
-//    begin // иначе отсортировать временный список и всё равно добавить запись
-//      ATempList.Sort(TComparer<TProductRecord>.Construct(AComparison));
-//      // сортировка пользовательским сравнением
-//      Result.AddRange(ATempList);
-//      ATempList := TList<TProductRecord>.Create();
-//    end;
-//  end; // в результате всё равно добавить запись
-//  ATempList.Add(AList[i]);
-//end;
-//// и в результате нужно отсортировать временный список и из него внести данные, чтобы не потерять последнюю группу компонентов
-//ATempList.Sort(TComparer<TProductRecord>.Construct(AComparison));
-//// сортировка пользовательским сравнением
-//Result.AddRange(ATempList);
+// Result := TList<TProductRecord>.Create();
+// ATempList := TList<TProductRecord>.Create();
+// for i := 0 to AList.Count - 1 do // берем весь список
+// begin
+// if (ATempList.Count > 0) then // если временный список не пустой
+// begin
+// if (ATempList.Last.ComponentGroup <> AList[i].ComponentGroup) then
+// // и совпадает группа компонентов
+// begin // иначе отсортировать временный список и всё равно добавить запись
+// ATempList.Sort(TComparer<TProductRecord>.Construct(AComparison));
+// // сортировка пользовательским сравнением
+// Result.AddRange(ATempList);
+// ATempList := TList<TProductRecord>.Create();
+// end;
+// end; // в результате всё равно добавить запись
+// ATempList.Add(AList[i]);
+// end;
+/// / и в результате нужно отсортировать временный список и из него внести данные, чтобы не потерять последнюю группу компонентов
+// ATempList.Sort(TComparer<TProductRecord>.Construct(AComparison));
+/// / сортировка пользовательским сравнением
+// Result.AddRange(ATempList);
 //
-//// Result := AList;
+/// / Result := AList;
 //
-//{ AComparison := function(const Left, Right: TProductRecord): Integer
-//  begin
-//  Result := CompareText(Left.ComponentGroup, Right.ComponentGroup);
-//  end;
-//  AList.Sort(TComparer<TProductRecord>.Construct(AComparison)); }
-//end;
+// { AComparison := function(const Left, Right: TProductRecord): Integer
+// begin
+// Result := CompareText(Left.ComponentGroup, Right.ComponentGroup);
+// end;
+// AList.Sort(TComparer<TProductRecord>.Construct(AComparison)); }
+// end;
 
 procedure TViewProducts.StatusBarResize(Sender: TObject);
 const
@@ -469,12 +467,10 @@ end;
 procedure TViewProducts.UpdateProductCount;
 begin
   // На выбранном складе
-  StatusBar.Panels[0].Text :=
-    Format('%d', [QueryProducts.FDQuery.RecordCount]);
+  StatusBar.Panels[0].Text := Format('%d', [QueryProducts.FDQuery.RecordCount]);
 
   // На всех складах
-  StatusBar.Panels[3].Text := Format('Всего: %d',
-    [QueryProducts.TotalCount]);
+  StatusBar.Panels[3].Text := Format('Всего: %d', [QueryProducts.TotalCount]);
 
 end;
 
@@ -493,11 +489,16 @@ begin
   Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
   AFocusedView := FocusedTableView;
 
-  actAdd.Enabled := OK;
+  actAdd.Enabled := Ok;
+{
+  and ((QueryProductsBase.FDQuery.State = dsBrowse) or
+    ((QueryProductsBase.FDQuery.State in [dsEdit, dsInsert]) and
+    (not QueryProductsBase.Value.AsString.IsEmpty)));
+}
   actDelete.Enabled := Ok and (AFocusedView <> nil) and
     (AFocusedView.DataController.RowCount > 0);
 
-  actPasteFromBuffer.Enabled := OK;
+  actPasteFromBuffer.Enabled := Ok;
   actPasteFromExcelSheet.Enabled := Ok;
   actPasteFromExcel.Enabled := Ok;
 end;

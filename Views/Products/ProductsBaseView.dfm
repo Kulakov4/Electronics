@@ -171,6 +171,7 @@ inherited ViewProductsBase: TViewProductsBase
         Position.RowIndex = 0
       end
       object clPrice: TcxGridDBBandedColumn
+        Caption = #1062#1077#1085#1072
         DataBinding.FieldName = 'Price'
         PropertiesClassName = 'TcxCurrencyEditProperties'
         OnGetDisplayText = clPriceGetDisplayText

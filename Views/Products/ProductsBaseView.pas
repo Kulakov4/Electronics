@@ -81,6 +81,7 @@ type
     procedure SetQueryProductsBase(const Value: TQueryProductsBase);
     { Private declarations }
   protected
+    procedure CreateColumnsBarButtons; override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo; const AErrorMessage,
         AEmptyErrorMessage: string);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
@@ -170,6 +171,11 @@ begin
   if VarToStrDef(ARecord.Values[clPrice.Index], '0') = '0' then
     AText := '';
 
+end;
+
+procedure TViewProductsBase.CreateColumnsBarButtons;
+begin
+  inherited;
 end;
 
 function TViewProductsBase.GetQuerySearchParameterValues:

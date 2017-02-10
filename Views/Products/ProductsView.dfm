@@ -83,10 +83,6 @@ inherited ViewProducts: TViewProducts
         item
           Visible = True
           ItemName = 'dxbrbtnPasteFromExcel'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbrbtnPasteFromExcelSheet'
         end>
     end
     object dxbrbtnPasteFromBuffer: TdxBarButton
@@ -95,10 +91,6 @@ inherited ViewProducts: TViewProducts
     end
     object dxbrbtnPasteFromExcel: TdxBarButton
       Action = actPasteFromExcel
-      Category = 0
-    end
-    object dxbrbtnPasteFromExcelSheet: TdxBarButton
-      Action = actPasteFromExcelSheet
       Category = 0
     end
     object dxBarButton1: TdxBarButton
@@ -127,13 +119,13 @@ inherited ViewProducts: TViewProducts
       OnExecute = actDeleteExecute
     end
     object actPasteFromBuffer: TAction [8]
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
+      Caption = #1048#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
       ImageIndex = 5
       OnExecute = actPasteFromBufferExecute
     end
     object actPasteFromExcel: TAction [9]
       Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 6
+      ImageIndex = 32
       OnExecute = actPasteFromExcelExecute
     end
     object actPasteFromExcelSheet: TAction [10]

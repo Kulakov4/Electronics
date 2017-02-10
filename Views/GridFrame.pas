@@ -178,7 +178,7 @@ end;
 
 procedure TfrmGrid.CreateColumnsBarButtons;
 begin
-  if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons <> nil)
+  if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons = nil)
   then
     FColumnsBarButtons := TColumnsBarButtons.Create(Self,
       dxbrsbtmColumnsCustomization, cxGridDBBandedTableView);

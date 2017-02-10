@@ -157,7 +157,7 @@ object frmMain: TfrmMain
           Height = 531
           Align = alClient
           TabOrder = 2
-          Properties.ActivePage = cxtsDatabase
+          Properties.ActivePage = tsFunctionalGroup
           Properties.CustomButtons.Buttons = <>
           OnPageChanging = cxpgcntrlMainPageChanging
           ClientRectBottom = 527
@@ -588,21 +588,13 @@ object frmMain: TfrmMain
         inherited cxpgcntrlStorehouse: TcxPageControl
           Width = 850
           Height = 533
-          Properties.ActivePage = ViewStoreHouse.tsStorehouseInfo
           ExplicitWidth = 850
           ExplicitHeight = 533
           ClientRectBottom = 529
           ClientRectRight = 846
           ClientRectTop = 27
           inherited tsStorehouseInfo: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 842
-            ExplicitHeight = 502
             inherited ViewStoreHouseInfo: TViewStorehouseInfo
-              Width = 842
-              Height = 502
-              ExplicitWidth = 842
-              ExplicitHeight = 502
               inherited lblTitle: TcxLabel
                 ExplicitWidth = 90
                 ExplicitHeight = 20
@@ -631,8 +623,19 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
+            ExplicitTop = 27
+            ExplicitWidth = 842
+            ExplicitHeight = 502
             inherited ViewProducts: TViewProducts
+              Width = 842
+              Height = 502
+              ExplicitWidth = 842
+              ExplicitHeight = 502
               inherited cxGrid: TcxGrid
+                Width = 842
+                Height = 455
+                ExplicitWidth = 842
+                ExplicitHeight = 455
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -659,6 +662,12 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
+              end
+              inherited StatusBar: TStatusBar
+                Top = 483
+                Width = 842
+                ExplicitTop = 483
+                ExplicitWidth = 842
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -1106,7 +1115,7 @@ object frmMain: TfrmMain
     end
     object actLoadFromExcelDocument: TAction
       Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 6
+      ImageIndex = 32
       OnExecute = actLoadFromExcelDocumentExecute
     end
     object actAutoBindingDoc: TAction
