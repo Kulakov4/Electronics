@@ -161,7 +161,9 @@ uses
   SearchComponentsByValuesLike in 'Queryes\Search\SearchComponentsByValuesLike.pas' {QuerySearchComponentsByValuesLike: TFrame},
   SearchComponentsByValuesBase in 'Queryes\Search\SearchComponentsByValuesBase.pas' {QuerySearchComponentsByValuesBase: TFrame},
   SearchDaughterComponentQuery in 'Queryes\Search\SearchDaughterComponentQuery.pas' {QuerySearchDaughterComponent: TFrame},
-  SearchMainComponentByID in 'Queryes\Search\SearchMainComponentByID.pas' {QuerySearchMainComponentByID: TFrame};
+  SearchFamilyByID in 'Queryes\Search\SearchFamilyByID.pas' {QuerySearchFamilyByID: TFrame},
+  SearchProductQuery in 'Queryes\Search\SearchProductQuery.pas' {QuerySearchProduct: TFrame},
+  SearchStorehouseProductByID in 'Queryes\Search\SearchStorehouseProductByID.pas' {QuerySearchStorehouseProductByID: TFrame};
 
 {$R *.res}
 

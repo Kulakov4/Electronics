@@ -42,7 +42,6 @@ type
     glStorehouseList: TcxGridLevel;
     CxGridStorehouseList: TcxGrid;
     cxspltrStorehouse: TcxSplitter;
-    ViewStoreHouseInfo: TViewStorehouseInfo;
     clStorehouseListTitle: TcxGridDBColumn;
     pmStorehouseList: TPopupMenu;
     mniAddStorehouse: TMenuItem;
@@ -51,12 +50,13 @@ type
     tsStorehouseSearch: TcxTabSheet;
     cxstylrpstry1: TcxStyleRepository;
     cxstylSelection: TcxStyle;
-    ViewProductsSearch: TViewProductsSearch;
     ActionList: TActionList;
     actAddStorehouse: TAction;
     actRenameStorehouse: TAction;
     actDeleteStorehouse: TAction;
+    ViewStorehouseInfo: TViewStorehouseInfo;
     ViewProducts: TViewProducts;
+    ViewProductsSearch: TViewProductsSearch;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);

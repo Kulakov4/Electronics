@@ -1,14 +1,15 @@
-inherited QuerySearchMainComponentByID: TQuerySearchMainComponentByID
+inherited QuerySearchFamilyByID: TQuerySearchFamilyByID
   inherited Label1: TLabel
-    Width = 178
-    Caption = 'SearchMainComponentByID'
-    ExplicitWidth = 178
+    Width = 114
+    Caption = 'SearchFamilyByID'
+    ExplicitWidth = 114
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '
       '    p.*,'
       '    GROUP_CONCAT(pc.ExternalId) subGroup,'
+      '    GROUP_CONCAT(pc.Value) ComponentGroup,'
       '    GROUP_CONCAT(pc.id) CategoryIDList,'
       '    pup.ID as IDProducer,'
       '    pup.Value as Producer,'
@@ -21,7 +22,8 @@ inherited QuerySearchMainComponentByID: TQuerySearchMainComponentByID
       '    pup5.ID as IDDrawing,'
       '    pup5.Value as Drawing,'
       '    pup6.ID as IDImage,'
-      '    pup6.Value as Image'
+      '    pup6.Value as Image,'
+      '    d.Description'
       'from Products p'
       'JOIN ProductProductCategories ppc2 ON ppc2.ProductId = p.Id'
       'JOIN ProductCategories pc ON pc.Id = ppc2.ProductCategoryId'
@@ -43,37 +45,52 @@ inherited QuerySearchMainComponentByID: TQuerySearchMainComponentByID
       
         'left join ProductUnionParameters pup6 on pup6.ProductID = p.Id a' +
         'nd pup6.UnionParameterId = :ImageParameterID'
+      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       'where p.ID = :ID'
       'and p.ParentProductId is null'
       'GROUP BY p.Id')
     ParamData = <
       item
         Name = 'PRODUCERPARAMETERID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end
       item
         Name = 'PACKAGEPINSPARAMETERID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end
       item
         Name = 'DATASHEETPARAMETERID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end
       item
         Name = 'DIAGRAMPARAMETERID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end
       item
         Name = 'DRAWINGPARAMETERID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end
       item
         Name = 'IMAGEPARAMETERID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end
       item
         Name = 'ID'
+        DataType = ftInteger
         ParamType = ptInput
+        Value = Null
       end>
   end
 end

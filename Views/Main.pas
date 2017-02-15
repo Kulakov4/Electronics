@@ -77,7 +77,6 @@ type
     cxPageControl1: TcxPageControl;
     tsStructure: TcxTabSheet;
     tsStorehouse: TcxTabSheet;
-    ViewStoreHouse: TViewStoreHouse;
     tlLeftControl: TcxDBTreeList;
     clValue: TcxDBTreeListColumn;
     clId: TcxDBTreeListColumn;
@@ -85,7 +84,6 @@ type
     clOrder: TcxDBTreeListColumn;
     ActionList: TActionList;
     actShowManufacturers: TAction;
-    ViewComponents: TViewComponents;
     cxtsParametersForCategories: TcxTabSheet;
     ViewParametersForCategories: TViewParametersForCategories;
     cxtsParametricTable: TcxTabSheet;
@@ -122,6 +120,8 @@ type
     actAutoBindingDescriptions: TAction;
     dxBarButton1: TdxBarButton;
     dxBarButton7: TdxBarButton;
+    ViewComponents: TViewComponents;
+    ViewStoreHouse: TViewStoreHouse;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);

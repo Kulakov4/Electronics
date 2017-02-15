@@ -1,6 +1,7 @@
 inherited QueryProducts: TQueryProducts
   Width = 264
   Height = 153
+  OnClick = FrameClick
   ExplicitWidth = 264
   ExplicitHeight = 153
   inherited Label1: TLabel
@@ -8,14 +9,84 @@ inherited QueryProducts: TQueryProducts
     Caption = 'Products'
     ExplicitWidth = 58
   end
+  inherited qStoreHouseProducts: TfrmApplyQuery
+    inherited FDQuery: TFDQuery
+      Active = True
+    end
+    inherited FDUpdateSQL: TFDUpdateSQL
+      InsertSQL.Strings = (
+        'INSERT INTO STOREHOUSEPRODUCTS'
+        '(STOREHOUSEID, PRODUCTID, COMPONENTGROUP, RELEASEDATE, '
+        '  AMOUNT, PRICE, BATCHNUMBER, PACKAGING, '
+        '  ORIGINCOUNTRY, CUSTOMSDECLARATIONNUMBER, STORAGE, '
+        '  BARCODE, SELLER, STORAGEPLACE, ORIGINCOUNTRYCODE)'
+        
+          'VALUES (:NEW_STOREHOUSEID, :NEW_PRODUCTID, :NEW_COMPONENTGROUP, ' +
+          ':NEW_RELEASEDATE, '
+        '  :NEW_AMOUNT, :NEW_PRICE, :NEW_BATCHNUMBER, :NEW_PACKAGING, '
+        
+          '  :NEW_ORIGINCOUNTRY, :NEW_CUSTOMSDECLARATIONNUMBER, :NEW_STORAG' +
+          'E, '
+        
+          '  :NEW_BARCODE, :NEW_SELLER, :NEW_STORAGEPLACE, :NEW_ORIGINCOUNT' +
+          'RYCODE);'
+        ''
+        'SELECT ID, STOREHOUSEID, PRODUCTID, COMPONENTGROUP, '
+        
+          '  RELEASEDATE, AMOUNT, PRICE, BATCHNUMBER, PACKAGING, ORIGINCOUN' +
+          'TRY, '
+        
+          '  CUSTOMSDECLARATIONNUMBER, STORAGE, BARCODE, SELLER, STORAGEPLA' +
+          'CE, '
+        '  ORIGINCOUNTRYCODE'
+        'FROM STOREHOUSEPRODUCTS'
+        'WHERE ID = LAST_INSERT_ROWID();')
+      ModifySQL.Strings = (
+        'UPDATE STOREHOUSEPRODUCTS'
+        
+          'SET STOREHOUSEID = :NEW_STOREHOUSEID, PRODUCTID = :NEW_PRODUCTID' +
+          ', '
+        
+          '  COMPONENTGROUP = :NEW_COMPONENTGROUP, RELEASEDATE = :NEW_RELEA' +
+          'SEDATE, '
+        
+          '  AMOUNT = :NEW_AMOUNT, PRICE = :NEW_PRICE, BATCHNUMBER = :NEW_B' +
+          'ATCHNUMBER, '
+        
+          '  PACKAGING = :NEW_PACKAGING, ORIGINCOUNTRY = :NEW_ORIGINCOUNTRY' +
+          ', '
+        '  CUSTOMSDECLARATIONNUMBER = :NEW_CUSTOMSDECLARATIONNUMBER, '
+        
+          '  STORAGE = :NEW_STORAGE, BARCODE = :NEW_BARCODE, SELLER = :NEW_' +
+          'SELLER, '
+        
+          '  STORAGEPLACE = :NEW_STORAGEPLACE, ORIGINCOUNTRYCODE = :NEW_ORI' +
+          'GINCOUNTRYCODE'
+        'WHERE ID = :OLD_ID;'
+        'SELECT ID'
+        'FROM STOREHOUSEPRODUCTS'
+        'WHERE ID = :NEW_ID')
+      FetchRowSQL.Strings = (
+        'SELECT ID, STOREHOUSEID, PRODUCTID, COMPONENTGROUP, '
+        
+          '  RELEASEDATE, AMOUNT, PRICE, BATCHNUMBER, PACKAGING, ORIGINCOUN' +
+          'TRY, '
+        
+          '  CUSTOMSDECLARATIONNUMBER, STORAGE, BARCODE, SELLER, STORAGEPLA' +
+          'CE, '
+        '  ORIGINCOUNTRYCODE'
+        'FROM STOREHOUSEPRODUCTS'
+        'WHERE ID = :ID')
+    end
+  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select'
       '       sp.Id,'
-      '       pp.DescriptionId,'
-      '       dp.Value,'
-      '       pp.subGroup,'
-      '       pp.ParentProductId, '
+      '       p.DescriptionId,'
+      '       p.Value,'
+      '       p.IDProducer,'
+      '       sp.ComponentGroup,'
       '       sp.StorehouseId,'
       '       sp.Amount,'
       '       sp.Price,'
@@ -30,97 +101,18 @@ inherited QueryProducts: TQueryProducts
       '       sp.Seller,'
       '       sp.StoragePlace,'
       '       sp.OriginCountryCode,'
-      '       pup.ID AS IDProducer,'
-      '       pup.Value AS Producer,'
-      '       pup2.ID AS IDPackagePins,'
-      '       pup2.Value AS PackagePins,'
-      '       pup3.ID AS IDDatasheet,'
-      '       pup3.Value AS Datasheet,'
-      '       pup4.ID AS IDDiagram,'
-      '       pup4.Value AS Diagram,'
-      '       pup5.ID AS IDDrawing,'
-      '       pup5.Value AS Drawing,'
-      '       pup6.ID AS IDImage,'
-      '       pup6.Value AS Image,'
+      '       p.PackagePins,'
+      '       p.Datasheet,'
+      '       p.Diagram,'
+      '       p.Drawing,'
+      '       p.Image,'
       '       d.Description'
-      'from'
-      'StorehouseProducts sp'
-      'join Products dp on sp.ProductId = dp.Id'
-      'join'
-      '('
-      '    select '
-      '        p.ID,'
-      '            p.Value,'
-      '            p.DescriptionId,'
-      '            p.ParentProductId,'
-      '            GROUP_CONCAT(pc.ExternalId) subGroup'
-      '    from Products p'
-      
-        '    LEFT JOIN ProductProductCategories ppc ON ppc.ProductId = p.' +
-        'Id'
-      
-        '    LEFT JOIN ProductCategories pc ON pc.Id = ppc.ProductCategor' +
-        'yId'
-      '    where p.ParentProductId is null'
-      '    group by p.id'
-      ') pp on dp.ParentProductId = pp.Id'
-      
-        'LEFT JOIN ProductUnionParameters pup ON pup.ProductID = pp.Id AN' +
-        'D pup.UnionParameterId = :ProducerParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup2 ON pup2.ProductID = pp.Id ' +
-        'AND pup2.UnionParameterId = :PackagePinsParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup3 ON pup3.ProductID = pp.Id ' +
-        'AND pup3.UnionParameterId = :DatasheetParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup4 ON pup4.ProductID = pp.Id ' +
-        'AND pup4.UnionParameterId = :DiagramParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup5 ON pup5.ProductID = pp.Id ' +
-        'AND pup5.UnionParameterId = :DrawingParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup6 ON pup6.ProductID = pp.Id ' +
-        'AND pup6.UnionParameterId = :ImageParameterID'
-      'LEFT JOIN Descriptions2 d on pp.DescriptionId = d.ID'
+      ''
+      'from StorehouseProducts sp'
+      'join Products2 p on sp.ProductId = p.id'
+      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       'where sp.StorehouseId = :vStorehouseId')
     ParamData = <
-      item
-        Name = 'PRODUCERPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'PACKAGEPINSPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DATASHEETPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DIAGRAMPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DRAWINGPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'IMAGEPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
       item
         Name = 'VSTOREHOUSEID'
         DataType = ftInteger

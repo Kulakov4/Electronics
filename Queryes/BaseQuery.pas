@@ -63,6 +63,7 @@ type
     procedure TryPost; virtual;
     procedure TryCancel;
     procedure TryAppend;
+    procedure TryOpen;
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
     property BeforeLoad: TNotifyEventsEx read FBeforeLoad;
     property CashedRecordBalance: Integer read GetCashedRecordBalance;
@@ -503,6 +504,12 @@ begin
 
   if not(FDQuery.State in [dsEdit, dsInsert]) then
     FDQuery.Append;
+end;
+
+procedure TQueryBase.TryOpen;
+begin
+  if not FDQuery.Active then
+    FDQuery.Open;
 end;
 
 end.

@@ -137,7 +137,10 @@ begin
   FClone.Filtered := True;
 
   for I := 0 to FDQuery.FieldCount - 1 do
+  begin
     FDQuery.Fields[I].ReadOnly := False;
+    FDQuery.Fields[I].Required := False;
+  end;
 
   // Добавляем пустую запись для поиска, если она необходима
   AutoTransaction := True;

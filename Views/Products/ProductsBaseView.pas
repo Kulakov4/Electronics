@@ -28,7 +28,7 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox, cxLabel, SearchParameterValues;
+  cxDBLookupComboBox, cxLabel, SearchParameterValues, Manufacturers2Query;
 
 type
   TViewProductsBase = class(TfrmGrid)
@@ -54,7 +54,6 @@ type
     clSeller: TcxGridDBBandedColumn;
     clDiagram: TcxGridDBBandedColumn;
     clDrawing: TcxGridDBBandedColumn;
-    clParentProductId: TcxGridDBBandedColumn;
     clProductId: TcxGridDBBandedColumn;
     actOpenDatasheet: TAction;
     actLoadDatasheet: TAction;
@@ -63,12 +62,20 @@ type
     actCommit: TAction;
     actRollback: TAction;
     clStorehouseID: TcxGridDBBandedColumn;
+    actOpenDiagram: TAction;
+    actLoadDiagram: TAction;
+    actOpenDrawing: TAction;
+    actLoadDrawing: TAction;
     procedure actCommitExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actLoadImageExecute(Sender: TObject);
     procedure actLoadDatasheetExecute(Sender: TObject);
+    procedure actLoadDiagramExecute(Sender: TObject);
+    procedure actLoadDrawingExecute(Sender: TObject);
     procedure actOpenImageExecute(Sender: TObject);
     procedure actOpenDatasheetExecute(Sender: TObject);
+    procedure actOpenDiagramExecute(Sender: TObject);
+    procedure actOpenDrawingExecute(Sender: TObject);
     procedure actRollback2Execute(Sender: TObject);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem; ARecordIndex:
         Integer; var AText: string);
@@ -76,8 +83,10 @@ type
       ARecord: TcxCustomGridRecord; var AText: string);
 
   private
+    FQueryProducers: TQueryManufacturers2;
     FQueryProductsBase: TQueryProductsBase;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
+    function GetQueryProducers: TQueryManufacturers2;
     function GetQuerySearchParameterValues: TQuerySearchParameterValues;
     procedure MyInitializeComboBoxColumn;
     procedure SetQueryProductsBase(const Value: TQueryProductsBase);
@@ -87,6 +96,7 @@ type
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo; const AErrorMessage,
         AEmptyErrorMessage: string);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
+    property QueryProducers: TQueryManufacturers2 read GetQueryProducers;
     property QuerySearchParameterValues: TQuerySearchParameterValues read
         GetQuerySearchParameterValues;
   public
@@ -102,7 +112,7 @@ implementation
 {$R *.dfm}
 
 uses System.IOUtils, Winapi.ShellAPI, DialogUnit, SettingsController,
-  ParameterValuesUnit, cxDropDownEdit;
+  ParameterValuesUnit, cxDropDownEdit, RepositoryDataModule;
 
 procedure TViewProductsBase.actCommitExecute(Sender: TObject);
 begin
@@ -128,6 +138,16 @@ begin
   UploadDoc(TDatasheetDoc.Create);
 end;
 
+procedure TViewProductsBase.actLoadDiagramExecute(Sender: TObject);
+begin
+  UploadDoc(TDiagramDoc.Create);
+end;
+
+procedure TViewProductsBase.actLoadDrawingExecute(Sender: TObject);
+begin
+  UploadDoc(TDrawingDoc.Create);
+end;
+
 procedure TViewProductsBase.actOpenImageExecute(Sender: TObject);
 begin
   OpenDoc(TImageDoc.Create, 'Файл изображения с именем %s не найден',
@@ -138,6 +158,18 @@ procedure TViewProductsBase.actOpenDatasheetExecute(Sender: TObject);
 begin
   OpenDoc(TDatasheetDoc.Create,
     'Файл спецификации с именем %s не найден', 'не задана спецификация');
+end;
+
+procedure TViewProductsBase.actOpenDiagramExecute(Sender: TObject);
+begin
+  OpenDoc(TDiagramDoc.Create, 'Файл схемы с именем %s не найден',
+    'Не задана схема');
+end;
+
+procedure TViewProductsBase.actOpenDrawingExecute(Sender: TObject);
+begin
+  OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
+    'Не задан чертёж');
 end;
 
 procedure TViewProductsBase.actRollback2Execute(Sender: TObject);
@@ -188,6 +220,14 @@ begin
   inherited;
 end;
 
+function TViewProductsBase.GetQueryProducers: TQueryManufacturers2;
+begin
+  if FQueryProducers = nil then
+    FQueryProducers := TQueryManufacturers2.Create(Self);
+
+  Result := FQueryProducers;
+end;
+
 function TViewProductsBase.GetQuerySearchParameterValues:
     TQuerySearchParameterValues;
 begin
@@ -199,6 +239,11 @@ end;
 
 procedure TViewProductsBase.MyInitializeComboBoxColumn;
 begin
+  QueryProducers.TryOpen;
+
+  InitializeLookupColumn(MainView, clProducer.DataBinding.FieldName,
+    QueryProducers.DataSource, lsEditList, QueryProducers.Name.FieldName);
+{
   // Ищем возможные значения производителя для выпадающего списка
   QuerySearchParameterValues.Search(TParameterValues.ProducerParameterID);
 
@@ -211,7 +256,7 @@ begin
 
   InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
     lsEditList, QuerySearchParameterValues.Value);
-
+}
 end;
 
 procedure TViewProductsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo; const

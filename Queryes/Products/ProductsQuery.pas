@@ -15,6 +15,7 @@ uses
 
 type
   TQueryProducts = class(TQueryProductsBase)
+    procedure FrameClick(Sender: TObject);
   private
     FNeedUpdateCount: Boolean;
     FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
@@ -203,6 +204,11 @@ procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
+end;
+
+procedure TQueryProducts.FrameClick(Sender: TObject);
+begin
+  inherited;
 end;
 
 // TODO: DoBeforeOpen

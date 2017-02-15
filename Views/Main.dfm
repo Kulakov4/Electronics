@@ -157,7 +157,7 @@ object frmMain: TfrmMain
           Height = 531
           Align = alClient
           TabOrder = 2
-          Properties.ActivePage = tsFunctionalGroup
+          Properties.ActivePage = cxtsDatabase
           Properties.CustomButtons.Buttons = <>
           OnPageChanging = cxpgcntrlMainPageChanging
           ClientRectBottom = 527
@@ -167,6 +167,10 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -243,9 +247,11 @@ object frmMain: TfrmMain
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
-                        Kind = bkGlyph
+                        Action = ViewComponents.actOpenDatasheet
+                        Kind = bkText
                       end
                       item
+                        Action = ViewComponents.actLoadDatasheet
                         Default = True
                         Kind = bkEllipsis
                       end>
@@ -266,7 +272,7 @@ object frmMain: TfrmMain
                     Properties.Buttons = <
                       item
                         Action = ViewComponents.actOpenDrawing
-                        Kind = bkGlyph
+                        Kind = bkText
                       end
                       item
                         Action = ViewComponents.actLoadDrawing
@@ -278,7 +284,7 @@ object frmMain: TfrmMain
                     Properties.Buttons = <
                       item
                         Action = ViewComponents.actOpenImage
-                        Kind = bkGlyph
+                        Kind = bkText
                       end
                       item
                         Action = ViewComponents.actLoadImage
@@ -305,13 +311,13 @@ object frmMain: TfrmMain
                 PopupMenus = <
                   item
                     GridView = ViewComponents.cxGridDBBandedTableView
-                    HitTypes = [gvhtCell]
+                    HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
                     Index = 0
                     PopupMenu = ViewComponents.pmGrid
                   end
                   item
                     GridView = ViewComponents.cxGridDBBandedTableView2
-                    HitTypes = [gvhtCell]
+                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
                     Index = 1
                     PopupMenu = ViewComponents.pmGrid
                   end>
@@ -594,7 +600,7 @@ object frmMain: TfrmMain
           ClientRectRight = 846
           ClientRectTop = 27
           inherited tsStorehouseInfo: TcxTabSheet
-            inherited ViewStoreHouseInfo: TViewStorehouseInfo
+            inherited ViewStorehouseInfo: TViewStorehouseInfo
               inherited lblTitle: TcxLabel
                 ExplicitWidth = 90
                 ExplicitHeight = 20
@@ -634,8 +640,6 @@ object frmMain: TfrmMain
               inherited cxGrid: TcxGrid
                 Width = 842
                 Height = 455
-                ExplicitWidth = 842
-                ExplicitHeight = 455
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -646,6 +650,30 @@ object frmMain: TfrmMain
                       item
                         Action = ViewStoreHouse.ViewProducts.actLoadDatasheet
                         Default = True
+                        Kind = bkEllipsis
+                      end>
+                  end
+                  inherited clDiagram: TcxGridDBBandedColumn
+                    Properties.Buttons = <
+                      item
+                        Action = ViewStoreHouse.ViewProducts.actOpenDiagram
+                        Default = True
+                        Kind = bkGlyph
+                      end
+                      item
+                        Action = ViewStoreHouse.ViewProducts.actLoadDiagram
+                        Kind = bkEllipsis
+                      end>
+                  end
+                  inherited clDrawing: TcxGridDBBandedColumn
+                    Properties.Buttons = <
+                      item
+                        Action = ViewStoreHouse.ViewProducts.actOpenDrawing
+                        Default = True
+                        Kind = bkGlyph
+                      end
+                      item
+                        Action = ViewStoreHouse.ViewProducts.actLoadDrawing
                         Kind = bkEllipsis
                       end>
                   end
@@ -666,8 +694,6 @@ object frmMain: TfrmMain
               inherited StatusBar: TStatusBar
                 Top = 483
                 Width = 842
-                ExplicitTop = 483
-                ExplicitWidth = 842
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -690,6 +716,7 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch: TViewProductsSearch
               inherited cxGrid: TcxGrid
+                ExplicitHeight = 544
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -700,6 +727,30 @@ object frmMain: TfrmMain
                       item
                         Action = ViewStoreHouse.ViewProductsSearch.actLoadDatasheet
                         Default = True
+                        Kind = bkEllipsis
+                      end>
+                  end
+                  inherited clDiagram: TcxGridDBBandedColumn
+                    Properties.Buttons = <
+                      item
+                        Action = ViewStoreHouse.ViewProductsSearch.actOpenDiagram
+                        Default = True
+                        Kind = bkGlyph
+                      end
+                      item
+                        Action = ViewStoreHouse.ViewProductsSearch.actLoadDiagram
+                        Kind = bkEllipsis
+                      end>
+                  end
+                  inherited clDrawing: TcxGridDBBandedColumn
+                    Properties.Buttons = <
+                      item
+                        Action = ViewStoreHouse.ViewProductsSearch.actOpenDrawing
+                        Default = True
+                        Kind = bkGlyph
+                      end
+                      item
+                        Action = ViewStoreHouse.ViewProductsSearch.actLoadDrawing
                         Kind = bkEllipsis
                       end>
                   end
@@ -716,6 +767,9 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
+              end
+              inherited StatusBar: TStatusBar
+                ExplicitTop = 572
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

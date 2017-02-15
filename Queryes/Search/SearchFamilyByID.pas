@@ -1,4 +1,4 @@
-unit SearchMainComponentByID;
+unit SearchFamilyByID;
 
 interface
 
@@ -10,11 +10,16 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
-  TQuerySearchMainComponentByID = class(TQueryBase)
+  TQuerySearchFamilyByID = class(TQueryBase)
   private
+    function GetComponentGroup: TField;
+    function GetDescriptionID: TField;
     { Private declarations }
+  protected
   public
     function Search(const AIDComponent: Integer): Integer; overload;
+    property ComponentGroup: TField read GetComponentGroup;
+    property DescriptionID: TField read GetDescriptionID;
     { Public declarations }
   end;
 
@@ -24,7 +29,17 @@ implementation
 
 uses ParameterValuesUnit;
 
-function TQuerySearchMainComponentByID.Search(const AIDComponent: Integer):
+function TQuerySearchFamilyByID.GetComponentGroup: TField;
+begin
+  Result := Field('ComponentGroup');
+end;
+
+function TQuerySearchFamilyByID.GetDescriptionID: TField;
+begin
+  Result := Field('DescriptionID');
+end;
+
+function TQuerySearchFamilyByID.Search(const AIDComponent: Integer):
     Integer;
 begin
   Assert(AIDComponent > 0);

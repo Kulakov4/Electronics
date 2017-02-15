@@ -13,11 +13,14 @@ type
   TQuerySearchDaughterComponent = class(TQueryBase)
   private
     function GetParentProductID: TField;
+    function GetProducer: TField;
     { Private declarations }
   protected
   public
     function Search(const AComponentName: string): Integer; overload;
+    function Search(const AComponentName, AProducer: string): Integer; overload;
     property ParentProductID: TField read GetParentProductID;
+    property Producer: TField read GetProducer;
     { Public declarations }
   end;
 
@@ -25,15 +28,43 @@ implementation
 
 {$R *.dfm}
 
+uses ParameterValuesUnit;
+
 function TQuerySearchDaughterComponent.GetParentProductID: TField;
 begin
   Result := Field('ParentProductID');
 end;
 
-function TQuerySearchDaughterComponent.Search(const AComponentName : string): Integer;
+function TQuerySearchDaughterComponent.GetProducer: TField;
+begin
+  Result := Field('Producer');
+end;
+
+function TQuerySearchDaughterComponent.Search(const AComponentName: string):
+    Integer;
 begin
   Assert(not AComponentName.IsEmpty);
-  Result := Search(['ComponentName'], [AComponentName]);
+
+  // —нимаем фильтр
+  FDQuery.Filtered := False;
+  FDQuery.Filter := '';
+
+  // »щем
+  Result := Search(['ComponentName', 'ProducerParameterID'],
+    [AComponentName, TParameterValues.ProducerParameterID]);
+end;
+
+function TQuerySearchDaughterComponent.Search(const AComponentName, AProducer:
+    string): Integer;
+begin
+  Assert(not AProducer.IsEmpty);
+
+  Result := Search( AComponentName );
+  if Result > 0 then
+  begin
+    FDQuery.Filter := Format('%s=%s', [Producer.FieldName, QuotedStr(AProducer)]);
+    FDQuery.Filtered := True;
+  end;
 end;
 
 end.

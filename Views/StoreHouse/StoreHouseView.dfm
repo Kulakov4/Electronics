@@ -21,7 +21,7 @@ object ViewStoreHouse: TViewStoreHouse
     object tsStorehouseInfo: TcxTabSheet
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1082#1083#1072#1076#1077
       ImageIndex = 0
-      inline ViewStoreHouseInfo: TViewStorehouseInfo
+      inline ViewStorehouseInfo: TViewStorehouseInfo
         Left = 0
         Top = 0
         Width = 670
@@ -57,11 +57,35 @@ object ViewStoreHouse: TViewStoreHouse
               Properties.Buttons = <
                 item
                   Action = ViewProducts.actOpenDatasheet
+                  Default = True
                   Kind = bkGlyph
                 end
                 item
                   Action = ViewProducts.actLoadDatasheet
+                  Kind = bkEllipsis
+                end>
+            end
+            inherited clDiagram: TcxGridDBBandedColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProducts.actOpenDiagram
                   Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProducts.actLoadDiagram
+                  Kind = bkEllipsis
+                end>
+            end
+            inherited clDrawing: TcxGridDBBandedColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProducts.actOpenDrawing
+                  Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProducts.actLoadDrawing
                   Kind = bkEllipsis
                 end>
             end
@@ -69,11 +93,11 @@ object ViewStoreHouse: TViewStoreHouse
               Properties.Buttons = <
                 item
                   Action = ViewProducts.actOpenImage
+                  Default = True
                   Kind = bkGlyph
                 end
                 item
                   Action = ViewProducts.actLoadImage
-                  Default = True
                   Kind = bkEllipsis
                 end>
             end
@@ -114,23 +138,45 @@ object ViewStoreHouse: TViewStoreHouse
         Height = 594
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 670
-        ExplicitHeight = 594
+        ExplicitLeft = -223
+        ExplicitTop = 103
         inherited cxGrid: TcxGrid
           Width = 670
           Height = 547
-          ExplicitWidth = 670
-          ExplicitHeight = 547
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
                 item
                   Action = ViewProductsSearch.actOpenDatasheet
+                  Default = True
                   Kind = bkGlyph
                 end
                 item
                   Action = ViewProductsSearch.actLoadDatasheet
+                  Kind = bkEllipsis
+                end>
+            end
+            inherited clDiagram: TcxGridDBBandedColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProductsSearch.actOpenDiagram
                   Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProductsSearch.actLoadDiagram
+                  Kind = bkEllipsis
+                end>
+            end
+            inherited clDrawing: TcxGridDBBandedColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProductsSearch.actOpenDrawing
+                  Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProductsSearch.actLoadDrawing
                   Kind = bkEllipsis
                 end>
             end
@@ -138,11 +184,11 @@ object ViewStoreHouse: TViewStoreHouse
               Properties.Buttons = <
                 item
                   Action = ViewProductsSearch.actOpenImage
+                  Default = True
                   Kind = bkGlyph
                 end
                 item
                   Action = ViewProductsSearch.actLoadImage
-                  Default = True
                   Kind = bkEllipsis
                 end>
             end
@@ -151,8 +197,6 @@ object ViewStoreHouse: TViewStoreHouse
         inherited StatusBar: TStatusBar
           Top = 575
           Width = 670
-          ExplicitTop = 575
-          ExplicitWidth = 670
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (

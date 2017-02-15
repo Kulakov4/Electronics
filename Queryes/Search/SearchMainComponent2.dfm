@@ -1,4 +1,9 @@
 inherited QuerySearchMainComponent2: TQuerySearchMainComponent2
+  inherited Label1: TLabel
+    Width = 148
+    Caption = 'SearchMainComponent'
+    ExplicitWidth = 148
+  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '

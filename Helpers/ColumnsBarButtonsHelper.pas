@@ -212,17 +212,19 @@ begin
         Assert(FcxGridDBBandedTableView.Columns[i].Position.Band <> nil);
         AColumns.Add(FcxGridDBBandedTableView.Columns[i]);
       end;
-      // Сортируем эти столбцы по позиции бэнда
+      // Сортируем эти столбцы по позиции бэнда и по позиции внутри бэнда
       AColumns.Sort(TComparer<TcxGridDBBandedColumn>.Construct(
         function(const L, R: TcxGridDBBandedColumn): Integer
         begin
           Result := L.Position.Band.Position.ColIndex -
             R.Position.Band.Position.ColIndex;
+          if Result = 0 then
+            Result := L.Position.ColIndex - R.Position.ColIndex;
         end));
 
       for AColumn in AColumns do
       begin
-//        AColumn := FcxGridDBBandedTableView.Columns[i];
+        // AColumn := FcxGridDBBandedTableView.Columns[i];
         Assert(AColumn.Position.Band <> nil);
         if (AColumn.VisibleForCustomization) and
           (AColumn.Position.Band.VisibleForCustomization) then

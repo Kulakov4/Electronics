@@ -17,6 +17,7 @@ type
     function GetIDProductUnionParameters: TField;
     function GetSubgroup: TField;
     { Private declarations }
+  protected
   public
     function Search(const AComponentName: string): Integer; overload;
     property CategoryIDList: TField read GetCategoryIDList;

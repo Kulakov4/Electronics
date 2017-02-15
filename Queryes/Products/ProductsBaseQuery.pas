@@ -10,8 +10,10 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, DocFieldInfo, SearchMainComponent2, StoreHouseListQuery,
-  SearchProductParameterValuesQuery, CustomComponentsQuery,
-  SearchDaughterComponentQuery, SearchMainComponentByID;
+  SearchProductParameterValuesQuery, SearchFamilyByID,
+  SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
+  SearchDaughterComponentQuery, System.Generics.Collections,
+  SearchStorehouseProductByID, Manufacturers2Query;
 
 type
   TComponentNameParts = record
@@ -20,40 +22,62 @@ type
     Ending: String;
   end;
 
-  TQueryProductsBase = class(TQueryCustomComponents)
+  TQueryProductsBase = class(TQueryWithDataSource)
     qStoreHouseProducts: TfrmApplyQuery;
+    qProducts: TfrmApplyQuery;
   private
+    FDocFieldInfos: TList<TDocFieldInfo>;
+    FQueryManufacturers2: TQueryManufacturers2;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchMainComponent2: TQuerySearchMainComponent2;
-    FQuerySearchMainComponentByID: TQuerySearchMainComponentByID;
+    FQuerySearchFamilytByID: TQuerySearchFamilyByID;
+    FQuerySearchProduct: TQuerySearchProduct;
+    FQuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
     procedure DoAfterOpen(Sender: TObject);
-    procedure DoBeforeOpen(Sender: TObject);
     function GetComponentFamily: String;
+    function GetComponentGroup: TField;
+    function GetDescriptionID: TField;
+    function GetIDProducer: TField;
     function GetProductID: TField;
+    function GetQueryManufacturers2: TQueryManufacturers2;
     function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetQuerySearchMainComponent2: TQuerySearchMainComponent2;
-    function GetQuerySearchMainComponentByID: TQuerySearchMainComponentByID;
+    function GetQuerySearchFamilytByID: TQuerySearchFamilyByID;
+    function GetQuerySearchProduct: TQuerySearchProduct;
+    function GetQuerySearchStorehouseProductByID
+      : TQuerySearchStorehouseProductByID;
     function GetStorehouseId: TField;
+    function GetValue: TField;
     function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
+    property QueryManufacturers2: TQueryManufacturers2
+      read GetQueryManufacturers2;
     property QuerySearchDaughterComponent: TQuerySearchDaughterComponent
       read GetQuerySearchDaughterComponent;
     property QuerySearchMainComponent2: TQuerySearchMainComponent2
       read GetQuerySearchMainComponent2;
-    property QuerySearchMainComponentByID: TQuerySearchMainComponentByID
-      read GetQuerySearchMainComponentByID;
+    property QuerySearchFamilytByID: TQuerySearchFamilyByID read
+        GetQuerySearchFamilytByID;
+    property QuerySearchProduct: TQuerySearchProduct read GetQuerySearchProduct;
+    property QuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID
+      read GetQuerySearchStorehouseProductByID;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
+    property ComponentGroup: TField read GetComponentGroup;
+    property DescriptionID: TField read GetDescriptionID;
+    property IDProducer: TField read GetIDProducer;
     property ProductID: TField read GetProductID;
     property StorehouseId: TField read GetStorehouseId;
+    property Value: TField read GetValue;
     { Public declarations }
   end;
 
@@ -61,16 +85,20 @@ implementation
 
 {$R *.dfm}
 
-uses System.Generics.Collections, LostComponentsQuery, DBRecordHolder,
+uses LostComponentsQuery, DBRecordHolder,
   System.IOUtils, SettingsController, RepositoryDataModule, NotifyEvents,
   ParameterValuesUnit, StrHelper, System.StrUtils;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
   inherited;
+  FDocFieldInfos := TList<TDocFieldInfo>.Create;
+  FDocFieldInfos.Add(TDatasheetDoc.Create);
+  FDocFieldInfos.Add(TDiagramDoc.Create);
+  FDocFieldInfos.Add(TDrawingDoc.Create);
+  FDocFieldInfos.Add(TImageDoc.Create);
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
@@ -79,14 +107,36 @@ begin
   AutoTransaction := False;
 end;
 
+destructor TQueryProductsBase.Destroy;
+var
+  ADocFieldInfo: TDocFieldInfo;
+begin
+  for ADocFieldInfo in FDocFieldInfos do
+  begin
+    ADocFieldInfo.Free;
+  end;
+  FreeAndNil(FDocFieldInfos);
+
+  inherited;
+end;
+
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
+var
+  AProductID: TField;
 begin
   Assert(PKValue > 0);
+
+  AProductID := ASender.FieldByName(ProductID.FieldName);
+
   // Удаляем продукт со склада. Сам продукт не удаляем.
   qStoreHouseProducts.DeleteRecord(PKValue);
 
-  // удалить компоненты которых нет ни на складе ни в дереве категорий
-  // DeleteLostComponents;
+  // Если подобных продуктов на складе больше нет
+  if QuerySearchStorehouseProductByID.Search(AProductID.AsInteger) = 0 then
+  begin
+    // Удаляем продукт
+    qProducts.DeleteRecord(AProductID.AsInteger);
+  end;
 
   inherited;
 end;
@@ -94,76 +144,109 @@ end;
 procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet);
 var
   AComponentFamily: String;
+  ADocFieldInfo: TDocFieldInfo;
   AFieldHolder: TFieldHolder;
   APK: TField;
+  AIDProducer: TField;
   AProductID: TField;
   ARH: TRecordHolder;
   ARH2: TRecordHolder;
+  ARHFamily: TRecordHolder;
   AValue: TField;
+  OK: Boolean;
   rc: Integer;
   // ASenderField: TField;
 begin
+  Assert(FDocFieldInfos <> nil);
+
   APK := ASender.FieldByName(PKFieldName);
   AProductID := ASender.FieldByName(ProductID.FieldName);
   AValue := ASender.FieldByName(Value.FieldName);
+  AIDProducer := ASender.FieldByName(IDProducer.FieldName);
+
+  // Если производитель задан
+  if AIDProducer.AsInteger > 0 then
+  begin
+    // Ищем производителя по коду
+    OK := QueryManufacturers2.LocateByPK(AIDProducer.AsInteger);
+    Assert(OK);
+
+    rc := QuerySearchDaughterComponent.Search(AValue.AsString,
+      QueryManufacturers2.Name.AsString);
+  end
+  else
+  begin
+    // Ищем в теоретической базе просто по наименованию
+    rc := QuerySearchDaughterComponent.Search(AValue.AsString);
+    if rc > 0 then
+    begin
+      // Ищем в справочнике такого производителя
+      QueryManufacturers2.LocateOrAppend
+        (QuerySearchDaughterComponent.Producer.AsString);
+      // Заполняем производителя
+      AIDProducer.AsInteger := QueryManufacturers2.PKValue;
+    end;
+  end;
 
   ARH := TRecordHolder.Create(ASender);
   try
-
-    // Если такого компонента ещё нет
-    if QuerySearchDaughterComponent.Search(ASender.FieldByName(Value.FieldName)
-      .AsString) = 0 then
+    // Если такой компонент найден в компонентой базе
+    if rc > 0 then
     begin
-      // 1) надо вычислить к какому семейству он относится
-      AComponentFamily := GetComponentFamily;
-      // 2) Надо поискать такое семейство
-      if QuerySearchMainComponent2.Search(AComponentFamily) = 0 then
-      begin
-        // нет ни такого семейства, ни такого компонента
-        // Надо добавить и семейство, и компонент
-        ARH.Field[Value.FieldName] := AComponentFamily;
+      // Ищем соответствующее семейство компонентов
+      rc := QuerySearchFamilytByID.Search
+        (QuerySearchDaughterComponent.ParentProductID.AsInteger);
+      Assert(rc = 1);
 
-        // Добавляем в базу семейство компонентов
-        qProducts.InsertRecord(ARH);
-
-        ARH.Field[Value.FieldName] := AValue.Value;
-        ARH.Field['ParentProductID'] := qProducts.PKValue;
-
-      end
-      else
-      begin
-        // Такое семейство в базе уже есть
-        ARH.Field['ParentProductID'] := QuerySearchMainComponent2.PKValue;
+      ARHFamily := TRecordHolder.Create(QuerySearchFamilytByID.FDQuery);
+      try
+        // Обновляем пустые значения
+        ARH.UpdateNullValues(ARHFamily);
+        ARH.Put(ASender);
+      finally
+        FreeAndNil(ARHFamily)
       end;
 
-      // Добавляем в базу сам компонент
+      {
+        // Заполняем файлы документации так, как заполнено у семейства
+        for ADocFieldInfo in FDocFieldInfos do
+        begin
+        ASender.FieldByName(ADocFieldInfo.FieldName).AsString :=
+        QuerySearchFamilytByID.Field(ADocFieldInfo.FieldName).AsString;
+        end;
+        // Заполняем ссылку на краткое описание
+        ADescriptionID.AsInteger :=
+        QuerySearchFamilytByID.DescriptionID.AsInteger;
+      }
+    end;
+
+    // Если такого продукта ещё нет
+    if QuerySearchProduct.Search(AValue.AsString, AIDProducer.AsInteger) = 0
+    then
+    begin
+      // Добавляем в базу сам продукт
       qProducts.InsertRecord(ARH);
 
       ARH.Field[ProductID.FieldName] := qProducts.PKValue;
       AProductID.AsInteger := qProducts.PKValue;
-
-      // Обрабатываем значения параметров
-      UpdateParamValue(ProductID.FieldName, ASender);
-
     end
     else
     begin
-      // Если такой компонент уже есть
+      // Если такой продукт уже есть
       // Запоминаем найденный первичный ключ
-      ARH.Field[ProductID.FieldName] := QuerySearchDaughterComponent.PKValue;
-      AProductID.AsInteger := QuerySearchDaughterComponent.PKValue;
-
-      // Ищем семейство найденного компонента
-      rc := QuerySearchMainComponentByID.Search
-        (QuerySearchDaughterComponent.ParentProductID.AsInteger);
-      Assert(rc = 1);
+      ARH.Field[ProductID.FieldName] := QuerySearchProduct.PKValue;
+      AProductID.AsInteger := QuerySearchProduct.PKValue;
 
       // Запоминаем поля семейства компонента
-      ARH2 := TRecordHolder.Create(QuerySearchMainComponentByID.FDQuery);
+      ARH2 := TRecordHolder.Create(QuerySearchProduct.FDQuery);
       try
-        // Все пустые поля заполняем значениями из семейства
+        // Все пустые поля заполняем значениями из найденного продукта
         ARH.UpdateNullValues(ARH2);
         ARH.Put(ASender);
+
+        ARH.Field['ID'] := ARH.Field[ProductID.FieldName];
+        // Обновляем продукт, если мы в нём что-то изменили
+        qProducts.UpdateRecord(ARH);
       finally
         FreeAndNil(ARH2);
       end;
@@ -206,10 +289,6 @@ begin
     // Обновляем информацию о самом компоненте
     ARH.Field['ID'] := ARH.Field[ProductID.FieldName];
     qProducts.UpdateRecord(ARH);
-
-    // Обрабатываем обновление значений параметров
-    UpdateParamValue(ProductID.FieldName, ASender);
-
   finally
     FreeAndNil(ARH);
   end;
@@ -236,29 +315,10 @@ var
   AField: TField;
 begin
   for AField in FDQuery.Fields do
+  begin
     AField.ReadOnly := False;
-end;
-
-procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
-begin
-  // Заполняем код параметра "Производитель"
-  FDQuery.ParamByName('ProducerParameterID').AsInteger :=
-    TParameterValues.ProducerParameterID;
-
-  FDQuery.ParamByName('PackagePinsParameterID').AsInteger :=
-    TParameterValues.PackagePinsParameterID;
-
-  FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
-    TParameterValues.DatasheetParameterID;
-
-  FDQuery.ParamByName('DiagramParameterID').AsInteger :=
-    TParameterValues.DiagramParameterID;
-
-  FDQuery.ParamByName('DrawingParameterID').AsInteger :=
-    TParameterValues.DrawingParameterID;
-
-  FDQuery.ParamByName('ImageParameterID').AsInteger :=
-    TParameterValues.ImageParameterID;
+    AField.Required := False;
+  end;
 end;
 
 function TQueryProductsBase.GetComponentFamily: String;
@@ -275,9 +335,35 @@ begin
     Format('%s%d', [ComponentNameParts.Name, ComponentNameParts.Number]))
 end;
 
+function TQueryProductsBase.GetComponentGroup: TField;
+begin
+  Result := Field('ComponentGroup');
+end;
+
+function TQueryProductsBase.GetDescriptionID: TField;
+begin
+  Result := Field('DescriptionID');
+end;
+
+function TQueryProductsBase.GetIDProducer: TField;
+begin
+  Result := Field('IDProducer');
+end;
+
 function TQueryProductsBase.GetProductID: TField;
 begin
   Result := Field('ProductID');
+end;
+
+function TQueryProductsBase.GetQueryManufacturers2: TQueryManufacturers2;
+begin
+  if FQueryManufacturers2 = nil then
+  begin
+    FQueryManufacturers2 := TQueryManufacturers2.Create(Self);
+    FQueryManufacturers2.TryOpen;
+  end;
+
+  Result := FQueryManufacturers2;
 end;
 
 function TQueryProductsBase.GetQuerySearchDaughterComponent
@@ -285,7 +371,6 @@ function TQueryProductsBase.GetQuerySearchDaughterComponent
 begin
   if FQuerySearchDaughterComponent = nil then
     FQuerySearchDaughterComponent := TQuerySearchDaughterComponent.Create(Self);
-
   Result := FQuerySearchDaughterComponent;
 end;
 
@@ -297,17 +382,38 @@ begin
   Result := FQuerySearchMainComponent2;
 end;
 
-function TQueryProductsBase.GetQuerySearchMainComponentByID
-  : TQuerySearchMainComponentByID;
+function TQueryProductsBase.GetQuerySearchFamilytByID: TQuerySearchFamilyByID;
 begin
-  if FQuerySearchMainComponentByID = nil then
-    FQuerySearchMainComponentByID := TQuerySearchMainComponentByID.Create(Self);
-  Result := FQuerySearchMainComponentByID;
+  if FQuerySearchFamilytByID = nil then
+    FQuerySearchFamilytByID := TQuerySearchFamilyByID.Create(Self);
+  Result := FQuerySearchFamilytByID;
+end;
+
+function TQueryProductsBase.GetQuerySearchProduct: TQuerySearchProduct;
+begin
+  if FQuerySearchProduct = nil then
+    FQuerySearchProduct := TQuerySearchProduct.Create(Self);
+
+  Result := FQuerySearchProduct;
+end;
+
+function TQueryProductsBase.GetQuerySearchStorehouseProductByID
+  : TQuerySearchStorehouseProductByID;
+begin
+  if FQuerySearchStorehouseProductByID = nil then
+    FQuerySearchStorehouseProductByID :=
+      TQuerySearchStorehouseProductByID.Create(Self);
+  Result := FQuerySearchStorehouseProductByID;
 end;
 
 function TQueryProductsBase.GetStorehouseId: TField;
 begin
   Result := Field('StorehouseId');
+end;
+
+function TQueryProductsBase.GetValue: TField;
+begin
+  Result := Field('Value');
 end;
 
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
