@@ -103,7 +103,7 @@ begin
   cxGridDBBandedTableView.BeginUpdate(lsimPending);
   try
     CheckAndSaveChanges;
-    QueryProductsSearch.DoSearch;
+    QueryProductsSearch.DoSearch(False);
     UpdateView;
   finally
     cxGridDBBandedTableView.EndUpdate;

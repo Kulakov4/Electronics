@@ -155,7 +155,7 @@ uses
   AutoBindingDescriptionForm in 'Views\AutoBinding\AutoBindingDescriptionForm.pas' {frmAutoBindingDescriptions},
   AutoBinding in 'Helpers\AutoBinding.pas',
   SearchComponentsByValuesLike in 'Queryes\Search\SearchComponentsByValuesLike.pas' {QuerySearchComponentsByValuesLike: TFrame},
-  SearchComponentsByValuesBase in 'Queryes\Search\SearchComponentsByValuesBase.pas' {QuerySearchComponentsByValuesBase: TFrame},
+  AbstractSearchByValues in 'Queryes\Search\AbstractSearchByValues.pas' {QueryAbstractSearchByValues: TFrame},
   SearchDaughterComponentQuery in 'Queryes\Search\SearchDaughterComponentQuery.pas' {QuerySearchDaughterComponent: TFrame},
   SearchFamilyByID in 'Queryes\Search\SearchFamilyByID.pas' {QuerySearchFamilyByID: TFrame},
   SearchProductQuery in 'Queryes\Search\SearchProductQuery.pas' {QuerySearchProduct: TFrame},

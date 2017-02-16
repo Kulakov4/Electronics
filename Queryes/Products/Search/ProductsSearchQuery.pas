@@ -43,7 +43,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
-    procedure DoSearch;
+    procedure DoSearch(ALike: Boolean);
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
     property Mode: TContentMode read FMode;
@@ -161,7 +161,7 @@ begin
   AutoTransaction := Mode = SearchMode;
 end;
 
-procedure TQueryProductsSearch.DoSearch;
+procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
 var
   s: string;
 

@@ -1,4 +1,4 @@
-unit SearchComponentsByValuesBase;
+unit AbstractSearchByValues;
 
 interface
 
@@ -10,7 +10,7 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
-  TQuerySearchComponentsByValuesBase = class(TQueryBase)
+  TQueryAbstractSearchByValues = class(TQueryBase)
   private
     { Private declarations }
   public

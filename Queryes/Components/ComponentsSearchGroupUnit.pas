@@ -41,7 +41,7 @@ implementation
 
 {$R *.dfm}
 
-uses SearchInterfaceUnit, RepositoryDataModule, SearchComponentsByValuesBase;
+uses SearchInterfaceUnit, RepositoryDataModule, AbstractSearchByValues;
 
 constructor TComponentsSearchGroup.Create(AOwner: TComponent);
 begin
@@ -87,7 +87,7 @@ end;
 
 procedure TComponentsSearchGroup.Search(ALike: Boolean);
 var
-  ASearchQuery: TQuerySearchComponentsByValuesBase;
+  ASearchQuery: TQueryAbstractSearchByValues;
   s: string;
   sDetail: string;
   sParent: string;

@@ -1,2 +1,0 @@
-inherited QuerySearchComponentsByValuesBase: TQuerySearchComponentsByValuesBase
-end
