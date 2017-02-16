@@ -10,16 +10,19 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
-  SearchComponentsByValues, StoreHouseListQuery;
+  SearchComponentsByValues, StoreHouseListQuery, SearchProductsByValues,
+  SearchProductsByValuesLike;
 
 type
   TQueryProductsSearch = class(TQueryProductsBase)
+    FDBaseQuery: TFDQuery;
   strict private
   private
     FClone: TFDMemTable;
     FGetModeClone: TFDMemTable;
     FMode: TContentMode;
-    FQuerySearchComponentsByValues: TQuerySearchComponentsByValues;
+    FQuerySearchProductsByValues: TQuerySearchProductsByValues;
+    FQuerySearchProductsByValuesLike: TQuerySearchProductsByValuesLike;
     FQueryStoreHouseList: TQueryStoreHouseList;
 
   const
@@ -29,7 +32,9 @@ type
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
-    function GetQuerySearchComponentsByValues: TQuerySearchComponentsByValues;
+    function GetQuerySearchProductsByValues: TQuerySearchProductsByValues;
+    function GetQuerySearchProductsByValuesLike
+      : TQuerySearchProductsByValuesLike;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -37,8 +42,10 @@ type
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetHaveAnyChanges: Boolean; override;
     procedure Search(const AIDList: string); stdcall;
-    property QuerySearchComponentsByValues: TQuerySearchComponentsByValues
-      read GetQuerySearchComponentsByValues;
+    property QuerySearchProductsByValues: TQuerySearchProductsByValues
+      read GetQuerySearchProductsByValues;
+    property QuerySearchProductsByValuesLike: TQuerySearchProductsByValuesLike
+      read GetQuerySearchProductsByValuesLike;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
@@ -56,7 +63,8 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, System.Math, RepositoryDataModule;
+uses NotifyEvents, System.Math, RepositoryDataModule, AbstractSearchByValues,
+  System.StrUtils, StrHelper;
 
 constructor TQueryProductsSearch.Create(AOwner: TComponent);
 begin
@@ -163,21 +171,40 @@ end;
 
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
 var
+  AConditionSQL: string;
+  m: TArray<String>;
   s: string;
-
 begin
   TryPost;
 
   // Формируем через запятую список из значений поля Value
   s := GetFieldValues('Value').Trim([',']);
 
-  // Ищем компоненты по их именам
-  QuerySearchComponentsByValues.Search(s);
+  FDQuery.DisableControls;
+  try
 
-  // Получаем идентификаторы найденых компонентов
-  s := QuerySearchComponentsByValues.GetFieldValues('ID').Trim([',']);
+    if ALike then
+    begin
+      AConditionSQL := '';
+      m := s.Split([',']);
+      // Формируем несколько условий
+      for s in m do
+      begin
+        AConditionSQL := IfThen(AConditionSQL.IsEmpty, '', ' or ');
+        AConditionSQL := AConditionSQL + Format('p.Value like %s',
+          [QuotedStr(s + '%')]);
+      end;
+      // ASearchQuery := QuerySearchProductsByValuesLike
+      // Меняем SQL запрос
+      FDQuery.SQL.Text := Replace(FDBaseQuery.SQL.Text, AConditionSQL, '--')
+    end
+    else
+      AConditionSQL := 'instr('',''||:Value||'','', '',''||p.Value||'','') > 0';
 
-  Search(s);
+    FDQuery.Open;
+  finally
+    FDQuery.EnableControls;
+  end;
 
 end;
 
@@ -211,14 +238,23 @@ begin
   Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
 end;
 
-function TQueryProductsSearch.GetQuerySearchComponentsByValues
-  : TQuerySearchComponentsByValues;
+function TQueryProductsSearch.GetQuerySearchProductsByValues
+  : TQuerySearchProductsByValues;
 begin
-  if FQuerySearchComponentsByValues = nil then
-    FQuerySearchComponentsByValues :=
-      TQuerySearchComponentsByValues.Create(Self);
+  if FQuerySearchProductsByValues = nil then
+    FQuerySearchProductsByValues := TQuerySearchProductsByValues.Create(Self);
 
-  Result := FQuerySearchComponentsByValues;
+  Result := FQuerySearchProductsByValues;
+end;
+
+function TQueryProductsSearch.GetQuerySearchProductsByValuesLike
+  : TQuerySearchProductsByValuesLike;
+begin
+  if FQuerySearchProductsByValuesLike = nil then
+    FQuerySearchProductsByValuesLike :=
+      TQuerySearchProductsByValuesLike.Create(Self);
+
+  Result := FQuerySearchProductsByValuesLike;
 end;
 
 procedure TQueryProductsSearch.Search(const AIDList: string);

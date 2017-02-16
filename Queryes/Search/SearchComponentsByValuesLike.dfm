@@ -12,7 +12,6 @@ inherited QuerySearchComponentsByValuesLike: TQuerySearchComponentsByValuesLike
       'from'
       'Products p'
       'where '
-      '  p.Value like '#39'ICL%'#39' or p.Value like '#39'MAX%'#39
-      'order by p.ID')
+      '  p.Value like '#39'ICL%'#39' or p.Value like '#39'MAX%'#39)
   end
 end

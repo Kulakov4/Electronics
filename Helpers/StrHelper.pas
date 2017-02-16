@@ -6,10 +6,29 @@ function DeleteDoubleSpace(const S: string): String;
 function Contain(const SubStr: String; const S: String; const ADelimiter: Char =
     ','): Boolean;
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
+function Replace(const S: String; const ANewValue: String; const AMark: String; const AEndChar: Char = #13): string;
 
 implementation
 
 uses System.SysUtils;
+
+function Replace(const S: String; const ANewValue: String; const AMark: String; const AEndChar: Char): string;
+var
+  i: Integer;
+  j: Integer;
+begin
+  Assert(not S.IsEmpty);
+  Assert(not ANewValue.IsEmpty);
+  Assert(not AMark.IsEmpty);
+
+  // »щем место в SQL запросе
+  i := s.IndexOf(AMark);
+  Assert(i > 0);
+  j := s.IndexOf(AEndChar, i);
+  Assert(j > 0);
+
+  Result := s.Substring(0, i) + ANewValue + s.Substring(j);
+end;
 
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
 var

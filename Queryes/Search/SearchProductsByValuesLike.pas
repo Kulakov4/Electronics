@@ -1,18 +1,17 @@
-unit SearchComponentsByValuesLike;
+unit SearchProductsByValuesLike;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  AbstractSearchByValues;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, AbstractSearchByValues,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
-  TQuerySearchComponentsByValuesLike = class(TQueryAbstractSearchByValues)
+  TQuerySearchProductsByValuesLike = class(TQueryAbstractSearchByValues)
   private
     { Private declarations }
   public
@@ -26,7 +25,7 @@ implementation
 
 uses System.StrUtils;
 
-function TQuerySearchComponentsByValuesLike.Search(const AComponentNames:
+function TQuerySearchProductsByValuesLike.Search(const AComponentNames:
     string): Integer;
 var
   i: Integer;

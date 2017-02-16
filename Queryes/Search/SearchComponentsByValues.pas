@@ -13,10 +13,10 @@ uses
 type
   TQuerySearchComponentsByValues = class(TQueryAbstractSearchByValues)
   private
+    function GetFieldValues(AFieldName: string; ADelimiter: String = ','): String;
     function GetParentProductID: TField;
     { Private declarations }
   public
-    function GetFieldValues(AFieldName: string; ADelimiter: String = ','): String;
     function Search(const AComponentNames: string): Integer; overload; override;
     property ParentProductID: TField read GetParentProductID;
     { Public declarations }
