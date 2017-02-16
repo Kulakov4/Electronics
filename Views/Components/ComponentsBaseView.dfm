@@ -249,10 +249,10 @@ inherited ViewComponentsBase: TViewComponentsBase
       ImageIndex = 18
       OnExecute = actSettingsExecute
     end
-    object actPasteAsSubComponents: TAction
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1076#1086#1095#1077#1088#1085#1080#1077' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099
+    object actPasteComponents: TAction
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 5
-      OnExecute = actPasteAsSubComponentsExecute
+      OnExecute = actPasteComponentsExecute
     end
     object actPasteProducer: TAction
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1087#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1103
@@ -264,19 +264,19 @@ inherited ViewComponentsBase: TViewComponentsBase
       ImageIndex = 5
       OnExecute = actPastePackagePinsExecute
     end
-    object actPasteMainComponents: TAction
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099
+    object actPasteFamily: TAction
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' c'#1089#1077#1084#1077#1081#1089#1090#1074#1086
       ImageIndex = 5
-      OnExecute = actPasteMainComponentsExecute
+      OnExecute = actPasteFamilyExecute
     end
   end
   inherited pmGrid: TPopupMenu
     Images = DMRepository.cxImageList
     object N2: TMenuItem
-      Action = actPasteMainComponents
+      Action = actPasteFamily
     end
     object N3: TMenuItem
-      Action = actPasteAsSubComponents
+      Action = actPasteComponents
     end
     object N4: TMenuItem
       Action = actPasteProducer
@@ -299,7 +299,6 @@ inherited ViewComponentsBase: TViewComponentsBase
         Index = 1
         PopupMenu = pmGrid
       end>
-    OnPopup = cxGridPopupMenuPopup
   end
   inherited cxerComponents: TcxEditRepository
     object cxerlSubGroup: TcxEditRepositoryLabel

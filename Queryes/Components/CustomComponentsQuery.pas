@@ -10,8 +10,8 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
   SearchComponentCategoryQuery, SearchComponentCategoryQuery2,
-  SearchCategoryQuery, SearchProductParameterValuesQuery,
-  System.Generics.Collections, QueryWithDataSourceUnit;
+  SearchProductParameterValuesQuery, System.Generics.Collections,
+  QueryWithDataSourceUnit;
 
 type
   TQueryCustomComponents = class(TQueryWithDataSource)

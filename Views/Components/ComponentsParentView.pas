@@ -5,32 +5,31 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame,
-  cxGraphics, cxControls,
-  cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
-  cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB, cxDBData, System.Actions,
-  Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
-  cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ComponentsBaseMasterDetailUnit,
-  NotifyEvents, cxEditRepositoryItems, cxExtEditRepositoryItems, SubGroupsQuery,
-  SubGroupListPopupForm, cxLabel,
-  cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit, cxGridCustomPopupMenu,
-  cxGridPopupMenu, Vcl.Menus, Vcl.StdCtrls, DocFieldInfo, dxSkinsCore,
-  dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
-  dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
-  dxSkinDevExpressStyle, dxSkinFoggy, dxSkinGlassOceans, dxSkinHighContrast,
-  dxSkiniMaginary, dxSkinLilian, dxSkinLiquidSky, dxSkinLondonLiquidSky,
-  dxSkinMcSkin, dxSkinMetropolis, dxSkinMetropolisDark, dxSkinMoneyTwins,
-  dxSkinOffice2007Black, dxSkinOffice2007Blue, dxSkinOffice2007Green,
-  dxSkinOffice2007Pink, dxSkinOffice2007Silver, dxSkinOffice2010Black,
-  dxSkinOffice2010Blue, dxSkinOffice2010Silver, dxSkinOffice2013DarkGray,
-  dxSkinOffice2013LightGray, dxSkinOffice2013White, dxSkinOffice2016Colorful,
-  dxSkinOffice2016Dark, dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic,
-  dxSkinSharp, dxSkinSharpPlus, dxSkinSilver, dxSkinSpringTime, dxSkinStardust,
-  dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
-  dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
+  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxStyles,
+  cxCustomData, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB,
+  cxDBData, System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls,
+  cxGridLevel, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
+  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, NotifyEvents,
+  cxEditRepositoryItems, cxExtEditRepositoryItems, SubGroupsQuery,
+  SubGroupListPopupForm, cxLabel, cxDBLookupComboBox, cxDropDownEdit,
+  cxButtonEdit, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, Vcl.StdCtrls,
+  DocFieldInfo, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
+  dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
+  dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
+  dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
+  dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
+  dxSkinMetropolisDark, dxSkinMoneyTwins, dxSkinOffice2007Black,
+  dxSkinOffice2007Blue, dxSkinOffice2007Green, dxSkinOffice2007Pink,
+  dxSkinOffice2007Silver, dxSkinOffice2010Black, dxSkinOffice2010Blue,
+  dxSkinOffice2010Silver, dxSkinOffice2013DarkGray, dxSkinOffice2013LightGray,
+  dxSkinOffice2013White, dxSkinOffice2016Colorful, dxSkinOffice2016Dark,
+  dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic, dxSkinSharp, dxSkinSharpPlus,
+  dxSkinSilver, dxSkinSpringTime, dxSkinStardust, dxSkinSummer2008,
+  dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
+  dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  System.Generics.Collections;
+  System.Generics.Collections, BaseComponentsGroupUnit;
 
 const
   WM_OnApplyBestFit = WM_USER + 56;
@@ -115,7 +114,7 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    FComponentsBaseMasterDetail: TComponentsBaseMasterDetail;
+    FBaseComponentsGroup: TBaseComponentsGroup;
     FEditingValue: Variant;
     FisCurrentlySyncing: Boolean;
     FOnDetailExpandedReceive: Boolean;
@@ -123,8 +122,7 @@ type
     procedure AfterLoadData(Sender: TObject);
     procedure Delete(All: Boolean);
     function GetQuerySubGroups: TfrmQuerySubGroups;
-    procedure SetComponentsBaseMasterDetail(const Value
-      : TComponentsBaseMasterDetail);
+    procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup);
     procedure SyncScrollbarPositions;
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
@@ -148,8 +146,8 @@ type
     function CheckAndSaveChanges: Integer;
     function GetSelectedIDs: TList<Integer>;
     procedure UpdateView; override;
-    property ComponentsBaseMasterDetail: TComponentsBaseMasterDetail
-      read FComponentsBaseMasterDetail write SetComponentsBaseMasterDetail;
+    property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
+        write SetBaseComponentsGroup;
     { Public declarations }
   end;
 
@@ -157,11 +155,10 @@ implementation
 
 {$R *.dfm}
 
-uses GridExtension, dxCore, System.Math,
-  System.StrUtils, cxDataUtils, System.IOUtils, Winapi.ShellAPI,
-  ComponentsDetailQuery, RepositoryDataModule, System.UITypes,
-  ComponentsBaseDetailQuery, ColumnsBarButtonsHelper, DialogUnit,
-  SettingsController, OpenDocumentUnit, ProjectConst;
+uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
+  System.IOUtils, Winapi.ShellAPI, RepositoryDataModule, System.UITypes,
+  ColumnsBarButtonsHelper, DialogUnit, SettingsController, OpenDocumentUnit,
+  ProjectConst;
 
 constructor TViewComponentsParent.Create(AOwner: TComponent);
 var
@@ -237,11 +234,11 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем родительский компонент
-  ComponentsBaseMasterDetail.Main.TryPost;
+  BaseComponentsGroup.Main.TryPost;
 
   // начинаем транзакцию
-  // if not ComponentsBaseMasterDetail.Connection.InTransaction then
-  // ComponentsBaseMasterDetail.Connection.StartTransaction;
+  // if not BaseComponentsGroup.Connection.InTransaction then
+  // BaseComponentsGroup.Connection.StartTransaction;
 
   ARow := GetRow(0) as TcxMyGridMasterDataRow;
   Assert(ARow <> nil);
@@ -267,7 +264,7 @@ procedure TViewComponentsParent.actCommitExecute(Sender: TObject);
 begin
   cxGrid.BeginUpdate();
   try
-    ComponentsBaseMasterDetail.Commit;
+    BaseComponentsGroup.Commit;
     // Почему-то при сохранении раскрываются детали
     MainView.ViewData.Collapse(True);
     // Переносим фокус на первую выделенную запись
@@ -283,7 +280,7 @@ procedure TViewComponentsParent.actRollbackExecute(Sender: TObject);
 begin
   cxGrid.BeginUpdate();
   try
-    ComponentsBaseMasterDetail.Rollback;
+    BaseComponentsGroup.Rollback;
   finally
     cxGrid.EndUpdate;
   end;
@@ -421,12 +418,12 @@ end;
 function TViewComponentsParent.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if ComponentsBaseMasterDetail = nil then
+  if BaseComponentsGroup = nil then
     Exit;
 
   // Если есть несохранённые изменения
-  if ComponentsBaseMasterDetail.Main.HaveAnyChanges or
-    ComponentsBaseMasterDetail.Detail.HaveAnyChanges then
+  if BaseComponentsGroup.Main.HaveAnyChanges or
+    BaseComponentsGroup.Detail.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -463,7 +460,7 @@ begin
 
   // В режиме редактирования - доступ в зависимости от состояния
   AReadOnly := (not VarIsNull(V)) and
-    (not ComponentsBaseMasterDetail.Detail.IsModifed(V));
+    (not BaseComponentsGroup.Detail.IsModifed(V));
 
   if AReadOnly then
     AProperties := cxertiValueRO.Properties
@@ -475,35 +472,20 @@ procedure TViewComponentsParent.clValueGetProperties
   (Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
   var AProperties: TcxCustomEditProperties);
 var
-  // AcxGridDBBandedTableView: TcxGridDBBandedTableView;
-  // AcxGridMasterDataRow: TcxGridMasterDataRow;
   AID: Integer;
-  AQueryComponentsBaseDetail: TQueryComponentsBaseDetail;
-  // AReadOnly: Boolean;
   HavDetails: Boolean;
-  // il: Boolean;
-  // rc: Integer;
-  // S: string;
   V: Variant;
 begin
   if ARecord = nil then
     Exit;
 
-  // AcxGridMasterDataRow := ARecord as TcxGridMasterDataRow;
-  // AcxGridDBBandedTableView := AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView;
-  // HavDetails := AcxGridDBBandedTableView.DataController.RecordCount > 0;
-
-  // AReadOnly := False;
   HavDetails := True;
   V := ARecord.Values[0];
   if not VarIsNull(V) then
   begin
-
     AID := V;
 
-    AQueryComponentsBaseDetail := ComponentsBaseMasterDetail.Detail as
-      TQueryComponentsBaseDetail;
-    HavDetails := AQueryComponentsBaseDetail.Exists(AID);
+    HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
   end;
 
   if HavDetails then
@@ -522,7 +504,6 @@ procedure TViewComponentsParent.clValueGetPropertiesForEdit
   var AProperties: TcxCustomEditProperties);
 var
   AID: Integer;
-  AQueryComponentsBaseDetail: TQueryComponentsBaseDetail;
   AReadOnly: Boolean;
   HavDetails: Boolean;
   V: Variant;
@@ -538,12 +519,10 @@ begin
 
     AID := V;
 
-    AQueryComponentsBaseDetail := ComponentsBaseMasterDetail.Detail as
-      TQueryComponentsBaseDetail;
-    HavDetails := AQueryComponentsBaseDetail.Exists(AID);
+    HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
 
     // Только для чтения те записи, которые не модифицировались
-    AReadOnly := not ComponentsBaseMasterDetail.Main.IsModifed(AID);
+    AReadOnly := not BaseComponentsGroup.Main.IsModifed(AID);
   end;
 
   if HavDetails then
@@ -715,13 +694,13 @@ begin
           for i := 0 to AController.SelectedRowCount - 1 do
           begin
             X := AController.SelectedRows[i].Values[clID.Index];
-            ComponentsBaseMasterDetail.FullDeleted.Add(X);
+            BaseComponentsGroup.FullDeleted.Add(X);
           end;
         end
         else
         begin
           X := AController.FocusedRecord.Values[clID.Index];
-          ComponentsBaseMasterDetail.FullDeleted.Add(X);
+          BaseComponentsGroup.FullDeleted.Add(X);
         end;
       end;
 
@@ -749,20 +728,20 @@ end;
 
 procedure TViewComponentsParent.DoOnMasterDetailChange;
 begin
-  if FComponentsBaseMasterDetail <> nil then
+  if FBaseComponentsGroup <> nil then
   begin
     // Привязываем вью к данным
     MainView.DataController.DataSource :=
-      ComponentsBaseMasterDetail.Main.DataSource;
+      BaseComponentsGroup.Main.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FComponentsBaseMasterDetail.Detail.DataSource;
+      FBaseComponentsGroup.Detail.DataSource;
 
     // Подписываемся на события
-    if FComponentsBaseMasterDetail.Main.Master <> nil then
+    if FBaseComponentsGroup.Main.Master <> nil then
     begin
-      // TNotifyEventWrap.Create(FComponentsBaseMasterDetail.Main.Master.BeforeScrollI,
+      // TNotifyEventWrap.Create(FBaseComponentsGroup.Main.Master.BeforeScrollI,
       // DoBeforeMasterScroll);
-      TNotifyEventWrap.Create(FComponentsBaseMasterDetail.Detail.AfterLoad,
+      TNotifyEventWrap.Create(FBaseComponentsGroup.Detail.AfterLoad,
         AfterLoadData);
     end;
   end;
@@ -789,7 +768,7 @@ begin
   begin
     FQuerySubGroups := TfrmQuerySubGroups.Create(Self);
     FQuerySubGroups.FDQuery.Connection :=
-      ComponentsBaseMasterDetail.Main.FDQuery.Connection;
+      BaseComponentsGroup.Main.FDQuery.Connection;
   end;
   Result := FQuerySubGroups;
 end;
@@ -841,16 +820,16 @@ procedure TViewComponentsParent.OpenDoc(ADocFieldInfo: TDocFieldInfo;
   const AErrorMessage, AEmptyErrorMessage: string);
 begin
   TDocument.Open(Handle, ADocFieldInfo.Folder,
-    ComponentsBaseMasterDetail.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
+    BaseComponentsGroup.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
     .AsString, AErrorMessage, AEmptyErrorMessage, sBodyTypesFilesExt);
 end;
 
-procedure TViewComponentsParent.SetComponentsBaseMasterDetail
-  (const Value: TComponentsBaseMasterDetail);
+procedure TViewComponentsParent.SetBaseComponentsGroup(const Value:
+    TBaseComponentsGroup);
 begin
-  if FComponentsBaseMasterDetail <> Value then
+  if FBaseComponentsGroup <> Value then
   begin
-    FComponentsBaseMasterDetail := Value;
+    FBaseComponentsGroup := Value;
 
     FEventList.Clear; // Отписываемся от старых событий
 
@@ -1017,7 +996,7 @@ var
   Ok: Boolean;
   S: string;
 begin
-  Ok := ComponentsBaseMasterDetail <> nil;
+  Ok := BaseComponentsGroup <> nil;
   AFocusedView := FocusedTableView;
 
   // Удалить из всех категорий можно только родительский компонент
@@ -1030,9 +1009,9 @@ begin
 
   if Ok and (AFocusedView <> nil) and (AFocusedView.Level = cxGridLevel) then
   begin
-    if ComponentsBaseMasterDetail.Main.Master <> nil then
+    if BaseComponentsGroup.Main.Master <> nil then
     begin
-      S := ComponentsBaseMasterDetail.Main.Master.FDQuery.FieldByName
+      S := BaseComponentsGroup.Main.Master.FDQuery.FieldByName
         ('Value').AsString;
       actDelete.Caption := Format('Удалить компонент из категории «%s»', [S]);
     end;
@@ -1047,7 +1026,7 @@ begin
   actAddSubComponent.Enabled := Ok and (AFocusedView <> nil);
   // and (AFocusedView.Level = tlComponentsDetails);
 
-  actCommit.Enabled := Ok and ComponentsBaseMasterDetail.Connection.
+  actCommit.Enabled := Ok and BaseComponentsGroup.Connection.
     InTransaction;
   actRollback.Enabled := actCommit.Enabled;
 end;
@@ -1057,7 +1036,7 @@ var
   S: String;
   sourceFileName: string;
 begin
-  S := ComponentsBaseMasterDetail.MainComponentsQuery.Field
+  S := BaseComponentsGroup.QueryBaseFamily.Field
     (ADocFieldInfo.FieldName).AsString;
   // Если файл документации ранее был уже задан
   if S <> '' then
@@ -1077,7 +1056,7 @@ begin
   sourceFileName := TDialog.Create.OpenPictureDialog(S);
   if sourceFileName.IsEmpty then
     Exit;
-  ComponentsBaseMasterDetail.LoadDocFile(sourceFileName, ADocFieldInfo);
+  BaseComponentsGroup.LoadDocFile(sourceFileName, ADocFieldInfo);
   ApplyBestFitEx;
 end;
 

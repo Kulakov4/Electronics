@@ -1,83 +1,48 @@
 inherited QueryComponents: TQueryComponents
-  Width = 284
-  Height = 76
-  ExplicitWidth = 284
-  ExplicitHeight = 76
+  Width = 268
+  ExplicitWidth = 268
   inherited Label1: TLabel
+    Top = 3
     Width = 80
     Caption = 'Components'
+    ExplicitTop = 3
     ExplicitWidth = 80
   end
   inherited FDQuery: TFDQuery
+    Indexes = <
+      item
+        Active = True
+        Selected = True
+        Name = 'IndexParentProductId'
+        Fields = 'ParentProductId'
+      end>
+    IndexName = 'IndexParentProductId'
     SQL.Strings = (
-      'SELECT p.Id,'
-      '       p.DescriptionId,'
-      '       p.Value,'
-      '       GROUP_CONCAT(pc.ExternalId) subGroup,'
-      '       p.ParentProductId,'
-      '       ppc.rowid,'
-      '       ('
-      '           SELECT ExternalID'
-      '             FROM ProductCategories'
-      '            WHERE ProductCategories.Id = :vProductCategoryId'
-      '       )'
-      '       CurCategoryExternalID,'
-      '       pup.ID AS IDProducer,'
-      '       pup.Value AS Producer,'
-      '       pup2.ID AS IDPackagePins,'
-      '       pup2.Value AS PackagePins,'
-      '       pup3.ID AS IDDatasheet,'
-      '       pup3.Value AS Datasheet,'
-      '       pup4.ID AS IDDiagram,'
-      '       pup4.Value AS Diagram,'
-      '       pup5.ID AS IDDrawing,'
-      '       pup5.Value AS Drawing,'
-      '       pup6.ID AS IDImage,'
-      '       pup6.Value AS Image,'
-      '       d.Description'
-      '  FROM '
-      'ProductProductCategories ppc'
-      
-        'JOIN Products p ON ppc.ProductId = p.Id AND p.ParentProductId IS' +
-        ' NULL'
-      'JOIN ProductProductCategories ppc2 ON ppc2.ProductId = p.Id'
-      'JOIN ProductCategories pc ON pc.Id = ppc2.ProductCategoryId'
-      
-        'LEFT JOIN ProductUnionParameters pup ON pup.ProductID = p.Id AND' +
-        ' pup.UnionParameterId = :ProducerParameterID'
+      'select '
+      '    p.*, '
+      '    '#39#39' Producer, '
+      '    pup2.ID AS IDPackagePins,'
+      '    pup2.Value AS PackagePins,'
+      '    '#39#39' Datasheet,'
+      '    '#39#39' Diagram,'
+      '    '#39#39' Drawing,'
+      '    '#39#39' Image,'
+      '    '#39#39' Description'
+      'from Products p'
       
         'LEFT JOIN ProductUnionParameters pup2 ON pup2.ProductID = p.Id A' +
         'ND pup2.UnionParameterId = :PackagePinsParameterID'
+      'where p.ParentProductId in'
+      '('
+      '    select p.id'
+      '    from ProductProductCategories ppc'
       
-        'LEFT JOIN ProductUnionParameters pup3 ON pup3.ProductID = p.Id A' +
-        'ND pup3.UnionParameterId = :DatasheetParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup4 ON pup4.ProductID = p.Id A' +
-        'ND pup4.UnionParameterId = :DiagramParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup5 ON pup5.ProductID = p.Id A' +
-        'ND pup5.UnionParameterId = :DrawingParameterID'
-      
-        'LEFT JOIN ProductUnionParameters pup6 ON pup6.ProductID = p.Id A' +
-        'ND pup6.UnionParameterId = :ImageParameterID'
-      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
-      'WHERE ppc.ProductCategoryId = :vProductCategoryId'
-      'GROUP BY p.ID'
-      'ORDER BY p.value'
-      '')
+        '    JOIN Products p ON ppc.ProductId = p.Id AND p.ParentProductI' +
+        'd IS NULL'
+      '    WHERE ppc.ProductCategoryId = :vProductCategoryId     '
+      ')'
+      'order by ParentProductId, Value')
     ParamData = <
-      item
-        Name = 'VPRODUCTCATEGORYID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'PRODUCERPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
       item
         Name = 'PACKAGEPINSPARAMETERID'
         DataType = ftInteger
@@ -85,25 +50,7 @@ inherited QueryComponents: TQueryComponents
         Value = Null
       end
       item
-        Name = 'DATASHEETPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DIAGRAMPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DRAWINGPARAMETERID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'IMAGEPARAMETERID'
+        Name = 'VPRODUCTCATEGORYID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

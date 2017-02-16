@@ -212,19 +212,14 @@ uses
   ParametersForm, ManufacturersForm, SettingsController, BodyTypesTreeForm,
   BodyTypesGridQuery, ReportsForm, ReportQuery,
   RecommendedReplacementExcelDataModule, ComponentBodyTypesExcelDataModule,
-  ParametricTableForm, BodyTypesMasterDetailUnit, DescriptionsMasterDetailUnit,
-  ParametersMasterDetailUnit, ComponentsExMasterDetailUnit,
-  ComponentsMasterDetailUnit, ComponentsSearchMasterDetailUnit,
-  ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
-  BodyTypesForm, ProjectConst, PathSettingsForm, ImportErrorForm,
-  ComponentsBaseMasterDetailUnit, ErrorForm, cxGridDBBandedTableView,
-  System.IOUtils, FieldInfoUnit, SearchMainParameterQuery, ImportProcessForm,
-  SearchDaughterParameterQuery, ProgressInfo, ProgressBarForm, BodyTypesQuery,
-  Vcl.FileCtrl, SearchDescriptionsQuery, SearchSubCategoriesQuery,
-  SearchComponentCategoryQuery2, AllMainComponentsQuery, TableWithProgress,
-  AllMainComponentsQuery2, GridViewForm, Manufacturers2Query, TreeListQuery,
-  AutoBindingDocForm, AutoBindingDescriptionForm, FireDAC.Comp.Client,
-  AutoBinding;
+  ParametricTableForm, BodyTypesForm, ProjectConst, PathSettingsForm, ImportErrorForm,
+  ErrorForm, cxGridDBBandedTableView, System.IOUtils, FieldInfoUnit,
+  SearchMainParameterQuery, ImportProcessForm, SearchDaughterParameterQuery,
+  ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,
+  SearchDescriptionsQuery, SearchSubCategoriesQuery,
+  SearchComponentCategoryQuery2, TableWithProgress, GridViewForm,
+   Manufacturers2Query, TreeListQuery, AutoBindingDocForm,
+  AutoBindingDescriptionForm, FireDAC.Comp.Client, AutoBinding, AllFamilyQuery;
 
 {$R *.dfm}
 
@@ -278,11 +273,11 @@ end;
 procedure TfrmMain.actAutoBindingDocExecute(Sender: TObject);
 var
   AFDQuery: TFDQuery;
-  AQueryAllMainComponents: TQueryAllMainComponents;
+  AQueryAllFamily: TQueryAllFamily;
   frmAutoBindingDoc: TfrmAutoBindingDoc;
   MR: Integer;
 begin
-  AQueryAllMainComponents := nil;
+  AQueryAllFamily := nil;
   AFDQuery := nil;
   frmAutoBindingDoc := TfrmAutoBindingDoc.Create(Self);
   try
@@ -290,12 +285,12 @@ begin
     case MR of
       mrAll:
         begin
-          AQueryAllMainComponents := TQueryAllMainComponents.Create(Self);
-          AQueryAllMainComponents.RefreshQuery;
-          AFDQuery := AQueryAllMainComponents.FDQuery;
+          AQueryAllFamily := TQueryAllFamily.Create(Self);
+          AQueryAllFamily.RefreshQuery;
+          AFDQuery := AQueryAllFamily.FDQuery;
         end;
       mrOk:
-        AFDQuery := ViewComponents.ComponentsMasterDetail.qComponents.FDQuery
+        AFDQuery := ViewComponents.ComponentsGroup.qFamily.FDQuery
     end;
     if AFDQuery <> nil then
     begin
@@ -304,16 +299,16 @@ begin
         frmAutoBindingDoc.cxcbAbsentDoc.Checked);
 
       // ≈сли прив€зывали текущую категорию
-      if AFDQuery = ViewComponents.ComponentsMasterDetail.qComponents.FDQuery then
+      if AFDQuery = ViewComponents.ComponentsGroup.qFamily.FDQuery then
       begin
-        ViewComponents.ComponentsMasterDetail.ReOpen;
+        ViewComponents.ComponentsGroup.ReOpen;
       end;
 
     end;
   finally
     FreeAndNil(frmAutoBindingDoc);
-    if AQueryAllMainComponents <> nil then
-      FreeAndNil(AQueryAllMainComponents);
+    if AQueryAllFamily <> nil then
+      FreeAndNil(AQueryAllFamily);
   end;
 end;
 
@@ -393,7 +388,7 @@ begin
       TfrmProgressBar.Process(AComponentBodyTypesExcelDM.ExcelTable,
         procedure
         begin
-          ViewComponents.ComponentsMasterDetail.LoadBodyList
+          ViewComponents.ComponentsGroup.LoadBodyList
             (AComponentBodyTypesExcelDM.ExcelTable);
         end, '—охранение корпусных данных в Ѕƒ', sRecords);
     end;
@@ -405,7 +400,7 @@ begin
   // ќбновл€ем запрос использующийс€ дл€ поиска в справочнике корпусов
   DM.qBodyTypes.RefreshQuery;
 
-  ViewComponents.ComponentsMasterDetail.ReOpen;
+  ViewComponents.ComponentsGroup.ReOpen;
 end;
 
 procedure TfrmMain.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -789,11 +784,10 @@ begin
   if frmBodyTypes = nil then
   begin
     frmBodyTypes := TfrmBodyTypes.Create(Self);
-    frmBodyTypes.ViewBodyTypes.BodyTypesMasterDetail :=
-      DM.BodyTypesMasterDetail;
+    frmBodyTypes.ViewBodyTypes.BodyTypesGroup := DM.BodyTypesGroup;
   end;
 
-  DM.BodyTypesMasterDetail.ReOpen;
+  DM.BodyTypesGroup.ReOpen;
   frmBodyTypes.Show;
 end;
 
@@ -826,13 +820,12 @@ begin
   if frmDescriptions = nil then
   begin
     frmDescriptions := TfrmDescriptions.Create(Self);
-    frmDescriptions.ViewDescriptions.DescriptionsMasterDetail :=
-      DM.DescriptionsMasterDetail;
-    DM.DescriptionsMasterDetail.ReOpen;
+    frmDescriptions.ViewDescriptions.DescriptionsGroup :=
+      DM.DescriptionsGroup;
+    DM.DescriptionsGroup.ReOpen;
   end;
 
   frmDescriptions.Show;
-
 end;
 
 procedure TfrmMain.actShowManufacturersExecute(Sender: TObject);
@@ -852,9 +845,8 @@ begin
   if frmParameters = nil then
   begin
     frmParameters := TfrmParameters.Create(Self);
-    frmParameters.ViewParameters.ParametersMasterDetail :=
-      DM.ParametersMasterDetail2;
-    DM.ParametersMasterDetail2.ReOpen;
+    frmParameters.ViewParameters.ParametersGroup := DM.ParametersGroup;
+    DM.ParametersGroup.ReOpen;
   end;
 
   frmParameters.Show;
@@ -928,13 +920,13 @@ begin
     (NewPage = cxtsParametricTable) then
   begin
     // сообщаем о том, что этот запрос понадобитс€ и его надо разблокировать
-    DM.ComponentsExMasterDetail.AddClient;
+    DM.ComponentsExGroup.AddClient;
   end;
 
   if (cxpgcntrlMain.ActivePage = cxtsParametricTable) and
     (NewPage <> cxtsParametricTable) then
   begin
-    DM.ComponentsExMasterDetail.DecClient;
+    DM.ComponentsExGroup.DecClient;
   end;
 
 end;
@@ -947,10 +939,10 @@ end;
 procedure TfrmMain.DoBeforeParametricTableFormClose(Sender: TObject);
 begin
   // отв€зываем данные к представлению
-  frmParametricTable.ViewParametricTable.ComponentsBaseMasterDetail := nil;
+  frmParametricTable.ViewParametricTable.ComponentsExGroup := nil;
 
   // предупреждаем, что нам больше не требуютс€ данные этого запроса
-  DM.ComponentsExMasterDetail.DecClient;
+  DM.ComponentsExGroup.DecClient;
   frmParametricTable := nil;
 end;
 
@@ -1012,22 +1004,20 @@ begin
     if OK then
     begin
       // ѕрив€зываем представлени€ к данным
-      ViewComponents.ComponentsMasterDetail := DM.ComponentsMasterDetail;
+      ViewComponents.ComponentsGroup := DM.ComponentsGroup;
 
       // ѕодписываемс€ на событие о отображении параметрической таблицы
       TNotifyEventWrap.Create(ViewComponents.OnShowParametricTableEvent,
         DoOnShowParametricTable, FEventList);
 
-      ViewComponentsSearch.ComponentsSearchMasterDetail :=
-        DM.ComponentsSearchMasterDetail;
+      ViewComponentsSearch.ComponentsSearchGroup := DM.ComponentsSearchGroup;
 
-      ViewParametersForCategories.ParametersForCategoriesMasterDetail :=
-        DM.ParametersForCategoriesMasterDetail;
+      ViewParametersForCategories.ParametersForCategoriesGroup :=
+        DM.ParametersForCategoriesGroup;
 
-      ViewParametricTable.ComponentsBaseMasterDetail :=
-        DM.ComponentsExMasterDetail;
+      ViewParametricTable.ComponentsExGroup := DM.ComponentsExGroup;
 
-      ViewStoreHouse.StoreHouseMasterDetail := DM.StoreHouseMasterDetail;
+      ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
       ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;
 
       // прив€зываем дерево катогорий к данным
@@ -1100,11 +1090,11 @@ begin
       DoBeforeParametricTableFormClose, FEventList);
 
     // ѕрив€зываем данные к представлению
-    frmParametricTable.ViewParametricTable.ComponentsBaseMasterDetail :=
-      DM.ComponentsExMasterDetail;
+    frmParametricTable.ViewParametricTable.ComponentsExGroup :=
+      DM.ComponentsExGroup;
 
     // предупреждаем, что нам потребуютс€ данные этого запроса
-    DM.ComponentsExMasterDetail.AddClient;
+    DM.ComponentsExGroup.AddClient;
   end;
 
   frmParametricTable.Show;

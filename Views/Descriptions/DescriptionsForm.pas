@@ -64,7 +64,7 @@ end;
 
 function TfrmDescriptions.HaveAnyChanges: Boolean;
 begin
-  Result := ViewDescriptions.DescriptionsMasterDetail.Connection.InTransaction;
+  Result := ViewDescriptions.DescriptionsGroup.Connection.InTransaction;
 end;
 
 end.

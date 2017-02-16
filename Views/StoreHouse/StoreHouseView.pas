@@ -31,7 +31,7 @@ uses
   dxSkinTheAsphaltWorld, dxSkinValentine, dxSkinVisualStudio2013Blue,
   dxSkinVisualStudio2013Dark, dxSkinVisualStudio2013Light, dxSkinVS2010,
   dxSkinWhiteprint, dxSkinXmas2008Blue, System.Actions, Vcl.ActnList,
-  StoreHouseMasterDetailUnit, ProductsView;
+  StoreHouseGroupUnit, ProductsView;
 
 type
   TViewStoreHouse = class(TFrame)
@@ -75,16 +75,16 @@ type
     F2: Boolean;
     FEventList: TObjectList;
     FIsShowSelection: Boolean;
-    FStoreHouseMasterDetail: TStoreHouseMasterDetail;
+    FStoreHouseGroup: TStoreHouseGroup;
     function GetQueryProductsSearch: TQueryProductsSearch;
     procedure SetQueryProductsSearch(const Value: TQueryProductsSearch);
-    procedure SetStoreHouseMasterDetail(const Value: TStoreHouseMasterDetail);
+    procedure SetStoreHouseGroup(const Value: TStoreHouseGroup);
   protected
   public
     property QueryProductsSearch: TQueryProductsSearch
       read GetQueryProductsSearch write SetQueryProductsSearch;
-    property StoreHouseMasterDetail: TStoreHouseMasterDetail read
-        FStoreHouseMasterDetail write SetStoreHouseMasterDetail;
+    property StoreHouseGroup: TStoreHouseGroup read FStoreHouseGroup write
+        SetStoreHouseGroup;
   end;
 
 implementation
@@ -98,16 +98,16 @@ procedure TViewStoreHouse.actAddStorehouseExecute(Sender: TObject);
 var
   Value: string;
 begin
-  StoreHouseMasterDetail.qStoreHouseList.TryPost;
+  StoreHouseGroup.qStoreHouseList.TryPost;
 
   Value := InputBox(sDatabase, sPleaseWrite, '');
   if Value <> '' then
   begin
-    StoreHouseMasterDetail.qStoreHouseList.FDQuery.DisableControls;
+    StoreHouseGroup.qStoreHouseList.FDQuery.DisableControls;
     try
-      StoreHouseMasterDetail.qStoreHouseList.LocateOrAppend(Value);
+      StoreHouseGroup.qStoreHouseList.LocateOrAppend(Value);
     finally
-      StoreHouseMasterDetail.qStoreHouseList.FDQuery.EnableControls;
+      StoreHouseGroup.qStoreHouseList.FDQuery.EnableControls;
     end;
     clStorehouseListTitle.ApplyBestFit();
   end;
@@ -115,12 +115,12 @@ end;
 
 procedure TViewStoreHouse.actDeleteStorehouseExecute(Sender: TObject);
 begin
-  StoreHouseMasterDetail.qStoreHouseList.TryPost;
-  if StoreHouseMasterDetail.qStoreHouseList.FDQuery.RecordCount > 0 then
+  StoreHouseGroup.qStoreHouseList.TryPost;
+  if StoreHouseGroup.qStoreHouseList.FDQuery.RecordCount > 0 then
   begin
     if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
     begin
-      StoreHouseMasterDetail.qStoreHouseList.FDQuery.Delete;
+      StoreHouseGroup.qStoreHouseList.FDQuery.Delete;
     end;
   end;
 end;
@@ -132,13 +132,13 @@ var
 begin
   if tvStorehouseList.Controller.SelectedRecordCount > 0 then
   begin
-    StoreHouseMasterDetail.qStoreHouseList.TryPost;
-    Value := InputBox(sDatabase, sPleaseWrite, StoreHouseMasterDetail.qStoreHouseList.Title.AsString);
+    StoreHouseGroup.qStoreHouseList.TryPost;
+    Value := InputBox(sDatabase, sPleaseWrite, StoreHouseGroup.qStoreHouseList.Title.AsString);
     if (Value <> '') then
     begin
-      StoreHouseMasterDetail.qStoreHouseList.TryEdit;
-      StoreHouseMasterDetail.qStoreHouseList.Title.AsString := Value;
-      StoreHouseMasterDetail.qStoreHouseList.TryPost;
+      StoreHouseGroup.qStoreHouseList.TryEdit;
+      StoreHouseGroup.qStoreHouseList.Title.AsString := Value;
+      StoreHouseGroup.qStoreHouseList.TryPost;
       clStorehouseListTitle.ApplyBestFit();
     end;
   end;
@@ -174,12 +174,11 @@ begin
   ViewProductsSearch.QueryProductsSearch := Value;
 end;
 
-procedure TViewStoreHouse.SetStoreHouseMasterDetail(const Value:
-    TStoreHouseMasterDetail);
+procedure TViewStoreHouse.SetStoreHouseGroup(const Value: TStoreHouseGroup);
 begin
-  if FStoreHouseMasterDetail <> Value then
+  if FStoreHouseGroup <> Value then
   begin
-    FStoreHouseMasterDetail := Value;
+    FStoreHouseGroup := Value;
 
     // Подписываемся на события
     if not Assigned(FEventList) then
@@ -188,11 +187,11 @@ begin
       FEventList.Clear; // Отписываемся от старых событий
 
     tvStorehouseList.DataController.DataSource :=
-      FStoreHouseMasterDetail.qStoreHouseList.DataSource;
+      FStoreHouseGroup.qStoreHouseList.DataSource;
 
     // Привязываем дочернее представление к данным
-    ViewStoreHouseInfo.QueryStoreHouseList := FStoreHouseMasterDetail.qStoreHouseList;
-    ViewProducts.QueryProducts := FStoreHouseMasterDetail.qProducts;
+    ViewStoreHouseInfo.QueryStoreHouseList := FStoreHouseGroup.qStoreHouseList;
+    ViewProducts.QueryProducts := FStoreHouseGroup.qProducts;
 
     FIsShowSelection := true;
     clStorehouseListTitle.ApplyBestFit();

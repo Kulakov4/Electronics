@@ -5,29 +5,28 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame,
-  cxGraphics, cxControls,
-  cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
-  cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB, cxDBData, System.Actions,
-  Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
-  cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ComponentsBaseMasterDetailUnit,
-  NotifyEvents, cxEditRepositoryItems, cxExtEditRepositoryItems, SubGroupsQuery,
-  SubGroupListPopupForm, cxLabel,
-  cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit, cxGridCustomPopupMenu,
-  cxGridPopupMenu, Vcl.Menus, ComponentsParentView, System.Generics.Collections,
-  dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel,
-  dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
-  dxSkinDevExpressStyle, dxSkinFoggy, dxSkinGlassOceans, dxSkinHighContrast,
-  dxSkiniMaginary, dxSkinLilian, dxSkinLiquidSky, dxSkinLondonLiquidSky,
-  dxSkinMcSkin, dxSkinMetropolis, dxSkinMetropolisDark, dxSkinMoneyTwins,
-  dxSkinOffice2007Black, dxSkinOffice2007Blue, dxSkinOffice2007Green,
-  dxSkinOffice2007Pink, dxSkinOffice2007Silver, dxSkinOffice2010Black,
-  dxSkinOffice2010Blue, dxSkinOffice2010Silver, dxSkinOffice2013DarkGray,
-  dxSkinOffice2013LightGray, dxSkinOffice2013White, dxSkinOffice2016Colorful,
-  dxSkinOffice2016Dark, dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic,
-  dxSkinSharp, dxSkinSharpPlus, dxSkinSilver, dxSkinSpringTime, dxSkinStardust,
-  dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
-  dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
+  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxStyles,
+  cxCustomData, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB,
+  cxDBData, System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls,
+  cxGridLevel, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
+  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, NotifyEvents,
+  cxEditRepositoryItems, cxExtEditRepositoryItems, SubGroupsQuery,
+  SubGroupListPopupForm, cxLabel, cxDBLookupComboBox, cxDropDownEdit,
+  cxButtonEdit, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus,
+  ComponentsParentView, System.Generics.Collections, dxSkinsCore, dxSkinBlack,
+  dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
+  dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
+  dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
+  dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
+  dxSkinMetropolisDark, dxSkinMoneyTwins, dxSkinOffice2007Black,
+  dxSkinOffice2007Blue, dxSkinOffice2007Green, dxSkinOffice2007Pink,
+  dxSkinOffice2007Silver, dxSkinOffice2010Black, dxSkinOffice2010Blue,
+  dxSkinOffice2010Silver, dxSkinOffice2013DarkGray, dxSkinOffice2013LightGray,
+  dxSkinOffice2013White, dxSkinOffice2016Colorful, dxSkinOffice2016Dark,
+  dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic, dxSkinSharp, dxSkinSharpPlus,
+  dxSkinSilver, dxSkinSpringTime, dxSkinStardust, dxSkinSummer2008,
+  dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
+  dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   CustomComponentsQuery, SearchBodyType, SearchParameterValues,
@@ -50,13 +49,13 @@ type
     clImage2: TcxGridDBBandedColumn;
     clParentProductId2: TcxGridDBBandedColumn;
     actSettings: TAction;
-    actPasteAsSubComponents: TAction;
+    actPasteComponents: TAction;
     N3: TMenuItem;
     actPasteProducer: TAction;
     N4: TMenuItem;
     actPastePackagePins: TAction;
     N5: TMenuItem;
-    actPasteMainComponents: TAction;
+    actPasteFamily: TAction;
     N2: TMenuItem;
     clProducer: TcxGridDBBandedColumn;
     clProducer2: TcxGridDBBandedColumn;
@@ -64,9 +63,9 @@ type
     clPackagePins2: TcxGridDBBandedColumn;
     clDescription: TcxGridDBBandedColumn;
     clDescription2: TcxGridDBBandedColumn;
-    procedure actPasteAsSubComponentsExecute(Sender: TObject);
+    procedure actPasteComponentsExecute(Sender: TObject);
     procedure actPastePackagePinsExecute(Sender: TObject);
-    procedure actPasteMainComponentsExecute(Sender: TObject);
+    procedure actPasteFamilyExecute(Sender: TObject);
     procedure actPasteProducerExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
     procedure clSubGroup2GetProperties(Sender: TcxCustomGridTableItem;
@@ -95,6 +94,7 @@ type
   protected
     procedure DoOnMasterDetailChange; override;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
+    property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
     property QuerySearchBodyType: TQuerySearchBodyType
       read GetQuerySearchBodyType;
     property QuerySearchParameterValues: TQuerySearchParameterValues
@@ -103,7 +103,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
     { Public declarations }
   end;
 
@@ -111,9 +110,8 @@ implementation
 
 {$R *.dfm}
 
-uses GridExtension, dxCore, System.Math, System.StrUtils,
-  cxDataUtils, System.IOUtils, Winapi.ShellAPI, ComponentsDetailQuery,
-  RepositoryDataModule, System.UITypes, ComponentsBaseDetailQuery,
+uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
+  System.IOUtils, Winapi.ShellAPI, RepositoryDataModule, System.UITypes,
   ColumnsBarButtonsHelper, DialogUnit, Vcl.Clipbrd, PathSettingsForm,
   ClipboardUnit, ParameterValuesUnit;
 
@@ -139,7 +137,7 @@ begin
   inherited;
 end;
 
-procedure TViewComponentsBase.actPasteAsSubComponentsExecute(Sender: TObject);
+procedure TViewComponentsBase.actPasteComponentsExecute(Sender: TObject);
 var
   // AColumn: TcxGridDBBandedColumn;
   ARow: TcxMyGridMasterDataRow;
@@ -151,7 +149,7 @@ begin
     Exit;
 
   // Сначала сохраняем родительский компонент
-  ComponentsBaseMasterDetail.Main.TryPost;
+  BaseComponentsGroup.Main.TryPost;
 
   ARow := GetRow(0) as TcxMyGridMasterDataRow;
   Assert(ARow <> nil);
@@ -163,8 +161,8 @@ begin
   AView.Focused := True;
 
   // Просим добавить дочерние компоненты
-  ComponentsBaseMasterDetail.DetailComponentsQuery.AppendRows
-    (ComponentsBaseMasterDetail.DetailComponentsQuery.Value.FieldName, m);
+  BaseComponentsGroup.QueryBaseComponents.AppendRows
+    (BaseComponentsGroup.QueryBaseComponents.Value.FieldName, m);
 
   UpdateView;
 
@@ -179,14 +177,6 @@ begin
   m := TClb.Create.GetRowsAsArray;
   if (Length(m) = 0) or (GetFocusedQuery = nil) then
     Exit;
-  {
-    // Сначала попытаемся найти такой тип корпуса
-    if QuerySearchBodyType.Search(m[0]) = 0 then
-    begin
-    TDialog.Create.BodyNotFoundDialog(m[0]);
-    Exit;
-    end;
-  }
 
   AIDList := GetSelectedIDs;
   try
@@ -199,7 +189,7 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponentsBase.actPasteMainComponentsExecute(Sender: TObject);
+procedure TViewComponentsBase.actPasteFamilyExecute(Sender: TObject);
 var
   m: TArray<String>;
 begin
@@ -208,8 +198,8 @@ begin
     Exit;
 
   // Просим добавить родительские компоненты
-  ComponentsBaseMasterDetail.MainComponentsQuery.AppendRows
-    (ComponentsBaseMasterDetail.MainComponentsQuery.Value.FieldName, m);
+  BaseComponentsGroup.QueryBaseFamily.AppendRows
+    (BaseComponentsGroup.QueryBaseFamily.Value.FieldName, m);
 
   PutInTheCenterFocusedRecord(MainView);
 
@@ -276,10 +266,10 @@ begin
   inherited;
   if AText <> '' then
   begin
-    if (not ComponentsBaseMasterDetail.Manufacturers.Locate(AText)) and
+    if (not BaseComponentsGroup.Manufacturers.Locate(AText)) and
       (TDialog.Create.AddManufacturerDialog(AText)) then
     begin
-      ComponentsBaseMasterDetail.Manufacturers.AddNewValue(AText);
+      BaseComponentsGroup.Manufacturers.AddNewValue(AText);
     end;
   end;
 end;
@@ -309,7 +299,7 @@ begin
   Assert(QuerySubGroups.FDQuery.Active);
   ParamValue := QuerySubGroups.GetFieldValues('ExternalID', ',').Trim([',']);
 
-  with ComponentsBaseMasterDetail.Main.FDQuery do
+  with BaseComponentsGroup.Main.FDQuery do
   begin
     if FieldByName('SubGroup').AsString <> ParamValue then
     begin
@@ -333,13 +323,13 @@ var
   AMainExternalID: string;
   S: string;
 begin
-  S := ComponentsBaseMasterDetail.Main.FDQuery.FieldByName('SubGroup').AsString;
+  S := BaseComponentsGroup.QueryBaseFamily.SubGroup.AsString;
 
   // Удаляем все пробелы из строки. Должны остаться только цифры и запятые
   S := S.Replace(' ', '', [rfReplaceAll]);
 
   Assert(S.Length > 0);
-  AMainExternalID := ComponentsBaseMasterDetail.Main.FDQuery.FieldByName
+  AMainExternalID := BaseComponentsGroup.Main.FDQuery.FieldByName
     ('CurCategoryExternalID').AsString;
 
   QuerySubGroups.Load(AMainExternalID, Format(',%s,', [S]));
@@ -356,7 +346,7 @@ procedure TViewComponentsBase.DoOnMasterDetailChange;
 begin
   inherited;
 
-  if ComponentsBaseMasterDetail <> nil then
+  if BaseComponentsGroup <> nil then
   begin
     // Подписываемся на событие о коммите
     TNotifyEventWrap.Create( DMRepository.AfterCommit, DoAfterCommit, FEventList);
@@ -373,9 +363,9 @@ begin
   if AView <> nil then
   begin
     if AView.Level = cxGridLevel then
-      Result := ComponentsBaseMasterDetail.MainComponentsQuery;
+      Result := BaseComponentsGroup.QueryBaseFamily;
     if AView.Level = cxGridLevel2 then
-      Result := ComponentsBaseMasterDetail.DetailComponentsQuery;
+      Result := BaseComponentsGroup.QueryBaseComponents;
   end;
 end;
 
@@ -402,7 +392,7 @@ begin
   begin
     FQuerySubGroups := TfrmQuerySubGroups.Create(Self);
     FQuerySubGroups.FDQuery.Connection :=
-      ComponentsBaseMasterDetail.Main.FDQuery.Connection;
+      BaseComponentsGroup.Main.FDQuery.Connection;
   end;
   Result := FQuerySubGroups;
 end;
@@ -431,11 +421,11 @@ Var
 begin
   Ok := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
 
-  actPasteMainComponents.Enabled := Ok and
+  actPasteFamily.Enabled := Ok and
     (AColumn.GridView.Level = cxGridLevel) and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
-  actPasteAsSubComponents.Enabled := Ok and
+  actPasteComponents.Enabled := Ok and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
   actPasteProducer.Enabled := Ok and
@@ -446,11 +436,11 @@ begin
 
   Ok := (AColumn <> nil);
 
-  actPasteMainComponents.Visible := Ok and
+  actPasteFamily.Visible := Ok and
     (AColumn.GridView.Level = cxGridLevel) and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
-  actPasteAsSubComponents.Visible := Ok and
+  actPasteComponents.Visible := Ok and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
   actPasteProducer.Visible := Ok and

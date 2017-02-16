@@ -1,2 +1,0 @@
-inherited ComponentsBaseMasterDetail: TComponentsBaseMasterDetail
-end

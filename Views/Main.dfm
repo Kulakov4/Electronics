@@ -640,6 +640,8 @@ object frmMain: TfrmMain
               inherited cxGrid: TcxGrid
                 Width = 842
                 Height = 455
+                ExplicitWidth = 842
+                ExplicitHeight = 455
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -694,6 +696,8 @@ object frmMain: TfrmMain
               inherited StatusBar: TStatusBar
                 Top = 483
                 Width = 842
+                ExplicitTop = 483
+                ExplicitWidth = 842
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

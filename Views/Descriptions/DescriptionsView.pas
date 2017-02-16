@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, DescriptionsMasterDetailUnit,
+  cxGridDBBandedTableView, cxGrid, DescriptionsGroupUnit,
   cxDBLookupComboBox, Vcl.Grids, Vcl.DBGrids, ColumnsBarButtonsHelper,
   cxGridDBTableView, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -80,12 +80,11 @@ type
       (ASender: TcxDataSummary);
     procedure StatusBarResize(Sender: TObject);
   private
-    FDescriptionsMasterDetail: TDescriptionsMasterDetail;
+    FDescriptionsGroup: TDescriptionsGroup;
     FEditValueChanged: Boolean;
     FNewValue: string;
     procedure DoAfterDataChange(Sender: TObject);
-    procedure SetDescriptionsMasterDetail(const Value
-      : TDescriptionsMasterDetail);
+    procedure SetDescriptionsGroup(const Value: TDescriptionsGroup);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -97,8 +96,8 @@ type
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
   public
     procedure UpdateView; override;
-    property DescriptionsMasterDetail: TDescriptionsMasterDetail
-      read FDescriptionsMasterDetail write SetDescriptionsMasterDetail;
+    property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup write
+        SetDescriptionsGroup;
     { Public declarations }
   end;
 
@@ -141,10 +140,10 @@ begin
   cxGrid.BeginUpdate();
   try
     // Сохраняем изменения и завершаем транзакцию
-    DescriptionsMasterDetail.Commit;
+    DescriptionsGroup.Commit;
 
     // Начинаем новую транзакцию
-    // DescriptionsMasterDetail.Connection.StartTransaction;
+    // DescriptionsGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -225,7 +224,7 @@ begin
   ADescriptionsExcelDM := TDescriptionsExcelDM.Create(Self);
   try
     ADescriptionsExcelDM.ExcelTable.DescriptionsDataSet :=
-      DescriptionsMasterDetail.qDescriptionsDetail.FDQuery;
+      DescriptionsGroup.qDescriptionsDetail.FDQuery;
 
     TfrmProgressBar.Process(ADescriptionsExcelDM,
       procedure
@@ -267,7 +266,7 @@ begin
         TfrmProgressBar.Process(ADescriptionsExcelDM.ExcelTable,
           procedure
           begin
-            DescriptionsMasterDetail.InsertRecordList
+            DescriptionsGroup.InsertRecordList
               (ADescriptionsExcelDM.ExcelTable);
           end, 'Сохранение кратких описаний в БД', sRecords);
       finally
@@ -286,10 +285,10 @@ begin
   cxGrid.BeginUpdate();
   try
     // Отменяем все сделанные изменения
-    DescriptionsMasterDetail.Rollback;
+    DescriptionsGroup.Rollback;
 
     // Начинаем новую транзакцию
-    // DescriptionsMasterDetail.Connection.StartTransaction;
+    // DescriptionsGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -308,13 +307,13 @@ procedure TViewDescriptions.actShowDublicateExecute(Sender: TObject);
 var
   d: Boolean;
 begin
-  d := not DescriptionsMasterDetail.qDescriptionsDetail.ShowDublicate;
+  d := not DescriptionsGroup.qDescriptionsDetail.ShowDublicate;
   cxGrid.BeginUpdate();
   try
-    DescriptionsMasterDetail.qDescriptionsDetail.TryPost;
-    DescriptionsMasterDetail.qDescriptionsMaster.TryPost;
-    DescriptionsMasterDetail.qDescriptionsDetail.ShowDublicate := d;
-    DescriptionsMasterDetail.qDescriptionsMaster.ShowDublicate := d;
+    DescriptionsGroup.qDescriptionsDetail.TryPost;
+    DescriptionsGroup.qDescriptionsMaster.TryPost;
+    DescriptionsGroup.qDescriptionsDetail.ShowDublicate := d;
+    DescriptionsGroup.qDescriptionsMaster.ShowDublicate := d;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -344,18 +343,18 @@ begin
   inherited;
 
   // Добавляем новый тип описания
-  DescriptionsMasterDetail.qDescriptionsMaster.LocateOrAppend(FNewValue);
+  DescriptionsGroup.qDescriptionsMaster.LocateOrAppend(FNewValue);
   FNewValue := '';
 
-  AMasterID := DescriptionsMasterDetail.qDescriptionsMaster.PKValue;
+  AMasterID := DescriptionsGroup.qDescriptionsMaster.PKValue;
   ADetailID := Message.WParam;
 
   // Ищем параметр
-  DescriptionsMasterDetail.qDescriptionsDetail.LocateByPK(ADetailID);
-  DescriptionsMasterDetail.qDescriptionsDetail.TryEdit;
-  DescriptionsMasterDetail.qDescriptionsDetail.IDComponentType.AsInteger :=
+  DescriptionsGroup.qDescriptionsDetail.LocateByPK(ADetailID);
+  DescriptionsGroup.qDescriptionsDetail.TryEdit;
+  DescriptionsGroup.qDescriptionsDetail.IDComponentType.AsInteger :=
     AMasterID;
-  DescriptionsMasterDetail.qDescriptionsDetail.TryPost;
+  DescriptionsGroup.qDescriptionsDetail.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   Assert(ARow <> nil);
@@ -384,13 +383,13 @@ var
 begin
   if not FNewValue.IsEmpty then
   begin
-    ADetailID := DescriptionsMasterDetail.qDescriptionsDetail.PKValue;
-    AMasterID := DescriptionsMasterDetail.qDescriptionsMaster.PKValue;
+    ADetailID := DescriptionsGroup.qDescriptionsDetail.PKValue;
+    AMasterID := DescriptionsGroup.qDescriptionsMaster.PKValue;
 
     // Возвращаем пока старое значение внешнего ключа
-    DescriptionsMasterDetail.qDescriptionsDetail.IDComponentType.AsInteger :=
+    DescriptionsGroup.qDescriptionsDetail.IDComponentType.AsInteger :=
       AMasterID;
-    DescriptionsMasterDetail.qDescriptionsDetail.TryPost;
+    DescriptionsGroup.qDescriptionsDetail.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
     PostMessage(Handle, WM_AFTER_SET_NEW_VALUE, ADetailID, 0);
@@ -407,7 +406,7 @@ begin
   // Exit;
 
   // b := True;
-  // DescriptionsMasterDetail.qDescriptionsMaster.AddNewValue(AText);
+  // DescriptionsGroup.qDescriptionsMaster.AddNewValue(AText);
   // b := False;
 end;
 
@@ -415,7 +414,7 @@ procedure TViewDescriptions.clIDManufacturerPropertiesNewLookupDisplayText
   (Sender: TObject; const AText: TCaption);
 begin
   inherited;
-  FDescriptionsMasterDetail.qManufacturers2.AddNewValue(AText);
+  FDescriptionsGroup.qManufacturers2.AddNewValue(AText);
 end;
 
 procedure TViewDescriptions.CreateColumnsBarButtons;
@@ -496,49 +495,49 @@ begin
   end;
 end;
 
-procedure TViewDescriptions.SetDescriptionsMasterDetail
-  (const Value: TDescriptionsMasterDetail);
+procedure TViewDescriptions.SetDescriptionsGroup(const Value:
+    TDescriptionsGroup);
 var
   P: TcxLookupComboBoxProperties;
 begin
-  FDescriptionsMasterDetail := Value;
+  FDescriptionsGroup := Value;
 
-  if FDescriptionsMasterDetail <> nil then
+  if FDescriptionsGroup <> nil then
   begin
     // привязываем представление к данным
-    // DBGrid1.DataSource := FDescriptionsMasterDetail.qDescriptionsMaster.
+    // DBGrid1.DataSource := FDescriptionsGroup.qDescriptionsMaster.
     // DataSource;
 
     cxGridDBBandedTableView.DataController.DataSource :=
-      FDescriptionsMasterDetail.qDescriptionsMaster.DataSource;
+      FDescriptionsGroup.qDescriptionsMaster.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FDescriptionsMasterDetail.qDescriptionsDetail.DataSource;
+      FDescriptionsGroup.qDescriptionsDetail.DataSource;
 
     P := clIDComponentType.Properties as TcxLookupComboBoxProperties;
-    P.ListSource := FDescriptionsMasterDetail.qDescriptionsMaster.DataSource;
+    P.ListSource := FDescriptionsGroup.qDescriptionsMaster.DataSource;
     P.ListFieldNames := 'ComponentType';
     P.KeyFieldNames := 'ID';
 
     P := clIDManufacturer.Properties as TcxLookupComboBoxProperties;
-    P.ListSource := FDescriptionsMasterDetail.qManufacturers2.DataSource;
+    P.ListSource := FDescriptionsGroup.qManufacturers2.DataSource;
     P.ListFieldNames := 'Name';
     P.KeyFieldNames := 'ID';
 
 
     // cxGrid1DBTableView1.DataController.DataSource :=
-    // FDescriptionsMasterDetail.qDescriptionsDetail.DataSource;
+    // FDescriptionsGroup.qDescriptionsDetail.DataSource;
     // cxGrid1DBTableView1.Assign(cxGridDBBandedTableView2);
 
-    TNotifyEventWrap.Create(FDescriptionsMasterDetail.AfterDataChange,
+    TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,
       DoAfterDataChange, FEventList);
-    TNotifyEventWrap.Create(FDescriptionsMasterDetail.qDescriptionsMaster.
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionsMaster.
       AfterOpen, DoAfterDataChange, FEventList);
-    TNotifyEventWrap.Create(FDescriptionsMasterDetail.qDescriptionsDetail.
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionsDetail.
       AfterOpen, DoAfterDataChange, FEventList);
 
     // Будем работать в рамках транзакции
     // Транзакцию начинают сами компоненты
-    // FDescriptionsMasterDetail.Connection.StartTransaction;
+    // FDescriptionsGroup.Connection.StartTransaction;
   end;
   UpdateView;
 end;
@@ -566,7 +565,7 @@ procedure TViewDescriptions.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
   StatusBar.Panels[2].Text := Format('Всего: %d',
-    [DescriptionsMasterDetail.qDescriptionsDetail.FDQuery.RecordCount]);
+    [DescriptionsGroup.qDescriptionsDetail.FDQuery.RecordCount]);
 end;
 
 procedure TViewDescriptions.UpdateView;
@@ -575,31 +574,31 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  OK := (DescriptionsMasterDetail <> nil) and (AView <> nil);
+  OK := (DescriptionsGroup <> nil) and (AView <> nil);
 
   actAddType.Enabled := OK and
-    (DescriptionsMasterDetail.qDescriptionsMaster.FDQuery.Active) and
-    (not DescriptionsMasterDetail.qDescriptionsMaster.ShowDublicate) and
+    (DescriptionsGroup.qDescriptionsMaster.FDQuery.Active) and
+    (not DescriptionsGroup.qDescriptionsMaster.ShowDublicate) and
     (AView.Level = cxGridLevel);
 
   actAddDescription.Enabled := OK and
-    (DescriptionsMasterDetail.qDescriptionsDetail.FDQuery.Active) and
-    (not DescriptionsMasterDetail.qDescriptionsMaster.ShowDublicate) and
+    (DescriptionsGroup.qDescriptionsDetail.FDQuery.Active) and
+    (not DescriptionsGroup.qDescriptionsMaster.ShowDublicate) and
     ((AView.Level = cxGridLevel) or (AView.Level = cxGridLevel2));
 
   actDelete.Enabled := OK and (AView.DataController.RecordCount > 0);
 
   actCommit.Enabled := OK and
-    (DescriptionsMasterDetail.Connection.InTransaction);
+    (DescriptionsGroup.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actLoadFromExcelDocument.Enabled := (DescriptionsMasterDetail <> nil) and
-    (not DescriptionsMasterDetail.qDescriptionsMaster.ShowDublicate);
+  actLoadFromExcelDocument.Enabled := (DescriptionsGroup <> nil) and
+    (not DescriptionsGroup.qDescriptionsMaster.ShowDublicate);
 
-  actExportToExcelDocument.Enabled := (DescriptionsMasterDetail <> nil) and
-    (not DescriptionsMasterDetail.qDescriptionsMaster.ShowDublicate) and
-    (DescriptionsMasterDetail.qDescriptionsDetail.FDQuery.RecordCount > 0);
+  actExportToExcelDocument.Enabled := (DescriptionsGroup <> nil) and
+    (not DescriptionsGroup.qDescriptionsMaster.ShowDublicate) and
+    (DescriptionsGroup.qDescriptionsDetail.FDQuery.RecordCount > 0);
 
   UpdateTotalCount;
 end;

@@ -11,7 +11,7 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   System.Generics.Collections, ProductsBaseQuery,
   StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
-  DBRecordHolder, ApplyQueryFrame, {ExcelController, }SearchMainComponent2;
+  DBRecordHolder, ApplyQueryFrame;
 
 type
   TQueryProducts = class(TQueryProductsBase)

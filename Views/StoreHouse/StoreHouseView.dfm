@@ -138,11 +138,13 @@ object ViewStoreHouse: TViewStoreHouse
         Height = 594
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -223
-        ExplicitTop = 103
+        ExplicitWidth = 670
+        ExplicitHeight = 594
         inherited cxGrid: TcxGrid
           Width = 670
           Height = 547
+          ExplicitWidth = 670
+          ExplicitHeight = 547
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -197,6 +199,8 @@ object ViewStoreHouse: TViewStoreHouse
         inherited StatusBar: TStatusBar
           Top = 575
           Width = 670
+          ExplicitTop = 575
+          ExplicitWidth = 670
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (

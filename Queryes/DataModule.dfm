@@ -3,7 +3,7 @@ object DM: TDM
   Top = 0
   Caption = #1052#1086#1076#1091#1083#1100' '#1076#1072#1085#1085#1099#1093
   ClientHeight = 675
-  ClientWidth = 1034
+  ClientWidth = 1161
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,46 +22,20 @@ object DM: TDM
     ExplicitTop = 64
   end
   inline qChildCategories: TQueryChildCategories
-    Left = 147
-    Top = 64
+    Left = 138
+    Top = 75
     Width = 125
     Height = 80
     TabOrder = 1
-    ExplicitLeft = 147
-    ExplicitTop = 64
-  end
-  inline BodyTypesMasterDetail: TBodyTypesMasterDetail
-    Left = 0
-    Top = 230
-    Width = 578
-    Height = 113
-    TabOrder = 2
-    ExplicitTop = 230
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = 0
-          Control = BodyTypesMasterDetail.qBodyKinds
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = BodyTypesMasterDetail.qBodyTypes2
-          Row = 0
-        end
-        item
-          Column = 2
-          Control = BodyTypesMasterDetail.qBodyTypesBranch
-          Row = 0
-        end>
-    end
+    ExplicitLeft = 138
+    ExplicitTop = 75
   end
   inline qBodyTypesTree: TQueryBodyTypesTree
     Left = 0
     Top = 150
     Width = 257
     Height = 80
-    TabOrder = 3
+    TabOrder = 2
     ExplicitTop = 150
     ExplicitWidth = 257
     ExplicitHeight = 80
@@ -74,69 +48,160 @@ object DM: TDM
     TabOrder = 4
     ExplicitLeft = 284
     ExplicitTop = 150
+    ExplicitHeight = 90
   end
-  inline ParametersMasterDetail2: TParametersMasterDetail2
-    Left = 0
-    Top = 454
-    Width = 480
-    Height = 96
+  inline qProductsSearch: TQueryProductsSearch
+    Left = 555
+    Top = 488
+    Width = 254
+    Height = 159
+    TabOrder = 3
+    ExplicitLeft = 555
+    ExplicitTop = 488
+    ExplicitWidth = 254
+    ExplicitHeight = 159
+    inherited qProducts: TfrmApplyQuery
+      Left = 113
+      Top = 27
+      ExplicitLeft = 113
+      ExplicitTop = 27
+      inherited FDQuery: TFDQuery
+        Left = 16
+      end
+    end
+  end
+  inline qBodyTypes: TQueryBodyTypes
+    Left = 537
+    Top = 144
+    Width = 125
+    Height = 80
     TabOrder = 5
-    ExplicitTop = 454
+    ExplicitLeft = 537
+    ExplicitTop = 144
+  end
+  inline qStoreHouseList: TQueryStoreHouseList
+    Left = 800
+    Top = 371
+    Width = 208
+    Height = 86
+    TabOrder = 6
+    ExplicitLeft = 800
+    ExplicitTop = 371
+  end
+  inline BodyTypesGroup: TBodyTypesGroup
+    Left = 2
+    Top = 238
+    Width = 623
+    Height = 139
+    TabOrder = 7
+    ExplicitLeft = 2
+    ExplicitTop = 238
+    ExplicitWidth = 623
+    ExplicitHeight = 139
     inherited GridPanel1: TGridPanel
+      Width = 623
+      Height = 139
       ControlCollection = <
         item
           Column = 0
-          Control = ParametersMasterDetail2.qParameterTypes
+          Control = BodyTypesGroup.qBodyKinds
           Row = 0
         end
         item
           Column = 1
-          Control = ParametersMasterDetail2.qMainParameters
+          Control = BodyTypesGroup.qBodyTypes2
           Row = 0
         end
         item
           Column = 2
-          Control = ParametersMasterDetail2.qSubParameters
+          Control = BodyTypesGroup.qBodyTypesBranch
           Row = 0
         end>
+      ExplicitWidth = 623
+      ExplicitHeight = 139
+      inherited qBodyKinds: TQueryBodyKinds
+        Width = 207
+        Height = 137
+        ExplicitWidth = 207
+        ExplicitHeight = 137
+      end
+      inherited qBodyTypes2: TQueryBodyTypes2
+        Left = 208
+        Width = 206
+        Height = 137
+        ExplicitLeft = 208
+        ExplicitWidth = 206
+        ExplicitHeight = 137
+      end
+      inherited qBodyTypesBranch: TQueryBodyTypesBranch
+        Left = 414
+        Width = 208
+        Height = 137
+        ExplicitLeft = 414
+        ExplicitWidth = 208
+        ExplicitHeight = 137
+      end
     end
   end
-  inline ComponentsExMasterDetail: TComponentsExMasterDetail
-    Left = 0
-    Top = 554
-    Width = 320
-    Height = 96
-    TabOrder = 6
-    ExplicitTop = 554
-    ExplicitWidth = 320
+  inline StoreHouseGroup: TStoreHouseGroup
+    Left = 1
+    Top = 454
+    Width = 525
+    Height = 143
+    TabOrder = 8
+    ExplicitLeft = 1
+    ExplicitTop = 454
+    ExplicitWidth = 525
+    ExplicitHeight = 143
     inherited GridPanel1: TGridPanel
+      Width = 525
+      Height = 143
       ControlCollection = <
         item
           Column = 0
-          Control = ComponentsExMasterDetail.qComponentsEx
+          Control = StoreHouseGroup.qStoreHouseList
           Row = 0
         end
         item
           Column = 1
-          Control = ComponentsExMasterDetail.qComponentsDetailEx
+          Control = StoreHouseGroup.qProducts
           Row = 0
         end>
+      ExplicitWidth = 525
+      ExplicitHeight = 143
+      inherited qStoreHouseList: TQueryStoreHouseList
+        Width = 261
+        Height = 141
+        ExplicitWidth = 261
+        ExplicitHeight = 141
+      end
+      inherited qProducts: TQueryProducts
+        Left = 262
+        Width = 262
+        Height = 141
+        ExplicitLeft = 262
+        ExplicitWidth = 262
+        ExplicitHeight = 141
+      end
     end
   end
-  inline ComponentsSearchMasterDetail: TComponentsSearchMasterDetail
-    Left = 665
-    Top = 16
-    Width = 320
-    Height = 96
-    TabOrder = 7
-    ExplicitLeft = 665
-    ExplicitTop = 16
+  inline ComponentsSearchGroup: TComponentsSearchGroup
+    Left = 0
+    Top = 603
+    Width = 526
+    Height = 82
+    TabOrder = 9
+    ExplicitTop = 603
     inherited GridPanel1: TGridPanel
       ControlCollection = <
         item
           Column = 0
-          Control = ComponentsSearchMasterDetail.qComponentsSearch
+          Control = ComponentsSearchGroup.qFamilySearch
           Row = 0
+        end
+        item
+          Column = -1
+          Row = -1
         end
         item
           Column = -1
@@ -144,52 +209,96 @@ object DM: TDM
         end
         item
           Column = 1
-          Control = ComponentsSearchMasterDetail.qComponentsDetailsSearch
+          Control = ComponentsSearchGroup.qComponentsSearch
           Row = 0
         end>
     end
   end
-  inline ParametersForCategoriesMasterDetail: TParametersForCategoriesMasterDetail
-    Left = 584
-    Top = 230
-    Width = 320
-    Height = 96
-    TabOrder = 8
-    ExplicitLeft = 584
-    ExplicitTop = 230
+  inline ParametersForCategoriesGroup: TParametersForCategoriesGroup
+    Left = 104
+    Top = -9
+    Width = 400
+    Height = 81
+    TabOrder = 10
+    ExplicitLeft = 104
+    ExplicitTop = -9
     inherited GridPanel1: TGridPanel
       ControlCollection = <
         item
-          Column = 1
-          Control = ParametersForCategoriesMasterDetail.qParametersDetail
+          Column = -1
           Row = 0
         end
         item
           Column = 0
-          Control = ParametersForCategoriesMasterDetail.qParameterTypes
+          Control = ParametersForCategoriesGroup.qParameterTypes
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = ParametersForCategoriesGroup.qParametersDetail
           Row = 0
         end>
     end
   end
-  inline qProductsSearch: TQueryProductsSearch
-    Left = 584
-    Top = 328
-    Width = 156
-    Height = 159
-    TabOrder = 9
-    ExplicitLeft = 584
-    ExplicitTop = 328
-    ExplicitWidth = 156
-    ExplicitHeight = 159
+  inline ComponentsGroup: TComponentsGroup
+    Left = 630
+    Top = 240
+    Width = 516
+    Height = 122
+    TabOrder = 11
+    ExplicitLeft = 630
+    ExplicitTop = 240
+    ExplicitWidth = 516
+    inherited GridPanel1: TGridPanel
+      Width = 516
+      ControlCollection = <
+        item
+          Column = -1
+          Row = -1
+        end
+        item
+          Column = -1
+          Row = -1
+        end
+        item
+          Column = -1
+          Row = -1
+        end
+        item
+          Column = -1
+          Row = 0
+        end
+        item
+          Column = 0
+          Control = ComponentsGroup.qFamily
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = ComponentsGroup.qComponents
+          Row = 0
+        end>
+      ExplicitWidth = 516
+      inherited qFamily: TQueryFamily
+        Width = 257
+        ExplicitWidth = 257
+      end
+      inherited qComponents: TQueryComponents
+        Left = 258
+        Width = 257
+        ExplicitLeft = 258
+        ExplicitWidth = 257
+      end
+    end
   end
-  inline ComponentsMasterDetail: TComponentsMasterDetail
-    Left = 301
-    Top = 32
-    Width = 320
-    Height = 105
-    TabOrder = 10
-    ExplicitLeft = 301
-    ExplicitTop = 32
+  inline ComponentsExGroup: TComponentsExGroup
+    Left = 622
+    Top = 120
+    Width = 539
+    Height = 81
+    TabOrder = 12
+    ExplicitLeft = 622
+    ExplicitTop = 120
     inherited GridPanel1: TGridPanel
       ControlCollection = <
         item
@@ -201,83 +310,92 @@ object DM: TDM
           Row = 0
         end
         item
+          Column = -1
+          Row = -1
+        end
+        item
           Column = 0
-          Control = ComponentsMasterDetail.qComponents
+          Control = ComponentsExGroup.qFamilyEx
           Row = 0
         end
         item
           Column = 1
-          Control = ComponentsMasterDetail.qComponentsDetail
+          Control = ComponentsExGroup.qComponentsEx
           Row = 0
         end>
     end
   end
-  inline DescriptionsMasterDetail: TDescriptionsMasterDetail
-    Left = 4
-    Top = 349
-    Width = 574
-    Height = 96
-    TabOrder = 12
-    ExplicitLeft = 4
-    ExplicitTop = 349
+  inline ParametersGroup: TParametersGroup
+    Left = 0
+    Top = 376
+    Width = 790
+    Height = 79
+    TabOrder = 13
+    ExplicitTop = 376
     inherited GridPanel1: TGridPanel
       ControlCollection = <
         item
           Column = 0
-          Control = DescriptionsMasterDetail.qDescriptionsMaster
+          Control = ParametersGroup.qParameterTypes
           Row = 0
         end
         item
           Column = 1
-          Control = DescriptionsMasterDetail.qDescriptionsDetail
+          Control = ParametersGroup.qMainParameters
           Row = 0
         end
         item
           Column = 2
-          Control = DescriptionsMasterDetail.qManufacturers2
+          Control = ParametersGroup.qSubParameters
           Row = 0
         end>
     end
   end
-  inline qBodyTypes: TQueryBodyTypes
-    Left = 537
-    Top = 144
-    Width = 125
-    Height = 80
-    TabOrder = 11
-    ExplicitLeft = 537
-    ExplicitTop = 144
-  end
-  inline StoreHouseMasterDetail: TStoreHouseMasterDetail
-    Left = 511
-    Top = 493
-    Width = 320
-    Height = 96
-    TabOrder = 13
-    ExplicitLeft = 511
-    ExplicitTop = 493
+  inline DescriptionsGroup: TDescriptionsGroup
+    Left = 544
+    Top = 16
+    Width = 604
+    Height = 81
+    TabOrder = 14
+    ExplicitLeft = 544
+    ExplicitTop = 16
     inherited GridPanel1: TGridPanel
       ControlCollection = <
         item
           Column = 0
-          Control = StoreHouseMasterDetail.qStoreHouseList
+          Control = DescriptionsGroup.qDescriptionsMaster
           Row = 0
         end
         item
           Column = 1
-          Control = StoreHouseMasterDetail.qProducts
+          Control = DescriptionsGroup.qDescriptionsDetail
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = DescriptionsGroup.qManufacturers2
           Row = 0
         end>
+      ExplicitWidth = 604
+      ExplicitHeight = 81
+      inherited qDescriptionsMaster: TQueryDescriptionsMaster
+        ExplicitLeft = 1
+        ExplicitWidth = 201
+        ExplicitHeight = 79
+      end
+      inherited qDescriptionsDetail: TQueryDescriptionsDetail
+        ExplicitLeft = 202
+        ExplicitTop = 1
+        ExplicitWidth = 201
+        ExplicitHeight = 79
+      end
+      inherited qManufacturers2: TQueryManufacturers2
+        ExplicitLeft = 403
+        ExplicitTop = 1
+        ExplicitWidth = 200
+        ExplicitHeight = 79
+      end
     end
-  end
-  inline qStoreHouseList: TQueryStoreHouseList
-    Left = 800
-    Top = 371
-    Width = 208
-    Height = 86
-    TabOrder = 14
-    ExplicitLeft = 800
-    ExplicitTop = 371
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'

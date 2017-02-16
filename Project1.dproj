@@ -108,11 +108,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\MasterDetailFrame.pas">
-            <Form>frmMasterDetail</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Excel\CustomErrorTable.pas"/>
         <DCCReference Include="Excel\FieldInfoUnit.pas"/>
         <DCCReference Include="Excel\ErrorTable.pas"/>
@@ -162,8 +157,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyTypesMasterDetailUnit.pas">
-            <Form>BodyTypesMasterDetail</Form>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesGroupUnit.pas">
+            <Form>BodyTypesGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -260,8 +255,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\ParametersForCategories\ParametersForCategoriesMasterDetailUnit.pas">
-            <Form>ParametersForCategoriesMasterDetail</Form>
+        <DCCReference Include="Queryes\ParametersForCategories\ParametersForCategoriesGroupUnit.pas">
+            <Form>ParametersForCategoriesGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -275,13 +270,13 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchMainComponent.pas">
-            <Form>QuerySearchMainComponent</Form>
+        <DCCReference Include="Queryes\Search\SearchFamilyByValue2.pas">
+            <Form>QuerySearchFamilyByValue2</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchProductCategoryByExternalID.pas">
-            <Form>QuerySearchProductCategoryByExternalID</Form>
+        <DCCReference Include="Queryes\Search\SearchCategoryByExternalID.pas">
+            <Form>QuerySearchCategoryByExternalID</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -300,8 +295,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Parameters\ParametersMasterDetailUnit.pas">
-            <Form>ParametersMasterDetail2</Form>
+        <DCCReference Include="Queryes\Parameters\ParametersGroupUnit.pas">
+            <Form>ParametersGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -329,8 +324,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Descriptions\DescriptionsMasterDetailUnit.pas">
-            <Form>DescriptionsMasterDetail</Form>
+        <DCCReference Include="Queryes\Descriptions\DescriptionsGroupUnit.pas">
+            <Form>DescriptionsGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -343,6 +338,21 @@
             <Form>frmDescriptions</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilyQuery.pas">
+            <Form>QueryFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilyExQuery.pas">
+            <Form>QueryFamilyEx</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\BaseComponentsQuery.pas">
+            <Form>QueryBaseComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Queryes\Components\ComponentsQuery.pas">
             <Form>QueryComponents</Form>
             <FormType>dfm</FormType>
@@ -353,24 +363,13 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsBaseDetailQuery.pas">
-            <Form>QueryComponentsBaseDetail</Form>
+        <DCCReference Include="Queryes\Components\BaseComponentsGroupUnit.pas">
+            <Form>BaseComponentsGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsDetailQuery.pas">
-            <Form>QueryComponentsDetail</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsDetailExQuery.pas">
-            <Form>QueryComponentsDetailEx</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\LostComponentsQuery.pas"/>
-        <DCCReference Include="Queryes\Components\ComponentsBaseMasterDetailUnit.pas">
-            <Form>ComponentsBaseMasterDetail</Form>
+        <DCCReference Include="Queryes\Components\Count\BaseComponentsCountQuery.pas">
+            <Form>QueryBaseComponentsCount</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -379,13 +378,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\Count\ComponentsDetailCountQuery.pas">
-            <Form>QueryComponentsDetailCount</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\Count\ComponentsMainCountQuery.pas">
-            <Form>QueryComponentsMainCount</Form>
+        <DCCReference Include="Queryes\Components\Count\EmptyFamilyCountQuery.pas">
+            <Form>QueryEmptyFamilyCount</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -399,19 +393,19 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsMasterDetailUnit.pas">
-            <Form>ComponentsMasterDetail</Form>
+        <DCCReference Include="Queryes\Components\ComponentsGroupUnit.pas">
+            <Form>ComponentsGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Queryes\SearchInterfaceUnit.pas"/>
-        <DCCReference Include="Queryes\Components\ComponentsDetailsSearchQuery.pas">
-            <Form>QueryComponentsDetailsSearch</Form>
+        <DCCReference Include="Queryes\Components\ComponentsSearchQuery.pas">
+            <Form>QueryComponentsSearch</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsSearchMasterDetailUnit.pas">
-            <Form>ComponentsSearchMasterDetail</Form>
+        <DCCReference Include="Queryes\Components\ComponentsSearchGroupUnit.pas">
+            <Form>ComponentsSearchGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -458,8 +452,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\ParametricTable\ComponentsExMasterDetailUnit.pas">
-            <Form>ComponentsExMasterDetail</Form>
+        <DCCReference Include="Queryes\Components\ParametricTable\ComponentsExGroupUnit.pas">
+            <Form>ComponentsExGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -488,8 +482,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsSearchQuery.pas">
-            <Form>QueryComponentsSearch</Form>
+        <DCCReference Include="Queryes\Components\FamilySearchQuery.pas">
+            <Form>QueryFamilySearch</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -559,8 +553,8 @@
         </DCCReference>
         <DCCReference Include="Helpers\NotifyEvents.pas"/>
         <DCCReference Include="Helpers\Sequence.pas"/>
-        <DCCReference Include="Queryes\Components\AllMainComponentsQuery.pas">
-            <Form>QueryAllMainComponents</Form>
+        <DCCReference Include="Queryes\Components\AllFamilyQuery.pas">
+            <Form>QueryAllFamily</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -574,8 +568,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchCategoryQuery.pas">
-            <Form>QuerySearchCategory</Form>
+        <DCCReference Include="Queryes\Search\SearchCategoryBySubGroup.pas">
+            <Form>QuerySearchCategoryBySubGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -605,13 +599,13 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchProductCategoryByID.pas">
-            <Form>QuerySearchProductCategoryByID</Form>
+        <DCCReference Include="Queryes\Search\SearchCategoryByID.pas">
+            <Form>QuerySearchCategoryByID</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchDetailComponentQuery.pas">
-            <Form>QuerySearchDetailComponent</Form>
+        <DCCReference Include="Queryes\Search\SearchDaughterComponentQuery2.pas">
+            <Form>QuerySearchDaughterComponent2</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -625,8 +619,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchMainComponent2.pas">
-            <Form>QuerySearchMainComponent2</Form>
+        <DCCReference Include="Queryes\Search\SearchFamilyByValue.pas">
+            <Form>QuerySearchFamilyByValue</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -635,8 +629,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Components\MainComponentsQuery.pas">
-            <Form>QueryMainComponents</Form>
+        <DCCReference Include="Queryes\Components\BaseFamilyQuery.pas">
+            <Form>QueryBaseFamily</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -645,8 +639,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseMasterDetailUnit.pas">
-            <Form>StoreHouseMasterDetail</Form>
+        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas">
+            <Form>StoreHouseGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -707,16 +701,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\ProcRefUnit.pas"/>
-        <DCCReference Include="Queryes\Search\SearchMainComponent3.pas">
-            <Form>QuerySearchMainComponent3</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\AllMainComponentsQuery2.pas">
-            <Form>QueryAllMainComponents2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\GridView\GridViewForm.pas">
             <Form>frmGridView</Form>
             <FormType>dfm</FormType>
@@ -757,6 +741,11 @@
         </DCCReference>
         <DCCReference Include="Queryes\Search\SearchStorehouseProductByID.pas">
             <Form>QuerySearchStorehouseProductByID</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryGroupUnit.pas">
+            <Form>QueryGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -1406,13 +1395,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>

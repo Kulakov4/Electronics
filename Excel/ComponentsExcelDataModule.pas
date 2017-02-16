@@ -5,10 +5,9 @@ interface
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
   System.Generics.Collections, FireDAC.Comp.Client, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param,
-  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  Data.DB, FireDAC.Comp.DataSet, CustomExcelTable, SearchProductCategoryByExternalID,
-  SearchMainComponent;
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
+  CustomExcelTable, SearchFamilyByValue2, SearchCategoryByExternalID;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -17,8 +16,8 @@ type
   private
     FBadSubGroup: TList<String>;
     FGoodSubGroup: TList<String>;
-    FQuerySearchMainComponent: TQuerySearchMainComponent;
-    FQuerySearchProductCategory: TQuerySearchProductCategoryByExternalID;
+    FQuerySearchFamilyByValue2: TQuerySearchFamilyByValue2;
+    FQuerySearchCategoryByExternalID: TQuerySearchCategoryByExternalID;
     function GetIDMainComponent: TField;
     function GetMainValue: TField;
     function GetSubGroup: TField;
@@ -176,22 +175,22 @@ end;
 constructor TComponentsExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FQuerySearchProductCategory := TQuerySearchProductCategoryByExternalID.Create(Self);
-  FQuerySearchMainComponent := TQuerySearchMainComponent.Create(Self);
+  FQuerySearchCategoryByExternalID := TQuerySearchCategoryByExternalID.Create(Self);
+  FQuerySearchFamilyByValue2 := TQuerySearchFamilyByValue2.Create(Self);
   FGoodSubGroup := TList<String>.Create;
   FBadSubGroup := TList<String>.Create;
 end;
 
 function TComponentsExcelTable.CheckComponent: Boolean;
 begin
-  Result := FQuerySearchMainComponent.Search(MainValue.AsString) = 0;
+  Result := FQuerySearchFamilyByValue2.Search(MainValue.AsString) = 0;
 
   // Если нашли такой компонент
   if not Result then
   begin
     // Запоминаем код родительского компонента
     Edit;
-    IDMainComponent.AsInteger := FQuerySearchMainComponent.PKValue;
+    IDMainComponent.AsInteger := FQuerySearchFamilyByValue2.PKValue;
     Post;
 
     MarkAsError(etWarring);
@@ -199,7 +198,7 @@ begin
     Errors.AddWarring(ExcelRow.AsInteger, MainValue.Index + 1,
       MainValue.AsString,
       Format('Компонент с таким именем уже занесён в БД в категорию %s',
-      [FQuerySearchMainComponent.SubGroup.AsString]));
+      [FQuerySearchFamilyByValue2.SubGroup.AsString]));
   end;
 end;
 
@@ -246,7 +245,7 @@ begin
 
           IsGood := DM.fdqFindProductCategory.RecordCount = 1;
         }
-        IsGood := FQuerySearchProductCategory.Search(s) = 1;
+        IsGood := FQuerySearchCategoryByExternalID.Search(s) = 1;
         if IsGood then
         begin
           FGoodSubGroup.Add(s);

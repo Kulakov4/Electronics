@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  ApplyQueryFrame, DocFieldInfo, SearchMainComponent2, StoreHouseListQuery,
+  ApplyQueryFrame, DocFieldInfo, StoreHouseListQuery,
   SearchProductParameterValuesQuery, SearchFamilyByID,
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchDaughterComponentQuery, System.Generics.Collections,
@@ -29,19 +29,18 @@ type
     FDocFieldInfos: TList<TDocFieldInfo>;
     FQueryManufacturers2: TQueryManufacturers2;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
-    FQuerySearchMainComponent2: TQuerySearchMainComponent2;
     FQuerySearchFamilytByID: TQuerySearchFamilyByID;
     FQuerySearchProduct: TQuerySearchProduct;
     FQuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
     procedure DoAfterOpen(Sender: TObject);
-    function GetComponentFamily: String;
+// TODO: GetComponentFamily
+//  function GetComponentFamily: String;
     function GetComponentGroup: TField;
     function GetDescriptionID: TField;
     function GetIDProducer: TField;
     function GetProductID: TField;
     function GetQueryManufacturers2: TQueryManufacturers2;
     function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
-    function GetQuerySearchMainComponent2: TQuerySearchMainComponent2;
     function GetQuerySearchFamilytByID: TQuerySearchFamilyByID;
     function GetQuerySearchProduct: TQuerySearchProduct;
     function GetQuerySearchStorehouseProductByID
@@ -58,8 +57,6 @@ type
       read GetQueryManufacturers2;
     property QuerySearchDaughterComponent: TQuerySearchDaughterComponent
       read GetQuerySearchDaughterComponent;
-    property QuerySearchMainComponent2: TQuerySearchMainComponent2
-      read GetQuerySearchMainComponent2;
     property QuerySearchFamilytByID: TQuerySearchFamilyByID read
         GetQuerySearchFamilytByID;
     property QuerySearchProduct: TQuerySearchProduct read GetQuerySearchProduct;
@@ -85,9 +82,8 @@ implementation
 
 {$R *.dfm}
 
-uses LostComponentsQuery, DBRecordHolder,
-  System.IOUtils, SettingsController, RepositoryDataModule, NotifyEvents,
-  ParameterValuesUnit, StrHelper, System.StrUtils;
+uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
+  NotifyEvents, ParameterValuesUnit, StrHelper, System.StrUtils;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
@@ -143,8 +139,6 @@ end;
 
 procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet);
 var
-  AComponentFamily: String;
-  ADocFieldInfo: TDocFieldInfo;
   AFieldHolder: TFieldHolder;
   APK: TField;
   AIDProducer: TField;
@@ -321,19 +315,20 @@ begin
   end;
 end;
 
-function TQueryProductsBase.GetComponentFamily: String;
-var
-  ComponentNameParts: TComponentNameParts;
-begin
-  Assert(not Value.AsString.IsEmpty);
-  Result := Value.AsString;
-
-  // Разделяем имя компонента на части
-  ComponentNameParts := SplitComponentName(Value.AsString);
-
-  Result := IfThen(ComponentNameParts.Number = 0, ComponentNameParts.Name,
-    Format('%s%d', [ComponentNameParts.Name, ComponentNameParts.Number]))
-end;
+// TODO: GetComponentFamily
+//function TQueryProductsBase.GetComponentFamily: String;
+//var
+//ComponentNameParts: TComponentNameParts;
+//begin
+//Assert(not Value.AsString.IsEmpty);
+//Result := Value.AsString;
+//
+//// Разделяем имя компонента на части
+//ComponentNameParts := SplitComponentName(Value.AsString);
+//
+//Result := IfThen(ComponentNameParts.Number = 0, ComponentNameParts.Name,
+//  Format('%s%d', [ComponentNameParts.Name, ComponentNameParts.Number]))
+//end;
 
 function TQueryProductsBase.GetComponentGroup: TField;
 begin
@@ -372,14 +367,6 @@ begin
   if FQuerySearchDaughterComponent = nil then
     FQuerySearchDaughterComponent := TQuerySearchDaughterComponent.Create(Self);
   Result := FQuerySearchDaughterComponent;
-end;
-
-function TQueryProductsBase.GetQuerySearchMainComponent2
-  : TQuerySearchMainComponent2;
-begin
-  if FQuerySearchMainComponent2 = nil then
-    FQuerySearchMainComponent2 := TQuerySearchMainComponent2.Create(Self);
-  Result := FQuerySearchMainComponent2;
 end;
 
 function TQueryProductsBase.GetQuerySearchFamilytByID: TQuerySearchFamilyByID;

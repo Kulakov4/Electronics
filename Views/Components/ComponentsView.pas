@@ -12,22 +12,22 @@ uses
   cxEditRepositoryItems, cxExtEditRepositoryItems, System.Actions, Vcl.ActnList,
   dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ComponentsMasterDetailUnit, cxGridCustomPopupMenu,
-  cxGridPopupMenu, Vcl.Menus, ExcelDataModule, ComponentsBaseMasterDetailUnit,
-  DocFieldInfo, ProgressBarForm, System.Contnrs, CustomExcelTable, NotifyEvents,
-  dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel,
-  dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
-  dxSkinDevExpressStyle, dxSkinFoggy, dxSkinGlassOceans, dxSkinHighContrast,
-  dxSkiniMaginary, dxSkinLilian, dxSkinLiquidSky, dxSkinLondonLiquidSky,
-  dxSkinMcSkin, dxSkinMetropolis, dxSkinMetropolisDark, dxSkinMoneyTwins,
-  dxSkinOffice2007Black, dxSkinOffice2007Blue, dxSkinOffice2007Green,
-  dxSkinOffice2007Pink, dxSkinOffice2007Silver, dxSkinOffice2010Black,
-  dxSkinOffice2010Blue, dxSkinOffice2010Silver, dxSkinOffice2013DarkGray,
-  dxSkinOffice2013LightGray, dxSkinOffice2013White, dxSkinOffice2016Colorful,
-  dxSkinOffice2016Dark, dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic,
-  dxSkinSharp, dxSkinSharpPlus, dxSkinSilver, dxSkinSpringTime, dxSkinStardust,
-  dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
-  dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
+  cxGridCustomView, cxGrid, ComponentsGroupUnit, cxGridCustomPopupMenu,
+  cxGridPopupMenu, Vcl.Menus, ExcelDataModule, DocFieldInfo, ProgressBarForm,
+  System.Contnrs, CustomExcelTable, NotifyEvents, dxSkinsCore, dxSkinBlack,
+  dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
+  dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
+  dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
+  dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
+  dxSkinMetropolisDark, dxSkinMoneyTwins, dxSkinOffice2007Black,
+  dxSkinOffice2007Blue, dxSkinOffice2007Green, dxSkinOffice2007Pink,
+  dxSkinOffice2007Silver, dxSkinOffice2010Black, dxSkinOffice2010Blue,
+  dxSkinOffice2010Silver, dxSkinOffice2013DarkGray, dxSkinOffice2013LightGray,
+  dxSkinOffice2013White, dxSkinOffice2016Colorful, dxSkinOffice2016Dark,
+  dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic, dxSkinSharp, dxSkinSharpPlus,
+  dxSkinSilver, dxSkinSpringTime, dxSkinStardust, dxSkinSummer2008,
+  dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
+  dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   System.Generics.Collections, CustomComponentsQuery,
@@ -63,10 +63,10 @@ type
   private
     FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
-    procedure DoOnUpdateDetailCount(Sender: TObject);
-    procedure DoOnUpdateMainComponentCount(Sender: TObject);
-    function GetComponentsMasterDetail: TComponentsMasterDetail;
-    procedure SetComponentsMasterDetail(const Value: TComponentsMasterDetail);
+    procedure DoOnUpdateComponentslCount(Sender: TObject);
+    procedure DoOnUpdateFamilyCount(Sender: TObject);
+    function GetComponentsGroup: TComponentsGroup;
+    procedure SetComponentsGroup(const Value: TComponentsGroup);
     procedure UpdateSelectedCount;
     procedure UpdateTotalComponentCount;
     { Private declarations }
@@ -81,8 +81,8 @@ type
     procedure EndUpdate; override;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
-    property ComponentsMasterDetail: TComponentsMasterDetail
-      read GetComponentsMasterDetail write SetComponentsMasterDetail;
+    property ComponentsGroup: TComponentsGroup read GetComponentsGroup write
+        SetComponentsGroup;
     property OnShowParametricTableEvent: TNotifyEventsEx
       read FOnShowParametricTableEvent;
     { Public declarations }
@@ -122,21 +122,20 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponents.DoOnUpdateDetailCount(Sender: TObject);
+procedure TViewComponents.DoOnUpdateComponentslCount(Sender: TObject);
 begin
   // Выводим кол-во дочерних наименований
   StatusBar.Panels[1].Text :=
-    Format('%d', [ComponentsMasterDetail.qComponentsDetail.FDQuery.
-    RecordCount]);
+    Format('%d', [ComponentsGroup.qComponents.FDQuery.RecordCount]);
 end;
 
-procedure TViewComponents.DoOnUpdateMainComponentCount(Sender: TObject);
+procedure TViewComponents.DoOnUpdateFamilyCount(Sender: TObject);
 begin
-  if ComponentsMasterDetail.qComponents.FDQuery.State = dsBrowse then
+  if ComponentsGroup.qFamily.FDQuery.State = dsBrowse then
   begin
     // Выводим кол-во родительских наименований
     StatusBar.Panels[0].Text :=
-      Format('%d', [ComponentsMasterDetail.qComponents.FDQuery.RecordCount]);
+      Format('%d', [ComponentsGroup.qFamily.FDQuery.RecordCount]);
 
     UpdateTotalComponentCount;
   end;
@@ -154,26 +153,26 @@ end;
 procedure TViewComponents.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(ComponentsMasterDetail.qComponents.AfterPost,
-    DoOnUpdateMainComponentCount, FCountEvents);
+  TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterPost,
+    DoOnUpdateFamilyCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsMasterDetail.qComponents.AfterOpen,
-    DoOnUpdateMainComponentCount, FCountEvents);
+  TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterOpen,
+    DoOnUpdateFamilyCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsMasterDetail.qComponents.AfterDelete,
-    DoOnUpdateMainComponentCount, FCountEvents);
+  TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterDelete,
+    DoOnUpdateFamilyCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsMasterDetail.qComponentsDetail.AfterPost,
-    DoOnUpdateDetailCount);
+  TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterPost,
+    DoOnUpdateComponentslCount);
 
-  TNotifyEventWrap.Create(ComponentsMasterDetail.qComponentsDetail.AfterOpen,
-    DoOnUpdateDetailCount);
+  TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterOpen,
+    DoOnUpdateComponentslCount);
 
-  TNotifyEventWrap.Create(ComponentsMasterDetail.qComponentsDetail.AfterDelete,
-    DoOnUpdateDetailCount);
+  TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterDelete,
+    DoOnUpdateComponentslCount);
 
-  DoOnUpdateDetailCount(nil);
-  DoOnUpdateMainComponentCount(nil);
+  DoOnUpdateComponentslCount(nil);
+  DoOnUpdateFamilyCount(nil);
   UpdateTotalComponentCount;
 end;
 
@@ -190,9 +189,9 @@ begin
     CreateCountEvents;
 end;
 
-function TViewComponents.GetComponentsMasterDetail: TComponentsMasterDetail;
+function TViewComponents.GetComponentsGroup: TComponentsGroup;
 begin
-  Result := ComponentsBaseMasterDetail as TComponentsMasterDetail;
+  Result := BaseComponentsGroup as TComponentsGroup;
 end;
 
 procedure TViewComponents.LoadFromExcelDocument(const AFileName, AProducer:
@@ -251,7 +250,7 @@ begin
         TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
           procedure
           begin
-            ComponentsMasterDetail.InsertRecordList
+            ComponentsGroup.InsertRecordList
               (AComponentsExcelDM.ExcelTable, AProducer);
           end, 'Сохранение компонентов в БД', sRecords);
       finally
@@ -319,7 +318,7 @@ begin
 
     BeginUpdate; // Замораживаем представление
     try
-      ComponentsMasterDetail.LoadFromExcelFolder(AFileNames,
+      ComponentsGroup.LoadFromExcelFolder(AFileNames,
         AutomaticLoadErrorTable, AProducer);
     finally
       // Разрешаем закрыть форму
@@ -333,14 +332,13 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponents.SetComponentsMasterDetail
-  (const Value: TComponentsMasterDetail);
+procedure TViewComponents.SetComponentsGroup(const Value: TComponentsGroup);
 begin
-  if ComponentsBaseMasterDetail <> Value then
+  if BaseComponentsGroup <> Value then
   begin
-    ComponentsBaseMasterDetail := Value;
+    BaseComponentsGroup := Value;
 
-    if ComponentsBaseMasterDetail <> nil then
+    if BaseComponentsGroup <> nil then
     begin
       if FUpdateCount = 0 then
         CreateCountEvents;
@@ -379,7 +377,7 @@ procedure TViewComponents.UpdateTotalComponentCount;
 begin
   // Общее число компонентов на в БД
   StatusBar.Panels[4].Text := Format('Всего: %d',
-    [ComponentsMasterDetail.TotalCount]);
+    [ComponentsGroup.TotalCount]);
 end;
 
 end.

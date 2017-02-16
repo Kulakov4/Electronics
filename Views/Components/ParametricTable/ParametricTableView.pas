@@ -12,7 +12,7 @@ uses
   Vcl.Menus, System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls,
   cxGridLevel, cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGridCustomView, cxGrid,
-  ComponentsExMasterDetailUnit, System.Generics.Collections,
+  ComponentsExGroupUnit, System.Generics.Collections,
   ColumnsBarButtonsHelper, cxContainer, cxTextEdit, cxMemo, Vcl.StdCtrls,
   Vcl.ExtCtrls, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -91,9 +91,10 @@ type
     procedure DoOnUserFilteringEx(Sender: TcxCustomGridTableItem;
       AFilterList: TcxFilterCriteriaItemList; const AValue: Variant;
       const ADisplayText: string);
-    function GetComponentsExMasterDetail: TComponentsExMasterDetail;
+    function GetComponentsExGroup: TComponentsExGroup;
     procedure InitializeDefaultCreatedBands(AView: TcxGridDBBandedTableView;
       AQueryCustomComponents: TQueryCustomComponents);
+    procedure SetComponentsExGroup(const Value: TComponentsExGroup);
     { Private declarations }
   protected
     procedure CreateColumnsBarButtons; override;
@@ -113,8 +114,8 @@ type
     destructor Destroy; override;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property ComponentsExMasterDetail: TComponentsExMasterDetail
-      read GetComponentsExMasterDetail;
+    property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup write
+        SetComponentsExGroup;
     property Mark: string read FMark;
     { Public declarations }
   end;
@@ -774,7 +775,7 @@ begin
     try
       // Ищем все параметры нашей категории
       AQrySearchParamForCat.Search
-        (ComponentsExMasterDetail.qComponentsEx.ParentValue);
+        (ComponentsExGroup.qFamilyEx.ParentValue);
 
       IsEdit := False;
       // Цикл по всем бэндам-параметрам
@@ -821,7 +822,7 @@ begin
 
   // Помечаем, что запрос надо будет обновить, даже если мастер не изменится
   if IsEdit then
-    ComponentsExMasterDetail.NeedRefresh := True;
+    ComponentsExGroup.NeedRefresh := True;
 
 
 end;
@@ -840,7 +841,7 @@ begin
   FreeAndNil(FColumnsBarButtons);
 
   AQueryParametersForCategory :=
-    ComponentsExMasterDetail.QueryParametersForCategory;
+    ComponentsExGroup.QueryParametersForCategory;
 
   cxGrid.BeginUpdate();
   try
@@ -849,12 +850,12 @@ begin
     // Потом удаляем ранее добавленные бэнды
     DeleteBands;
 
-    // AQueryParametersForCategory.Load(ComponentsExMasterDetail.qComponentsEx.ParentValue);
+    // AQueryParametersForCategory.Load(ComponentsExGroup.qComponentsEx.ParentValue);
     AQueryParametersForCategory.FDQuery.First;
     while not AQueryParametersForCategory.FDQuery.Eof do
     begin
       // Имя поля получаем из словаря всех имён полей параметров
-      AFieldName := ComponentsExMasterDetail.AllParameterFields
+      AFieldName := ComponentsExGroup.AllParameterFields
         [AQueryParametersForCategory.ID.AsInteger];
       AVisible := AQueryParametersForCategory.IsAttribute.AsBoolean;
       ACaption := IfThen(not AQueryParametersForCategory.TableName.IsNull,
@@ -932,28 +933,28 @@ begin
   ApplyBestFitFocusedBand;
   PostMessage(Handle, WM_ON_EDIT_VALUE_CHANGE, 0, 0);
   // UpdateView;
-  // ComponentsExMasterDetail.TryPost;
+  // ComponentsExGroup.TryPost;
 end;
 
 procedure TViewParametricTable.DoOnMasterDetailChange;
 begin
   inherited;
-  if ComponentsBaseMasterDetail <> nil then
+  if BaseComponentsGroup <> nil then
   begin
-    FMark := ComponentsExMasterDetail.Mark;
-    TNotifyEventWrap.Create(ComponentsExMasterDetail.qComponentsEx.AfterLoad,
+    FMark := ComponentsExGroup.Mark;
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterLoad,
       DoAfterLoad, FEventList);
-    TNotifyEventWrap.Create(ComponentsExMasterDetail.qComponentsEx.AfterOpen,
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen,
       DoAfterLoad, FEventList);
 
     InitializeDefaultCreatedBands(MainView,
-      ComponentsExMasterDetail.qComponentsEx);
+      ComponentsExGroup.qFamilyEx);
     InitializeDefaultCreatedBands
       (cxGridLevel2.GridView as TcxGridDBBandedTableView,
-      ComponentsExMasterDetail.qComponentsDetailEx);
+      ComponentsExGroup.qComponentsEx);
 
     // если данные открыты и не требуют обновления
-    if ComponentsExMasterDetail.qComponentsEx.Actual then
+    if ComponentsExGroup.qFamilyEx.Actual then
     begin
       // Искусственно вызываем событие
       DoAfterLoad(nil);
@@ -961,10 +962,9 @@ begin
   end
 end;
 
-function TViewParametricTable.GetComponentsExMasterDetail
-  : TComponentsExMasterDetail;
+function TViewParametricTable.GetComponentsExGroup: TComponentsExGroup;
 begin
-  Result := ComponentsBaseMasterDetail as TComponentsExMasterDetail;
+  Result := BaseComponentsGroup as TComponentsExGroup;
 end;
 
 procedure TViewParametricTable.InitializeDefaultCreatedBands
@@ -981,7 +981,7 @@ begin
   for AIDParameter in AQueryCustomComponents.ParameterFields.Keys do
   begin
     // Получаем поле, SQL запроса которое является параметром
-    AFieldName := ComponentsExMasterDetail.qComponentsEx.ParameterFields
+    AFieldName := ComponentsExGroup.qFamilyEx.ParameterFields
       [AIDParameter];
     AColumn := AView.GetColumnByFieldName(AFieldName);
     Assert(AColumn <> nil);
@@ -1018,8 +1018,14 @@ end;
 procedure TViewParametricTable.OnEditValueChangeProcess(var Message: TMessage);
 begin
   inherited;
-  ComponentsExMasterDetail.TryPost;
+  ComponentsExGroup.TryPost;
   UpdateView;
+end;
+
+procedure TViewParametricTable.SetComponentsExGroup(const Value:
+    TComponentsExGroup);
+begin
+  BaseComponentsGroup := Value;
 end;
 
 procedure TViewParametricTable.Timer2Timer(Sender: TObject);

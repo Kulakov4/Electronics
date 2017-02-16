@@ -12,7 +12,7 @@ uses
   cxEditRepositoryItems, cxExtEditRepositoryItems, System.Actions, Vcl.ActnList,
   dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ComponentsSearchMasterDetailUnit,
+  cxGridCustomView, cxGrid, ComponentsSearchGroupUnit,
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
   dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -52,18 +52,16 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    function GetComponentsSearchMasterDetail: TComponentsSearchMasterDetail;
+    function GetComponentsSearchGroup: TComponentsSearchGroup;
     procedure Search(ALike: Boolean);
-    procedure SetComponentsSearchMasterDetail(const Value
-      : TComponentsSearchMasterDetail);
+    procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup);
     { Private declarations }
   protected
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDbBandedColumn); override;
   public
     procedure UpdateView; override;
-    property ComponentsSearchMasterDetail: TComponentsSearchMasterDetail
-      read GetComponentsSearchMasterDetail
-      write SetComponentsSearchMasterDetail;
+    property ComponentsSearchGroup: TComponentsSearchGroup read
+        GetComponentsSearchGroup write SetComponentsSearchGroup;
     { Public declarations }
   end;
 
@@ -79,7 +77,7 @@ begin
   begin
     MainView.BeginUpdate();
     try
-      ComponentsSearchMasterDetail.ClearSearchResult;
+      ComponentsSearchGroup.ClearSearchResult;
       UpdateView;
     finally
       MainView.EndUpdate;
@@ -93,8 +91,8 @@ procedure TViewComponentsSearch.actPasteFromBufferExecute(Sender: TObject);
 begin
   MainView.BeginUpdate();
   try
-    ComponentsSearchMasterDetail.qComponentsSearch.AppendRows
-      (ComponentsSearchMasterDetail.qComponentsSearch.Value.FieldName,
+    ComponentsSearchGroup.qFamilySearch.AppendRows
+      (ComponentsSearchGroup.qFamilySearch.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
   finally
@@ -112,7 +110,7 @@ procedure TViewComponentsSearch.clValueGetProperties
   (Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
   var AProperties: TcxCustomEditProperties);
 begin
-  if ComponentsSearchMasterDetail.qComponentsSearch.Mode = RecordsMode then
+  if ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode then
     inherited
   else
     AProperties := cxertiValue.Properties;
@@ -125,9 +123,9 @@ var
 begin
   inherited;
   S := (Sender as TcxButtonEdit).EditText;
-  actClear.Enabled := ComponentsSearchMasterDetail.qComponentsSearch.
+  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.
     IsClearEnabled or not S.IsEmpty;
-  actSearch.Enabled := ComponentsSearchMasterDetail.qComponentsSearch.
+  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.
     IsSearchEnabled or not S.IsEmpty;
 end;
 
@@ -146,10 +144,9 @@ begin
   end;
 end;
 
-function TViewComponentsSearch.GetComponentsSearchMasterDetail
-  : TComponentsSearchMasterDetail;
+function TViewComponentsSearch.GetComponentsSearchGroup: TComponentsSearchGroup;
 begin
-  Result := ComponentsBaseMasterDetail as TComponentsSearchMasterDetail;
+  Result := BaseComponentsGroup as TComponentsSearchGroup;
 end;
 
 procedure TViewComponentsSearch.OnGridPopupMenuPopup
@@ -157,18 +154,18 @@ procedure TViewComponentsSearch.OnGridPopupMenuPopup
 begin
   inherited;
 
-  // Вставлять главные компоненты можно только в режиме поиска
-  actPasteMainComponents.Visible := actPasteMainComponents.Visible and
-    (ComponentsSearchMasterDetail.qComponentsSearch.Mode = SearchMode);
+  // Вставлять семейства можно только в режиме поиска
+  actPasteFamily.Visible := actPasteFamily.Visible and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
 
-  actPasteAsSubComponents.Visible := False;
+  actPasteComponents.Visible := False;
 end;
 
 procedure TViewComponentsSearch.Search(ALike: Boolean);
 begin
   MainView.BeginUpdate(lsimPending);
   try
-    ComponentsSearchMasterDetail.Search(ALike);
+    ComponentsSearchGroup.Search(ALike);
     UpdateView;
 
     MainView.ViewData.Collapse(True);
@@ -179,12 +176,12 @@ begin
   PostApplyBestFit;
 end;
 
-procedure TViewComponentsSearch.SetComponentsSearchMasterDetail
-  (const Value: TComponentsSearchMasterDetail);
+procedure TViewComponentsSearch.SetComponentsSearchGroup(const Value:
+    TComponentsSearchGroup);
 begin
-  if ComponentsBaseMasterDetail <> Value then
+  if BaseComponentsGroup <> Value then
   begin
-    ComponentsBaseMasterDetail := Value;
+    BaseComponentsGroup := Value;
 
     // Обновляем представление
     UpdateView;
@@ -193,26 +190,26 @@ end;
 
 procedure TViewComponentsSearch.UpdateView;
 begin
-  actClear.Enabled := ComponentsSearchMasterDetail.qComponentsSearch.
+  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.
     IsClearEnabled;
-  actSearch.Enabled := ComponentsSearchMasterDetail.qComponentsSearch.
+  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.
     IsSearchEnabled;
 
-  actCommit.Enabled := ComponentsSearchMasterDetail.Connection.InTransaction and
-    (ComponentsSearchMasterDetail.qComponentsSearch.Mode = RecordsMode);
+  actCommit.Enabled := ComponentsSearchGroup.Connection.InTransaction and
+    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
   actDeleteFromAllCategories.Enabled :=
-    (ComponentsSearchMasterDetail.qComponentsSearch.Mode = RecordsMode) and
-    (ComponentsSearchMasterDetail.qComponentsSearch.FDQuery.RecordCount > 0);
+    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
+    (ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
 
-  actPasteFromBuffer.Enabled := ComponentsSearchMasterDetail.qComponentsSearch.
+  actPasteFromBuffer.Enabled := ComponentsSearchGroup.qFamilySearch.
     Mode = SearchMode;
   MainView.OptionsData.Appending :=
-    ComponentsSearchMasterDetail.qComponentsSearch.Mode = SearchMode;
+    ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
   MainView.OptionsData.Inserting :=
-    ComponentsSearchMasterDetail.qComponentsSearch.Mode = SearchMode;
+    ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
 end;
 
 end.

@@ -1,0 +1,2 @@
+inherited BaseComponentsGroup: TBaseComponentsGroup
+end

@@ -4,45 +4,42 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.UI.Intf, FireDAC.VCLUI.Wait,
-  FireDAC.Stan.Intf, FireDAC.Comp.UI, TreeListQuery,
-  ChildCategoriesQuery, MasterDetailFrame, BodyTypesMasterDetailUnit,
-  BodyTypesTreeQuery, DescriptionsMasterDetailUnit, Manufacturers2Query,
-  ParametersMasterDetailUnit, ComponentsBaseMasterDetailUnit,
-  ComponentsExMasterDetailUnit, System.Contnrs, System.Generics.Collections,
-  ComponentsMasterDetailUnit, BodyTypesQuery, ComponentsSearchMasterDetailUnit,
-  ParametersForCategoriesMasterDetailUnit, StoreHouseMasterDetailUnit,
-  ProductsBaseQuery, ProductsSearchQuery, StoreHouseListQuery,
-  CustomComponentsQuery, BaseQuery, QueryWithDataSourceUnit, BaseEventsQuery,
-  QueryWithMasterUnit;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.UI.Intf, FireDAC.VCLUI.Wait, FireDAC.Stan.Intf, FireDAC.Comp.UI,
+  TreeListQuery, ChildCategoriesQuery, BodyTypesGroupUnit, BodyTypesTreeQuery,
+  DescriptionsGroupUnit, Manufacturers2Query, ParametersGroupUnit,
+  ComponentsExGroupUnit, System.Contnrs, System.Generics.Collections,
+  ComponentsGroupUnit, BodyTypesQuery, ComponentsSearchGroupUnit,
+  ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
+  ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
+  QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
+  QueryGroupUnit, BaseComponentsGroupUnit;
 
 type
   TDM = class(TForm)
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     qTreeList: TQueryTreeList;
     qChildCategories: TQueryChildCategories;
-    BodyTypesMasterDetail: TBodyTypesMasterDetail;
     qBodyTypesTree: TQueryBodyTypesTree;
     qManufacturers2: TQueryManufacturers2;
-    ParametersMasterDetail2: TParametersMasterDetail2;
-    ComponentsExMasterDetail: TComponentsExMasterDetail;
-    ComponentsSearchMasterDetail: TComponentsSearchMasterDetail;
-    ParametersForCategoriesMasterDetail: TParametersForCategoriesMasterDetail;
     qProductsSearch: TQueryProductsSearch;
-    ComponentsMasterDetail: TComponentsMasterDetail;
-    DescriptionsMasterDetail: TDescriptionsMasterDetail;
     qBodyTypes: TQueryBodyTypes;
-    StoreHouseMasterDetail: TStoreHouseMasterDetail;
     qStoreHouseList: TQueryStoreHouseList;
+    BodyTypesGroup: TBodyTypesGroup;
+    StoreHouseGroup: TStoreHouseGroup;
+    ComponentsSearchGroup: TComponentsSearchGroup;
+    ParametersForCategoriesGroup: TParametersForCategoriesGroup;
+    ComponentsGroup: TComponentsGroup;
+    ComponentsExGroup: TComponentsExGroup;
+    ParametersGroup: TParametersGroup;
+    DescriptionsGroup: TDescriptionsGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
-    FMasterDetailList: TList<TfrmMasterDetail>;
+    FQueryGroups: TList<TQueryGroup>;
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
-    procedure DeleteLostComponents;
     procedure DoAfterBodyTypesTreePostOrDelete(Sender: TObject);
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterParamForCategoriesPost(Sender: TObject);
@@ -66,7 +63,7 @@ implementation
 {$R *.dfm}
 
 uses SettingsController, System.IOUtils, RepositoryDataModule, NotifyEvents,
-  ModCheckDatabase, LostComponentsQuery, ProjectConst;
+  ModCheckDatabase, ProjectConst;
 
 constructor TDM.Create(AOwner: TComponent);
 begin
@@ -82,23 +79,23 @@ begin
   with FDataSetList do
   begin
     Add(qTreeList);
-    Add(BodyTypesMasterDetail.qBodyKinds); // Виды корпусов
-    Add(BodyTypesMasterDetail.qBodyTypes2); // Типы корпусов
+    Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
+    Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
     Add(qBodyTypesTree); // Типы корпусов
     Add(qManufacturers2); // Производители
     Add(qProductsSearch); // Поиск на складе и редактирование найденного
     Add(qStoreHouseList); // Склады (выпадающий список)
-    Add(StoreHouseMasterDetail.qStoreHouseList); // Склады - главное
-//    Add(StoreHouseMasterDetail.qProducts); // Содержимое текущего склада
-    Add(ComponentsSearchMasterDetail.qComponentsSearch);
+    Add(StoreHouseGroup.qStoreHouseList); // Склады - главное
+//    Add(StoreHouseGroup.qProducts); // Содержимое текущего склада
+    Add(ComponentsSearchGroup.qFamilySearch);
     // Поиск среди компонентов (главное)
-    Add(ComponentsSearchMasterDetail.qComponentsDetailsSearch);
+    Add(ComponentsSearchGroup.qComponentsSearch);
     // Поиск среди компонентов (подчинённое)
 
     // вкладка параметры - главное
-    Add(ParametersForCategoriesMasterDetail.qParameterTypes);
+    Add(ParametersForCategoriesGroup.qParameterTypes);
     // вкладка параметры - подчинённое
-    Add(ParametersForCategoriesMasterDetail.qParametersDetail);
+    Add(ParametersForCategoriesGroup.qParametersDetail);
 
     Add(qBodyTypes); // Выпадающий список корпусов
   end;
@@ -107,39 +104,39 @@ begin
 
   // Для компонентов указываем откуда брать производителя и корпус
 
-  ComponentsMasterDetail.Manufacturers := qManufacturers2;
-  ComponentsMasterDetail.BodyTypes := qBodyTypes;
-  ComponentsSearchMasterDetail.Manufacturers := qManufacturers2;
-  ComponentsSearchMasterDetail.BodyTypes := qBodyTypes;
-  ComponentsExMasterDetail.Manufacturers := qManufacturers2;
-  ComponentsExMasterDetail.BodyTypes := qBodyTypes;
+  ComponentsGroup.Manufacturers := qManufacturers2;
+  ComponentsGroup.BodyTypes := qBodyTypes;
+  ComponentsSearchGroup.Manufacturers := qManufacturers2;
+  ComponentsSearchGroup.BodyTypes := qBodyTypes;
+  ComponentsExGroup.Manufacturers := qManufacturers2;
+  ComponentsExGroup.BodyTypes := qBodyTypes;
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
 
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
-  ComponentsMasterDetail.qComponentsDetail.Master := qTreeList;
-  ComponentsMasterDetail.qComponents.Master := qTreeList;
+  ComponentsGroup.qComponents.Master := qTreeList;
+  ComponentsGroup.qFamily.Master := qTreeList;
 
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
-  ComponentsExMasterDetail.qComponentsDetailEx.Master := qTreeList;
-  ComponentsExMasterDetail.qComponentsEx.Master := qTreeList;
+  ComponentsExGroup.qComponentsEx.Master := qTreeList;
+  ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  ParametersForCategoriesMasterDetail.qParametersDetail.Master := qTreeList;
+  ParametersForCategoriesGroup.qParametersDetail.Master := qTreeList;
   // qCategoryParameters.Master := qTreeList;
 
-  TNotifyEventWrap.Create(ParametersForCategoriesMasterDetail.qParametersDetail.
+  TNotifyEventWrap.Create(ParametersForCategoriesGroup.qParametersDetail.
     AfterPost, DoAfterParamForCategoriesPost, FEventList);
 
   // Список главных-подчинённых
-  FMasterDetailList := TList<TfrmMasterDetail>.Create;
-  FMasterDetailList.Add(ComponentsMasterDetail);
-  FMasterDetailList.Add(ComponentsExMasterDetail);
-  FMasterDetailList.Add(ComponentsSearchMasterDetail);
-  FMasterDetailList.Add(StoreHouseMasterDetail);
-  FMasterDetailList.Add(ParametersForCategoriesMasterDetail);
+  FQueryGroups := TList<TQueryGroup>.Create;
+  FQueryGroups.Add(ComponentsGroup);
+  FQueryGroups.Add(ComponentsExGroup);
+  FQueryGroups.Add(ComponentsSearchGroup);
+  FQueryGroups.Add(StoreHouseGroup);
+  FQueryGroups.Add(ParametersForCategoriesGroup);
 
-  TNotifyEventWrap.Create(ParametersMasterDetail2.AfterCommit,
+  TNotifyEventWrap.Create(ParametersGroup.AfterCommit,
     DoAfterParametersCommit, FEventList);
 
   // Чтобы корпуса используемые в представлении компонентов
@@ -185,23 +182,6 @@ begin
   OpenConnection();
 end;
 
-// Удаляет "Потерянные" компоненты.
-// Почему они теряются, надо ещё разобраться
-procedure TDM.DeleteLostComponents;
-var
-  AQuery: TDeleteLostComponentsQuery;
-begin
-  Assert(DMRepository.dbConnection.Connected);
-
-  AQuery := TDeleteLostComponentsQuery.Create(Self);
-  try
-    AQuery.Connection := DMRepository.dbConnection;
-    AQuery.ExecSQL;
-  finally
-    FreeAndNil(AQuery);
-  end;
-end;
-
 procedure TDM.DoAfterBodyTypesTreePostOrDelete(Sender: TObject);
 begin
   qBodyTypes.RefreshQuery;
@@ -210,13 +190,13 @@ end;
 procedure TDM.DoAfterParametersCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
-  ParametersForCategoriesMasterDetail.qParameterTypes.RefreshQuery;
+  ParametersForCategoriesGroup.qParameterTypes.RefreshQuery;
 end;
 
 procedure TDM.DoAfterParamForCategoriesPost(Sender: TObject);
 begin
   // Произошли изменения в параметрах для категории
-  ComponentsExMasterDetail.UpdateData;
+  ComponentsExGroup.UpdateData;
 end;
 
 function TDM.HaveAnyChanges: Boolean;
@@ -235,10 +215,9 @@ begin
       Exit;
   end;
 
-  for I := 0 to FMasterDetailList.Count - 1 do
+  for I := 0 to FQueryGroups.Count - 1 do
   begin
-    Result := FMasterDetailList[I].Main.HaveAnyChanges or FMasterDetailList[I]
-      .Detail.HaveAnyChanges;
+    Result := FQueryGroups[I].Main.HaveAnyChanges or FQueryGroups[I].Detail.HaveAnyChanges;
     if Result then
       Exit;
   end;
@@ -252,9 +231,6 @@ begin
 
   // Инициализируем список полей
   // qFieldTypes.InitDataSetValues;
-
-  // Удаляем "потерянные" компоненты
-  DeleteLostComponents;
 end;
 
 { открытие датасетов }
@@ -286,9 +262,9 @@ begin
   for I := 0 to FDataSetList.Count - 1 do
     FDataSetList[I].TryPost;
   {
-    for I := 0 to FMasterDetailList.Count - 1 do
+    for I := 0 to FQuerysGroups.Count - 1 do
     begin
-    FMasterDetailList[I].ApplyUpdates;
+    FQuerysGroups[I].ApplyUpdates;
     end;
   }
   // Если работали в рамках транзакции, то сохраняем

@@ -62,7 +62,7 @@ end;
 
 function TfrmBodyTypes.HaveAnyChanges: Boolean;
 begin
-  Result := ViewBodyTypes.BodyTypesMasterDetail.Connection.InTransaction;
+  Result := ViewBodyTypes.BodyTypesGroup.Connection.InTransaction;
 end;
 
 end.

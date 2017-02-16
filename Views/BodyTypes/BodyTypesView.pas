@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, BodyTypesQuery2, BodyTypesMasterDetailUnit,
+  cxGridDBBandedTableView, cxGrid, BodyTypesQuery2,
   cxDBLookupComboBox, cxDropDownEdit, Vcl.ExtCtrls, cxButtonEdit, dxSkinsCore,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
   dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
@@ -27,7 +27,8 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter;
+  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
+  BodyTypesGroupUnit;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -90,9 +91,9 @@ type
     procedure clOutlineDrawingPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
   private
-    FBodyTypesMasterDetail: TBodyTypesMasterDetail;
+    FBodyTypesGroup: TBodyTypesGroup;
     procedure DoAfterDataChange(Sender: TObject);
-    procedure SetBodyTypesMasterDetail(const Value: TBodyTypesMasterDetail);
+    procedure SetBodyTypesGroup(const Value: TBodyTypesGroup);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -100,8 +101,8 @@ type
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
   public
     procedure UpdateView; override;
-    property BodyTypesMasterDetail: TBodyTypesMasterDetail
-      read FBodyTypesMasterDetail write SetBodyTypesMasterDetail;
+    property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup write
+        SetBodyTypesGroup;
     { Public declarations }
   end;
 
@@ -120,7 +121,7 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем вид корпуса
-  BodyTypesMasterDetail.qBodyKinds.TryPost;
+  BodyTypesGroup.qBodyKinds.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   ARow.Expand(false);
@@ -147,10 +148,10 @@ begin
   cxGrid.BeginUpdate();
   try
     // Сохраняем изменения и завершаем транзакцию
-    BodyTypesMasterDetail.Commit;
+    BodyTypesGroup.Commit;
 
     // Начинаем новую транзакцию
-    // BodyTypesMasterDetail.Connection.StartTransaction;
+    // BodyTypesGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -233,7 +234,7 @@ begin
   ABodyTypesExcelDM := TBodyTypesExcelDM3.Create(Self);
   try
     ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
-      BodyTypesMasterDetail.qBodyTypes2.FDQuery;
+      BodyTypesGroup.qBodyTypes2.FDQuery;
 
     TfrmProgressBar.Process(ABodyTypesExcelDM,
       procedure
@@ -274,7 +275,7 @@ begin
         TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
           procedure
           begin
-            BodyTypesMasterDetail.InsertRecordList
+            BodyTypesGroup.InsertRecordList
               (ABodyTypesExcelDM.ExcelTable);
           end, 'Сохранение корпусных данных в БД', sRecords);
       finally
@@ -293,10 +294,10 @@ begin
   cxGrid.BeginUpdate();
   try
     // Отменяем все сделанные изменения
-    BodyTypesMasterDetail.Rollback;
+    BodyTypesGroup.Rollback;
 
     // Начинаем новую транзакцию
-    // BodyTypesMasterDetail.Connection.StartTransaction;
+    // BodyTypesGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -330,22 +331,22 @@ var
 begin
   inherited;
 
-  if BodyTypesMasterDetail.qBodyTypes2.IDParentBodyType1.IsNull then
+  if BodyTypesGroup.qBodyTypes2.IDParentBodyType1.IsNull then
     Exit;
 
   // Загружаем все возможные варианты корпуса для открытого типа корпуса
-  BodyTypesMasterDetail.qBodyTypesBranch.Load
-    (BodyTypesMasterDetail.qBodyTypes2.IDParentBodyType1.Value);
+  BodyTypesGroup.qBodyTypesBranch.Load
+    (BodyTypesGroup.qBodyTypes2.IDParentBodyType1.Value);
 
   AcxComboBox := Sender as TcxComboBox;
   AcxComboBox.Properties.Items.Clear;
 
-  BodyTypesMasterDetail.qBodyTypesBranch.FDQuery.First;
-  while not BodyTypesMasterDetail.qBodyTypesBranch.FDQuery.Eof do
+  BodyTypesGroup.qBodyTypesBranch.FDQuery.First;
+  while not BodyTypesGroup.qBodyTypesBranch.FDQuery.Eof do
   begin
     AcxComboBox.Properties.Items.Add
-      (BodyTypesMasterDetail.qBodyTypesBranch.BodyType.AsString);
-    BodyTypesMasterDetail.qBodyTypesBranch.FDQuery.Next;
+      (BodyTypesGroup.qBodyTypesBranch.BodyType.AsString);
+    BodyTypesGroup.qBodyTypesBranch.FDQuery.Next;
   end;
 end;
 
@@ -355,22 +356,22 @@ var
 begin
   inherited;
 
-  if BodyTypesMasterDetail.qBodyTypes2.ID1.IsNull then
+  if BodyTypesGroup.qBodyTypes2.ID1.IsNull then
     Exit;
 
   // Загружаем все возможные варианты корпуса для открытого типа корпуса
-  BodyTypesMasterDetail.qBodyTypesBranch.Load
-    (BodyTypesMasterDetail.qBodyTypes2.ID1.Value);
+  BodyTypesGroup.qBodyTypesBranch.Load
+    (BodyTypesGroup.qBodyTypes2.ID1.Value);
 
   AcxComboBox := Sender as TcxComboBox;
   AcxComboBox.Properties.Items.Clear;
 
-  BodyTypesMasterDetail.qBodyTypesBranch.FDQuery.First;
-  while not BodyTypesMasterDetail.qBodyTypesBranch.FDQuery.Eof do
+  BodyTypesGroup.qBodyTypesBranch.FDQuery.First;
+  while not BodyTypesGroup.qBodyTypesBranch.FDQuery.Eof do
   begin
     AcxComboBox.Properties.Items.Add
-      (BodyTypesMasterDetail.qBodyTypesBranch.BodyType.AsString);
-    BodyTypesMasterDetail.qBodyTypesBranch.FDQuery.Next;
+      (BodyTypesGroup.qBodyTypesBranch.BodyType.AsString);
+    BodyTypesGroup.qBodyTypesBranch.FDQuery.Next;
   end;
 
 end;
@@ -380,7 +381,7 @@ AButtonIndex: Integer);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
-    BodyTypesMasterDetail.qBodyTypes2.Image.AsString,
+    BodyTypesGroup.qBodyTypes2.Image.AsString,
     'Файл изображения корпуса с именем %s не найден',
     'Файл изображения корпуса не задан', sBodyTypesFilesExt);
 end;
@@ -389,7 +390,7 @@ procedure TViewBodyTypes.clLandPatternPropertiesButtonClick(Sender: TObject;
 AButtonIndex: Integer);
 begin
   TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
-    BodyTypesMasterDetail.qBodyTypes2.LandPattern.AsString,
+    BodyTypesGroup.qBodyTypes2.LandPattern.AsString,
     'Файл чертежа посадочной площадки корпуса с именем %s не найден',
     'Чертёж посадочной площадки корпуса не задан', sBodyTypesFilesExt);
 end;
@@ -399,7 +400,7 @@ AButtonIndex: Integer);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
-    BodyTypesMasterDetail.qBodyTypes2.OutlineDrawing.AsString,
+    BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString,
     'Файл чертежа корпуса с именем %s не найден', 'Чертёж корпуса не задан',
     sBodyTypesFilesExt);
 end;
@@ -447,7 +448,7 @@ AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   if (Key = 13) and (AItem = clBodyType) then
     cxGridDBBandedTableView.DataController.Post();
-  // FBodyTypesMasterDetail.qBodyKinds.TryPost;
+  // FBodyTypesGroup.qBodyKinds.TryPost;
 end;
 
 procedure TViewBodyTypes.DoAfterDataChange(Sender: TObject);
@@ -468,36 +469,35 @@ begin
   end;
 end;
 
-procedure TViewBodyTypes.SetBodyTypesMasterDetail
-  (const Value: TBodyTypesMasterDetail);
+procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);
 var
   P: TcxLookupComboBoxProperties;
 begin
-  if FBodyTypesMasterDetail <> Value then
+  if FBodyTypesGroup <> Value then
   begin
-    FBodyTypesMasterDetail := Value;
-    if FBodyTypesMasterDetail <> nil then
+    FBodyTypesGroup := Value;
+    if FBodyTypesGroup <> nil then
     begin
       MainView.DataController.DataSource :=
-        FBodyTypesMasterDetail.qBodyKinds.DataSource;
+        FBodyTypesGroup.qBodyKinds.DataSource;
       cxGridDBBandedTableView2.DataController.DataSource :=
-        FBodyTypesMasterDetail.qBodyTypes2.DataSource;
+        FBodyTypesGroup.qBodyTypes2.DataSource;
 
       P := clIDParentBodyType1.Properties as TcxLookupComboBoxProperties;
-      P.ListSource := FBodyTypesMasterDetail.qBodyKinds.DataSource;
+      P.ListSource := FBodyTypesGroup.qBodyKinds.DataSource;
       P.ListFieldNames := 'BodyType';
       P.KeyFieldNames := 'ID';
 
       // P := clID2.Properties as TcxLookupComboBoxProperties;
-      // P.ListSource := FBodyTypesMasterDetail.qBodyTypesBranch2.DataSource;
+      // P.ListSource := FBodyTypesGroup.qBodyTypesBranch2.DataSource;
       // P.ListFieldNames := 'BodyType';
       // P.KeyFieldNames := 'ID';
 
-      TNotifyEventWrap.Create(FBodyTypesMasterDetail.qBodyKinds.AfterOpen,
+      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.AfterOpen,
         DoAfterDataChange, FEventList);
-      TNotifyEventWrap.Create(FBodyTypesMasterDetail.qBodyTypes2.AfterOpen,
+      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyTypes2.AfterOpen,
         DoAfterDataChange, FEventList);
-      TNotifyEventWrap.Create(FBodyTypesMasterDetail.AfterDataChange,
+      TNotifyEventWrap.Create(FBodyTypesGroup.AfterDataChange,
         DoAfterDataChange, FEventList);
     end
     else
@@ -506,7 +506,7 @@ begin
     end;
 
     // Будем работать в рамках транзакции
-    // FBodyTypesMasterDetail.Connection.StartTransaction;
+    // FBodyTypesGroup.Connection.StartTransaction;
 
     UpdateView;
   end;
@@ -535,7 +535,7 @@ procedure TViewBodyTypes.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
   StatusBar.Panels[2].Text := Format('Всего: %d',
-    [BodyTypesMasterDetail.qBodyTypes2.FDQuery.RecordCount]);
+    [BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount]);
 end;
 
 procedure TViewBodyTypes.UpdateView;
@@ -544,25 +544,25 @@ var
 begin
   AView := FocusedTableView;
 
-  actAdd.Enabled := (BodyTypesMasterDetail <> nil) and
-    (BodyTypesMasterDetail.qBodyKinds.FDQuery.Active) and (AView <> nil) and
+  actAdd.Enabled := (BodyTypesGroup <> nil) and
+    (BodyTypesGroup.qBodyKinds.FDQuery.Active) and (AView <> nil) and
     (AView.Level = cxGridLevel);
 
-  actAddBody.Enabled := (BodyTypesMasterDetail <> nil) and
-    (BodyTypesMasterDetail.qBodyTypes2.FDQuery.Active) and (AView <> nil) and
+  actAddBody.Enabled := (BodyTypesGroup <> nil) and
+    (BodyTypesGroup.qBodyTypes2.FDQuery.Active) and (AView <> nil) and
     (((AView.Level = cxGridLevel) and (AView.DataController.RecordCount > 0)) or
     (AView.Level = cxGridLevel2));
 
-  actDelete.Enabled := (BodyTypesMasterDetail <> nil) and (AView <> nil) and
+  actDelete.Enabled := (BodyTypesGroup <> nil) and (AView <> nil) and
     (AView.DataController.RecordCount > 0);
 
-  actLoadFromExcelDocument.Enabled := (BodyTypesMasterDetail <> nil);
+  actLoadFromExcelDocument.Enabled := (BodyTypesGroup <> nil);
 
-  actExportToExcelDocument.Enabled := (BodyTypesMasterDetail <> nil) and
-    (BodyTypesMasterDetail.qBodyTypes2.FDQuery.RecordCount > 0);
+  actExportToExcelDocument.Enabled := (BodyTypesGroup <> nil) and
+    (BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount > 0);
 
-  actCommit.Enabled := (BodyTypesMasterDetail <> nil) and
-    (BodyTypesMasterDetail.Connection.InTransaction);
+  actCommit.Enabled := (BodyTypesGroup <> nil) and
+    (BodyTypesGroup.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 

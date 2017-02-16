@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ParametersMasterDetailUnit,
+  cxGridDBBandedTableView, cxGrid, ParametersGroupUnit,
   cxDBLookupComboBox, cxBlobEdit, FireDAC.Comp.Client, cxTextEdit,
   HRTimer, DragHelper, ParametersExcelDataModule, dxSkinsCore,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
@@ -140,11 +140,11 @@ type
     FExpandedRecordIndex: Integer;
     FHRTimer: THRTimer;
     FNewValue: string;
-    FParametersMasterDetail: TParametersMasterDetail2;
+    FParametersGroup: TParametersGroup;
     FStartDrag: TStartDrag;
     FStartDragLevel: TcxGridLevel;
     procedure InsertParametersList(AList: TParametersExcelTable);
-    procedure SetParametersMasterDetail(const Value: TParametersMasterDetail2);
+    procedure SetParametersGroup(const Value: TParametersGroup);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -162,8 +162,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property ParametersMasterDetail: TParametersMasterDetail2
-      read FParametersMasterDetail write SetParametersMasterDetail;
+    property ParametersGroup: TParametersGroup read FParametersGroup write
+        SetParametersGroup;
     { Public declarations }
   end;
 
@@ -190,7 +190,7 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем тип параметра
-  FParametersMasterDetail.qParameterTypes.TryPost;
+  FParametersGroup.qParameterTypes.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   ARow.Expand(false);
@@ -216,7 +216,7 @@ var
   ARow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
-  FParametersMasterDetail.qMainParameters.TryPost;
+  FParametersGroup.qMainParameters.TryPost;
 
   ARow := GetRow(1) as TcxGridMasterDataRow;
   if ARow <> nil then
@@ -224,22 +224,22 @@ begin
     AView := GetDBBandedTableView(2);
     AView.DataController.Append;
     {
-      FParametersMasterDetail.qSubParameters.TryAppend;
-      FParametersMasterDetail.qSubParameters.ParentParameter.AsInteger :=
-      FParametersMasterDetail.qMainParameters.PKValue;
+      FParametersGroup.qSubParameters.TryAppend;
+      FParametersGroup.qSubParameters.ParentParameter.AsInteger :=
+      FParametersGroup.qMainParameters.PKValue;
     }
     // Application.ProcessMessages;
 
-    // for I := 0 to FParametersMasterDetail.qSubParameters.FDQuery.FieldCount - 1 do
-    // ro := FParametersMasterDetail.qSubParameters.FDQuery.Fields[i].ReadOnly;
+    // for I := 0 to FParametersGroup.qSubParameters.FDQuery.FieldCount - 1 do
+    // ro := FParametersGroup.qSubParameters.FDQuery.Fields[i].ReadOnly;
 
-    FParametersMasterDetail.qSubParameters.Value.AsString :=
+    FParametersGroup.qSubParameters.Value.AsString :=
       'Новое наименование';
     ARow.Expand(false);
     // AView := GetDBBandedTableView(2);
     AView.Controller.ClearSelection;
-    FParametersMasterDetail.qSubParameters.TryEdit;
-    // FParametersMasterDetail.qSubParameters.Value.AsString := '';
+    FParametersGroup.qSubParameters.TryEdit;
+    // FParametersGroup.qSubParameters.Value.AsString := '';
     // AView.DataController.Append;
     FocusColumnEditor(2, clValue3.DataBinding.FieldName);
   end;
@@ -251,9 +251,9 @@ begin
   cxGrid.BeginUpdate();
   try
     // СОхраняем все сделанные изменения
-    FParametersMasterDetail.Commit;
+    FParametersGroup.Commit;
 
-    // FParametersMasterDetail.Connection.StartTransaction;
+    // FParametersGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -326,40 +326,40 @@ var
   S: string;
 begin
   actFilterByTableName.Checked := not actFilterByTableName.Checked;
-  AID := ParametersMasterDetail.qMainParameters.PKValue;
+  AID := ParametersGroup.qMainParameters.PKValue;
 
   S := IfThen(actFilterByTableName.Checked,
-    ParametersMasterDetail.qMainParameters.TableName.AsString, '');
+    ParametersGroup.qMainParameters.TableName.AsString, '');
   cxGrid.BeginUpdate();
   try
-    ParametersMasterDetail.qParameterTypes.TryPost;
-    ParametersMasterDetail.qMainParameters.TryPost;
-    ParametersMasterDetail.qSubParameters.TryPost;
+    ParametersGroup.qParameterTypes.TryPost;
+    ParametersGroup.qMainParameters.TryPost;
+    ParametersGroup.qSubParameters.TryPost;
 
     // Фильтруем параметры по табличному имени
-    ParametersMasterDetail.qMainParameters.TableNameFilter := S;
+    ParametersGroup.qMainParameters.TableNameFilter := S;
     // Фильтруем типы параметров по табличному имени
-    ParametersMasterDetail.qParameterTypes.TableNameFilter := S;
+    ParametersGroup.qParameterTypes.TableNameFilter := S;
   finally
     cxGrid.EndUpdate;
   end;
 
   // Ищем тот же параметр
-  LocateAndFocus(ParametersMasterDetail.qParameterTypes,
-    ParametersMasterDetail.qMainParameters, AID,
-    ParametersMasterDetail.qMainParameters.IDParameterType.FieldName,
-    ParametersMasterDetail.qMainParameters.TableName.FieldName);
+  LocateAndFocus(ParametersGroup.qParameterTypes,
+    ParametersGroup.qMainParameters, AID,
+    ParametersGroup.qMainParameters.IDParameterType.FieldName,
+    ParametersGroup.qMainParameters.TableName.FieldName);
 
   if actFilterByTableName.Checked then
     MainView.ViewData.Expand(True);
   {
 
 
-    if ParametersMasterDetail.qMainParameters.LocateByPK(AID) then
+    if ParametersGroup.qMainParameters.LocateByPK(AID) then
     begin
     // Ищем Категорию нашего параметра
-    if ParametersMasterDetail.qParameterTypes.LocateByPK
-    (ParametersMasterDetail.qMainParameters.IDParameterType.AsInteger) then
+    if ParametersGroup.qParameterTypes.LocateByPK
+    (ParametersGroup.qMainParameters.IDParameterType.AsInteger) then
     begin
     // Получаем строку в гриде
     AcxGridMasterDataRow := GetRow(0) as TcxGridMasterDataRow;
@@ -413,10 +413,10 @@ begin
   cxGrid.BeginUpdate();
   try
     // Отменяем все сделанные изменения
-    FParametersMasterDetail.Rollback;
+    FParametersGroup.Rollback;
 
     // Начинаем новую транзакцию
-    // FParametersMasterDetail.Connection.StartTransaction;
+    // FParametersGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -441,7 +441,7 @@ begin
   S := cxbeiSearch.CurEditValue;
   S := cxbeiSearch.EditValue;
 
-  List := ParametersMasterDetail.Find(S);
+  List := ParametersGroup.Find(S);
   try
     // сначала ищем на первом уровне
     if (List.Count > 0) and
@@ -473,28 +473,28 @@ var
   AID: Integer;
   d: Boolean;
 begin
-  // if ParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0 then
-  AID := ParametersMasterDetail.qMainParameters.PKValue;
+  // if ParametersGroup.qMainParameters.FDQuery.RecordCount > 0 then
+  AID := ParametersGroup.qMainParameters.PKValue;
 
-  d := not ParametersMasterDetail.qMainParameters.ShowDublicate;
+  d := not ParametersGroup.qMainParameters.ShowDublicate;
   actShowDublicate.Checked := d;
 
   cxGrid.BeginUpdate();
   try
-    ParametersMasterDetail.qParameterTypes.TryPost;
-    ParametersMasterDetail.qMainParameters.TryPost;
-    ParametersMasterDetail.qSubParameters.TryPost;
-    ParametersMasterDetail.qParameterTypes.ShowDublicate := d;
-    ParametersMasterDetail.qMainParameters.ShowDublicate := d;
+    ParametersGroup.qParameterTypes.TryPost;
+    ParametersGroup.qMainParameters.TryPost;
+    ParametersGroup.qSubParameters.TryPost;
+    ParametersGroup.qParameterTypes.ShowDublicate := d;
+    ParametersGroup.qMainParameters.ShowDublicate := d;
   finally
     cxGrid.EndUpdate;
   end;
 
   // Ищем тот же параметр
-  LocateAndFocus(ParametersMasterDetail.qParameterTypes,
-    ParametersMasterDetail.qMainParameters, AID,
-    ParametersMasterDetail.qMainParameters.IDParameterType.FieldName,
-    ParametersMasterDetail.qMainParameters.TableName.FieldName);
+  LocateAndFocus(ParametersGroup.qParameterTypes,
+    ParametersGroup.qMainParameters, AID,
+    ParametersGroup.qMainParameters.IDParameterType.FieldName,
+    ParametersGroup.qMainParameters.TableName.FieldName);
 
   // Обновляем представление
   UpdateView;
@@ -509,18 +509,18 @@ var
 begin
   inherited;
   // Добавляем новый тип параметра
-  FParametersMasterDetail.qParameterTypes.LocateOrAppend(FNewValue);
+  FParametersGroup.qParameterTypes.LocateOrAppend(FNewValue);
   FNewValue := '';
 
-  AMasterID := FParametersMasterDetail.qParameterTypes.PKValue;
+  AMasterID := FParametersGroup.qParameterTypes.PKValue;
   ADetailID := Message.WParam;
 
   // Ищем параметр
-  FParametersMasterDetail.qMainParameters.LocateByPK(ADetailID);
-  FParametersMasterDetail.qMainParameters.TryEdit;
-  FParametersMasterDetail.qMainParameters.IDParameterType.AsInteger :=
+  FParametersGroup.qMainParameters.LocateByPK(ADetailID);
+  FParametersGroup.qMainParameters.TryEdit;
+  FParametersGroup.qMainParameters.IDParameterType.AsInteger :=
     AMasterID;
-  FParametersMasterDetail.qMainParameters.TryPost;
+  FParametersGroup.qMainParameters.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   Assert(ARow <> nil);
@@ -548,13 +548,13 @@ var
 begin
   if not FNewValue.IsEmpty then
   begin
-    ADetailID := FParametersMasterDetail.qMainParameters.PKValue;
-    AMasterID := FParametersMasterDetail.qParameterTypes.PKValue;
+    ADetailID := FParametersGroup.qMainParameters.PKValue;
+    AMasterID := FParametersGroup.qParameterTypes.PKValue;
 
     // Возвращаем пока старое значение внешнего ключа
-    FParametersMasterDetail.qMainParameters.IDParameterType.AsInteger :=
+    FParametersGroup.qMainParameters.IDParameterType.AsInteger :=
       AMasterID;
-    FParametersMasterDetail.qMainParameters.TryPost;
+    FParametersGroup.qMainParameters.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
     PostMessage(Handle, WM_AFTER_SET_NEW_VALUE, ADetailID, 0);
@@ -701,7 +701,7 @@ begin
 
     if AcxGridDBBandedTableView <> nil then
     begin
-      FParametersMasterDetail.qMainParameters.MoveDSRecord(FStartDrag,
+      FParametersGroup.qMainParameters.MoveDSRecord(FStartDrag,
         FDropDrag);
     end;
   finally
@@ -894,7 +894,7 @@ begin
 
     if AcxGridDBBandedTableView <> nil then
     begin
-      FParametersMasterDetail.qParameterTypes.MoveDSRecord(FStartDrag,
+      FParametersGroup.qParameterTypes.MoveDSRecord(FStartDrag,
         FDropDrag);
     end;
 
@@ -1015,7 +1015,7 @@ begin
     TfrmProgressBar.Process(AList,
       procedure
       begin
-        ParametersMasterDetail.InsertList(AList);
+        ParametersGroup.InsertList(AList);
       end, 'Обновление параметров в БД', sRecords);
 
   finally
@@ -1032,7 +1032,7 @@ begin
   AParametersExcelDM := TParametersExcelDM.Create(Self);
   try
     AParametersExcelDM.ExcelTable.ParametersDataSet :=
-      ParametersMasterDetail.qMainParameters.FDQuery;
+      ParametersGroup.qMainParameters.FDQuery;
 
     TfrmProgressBar.Process(AParametersExcelDM,
       procedure
@@ -1125,42 +1125,41 @@ begin
   end;
 end;
 
-procedure TViewParameters.SetParametersMasterDetail
-  (const Value: TParametersMasterDetail2);
+procedure TViewParameters.SetParametersGroup(const Value: TParametersGroup);
 var
   P: TcxLookupComboBoxProperties;
 begin
-  if FParametersMasterDetail <> Value then
+  if FParametersGroup <> Value then
   begin
-    FParametersMasterDetail := Value;
+    FParametersGroup := Value;
     FEventList.Clear;
 
-    if FParametersMasterDetail <> nil then
+    if FParametersGroup <> nil then
     begin
       cxGridDBBandedTableView.DataController.DataSource :=
-        FParametersMasterDetail.qParameterTypes.DataSource;
+        FParametersGroup.qParameterTypes.DataSource;
       cxGridDBBandedTableView2.DataController.DataSource :=
-        FParametersMasterDetail.qMainParameters.DataSource;
+        FParametersGroup.qMainParameters.DataSource;
       cxGridDBBandedTableView3.DataController.DataSource :=
-        FParametersMasterDetail.qSubParameters.DataSource;
+        FParametersGroup.qSubParameters.DataSource;
 
       P := clIDParameterType.Properties as TcxLookupComboBoxProperties;
-      P.ListSource := FParametersMasterDetail.qParameterTypes.DataSource;
+      P.ListSource := FParametersGroup.qParameterTypes.DataSource;
       P.ListFieldNames := 'ParameterType';
       P.KeyFieldNames := 'ID';
 
-      TNotifyEventWrap.Create(FParametersMasterDetail.AfterDataChange,
+      TNotifyEventWrap.Create(FParametersGroup.AfterDataChange,
         DoOnDataChange, FEventList);
-      TNotifyEventWrap.Create(FParametersMasterDetail.qParameterTypes.AfterOpen,
+      TNotifyEventWrap.Create(FParametersGroup.qParameterTypes.AfterOpen,
         DoOnDataChange, FEventList);
-      TNotifyEventWrap.Create(FParametersMasterDetail.qMainParameters.AfterOpen,
+      TNotifyEventWrap.Create(FParametersGroup.qMainParameters.AfterOpen,
         DoOnDataChange, FEventList);
-      TNotifyEventWrap.Create(FParametersMasterDetail.qSubParameters.AfterOpen,
+      TNotifyEventWrap.Create(FParametersGroup.qSubParameters.AfterOpen,
         DoOnDataChange, FEventList);
 
       // Будем работать в рамках транзакции
       // Но транзакцию начинают сами компоненты
-      // FParametersMasterDetail.Connection.StartTransaction;
+      // FParametersGroup.Connection.StartTransaction;
     end;
 
     UpdateView;
@@ -1190,7 +1189,7 @@ procedure TViewParameters.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
   StatusBar.Panels[2].Text := Format('Всего: %d',
-    [ParametersMasterDetail.qMainParameters.FDQuery.RecordCount]);
+    [ParametersGroup.qMainParameters.FDQuery.RecordCount]);
 end;
 
 procedure TViewParameters.UpdateView;
@@ -1202,10 +1201,10 @@ var
   V: Variant;
 begin
   AView := FocusedTableView;
-  OK := (FParametersMasterDetail <> nil) and
-    (FParametersMasterDetail.qParameterTypes.FDQuery.Active) and
-    (FParametersMasterDetail.qMainParameters.FDQuery.Active) and
-    (FParametersMasterDetail.qSubParameters.FDQuery.Active);
+  OK := (FParametersGroup <> nil) and
+    (FParametersGroup.qParameterTypes.FDQuery.Active) and
+    (FParametersGroup.qMainParameters.FDQuery.Active) and
+    (FParametersGroup.qSubParameters.FDQuery.Active);
 
   actAddParameterType.Enabled := OK and (AView <> nil) and
     (AView.Level = cxGridLevel);
@@ -1224,15 +1223,15 @@ begin
   actLoadFromExcelSheet.Enabled := OK;
 
   actExportToExcelDocument.Enabled := OK and
-    (FParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0);
+    (FParametersGroup.qMainParameters.FDQuery.RecordCount > 0);
 
-  actCommit.Enabled := OK and FParametersMasterDetail.Connection.InTransaction;
+  actCommit.Enabled := OK and FParametersGroup.Connection.InTransaction;
 
   actRollback.Enabled := actCommit.Enabled;
 
   actFilterByTableName.Enabled := OK and (AView <> nil) and
     (AView.Level = cxGridLevel2) and ((AView.ViewData.RecordCount > 0) or
-    not FParametersMasterDetail.qMainParameters.TableNameFilter.IsEmpty);
+    not FParametersGroup.qMainParameters.TableNameFilter.IsEmpty);
 
   S := '';
 
@@ -1256,7 +1255,7 @@ begin
 
   actShowDublicate.Enabled := OK and
     (actShowDublicate.Checked or
-    (FParametersMasterDetail.qMainParameters.FDQuery.RecordCount > 0));
+    (FParametersGroup.qMainParameters.FDQuery.RecordCount > 0));
   actShowDublicate.Caption := IfThen(actShowDublicate.Checked, 'Показать всё',
     'Всё дубликаты');
 
