@@ -200,7 +200,7 @@ begin
   // Инициализируем колонку с выпадающи списком складов
   InitializeLookupColumn(MainView, clStorehouseID.DataBinding.FieldName,
     QueryProductsSearch.QueryStoreHouseList.DataSource, lsEditFixedList,
-    QueryProductsSearch.QueryStoreHouseList.Title.FieldName);
+    QueryProductsSearch.QueryStoreHouseList.Abbreviation.FieldName);
 end;
 
 procedure TViewProductsSearch.Search(ALike: Boolean);
@@ -220,28 +220,7 @@ end;
 procedure TViewProductsSearch.SetQueryProductsSearch
   (const Value: TQueryProductsSearch);
 begin
-  if QueryProductsBase <> Value then
-  begin
-    QueryProductsBase := Value;
-
-    FEventList.Clear;
-
-    if QueryProductsSearch <> nil then
-    begin
-      Assert(QueryProductsSearch.QueryStoreHouseList <> nil);
-      clStorehouseID.PropertiesClass := TcxLookupComboBoxProperties;
-      (clStorehouseID.Properties as TcxLookupComboBoxProperties)
-        .KeyFieldNames := 'ID';
-      (clStorehouseID.Properties as TcxLookupComboBoxProperties).ListFieldNames
-        := 'Title';
-      (clStorehouseID.Properties as TcxLookupComboBoxProperties).ListSource :=
-        QueryProductsSearch.QueryStoreHouseList.DataSource;
-    end;
-
-    // Обновляем представление
-    UpdateView;
-
-  end;
+  QueryProductsBase := Value;
 end;
 
 procedure TViewProductsSearch.UpdateView;

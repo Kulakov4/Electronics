@@ -15,52 +15,50 @@ object ViewStorehouseInfo: TViewStorehouseInfo
   end
   object lblExternalId: TcxLabel
     Left = 11
-    Top = 38
-    Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
+    Top = 74
+    Caption = #1057#1086#1082#1088#1072#1097#1077#1085#1080#1077
     ParentColor = False
   end
   object lblResponsible: TcxLabel
     Left = 11
-    Top = 65
+    Top = 101
     Caption = #1054#1090#1074#1077#1090#1089#1090#1074#1077#1085#1085#1086#1077' '#1083#1080#1094#1086
     ParentColor = False
   end
   object lblAddress: TcxLabel
     Left = 11
-    Top = 92
+    Top = 128
     Caption = #1040#1076#1088#1077#1089
     ParentColor = False
   end
-  object cxTeTitle: TcxDBTextEdit
-    Left = 152
-    Top = 10
-    DataBinding.DataField = 'Title'
-    TabOrder = 4
-    Width = 385
-  end
   object cxTeResponsible: TcxDBTextEdit
     Left = 152
-    Top = 64
+    Top = 100
     DataBinding.DataField = 'Responsible'
-    TabOrder = 5
+    TabOrder = 1
     Width = 385
   end
   object cxdbmAddress: TcxDBMemo
     Left = 152
-    Top = 91
+    Top = 127
     DataBinding.DataField = 'Address'
-    TabOrder = 6
+    TabOrder = 2
     Height = 66
     Width = 385
   end
-  object cxmeExternalId: TcxDBMaskEdit
+  object cxdbteAbbreviation: TcxDBTextEdit
     Left = 152
-    Top = 37
-    DataBinding.DataField = 'ExternalId'
-    Properties.EditMask = '999;1;0'
-    Properties.MaxLength = 0
-    Properties.ReadOnly = True
+    Top = 73
+    DataBinding.DataField = 'Abbreviation'
+    TabOrder = 0
+    Width = 385
+  end
+  object cxdbmTitle: TcxDBMemo
+    Left = 152
+    Top = 10
+    DataBinding.DataField = 'Title'
     TabOrder = 7
+    Height = 57
     Width = 385
   end
 end

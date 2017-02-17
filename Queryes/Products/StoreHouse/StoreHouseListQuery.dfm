@@ -9,6 +9,7 @@ inherited QueryStoreHouseList: TQueryStoreHouseList
     ExplicitWidth = 99
   end
   inherited FDQuery: TFDQuery
+    Active = True
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select * from Storehouse order by Title')
@@ -17,29 +18,28 @@ inherited QueryStoreHouseList: TQueryStoreHouseList
     Connection = DMRepository.dbConnection
     InsertSQL.Strings = (
       'INSERT INTO STOREHOUSE'
-      '(TITLE, RESPONSIBLE, ADDRESS)'
-      'VALUES (:NEW_TITLE, :NEW_RESPONSIBLE, :NEW_ADDRESS);'
+      '(EXTERNALID, TITLE, RESPONSIBLE, ADDRESS, '
+      '  ABBREVIATION)'
+      
+        'VALUES (:NEW_EXTERNALID, :NEW_TITLE, :NEW_RESPONSIBLE, :NEW_ADDR' +
+        'ESS, '
+      '  :NEW_ABBREVIATION);'
       ''
-      'SELECT LAST_INSERT_AUTOGEN() AS ID, TITLE, RESPONSIBLE, ADDRESS'
+      'SELECT ID, EXTERNALID, TITLE, RESPONSIBLE, ADDRESS, ABBREVIATION'
       'FROM STOREHOUSE'
-      'WHERE ID = LAST_INSERT_AUTOGEN()')
+      'WHERE ID = LAST_INSERT_ROWID();')
     ModifySQL.Strings = (
       'UPDATE STOREHOUSE'
       
-        'SET TITLE = :NEW_TITLE, RESPONSIBLE = :NEW_RESPONSIBLE, ADDRESS ' +
-        '= :NEW_ADDRESS'
-      'WHERE ID = :OLD_ID;'
-      'SELECT ID, TITLE, RESPONSIBLE, ADDRESS'
-      'FROM STOREHOUSE'
-      'WHERE ID = :NEW_ID')
+        'SET EXTERNALID = :NEW_EXTERNALID, TITLE = :NEW_TITLE, RESPONSIBL' +
+        'E = :NEW_RESPONSIBLE, '
+      '  ADDRESS = :NEW_ADDRESS, ABBREVIATION = :NEW_ABBREVIATION'
+      'WHERE ID = :OLD_ID;')
     DeleteSQL.Strings = (
       'DELETE FROM STOREHOUSE'
       'WHERE ID = :OLD_ID')
     FetchRowSQL.Strings = (
-      
-        'SELECT LAST_INSERT_AUTOGEN() AS ID, EXTERNALID, TITLE, RESPONSIB' +
-        'LE, '
-      '  ADDRESS'
+      'SELECT ID, EXTERNALID, TITLE, RESPONSIBLE, ADDRESS, ABBREVIATION'
       'FROM STOREHOUSE'
       'WHERE ID = :ID')
     Left = 152

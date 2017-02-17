@@ -14,12 +14,14 @@ type
   TQueryStoreHouseList = class(TQueryWithDataSource)
     FDUpdateSQL: TFDUpdateSQL;
   private
+    function GetAbbreviation: TField;
     function GetTitle: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     function LocateOrAppend(const AValue: string): Boolean;
+    property Abbreviation: TField read GetAbbreviation;
     property Title: TField read GetTitle;
     { Public declarations }
   end;
@@ -42,6 +44,11 @@ begin
   FDQuery.Append;
   Title.AsString := AValue;
   FDQuery.Post;
+end;
+
+function TQueryStoreHouseList.GetAbbreviation: TField;
+begin
+  Result := Field('Abbreviation');
 end;
 
 function TQueryStoreHouseList.GetTitle: TField;

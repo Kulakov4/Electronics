@@ -30,10 +30,10 @@ type
     lblExternalId: TcxLabel;
     lblResponsible: TcxLabel;
     lblAddress: TcxLabel;
-    cxTeTitle: TcxDBTextEdit;
     cxTeResponsible: TcxDBTextEdit;
     cxdbmAddress: TcxDBMemo;
-    cxmeExternalId: TcxDBMaskEdit;
+    cxdbteAbbreviation: TcxDBTextEdit;
+    cxdbmTitle: TcxDBMemo;
     procedure FrameClick(Sender: TObject);
   private
     FQueryStoreHouseList: TQueryStoreHouseList;
@@ -74,15 +74,15 @@ begin
 
     if FQueryStoreHouseList <> nil then
     begin
-      cxTeTitle.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
-      cxmeExternalId.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
+      cxdbmTitle.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
+      cxdbteAbbreviation.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
       cxTeResponsible.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
       cxdbmAddress.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
     end
     else
     begin
-      cxTeTitle.DataBinding.DataSource := nil;
-      cxmeExternalId.DataBinding.DataSource := nil;
+      cxdbmTitle.DataBinding.DataSource := nil;
+      cxdbteAbbreviation.DataBinding.DataSource := nil;
       cxTeResponsible.DataBinding.DataSource := nil;
       cxdbmAddress.DataBinding.DataSource := nil;
     end;
