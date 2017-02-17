@@ -1,6 +1,7 @@
 inherited ViewProductsSearch: TViewProductsSearch
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
       inherited clStorehouseID: TcxGridDBBandedColumn
         MinWidth = 100

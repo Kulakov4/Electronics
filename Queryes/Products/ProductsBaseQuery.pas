@@ -28,6 +28,7 @@ type
   private
     FDocFieldInfos: TList<TDocFieldInfo>;
     FQueryManufacturers2: TQueryManufacturers2;
+    FQueryProducers: TQueryManufacturers2;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchFamilytByID: TQuerySearchFamilyByID;
     FQuerySearchProduct: TQuerySearchProduct;
@@ -40,6 +41,7 @@ type
     function GetIDProducer: TField;
     function GetProductID: TField;
     function GetQueryManufacturers2: TQueryManufacturers2;
+    function GetQueryProducers: TQueryManufacturers2;
     function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetQuerySearchFamilytByID: TQuerySearchFamilyByID;
     function GetQuerySearchProduct: TQuerySearchProduct;
@@ -73,6 +75,7 @@ type
     property DescriptionID: TField read GetDescriptionID;
     property IDProducer: TField read GetIDProducer;
     property ProductID: TField read GetProductID;
+    property QueryProducers: TQueryManufacturers2 read GetQueryProducers;
     property StorehouseId: TField read GetStorehouseId;
     property Value: TField read GetValue;
     { Public declarations }
@@ -213,6 +216,9 @@ begin
         QuerySearchFamilytByID.DescriptionID.AsInteger;
       }
     end;
+
+    if AIDProducer.AsInteger = 0 then
+      raise Exception.Create('Необходимо задать производителя');
 
     // Если такого продукта ещё нет
     if QuerySearchProduct.Search(AValue.AsString, AIDProducer.AsInteger) = 0
@@ -359,6 +365,14 @@ begin
   end;
 
   Result := FQueryManufacturers2;
+end;
+
+function TQueryProductsBase.GetQueryProducers: TQueryManufacturers2;
+begin
+  if FQueryProducers = nil then
+    FQueryProducers := TQueryManufacturers2.Create(Self);
+
+  Result := FQueryProducers;
 end;
 
 function TQueryProductsBase.GetQuerySearchDaughterComponent

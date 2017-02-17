@@ -50,13 +50,18 @@ type
       : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
     procedure clValuePropertiesChange(Sender: TObject);
+    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+      Shift: TShiftState);
   private
     function GetQueryProductsSearch: TQueryProductsSearch;
+    procedure Search(ALike: Boolean);
     // TODO: FEmptyAmount
     // constFEmptyAmount = 0;
     procedure SetQueryProductsSearch(const Value: TQueryProductsSearch);
     { Private declarations }
   protected
+    procedure MyInitializeComboBoxColumn; override;
   public
     procedure UpdateView; override;
     property QueryProductsSearch: TQueryProductsSearch
@@ -69,7 +74,7 @@ implementation
 {$R *.dfm}
 
 uses SearchInterfaceUnit, dxCore, DialogUnit, cxMemo,
-  ClipboardUnit;
+  ClipboardUnit, cxDropDownEdit;
 
 procedure TViewProductsSearch.actClearExecute(Sender: TObject);
 begin
@@ -100,16 +105,7 @@ end;
 
 procedure TViewProductsSearch.actSearchExecute(Sender: TObject);
 begin
-  cxGridDBBandedTableView.BeginUpdate(lsimPending);
-  try
-    CheckAndSaveChanges;
-    QueryProductsSearch.DoSearch(False);
-    UpdateView;
-  finally
-    cxGridDBBandedTableView.EndUpdate;
-  end;
-  ApplyBestFitEx();
-  FocusColumnEditor(0, 'Value');
+  Search(False);
 end;
 
 procedure TViewProductsSearch.clStoreHouseExternalIDGetDisplayText
@@ -178,9 +174,47 @@ begin
 
 end;
 
+procedure TViewProductsSearch.cxGridDBBandedTableViewEditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  inherited;
+  AColumn := AItem as TcxGridDBBandedColumn;
+  if (Key = 13) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
+  begin
+    Search(True);
+  end;
+end;
+
 function TViewProductsSearch.GetQueryProductsSearch: TQueryProductsSearch;
 begin
   Result := QueryProductsBase as TQueryProductsSearch;
+end;
+
+procedure TViewProductsSearch.MyInitializeComboBoxColumn;
+begin
+  inherited;
+  // Инициализируем колонку с выпадающи списком складов
+  InitializeLookupColumn(MainView, clStorehouseID.DataBinding.FieldName,
+    QueryProductsSearch.QueryStoreHouseList.DataSource, lsEditFixedList,
+    QueryProductsSearch.QueryStoreHouseList.Title.FieldName);
+end;
+
+procedure TViewProductsSearch.Search(ALike: Boolean);
+begin
+  cxGridDBBandedTableView.BeginUpdate(lsimPending);
+  try
+    CheckAndSaveChanges;
+    QueryProductsSearch.DoSearch(ALike);
+    UpdateView;
+  finally
+    cxGridDBBandedTableView.EndUpdate;
+  end;
+  ApplyBestFitEx();
+  FocusColumnEditor(0, 'Value');
 end;
 
 procedure TViewProductsSearch.SetQueryProductsSearch
@@ -196,9 +230,12 @@ begin
     begin
       Assert(QueryProductsSearch.QueryStoreHouseList <> nil);
       clStorehouseID.PropertiesClass := TcxLookupComboBoxProperties;
-      (clStorehouseID.Properties as TcxLookupComboBoxProperties).KeyFieldNames := 'ID';
-      (clStorehouseID.Properties as TcxLookupComboBoxProperties).ListFieldNames := 'Title';
-      (clStorehouseID.Properties as TcxLookupComboBoxProperties).ListSource := QueryProductsSearch.QueryStoreHouseList.DataSource;
+      (clStorehouseID.Properties as TcxLookupComboBoxProperties)
+        .KeyFieldNames := 'ID';
+      (clStorehouseID.Properties as TcxLookupComboBoxProperties).ListFieldNames
+        := 'Title';
+      (clStorehouseID.Properties as TcxLookupComboBoxProperties).ListSource :=
+        QueryProductsSearch.QueryStoreHouseList.DataSource;
     end;
 
     // Обновляем представление

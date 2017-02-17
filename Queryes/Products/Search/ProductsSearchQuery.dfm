@@ -35,14 +35,7 @@ inherited QueryProductsSearch: TQueryProductsSearch
       'from StorehouseProducts sp'
       'join Products2 p on sp.ProductId = p.id'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
-      'WHERE instr('#39','#39' || :IDList || '#39','#39', '#39','#39' || p.Id || '#39','#39') > 0')
-    ParamData = <
-      item
-        Name = 'IDLIST'
-        DataType = ftString
-        ParamType = ptInput
-        Value = Null
-      end>
+      'WHERE p.ID = 0')
   end
   object FDBaseQuery: TFDQuery
     SQL.Strings = (
@@ -73,8 +66,9 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '       p.Image,'
       '       d.Description'
       'from StorehouseProducts sp'
-      'join Products2 p on sp.ProductId = p.id  --'
-      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID')
+      'join Products2 p on sp.ProductId = p.id  --join'
+      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
+      '--where')
     Left = 16
     Top = 88
   end

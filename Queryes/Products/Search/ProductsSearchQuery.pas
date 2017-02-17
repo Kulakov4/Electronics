@@ -10,8 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
-  SearchComponentsByValues, StoreHouseListQuery, SearchProductsByValues,
-  SearchProductsByValuesLike;
+  SearchComponentsByValues, StoreHouseListQuery, NotifyEvents;
 
 type
   TQueryProductsSearch = class(TQueryProductsBase)
@@ -21,8 +20,6 @@ type
     FClone: TFDMemTable;
     FGetModeClone: TFDMemTable;
     FMode: TContentMode;
-    FQuerySearchProductsByValues: TQuerySearchProductsByValues;
-    FQuerySearchProductsByValuesLike: TQuerySearchProductsByValuesLike;
     FQueryStoreHouseList: TQueryStoreHouseList;
 
   const
@@ -32,20 +29,14 @@ type
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
-    function GetQuerySearchProductsByValues: TQuerySearchProductsByValues;
-    function GetQuerySearchProductsByValuesLike
-      : TQuerySearchProductsByValuesLike;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetHaveAnyChanges: Boolean; override;
-    procedure Search(const AIDList: string); stdcall;
-    property QuerySearchProductsByValues: TQuerySearchProductsByValues
-      read GetQuerySearchProductsByValues;
-    property QuerySearchProductsByValuesLike: TQuerySearchProductsByValuesLike
-      read GetQuerySearchProductsByValuesLike;
+    procedure SetConditionSQL(const AConditionSQL, AMark: String; ANotifyEventRef:
+        TNotifyEventRef = nil);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
@@ -63,7 +54,7 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, System.Math, RepositoryDataModule, AbstractSearchByValues,
+uses System.Math, RepositoryDataModule, AbstractSearchByValues,
   System.StrUtils, StrHelper;
 
 constructor TQueryProductsSearch.Create(AOwner: TComponent);
@@ -122,7 +113,7 @@ end;
 
 procedure TQueryProductsSearch.ClearSearchResult;
 begin
-  Search('');
+  SetConditionSQL('where p.ID = 0', '--where');
 end;
 
 procedure TQueryProductsSearch.DoAfterClose(Sender: TObject);
@@ -172,40 +163,45 @@ end;
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
 var
   AConditionSQL: string;
+  AMark: string;
   m: TArray<String>;
   s: string;
 begin
   TryPost;
 
+  AMark := '--join';
+
   // Формируем через запятую список из значений поля Value
   s := GetFieldValues('Value').Trim([',']);
 
-  FDQuery.DisableControls;
-  try
-
-    if ALike then
+  if ALike then
+  begin
+    AConditionSQL := '';
+    m := s.Split([',']);
+    // Формируем несколько условий
+    for s in m do
     begin
-      AConditionSQL := '';
-      m := s.Split([',']);
-      // Формируем несколько условий
-      for s in m do
+      AConditionSQL := IfThen(AConditionSQL.IsEmpty, '', ' or ');
+      AConditionSQL := AConditionSQL + Format('p.Value like %s',
+        [QuotedStr(s + '%')]);
+    end;
+    AConditionSQL := Format(' and (%s)', [AConditionSQL]);
+    SetConditionSQL(AConditionSQL, AMark);
+  end
+  else
+  begin
+    AConditionSQL := ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
+    SetConditionSQL(AConditionSQL, AMark,
+      procedure(Sender: TObject)
       begin
-        AConditionSQL := IfThen(AConditionSQL.IsEmpty, '', ' or ');
-        AConditionSQL := AConditionSQL + Format('p.Value like %s',
-          [QuotedStr(s + '%')]);
-      end;
-      // ASearchQuery := QuerySearchProductsByValuesLike
-      // Меняем SQL запрос
-      FDQuery.SQL.Text := Replace(FDBaseQuery.SQL.Text, AConditionSQL, '--')
-    end
-    else
-      AConditionSQL := 'instr('',''||:Value||'','', '',''||p.Value||'','') > 0';
-
-    FDQuery.Open;
-  finally
-    FDQuery.EnableControls;
+        with FDQuery.ParamByName('Value') do
+        begin
+          DataType := ftString;
+          ParamType := ptInput;
+          AsString := s;
+        end;
+      end);
   end;
-
 end;
 
 // Есть-ли изменения не сохранённые в БД
@@ -238,29 +234,22 @@ begin
   Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
 end;
 
-function TQueryProductsSearch.GetQuerySearchProductsByValues
-  : TQuerySearchProductsByValues;
+procedure TQueryProductsSearch.SetConditionSQL(const AConditionSQL, AMark:
+    String; ANotifyEventRef: TNotifyEventRef = nil);
 begin
-  if FQuerySearchProductsByValues = nil then
-    FQuerySearchProductsByValues := TQuerySearchProductsByValues.Create(Self);
+  Assert(not AConditionSQL.IsEmpty);
+  Assert(not AMark.IsEmpty);
 
-  Result := FQuerySearchProductsByValues;
-end;
-
-function TQueryProductsSearch.GetQuerySearchProductsByValuesLike
-  : TQuerySearchProductsByValuesLike;
-begin
-  if FQuerySearchProductsByValuesLike = nil then
-    FQuerySearchProductsByValuesLike :=
-      TQuerySearchProductsByValuesLike.Create(Self);
-
-  Result := FQuerySearchProductsByValuesLike;
-end;
-
-procedure TQueryProductsSearch.Search(const AIDList: string);
-begin
-  Load(['IDList'], [AIDList])
-  // При открытии будет добавлена пустая запись, если нужно
+  FDQuery.DisableControls;
+  try
+    FDQuery.Close;
+    FDQuery.SQL.Text := Replace(FDBaseQuery.SQL.Text, AConditionSQL, AMark);
+    if Assigned(ANotifyEventRef) then
+      ANotifyEventRef(Self);
+    FDQuery.Open;
+  finally
+    FDQuery.EnableControls;
+  end;
 end;
 
 end.

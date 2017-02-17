@@ -77,28 +77,25 @@ type
     procedure actOpenDiagramExecute(Sender: TObject);
     procedure actOpenDrawingExecute(Sender: TObject);
     procedure actRollback2Execute(Sender: TObject);
-    procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem; ARecordIndex:
-        Integer; var AText: string);
+    procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
+      ARecordIndex: Integer; var AText: string);
     procedure clPriceGetDisplayText(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AText: string);
 
   private
-    FQueryProducers: TQueryManufacturers2;
     FQueryProductsBase: TQueryProductsBase;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
-    function GetQueryProducers: TQueryManufacturers2;
     function GetQuerySearchParameterValues: TQuerySearchParameterValues;
-    procedure MyInitializeComboBoxColumn;
     procedure SetQueryProductsBase(const Value: TQueryProductsBase);
     { Private declarations }
   protected
     procedure CreateColumnsBarButtons; override;
-    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo; const AErrorMessage,
-        AEmptyErrorMessage: string);
+    procedure MyInitializeComboBoxColumn; virtual;
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
+      const AErrorMessage, AEmptyErrorMessage: string);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
-    property QueryProducers: TQueryManufacturers2 read GetQueryProducers;
-    property QuerySearchParameterValues: TQuerySearchParameterValues read
-        GetQuerySearchParameterValues;
+    property QuerySearchParameterValues: TQuerySearchParameterValues
+      read GetQuerySearchParameterValues;
   public
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
@@ -156,8 +153,8 @@ end;
 
 procedure TViewProductsBase.actOpenDatasheetExecute(Sender: TObject);
 begin
-  OpenDoc(TDatasheetDoc.Create,
-    'Файл спецификации с именем %s не найден', 'не задана спецификация');
+  OpenDoc(TDatasheetDoc.Create, 'Файл спецификации с именем %s не найден',
+    'не задана спецификация');
 end;
 
 procedure TViewProductsBase.actOpenDiagramExecute(Sender: TObject);
@@ -191,15 +188,15 @@ begin
       IDYES:
         actCommit.Execute;
       IDNO:
-      begin
-        actRollback.Execute;
-      end;
+        begin
+          actRollback.Execute;
+        end;
     end;
   end;
 end;
 
-procedure TViewProductsBase.clDatasheetGetDataText(Sender:
-    TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
+procedure TViewProductsBase.clDatasheetGetDataText
+  (Sender: TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
 begin
   inherited;
   if not AText.IsEmpty then
@@ -220,16 +217,8 @@ begin
   inherited;
 end;
 
-function TViewProductsBase.GetQueryProducers: TQueryManufacturers2;
-begin
-  if FQueryProducers = nil then
-    FQueryProducers := TQueryManufacturers2.Create(Self);
-
-  Result := FQueryProducers;
-end;
-
-function TViewProductsBase.GetQuerySearchParameterValues:
-    TQuerySearchParameterValues;
+function TViewProductsBase.GetQuerySearchParameterValues
+  : TQuerySearchParameterValues;
 begin
   if FQuerySearchParameterValues = nil then
     FQuerySearchParameterValues := TQuerySearchParameterValues.Create(Self);
@@ -239,36 +228,22 @@ end;
 
 procedure TViewProductsBase.MyInitializeComboBoxColumn;
 begin
-  QueryProducers.TryOpen;
-
   InitializeLookupColumn(MainView, clProducer.DataBinding.FieldName,
-    QueryProducers.DataSource, lsEditList, QueryProducers.Name.FieldName);
-{
-  // Ищем возможные значения производителя для выпадающего списка
-  QuerySearchParameterValues.Search(TParameterValues.ProducerParameterID);
-
-  // Инициализируем Combobox колонки
-  InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditList, QuerySearchParameterValues.Value);
-
-  // Ищем возможные значения корпусов для выпадающего списка
-  QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
-
-  InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
-    lsEditList, QuerySearchParameterValues.Value);
-}
+    QueryProductsBase.QueryProducers.DataSource, lsEditList,
+    QueryProductsBase.QueryProducers.Name.FieldName);
 end;
 
-procedure TViewProductsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo; const
-    AErrorMessage, AEmptyErrorMessage: string);
+procedure TViewProductsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo;
+  const AErrorMessage, AEmptyErrorMessage: string);
 var
   AFileName: string;
 begin
-  if FQueryProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> '' then
+  if FQueryProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
+  then
   begin
-    AFileName := TPath.Combine
-      (TPath.Combine(TSettings.Create.DataBasePath, ADocFieldInfo.Folder),
-      FQueryProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString);
+    AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
+      ADocFieldInfo.Folder), FQueryProductsBase.FDQuery.FieldByName
+      (ADocFieldInfo.FieldName).AsString);
 
     if FileExists(AFileName) then
       ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
@@ -289,10 +264,11 @@ begin
 
     if FQueryProductsBase <> nil then
     begin
+      FQueryProductsBase.QueryProducers.TryOpen;
+
       // Привязываем представление к данным\
       cxGridDBBandedTableView.DataController.DataSource :=
         FQueryProductsBase.DataSource;
-
 
       // Инициализируем выпадающие списки
       MyInitializeComboBoxColumn;
@@ -309,7 +285,7 @@ var
 begin
   inherited;
   Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
-  actCommit.Enabled := OK and QueryProductsBase.HaveAnyChanges;
+  actCommit.Enabled := Ok and QueryProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
 end;
 
@@ -318,7 +294,7 @@ var
   sourceFileName: string;
 begin
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog( ADocFieldInfo.Folder );
+  sourceFileName := TDialog.Create.OpenPictureDialog(ADocFieldInfo.Folder);
   if sourceFileName.IsEmpty then
     Exit;
 

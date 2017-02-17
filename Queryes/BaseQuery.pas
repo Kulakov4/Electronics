@@ -38,6 +38,7 @@ type
     procedure DoOnQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
         var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
+    function GetHaveAnyNotCommitedChanges: Boolean; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -158,7 +159,7 @@ begin
   else
   begin
     // если транзакция не завершена
-    Result := FDQuery.Connection.InTransaction;
+    Result := FDQuery.Connection.InTransaction and GetHaveAnyNotCommitedChanges;
   end;
 
 end;
@@ -300,6 +301,7 @@ begin
     AAction := eaApplied;
   except
     AAction := eaFail;
+    raise;
   end;
 end;
 
@@ -389,6 +391,11 @@ begin
   finally
     FreeAndNil(AClone);
   end;
+end;
+
+function TQueryBase.GetHaveAnyNotCommitedChanges: Boolean;
+begin
+  Result := True;
 end;
 
 function TQueryBase.GetParentValue: Integer;

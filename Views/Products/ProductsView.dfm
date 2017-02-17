@@ -3,6 +3,10 @@ inherited ViewProducts: TViewProducts
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
       DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
+      inherited clStorehouseID: TcxGridDBBandedColumn
+        Visible = False
+        VisibleForCustomization = False
+      end
     end
   end
   inherited StatusBar: TStatusBar

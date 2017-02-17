@@ -71,13 +71,13 @@ object DM: TDM
     end
   end
   inline qBodyTypes: TQueryBodyTypes
-    Left = 537
-    Top = 144
+    Left = 269
+    Top = 64
     Width = 125
     Height = 80
     TabOrder = 5
-    ExplicitLeft = 537
-    ExplicitTop = 144
+    ExplicitLeft = 269
+    ExplicitTop = 64
   end
   inline qStoreHouseList: TQueryStoreHouseList
     Left = 800
@@ -376,25 +376,6 @@ object DM: TDM
           Control = DescriptionsGroup.qManufacturers2
           Row = 0
         end>
-      ExplicitWidth = 604
-      ExplicitHeight = 81
-      inherited qDescriptionsMaster: TQueryDescriptionsMaster
-        ExplicitLeft = 1
-        ExplicitWidth = 201
-        ExplicitHeight = 79
-      end
-      inherited qDescriptionsDetail: TQueryDescriptionsDetail
-        ExplicitLeft = 202
-        ExplicitTop = 1
-        ExplicitWidth = 201
-        ExplicitHeight = 79
-      end
-      inherited qManufacturers2: TQueryManufacturers2
-        ExplicitLeft = 403
-        ExplicitTop = 1
-        ExplicitWidth = 200
-        ExplicitHeight = 79
-      end
     end
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor

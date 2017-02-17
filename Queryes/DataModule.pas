@@ -47,6 +47,7 @@ type
     procedure OpenConnection;
     { Private declarations }
   protected
+    procedure DoAfterProducerCommit(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     procedure CreateOrOpenDataBase;
@@ -128,7 +129,7 @@ begin
   TNotifyEventWrap.Create(ParametersForCategoriesGroup.qParametersDetail.
     AfterPost, DoAfterParamForCategoriesPost, FEventList);
 
-  // Список главных-подчинённых
+  // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
   FQueryGroups.Add(ComponentsGroup);
   FQueryGroups.Add(ComponentsExGroup);
@@ -146,6 +147,10 @@ begin
   TNotifyEventWrap.Create(qBodyTypesTree.AfterDelete,
     DoAfterBodyTypesTreePostOrDelete, FEventList);
 
+  // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
+  // справочника производителей
+  TNotifyEventWrap.Create(qManufacturers2.AfterCommit, DoAfterProducerCommit,
+    FEventList);
 end;
 
 { закрытие датасетов }
@@ -197,6 +202,15 @@ procedure TDM.DoAfterParamForCategoriesPost(Sender: TObject);
 begin
   // Произошли изменения в параметрах для категории
   ComponentsExGroup.UpdateData;
+end;
+
+procedure TDM.DoAfterProducerCommit(Sender: TObject);
+begin
+  // Произощёл коммит в справочнике производителей
+
+  // Просим обновить данные о производителях в других местах
+  qProductsSearch.QueryProducers.RefreshQuery;
+  StoreHouseGroup.qProducts.QueryProducers.RefreshQuery;
 end;
 
 function TDM.HaveAnyChanges: Boolean;

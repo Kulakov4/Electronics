@@ -3,7 +3,8 @@ unit BaseEventsQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -45,7 +46,9 @@ type
     FBeforeOpen: TNotifyEventsEx;
     FBeforePost: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
+    FAfterCommit: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
+    FHaveAnyNotCommitedChanges: Boolean;
     FResiveAfterPostMessage: Boolean;
     FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
@@ -56,12 +59,15 @@ type
   protected
     FAutoTransactionEventList: TObjectList;
     FMasterEventList: TObjectList;
-    procedure ProcessAfterPostMessage(var Message: TMessage); message
-        WM_DS_AFTER_POST;
-    procedure ProcessAfterScrollMessage(var Message: TMessage); message
-        WM_DS_AFTER_SCROLL;
-    procedure ProcessBeforeScrollMessage(var Message: TMessage); message
-        WM_DS_BEFORE_SCROLL;
+    procedure DoAfterCommit(Sender: TObject);
+    procedure DoAfterRollback(Sender: TObject);
+    function GetHaveAnyNotCommitedChanges: Boolean; override;
+    procedure ProcessAfterPostMessage(var Message: TMessage);
+      message WM_DS_AFTER_POST;
+    procedure ProcessAfterScrollMessage(var Message: TMessage);
+      message WM_DS_AFTER_SCROLL;
+    procedure ProcessBeforeScrollMessage(var Message: TMessage);
+      message WM_DS_BEFORE_SCROLL;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -72,23 +78,27 @@ type
     property AfterOpen: TNotifyEventsEx read FAfterOpen;
     property AfterPost: TNotifyEventsEx read FAfterPost;
     property AfterScroll: TNotifyEventsEx read FAfterScroll;
-    property AutoTransaction: Boolean read FAutoTransaction write
-        SetAutoTransaction;
+    property AutoTransaction: Boolean read FAutoTransaction
+      write SetAutoTransaction;
     property BeforeDelete: TNotifyEventsEx read FBeforeDelete;
     property BeforeEdit: TNotifyEventsEx read FBeforeEdit;
     property BeforeInsert: TNotifyEventsEx read FBeforeInsert;
     property BeforeOpen: TNotifyEventsEx read FBeforeOpen;
     property BeforePost: TNotifyEventsEx read FBeforePost;
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
+    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
-    property UseAfterPostMessage: Boolean read FUseAfterPostMessage write
-        FUseAfterPostMessage;
+    property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
+    property UseAfterPostMessage: Boolean read FUseAfterPostMessage
+      write FUseAfterPostMessage;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+uses RepositoryDataModule;
 
 { TfrmDataModule }
 
@@ -117,6 +127,8 @@ begin
   FBeforeEdit := TNotifyEventsEx.Create(Self);
   FAfterEdit := TNotifyEventsEx.Create(Self);
 
+  FAfterCommit := TNotifyEventsEx.Create(Self);
+
   FResiveAfterScrollMessage := True;
   FResiveBeforeScrollMessage := True;
   FResiveAfterPostMessage := True;
@@ -138,15 +150,22 @@ begin
   inherited;
 end;
 
-// TODO: DoOnNeedPost
-//procedure TQueryBaseEvents.DoOnNeedPost(var Message: TMessage);
-//var
-//AID: Integer;
-//begin
-//AID := Message.WParam;
-//if (FDQuery.RecordCount > 0) and (AID = PKValue) then
-//  TryPost;
-//end;
+procedure TQueryBaseEvents.DoAfterCommit(Sender: TObject);
+begin
+  if FHaveAnyNotCommitedChanges then
+  begin
+    // Помечаем что у нас нет не закоммитенных изменений
+    FHaveAnyNotCommitedChanges := False;
+    // Извещаем всех что наши изменения закоммичены
+    FAfterCommit.CallEventHandlers(Self);
+  end;
+end;
+
+procedure TQueryBaseEvents.DoAfterRollback(Sender: TObject);
+begin
+  // Помечаем что у нас нет не закоммитенных изменений
+  FHaveAnyNotCommitedChanges := False;
+end;
 
 procedure TQueryBaseEvents.DoOnStartTransaction(Sender: TObject);
 begin
@@ -164,6 +183,10 @@ end;
 procedure TQueryBaseEvents.FDQueryAfterDelete(DataSet: TDataSet);
 begin
   inherited;
+  // Если транзакция ещё не завершилась
+  if FDQuery.Connection.InTransaction then
+    FHaveAnyNotCommitedChanges := True;
+
   FAfterDelete.CallEventHandlers(FDQuery);
 end;
 
@@ -188,6 +211,11 @@ end;
 procedure TQueryBaseEvents.FDQueryAfterPost(DataSet: TDataSet);
 begin
   inherited;
+
+  // Если транзакция ещё не завершилась
+  if FDQuery.Connection.InTransaction then
+    FHaveAnyNotCommitedChanges := True;
+
   // Если используем сообщение
   if UseAfterPostMessage then
   begin
@@ -260,6 +288,11 @@ begin
   end;
 end;
 
+function TQueryBaseEvents.GetHaveAnyNotCommitedChanges: Boolean;
+begin
+  Result := FHaveAnyNotCommitedChanges;
+end;
+
 procedure TQueryBaseEvents.ProcessAfterPostMessage(var Message: TMessage);
 begin
   FAfterPost.CallEventHandlers(FDQuery);
@@ -288,6 +321,12 @@ begin
     if not FAutoTransaction then
     begin
       // Обработка не-автоматической транзакции
+      TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommit,
+        FAutoTransactionEventList);
+
+      TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterRollback,
+        FAutoTransactionEventList);
+
       TNotifyEventWrap.Create(BeforeInsert, DoOnStartTransaction,
         FAutoTransactionEventList);
       TNotifyEventWrap.Create(BeforeDelete, DoOnStartTransaction,
