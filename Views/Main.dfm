@@ -606,7 +606,7 @@ object frmMain: TfrmMain
                 ExplicitHeight = 20
               end
               inherited lblExternalId: TcxLabel
-                ExplicitWidth = 96
+                ExplicitWidth = 78
                 ExplicitHeight = 20
               end
               inherited lblResponsible: TcxLabel
@@ -617,13 +617,7 @@ object frmMain: TfrmMain
                 ExplicitWidth = 39
                 ExplicitHeight = 20
               end
-              inherited cxTeTitle: TcxDBTextEdit
-                ExplicitHeight = 24
-              end
               inherited cxTeResponsible: TcxDBTextEdit
-                ExplicitHeight = 24
-              end
-              inherited cxmeExternalId: TcxDBMaskEdit
                 ExplicitHeight = 24
               end
             end

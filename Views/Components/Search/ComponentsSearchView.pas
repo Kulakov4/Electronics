@@ -157,6 +157,7 @@ begin
   // Вставлять семейства можно только в режиме поиска
   actPasteFamily.Visible := actPasteFamily.Visible and
     (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+  actPasteFamily.Caption := 'Вставить из буфера обмена';
 
   actPasteComponents.Visible := False;
 end;
