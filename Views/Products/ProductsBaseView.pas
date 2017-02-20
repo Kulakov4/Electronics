@@ -81,6 +81,9 @@ type
       ARecordIndex: Integer; var AText: string);
     procedure clPriceGetDisplayText(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AText: string);
+    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+      Shift: TShiftState);
 
   private
     FQueryProductsBase: TQueryProductsBase;
@@ -215,6 +218,30 @@ end;
 procedure TViewProductsBase.CreateColumnsBarButtons;
 begin
   inherited;
+end;
+
+procedure TViewProductsBase.cxGridDBBandedTableViewEditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+var
+  AColumn: TcxGridDBBandedColumn;
+  ATextEdit: TcxTextEdit;
+  S: string;
+begin
+  inherited;
+  AColumn := AItem as TcxGridDBBandedColumn;
+  if (Key = 13) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
+  begin
+    // само наименование ещЄ может быть в едите а не в датасете
+    ATextEdit := (AEdit as TcxTextEdit);
+    S := ATextEdit.Text;
+    // ≈сли наименование задано
+    if (not S.Trim.IsEmpty) and
+      (QueryProductsBase.IDProducer.AsInteger > 0) then
+      QueryProductsBase.TryPost;
+    UpdateView;
+  end;
 end;
 
 function TViewProductsBase.GetQuerySearchParameterValues

@@ -1,6 +1,7 @@
 inherited ViewProductsBase: TViewProductsBase
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       DataController.KeyFieldNames = 'ID'
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False

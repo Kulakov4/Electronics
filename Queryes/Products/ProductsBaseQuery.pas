@@ -26,8 +26,6 @@ type
     qStoreHouseProducts: TfrmApplyQuery;
     qProducts: TfrmApplyQuery;
   private
-    FDocFieldInfos: TList<TDocFieldInfo>;
-    FQueryManufacturers2: TQueryManufacturers2;
     FQueryProducers: TQueryManufacturers2;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchFamilytByID: TQuerySearchFamilyByID;
@@ -40,7 +38,6 @@ type
     function GetDescriptionID: TField;
     function GetIDProducer: TField;
     function GetProductID: TField;
-    function GetQueryManufacturers2: TQueryManufacturers2;
     function GetQueryProducers: TQueryManufacturers2;
     function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetQuerySearchFamilytByID: TQuerySearchFamilyByID;
@@ -55,8 +52,6 @@ type
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
-    property QueryManufacturers2: TQueryManufacturers2
-      read GetQueryManufacturers2;
     property QuerySearchDaughterComponent: TQuerySearchDaughterComponent
       read GetQuerySearchDaughterComponent;
     property QuerySearchFamilytByID: TQuerySearchFamilyByID read
@@ -66,7 +61,6 @@ type
       read GetQuerySearchStorehouseProductByID;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure LoadDocFile(const AFileName: String;
@@ -91,12 +85,6 @@ uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
   inherited;
-  FDocFieldInfos := TList<TDocFieldInfo>.Create;
-  FDocFieldInfos.Add(TDatasheetDoc.Create);
-  FDocFieldInfos.Add(TDiagramDoc.Create);
-  FDocFieldInfos.Add(TDrawingDoc.Create);
-  FDocFieldInfos.Add(TImageDoc.Create);
-
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 
   // Будем сами обновлять запись
@@ -104,19 +92,6 @@ begin
 
   // По умолчанию мы не в режиме автоматических транзакций
   AutoTransaction := False;
-end;
-
-destructor TQueryProductsBase.Destroy;
-var
-  ADocFieldInfo: TDocFieldInfo;
-begin
-  for ADocFieldInfo in FDocFieldInfos do
-  begin
-    ADocFieldInfo.Free;
-  end;
-  FreeAndNil(FDocFieldInfos);
-
-  inherited;
 end;
 
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
@@ -152,24 +127,23 @@ var
   AValue: TField;
   OK: Boolean;
   rc: Integer;
-  // ASenderField: TField;
 begin
-  Assert(FDocFieldInfos <> nil);
-
+  AValue := ASender.FieldByName(Value.FieldName);
+  if AValue.AsString.Trim.IsEmpty then
+      raise Exception.Create('Необходимо задать наименование компонента');
   APK := ASender.FieldByName(PKFieldName);
   AProductID := ASender.FieldByName(ProductID.FieldName);
-  AValue := ASender.FieldByName(Value.FieldName);
   AIDProducer := ASender.FieldByName(IDProducer.FieldName);
 
   // Если производитель задан
   if AIDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := QueryManufacturers2.LocateByPK(AIDProducer.AsInteger);
+    OK := QueryProducers.LocateByPK(AIDProducer.AsInteger);
     Assert(OK);
 
     rc := QuerySearchDaughterComponent.Search(AValue.AsString,
-      QueryManufacturers2.Name.AsString);
+      QueryProducers.Name.AsString);
   end
   else
   begin
@@ -178,10 +152,10 @@ begin
     if rc > 0 then
     begin
       // Ищем в справочнике такого производителя
-      QueryManufacturers2.LocateOrAppend
+      QueryProducers.LocateOrAppend
         (QuerySearchDaughterComponent.Producer.AsString);
       // Заполняем производителя
-      AIDProducer.AsInteger := QueryManufacturers2.PKValue;
+      AIDProducer.AsInteger := QueryProducers.PKValue;
     end;
   end;
 
@@ -217,11 +191,25 @@ begin
       }
     end;
 
+    // Если производитель не задан
     if AIDProducer.AsInteger = 0 then
-      raise Exception.Create('Необходимо задать производителя');
+    begin
+      // Ищем такой компонент с таким именем на складе
+      rc := QuerySearchProduct.Search(AValue.AsString);
+      if rc > 0 then
+        // Заполняем производителя
+        AIDProducer.AsInteger := QuerySearchProduct.IDProducer.AsInteger
+      else
+        raise Exception.Create('Необходимо задать производителя');
+    end
+    else
+    begin
+      // Если производитель задан
+      rc := QuerySearchProduct.Search(AValue.AsString, AIDProducer.AsInteger);
+    end;
 
     // Если такого продукта ещё нет
-    if QuerySearchProduct.Search(AValue.AsString, AIDProducer.AsInteger) = 0
+    if rc = 0
     then
     begin
       // Добавляем в базу сам продукт
@@ -356,21 +344,13 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQueryProductsBase.GetQueryManufacturers2: TQueryManufacturers2;
-begin
-  if FQueryManufacturers2 = nil then
-  begin
-    FQueryManufacturers2 := TQueryManufacturers2.Create(Self);
-    FQueryManufacturers2.TryOpen;
-  end;
-
-  Result := FQueryManufacturers2;
-end;
-
 function TQueryProductsBase.GetQueryProducers: TQueryManufacturers2;
 begin
   if FQueryProducers = nil then
+  begin
     FQueryProducers := TQueryManufacturers2.Create(Self);
+    FQueryProducers.TryOpen;
+  end;
 
   Result := FQueryProducers;
 end;
