@@ -432,8 +432,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Excel\RecommendedReplacementExcelDataModule.pas">
-            <Form>ParameterExcelDM</Form>
+        <DCCReference Include="Excel\ParametricExcelDataModule.pas">
+            <Form>ParametricExcelDM</Form>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>

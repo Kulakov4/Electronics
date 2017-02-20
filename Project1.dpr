@@ -89,7 +89,7 @@ uses
   SubGroupListPopupForm in 'Views\Components\SubGroup\SubGroupListPopupForm.pas' {frmSubgroupListPopup},
   ComponentsParentView in 'Views\Components\ComponentsParentView.pas' {ViewComponentsParent: TFrame},
   ComponentsBaseView in 'Views\Components\ComponentsBaseView.pas' {ViewComponentsBase: TFrame},
-  RecommendedReplacementExcelDataModule in 'Excel\RecommendedReplacementExcelDataModule.pas' {ParameterExcelDM: TDataModule},
+  ParametricExcelDataModule in 'Excel\ParametricExcelDataModule.pas' {ParametricExcelDM: TDataModule},
   ProgressInfo in 'Helpers\ProgressInfo.pas',
   ProgressBarForm in 'Views\ProgressBar\ProgressBarForm.pas' {frmProgressBar},
   ParametersForCategoryQuery in 'Queryes\Components\ParametricTable\ParametersForCategoryQuery.pas' {QueryParametersForCategory: TFrame},

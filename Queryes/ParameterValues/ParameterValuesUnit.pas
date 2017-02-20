@@ -3,7 +3,7 @@ unit ParameterValuesUnit;
 interface
 
 uses
-  RecommendedReplacementExcelDataModule, System.Generics.Collections,
+  ParametricExcelDataModule, System.Generics.Collections,
   SearchMainParameterQuery;
 
 type
@@ -30,8 +30,8 @@ type
     class property QuerySearchMainParameter: TQuerySearchMainParameter
       read GetQuerySearchMainParameter;
   public
-    class procedure LoadParameterValues(AExcelTable: TParameterExcelTable2;
-      UpdateOrder: Boolean); static;
+    class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
+        UpdateOrder: Boolean); static;
     class property PackagePinsParameterID: Integer
       read GetPackagePinsParameterID;
     class property DatasheetParameterID: Integer read GetDatasheetParameterID;
@@ -150,8 +150,8 @@ begin
   Result := FQuerySearchMainParameter;
 end;
 
-class procedure TParameterValues.LoadParameterValues
-  (AExcelTable: TParameterExcelTable2; UpdateOrder: Boolean);
+class procedure TParameterValues.LoadParameterValues(AExcelTable:
+    TParametricExcelTable; UpdateOrder: Boolean);
 var
   a: TArray<String>;
   ACaregoryIDList: TList<Integer>;

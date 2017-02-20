@@ -210,15 +210,15 @@ implementation
 uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
   ParametersForm, ManufacturersForm, SettingsController, BodyTypesTreeForm,
-  BodyTypesGridQuery, ReportsForm, ReportQuery,
-  RecommendedReplacementExcelDataModule, ComponentBodyTypesExcelDataModule,
-  ParametricTableForm, BodyTypesForm, ProjectConst, PathSettingsForm, ImportErrorForm,
-  ErrorForm, cxGridDBBandedTableView, System.IOUtils, FieldInfoUnit,
+  BodyTypesGridQuery, ReportsForm, ReportQuery, ParametricExcelDataModule,
+  ComponentBodyTypesExcelDataModule, ParametricTableForm, BodyTypesForm,
+  ProjectConst, PathSettingsForm, ImportErrorForm, ErrorForm,
+  cxGridDBBandedTableView, System.IOUtils, FieldInfoUnit,
   SearchMainParameterQuery, ImportProcessForm, SearchDaughterParameterQuery,
   ProgressInfo, ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl,
   SearchDescriptionsQuery, SearchSubCategoriesQuery,
   SearchComponentCategoryQuery2, TableWithProgress, GridViewForm,
-   Manufacturers2Query, TreeListQuery, AutoBindingDocForm,
+  Manufacturers2Query, TreeListQuery, AutoBindingDocForm,
   AutoBindingDescriptionForm, FireDAC.Comp.Client, AutoBinding, AllFamilyQuery;
 
 {$R *.dfm}
@@ -258,8 +258,10 @@ begin
   try
     MR := frmAutoBindingDescriptions.ShowModal;
     case MR of
-      mrOk: AIDCategory := DM.qTreeList.PKValue;
-      mrAll: AIDCategory := 0;
+      mrOk:
+        AIDCategory := DM.qTreeList.PKValue;
+      mrAll:
+        AIDCategory := 0;
     else
       AIDCategory := -1;
     end;
@@ -494,7 +496,7 @@ var
   AFileName: string;
   AfrmError: TfrmError;
   AfrmGridView: TfrmGridView;
-  AParameterExcelDM2: TParameterExcelDM2;
+  AParametricExcelDM: TParametricExcelDM;
   AParametricErrorTable: TParametricErrorTable;
   // AQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
   AQuerySearchDaughterParameter: TQuerySearchDaughterParameter;
@@ -575,7 +577,7 @@ begin
                           (AStringTreeNode2.value);
                       end;
                       // Создаём описание поля связанного с подпараметром
-                      AFieldName := TParameterExcelTable2.GetFieldNameByIDParam
+                      AFieldName := TParametricExcelTable.GetFieldNameByIDParam
                         (AQuerySearchDaughterParameter.PKValue)
                     end;
                   end;
@@ -584,7 +586,7 @@ begin
                 begin
                   // Если у нашего параметра нет дочерних параметров
                   // Создаём описание поля связанного с параметром
-                  AFieldName := TParameterExcelTable2.GetFieldNameByIDParam
+                  AFieldName := TParametricExcelTable.GetFieldNameByIDParam
                     (AQuerySearchMainParameter.PKValue)
                 end;
               end
@@ -640,24 +642,24 @@ begin
 
     if OK then
     begin
-      AParameterExcelDM2 := TParameterExcelDM2.Create(Self, AFieldsInfo);
+      AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo);
       try
         // Загружаем данные из Excel файла
-        TfrmProgressBar.Process(AParameterExcelDM2,
+        TfrmProgressBar.Process(AParametricExcelDM,
           procedure
           begin
-            AParameterExcelDM2.LoadExcelFile(AFileName);
+            AParametricExcelDM.LoadExcelFile(AFileName);
           end, 'Загрузка параметрических данных', sRows);
 
         // Если в ходе загрузки данных произошли ошибки (компонент не найден)
-        if AParameterExcelDM2.ExcelTable.Errors.RecordCount > 0 then
+        if AParametricExcelDM.ExcelTable.Errors.RecordCount > 0 then
         begin
           AfrmError := TfrmError.Create(Self);
           try
-            AfrmError.ErrorTable := AParameterExcelDM2.ExcelTable.Errors;
+            AfrmError.ErrorTable := AParametricExcelDM.ExcelTable.Errors;
             // Показываем ошибки
             OK := AfrmError.ShowModal = mrOk;
-            AParameterExcelDM2.ExcelTable.ExcludeErrors(etError);
+            AParametricExcelDM.ExcelTable.ExcludeErrors(etError);
           finally
             FreeAndNil(AfrmError);
           end;
@@ -666,16 +668,16 @@ begin
         if OK then
         begin
           // Сохраняем данные в БД
-          TfrmProgressBar.Process(AParameterExcelDM2.ExcelTable,
+          TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
             procedure
             begin
               TParameterValues.LoadParameterValues
-                (AParameterExcelDM2.ExcelTable, true);
+                (AParametricExcelDM.ExcelTable, true);
             end, 'Сохранение параметрических данных в БД', sRecords);
         end;
 
       finally
-        FreeAndNil(AParameterExcelDM2);
+        FreeAndNil(AParametricExcelDM);
       end;
     end;
   finally
@@ -820,8 +822,7 @@ begin
   if frmDescriptions = nil then
   begin
     frmDescriptions := TfrmDescriptions.Create(Self);
-    frmDescriptions.ViewDescriptions.DescriptionsGroup :=
-      DM.DescriptionsGroup;
+    frmDescriptions.ViewDescriptions.DescriptionsGroup := DM.DescriptionsGroup;
     DM.DescriptionsGroup.ReOpen;
   end;
 
