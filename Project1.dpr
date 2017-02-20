@@ -160,7 +160,8 @@ uses
   SearchFamilyByID in 'Queryes\Search\SearchFamilyByID.pas' {QuerySearchFamilyByID: TFrame},
   SearchProductQuery in 'Queryes\Search\SearchProductQuery.pas' {QuerySearchProduct: TFrame},
   SearchStorehouseProductByID in 'Queryes\Search\SearchStorehouseProductByID.pas' {QuerySearchStorehouseProductByID: TFrame},
-  QueryGroupUnit in 'Queryes\QueryGroupUnit.pas' {QueryGroup: TFrame};
+  QueryGroupUnit in 'Queryes\QueryGroupUnit.pas' {QueryGroup: TFrame},
+  ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule};
 
 {$R *.res}
 

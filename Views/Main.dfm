@@ -167,10 +167,6 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -620,6 +616,9 @@ object frmMain: TfrmMain
               inherited cxTeResponsible: TcxDBTextEdit
                 ExplicitHeight = 24
               end
+              inherited cxdbteAbbreviation: TcxDBTextEdit
+                ExplicitHeight = 24
+              end
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
@@ -714,7 +713,6 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch: TViewProductsSearch
               inherited cxGrid: TcxGrid
-                ExplicitHeight = 544
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -765,9 +763,6 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
-              end
-              inherited StatusBar: TStatusBar
-                ExplicitTop = 572
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -1085,8 +1080,8 @@ object frmMain: TfrmMain
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
-    Left = 40
-    Top = 235
+    Left = 48
+    Top = 419
     object actShowManufacturers: TAction
       Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1080
       Hint = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1080

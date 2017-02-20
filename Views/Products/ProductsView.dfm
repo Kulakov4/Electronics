@@ -82,31 +82,17 @@ inherited ViewProducts: TViewProducts
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrbtnPasteFromBuffer'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbrbtnPasteFromExcel'
+          ItemName = 'dxBarButton1'
         end>
-    end
-    object dxbrbtnPasteFromBuffer: TdxBarButton
-      Action = actPasteFromBuffer
-      Category = 0
-    end
-    object dxbrbtnPasteFromExcel: TdxBarButton
-      Action = actPasteFromExcel
-      Category = 0
-    end
-    object dxBarButton1: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
     end
     object dxBarButton2: TdxBarButton
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actLoadFromExcelDocument
+      Category = 0
     end
   end
   inherited ActionList: TActionList
@@ -122,26 +108,15 @@ inherited ViewProducts: TViewProducts
       ImageIndex = 2
       OnExecute = actDeleteExecute
     end
-    object actPasteFromBuffer: TAction [8]
-      Caption = #1048#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
-      ImageIndex = 5
-      OnExecute = actPasteFromBufferExecute
-    end
-    object actPasteFromExcel: TAction [9]
-      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 32
-      OnExecute = actPasteFromExcelExecute
-    end
-    object actPasteFromExcelSheet: TAction [10]
-      Caption = #1048#1079' '#1072#1082#1090#1080#1074#1085#1086#1075#1086' '#1083#1080#1089#1090#1072' Excel'
-      Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1072#1082#1090#1080#1074#1085#1086#1075#1086' '#1083#1080#1089#1090#1072' Excel'
-      ImageIndex = 6
-      OnExecute = actPasteFromExcelSheetExecute
-    end
-    object actPasteComponents: TAction [12]
+    object actPasteComponents: TAction [9]
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 5
       OnExecute = actPasteComponentsExecute
+    end
+    object actLoadFromExcelDocument: TAction
+      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 32
+      OnExecute = actLoadFromExcelDocumentExecute
     end
   end
   inherited pmGrid: TPopupMenu

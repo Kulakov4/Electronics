@@ -15,7 +15,7 @@ uses
   Vcl.ComCtrls, System.Generics.Collections, cxTextEdit, cxBlobEdit,
   cxButtonEdit, cxSpinEdit,
   cxCurrencyEdit, GridFrame, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus,
-  {ExcelController,} dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
+  dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
   dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
@@ -41,22 +41,16 @@ type
     dxbrbtnDelete: TdxBarButton;
     dxbrbtnSave: TdxBarButton;
     dxbrsbtmPaste: TdxBarSubItem;
-    actPasteFromBuffer: TAction;
-    actPasteFromExcel: TAction;
-    actPasteFromExcelSheet: TAction;
-    dxbrbtnPasteFromBuffer: TdxBarButton;
-    dxbrbtnPasteFromExcel: TdxBarButton;
-    dxBarButton1: TdxBarButton;
     dxBarButton2: TdxBarButton;
     actPasteComponents: TAction;
     N2: TMenuItem;
+    actLoadFromExcelDocument: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
+    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actPasteComponentsExecute(Sender: TObject);
-    procedure actPasteFromBufferExecute(Sender: TObject);
-    procedure actPasteFromExcelExecute(Sender: TObject);
-    procedure actPasteFromExcelSheetExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
@@ -94,7 +88,8 @@ implementation
 
 uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
-  DialogUnit, Vcl.Clipbrd;
+  DialogUnit, Vcl.Clipbrd, SettingsController, FieldInfoUnit, ExcelDataModule,
+  ProductsExcelDataModule, ProgressBarForm;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var
@@ -143,6 +138,76 @@ begin
   end;
 end;
 
+procedure TViewProducts.actLoadFromExcelDocumentExecute(Sender: TObject);
+Var
+  AExcelDM: TExcelDM;
+  AFieldName: string;
+  AFieldsInfo: TList<TFieldInfo>;
+  AFileName: String;
+  AProductsExcelDM: TProductsExcelDM;
+  ARootTreeNode: TStringTreeNode;
+  AStringTreeNode: TStringTreeNode;
+  i: Integer;
+begin
+  inherited;
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.ParametricDataFolder);
+
+  if AFileName.IsEmpty then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
+
+  // Описания полей excel файла
+  AFieldsInfo := TList<TFieldInfo>.Create;
+  try
+    AExcelDM := TExcelDM.Create(Self);
+    try
+      // Загружаем описания полей Excel файла
+      ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
+
+      // Цикл по всем заголовкам таблицы
+      for AStringTreeNode in ARootTreeNode.Childs do
+      begin
+        // Цикл по всем колонкам представления
+        for i := 0 to MainView.ColumnCount - 1 do
+        begin
+          if SameText(MainView.Columns[i].Caption, AStringTreeNode.Value) then
+          begin
+            // Создаём описание поля связанного с подпараметром
+            AFieldsInfo.Add(TFieldInfo.Create(MainView.Columns[i].DataBinding.FieldName));
+            break;
+          end;
+        end;
+      end;
+
+      if AFieldsInfo.Count = 0 then
+      begin
+        TDialog.Create.ErrorMessageDialog('Заголовки столбцов не распознаны');
+        Exit;
+      end;
+
+      AProductsExcelDM := TProductsExcelDM.Create(Self, AFieldsInfo);
+      try
+        // Загружаем данные из Excel файла
+        TfrmProgressBar.Process(AProductsExcelDM,
+          procedure
+          begin
+            AProductsExcelDM.LoadExcelFile(AFileName);
+          end, 'Загрузка складских данных', sRows);
+
+      finally
+        FreeAndNil(AProductsExcelDM);
+      end;
+    finally
+      FreeAndNil(AExcelDM)
+    end;
+  finally
+    FreeAndNil(AFieldsInfo);
+  end;
+end;
+
 procedure TViewProducts.actPasteComponentsExecute(Sender: TObject);
 var
   m: TArray<String>;
@@ -157,100 +222,6 @@ begin
   PutInTheCenterFocusedRecord(MainView);
 
   UpdateView;
-end;
-
-procedure TViewProducts.actPasteFromBufferExecute(Sender: TObject);
-// var
-// ARows: TArray<String>;
-begin
-  TDialog.Create.MethodNotImplemended;
-  {
-    Assert(QueryProducts <> nil);
-    ARows := TClb.Create.GetRowsAsArray;
-
-    cxGridDBBandedTableView.BeginUpdate();
-    try
-    QueryProducts.AddStringList(ARows);
-    finally
-    cxGridDBBandedTableView.EndUpdate;
-    end;
-  }
-end;
-
-procedure TViewProducts.actPasteFromExcelExecute(Sender: TObject);
-{
-  var
-  AExcelController: TExcelController;
-  AList: TList<TProductRecord>;
-  dr, ASortMode: Integer;
-}
-begin
-  TDialog.Create.MethodNotImplemended;
-  {
-    dr := Application.MessageBox(PChar(TLanguageConstants.IsShouldSort),
-    // нужно ли сортировать
-    PChar(TLanguageConstants.Question), MB_YESNO + MB_ICONQUESTION);
-
-    ASortMode := 0;
-    if dr = mrYes then
-    ASortMode := 1;
-
-    AExcelController := TExcelController.Create;
-    MessageForm.Show(sLoading, sWaitExcelLoading);
-    try
-    AList := AExcelController.ReadFile;
-    finally
-    AExcelController.Free;
-    MessageForm.Close;
-    end;
-    if AList.Count = 0 then
-    Exit;
-
-    // if dr = mrYes then   //сортировать?
-    // begin
-    MessageForm.Show(sLoading, sSorting);
-    AList := SortList(AList, ASortMode);
-    MessageForm.Close;
-    // end;
-
-    QueryProducts.TryPost;
-
-    cxGridDBBandedTableView.BeginUpdate();
-    MessageForm.Show(sLoading, sForming);
-    try
-    QueryProducts.InsertRecordList(AList);
-    finally
-    MessageForm.Close;
-    cxGridDBBandedTableView.EndUpdate;
-    end;
-  }
-end;
-
-procedure TViewProducts.actPasteFromExcelSheetExecute(Sender: TObject);
-{
-  var
-  AClipboardManager: TClipboardManager;
-  ARows: TStringList;
-}
-begin
-  TDialog.Create.MethodNotImplemended;
-  {
-    AClipboardManager := TClipboardManager.Create;
-    try
-    ARows := AClipboardManager.GetRowsExcel;
-    finally
-    FreeAndNil(AClipboardManager);
-    end;
-
-    cxGridDBBandedTableView.BeginUpdate();
-    MessageForm.Show(sLoading, sForming);
-    try
-    QueryProducts.InsertRecordList( QueryProducts.ConvertRowsToRecords(ARows));
-    finally
-    MessageForm.Close;
-    cxGridDBBandedTableView.EndUpdate;
-    end;
-  }
 end;
 
 procedure TViewProducts.actRefreshExecute(Sender: TObject);
@@ -368,15 +339,13 @@ Var
 begin
   Ok := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
 
-  actPasteComponents.Enabled := Ok and
-    (AColumn.GridView.Level = cxGridLevel) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+  actPasteComponents.Enabled := Ok and (AColumn.GridView.Level = cxGridLevel)
+    and (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
   Ok := (AColumn <> nil);
 
-  actPasteComponents.Visible := Ok and
-    (AColumn.GridView.Level = cxGridLevel) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+  actPasteComponents.Visible := Ok and (AColumn.GridView.Level = cxGridLevel)
+    and (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 end;
 
 procedure TViewProducts.SetQueryProducts(const Value: TQueryProducts);
@@ -527,17 +496,15 @@ begin
   AFocusedView := FocusedTableView;
 
   actAdd.Enabled := Ok;
-{
-  and ((QueryProductsBase.FDQuery.State = dsBrowse) or
+  {
+    and ((QueryProductsBase.FDQuery.State = dsBrowse) or
     ((QueryProductsBase.FDQuery.State in [dsEdit, dsInsert]) and
     (not QueryProductsBase.Value.AsString.IsEmpty)));
-}
+  }
   actDelete.Enabled := Ok and (AFocusedView <> nil) and
     (AFocusedView.DataController.RowCount > 0);
 
-  actPasteFromBuffer.Enabled := Ok;
-  actPasteFromExcelSheet.Enabled := Ok;
-  actPasteFromExcel.Enabled := Ok;
+  actLoadFromExcelDocument.Enabled := Ok;
 end;
 
 end.
