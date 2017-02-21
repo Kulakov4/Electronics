@@ -15,9 +15,9 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   System.Contnrs, StoreHouseListQuery, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinscxPCPainter, ProductsSearchQuery, GridFrame,  ProductsBaseView,
-  ProductsSearchView, dxSkinBlack, dxSkinBlue,  dxSkinBlueprint, dxSkinCaramel,
-  dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,  dxSkinDevExpressDarkStyle,
+  dxSkinscxPCPainter, ProductsSearchQuery, GridFrame, ProductsBaseView,
+  ProductsSearchView, dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel,
+  dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
   dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
   dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
@@ -84,8 +84,8 @@ type
     procedure LoadFromExcelDocument;
     property QueryProductsSearch: TQueryProductsSearch
       read GetQueryProductsSearch write SetQueryProductsSearch;
-    property StoreHouseGroup: TStoreHouseGroup read FStoreHouseGroup write
-        SetStoreHouseGroup;
+    property StoreHouseGroup: TStoreHouseGroup read FStoreHouseGroup
+      write SetStoreHouseGroup;
   end;
 
 implementation
@@ -94,7 +94,7 @@ implementation
 
 uses
   NotifyEvents, System.UITypes, DialogUnit, ProjectConst, FieldInfoUnit,
-  System.Generics.Collections, DialogUnit2;
+  System.Generics.Collections, DialogUnit2, System.IOUtils;
 
 procedure TViewStoreHouse.actAddStorehouseExecute(Sender: TObject);
 var
@@ -135,7 +135,8 @@ begin
   if tvStorehouseList.Controller.SelectedRecordCount > 0 then
   begin
     StoreHouseGroup.qStoreHouseList.TryPost;
-    Value := InputBox(sDatabase, sPleaseWrite, StoreHouseGroup.qStoreHouseList.Title.AsString);
+    Value := InputBox(sDatabase, sPleaseWrite,
+      StoreHouseGroup.qStoreHouseList.Title.AsString);
     if (Value <> '') then
     begin
       StoreHouseGroup.qStoreHouseList.TryEdit;
@@ -180,7 +181,9 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
-  m := AFileName.Split([' ']);
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+
+  m := S.Split([' ']);
   if Length(m) <= 1 then
     TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
 
@@ -188,10 +191,12 @@ begin
   S := m[0];
 
   // Ищем склад с таким сокращением
-  if not StoreHouseGroup.qStoreHouseList.LocateByAbbreviation(S) then
-    TDialog.Create.ErrorMessageDialog(Format('Склад с сокращённым названием "%s" не найден', [S]));
+  if StoreHouseGroup.qStoreHouseList.LocateByAbbreviation(S) then
+    ViewProducts.LoadFromExcelDocument(AFileName)
+  else
+    TDialog.Create.ErrorMessageDialog
+      (Format('Склад с сокращённым названием "%s" не найден', [S]));
 
-  ViewProducts.LoadFromExcelDocument(AFileName);
 end;
 
 procedure TViewStoreHouse.SetQueryProductsSearch(const Value
@@ -216,7 +221,7 @@ begin
       FStoreHouseGroup.qStoreHouseList.DataSource;
 
     // Привязываем дочернее представление к данным
-    ViewStoreHouseInfo.QueryStoreHouseList := FStoreHouseGroup.qStoreHouseList;
+    ViewStorehouseInfo.QueryStoreHouseList := FStoreHouseGroup.qStoreHouseList;
     ViewProducts.QueryProducts := FStoreHouseGroup.qProducts;
 
     FIsShowSelection := true;

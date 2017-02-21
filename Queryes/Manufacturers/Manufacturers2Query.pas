@@ -128,7 +128,7 @@ end;
 
 function TQueryManufacturers2.Locate(AValue: string): Boolean;
 begin
-  Result := FDQuery.LocateEx(Name.FieldName, AValue, []);
+  Result := FDQuery.LocateEx(Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
 end;
 
 procedure TQueryManufacturers2.LocateOrAppend(AValue: string);

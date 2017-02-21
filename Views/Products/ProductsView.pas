@@ -72,8 +72,10 @@ type
   protected
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
   public
-    function LoadExcelFileHeader(const AFileName: String; AFieldsInfo:
-        TList<TFieldInfo>): Boolean;
+    function GetFieldInfoByColumnCaption(ABandCaption: string;
+      const AColumnCaption: String): TFieldInfo;
+    function LoadExcelFileHeader(const AFileName: String;
+      AFieldsInfo: TList<TFieldInfo>): Boolean;
     procedure LoadFromExcelDocument(const AFileName: String);
     procedure UpdateView; override;
     property QueryProducts: TQueryProducts read GetQueryProducts
@@ -271,14 +273,76 @@ begin
   UpdateSelectedCount;
 end;
 
+function TViewProducts.GetFieldInfoByColumnCaption(ABandCaption: string;
+  const AColumnCaption: String): TFieldInfo;
+var
+  ABand: TcxGridBand;
+  ACollectionItem: TCollectionItem;
+  AColumn: TcxGridDBBandedColumn;
+  i: Integer;
+  S1, S2: String;
+begin
+  Assert(not AColumnCaption.IsEmpty);
+
+  Result := nil;
+
+  // Цикл по всем бэндам
+  for ACollectionItem in MainView.Bands do
+  begin
+    ABand := ACollectionItem as TcxGridBand;
+    // Если заголовок бэнда нам подходит
+    if ABand.Caption.Trim.ToUpper = ABandCaption.Trim.ToUpper then
+    begin
+      for i := 0 to ABand.ColumnCount - 1 do
+      begin
+        AColumn := ABand.Columns[i] as TcxGridDBBandedColumn;
+
+        S1 := AColumn.Caption.Replace(' ', '', [rfReplaceAll]).ToUpper;
+        S2 := AColumnCaption.Replace(' ', '', [rfReplaceAll]).ToUpper;
+
+        if S1 = S2 then
+        begin
+          Result := TFieldInfo.Create(AColumn.DataBinding.FieldName);
+          break;
+        end;
+      end;
+      if Result <> nil then
+        break;
+    end;
+  end;
+end;
+
 function TViewProducts.GetQueryProducts: TQueryProducts;
 begin
   Result := QueryProductsBase as TQueryProducts;
 end;
 
 function TViewProducts.LoadExcelFileHeader(const AFileName: String;
-    AFieldsInfo: TList<TFieldInfo>): Boolean;
+  AFieldsInfo: TList<TFieldInfo>): Boolean;
+
+  function GetFieldInfo(const ABandCaption, AColumnCaption: String;
+    ADefaultFields: TDictionary<String, TFieldInfo>): TFieldInfo;
+  var
+    AKey: string;
+    S: string;
+  begin
+    AKey := AColumnCaption.Trim.ToUpper;
+
+    if ADefaultFields.ContainsKey(AKey) then
+    begin
+      Result := ADefaultFields[AKey];
+    end
+    else
+    begin
+      Result := GetFieldInfoByColumnCaption(ABandCaption, AKey);
+    end;
+    if Result <> nil then
+      S:=Result.FieldName;
+
+  end;
+
 var
+  AChildStringTreeNode: TStringTreeNode;
   ADefaultFields: TDictionary<String, TFieldInfo>;
   AExcelDM: TExcelDM;
   AFieldInfo: TFieldInfo;
@@ -286,11 +350,10 @@ var
   AProductsErrorTable: TProductsErrorTable;
   ARootTreeNode: TStringTreeNode;
   AStringTreeNode: TStringTreeNode;
-  i: Integer;
   OK: Boolean;
   UnknownFieldCount: cardinal;
+
 begin
-  Result := False;
   Assert(not AFileName.IsEmpty);
   Assert(AFieldsInfo <> nil);
 
@@ -318,35 +381,33 @@ begin
         for AStringTreeNode in ARootTreeNode.Childs do
         begin
           AFieldInfo := nil;
-          // Сначала ищем такую колонку в словаре полей "по умолчанию"
-          if ADefaultFields.ContainsKey(AStringTreeNode.Value.ToUpper) then
+
+          // Если у этого элемента нет дочерних
+          if AStringTreeNode.Childs.Count = 0 then
           begin
-            AFieldInfo := ADefaultFields[AStringTreeNode.Value.ToUpper];
+            AFieldInfo := GetFieldInfo('', AStringTreeNode.Value,
+              ADefaultFields);
           end
           else
           begin
-            // Цикл по всем колонкам представления
-            for i := 0 to MainView.ColumnCount - 1 do
+            // Если у этого элемента есть дочерние
+            for AChildStringTreeNode in AStringTreeNode.Childs do
             begin
-              if SameText(MainView.Columns[i].Caption, AStringTreeNode.Value)
-              then
-              begin
-                AFieldInfo := TFieldInfo.Create
-                  (MainView.Columns[i].DataBinding.FieldName);
-                break;
-              end;
+              AFieldInfo := GetFieldInfo(AStringTreeNode.Value,
+                AChildStringTreeNode.Value, ADefaultFields);
             end;
           end;
+
           if AFieldInfo = nil then
           begin
             Inc(UnknownFieldCount);
+            AProductsErrorTable.AddErrorMessage(AStringTreeNode.Value,
+              'Нераспознанный столбец');
 
             // Создаём описание нераспознанной колонки
             AFieldInfo := TFieldInfo.Create(Format('UnknownField_%d',
               [UnknownFieldCount]));
           end;
-          AProductsErrorTable.AddErrorMessage(AStringTreeNode.Value,
-            'Нераспознанный столбец');
           // Создаём описание поля для Excel таблицы
           AFieldsInfo.Add(AFieldInfo);
         end;
@@ -393,7 +454,8 @@ begin
   AFieldsInfo := TList<TFieldInfo>.Create();
   try
     // Загружаем список полей из файла
-    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then Exit;
+    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
+      Exit;
 
     AProductsExcelDM := TProductsExcelDM.Create(Self, AFieldsInfo);
     try

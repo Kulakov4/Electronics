@@ -74,7 +74,7 @@ type
     clFunctionalGroupExternalId: TcxGridDBColumn;
     clFunctionalGroupOrder: TcxGridDBColumn;
     clFunctionalGroupParentExternalId: TcxGridDBColumn;
-    cxPageControl1: TcxPageControl;
+    cxPageControl: TcxPageControl;
     tsStructure: TcxTabSheet;
     tsStorehouse: TcxTabSheet;
     tlLeftControl: TcxDBTreeList;
@@ -124,6 +124,7 @@ type
     ViewStoreHouse: TViewStoreHouse;
     dxBarSubItem6: TdxBarSubItem;
     actLoadProductsFromExcelTable: TAction;
+    dxBarButton9: TdxBarButton;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
@@ -152,7 +153,7 @@ type
     procedure tlLeftControlStartDrag(Sender: TObject;
       var DragObject: TDragObject);
     procedure btnFocusRootClick(Sender: TObject);
-    procedure cxPageControl1Change(Sender: TObject);
+    procedure cxPageControlChange(Sender: TObject);
     procedure cxpgcntrlMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure cxtsParametricTableShow(Sender: TObject);
@@ -550,6 +551,8 @@ end;
 
 procedure TfrmMain.actLoadProductsFromExcelTableExecute(Sender: TObject);
 begin
+  // Переключаемся на вкладку склады
+  cxPageControl.ActivePage := tsStorehouse;
   ViewStoreHouse.LoadFromExcelDocument;
 end;
 
@@ -764,7 +767,7 @@ begin
   Result := (databasePath <> '') and (TDirectory.Exists(databasePath));
 end;
 
-procedure TfrmMain.cxPageControl1Change(Sender: TObject);
+procedure TfrmMain.cxPageControlChange(Sender: TObject);
 begin
   ViewStoreHouse.ViewProducts.CheckAndSaveChanges;
   ViewStoreHouse.ViewProductsSearch.CheckAndSaveChanges;
@@ -835,22 +838,16 @@ var
   OK: Boolean;
 begin
   cxpgcntrlMain.ActivePageIndex := 0;
-  cxPageControl1.ActivePageIndex := 0;
+  cxPageControl.ActivePage := tsStructure;
 
   // Создаём модуль репозитория
   if DMRepository = nil then
     DMRepository := TDMRepository.Create(Self);
+
   // Сами создаём модуль данных
-  // datamoduleMain := TdatamoduleMain.Create(Self);
   DM := TDM.Create(Self);
 
   inherited;
-
-  // DM.ComponentsExMasterDetail.qComponentsEx.Name := 'qComponentsEx';
-  // DM.ComponentsExMasterDetail.qComponentsEx.Lock := True;
-  // // Блокируем обновление
-  // DM.ComponentsExMasterDetail.qComponentsDetailEx.Lock := True;
-  // // Блокируем обновление
 
   Self.WindowState := wsNormal;
 

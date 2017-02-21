@@ -32,7 +32,7 @@ object frmMain: TfrmMain
     Font.Name = 'Tahoma'
     Font.Style = []
   end
-  object cxPageControl1: TcxPageControl
+  object cxPageControl: TcxPageControl
     Left = 0
     Top = 52
     Width = 1059
@@ -41,7 +41,7 @@ object frmMain: TfrmMain
     TabOrder = 5
     Properties.ActivePage = tsStructure
     Properties.CustomButtons.Buttons = <>
-    OnChange = cxPageControl1Change
+    OnChange = cxPageControlChange
     ClientRectBottom = 560
     ClientRectLeft = 4
     ClientRectRight = 1055
@@ -98,6 +98,7 @@ object frmMain: TfrmMain
             OnExpanded = tlLeftControlExpanded
             OnMouseUp = tlLeftControlMouseDown
             OnStartDrag = tlLeftControlStartDrag
+            ExplicitLeft = 4
             object clValue: TcxDBTreeListColumn
               PropertiesClassName = 'TcxMemoProperties'
               Properties.ReadOnly = False
@@ -167,10 +168,6 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -1078,7 +1075,15 @@ object frmMain: TfrmMain
       Visible = ivAlways
       ImageIndex = 21
       Images = DMRepository.cxImageList
-      ItemLinks = <>
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton9'
+        end>
+    end
+    object dxBarButton9: TdxBarButton
+      Action = actLoadProductsFromExcelTable
+      Category = 0
     end
   end
   object pmLeftTreeList: TPopupMenu
