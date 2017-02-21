@@ -161,7 +161,8 @@ uses
   SearchProductQuery in 'Queryes\Search\SearchProductQuery.pas' {QuerySearchProduct: TFrame},
   SearchStorehouseProductByID in 'Queryes\Search\SearchStorehouseProductByID.pas' {QuerySearchStorehouseProductByID: TFrame},
   QueryGroupUnit in 'Queryes\QueryGroupUnit.pas' {QueryGroup: TFrame},
-  ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule};
+  ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule},
+  DialogUnit2 in 'Helpers\DialogUnit2.pas';
 
 {$R *.res}
 

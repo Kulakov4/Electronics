@@ -31,7 +31,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox;
+  cxDBLookupComboBox, CustomErrorTable, FieldInfoUnit;
 
 type
   TViewProducts = class(TViewProductsBase)
@@ -40,16 +40,12 @@ type
     dxbrbtnAdd: TdxBarButton;
     dxbrbtnDelete: TdxBarButton;
     dxbrbtnSave: TdxBarButton;
-    dxbrsbtmPaste: TdxBarSubItem;
     dxBarButton2: TdxBarButton;
     actPasteComponents: TAction;
     N2: TMenuItem;
-    actLoadFromExcelDocument: TAction;
-    dxBarButton1: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
-    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actPasteComponentsExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -76,10 +72,26 @@ type
   protected
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
   public
+    function LoadExcelFileHeader(const AFileName: String; AFieldsInfo:
+        TList<TFieldInfo>): Boolean;
+    procedure LoadFromExcelDocument(const AFileName: String);
     procedure UpdateView; override;
     property QueryProducts: TQueryProducts read GetQueryProducts
       write SetQueryProducts;
     { Public declarations }
+  end;
+
+  TProductsErrorTable = class(TCustomErrorTable)
+  private
+    function GetDescription: TField;
+    function GetError: TField;
+    function GetColumnName: TField;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure AddErrorMessage(const AColumnName: string; AMessage: string);
+    property Description: TField read GetDescription;
+    property Error: TField read GetError;
+    property ColumnName: TField read GetColumnName;
   end;
 
 implementation
@@ -88,8 +100,9 @@ implementation
 
 uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
-  DialogUnit, Vcl.Clipbrd, SettingsController, FieldInfoUnit, ExcelDataModule,
-  ProductsExcelDataModule, ProgressBarForm;
+  DialogUnit, Vcl.Clipbrd, SettingsController, ExcelDataModule,
+  ProductsExcelDataModule, ProgressBarForm, ErrorForm, CustomExcelTable,
+  GridViewForm;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var
@@ -135,76 +148,6 @@ begin
 
       UpdateView;
     end;
-  end;
-end;
-
-procedure TViewProducts.actLoadFromExcelDocumentExecute(Sender: TObject);
-Var
-  AExcelDM: TExcelDM;
-  AFieldName: string;
-  AFieldsInfo: TList<TFieldInfo>;
-  AFileName: String;
-  AProductsExcelDM: TProductsExcelDM;
-  ARootTreeNode: TStringTreeNode;
-  AStringTreeNode: TStringTreeNode;
-  i: Integer;
-begin
-  inherited;
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.ParametricDataFolder);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
-
-  // Описания полей excel файла
-  AFieldsInfo := TList<TFieldInfo>.Create;
-  try
-    AExcelDM := TExcelDM.Create(Self);
-    try
-      // Загружаем описания полей Excel файла
-      ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
-
-      // Цикл по всем заголовкам таблицы
-      for AStringTreeNode in ARootTreeNode.Childs do
-      begin
-        // Цикл по всем колонкам представления
-        for i := 0 to MainView.ColumnCount - 1 do
-        begin
-          if SameText(MainView.Columns[i].Caption, AStringTreeNode.Value) then
-          begin
-            // Создаём описание поля связанного с подпараметром
-            AFieldsInfo.Add(TFieldInfo.Create(MainView.Columns[i].DataBinding.FieldName));
-            break;
-          end;
-        end;
-      end;
-
-      if AFieldsInfo.Count = 0 then
-      begin
-        TDialog.Create.ErrorMessageDialog('Заголовки столбцов не распознаны');
-        Exit;
-      end;
-
-      AProductsExcelDM := TProductsExcelDM.Create(Self, AFieldsInfo);
-      try
-        // Загружаем данные из Excel файла
-        TfrmProgressBar.Process(AProductsExcelDM,
-          procedure
-          begin
-            AProductsExcelDM.LoadExcelFile(AFileName);
-          end, 'Загрузка складских данных', sRows);
-
-      finally
-        FreeAndNil(AProductsExcelDM);
-      end;
-    finally
-      FreeAndNil(AExcelDM)
-    end;
-  finally
-    FreeAndNil(AFieldsInfo);
   end;
 end;
 
@@ -333,18 +276,179 @@ begin
   Result := QueryProductsBase as TQueryProducts;
 end;
 
+function TViewProducts.LoadExcelFileHeader(const AFileName: String;
+    AFieldsInfo: TList<TFieldInfo>): Boolean;
+var
+  ADefaultFields: TDictionary<String, TFieldInfo>;
+  AExcelDM: TExcelDM;
+  AFieldInfo: TFieldInfo;
+  AfrmGridView: TfrmGridView;
+  AProductsErrorTable: TProductsErrorTable;
+  ARootTreeNode: TStringTreeNode;
+  AStringTreeNode: TStringTreeNode;
+  i: Integer;
+  OK: Boolean;
+  UnknownFieldCount: cardinal;
+begin
+  Result := False;
+  Assert(not AFileName.IsEmpty);
+  Assert(AFieldsInfo <> nil);
+
+  ADefaultFields := TDictionary<String, TFieldInfo>.Create;
+  try
+    // Заполняем поля "по умолчанию"
+    ADefaultFields.Add(clValue.Caption.ToUpper,
+      TFieldInfo.Create(QueryProducts.Value.FieldName, True,
+      'Не задано название компонента'));
+
+    ADefaultFields.Add(clProducer.Caption.ToUpper, TFieldInfo.Create('Producer',
+      True, 'Не задан производитель'));
+
+    AExcelDM := TExcelDM.Create(Self);
+    try
+      // Загружаем описания полей Excel файла
+      ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
+
+      UnknownFieldCount := 0; // Кол-во нераспознанных полей
+
+      // Создаём таблицу с ошибками
+      AProductsErrorTable := TProductsErrorTable.Create(Self);
+      try
+        // Цикл по всем заголовкам таблицы
+        for AStringTreeNode in ARootTreeNode.Childs do
+        begin
+          AFieldInfo := nil;
+          // Сначала ищем такую колонку в словаре полей "по умолчанию"
+          if ADefaultFields.ContainsKey(AStringTreeNode.Value.ToUpper) then
+          begin
+            AFieldInfo := ADefaultFields[AStringTreeNode.Value.ToUpper];
+          end
+          else
+          begin
+            // Цикл по всем колонкам представления
+            for i := 0 to MainView.ColumnCount - 1 do
+            begin
+              if SameText(MainView.Columns[i].Caption, AStringTreeNode.Value)
+              then
+              begin
+                AFieldInfo := TFieldInfo.Create
+                  (MainView.Columns[i].DataBinding.FieldName);
+                break;
+              end;
+            end;
+          end;
+          if AFieldInfo = nil then
+          begin
+            Inc(UnknownFieldCount);
+
+            // Создаём описание нераспознанной колонки
+            AFieldInfo := TFieldInfo.Create(Format('UnknownField_%d',
+              [UnknownFieldCount]));
+          end;
+          AProductsErrorTable.AddErrorMessage(AStringTreeNode.Value,
+            'Нераспознанный столбец');
+          // Создаём описание поля для Excel таблицы
+          AFieldsInfo.Add(AFieldInfo);
+        end;
+
+        // Если среди колонок excel файла есть нераспознанные
+        OK := AProductsErrorTable.RecordCount = 0;
+        if not OK then
+        begin
+          AfrmGridView := TfrmGridView.Create(Self);
+          try
+            AfrmGridView.Caption := 'Нераспознанные столбцы';
+            AfrmGridView.DataSet := AProductsErrorTable;
+            // Показываем что мы собираемся привязывать
+            OK := AfrmGridView.ShowModal = mrOk;
+          finally
+            FreeAndNil(AfrmGridView);
+          end;
+
+        end;
+
+      finally
+        FreeAndNil(AProductsErrorTable);
+      end;
+    finally
+      FreeAndNil(AExcelDM);
+    end;
+  finally
+    FreeAndNil(ADefaultFields);
+  end;
+
+  OK := OK and (AFieldsInfo.Count > 0);
+  Result := OK;
+end;
+
+procedure TViewProducts.LoadFromExcelDocument(const AFileName: String);
+var
+  AFieldsInfo: TList<TFieldInfo>;
+  AfrmError: TfrmError;
+  AProductsExcelDM: TProductsExcelDM;
+  OK: Boolean;
+begin
+  Assert(not AFileName.IsEmpty);
+
+  AFieldsInfo := TList<TFieldInfo>.Create();
+  try
+    // Загружаем список полей из файла
+    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then Exit;
+
+    AProductsExcelDM := TProductsExcelDM.Create(Self, AFieldsInfo);
+    try
+      // Загружаем данные из Excel файла
+      TfrmProgressBar.Process(AProductsExcelDM,
+        procedure
+        begin
+          AProductsExcelDM.LoadExcelFile(AFileName);
+        end, 'Загрузка складских данных', sRows);
+
+      OK := AProductsExcelDM.ExcelTable.Errors.RecordCount = 0;
+      // Если в ходе загрузки данных произошли ошибки (производитель не найден)
+      if not OK then
+      begin
+        AfrmError := TfrmError.Create(Self);
+        try
+          AfrmError.ErrorTable := AProductsExcelDM.ExcelTable.Errors;
+          // Показываем ошибки
+          OK := AfrmError.ShowModal = mrOk;
+          AProductsExcelDM.ExcelTable.ExcludeErrors(etError);
+        finally
+          FreeAndNil(AfrmError);
+        end;
+      end;
+      if OK then
+      begin
+        // Сохраняем данные в БД
+        TfrmProgressBar.Process(AProductsExcelDM.ExcelTable,
+          procedure
+          begin
+            QueryProducts.AppendList(AProductsExcelDM.ExcelTable);
+          end, 'Сохранение складских данных в БД', sRecords);
+      end;
+
+    finally
+      FreeAndNil(AProductsExcelDM);
+    end;
+  finally
+    FreeAndNil(AFieldsInfo);
+  end;
+
+end;
+
 procedure TViewProducts.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
 Var
-  Ok: Boolean;
+  OK: Boolean;
 begin
-  Ok := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
+  OK := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
 
-  actPasteComponents.Enabled := Ok and (AColumn.GridView.Level = cxGridLevel)
+  actPasteComponents.Enabled := OK and (AColumn.GridView.Level = cxGridLevel)
     and (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
-  Ok := (AColumn <> nil);
+  OK := (AColumn <> nil);
 
-  actPasteComponents.Visible := Ok and (AColumn.GridView.Level = cxGridLevel)
+  actPasteComponents.Visible := OK and (AColumn.GridView.Level = cxGridLevel)
     and (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 end;
 
@@ -381,89 +485,19 @@ begin
   end;
 end;
 
-// TODO: SortList
-// { Сортировка в рамках одной группы компонентов }
-// function TViewProducts.SortList(AList: TList<TProductRecord>;
-// ASortMode: Integer): TList<TProductRecord>;
-// var
-// AComparison: TComparison<TProductRecord>;
-/// / AComparisonByExcelRow: TComparison<TProductRecord>;
-// ATempList: TList<TProductRecord>;
-// i: Integer;
-// begin
-/// / пользовательское сравнение по значению
-// if ASortMode = 1 then
-// begin
-// AComparison := function(const Left, Right: TProductRecord): Integer
-// begin
-// Result := CompareText(Left.Value, Right.Value);
-// if Result = 0 then
-// begin
-// Result := Left.ExcelRowNumber - Right.ExcelRowNumber;
-// if Result > 0 then
-// Result := 1;
-// if Result < 0 then
-// Result := -1;
-// end;
-// end;
-// end;
-// if ASortMode = 0 then
-// begin
-// // Сортировка по номеру строки
-// AComparison := function(const Left, Right: TProductRecord): Integer
-// begin
-// Result := Left.ExcelRowNumber - Right.ExcelRowNumber;
-// if Result > 0 then
-// Result := 1;
-// if Result < 0 then
-// Result := -1;
-// end;
-// end;
-//
-// Result := TList<TProductRecord>.Create();
-// ATempList := TList<TProductRecord>.Create();
-// for i := 0 to AList.Count - 1 do // берем весь список
-// begin
-// if (ATempList.Count > 0) then // если временный список не пустой
-// begin
-// if (ATempList.Last.ComponentGroup <> AList[i].ComponentGroup) then
-// // и совпадает группа компонентов
-// begin // иначе отсортировать временный список и всё равно добавить запись
-// ATempList.Sort(TComparer<TProductRecord>.Construct(AComparison));
-// // сортировка пользовательским сравнением
-// Result.AddRange(ATempList);
-// ATempList := TList<TProductRecord>.Create();
-// end;
-// end; // в результате всё равно добавить запись
-// ATempList.Add(AList[i]);
-// end;
-/// / и в результате нужно отсортировать временный список и из него внести данные, чтобы не потерять последнюю группу компонентов
-// ATempList.Sort(TComparer<TProductRecord>.Construct(AComparison));
-/// / сортировка пользовательским сравнением
-// Result.AddRange(ATempList);
-//
-/// / Result := AList;
-//
-// { AComparison := function(const Left, Right: TProductRecord): Integer
-// begin
-// Result := CompareText(Left.ComponentGroup, Right.ComponentGroup);
-// end;
-// AList.Sort(TComparer<TProductRecord>.Construct(AComparison)); }
-// end;
-
 procedure TViewProducts.StatusBarResize(Sender: TObject);
 const
   EmptyPanelIndex = 2;
 var
-  I: Integer;
+  i: Integer;
   x: Integer;
 begin
   x := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
+  for i := 0 to StatusBar.Panels.Count - 1 do
   begin
-    if I <> EmptyPanelIndex then
+    if i <> EmptyPanelIndex then
     begin
-      Dec(x, StatusBar.Panels[I].Width);
+      Dec(x, StatusBar.Panels[i].Width);
     end;
   end;
   x := IfThen(x >= 0, x, 0);
@@ -489,22 +523,64 @@ end;
 procedure TViewProducts.UpdateView;
 var
   AFocusedView: TcxGridDBBandedTableView;
-  Ok: Boolean;
+  OK: Boolean;
 begin
   inherited;
-  Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
+  OK := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
   AFocusedView := FocusedTableView;
 
-  actAdd.Enabled := Ok;
+  actAdd.Enabled := OK;
   {
     and ((QueryProductsBase.FDQuery.State = dsBrowse) or
     ((QueryProductsBase.FDQuery.State in [dsEdit, dsInsert]) and
     (not QueryProductsBase.Value.AsString.IsEmpty)));
   }
-  actDelete.Enabled := Ok and (AFocusedView <> nil) and
+  actDelete.Enabled := OK and (AFocusedView <> nil) and
     (AFocusedView.DataController.RowCount > 0);
+end;
 
-  actLoadFromExcelDocument.Enabled := Ok;
+constructor TProductsErrorTable.Create(AOwner: TComponent);
+begin
+  inherited;
+  FieldDefs.Add('ColumnName', ftString, 100);
+  FieldDefs.Add('Error', ftString, 50);
+  FieldDefs.Add('Description', ftString, 150);
+  CreateDataSet;
+
+  Open;
+
+  ColumnName.DisplayLabel := 'Колонка';
+  Description.DisplayLabel := 'Описание';
+  Error.DisplayLabel := 'Вид ошибки';
+end;
+
+procedure TProductsErrorTable.AddErrorMessage(const AColumnName: string;
+AMessage: string);
+begin
+  Assert(Active);
+
+  if not(State in [dsEdit, dsInsert]) then
+    Append;
+
+  ColumnName.AsString := AColumnName;
+  Error.AsString := ErrorMessage;
+  Description.AsString := AMessage;
+  Post;
+end;
+
+function TProductsErrorTable.GetDescription: TField;
+begin
+  Result := FieldByName('Description');
+end;
+
+function TProductsErrorTable.GetError: TField;
+begin
+  Result := FieldByName('Error');
+end;
+
+function TProductsErrorTable.GetColumnName: TField;
+begin
+  Result := FieldByName('ColumnName');
 end;
 
 end.

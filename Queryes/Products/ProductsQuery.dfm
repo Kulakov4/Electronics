@@ -1,7 +1,6 @@
 inherited QueryProducts: TQueryProducts
   Width = 264
   Height = 153
-  OnClick = FrameClick
   ExplicitWidth = 264
   ExplicitHeight = 153
   inherited Label1: TLabel

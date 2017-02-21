@@ -167,6 +167,10 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -991,6 +995,10 @@ object frmMain: TfrmMain
         item
           Visible = True
           ItemName = 'dxBarSubItem4'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarSubItem6'
         end>
     end
     object dxBarButton3: TdxBarButton
@@ -1063,6 +1071,14 @@ object frmMain: TfrmMain
     object dxBarButton7: TdxBarButton
       Action = actAutoBindingDescriptions
       Category = 0
+    end
+    object dxBarSubItem6: TdxBarSubItem
+      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1085#1072' '#1089#1082#1083#1072#1076
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 21
+      Images = DMRepository.cxImageList
+      ItemLinks = <>
     end
   end
   object pmLeftTreeList: TPopupMenu
@@ -1174,6 +1190,11 @@ object frmMain: TfrmMain
       Caption = #1050' '#1082#1088#1072#1090#1082#1080#1084' '#1086#1087#1080#1089#1072#1085#1080#1103#1084
       ImageIndex = 29
       OnExecute = actAutoBindingDescriptionsExecute
+    end
+    object actLoadProductsFromExcelTable: TAction
+      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 32
+      OnExecute = actLoadProductsFromExcelTableExecute
     end
   end
 end

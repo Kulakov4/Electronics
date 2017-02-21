@@ -20,6 +20,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
+    function LocateByAbbreviation(const AAbbreviation: string): Boolean;
     function LocateOrAppend(const AValue: string): Boolean;
     property Abbreviation: TField read GetAbbreviation;
     property Title: TField read GetTitle;
@@ -54,6 +55,13 @@ end;
 function TQueryStoreHouseList.GetTitle: TField;
 begin
   Result := Field('Title');
+end;
+
+function TQueryStoreHouseList.LocateByAbbreviation(const AAbbreviation:
+    string): Boolean;
+begin
+  Assert(not AAbbreviation.IsEmpty);
+  Result := FDQuery.Locate(Abbreviation.FieldName, AAbbreviation, []);
 end;
 
 function TQueryStoreHouseList.LocateOrAppend(const AValue: string): Boolean;

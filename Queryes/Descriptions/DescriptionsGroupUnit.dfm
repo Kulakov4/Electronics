@@ -34,8 +34,8 @@ inherited DescriptionsGroup: TDescriptionsGroup
       end>
     ExplicitLeft = 0
     ExplicitTop = 0
-    ExplicitWidth = 574
-    ExplicitHeight = 145
+    ExplicitWidth = 604
+    ExplicitHeight = 81
     inline qDescriptionsMaster: TQueryDescriptionsMaster
       Left = 1
       Top = 1
@@ -43,10 +43,10 @@ inherited DescriptionsGroup: TDescriptionsGroup
       Height = 79
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 67
+      ExplicitLeft = 1
       ExplicitTop = 1
-      ExplicitWidth = 143
-      ExplicitHeight = 125
+      ExplicitWidth = 201
+      ExplicitHeight = 79
     end
     inline qDescriptionsDetail: TQueryDescriptionsDetail
       Left = 202
@@ -55,10 +55,10 @@ inherited DescriptionsGroup: TDescriptionsGroup
       Height = 79
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 225
-      ExplicitTop = 37
-      ExplicitWidth = 125
-      ExplicitHeight = 71
+      ExplicitLeft = 202
+      ExplicitTop = 1
+      ExplicitWidth = 201
+      ExplicitHeight = 79
     end
     inline qManufacturers2: TQueryManufacturers2
       Left = 403
@@ -67,10 +67,10 @@ inherited DescriptionsGroup: TDescriptionsGroup
       Height = 79
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 387
-      ExplicitTop = 37
-      ExplicitWidth = 182
-      ExplicitHeight = 71
+      ExplicitLeft = 403
+      ExplicitTop = 1
+      ExplicitWidth = 200
+      ExplicitHeight = 79
     end
   end
 end

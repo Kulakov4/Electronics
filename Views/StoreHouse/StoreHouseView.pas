@@ -81,6 +81,7 @@ type
     procedure SetStoreHouseGroup(const Value: TStoreHouseGroup);
   protected
   public
+    procedure LoadFromExcelDocument;
     property QueryProductsSearch: TQueryProductsSearch
       read GetQueryProductsSearch write SetQueryProductsSearch;
     property StoreHouseGroup: TStoreHouseGroup read FStoreHouseGroup write
@@ -92,7 +93,8 @@ implementation
 {$R *.dfm}
 
 uses
-  NotifyEvents, System.UITypes, DialogUnit, ProjectConst;
+  NotifyEvents, System.UITypes, DialogUnit, ProjectConst, FieldInfoUnit,
+  System.Generics.Collections, DialogUnit2;
 
 procedure TViewStoreHouse.actAddStorehouseExecute(Sender: TObject);
 var
@@ -166,6 +168,30 @@ end;
 function TViewStoreHouse.GetQueryProductsSearch: TQueryProductsSearch;
 begin
   Result := ViewProductsSearch.QueryProductsSearch;
+end;
+
+procedure TViewStoreHouse.LoadFromExcelDocument;
+var
+  AFileName: String;
+  m: TArray<String>;
+  S: string;
+begin
+  // Открываем диалог выбора excel файла из последнего места
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+    Exit;
+
+  m := AFileName.Split([' ']);
+  if Length(m) <= 1 then
+    TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
+
+  // Всё что до пробела - сокращённое название склада
+  S := m[0];
+
+  // Ищем склад с таким сокращением
+  if not StoreHouseGroup.qStoreHouseList.LocateByAbbreviation(S) then
+    TDialog.Create.ErrorMessageDialog(Format('Склад с сокращённым названием "%s" не найден', [S]));
+
+  ViewProducts.LoadFromExcelDocument(AFileName);
 end;
 
 procedure TViewStoreHouse.SetQueryProductsSearch(const Value

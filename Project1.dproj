@@ -754,6 +754,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="Helpers\DialogUnit2.pas"/>
         <None Include="ModelSupport_Project1\default.txaPackage"/>
         <None Include="ModelSupport_Project1\default.txvpck"/>
         <None Include="ModelSupport_Project1\CustomComponentsQuery\default.txvpck"/>

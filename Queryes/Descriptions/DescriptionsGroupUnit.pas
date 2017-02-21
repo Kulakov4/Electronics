@@ -20,6 +20,7 @@ type
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
     { Private declarations }
+  protected
   public
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;

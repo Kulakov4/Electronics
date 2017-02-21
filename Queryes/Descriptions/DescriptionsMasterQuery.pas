@@ -69,6 +69,7 @@ procedure TQueryDescriptionsMaster.LocateOrAppend(AValue: string);
 var
   OK: Boolean;
 begin
+  Assert(not AValue.IsEmpty);
   OK := FDQuery.LocateEx('ComponentType', AValue, []);
 
   if not OK then

@@ -52,10 +52,6 @@ inherited ViewProducts: TViewProducts
         item
           Visible = True
           ItemName = 'dxBarButton2'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbrsbtmPaste'
         end>
     end
     object dxbrbtnAdd: TdxBarButton
@@ -73,26 +69,10 @@ inherited ViewProducts: TViewProducts
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxbrsbtmPaste: TdxBarSubItem
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
-      Category = 0
-      Visible = ivAlways
-      ImageIndex = 20
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxBarButton1'
-        end>
-    end
     object dxBarButton2: TdxBarButton
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxBarButton1: TdxBarButton
-      Action = actLoadFromExcelDocument
-      Category = 0
     end
   end
   inherited ActionList: TActionList
@@ -112,11 +92,6 @@ inherited ViewProducts: TViewProducts
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 5
       OnExecute = actPasteComponentsExecute
-    end
-    object actLoadFromExcelDocument: TAction
-      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 32
-      OnExecute = actLoadFromExcelDocumentExecute
     end
   end
   inherited pmGrid: TPopupMenu
