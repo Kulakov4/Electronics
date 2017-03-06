@@ -95,7 +95,7 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst, ManufacturersForm;
+  ImportProcessForm, ProjectConst;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin

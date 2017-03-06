@@ -1,4 +1,4 @@
-inherited ViewManufacturers: TViewManufacturers
+inherited ViewProducers: TViewProducers
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown

@@ -106,7 +106,7 @@ implementation
 uses
   DescriptionsExcelDataModule, DialogUnit, ImportErrorForm, NotifyEvents,
   cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
-  System.IOUtils, ProjectConst, ProgressBarForm;
+  System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit;
 
 {$R *.dfm}
 
@@ -414,7 +414,7 @@ procedure TViewDescriptions.clIDManufacturerPropertiesNewLookupDisplayText
   (Sender: TObject; const AText: TCaption);
 begin
   inherited;
-  FDescriptionsGroup.qManufacturers2.AddNewValue(AText);
+  FDescriptionsGroup.qProducers.AddNewValue(AText);
 end;
 
 procedure TViewDescriptions.CreateColumnsBarButtons;
@@ -497,8 +497,6 @@ end;
 
 procedure TViewDescriptions.SetDescriptionsGroup(const Value:
     TDescriptionsGroup);
-var
-  P: TcxLookupComboBoxProperties;
 begin
   FDescriptionsGroup := Value;
 
@@ -513,20 +511,14 @@ begin
     cxGridDBBandedTableView2.DataController.DataSource :=
       FDescriptionsGroup.qDescriptionsDetail.DataSource;
 
-    P := clIDComponentType.Properties as TcxLookupComboBoxProperties;
-    P.ListSource := FDescriptionsGroup.qDescriptionsMaster.DataSource;
-    P.ListFieldNames := 'ComponentType';
-    P.KeyFieldNames := 'ID';
+    InitializeLookupColumn( cxGridDBBandedTableView2,
+      FDescriptionsGroup.qDescriptionsDetail.IDComponentType.FieldName,
+      FDescriptionsGroup.qDescriptionsMaster.DataSource, lsEditList, FDescriptionsGroup.qDescriptionsMaster.ComponentType.FieldName);
 
-    P := clIDManufacturer.Properties as TcxLookupComboBoxProperties;
-    P.ListSource := FDescriptionsGroup.qManufacturers2.DataSource;
-    P.ListFieldNames := 'Name';
-    P.KeyFieldNames := 'ID';
+    InitializeLookupColumn( cxGridDBBandedTableView2,
+      FDescriptionsGroup.qDescriptionsDetail.IDManufacturer.FieldName,
+      FDescriptionsGroup.qProducers.DataSource, lsEditList, FDescriptionsGroup.qProducers.Name.FieldName);
 
-
-    // cxGrid1DBTableView1.DataController.DataSource :=
-    // FDescriptionsGroup.qDescriptionsDetail.DataSource;
-    // cxGrid1DBTableView1.Assign(cxGridDBBandedTableView2);
 
     TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,
       DoAfterDataChange, FEventList);

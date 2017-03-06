@@ -13,7 +13,7 @@ uses
   SearchProductParameterValuesQuery, SearchFamilyByID,
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchDaughterComponentQuery, System.Generics.Collections,
-  SearchStorehouseProductByID, Manufacturers2Query;
+  SearchStorehouseProductByID, ProducersQuery;
 
 type
   TComponentNameParts = record
@@ -26,7 +26,7 @@ type
     qStoreHouseProducts: TfrmApplyQuery;
     qProducts: TfrmApplyQuery;
   private
-    FQueryProducers: TQueryManufacturers2;
+    FQueryProducers: TQueryProducers;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchFamilytByID: TQuerySearchFamilyByID;
     FQuerySearchProduct: TQuerySearchProduct;
@@ -38,7 +38,7 @@ type
     function GetDescriptionID: TField;
     function GetIDProducer: TField;
     function GetProductID: TField;
-    function GetQueryProducers: TQueryManufacturers2;
+    function GetQueryProducers: TQueryProducers;
     function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetQuerySearchFamilytByID: TQuerySearchFamilyByID;
     function GetQuerySearchProduct: TQuerySearchProduct;
@@ -69,7 +69,7 @@ type
     property DescriptionID: TField read GetDescriptionID;
     property IDProducer: TField read GetIDProducer;
     property ProductID: TField read GetProductID;
-    property QueryProducers: TQueryManufacturers2 read GetQueryProducers;
+    property QueryProducers: TQueryProducers read GetQueryProducers;
     property StorehouseId: TField read GetStorehouseId;
     property Value: TField read GetValue;
     { Public declarations }
@@ -344,11 +344,11 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQueryProductsBase.GetQueryProducers: TQueryManufacturers2;
+function TQueryProductsBase.GetQueryProducers: TQueryProducers;
 begin
   if FQueryProducers = nil then
   begin
-    FQueryProducers := TQueryManufacturers2.Create(Self);
+    FQueryProducers := TQueryProducers.Create(Self);
     FQueryProducers.TryOpen;
   end;
 

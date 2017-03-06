@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, Data.DB,
   System.Generics.Collections, NotifyEvents, FireDAC.Comp.DataSet,
-  Manufacturers2Query, BodyTypesQuery2, ExcelDataModule, CustomErrorTable,
+  ProducersQuery, BodyTypesQuery2, ExcelDataModule, CustomErrorTable,
   DocFieldInfo, BodyTypesQuery, CustomComponentsQuery, ProcRefUnit,
   TableWithProgress, BaseComponentsQuery, BaseFamilyQuery, QueryGroupUnit;
 
@@ -18,7 +18,7 @@ type
     FAfterApplyUpdates: TNotifyEventsEx;
     FFullDeleted: TList<Integer>;
     FBodyTypes: TQueryBodyTypes;
-    FManufacturers: TQueryManufacturers2;
+    FProducers: TQueryProducers;
     function GetQueryBaseComponents: TQueryBaseComponents;
     function GetQueryBaseFamily: TQueryBaseFamily;
     { Private declarations }
@@ -36,8 +36,7 @@ type
     property FullDeleted: TList<Integer> read FFullDeleted;
     property QueryBaseComponents: TQueryBaseComponents read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
-    property Manufacturers: TQueryManufacturers2 read FManufacturers
-      write FManufacturers;
+    property Producers: TQueryProducers read FProducers write FProducers;
     { Public declarations }
   end;
 

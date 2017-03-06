@@ -215,7 +215,7 @@ implementation
 
 uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
-  ParametersForm, ManufacturersForm, SettingsController, BodyTypesTreeForm,
+  ParametersForm, SettingsController, BodyTypesTreeForm,
   BodyTypesGridQuery, ReportsForm, ReportQuery, ParametricExcelDataModule,
   ComponentBodyTypesExcelDataModule, ParametricTableForm, BodyTypesForm,
   ProjectConst, PathSettingsForm, ImportErrorForm, ErrorForm,
@@ -223,8 +223,9 @@ uses
   ImportProcessForm, SearchDaughterParameterQuery, ProgressInfo,
   ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl, SearchDescriptionsQuery,
   SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
-  GridViewForm, Manufacturers2Query, TreeListQuery, AutoBindingDocForm,
-  AutoBindingDescriptionForm, FireDAC.Comp.Client, AutoBinding, AllFamilyQuery;
+  GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
+  FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersQuery,
+  ProducersForm;
 
 {$R *.dfm}
 
@@ -702,14 +703,14 @@ end;
 
 procedure TfrmMain.actShowManufacturersExecute(Sender: TObject);
 begin
-  if frmManufacturers = nil then
+  if frmProducers = nil then
   begin
-    frmManufacturers := TfrmManufacturers.Create(Self);
-    frmManufacturers.ViewManufacturers.QueryManufacturers := DM.qManufacturers2;
+    frmProducers := TfrmProducers.Create(Self);
+    frmProducers.ViewProducers.QueryProducers := DM.qProducers;
   end;
 
-  DM.qManufacturers2.RefreshQuery;
-  frmManufacturers.Show;
+  DM.qProducers.RefreshQuery;
+  frmProducers.Show;
 end;
 
 procedure TfrmMain.actShowParametersExecute(Sender: TObject);
@@ -1143,37 +1144,37 @@ end;
 
 function TfrmMain.TakeProducer: String;
 var
-  AfrmManufacturers: TfrmManufacturers;
-  AQueryManufacturers2: TQueryManufacturers2;
+  AfrmProducers: TfrmProducers;
+  AQueryProducers: TQueryProducers;
 begin
   Result := '';
   // Сначала выберем производителя из справочника
-  AQueryManufacturers2 := TQueryManufacturers2.Create(Self);
+  AQueryProducers := TQueryProducers.Create(Self);
   try
-    AQueryManufacturers2.RefreshQuery;
-    AfrmManufacturers := TfrmManufacturers.Create(Self);
+    AQueryProducers.RefreshQuery;
+    AfrmProducers := TfrmProducers.Create(Self);
     try
-      AfrmManufacturers.Caption := 'Выберите производителя';
-      AfrmManufacturers.btnOk.ModalResult := mrOk;
+      AfrmProducers.Caption := 'Выберите производителя';
+      AfrmProducers.btnOk.ModalResult := mrOk;
 
-      AfrmManufacturers.ViewManufacturers.QueryManufacturers :=
-        AQueryManufacturers2;
-      if AfrmManufacturers.ShowModal <> mrOk then
+      AfrmProducers.ViewProducers.QueryProducers :=
+        AQueryProducers;
+      if AfrmProducers.ShowModal <> mrOk then
         Exit;
     finally
-      FreeAndNil(AfrmManufacturers);
+      FreeAndNil(AfrmProducers);
     end;
 
-    if AQueryManufacturers2.FDQuery.RecordCount = 0 then
+    if AQueryProducers.FDQuery.RecordCount = 0 then
     begin
       TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
         'Необходимо добавить производителя загружаемых компонентов.');
       Exit;
     end;
 
-    Result := AQueryManufacturers2.Name.AsString;
+    Result := AQueryProducers.Name.AsString;
   finally
-    FreeAndNil(AQueryManufacturers2);
+    FreeAndNil(AQueryProducers);
   end;
 end;
 

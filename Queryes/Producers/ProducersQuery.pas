@@ -1,4 +1,4 @@
-unit Manufacturers2Query;
+unit ProducersQuery;
 
 interface
 
@@ -12,7 +12,7 @@ uses
   QueryWithDataSourceUnit;
 
 type
-  TQueryManufacturers2 = class(TQueryWithDataSource)
+  TQueryProducers = class(TQueryWithDataSource)
     FDQueryID: TFDAutoIncField;
     FDQueryName: TWideStringField;
     fdqDropUnused: TFDQuery;
@@ -44,7 +44,7 @@ implementation
 
 uses RepositoryDataModule;
 
-constructor TQueryManufacturers2.Create(AOwner: TComponent);
+constructor TQueryProducers.Create(AOwner: TComponent);
 begin
   inherited;
 
@@ -56,20 +56,20 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryManufacturers2.AddNewValue(const AValue: string);
+procedure TQueryProducers.AddNewValue(const AValue: string);
 begin
   FDQuery.Append;
   Name.AsString := AValue;
   FDQuery.Post;
 end;
 
-procedure TQueryManufacturers2.ApplyUpdates;
+procedure TQueryProducers.ApplyUpdates;
 begin
   TryPost;
   FDQuery.Connection.Commit;
 end;
 
-procedure TQueryManufacturers2.CancelUpdates;
+procedure TQueryProducers.CancelUpdates;
 begin
   // отменяем все сделанные изменения на стороне клиента
   TryCancel;
@@ -77,23 +77,23 @@ begin
   RefreshQuery;
 end;
 
-procedure TQueryManufacturers2.DoAfterPostOrDelete(Sender: TObject);
+procedure TQueryProducers.DoAfterPostOrDelete(Sender: TObject);
 begin
   FAfterDataChange.CallEventHandlers(Self);
 end;
 
-procedure TQueryManufacturers2.DropUnuses;
+procedure TQueryProducers.DropUnuses;
 begin
   fdqDropUnused.ExecSQL;
   RefreshQuery;
 end;
 
-function TQueryManufacturers2.GetName: TField;
+function TQueryProducers.GetName: TField;
 begin
   Result := Field('Name');
 end;
 
-procedure TQueryManufacturers2.InsertRecordList(AManufacturesExcelTable
+procedure TQueryProducers.InsertRecordList(AManufacturesExcelTable
   : TManufacturesExcelTable);
 var
   AField: TField;
@@ -126,12 +126,12 @@ begin
   end;
 end;
 
-function TQueryManufacturers2.Locate(AValue: string): Boolean;
+function TQueryProducers.Locate(AValue: string): Boolean;
 begin
   Result := FDQuery.LocateEx(Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
 end;
 
-procedure TQueryManufacturers2.LocateOrAppend(AValue: string);
+procedure TQueryProducers.LocateOrAppend(AValue: string);
 var
   OK: Boolean;
 begin

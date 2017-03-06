@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, DescriptionsMasterQuery, DescriptionsDetailQuery,
-  FireDAC.Comp.Client, FireDAC.Stan.Intf, Manufacturers2Query, NotifyEvents,
+  FireDAC.Comp.Client, FireDAC.Stan.Intf, ProducersQuery, NotifyEvents,
   DescriptionsExcelDataModule, QueryWithDataSourceUnit, BaseQuery,
   BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit;
 
@@ -14,7 +14,7 @@ type
   TDescriptionsGroup = class(TQueryGroup)
     qDescriptionsMaster: TQueryDescriptionsMaster;
     qDescriptionsDetail: TQueryDescriptionsDetail;
-    qManufacturers2: TQueryManufacturers2;
+    qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
@@ -57,7 +57,7 @@ end;
 procedure TDescriptionsGroup.Commit;
 begin
   Inherited;
-  qManufacturers2.DropUnuses;
+  qProducers.DropUnuses;
 end;
 
 procedure TDescriptionsGroup.DoAfterPostOrDelete(Sender: TObject);
@@ -87,7 +87,7 @@ begin
     begin
       qDescriptionsMaster.LocateOrAppend(ADescriptionsExcelTable.ComponentType.AsString);
 
-      qManufacturers2.LocateOrAppend(ADescriptionsExcelTable.Manufacturer.AsString);
+      qProducers.LocateOrAppend(ADescriptionsExcelTable.Manufacturer.AsString);
 
       qDescriptionsDetail.FDQuery.Append;
 
@@ -100,7 +100,7 @@ begin
       end;
       qDescriptionsDetail.IDComponentType.AsInteger :=
         qDescriptionsMaster.PKValue;
-      qDescriptionsDetail.IDManufacturer.AsInteger := qManufacturers2.PKValue;
+      qDescriptionsDetail.IDManufacturer.AsInteger := qProducers.PKValue;
       qDescriptionsDetail.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;
@@ -115,7 +115,7 @@ end;
 
 procedure TDescriptionsGroup.ReOpen;
 begin
-  qManufacturers2.DropUnuses;
+//  qProducers.DropUnuses;
   qDescriptionsMaster.RefreshQuery;
   qDescriptionsDetail.RefreshQuery;
 end;
@@ -123,7 +123,7 @@ end;
 procedure TDescriptionsGroup.Rollback;
 begin
   inherited;
-  qManufacturers2.DropUnuses;
+//  qProducers.DropUnuses;
 end;
 
 end.

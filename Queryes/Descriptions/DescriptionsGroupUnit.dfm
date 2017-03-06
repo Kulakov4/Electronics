@@ -29,7 +29,7 @@ inherited DescriptionsGroup: TDescriptionsGroup
       end
       item
         Column = 2
-        Control = qManufacturers2
+        Control = qProducers
         Row = 0
       end>
     ExplicitLeft = 0
@@ -60,17 +60,15 @@ inherited DescriptionsGroup: TDescriptionsGroup
       ExplicitWidth = 201
       ExplicitHeight = 79
     end
-    inline qManufacturers2: TQueryManufacturers2
+    inline qProducers: TQueryProducers
       Left = 403
       Top = 1
       Width = 200
-      Height = 79
-      Align = alClient
+      Height = 78
+      Anchors = []
       TabOrder = 2
       ExplicitLeft = 403
       ExplicitTop = 1
-      ExplicitWidth = 200
-      ExplicitHeight = 79
     end
   end
 end

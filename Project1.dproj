@@ -225,17 +225,17 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Manufacturers\Manufacturers2Query.pas">
-            <Form>QueryManufacturers2</Form>
+        <DCCReference Include="Queryes\Producers\ProducersQuery.pas">
+            <Form>QueryProducers</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\Manufacturers\ManufacturersView.pas">
-            <Form>ViewManufacturers</Form>
+        <DCCReference Include="Views\Producers\ProducersView.pas">
+            <Form>ViewProducers</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\Manufacturers\ManufacturersForm.pas">
+        <DCCReference Include="Views\Producers\ProducersForm.pas">
             <Form>frmManufacturers</Form>
             <FormType>dfm</FormType>
         </DCCReference>
@@ -1401,13 +1401,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>

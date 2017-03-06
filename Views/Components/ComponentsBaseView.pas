@@ -113,7 +113,7 @@ implementation
 uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
   System.IOUtils, Winapi.ShellAPI, RepositoryDataModule, System.UITypes,
   ColumnsBarButtonsHelper, DialogUnit, Vcl.Clipbrd, PathSettingsForm,
-  ClipboardUnit, ParameterValuesUnit;
+  ClipboardUnit, ParameterValuesUnit, ProducersQuery;
 
 constructor TViewComponentsBase.Create(AOwner: TComponent);
 // var
@@ -266,10 +266,10 @@ begin
   inherited;
   if AText <> '' then
   begin
-    if (not BaseComponentsGroup.Manufacturers.Locate(AText)) and
+    if (not BaseComponentsGroup.Producers.Locate(AText)) and
       (TDialog.Create.AddManufacturerDialog(AText)) then
     begin
-      BaseComponentsGroup.Manufacturers.AddNewValue(AText);
+      BaseComponentsGroup.Producers.AddNewValue(AText);
     end;
   end;
 end;

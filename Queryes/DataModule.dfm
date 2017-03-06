@@ -40,16 +40,6 @@ object DM: TDM
     ExplicitWidth = 257
     ExplicitHeight = 80
   end
-  inline qManufacturers2: TQueryManufacturers2
-    Left = 284
-    Top = 150
-    Width = 204
-    Height = 90
-    TabOrder = 4
-    ExplicitLeft = 284
-    ExplicitTop = 150
-    ExplicitHeight = 90
-  end
   inline qProductsSearch: TQueryProductsSearch
     Left = 555
     Top = 488
@@ -75,7 +65,7 @@ object DM: TDM
     Top = 64
     Width = 125
     Height = 80
-    TabOrder = 5
+    TabOrder = 4
     ExplicitLeft = 269
     ExplicitTop = 64
   end
@@ -84,7 +74,7 @@ object DM: TDM
     Top = 371
     Width = 208
     Height = 86
-    TabOrder = 6
+    TabOrder = 5
     ExplicitLeft = 800
     ExplicitTop = 371
   end
@@ -93,7 +83,7 @@ object DM: TDM
     Top = 238
     Width = 623
     Height = 139
-    TabOrder = 7
+    TabOrder = 6
     ExplicitLeft = 2
     ExplicitTop = 238
     ExplicitWidth = 623
@@ -148,7 +138,7 @@ object DM: TDM
     Top = 454
     Width = 525
     Height = 143
-    TabOrder = 8
+    TabOrder = 7
     ExplicitLeft = 1
     ExplicitTop = 454
     ExplicitWidth = 525
@@ -190,7 +180,7 @@ object DM: TDM
     Top = 603
     Width = 526
     Height = 82
-    TabOrder = 9
+    TabOrder = 8
     ExplicitTop = 603
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -219,7 +209,7 @@ object DM: TDM
     Top = -9
     Width = 400
     Height = 81
-    TabOrder = 10
+    TabOrder = 9
     ExplicitLeft = 104
     ExplicitTop = -9
     inherited GridPanel1: TGridPanel
@@ -245,7 +235,7 @@ object DM: TDM
     Top = 240
     Width = 516
     Height = 122
-    TabOrder = 11
+    TabOrder = 10
     ExplicitLeft = 630
     ExplicitTop = 240
     ExplicitWidth = 516
@@ -296,7 +286,7 @@ object DM: TDM
     Top = 120
     Width = 539
     Height = 81
-    TabOrder = 12
+    TabOrder = 11
     ExplicitLeft = 622
     ExplicitTop = 120
     inherited GridPanel1: TGridPanel
@@ -356,7 +346,7 @@ object DM: TDM
     Top = 16
     Width = 604
     Height = 81
-    TabOrder = 14
+    TabOrder = 12
     ExplicitLeft = 544
     ExplicitTop = 16
     inherited GridPanel1: TGridPanel
@@ -373,10 +363,18 @@ object DM: TDM
         end
         item
           Column = 2
-          Control = DescriptionsGroup.qManufacturers2
           Row = 0
         end>
     end
+  end
+  inline qProducers: TQueryProducers
+    Left = 352
+    Top = 144
+    Width = 204
+    Height = 78
+    TabOrder = 14
+    ExplicitLeft = 352
+    ExplicitTop = 144
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'

@@ -1,4 +1,4 @@
-unit ManufacturersForm;
+unit ProducersForm;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, DictonaryForm, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, System.Actions,
   Vcl.ActnList, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls, GridFrame,
-  ManufacturersView, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
+  dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
   dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
@@ -22,11 +22,11 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue;
+  dxSkinXmas2008Blue, ProducersView;
 
 type
-  TfrmManufacturers = class(TfrmDictonary)
-    ViewManufacturers: TViewManufacturers;
+  TfrmProducers = class(TfrmDictonary)
+    ViewProducers: TViewProducers;
   private
     { Private declarations }
   protected
@@ -39,30 +39,30 @@ type
   end;
 
 var
-  frmManufacturers: TfrmManufacturers;
+  frmProducers: TfrmProducers;
 
 implementation
 
 {$R *.dfm}
 
-procedure TfrmManufacturers.ApplyUpdates;
+procedure TfrmProducers.ApplyUpdates;
 begin
-  ViewManufacturers.actCommit.Execute;
+  ViewProducers.actCommit.Execute;
 end;
 
-procedure TfrmManufacturers.CancelUpdates;
+procedure TfrmProducers.CancelUpdates;
 begin
-  ViewManufacturers.actRollback.Execute;
+  ViewProducers.actRollback.Execute;
 end;
 
-procedure TfrmManufacturers.ClearFormVariable;
+procedure TfrmProducers.ClearFormVariable;
 begin
-  frmManufacturers := nil;
+  frmProducers := nil;
 end;
 
-function TfrmManufacturers.HaveAnyChanges: Boolean;
+function TfrmProducers.HaveAnyChanges: Boolean;
 begin
-  Result := ViewManufacturers.QueryManufacturers.FDQuery.Connection.InTransaction;
+  Result := ViewProducers.QueryProducers.FDQuery.Connection.InTransaction;
 end;
 
 end.

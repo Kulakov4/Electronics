@@ -1,12 +1,12 @@
-inherited QueryManufacturers2: TQueryManufacturers2
+inherited QueryProducers: TQueryProducers
   Width = 204
   Height = 78
   ExplicitWidth = 204
   ExplicitHeight = 78
   inherited Label1: TLabel
-    Width = 104
-    Caption = 'Manufacturers2'
-    ExplicitWidth = 104
+    Width = 66
+    Caption = 'Producers'
+    ExplicitWidth = 66
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (

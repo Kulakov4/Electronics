@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.UI.Intf, FireDAC.VCLUI.Wait, FireDAC.Stan.Intf, FireDAC.Comp.UI,
   TreeListQuery, ChildCategoriesQuery, BodyTypesGroupUnit, BodyTypesTreeQuery,
-  DescriptionsGroupUnit, Manufacturers2Query, ParametersGroupUnit,
+  DescriptionsGroupUnit, ProducersQuery, ParametersGroupUnit,
   ComponentsExGroupUnit, System.Contnrs, System.Generics.Collections,
   ComponentsGroupUnit, BodyTypesQuery, ComponentsSearchGroupUnit,
   ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
@@ -21,7 +21,6 @@ type
     qTreeList: TQueryTreeList;
     qChildCategories: TQueryChildCategories;
     qBodyTypesTree: TQueryBodyTypesTree;
-    qManufacturers2: TQueryManufacturers2;
     qProductsSearch: TQueryProductsSearch;
     qBodyTypes: TQueryBodyTypes;
     qStoreHouseList: TQueryStoreHouseList;
@@ -33,6 +32,7 @@ type
     ComponentsExGroup: TComponentsExGroup;
     ParametersGroup: TParametersGroup;
     DescriptionsGroup: TDescriptionsGroup;
+    qProducers: TQueryProducers;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -83,7 +83,7 @@ begin
     Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
     Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
     Add(qBodyTypesTree); // Типы корпусов
-    Add(qManufacturers2); // Производители
+    Add(qProducers); // Производители
     Add(qProductsSearch); // Поиск на складе и редактирование найденного
     Add(qStoreHouseList); // Склады (выпадающий список)
     Add(StoreHouseGroup.qStoreHouseList); // Склады - главное
@@ -105,11 +105,11 @@ begin
 
   // Для компонентов указываем откуда брать производителя и корпус
 
-  ComponentsGroup.Manufacturers := qManufacturers2;
+  ComponentsGroup.Producers := qProducers;
   ComponentsGroup.BodyTypes := qBodyTypes;
-  ComponentsSearchGroup.Manufacturers := qManufacturers2;
+  ComponentsSearchGroup.Producers := qProducers;
   ComponentsSearchGroup.BodyTypes := qBodyTypes;
-  ComponentsExGroup.Manufacturers := qManufacturers2;
+  ComponentsExGroup.Producers := qProducers;
   ComponentsExGroup.BodyTypes := qBodyTypes;
 
   // Связываем запросы отношением главный-подчинённый
@@ -149,7 +149,7 @@ begin
 
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
-  TNotifyEventWrap.Create(qManufacturers2.AfterCommit, DoAfterProducerCommit,
+  TNotifyEventWrap.Create(qProducers.AfterCommit, DoAfterProducerCommit,
     FEventList);
 end;
 
