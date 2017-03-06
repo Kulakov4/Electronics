@@ -1,4 +1,4 @@
-unit DescriptionsDetailQuery;
+unit DescriptionsQuery;
 
 interface
 
@@ -11,19 +11,14 @@ uses
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit;
 
 type
-  TQueryDescriptionsDetail = class(TQueryWithDataSource)
-    FDQueryID: TFDAutoIncField;
-    FDQueryComponentName: TWideStringField;
-    FDQueryDescription: TWideMemoField;
-    FDQueryIDComponentType: TIntegerField;
+  TQueryDescriptions = class(TQueryWithDataSource)
     FDQuery2: TFDQuery;
-    FDQueryIDManufacturer: TIntegerField;
   private
     FShowDublicate: Boolean;
     function GetComponentName: TField;
     function GetDescription: TField;
     function GetIDComponentType: TField;
-    function GetIDManufacturer: TField;
+    function GetIDProducer: TField;
     procedure SetShowDublicate(const Value: Boolean);
     { Private declarations }
   protected
@@ -32,7 +27,7 @@ type
     property ComponentName: TField read GetComponentName;
     property Description: TField read GetDescription;
     property IDComponentType: TField read GetIDComponentType;
-    property IDManufacturer: TField read GetIDManufacturer;
+    property IDProducer: TField read GetIDProducer;
     property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
     { Public declarations }
   end;
@@ -43,33 +38,33 @@ implementation
 
 uses RepositoryDataModule, NotifyEvents;
 
-constructor TQueryDescriptionsDetail.Create(AOwner: TComponent);
+constructor TQueryDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
   AutoTransaction := False;
 end;
 
-function TQueryDescriptionsDetail.GetComponentName: TField;
+function TQueryDescriptions.GetComponentName: TField;
 begin
   Result := Field('ComponentName');
 end;
 
-function TQueryDescriptionsDetail.GetDescription: TField;
+function TQueryDescriptions.GetDescription: TField;
 begin
   Result := Field('Description');
 end;
 
-function TQueryDescriptionsDetail.GetIDComponentType: TField;
+function TQueryDescriptions.GetIDComponentType: TField;
 begin
   Result := Field('IDComponentType');
 end;
 
-function TQueryDescriptionsDetail.GetIDManufacturer: TField;
+function TQueryDescriptions.GetIDProducer: TField;
 begin
-  Result := Field('IDManufacturer');
+  Result := Field('IDProducer');
 end;
 
-procedure TQueryDescriptionsDetail.SetShowDublicate(const Value: Boolean);
+procedure TQueryDescriptions.SetShowDublicate(const Value: Boolean);
 var
   ASQL: TStringList;
 begin

@@ -1,12 +1,12 @@
-inherited QueryDescriptionsMaster: TQueryDescriptionsMaster
+inherited QueryDescriptionTypes: TQueryDescriptionTypes
   Width = 216
   Height = 100
   ExplicitWidth = 216
   ExplicitHeight = 100
   inherited Label1: TLabel
-    Width = 126
-    Caption = 'DescriptionsMaster'
-    ExplicitWidth = 126
+    Width = 111
+    Caption = 'DescriptionTypes'
+    ExplicitWidth = 111
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (

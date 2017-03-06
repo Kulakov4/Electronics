@@ -5,15 +5,15 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.ExtCtrls, DescriptionsMasterQuery, DescriptionsDetailQuery,
+  Vcl.ExtCtrls, DescriptionTypesQuery, DescriptionsQuery,
   FireDAC.Comp.Client, FireDAC.Stan.Intf, ProducersQuery, NotifyEvents,
   DescriptionsExcelDataModule, QueryWithDataSourceUnit, BaseQuery,
   BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit;
 
 type
   TDescriptionsGroup = class(TQueryGroup)
-    qDescriptionsMaster: TQueryDescriptionsMaster;
-    qDescriptionsDetail: TQueryDescriptionsDetail;
+    qDescriptionTypes: TQueryDescriptionTypes;
+    qDescriptions: TQueryDescriptions;
     qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
@@ -41,17 +41,17 @@ uses
 constructor TDescriptionsGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  Main := qDescriptionsMaster;
-  Detail := qDescriptionsDetail;
+  Main := qDescriptionTypes;
+  Detail := qDescriptions;
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(qDescriptionsMaster.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qDescriptionsMaster.AfterDelete, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qDescriptionsDetail.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qDescriptionsDetail.AfterDelete, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qDescriptionTypes.AfterPost, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qDescriptions.AfterPost, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qDescriptions.AfterDelete, DoAfterPostOrDelete);
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qDescriptionsMaster.BeforeDelete, DoBeforeDelete);
+  TNotifyEventWrap.Create(qDescriptionTypes.BeforeDelete, DoBeforeDelete);
 end;
 
 procedure TDescriptionsGroup.Commit;
@@ -68,7 +68,7 @@ end;
 procedure TDescriptionsGroup.DoBeforeDelete(Sender: TObject);
 begin
   // Каскадно удаляем описания
-  qDescriptionsDetail.CascadeDelete(qDescriptionsMaster.PKValue, qDescriptionsDetail.IDComponentType.FieldName);
+  qDescriptions.CascadeDelete(qDescriptionTypes.PKValue, qDescriptions.IDComponentType.FieldName);
 end;
 
 procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable:
@@ -77,53 +77,51 @@ var
   AField: TField;
   I: Integer;
 begin
-  qDescriptionsDetail.FDQuery.DisableControls;
-  qDescriptionsMaster.FDQuery.DisableControls;
+  qDescriptions.FDQuery.DisableControls;
+  qDescriptionTypes.FDQuery.DisableControls;
   try
     // Цикл по всем записям, которые будем добавлять
     ADescriptionsExcelTable.First;
     ADescriptionsExcelTable.CallOnProcessEvent;
     while not ADescriptionsExcelTable.Eof do
     begin
-      qDescriptionsMaster.LocateOrAppend(ADescriptionsExcelTable.ComponentType.AsString);
+      qDescriptionTypes.LocateOrAppend(ADescriptionsExcelTable.ComponentType.AsString);
 
       qProducers.LocateOrAppend(ADescriptionsExcelTable.Manufacturer.AsString);
 
-      qDescriptionsDetail.FDQuery.Append;
+      qDescriptions.FDQuery.Append;
 
       for I := 0 to ADescriptionsExcelTable.FieldCount - 1 do
       begin
-        AField := qDescriptionsDetail.FDQuery.FindField
+        AField := qDescriptions.FDQuery.FindField
           (ADescriptionsExcelTable.Fields[I].FieldName);
         if AField <> nil then
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
-      qDescriptionsDetail.IDComponentType.AsInteger :=
-        qDescriptionsMaster.PKValue;
-      qDescriptionsDetail.IDManufacturer.AsInteger := qProducers.PKValue;
-      qDescriptionsDetail.FDQuery.Post;
+      qDescriptions.IDComponentType.AsInteger :=
+        qDescriptionTypes.PKValue;
+      qDescriptions.IDProducer.AsInteger := qProducers.PKValue;
+      qDescriptions.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;
       ADescriptionsExcelTable.CallOnProcessEvent;
     end;
 
   finally
-    qDescriptionsDetail.FDQuery.EnableControls;
-    qDescriptionsMaster.FDQuery.EnableControls;
+    qDescriptions.FDQuery.EnableControls;
+    qDescriptionTypes.FDQuery.EnableControls;
   end;
 end;
 
 procedure TDescriptionsGroup.ReOpen;
 begin
-//  qProducers.DropUnuses;
-  qDescriptionsMaster.RefreshQuery;
-  qDescriptionsDetail.RefreshQuery;
+  qDescriptionTypes.RefreshQuery;
+  qDescriptions.RefreshQuery;
 end;
 
 procedure TDescriptionsGroup.Rollback;
 begin
   inherited;
-//  qProducers.DropUnuses;
 end;
 
 end.

@@ -20,6 +20,7 @@ type
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
+    procedure DoBeforeOpen(Sender: TObject);
     function GetName: TField;
     { Private declarations }
   protected
@@ -42,7 +43,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule;
+uses RepositoryDataModule, ParameterValuesUnit;
 
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
@@ -50,6 +51,7 @@ begin
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
+  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen);
   TNotifyEventWrap.Create(AfterPost, DoAfterPostOrDelete);
   TNotifyEventWrap.Create(AfterDelete, DoAfterPostOrDelete);
 
@@ -80,6 +82,13 @@ end;
 procedure TQueryProducers.DoAfterPostOrDelete(Sender: TObject);
 begin
   FAfterDataChange.CallEventHandlers(Self);
+end;
+
+procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
+begin
+  // Заполняем код параметра "Производитель"
+  FDQuery.ParamByName('ProducerParameterID').AsInteger :=
+    TParameterValues.ProducerParameterID;
 end;
 
 procedure TQueryProducers.DropUnuses;

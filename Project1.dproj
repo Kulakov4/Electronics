@@ -236,7 +236,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\Producers\ProducersForm.pas">
-            <Form>frmManufacturers</Form>
+            <Form>frmProducers</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Queryes\ChildCategories\ChildCategoriesQuery.pas">
@@ -309,13 +309,13 @@
             <Form>frmParameters</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Queryes\Descriptions\DescriptionsMasterQuery.pas">
-            <Form>QueryDescriptionsMaster</Form>
+        <DCCReference Include="Queryes\Descriptions\DescriptionTypesQuery.pas">
+            <Form>QueryDescriptionTypes</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Descriptions\DescriptionsDetailQuery.pas">
-            <Form>QueryDescriptionsDetail</Form>
+        <DCCReference Include="Queryes\Descriptions\DescriptionsQuery.pas">
+            <Form>QueryDescriptions</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>

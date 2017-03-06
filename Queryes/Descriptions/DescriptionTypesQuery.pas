@@ -1,4 +1,4 @@
-unit DescriptionsMasterQuery;
+unit DescriptionTypesQuery;
 
 interface
 
@@ -11,7 +11,7 @@ uses
   QueryWithDataSourceUnit;
 
 type
-  TQueryDescriptionsMaster = class(TQueryWithDataSource)
+  TQueryDescriptionTypes = class(TQueryWithDataSource)
     FDQueryID: TFDAutoIncField;
     FDQueryComponentType: TWideStringField;
     FDQuery2: TFDQuery;
@@ -33,13 +33,13 @@ implementation
 
 {$R *.dfm}
 
-constructor TQueryDescriptionsMaster.Create(AOwner: TComponent);
+constructor TQueryDescriptionTypes.Create(AOwner: TComponent);
 begin
   inherited;
   AutoTransaction := False;
 end;
 
-procedure TQueryDescriptionsMaster.AddNewValue(const AValue: string);
+procedure TQueryDescriptionTypes.AddNewValue(const AValue: string);
 //var
 //  AClone: TFDMemTable;
 begin
@@ -60,12 +60,12 @@ begin
 end;
 
 
-function TQueryDescriptionsMaster.GetComponentType: TField;
+function TQueryDescriptionTypes.GetComponentType: TField;
 begin
   Result := Field('ComponentType');
 end;
 
-procedure TQueryDescriptionsMaster.LocateOrAppend(AValue: string);
+procedure TQueryDescriptionTypes.LocateOrAppend(AValue: string);
 var
   OK: Boolean;
 begin
@@ -76,7 +76,7 @@ begin
     AddNewValue(AValue);
 end;
 
-procedure TQueryDescriptionsMaster.SetShowDublicate(const Value: Boolean);
+procedure TQueryDescriptionTypes.SetShowDublicate(const Value: Boolean);
 var
   ASQL: TStringList;
 begin

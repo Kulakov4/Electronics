@@ -19,12 +19,12 @@ inherited DescriptionsGroup: TDescriptionsGroup
     ControlCollection = <
       item
         Column = 0
-        Control = qDescriptionsMaster
+        Control = qDescriptionTypes
         Row = 0
       end
       item
         Column = 1
-        Control = qDescriptionsDetail
+        Control = qDescriptions
         Row = 0
       end
       item
@@ -36,7 +36,7 @@ inherited DescriptionsGroup: TDescriptionsGroup
     ExplicitTop = 0
     ExplicitWidth = 604
     ExplicitHeight = 81
-    inline qDescriptionsMaster: TQueryDescriptionsMaster
+    inline qDescriptionTypes: TQueryDescriptionTypes
       Left = 1
       Top = 1
       Width = 201
@@ -48,7 +48,7 @@ inherited DescriptionsGroup: TDescriptionsGroup
       ExplicitWidth = 201
       ExplicitHeight = 79
     end
-    inline qDescriptionsDetail: TQueryDescriptionsDetail
+    inline qDescriptions: TQueryDescriptions
       Left = 202
       Top = 1
       Width = 201
@@ -69,6 +69,7 @@ inherited DescriptionsGroup: TDescriptionsGroup
       TabOrder = 2
       ExplicitLeft = 403
       ExplicitTop = 1
+      ExplicitWidth = 200
     end
   end
 end

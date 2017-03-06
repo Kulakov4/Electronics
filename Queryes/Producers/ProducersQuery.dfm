@@ -10,9 +10,24 @@ inherited QueryProducers: TQueryProducers
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select *'
-      'from manufacturers2'
-      'order by Name')
+      'select '
+      '    p.*'
+      '    ,('
+      '        select count(*)'
+      '        from ProductUnionParameters pup '
+      
+        '        where pup.UnionParameterId = :ProducerParameterID and pu' +
+        'p.Value = p.Name'
+      '    ) cnt'
+      'from Producers p'
+      'order by p.Name')
+    ParamData = <
+      item
+        Name = 'PRODUCERPARAMETERID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
     object FDQueryID: TFDAutoIncField
       FieldName = 'ID'
       Origin = 'ID'
