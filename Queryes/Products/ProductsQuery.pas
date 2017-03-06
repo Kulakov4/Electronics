@@ -98,7 +98,7 @@ end;
 
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
-  FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
+//  FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
 end;
 

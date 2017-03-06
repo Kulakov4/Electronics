@@ -186,7 +186,7 @@ end;
 
 procedure TViewProducts.AfterLoad(Sender: TObject);
 begin
-  ApplyBestFitEx;
+//  ApplyBestFitEx;
 end;
 
 procedure TViewProducts.AfterOpen(Sender: TObject);

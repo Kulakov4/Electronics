@@ -79,8 +79,6 @@ type
     procedure actRollback2Execute(Sender: TObject);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
-    procedure clPriceGetDisplayText(Sender: TcxCustomGridTableItem;
-      ARecord: TcxCustomGridRecord; var AText: string);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -204,15 +202,6 @@ begin
   inherited;
   if not AText.IsEmpty then
     AText := TPath.GetFileNameWithoutExtension(AText);
-end;
-
-procedure TViewProductsBase.clPriceGetDisplayText
-  (Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
-  var AText: string);
-begin
-  if VarToStrDef(ARecord.Values[clPrice.Index], '0') = '0' then
-    AText := '';
-
 end;
 
 procedure TViewProductsBase.CreateColumnsBarButtons;
