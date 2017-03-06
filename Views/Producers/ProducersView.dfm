@@ -2,6 +2,7 @@ inherited ViewProducers: TViewProducers
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
+      OptionsBehavior.CellHints = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
@@ -13,6 +14,7 @@ inherited ViewProducers: TViewProducers
       object clName: TcxGridDBBandedColumn
         Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
         DataBinding.FieldName = 'Name'
+        MinWidth = 100
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
@@ -20,8 +22,25 @@ inherited ViewProducers: TViewProducers
       object clProducts: TcxGridDBBandedColumn
         Caption = #1055#1088#1086#1076#1091#1082#1094#1080#1103
         DataBinding.FieldName = 'Products'
+        MinWidth = 100
         Position.BandIndex = 0
         Position.ColIndex = 2
+        Position.RowIndex = 0
+      end
+      object clCount: TcxGridDBBandedColumn
+        Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074' '#1074' '#1041#1044
+        DataBinding.FieldName = 'Cnt'
+        MinWidth = 60
+        Position.BandIndex = 0
+        Position.ColIndex = 3
+        Position.RowIndex = 0
+      end
+      object clProducerType: TcxGridDBBandedColumn
+        Caption = #1058#1080#1087
+        DataBinding.FieldName = 'ProducerType'
+        MinWidth = 100
+        Position.BandIndex = 0
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
     end

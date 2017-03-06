@@ -20,6 +20,31 @@ inherited QueryDescriptions: TQueryDescriptions
     SQL.Strings = (
       'select *'
       'from descriptions2')
+    object FDQueryID: TFDAutoIncField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInWhere, pfInKey]
+    end
+    object FDQueryComponentName: TWideStringField
+      FieldName = 'ComponentName'
+      Origin = 'ComponentName'
+      Size = 1000
+    end
+    object FDQueryDescription: TWideMemoField
+      FieldName = 'Description'
+      Origin = 'Description'
+      BlobType = ftWideMemo
+    end
+    object FDQueryIDComponentType: TIntegerField
+      FieldName = 'IDComponentType'
+      Origin = 'IDComponentType'
+      Required = True
+    end
+    object FDQueryIDProducer: TIntegerField
+      FieldName = 'IDProducer'
+      Origin = 'IDProducer'
+      Required = True
+    end
   end
   object FDQuery2: TFDQuery
     SQL.Strings = (

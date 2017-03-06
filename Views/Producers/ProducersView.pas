@@ -26,7 +26,8 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter;
+  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
+  SearchProducerTypesQuery;
 
 type
   TViewProducers = class(TfrmGrid)
@@ -46,6 +47,8 @@ type
     actExportToExcelDocument: TAction;
     actLoadFromExcelDocument: TAction;
     clProducts: TcxGridDBBandedColumn;
+    clCount: TcxGridDBBandedColumn;
+    clProducerType: TcxGridDBBandedColumn;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
@@ -58,11 +61,17 @@ type
     procedure StatusBarResize(Sender: TObject);
   private
     FQueryProducers: TQueryProducers;
+    FQuerySearchProducerTypes: TQuerySearchProducerTypes;
+    function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
+    procedure MyInitializeComboBoxColumn;
     procedure SetQueryProducers(const Value: TQueryProducers);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
+    procedure DoAfterPost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
+    property QuerySearchProducerTypes: TQuerySearchProducerTypes read
+        GetQuerySearchProducerTypes;
   public
     procedure UpdateView; override;
     property QueryProducers: TQueryProducers read FQueryProducers write
@@ -76,7 +85,8 @@ implementation
 
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
   ManufacturersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
-  SettingsController, System.IOUtils, ProjectConst, ProgressBarForm;
+  SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
+  SearchParameterValues, cxDropDownEdit;
 
 procedure TViewProducers.actAddExecute(Sender: TObject);
 begin
@@ -259,9 +269,32 @@ begin
     cxGridDBBandedTableView.DataController.Post();
 end;
 
+procedure TViewProducers.DoAfterPost(Sender: TObject);
+begin
+  MyInitializeComboBoxColumn;
+end;
+
 procedure TViewProducers.DoOnDataChange(Sender: TObject);
 begin
   UpdateView;
+end;
+
+function TViewProducers.GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
+begin
+  if FQuerySearchProducerTypes = nil then
+    FQuerySearchProducerTypes := TQuerySearchProducerTypes.Create(Self);
+
+  Result := FQuerySearchProducerTypes;
+end;
+
+procedure TViewProducers.MyInitializeComboBoxColumn;
+begin
+  // Ищем возможные значения типа производителя для выпадающего списка
+  QuerySearchProducerTypes.RefreshQuery;
+
+  // Инициализируем Combobox колонки
+  InitializeComboBoxColumn(MainView, QueryProducers.ProducerType.FieldName,
+    lsEditList, QuerySearchProducerTypes.ProducerType);
 end;
 
 procedure TViewProducers.SetQueryProducers(const Value: TQueryProducers);
@@ -274,11 +307,18 @@ begin
       MainView.DataController.DataSource := FQueryProducers.DataSource;
 
       TNotifyEventWrap.Create(FQueryProducers.OnDataChange, DoOnDataChange);
+
+      // Подписываемся на событие о коммите
+      TNotifyEventWrap.Create(FQueryProducers.AfterPost, DoAfterPost);
+
+      MyInitializeComboBoxColumn;
     end
     else
     begin
       MainView.DataController.DataSource := nil;
     end;
+
+    PostMyApplyBestFitEvent;
 
     UpdateView;
   end;

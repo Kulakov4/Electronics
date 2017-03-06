@@ -18,7 +18,7 @@ inherited QueryProducers: TQueryProducers
       
         '        where pup.UnionParameterId = :ProducerParameterID and pu' +
         'p.Value = p.Name'
-      '    ) cnt'
+      '    ) Cnt'
       'from Producers p'
       'order by p.Name')
     ParamData = <
@@ -32,10 +32,8 @@ inherited QueryProducers: TQueryProducers
       FieldName = 'ID'
       Origin = 'ID'
       ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
     end
     object FDQueryName: TWideStringField
-      DisplayLabel = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
       FieldName = 'Name'
       Origin = 'Name'
       Required = True
@@ -44,7 +42,20 @@ inherited QueryProducers: TQueryProducers
     object FDQueryProducts: TWideStringField
       FieldName = 'Products'
       Origin = 'Products'
-      Size = 300
+      Size = 1000
+    end
+    object FDQueryProducerType: TWideStringField
+      FieldName = 'ProducerType'
+      Origin = 'ProducerType'
+      Size = 500
+    end
+    object FDQueryCnt: TLargeintField
+      AutoGenerateValue = arDefault
+      FieldName = 'Cnt'
+      Origin = 'Cnt'
+      ProviderFlags = []
+      ReadOnly = True
+      OnGetText = FDQueryCntGetText
     end
   end
   object fdqDropUnused: TFDQuery

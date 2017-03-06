@@ -13,6 +13,11 @@ uses
 type
   TQueryDescriptions = class(TQueryWithDataSource)
     FDQuery2: TFDQuery;
+    FDQueryID: TFDAutoIncField;
+    FDQueryComponentName: TWideStringField;
+    FDQueryDescription: TWideMemoField;
+    FDQueryIDComponentType: TIntegerField;
+    FDQueryIDProducer: TIntegerField;
   private
     FShowDublicate: Boolean;
     function GetComponentName: TField;

@@ -13,17 +13,24 @@ uses
 
 type
   TQueryProducers = class(TQueryWithDataSource)
+    fdqDropUnused: TFDQuery;
     FDQueryID: TFDAutoIncField;
     FDQueryName: TWideStringField;
-    fdqDropUnused: TFDQuery;
     FDQueryProducts: TWideStringField;
+    FDQueryProducerType: TWideStringField;
+    FDQueryCnt: TLargeintField;
+    procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
+        Boolean);
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    function GetCnt: TField;
     function GetName: TField;
+    function GetProducerType: TField;
     { Private declarations }
   protected
+    procedure DoAfterOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
@@ -35,7 +42,9 @@ type
     function Locate(AValue: string): Boolean;
     procedure LocateOrAppend(AValue: string);
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
+    property Cnt: TField read GetCnt;
     property Name: TField read GetName;
+    property ProducerType: TField read GetProducerType;
     { Public declarations }
   end;
 
@@ -52,6 +61,7 @@ begin
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen);
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen);
   TNotifyEventWrap.Create(AfterPost, DoAfterPostOrDelete);
   TNotifyEventWrap.Create(AfterDelete, DoAfterPostOrDelete);
 
@@ -79,6 +89,12 @@ begin
   RefreshQuery;
 end;
 
+procedure TQueryProducers.DoAfterOpen(Sender: TObject);
+begin
+  // Кол-во - только для чтения
+  Cnt.ReadOnly := True;
+end;
+
 procedure TQueryProducers.DoAfterPostOrDelete(Sender: TObject);
 begin
   FAfterDataChange.CallEventHandlers(Self);
@@ -97,9 +113,25 @@ begin
   RefreshQuery;
 end;
 
+procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
+    DisplayText: Boolean);
+begin
+  Text := String.Format('%.0n', [Sender.AsFloat]);
+end;
+
+function TQueryProducers.GetCnt: TField;
+begin
+  Result := Field('Cnt');
+end;
+
 function TQueryProducers.GetName: TField;
 begin
   Result := Field('Name');
+end;
+
+function TQueryProducers.GetProducerType: TField;
+begin
+  Result := Field('ProducerType');
 end;
 
 procedure TQueryProducers.InsertRecordList(AManufacturesExcelTable
