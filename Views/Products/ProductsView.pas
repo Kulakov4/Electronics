@@ -43,6 +43,7 @@ type
     dxBarButton2: TdxBarButton;
     actPasteComponents: TAction;
     N2: TMenuItem;
+    dxBarButton1: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);

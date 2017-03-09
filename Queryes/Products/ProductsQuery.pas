@@ -11,7 +11,7 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   System.Generics.Collections, ProductsBaseQuery,
   StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
-  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule;
+  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents;
 
 type
   TQueryProducts = class(TQueryProductsBase)
@@ -46,8 +46,8 @@ type
 
 implementation
 
-uses NotifyEvents, System.Generics.Defaults, System.Types,
-  System.StrUtils, System.Math, ParameterValuesUnit;
+uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
+  ParameterValuesUnit;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }

@@ -14,14 +14,18 @@ type
   TQueryTreeList = class(TQueryWithDataSource)
   private
     function CalculateExternalId(ParentId, ALevel: Integer): string;
+    function GetExternalID: TField;
     function GetIsRootFocused: Boolean;
     function GetValue: TField;
     { Private declarations }
+  protected
+    property ExternalID: TField read GetExternalID;
   public
     procedure AddChildCategory(value: string; ALevel: Integer);
     procedure AddRoot;
     function CheckPossibility(ParentId: Integer; value: string): Boolean;
     procedure FilterByExternalID(AExternalID: string);
+    function LocateByExternalID(AExternalID: string): Boolean;
     procedure LocateToRoot;
     property IsRootFocused: Boolean read GetIsRootFocused;
     property Value: TField read GetValue;
@@ -146,6 +150,11 @@ begin
     FDQuery.Filtered := False;
 end;
 
+function TQueryTreeList.GetExternalID: TField;
+begin
+  Result := Field('ExternalID');
+end;
+
 function TQueryTreeList.GetIsRootFocused: Boolean;
 begin
   Result := PKValue = 1;
@@ -154,6 +163,12 @@ end;
 function TQueryTreeList.GetValue: TField;
 begin
   Result := FDQuery.FieldByName('Value');
+end;
+
+function TQueryTreeList.LocateByExternalID(AExternalID: string): Boolean;
+begin
+  Assert(not AExternalID.IsEmpty);
+  Result := FDQuery.LocateEx(ExternalID.FieldName, AExternalID, []);
 end;
 
 procedure TQueryTreeList.LocateToRoot;

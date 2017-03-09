@@ -358,6 +358,11 @@ inherited ViewProductsBase: TViewProductsBase
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       OnExecute = actLoadDrawingExecute
     end
+    object actOpenInParametricTable: TAction
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1080#1077' '#1076#1072#1085#1085#1099#1077
+      ImageIndex = 34
+      OnExecute = actOpenInParametricTableExecute
+    end
   end
   object Action1: TAction
     Caption = 'asdsad'

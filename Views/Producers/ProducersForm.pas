@@ -35,6 +35,7 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
+    class function TakeProducer: String; static;
     { Public declarations }
   end;
 
@@ -44,6 +45,8 @@ var
 implementation
 
 {$R *.dfm}
+
+uses ProducersQuery, DialogUnit;
 
 procedure TfrmProducers.ApplyUpdates;
 begin
@@ -63,6 +66,42 @@ end;
 function TfrmProducers.HaveAnyChanges: Boolean;
 begin
   Result := ViewProducers.QueryProducers.FDQuery.Connection.InTransaction;
+end;
+
+class function TfrmProducers.TakeProducer: String;
+var
+  AfrmProducers: TfrmProducers;
+  AQueryProducers: TQueryProducers;
+begin
+  Result := '';
+  // Сначала выберем производителя из справочника
+  AQueryProducers := TQueryProducers.Create(nil);
+  try
+    AQueryProducers.RefreshQuery;
+    AfrmProducers := TfrmProducers.Create(nil);
+    try
+      AfrmProducers.Caption := 'Выберите производителя';
+      AfrmProducers.btnOk.ModalResult := mrOk;
+
+      AfrmProducers.ViewProducers.QueryProducers :=
+        AQueryProducers;
+      if AfrmProducers.ShowModal <> mrOk then
+        Exit;
+    finally
+      FreeAndNil(AfrmProducers);
+    end;
+
+    if AQueryProducers.FDQuery.RecordCount = 0 then
+    begin
+      TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
+        'Необходимо добавить производителя загружаемых компонентов.');
+      Exit;
+    end;
+
+    Result := AQueryProducers.Name.AsString;
+  finally
+    FreeAndNil(AQueryProducers);
+  end;
 end;
 
 end.

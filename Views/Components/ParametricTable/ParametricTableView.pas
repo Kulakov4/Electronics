@@ -99,8 +99,8 @@ type
   protected
     procedure CreateColumnsBarButtons; override;
     procedure CreateDetailFilter;
-    procedure DoAfterBandPosChange(var Message: TMessage); message
-        WM_ON_BAND_POS_CHANGE;
+    procedure DoAfterBandPosChange(var Message: TMessage);
+      message WM_ON_BAND_POS_CHANGE;
     // TODO: CreateFilter
     // procedure CreateFilter(AColumn: TcxGridDBBandedColumn;
     // const AValue: string);
@@ -112,10 +112,11 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure FilterByFamily(AFamily: string);
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup write
-        SetComponentsExGroup;
+    property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup
+      write SetComponentsExGroup;
     property Mark: string read FMark;
     { Public declarations }
   end;
@@ -583,7 +584,7 @@ begin
   GetBand(cxGridLevel2, ABand.Tag).Position.ColIndex := ABand.Position.ColIndex;
 
   // Сообщаем что изменение бэндов нужно будет дополнительно обработать
-//  PostMessage(Handle, WM_ON_BAND_POS_CHANGE, 0, 0);
+  // PostMessage(Handle, WM_ON_BAND_POS_CHANGE, 0, 0);
   Timer2.Enabled := True;
 end;
 
@@ -637,13 +638,20 @@ begin
     a := fc.Active;
     fca := fc.FilterCaption;
   }
-  CreateDetailFilter;
+{
+  FLockDetailFilterChange := True;
+  try
+    CreateDetailFilter;
+  finally
+    FLockDetailFilterChange := False;
+  end;
+}
   // cxGridDBBandedTableView2.DataController.Filter.Active := True;
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewInitEditValue
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-AEdit: TcxCustomEdit; var AValue: Variant);
+  AEdit: TcxCustomEdit; var AValue: Variant);
 var
   S: string;
 begin
@@ -656,7 +664,7 @@ begin
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewMouseMove(Sender: TObject;
-Shift: TShiftState; X, Y: Integer);
+  Shift: TShiftState; X, Y: Integer);
 Var
   P: TPoint;
   H: TcxCustomGridHitTest;
@@ -687,7 +695,7 @@ begin
 end;
 
 function TViewParametricTable.GetBand(ALevel: TcxGridLevel;
-AIDParameter: Integer): TcxGridBand;
+  AIDParameter: Integer): TcxGridBand;
 var
   i: Integer;
 begin
@@ -774,8 +782,7 @@ begin
     AQrySearchParamForCat := TQuerySearchParametersForCategory.Create(Self);
     try
       // Ищем все параметры нашей категории
-      AQrySearchParamForCat.Search
-        (ComponentsExGroup.qFamilyEx.ParentValue);
+      AQrySearchParamForCat.Search(ComponentsExGroup.qFamilyEx.ParentValue);
 
       IsEdit := False;
       // Цикл по всем бэндам-параметрам
@@ -824,7 +831,6 @@ begin
   if IsEdit then
     ComponentsExGroup.NeedRefresh := True;
 
-
 end;
 
 procedure TViewParametricTable.DoAfterLoad(Sender: TObject);
@@ -840,8 +846,7 @@ var
 begin
   FreeAndNil(FColumnsBarButtons);
 
-  AQueryParametersForCategory :=
-    ComponentsExGroup.QueryParametersForCategory;
+  AQueryParametersForCategory := ComponentsExGroup.QueryParametersForCategory;
 
   cxGrid.BeginUpdate();
   try
@@ -942,13 +947,12 @@ begin
   if BaseComponentsGroup <> nil then
   begin
     FMark := ComponentsExGroup.Mark;
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterLoad,
-      DoAfterLoad, FEventList);
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen,
-      DoAfterLoad, FEventList);
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterLoad, DoAfterLoad,
+      FEventList);
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen, DoAfterLoad,
+      FEventList);
 
-    InitializeDefaultCreatedBands(MainView,
-      ComponentsExGroup.qFamilyEx);
+    InitializeDefaultCreatedBands(MainView, ComponentsExGroup.qFamilyEx);
     InitializeDefaultCreatedBands
       (cxGridLevel2.GridView as TcxGridDBBandedTableView,
       ComponentsExGroup.qComponentsEx);
@@ -960,6 +964,24 @@ begin
       DoAfterLoad(nil);
     end;
   end
+end;
+
+procedure TViewParametricTable.FilterByFamily(AFamily: string);
+var
+  AColumn: TcxGridDBBandedColumn;
+  AFilterList: TcxFilterCriteriaItemList;
+begin
+  Assert(not AFamily.IsEmpty);
+  AColumn := MainView.GetColumnByFieldName( ComponentsExGroup.qFamilyEx.Value.FieldName );
+  Assert(AColumn <> nil);
+
+
+  FLockDetailFilterChange := True;
+  AFilterList := MainView.DataController.Filter.root;
+  AFilterList.Clear;
+  AFilterList.BoolOperatorKind := fboAnd;
+  AFilterList.AddItem(AColumn, foEqual, AFamily, AFamily);
+  FLockDetailFilterChange := False;
 end;
 
 function TViewParametricTable.GetComponentsExGroup: TComponentsExGroup;
@@ -981,8 +1003,7 @@ begin
   for AIDParameter in AQueryCustomComponents.ParameterFields.Keys do
   begin
     // Получаем поле, SQL запроса которое является параметром
-    AFieldName := ComponentsExGroup.qFamilyEx.ParameterFields
-      [AIDParameter];
+    AFieldName := ComponentsExGroup.qFamilyEx.ParameterFields[AIDParameter];
     AColumn := AView.GetColumnByFieldName(AFieldName);
     Assert(AColumn <> nil);
     Assert(AColumn.Position.Band <> nil);
@@ -1022,8 +1043,8 @@ begin
   UpdateView;
 end;
 
-procedure TViewParametricTable.SetComponentsExGroup(const Value:
-    TComponentsExGroup);
+procedure TViewParametricTable.SetComponentsExGroup
+  (const Value: TComponentsExGroup);
 begin
   BaseComponentsGroup := Value;
 end;

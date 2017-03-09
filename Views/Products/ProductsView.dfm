@@ -52,6 +52,10 @@ inherited ViewProducts: TViewProducts
         item
           Visible = True
           ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end>
     end
     object dxbrbtnAdd: TdxBarButton
@@ -71,6 +75,11 @@ inherited ViewProducts: TViewProducts
     end
     object dxBarButton2: TdxBarButton
       Action = actRollback
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actOpenInParametricTable
       Category = 0
       PaintStyle = psCaptionGlyph
     end

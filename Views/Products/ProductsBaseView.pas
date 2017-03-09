@@ -66,6 +66,7 @@ type
     actLoadDiagram: TAction;
     actOpenDrawing: TAction;
     actLoadDrawing: TAction;
+    actOpenInParametricTable: TAction;
     procedure actCommitExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actLoadImageExecute(Sender: TObject);
@@ -76,6 +77,7 @@ type
     procedure actOpenDatasheetExecute(Sender: TObject);
     procedure actOpenDiagramExecute(Sender: TObject);
     procedure actOpenDrawingExecute(Sender: TObject);
+    procedure actOpenInParametricTableExecute(Sender: TObject);
     procedure actRollback2Execute(Sender: TObject);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
@@ -168,6 +170,32 @@ procedure TViewProductsBase.actOpenDrawingExecute(Sender: TObject);
 begin
   OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
     'Не задан чертёж');
+end;
+
+procedure TViewProductsBase.actOpenInParametricTableExecute(Sender: TObject);
+begin
+  inherited;
+  Assert(QueryProductsBase.FDQuery.RecordCount > 0);
+
+  if QueryProductsBase.Value.AsString.Trim.IsEmpty then
+  begin
+    TDialog.Create.ErrorMessageDialog('Не задано наименование');
+    Exit;
+  end;
+
+  if QueryProductsBase.IDProducer.AsInteger = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog('Не задан производитель');
+    Exit;
+  end;
+
+  if not QueryProductsBase.LocateInComponents then
+  begin
+    TDialog.Create.ErrorMessageDialog(
+      Format('Компонент %s не найден в теоретической базе', [QueryProductsBase.Value.AsString]));
+    Exit;
+  end;
+
 end;
 
 procedure TViewProductsBase.actRollback2Execute(Sender: TObject);

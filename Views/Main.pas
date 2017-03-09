@@ -187,10 +187,10 @@ type
     procedure UpdateCaption;
     { Private declarations }
   protected
+    procedure DoOnProductLocate(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
-    function TakeProducer: String;
     { Public declarations }
   end;
 
@@ -224,8 +224,8 @@ uses
   ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl, SearchDescriptionsQuery,
   SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
-  FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersQuery,
-  ProducersForm;
+  FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
+  SearchFamilyByID;
 
 {$R *.dfm}
 
@@ -415,11 +415,10 @@ procedure TfrmMain.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
   AProducer: String;
-  AQueryTreeList: TQueryTreeList;
   m: TArray<String>;
   S: string;
 begin
-  AProducer := TakeProducer;
+  AProducer := TfrmProducers.TakeProducer;
   if AProducer.IsEmpty then
     Exit;
 
@@ -451,21 +450,12 @@ begin
     Exit;
   end;
 
-  AQueryTreeList := TQueryTreeList.Create(Self);
-  try
-    AQueryTreeList.RefreshQuery;
-    AQueryTreeList.FilterByExternalID(m[0]);
-    if AQueryTreeList.FDQuery.RecordCount = 0 then
-    begin
-      TDialog.Create.ErrorMessageDialog
-        (Format('Категория %s не найдена', [m[0]]));
-      Exit;
-    end;
-
-    // Переходим в дереве категорий на загружаемую категорию
-    DM.qTreeList.LocateByPK(AQueryTreeList.PKValue);
-  finally
-    FreeAndNil(AQueryTreeList);
+  // Переходим в дереве категорий на загружаемую категорию
+  if not DM.qTreeList.LocateByExternalID(m[0]) then
+  begin
+    TDialog.Create.ErrorMessageDialog(Format('Категория %s не найдена',
+      [m[0]]));
+    Exit;
   end;
 
   ViewComponents.LoadFromExcelDocument(AFileName, AProducer);
@@ -478,7 +468,7 @@ var
   AProducer: String;
 begin
   // Выбираем производителя
-  AProducer := TakeProducer;
+  AProducer := TfrmProducers.TakeProducer;
   if AProducer.IsEmpty then
     Exit;
 
@@ -870,6 +860,9 @@ begin
 
     if OK then
     begin
+      TNotifyEventWrap.Create(DM.StoreHouseGroup.qProducts.OnLocate,
+        DoOnProductLocate);
+
       // Привязываем представления к данным
       ViewComponents.ComponentsGroup := DM.ComponentsGroup;
 
@@ -925,6 +918,29 @@ begin
   FCategoryPath := FQuerySearchCategoriesPath.GetFullPath(DM.qTreeList.PKValue);
 
   UpdateCaption;
+
+end;
+
+procedure TfrmMain.DoOnProductLocate(Sender: TObject);
+var
+  AIDCategory: Integer;
+  AQuerySearchFamilyByID: TQuerySearchFamilyByID;
+  m: TArray<String>;
+begin
+  AQuerySearchFamilyByID := (Sender as TQuerySearchFamilyByID);
+  Assert(AQuerySearchFamilyByID.FDQuery.RecordCount > 0);
+
+  m := AQuerySearchFamilyByID.CategoryIDList.AsString.Split([',']);
+  Assert(Length(m) > 0);
+
+  AIDCategory := String.ToInteger(m[0]);
+
+  if not DM.qTreeList.LocateByPK(AIDCategory) then
+  begin
+    TDialog.Create.ErrorMessageDialog(Format('Категория %s не найдена',
+      [m[0]]));
+    Exit;
+  end;
 
 end;
 
@@ -1139,42 +1155,6 @@ begin
     Result := frmSettings.ShowModal;
   finally
     frmSettings.Free;
-  end;
-end;
-
-function TfrmMain.TakeProducer: String;
-var
-  AfrmProducers: TfrmProducers;
-  AQueryProducers: TQueryProducers;
-begin
-  Result := '';
-  // Сначала выберем производителя из справочника
-  AQueryProducers := TQueryProducers.Create(Self);
-  try
-    AQueryProducers.RefreshQuery;
-    AfrmProducers := TfrmProducers.Create(Self);
-    try
-      AfrmProducers.Caption := 'Выберите производителя';
-      AfrmProducers.btnOk.ModalResult := mrOk;
-
-      AfrmProducers.ViewProducers.QueryProducers :=
-        AQueryProducers;
-      if AfrmProducers.ShowModal <> mrOk then
-        Exit;
-    finally
-      FreeAndNil(AfrmProducers);
-    end;
-
-    if AQueryProducers.FDQuery.RecordCount = 0 then
-    begin
-      TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
-        'Необходимо добавить производителя загружаемых компонентов.');
-      Exit;
-    end;
-
-    Result := AQueryProducers.Name.AsString;
-  finally
-    FreeAndNil(AQueryProducers);
   end;
 end;
 

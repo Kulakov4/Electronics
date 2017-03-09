@@ -12,12 +12,14 @@ uses
 type
   TQuerySearchFamilyByID = class(TQueryBase)
   private
+    function GetCategoryIDList: TField;
     function GetComponentGroup: TField;
     function GetDescriptionID: TField;
     { Private declarations }
   protected
   public
     function Search(const AIDComponent: Integer): Integer; overload;
+    property CategoryIDList: TField read GetCategoryIDList;
     property ComponentGroup: TField read GetComponentGroup;
     property DescriptionID: TField read GetDescriptionID;
     { Public declarations }
@@ -28,6 +30,11 @@ implementation
 {$R *.dfm}
 
 uses ParameterValuesUnit;
+
+function TQuerySearchFamilyByID.GetCategoryIDList: TField;
+begin
+  Result := Field('CategoryIDList');
+end;
 
 function TQuerySearchFamilyByID.GetComponentGroup: TField;
 begin

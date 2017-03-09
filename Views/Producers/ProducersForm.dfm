@@ -10,16 +10,21 @@ inherited frmProducers: TfrmProducers
       Height = 427
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = -103
-      ExplicitTop = -62
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 788
+      ExplicitHeight = 427
       inherited cxGrid: TcxGrid
         Width = 788
         Height = 380
-        ExplicitTop = 22
+        ExplicitWidth = 788
+        ExplicitHeight = 380
       end
       inherited StatusBar: TStatusBar
         Top = 408
         Width = 788
+        ExplicitTop = 408
+        ExplicitWidth = 788
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (

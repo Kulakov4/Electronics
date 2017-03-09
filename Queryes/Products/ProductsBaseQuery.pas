@@ -13,7 +13,7 @@ uses
   SearchProductParameterValuesQuery, SearchFamilyByID,
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchDaughterComponentQuery, System.Generics.Collections,
-  SearchStorehouseProductByID, ProducersQuery;
+  SearchStorehouseProductByID, ProducersQuery, NotifyEvents;
 
 type
   TComponentNameParts = record
@@ -26,14 +26,13 @@ type
     qStoreHouseProducts: TfrmApplyQuery;
     qProducts: TfrmApplyQuery;
   private
+    FOnLocate: TNotifyEventsEx;
     FQueryProducers: TQueryProducers;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchFamilytByID: TQuerySearchFamilyByID;
     FQuerySearchProduct: TQuerySearchProduct;
     FQuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
     procedure DoAfterOpen(Sender: TObject);
-// TODO: GetComponentFamily
-//  function GetComponentFamily: String;
     function GetComponentGroup: TField;
     function GetDescriptionID: TField;
     function GetIDProducer: TField;
@@ -65,6 +64,7 @@ type
     procedure CancelUpdates; override;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
+    function LocateInComponents: Boolean;
     property ComponentGroup: TField read GetComponentGroup;
     property DescriptionID: TField read GetDescriptionID;
     property IDProducer: TField read GetIDProducer;
@@ -72,6 +72,7 @@ type
     property QueryProducers: TQueryProducers read GetQueryProducers;
     property StorehouseId: TField read GetStorehouseId;
     property Value: TField read GetValue;
+    property OnLocate: TNotifyEventsEx read FOnLocate;
     { Public declarations }
   end;
 
@@ -80,11 +81,13 @@ implementation
 {$R *.dfm}
 
 uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
-  NotifyEvents, ParameterValuesUnit, StrHelper, System.StrUtils;
+  ParameterValuesUnit, StrHelper, System.StrUtils;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
   inherited;
+  FOnLocate := TNotifyEventsEx.Create(Self);
+
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 
   // Будем сами обновлять запись
@@ -410,6 +413,34 @@ begin
     FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
     TryPost;
   end;
+end;
+
+function TQueryProductsBase.LocateInComponents: Boolean;
+var
+  OK: Boolean;
+  rc: Integer;
+begin
+  // Если производитель задан
+  if IDProducer.AsInteger > 0 then
+  begin
+    // Ищем производителя по коду
+    OK := QueryProducers.LocateByPK(IDProducer.AsInteger);
+    Assert(OK);
+
+    rc := QuerySearchDaughterComponent.Search(Value.AsString,
+      QueryProducers.Name.AsString);
+  end;
+  if rc > 0 then
+  begin
+    // Ищем соответствующее семейство компонентов
+    rc := QuerySearchFamilytByID.Search
+        (QuerySearchDaughterComponent.ParentProductID.AsInteger);
+
+  end;
+  Result := rc > 0;
+
+  if Result then
+    OnLocate.CallEventHandlers(QuerySearchFamilytByID);
 end;
 
 function TQueryProductsBase.SplitComponentName(const S: string)
