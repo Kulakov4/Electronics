@@ -14,11 +14,6 @@ uses
 type
   TQueryProducers = class(TQueryWithDataSource)
     fdqDropUnused: TFDQuery;
-    FDQueryID: TFDAutoIncField;
-    FDQueryName: TWideStringField;
-    FDQueryProducts: TWideStringField;
-    FDQueryProducerType: TWideStringField;
-    FDQueryCnt: TLargeintField;
     procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
         Boolean);
   private
@@ -93,6 +88,7 @@ procedure TQueryProducers.DoAfterOpen(Sender: TObject);
 begin
   // Кол-во - только для чтения
   Cnt.ReadOnly := True;
+  Cnt.OnGetText := FDQueryCntGetText;
 end;
 
 procedure TQueryProducers.DoAfterPostOrDelete(Sender: TObject);
@@ -116,7 +112,10 @@ end;
 procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
     DisplayText: Boolean);
 begin
-  Text := String.Format('%.0n', [Sender.AsFloat]);
+  if (not Sender.IsNull) and (Sender.AsFloat > 0) then
+    Text := String.Format('%.0n', [Sender.AsFloat])
+  else
+    Text := '';
 end;
 
 function TQueryProducers.GetCnt: TField;

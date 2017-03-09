@@ -3,6 +3,7 @@ inherited ViewProducers: TViewProducers
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       OptionsBehavior.CellHints = True
+      OptionsView.HeaderAutoHeight = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
@@ -22,6 +23,7 @@ inherited ViewProducers: TViewProducers
       object clProducts: TcxGridDBBandedColumn
         Caption = #1055#1088#1086#1076#1091#1082#1094#1080#1103
         DataBinding.FieldName = 'Products'
+        PropertiesClassName = 'TcxMemoProperties'
         MinWidth = 100
         Position.BandIndex = 0
         Position.ColIndex = 2

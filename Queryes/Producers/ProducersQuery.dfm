@@ -11,16 +11,36 @@ inherited QueryProducers: TQueryProducers
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '
-      '    p.*'
-      '    ,('
-      '        select count(*)'
-      '        from ProductUnionParameters pup '
+      '    pr.*, ifnull(t.cnt, 0) + ifnull(t2.cnt, 0) Cnt'
+      'from Producers pr'
+      'left join'
+      '('
+      '    select pup.Value, 0 + count(*) cnt'
+      '    from products p'
+      '    join products f on p.ParentProductId = f.Id'
       
-        '        where pup.UnionParameterId = :ProducerParameterID and pu' +
-        'p.Value = p.Name'
-      '    ) Cnt'
-      'from Producers p'
-      'order by p.Name')
+        '    join ProductUnionParameters pup on pup.ProductId = f.id and ' +
+        'pup.UnionParameterId = :ProducerParameterID'
+      '    group by pup.Value'
+      ') t on pr.name = t.Value'
+      ''
+      'left join'
+      '('
+      '    select pup.Value, count(*) cnt'
+      '    from products f'
+      
+        '    join ProductUnionParameters pup on pup.ProductId = f.id and ' +
+        'pup.UnionParameterId = :ProducerParameterID'
+      '    where f.ParentProductId is null'
+      '    and not exists '
+      '    ('
+      '        select p.* '
+      '        from products p'
+      '        where p.ParentProductId = f.id'
+      '    )'
+      '    group by pup.Value'
+      ') t2 on pr.name = t.Value'
+      'order by pr.Name')
     ParamData = <
       item
         Name = 'PRODUCERPARAMETERID'
@@ -28,35 +48,6 @@ inherited QueryProducers: TQueryProducers
         ParamType = ptInput
         Value = Null
       end>
-    object FDQueryID: TFDAutoIncField
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInWhere, pfInKey]
-    end
-    object FDQueryName: TWideStringField
-      FieldName = 'Name'
-      Origin = 'Name'
-      Required = True
-      Size = 200
-    end
-    object FDQueryProducts: TWideStringField
-      FieldName = 'Products'
-      Origin = 'Products'
-      Size = 1000
-    end
-    object FDQueryProducerType: TWideStringField
-      FieldName = 'ProducerType'
-      Origin = 'ProducerType'
-      Size = 500
-    end
-    object FDQueryCnt: TLargeintField
-      AutoGenerateValue = arDefault
-      FieldName = 'Cnt'
-      Origin = 'Cnt'
-      ProviderFlags = []
-      ReadOnly = True
-      OnGetText = FDQueryCntGetText
-    end
   end
   object fdqDropUnused: TFDQuery
     Connection = DMRepository.dbConnection
