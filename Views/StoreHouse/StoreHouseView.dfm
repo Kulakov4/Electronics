@@ -14,6 +14,8 @@ object ViewStoreHouse: TViewStoreHouse
     Properties.ActivePage = tsStorehouseProducts
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpgcntrlStorehousePageChanging
+    ExplicitLeft = 480
+    ExplicitWidth = 399
     ClientRectBottom = 618
     ClientRectLeft = 4
     ClientRectRight = 674
@@ -258,6 +260,8 @@ object ViewStoreHouse: TViewStoreHouse
     Top = 0
     Width = 8
     Height = 622
+    HotZoneClassName = 'TcxSimpleStyle'
+    AutoSnap = True
     Control = CxGridStorehouseList
   end
   object pmStorehouseList: TPopupMenu

@@ -59,14 +59,14 @@ object frmMain: TfrmMain
         object pnlList: TPanel
           Left = 1
           Top = 1
-          Width = 199
+          Width = 200
           Height = 531
           Align = alLeft
           TabOrder = 0
           object tlLeftControl: TcxDBTreeList
             Left = 1
             Top = 1
-            Width = 197
+            Width = 198
             Height = 529
             Align = alClient
             Bands = <
@@ -98,6 +98,7 @@ object frmMain: TfrmMain
             OnExpanded = tlLeftControlExpanded
             OnMouseUp = tlLeftControlMouseDown
             OnStartDrag = tlLeftControlStartDrag
+            ExplicitWidth = 197
             object clValue: TcxDBTreeListColumn
               PropertiesClassName = 'TcxMemoProperties'
               Properties.ReadOnly = False
@@ -144,36 +145,44 @@ object frmMain: TfrmMain
           end
         end
         object cxspltrMain: TcxSplitter
-          Left = 200
+          Left = 201
           Top = 1
           Width = 8
           Height = 531
+          HotZoneClassName = 'TcxSimpleStyle'
+          PositionAfterOpen = 200
+          AutoSnap = True
           Control = pnlList
+          ExplicitLeft = 200
         end
         object cxpgcntrlMain: TcxPageControl
-          Left = 208
+          Left = 209
           Top = 1
-          Width = 842
+          Width = 841
           Height = 531
           Align = alClient
           TabOrder = 2
           Properties.ActivePage = tsFunctionalGroup
           Properties.CustomButtons.Buttons = <>
           OnPageChanging = cxpgcntrlMainPageChanging
+          ExplicitLeft = 208
+          ExplicitWidth = 842
           ClientRectBottom = 527
           ClientRectLeft = 4
-          ClientRectRight = 838
+          ClientRectRight = 837
           ClientRectTop = 27
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
+            ExplicitWidth = 834
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
-              Width = 834
+              Width = 833
               Height = 500
               Align = alClient
               TabOrder = 0
+              ExplicitWidth = 834
               object tvFunctionalGroup: TcxGridDBTableView
                 Navigator.Buttons.CustomButtons = <>
                 DataController.Summary.DefaultGroupSummaryItems = <>
@@ -225,17 +234,18 @@ object frmMain: TfrmMain
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
             ImageIndex = 1
             OnShow = tsComponentsShow
+            ExplicitWidth = 834
             inline ViewComponents: TViewComponents
               Left = 0
               Top = 0
-              Width = 834
+              Width = 833
               Height = 500
               Align = alClient
               TabOrder = 0
               ExplicitWidth = 834
               ExplicitHeight = 500
               inherited cxGrid: TcxGrid
-                Width = 834
+                Width = 833
                 Height = 453
                 ExplicitWidth = 834
                 ExplicitHeight = 453
@@ -292,7 +302,7 @@ object frmMain: TfrmMain
               end
               inherited StatusBar: TStatusBar
                 Top = 481
-                Width = 834
+                Width = 833
                 ExplicitTop = 481
                 ExplicitWidth = 834
               end
@@ -323,24 +333,25 @@ object frmMain: TfrmMain
           object cxtsParametersForCategories: TcxTabSheet
             Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
             ImageIndex = 4
+            ExplicitWidth = 834
             inline ViewParametersForCategories: TViewParametersForCategories
               Left = 0
               Top = 0
-              Width = 834
+              Width = 833
               Height = 500
               Align = alClient
               TabOrder = 0
               ExplicitWidth = 834
               ExplicitHeight = 500
               inherited cxGrid: TcxGrid
-                Width = 834
+                Width = 833
                 Height = 481
                 ExplicitWidth = 834
                 ExplicitHeight = 481
               end
               inherited StatusBar: TStatusBar
                 Top = 481
-                Width = 834
+                Width = 833
                 ExplicitTop = 481
                 ExplicitWidth = 834
               end
@@ -365,17 +376,18 @@ object frmMain: TfrmMain
           object cxtsDatabase: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1073#1072#1079#1099' '#1076#1072#1085#1085#1099#1093
             ImageIndex = 3
+            ExplicitWidth = 834
             inline ViewComponentsSearch: TViewComponentsSearch
               Left = 0
               Top = 0
-              Width = 834
+              Width = 833
               Height = 500
               Align = alClient
               TabOrder = 0
               ExplicitWidth = 834
               ExplicitHeight = 500
               inherited cxGrid: TcxGrid
-                Width = 834
+                Width = 833
                 Height = 453
                 ExplicitWidth = 834
                 ExplicitHeight = 453
@@ -430,7 +442,7 @@ object frmMain: TfrmMain
               end
               inherited StatusBar: TStatusBar
                 Top = 481
-                Width = 834
+                Width = 833
                 ExplicitTop = 481
                 ExplicitWidth = 834
               end
@@ -462,10 +474,11 @@ object frmMain: TfrmMain
             Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
             ImageIndex = 4
             OnShow = cxtsParametricTableShow
+            ExplicitWidth = 834
             inline ViewParametricTable: TViewParametricTable
               Left = 0
               Top = 0
-              Width = 834
+              Width = 833
               Height = 500
               Align = alClient
               ParentShowHint = False
@@ -474,7 +487,7 @@ object frmMain: TfrmMain
               ExplicitWidth = 834
               ExplicitHeight = 500
               inherited cxGrid: TcxGrid
-                Width = 834
+                Width = 833
                 Height = 453
                 ExplicitWidth = 834
                 ExplicitHeight = 453
@@ -544,7 +557,7 @@ object frmMain: TfrmMain
               end
               inherited StatusBar: TStatusBar
                 Top = 481
-                Width = 834
+                Width = 833
                 ExplicitTop = 481
                 ExplicitWidth = 834
               end
@@ -588,12 +601,14 @@ object frmMain: TfrmMain
         ExplicitWidth = 1051
         ExplicitHeight = 533
         inherited cxpgcntrlStorehouse: TcxPageControl
-          Width = 850
+          Left = 208
+          Width = 843
           Height = 533
+          ExplicitLeft = 201
           ExplicitWidth = 850
           ExplicitHeight = 533
           ClientRectBottom = 529
-          ClientRectRight = 846
+          ClientRectRight = 839
           ClientRectTop = 27
           inherited tsStorehouseInfo: TcxTabSheet
             inherited ViewStorehouseInfo: TViewStorehouseInfo
@@ -626,12 +641,12 @@ object frmMain: TfrmMain
             ExplicitWidth = 842
             ExplicitHeight = 502
             inherited ViewProducts: TViewProducts
-              Width = 842
+              Width = 835
               Height = 502
               ExplicitWidth = 842
               ExplicitHeight = 502
               inherited cxGrid: TcxGrid
-                Width = 842
+                Width = 835
                 Height = 455
                 ExplicitWidth = 842
                 ExplicitHeight = 455
@@ -688,7 +703,7 @@ object frmMain: TfrmMain
               end
               inherited StatusBar: TStatusBar
                 Top = 483
-                Width = 842
+                Width = 835
                 ExplicitTop = 483
                 ExplicitWidth = 842
               end
@@ -784,11 +799,17 @@ object frmMain: TfrmMain
           end
         end
         inherited CxGridStorehouseList: TcxGrid
+          Width = 200
           Height = 533
+          ExplicitWidth = 200
           ExplicitHeight = 533
         end
         inherited cxspltrStorehouse: TcxSplitter
+          Left = 200
           Height = 533
+          PositionAfterOpen = 200
+          ExplicitLeft = 198
+          ExplicitTop = -2
           ExplicitHeight = 533
         end
         inherited cxstylrpstry1: TcxStyleRepository
