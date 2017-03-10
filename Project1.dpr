@@ -163,7 +163,8 @@ uses
   QueryGroupUnit in 'Queryes\QueryGroupUnit.pas' {QueryGroup: TFrame},
   ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule},
   DialogUnit2 in 'Helpers\DialogUnit2.pas',
-  SearchProducerTypesQuery in 'Queryes\Search\SearchProducerTypesQuery.pas' {QuerySearchProducerTypes: TFrame};
+  SearchProducerTypesQuery in 'Queryes\Search\SearchProducerTypesQuery.pas' {QuerySearchProducerTypes: TFrame},
+  ProductsForm in 'Views\Products\ProductsForm.pas' {frmProducts};
 
 {$R *.res}
 

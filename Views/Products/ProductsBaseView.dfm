@@ -369,7 +369,4 @@ inherited ViewProductsBase: TViewProductsBase
       OnExecute = actExportToExcelDocumentExecute
     end
   end
-  object Action1: TAction
-    Caption = 'asdsad'
-  end
 end

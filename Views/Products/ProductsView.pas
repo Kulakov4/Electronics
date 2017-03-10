@@ -46,9 +46,12 @@ type
     dxBarButton1: TdxBarButton;
     dxBarSubItem1: TdxBarSubItem;
     dxBarButton3: TdxBarButton;
+    actFullScreen: TAction;
+    dxBarButton4: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
+    procedure actFullScreenExecute(Sender: TObject);
     procedure actPasteComponentsExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -107,7 +110,7 @@ uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
   DialogUnit, Vcl.Clipbrd, SettingsController, ExcelDataModule,
   ProductsExcelDataModule, ProgressBarForm, ErrorForm, CustomExcelTable,
-  GridViewForm;
+  GridViewForm, ProductsForm;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var
@@ -154,6 +157,20 @@ begin
       UpdateView;
     end;
   end;
+end;
+
+procedure TViewProducts.actFullScreenExecute(Sender: TObject);
+begin
+  inherited;
+  if frmProducts = nil then
+  begin
+    frmProducts := TfrmProducts.Create(Application);
+    // Подключаем представление к данным
+    frmProducts.ViewProducts.QueryProducts := QueryProducts;
+    frmProducts.ViewProducts.actFullScreen.Visible := False;
+  end;
+  Assert(frmProducts.ViewProducts.QueryProducts <> nil);
+  frmProducts.Show;
 end;
 
 procedure TViewProducts.actPasteComponentsExecute(Sender: TObject);
