@@ -55,6 +55,10 @@ inherited ViewProducts: TViewProducts
         end
         item
           Visible = True
+          ItemName = 'dxBarSubItem1'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarButton1'
         end>
     end
@@ -82,6 +86,22 @@ inherited ViewProducts: TViewProducts
       Action = actOpenInParametricTable
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarSubItem1: TdxBarSubItem
+      Caption = #1069#1082#1089#1087#1086#1088#1090
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 6
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
+        end>
+    end
+    object dxBarButton3: TdxBarButton
+      Action = actExportToExcelDocument
+      Category = 0
     end
   end
   inherited ActionList: TActionList

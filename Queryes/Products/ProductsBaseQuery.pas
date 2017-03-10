@@ -57,6 +57,7 @@ type
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
+    function GetExportFileName: string; virtual; abstract;
     property QuerySearchDaughterComponent: TQuerySearchDaughterComponent
       read GetQuerySearchDaughterComponent;
     property QuerySearchFamilyByID: TQuerySearchFamilyByID
@@ -73,6 +74,7 @@ type
     function LocateInComponents: Boolean;
     property ComponentGroup: TField read GetComponentGroup;
     property DescriptionID: TField read GetDescriptionID;
+    property ExportFileName: string read GetExportFileName;
     property IDProducer: TField read GetIDProducer;
     property ProductID: TField read GetProductID;
     property QueryProducers: TQueryProducers read GetQueryProducers;

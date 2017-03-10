@@ -44,6 +44,8 @@ type
     actPasteComponents: TAction;
     N2: TMenuItem;
     dxBarButton1: TdxBarButton;
+    dxBarSubItem1: TdxBarSubItem;
+    dxBarButton3: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);

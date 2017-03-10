@@ -114,7 +114,7 @@ implementation
 {$R *.dfm}
 
 uses System.IOUtils, Winapi.ShellAPI, DialogUnit, SettingsController,
-  ParameterValuesUnit, cxDropDownEdit, RepositoryDataModule;
+  ParameterValuesUnit, cxDropDownEdit, RepositoryDataModule, cxGridExportLink;
 
 procedure TViewProductsBase.actCommitExecute(Sender: TObject);
 begin
@@ -128,14 +128,18 @@ procedure TViewProductsBase.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-{
-  AFileName := Format('%s %s', []);
+  AFileName := QueryProductsBase.ExportFileName;
   AFileName := TDialog.Create.SaveToExcelFile(AFileName);
   if AFileName = '' then
     Exit;
 
-  ExportViewToExcel(MainView, AFileName);
-}
+  MainView.Bands[0].FixedKind := fkNone;
+  try
+    // Ёкспортируем в Excel
+    ExportGridToExcel(AFileName, cxGrid, True, True, False);
+  finally
+    MainView.Bands[0].FixedKind := fkLeft;
+  end;
 end;
 
 procedure TViewProductsBase.actRollbackExecute(Sender: TObject);
@@ -347,6 +351,7 @@ begin
   Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
   actCommit.Enabled := Ok and QueryProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
+  actExportToExcelDocument.Enabled := OK and (QueryProductsBase.FDQuery.RecordCount > 0);
 end;
 
 procedure TViewProductsBase.UploadDoc(ADocFieldInfo: TDocFieldInfo);

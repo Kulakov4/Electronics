@@ -26,6 +26,7 @@ type
     function GetTotalCount: Integer;
     { Private declarations }
   protected
+    function GetExportFileName: string; override;
     property QueryStoreHouseProductsCount: TQueryStoreHouseProductsCount
       read GetQueryStoreHouseProductsCount;
   public
@@ -47,7 +48,7 @@ type
 implementation
 
 uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
-  ParameterValuesUnit;
+  ParameterValuesUnit, StoreHouseListQuery;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }
@@ -98,8 +99,20 @@ end;
 
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
-//  FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
+  // FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
+end;
+
+function TQueryProducts.GetExportFileName: string;
+var
+  AQueryStoreHouseList: TQueryStoreHouseList;
+begin
+  Assert(Master <> nil);
+  AQueryStoreHouseList := Master as TQueryStoreHouseList;
+  Assert(AQueryStoreHouseList.FDQuery.RecordCount > 0);
+  Result := Format('%s %s.xls', [AQueryStoreHouseList.Abbreviation.AsString,
+    FormatDateTime('dd.mm.yyyy', Date)]);
+  Assert(not Result.IsEmpty);
 end;
 
 function TQueryProducts.GetQueryStoreHouseProductsCount
