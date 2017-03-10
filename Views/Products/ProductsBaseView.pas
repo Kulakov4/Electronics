@@ -352,6 +352,7 @@ begin
   actCommit.Enabled := Ok and QueryProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
   actExportToExcelDocument.Enabled := OK and (QueryProductsBase.FDQuery.RecordCount > 0);
+  actOpenInParametricTable.Enabled := OK and (MainView.DataController.RecordCount > 0);
 end;
 
 procedure TViewProductsBase.UploadDoc(ADocFieldInfo: TDocFieldInfo);
