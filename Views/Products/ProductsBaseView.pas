@@ -67,7 +67,9 @@ type
     actOpenDrawing: TAction;
     actLoadDrawing: TAction;
     actOpenInParametricTable: TAction;
+    actExportToExcelDocument: TAction;
     procedure actCommitExecute(Sender: TObject);
+    procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actLoadImageExecute(Sender: TObject);
     procedure actLoadDatasheetExecute(Sender: TObject);
@@ -120,6 +122,20 @@ begin
   UpdateView;
   // «аново заполн€ем выпадающие списки данными
   MyInitializeComboBoxColumn;
+end;
+
+procedure TViewProductsBase.actExportToExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: String;
+begin
+{
+  AFileName := Format('%s %s', []);
+  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
+  if AFileName = '' then
+    Exit;
+
+  ExportViewToExcel(MainView, AFileName);
+}
 end;
 
 procedure TViewProductsBase.actRollbackExecute(Sender: TObject);

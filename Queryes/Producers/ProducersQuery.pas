@@ -89,6 +89,7 @@ begin
   // Кол-во - только для чтения
   Cnt.ReadOnly := True;
   Cnt.OnGetText := FDQueryCntGetText;
+  Name.DisplayLabel := 'Производитель';
 end;
 
 procedure TQueryProducers.DoAfterPostOrDelete(Sender: TObject);

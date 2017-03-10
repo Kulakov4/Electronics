@@ -14,6 +14,7 @@ type
   private
     function GetParentProductID: TField;
     function GetProducer: TField;
+    function GetValue: TField;
     { Private declarations }
   protected
   public
@@ -21,6 +22,7 @@ type
     function Search(const AComponentName, AProducer: string): Integer; overload;
     property ParentProductID: TField read GetParentProductID;
     property Producer: TField read GetProducer;
+    property Value: TField read GetValue;
     { Public declarations }
   end;
 
@@ -38,6 +40,11 @@ end;
 function TQuerySearchDaughterComponent.GetProducer: TField;
 begin
   Result := Field('Producer');
+end;
+
+function TQuerySearchDaughterComponent.GetValue: TField;
+begin
+  Result := Field('Value');
 end;
 
 function TQuerySearchDaughterComponent.Search(const AComponentName: string):

@@ -928,26 +928,6 @@ begin
   finally
     cxGrid.EndUpdate;
   end;
-
-  (*
-
-    cxGrid.BeginUpdate();
-    try
-    for i := 0 to cxGridDBBandedTableView2.Bands.Count - 1 do
-    begin
-    cxGridDBBandedTableView2.Bands[i].Width := MainView.Bands[i].Width;
-    end;
-
-    for i := 0 to cxGridDBBandedTableView2.ColumnCount - 1 do
-    // изменить размеры колонок у дочерней вью
-    begin
-    cxGridDBBandedTableView2.Columns[i].Width := MainView.Columns[i].Width;
-    end;
-    finally
-    cxGrid.EndUpdate;
-    end;
-
-    (* *)
 end;
 
 procedure TViewComponentsParent.UpdateSelectedValues

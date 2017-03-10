@@ -183,6 +183,7 @@ type
     function GetLevel(ANode: TcxTreeListNode): Integer;
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TList<TFieldInfo>): Boolean;
+    procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
     { Private declarations }
@@ -225,7 +226,7 @@ uses
   SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
-  SearchFamilyByID;
+  SearchFamilyByID, ProductsBaseQuery;
 
 {$R *.dfm}
 
@@ -923,65 +924,28 @@ end;
 
 procedure TfrmMain.DoOnProductLocate(Sender: TObject);
 var
-  AIDCategory: Integer;
-  AQuerySearchFamilyByID: TQuerySearchFamilyByID;
-  m: TArray<String>;
+  LO: TLocateObject;
 begin
-  AQuerySearchFamilyByID := (Sender as TQuerySearchFamilyByID);
-  Assert(AQuerySearchFamilyByID.FDQuery.RecordCount > 0);
+  LO := (Sender as TLocateObject);
 
-  m := AQuerySearchFamilyByID.CategoryIDList.AsString.Split([',']);
-  Assert(Length(m) > 0);
-
-  AIDCategory := String.ToInteger(m[0]);
-
-  if not DM.qTreeList.LocateByPK(AIDCategory) then
+  if not DM.qTreeList.LocateByPK(LO.IDCategory) then
   begin
-    TDialog.Create.ErrorMessageDialog(Format('Категория %s не найдена',
-      [m[0]]));
+    TDialog.Create.ErrorMessageDialog(Format('Категория с кодом %d не найдена',
+      [LO.IDCategory]));
     Exit;
   end;
 
+  // Отображаем окно с параметрической таблицей
+  ShowParametricTable;
+  // Фильтруем по семейству
+  frmParametricTable.ViewParametricTable.FilterByFamily(LO.FamilyName);
+  // Фильтруем семейство по компоненту
+  frmParametricTable.ViewParametricTable.FilterByComponent(LO.ComponentName);
 end;
 
 procedure TfrmMain.DoOnShowParametricTable(Sender: TObject);
-var
-  ACategoryPath: string;
-  rc: Integer;
 begin
-  if frmParametricTable = nil then
-  begin
-
-    // Нам надо узнать, есть-ли у текущей категории подкатегории
-    rc := TSearchSubCategories.Search(DM.qTreeList.PKValue);
-    // Если у нашей категории есть подкатегории
-    if rc > 0 then
-      ACategoryPath := DM.qTreeList.value.AsString
-    else
-    begin
-      // Если в цепочке категорий мы последнее звено
-      ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-        (DM.qTreeList.PKValue, 2, '-');
-    end;
-
-    // Создаём окно с параметрической таблицей
-    frmParametricTable := TfrmParametricTable.Create(Self);
-    frmParametricTable.CategoryPath := ACategoryPath;
-
-    // Подписываемся на событие перед закрытием окна
-    TNotifyEventWrap.Create(frmParametricTable.BeforeClose,
-      DoBeforeParametricTableFormClose, FEventList);
-
-    // Привязываем данные к представлению
-    frmParametricTable.ViewParametricTable.ComponentsExGroup :=
-      DM.ComponentsExGroup;
-
-    // предупреждаем, что нам потребуются данные этого запроса
-    DM.ComponentsExGroup.AddClient;
-  end;
-
-  frmParametricTable.Show;
-
+  ShowParametricTable;
 end;
 
 procedure TfrmMain.FormResize(Sender: TObject);
@@ -1144,6 +1108,45 @@ begin
     FreeAndNil(AParametricErrorTable)
   end;
   Result := OK;
+end;
+
+procedure TfrmMain.ShowParametricTable;
+var
+  ACategoryPath: string;
+  rc: Integer;
+begin
+  if frmParametricTable = nil then
+  begin
+
+    // Нам надо узнать, есть-ли у текущей категории подкатегории
+    rc := TSearchSubCategories.Search(DM.qTreeList.PKValue);
+    // Если у нашей категории есть подкатегории
+    if rc > 0 then
+      ACategoryPath := DM.qTreeList.value.AsString
+    else
+    begin
+      // Если в цепочке категорий мы последнее звено
+      ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
+        (DM.qTreeList.PKValue, 2, '-');
+    end;
+
+    // Создаём окно с параметрической таблицей
+    frmParametricTable := TfrmParametricTable.Create(Self);
+    frmParametricTable.CategoryPath := ACategoryPath;
+
+    // Подписываемся на событие перед закрытием окна
+    TNotifyEventWrap.Create(frmParametricTable.BeforeClose,
+      DoBeforeParametricTableFormClose, FEventList);
+
+    // Привязываем данные к представлению
+    frmParametricTable.ViewParametricTable.ComponentsExGroup :=
+      DM.ComponentsExGroup;
+
+    // предупреждаем, что нам потребуются данные этого запроса
+    DM.ComponentsExGroup.AddClient;
+  end;
+
+  frmParametricTable.Show;
 end;
 
 function TfrmMain.ShowSettingsEditor: Integer;

@@ -363,6 +363,11 @@ inherited ViewProductsBase: TViewProductsBase
       ImageIndex = 34
       OnExecute = actOpenInParametricTableExecute
     end
+    object actExportToExcelDocument: TAction
+      Caption = 'actExportToExcelDocument'
+      ImageIndex = 6
+      OnExecute = actExportToExcelDocumentExecute
+    end
   end
   object Action1: TAction
     Caption = 'asdsad'

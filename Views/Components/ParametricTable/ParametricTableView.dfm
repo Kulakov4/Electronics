@@ -112,6 +112,7 @@ inherited ViewParametricTable: TViewParametricTable
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsView.CellAutoHeight = True
+      OptionsView.Header = True
       Bands = <
         item
           FixedKind = fkLeft
@@ -148,6 +149,12 @@ inherited ViewParametricTable: TViewParametricTable
           Caption = 'Package/Pins'
           Options.HoldOwnColumnsOnly = True
         end>
+      inherited clValue2: TcxGridDBBandedColumn
+        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
+      end
+      inherited clProducer2: TcxGridDBBandedColumn
+        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
+      end
       inherited clSubGroup2: TcxGridDBBandedColumn
         Visible = False
         VisibleForCustomization = False
@@ -155,6 +162,7 @@ inherited ViewParametricTable: TViewParametricTable
         Position.ColIndex = 3
       end
       inherited clDescription2: TcxGridDBBandedColumn
+        Caption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
         Position.BandIndex = 2
         Position.ColIndex = 0
       end
@@ -207,6 +215,10 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxbbClearFilters'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end>
     end
     object dxbrbtnApplyUpdates: TdxBarButton
@@ -241,6 +253,13 @@ inherited ViewParametricTable: TViewParametricTable
       Hint = 'New Button'
       Visible = ivAlways
       OnClick = dxBarButton2Click
+    end
+    object dxBarButton1: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivNever
+      OnClick = dxBarButton1Click
     end
   end
   inherited ActionList: TActionList

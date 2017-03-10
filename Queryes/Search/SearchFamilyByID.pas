@@ -15,6 +15,7 @@ type
     function GetCategoryIDList: TField;
     function GetComponentGroup: TField;
     function GetDescriptionID: TField;
+    function GetValue: TField;
     { Private declarations }
   protected
   public
@@ -22,6 +23,7 @@ type
     property CategoryIDList: TField read GetCategoryIDList;
     property ComponentGroup: TField read GetComponentGroup;
     property DescriptionID: TField read GetDescriptionID;
+    property Value: TField read GetValue;
     { Public declarations }
   end;
 
@@ -44,6 +46,11 @@ end;
 function TQuerySearchFamilyByID.GetDescriptionID: TField;
 begin
   Result := Field('DescriptionID');
+end;
+
+function TQuerySearchFamilyByID.GetValue: TField;
+begin
+  Result := Field('Value');
 end;
 
 function TQuerySearchFamilyByID.Search(const AIDComponent: Integer):

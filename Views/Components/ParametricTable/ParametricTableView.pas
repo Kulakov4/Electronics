@@ -50,6 +50,7 @@ type
     dxbbClearFilters: TdxBarButton;
     Timer: TTimer;
     Timer2: TTimer;
+    dxBarButton1: TdxBarButton;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
@@ -66,6 +67,7 @@ type
     procedure dxBarButton2Click(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
+    procedure dxBarButton1Click(Sender: TObject);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -113,6 +115,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure FilterByFamily(AFamily: string);
+    procedure FilterByComponent(AComponent: string);
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup
@@ -162,7 +165,7 @@ implementation
 uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
-  SearchParametersForCategoryQuery, System.Generics.Defaults;
+  SearchParametersForCategoryQuery, System.Generics.Defaults, GridExtension;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -478,6 +481,28 @@ begin
   }
 end;
 
+procedure TViewParametricTable.dxBarButton1Click(Sender: TObject);
+var
+  AView: TcxGridDBBandedTableView;
+  i: Integer;
+begin
+  inherited;
+  AView := GridView(cxGridLevel2);
+  AView.BeginBestFitUpdate;
+  try
+    for i := 0 to AView.Bands.Count - 1 do
+    begin
+      AView.Bands[i].ApplyBestFit(True);
+    end;
+//    UpdateDetailColumnsWidth;
+  finally
+    AView.EndBestFitUpdate;
+  end;
+
+
+//  GridView(cxGridLevel2).ApplyBestFit();
+end;
+
 procedure TViewParametricTable.dxBarButton2Click(Sender: TObject);
 begin
   inherited;
@@ -638,14 +663,14 @@ begin
     a := fc.Active;
     fca := fc.FilterCaption;
   }
-{
-  FLockDetailFilterChange := True;
-  try
+  {
+    FLockDetailFilterChange := True;
+    try
     CreateDetailFilter;
-  finally
+    finally
     FLockDetailFilterChange := False;
-  end;
-}
+    end;
+  }
   // cxGridDBBandedTableView2.DataController.Filter.Active := True;
 end;
 
@@ -972,16 +997,52 @@ var
   AFilterList: TcxFilterCriteriaItemList;
 begin
   Assert(not AFamily.IsEmpty);
-  AColumn := MainView.GetColumnByFieldName( ComponentsExGroup.qFamilyEx.Value.FieldName );
+  AColumn := MainView.GetColumnByFieldName
+    (ComponentsExGroup.qFamilyEx.Value.FieldName);
   Assert(AColumn <> nil);
 
+  FLockDetailFilterChange := True;
+  try
+    AFilterList := MainView.DataController.Filter.root;
+    AFilterList.Clear;
+    AFilterList.BoolOperatorKind := fboAnd;
+    AFilterList.AddItem(AColumn, foEqual, AFamily, AFamily);
+    MainView.DataController.Filter.Active := True;
+  finally
+    FLockDetailFilterChange := False;
+  end;
+end;
+
+procedure TViewParametricTable.FilterByComponent(AComponent: string);
+var
+  AColumn: TcxGridDBBandedColumn;
+  AFilterList: TcxFilterCriteriaItemList;
+  ARow: TcxMyGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
+begin
+  Assert(not AComponent.IsEmpty);
+
+  AColumn := GridView(cxGridLevel2).GetColumnByFieldName
+    (ComponentsExGroup.qComponentsEx.Value.FieldName);
+  Assert(AColumn <> nil);
 
   FLockDetailFilterChange := True;
-  AFilterList := MainView.DataController.Filter.root;
-  AFilterList.Clear;
-  AFilterList.BoolOperatorKind := fboAnd;
-  AFilterList.AddItem(AColumn, foEqual, AFamily, AFamily);
-  FLockDetailFilterChange := False;
+  try
+    AFilterList := GridView(cxGridLevel2).DataController.Filter.root;
+    AFilterList.Clear;
+    AFilterList.BoolOperatorKind := fboAnd;
+    AFilterList.AddItem(AColumn, foEqual, AComponent, AComponent);
+    GridView(cxGridLevel2).DataController.Filter.Active := True;
+  finally
+    FLockDetailFilterChange := False;
+  end;
+
+  // Разворачиваем представление компонентов
+  ARow := GetRow(0) as TcxMyGridMasterDataRow;
+  Assert(ARow <> nil);
+  AView := GetDBBandedTableView(1);
+  ARow.MyExpand(False);
+  AView.Focused := True;
 end;
 
 function TViewParametricTable.GetComponentsExGroup: TComponentsExGroup;
