@@ -58,13 +58,21 @@ function TQuerySearchMainParameter.Search(const ATableName: String;
 begin
   Assert(not ATableName.IsEmpty);
 
-  Result := Search(['TableName', 'IsCustomParameter'], [ATableName, AIsCustomParameter]);
+  Result := Search(['TableName'], [ATableName]);
+  if Result > 0 then
+  begin
+    FDQuery.Filter := Format('IsCustomParameter=%s', [BoolToStr(AIsCustomParameter)]);
+    FDQuery.Filtered := True;
+    Result := FDQuery.RecordCount;
+  end;
 end;
 
 function TQuerySearchMainParameter.Search(const ATableName: String): Integer;
 begin
   Assert(not ATableName.IsEmpty);
 
+  FDQuery.Filtered := False;
+  FDQuery.Filter := '';
   Result := Search(['TableName'], [ATableName]);
 end;
 

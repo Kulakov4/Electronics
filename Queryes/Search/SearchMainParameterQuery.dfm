@@ -12,20 +12,12 @@ inherited QuerySearchMainParameter: TQuerySearchMainParameter
     SQL.Strings = (
       'select *'
       'from UnionParameters'
-      
-        'where upper(TableName) = upper(:TableName) and IsCustomParameter' +
-        ' = :IsCustomParameter'
+      'where upper(TableName) = upper(:TableName)'
       'and ParentParameter is null')
     ParamData = <
       item
         Name = 'TABLENAME'
         DataType = ftString
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'ISCUSTOMPARAMETER'
-        DataType = ftBoolean
         ParamType = ptInput
         Value = Null
       end>
