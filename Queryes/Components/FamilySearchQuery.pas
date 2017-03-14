@@ -143,9 +143,7 @@ begin
   AutoTransaction := Mode = SearchMode;
 
   if Mode = RecordsMode then
-    for AField in FDQuery.Fields do
-      AField.ReadOnly := False;
-
+    SetFieldsReadOnly(False);
 end;
 
 function TQueryFamilySearch.GetCurrentMode: TContentMode;

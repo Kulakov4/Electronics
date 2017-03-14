@@ -60,6 +60,8 @@ type
     procedure RefreshQuery; virtual;
     function Search(const AParamNames: array of string; const AParamValues: array
         of Variant): Integer; overload;
+    procedure SetFieldsRequired(ARequired: Boolean);
+    procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure TryEdit;
     procedure TryPost; virtual;
     procedure TryCancel;
@@ -479,6 +481,24 @@ begin
     FDQuery.EnableControls;
   end;
   Result := FDQuery.RecordCount;
+end;
+
+procedure TQueryBase.SetFieldsRequired(ARequired: Boolean);
+var
+  AField: TField;
+begin
+  inherited;
+  for AField in FDQuery.Fields do
+    AField.Required := ARequired;
+end;
+
+procedure TQueryBase.SetFieldsReadOnly(AReadOnly: Boolean);
+var
+  AField: TField;
+begin
+  inherited;
+  for AField in FDQuery.Fields do
+    AField.ReadOnly := AReadOnly;
 end;
 
 procedure TQueryBase.TryEdit;

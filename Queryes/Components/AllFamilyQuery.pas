@@ -36,11 +36,8 @@ begin
 end;
 
 procedure TQueryAllFamily.DoAfterOpen(Sender: TObject);
-var
-  AField: TField;
 begin
-  for AField in FDQuery.Fields do
-    AField.ReadOnly := False;
+  SetFieldsReadOnly(False);
 end;
 
 end.

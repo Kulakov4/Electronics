@@ -176,13 +176,10 @@ begin
 end;
 
 procedure TQueryBodyTypesTree.DoAfterOpen(Sender: TObject);
-var
-  I: Integer;
 begin
   // Поле ID то LargeInt то WideString
   FDQuery.FieldByName('ID').ProviderFlags := [pfInKey];
-  for I := 0 to FDQuery.FieldCount - 1 do
-    FDQuery.Fields[I].ReadOnly := False;
+  SetFieldsReadOnly(False);
 end;
 
 procedure TQueryBodyTypesTree.DoAfterPostOrDelete(Sender: TObject);

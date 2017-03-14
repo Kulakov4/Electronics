@@ -322,14 +322,9 @@ begin
 end;
 
 procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
-var
-  AField: TField;
 begin
-  for AField in FDQuery.Fields do
-  begin
-    AField.ReadOnly := False;
-    AField.Required := False;
-  end;
+  SetFieldsRequired(False);
+  SetFieldsReadOnly(False);
 end;
 
 // TODO: GetComponentFamily

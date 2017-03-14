@@ -35,12 +35,9 @@ implementation
 uses ProjectConst;
 
 procedure TQuerySearchMainParameter.FDQueryAfterOpen(DataSet: TDataSet);
-var
-  AField: TField;
 begin
   inherited;
-  for AField in FDQuery.Fields do
-    AField.Required := False;
+  SetFieldsRequired(False);
 end;
 
 function TQuerySearchMainParameter.GetIsCustomParameter: TField;
