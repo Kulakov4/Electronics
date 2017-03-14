@@ -170,6 +170,9 @@ begin
     frmProducts.ViewProducts.actFullScreen.Visible := False;
   end;
   Assert(frmProducts.ViewProducts.QueryProducts <> nil);
+
+  // Заголовок формы - название склада
+  frmProducts.Caption := QueryProducts.StoreHouseName;
   frmProducts.Show;
 end;
 

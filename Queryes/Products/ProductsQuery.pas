@@ -23,6 +23,7 @@ type
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
     function GetQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
+    function GetStoreHouseName: string;
     function GetTotalCount: Integer;
     { Private declarations }
   protected
@@ -32,6 +33,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendList(AExcelTable: TProductsExcelTable);
+    property StoreHouseName: string read GetStoreHouseName;
     // TODO: AddStringList
     // function AddStringList(ARows: TArray<String>): TStringList;
     // TODO: InsertRecordList
@@ -124,6 +126,15 @@ begin
     FQueryStoreHouseProductsCount.FDQuery.Connection := FDQuery.Connection;
   end;
   Result := FQueryStoreHouseProductsCount;
+end;
+
+function TQueryProducts.GetStoreHouseName: string;
+var
+  AQueryStoreHouseList: TQueryStoreHouseList;
+begin
+  Assert(Master <> nil);
+  AQueryStoreHouseList := Master as TQueryStoreHouseList;
+  Result := AQueryStoreHouseList.Title.AsString;
 end;
 
 function TQueryProducts.GetTotalCount: Integer;
