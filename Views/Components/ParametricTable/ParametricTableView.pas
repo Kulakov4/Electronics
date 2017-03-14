@@ -818,8 +818,7 @@ begin
         Assert(AIDParameter > 0);
 
         // Если найден параметр соответсвующий бэнду
-        OK := AQrySearchParamForCat.FDQuery.LocateEx('UnionParameterID',
-          AIDParameter);
+        OK := AQrySearchParamForCat.LocateByParameterID(AIDParameter);
         Assert(OK);
 
         if (AQrySearchParamForCat.FDQueryOrder.AsInteger <> ANewOrder) or

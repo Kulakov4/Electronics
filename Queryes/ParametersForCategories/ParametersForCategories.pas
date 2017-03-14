@@ -45,7 +45,7 @@ begin
     { добавить запись }
     AQuery.Connection := DMRepository.dbConnection;
     AQuery.SQL.Add
-      ('insert into UnionParameters (Value, ValueT, TableName, "Order", ParentParameter, IsCustomParameter)  '
+      ('insert into Parameters (Value, ValueT, TableName, "Order", ParentParameter, IsCustomParameter)  '
       + ' values (:vRecord, :vRecord, :vRecord, 0, :vParentId, 1)');
 
     AQuery.Params.ParamValues['vRecord'] := vRecord;
@@ -71,10 +71,10 @@ begin
     { задать параметр как нужный для категории }
     AQuery.SQL.Clear;
     AQuery.SQL.Add
-      ('insert into UnionParameterForCategories (ProductCategoryId, UnionParameterId, "Order", IsEnabled) '
-      + ' values (:vProductCategoryId, :vUnionParameterId, :vOrder, 1)');
+      ('insert into CategoryParams (ProductCategoryId, ParameterId, "Order", IsEnabled) '
+      + ' values (:vProductCategoryId, :vParameterId, :vOrder, 1)');
     AQuery.Params.ParamValues['vProductCategoryId'] := vProductCategoryId;
-    AQuery.Params.ParamValues['vUnionParameterId'] := Result;
+    AQuery.Params.ParamValues['vParameterId'] := Result;
     AQuery.Params.ParamValues['vOrder'] := vOrder;
     AQuery.Execute();
   finally
@@ -92,9 +92,9 @@ begin
   try
     AQuery.Connection := DMRepository.dbConnection;
     AQuery.SQL.Add
-      ('delete from UnionParameterForCategories where ProductCategoryId = :vProductCategoryId '
-      + ' and UnionParameterId = :vUnionParameterId');
-    AQuery.Params.ParamValues['vUnionParameterId'] := vParameterId;
+      ('delete from CategoryParams where ProductCategoryId = :vProductCategoryId '
+      + ' and ParameterId = :vParameterId');
+    AQuery.Params.ParamValues['vParameterId'] := vParameterId;
     AQuery.Params.ParamValues['vProductCategoryId'] := vProductCategoryId;
     AQuery.Execute();
   finally
@@ -114,14 +114,14 @@ begin
   try
     AQuery.Connection := DMRepository.dbConnection;
     // выбрать все параметры для дальнейшей их обработки
-    AQuery.SQL.Add('SELECT up.Id, up.ParentParameter, upfc.IsAttribute ' +
-      '     FROM UnionParameterForCategories upfc ' +
-      '   left join UnionParameters up ' +
-      '   on (up.ParentParameter = upfc.UnionParameterId) ' +
-      '    or (up.Id = upfc.UnionParameterId) ' +
-      '    WHERE upfc.ProductCategoryId = :vProductCategoryId AND ' +
-      '          upfc.IsEnabled = 1 ' +
-      '   order by upfc."Order", up.ParentParameter');
+    AQuery.SQL.Add('SELECT p.Id, p.ParentParameter, cp.IsAttribute ' +
+      '     FROM CategoryParams cp ' +
+      '   left join Parameters p ' +
+      '   on (p.ParentParameter = cp.ParameterId) ' +
+      '    or (p.Id = fc.ParameterId) ' +
+      '    WHERE cp.ProductCategoryId = :vProductCategoryId AND ' +
+      '          cp.IsEnabled = 1 ' +
+      '   order by cp."Order", p.ParentParameter');
     AQuery.Params.ParamValues['vProductCategoryId'] := vProductCategoryId;
     AQuery.Open();
     AQuery.First;
@@ -149,11 +149,11 @@ begin
   try
     AQuery.Connection := DMRepository.dbConnection;
     AQuery.SQL.Add
-      ('update UnionParameterForCategories set "Order" = :vOrder where ProductCategoryId = '
-      + ' :vProductCategoryId and UnionParameterId = :vUnionParameterId');
+      ('update CategoryParams set "Order" = :vOrder where ProductCategoryId = '
+      + ' :vProductCategoryId and ParameterId = :vParameterId');
     AQuery.Params.ParamValues['vOrder'] := vOrder;
     AQuery.Params.ParamValues['vProductCategoryId'] := vProductCategoryId;
-    AQuery.Params.ParamValues['vUnionParameterId'] := vParameterId;
+    AQuery.Params.ParamValues['vParameterId'] := vParameterId;
     AQuery.Execute();
   finally
     AQuery.Free;
@@ -172,9 +172,9 @@ begin
     AQuery.CachedUpdates := true;
 
     AQuery.SQL.Add
-      ('select * from UnionParameterForCategories where UnionParameterId = :vUnionParameterId '
+      ('select * from CategoryParams where ParameterId = :vParameterId '
       + ' and ProductCategoryId = :vProductCategoryId');
-    AQuery.Params.ParamValues['vUnionParameterId'] := vParameterId;
+    AQuery.Params.ParamValues['vParameterId'] := vParameterId;
     AQuery.Params.ParamValues['vProductCategoryId'] := vProductCategoryId;
     AQuery.Open();
   finally
@@ -196,9 +196,9 @@ begin
     AQuery.CachedUpdates := true;
 
     AQuery.SQL.Add('select * from ' + #13#10 +
-      ' UnionParameterForCategories pgfc ' + #13#10 +
-      ' where pgfc.UnionParameterId = :vUnionParameterId');
-    AQuery.Params.ParamValues['vUnionParameterId'] := vParameterGroupId;
+      ' CategoryParams cp ' + #13#10 +
+      ' where cp.ParameterId = :vParameterId');
+    AQuery.Params.ParamValues['vParameterId'] := vParameterGroupId;
     AQuery.Open();
 
     amount := 0;
@@ -219,7 +219,7 @@ begin
       begin
         AQuery.Append;
         AQuery.FieldByName('ProductCategoryId').AsInteger := i;
-        AQuery.FieldByName('UnionParameterId').AsInteger := vParameterGroupId;
+        AQuery.FieldByName('ParameterId').AsInteger := vParameterGroupId;
         AQuery.FieldByName('Order').AsInteger := vOrder;
         AQuery.FieldByName('IsEnabled').AsVariant := vStatus;
         AQuery.FieldByName('IsAttribute').AsVariant := vAttribute;

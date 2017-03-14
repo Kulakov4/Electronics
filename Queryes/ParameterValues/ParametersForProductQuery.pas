@@ -50,7 +50,7 @@ begin
     if ID.IsNull then
     begin
       fdqInsert.ParamByName('ProductCategoryId').AsInteger := ProductCategoryID2.AsInteger;
-      fdqInsert.ParamByName('UnionParameterId').AsInteger := ParameterIDParam.AsInteger;
+      fdqInsert.ParamByName('ParameterId').AsInteger := ParameterIDParam.AsInteger;
       if Order.AsInteger > 0 then
         fdqInsert.ParamByName('Order').AsInteger := Order.AsInteger
       else

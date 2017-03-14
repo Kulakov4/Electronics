@@ -1,9 +1,14 @@
 inherited QuerySearchProductParameterValues: TQuerySearchProductParameterValues
+  inherited Label1: TLabel
+    Width = 208
+    Caption = 'SearchProductParameterValues'
+    ExplicitWidth = 208
+  end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from ProductUnionParameters'
-      'where UnionParameterId = :ParameterID and ProductID = :ProductID')
+      'from ParameterValues'
+      'where ParameterId = :ParameterID and ProductID = :ProductID')
     ParamData = <
       item
         Name = 'PARAMETERID'

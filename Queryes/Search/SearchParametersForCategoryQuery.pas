@@ -14,16 +14,19 @@ type
     FDUpdateSQL: TFDUpdateSQL;
     FDQueryId: TFDAutoIncField;
     FDQueryProductCategoryId: TIntegerField;
-    FDQueryUnionParameterId: TIntegerField;
+    FDQueryParameterId: TIntegerField;
     FDQueryOrder: TIntegerField;
     FDQueryIsEnabled: TBooleanField;
     FDQueryIsAttribute: TBooleanField;
   private
+    function GetParameterID: TField;
     { Private declarations }
   protected
   public
+    function LocateByParameterID(AIDParameter: Integer): Boolean;
     function Search(AIDCategory: Integer): Integer; overload;
     function SearchAndProcess(AIDCategory: Integer): Integer;
+    property ParameterID: TField read GetParameterID;
     { Public declarations }
   end;
 
@@ -32,6 +35,18 @@ implementation
 {$R *.dfm}
 
 uses NotifyEvents;
+
+function TQuerySearchParametersForCategory.GetParameterID: TField;
+begin
+  Result := Field('ParameterID');
+end;
+
+function TQuerySearchParametersForCategory.LocateByParameterID(AIDParameter:
+    Integer): Boolean;
+begin
+  Assert(AIDParameter > 0);
+  Result := FDQuery.LocateEx(ParameterID.FieldName, AIDParameter);
+end;
 
 function TQuerySearchParametersForCategory.Search(AIDCategory: Integer):
     Integer;

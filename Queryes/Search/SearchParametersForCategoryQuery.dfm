@@ -1,11 +1,18 @@
 inherited QuerySearchParametersForCategory: TQuerySearchParametersForCategory
+  Width = 135
+  ExplicitWidth = 135
+  inherited Label1: TLabel
+    Width = 201
+    Caption = 'SearchParametersForCategory'
+    ExplicitWidth = 201
+  end
   inherited FDQuery: TFDQuery
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
-      'select upfc.*'
-      'from unionparameterForCategories upfc'
-      'where upfc.ProductCategoryID = :IDCategory'
-      'order by upfc.[Order] desc')
+      'select cp.*'
+      'from CategoryParams cp'
+      'where cp.ProductCategoryID = :IDCategory'
+      'order by cp.[Order] desc')
     ParamData = <
       item
         Name = 'IDCATEGORY'
@@ -17,15 +24,14 @@ inherited QuerySearchParametersForCategory: TQuerySearchParametersForCategory
       FieldName = 'Id'
       Origin = 'Id'
       ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
     end
     object FDQueryProductCategoryId: TIntegerField
       FieldName = 'ProductCategoryId'
       Origin = 'ProductCategoryId'
     end
-    object FDQueryUnionParameterId: TIntegerField
-      FieldName = 'UnionParameterId'
-      Origin = 'UnionParameterId'
+    object FDQueryParameterId: TIntegerField
+      FieldName = 'ParameterId'
+      Origin = 'ParameterId'
     end
     object FDQueryOrder: TIntegerField
       FieldName = 'Order'
@@ -42,38 +48,32 @@ inherited QuerySearchParametersForCategory: TQuerySearchParametersForCategory
   end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (
-      'INSERT INTO UNIONPARAMETERFORCATEGORIES'
+      'INSERT INTO CategoryParams'
       '("ORDER", ISENABLED, ISATTRIBUTE)'
       'VALUES (:NEW_ORDER, :NEW_ISENABLED, :NEW_ISATTRIBUTE);'
-      
-        'SELECT LAST_INSERT_AUTOGEN() AS ID, PRODUCTCATEGORYID, UNIONPARA' +
-        'METERID, '
+      'SELECT ID, PRODUCTCATEGORYID, PARAMETERID, '
       '  "ORDER" AS "ORDER", ISENABLED, ISATTRIBUTE'
-      'FROM UNIONPARAMETERFORCATEGORIES'
+      'FROM CategoryParams'
       'WHERE ID = LAST_INSERT_AUTOGEN()')
     ModifySQL.Strings = (
-      'UPDATE UNIONPARAMETERFORCATEGORIES'
+      'UPDATE CategoryParams'
       
         'SET "ORDER" = :NEW_ORDER, ISENABLED = :NEW_ISENABLED, ISATTRIBUT' +
         'E = :NEW_ISATTRIBUTE'
       'WHERE ID = :OLD_ID;'
-      
-        'SELECT ID, PRODUCTCATEGORYID, UNIONPARAMETERID, "ORDER" AS "ORDE' +
-        'R", '
+      'SELECT ID, PRODUCTCATEGORYID, PARAMETERID, "ORDER" AS "ORDER", '
       '  ISENABLED, ISATTRIBUTE'
-      'FROM UNIONPARAMETERFORCATEGORIES'
+      'FROM CategoryParams'
       'WHERE ID = :NEW_ID')
     DeleteSQL.Strings = (
-      'DELETE FROM UNIONPARAMETERFORCATEGORIES'
+      'DELETE FROM CategoryParams'
       'WHERE ID = :OLD_ID')
     FetchRowSQL.Strings = (
-      
-        'SELECT LAST_INSERT_AUTOGEN() AS ID, PRODUCTCATEGORYID, UNIONPARA' +
-        'METERID, '
+      'SELECT ID, PRODUCTCATEGORYID, PARAMETERID, '
       '  "ORDER" AS "ORDER", ISENABLED, ISATTRIBUTE'
-      'FROM UNIONPARAMETERFORCATEGORIES'
+      'FROM CategoryParams'
       'WHERE ID = :ID')
-    Left = 88
-    Top = 48
+    Left = 72
+    Top = 24
   end
 end

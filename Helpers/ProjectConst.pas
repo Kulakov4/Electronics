@@ -50,7 +50,7 @@ resourcestring
   sLocalizationFileName = 'bin\Localization.ini';
 
   sProducerParamTableName = 'Producer';
-  sPackagePinsParamTableName = 'Package/Pins';
+  sPackagePinsParamTableName = 'Package / Pins';
   sDatasheetParamTableName = 'Datasheet';
   sDiagramParamTableName = 'Diagram';
   sDrawingParamTableName = 'Drawing';

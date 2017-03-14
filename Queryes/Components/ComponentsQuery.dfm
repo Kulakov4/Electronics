@@ -21,8 +21,8 @@ inherited QueryComponents: TQueryComponents
       'select '
       '    p.*, '
       '    '#39#39' Producer, '
-      '    pup2.ID AS IDPackagePins,'
-      '    pup2.Value AS PackagePins,'
+      '    pv2.ID AS IDPackagePins,'
+      '    pv2.Value AS PackagePins,'
       '    '#39#39' Datasheet,'
       '    '#39#39' Diagram,'
       '    '#39#39' Drawing,'
@@ -30,8 +30,8 @@ inherited QueryComponents: TQueryComponents
       '    '#39#39' Description'
       'from Products p'
       
-        'LEFT JOIN ProductUnionParameters pup2 ON pup2.ProductID = p.Id A' +
-        'ND pup2.UnionParameterId = :PackagePinsParameterID'
+        'LEFT JOIN ParameterValues pv2 ON pv2.ProductID = p.Id AND pv2.Pa' +
+        'rameterId = :PackagePinsParameterID'
       'where p.ParentProductId in'
       '('
       '    select p.id'

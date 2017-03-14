@@ -22,18 +22,18 @@ inherited QueryFamily: TQueryFamily
       '            WHERE ProductCategories.Id = :vProductCategoryId'
       '       )'
       '       CurCategoryExternalID,'
-      '       pup.ID AS IDProducer,'
-      '       pup.Value AS Producer,'
-      '       pup2.ID AS IDPackagePins,'
-      '       pup2.Value AS PackagePins,'
-      '       pup3.ID AS IDDatasheet,'
-      '       pup3.Value AS Datasheet,'
-      '       pup4.ID AS IDDiagram,'
-      '       pup4.Value AS Diagram,'
-      '       pup5.ID AS IDDrawing,'
-      '       pup5.Value AS Drawing,'
-      '       pup6.ID AS IDImage,'
-      '       pup6.Value AS Image,'
+      '       pv.ID AS IDProducer,'
+      '       pv.Value AS Producer,'
+      '       pv2.ID AS IDPackagePins,'
+      '       pv2.Value AS PackagePins,'
+      '       pv3.ID AS IDDatasheet,'
+      '       pv3.Value AS Datasheet,'
+      '       pv4.ID AS IDDiagram,'
+      '       pv4.Value AS Diagram,'
+      '       pv5.ID AS IDDrawing,'
+      '       pv5.Value AS Drawing,'
+      '       pv6.ID AS IDImage,'
+      '       pv6.Value AS Image,'
       '       d.Description'
       '  FROM '
       'ProductProductCategories ppc'
@@ -43,28 +43,27 @@ inherited QueryFamily: TQueryFamily
       'JOIN ProductProductCategories ppc2 ON ppc2.ProductId = p.Id'
       'JOIN ProductCategories pc ON pc.Id = ppc2.ProductCategoryId'
       
-        'LEFT JOIN ProductUnionParameters pup ON pup.ProductID = p.Id AND' +
-        ' pup.UnionParameterId = :ProducerParameterID'
+        'LEFT JOIN ParameterValues pv ON pv.ProductID = p.Id AND pv.Param' +
+        'eterId = :ProducerParameterID'
       
-        'LEFT JOIN ProductUnionParameters pup2 ON pup2.ProductID = p.Id A' +
-        'ND pup2.UnionParameterId = :PackagePinsParameterID'
+        'LEFT JOIN ParameterValues pv2 ON pv2.ProductID = p.Id AND pv2.Pa' +
+        'rameterId = :PackagePinsParameterID'
       
-        'LEFT JOIN ProductUnionParameters pup3 ON pup3.ProductID = p.Id A' +
-        'ND pup3.UnionParameterId = :DatasheetParameterID'
+        'LEFT JOIN ParameterValues pv3 ON pv3.ProductID = p.Id AND pv3.Pa' +
+        'rameterId = :DatasheetParameterID'
       
-        'LEFT JOIN ProductUnionParameters pup4 ON pup4.ProductID = p.Id A' +
-        'ND pup4.UnionParameterId = :DiagramParameterID'
+        'LEFT JOIN ParameterValues pv4 ON pv4.ProductID = p.Id AND pv4.Pa' +
+        'rameterId = :DiagramParameterID'
       
-        'LEFT JOIN ProductUnionParameters pup5 ON pup5.ProductID = p.Id A' +
-        'ND pup5.UnionParameterId = :DrawingParameterID'
+        'LEFT JOIN ParameterValues pv5 ON pv5.ProductID = p.Id AND pv5.Pa' +
+        'rameterId = :DrawingParameterID'
       
-        'LEFT JOIN ProductUnionParameters pup6 ON pup6.ProductID = p.Id A' +
-        'ND pup6.UnionParameterId = :ImageParameterID'
+        'LEFT JOIN ParameterValues pv6 ON pv6.ProductID = p.Id AND pv6.Pa' +
+        'rameterId = :ImageParameterID'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       'WHERE ppc.ProductCategoryId = :vProductCategoryId'
       'GROUP BY p.ID'
-      'ORDER BY p.value'
-      '')
+      'ORDER BY p.value')
     ParamData = <
       item
         Name = 'VPRODUCTCATEGORYID'

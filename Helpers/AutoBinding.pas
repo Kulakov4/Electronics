@@ -514,8 +514,8 @@ begin
                     (APossibleLinkDocTable.FileName.AsString,
                     APossibleLinkDocTable.RootFolder.AsString);
 
-                  ASQL := 'INSERT INTO ProductUnionParameters' +
-                    '(UnionParameterID, Value, ProductID) ' +
+                  ASQL := 'INSERT INTO ParameterValues' +
+                    '(ParameterID, Value, ProductID) ' +
                     Format('Values (%d, ''%s'', %d)',
                     [ADocFieldInfo.IDParameter, S,
                     AComponentsDataSet.FieldByName('ID').AsInteger]);

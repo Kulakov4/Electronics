@@ -15,22 +15,22 @@ inherited QueryProducers: TQueryProducers
       'from Producers pr'
       'left join'
       '('
-      '    select pup.Value, 0 + count(*) cnt'
+      '    select pv.Value, 0 + count(*) cnt'
       '    from products p'
       '    join products f on p.ParentProductId = f.Id'
       
-        '    join ProductUnionParameters pup on pup.ProductId = f.id and ' +
-        'pup.UnionParameterId = :ProducerParameterID'
-      '    group by pup.Value'
+        '    join ParameterValues pv on pv.ProductId = f.id and pv.Parame' +
+        'terId = :ProducerParameterID'
+      '    group by pv.Value'
       ') t on pr.name = t.Value'
       ''
       'left join'
       '('
-      '    select pup.Value, count(*) cnt'
+      '    select pv.Value, count(*) cnt'
       '    from products f'
       
-        '    join ProductUnionParameters pup on pup.ProductId = f.id and ' +
-        'pup.UnionParameterId = :ProducerParameterID'
+        '    join ParameterValues pv on pv.ProductId = f.id and pv.Parame' +
+        'terId = :ProducerParameterID'
       '    where f.ParentProductId is null'
       '    and not exists '
       '    ('
@@ -38,7 +38,7 @@ inherited QueryProducers: TQueryProducers
       '        from products p'
       '        where p.ParentProductId = f.id'
       '    )'
-      '    group by pup.Value'
+      '    group by pv.Value'
       ') t2 on pr.name = t.Value'
       'order by pr.Name')
     ParamData = <

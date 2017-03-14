@@ -684,9 +684,9 @@ procedure TfrmMain.actShowDescriptionsExecute(Sender: TObject);
 begin
   if frmDescriptions = nil then
   begin
+    DM.DescriptionsGroup.ReOpen;
     frmDescriptions := TfrmDescriptions.Create(Self);
     frmDescriptions.ViewDescriptions.DescriptionsGroup := DM.DescriptionsGroup;
-    DM.DescriptionsGroup.ReOpen;
   end;
 
   frmDescriptions.Show;

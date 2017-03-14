@@ -6,14 +6,14 @@ inherited QuerySearchDaughterComponent: TQuerySearchDaughterComponent
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select dp.*, pup.Value Producer'
-      'from Products dp'
-      'join Products p on dp.ParentProductId = p.id'
+      'select p.*, pv.Value Producer'
+      'from Products p'
+      'join Products f on p.ParentProductId = f.id'
       
-        'join ProductUnionParameters pup on pup.ProductID = p.Id and pup.' +
-        'UnionParameterId = :ProducerParameterID'
+        'join ParameterValues pv on pv.ProductID = f.Id and pv.ParameterI' +
+        'd = :ProducerParameterID'
       'where '
-      'dp.Value = :ComponentName')
+      'p.Value = :ComponentName')
     ParamData = <
       item
         Name = 'PRODUCERPARAMETERID'

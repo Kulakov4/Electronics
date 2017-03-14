@@ -10,37 +10,37 @@ inherited QueryAllFamily: TQueryAllFamily
       '    p.Id,'
       '    p.DescriptionId,'
       '    p.Value,'
-      '    pup.ID as IDProducer,'
-      '    pup.Value as Producer,'
-      '    pup2.ID as IDPackagePins,'
-      '    pup2.Value as PackagePins,'
-      '    pup3.ID as IDDatasheet,'
-      '    pup3.Value as Datasheet,'
-      '    pup4.ID as IDDiagram,'
-      '    pup4.Value as Diagram,'
-      '    pup5.ID as IDDrawing,'
-      '    pup5.Value as Drawing,'
-      '    pup6.ID as IDImage,'
-      '    pup6.Value as Image'
+      '    pv.ID as IDProducer,'
+      '    pv.Value as Producer,'
+      '    pv2.ID as IDPackagePins,'
+      '    pv2.Value as PackagePins,'
+      '    pv3.ID as IDDatasheet,'
+      '    pv3.Value as Datasheet,'
+      '    pv4.ID as IDDiagram,'
+      '    pv4.Value as Diagram,'
+      '    pv5.ID as IDDrawing,'
+      '    pv5.Value as Drawing,'
+      '    pv6.ID as IDImage,'
+      '    pv6.Value as Image'
       'from Products p'
       
-        'left join ProductUnionParameters pup on pup.ProductID = p.Id and' +
-        ' pup.UnionParameterId = :ProducerParameterID'
+        'left join ParameterValues pv on pv.ProductID = p.Id and pv.Param' +
+        'eterId = :ProducerParameterID'
       
-        'left join ProductUnionParameters pup2 on pup2.ProductID = p.Id a' +
-        'nd pup2.UnionParameterId = :PackagePinsParameterID'
+        'left join ParameterValues pv2 on pv2.ProductID = p.Id and pv2.Pa' +
+        'rameterId = :PackagePinsParameterID'
       
-        'left join ProductUnionParameters pup3 on pup3.ProductID = p.Id a' +
-        'nd pup3.UnionParameterId = :DatasheetParameterID'
+        'left join ParameterValues pv3 on pv3.ProductID = p.Id and pv3.Pa' +
+        'rameterId = :DatasheetParameterID'
       
-        'left join ProductUnionParameters pup4 on pup4.ProductID = p.Id a' +
-        'nd pup4.UnionParameterId = :DiagramParameterID'
+        'left join ParameterValues pv4 on pv4.ProductID = p.Id and pv4.Pa' +
+        'rameterId = :DiagramParameterID'
       
-        'left join ProductUnionParameters pup5 on pup5.ProductID = p.Id a' +
-        'nd pup5.UnionParameterId = :DrawingParameterID'
+        'left join ParameterValues pv5 on pv5.ProductID = p.Id and pv5.Pa' +
+        'rameterId = :DrawingParameterID'
       
-        'left join ProductUnionParameters pup6 on pup6.ProductID = p.Id a' +
-        'nd pup6.UnionParameterId = :ImageParameterID'
+        'left join ParameterValues pv6 on pv6.ProductID = p.Id and pv6.Pa' +
+        'rameterId = :ImageParameterID'
       
         'where (p.ParentProductId is null) and ((p.ID = :ID) or (:ID = 0)' +
         ')')

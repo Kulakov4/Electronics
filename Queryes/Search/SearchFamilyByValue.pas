@@ -14,14 +14,12 @@ type
   TQuerySearchFamilyByValue = class(TQueryBase)
   private
     function GetCategoryIDList: TField;
-    function GetIDProductUnionParameters: TField;
     function GetSubgroup: TField;
     { Private declarations }
   protected
   public
     function Search(const AComponentName: string): Integer; overload;
     property CategoryIDList: TField read GetCategoryIDList;
-    property IDProductUnionParameters: TField read GetIDProductUnionParameters;
     property Subgroup: TField read GetSubgroup;
     { Public declarations }
   end;
@@ -35,11 +33,6 @@ uses ParameterValuesUnit;
 function TQuerySearchFamilyByValue.GetCategoryIDList: TField;
 begin
   Result := Field('CategoryIDList');
-end;
-
-function TQuerySearchFamilyByValue.GetIDProductUnionParameters: TField;
-begin
-  Result := Field('IDProductUnionParameters');
 end;
 
 function TQuerySearchFamilyByValue.GetSubgroup: TField;

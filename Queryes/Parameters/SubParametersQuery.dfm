@@ -15,8 +15,8 @@ inherited QuerySubParameters: TQuerySubParameters
     IndexName = 'idxOrder'
     SQL.Strings = (
       'select  *'
-      'from UnionParameters'
-      'where ParentParameter is not null and IsCustomParameter = 0'
+      'from Parameters'
+      'where ParentParameter is not null'
       'order by ParentParameter, `Order`')
   end
 end

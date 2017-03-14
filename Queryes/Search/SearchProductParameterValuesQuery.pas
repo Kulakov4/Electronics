@@ -14,7 +14,7 @@ type
   private
     function GetValue: TField;
     function GetProductID: TField;
-    function GetUnionParameterID: TField;
+    function GetParameterID: TField;
     { Private declarations }
   protected
   public
@@ -23,7 +23,7 @@ type
     function Search(AIDParameter, AIDProduct: Integer): Integer; overload;
     property Value: TField read GetValue;
     property ProductID: TField read GetProductID;
-    property UnionParameterID: TField read GetUnionParameterID;
+    property ParameterID: TField read GetParameterID;
     { Public declarations }
   end;
 
@@ -36,7 +36,7 @@ begin
   Assert(not VarIsNull(AValue));
 
   FDQuery.Append;
-  UnionParameterID.Value := FDQuery.ParamByName('ParameterId').Value;
+  ParameterID.Value := FDQuery.ParamByName('ParameterId').Value;
   ProductID.Value := FDQuery.ParamByName('ProductID').Value;
   Value.Value := AValue;
   FDQuery.Post;
@@ -65,9 +65,9 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQuerySearchProductParameterValues.GetUnionParameterID: TField;
+function TQuerySearchProductParameterValues.GetParameterID: TField;
 begin
-  Result := Field('UnionParameterID');
+  Result := Field('ParameterID');
 end;
 
 function TQuerySearchProductParameterValues.Search(AIDParameter, AIDProduct:

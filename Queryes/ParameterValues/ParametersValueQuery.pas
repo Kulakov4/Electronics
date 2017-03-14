@@ -13,16 +13,12 @@ uses
 
 type
   TQueryParametersValue = class(TQueryBaseEvents)
-    FDQueryId: TFDAutoIncField;
-    FDQueryUnionParameterId: TIntegerField;
-    FDQueryValue: TWideStringField;
-    FDQueryProductId: TIntegerField;
   private
     procedure DoAfterInsert(Sender: TObject);
     function GetProductId: TField;
     function GetProductIDParam: TFDParam;
-    function GetUnionParameterId: TField;
-    function GetUnionParameterIdParam: TFDParam;
+    function GetParameterId: TField;
+    function GetParameterIdParam: TFDParam;
     function GetValue: TField;
     { Private declarations }
   public
@@ -32,8 +28,8 @@ type
     procedure LocateOrAppend(AValue: string);
     property ProductId: TField read GetProductId;
     property ProductIDParam: TFDParam read GetProductIDParam;
-    property UnionParameterId: TField read GetUnionParameterId;
-    property UnionParameterIdParam: TFDParam read GetUnionParameterIdParam;
+    property ParameterId: TField read GetParameterId;
+    property ParameterIdParam: TFDParam read GetParameterIdParam;
     property Value: TField read GetValue;
     { Public declarations }
   end;
@@ -59,7 +55,7 @@ end;
 
 procedure TQueryParametersValue.DoAfterInsert(Sender: TObject);
 begin
-  UnionParameterId.AsInteger := UnionParameterIdParam.AsInteger;
+  ParameterId.AsInteger := ParameterIdParam.AsInteger;
   ProductId.AsInteger := ProductIDParam.AsInteger;
 end;
 
@@ -73,14 +69,14 @@ begin
   Result := FDQuery.ParamByName('ProductID');
 end;
 
-function TQueryParametersValue.GetUnionParameterId: TField;
+function TQueryParametersValue.GetParameterId: TField;
 begin
-  Result := Field('UnionParameterId');
+  Result := Field('ParameterId');
 end;
 
-function TQueryParametersValue.GetUnionParameterIdParam: TFDParam;
+function TQueryParametersValue.GetParameterIdParam: TFDParam;
 begin
-  Result := FDQuery.ParamByName('UnionParameterId');
+  Result := FDQuery.ParamByName('ParameterId');
 end;
 
 function TQueryParametersValue.GetValue: TField;
@@ -92,7 +88,7 @@ procedure TQueryParametersValue.Load(AIDComponent, AIDParameter: Integer);
 begin
   Assert(AIDComponent > 0);
   Assert(AIDParameter > 0);
-  Load([ProductIDParam.Name, UnionParameterIdParam.Name], [AIDComponent, AIDParameter]);
+  Load([ProductIDParam.Name, ParameterIdParam.Name], [AIDComponent, AIDParameter]);
 end;
 
 procedure TQueryParametersValue.LocateOrAppend(AValue: string);

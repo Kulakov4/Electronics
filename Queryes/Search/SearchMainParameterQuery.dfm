@@ -11,7 +11,7 @@ inherited QuerySearchMainParameter: TQuerySearchMainParameter
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select *'
-      'from UnionParameters'
+      'from Parameters'
       'where upper(TableName) = upper(:TableName)'
       'and ParentParameter is null')
     ParamData = <
@@ -24,7 +24,7 @@ inherited QuerySearchMainParameter: TQuerySearchMainParameter
   end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (
-      'INSERT INTO UNIONPARAMETERS'
+      'INSERT INTO PARAMETERS'
       '(VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
       '  TABLENAME, DEFINITION, "ORDER", FIELDTYPE, '
       '  PARENTPARAMETER, ISCUSTOMPARAMETER, IDPARAMETERTYPE)'
@@ -40,10 +40,10 @@ inherited QuerySearchMainParameter: TQuerySearchMainParameter
         '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
         'RAMETER, '
       '  ISCUSTOMPARAMETER, IDPARAMETERTYPE'
-      'FROM UNIONPARAMETERS'
+      'FROM PARAMETERS'
       'WHERE ID = LAST_INSERT_ROWID();')
     ModifySQL.Strings = (
-      'UPDATE UNIONPARAMETERS'
+      'UPDATE PARAMETERS'
       
         'SET VALUE = :NEW_VALUE, VALUET = :NEW_VALUET, CODELETTERS = :NEW' +
         '_CODELETTERS, '
@@ -59,17 +59,15 @@ inherited QuerySearchMainParameter: TQuerySearchMainParameter
       '  IDPARAMETERTYPE = :NEW_IDPARAMETERTYPE'
       'WHERE ID = :OLD_ID;')
     DeleteSQL.Strings = (
-      'DELETE FROM UNIONPARAMETERS'
+      'DELETE FROM PARAMETERS'
       'WHERE ID = :OLD_ID')
     FetchRowSQL.Strings = (
-      
-        'SELECT LAST_INSERT_AUTOGEN() AS ID, VALUE, VALUET, CODELETTERS, ' +
-        'MEASURINGUNIT, '
+      'SELECT ID, VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
       
         '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
         'RAMETER, '
       '  ISCUSTOMPARAMETER, IDPARAMETERTYPE'
-      'FROM UNIONPARAMETERS'
+      'FROM PARAMETERS'
       'WHERE ID = :ID')
     Left = 72
     Top = 24

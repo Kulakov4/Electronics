@@ -11,15 +11,15 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
     SQL.Strings = (
       
         'select ppc.ProductID, ppc.ProductCategoryID ProductCategoryID2, ' +
-        'upfc.*'
+        'cp.*'
       'from Products p'
       
         'join ProductProductCategories ppc on ppc.ProductId = ifnull(p.Pa' +
         'rentProductID, p.id)'
       'join ProductCategories pc on ppc.ProductCategoryId = pc.Id'
       
-        'left join unionparameterForCategories upfc on upfc.ProductCatego' +
-        'ryId = pc.Id and upfc.UnionParameterId = :ParameterID'
+        'left join CategoryParams cp on cp.ProductCategoryId = pc.Id and ' +
+        'cp.ParameterId = :ParameterID'
       'where p.id = :ProductID')
     ParamData = <
       item
@@ -38,7 +38,7 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
   object fdqUpdate: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'update UnionParameterForCategories'
+      'update CategoryParams'
       'set IsEnabled = 1, IsAttribute = 1, [Order] = :Order'
       'where id = :id')
     Left = 136
@@ -61,9 +61,9 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
     Connection = DMRepository.dbConnection
     SQL.Strings = (
       
-        'insert into UnionParameterForCategories(ProductCategoryId, Union' +
-        'ParameterId, IsEnabled, IsAttribute, [Order])'
-      'values (:ProductCategoryId, :UnionParameterId, 1, 1, :Order)')
+        'insert into CategoryParams(ProductCategoryId, ParameterId, IsEna' +
+        'bled, IsAttribute, [Order])'
+      'values (:ProductCategoryId, :ParameterId, 1, 1, :Order)')
     Left = 192
     Top = 24
     ParamData = <
@@ -74,7 +74,7 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
         Value = Null
       end
       item
-        Name = 'UNIONPARAMETERID'
+        Name = 'PARAMETERID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

@@ -9,34 +9,34 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       'SELECT '
       
         '  t.ID, t.Value, t.ValueT, t.TableName, t.Definition, t."Order",' +
-        ' t.FieldType, t.ParentParameter, t.IsCustomParameter, t.Band, up' +
-        'fc.IsAttribute'
-      'FROM UnionParameterForCategories upfc '
+        ' t.FieldType, t.ParentParameter, t.IsCustomParameter, t.Band, cp' +
+        '.IsAttribute'
+      'FROM CategoryParams cp '
       'join'
       '('
       '    select up.*, '#39'X'#39' Band'
-      '    from unionParameters up'
+      '    from Parameters up'
       '    where up.ParentParameter is null'
       
-        '    and not exists (select id from unionParameters up2 where up2' +
-        '.ParentParameter = up.id)'
+        '    and not exists (select id from Parameters up2 where up2.Pare' +
+        'ntParameter = up.id)'
       '    '
       '    union'
       '  '
       '    select up.*, parent_up.TableName Band'
-      '    from unionParameters up'
+      '    from Parameters up'
       
-        '    join unionParameters parent_up on up.ParentParameter = paren' +
-        't_up.id'
+        '    join Parameters parent_up on up.ParentParameter = parent_up.' +
+        'id'
       '    where up.ParentParameter is not null'
       '    '
       
-        ') t on (t.Id = upfc.UnionParameterId) or (t.ParentParameter = up' +
-        'fc.UnionParameterId)'
+        ') t on (t.Id = cp.ParameterId) or (t.ParentParameter = cp.Parame' +
+        'terId)'
       
-        'WHERE upfc.ProductCategoryId = :ProductCategoryId and upfc.IsEna' +
-        'bled = 1 '
-      'order by upfc."Order", t.ParentParameter')
+        'WHERE cp.ProductCategoryId = :ProductCategoryId and cp.IsEnabled' +
+        ' = 1 '
+      'order by cp."Order", t.ParentParameter')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'

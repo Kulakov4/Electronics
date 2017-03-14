@@ -11,11 +11,6 @@ uses
 
 type
   TQueryProductParameters = class(TQueryBase)
-    FDQueryId: TFDAutoIncField;
-    FDQueryUnionParameterId: TIntegerField;
-    FDQueryValue: TWideStringField;
-    FDQueryProductId: TIntegerField;
-    FDQueryParentProductId: TIntegerField;
   private
     function GetParameterID: TField;
     function GetParentProductID: TField;
@@ -43,7 +38,7 @@ end;
 
 function TQueryProductParameters.GetParameterID: TField;
 begin
-  Result := Field('UnionParameterId');
+  Result := Field('ParameterId');
 end;
 
 function TQueryProductParameters.GetParentProductID: TField;

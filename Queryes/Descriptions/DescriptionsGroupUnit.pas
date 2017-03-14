@@ -117,6 +117,7 @@ procedure TDescriptionsGroup.ReOpen;
 begin
   qDescriptionTypes.RefreshQuery;
   qDescriptions.RefreshQuery;
+  qProducers.RefreshQuery;
 end;
 
 procedure TDescriptionsGroup.Rollback;

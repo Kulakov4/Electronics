@@ -112,7 +112,6 @@ inherited ViewParametricTable: TViewParametricTable
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsView.CellAutoHeight = True
-      OptionsView.Header = True
       Bands = <
         item
           FixedKind = fkLeft

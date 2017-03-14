@@ -247,7 +247,7 @@ begin
     begin
       // Фильтруем значения параметров
       FQueryProductParameters.FDQuery.Filter :=
-        Format('(ProductID=%d) and (UnionParameterID=%d)',
+        Format('(ProductID=%d) and (ParameterID=%d)',
         [ADataSet.FieldByName('ID').AsInteger,
         FQueryParametersForCategory.ID.AsInteger]);
       FQueryProductParameters.FDQuery.Filtered := True;

@@ -17,10 +17,9 @@ inherited QueryMainParameters: TQueryMainParameters
     ExplicitLeft = 192
     ExplicitTop = 16
     inherited FDQuery: TFDQuery
-      Active = True
       SQL.Strings = (
         'select *'
-        'from UnionParameters'
+        'from Parameters'
         'where ID=:ID')
       ParamData = <
         item
@@ -32,7 +31,7 @@ inherited QueryMainParameters: TQueryMainParameters
     end
     inherited FDUpdateSQL: TFDUpdateSQL
       InsertSQL.Strings = (
-        'INSERT INTO UNIONPARAMETERS'
+        'INSERT INTO PARAMETERS'
         '(VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
         '  TABLENAME, DEFINITION, "ORDER", FIELDTYPE, '
         '  PARENTPARAMETER, ISCUSTOMPARAMETER, IDPARAMETERTYPE)'
@@ -49,10 +48,10 @@ inherited QueryMainParameters: TQueryMainParameters
           '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
           'RAMETER, '
         '  ISCUSTOMPARAMETER, IDPARAMETERTYPE'
-        'FROM UNIONPARAMETERS'
+        'FROM PARAMETERS'
         'WHERE ID = LAST_INSERT_ROWID();')
       ModifySQL.Strings = (
-        'UPDATE UNIONPARAMETERS'
+        'UPDATE PARAMETERS'
         
           'SET VALUE = :NEW_VALUE, VALUET = :NEW_VALUET, CODELETTERS = :NEW' +
           '_CODELETTERS, '
@@ -67,9 +66,10 @@ inherited QueryMainParameters: TQueryMainParameters
           'EW_ISCUSTOMPARAMETER, '
         '  IDPARAMETERTYPE = :NEW_IDPARAMETERTYPE'
         'WHERE ID = :OLD_ID;'
+        ''
         '')
       DeleteSQL.Strings = (
-        'DELETE FROM UNIONPARAMETERS'
+        'DELETE FROM PARAMETERS'
         'WHERE ID = :OLD_ID')
       FetchRowSQL.Strings = (
         'SELECT ID, VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
@@ -77,7 +77,7 @@ inherited QueryMainParameters: TQueryMainParameters
           '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
           'RAMETER, '
         '  ISCUSTOMPARAMETER, IDPARAMETERTYPE'
-        'FROM UNIONPARAMETERS'
+        'FROM PARAMETERS'
         'WHERE ID = :ID')
     end
   end
@@ -92,11 +92,13 @@ inherited QueryMainParameters: TQueryMainParameters
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode, uvUpdateNonBaseFields]
     SQL.Strings = (
-      'select up.* '
-      'from UnionParameters up'
-      'where up.ParentParameter is null and IDParameterType is not null'
-      'and ( ( TableName = :TableName ) or ( :TableName = '#39#39' ) )'
-      'order by up.IDParameterType, up.`Order`')
+      'select p.* '
+      'from Parameters p'
+      
+        'where p.ParentParameter is null and p.IDParameterType is not nul' +
+        'l'
+      'and ( ( p.TableName = :TableName ) or ( :TableName = '#39#39' ) )'
+      'order by p.IDParameterType, p.`Order`')
     ParamData = <
       item
         Name = 'TABLENAME'
@@ -109,12 +111,12 @@ inherited QueryMainParameters: TQueryMainParameters
     Connection = DMRepository.dbConnection
     SQL.Strings = (
       'select *'
-      'from UnionParameters'
+      'from Parameters'
       'where ParentParameter is null and IDParameterType is not null'
       'and tablename in'
       '('
       '    select TableName'
-      '    from UnionParameters'
+      '    from Parameters'
       
         '    where ParentParameter is null and IDParameterType is not nul' +
         'l'

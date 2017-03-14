@@ -24,7 +24,7 @@ inherited QueryParameterTypes: TQueryParameterTypes
       'WHERE EXISTS '
       '('
       '    SELECT *'
-      '    FROM UnionParameters'
+      '    FROM Parameters'
       
         '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL AN' +
         'D IsCustomParameter = 0 AND '
@@ -89,15 +89,15 @@ inherited QueryParameterTypes: TQueryParameterTypes
       'WHERE EXISTS '
       '('
       '    SELECT *'
-      '    FROM UnionParameters'
+      '    FROM Parameters'
       
         '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL AN' +
-        'D IsCustomParameter = 0 AND '
+        'D '
       '    tablename IN '
       '    ('
       '        SELECT TableName'
-      '        FROM UnionParameters'
-      '        WHERE ParentParameter IS NULL AND IsCustomParameter = 0'
+      '        FROM Parameters'
+      '        WHERE ParentParameter IS NULL'
       '        GROUP BY TableName'
       '        HAVING count( * ) > 1'
       '    )'

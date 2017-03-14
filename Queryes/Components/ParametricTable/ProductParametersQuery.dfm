@@ -9,25 +9,25 @@ inherited QueryProductParameters: TQueryProductParameters
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       
-        'select pup.Id, pup.UnionParameterId, pup.Value, pup.ProductId, p' +
-        '.ParentProductId'
+        'select pv.Id, pv.ParameterId, pv.Value, pv.ProductId, p.ParentPr' +
+        'oductId'
       'from'
-      'ProductUnionParameters pup'
-      'join Products p on pup.ProductId = p.Id'
+      'ParameterValues pv'
+      'join Products p on pv.ProductId = p.Id'
       'where '
-      'pup.ProductId in'
+      'pv.ProductId in'
       '('
-      '    select distinct detailp.Id'
+      '    select distinct p.Id'
       '    from ProductProductCategories ppc'
-      '    join products p on ppc.ProductId = p.id'
-      '    join products detailp on detailp.ParentProductId = p.Id'
+      '    join products f on ppc.ProductId = f.id'
+      '    join products p on p.ParentProductId = f.Id'
       '    where ppc.ProductCategoryId = :ProductCategoryId'
       '    union'
       '    select distinct ProductId'
       '    from ProductProductCategories ppc'
       '    where ppc.ProductCategoryId = :ProductCategoryId'
       ')'
-      'order by pup.ProductID, pup.UnionParameterId, pup.ID')
+      'order by pv.ProductID, pv.ParameterId, pv.ID')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'
@@ -35,31 +35,5 @@ inherited QueryProductParameters: TQueryProductParameters
         ParamType = ptInput
         Value = Null
       end>
-    object FDQueryId: TFDAutoIncField
-      FieldName = 'Id'
-      Origin = 'Id'
-      ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
-    end
-    object FDQueryUnionParameterId: TIntegerField
-      FieldName = 'UnionParameterId'
-      Origin = 'UnionParameterId'
-    end
-    object FDQueryValue: TWideStringField
-      FieldName = 'Value'
-      Origin = 'Value'
-      Size = 32767
-    end
-    object FDQueryProductId: TIntegerField
-      FieldName = 'ProductId'
-      Origin = 'ProductId'
-    end
-    object FDQueryParentProductId: TIntegerField
-      AutoGenerateValue = arDefault
-      FieldName = 'ParentProductId'
-      Origin = 'ParentProductId'
-      ProviderFlags = []
-      ReadOnly = True
-    end
   end
 end

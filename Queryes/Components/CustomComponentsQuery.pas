@@ -37,7 +37,7 @@ type
         TQuerySearchProductParameterValues;
     function GetSubGroup: TField;
     function GetValue: TField;
-    procedure ProcessParamValue(AIDComponent: Integer; AIDProductUnionParameters:
+    procedure ProcessParamValue(AIDComponent: Integer; AIDProductParameterValue:
         TField; const AValue: String; AIDParameter: Integer);
     { Private declarations }
   protected
@@ -253,7 +253,7 @@ begin
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;
-    AIDProductUnionParameters: TField; const AValue: String; AIDParameter:
+    AIDProductParameterValue: TField; const AValue: String; AIDParameter:
     Integer);
 var
   rc: Integer;
@@ -270,7 +270,7 @@ begin
     while not QuerySearchProductParameterValues.FDQuery.Eof do
       QuerySearchProductParameterValues.FDQuery.Delete;
 
-    AIDProductUnionParameters.Value := NULL;
+    AIDProductParameterValue.Value := NULL;
   end
   else
   begin
@@ -298,7 +298,7 @@ begin
     Assert(QuerySearchProductParameterValues.FDQuery.RecordCount = 1);
     Assert(QuerySearchProductParameterValues.PKValue > 0);
 
-    AIDProductUnionParameters.Value :=
+    AIDProductParameterValue.Value :=
       QuerySearchProductParameterValues.PKValue;
   end;
 end;
