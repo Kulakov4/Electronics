@@ -11,6 +11,7 @@ uses
 
 type
   TQuerySearchDaughterParameter = class(TQueryBase)
+    procedure FDQueryAfterOpen(DataSet: TDataSet);
   private
     function GetParentParameter: TField;
     function GetValue: TField;
@@ -38,6 +39,12 @@ begin
   Value.AsString := AValue;
   ParentParameter.AsInteger := AParentParameter;
   FDQuery.Post;
+end;
+
+procedure TQuerySearchDaughterParameter.FDQueryAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  SetFieldsRequired(False);
 end;
 
 function TQuerySearchDaughterParameter.GetParentParameter: TField;

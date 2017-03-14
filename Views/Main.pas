@@ -976,6 +976,7 @@ var
   nf: Boolean;
   OK: Boolean;
   rc: Integer;
+  AFieldNames: TList<String>;
 begin
   Result := False;
   Assert(AFieldsInfo <> nil);
@@ -1003,75 +1004,84 @@ begin
       try
         I := 0;
 
-        // Цикл по всем заголовкам таблицы
-        for AStringTreeNode in ARootTreeNode.Childs do
-        begin
-          AFieldName := '';
-          nf := AStringTreeNode.value.ToUpper = 'Part'.ToUpper;
-
-          if not nf then
+        AFieldNames := TList<String>.Create;
+        try
+          // Цикл по всем заголовкам таблицы
+          for AStringTreeNode in ARootTreeNode.Childs do
           begin
-            // Нужно найти такой параметр
-            rc := AQuerySearchMainParameter.Search(AStringTreeNode.value);
-            if rc = 0 then
-              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                'Параметр не найден');
-            if rc > 1 then
-              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                Format('Параметр найден %d раз', [rc]));
+            AFieldNames.Clear;
+            nf := AStringTreeNode.value.ToUpper = 'Part'.ToUpper;
 
-            // Если нашли ровно один параметр в справочнике
-            if rc = 1 then
+            if not nf then
             begin
+              // Нужно найти такой параметр
+              rc := AQuerySearchMainParameter.Search(AStringTreeNode.value);
+              if rc = 0 then
+                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+                  'Параметр не найден');
+              if rc > 1 then
+                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+                  Format('Параметр найден %d раз', [rc]));
 
-              if AStringTreeNode.Childs.Count > 0 then
+              // Если нашли ровно один параметр в справочнике
+              if rc = 1 then
               begin
-                for AStringTreeNode2 in AStringTreeNode.Childs do
+
+                if AStringTreeNode.Childs.Count > 0 then
                 begin
-                  rc := AQuerySearchDaughterParameter.Search
-                    (AStringTreeNode2.value, AQuerySearchMainParameter.PKValue);
-                  if rc > 1 then
+                  for AStringTreeNode2 in AStringTreeNode.Childs do
                   begin
-                    AParametricErrorTable.AddErrorMessage
+                    rc := AQuerySearchDaughterParameter.Search
                       (AStringTreeNode2.value,
-                      Format('Подпараметр найден %d раз', [rc]));
-                  end
-                  else
-                  begin
-                    // Если такого дочернего параметра мы не нашли
-                    if rc = 0 then
+                      AQuerySearchMainParameter.PKValue);
+                    if rc > 1 then
                     begin
-                      AQuerySearchDaughterParameter.Append
-                        (AStringTreeNode2.value);
+                      AParametricErrorTable.AddErrorMessage
+                        (AStringTreeNode2.value,
+                        Format('Подпараметр найден %d раз', [rc]));
+                    end
+                    else
+                    begin
+                      // Если такого дочернего параметра мы не нашли
+                      if rc = 0 then
+                      begin
+                        AQuerySearchDaughterParameter.Append
+                          (AStringTreeNode2.value);
+                      end;
+                      // Запоминаем описание поля связанного с подпараметром
+                      AFieldNames.Add
+                        (TParametricExcelTable.GetFieldNameByIDParam
+                        (AQuerySearchDaughterParameter.PKValue))
                     end;
-                    // Создаём описание поля связанного с подпараметром
-                    AFieldName := TParametricExcelTable.GetFieldNameByIDParam
-                      (AQuerySearchDaughterParameter.PKValue)
                   end;
+                end
+                else
+                begin
+                  // Если у нашего параметра нет дочерних параметров
+                  // Запоминаем описание поля связанного с параметром
+                  AFieldNames.Add(TParametricExcelTable.GetFieldNameByIDParam
+                    (AQuerySearchMainParameter.PKValue));
                 end;
               end
               else
               begin
-                // Если у нашего параметра нет дочерних параметров
-                // Создаём описание поля связанного с параметром
-                AFieldName := TParametricExcelTable.GetFieldNameByIDParam
-                  (AQuerySearchMainParameter.PKValue)
+                nf := true;
               end;
-            end
-            else
-            begin
-              nf := true;
             end;
-          end;
 
-          if nf then
-          begin
-            // Создаём описание поля не связанного с параметром
-            AFieldName := Format('NotFoundParam_%d', [I]);
-            Inc(I);
-          end;
+            if nf then
+            begin
+              // Создаём описание поля не связанного с параметром
+              AFieldNames.Add( Format('NotFoundParam_%d', [I]) );
+              Inc(I);
+            end;
 
-          AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
+            // Для всех найденных полей создаём их описания
+            for AFieldName in AFieldNames do
+              AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
+          end;
+        finally
+          FreeAndNil(AFieldNames);
         end;
 
       finally

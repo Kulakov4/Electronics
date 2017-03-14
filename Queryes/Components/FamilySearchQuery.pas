@@ -27,6 +27,7 @@ type
     function GetCurrentMode: TContentMode;
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
+    function GetsubGroup: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -41,6 +42,7 @@ type
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
     property Mode: TContentMode read FMode;
+    property subGroup: TField read GetsubGroup;
     { Public declarations }
   end;
 
@@ -112,7 +114,6 @@ end;
 
 procedure TQueryFamilySearch.DoAfterOpen(Sender: TObject);
 var
-  AField: TField;
   I: Integer;
 begin
   // Фильтруем клоны
@@ -124,7 +125,7 @@ begin
   FClone.Filter := 'Value <> null';
   FClone.Filtered := True;
 
-  FDQuery.FieldByName('subGroup').ReadOnly := False;
+  subGroup.ReadOnly := False;
 
   // Добавляем пустую запись для поиска, если она необходима
   AutoTransaction := True;
@@ -182,6 +183,11 @@ end;
 function TQueryFamilySearch.GetIsSearchEnabled: Boolean;
 begin
   Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
+end;
+
+function TQueryFamilySearch.GetsubGroup: TField;
+begin
+  Result := Field('subGroup');
 end;
 
 procedure TQueryFamilySearch.Search(const AIDList: string);

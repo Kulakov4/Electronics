@@ -1,5 +1,6 @@
 inherited QuerySearchDaughterParameter: TQuerySearchDaughterParameter
   inherited FDQuery: TFDQuery
+    AfterOpen = FDQueryAfterOpen
     SQL.Strings = (
       'select *'
       'from UnionParameters'

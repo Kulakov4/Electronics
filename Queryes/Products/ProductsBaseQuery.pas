@@ -438,6 +438,7 @@ var
   LR: TLocateObject;
   m: TArray<String>;
 begin
+  rc := 0;
   // Если производитель задан
   if IDProducer.AsInteger > 0 then
   begin
