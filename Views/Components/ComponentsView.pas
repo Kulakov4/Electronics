@@ -163,13 +163,13 @@ begin
     DoOnUpdateFamilyCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterPost,
-    DoOnUpdateComponentslCount);
+    DoOnUpdateComponentslCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterOpen,
     DoOnUpdateComponentslCount);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterDelete,
-    DoOnUpdateComponentslCount);
+    DoOnUpdateComponentslCount, FCountEvents);
 
   DoOnUpdateComponentslCount(nil);
   DoOnUpdateFamilyCount(nil);

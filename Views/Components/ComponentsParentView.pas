@@ -742,7 +742,7 @@ begin
       // TNotifyEventWrap.Create(FBaseComponentsGroup.Main.Master.BeforeScrollI,
       // DoBeforeMasterScroll);
       TNotifyEventWrap.Create(FBaseComponentsGroup.Detail.AfterLoad,
-        AfterLoadData);
+        AfterLoadData, FEventList);
     end;
   end;
   UpdateView;
