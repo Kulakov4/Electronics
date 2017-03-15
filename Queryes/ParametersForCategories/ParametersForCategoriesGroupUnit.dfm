@@ -23,8 +23,8 @@ inherited ParametersForCategoriesGroup: TParametersForCategoriesGroup
       end>
     ExplicitLeft = 0
     ExplicitTop = 0
-    ExplicitWidth = 410
-    ExplicitHeight = 145
+    ExplicitWidth = 400
+    ExplicitHeight = 81
     inline qParameterTypes: TQueryParameterTypes
       Left = 1
       Top = 1
@@ -32,10 +32,10 @@ inherited ParametersForCategoriesGroup: TParametersForCategoriesGroup
       Height = 79
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 80
+      ExplicitLeft = 1
       ExplicitTop = 1
-      ExplicitWidth = 143
-      ExplicitHeight = 125
+      ExplicitWidth = 199
+      ExplicitHeight = 79
     end
     inline qParametersDetail: TQueryParametersDetail
       Left = 200
@@ -44,10 +44,10 @@ inherited ParametersForCategoriesGroup: TParametersForCategoriesGroup
       Height = 79
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 284
+      ExplicitLeft = 200
       ExplicitTop = 1
-      ExplicitWidth = 143
-      ExplicitHeight = 125
+      ExplicitWidth = 199
+      ExplicitHeight = 79
     end
   end
 end
