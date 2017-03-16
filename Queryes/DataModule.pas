@@ -43,6 +43,7 @@ type
     procedure DoAfterBodyTypesTreePostOrDelete(Sender: TObject);
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterParamForCategoriesPost(Sender: TObject);
+    procedure DoAfterStoreHousePost(Sender: TObject);
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
@@ -101,6 +102,7 @@ begin
     Add(qBodyTypes); // Выпадающий список корпусов
   end;
 
+  // Для выпадающего списка складов
   qProductsSearch.QueryStoreHouseList := qStoreHouseList;
 
   // Для компонентов указываем откуда брать производителя и корпус
@@ -150,6 +152,10 @@ begin
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
   TNotifyEventWrap.Create(qProducers.AfterCommit, DoAfterProducerCommit,
+    FEventList);
+
+  // Чтобы выпадающий список складов обновлялся вместе со списком складов
+  TNotifyEventWrap.Create(StoreHouseGroup.qStoreHouseList.AfterPost, DoAfterStoreHousePost,
     FEventList);
 end;
 
@@ -211,6 +217,11 @@ begin
   // Просим обновить данные о производителях в других местах
   qProductsSearch.QueryProducers.RefreshQuery;
   StoreHouseGroup.qProducts.QueryProducers.RefreshQuery;
+end;
+
+procedure TDM.DoAfterStoreHousePost(Sender: TObject);
+begin
+  qStoreHouseList.RefreshQuery;
 end;
 
 function TDM.HaveAnyChanges: Boolean;

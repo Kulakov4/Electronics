@@ -14,6 +14,8 @@ type
   TQueryStoreHouseList = class(TQueryWithDataSource)
     FDUpdateSQL: TFDUpdateSQL;
   private
+    procedure DoAfterOpen(Sender: TObject);
+    procedure DoBeforePost(Sender: TObject);
     function GetAbbreviation: TField;
     function GetTitle: TField;
     { Private declarations }
@@ -29,7 +31,7 @@ type
 
 implementation
 
-uses NotifyEvents, RepositoryDataModule;
+uses NotifyEvents, RepositoryDataModule, StrHelper;
 
 {$R *.dfm}
 
@@ -38,6 +40,8 @@ uses NotifyEvents, RepositoryDataModule;
 constructor TQueryStoreHouseList.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
 end;
 
 procedure TQueryStoreHouseList.AddNewValue(const AValue: string);
@@ -45,6 +49,24 @@ begin
   FDQuery.Append;
   Title.AsString := AValue;
   FDQuery.Post;
+end;
+
+procedure TQueryStoreHouseList.DoAfterOpen(Sender: TObject);
+begin
+  Abbreviation.DisplayLabel := 'Склад';
+end;
+
+procedure TQueryStoreHouseList.DoBeforePost(Sender: TObject);
+begin
+  if Title.AsString.Trim.IsEmpty then
+    raise Exception.Create('Не задано наименование склада');
+
+  // Если сокращённое наименование не задано
+  if (FDQuery.State = dsInsert) and Abbreviation.IsNull then
+  begin
+    Abbreviation.AsString := DeleteDoubleSpace(Title.AsString).Replace(' ', '');
+  end;
+
 end;
 
 function TQueryStoreHouseList.GetAbbreviation: TField;

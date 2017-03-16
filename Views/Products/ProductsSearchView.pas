@@ -40,6 +40,9 @@ type
     dxbrbtnApply: TdxBarButton;
     dxbrbtnPasteFromBuffer: TdxBarButton;
     dxBarButton1: TdxBarButton;
+    dxBarSubItem1: TdxBarSubItem;
+    dxBarButton2: TdxBarButton;
+    dxBarButton3: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
@@ -54,6 +57,8 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
+    procedure DoOnBeginUpdate(Sender: TObject);
+    procedure DoOnEndUpdate(Sender: TObject);
     function GetQueryProductsSearch: TQueryProductsSearch;
     procedure Search(ALike: Boolean);
     // TODO: FEmptyAmount
@@ -63,6 +68,7 @@ type
   protected
     procedure MyInitializeComboBoxColumn; override;
   public
+    procedure FocusValueColumn;
     procedure UpdateView; override;
     property QueryProductsSearch: TQueryProductsSearch
       read GetQueryProductsSearch write SetQueryProductsSearch;
@@ -74,7 +80,7 @@ implementation
 {$R *.dfm}
 
 uses SearchInterfaceUnit, dxCore, DialogUnit, cxMemo,
-  ClipboardUnit, cxDropDownEdit;
+  ClipboardUnit, cxDropDownEdit, RepositoryDataModule, NotifyEvents;
 
 procedure TViewProductsSearch.actClearExecute(Sender: TObject);
 begin
@@ -87,7 +93,7 @@ begin
     finally
       cxGridDBBandedTableView.EndUpdate;
     end;
-    FocusColumnEditor(0, 'Value');
+    FocusValueColumn;
   end;
 end;
 
@@ -189,6 +195,23 @@ begin
   end;
 end;
 
+procedure TViewProductsSearch.DoOnBeginUpdate(Sender: TObject);
+begin
+  cxGridDBBandedTableView.BeginUpdate();
+end;
+
+procedure TViewProductsSearch.DoOnEndUpdate(Sender: TObject);
+begin
+  cxGridDBBandedTableView.EndUpdate();
+  ApplyBestFitEx();
+  UpdateView;
+end;
+
+procedure TViewProductsSearch.FocusValueColumn;
+begin
+  FocusColumnEditor(0,  QueryProductsSearch.Value.FieldName);
+end;
+
 function TViewProductsSearch.GetQueryProductsSearch: TQueryProductsSearch;
 begin
   Result := QueryProductsBase as TQueryProductsSearch;
@@ -214,13 +237,19 @@ begin
     cxGridDBBandedTableView.EndUpdate;
   end;
   ApplyBestFitEx();
-  FocusColumnEditor(0, 'Value');
+  FocusValueColumn;
 end;
 
 procedure TViewProductsSearch.SetQueryProductsSearch
   (const Value: TQueryProductsSearch);
 begin
   QueryProductsBase := Value;
+
+  if QueryProductsSearch <> nil then
+  begin
+    TNotifyEventWrap.Create(QueryProductsSearch.OnBeginUpdate, DoOnBeginUpdate, FEventList);
+    TNotifyEventWrap.Create(QueryProductsSearch.OnBeginUpdate, DoOnEndUpdate, FEventList);
+  end;
 end;
 
 procedure TViewProductsSearch.UpdateView;
@@ -246,6 +275,10 @@ begin
 
   cxGridDBBandedTableView.OptionsData.Inserting :=
     QueryProductsSearch.Mode = SearchMode;
+
+  actExportToExcelDocument.Enabled := OK and
+    (MainView.DataController.RecordCount > 0) and
+    (QueryProductsSearch.Mode = RecordsMode);
 end;
 
 end.

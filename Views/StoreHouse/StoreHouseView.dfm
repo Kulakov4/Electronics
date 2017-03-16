@@ -4,7 +4,7 @@ object ViewStoreHouse: TViewStoreHouse
   Width = 879
   Height = 622
   TabOrder = 0
-  object cxpgcntrlStorehouse: TcxPageControl
+  object cxpcStorehouse: TcxPageControl
     Left = 201
     Top = 0
     Width = 678
@@ -13,7 +13,7 @@ object ViewStoreHouse: TViewStoreHouse
     TabOrder = 0
     Properties.ActivePage = tsStorehouseProducts
     Properties.CustomButtons.Buttons = <>
-    OnPageChanging = cxpgcntrlStorehousePageChanging
+    OnPageChanging = cxpcStorehousePageChanging
     ClientRectBottom = 618
     ClientRectLeft = 4
     ClientRectRight = 674
@@ -115,12 +115,6 @@ object ViewStoreHouse: TViewStoreHouse
             0
             28
             0)
-          inherited dxBarButton3: TdxBarButton
-            OnClick = nil
-          end
-          inherited dxBarButton4: TdxBarButton
-            OnClick = nil
-          end
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <

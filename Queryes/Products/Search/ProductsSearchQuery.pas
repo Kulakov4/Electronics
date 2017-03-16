@@ -10,7 +10,8 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
-  SearchComponentsByValues, StoreHouseListQuery, NotifyEvents;
+  SearchComponentsByValues, StoreHouseListQuery, NotifyEvents,
+  System.Generics.Collections;
 
 type
   TQueryProductsSearch = class(TQueryProductsBase)
@@ -20,6 +21,8 @@ type
     FClone: TFDMemTable;
     FGetModeClone: TFDMemTable;
     FMode: TContentMode;
+    FOnBeginUpdate: TNotifyEventsEx;
+    FOnEndUpdate: TNotifyEventsEx;
     FQueryStoreHouseList: TQueryStoreHouseList;
 
   const
@@ -34,17 +37,21 @@ type
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
+    function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
-    procedure SetConditionSQL(const AConditionSQL, AMark: String; ANotifyEventRef:
-        TNotifyEventRef = nil);
+    procedure SetConditionSQL(const AConditionSQL, AMark: String;
+      ANotifyEventRef: TNotifyEventRef = nil);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
     procedure DoSearch(ALike: Boolean);
+    procedure Search(AValues: TList<String>); overload;
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
     property Mode: TContentMode read FMode;
+    property OnBeginUpdate: TNotifyEventsEx read FOnBeginUpdate;
+    property OnEndUpdate: TNotifyEventsEx read FOnEndUpdate;
     property QueryStoreHouseList: TQueryStoreHouseList read FQueryStoreHouseList
       write FQueryStoreHouseList;
     { Public declarations }
@@ -70,6 +77,9 @@ begin
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
+
+  FOnBeginUpdate := TNotifyEventsEx.Create(Self);
+  FOnEndUpdate := TNotifyEventsEx.Create(Self);
 end;
 
 procedure TQueryProductsSearch.AppendRows(AFieldName: string;
@@ -187,7 +197,8 @@ begin
   end
   else
   begin
-    AConditionSQL := ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
+    AConditionSQL :=
+      ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
     SetConditionSQL(AConditionSQL, AMark,
       procedure(Sender: TObject)
       begin
@@ -199,6 +210,12 @@ begin
         end;
       end);
   end;
+end;
+
+function TQueryProductsSearch.GetExportFileName: string;
+begin
+  Result := Format('Поиск %s.xls', [FormatDateTime('dd.mm.yyyy', Date)]);
+  Assert(not Result.IsEmpty);
 end;
 
 // Есть-ли изменения не сохранённые в БД
@@ -231,8 +248,25 @@ begin
   Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
 end;
 
-procedure TQueryProductsSearch.SetConditionSQL(const AConditionSQL, AMark:
-    String; ANotifyEventRef: TNotifyEventRef = nil);
+procedure TQueryProductsSearch.Search(AValues: TList<String>);
+begin
+  FOnBeginUpdate.CallEventHandlers(Self);
+  try
+    // Очищаем результат поиска
+    ClearSearchResult;
+
+    // Добавляем те записи, которые будем искать на складе
+    AppendRows(Value.FieldName, AValues.ToArray);
+
+    // Осуществляем поиск
+    DoSearch(False);
+  finally
+    FOnEndUpdate.CallEventHandlers(Self);
+  end;
+end;
+
+procedure TQueryProductsSearch.SetConditionSQL(const AConditionSQL,
+  AMark: String; ANotifyEventRef: TNotifyEventRef = nil);
 begin
   Assert(not AConditionSQL.IsEmpty);
   Assert(not AMark.IsEmpty);

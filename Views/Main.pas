@@ -178,6 +178,7 @@ type
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
     procedure DoBeforeParametricTableFormClose(Sender: TObject);
+    procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
     function GetLevel(ANode: TcxTreeListNode): Integer;
@@ -810,6 +811,26 @@ begin
   frmParametricTable := nil;
 end;
 
+procedure TfrmMain.DoOnComponentLocate(Sender: TObject);
+var
+  l: TList<String>;
+begin
+  // Массив с теми наименованиями, которые мы собираемся искать на складе
+  Assert(Sender <> nil);
+  l := Sender as TList<String>;
+  Assert(l.Count > 0);
+
+  DM.qProductsSearch.Search(l);
+
+  // Переключаемся на вкладку склады
+  cxPageControl.ActivePage := tsStorehouse;
+  // Переключаемся на вкладку поиск на складе
+  ViewStoreHouse.cxpcStorehouse.ActivePage := ViewStoreHouse.tsStorehouseSearch;
+
+  BringToFront;
+  ViewStoreHouse.ViewProductsSearch.FocusValueColumn;
+end;
+
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if DM.HaveAnyChanges then
@@ -861,8 +882,16 @@ begin
 
     if OK then
     begin
+      // Подписываемся чтобы искать компонент на складах
+      TNotifyEventWrap.Create(DM.ComponentsExGroup.qComponentsEx.OnLocate,
+          DoOnComponentLocate);
+
+      // Подписываемся чтобы искать компонент в параметрической таблице
       TNotifyEventWrap.Create(DM.StoreHouseGroup.qProducts.OnLocate,
         DoOnProductLocate);
+      TNotifyEventWrap.Create(DM.qProductsSearch.OnLocate,
+        DoOnProductLocate);
+
 
       // Привязываем представления к данным
       ViewComponents.ComponentsGroup := DM.ComponentsGroup;

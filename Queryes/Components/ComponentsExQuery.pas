@@ -9,11 +9,12 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
-  ComponentsQuery;
+  ComponentsQuery, System.Generics.Collections;
 
 type
   TQueryComponentsEx = class(TQueryComponents)
   private
+    FOnLocate: TNotifyEventsEx;
     FOn_ApplyUpdate: TNotifyEventsEx;
     { Private declarations }
   protected
@@ -22,6 +23,8 @@ type
     procedure ApplyUpdate(ASender: TDataSet); override;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure LocateInStorehouse;
+    property OnLocate: TNotifyEventsEx read FOnLocate;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
   end;
@@ -34,6 +37,7 @@ constructor TQueryComponentsEx.Create(AOwner: TComponent);
 begin
   inherited;
   FOn_ApplyUpdate := TNotifyEventsEx.Create(Self);
+  FOnLocate := TNotifyEventsEx.Create(Self);
 end;
 
 procedure TQueryComponentsEx.ApplyDelete(ASender: TDataSet);
@@ -50,6 +54,23 @@ procedure TQueryComponentsEx.ApplyUpdate(ASender: TDataSet);
 begin
   // Оповещаем что надо обработать обновление
   On_ApplyUpdate.CallEventHandlers(ASender);
+end;
+
+procedure TQueryComponentsEx.LocateInStorehouse;
+Var
+  l: TList<String>;
+begin
+  Assert(FOnLocate <> nil);
+  Assert(FDQuery.RecordCount > 0);
+
+  l := TList<String>.Create();
+  try
+    l.Add(Value.AsString);
+    // Извещаем всех что нужно осуществить поиск этого компонента на складах
+    FOnLocate.CallEventHandlers(l);
+  finally
+    FreeAndNil(l);
+  end;
 end;
 
 end.

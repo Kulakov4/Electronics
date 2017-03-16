@@ -105,6 +105,7 @@ object frmGrid: TfrmGrid
     end
   end
   object pmGrid: TPopupMenu
+    Images = DMRepository.cxImageList
     Left = 440
     Top = 184
     object N1: TMenuItem

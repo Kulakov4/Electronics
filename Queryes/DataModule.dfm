@@ -353,12 +353,10 @@ object DM: TDM
       ControlCollection = <
         item
           Column = 0
-          Control = DescriptionsGroup.qDescriptionsMaster
           Row = 0
         end
         item
           Column = 1
-          Control = DescriptionsGroup.qDescriptionsDetail
           Row = 0
         end
         item

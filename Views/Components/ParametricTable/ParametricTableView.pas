@@ -51,9 +51,11 @@ type
     Timer: TTimer;
     Timer2: TTimer;
     dxBarButton1: TdxBarButton;
+    actLocateInStorehouse: TAction;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
+    procedure actLocateInStorehouseExecute(Sender: TObject);
     procedure actNearAnalogExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
@@ -67,7 +69,6 @@ type
     procedure dxBarButton2Click(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
-    procedure dxBarButton1Click(Sender: TObject);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -291,6 +292,12 @@ begin
 
 end;
 
+procedure TViewParametricTable.actLocateInStorehouseExecute(Sender: TObject);
+begin
+  inherited;
+  ComponentsExGroup.qComponentsEx.LocateInStorehouse;
+end;
+
 procedure TViewParametricTable.actNearAnalogExecute(Sender: TObject);
 var
   AColumn: TcxGridDBBandedColumn;
@@ -479,28 +486,6 @@ begin
     // В конце списка
     AMyFilterList.AddItem(Sender, foLike, '%' + #13#10 + AValue, AValue);
   }
-end;
-
-procedure TViewParametricTable.dxBarButton1Click(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
-  i: Integer;
-begin
-  inherited;
-  AView := GridView(cxGridLevel2);
-  AView.BeginBestFitUpdate;
-  try
-    for i := 0 to AView.Bands.Count - 1 do
-    begin
-      AView.Bands[i].ApplyBestFit(True);
-    end;
-//    UpdateDetailColumnsWidth;
-  finally
-    AView.EndBestFitUpdate;
-  end;
-
-
-//  GridView(cxGridLevel2).ApplyBestFit();
 end;
 
 procedure TViewParametricTable.dxBarButton2Click(Sender: TObject);
@@ -1212,9 +1197,16 @@ begin
 end;
 
 procedure TViewParametricTable.UpdateView;
+var
+  OK: Boolean;
 begin
   inherited;
+  OK := (ComponentsExGroup <> nil) and
+    (ComponentsExGroup.qFamilyEx.FDQuery.Active) and
+    (ComponentsExGroup.qComponentsEx.FDQuery.Active);
   UpdateFiltersAction;
+  actLocateInStorehouse.Enabled := OK
+//  and (GridView(cxGridLevel2).DataController.RecordCount > 0);
 end;
 
 constructor TShowDefaults.Create(AOwner: TComponent);

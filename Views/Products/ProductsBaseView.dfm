@@ -369,4 +369,7 @@ inherited ViewProductsBase: TViewProductsBase
       OnExecute = actExportToExcelDocumentExecute
     end
   end
+  inherited pmGrid: TPopupMenu
+    Images = DMRepository.cxImageList
+  end
 end

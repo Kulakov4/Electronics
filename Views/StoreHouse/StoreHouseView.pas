@@ -35,7 +35,7 @@ uses
 
 type
   TViewStoreHouse = class(TFrame)
-    cxpgcntrlStorehouse: TcxPageControl;
+    cxpcStorehouse: TcxPageControl;
     tsStorehouseInfo: TcxTabSheet;
     tsStorehouseProducts: TcxTabSheet;
     tvStorehouseList: TcxGridDBTableView;
@@ -60,7 +60,7 @@ type
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
-    procedure cxpgcntrlStorehousePageChanging(Sender: TObject;
+    procedure cxpcStorehousePageChanging(Sender: TObject;
       NewPage: TcxTabSheet; var AllowChange: Boolean);
     procedure tsStorehouseProductsShow(Sender: TObject);
     procedure tsStorehouseSearchShow(Sender: TObject);
@@ -147,7 +147,7 @@ begin
   end;
 end;
 
-procedure TViewStoreHouse.cxpgcntrlStorehousePageChanging(Sender: TObject;
+procedure TViewStoreHouse.cxpcStorehousePageChanging(Sender: TObject;
   NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
   { При смене вкладки сфокусироваться на гриде списка и затем сбросить фокус.

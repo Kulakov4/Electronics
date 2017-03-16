@@ -254,11 +254,9 @@ inherited ViewParametricTable: TViewParametricTable
       OnClick = dxBarButton2Click
     end
     object dxBarButton1: TdxBarButton
-      Caption = 'New Button'
+      Action = actLocateInStorehouse
       Category = 0
-      Hint = 'New Button'
-      Visible = ivNever
-      OnClick = dxBarButton1Click
+      PaintStyle = psCaptionGlyph
     end
   end
   inherited ActionList: TActionList
@@ -281,6 +279,12 @@ inherited ViewParametricTable: TViewParametricTable
       Caption = #1041#1083#1080#1079#1082#1080#1081' '#1072#1085#1072#1083#1086#1075
       ImageIndex = 9
       OnExecute = actNearAnalogExecute
+    end
+    object actLocateInStorehouse: TAction
+      Caption = #1055#1086#1080#1089#1082' '#1087#1086' '#1089#1082#1083#1072#1076#1072#1084
+      Hint = #1055#1086#1080#1089#1082' '#1087#1086' '#1089#1082#1083#1072#1076#1072#1084
+      ImageIndex = 36
+      OnExecute = actLocateInStorehouseExecute
     end
   end
   object Timer: TTimer
