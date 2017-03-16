@@ -271,7 +271,6 @@ inherited ViewComponentsBase: TViewComponentsBase
     end
   end
   inherited pmGrid: TPopupMenu
-    Images = DMRepository.cxImageList
     object N2: TMenuItem
       Action = actPasteFamily
     end

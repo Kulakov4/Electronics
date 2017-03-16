@@ -38,4 +38,13 @@ inherited ViewGrid: TViewGrid
       OnExecute = actExportToExcelExecute
     end
   end
+  inherited cxGridPopupMenu: TcxGridPopupMenu
+    PopupMenus = <
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtNone, gvhtCell]
+        Index = 0
+        PopupMenu = pmGrid
+      end>
+  end
 end

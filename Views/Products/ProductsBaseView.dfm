@@ -369,7 +369,13 @@ inherited ViewProductsBase: TViewProductsBase
       OnExecute = actExportToExcelDocumentExecute
     end
   end
-  inherited pmGrid: TPopupMenu
-    Images = DMRepository.cxImageList
+  inherited cxGridPopupMenu: TcxGridPopupMenu
+    PopupMenus = <
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtNone, gvhtCell]
+        Index = 0
+        PopupMenu = pmGrid
+      end>
   end
 end

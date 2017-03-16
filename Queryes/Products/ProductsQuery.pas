@@ -18,6 +18,8 @@ type
   private
     FNeedUpdateCount: Boolean;
     FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
+    procedure AppendRows(AValues: TArray<String>; const AProducers:
+        TArray<String>); overload;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     // TODO: DoBeforeOpen
@@ -91,6 +93,13 @@ begin
     AExcelTable.Next;
     AExcelTable.CallOnProcessEvent;
   end;
+end;
+
+procedure TQueryProducts.AppendRows(AValues: TArray<String>; const AProducers:
+    TArray<String>);
+begin
+  Assert(AValues <> nil);
+  Assert(AProducers <> nil);
 end;
 
 procedure TQueryProducts.DoAfterInsert(Sender: TObject);

@@ -42,7 +42,10 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AppendRows(AFieldName: string; AValues: TArray<String>); virtual;
+    procedure AppendRows(AFieldName: string; AValues: TArray<String>); overload;
+        virtual;
+    procedure AppendRows(AFieldNames: Array of String; AValues: TArray<String>);
+        overload; virtual;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Integer; const ADetailKeyFieldName:
@@ -107,8 +110,7 @@ begin
   inherited;
 end;
 
-procedure TQueryBase.AppendRows(AFieldName: string; AValues:
-    TArray<String>);
+procedure TQueryBase.AppendRows(AFieldName: string; AValues: TArray<String>);
 var
   AValue: string;
 begin
@@ -120,6 +122,39 @@ begin
     TryAppend;
     Field(AFieldName).AsString := AValue;
     TryPost;
+  end;
+end;
+
+procedure TQueryBase.AppendRows(AFieldNames: Array of String; AValues:
+    TArray<String>);
+var
+  AValue: string;
+  i: Integer;
+  m: TArray<String>;
+begin
+  Assert(Length(AFieldNames) > 0);
+
+
+  // Добавляем в список родительские компоненты
+  for AValue in AValues do
+  begin
+    // Делим строку на части по табуляции
+    m := AValue.Split([#9]);
+
+    if Length(m) = Length(AFieldNames) then
+    begin
+      TryAppend;
+
+      // Заполняем все поля
+      for i := Low(AFieldNames) to High(AFieldNames) do
+      begin
+        FDQuery.ParamByName(AFieldNames[i]).Value := m[i];
+      end;
+
+      TryPost;
+    end
+    else
+      raise Exception.Create('Несоответствие количества полей');
   end;
 end;
 

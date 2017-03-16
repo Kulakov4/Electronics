@@ -178,14 +178,47 @@ end;
 
 procedure TViewProducts.actPasteComponentsExecute(Sender: TObject);
 var
+  I: Integer;
+  k: Integer;
   m: TArray<String>;
+  n: TArray<String>;
+  AValues: TList<String>;
+  AProducers: TList<String>;
 begin
   m := TClb.Create.GetRowsAsArray;
   if Length(m) = 0 then
     Exit;
 
+  // количество полей в первой записи в буфере обмена
+  k := Length(m[0].Split([#9]));
+
   // Просим добавить компоненты на склад
-  QueryProducts.AppendRows(QueryProducts.Value.FieldName, m);
+  case k of
+    1:
+      QueryProducts.AppendRows(QueryProducts.Value.FieldName, m);
+    2:
+      begin
+        AValues := TList<String>.Create;
+        AProducers := TList<String>.Create;
+        try
+          for I := Low(m) to High(m) do
+          begin
+            n := m[I].Split([#9]);
+            if Length(n) <> 2 then
+              raise Exception.Create('Несоответствие количества столбцов');
+            AValues.Add(n[0]);
+            AProducers.Add(n[1]);
+          end;
+
+          QueryProducts.AppendRows(AValues.ToArray, AProducers.ToArray);
+        finally
+          FreeAndNil(AValues);
+          FreeAndNil(AProducers);
+        end;
+
+
+      end;
+  end;
 
   PutInTheCenterFocusedRecord(MainView);
 
@@ -209,7 +242,7 @@ end;
 
 procedure TViewProducts.AfterLoad(Sender: TObject);
 begin
-//  ApplyBestFitEx;
+  // ApplyBestFitEx;
 end;
 
 procedure TViewProducts.AfterOpen(Sender: TObject);
@@ -302,7 +335,7 @@ var
   ABand: TcxGridBand;
   ACollectionItem: TCollectionItem;
   AColumn: TcxGridDBBandedColumn;
-  i: Integer;
+  I: Integer;
   S1, S2: String;
 begin
   Assert(not AColumnCaption.IsEmpty);
@@ -316,9 +349,9 @@ begin
     // Если заголовок бэнда нам подходит
     if ABand.Caption.Trim.ToUpper = ABandCaption.Trim.ToUpper then
     begin
-      for i := 0 to ABand.ColumnCount - 1 do
+      for I := 0 to ABand.ColumnCount - 1 do
       begin
-        AColumn := ABand.Columns[i] as TcxGridDBBandedColumn;
+        AColumn := ABand.Columns[I] as TcxGridDBBandedColumn;
 
         S1 := AColumn.Caption.Replace(' ', '', [rfReplaceAll]).ToUpper;
         S2 := AColumnCaption.Replace(' ', '', [rfReplaceAll]).ToUpper;
@@ -360,7 +393,7 @@ function TViewProducts.LoadExcelFileHeader(const AFileName: String;
       Result := GetFieldInfoByColumnCaption(ABandCaption, AKey);
     end;
     if Result <> nil then
-      S:=Result.FieldName;
+      S := Result.FieldName;
 
   end;
 
@@ -524,17 +557,19 @@ end;
 
 procedure TViewProducts.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
 Var
-  OK: Boolean;
+
+  IsText: Boolean;
 begin
-  OK := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
+  IsText := Clipboard.HasFormat(CF_TEXT);
 
-  actPasteComponents.Enabled := OK and (AColumn.GridView.Level = cxGridLevel)
-    and (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+  actPasteComponents.Visible :=
+    ((AColumn <> nil) and (AColumn.GridView.Level = cxGridLevel) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName)) or
+    (AColumn = nil);
+  actPasteComponents.Enabled := actPasteComponents.Visible and IsText;
 
-  OK := (AColumn <> nil);
-
-  actPasteComponents.Visible := OK and (AColumn.GridView.Level = cxGridLevel)
-    and (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+  actCopyToClipboard.Visible := AColumn <> nil;
+  actCopyToClipboard.Enabled := actCopyToClipboard.Visible
 end;
 
 procedure TViewProducts.SetQueryProducts(const Value: TQueryProducts);
@@ -574,15 +609,15 @@ procedure TViewProducts.StatusBarResize(Sender: TObject);
 const
   EmptyPanelIndex = 2;
 var
-  i: Integer;
+  I: Integer;
   x: Integer;
 begin
   x := StatusBar.ClientWidth;
-  for i := 0 to StatusBar.Panels.Count - 1 do
+  for I := 0 to StatusBar.Panels.Count - 1 do
   begin
-    if i <> EmptyPanelIndex then
+    if I <> EmptyPanelIndex then
     begin
-      Dec(x, StatusBar.Panels[i].Width);
+      Dec(x, StatusBar.Panels[I].Width);
     end;
   end;
   x := IfThen(x >= 0, x, 0);
@@ -622,6 +657,9 @@ begin
   }
   actDelete.Enabled := OK and (AFocusedView <> nil) and
     (AFocusedView.DataController.RowCount > 0);
+
+  cxGridPopupMenu.PopupMenus[0].HitTypes := cxGridPopupMenu.PopupMenus[0]
+    .HitTypes + [gvhtNone];
 end;
 
 constructor TProductsErrorTable.Create(AOwner: TComponent);

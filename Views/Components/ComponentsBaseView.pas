@@ -78,8 +78,8 @@ type
       const AText: TCaption);
     procedure clBodyIdPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
-    procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem; ARecordIndex:
-        Integer; var AText: string);
+    procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
+      ARecordIndex: Integer; var AText: string);
   private
     FQuerySearchBodyType: TQuerySearchBodyType;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
@@ -252,8 +252,8 @@ begin
   // DM.BodyTypesMasterDetail.qBodyTypes2.AddNewValue(AText);
 end;
 
-procedure TViewComponentsBase.clDatasheetGetDataText(Sender:
-    TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
+procedure TViewComponentsBase.clDatasheetGetDataText
+  (Sender: TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
 begin
   inherited;
   if not AText.IsEmpty then
@@ -349,7 +349,8 @@ begin
   if BaseComponentsGroup <> nil then
   begin
     // Подписываемся на событие о коммите
-    TNotifyEventWrap.Create( DMRepository.AfterCommit, DoAfterCommit, FEventList);
+    TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommit,
+      FEventList);
     MyInitializeComboBoxColumn;
   end;
 end;
@@ -414,40 +415,38 @@ begin
 
 end;
 
-procedure TViewComponentsBase.OnGridPopupMenuPopup(AColumn:
-    TcxGridDBBandedColumn);
+procedure TViewComponentsBase.OnGridPopupMenuPopup
+  (AColumn: TcxGridDBBandedColumn);
 Var
-  Ok: Boolean;
+  AColumnIsValue: Boolean;
+  IsText: Boolean;
 begin
-  Ok := Clipboard.HasFormat(CF_TEXT) and (AColumn <> nil);
+  IsText := Clipboard.HasFormat(CF_TEXT);
 
-  actPasteFamily.Enabled := Ok and
-    (AColumn.GridView.Level = cxGridLevel) and
+  AColumnIsValue := (AColumn <> nil) and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
-  actPasteComponents.Enabled := Ok and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+  actPasteFamily.Visible :=
+    (AColumnIsValue and (AColumn.GridView.Level = cxGridLevel)) or
+    (AColumn = nil);
 
-  actPasteProducer.Enabled := Ok and
+  actPasteFamily.Enabled := actPasteFamily.Visible and IsText;
+
+  actPasteComponents.Visible := AColumnIsValue;
+
+  actPasteComponents.Enabled := actPasteComponents.Visible and IsText;
+
+
+  actPasteProducer.Visible := (AColumn <> nil) and
     (AColumn.DataBinding.FieldName = clProducer.DataBinding.FieldName);
+  actPasteProducer.Enabled := actPasteProducer.Visible and IsText;
 
-  actPastePackagePins.Enabled := Ok and
+  actPastePackagePins.Visible := (AColumn <> nil) and
     (AColumn.DataBinding.FieldName = clPackagePins.DataBinding.FieldName);
+  actPastePackagePins.Enabled := actPastePackagePins.Visible and IsText;
 
-  Ok := (AColumn <> nil);
-
-  actPasteFamily.Visible := Ok and
-    (AColumn.GridView.Level = cxGridLevel) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
-
-  actPasteComponents.Visible := Ok and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
-
-  actPasteProducer.Visible := Ok and
-    (AColumn.DataBinding.FieldName = clProducer.DataBinding.FieldName);
-
-  actPastePackagePins.Visible := Ok and
-    (AColumn.DataBinding.FieldName = clPackagePins.DataBinding.FieldName);
+  actCopyToClipboard.Visible := AColumn <> nil;
+  actCopyToClipboard.Enabled := actCopyToClipboard.Visible
 
 end;
 
