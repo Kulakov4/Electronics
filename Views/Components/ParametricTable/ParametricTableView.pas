@@ -1201,11 +1201,14 @@ var
   OK: Boolean;
 begin
   inherited;
+
   OK := (ComponentsExGroup <> nil) and
     (ComponentsExGroup.qFamilyEx.FDQuery.Active) and
     (ComponentsExGroup.qComponentsEx.FDQuery.Active);
   UpdateFiltersAction;
-  actLocateInStorehouse.Enabled := OK
+  actLocateInStorehouse.Enabled := OK and
+  (FocusedTableView.Level = cxGridLevel2)
+  and (FocusedTableView.DataController.RecordCount > 0 );
 //  and (GridView(cxGridLevel2).DataController.RecordCount > 0);
 end;
 
