@@ -185,6 +185,8 @@ begin
         // Добавляем компонент в базу данных
         qFamily.LocateOrAppend(AComponentsExcelTable.MainValue.AsString,
           AProducer);
+
+        // Если в Excel файле указаны дополнительные подгруппы
         if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
         begin
           // если ещё не добавляли доп. подгруппы

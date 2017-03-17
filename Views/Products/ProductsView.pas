@@ -210,7 +210,7 @@ begin
             AProducers.Add(n[1]);
           end;
 
-          QueryProducts.AppendRows(AValues.ToArray, AProducers.ToArray);
+          QueryProducts.AppendRows(AValues, AProducers);
         finally
           FreeAndNil(AValues);
           FreeAndNil(AProducers);

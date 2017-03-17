@@ -18,8 +18,6 @@ type
   private
     FNeedUpdateCount: Boolean;
     FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
-    procedure AppendRows(AValues: TArray<String>; const AProducers:
-        TArray<String>); overload;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     // TODO: DoBeforeOpen
@@ -35,6 +33,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendList(AExcelTable: TProductsExcelTable);
+    procedure AppendRows(AValues: TList<String>;
+      const AProducers: TList<String>); overload;
     property StoreHouseName: string read GetStoreHouseName;
     // TODO: AddStringList
     // function AddStringList(ARows: TArray<String>): TStringList;
@@ -95,11 +95,28 @@ begin
   end;
 end;
 
-procedure TQueryProducts.AppendRows(AValues: TArray<String>; const AProducers:
-    TArray<String>);
+procedure TQueryProducts.AppendRows(AValues: TList<String>;
+  const AProducers: TList<String>);
+var
+  I: Integer;
 begin
   Assert(AValues <> nil);
   Assert(AProducers <> nil);
+  Assert(AValues.Count = AProducers.Count);
+  Assert(AValues.Count > 0);
+
+  for I := 0 to AValues.Count - 1 do
+  begin
+    // Ищем такого производителя
+    if not QueryProducers.Locate(AProducers[I]) then
+      raise Exception.CreateFmt('Производитель "%s" не найден в справочнике',
+        [AProducers[I]]);
+
+    TryAppend;
+    Value.AsString := AValues[i];
+    IDProducer.AsInteger := QueryProducers.PKValue;
+    TryPost;
+  end;
 end;
 
 procedure TQueryProducts.DoAfterInsert(Sender: TObject);

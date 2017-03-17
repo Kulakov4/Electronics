@@ -10,18 +10,24 @@ inherited QueryFamily: TQueryFamily
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'SELECT p.Id,'
+      'SELECT '
+      '  t.*, '
+      
+        '  trim(CurCategoryExternalID || REPLACE(subgroup2, '#39','#39'||CurCateg' +
+        'oryExternalID||'#39','#39', '#39','#39'), '#39','#39') subGroup'
+      'from'
+      '('
+      '    SELECT p.Id,'
       '       p.DescriptionId,'
       '       p.Value,'
-      '       GROUP_CONCAT(pc.ExternalId) subGroup,'
-      '       p.ParentProductId,'
-      '       ppc.rowid,'
+      '       '#39','#39'||GROUP_CONCAT(pc.ExternalId,'#39','#39')||'#39','#39' subGroup2,'
       '       ('
       '           SELECT ExternalID'
-      '             FROM ProductCategories'
-      '            WHERE ProductCategories.Id = :vProductCategoryId'
+      '           FROM ProductCategories'
+      '           WHERE ProductCategories.Id = :vProductCategoryId'
       '       )'
       '       CurCategoryExternalID,'
+      '       p.ParentProductId,'
       '       pv.ID AS IDProducer,'
       '       pv.Value AS Producer,'
       '       pv2.ID AS IDPackagePins,'
@@ -35,35 +41,40 @@ inherited QueryFamily: TQueryFamily
       '       pv6.ID AS IDImage,'
       '       pv6.Value AS Image,'
       '       d.Description'
-      '  FROM '
-      'ProductProductCategories ppc'
+      '   FROM '
+      '       ProductProductCategories ppc'
       
-        'JOIN Products p ON ppc.ProductId = p.Id AND p.ParentProductId IS' +
-        ' NULL'
-      'JOIN ProductProductCategories ppc2 ON ppc2.ProductId = p.Id'
-      'JOIN ProductCategories pc ON pc.Id = ppc2.ProductCategoryId'
+        '       JOIN Products p ON ppc.ProductId = p.Id AND p.ParentProdu' +
+        'ctId IS NULL'
       
-        'LEFT JOIN ParameterValues pv ON pv.ProductID = p.Id AND pv.Param' +
-        'eterId = :ProducerParameterID'
+        '       JOIN ProductProductCategories ppc2 ON ppc2.ProductId = p.' +
+        'Id'
       
-        'LEFT JOIN ParameterValues pv2 ON pv2.ProductID = p.Id AND pv2.Pa' +
-        'rameterId = :PackagePinsParameterID'
+        '       JOIN ProductCategories pc ON pc.Id = ppc2.ProductCategory' +
+        'Id'
       
-        'LEFT JOIN ParameterValues pv3 ON pv3.ProductID = p.Id AND pv3.Pa' +
-        'rameterId = :DatasheetParameterID'
+        '       LEFT JOIN ParameterValues pv ON pv.ProductID = p.Id AND p' +
+        'v.ParameterId = :ProducerParameterID'
       
-        'LEFT JOIN ParameterValues pv4 ON pv4.ProductID = p.Id AND pv4.Pa' +
-        'rameterId = :DiagramParameterID'
+        '       LEFT JOIN ParameterValues pv2 ON pv2.ProductID = p.Id AND' +
+        ' pv2.ParameterId = :PackagePinsParameterID'
       
-        'LEFT JOIN ParameterValues pv5 ON pv5.ProductID = p.Id AND pv5.Pa' +
-        'rameterId = :DrawingParameterID'
+        '       LEFT JOIN ParameterValues pv3 ON pv3.ProductID = p.Id AND' +
+        ' pv3.ParameterId = :DatasheetParameterID'
       
-        'LEFT JOIN ParameterValues pv6 ON pv6.ProductID = p.Id AND pv6.Pa' +
-        'rameterId = :ImageParameterID'
-      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
-      'WHERE ppc.ProductCategoryId = :vProductCategoryId'
-      'GROUP BY p.ID'
-      'ORDER BY p.value')
+        '       LEFT JOIN ParameterValues pv4 ON pv4.ProductID = p.Id AND' +
+        ' pv4.ParameterId = :DiagramParameterID'
+      
+        '       LEFT JOIN ParameterValues pv5 ON pv5.ProductID = p.Id AND' +
+        ' pv5.ParameterId = :DrawingParameterID'
+      
+        '       LEFT JOIN ParameterValues pv6 ON pv6.ProductID = p.Id AND' +
+        ' pv6.ParameterId = :ImageParameterID       '
+      '       LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
+      '       WHERE ppc.ProductCategoryId = :vProductCategoryId'
+      '       GROUP BY p.ID'
+      ') t'
+      'ORDER BY t.value')
     ParamData = <
       item
         Name = 'VPRODUCTCATEGORYID'

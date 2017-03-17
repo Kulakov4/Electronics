@@ -12,16 +12,19 @@ uses
   FireDAC.Comp.Client, ApplyQueryFrame, Vcl.StdCtrls,
   SearchComponentCategoryQuery, SearchComponentCategoryQuery2,
   SearchComponentQuery, SearchFamilyByValue, SearchProductParameterValuesQuery,
-  SearchCategoryBySubGroup;
+  SearchCategoryBySubGroup, SearchCategoryByID;
 
 type
   TQueryBaseFamily = class(TQueryCustomComponents)
   private
+    FQuerySearchCategoryByID: TQuerySearchCategoryByID;
     FQuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup;
     FQuerySearchFamilyByValue: TQuerySearchFamilyByValue;
     FQuerySearchComponentCategory: TQuerySearchComponentCategory;
     FQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
     procedure DoBeforeOpen(Sender: TObject);
+    function GetCurProductCategoriesExternalID: string;
+    function GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
     function GetQuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup;
     function GetQuerySearchFamilyByValue: TQuerySearchFamilyByValue;
     function GetQuerySearchComponentCategory: TQuerySearchComponentCategory;
@@ -32,6 +35,8 @@ type
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
+    property QuerySearchCategoryByID: TQuerySearchCategoryByID read
+        GetQuerySearchCategoryByID;
     property QuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup read
         GetQuerySearchCategoryBySubGroup;
     property QuerySearchFamilyByValue: TQuerySearchFamilyByValue read
@@ -42,6 +47,8 @@ type
       read GetQuerySearchComponentCategory2;
   public
     constructor Create(AOwner: TComponent); override;
+    property CurProductCategoriesExternalID: string read
+        GetCurProductCategoriesExternalID;
     { Public declarations }
   end;
 
@@ -192,6 +199,24 @@ begin
   FDQuery.ParamByName('ImageParameterID').AsInteger :=
     TParameterValues.ImageParameterID;
 
+end;
+
+function TQueryBaseFamily.GetCurProductCategoriesExternalID: string;
+var
+  rc: Integer;
+begin
+  Assert(FDQuery.Active);
+  rc := QuerySearchCategoryByID.Search
+    (FDQuery.ParamByName(DetailParameterName).AsInteger);
+  Assert(rc = 1);
+  Result := QuerySearchCategoryByID.ExternalID.AsString;
+end;
+
+function TQueryBaseFamily.GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
+begin
+  if FQuerySearchCategoryByID = nil then
+    FQuerySearchCategoryByID := TQuerySearchCategoryByID.Create(Self);
+  Result := FQuerySearchCategoryByID;
 end;
 
 function TQueryBaseFamily.GetQuerySearchCategoryBySubGroup:

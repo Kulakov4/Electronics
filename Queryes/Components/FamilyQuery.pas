@@ -16,23 +16,16 @@ uses
 type
   TQueryFamily = class(TQueryBaseFamily)
   private
-    FQuerySearchCategoryByID: TQuerySearchCategoryByID;
     procedure DoAfterInsert(Sender: TObject);
-    function GetCurProductCategoriesExternalID: string;
-    function GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
     { Private declarations }
   protected
     procedure AddNewValue(const AValue, AProducer: string); virtual;
     procedure DoAfterOpen(Sender: TObject);
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
-    property QuerySearchCategoryByID: TQuerySearchCategoryByID read
-        GetQuerySearchCategoryByID;
   public
     constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AValue, AProducer: string): Boolean;
-    property CurProductCategoriesExternalID: string
-      read GetCurProductCategoriesExternalID;
     { Public declarations }
   end;
 
@@ -74,24 +67,6 @@ begin
   Diagram.OnGetText := OnDatasheetGetText;
   Drawing.OnGetText := OnDatasheetGetText;
   Image.OnGetText := OnDatasheetGetText;
-end;
-
-function TQueryFamily.GetCurProductCategoriesExternalID: string;
-var
-  rc: Integer;
-begin
-  Assert(FDQuery.Active);
-  rc := QuerySearchCategoryByID.Search
-    (FDQuery.ParamByName(DetailParameterName).AsInteger);
-  Assert(rc = 1);
-  Result := QuerySearchCategoryByID.ExternalID.AsString;
-end;
-
-function TQueryFamily.GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
-begin
-  if FQuerySearchCategoryByID = nil then
-    FQuerySearchCategoryByID := TQuerySearchCategoryByID.Create(Self);
-  Result := FQuerySearchCategoryByID;
 end;
 
 function TQueryFamily.LocateOrAppend(const AValue, AProducer: string):

@@ -329,8 +329,7 @@ begin
   S := S.Replace(' ', '', [rfReplaceAll]);
 
   Assert(S.Length > 0);
-  AMainExternalID := BaseComponentsGroup.Main.FDQuery.FieldByName
-    ('CurCategoryExternalID').AsString;
+  AMainExternalID := BaseComponentsGroup.QueryBaseFamily.CurProductCategoriesExternalID;
 
   QuerySubGroups.Load(AMainExternalID, Format(',%s,', [S]));
   frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
