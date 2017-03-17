@@ -88,7 +88,6 @@ begin
       DescriptionID.AsInteger := DescrID.AsInteger;
       FDQuery.Post;
       Inc(i);
-
       // Уже много записей обновили в рамках одной транзакции
       if i >= 1000 then
       begin

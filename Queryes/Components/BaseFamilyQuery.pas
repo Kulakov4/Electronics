@@ -23,6 +23,7 @@ type
     FQuerySearchComponentCategory: TQuerySearchComponentCategory;
     FQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
     procedure DoBeforeOpen(Sender: TObject);
+    function GetCurCategoryExternalID: TField;
     function GetCurProductCategoriesExternalID: string;
     function GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
     function GetQuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup;
@@ -47,6 +48,7 @@ type
       read GetQuerySearchComponentCategory2;
   public
     constructor Create(AOwner: TComponent); override;
+    property CurCategoryExternalID: TField read GetCurCategoryExternalID;
     property CurProductCategoriesExternalID: string read
         GetCurProductCategoriesExternalID;
     { Public declarations }
@@ -201,11 +203,25 @@ begin
 
 end;
 
+function TQueryBaseFamily.GetCurCategoryExternalID: TField;
+begin
+  Result := Field('CurCategoryExternalID');
+end;
+
 function TQueryBaseFamily.GetCurProductCategoriesExternalID: string;
 var
   rc: Integer;
 begin
   Assert(FDQuery.Active);
+
+  if not CurCategoryExternalID.AsString.IsEmpty then
+  begin
+    Result := CurCategoryExternalID.AsString;
+    Exit;
+  end;
+
+  Assert(not DetailParameterName.IsEmpty);
+
   rc := QuerySearchCategoryByID.Search
     (FDQuery.ParamByName(DetailParameterName).AsInteger);
   Assert(rc = 1);

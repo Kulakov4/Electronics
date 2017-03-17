@@ -132,8 +132,7 @@ begin
   Result := FQueryComponentsCount;
 end;
 
-function TComponentsGroup.GetQueryEmptyFamilyCount
-  : TQueryEmptyFamilyCount;
+function TComponentsGroup.GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
 begin
   if FQueryEmptyFamilyCount = nil then
   begin
@@ -165,6 +164,11 @@ end;
 
 procedure TComponentsGroup.InsertRecordList(AComponentsExcelTable
   : TComponentsExcelTable; const AProducer: string);
+var
+  I: Integer;
+  k: Integer;
+  m: TArray<String>;
+  S: string;
 begin
   Assert(not AProducer.IsEmpty);
   Assert(not qFamily.AutoTransaction);
@@ -173,6 +177,8 @@ begin
   // работать в рамках одной транзакции гораздо быстрее
   // qFamily.AutoTransaction := True;
   // qComponents.AutoTransaction := True;
+
+  k := 0; // Кол-во обновлённых записей
   try
 
     qFamily.FDQuery.DisableControls;
@@ -189,14 +195,23 @@ begin
         // Если в Excel файле указаны дополнительные подгруппы
         if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
         begin
-          // если ещё не добавляли доп. подгруппы
-          if qFamily.SubGroup.AsString.IndexOf
-            (AComponentsExcelTable.SubGroup.AsString) = -1 then
+          // Получаем все коды категорий отдельно
+          m := AComponentsExcelTable.SubGroup.AsString.Split([',']);
+          S := ',' + qFamily.SubGroup.AsString + ',';
+          for I := Low(m) to High(m) do
+          begin
+            // Если такой категории в списке ещё не было
+            if S.IndexOf(',' + m[I] + ',') < 0 then
+              S := S + m[I] + ',';
+          end;
+          m := nil;
+          S := S.Trim([',']);
+
+          // Если что-то изменилось
+          if qFamily.SubGroup.AsString <> S then
           begin
             qFamily.TryEdit;
-            qFamily.SubGroup.AsString :=
-              Format('%s,%s', [qFamily.SubGroup.AsString,
-              AComponentsExcelTable.SubGroup.AsString]);
+            qFamily.SubGroup.AsString := S;
             qFamily.TryPost
           end;
         end;
@@ -206,6 +221,15 @@ begin
         begin
           qComponents.LocateOrAppend(qFamily.PKValue,
             AComponentsExcelTable.Value.AsString);
+        end;
+
+        Inc(k);
+        // Уже много записей обновили в рамках одной транзакции
+        if k >= 1000 then
+        begin
+          k := 0;
+          Connection.Commit;
+          Connection.StartTransaction;
         end;
 
         AComponentsExcelTable.Next;
