@@ -34,6 +34,8 @@ const
   WM_AfterKeyOrMouseDown = WM_USER + 55;
 
 type
+  TGridProcRef = reference to procedure(AView: TcxGridDBBandedTableView);
+
   TfrmGrid = class(TFrame)
     cxGridLevel: TcxGridLevel;
     cxGrid: TcxGrid;
@@ -85,8 +87,8 @@ type
     procedure ApplyBestFitFocusedBand; virtual;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
-    procedure ExportViewToExcel(AView: TcxGridDBBandedTableView;
-      AFileName: string);
+    procedure ExportViewToExcel(AView: TcxGridDBBandedTableView; AFileName: string;
+        AGridProcRef: TGridProcRef = nil);
     procedure FocusColumnEditor(ALevel: Integer; AFieldName: string);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord(AView: TcxGridDBBandedTableView);
@@ -240,7 +242,7 @@ begin
 end;
 
 procedure TfrmGrid.ExportViewToExcel(AView: TcxGridDBBandedTableView;
-  AFileName: string);
+    AFileName: string; AGridProcRef: TGridProcRef = nil);
 var
   Grid: TcxGrid;
   Level: TcxGridLevel;
@@ -265,6 +267,9 @@ begin
   Grid.Font.Assign(Font);
 
   Level.GridView := GridView;
+
+  if Assigned(AGridProcRef) then
+    AGridProcRef(GridView);
 
   // Ёкспортируем в Excel
   ExportGridToExcel(AFileName, Grid);

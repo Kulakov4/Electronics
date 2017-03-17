@@ -70,12 +70,12 @@ type
   protected
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
-    property QuerySearchProducerTypes: TQuerySearchProducerTypes read
-        GetQuerySearchProducerTypes;
+    property QuerySearchProducerTypes: TQuerySearchProducerTypes
+      read GetQuerySearchProducerTypes;
   public
     procedure UpdateView; override;
-    property QueryProducers: TQueryProducers read FQueryProducers write
-        SetQueryProducers;
+    property QueryProducers: TQueryProducers read FQueryProducers
+      write SetQueryProducers;
     { Public declarations }
   end;
 
@@ -161,7 +161,11 @@ begin
   if AFileName = '' then
     Exit;
 
-  ExportViewToExcel(MainView, AFileName);
+  ExportViewToExcel(MainView, AFileName,
+    procedure(AView: TcxGridDBBandedTableView)
+    begin
+      AView.GetColumnByFieldName(QueryProducers.Cnt.FieldName).Visible := False;
+    end);
 end;
 
 procedure TViewProducers.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -224,8 +228,7 @@ begin
         TfrmProgressBar.Process(AManufacturersExcelDM.ExcelTable,
           procedure
           begin
-            QueryProducers.InsertRecordList
-              (AManufacturersExcelDM.ExcelTable);
+            QueryProducers.InsertRecordList(AManufacturersExcelDM.ExcelTable);
           end, 'Сохранение данных о производителях в БД', sRecords);
       finally
         cxGrid.EndUpdate;
@@ -363,8 +366,7 @@ begin
   actDelete.Enabled := OK and (AView <> nil) and
     (AView.DataController.RecordCount > 0);
 
-  actCommit.Enabled := OK and
-    (QueryProducers.FDQuery.Connection.InTransaction);
+  actCommit.Enabled := OK and (QueryProducers.FDQuery.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 

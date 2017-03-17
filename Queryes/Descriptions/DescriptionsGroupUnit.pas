@@ -57,7 +57,7 @@ end;
 procedure TDescriptionsGroup.Commit;
 begin
   Inherited;
-  qProducers.DropUnuses;
+//  qProducers.DropUnuses;
 end;
 
 procedure TDescriptionsGroup.DoAfterPostOrDelete(Sender: TObject);

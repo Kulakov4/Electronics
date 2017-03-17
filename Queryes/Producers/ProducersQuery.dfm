@@ -49,7 +49,7 @@ inherited QueryProducers: TQueryProducers
         Value = Null
       end>
   end
-  object fdqDropUnused: TFDQuery
+  object fdqDropUnused22: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
       'delete from manufacturers2'

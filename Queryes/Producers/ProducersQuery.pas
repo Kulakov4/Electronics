@@ -13,13 +13,14 @@ uses
 
 type
   TQueryProducers = class(TQueryWithDataSource)
-    fdqDropUnused: TFDQuery;
+    fdqDropUnused22: TFDQuery;
     procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
         Boolean);
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    procedure DropUnuses;
     function GetCnt: TField;
     function GetName: TField;
     function GetProducerType: TField;
@@ -31,7 +32,6 @@ type
     procedure AddNewValue(const AValue: string);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
-    procedure DropUnuses;
     procedure InsertRecordList(AManufacturesExcelTable
       : TManufacturesExcelTable);
     function Locate(AValue: string): Boolean;
@@ -106,8 +106,8 @@ end;
 
 procedure TQueryProducers.DropUnuses;
 begin
-  fdqDropUnused.ExecSQL;
-  RefreshQuery;
+//  fdqDropUnused.ExecSQL;
+//  RefreshQuery;
 end;
 
 procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
@@ -147,7 +147,11 @@ begin
     AManufacturesExcelTable.CallOnProcessEvent;
     while not AManufacturesExcelTable.Eof do
     begin
-      FDQuery.Append;
+      // ≈сли производитель с таким именем уже есть
+      if Locate( AManufacturesExcelTable.Name.AsString ) then
+        TryEdit
+      else
+        TryAppend;
 
       for I := 0 to AManufacturesExcelTable.FieldCount - 1 do
       begin
@@ -156,6 +160,7 @@ begin
         if AField <> nil then
           AField.Value := AManufacturesExcelTable.Fields[I].Value;
       end;
+
       TryPost;
 
       AManufacturesExcelTable.Next;

@@ -133,6 +133,13 @@ begin
   if AFileName = '' then
     Exit;
 
+  ExportViewToExcel(MainView, AFileName,
+    procedure(AView: TcxGridDBBandedTableView)
+    begin
+      AView.Bands[0].FixedKind := fkNone;
+    end);
+
+{
   MainView.Bands[0].FixedKind := fkNone;
   try
     // Ёкспортируем в Excel
@@ -140,6 +147,7 @@ begin
   finally
     MainView.Bands[0].FixedKind := fkLeft;
   end;
+}
 end;
 
 procedure TViewProductsBase.actRollbackExecute(Sender: TObject);

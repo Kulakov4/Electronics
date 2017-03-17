@@ -4,7 +4,8 @@ interface
 
 uses
   System.Classes, DocFieldInfo, System.Generics.Collections,
-  FireDAC.Comp.Client, TableWithProgress, Data.DB;
+  FireDAC.Comp.Client, TableWithProgress, Data.DB,
+  SearchProductParameterValuesQuery;
 
 type
   MySplitRec = record
@@ -103,7 +104,7 @@ class function TAutoBind.AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
 
     // Если такой таблицы в памяти ещё не существовало
     if not Result.ContainsKey(AIDParameter) then
-      Result.Add( AIDParameter, TPossibleLinkDocTable.Create(nil) );
+      Result.Add(AIDParameter, TPossibleLinkDocTable.Create(nil));
 
     with Result[AIDParameter] do
     begin
@@ -445,6 +446,7 @@ var
   ASQL: string;
   i: Integer;
   OK: Boolean;
+  Q: TQuerySearchProductParameterValues;
   rc: Integer;
   S: String;
 begin
@@ -457,6 +459,7 @@ begin
   AComponentsDataSet.First;
   AComponentsDataSet.CallOnProcessEvent;
 
+  Q := TQuerySearchProductParameterValues.Create(nil);
   // Будем работать в рамках одной транзакции
   AConnection.StartTransaction;
   try
@@ -514,14 +517,18 @@ begin
                     (APossibleLinkDocTable.FileName.AsString,
                     APossibleLinkDocTable.RootFolder.AsString);
 
-                  ASQL := 'INSERT INTO ParameterValues' +
-                    '(ParameterID, Value, ProductID) ' +
-                    Format('Values (%d, ''%s'', %d)',
-                    [ADocFieldInfo.IDParameter, S,
-                    AComponentsDataSet.FieldByName('ID').AsInteger]);
+                  if Q.Search(ADocFieldInfo.IDParameter,
+                    AComponentsDataSet.FieldByName('ID').AsInteger) = 0 then
+                  begin
+                    ASQL := 'INSERT INTO ParameterValues' +
+                      '(ParameterID, Value, ProductID) ' +
+                      Format('Values (%d, ''%s'', %d)',
+                      [ADocFieldInfo.IDParameter, S,
+                      AComponentsDataSet.FieldByName('ID').AsInteger]);
 
-                  AConnection.ExecSQL(ASQL);
-                  Inc(i);
+                    AConnection.ExecSQL(ASQL);
+                    Inc(i);
+                  end;
 
                   if i >= 1000 then
                   begin
@@ -541,6 +548,7 @@ begin
   finally
     AConnection.Commit;
     AComponentsDataSet.EndBatch;
+    FreeAndNil(Q);
   end;
 end;
 

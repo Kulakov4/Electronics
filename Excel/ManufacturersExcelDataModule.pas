@@ -69,9 +69,9 @@ begin
   // Если не нашли
   if not Result then
   begin
-    MarkAsError(etError);
+    MarkAsError(etWarring);
 
-    Errors.AddError(ExcelRow.AsInteger, Name.Index + 1, Name.AsString,
+    Errors.AddWarring(ExcelRow.AsInteger, Name.Index + 1, Name.AsString,
       'Такой производитель уже существует');
   end;
 end;
@@ -110,6 +110,8 @@ procedure TManufacturesExcelTable.SetFieldsInfo;
 begin
   FieldsInfo.Add(TFieldInfo.Create('Name', True,
     'Название производителя не может быть пустым'));
+  FieldsInfo.Add(TFieldInfo.Create('Products'));
+  FieldsInfo.Add(TFieldInfo.Create('ProducerType'));
 end;
 
 procedure TManufacturesExcelTable.SetManufacturersDataSet
