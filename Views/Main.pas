@@ -227,7 +227,7 @@ uses
   SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
-  SearchFamilyByID, ProductsBaseQuery;
+  SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit;
 
 {$R *.dfm}
 

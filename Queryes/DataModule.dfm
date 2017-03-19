@@ -320,7 +320,7 @@ object DM: TDM
     Top = 376
     Width = 790
     Height = 79
-    TabOrder = 13
+    TabOrder = 12
     ExplicitTop = 376
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -341,38 +341,55 @@ object DM: TDM
         end>
     end
   end
-  inline DescriptionsGroup: TDescriptionsGroup
-    Left = 544
-    Top = 16
-    Width = 604
-    Height = 81
-    TabOrder = 12
-    ExplicitLeft = 544
-    ExplicitTop = 16
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = 0
-          Row = 0
-        end
-        item
-          Column = 1
-          Row = 0
-        end
-        item
-          Column = 2
-          Row = 0
-        end>
-    end
-  end
   inline qProducers: TQueryProducers
     Left = 352
     Top = 144
     Width = 204
     Height = 78
-    TabOrder = 14
+    TabOrder = 13
     ExplicitLeft = 352
     ExplicitTop = 144
+  end
+  inline DescriptionsGroup: TDescriptionsGroup
+    Left = 514
+    Top = -4
+    Width = 604
+    Height = 90
+    TabOrder = 14
+    ExplicitLeft = 514
+    ExplicitTop = -4
+    ExplicitHeight = 90
+    inherited GridPanel1: TGridPanel
+      Height = 90
+      ControlCollection = <
+        item
+          Column = 0
+          Control = DescriptionsGroup.qDescriptionTypes
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = DescriptionsGroup.qDescriptions
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = DescriptionsGroup.qProducers
+          Row = 0
+        end>
+      inherited qDescriptionTypes: TQueryDescriptionTypes
+        Height = 88
+        ExplicitLeft = -25
+        ExplicitTop = 2
+        ExplicitHeight = 88
+      end
+      inherited qDescriptions: TQueryDescriptions
+        Height = 88
+      end
+      inherited qProducers: TQueryProducers
+        Top = 6
+      end
+    end
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'

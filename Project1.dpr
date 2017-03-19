@@ -66,7 +66,6 @@ uses
   DescriptionTypesQuery in 'Queryes\Descriptions\DescriptionTypesQuery.pas' {QueryDescriptionTypes: TFrame},
   DescriptionsQuery in 'Queryes\Descriptions\DescriptionsQuery.pas' {QueryDescriptions: TFrame},
   DescriptionsExcelDataModule in 'Excel\DescriptionsExcelDataModule.pas' {DescriptionsExcelDM: TDataModule},
-  DescriptionsGroupUnit in 'Queryes\Descriptions\DescriptionsGroupUnit.pas' {DescriptionsGroup: TFrame},
   DescriptionsView in 'Views\Descriptions\DescriptionsView.pas' {ViewDescriptions: TFrame},
   DescriptionsForm in 'Views\Descriptions\DescriptionsForm.pas' {frmDescriptions},
   FamilyQuery in 'Queryes\Components\FamilyQuery.pas' {QueryFamily: TFrame},
@@ -164,7 +163,8 @@ uses
   ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule},
   DialogUnit2 in 'Helpers\DialogUnit2.pas',
   SearchProducerTypesQuery in 'Queryes\Search\SearchProducerTypesQuery.pas' {QuerySearchProducerTypes: TFrame},
-  ProductsForm in 'Views\Products\ProductsForm.pas' {frmProducts};
+  ProductsForm in 'Views\Products\ProductsForm.pas' {frmProducts},
+  DescriptionsGroupUnit in 'Queryes\Descriptions\DescriptionsGroupUnit.pas' {DescriptionsGroup: TFrame};
 
 {$R *.res}
 

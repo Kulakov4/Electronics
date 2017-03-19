@@ -17,7 +17,7 @@ type
   TQueryCustomComponents = class(TQueryWithDataSource)
     qProducts: TfrmApplyQuery;
   private
-    FParameterFields: TDictionary<Integer,String>;
+    FParameterFields: TDictionary<Integer, String>;
     FQuerySearchProductParameterValues: TQuerySearchProductParameterValues;
     procedure DoAfterOpen(Sender: TObject);
     function GetDatasheet: TField;
@@ -33,18 +33,20 @@ type
     function GetIDImage: TField;
     function GetIDPackagePins: TField;
     function GetIDProducer: TField;
-    function GetQuerySearchProductParameterValues:
-        TQuerySearchProductParameterValues;
+    function GetQuerySearchProductParameterValues
+      : TQuerySearchProductParameterValues;
     function GetSubGroup: TField;
     function GetValue: TField;
-    procedure ProcessParamValue(AIDComponent: Integer; AIDProductParameterValue:
-        TField; const AValue: String; AIDParameter: Integer);
+    procedure ProcessParamValue(AIDComponent: Integer;
+      AIDProductParameterValue: TField; const AValue: String;
+      AIDParameter: Integer);
     { Private declarations }
   protected
-    procedure UpdateParamValue(const AProductIDFieldName: string; ASender:
-        TDataSet);
-    property QuerySearchProductParameterValues: TQuerySearchProductParameterValues
-        read GetQuerySearchProductParameterValues;
+    procedure UpdateParamValue(const AProductIDFieldName: string;
+      ASender: TDataSet);
+    property QuerySearchProductParameterValues
+      : TQuerySearchProductParameterValues
+      read GetQuerySearchProductParameterValues;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -64,7 +66,8 @@ type
     property IDImage: TField read GetIDImage;
     property IDPackagePins: TField read GetIDPackagePins;
     property IDProducer: TField read GetIDProducer;
-    property ParameterFields: TDictionary<Integer,String> read FParameterFields;
+    property ParameterFields: TDictionary<Integer, String>
+      read FParameterFields;
     property SubGroup: TField read GetSubGroup;
     property Value: TField read GetValue;
     { Public declarations }
@@ -82,28 +85,34 @@ begin
   inherited;
 
   // Список полей, которые являются параметрами
-  FParameterFields := TDictionary<Integer,String>.Create;
+  FParameterFields := TDictionary<Integer, String>.Create;
 
-  // Поле Producer (производитель)
-  FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
+  // Если соединение с БД уже установлено
+  if DMRepository.dbConnection.Connected then
+  begin
+    // Поле Producer (производитель)
+    FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
 
-  // Поле Package/Pins (Корпус/Кол-во выводов)
-  FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
+    // Поле Package/Pins (Корпус/Кол-во выводов)
+    FParameterFields.Add(TParameterValues.PackagePinsParameterID,
+      'PackagePins');
 
-  // Поле Datasheet (техническая спецификация)
-  FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
+    // Поле Datasheet (техническая спецификация)
+    FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
 
-  // Поле Diagram (структурная схема)
-  FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
+    // Поле Diagram (структурная схема)
+    FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
 
-  // Поле Drawing (чертёж)
-  FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
+    // Поле Drawing (чертёж)
+    FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
 
-  // Поле Image (изображение)
-  FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
+    // Поле Image (изображение)
+    FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
 
-  // Поле Description (описание)
-  FParameterFields.Add(TParameterValues.DescriptionParameterID, 'Description');
+    // Поле Description (описание)
+    FParameterFields.Add(TParameterValues.DescriptionParameterID,
+      'Description');
+  end;
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 
@@ -120,8 +129,8 @@ begin
   FParameterFields.Free;
 end;
 
-function TQueryCustomComponents.CombineSubgroup(const ASubGroup1, ASubGroup2:
-    String): String;
+function TQueryCustomComponents.CombineSubgroup(const ASubGroup1,
+  ASubGroup2: String): String;
 var
   m: TArray<String>;
   S: string;
@@ -158,11 +167,38 @@ var
   AFieldName: string;
   F: TField;
 begin
+  if FParameterFields.Count = 0 then
+  begin
+    // Поле Producer (производитель)
+    FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
+
+    // Поле Package/Pins (Корпус/Кол-во выводов)
+    FParameterFields.Add(TParameterValues.PackagePinsParameterID,
+      'PackagePins');
+
+    // Поле Datasheet (техническая спецификация)
+    FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
+
+    // Поле Diagram (структурная схема)
+    FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
+
+    // Поле Drawing (чертёж)
+    FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
+
+    // Поле Image (изображение)
+    FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
+
+    // Поле Description (описание)
+    FParameterFields.Add(TParameterValues.DescriptionParameterID,
+      'Description');
+
+  end;
+
   // Проверяем что все поля, которые являются параметрами существуют
   for AFieldName in FParameterFields.Values do
   begin
     F := Field(AFieldName);
-    Assert( F <> nil );
+    Assert(F <> nil);
   end;
 end;
 
@@ -231,8 +267,8 @@ begin
   Result := Field('IDProducer');
 end;
 
-function TQueryCustomComponents.GetQuerySearchProductParameterValues:
-    TQuerySearchProductParameterValues;
+function TQueryCustomComponents.GetQuerySearchProductParameterValues
+  : TQuerySearchProductParameterValues;
 begin
   if FQuerySearchProductParameterValues = nil then
   begin
@@ -253,8 +289,8 @@ begin
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;
-    AIDProductParameterValue: TField; const AValue: String; AIDParameter:
-    Integer);
+  AIDProductParameterValue: TField; const AValue: String;
+  AIDParameter: Integer);
 var
   rc: Integer;
 begin
@@ -298,13 +334,12 @@ begin
     Assert(QuerySearchProductParameterValues.FDQuery.RecordCount = 1);
     Assert(QuerySearchProductParameterValues.PKValue > 0);
 
-    AIDProductParameterValue.Value :=
-      QuerySearchProductParameterValues.PKValue;
+    AIDProductParameterValue.Value := QuerySearchProductParameterValues.PKValue;
   end;
 end;
 
-procedure TQueryCustomComponents.SetProducer(AIDComponent: Integer; const
-    AProducer: String);
+procedure TQueryCustomComponents.SetProducer(AIDComponent: Integer;
+  const AProducer: String);
 var
   OK: Boolean;
 begin
@@ -321,7 +356,7 @@ begin
 end;
 
 procedure TQueryCustomComponents.SetPackagePins(AIDComponent: Integer;
-    APackagePins: string);
+  APackagePins: string);
 var
   OK: Boolean;
 begin
@@ -337,8 +372,8 @@ begin
   TryPost;
 end;
 
-procedure TQueryCustomComponents.UpdateParamValue(const AProductIDFieldName:
-    string; ASender: TDataSet);
+procedure TQueryCustomComponents.UpdateParamValue(const AProductIDFieldName
+  : string; ASender: TDataSet);
 var
   ADatasheet: TField;
   ADiagram: TField;
@@ -375,8 +410,8 @@ begin
     TParameterValues.ProducerParameterID);
 
   // Обрабатываем корпус
-  ProcessParamValue(AIDComponent.AsInteger, AIDPackagePins, APackagePins.AsString,
-    TParameterValues.PackagePinsParameterID);
+  ProcessParamValue(AIDComponent.AsInteger, AIDPackagePins,
+    APackagePins.AsString, TParameterValues.PackagePinsParameterID);
 
   // Обрабатываем спецификацию
   ProcessParamValue(AIDComponent.AsInteger, AIDDatasheet, ADatasheet.AsString,

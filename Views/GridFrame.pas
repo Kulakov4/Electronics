@@ -148,17 +148,19 @@ begin
 end;
 
 procedure TfrmGrid.ApplyBestFitEx;
-var
-  AcxGridDBBandedColumn: TcxGridDBBandedColumn;
-  I: Integer;
+//var
+//  AcxGridDBBandedColumn: TcxGridDBBandedColumn;
+//  I: Integer;
 begin
+
   MainView.ApplyBestFit();
+{
   for I := 0 to MainView.ColumnCount - 1 do
   begin
     AcxGridDBBandedColumn := MainView.Columns[I];
     AcxGridDBBandedColumn.MinWidth := AcxGridDBBandedColumn.Width;
   end;
-
+}
 end;
 
 procedure TfrmGrid.ApplyBestFitFocusedBand;

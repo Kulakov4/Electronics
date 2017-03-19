@@ -242,7 +242,8 @@ end;
 
 procedure TViewProducts.AfterLoad(Sender: TObject);
 begin
-  // ApplyBestFitEx;
+  // При выборе нового склада оптимизируем размер столбцов представления
+  ApplyBestFitEx;
 end;
 
 procedure TViewProducts.AfterOpen(Sender: TObject);

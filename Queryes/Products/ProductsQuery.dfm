@@ -9,9 +9,6 @@ inherited QueryProducts: TQueryProducts
     ExplicitWidth = 58
   end
   inherited qStoreHouseProducts: TfrmApplyQuery
-    inherited FDQuery: TFDQuery
-      Active = True
-    end
     inherited FDUpdateSQL: TFDUpdateSQL
       InsertSQL.Strings = (
         'INSERT INTO STOREHOUSEPRODUCTS'

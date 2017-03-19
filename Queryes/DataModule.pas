@@ -31,8 +31,8 @@ type
     ComponentsGroup: TComponentsGroup;
     ComponentsExGroup: TComponentsExGroup;
     ParametersGroup: TParametersGroup;
-    DescriptionsGroup: TDescriptionsGroup;
     qProducers: TQueryProducers;
+    DescriptionsGroup: TDescriptionsGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
