@@ -42,6 +42,7 @@ type
       AIDParameter: Integer);
     { Private declarations }
   protected
+    procedure InitParameterFields; virtual;
     procedure UpdateParamValue(const AProductIDFieldName: string;
       ASender: TDataSet);
     property QuerySearchProductParameterValues
@@ -90,28 +91,7 @@ begin
   // Если соединение с БД уже установлено
   if DMRepository.dbConnection.Connected then
   begin
-    // Поле Producer (производитель)
-    FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
-
-    // Поле Package/Pins (Корпус/Кол-во выводов)
-    FParameterFields.Add(TParameterValues.PackagePinsParameterID,
-      'PackagePins');
-
-    // Поле Datasheet (техническая спецификация)
-    FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
-
-    // Поле Diagram (структурная схема)
-    FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
-
-    // Поле Drawing (чертёж)
-    FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
-
-    // Поле Image (изображение)
-    FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
-
-    // Поле Description (описание)
-    FParameterFields.Add(TParameterValues.DescriptionParameterID,
-      'Description');
+    InitParameterFields;
   end;
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
@@ -169,32 +149,11 @@ var
 begin
   if FParameterFields.Count = 0 then
   begin
-    // Поле Producer (производитель)
-    FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
-
-    // Поле Package/Pins (Корпус/Кол-во выводов)
-    FParameterFields.Add(TParameterValues.PackagePinsParameterID,
-      'PackagePins');
-
-    // Поле Datasheet (техническая спецификация)
-    FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
-
-    // Поле Diagram (структурная схема)
-    FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
-
-    // Поле Drawing (чертёж)
-    FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
-
-    // Поле Image (изображение)
-    FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
-
-    // Поле Description (описание)
-    FParameterFields.Add(TParameterValues.DescriptionParameterID,
-      'Description');
-
+    InitParameterFields;
   end;
 
   // Проверяем что все поля, которые являются параметрами существуют
+
   for AFieldName in FParameterFields.Values do
   begin
     F := Field(AFieldName);
@@ -286,6 +245,30 @@ end;
 function TQueryCustomComponents.GetValue: TField;
 begin
   Result := Field('Value');
+end;
+
+procedure TQueryCustomComponents.InitParameterFields;
+begin
+  // Поле Producer (производитель)
+  FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
+
+  // Поле Package/Pins (Корпус/Кол-во выводов)
+  FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
+
+  // Поле Datasheet (техническая спецификация)
+  FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
+
+  // Поле Diagram (структурная схема)
+  FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
+
+  // Поле Drawing (чертёж)
+  FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
+
+  // Поле Image (изображение)
+  FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
+
+  // Поле Description (описание)
+  FParameterFields.Add(TParameterValues.DescriptionParameterID, 'Description');
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;

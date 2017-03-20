@@ -30,7 +30,9 @@ type
     cxStyleRepository: TcxStyleRepository;
     cxStyle1: TcxStyle;
     procedure dbConnectionAfterCommit(Sender: TObject);
+    procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
+    procedure dbConnectionBeforeConnect(Sender: TObject);
     // TODO: cxFieldValueWithExpandPropertiesButtonClick
     // procedure cxFieldValueWithExpandPropertiesButtonClick(Sender: TObject;
     // AButtonIndex: Integer);
@@ -74,10 +76,25 @@ begin
   FAfterCommit.CallEventHandlers(Sender);
 end;
 
+procedure TDMRepository.dbConnectionAfterConnect(Sender: TObject);
+begin
+;
+end;
+
 procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);
 begin
   // Извещаем всех о роллбэке
   FAfterRollback.CallEventHandlers(Sender);
+end;
+
+procedure TDMRepository.dbConnectionBeforeConnect(Sender: TObject);
+var
+  S: string;
+begin
+  S := Sender.ClassName;
+  if s = '' then
+    beep;
+
 end;
 
 // TODO: cxFieldValueWithExpandPropertiesButtonClick

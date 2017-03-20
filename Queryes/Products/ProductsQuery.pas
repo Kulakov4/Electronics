@@ -20,6 +20,7 @@ type
     FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
+    procedure DoBeforeOpen(Sender: TObject);
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
     function GetQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
@@ -63,6 +64,7 @@ begin
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 
 procedure TQueryProducts.AppendList(AExcelTable: TProductsExcelTable);
@@ -129,6 +131,11 @@ procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   // FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
+end;
+
+procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
+begin
+  ;
 end;
 
 function TQueryProducts.GetExportFileName: string;

@@ -377,19 +377,29 @@ object DM: TDM
           Control = DescriptionsGroup.qProducers
           Row = 0
         end>
+      ExplicitHeight = 90
       inherited qDescriptionTypes: TQueryDescriptionTypes
         Height = 88
-        ExplicitLeft = -25
-        ExplicitTop = 2
         ExplicitHeight = 88
       end
       inherited qDescriptions: TQueryDescriptions
         Height = 88
+        ExplicitHeight = 88
       end
       inherited qProducers: TQueryProducers
         Top = 6
+        ExplicitTop = 6
       end
     end
+  end
+  inline qVersion: TQueryVersion
+    Left = 912
+    Top = 480
+    Width = 125
+    Height = 80
+    TabOrder = 15
+    ExplicitLeft = 912
+    ExplicitTop = 480
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'

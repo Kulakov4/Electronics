@@ -753,7 +753,7 @@ begin
       databasePath := TSettings.Create.databasePath;
     end
     else
-      Break; // путь ОК больше попыток не требуется
+      Break; //больше попыток не требуется
   end;
 
   // Дав три попытки проверяем что всё ок
@@ -857,8 +857,12 @@ begin
   if DMRepository = nil then
     DMRepository := TDMRepository.Create(Self);
 
+  Assert(not DMRepository.dbConnection.Connected);
+
   // Сами создаём модуль данных
   DM := TDM.Create(Self);
+
+  Assert(not DMRepository.dbConnection.Connected);
 
   inherited;
 
@@ -871,27 +875,34 @@ begin
   OK := CheckDataBasePath;
   if OK then
   begin
-    // Создаём или открываем базу данных
-    try
-      DM.CreateOrOpenDataBase;
-    except
-      on e: Exception do
-        TDialog.Create.ErrorMessageDialog(e.Message);
-    end;
-    OK := DMRepository.dbConnection.Connected;
+    // Пока ещё соединение с БД должно быть закрыто
+    Assert(not DMRepository.dbConnection.Connected);
+    repeat
+
+      try
+         // Создаём или открываем базу данных
+        DM.CreateOrOpenDataBase;
+      except
+        on e: Exception do
+        begin
+          TDialog.Create.ErrorMessageDialog(e.Message);
+          // Снова предлагаем выбрать папку с БД
+          OK := CheckDataBasePath;
+        end;
+      end;
+
+    until (DMRepository.dbConnection.Connected) or (not OK);
 
     if OK then
     begin
       // Подписываемся чтобы искать компонент на складах
       TNotifyEventWrap.Create(DM.ComponentsExGroup.qComponentsEx.OnLocate,
-          DoOnComponentLocate);
+        DoOnComponentLocate);
 
       // Подписываемся чтобы искать компонент в параметрической таблице
       TNotifyEventWrap.Create(DM.StoreHouseGroup.qProducts.OnLocate,
         DoOnProductLocate);
-      TNotifyEventWrap.Create(DM.qProductsSearch.OnLocate,
-        DoOnProductLocate);
-
+      TNotifyEventWrap.Create(DM.qProductsSearch.OnLocate, DoOnProductLocate);
 
       // Привязываем представления к данным
       ViewComponents.ComponentsGroup := DM.ComponentsGroup;
@@ -1101,7 +1112,7 @@ begin
             if nf then
             begin
               // Создаём описание поля не связанного с параметром
-              AFieldNames.Add( Format('NotFoundParam_%d', [I]) );
+              AFieldNames.Add(Format('NotFoundParam_%d', [I]));
               Inc(I);
             end;
 

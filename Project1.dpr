@@ -164,7 +164,8 @@ uses
   DialogUnit2 in 'Helpers\DialogUnit2.pas',
   SearchProducerTypesQuery in 'Queryes\Search\SearchProducerTypesQuery.pas' {QuerySearchProducerTypes: TFrame},
   ProductsForm in 'Views\Products\ProductsForm.pas' {frmProducts},
-  DescriptionsGroupUnit in 'Queryes\Descriptions\DescriptionsGroupUnit.pas' {DescriptionsGroup: TFrame};
+  DescriptionsGroupUnit in 'Queryes\Descriptions\DescriptionsGroupUnit.pas' {DescriptionsGroup: TFrame},
+  VersionQuery in 'Queryes\Version\VersionQuery.pas' {QueryVersion: TFrame};
 
 {$R *.res}
 

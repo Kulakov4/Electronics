@@ -9,7 +9,6 @@ inherited QueryStoreHouseList: TQueryStoreHouseList
     ExplicitWidth = 99
   end
   inherited FDQuery: TFDQuery
-    Active = True
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select * from Storehouse order by Title')

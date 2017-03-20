@@ -18,6 +18,7 @@ type
   TQueryBase = class(TFrame)
     FDQuery: TFDQuery;
     Label1: TLabel;
+    procedure FDQueryBeforeOpen(DataSet: TDataSet);
   private
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
@@ -340,6 +341,11 @@ begin
     AAction := eaFail;
     raise;
   end;
+end;
+
+procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
+begin
+;
 end;
 
 function TQueryBase.Field(const AFieldName: String): TField;

@@ -13,6 +13,7 @@ uses
 type
   TQueryStoreHouseList = class(TQueryWithDataSource)
     FDUpdateSQL: TFDUpdateSQL;
+    procedure FDQueryBeforeOpen(DataSet: TDataSet);
   private
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
@@ -67,6 +68,12 @@ begin
     Abbreviation.AsString := DeleteDoubleSpace(Title.AsString).Replace(' ', '');
   end;
 
+end;
+
+procedure TQueryStoreHouseList.FDQueryBeforeOpen(DataSet: TDataSet);
+begin
+;
+  inherited;
 end;
 
 function TQueryStoreHouseList.GetAbbreviation: TField;

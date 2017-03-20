@@ -61,6 +61,8 @@ resourcestring
   sRecords = 'записей';
   sComponents = 'компонентов';
   sFiles = 'файлов';
+const
+  DBVersion = 19;
 
 implementation
 

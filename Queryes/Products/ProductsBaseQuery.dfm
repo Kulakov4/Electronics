@@ -101,7 +101,6 @@ inherited QueryProductsBase: TQueryProductsBase
     ExplicitLeft = 129
     ExplicitTop = 16
     inherited FDQuery: TFDQuery
-      Active = True
       SQL.Strings = (
         'select *'
         'from Products2'

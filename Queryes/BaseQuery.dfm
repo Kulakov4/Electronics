@@ -18,6 +18,7 @@ object QueryBase: TQueryBase
     ParentFont = False
   end
   object FDQuery: TFDQuery
+    BeforeOpen = FDQueryBeforeOpen
     Connection = DMRepository.dbConnection
     Left = 9
     Top = 25

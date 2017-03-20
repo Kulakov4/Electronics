@@ -13,7 +13,7 @@ uses
   ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
   ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
   QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, BaseComponentsGroupUnit;
+  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery;
 
 type
   TDM = class(TForm)
@@ -33,6 +33,7 @@ type
     ParametersGroup: TParametersGroup;
     qProducers: TQueryProducers;
     DescriptionsGroup: TDescriptionsGroup;
+    qVersion: TQueryVersion;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -69,8 +70,9 @@ uses SettingsController, System.IOUtils, RepositoryDataModule, NotifyEvents,
 
 constructor TDM.Create(AOwner: TComponent);
 begin
+  Assert(not DMRepository.dbConnection.Connected);
   inherited Create(AOwner);
-
+  Assert(not DMRepository.dbConnection.Connected);
   // FRecommendedReplacement := TRecommendedReplacementThread.Create(Self);
   // FTempThread := TTempThread.Create(Self);
 
@@ -88,7 +90,7 @@ begin
     Add(qProductsSearch); // Поиск на складе и редактирование найденного
     Add(qStoreHouseList); // Склады (выпадающий список)
     Add(StoreHouseGroup.qStoreHouseList); // Склады - главное
-//    Add(StoreHouseGroup.qProducts); // Содержимое текущего склада
+    // Add(StoreHouseGroup.qProducts); // Содержимое текущего склада
     Add(ComponentsSearchGroup.qFamilySearch);
     // Поиск среди компонентов (главное)
     Add(ComponentsSearchGroup.qComponentsSearch);
@@ -139,8 +141,8 @@ begin
   FQueryGroups.Add(StoreHouseGroup);
   FQueryGroups.Add(ParametersForCategoriesGroup);
 
-  TNotifyEventWrap.Create(ParametersGroup.AfterCommit,
-    DoAfterParametersCommit, FEventList);
+  TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
+    FEventList);
 
   // Чтобы корпуса используемые в представлении компонентов
   // обновлялись вместе с изменением справочника корпусов
@@ -155,8 +157,8 @@ begin
     FEventList);
 
   // Чтобы выпадающий список складов обновлялся вместе со списком складов
-  TNotifyEventWrap.Create(StoreHouseGroup.qStoreHouseList.AfterPost, DoAfterStoreHousePost,
-    FEventList);
+  TNotifyEventWrap.Create(StoreHouseGroup.qStoreHouseList.AfterPost,
+    DoAfterStoreHousePost, FEventList);
 end;
 
 { закрытие датасетов }
@@ -242,7 +244,8 @@ begin
 
   for I := 0 to FQueryGroups.Count - 1 do
   begin
-    Result := FQueryGroups[I].Main.HaveAnyChanges or FQueryGroups[I].Detail.HaveAnyChanges;
+    Result := FQueryGroups[I].Main.HaveAnyChanges or
+      FQueryGroups[I].Detail.HaveAnyChanges;
     if Result then
       Exit;
   end;
@@ -261,6 +264,7 @@ end;
 { открытие датасетов }
 procedure TDM.OpenConnection;
 var
+  AErrorMessage: string;
   I: Integer;
 begin
   // Обновляем структуру БД
@@ -269,6 +273,28 @@ begin
 
   // Устанавливаем соединение с БД
   DMRepository.dbConnection.Open();
+
+  AErrorMessage := '';
+  try
+    qVersion.RefreshQuery;
+    if qVersion.Version.AsInteger <> DBVersion then
+    begin
+      AErrorMessage := Format('Неверная версия базы данных (надо %d, имеем %d)',
+        [DBVersion, qVersion.Version.AsInteger]);
+    end;
+  except
+    // При проверке версии БД произошла какая-то ошибка
+    on E: Exception do
+    begin
+      AErrorMessage := E.Message;
+    end;
+  end;
+
+  if not AErrorMessage.IsEmpty then
+  begin
+    DMRepository.dbConnection.Close;
+    raise Exception.Create(AErrorMessage);
+  end;
 
   for I := 0 to FDataSetList.Count - 1 do
   begin

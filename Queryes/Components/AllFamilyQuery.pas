@@ -15,6 +15,8 @@ type
   private
     procedure DoAfterOpen(Sender: TObject);
     { Private declarations }
+  protected
+    procedure InitParameterFields; override;
   public
     constructor Create(AOwner: TComponent); override;
     { Public declarations }
@@ -29,15 +31,20 @@ uses NotifyEvents, ParameterValuesUnit;
 constructor TQueryAllFamily.Create(AOwner: TComponent);
 begin
   inherited;
-  // Поля Description (описание) в нашем запросе нет
-  ParameterFields.Remove(TParameterValues.DescriptionParameterID);
-
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList );
 end;
 
 procedure TQueryAllFamily.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsReadOnly(False);
+end;
+
+procedure TQueryAllFamily.InitParameterFields;
+begin
+  inherited;
+
+  // Поля Description (описание) в нашем запросе нет
+  ParameterFields.Remove(TParameterValues.DescriptionParameterID);
 end;
 
 end.
