@@ -33,6 +33,7 @@ resourcestring
   sBodyTypesFilesExt = 'pdf;jpg;png;bmp;gif';
 
   sDefaultDatabaseFileName = 'database.db';
+  sEmptyDatabaseFileName = 'database_empty.db';
 
   sDoYouWantToDeleteComponent =
     'Вы действительно хотите удалить выделенные компоненты из текущей категории?';

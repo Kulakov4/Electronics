@@ -175,21 +175,33 @@ end;
 
 procedure TDM.CreateOrOpenDataBase;
 var
-  databaseFileName: string;
+  ADatabaseFileName: string;
+  AEmptyDatabaseFileName: string;
 begin
-  databaseFileName := TPath.Combine(TSettings.Create.databasePath,
+  ADatabaseFileName := TPath.Combine(TSettings.Create.databasePath,
     sDefaultDatabaseFileName);
 
   // если файл с бд не существует, скопировать из директории
-  if not TFile.Exists(databaseFileName) then
-    TFile.Copy(ChangeFileExt(Application.ExeName, '.db'), databaseFileName);
+  if not TFile.Exists(ADatabaseFileName) then
+  begin
+    // определяемся с именем файла "пустой" базы данных
+    AEmptyDatabaseFileName :=
+      TPath.Combine(TPath.GetDirectoryName(Application.ExeName),
+      sEmptyDatabaseFileName);
+
+    if not TFile.Exists(AEmptyDatabaseFileName) then
+      raise Exception.Create(Format('Не могу создать пустую базу данных.' +
+        #13#10 + 'Не найден файл %s', [sEmptyDatabaseFileName]));
+
+    TFile.Copy(AEmptyDatabaseFileName, ADatabaseFileName);
+  end;
 
   // Закрываем старое соединение с БД
   if DMRepository.dbConnection.Connected then
     CloseConnection;
 
   // Меняем путь до базы данных
-  DMRepository.dbConnection.Params.Database := databaseFileName; // путь до БД
+  DMRepository.dbConnection.Params.Database := ADatabaseFileName; // путь до БД
 
   // Открываем новое соединение с БД
   OpenConnection();
