@@ -267,9 +267,20 @@ var
   AErrorMessage: string;
   I: Integer;
 begin
-  // Обновляем структуру БД
-  TDBMigration.UpdateDatabaseStructure(DMRepository.dbConnection,
-    TSettings.Create.DBMigrationFolder);
+  try
+    // Обновляем структуру БД
+    TDBMigration.UpdateDatabaseStructure(DMRepository.dbConnection,
+      TSettings.Create.DBMigrationFolder);
+  except
+    // При обновлении версии БД произошла какая-то ошибка
+    on E: Exception do
+    begin
+      AErrorMessage :=
+        Format('Ошибка при обновлении структуры базы данных.'#13#10'%s',
+        [E.Message]);
+      raise Exception.Create(AErrorMessage);
+    end;
+  end;
 
   // Устанавливаем соединение с БД
   DMRepository.dbConnection.Open();

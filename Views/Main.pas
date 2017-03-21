@@ -887,7 +887,8 @@ begin
         begin
           TDialog.Create.ErrorMessageDialog(e.Message);
           // Снова предлагаем выбрать папку с БД
-          OK := CheckDataBasePath;
+
+          OK := ShowSettingsEditor = mrOK;
         end;
       end;
 
