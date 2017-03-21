@@ -1,0 +1,1593 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{2F2257B6-8C50-4F46-B327-F2B276EFFB56}</ProjectGuid>
+        <ProjectVersion>17.2</ProjectVersion>
+        <FrameworkType>VCL</FrameworkType>
+        <MainSource>Database.dpr</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Application</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+        <SanitizedProjectName>Database</SanitizedProjectName>
+        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
+        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_ExeOutput>C:\Public\Database\</DCC_ExeOutput>
+        <DCC_E>false</DCC_E>
+        <DCC_N>false</DCC_N>
+        <DCC_S>false</DCC_S>
+        <DCC_F>false</DCC_F>
+        <DCC_K>false</DCC_K>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <DCC_UsePackage>dxBarRS22;dxSkinsdxRibbonPainterRS22;dxSkinOffice2010BlackRS22;dxRibbonCustomizationFormRS22;FireDACPgDriver;dxGaugeControlRS22;office2010rt;dxPScxVGridLnkRS22;DBXInterBaseDriver;DataSnapServer;DataSnapCommon;dxWizardControlRS22;DbxCommonDriver;vclimg;fs22;dbxcds;dxServerModeRS22;DatasnapConnectorsFreePascal;frxcs22;appanalytics;dxHttpIndyRequestRS22;vcldb;fsDB22;dxSkinDarkRoomRS22;dxSkinSilverRS22;dxGDIPlusRS22;CustomIPTransport;dxSkinOffice2010SilverRS22;tb2kdsgn_d21;dsnap;IndyIPServer;IndyCore;dxSkinSummer2008RS22;CloudService;dxSkinLondonLiquidSkyRS22;FmxTeeUI;FireDACIBDriver;dxPScxPivotGridLnkRS22;dxComnRS22;cxPivotGridChartRS22;dsnapxml;dxPScxPCProdRS22;dxSpellCheckerRS22;FireDACDb2Driver;dxPScxGridLnkRS22;dxSkinVS2010RS22;dxorgcRS22;dxBarExtItemsRS22;dxRibbonRS22;dxSkinVisualStudio2013DarkRS22;dxSkinsdxBarPainterRS22;dxPSdxGaugeControlLnkRS22;dxCoreRS22;cxVerticalGridRS22;frx22;bindcompfmx;dxSkinStardustRS22;dxSkinSevenClassicRS22;dxSkinsCoreRS22;dxSpreadSheetRS22;FireDACODBCDriver;RESTBackendComponents;cxSchedulerRS22;dbrtl;dxSkinDevExpressStyleRS22;FireDACCommon;bindcomp;inetdb;cxExportRS22;dxPSDBTeeChartRS22;dxSkinOffice2007BlackRS22;dxSkinXmas2008BlueRS22;dxSkinCoffeeRS22;DBXOdbcDriver;dxSkinscxSchedulerPainterRS22;ibmonitor;vclFireDAC;xmlrtl;ibxpress;dxSkinOffice2013WhiteRS22;dxPSdxDBOCLnkRS22;cxDataRS22;FireDACCommonDriver;soaprtl;bindengine;vclactnband;FMXTee;dxSkinVisualStudio2013LightRS22;bindcompvcl;dxBarExtDBItemsRS22;dxSkinOffice2010BlueRS22;vclie;dxPSdxDBTVLnkRS22;cxPageControlRS22;dxPsPrVwAdvRS22;FireDACMSSQLDriver;DBXInformixDriver;dxSkinFoggyRS22;Intraweb;dxSkinPumpkinRS22;cxEditorsRS22;dxPScxExtCommonRS22;DataSnapServerMidas;dxSkinVisualStudio2013BlueRS22;dsnapcon;DBXFirebirdDriver;dxPSPrVwRibbonRS22;inet;dxMapControlRS22;dxSkinSharpRS22;dxmdsRS22;FireDACMySQLDriver;soapmidas;vclx;dxSkinOffice2007GreenRS22;dxSkinMetropolisDarkRS22;DBXSybaseASADriver;dxDockingRS22;RESTComponents;dxTabbedMDIRS22;dxdborRS22;dxSkinMoneyTwinsRS22;dbexpress;dxPScxTLLnkRS22;IndyIPClient;dxSkinOffice2016DarkRS22;frxADO22;dxSkinSpringTimeRS22;FireDACTDataDriver;FireDACSqliteDriver;FireDACDSDriver;frxTee22;DBXSqliteDriver;dxSkinHighContrastRS22;dxSkinOffice2007SilverRS22;fmx;dxSkinOffice2007PinkRS22;dxLayoutControlRS22;IndySystem;dxPSdxFCLnkRS22;TeeDB;tethering;cxSchedulerGridRS22;dxSkinMcSkinRS22;vclib;DataSnapClient;dxSkinsdxNavBarPainterRS22;fsIBX22;dxNavBarRS22;DataSnapProviderClient;DBXSybaseASEDriver;frxe22;DUnitXRuntime;dxSkinGlassOceansRS22;dxSkinBlueprintRS22;dxSkinLilianRS22;dxSkinBlueRS22;vcldsnap;dxBarDBNavRS22;dxSkiniMaginaryRS22;dxPSCoreRS22;dxSkinLiquidSkyRS22;dxPSRichEditControlLnkRS22;fmxFireDAC;DBXDb2Driver;dxSkinOffice2007BlueRS22;dxSkinCaramelRS22;DBXOracleDriver;cxGridRS22;vclribbon;fmxase;vcl;DBXMSSQLDriver;IndyIPCommon;CodeSiteExpressPkg;dxThemeRS22;DataSnapFireDAC;FireDACDBXDriver;cxPivotGridRS22;dxtrmdRS22;soapserver;dxSkinscxPCPainterRS22;dxPScxSchedulerLnkRS22;DclRxDB290;inetdbxpress;FireDACInfxDriver;dxFireDACServerModeRS22;adortl;cxLibraryRS22;dxPSdxSpreadSheetLnkRS22;frxDBX22;dxPSdxLCLnkRS22;FireDACASADriver;dxSkinOffice2013DarkGrayRS22;dxPScxCommonRS22;emsclientfiredac;rtl;DbxClientDriver;dxSkinOffice2013LightGrayRS22;Tee;dxFlowChartRS22;dxDBXServerModeRS22;dxPSLnksRS22;dxRichEditControlRS22;dxSkinSharpPlusRS22;dxSkinDarkSideRS22;frxIBX22;DataSnapNativeClient;svnui;cxTreeListdxBarPopupMenuRS22;dxSkinsdxDLPainterRS22;dxSkinDevExpressDarkStyleRS22;dxSkinMetropolisRS22;IndyProtocols;DBXMySQLDriver;dxSkinValentineRS22;dxPSdxOCLnkRS22;fsTee22;bindcompdbx;TeeUI;dxSkinOffice2016ColorfulRS22;cxTreeListRS22;dxSkinTheAsphaltWorldRS22;fsADO22;frxDB22;FireDACADSDriver;vcltouch;dxADOServerModeRS22;RtmRxDB290;emsclient;dxdbtrRS22;VclSmp;FireDAC;VCLRESTComponents;cxSchedulerRibbonStyleEventEditorRS22;dxTileControlRS22;dxSkinSevenRS22;DataSnapConnectors;dxSkinBlackRS22;fmxobj;dxSkinWhiteprintRS22;dxPSTeeChartRS22;cxPivotGridOLAPRS22;svn;cxSchedulerTreeBrowserRS22;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_UsePackage>dxBarRS22;dxSkinsdxRibbonPainterRS22;dxSkinOffice2010BlackRS22;dxRibbonCustomizationFormRS22;FireDACPgDriver;dxGaugeControlRS22;office2010rt;dxPScxVGridLnkRS22;DBXInterBaseDriver;DataSnapServer;DataSnapCommon;dxWizardControlRS22;DbxCommonDriver;vclimg;dbxcds;dxServerModeRS22;DatasnapConnectorsFreePascal;appanalytics;dxHttpIndyRequestRS22;vcldb;dxSkinDarkRoomRS22;dxSkinSilverRS22;dxGDIPlusRS22;CustomIPTransport;dxSkinOffice2010SilverRS22;dsnap;IndyIPServer;IndyCore;dxSkinSummer2008RS22;CloudService;dxSkinLondonLiquidSkyRS22;FmxTeeUI;FireDACIBDriver;dxPScxPivotGridLnkRS22;dxComnRS22;cxPivotGridChartRS22;dsnapxml;dxPScxPCProdRS22;dxSpellCheckerRS22;FireDACDb2Driver;dxPScxGridLnkRS22;dxSkinVS2010RS22;dxorgcRS22;dxBarExtItemsRS22;dxRibbonRS22;dxSkinVisualStudio2013DarkRS22;dxSkinsdxBarPainterRS22;dxPSdxGaugeControlLnkRS22;dxCoreRS22;cxVerticalGridRS22;bindcompfmx;dxSkinStardustRS22;dxSkinSevenClassicRS22;dxSkinsCoreRS22;dxSpreadSheetRS22;FireDACODBCDriver;RESTBackendComponents;cxSchedulerRS22;dbrtl;dxSkinDevExpressStyleRS22;FireDACCommon;bindcomp;inetdb;cxExportRS22;dxPSDBTeeChartRS22;dxSkinOffice2007BlackRS22;dxSkinXmas2008BlueRS22;dxSkinCoffeeRS22;DBXOdbcDriver;dxSkinscxSchedulerPainterRS22;ibmonitor;vclFireDAC;xmlrtl;ibxpress;dxSkinOffice2013WhiteRS22;dxPSdxDBOCLnkRS22;cxDataRS22;FireDACCommonDriver;soaprtl;bindengine;vclactnband;FMXTee;dxSkinVisualStudio2013LightRS22;bindcompvcl;dxBarExtDBItemsRS22;dxSkinOffice2010BlueRS22;vclie;dxPSdxDBTVLnkRS22;cxPageControlRS22;dxPsPrVwAdvRS22;FireDACMSSQLDriver;DBXInformixDriver;dxSkinFoggyRS22;Intraweb;dxSkinPumpkinRS22;cxEditorsRS22;dxPScxExtCommonRS22;DataSnapServerMidas;dxSkinVisualStudio2013BlueRS22;dsnapcon;DBXFirebirdDriver;dxPSPrVwRibbonRS22;inet;dxMapControlRS22;dxSkinSharpRS22;dxmdsRS22;FireDACMySQLDriver;soapmidas;vclx;dxSkinOffice2007GreenRS22;dxSkinMetropolisDarkRS22;DBXSybaseASADriver;dxDockingRS22;RESTComponents;dxTabbedMDIRS22;dxdborRS22;dxSkinMoneyTwinsRS22;dbexpress;dxPScxTLLnkRS22;IndyIPClient;dxSkinOffice2016DarkRS22;dxSkinSpringTimeRS22;FireDACTDataDriver;FireDACSqliteDriver;FireDACDSDriver;DBXSqliteDriver;dxSkinHighContrastRS22;dxSkinOffice2007SilverRS22;fmx;dxSkinOffice2007PinkRS22;dxLayoutControlRS22;IndySystem;dxPSdxFCLnkRS22;TeeDB;tethering;cxSchedulerGridRS22;dxSkinMcSkinRS22;vclib;DataSnapClient;dxSkinsdxNavBarPainterRS22;dxNavBarRS22;DataSnapProviderClient;DBXSybaseASEDriver;dxSkinGlassOceansRS22;dxSkinBlueprintRS22;dxSkinLilianRS22;dxSkinBlueRS22;vcldsnap;dxBarDBNavRS22;dxSkiniMaginaryRS22;dxPSCoreRS22;dxSkinLiquidSkyRS22;dxPSRichEditControlLnkRS22;fmxFireDAC;DBXDb2Driver;dxSkinOffice2007BlueRS22;dxSkinCaramelRS22;DBXOracleDriver;cxGridRS22;vclribbon;fmxase;vcl;DBXMSSQLDriver;IndyIPCommon;dxThemeRS22;DataSnapFireDAC;FireDACDBXDriver;cxPivotGridRS22;dxtrmdRS22;soapserver;dxSkinscxPCPainterRS22;dxPScxSchedulerLnkRS22;inetdbxpress;FireDACInfxDriver;dxFireDACServerModeRS22;adortl;cxLibraryRS22;dxPSdxSpreadSheetLnkRS22;dxPSdxLCLnkRS22;FireDACASADriver;dxSkinOffice2013DarkGrayRS22;dxPScxCommonRS22;emsclientfiredac;rtl;DbxClientDriver;dxSkinOffice2013LightGrayRS22;Tee;dxFlowChartRS22;dxDBXServerModeRS22;dxPSLnksRS22;dxRichEditControlRS22;dxSkinSharpPlusRS22;dxSkinDarkSideRS22;DataSnapNativeClient;cxTreeListdxBarPopupMenuRS22;dxSkinsdxDLPainterRS22;dxSkinDevExpressDarkStyleRS22;dxSkinMetropolisRS22;IndyProtocols;DBXMySQLDriver;dxSkinValentineRS22;dxPSdxOCLnkRS22;bindcompdbx;TeeUI;dxSkinOffice2016ColorfulRS22;cxTreeListRS22;dxSkinTheAsphaltWorldRS22;FireDACADSDriver;vcltouch;dxADOServerModeRS22;emsclient;dxdbtrRS22;VclSmp;FireDAC;VCLRESTComponents;cxSchedulerRibbonStyleEventEditorRS22;dxTileControlRS22;dxSkinSevenRS22;DataSnapConnectors;dxSkinBlackRS22;fmxobj;dxSkinWhiteprintRS22;dxPSTeeChartRS22;cxPivotGridOLAPRS22;cxSchedulerTreeBrowserRS22;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_RemoteDebug>false</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="Helpers\DBRecordHolder.pas"/>
+        <DCCReference Include="Helpers\DialogUnit.pas"/>
+        <DCCReference Include="Helpers\StrHelper.pas"/>
+        <DCCReference Include="Helpers\ProjectConst.pas"/>
+        <DCCReference Include="Helpers\ClipboardUnit.pas"/>
+        <DCCReference Include="Helpers\ColumnsBarButtonsHelper.pas"/>
+        <DCCReference Include="Helpers\SettingsController.pas"/>
+        <DCCReference Include="Helpers\DocFieldInfo.pas"/>
+        <DCCReference Include="Helpers\DragHelper.pas"/>
+        <DCCReference Include="Helpers\FormsHelper.pas"/>
+        <DCCReference Include="Helpers\GridExtension.pas"/>
+        <DCCReference Include="Helpers\HRTimer.pas"/>
+        <DCCReference Include="Helpers\OpenDocumentUnit.pas"/>
+        <DCCReference Include="Queryes\RepositoryDataModule.pas">
+            <Form>DMRepository</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BaseQuery.pas">
+            <Form>QueryBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\CustomErrorTable.pas"/>
+        <DCCReference Include="Excel\FieldInfoUnit.pas"/>
+        <DCCReference Include="Excel\ErrorTable.pas"/>
+        <DCCReference Include="Excel\CustomExcelTable.pas"/>
+        <DCCReference Include="Excel\ExcelDataModule.pas">
+            <Form>ExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\BodyTypesExcelDataModule3.pas">
+            <Form>BodyTypesExcelDM3</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyKindsQuery.pas">
+            <Form>QueryBodyKinds</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesQuery.pas">
+            <Form>QueryBodyTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ApplyQuery\ApplyQueryFrame.pas">
+            <Form>frmApplyQuery</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesBranchQuery.pas">
+            <Form>QueryBodyTypesBranch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesQuery2.pas">
+            <Form>QueryBodyTypes2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesTreeQuery.pas">
+            <Form>QueryBodyTypesTree</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesGridQuery.pas">
+            <Form>QueryBodyTypesGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesGroupUnit.pas">
+            <Form>BodyTypesGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\RootForm.pas">
+            <Form>frmRoot</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\DictonaryForm.pas">
+            <Form>frmDictonary</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\PathSettingsForm.pas">
+            <Form>frmPathSettings</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\PopupForm.pas">
+            <Form>frmPopupForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridFrame.pas">
+            <Form>frmGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesGridView.pas">
+            <Form>ViewBodyTypesGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesTreeView.pas">
+            <Form>ViewBodyTypesTree</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesTreeForm.pas">
+            <Form>frmBodyTypesTree</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesView.pas">
+            <Form>ViewBodyTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesForm.pas">
+            <Form>frmBodyTypes</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Report\ReportQuery.pas">
+            <Form>QueryReports</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Reports\ReportsView.pas">
+            <Form>ViewReports</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Reports\ReportsForm.pas">
+            <Form>frmReports</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Excel\ManufacturersExcelDataModule.pas">
+            <Form>ManufacturersExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Producers\ProducersQuery.pas">
+            <Form>QueryProducers</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Producers\ProducersView.pas">
+            <Form>ViewProducers</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Producers\ProducersForm.pas">
+            <Form>frmProducers</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\ChildCategories\ChildCategoriesQuery.pas">
+            <Form>QueryChildCategories</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParametersForCategories\ParameterTypesQuery.pas">
+            <Form>QueryParameterTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParametersForCategories\ParametersForCategories.pas"/>
+        <DCCReference Include="Queryes\ParametersForCategories\ParametersDetailQuery.pas">
+            <Form>QueryParametersDetail</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParametersForCategories\ParametersForCategoriesGroupUnit.pas">
+            <Form>ParametersForCategoriesGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\TreeList\TreeListQuery.pas">
+            <Form>QueryTreeList</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchComponentQuery.pas">
+            <Form>QuerySearchComponent</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchFamilyByValue2.pas">
+            <Form>QuerySearchFamilyByValue2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchCategoryByExternalID.pas">
+            <Form>QuerySearchCategoryByExternalID</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\SubParametersQuery.pas">
+            <Form>QuerySubParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\MainParametersQuery.pas">
+            <Form>QueryMainParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ParametersExcelDataModule.pas">
+            <Form>ParametersExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\ParametersGroupUnit.pas">
+            <Form>ParametersGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\ParametersView.pas">
+            <Form>ViewParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\ParametersForm.pas">
+            <Form>frmParameters</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Descriptions\DescriptionTypesQuery.pas">
+            <Form>QueryDescriptionTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Descriptions\DescriptionsQuery.pas">
+            <Form>QueryDescriptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\DescriptionsExcelDataModule.pas">
+            <Form>DescriptionsExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Descriptions\DescriptionsView.pas">
+            <Form>ViewDescriptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Descriptions\DescriptionsForm.pas">
+            <Form>frmDescriptions</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilyQuery.pas">
+            <Form>QueryFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilyExQuery.pas">
+            <Form>QueryFamilyEx</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\BaseComponentsQuery.pas">
+            <Form>QueryBaseComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsQuery.pas">
+            <Form>QueryComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsExQuery.pas">
+            <Form>QueryComponentsEx</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\BaseComponentsGroupUnit.pas">
+            <Form>BaseComponentsGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\Count\BaseComponentsCountQuery.pas">
+            <Form>QueryBaseComponentsCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\Count\ComponentsCountQuery.pas">
+            <Form>QueryComponentsCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\Count\EmptyFamilyCountQuery.pas">
+            <Form>QueryEmptyFamilyCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ComponentsExcelDataModule.pas">
+            <Form>ComponentsExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ComponentBodyTypesExcelDataModule.pas">
+            <Form>ComponentBodyTypesExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsGroupUnit.pas">
+            <Form>ComponentsGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\SearchInterfaceUnit.pas"/>
+        <DCCReference Include="Queryes\Components\ComponentsSearchQuery.pas">
+            <Form>QueryComponentsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsSearchGroupUnit.pas">
+            <Form>ComponentsSearchGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\SubGroups\SubGroupsQuery.pas">
+            <Form>frmQuerySubGroups</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\SubGroup\CategoriesTreePopupForm.pas">
+            <Form>frmCategoriesTreePopup</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Components\SubGroup\SubGroupListPopupForm.pas">
+            <Form>frmSubgroupListPopup</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ComponentsParentView.pas">
+            <Form>ViewComponentsParent</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ComponentsBaseView.pas">
+            <Form>ViewComponentsBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ParametricExcelDataModule.pas">
+            <Form>ParametricExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\ProgressInfo.pas"/>
+        <DCCReference Include="Views\ProgressBar\ProgressBarForm.pas">
+            <Form>frmProgressBar</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ParametricTable\ParametersForCategoryQuery.pas">
+            <Form>QueryParametersForCategory</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ParametricTable\ProductParametersQuery.pas">
+            <Form>QueryProductParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ParametricTable\ComponentsExGroupUnit.pas">
+            <Form>ComponentsExGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableView.pas">
+            <Form>ViewParametricTable</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableForm.pas">
+            <Form>frmParametricTable</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParameterValues\ParametersForProductQuery.pas">
+            <Form>QueryParametersForProduct</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParameterValues\ParametersValueQuery.pas">
+            <Form>QueryParametersValue</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParameterValues\ParameterValuesUnit.pas"/>
+        <DCCReference Include="Views\Components\ComponentsView.pas">
+            <Form>ViewComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilySearchQuery.pas">
+            <Form>QueryFamilySearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductsBaseQuery.pas">
+            <Form>QueryProductsBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\Count\StoreHouseProductsCountQuery.pas">
+            <Form>QueryStoreHouseProductsCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductsQuery.pas">
+            <Form>QueryProducts</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\Search\ProductsSearchQuery.pas">
+            <Form>QueryProductsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseListQuery.pas">
+            <Form>QueryStoreHouseList</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsBaseView.pas">
+            <Form>ViewProductsBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsSearchView.pas">
+            <Form>ViewProductsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\ParametersForCategories\ParametersForCategoriesView.pas">
+            <Form>ViewParametersForCategories</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\StoreHouse\StoreHouseInfoView.pas">
+            <Form>ViewStorehouseInfo</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\StoreHouse\StoreHouseView.pas">
+            <Form>ViewStoreHouse</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\Search\ComponentsSearchView.pas">
+            <Form>ViewComponentsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\ModCheckDatabase.pas"/>
+        <DCCReference Include="Queryes\DataModule.pas">
+            <Form>DM</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Main.pas">
+            <Form>frmMain</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\NotifyEvents.pas"/>
+        <DCCReference Include="Helpers\Sequence.pas"/>
+        <DCCReference Include="Queryes\Components\AllFamilyQuery.pas">
+            <Form>QueryAllFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\GridView.pas">
+            <Form>ViewGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchComponentCategoryQuery.pas">
+            <Form>QuerySearchComponentCategory</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchCategoryBySubGroup.pas">
+            <Form>QuerySearchCategoryBySubGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchComponentCategoryQuery2.pas">
+            <Form>QuerySearchComponentCategory2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
+            <Form>frmCustomGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
+            <Form>frmImportError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\ErrorForm.pas">
+            <Form>frmError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ImportProcessForm.pas">
+            <Form>frmImportProcess</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\CustomComponentsQuery.pas">
+            <Form>QueryCustomComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchCategoryByID.pas">
+            <Form>QuerySearchCategoryByID</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchDaughterComponentQuery2.pas">
+            <Form>QuerySearchDaughterComponent2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchMainParameterQuery.pas">
+            <Form>QuerySearchMainParameter</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchDaughterParameterQuery.pas">
+            <Form>QuerySearchDaughterParameter</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchFamilyByValue.pas">
+            <Form>QuerySearchFamilyByValue</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchComponentsByValues.pas">
+            <Form>QuerySearchComponentsByValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\BaseFamilyQuery.pas">
+            <Form>QueryBaseFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchBodyType.pas">
+            <Form>QuerySearchBodyType</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas">
+            <Form>StoreHouseGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsView.pas">
+            <Form>ViewProducts</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchCategoriesPathQuery.pas">
+            <Form>QuerySearchCategoriesPath</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchDescriptionsQuery.pas">
+            <Form>QuerySearchDescriptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParameterValues.pas">
+            <Form>QuerySearchParameterValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProductParameterValuesQuery.pas">
+            <Form>QuerySearchProductParameterValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\TableWithProgress.pas"/>
+        <DCCReference Include="Queryes\Search\SearchSubCategoriesQuery.pas">
+            <Form>QuerySearchSubCategories</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParametersForCategoryQuery.pas">
+            <Form>QuerySearchParametersForCategory</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryWithDataSourceUnit.pas">
+            <Form>QueryWithDataSource</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BaseEventsQuery.pas">
+            <Form>QueryBaseEvents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryWithMasterUnit.pas">
+            <Form>QueryWithMaster</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\HandlingQueryUnit.pas">
+            <Form>HandlingQuery</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\ProcRefUnit.pas"/>
+        <DCCReference Include="Views\GridView\GridViewForm.pas">
+            <Form>frmGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\AutoBinding\AutoBindingDocForm.pas">
+            <Form>frmAutoBindingDoc</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\AutoBinding\AutoBindingDescriptionForm.pas">
+            <Form>frmAutoBindingDescriptions</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\AutoBinding.pas"/>
+        <DCCReference Include="Queryes\Search\SearchComponentsByValuesLike.pas">
+            <Form>QuerySearchComponentsByValuesLike</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\AbstractSearchByValues.pas">
+            <Form>QueryAbstractSearchByValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchDaughterComponentQuery.pas">
+            <Form>QuerySearchDaughterComponent</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchFamilyByID.pas">
+            <Form>QuerySearchFamilyByID</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProductQuery.pas">
+            <Form>QuerySearchProduct</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchStorehouseProductByID.pas">
+            <Form>QuerySearchStorehouseProductByID</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryGroupUnit.pas">
+            <Form>QueryGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ProductsExcelDataModule.pas">
+            <Form>ProductsExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\DialogUnit2.pas"/>
+        <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
+            <Form>QuerySearchProducerTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsForm.pas">
+            <Form>frmProducts</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Descriptions\DescriptionsGroupUnit.pas">
+            <Form>DescriptionsGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Version\VersionQuery.pas">
+            <Form>QueryVersion</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <None Include="ModelSupport_Database\default.txaPackage"/>
+        <None Include="ModelSupport_Database\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchProductParameterValuesQuery\default.txaPackage"/>
+        <None Include="ModelSupport_Database\SearchProducerValues\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchParameterValues\default.txaPackage"/>
+        <None Include="ModelSupport_Database\SearchParameterValues\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchMainComponent2\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchComponentQuery\default.txaPackage"/>
+        <None Include="ModelSupport_Database\SearchComponent\default.txvpck"/>
+        <None Include="ModelSupport_Database\Project1\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsBaseQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\MainComponentsQuery\default.txaPackage"/>
+        <None Include="ModelSupport_Database\MainComponentsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\LostComponentsQuery\default.txaPackage"/>
+        <None Include="ModelSupport_Database\LostComponentsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DBRecordHolder\default.txvpck"/>
+        <None Include="ModelSupport_Database\DataModuleFrame\default.txvpck"/>
+        <None Include="ModelSupport_Database\CustomComponentsQuery\Class Diagram.txvcls"/>
+        <None Include="ModelSupport_Database\CustomComponentsQuery\default.txaPackage"/>
+        <None Include="ModelSupport_Database\CustomComponentsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsSearchView\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsSearchQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsMasterDetailUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsMainCountQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsExQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsDetailsSearchQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsDetailQuery\Class Diagram.txvcls"/>
+        <None Include="ModelSupport_Database\ComponentsDetailQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsDetailExQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsBaseDetailQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\AutoBindingForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ApplyQueryFrame\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsExGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\DescriptionsForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\SettingsController\default.txvpck"/>
+        <None Include="ModelSupport_Database\GridView\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchCategoryByID\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\ClipboardUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchFamilyByID\default.txvpck"/>
+        <None Include="ModelSupport_Database\DictonaryForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProjectConst\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesGridView\default.txvpck"/>
+        <None Include="ModelSupport_Database\BaseComponentsGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\AutoBindingDescriptionForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProducersView\default.txvpck"/>
+        <None Include="ModelSupport_Database\PopupForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\GridFrame\default.txvpck"/>
+        <None Include="ModelSupport_Database\TreeListQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\VersionQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParameterTypesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesTreeView\default.txvpck"/>
+        <None Include="ModelSupport_Database\FamilySearchQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsView\default.txvpck"/>
+        <None Include="ModelSupport_Database\StoreHouseProductsCountQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DescriptionsView\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchParametersForCategoryQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProcRefUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesQuery2\default.txvpck"/>
+        <None Include="ModelSupport_Database\BaseComponentsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DialogUnit2\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsCountQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchCategoryByExternalID\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchCategoryBySubGroup\default.txvpck"/>
+        <None Include="ModelSupport_Database\DescriptionsExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\HRTimer\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchComponentsByValues\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesGridQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\SubGroupsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\BaseComponentsCountQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\SubParametersQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\AllFamilyQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\BaseEventsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsSearchQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\FamilyQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsSearchGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchInterfaceUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ErrorTable\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchSubCategoriesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DescriptionTypesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ColumnsBarButtonsHelper\default.txvpck"/>
+        <None Include="ModelSupport_Database\ModCheckDatabase\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersForCategoriesView\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchDaughterParameterQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\BaseFamilyQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametricTableView\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsBaseView\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProgressBarForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\CustomExcelTable\default.txvpck"/>
+        <None Include="ModelSupport_Database\StoreHouseGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\DragHelper\default.txvpck"/>
+        <None Include="ModelSupport_Database\AbstractSearchByValues\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchCategoriesPathQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ReportsView\default.txvpck"/>
+        <None Include="ModelSupport_Database\GridExtension\default.txvpck"/>
+        <None Include="ModelSupport_Database\ErrorForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\SubGroupListPopupForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\FieldInfoUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ImportErrorForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchComponentQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\FormsHelper\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersForCategoriesGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\Sequence\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesExcelDataModule3\default.txvpck"/>
+        <None Include="ModelSupport_Database\ChildCategoriesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ManufacturersExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchFamilyByValue2\default.txvpck"/>
+        <None Include="ModelSupport_Database\QueryWithDataSourceUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersValueQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametricTableForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentBodyTypesExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesView\default.txvpck"/>
+        <None Include="ModelSupport_Database\QueryGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\PathSettingsForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProducersQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ReportQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchFamilyByValue\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersForCategoryQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DescriptionsGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\DescriptionsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesTreeQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\HandlingQueryUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsView\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProgressInfo\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersDetailQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\CustomErrorTable\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductParametersQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\StoreHouseView\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchMainParameterQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\CustomGridViewForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\DialogUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametricExcelDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\NotifyEvents\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersForProductQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\RepositoryDataModule\default.txvpck"/>
+        <None Include="ModelSupport_Database\StoreHouseInfoView\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchDaughterComponentQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\Main\default.txvpck"/>
+        <None Include="ModelSupport_Database\AutoBinding\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchDescriptionsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\QueryWithMasterUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchComponentCategoryQuery2\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesTreeForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsBaseView\default.txvpck"/>
+        <None Include="ModelSupport_Database\EmptyFamilyCountQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchProductParameterValuesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\StoreHouseListQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\DocFieldInfo\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesBranchQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\AutoBindingDocForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\BaseQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\RootForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\ImportProcessForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchComponentCategoryQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParameterValuesUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\MainParametersQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\GridViewForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\Database\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchBodyType\default.txvpck"/>
+        <None Include="ModelSupport_Database\ReportsForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyKindsQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProducersForm\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchDaughterComponentQuery2\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchProductQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersView\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchComponentsByValuesLike\default.txvpck"/>
+        <None Include="ModelSupport_Database\BodyTypesGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchStorehouseProductByID\default.txvpck"/>
+        <None Include="ModelSupport_Database\StrHelper\default.txvpck"/>
+        <None Include="ModelSupport_Database\OpenDocumentUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\FamilyExQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersGroupUnit\default.txvpck"/>
+        <None Include="ModelSupport_Database\ComponentsParentView\default.txvpck"/>
+        <None Include="ModelSupport_Database\TableWithProgress\default.txvpck"/>
+        <None Include="ModelSupport_Database\ParametersForCategories\default.txvpck"/>
+        <None Include="ModelSupport_Database\SearchProducerTypesQuery\default.txvpck"/>
+        <None Include="ModelSupport_Database\ProductsSearchView\default.txvpck"/>
+        <None Include="ModelSupport_Database\CategoriesTreePopupForm\default.txvpck"/>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Application</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">Database.dpr</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k220.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <Deployment Version="1">
+                <DeployFile LocalName="ModelSupport_Project1\SearchQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="C:\Public\Database\Database.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Database.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\CustomComponentsQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\Project1\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\MainComponentsQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\CustomComponentsQuery\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsMasterDetailUnit\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\CustomComponentsQuery\Class Diagram.txvcls" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchProducerValues\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsSearchView\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ProductsBaseQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchParameterValues\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchProductParameterValuesQuery\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchComponentQuery\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsDetailQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsBaseDetailQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsSearchQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\MainComponentsQuery\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ApplyQueryFrame\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsDetailsSearchQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsDetailQuery\Class Diagram.txvcls" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsMainCountQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchComponent\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\DBRecordHolder\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchParameterValues\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\DataModuleFrame\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\SearchMainComponent2\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\LostComponentsQuery\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\AutoBindingForm\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsDetailExQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\LostComponentsQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\default.txaPackage" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="ModelSupport_Project1\ComponentsExQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployClass Required="true" Name="DependencyPackage">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch2048">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXInfoPList">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceDebug">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage470">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-normal</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidLibnativeX86File">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\x86</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSResource">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXEntitlements">
+                    <Platform Name="OSX32">
+                        <RemoteDir>../</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidGDBServer">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch640">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage960">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xlarge</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon96">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch320">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon144">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-xxhdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidLibnativeMipsFile">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\mips</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidSplashImageDef">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DebugSymbols">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DependencyFramework">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.framework</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage426">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-small</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSEntitlements">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>../</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>../</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AdditionalDebugSymbols">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidClassesDexFile">
+                    <Platform Name="Android">
+                        <RemoteDir>classes</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSInfoPList">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch1024">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_DefaultAppIcon">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXResource">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch768">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Required="true" Name="ProjectOutput">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi-v7a</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidLibnativeArmeabiFile">
+                    <Platform Name="Android">
+                        <RemoteDir>library\lib\armeabi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_SplashImage640">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-large</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="File">
+                    <Platform Name="Android">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch640x1136">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon36">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-ldpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AndroidSplashStyles">
+                    <Platform Name="Android">
+                        <RemoteDir>res\values</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch1536">
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon48">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-mdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="Android_LauncherIcon72">
+                    <Platform Name="Android">
+                        <RemoteDir>res\drawable-hdpi</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectAndroidManifest">
+                    <Platform Name="Android">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+            </Deployment>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
+            <ModelSupport>True</ModelSupport>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
+</Project>
