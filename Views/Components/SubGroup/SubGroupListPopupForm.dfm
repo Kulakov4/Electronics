@@ -1,6 +1,8 @@
 inherited frmSubgroupListPopup: TfrmSubgroupListPopup
   Caption = 'frmSubgroupListPopup'
   OnShow = FormShow
+  ExplicitWidth = 411
+  ExplicitHeight = 339
   PixelsPerInch = 96
   TextHeight = 13
   object cxGrid1: TcxGrid
@@ -33,16 +35,8 @@ inherited frmSubgroupListPopup: TfrmSubgroupListPopup
         DataBinding.FieldName = 'Value'
         OnGetProperties = cxGrid1DBTableView1ValueGetProperties
       end
-      object cxGrid1DBTableView1ShortValue: TcxGridDBColumn
-        DataBinding.FieldName = 'ShortValue'
-        Visible = False
-      end
       object cxGrid1DBTableView1ParentId: TcxGridDBColumn
         DataBinding.FieldName = 'ParentId'
-        Visible = False
-      end
-      object cxGrid1DBTableView1Order: TcxGridDBColumn
-        DataBinding.FieldName = 'Order'
         Visible = False
       end
       object cxGrid1DBTableView1IsMain: TcxGridDBColumn

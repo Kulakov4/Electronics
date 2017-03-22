@@ -62,8 +62,10 @@ resourcestring
   sRecords = 'записей';
   sComponents = 'компонентов';
   sFiles = 'файлов';
+
+  sTreeRootNodeName = 'Структура';
 const
-  DBVersion = 19;
+  DBVersion = 20;
 
 implementation
 

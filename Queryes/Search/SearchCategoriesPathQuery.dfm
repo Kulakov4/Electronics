@@ -10,7 +10,7 @@ inherited QuerySearchCategoriesPath: TQuerySearchCategoriesPath
       '('
       '    select ID, Value, '#39#39' as Path, 1 as Depth'
       '    from ProductCategories '
-      '    where ParentID = ID    '
+      '    where ParentID is null    '
       '    '
       '    union'
       '    '
@@ -18,7 +18,7 @@ inherited QuerySearchCategoriesPath: TQuerySearchCategoriesPath
         '    select pc.ID, pc.Value, m.Path || '#39'\'#39' || pc.Value, m.Depth +' +
         ' 1'
       '    from ProductCategories pc, m'
-      '    where pc.ParentID <> pc.ID and pc.ParentID = m.ID'
+      '    where pc.ParentID = m.ID'
       ')'
       'select m.id, m.value, trim(m.path, '#39'\'#39') path, m.depth'
       'from m'

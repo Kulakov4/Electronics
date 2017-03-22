@@ -37,9 +37,7 @@ type
     cxdbtlCateroriesId: TcxDBTreeListColumn;
     cxdbtlCateroriesValue: TcxDBTreeListColumn;
     cxdbtlCateroriesParentId: TcxDBTreeListColumn;
-    cxdbtlCateroriesShortValue: TcxDBTreeListColumn;
     cxdbtlCateroriesExternalId: TcxDBTreeListColumn;
-    cxdbtlCateroriesOrder: TcxDBTreeListColumn;
     procedure FormShow(Sender: TObject);
     procedure cxBarEditItemPropertiesChange(Sender: TObject);
     procedure cxBarEditItemPropertiesEditValueChanged(Sender: TObject);

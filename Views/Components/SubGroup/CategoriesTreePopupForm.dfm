@@ -50,29 +50,11 @@ inherited frmCategoriesTreePopup: TfrmCategoriesTreePopup
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object cxdbtlCateroriesShortValue: TcxDBTreeListColumn
-      Visible = False
-      DataBinding.FieldName = 'ShortValue'
-      Position.ColIndex = 3
-      Position.RowIndex = 0
-      Position.BandIndex = 0
-      Summary.FooterSummaryItems = <>
-      Summary.GroupFooterSummaryItems = <>
-    end
     object cxdbtlCateroriesExternalId: TcxDBTreeListColumn
       Caption.Text = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
       DataBinding.FieldName = 'ExternalId'
       Width = 100
-      Position.ColIndex = 4
-      Position.RowIndex = 0
-      Position.BandIndex = 0
-      Summary.FooterSummaryItems = <>
-      Summary.GroupFooterSummaryItems = <>
-    end
-    object cxdbtlCateroriesOrder: TcxDBTreeListColumn
-      Visible = False
-      DataBinding.FieldName = 'Order'
-      Position.ColIndex = 5
+      Position.ColIndex = 3
       Position.RowIndex = 0
       Position.BandIndex = 0
       Summary.FooterSummaryItems = <>

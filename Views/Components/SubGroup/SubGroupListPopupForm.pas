@@ -40,9 +40,7 @@ type
     cxGrid1DBTableView1Id: TcxGridDBColumn;
     cxGrid1DBTableView1Value: TcxGridDBColumn;
     cxGrid1DBTableView1ParentId: TcxGridDBColumn;
-    cxGrid1DBTableView1ShortValue: TcxGridDBColumn;
     cxGrid1DBTableView1ExternalId: TcxGridDBColumn;
-    cxGrid1DBTableView1Order: TcxGridDBColumn;
     cxGrid1DBTableView1IsMain: TcxGridDBColumn;
     cxEditRepository: TcxEditRepository;
     cxEditRepositoryLabel: TcxEditRepositoryLabel;

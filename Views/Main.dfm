@@ -718,8 +718,6 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch: TViewProductsSearch
               inherited cxGrid: TcxGrid
-                ExplicitWidth = 835
-                ExplicitHeight = 455
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -770,10 +768,6 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
-              end
-              inherited StatusBar: TStatusBar
-                ExplicitTop = 483
-                ExplicitWidth = 835
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -1102,6 +1096,7 @@ object frmMain: TfrmMain
     end
   end
   object pmLeftTreeList: TPopupMenu
+    Images = DMRepository.cxImageList
     Left = 40
     Top = 168
     object mniAddRecord: TMenuItem
@@ -1112,6 +1107,9 @@ object frmMain: TfrmMain
     end
     object mniDeleteRecord: TMenuItem
       Action = actDeleteTreeNode
+    end
+    object Excel1: TMenuItem
+      Action = actExportTreeToExcelDocument
     end
   end
   object ActionList: TActionList
@@ -1169,16 +1167,19 @@ object frmMain: TfrmMain
     object actDeleteTreeNode: TAction
       Caption = #1059#1076#1072#1083#1080#1090#1100
       Hint = #1059#1076#1072#1083#1080#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+      ImageIndex = 2
       OnExecute = actDeleteTreeNodeExecute
     end
     object actRenameTreeNode: TAction
       Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100
       Hint = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+      ImageIndex = 11
       OnExecute = actRenameTreeNodeExecute
     end
     object actAddTreeNode: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1082#1072#1090#1077#1075#1086#1088#1080#1102
+      ImageIndex = 1
       OnExecute = actAddTreeNodeExecute
     end
     object actLoadBodyTypes: TAction
@@ -1215,6 +1216,11 @@ object frmMain: TfrmMain
       Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 32
       OnExecute = actLoadProductsFromExcelTableExecute
+    end
+    object actExportTreeToExcelDocument: TAction
+      Caption = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
+      ImageIndex = 6
+      OnExecute = actExportTreeToExcelDocumentExecute
     end
   end
 end

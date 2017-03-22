@@ -125,11 +125,14 @@ type
     dxBarSubItem6: TdxBarSubItem;
     actLoadProductsFromExcelTable: TAction;
     dxBarButton9: TdxBarButton;
+    actExportTreeToExcelDocument: TAction;
+    Excel1: TMenuItem;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
+    procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
@@ -227,7 +230,8 @@ uses
   SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
-  SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit;
+  SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit,
+  RecursiveTreeView, RecursiveTreeQuery;
 
 {$R *.dfm}
 
@@ -335,6 +339,23 @@ end;
 procedure TfrmMain.actExitExecute(Sender: TObject);
 begin
   Close
+end;
+
+procedure TfrmMain.actExportTreeToExcelDocumentExecute(Sender: TObject);
+var
+  AQueryRecursiveTree: TQueryRecursiveTree;
+  AViewRecursiveTree: TViewRecursiveTree;
+begin
+  AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
+  AViewRecursiveTree := TViewRecursiveTree.Create(Self);
+  try
+    AQueryRecursiveTree.RefreshQuery;
+    AViewRecursiveTree.QueryRecursiveTree := AQueryRecursiveTree;
+    AViewRecursiveTree.actExportToExcelDocument.Execute;
+  finally
+    FreeAndNil(AViewRecursiveTree);
+    FreeAndNil(AQueryRecursiveTree);
+  end;
 end;
 
 procedure TfrmMain.actLoadBodyTypesExecute(Sender: TObject);

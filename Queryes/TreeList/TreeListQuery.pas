@@ -16,47 +16,50 @@ type
     function CalculateExternalId(ParentId, ALevel: Integer): string;
     function GetExternalID: TField;
     function GetIsRootFocused: Boolean;
+    function GetParentID: TField;
     function GetValue: TField;
     { Private declarations }
   protected
-    property ExternalID: TField read GetExternalID;
   public
-    procedure AddChildCategory(value: string; ALevel: Integer);
+    procedure AddChildCategory(const AValue: string; ALevel: Integer);
     procedure AddRoot;
     function CheckPossibility(ParentId: Integer; value: string): Boolean;
     procedure FilterByExternalID(AExternalID: string);
     function LocateByExternalID(AExternalID: string): Boolean;
     procedure LocateToRoot;
+    property ExternalID: TField read GetExternalID;
     property IsRootFocused: Boolean read GetIsRootFocused;
+    property ParentID: TField read GetParentID;
     property Value: TField read GetValue;
     { Public declarations }
   end;
 
 implementation
 
-uses System.Generics.Collections;
+uses System.Generics.Collections, ProjectConst;
 
 {$R *.dfm}
 
-procedure TQueryTreeList.AddChildCategory(value: string; ALevel: Integer);
+procedure TQueryTreeList.AddChildCategory(const AValue: string; ALevel:
+    Integer);
 var
-  vParentId: Integer;
-  vExternalId: string;
+  AParentId: Integer;
+  AExternalId: string;
 begin
-  vParentId := FDQuery.FieldByName('Id').AsInteger;
+  Assert(FDQuery.RecordCount > 0);
+  AParentId := PKValue;
 
-  if not CheckPossibility(vParentId, value) then
+  if not CheckPossibility(AParentId, AValue) then
     Exit;
 
   TryPost;
 
-  vExternalId := CalculateExternalId(vParentId, ALevel);
-  FDQuery.Append;
-  FDQuery.FieldByName('Value').AsString := value;
-  FDQuery.FieldByName('ParentId').AsInteger := vParentId;
-  FDQuery.FieldByName('ExternalId').AsString := vExternalId;
-  FDQuery.Post;
-  FDQuery.Refresh;
+  AExternalId := CalculateExternalId(AParentId, ALevel);
+  TryAppend;
+  Value.AsString := AValue;
+  ParentID.AsInteger := AParentId;
+  ExternalID.AsString := AExternalId;
+  TryPost;
 end;
 
 // Добавляет корень дерева
@@ -65,11 +68,10 @@ begin
   Assert(FDQuery.State = dsBrowse);
   if FDQuery.RecordCount = 0 then
   begin
-    FDQuery.Append;
-    FDQuery.FieldByName('Id').AsInteger := 0;
-    FDQuery.FieldByName('Value').AsString := 'Структура';
-    FDQuery.FieldByName('ParentId').AsInteger := -1;
-    FDQuery.Post;
+    TryAppend;
+    Value.AsString := sTreeRootNodeName;
+    ExternalID.AsString := '00000';
+    TryPost;
   end;
 end;
 
@@ -157,12 +159,17 @@ end;
 
 function TQueryTreeList.GetIsRootFocused: Boolean;
 begin
-  Result := PKValue = 1;
+  Result := (FDQuery.RecordCount > 0) and (ParentID.IsNull);
+end;
+
+function TQueryTreeList.GetParentID: TField;
+begin
+  Result := Field('ParentID');
 end;
 
 function TQueryTreeList.GetValue: TField;
 begin
-  Result := FDQuery.FieldByName('Value');
+  Result := Field('Value');
 end;
 
 function TQueryTreeList.LocateByExternalID(AExternalID: string): Boolean;
@@ -173,13 +180,7 @@ end;
 
 procedure TQueryTreeList.LocateToRoot;
 begin
-//  LockScroll := True;
-  try
-    FDQuery.Locate('Id', 1, []);
-  finally
-//    LockScroll := False;
-  end;
-//  AfterScroll.CallEventHandlers(FDQuery);
+  FDQuery.LocateEx(ParentID.FieldName, NULL, []);
 end;
 
 end.

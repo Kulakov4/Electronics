@@ -165,7 +165,10 @@ uses
   SearchProducerTypesQuery in 'Queryes\Search\SearchProducerTypesQuery.pas' {QuerySearchProducerTypes: TFrame},
   ProductsForm in 'Views\Products\ProductsForm.pas' {frmProducts},
   DescriptionsGroupUnit in 'Queryes\Descriptions\DescriptionsGroupUnit.pas' {DescriptionsGroup: TFrame},
-  VersionQuery in 'Queryes\Version\VersionQuery.pas' {QueryVersion: TFrame};
+  VersionQuery in 'Queryes\Version\VersionQuery.pas' {QueryVersion: TFrame},
+  RecursiveTreeQuery in 'Queryes\TreeList\RecursiveTreeQuery.pas' {QueryRecursiveTree: TFrame},
+  RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
+  TreeExcelDataModule in 'Excel\TreeExcelDataModule.pas' {TreeExcelDM: TDataModule};
 
 {$R *.res}
 
@@ -176,6 +179,7 @@ begin
   Application.CreateForm(TfrmMain, frmMain);
   Application.CreateForm(TfrmCategoriesTreePopup, frmCategoriesTreePopup);
   Application.CreateForm(TfrmSubgroupListPopup, frmSubgroupListPopup);
+  Application.CreateForm(TTreeExcelDM, TreeExcelDM);
   Application.Run;
 
 end.
