@@ -16,8 +16,9 @@ type
     FDUpdateSQL: TFDUpdateSQL;
   private
     procedure DoAfterOpen(Sender: TObject);
+    function GetAdded: TField;
     function GetExternalID: TField;
-    function GetMarkAsDeleted: TField;
+    function GetDeleted: TField;
     function GetParentExternalID: TField;
     function GetParentID: TField;
     function GetValue: TField;
@@ -28,14 +29,16 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure DeleteAll;
     procedure HideNotDeleted;
+    procedure HideNotAdded;
     procedure LoadRecords(ATreeExcelTable: TTreeExcelTable);
     function LocateByExternalID(AParentExternalID: Variant; const AExternalID:
         string): Boolean; overload;
     function LocateByExternalID(const AExternalID: string): Boolean; overload;
     function LocateByValue(AParentExternalID: Variant; const AValue: string):
         Boolean;
+    property Added: TField read GetAdded;
     property ExternalID: TField read GetExternalID;
-    property MarkAsDeleted: TField read GetMarkAsDeleted;
+    property Deleted: TField read GetDeleted;
     property ParentExternalID: TField read GetParentExternalID;
     property ParentID: TField read GetParentID;
     property Value: TField read GetValue;
@@ -72,7 +75,13 @@ end;
 procedure TQueryRecursiveTree.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsRequired(False);
-  MarkAsDeleted.ReadOnly := False;
+  Deleted.ReadOnly := False;
+  Added.ReadOnly := False;
+end;
+
+function TQueryRecursiveTree.GetAdded: TField;
+begin
+  Result := Field('Added');
 end;
 
 function TQueryRecursiveTree.GetExternalID: TField;
@@ -80,9 +89,9 @@ begin
   Result := Field('ExternalID');
 end;
 
-function TQueryRecursiveTree.GetMarkAsDeleted: TField;
+function TQueryRecursiveTree.GetDeleted: TField;
 begin
-  Result := Field('MarkAsDeleted');
+  Result := Field('Deleted');
 end;
 
 function TQueryRecursiveTree.GetParentExternalID: TField;
@@ -102,7 +111,13 @@ end;
 
 procedure TQueryRecursiveTree.HideNotDeleted;
 begin
-  FDQuery.Filter := Format('%s = 1', [MarkAsDeleted.FieldName]);
+  FDQuery.Filter := Format('%s = 1', [Deleted.FieldName]);
+  FDQuery.Filtered := True;
+end;
+
+procedure TQueryRecursiveTree.HideNotAdded;
+begin
+  FDQuery.Filter := Format('%s = 1', [Added.FieldName]);
   FDQuery.Filtered := True;
 end;
 
@@ -132,6 +147,8 @@ begin
         begin
           TryAppend;
           ExternalID.AsString := ATreeExcelTable.ExternalID.AsString;
+          // Помечаем, что запись была добавлена
+          Added.AsInteger := 1;
         end
         else
           TryEdit;
@@ -149,6 +166,8 @@ begin
           TryAppend;
           ExternalID.AsString := ATreeExcelTable.ExternalID.AsString;
           ParentID.AsInteger := AParentID;
+          // Помечаем, что запись была добавлена
+          Added.AsInteger := 1;
         end
         else
           TryEdit;
@@ -158,7 +177,7 @@ begin
         // Обновляем наименование
         Value.AsString := ATreeExcelTable.Value.AsString;
         // Помечаем, что эту запись не нужно удалять
-        MarkAsDeleted.AsInteger := 0;
+        Deleted.AsInteger := 0;
         TryPost;
 
       ATreeExcelTable.Next;
@@ -213,7 +232,7 @@ begin
     while not FDQuery.Eof do
     begin
       TryEdit;
-      MarkAsDeleted.AsInteger := 1;
+      Deleted.AsInteger := 1;
       Trypost;
       FDQuery.Next;
     end;

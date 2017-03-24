@@ -612,6 +612,21 @@ begin
       FreeAndNil(ATreeExcelDM);
     end;
 
+    // Получаем добавленные категории
+    AQueryRecursiveTree.HideNotAdded;
+    // Если есть категории, которые были добавлены
+    if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
+    begin
+      AfrmGridView := TfrmGridView.Create(Self);
+      try
+        AfrmGridView.Caption := 'Добавленные категории';
+        AfrmGridView.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ShowModal;
+      finally
+        FreeAndNil(AfrmGridView);
+      end;
+    end;
+
     AQueryRecursiveTree.HideNotDeleted;
     // Если есть категории, которые надо удалить
     if AQueryRecursiveTree.FDQuery.RecordCount > 0 then

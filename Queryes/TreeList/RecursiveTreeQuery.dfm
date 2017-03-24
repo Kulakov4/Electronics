@@ -27,8 +27,8 @@ inherited QueryRecursiveTree: TQueryRecursiveTree
       'select '
       
         '  m.ID, m.ParentID, m.ExternalID, m.Value, m2.ExternalId as Pare' +
-        'ntExternalID, 0 "MarkAsDeleted" -- , m.depth - 1 "'#1059#1088#1086#1074#1077#1085#1100'", m.Pa' +
-        'th "'#1055#1091#1090#1100'"'
+        'ntExternalID, 0 "Deleted", 0 "Added" -- , m.depth - 1 "'#1059#1088#1086#1074#1077#1085#1100'",' +
+        ' m.Path "'#1055#1091#1090#1100'"'
       'from m'
       'left join m m2 on m.parentid = m2.id and m.parentid <> m.id'
       'order by m.depth, m.externalid')
