@@ -159,6 +159,8 @@ begin
     F := Field(AFieldName);
     Assert(F <> nil);
   end;
+
+  SetFieldsRequired(False);
 end;
 
 function TQueryCustomComponents.GetDatasheet: TField;

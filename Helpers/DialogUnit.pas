@@ -13,13 +13,14 @@ type
   TDialog = class(TObject)
   private
     class var Instance: TDialog;
-// TODO: OpenFolderDialog
-//// TODO: OpenFileDialog
-////  function OpenFileDialog(AFileOpenDialogClass: TFileOpenDialogClass; const
-////      AInitialDir: string): string;
-//  function OpenFolderDialog(const AInitialDir: string): string;
+    // TODO: OpenFolderDialog
+    /// / TODO: OpenFileDialog
+    /// /  function OpenFileDialog(AFileOpenDialogClass: TFileOpenDialogClass; const
+    /// /      AInitialDir: string): string;
+    // function OpenFolderDialog(const AInitialDir: string): string;
   public
     function AddManufacturerDialog(const AValue: String): Boolean;
+    function ClearTreeDialog: Boolean;
     procedure BodyNotFoundDialog(const AValue: String);
     procedure MethodNotImplemended;
     procedure ComponentsDocFilesNotFound;
@@ -81,6 +82,16 @@ begin
     (PChar(Format('В справочнике производителей не найден производитель %s.' +
     #13#10 + #13#10 + 'Добавить "%s" в справочник?', [AValue, AValue])),
     'Добавление производителя', MB_YESNO + MB_ICONQUESTION) = IDYES;
+
+end;
+
+function TDialog.ClearTreeDialog: Boolean;
+begin
+  Result := Application.MessageBox
+    (PChar('Перед загрузкой данных дерево категорий будет очищено' + #13#10 +
+    'Все компоненты будут удалены' + #13#10 +
+    #13#10 + 'Продолжить?'), 'Загрузка дерева категорий',
+    MB_YESNO + MB_ICONQUESTION) = IDYES;
 
 end;
 
@@ -209,40 +220,40 @@ begin
 end;
 
 // TODO: OpenFolderDialog
-//function TDialog.OpenFolderDialog(const AInitialDir: string): string;
-//var
-//fod: TFileOpenDialog;
-//begin
-//Result := '';
+// function TDialog.OpenFolderDialog(const AInitialDir: string): string;
+// var
+// fod: TFileOpenDialog;
+// begin
+// Result := '';
 //
-//fod := TFileOpenDialog.Create(nil);
-//try
-//  fod.Options := [fdoPickFolders];
-//  fod.DefaultFolder := AInitialDir;
-//  if fod.Execute then
-//    Result := fod.FileName;
-//finally
-//  FreeAndNil(fod);
-//end;
-//end;
+// fod := TFileOpenDialog.Create(nil);
+// try
+// fod.Options := [fdoPickFolders];
+// fod.DefaultFolder := AInitialDir;
+// if fod.Execute then
+// Result := fod.FileName;
+// finally
+// FreeAndNil(fod);
+// end;
+// end;
 
 // TODO: OpenFileDialog
-//function TDialog.OpenFileDialog(AFileOpenDialogClass: TFileOpenDialogClass;
-//  const AInitialDir: string): string;
-//var
-//fod: TFileOpenDialog;
-//begin
-//Result := '';
+// function TDialog.OpenFileDialog(AFileOpenDialogClass: TFileOpenDialogClass;
+// const AInitialDir: string): string;
+// var
+// fod: TFileOpenDialog;
+// begin
+// Result := '';
 //
-//fod := AFileOpenDialogClass.Create(nil);
-//try
-//  fod.DefaultFolder := AInitialDir;
-//  if fod.Execute then
-//    Result := fod.FileName;
-//finally
-//  FreeAndNil(fod);
-//end;
-//end;
+// fod := AFileOpenDialogClass.Create(nil);
+// try
+// fod.DefaultFolder := AInitialDir;
+// if fod.Execute then
+// Result := fod.FileName;
+// finally
+// FreeAndNil(fod);
+// end;
+// end;
 
 function TDialog.SaveToExcelFile(const ADefaultFileName: string): string;
 var

@@ -30,12 +30,7 @@ type
     cxStyleRepository: TcxStyleRepository;
     cxStyle1: TcxStyle;
     procedure dbConnectionAfterCommit(Sender: TObject);
-    procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
-    procedure dbConnectionBeforeConnect(Sender: TObject);
-    // TODO: cxFieldValueWithExpandPropertiesButtonClick
-    // procedure cxFieldValueWithExpandPropertiesButtonClick(Sender: TObject;
-    // AButtonIndex: Integer);
   private
     FAfterCommit: TNotifyEventsEx;
     FAfterRollback: TNotifyEventsEx;
@@ -76,54 +71,11 @@ begin
   FAfterCommit.CallEventHandlers(Sender);
 end;
 
-procedure TDMRepository.dbConnectionAfterConnect(Sender: TObject);
-begin
-;
-end;
-
 procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);
 begin
   // Извещаем всех о роллбэке
   FAfterRollback.CallEventHandlers(Sender);
 end;
-
-procedure TDMRepository.dbConnectionBeforeConnect(Sender: TObject);
-var
-  S: string;
-begin
-  S := Sender.ClassName;
-  if s = '' then
-    beep;
-
-end;
-
-// TODO: cxFieldValueWithExpandPropertiesButtonClick
-// procedure TDMRepository.cxFieldValueWithExpandPropertiesButtonClick(
-// Sender: TObject; AButtonIndex: Integer);
-// var
-// ASender, AParent: TComponent;
-// AGridSite : TcxGridSite;
-// ACustomGridView: TcxCustomGridView;
-// begin
-// ASender := Sender as TComponent;
-// AParent := ASender.GetParentComponent;
-// AGridSite := AParent as TcxGridSite;
-// if AGridSite <> nil then
-// begin
-// ACustomGridView := AGridSite.GridView;
-// with (ACustomGridView as TcxGridTableView).Controller do
-// begin
-// if (FocusedRow as TcxMyGridMasterDataRow).Expanded then       //если уже был развёрнут - свернуть
-// begin
-// (FocusedRow as TcxMyGridMasterDataRow).MyCollapse(True);
-// end
-// else                                                          //иначе - развернуть
-// begin
-// (FocusedRow as TcxMyGridMasterDataRow).MyExpand(True);
-// end;
-// end;
-// end;
-// end;
 
 procedure TDMRepository.LocalizeDevExpress;
 var

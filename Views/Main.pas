@@ -127,6 +127,8 @@ type
     dxBarButton9: TdxBarButton;
     actExportTreeToExcelDocument: TAction;
     Excel1: TMenuItem;
+    actLoadTreeFromExcelDocument: TAction;
+    Excel2: TMenuItem;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
@@ -138,6 +140,7 @@ type
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
     procedure actLoadProductsFromExcelTableExecute(Sender: TObject);
+    procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameTreeNodeExecute(Sender: TObject);
     procedure actReportExecute(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
@@ -231,7 +234,7 @@ uses
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit,
-  RecursiveTreeView, RecursiveTreeQuery;
+  RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule;
 
 {$R *.dfm}
 
@@ -570,6 +573,77 @@ begin
   ViewStoreHouse.LoadFromExcelDocument;
 end;
 
+procedure TfrmMain.actLoadTreeFromExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: string;
+  AfrmGridView: TfrmGridView;
+  AQueryRecursiveTree: TQueryRecursiveTree;
+  ATreeExcelDM: TTreeExcelDM;
+  OK: Boolean;
+begin
+//  if (DM.qTreeList.FDQuery.RecordCount > 0) and not TDialog.Create.ClearTreeDialog
+//  then
+//    Exit;
+
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForExcelFile);
+
+  if AFileName.IsEmpty then
+    Exit;
+
+  TSettings.Create.LastFolderForExcelFile := AFileName;
+  AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
+  try
+    ATreeExcelDM := TTreeExcelDM.Create(Self);
+    try
+      TfrmProgressBar.Process(ATreeExcelDM,
+        procedure
+        begin
+          ATreeExcelDM.LoadExcelFile(AFileName);
+        end, 'Загрузка категорий из Excel документа', sRows);
+
+      AQueryRecursiveTree.RefreshQuery;
+      TfrmProgressBar.Process(ATreeExcelDM.ExcelTable,
+        procedure
+        begin
+          AQueryRecursiveTree.LoadRecords(ATreeExcelDM.ExcelTable);
+        end, 'Сохранение категорий в БД', sRecords);
+    finally
+      FreeAndNil(ATreeExcelDM);
+    end;
+
+    AQueryRecursiveTree.HideNotDeleted;
+    // Если есть категории, которые надо удалить
+    if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
+    begin
+      AfrmGridView := TfrmGridView.Create(Self);
+      try
+        AfrmGridView.Caption := 'Удаление категорий';
+        AfrmGridView.cxbtnOK.Caption := 'Удалить';
+        AfrmGridView.DataSet := AQueryRecursiveTree.FDQuery;
+        OK := AfrmGridView.ShowModal = mrOk;
+      finally
+        FreeAndNil(AfrmGridView);
+      end;
+
+      if OK then
+        AQueryRecursiveTree.DeleteAll;
+    end;
+
+  finally
+    FreeAndNil(AQueryRecursiveTree);
+  end;
+
+  // Перечитываем дерево из БД
+  tlLeftControl.BeginUpdate;
+  try
+    DM.qTreeList.RefreshQuery;
+  finally
+    tlLeftControl.EndUpdate;
+    tlLeftControl.FocusedNode.Expand(False);
+  end;
+end;
+
 procedure TfrmMain.actRenameTreeNodeExecute(Sender: TObject);
 var
   value: string;
@@ -774,7 +848,7 @@ begin
       databasePath := TSettings.Create.databasePath;
     end
     else
-      Break; //больше попыток не требуется
+      Break; // больше попыток не требуется
   end;
 
   // Дав три попытки проверяем что всё ок
@@ -901,7 +975,7 @@ begin
     repeat
 
       try
-         // Создаём или открываем базу данных
+        // Создаём или открываем базу данных
         DM.CreateOrOpenDataBase;
       except
         on e: Exception do
@@ -909,7 +983,7 @@ begin
           TDialog.Create.ErrorMessageDialog(e.Message);
           // Снова предлагаем выбрать папку с БД
 
-          OK := ShowSettingsEditor = mrOK;
+          OK := ShowSettingsEditor = mrOk;
         end;
       end;
 

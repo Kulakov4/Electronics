@@ -1111,6 +1111,9 @@ object frmMain: TfrmMain
     object Excel1: TMenuItem
       Action = actExportTreeToExcelDocument
     end
+    object Excel2: TMenuItem
+      Action = actLoadTreeFromExcelDocument
+    end
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -1221,6 +1224,11 @@ object frmMain: TfrmMain
       Caption = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
       ImageIndex = 6
       OnExecute = actExportTreeToExcelDocumentExecute
+    end
+    object actLoadTreeFromExcelDocument: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 6
+      OnExecute = actLoadTreeFromExcelDocumentExecute
     end
   end
 end
