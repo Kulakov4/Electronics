@@ -19,6 +19,7 @@ type
     function GetAdded: TField;
     function GetExternalID: TField;
     function GetDeleted: TField;
+    function GetID: TField;
     function GetParentExternalID: TField;
     function GetParentID: TField;
     function GetValue: TField;
@@ -39,6 +40,7 @@ type
     property Added: TField read GetAdded;
     property ExternalID: TField read GetExternalID;
     property Deleted: TField read GetDeleted;
+    property ID: TField read GetID;
     property ParentExternalID: TField read GetParentExternalID;
     property ParentID: TField read GetParentID;
     property Value: TField read GetValue;
@@ -64,12 +66,14 @@ begin
     Exit;
 
   FDQuery.First;
-  // Первая запись - это корень всего дерева
-  Assert(ParentExternalID.IsNull);
-  // При удалении корня на сервере каскадно удалятся и дочерние ветви
-  FDQuery.Delete;
-  RefreshQuery;
-  Assert(FDQuery.RecordCount = 0);
+  while not FDQuery.eof do
+  begin
+    try
+      FDQuery.Delete;
+    except
+      FDQuery.Next;
+    end;
+  end;
 end;
 
 procedure TQueryRecursiveTree.DoAfterOpen(Sender: TObject);
@@ -77,6 +81,13 @@ begin
   SetFieldsRequired(False);
   Deleted.ReadOnly := False;
   Added.ReadOnly := False;
+  ExternalID.DisplayLabel := 'Идентификатор';
+  Added.Visible := False;
+  Deleted.Visible := False;
+  ParentExternalID.DisplayLabel := 'Родительский идентификатор';
+  Value.DisplayLabel := 'Наименование';
+  ParentID.Visible := False;
+  ID.Visible := False;
 end;
 
 function TQueryRecursiveTree.GetAdded: TField;
@@ -92,6 +103,11 @@ end;
 function TQueryRecursiveTree.GetDeleted: TField;
 begin
   Result := Field('Deleted');
+end;
+
+function TQueryRecursiveTree.GetID: TField;
+begin
+  Result := Field('ID');
 end;
 
 function TQueryRecursiveTree.GetParentExternalID: TField;
@@ -166,6 +182,7 @@ begin
           TryAppend;
           ExternalID.AsString := ATreeExcelTable.ExternalID.AsString;
           ParentID.AsInteger := AParentID;
+          ParentExternalID.AsString := ATreeExcelTable.ParentExternalID.AsString;
           // Помечаем, что запись была добавлена
           Added.AsInteger := 1;
         end
