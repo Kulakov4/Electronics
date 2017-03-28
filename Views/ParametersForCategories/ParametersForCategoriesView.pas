@@ -64,9 +64,6 @@ type
     { Public declarations }
   end;
 
-var
-  ViewParametersForCategories: TViewParametersForCategories;
-
 implementation
 
 {$R *.dfm}

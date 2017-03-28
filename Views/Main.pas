@@ -37,7 +37,7 @@ uses
   dxSkinVisualStudio2013Dark, dxSkinVisualStudio2013Light, dxSkinVS2010,
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
-  SearchCategoriesPathQuery, FieldInfoUnit;
+  SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersFrame;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -85,7 +85,6 @@ type
     ActionList: TActionList;
     actShowManufacturers: TAction;
     cxtsParametersForCategories: TcxTabSheet;
-    ViewParametersForCategories: TViewParametersForCategories;
     cxtsParametricTable: TcxTabSheet;
     ViewParametricTable: TViewParametricTable;
     ViewComponentsSearch: TViewComponentsSearch;
@@ -129,6 +128,7 @@ type
     Excel1: TMenuItem;
     actLoadTreeFromExcelDocument: TAction;
     Excel2: TMenuItem;
+    FrameCategoryParameters: TFrameCategoryParameters;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
@@ -581,9 +581,9 @@ var
   ATreeExcelDM: TTreeExcelDM;
   OK: Boolean;
 begin
-//  if (DM.qTreeList.FDQuery.RecordCount > 0) and not TDialog.Create.ClearTreeDialog
-//  then
-//    Exit;
+  // if (DM.qTreeList.FDQuery.RecordCount > 0) and not TDialog.Create.ClearTreeDialog
+  // then
+  // Exit;
 
   AFileName := TDialog.Create.OpenExcelFile
     (TSettings.Create.LastFolderForExcelFile);
@@ -1024,8 +1024,13 @@ begin
 
       ViewComponentsSearch.ComponentsSearchGroup := DM.ComponentsSearchGroup;
 
-      ViewParametersForCategories.ParametersForCategoriesGroup :=
-        DM.ParametersForCategoriesGroup;
+      // Параметры в виде категорий
+      FrameCategoryParameters.ViewParametersForCategories.
+        ParametersForCategoriesGroup := DM.ParametersForCategoriesGroup;
+
+      // Параметры в виде списка
+      FrameCategoryParameters.ViewCategoryParameters.QueryCategoryParameters :=
+        DM.qCategoryParameters;
 
       ViewParametricTable.ComponentsExGroup := DM.ComponentsExGroup;
 

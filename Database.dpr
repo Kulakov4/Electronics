@@ -169,7 +169,11 @@ uses
   RecursiveTreeQuery in 'Queryes\TreeList\RecursiveTreeQuery.pas' {QueryRecursiveTree: TFrame},
   RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
   TreeExcelDataModule in 'Excel\TreeExcelDataModule.pas' {TreeExcelDM: TDataModule},
-  DeleteLostFamily in 'Queryes\Components\DeleteLostFamily.pas' {QueryDeleteLostFamily: TFrame};
+  DeleteLostFamily in 'Queryes\Components\DeleteLostFamily.pas' {QueryDeleteLostFamily: TFrame},
+  CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParameters: TFrame},
+  CategoryParametersView in 'Views\CategoryParameters\CategoryParametersView.pas' {ViewCategoryParameters: TFrame},
+  CategoryParametersFrame in 'Views\CategoryParameters\CategoryParametersFrame.pas' {FrameCategoryParameters: TFrame},
+  ParameterPosQuery in 'Queryes\Parameters\ParameterPosQuery.pas' {QueryParameterPos: TFrame};
 
 {$R *.res}
 

@@ -13,7 +13,7 @@ uses
   ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
   ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
   QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery;
+  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery, CategoryParametersQuery;
 
 type
   TDM = class(TForm)
@@ -34,6 +34,7 @@ type
     qProducers: TQueryProducers;
     DescriptionsGroup: TDescriptionsGroup;
     qVersion: TQueryVersion;
+    qCategoryParameters: TQueryCategoryParameters;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -100,6 +101,8 @@ begin
     Add(ParametersForCategoriesGroup.qParameterTypes);
     // вкладка параметры - подчинённое
     Add(ParametersForCategoriesGroup.qParametersDetail);
+    // вкладка параметры - список параметров
+    Add(qCategoryParameters);
 
     Add(qBodyTypes); // Выпадающий список корпусов
   end;
@@ -128,6 +131,7 @@ begin
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
   ParametersForCategoriesGroup.qParametersDetail.Master := qTreeList;
+  qCategoryParameters.Master := qTreeList;
   // qCategoryParameters.Master := qTreeList;
 
   TNotifyEventWrap.Create(ParametersForCategoriesGroup.qParametersDetail.

@@ -160,7 +160,7 @@ object frmMain: TfrmMain
           Height = 531
           Align = alClient
           TabOrder = 2
-          Properties.ActivePage = tsFunctionalGroup
+          Properties.ActivePage = cxtsParametersForCategories
           Properties.CustomButtons.Buttons = <>
           OnPageChanging = cxpgcntrlMainPageChanging
           ClientRectBottom = 527
@@ -326,26 +326,102 @@ object frmMain: TfrmMain
           object cxtsParametersForCategories: TcxTabSheet
             Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
             ImageIndex = 4
-            inline ViewParametersForCategories: TViewParametersForCategories
+            inline FrameCategoryParameters: TFrameCategoryParameters
               Left = 0
               Top = 0
               Width = 833
               Height = 500
               Align = alClient
               TabOrder = 0
-              ExplicitWidth = 833
-              ExplicitHeight = 500
-              inherited cxGrid: TcxGrid
+              ExplicitLeft = -43
+              inherited cxPageControl1: TcxPageControl
                 Width = 833
-                Height = 481
-                ExplicitWidth = 833
-                ExplicitHeight = 481
-              end
-              inherited StatusBar: TStatusBar
-                Top = 481
-                Width = 833
-                ExplicitTop = 481
-                ExplicitWidth = 833
+                Height = 500
+                ExplicitLeft = 0
+                ExplicitTop = 0
+                ExplicitWidth = 876
+                ExplicitHeight = 477
+                ClientRectBottom = 496
+                ClientRectRight = 829
+                inherited cxtsCategorized: TcxTabSheet
+                  ExplicitLeft = 48
+                  ExplicitTop = 4
+                  ExplicitWidth = 824
+                  ExplicitHeight = 469
+                  inherited ViewParametersForCategories: TViewParametersForCategories
+                    ExplicitLeft = 0
+                    ExplicitTop = 0
+                    ExplicitWidth = 824
+                    ExplicitHeight = 469
+                    inherited cxGrid: TcxGrid
+                      ExplicitWidth = 824
+                      ExplicitHeight = 450
+                    end
+                    inherited StatusBar: TStatusBar
+                      ExplicitTop = 450
+                      ExplicitWidth = 824
+                    end
+                    inherited dxBarManager: TdxBarManager
+                      DockControlHeights = (
+                        0
+                        0
+                        0
+                        0)
+                    end
+                    inherited cxGridPopupMenu: TcxGridPopupMenu
+                      PopupMenus = <
+                        item
+                          GridView = FrameCategoryParameters.ViewParametersForCategories.cxGridDBBandedTableView
+                          HitTypes = [gvhtCell]
+                          Index = 0
+                          PopupMenu = FrameCategoryParameters.ViewParametersForCategories.pmGrid
+                        end>
+                    end
+                  end
+                end
+                inherited cxtsList: TcxTabSheet
+                  ExplicitLeft = 48
+                  ExplicitTop = 4
+                  ExplicitWidth = 824
+                  ExplicitHeight = 469
+                  inherited ViewCategoryParameters: TViewCategoryParameters
+                    Width = 781
+                    Height = 492
+                    ExplicitLeft = 0
+                    ExplicitTop = 0
+                    ExplicitWidth = 824
+                    ExplicitHeight = 469
+                    inherited cxGrid: TcxGrid
+                      Width = 781
+                      Height = 473
+                      ExplicitTop = 0
+                      ExplicitWidth = 824
+                      ExplicitHeight = 450
+                    end
+                    inherited StatusBar: TStatusBar
+                      Top = 473
+                      Width = 781
+                      ExplicitTop = 450
+                      ExplicitWidth = 824
+                    end
+                    inherited dxBarManager: TdxBarManager
+                      DockControlHeights = (
+                        0
+                        0
+                        0
+                        0)
+                    end
+                    inherited cxGridPopupMenu: TcxGridPopupMenu
+                      PopupMenus = <
+                        item
+                          GridView = FrameCategoryParameters.ViewCategoryParameters.cxGridDBBandedTableView
+                          HitTypes = [gvhtCell]
+                          Index = 0
+                          PopupMenu = FrameCategoryParameters.ViewCategoryParameters.pmGrid
+                        end>
+                    end
+                  end
+                end
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -354,14 +430,8 @@ object frmMain: TfrmMain
                   0
                   0)
               end
-              inherited cxGridPopupMenu: TcxGridPopupMenu
-                PopupMenus = <
-                  item
-                    GridView = ViewParametersForCategories.cxGridDBBandedTableView
-                    HitTypes = [gvhtCell]
-                    Index = 0
-                    PopupMenu = ViewParametersForCategories.pmGrid
-                  end>
+              inherited cxImageList: TcxImageList
+                FormatVersion = 1
               end
             end
           end

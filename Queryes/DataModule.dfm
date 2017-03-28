@@ -393,13 +393,22 @@ object DM: TDM
     end
   end
   inline qVersion: TQueryVersion
-    Left = 912
-    Top = 480
+    Left = 824
+    Top = 463
     Width = 125
     Height = 80
     TabOrder = 15
-    ExplicitLeft = 912
-    ExplicitTop = 480
+    ExplicitLeft = 824
+    ExplicitTop = 463
+  end
+  inline qCategoryParameters: TQueryCategoryParameters
+    Left = 904
+    Top = 584
+    Width = 125
+    Height = 80
+    TabOrder = 16
+    ExplicitLeft = 904
+    ExplicitTop = 584
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'
