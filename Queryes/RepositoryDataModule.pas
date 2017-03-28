@@ -30,15 +30,18 @@ type
     cxStyleRepository: TcxStyleRepository;
     cxStyle1: TcxStyle;
     procedure dbConnectionAfterCommit(Sender: TObject);
+    procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
   private
     FAfterCommit: TNotifyEventsEx;
+    FAfterConnect: TNotifyEventsEx;
     FAfterRollback: TNotifyEventsEx;
     procedure LocalizeDevExpress;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
+    property AfterConnect: TNotifyEventsEx read FAfterConnect;
     property AfterRollback: TNotifyEventsEx read FAfterRollback;
     { Public declarations }
   end;
@@ -60,6 +63,7 @@ begin
 
   FAfterCommit := TNotifyEventsEx.Create(Self);
   FAfterRollback := TNotifyEventsEx.Create(Self);
+  FAfterConnect := TNotifyEventsEx.Create(Self);
 
   // локализуем девэкспресс
   LocalizeDevExpress();
@@ -69,6 +73,12 @@ procedure TDMRepository.dbConnectionAfterCommit(Sender: TObject);
 begin
   // Извещаем всех о коммите
   FAfterCommit.CallEventHandlers(Sender);
+end;
+
+procedure TDMRepository.dbConnectionAfterConnect(Sender: TObject);
+begin
+  // Извещаем всех, что соединение с БД установлено
+  FAfterConnect.CallEventHandlers(Sender);
 end;
 
 procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);

@@ -19,6 +19,7 @@ type
   private
     FParameterFields: TDictionary<Integer, String>;
     FQuerySearchProductParameterValues: TQuerySearchProductParameterValues;
+    procedure DoAfterConnect(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     function GetDatasheet: TField;
     function GetPackagePins: TField;
@@ -88,11 +89,13 @@ begin
   // Список полей, которые являются параметрами
   FParameterFields := TDictionary<Integer, String>.Create;
 
-  // Если соединение с БД уже установлено
-  if DMRepository.dbConnection.Connected then
+  // Если соединение с БД ещё не установлено
+  if not DMRepository.dbConnection.Connected then
   begin
+    TNotifyEventWrap.Create(DMRepository.AfterConnect, DoAfterConnect, FEventList);
+  end
+  else
     InitParameterFields;
-  end;
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 
@@ -142,16 +145,23 @@ begin
   Result := Result.Trim([',']);
 end;
 
+procedure TQueryCustomComponents.DoAfterConnect(Sender: TObject);
+begin
+  // Инициализируем поля которые являются параметрами
+  InitParameterFields;
+end;
+
 procedure TQueryCustomComponents.DoAfterOpen(Sender: TObject);
 var
   AFieldName: string;
   F: TField;
 begin
+{
   if FParameterFields.Count = 0 then
   begin
     InitParameterFields;
   end;
-
+}
   // Проверяем что все поля, которые являются параметрами существуют
 
   for AFieldName in FParameterFields.Values do
