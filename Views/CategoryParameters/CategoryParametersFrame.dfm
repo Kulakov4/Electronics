@@ -17,20 +17,12 @@ object FrameCategoryParameters: TFrameCategoryParameters
     Properties.Images = cxImageList
     Properties.Rotate = True
     Properties.TabPosition = tpLeft
-    ExplicitLeft = 144
-    ExplicitTop = 48
-    ExplicitWidth = 289
-    ExplicitHeight = 193
     ClientRectBottom = 473
     ClientRectLeft = 48
     ClientRectRight = 872
     ClientRectTop = 4
     object cxtsCategorized: TcxTabSheet
       ImageIndex = 0
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 868
-      ExplicitHeight = 449
       inline ViewParametersForCategories: TViewParametersForCategories
         Left = 0
         Top = 0
@@ -38,15 +30,19 @@ object FrameCategoryParameters: TFrameCategoryParameters
         Height = 469
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -69
-        ExplicitTop = -22
+        ExplicitWidth = 824
+        ExplicitHeight = 469
         inherited cxGrid: TcxGrid
           Width = 824
           Height = 450
+          ExplicitWidth = 824
+          ExplicitHeight = 450
         end
         inherited StatusBar: TStatusBar
           Top = 450
           Width = 824
+          ExplicitTop = 450
+          ExplicitWidth = 824
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
@@ -68,10 +64,6 @@ object FrameCategoryParameters: TFrameCategoryParameters
     end
     object cxtsList: TcxTabSheet
       ImageIndex = 1
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 868
-      ExplicitHeight = 449
       inline ViewCategoryParameters: TViewCategoryParameters
         Left = 0
         Top = 0
@@ -83,7 +75,7 @@ object FrameCategoryParameters: TFrameCategoryParameters
         ExplicitTop = -22
         inherited cxGrid: TcxGrid
           Width = 824
-          Height = 450
+          Height = 422
         end
         inherited StatusBar: TStatusBar
           Top = 450
@@ -93,7 +85,7 @@ object FrameCategoryParameters: TFrameCategoryParameters
           DockControlHeights = (
             0
             0
-            0
+            28
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
@@ -104,6 +96,9 @@ object FrameCategoryParameters: TFrameCategoryParameters
               Index = 0
               PopupMenu = ViewCategoryParameters.pmGrid
             end>
+        end
+        inherited cxStyleRepository: TcxStyleRepository
+          PixelsPerInch = 96
         end
       end
     end

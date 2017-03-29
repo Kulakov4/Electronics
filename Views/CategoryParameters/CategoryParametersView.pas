@@ -48,7 +48,14 @@ type
     dxBarButton4: TdxBarButton;
     dxBarButton5: TdxBarButton;
     cxStyleRepository: TcxStyleRepository;
-    cxStyle1: TcxStyle;
+    cxStyleBegin: TcxStyle;
+    cxStyleEnd: TcxStyle;
+    actApplyUpdates: TAction;
+    dxBarButton6: TdxBarButton;
+    actCancelUpdates: TAction;
+    dxBarButton7: TdxBarButton;
+    procedure actApplyUpdatesExecute(Sender: TObject);
+    procedure actCancelUpdatesExecute(Sender: TObject);
     procedure actDownExecute(Sender: TObject);
     procedure actPosBeginExecute(Sender: TObject);
     procedure actPosCenterExecute(Sender: TObject);
@@ -56,8 +63,8 @@ type
     procedure actUpExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
-    procedure cxGridDBBandedTableViewStylesGetContentStyle(
-      Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+    procedure cxGridDBBandedTableViewStylesGetContentStyle
+      (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
   private
     FQueryCategoryParameters: TQueryCategoryParameters;
@@ -71,6 +78,7 @@ type
   protected
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
+    function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
     property QueryCategoryParameters: TQueryCategoryParameters
       read FQueryCategoryParameters write SetQueryCategoryParameters;
@@ -81,7 +89,22 @@ implementation
 
 {$R *.dfm}
 
-uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math;
+uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math,
+  DialogUnit;
+
+procedure TViewCategoryParameters.actApplyUpdatesExecute(Sender: TObject);
+begin
+  inherited;
+  QueryCategoryParameters.ApplyUpdates;
+  UpdateView;
+end;
+
+procedure TViewCategoryParameters.actCancelUpdatesExecute(Sender: TObject);
+begin
+  inherited;
+  QueryCategoryParameters.CancelUpdates;
+  UpdateView;
+end;
 
 procedure TViewCategoryParameters.actDownExecute(Sender: TObject);
 begin
@@ -116,6 +139,25 @@ begin
   Move(True);
 end;
 
+function TViewCategoryParameters.CheckAndSaveChanges: Integer;
+begin
+  Result := 0;
+  if QueryCategoryParameters = nil then
+    Exit;
+
+  // ≈сли есть несохранЄнные изменени€
+  if QueryCategoryParameters.HaveAnyChanges then
+  begin
+    Result := TDialog.Create.SaveDataDialog;
+    case Result of
+      IDYes:
+        actApplyUpdates.Execute;
+      IDNO:
+        actCancelUpdates.Execute;
+    end;
+  end;
+end;
+
 procedure TViewCategoryParameters.cxGridDBBandedTableViewEditValueChanged
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
 begin
@@ -124,20 +166,33 @@ begin
     cxGridDBBandedTableView.DataController.Post();
 end;
 
-procedure TViewCategoryParameters.cxGridDBBandedTableViewStylesGetContentStyle(
-  Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+procedure TViewCategoryParameters.cxGridDBBandedTableViewStylesGetContentStyle
+  (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
   AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
 var
+  APosID: Integer;
   V: Variant;
 begin
   inherited;
-  if (ARecord = nil) or (AItem = nil) or (not ARecord.IsData ) then exit;
+  if (ARecord = nil) or (AItem = nil) or (not ARecord.IsData) then
+    exit;
   // ѕолучаем значение расположени€
   V := ARecord.Values[clPosID.Index];
   if VarIsNull(V) then
-    Exit;
+    exit;
+  {
+    S := AItem.ClassName;
 
-
+    if not(AItem is TcxGridDBBandedColumn) then
+    beep;
+  }
+  APosID := V;
+  case APosID of
+    0:
+      AStyle := cxStyleBegin;
+    2:
+      AStyle := cxStyleEnd;
+  end;
 end;
 
 procedure TViewCategoryParameters.DoAfterLoad(Sender: TObject);
@@ -187,14 +242,19 @@ begin
       end;
 
       if (i < 0) or (i >= MainView.ViewData.RowCount) then
-        Exit;
+        exit;
 
       AID := Value(MainView, clID, i);
       AOrder := Value(MainView, clOrder, i);
 
       // ≈сли положение перемещаемых записей и нового места разные
       if Value(MainView, clPosID, i) <> Value(MainView, clPosID, m.First) then
-        Exit;
+        exit;
+
+      // ≈сли положение первой и последней перемещаемой записи разное
+      if Value(MainView, clPosID, m.First) <> Value(MainView, clPosID, m.Last)
+      then
+        exit;
 
       L := TList<TRecOrder>.Create;
       try
@@ -216,6 +276,7 @@ begin
     end;
   finally
     MainView.EndSortingUpdate;
+    UpdateView;
   end;
 end;
 
@@ -234,6 +295,7 @@ begin
   finally
     MainView.EndSortingUpdate;
   end;
+  UpdateView;
 end;
 
 procedure TViewCategoryParameters.SetQueryCategoryParameters
@@ -266,12 +328,15 @@ var
   OK: Boolean;
 begin
   OK := (FQueryCategoryParameters <> nil) and
-    (QueryCategoryParameters.FDQuery.Active) and
-    (QueryCategoryParameters.FDQuery.RecordCount > 0);
+    (QueryCategoryParameters.FDQuery.Active);
 
-  actPosBegin.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
+  actPosBegin.Enabled := OK and (MainView.Controller.SelectedRowCount > 0) and
+    (QueryCategoryParameters.FDQuery.RecordCount > 0);
   actPosCenter.Enabled := actPosBegin.Enabled;
   actPosEnd.Enabled := actPosBegin.Enabled;
+
+  actApplyUpdates.Enabled := OK and QueryCategoryParameters.HaveAnyChanges;
+  actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 end;
 
 end.

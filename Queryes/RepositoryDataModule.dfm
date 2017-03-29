@@ -1535,13 +1535,4 @@ object DMRepository: TDMRepository
           0414000000000000000000000000000000000000000000000000}
       end>
   end
-  object cxStyleRepository_: TcxStyleRepository
-    Left = 152
-    Top = 80
-    PixelsPerInch = 96
-    object cxStyle0: TcxStyle
-      AssignedValues = [svColor]
-      Color = clGradientActiveCaption
-    end
-  end
 end

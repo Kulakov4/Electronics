@@ -107,6 +107,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton6'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -128,6 +136,16 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     object dxBarButton5: TdxBarButton
       Action = actDown
       Category = 0
+    end
+    object dxBarButton6: TdxBarButton
+      Action = actApplyUpdates
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton7: TdxBarButton
+      Action = actCancelUpdates
+      Category = 0
+      PaintStyle = psCaptionGlyph
     end
   end
   inherited ActionList: TActionList
@@ -155,10 +173,28 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       ImageIndex = 38
       OnExecute = actDownExecute
     end
+    object actApplyUpdates: TAction
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+      ImageIndex = 3
+      OnExecute = actApplyUpdatesExecute
+    end
+    object actCancelUpdates: TAction
+      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      ImageIndex = 14
+      OnExecute = actCancelUpdatesExecute
+    end
   end
   object cxStyleRepository: TcxStyleRepository
-    Left = 591
+    Left = 594
     Top = 120
     PixelsPerInch = 96
+    object cxStyleBegin: TcxStyle
+      AssignedValues = [svColor]
+      Color = 16113353
+    end
+    object cxStyleEnd: TcxStyle
+      AssignedValues = [svColor]
+      Color = 13431295
+    end
   end
 end

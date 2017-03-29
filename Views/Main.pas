@@ -1330,7 +1330,9 @@ end;
 procedure TfrmMain.tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
 ANode: TcxTreeListNode; var Allow: Boolean);
 begin
-  Allow := ViewComponents.CheckAndSaveChanges <> IDCancel;
+  Allow := (ViewComponents.CheckAndSaveChanges <> IDCancel) and
+    (FrameCategoryParameters.ViewCategoryParameters.CheckAndSaveChanges <>
+    IDCancel);
 end;
 
 procedure TfrmMain.tlLeftControlClick(Sender: TObject);
