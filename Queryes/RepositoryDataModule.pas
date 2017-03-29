@@ -27,8 +27,8 @@ type
     clRus: TcxLocalizer;
     dbConnection: TFDConnection;
     cxImageList: TcxImageList;
-    cxStyleRepository: TcxStyleRepository;
-    cxStyle1: TcxStyle;
+    cxStyleRepository_: TcxStyleRepository;
+    cxStyle0: TcxStyle;
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);

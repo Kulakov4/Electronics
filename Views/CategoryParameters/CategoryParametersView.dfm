@@ -2,6 +2,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
+      Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
@@ -98,6 +99,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton4'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -110,6 +119,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     end
     object dxBarButton3: TdxBarButton
       Action = actPosCenter
+      Category = 0
+    end
+    object dxBarButton4: TdxBarButton
+      Action = actUp
+      Category = 0
+    end
+    object dxBarButton5: TdxBarButton
+      Action = actDown
       Category = 0
     end
   end
@@ -126,5 +143,22 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Caption = #1042' '#1082#1086#1085#1077#1094
       OnExecute = actPosEndExecute
     end
+    object actUp: TAction
+      Caption = #1042#1074#1077#1088#1093
+      Hint = #1055#1077#1088#1077#1084#1077#1089#1090#1080#1090#1100' '#1074#1074#1077#1088#1093
+      ImageIndex = 37
+      OnExecute = actUpExecute
+    end
+    object actDown: TAction
+      Caption = #1042#1085#1080#1079
+      Hint = #1055#1077#1088#1077#1084#1077#1089#1090#1080#1090#1100' '#1074#1085#1080#1079
+      ImageIndex = 38
+      OnExecute = actDownExecute
+    end
+  end
+  object cxStyleRepository: TcxStyleRepository
+    Left = 591
+    Top = 120
+    PixelsPerInch = 96
   end
 end

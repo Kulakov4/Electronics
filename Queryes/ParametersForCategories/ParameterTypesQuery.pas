@@ -105,7 +105,7 @@ var
   AKeyField: TField;
   ANewOrderValue: Integer;
   AOrderField: TField;
-  ARecOrder: TRecOrder;
+//  ARecOrder: TRecOrder;
   I: Integer;
   IsDown: Boolean;
   IsUp: Boolean;
@@ -144,11 +144,8 @@ begin
       if Sign <> 0 then
       begin
         // Запоминаем, что нужно изменить
-        ARecOrder := TRecOrder.Create;
-        ARecOrder.Key := AKeyField.AsInteger;
-        ARecOrder.Order := AOrderField.AsInteger + Sign *
-          Length(AStartDrag.Keys);
-        FRecOrderList.Add(ARecOrder);
+        FRecOrderList.Add(TRecOrder.Create(AKeyField.AsInteger, AOrderField.AsInteger + Sign *
+          Length(AStartDrag.Keys)));
       end;
 
       AClone.Next;
@@ -161,10 +158,7 @@ begin
     for I := Low(AStartDrag.Keys) to High(AStartDrag.Keys) do
     begin
       // Запоминаем, что нужно изменить
-      ARecOrder := TRecOrder.Create;
-      ARecOrder.Key := AStartDrag.Keys[I];
-      ARecOrder.Order := ANewOrderValue + I;
-      FRecOrderList.Add(ARecOrder);
+      FRecOrderList.Add(TRecOrder.Create(AStartDrag.Keys[I], ANewOrderValue + I));
     end;
   finally
     FreeAndNil(AClone);

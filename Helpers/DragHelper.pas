@@ -6,6 +6,8 @@ type
   TRecOrder = class
     Key: Integer;
     Order: Integer;
+  public
+    constructor Create(AKey, AOrder: Integer);
   end;
 
   TStartDrag = class
@@ -22,5 +24,13 @@ type
   end;
 
 implementation
+
+constructor TRecOrder.Create(AKey, AOrder: Integer);
+begin
+  inherited Create;
+  Assert(AKey > 0);
+  Key := AKey;
+  Order := AOrder;
+end;
 
 end.

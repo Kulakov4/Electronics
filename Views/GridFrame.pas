@@ -102,6 +102,8 @@ type
     procedure UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
+    function Value(AView: TcxGridDBBandedTableView; AColumn: TcxGridDBBandedColumn;
+        const ARowIndex: Integer): Variant;
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
     property MainView: TcxGridDBBandedTableView read GetMainView;
@@ -525,6 +527,20 @@ end;
 
 procedure TfrmGrid.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
 begin
+end;
+
+function TfrmGrid.Value(AView: TcxGridDBBandedTableView; AColumn:
+    TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
+var
+  V: Variant;
+begin
+  Assert(AView <> nil);
+  Assert(AColumn <> nil);
+  Assert(ARowIndex >= 0);
+
+  V := AView.ViewData.Rows[ARowIndex].Values[AColumn.Index];
+  Assert(not VarIsNull(V));
+  Result := V;
 end;
 
 end.

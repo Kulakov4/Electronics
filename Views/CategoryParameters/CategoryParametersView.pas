@@ -26,7 +26,8 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, CategoryParametersQuery, ParameterPosQuery;
+  cxGridDBBandedTableView, cxGrid, CategoryParametersQuery, ParameterPosQuery,
+  DragHelper;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -42,16 +43,28 @@ type
     dxBarButton2: TdxBarButton;
     actPosCenter: TAction;
     dxBarButton3: TdxBarButton;
+    actUp: TAction;
+    actDown: TAction;
+    dxBarButton4: TdxBarButton;
+    dxBarButton5: TdxBarButton;
+    cxStyleRepository: TcxStyleRepository;
+    cxStyle1: TcxStyle;
+    procedure actDownExecute(Sender: TObject);
     procedure actPosBeginExecute(Sender: TObject);
     procedure actPosCenterExecute(Sender: TObject);
     procedure actPosEndExecute(Sender: TObject);
+    procedure actUpExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
+    procedure cxGridDBBandedTableViewStylesGetContentStyle(
+      Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+      AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
   private
     FQueryCategoryParameters: TQueryCategoryParameters;
     FQueryParameterPos: TQueryParameterPos;
     procedure DoAfterLoad(Sender: TObject);
     function GetQueryParameterPos: TQueryParameterPos;
+    procedure Move(AUp: Boolean);
     procedure SetPos(APosID: Integer);
     procedure SetQueryCategoryParameters(const Value: TQueryCategoryParameters);
     { Private declarations }
@@ -68,7 +81,13 @@ implementation
 
 {$R *.dfm}
 
-uses cxDropDownEdit, NotifyEvents;
+uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math;
+
+procedure TViewCategoryParameters.actDownExecute(Sender: TObject);
+begin
+  inherited;
+  Move(False);
+end;
 
 procedure TViewCategoryParameters.actPosBeginExecute(Sender: TObject);
 begin
@@ -91,12 +110,34 @@ begin
   SetPos(2);
 end;
 
+procedure TViewCategoryParameters.actUpExecute(Sender: TObject);
+begin
+  inherited;
+  Move(True);
+end;
+
 procedure TViewCategoryParameters.cxGridDBBandedTableViewEditValueChanged
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
 begin
   inherited;
   if AItem = clPosID then
     cxGridDBBandedTableView.DataController.Post();
+end;
+
+procedure TViewCategoryParameters.cxGridDBBandedTableViewStylesGetContentStyle(
+  Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+  AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
+var
+  V: Variant;
+begin
+  inherited;
+  if (ARecord = nil) or (AItem = nil) or (not ARecord.IsData ) then exit;
+  // Получаем значение расположения
+  V := ARecord.Values[clPosID.Index];
+  if VarIsNull(V) then
+    Exit;
+
+
 end;
 
 procedure TViewCategoryParameters.DoAfterLoad(Sender: TObject);
@@ -114,17 +155,85 @@ begin
   Result := FQueryParameterPos;
 end;
 
+procedure TViewCategoryParameters.Move(AUp: Boolean);
+var
+  AID: Integer;
+  m: TList<Integer>;
+  i: Integer;
+  AOrder: Integer;
+  L: TList<TRecOrder>;
+begin
+  inherited;
+  MainView.BeginSortingUpdate;
+  try
+    m := TList<Integer>.Create;
+    try
+      for i := 0 to MainView.Controller.SelectedRowCount - 1 do
+      begin
+        m.Add(MainView.Controller.SelectedRows[i].Index);
+      end;
+
+      m.Sort;
+      // Убеждаемся что индексы в списке непрерывны
+      Assert(m.Last - m.First + 1 = m.Count);
+
+      // Индекс строки c которой будем меняться позицией
+      if AUp then
+        i := m.First - 1
+      else
+      begin
+        m.Reverse;
+        i := m.First + 1;
+      end;
+
+      if (i < 0) or (i >= MainView.ViewData.RowCount) then
+        Exit;
+
+      AID := Value(MainView, clID, i);
+      AOrder := Value(MainView, clOrder, i);
+
+      // Если положение перемещаемых записей и нового места разные
+      if Value(MainView, clPosID, i) <> Value(MainView, clPosID, m.First) then
+        Exit;
+
+      L := TList<TRecOrder>.Create;
+      try
+        // Меняем порядок записи на противоположный
+        L.Add(TRecOrder.Create(AID, -AOrder));
+        // Смещаем остальные записи
+        for i in m do
+        begin
+          L.Add(TRecOrder.Create(Value(MainView, clID, i), AOrder));
+          AOrder := Value(MainView, clOrder, i);
+        end;
+        L.Add(TRecOrder.Create(AID, AOrder));
+        QueryCategoryParameters.Move(L);
+      finally
+        FreeAndNil(L);
+      end;
+    finally
+      FreeAndNil(m);
+    end;
+  finally
+    MainView.EndSortingUpdate;
+  end;
+end;
+
 procedure TViewCategoryParameters.SetPos(APosID: Integer);
 var
   i: Integer;
 begin
-  for i := 0 to MainView.Controller.SelectedRowCount - 1 do
-  begin
-    // Фокусируем, чтобы курсор в БД встал на неё
-    MainView.Controller.SelectedRows[i].Focused := True;
-    QueryCategoryParameters.SetPos(APosID);
+  MainView.BeginSortingUpdate;
+  try
+    for i := 0 to MainView.Controller.SelectedRowCount - 1 do
+    begin
+      // Фокусируем, чтобы курсор в БД встал на неё
+      MainView.Controller.SelectedRows[i].Focused := True;
+      QueryCategoryParameters.SetPos(APosID);
+    end;
+  finally
+    MainView.EndSortingUpdate;
   end;
-
 end;
 
 procedure TViewCategoryParameters.SetQueryCategoryParameters
@@ -145,7 +254,8 @@ begin
         QueryParameterPos.DataSource, lsFixedList,
         QueryParameterPos.Pos.FieldName);
 
-      TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad, FEventList);
+      TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad,
+        FEventList);
       UpdateView;
     end;
   end;

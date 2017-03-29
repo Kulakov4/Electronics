@@ -11,8 +11,7 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   NotifyEvents, System.Contnrs, System.Generics.Collections, ProgressInfo;
 
-//  WM_NEED_POST = WM_USER + 558;
-
+// WM_NEED_POST = WM_USER + 558;
 
 type
   TQueryBase = class(TFrame)
@@ -34,23 +33,24 @@ type
     procedure ApplyInsert(ASender: TDataSet); virtual;
     procedure ApplyUpdate(ASender: TDataSet); virtual;
     procedure DeleteSelfDetail(AIDMaster: Variant); virtual;
-// TODO: DoOnNeedPost
-//  procedure DoOnNeedPost(var Message: TMessage); message WM_NEED_POST;
-    procedure DoOnQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
-        var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+    // TODO: DoOnNeedPost
+    // procedure DoOnNeedPost(var Message: TMessage); message WM_NEED_POST;
+    procedure DoOnQueryUpdateRecord(ASender: TDataSet;
+      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+      AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AppendRows(AFieldName: string; AValues: TArray<String>); overload;
-        virtual;
+    procedure AppendRows(AFieldName: string; AValues: TArray<String>);
+      overload; virtual;
     procedure AppendRows(AFieldNames: Array of String; AValues: TArray<String>);
-        overload; virtual;
+      overload; virtual;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
-    procedure CascadeDelete(const AIDMaster: Integer; const ADetailKeyFieldName:
-        String); virtual;
+    procedure CascadeDelete(const AIDMaster: Integer;
+      const ADetailKeyFieldName: String); virtual;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
     procedure DeleteList(var AList: TList<Variant>);
@@ -60,10 +60,12 @@ type
     procedure Load(AIDParent: Integer); overload; virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
+    procedure SetParameters(const AParamNames: array of string;
+      const AParamValues: array of Variant);
     function LocateByPK(APKValue: Variant): Boolean;
     procedure RefreshQuery; virtual;
-    function Search(const AParamNames: array of string; const AParamValues: array
-        of Variant): Integer; overload;
+    function Search(const AParamNames: array of string;
+      const AParamValues: array of Variant): Integer; overload;
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure TryEdit;
@@ -126,15 +128,14 @@ begin
   end;
 end;
 
-procedure TQueryBase.AppendRows(AFieldNames: Array of String; AValues:
-    TArray<String>);
+procedure TQueryBase.AppendRows(AFieldNames: Array of String;
+  AValues: TArray<String>);
 var
   AValue: string;
   i: Integer;
   m: TArray<String>;
 begin
   Assert(Length(AFieldNames) > 0);
-
 
   // Добавляем в список родительские компоненты
   for AValue in AValues do
@@ -214,8 +215,8 @@ begin
   FDQuery.CancelUpdates;
 end;
 
-procedure TQueryBase.CascadeDelete(const AIDMaster: Integer; const
-    ADetailKeyFieldName: String);
+procedure TQueryBase.CascadeDelete(const AIDMaster: Integer;
+  const ADetailKeyFieldName: String);
 begin
   Assert(AIDMaster > 0);
 
@@ -312,9 +313,9 @@ begin
   // По умолчанию нет подчинённых своих-же записей
 end;
 
-procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   try
     // Если произошло удаление
@@ -335,7 +336,6 @@ begin
       ApplyUpdate(ASender);
     end;
 
-
     AAction := eaApplied;
   except
     AAction := eaFail;
@@ -344,8 +344,7 @@ begin
 end;
 
 procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
-begin
-;
+begin;
 end;
 
 function TQueryBase.Field(const AFieldName: String): TField;
@@ -467,22 +466,28 @@ end;
 
 procedure TQueryBase.Load(const AParamNames: array of string;
   const AParamValues: array of Variant);
+begin
+  FDQuery.DisableControls;
+  try
+    FDQuery.Close;
+    SetParameters(AParamNames, AParamValues);
+    FDQuery.Open;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
+procedure TQueryBase.SetParameters(const AParamNames: array of string;
+  const AParamValues: array of Variant);
 var
   i: Integer;
 begin
   Assert(Low(AParamNames) = Low(AParamValues));
   Assert(High(AParamNames) = High(AParamValues));
 
-  FDQuery.DisableControls;
-  try
-    FDQuery.Close;
-    for i := Low(AParamNames) to High(AParamNames) do
-    begin
-      FDQuery.ParamByName(AParamNames[i]).Value := AParamValues[i];
-    end;
-    FDQuery.Open;
-  finally
-    FDQuery.EnableControls;
+  for i := Low(AParamNames) to High(AParamNames) do
+  begin
+    FDQuery.ParamByName(AParamNames[i]).Value := AParamValues[i];
   end;
 end;
 
@@ -502,8 +507,8 @@ begin
   end;
 end;
 
-function TQueryBase.Search(const AParamNames: array of string; const
-    AParamValues: array of Variant): Integer;
+function TQueryBase.Search(const AParamNames: array of string;
+  const AParamValues: array of Variant): Integer;
 var
   i: Integer;
 begin

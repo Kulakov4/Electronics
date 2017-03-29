@@ -1,4 +1,6 @@
 inherited QueryCategoryParameters: TQueryCategoryParameters
+  Width = 320
+  ExplicitWidth = 320
   inherited Label1: TLabel
     Width = 136
     Caption = 'CategoryParameters'
@@ -17,5 +19,8 @@ inherited QueryCategoryParameters: TQueryCategoryParameters
         ParamType = ptInput
         Value = Null
       end>
+  end
+  inherited DataSource: TDataSource
+    Top = 25
   end
 end

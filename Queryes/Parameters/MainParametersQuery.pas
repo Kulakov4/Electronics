@@ -161,7 +161,7 @@ begin
       AID.AsInteger := ParametersApplyQuery.InsertRecord(RH);
     end;
     // Заплатка.
-//    PostMessage(Handle, WM_arInsert, AID.AsInteger, 0);
+    // PostMessage(Handle, WM_arInsert, AID.AsInteger, 0);
   finally
     FreeAndNil(RH);
   end;
@@ -211,7 +211,7 @@ begin
       // Помечаем, что мы имеем дело с параметром "по умолчанию"
       AIsCustomParameter.AsBoolean := True;
       // Заплатка.
-//      PostMessage(Handle, WM_arInsert, AID.AsInteger, 0);
+      // PostMessage(Handle, WM_arInsert, AID.AsInteger, 0);
 
     end
     else
@@ -320,7 +320,7 @@ var
   AKeyField: TField;
   ANewOrderValue: Integer;
   AOrderField: TField;
-  ARecOrder: TRecOrder;
+  // ARecOrder: TRecOrder;
   i: Integer;
   IsDown: Boolean;
   IsUp: Boolean;
@@ -359,11 +359,8 @@ begin
       if Sign <> 0 then
       begin
         // Запоминаем, что нужно изменить
-        ARecOrder := TRecOrder.Create;
-        ARecOrder.Key := AKeyField.AsInteger;
-        ARecOrder.Order := AOrderField.AsInteger + Sign *
-          Length(AStartDrag.Keys);
-        FRecOrderList.Add(ARecOrder);
+        FRecOrderList.Add(TRecOrder.Create(AKeyField.AsInteger,
+          AOrderField.AsInteger + Sign * Length(AStartDrag.Keys)));
       end;
 
       AClone.Next;
@@ -376,10 +373,8 @@ begin
     for i := Low(AStartDrag.Keys) to High(AStartDrag.Keys) do
     begin
       // Запоминаем, что нужно изменить
-      ARecOrder := TRecOrder.Create;
-      ARecOrder.Key := AStartDrag.Keys[i];
-      ARecOrder.Order := ANewOrderValue + i;
-      FRecOrderList.Add(ARecOrder);
+      FRecOrderList.Add(TRecOrder.Create(AStartDrag.Keys[i],
+        ANewOrderValue + i));
     end;
   finally
     FreeAndNil(AClone);
