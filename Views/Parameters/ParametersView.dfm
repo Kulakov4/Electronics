@@ -103,6 +103,26 @@ inherited ViewParameters: TViewParameters
         Position.ColIndex = 1
         Position.RowIndex = 0
       end
+      object clChecked: TcxGridDBBandedColumn
+        Caption = 'X'
+        DataBinding.FieldName = 'Checked'
+        PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.Alignment = taCenter
+        Properties.ValueChecked = '1'
+        Properties.ValueUnchecked = '0'
+        BestFitMaxWidth = 20
+        HeaderAlignmentHorz = taCenter
+        Options.IncSearch = False
+        Options.AutoWidthSizable = False
+        Options.Grouping = False
+        Options.HorzSizing = False
+        Options.Moving = False
+        Options.Sorting = False
+        Width = 20
+        Position.BandIndex = 0
+        Position.ColIndex = 2
+        Position.RowIndex = 0
+      end
       object clValue2: TcxGridDBBandedColumn
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'Value'
@@ -110,7 +130,7 @@ inherited ViewParameters: TViewParameters
         MinWidth = 100
         Width = 313
         Position.BandIndex = 0
-        Position.ColIndex = 2
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
       object clCodeLetters: TcxGridDBBandedColumn
@@ -120,7 +140,7 @@ inherited ViewParameters: TViewParameters
         MinWidth = 60
         Width = 148
         Position.BandIndex = 0
-        Position.ColIndex = 3
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
       object clMeasuringUnit: TcxGridDBBandedColumn
@@ -130,7 +150,7 @@ inherited ViewParameters: TViewParameters
         MinWidth = 100
         Width = 122
         Position.BandIndex = 0
-        Position.ColIndex = 4
+        Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clTableName: TcxGridDBBandedColumn
@@ -140,7 +160,7 @@ inherited ViewParameters: TViewParameters
         MinWidth = 100
         Width = 168
         Position.BandIndex = 0
-        Position.ColIndex = 5
+        Position.ColIndex = 6
         Position.RowIndex = 0
       end
       object clValueT: TcxGridDBBandedColumn
@@ -150,7 +170,7 @@ inherited ViewParameters: TViewParameters
         MinWidth = 100
         Width = 514
         Position.BandIndex = 0
-        Position.ColIndex = 6
+        Position.ColIndex = 7
         Position.RowIndex = 0
       end
       object clDefinition: TcxGridDBBandedColumn
@@ -161,7 +181,7 @@ inherited ViewParameters: TViewParameters
         Options.Sorting = False
         Width = 85
         Position.BandIndex = 0
-        Position.ColIndex = 7
+        Position.ColIndex = 8
         Position.RowIndex = 0
       end
       object clIDParameterType: TcxGridDBBandedColumn
@@ -177,7 +197,7 @@ inherited ViewParameters: TViewParameters
         Options.Sorting = False
         Width = 100
         Position.BandIndex = 0
-        Position.ColIndex = 8
+        Position.ColIndex = 9
         Position.RowIndex = 0
       end
     end

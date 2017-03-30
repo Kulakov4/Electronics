@@ -2,6 +2,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
+      OptionsData.DeletingConfirmation = False
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
@@ -48,6 +49,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Position.ColIndex = 3
         Position.RowIndex = 0
       end
+      object clParameterType: TcxGridDBBandedColumn
+        Caption = #1058#1080#1087
+        DataBinding.FieldName = 'ParameterType'
+        BestFitMaxWidth = 100
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
+      end
       object clPosID: TcxGridDBBandedColumn
         Caption = #1056#1072#1089#1087#1086#1083#1086#1078#1077#1085#1080#1077
         DataBinding.FieldName = 'PosID'
@@ -58,7 +67,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         SortIndex = 0
         SortOrder = soAscending
         Position.BandIndex = 0
-        Position.ColIndex = 4
+        Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clOrder: TcxGridDBBandedColumn
@@ -71,7 +80,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         SortIndex = 1
         SortOrder = soAscending
         Position.BandIndex = 0
-        Position.ColIndex = 5
+        Position.ColIndex = 6
         Position.RowIndex = 0
       end
     end
@@ -87,6 +96,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxbrsbtmColumnsCustomization'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton9'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end
         item
           Visible = True
@@ -147,6 +164,16 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton8: TdxBarButton
+      Action = actDelete
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton9: TdxBarButton
+      Action = actAdd
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     object actPosBegin: TAction
@@ -182,6 +209,16 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ImageIndex = 14
       OnExecute = actCancelUpdatesExecute
+    end
+    object actDelete: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      ImageIndex = 2
+      OnExecute = actDeleteExecute
+    end
+    object actAdd: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      ImageIndex = 1
+      OnExecute = actAddExecute
     end
   end
   object cxStyleRepository: TcxStyleRepository

@@ -20,13 +20,20 @@ type
     FDQuery2: TFDQuery;
     ParametersApplyQuery: TfrmApplyQuery;
   private
+    FHaveAnyChanges: Boolean;
+    FProductCategoryIDValue: Integer;
     FQuerySearchMainParameter: TQuerySearchMainParameter;
     FRecOrderList: TList<TRecOrder>;
     FShowDublicate: Boolean;
     FTableNameFilter: string;
+    procedure DoAfterCommitOrRollback(Sender: TObject);
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
+    procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    procedure DoBeforePost(Sender: TObject);
+    procedure DoOnDataChange(Sender: TObject);
+    function GetChecked: TField;
     function GetIDParameterType: TField;
     function GetIsCustomParameter: TField;
     function GetOrder: TField;
@@ -35,6 +42,7 @@ type
     function GetValue: TField;
     procedure SetShowDublicate(const Value: Boolean);
     procedure SetTableNameFilter(const Value: string);
+    procedure TryCommit;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -47,12 +55,16 @@ type
       read GetQuerySearchMainParameter;
   public
     constructor Create(AOwner: TComponent); override;
+    function GetCheckedPKValues: string;
     function Locate(const AValue: string): Boolean;
     function Lookup(AValue: string): Integer;
     procedure MoveDSRecord(AStartDrag: TStartDrag; ADropDrag: TDropDrag);
+    property Checked: TField read GetChecked;
     property IDParameterType: TField read GetIDParameterType;
     property IsCustomParameter: TField read GetIsCustomParameter;
     property Order: TField read GetOrder;
+    property ProductCategoryIDValue: Integer read FProductCategoryIDValue
+      write FProductCategoryIDValue;
     property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
     property TableName: TField read GetTableName;
     property TableNameFilter: string read FTableNameFilter
@@ -65,7 +77,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, DBRecordHolder;
+uses RepositoryDataModule, DBRecordHolder, System.StrUtils;
 
 constructor TQueryMainParameters.Create(AOwner: TComponent);
 begin
@@ -78,6 +90,16 @@ begin
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+
+  TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
+  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+
+  TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommitOrRollback,
+    FEventList);
+  TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterCommitOrRollback,
+    FEventList);
+
+  TNotifyEventWrap.Create(OnDataChange, DoOnDataChange, FEventList);
 
   AutoTransaction := False;
 end;
@@ -225,6 +247,11 @@ begin
   end;
 end;
 
+procedure TQueryMainParameters.DoAfterCommitOrRollback(Sender: TObject);
+begin
+  FHaveAnyChanges := False;
+end;
+
 procedure TQueryMainParameters.DoAfterInsert(Sender: TObject);
 begin
   FDQuery.FieldByName('IsCustomParameter').AsBoolean := False;
@@ -247,16 +274,83 @@ procedure TQueryMainParameters.DoAfterOpen(Sender: TObject);
 begin
   Value.DisplayLabel := 'Наименование';
   Value.Required := True;
+
+  // Checked.FieldKind := fkInternalCalc;
+  Checked.ReadOnly := False;
+end;
+
+procedure TQueryMainParameters.DoAfterPost(Sender: TObject);
+begin
+  TryCommit;
 end;
 
 procedure TQueryMainParameters.DoBeforeOpen(Sender: TObject);
 begin
-  FDQuery.ParamByName('TableName').AsString := FTableNameFilter;
+  SetParameters(['TableName', 'ProductCategoryID'],
+    [FTableNameFilter, FProductCategoryIDValue]);
+
+  if FDQuery.FieldCount = 0 then
+  begin
+    // Обновляем описания полей
+    FDQuery.FieldDefs.Update;
+    // Создаём поля по умолчанию
+    CreateDefaultFields(False);
+    Checked.FieldKind := fkInternalCalc;
+  end;
+end;
+
+procedure TQueryMainParameters.DoBeforePost(Sender: TObject);
+var
+  AField: TField;
+begin
+  if FHaveAnyChanges then
+    Exit;
+
+  for AField in FDQuery.Fields do
+  begin
+    if (AField <> Checked) and (AField.OldValue <> AField.Value) then
+    begin
+      FHaveAnyChanges := True;
+      break;
+    end;
+  end;
+end;
+
+procedure TQueryMainParameters.DoOnDataChange(Sender: TObject);
+begin
+  // TryCommit;
 end;
 
 procedure TQueryMainParameters.DoOnUpdateOrder(ARecOrder: TRecOrder);
 begin
   Order.Value := ARecOrder.Order;
+end;
+
+function TQueryMainParameters.GetChecked: TField;
+begin
+  Result := Field('Checked');
+end;
+
+function TQueryMainParameters.GetCheckedPKValues: string;
+var
+  AClone: TFDMemTable;
+begin
+  Result := '';
+  AClone := TFDMemTable.Create(Self);
+  try
+    AClone.CloneCursor(FDQuery);
+    // Фильтруем клона
+    AClone.Filter := Format('%s = %d', [Checked.FieldName, 1]);
+    AClone.Filtered := True;
+    while not AClone.Eof do
+    begin
+      Result := Result + IfThen(Result.IsEmpty, '', ',');
+      Result := Result + AClone.FieldByName(PKFieldName).AsString;
+      AClone.Next;
+    end;
+  finally
+    FreeAndNil(AClone);
+  end;
 end;
 
 function TQueryMainParameters.GetIDParameterType: TField;
@@ -415,6 +509,16 @@ begin
     FTableNameFilter := Value;
     FDQuery.Close;
     FDQuery.Open;
+  end;
+end;
+
+procedure TQueryMainParameters.TryCommit;
+begin
+  // Если никаких изменений кроме галочки не сделали
+  if (not AutoTransaction) and (not FHaveAnyChanges) and
+    (FDQuery.Connection.InTransaction) then
+  begin
+    FDQuery.Connection.Commit;
   end;
 end;
 

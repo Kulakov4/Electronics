@@ -71,15 +71,19 @@ object FrameCategoryParameters: TFrameCategoryParameters
         Height = 469
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -69
-        ExplicitTop = -22
+        ExplicitWidth = 824
+        ExplicitHeight = 469
         inherited cxGrid: TcxGrid
           Width = 824
           Height = 422
+          ExplicitWidth = 824
+          ExplicitHeight = 422
         end
         inherited StatusBar: TStatusBar
           Top = 450
           Width = 824
+          ExplicitTop = 450
+          ExplicitWidth = 824
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (

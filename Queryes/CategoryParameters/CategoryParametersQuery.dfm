@@ -9,9 +9,10 @@ inherited QueryCategoryParameters: TQueryCategoryParameters
   inherited FDQuery: TFDQuery
     CachedUpdates = True
     SQL.Strings = (
-      'select cp.*, p.Value, p.TableName, p.ValueT'
+      'select cp.*, p.Value, p.TableName, p.ValueT, pt.ParameterType'
       'from CategoryParams cp'
       'join Parameters p on cp.ParameterId = p.Id'
+      'join ParameterTypes pt on p.IDParameterType = pt.ID'
       'where ProductCategoryID = :ProductCategoryID')
     ParamData = <
       item

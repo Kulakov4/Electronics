@@ -54,8 +54,15 @@ type
     dxBarButton6: TdxBarButton;
     actCancelUpdates: TAction;
     dxBarButton7: TdxBarButton;
+    clParameterType: TcxGridDBBandedColumn;
+    dxBarButton8: TdxBarButton;
+    actDelete: TAction;
+    actAdd: TAction;
+    dxBarButton9: TdxBarButton;
+    procedure actAddExecute(Sender: TObject);
     procedure actApplyUpdatesExecute(Sender: TObject);
     procedure actCancelUpdatesExecute(Sender: TObject);
+    procedure actDeleteExecute(Sender: TObject);
     procedure actDownExecute(Sender: TObject);
     procedure actPosBeginExecute(Sender: TObject);
     procedure actPosCenterExecute(Sender: TObject);
@@ -90,7 +97,97 @@ implementation
 {$R *.dfm}
 
 uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math,
-  DialogUnit;
+  DialogUnit, ProjectConst, ParametersForm, ParametersGroupUnit, DBRecordHolder;
+
+procedure TViewCategoryParameters.actAddExecute(Sender: TObject);
+var
+  AfrmParameters: TfrmParameters;
+  AParametersGroup: TParametersGroup;
+  m: TArray<String>;
+  CheckedList: string;
+  RH: TRecordHolder;
+  S: string;
+  SS: string;
+begin
+  inherited;
+
+  BeginUpdate;
+  try
+
+    AParametersGroup := TParametersGroup.Create(Self);
+    try
+      // Настраиваем на отображение галочек из нашей категории
+      AParametersGroup.qMainParameters.ProductCategoryIDValue :=
+        QueryCategoryParameters.ParentValue;
+      AParametersGroup.ReOpen;
+
+      AfrmParameters := TfrmParameters.Create(Self);
+      try
+        AfrmParameters.ViewParameters.ParametersGroup := AParametersGroup;
+        AfrmParameters.ShowModal;
+      finally
+        FreeAndNil(AfrmParameters);
+      end;
+
+      // Список выбранных параметров
+      CheckedList := ',' + AParametersGroup.qMainParameters.GetCheckedPKValues.
+        Trim([',']) + ',';
+      // Список параметров для категории
+      SS := ',' + QueryCategoryParameters.GetFieldValues
+        (QueryCategoryParameters.ParameterID.FieldName).Trim([',']) + ',';
+
+      m := SS.Trim([',']).Split([',']);
+      // Цикл по параметрам для категории
+      for S in m do
+      begin
+        // Если галочку с одного из параметров категории сняли
+        if CheckedList.IndexOf(',' + S + ',') < 0 then
+        begin
+          if QueryCategoryParameters.LocateByPK(S) then
+          begin
+            QueryCategoryParameters.FDQuery.Delete;
+          end;
+        end;
+      end;
+
+      m := CheckedList.Trim([',']).Split([',']);
+      // Цикл по параметрам для категории
+      for S in m do
+      begin
+        // Если галочку поставили
+        if SS.IndexOf(',' + S + ',') < 0 then
+        begin
+          if AParametersGroup.qMainParameters.LocateByPK(S) then
+          begin
+            RH := TRecordHolder.Create
+              (AParametersGroup.qMainParameters.FDQuery);
+            try
+              // Первичный ключ - это идентификатор параметра
+              RH.Find(AParametersGroup.qMainParameters.PKFieldName).FieldName :=
+                QueryCategoryParameters.ParameterID.FieldName;
+
+              // Добавляем поле "Тип параметра"
+              TFieldHolder.Create(RH,
+                AParametersGroup.qParameterTypes.ParameterType.FieldName,
+                AParametersGroup.qParameterTypes.ParameterType.AsString);
+
+              QueryCategoryParameters.AppendParameter(RH, 1);
+            finally
+              FreeAndNil(RH);
+            end;
+          end;
+        end;
+      end;
+
+    finally
+      FreeAndNil(AParametersGroup);
+    end;
+  finally
+    EndUpdate;
+  end;
+  ApplyBestFitEx;
+  UpdateView;
+end;
 
 procedure TViewCategoryParameters.actApplyUpdatesExecute(Sender: TObject);
 begin
@@ -103,6 +200,29 @@ procedure TViewCategoryParameters.actCancelUpdatesExecute(Sender: TObject);
 begin
   inherited;
   QueryCategoryParameters.CancelUpdates;
+  UpdateView;
+end;
+
+procedure TViewCategoryParameters.actDeleteExecute(Sender: TObject);
+var
+  AView: TcxGridDBBandedTableView;
+begin
+  inherited;
+  if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDeleteCategoryParameter)
+  then
+    Exit;
+
+  AView := FocusedTableView;
+  if AView = nil then
+    Exit;
+
+  BeginUpdate;
+  try
+    AView.Controller.DeleteSelection;
+  finally
+    EndUpdate
+  end;
+
   UpdateView;
 end;
 
@@ -175,11 +295,11 @@ var
 begin
   inherited;
   if (ARecord = nil) or (AItem = nil) or (not ARecord.IsData) then
-    exit;
+    Exit;
   // Получаем значение расположения
   V := ARecord.Values[clPosID.Index];
   if VarIsNull(V) then
-    exit;
+    Exit;
   {
     S := AItem.ClassName;
 
@@ -242,19 +362,19 @@ begin
       end;
 
       if (i < 0) or (i >= MainView.ViewData.RowCount) then
-        exit;
+        Exit;
 
       AID := Value(MainView, clID, i);
       AOrder := Value(MainView, clOrder, i);
 
       // Если положение перемещаемых записей и нового места разные
       if Value(MainView, clPosID, i) <> Value(MainView, clPosID, m.First) then
-        exit;
+        Exit;
 
       // Если положение первой и последней перемещаемой записи разное
       if Value(MainView, clPosID, m.First) <> Value(MainView, clPosID, m.Last)
       then
-        exit;
+        Exit;
 
       L := TList<TRecOrder>.Create;
       try
@@ -318,6 +438,7 @@ begin
 
       TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad,
         FEventList);
+      ApplyBestFitEx;
       UpdateView;
     end;
   end;
@@ -337,6 +458,8 @@ begin
 
   actApplyUpdates.Enabled := OK and QueryCategoryParameters.HaveAnyChanges;
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
+
+  actDelete.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
 end;
 
 end.

@@ -39,6 +39,7 @@ type
     function FieldEx(const FieldName: String; NullSubstitute: Variant): Variant;
     function Find(const FieldName: string): TFieldHolder;
     procedure Put(DataSet: TDataSet);
+    procedure TryPut(DataSet: TDataSet);
     procedure UpdateNullValues(ASource: TRecordHolder);
     property Field[const FieldName: String]: Variant read GetField
       write SetField;
@@ -237,6 +238,21 @@ end;
 procedure TRecordHolder.SetItems(Index: Integer; const Value: TFieldHolder);
 begin
   inherited SetItem(Index, Value);
+end;
+
+procedure TRecordHolder.TryPut(DataSet: TDataSet);
+var
+  AField: TField;
+  FH: TFieldHolder;
+begin
+  Assert(DataSet <> nil);
+
+  for AField in DataSet.fields do
+  begin
+    FH := Find(AField.FieldName);
+    if FH <> nil then
+      AField.Value := FH.Value;
+  end;
 end;
 
 procedure TRecordHolder.UpdateNullValues(ASource: TRecordHolder);

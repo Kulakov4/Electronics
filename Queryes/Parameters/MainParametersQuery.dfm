@@ -92,14 +92,24 @@ inherited QueryMainParameters: TQueryMainParameters
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode, uvUpdateNonBaseFields]
     SQL.Strings = (
-      'select p.* '
+      'select p.*, IFNULL(cp.id, 0) > 0 Checked'
+      '       '
       'from Parameters p'
+      
+        'LEFT JOIN CategoryParams cp on cp.ProductCategoryId = :ProductCa' +
+        'tegoryId and cp.ParameterId = p.id'
       
         'where p.ParentParameter is null and p.IDParameterType is not nul' +
         'l'
       'and ( ( p.TableName = :TableName ) or ( :TableName = '#39#39' ) )'
-      'order by p.IDParameterType, p.`Order`')
+      'order by p.IDParameterType, p.[Order]')
     ParamData = <
+      item
+        Name = 'PRODUCTCATEGORYID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
       item
         Name = 'TABLENAME'
         DataType = ftWideString

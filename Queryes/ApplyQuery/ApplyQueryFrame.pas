@@ -23,7 +23,7 @@ type
     procedure DeleteRecord(APKValue: Integer);
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     function Search(AID: Integer): Integer;
-    function UpdateRecord(ARecordHolder: TRecordHolder): Integer;
+    function UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
     property PKFieldName: string read FPKFieldName write FPKFieldName;
     property PKValue: Integer read GetPKValue;
     { Public declarations }
@@ -100,16 +100,18 @@ begin
   Result := FDQuery.RecordCount;
 end;
 
-function TfrmApplyQuery.UpdateRecord(ARecordHolder: TRecordHolder): Integer;
+function TfrmApplyQuery.UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
 var
   AChangedFields: TDictionary<String, Variant>;
   AFieldHolder: TFieldHolder;
   AFieldName: string;
+  AID: Integer;
   I: Integer;
 begin
-  Result := ARecordHolder.Field[PKFieldName];
+  AID := ARecordHolder.Field[PKFieldName];
+//  Result :=
   // Выбираем запись, которую будем обновлять
-  I := Search(Result);
+  I := Search(AID);
   Assert(I = 1);
 
   // Создаём словарь тех полей что нужно будет обновить
@@ -133,8 +135,10 @@ begin
         AChangedFields.Add(AFieldName, AFieldHolder.Value);
     end;
 
+    Result := AChangedFields.Count > 0;
+
     // Если есть те поля, которые нужно обновлять
-    if AChangedFields.Count > 0 then
+    if Result then
     begin
       FDQuery.Edit;
       try

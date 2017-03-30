@@ -28,7 +28,8 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxBarEditItem;
+  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxBarEditItem,
+  cxCheckBox;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 12;
@@ -84,6 +85,7 @@ type
     dxBarButton1: TdxBarButton;
     actFilterByTableName: TAction;
     dxBarButton2: TdxBarButton;
+    clChecked: TcxGridDBBandedColumn;
     procedure actAddMainParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);

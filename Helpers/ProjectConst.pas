@@ -35,6 +35,9 @@ resourcestring
   sDefaultDatabaseFileName = 'database.db';
   sEmptyDatabaseFileName = 'database_empty.db';
 
+  sDoYouWantToDeleteCategoryParameter =
+    'Вы действительно хотите убрать выделенные параметры из текущей категории?';
+
   sDoYouWantToDeleteComponent =
     'Вы действительно хотите удалить выделенные компоненты из текущей категории?';
   sDoYouWantToDeleteComponentFromAll =
