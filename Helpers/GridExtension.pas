@@ -29,37 +29,9 @@ type
     function GetViewDataClass: TcxCustomGridViewDataClass; override;
   end;
 
-procedure InitializeLookupColumn2(AView: TcxGridTableView; AFieldName: string;
-  ADataSource: TDataSource);
-
 implementation
 
 uses cxDBLookupComboBox, System.SysUtils;
-
-procedure InitializeLookupColumn2(AView: TcxGridTableView; AFieldName: string;
-  ADataSource: TDataSource);
-var
-  AColumn1: TcxGridDBColumn;
-  AColumn2: TcxGridDBBandedColumn;
-begin
-  if AView is TcxGridDBTableView then
-  begin
-    AColumn1 := (AView as TcxGridDBTableView).GetColumnByFieldName(AFieldName);
-    (AColumn1.Properties as TcxLookupComboBoxProperties).ListSource :=
-      ADataSource;
-  end
-  else if AView is TcxGridDBBandedTableView then
-  begin
-    AColumn2 := (AView as TcxGridDBBandedTableView).GetColumnByFieldName
-      (AFieldName);
-    Assert(AColumn2 <> nil);
-    (AColumn2.Properties as TcxLookupComboBoxProperties).ListSource :=
-      ADataSource;
-  end
-  else
-    raise Exception.Create('Неподдерживаемый класс TcxGridTableView');
-
-end;
 
 { TcxMyGridMasterDataRow }
 

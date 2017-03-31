@@ -162,6 +162,7 @@ type
     procedure cxPageControlChange(Sender: TObject);
     procedure cxpgcntrlMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
+    procedure cxtsParametersForCategoriesShow(Sender: TObject);
     procedure cxtsParametricTableShow(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure tlLeftControlClick(Sender: TObject);
@@ -904,6 +905,11 @@ begin
     DM.ComponentsExGroup.DecClient;
   end;
 
+end;
+
+procedure TfrmMain.cxtsParametersForCategoriesShow(Sender: TObject);
+begin
+  FrameCategoryParameters.ViewCategoryParameters.ApplyBestFitEx;
 end;
 
 procedure TfrmMain.cxtsParametricTableShow(Sender: TObject);

@@ -39,7 +39,7 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       '    from m'
       ')')
     Left = 88
-    Top = 24
+    Top = 25
     ParamData = <
       item
         Name = 'PARAMETERID'
@@ -91,7 +91,7 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       'and POSID = :OLD_POSID'
       'and [ORDER] = :OLD_ORDER')
     Left = 176
-    Top = 24
+    Top = 25
     ParamData = <
       item
         Name = 'NEW_POSID'
@@ -125,6 +125,61 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       end
       item
         Name = 'OLD_ORDER'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
+  end
+  object FDQueryInsert: TFDQuery
+    SQL.Strings = (
+      
+        'insert into CategoryParams(ProductCategoryID, ParameterID, [Orde' +
+        'r], IsEnabled, IsAttribute, PosID)'
+      ''
+      ''
+      
+        'with recursive m(ProductCategoryID, ParameterID, [Order], IsEnab' +
+        'led, IsAttribute, PosID) '
+      'as '
+      '('
+      
+        '    select pc.ID ProductCategoryID, :ParameterID, :Order, 1, 1, ' +
+        ':PosID'
+      '    from ProductCategories pc'
+      '    where pc.id = :CATEGORYID'
+      '    union all'
+      
+        '    select pc.ID ProductCategoryID, :ParameterID, :Order, 1, 1, ' +
+        ':PosID'
+      '    from ProductCategories pc'
+      '    join m on pc.parentid = m.ProductCategoryID'
+      ') '
+      'select '
+      '*'
+      'from m')
+    Left = 258
+    Top = 25
+    ParamData = <
+      item
+        Name = 'PARAMETERID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'ORDER'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'POSID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'CATEGORYID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

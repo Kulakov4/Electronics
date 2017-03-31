@@ -66,6 +66,8 @@ type
     procedure RefreshQuery; virtual;
     function Search(const AParamNames: array of string;
       const AParamValues: array of Variant): Integer; overload;
+    procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
+        ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure TryEdit;
@@ -88,7 +90,7 @@ type
 
 implementation
 
-uses System.Math, RepositoryDataModule;
+uses System.Math, RepositoryDataModule, StrHelper;
 
 {$R *.dfm}
 { TfrmDataModule }
@@ -527,6 +529,25 @@ begin
     FDQuery.EnableControls;
   end;
   Result := FDQuery.RecordCount;
+end;
+
+procedure TQueryBase.SetConditionSQL(const ABaseSQL, AConditionSQL, AMark:
+    string; ANotifyEventRef: TNotifyEventRef = nil);
+begin
+  Assert(not ABaseSQL.IsEmpty);
+  Assert(not AConditionSQL.IsEmpty);
+  Assert(not AMark.IsEmpty);
+
+  FDQuery.DisableControls;
+  try
+    FDQuery.Close;
+    FDQuery.SQL.Text := Replace(ABaseSQL, AConditionSQL, AMark);
+    if Assigned(ANotifyEventRef) then
+      ANotifyEventRef(Self);
+    FDQuery.Open;
+  finally
+    FDQuery.EnableControls;
+  end;
 end;
 
 procedure TQueryBase.SetFieldsRequired(ARequired: Boolean);

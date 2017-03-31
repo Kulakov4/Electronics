@@ -10,12 +10,15 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, RecursiveParametersQuery,
-  System.Generics.Collections, DragHelper, DBRecordHolder;
+  System.Generics.Collections, DragHelper, DBRecordHolder, Sequence,
+  MaxCategoryParameterOrderQuery;
 
 type
   TQueryCategoryParameters = class(TQueryWithDataSource)
   private
+    FMaxOrder: Integer;
     FQueryRecursiveParameters: TQueryRecursiveParameters;
+    FRefreshQry: TQueryCategoryParameters;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetCategoryID: TField;
@@ -27,16 +30,22 @@ type
     function GetPosID: TField;
     function GetProductCategoryID: TField;
     function GetQueryRecursiveParameters: TQueryRecursiveParameters;
+    function GetRefreshQry: TQueryCategoryParameters;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     property QueryRecursiveParameters: TQueryRecursiveParameters
       read GetQueryRecursiveParameters;
+    property RefreshQry: TQueryCategoryParameters read GetRefreshQry;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendParameter(ARecordHolder: TRecordHolder; APosID: Integer);
+    procedure ApplyUpdates; override;
+    procedure CancelUpdates; override;
     procedure Move(AData: TList<TRecOrder>);
+    function NextOrder: Integer;
     procedure SetPos(APosID: Integer);
     property CategoryID: TField read GetCategoryID;
     property ID: TField read GetID;
@@ -62,12 +71,12 @@ begin
   // Будем сохранять в БД изменения рекурсивно
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
-  TNotifyEventWrap.Create( AfterOpen, DoAfterOpen, FEventList );
-  TNotifyEventWrap.Create( BeforePost, DoBeforePost, FEventList );
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
 end;
 
-procedure TQueryCategoryParameters.AppendParameter(ARecordHolder:
-    TRecordHolder; APosID: Integer);
+procedure TQueryCategoryParameters.AppendParameter(ARecordHolder: TRecordHolder;
+  APosID: Integer);
 begin
   Assert(ARecordHolder <> nil);
 
@@ -85,10 +94,41 @@ begin
   AParameterID := ASender.FieldByName(ParameterID.FieldName);
   ACategoryID := ASender.FieldByName(CategoryID.FieldName);
 
-    QueryRecursiveParameters.Delete(
-      AParameterID.OldValue,
-      ACategoryID.OldValue
-    );
+  QueryRecursiveParameters.ExecDeleteSQL(AParameterID.OldValue,
+    ACategoryID.OldValue);
+end;
+
+procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet);
+var
+  ACategoryID: TField;
+  AID: TField;
+  AOrder: TField;
+  AParameterID: TField;
+  APosID: TField;
+begin
+  APosID := ASender.FieldByName(PosID.FieldName);
+  AOrder := ASender.FieldByName(Order.FieldName);
+  AParameterID := ASender.FieldByName(ParameterID.FieldName);
+  ACategoryID := ASender.FieldByName(CategoryID.FieldName);
+  AID := ASender.FieldByName(PKFieldName);
+
+  // Рекурсивно вставляем записи в БД
+  QueryRecursiveParameters.ExecInsertSQL(APosID.Value, AOrder.Value,
+    AParameterID.Value, ACategoryID.Value);
+
+  // Выбираем вставленную запись чтобы узнать её идентификатор
+  RefreshQry.Load([DetailParameterName, 'ParameterID'],
+    [ACategoryID.Value, AParameterID.Value]);
+  // Должна быть выбрана только одна запись
+  // Иначе - нарушено ограничение уникальности
+  Assert(RefreshQry.FDQuery.RecordCount = 1);
+  Assert(RefreshQry.PKValue > 0);
+
+  // Заполняем первычный ключ у вставленной записи
+//  if ASender.State in [dsEdit, dsInsert] then
+  ASender.Edit;
+  AID.AsInteger := RefreshQry.PKValue;
+  ASender.Post;
 end;
 
 procedure TQueryCategoryParameters.ApplyUpdate(ASender: TDataSet);
@@ -99,25 +139,36 @@ var
   APosID: TField;
 begin
   APosID := ASender.FieldByName(PosID.FieldName);
+  AOrder := ASender.FieldByName(Order.FieldName);
   AParameterID := ASender.FieldByName(ParameterID.FieldName);
   ACategoryID := ASender.FieldByName(CategoryID.FieldName);
-  AOrder := ASender.FieldByName(Order.FieldName);
 
   // Если изменилось положение параметра или его порядок
   if (APosID.OldValue <> APosID.Value) or (AOrder.OldValue <> AOrder.Value) then
   begin
-    QueryRecursiveParameters.Update(
-      APosID.OldValue, APosID.Value,
-      AOrder.OldValue, AOrder.Value,
-      AParameterID.AsInteger,
-      ACategoryID.AsInteger
-    );
+    QueryRecursiveParameters.ExecUpdateSQL(APosID.OldValue, APosID.Value,
+      AOrder.OldValue, AOrder.Value, AParameterID.AsInteger,
+      ACategoryID.AsInteger);
   end;
+end;
+
+procedure TQueryCategoryParameters.ApplyUpdates;
+begin
+  inherited;
+  // Чтобы в следующий раз его вычислить
+  FMaxOrder := 0;
+end;
+
+procedure TQueryCategoryParameters.CancelUpdates;
+begin
+  inherited;
+  FMaxOrder := 0;
 end;
 
 procedure TQueryCategoryParameters.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsReadOnly(False);
+  FMaxOrder := 0;
 end;
 
 procedure TQueryCategoryParameters.DoBeforePost(Sender: TObject);
@@ -175,6 +226,28 @@ begin
   Result := FQueryRecursiveParameters;
 end;
 
+function TQueryCategoryParameters.GetRefreshQry: TQueryCategoryParameters;
+begin
+  if FRefreshQry = nil then
+  begin
+    FRefreshQry := TQueryCategoryParameters.Create(Self);
+    // Добавляем в текст SQL запроса условие с параметром
+    FRefreshQry.SetConditionSQL(FRefreshQry.FDQuery.SQL.Text,
+      ' and ParameterId = :ParameterID', '--and',
+      procedure(Sender: TObject)
+      begin
+        with FRefreshQry.FDQuery.ParamByName('ParameterID') do
+        begin
+          DataType := ftInteger;
+          ParamType := ptInput;
+        end;
+      end
+    );
+  end;
+
+  Result := FRefreshQry;
+end;
+
 procedure TQueryCategoryParameters.Move(AData: TList<TRecOrder>);
 var
   ARecOrder: TRecOrder;
@@ -195,6 +268,14 @@ begin
   finally
     FDQuery.EnableControls;
   end;
+end;
+
+function TQueryCategoryParameters.NextOrder: Integer;
+begin
+  if FMaxOrder = 0 then
+    FMaxOrder := TQueryMaxCategoryParameterOrder.Max_Order;
+  Inc(FMaxOrder);
+  Result := FMaxOrder;
 end;
 
 procedure TQueryCategoryParameters.SetPos(APosID: Integer);

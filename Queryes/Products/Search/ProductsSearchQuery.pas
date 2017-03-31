@@ -39,8 +39,8 @@ type
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
-    procedure SetConditionSQL(const AConditionSQL, AMark: String;
-      ANotifyEventRef: TNotifyEventRef = nil);
+//    procedure SetConditionSQL(const AConditionSQL, AMark: String;
+//      ANotifyEventRef: TNotifyEventRef = nil);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
@@ -123,7 +123,7 @@ end;
 
 procedure TQueryProductsSearch.ClearSearchResult;
 begin
-  SetConditionSQL('where p.ID = 0', '--where');
+  SetConditionSQL(FDBaseQuery.SQL.Text, 'where p.ID = 0', '--where');
 end;
 
 procedure TQueryProductsSearch.DoAfterClose(Sender: TObject);
@@ -193,13 +193,13 @@ begin
         [QuotedStr(s + '%')]);
     end;
     AConditionSQL := Format(' and (%s)', [AConditionSQL]);
-    SetConditionSQL(AConditionSQL, AMark);
+    SetConditionSQL(FDBaseQuery.SQL.Text, AConditionSQL, AMark);
   end
   else
   begin
     AConditionSQL :=
       ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
-    SetConditionSQL(AConditionSQL, AMark,
+    SetConditionSQL(FDBaseQuery.SQL.Text, AConditionSQL, AMark,
       procedure(Sender: TObject)
       begin
         with FDQuery.ParamByName('Value') do
@@ -264,7 +264,7 @@ begin
     FOnEndUpdate.CallEventHandlers(Self);
   end;
 end;
-
+{
 procedure TQueryProductsSearch.SetConditionSQL(const AConditionSQL,
   AMark: String; ANotifyEventRef: TNotifyEventRef = nil);
 begin
@@ -282,5 +282,5 @@ begin
     FDQuery.EnableControls;
   end;
 end;
-
+}
 end.

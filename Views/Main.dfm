@@ -170,10 +170,6 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -330,6 +326,7 @@ object frmMain: TfrmMain
           object cxtsParametersForCategories: TcxTabSheet
             Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
             ImageIndex = 4
+            OnShow = cxtsParametersForCategoriesShow
             inline FrameCategoryParameters: TFrameCategoryParameters
               Left = 0
               Top = 0
@@ -377,6 +374,7 @@ object frmMain: TfrmMain
                     inherited cxGrid: TcxGrid
                       Width = 781
                       Height = 445
+                      ExplicitTop = 22
                       ExplicitWidth = 781
                       ExplicitHeight = 445
                     end

@@ -139,15 +139,15 @@ begin
       AView.Bands[0].FixedKind := fkNone;
     end);
 
-{
-  MainView.Bands[0].FixedKind := fkNone;
-  try
+  {
+    MainView.Bands[0].FixedKind := fkNone;
+    try
     // Экспортируем в Excel
     ExportGridToExcel(AFileName, cxGrid, True, True, False);
-  finally
+    finally
     MainView.Bands[0].FixedKind := fkLeft;
-  end;
-}
+    end;
+  }
 end;
 
 procedure TViewProductsBase.actRollbackExecute(Sender: TObject);
@@ -219,8 +219,9 @@ begin
 
   if not QueryProductsBase.LocateInComponents then
   begin
-    TDialog.Create.ErrorMessageDialog(
-      Format('Компонент %s не найден в теоретической базе', [QueryProductsBase.Value.AsString]));
+    TDialog.Create.ErrorMessageDialog
+      (Format('Компонент %s не найден в теоретической базе',
+      [QueryProductsBase.Value.AsString]));
     Exit;
   end;
 
@@ -267,7 +268,7 @@ end;
 
 procedure TViewProductsBase.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 var
   AColumn: TcxGridDBBandedColumn;
   ATextEdit: TcxTextEdit;
@@ -282,8 +283,8 @@ begin
     ATextEdit := (AEdit as TcxTextEdit);
     S := ATextEdit.Text;
     // Если наименование задано
-    if (not S.Trim.IsEmpty) and
-      (QueryProductsBase.IDProducer.AsInteger > 0) then
+    if (not S.Trim.IsEmpty) and (QueryProductsBase.IDProducer.AsInteger > 0)
+    then
       QueryProductsBase.TryPost;
     UpdateView;
   end;
@@ -300,13 +301,13 @@ end;
 
 procedure TViewProductsBase.MyInitializeComboBoxColumn;
 begin
-  InitializeLookupColumn(MainView, clProducer.DataBinding.FieldName,
+  InitializeLookupColumn(clProducer,
     QueryProductsBase.QueryProducers.DataSource, lsEditList,
     QueryProductsBase.QueryProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo;
-  const AErrorMessage, AEmptyErrorMessage: string);
+const AErrorMessage, AEmptyErrorMessage: string);
 var
   AFileName: string;
 begin
@@ -359,8 +360,10 @@ begin
   Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
   actCommit.Enabled := Ok and QueryProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
-  actExportToExcelDocument.Enabled := OK and (QueryProductsBase.FDQuery.RecordCount > 0);
-  actOpenInParametricTable.Enabled := OK and (MainView.DataController.RecordCount > 0);
+  actExportToExcelDocument.Enabled := Ok and
+    (QueryProductsBase.FDQuery.RecordCount > 0);
+  actOpenInParametricTable.Enabled := Ok and
+    (MainView.DataController.RecordCount > 0);
 end;
 
 procedure TViewProductsBase.UploadDoc(ADocFieldInfo: TDocFieldInfo);

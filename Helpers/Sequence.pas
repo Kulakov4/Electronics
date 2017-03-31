@@ -10,7 +10,7 @@ type
   public
     constructor Create(StartValue: Integer = 0);
     function NextValue: Integer; virtual;
-    property Value: Integer read FValue;
+    property Value: Integer read FValue write FValue;
   end;
 
 implementation

@@ -296,8 +296,8 @@ begin
   QuerySearchProducerTypes.RefreshQuery;
 
   // Инициализируем Combobox колонки
-  InitializeComboBoxColumn(MainView, QueryProducers.ProducerType.FieldName,
-    lsEditList, QuerySearchProducerTypes.ProducerType);
+  InitializeComboBoxColumn(clProducerType, lsEditList,
+    QuerySearchProducerTypes.ProducerType);
 end;
 
 procedure TViewProducers.SetQueryProducers(const Value: TQueryProducers);

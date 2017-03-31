@@ -221,7 +221,7 @@ procedure TViewProductsSearch.MyInitializeComboBoxColumn;
 begin
   inherited;
   // Инициализируем колонку с выпадающи списком складов
-  InitializeLookupColumn(MainView, clStorehouseID.DataBinding.FieldName,
+  InitializeLookupColumn(clStorehouseID,
     QueryProductsSearch.QueryStoreHouseList.DataSource, lsEditFixedList,
     QueryProductsSearch.QueryStoreHouseList.Abbreviation.FieldName);
 end;

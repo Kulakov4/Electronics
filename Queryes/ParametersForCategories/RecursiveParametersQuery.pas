@@ -14,12 +14,15 @@ type
   TQueryRecursiveParameters = class(TQueryBase)
     FDQueryDelete: TFDQuery;
     FDQueryUpdate: TFDQuery;
+    FDQueryInsert: TFDQuery;
   private
     { Private declarations }
   public
-    procedure Update(const AOldPosID, ANewPosID, AOldOrder, ANewOrder,
-      AParameterID, ACategoryID: Integer);
-    procedure Delete(const AParameterID, ACategoryID: Integer);
+    procedure ExecUpdateSQL(const AOldPosID, ANewPosID, AOldOrder, ANewOrder,
+        AParameterID, ACategoryID: Integer);
+    procedure ExecDeleteSQL(const AParameterID, ACategoryID: Integer);
+    procedure ExecInsertSQL(APosID, AOrder: Integer; const AParameterID,
+        ACategoryID: Integer);
     { Public declarations }
   end;
 
@@ -27,8 +30,8 @@ implementation
 
 {$R *.dfm}
 
-procedure TQueryRecursiveParameters.Update(const AOldPosID, ANewPosID,
-  AOldOrder, ANewOrder, AParameterID, ACategoryID: Integer);
+procedure TQueryRecursiveParameters.ExecUpdateSQL(const AOldPosID, ANewPosID,
+    AOldOrder, ANewOrder, AParameterID, ACategoryID: Integer);
 begin
   // Assert(ANewPosID <> AOldPosID);
   Assert(AParameterID > 0);
@@ -46,8 +49,8 @@ begin
   FDQuery.ExecSQL;
 end;
 
-procedure TQueryRecursiveParameters.Delete(const AParameterID,
-  ACategoryID: Integer);
+procedure TQueryRecursiveParameters.ExecDeleteSQL(const AParameterID,
+    ACategoryID: Integer);
 begin
   Assert(AParameterID > 0);
   Assert(ACategoryID > 0);
@@ -58,6 +61,24 @@ begin
 
   // Устанавливаем параметры запроса
   SetParameters(['ParameterID', 'CATEGORYID'], [AParameterID, ACategoryID]);
+  // Выполняем запрос
+  FDQuery.ExecSQL;
+end;
+
+procedure TQueryRecursiveParameters.ExecInsertSQL(APosID, AOrder: Integer;
+    const AParameterID, ACategoryID: Integer);
+begin
+  // Assert(ANewPosID <> AOldPosID);
+  Assert(AParameterID > 0);
+  Assert(ACategoryID > 0);
+
+  // Копируем запрос
+  FDQuery.SQL.Assign(FDQueryInsert.SQL);
+  FDQuery.Params.Assign(FDQueryInsert.Params);
+
+  // Устанавливаем параметры запроса
+  SetParameters(['PosID', 'Order', 'ParameterID', 'CATEGORYID'],
+    [APosID, AOrder, AParameterID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;

@@ -277,6 +277,8 @@ begin
 
   // Checked.FieldKind := fkInternalCalc;
   Checked.ReadOnly := False;
+
+
 end;
 
 procedure TQueryMainParameters.DoAfterPost(Sender: TObject);

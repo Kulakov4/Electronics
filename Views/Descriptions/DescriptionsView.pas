@@ -96,8 +96,8 @@ type
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
   public
     procedure UpdateView; override;
-    property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup write
-        SetDescriptionsGroup;
+    property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup
+      write SetDescriptionsGroup;
     { Public declarations }
   end;
 
@@ -266,8 +266,7 @@ begin
         TfrmProgressBar.Process(ADescriptionsExcelDM.ExcelTable,
           procedure
           begin
-            DescriptionsGroup.InsertRecordList
-              (ADescriptionsExcelDM.ExcelTable);
+            DescriptionsGroup.InsertRecordList(ADescriptionsExcelDM.ExcelTable);
           end, 'Сохранение кратких описаний в БД', sRecords);
       finally
         cxGrid.EndUpdate;
@@ -352,8 +351,7 @@ begin
   // Ищем параметр
   DescriptionsGroup.qDescriptions.LocateByPK(ADetailID);
   DescriptionsGroup.qDescriptions.TryEdit;
-  DescriptionsGroup.qDescriptions.IDComponentType.AsInteger :=
-    AMasterID;
+  DescriptionsGroup.qDescriptions.IDComponentType.AsInteger := AMasterID;
   DescriptionsGroup.qDescriptions.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
@@ -387,8 +385,7 @@ begin
     AMasterID := DescriptionsGroup.qDescriptionTypes.PKValue;
 
     // Возвращаем пока старое значение внешнего ключа
-    DescriptionsGroup.qDescriptions.IDComponentType.AsInteger :=
-      AMasterID;
+    DescriptionsGroup.qDescriptions.IDComponentType.AsInteger := AMasterID;
     DescriptionsGroup.qDescriptions.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
@@ -495,8 +492,8 @@ begin
   end;
 end;
 
-procedure TViewDescriptions.SetDescriptionsGroup(const Value:
-    TDescriptionsGroup);
+procedure TViewDescriptions.SetDescriptionsGroup(const Value
+  : TDescriptionsGroup);
 begin
   FDescriptionsGroup := Value;
 
@@ -511,21 +508,20 @@ begin
     cxGridDBBandedTableView2.DataController.DataSource :=
       FDescriptionsGroup.qDescriptions.DataSource;
 
-    InitializeLookupColumn( cxGridDBBandedTableView2,
-      FDescriptionsGroup.qDescriptions.IDComponentType.FieldName,
-      FDescriptionsGroup.qDescriptionTypes.DataSource, lsEditList, FDescriptionsGroup.qDescriptionTypes.ComponentType.FieldName);
+    InitializeLookupColumn(clIDComponentType,
+      FDescriptionsGroup.qDescriptionTypes.DataSource, lsEditList,
+      FDescriptionsGroup.qDescriptionTypes.ComponentType.FieldName);
 
-    InitializeLookupColumn( cxGridDBBandedTableView2,
-      FDescriptionsGroup.qDescriptions.IDProducer.FieldName,
-      FDescriptionsGroup.qProducers.DataSource, lsEditList, FDescriptionsGroup.qProducers.Name.FieldName);
-
+    InitializeLookupColumn(clIDProducer,
+      FDescriptionsGroup.qProducers.DataSource, lsEditList,
+      FDescriptionsGroup.qProducers.Name.FieldName);
 
     TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,
       DoAfterDataChange, FEventList);
-    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionTypes.
-      AfterOpen, DoAfterDataChange, FEventList);
-    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.
-      AfterOpen, DoAfterDataChange, FEventList);
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionTypes.AfterOpen,
+      DoAfterDataChange, FEventList);
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.AfterOpen,
+      DoAfterDataChange, FEventList);
 
     // Будем работать в рамках транзакции
     // Транзакцию начинают сами компоненты
@@ -580,8 +576,7 @@ begin
 
   actDelete.Enabled := OK and (AView.DataController.RecordCount > 0);
 
-  actCommit.Enabled := OK and
-    (DescriptionsGroup.Connection.InTransaction);
+  actCommit.Enabled := OK and (DescriptionsGroup.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 

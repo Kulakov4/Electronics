@@ -404,7 +404,7 @@ begin
 
   // Инициализируем Combobox колонки
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditList, QuerySearchParameterValues.Value);
+    lsEditList,  QuerySearchParameterValues.Value);
 
   // Ищем возможные значения корпусов для выпадающего списка
   QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);

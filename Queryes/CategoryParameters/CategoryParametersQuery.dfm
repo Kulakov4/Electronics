@@ -1,6 +1,6 @@
 inherited QueryCategoryParameters: TQueryCategoryParameters
-  Width = 320
-  ExplicitWidth = 320
+  Width = 149
+  ExplicitWidth = 149
   inherited Label1: TLabel
     Width = 136
     Caption = 'CategoryParameters'
@@ -13,7 +13,8 @@ inherited QueryCategoryParameters: TQueryCategoryParameters
       'from CategoryParams cp'
       'join Parameters p on cp.ParameterId = p.Id'
       'join ParameterTypes pt on p.IDParameterType = pt.ID'
-      'where ProductCategoryID = :ProductCategoryID')
+      'where ProductCategoryID = :ProductCategoryID'
+      '--and')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'

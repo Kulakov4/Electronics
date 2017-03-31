@@ -54,8 +54,8 @@ type
       Shift: TShiftState);
     procedure cxGridDBBandedTableViewMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure cxGridPopupMenuPopup(ASenderMenu: TComponent; AHitTest:
-        TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+    procedure cxGridPopupMenuPopup(ASenderMenu: TComponent;
+      AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
   private
     function GetMainView: TcxGridDBBandedTableView;
     { Private declarations }
@@ -71,13 +71,18 @@ type
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
     function GetFocusedTableView: TcxGridDBBandedTableView; virtual;
-    procedure InitializeLookupColumn(AView: TcxGridDBBandedTableView;
-      AFieldName: string; ADataSource: TDataSource;
-      ADropDownListStyle: TcxEditDropDownListStyle;
-      const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
-    procedure InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
-      AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
-      AField: TField);
+    procedure InitializeLookupColumn(AColumn: TcxGridDBBandedColumn; ADataSource:
+        TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
+        AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
+    procedure InitializeComboBoxColumn(AColumn: TcxGridDBBandedColumn;
+      ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
+    procedure InitializeComboBoxColumn(AView: TcxGridDBBandedTableView; AFieldName:
+        string; ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
+        overload;
+    procedure InitializeLookupColumn(AView: TcxGridDBBandedTableView; const
+        AFieldName: string; ADataSource: TDataSource; ADropDownListStyle:
+        TcxEditDropDownListStyle; const AListFieldNames: string; const
+        AKeyFieldNames: string = 'ID'); overload;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -87,8 +92,8 @@ type
     procedure ApplyBestFitFocusedBand; virtual;
     procedure BeginUpdate; virtual;
     procedure EndUpdate; virtual;
-    procedure ExportViewToExcel(AView: TcxGridDBBandedTableView; AFileName: string;
-        AGridProcRef: TGridProcRef = nil);
+    procedure ExportViewToExcel(AView: TcxGridDBBandedTableView;
+      AFileName: string; AGridProcRef: TGridProcRef = nil);
     procedure FocusColumnEditor(ALevel: Integer; AFieldName: string);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord(AView: TcxGridDBBandedTableView);
@@ -96,14 +101,14 @@ type
     function GetRow(ALevel: Cardinal; ARowIndex: Integer = -1)
       : TcxCustomGridRow;
     procedure LocateAndFocus(AMaster, ADetail: TQueryBase; ADetailID: Integer;
-        const AMasterKeyFieldName, AFocusedColumnFieldName: string);
+      const AMasterKeyFieldName, AFocusedColumnFieldName: string);
     procedure MyApplyBestFit; virtual;
     procedure PostMyApplyBestFitEvent;
     procedure UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
-    function Value(AView: TcxGridDBBandedTableView; AColumn: TcxGridDBBandedColumn;
-        const ARowIndex: Integer): Variant;
+    function Value(AView: TcxGridDBBandedTableView;
+      AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
     property MainView: TcxGridDBBandedTableView read GetMainView;
@@ -150,19 +155,19 @@ begin
 end;
 
 procedure TfrmGrid.ApplyBestFitEx;
-//var
-//  AcxGridDBBandedColumn: TcxGridDBBandedColumn;
-//  I: Integer;
+// var
+// AcxGridDBBandedColumn: TcxGridDBBandedColumn;
+// I: Integer;
 begin
-
   MainView.ApplyBestFit();
-{
-  for I := 0 to MainView.ColumnCount - 1 do
-  begin
+
+  {
+    for I := 0 to MainView.ColumnCount - 1 do
+    begin
     AcxGridDBBandedColumn := MainView.Columns[I];
     AcxGridDBBandedColumn.MinWidth := AcxGridDBBandedColumn.Width;
-  end;
-}
+    end;
+  }
 end;
 
 procedure TfrmGrid.ApplyBestFitFocusedBand;
@@ -187,8 +192,7 @@ end;
 
 procedure TfrmGrid.CreateColumnsBarButtons;
 begin
-  if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons = nil)
-  then
+  if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons = nil) then
     FColumnsBarButtons := TColumnsBarButtons.Create(Self,
       dxbrsbtmColumnsCustomization, cxGridDBBandedTableView);
 end;
@@ -211,8 +215,8 @@ begin
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
-procedure TfrmGrid.cxGridPopupMenuPopup(ASenderMenu: TComponent; AHitTest:
-    TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+procedure TfrmGrid.cxGridPopupMenuPopup(ASenderMenu: TComponent;
+  AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
 var
   AColumn: TcxGridDBBandedColumn;
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
@@ -246,7 +250,7 @@ begin
 end;
 
 procedure TfrmGrid.ExportViewToExcel(AView: TcxGridDBBandedTableView;
-    AFileName: string; AGridProcRef: TGridProcRef = nil);
+  AFileName: string; AGridProcRef: TGridProcRef = nil);
 var
   Grid: TcxGrid;
   Level: TcxGridLevel;
@@ -256,7 +260,8 @@ begin
 
   Grid := TcxGrid.Create(Self);
   Level := Grid.Levels.Add;
-  GridView := Grid.CreateView(TcxGridDBBandedTableView) as TcxGridDBBandedTableView;
+  GridView := Grid.CreateView(TcxGridDBBandedTableView)
+    as TcxGridDBBandedTableView;
   GridView.DataController.DataSource := AView.DataController.DataSource;
   GridView.Assign(AView);
   GridView.OptionsView.Footer := False; // Футер экспортировать не будем
@@ -388,21 +393,18 @@ begin
     Result := AcxGridDBBandedTableView.ViewData.Rows[I];
 end;
 
-procedure TfrmGrid.InitializeLookupColumn(AView: TcxGridDBBandedTableView;
-  AFieldName: string; ADataSource: TDataSource;
-  ADropDownListStyle: TcxEditDropDownListStyle; const AListFieldNames: string;
-  const AKeyFieldNames: string = 'ID');
+procedure TfrmGrid.InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
+    ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+    const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
 var
-  AColumn: TcxGridDBBandedColumn;
   AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
 begin
+  Assert(AColumn <> nil);
   Assert(ADataSource <> nil);
   Assert(not AListFieldNames.IsEmpty);
   Assert(not AKeyFieldNames.IsEmpty);
-  AColumn := AView.GetColumnByFieldName(AFieldName);
 
   Assert(AColumn <> nil);
-  // Assert(AColumn.Properties <> nil);
 
   AColumn.PropertiesClass := TcxLookupComboBoxProperties;
   AcxLookupComboBoxProperties :=
@@ -413,15 +415,11 @@ begin
   AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
 end;
 
-procedure TfrmGrid.InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
-  AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
-  AField: TField);
+procedure TfrmGrid.InitializeComboBoxColumn(AColumn: TcxGridDBBandedColumn;
+  ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
 var
-  AColumn: TcxGridDBBandedColumn;
   AcxComboBoxProperties: TcxComboBoxProperties;
 begin
-  AColumn := AView.GetColumnByFieldName(AFieldName);
-
   Assert(AColumn <> nil);
 
   AColumn.PropertiesClass := TcxComboBoxProperties;
@@ -438,11 +436,12 @@ begin
   end;
 end;
 
-procedure TfrmGrid.LocateAndFocus(AMaster, ADetail: TQueryBase; ADetailID:
-    Integer; const AMasterKeyFieldName, AFocusedColumnFieldName: string);
+procedure TfrmGrid.LocateAndFocus(AMaster, ADetail: TQueryBase;
+  ADetailID: Integer; const AMasterKeyFieldName,
+  AFocusedColumnFieldName: string);
 var
   AColumn: TcxGridDBBandedColumn;
-  //AcxGridMasterDataRow: TcxGridMasterDataRow;
+  // AcxGridMasterDataRow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
   Assert(AMaster <> nil);
@@ -458,7 +457,7 @@ begin
     if AMaster.LocateByPK(ADetail.Field(AMasterKeyFieldName).Value) then
     begin
       // Получаем строку в гриде
-//      AcxGridMasterDataRow := GetRow(0) as TcxGridMasterDataRow;
+      // AcxGridMasterDataRow := GetRow(0) as TcxGridMasterDataRow;
       // Раскрываем эту строку
       MainView.ViewData.Expand(True);
 
@@ -525,12 +524,35 @@ begin
   Result := ALevel.GridView as TcxGridDBBandedTableView;
 end;
 
+procedure TfrmGrid.InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
+    AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle; AField:
+    TField);
+begin
+  Assert(AView <> nil);
+  Assert(not AFieldName.IsEmpty);
+
+  InitializeComboBoxColumn(AView.GetColumnByFieldName(AFieldName),
+    ADropDownListStyle, AField);
+end;
+
+procedure TfrmGrid.InitializeLookupColumn(AView: TcxGridDBBandedTableView;
+    const AFieldName: string; ADataSource: TDataSource; ADropDownListStyle:
+    TcxEditDropDownListStyle; const AListFieldNames: string; const
+    AKeyFieldNames: string = 'ID');
+begin
+  Assert(AView <> nil);
+  Assert(not AFieldName.IsEmpty);
+
+  InitializeLookupColumn( AView.GetColumnByFieldName(AFieldName),
+    ADataSource, ADropDownListStyle, AListFieldNames, AKeyFieldNames );
+end;
+
 procedure TfrmGrid.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
 begin
 end;
 
-function TfrmGrid.Value(AView: TcxGridDBBandedTableView; AColumn:
-    TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
+function TfrmGrid.Value(AView: TcxGridDBBandedTableView;
+  AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
 var
   V: Variant;
 begin

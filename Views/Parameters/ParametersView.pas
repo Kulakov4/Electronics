@@ -137,6 +137,7 @@ type
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
   private
+    FCheckedMode: Boolean;
     FDropDrag: TDropDrag;
     FEditValueChanged: Boolean;
     FExpandedRecordIndex: Integer;
@@ -146,7 +147,9 @@ type
     FStartDrag: TStartDrag;
     FStartDragLevel: TcxGridLevel;
     procedure InsertParametersList(AList: TParametersExcelTable);
+    procedure SetCheckedMode(const Value: Boolean);
     procedure SetParametersGroup(const Value: TParametersGroup);
+    procedure UpdateAutoTransaction;
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -164,8 +167,9 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property ParametersGroup: TParametersGroup read FParametersGroup write
-        SetParametersGroup;
+    property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
+    property ParametersGroup: TParametersGroup read FParametersGroup
+      write SetParametersGroup;
     { Public declarations }
   end;
 
@@ -176,7 +180,7 @@ implementation
 Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
   CustomExcelTable, RepositoryDataModule, System.Generics.Collections,
   System.Math, SettingsController, System.IOUtils, ProjectConst,
-  System.StrUtils, BaseQuery, ProgressBarForm;
+  System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
@@ -184,6 +188,10 @@ begin
   FExpandedRecordIndex := -1;
   FStartDrag := TStartDrag.Create;
   FDropDrag := TDropDrag.Create;
+
+  // Имитируем выключение режима "галочки"
+  FCheckedMode := True;
+  CheckedMode := False;
 end;
 
 procedure TViewParameters.actAddMainParameterExecute(Sender: TObject);
@@ -195,7 +203,7 @@ begin
   FParametersGroup.qParameterTypes.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
-  ARow.Expand(false);
+  ARow.Expand(False);
   AView := GetDBBandedTableView(1);
   AView.Controller.ClearSelection;
   AView.DataController.Append;
@@ -235,9 +243,8 @@ begin
     // for I := 0 to FParametersGroup.qSubParameters.FDQuery.FieldCount - 1 do
     // ro := FParametersGroup.qSubParameters.FDQuery.Fields[i].ReadOnly;
 
-    FParametersGroup.qSubParameters.Value.AsString :=
-      'Новое наименование';
-    ARow.Expand(false);
+    FParametersGroup.qSubParameters.Value.AsString := 'Новое наименование';
+    ARow.Expand(False);
     // AView := GetDBBandedTableView(2);
     AView.Controller.ClearSelection;
     FParametersGroup.qSubParameters.TryEdit;
@@ -300,7 +307,7 @@ begin
     if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
     then
     begin
-      AView.MasterGridRecord.Collapse(false);
+      AView.MasterGridRecord.Collapse(False);
     end;
   end;
 
@@ -454,7 +461,7 @@ begin
       if List.Count > 1 then
       begin
         ARow := GetRow(0) as TcxGridMasterDataRow;
-        ARow.Expand(false);
+        ARow.Expand(False);
         AView := GetDBBandedTableView(1);
         AView.Focused := True;
         AView.DataController.Search.Locate(clValue2.Index, List[1], True);
@@ -520,15 +527,14 @@ begin
   // Ищем параметр
   FParametersGroup.qMainParameters.LocateByPK(ADetailID);
   FParametersGroup.qMainParameters.TryEdit;
-  FParametersGroup.qMainParameters.IDParameterType.AsInteger :=
-    AMasterID;
+  FParametersGroup.qMainParameters.IDParameterType.AsInteger := AMasterID;
   FParametersGroup.qMainParameters.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   Assert(ARow <> nil);
 
   // AView := GetDBBandedTableView(1);
-  ARow.Expand(false);
+  ARow.Expand(False);
   FocusColumnEditor(1, clIDParameterType.DataBinding.FieldName);
 end;
 
@@ -537,7 +543,7 @@ begin
   inherited;
   if FEditValueChanged then
   begin
-    FEditValueChanged := false;
+    FEditValueChanged := False;
     cxGridDBBandedTableView2.DataController.Post();
   end
 end;
@@ -554,8 +560,7 @@ begin
     AMasterID := FParametersGroup.qParameterTypes.PKValue;
 
     // Возвращаем пока старое значение внешнего ключа
-    FParametersGroup.qMainParameters.IDParameterType.AsInteger :=
-      AMasterID;
+    FParametersGroup.qMainParameters.IDParameterType.AsInteger := AMasterID;
     FParametersGroup.qMainParameters.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
@@ -703,8 +708,7 @@ begin
 
     if AcxGridDBBandedTableView <> nil then
     begin
-      FParametersGroup.qMainParameters.MoveDSRecord(FStartDrag,
-        FDropDrag);
+      FParametersGroup.qMainParameters.MoveDSRecord(FStartDrag, FDropDrag);
     end;
   finally
     cxGrid.EndUpdate;
@@ -721,7 +725,7 @@ var
   AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
   HT: TcxCustomGridHitTest;
 begin
-  Accept := false;
+  Accept := False;
 
   AcxGridSite := Sender as TcxGridSite;
   HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
@@ -896,8 +900,7 @@ begin
 
     if AcxGridDBBandedTableView <> nil then
     begin
-      FParametersGroup.qParameterTypes.MoveDSRecord(FStartDrag,
-        FDropDrag);
+      FParametersGroup.qParameterTypes.MoveDSRecord(FStartDrag, FDropDrag);
     end;
 
   finally
@@ -913,7 +916,7 @@ var
   AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
   HT: TcxCustomGridHitTest;
 begin
-  Accept := false;
+  Accept := False;
 
   AcxGridSite := Sender as TcxGridSite;
   HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
@@ -1094,7 +1097,7 @@ begin
   if FExpandedRecordIndex >= 0 then
   begin
     I := MainView.DataController.GetRowIndexByRecordIndex
-      (FExpandedRecordIndex, false);
+      (FExpandedRecordIndex, False);
     ARow := GetRow(0, I) as TcxGridMasterDataRow;
   end
   else
@@ -1127,9 +1130,22 @@ begin
   end;
 end;
 
+procedure TViewParameters.SetCheckedMode(const Value: Boolean);
+begin
+  if FCheckedMode = Value then
+    Exit;
+
+  FCheckedMode := Value;
+  clChecked.Visible := FCheckedMode;
+  clChecked.VisibleForCustomization := clOrder.Visible;
+
+  if ParametersGroup <> nil then
+  begin
+    UpdateAutoTransaction;
+  end;
+end;
+
 procedure TViewParameters.SetParametersGroup(const Value: TParametersGroup);
-var
-  P: TcxLookupComboBoxProperties;
 begin
   if FParametersGroup <> Value then
   begin
@@ -1145,13 +1161,12 @@ begin
       cxGridDBBandedTableView3.DataController.DataSource :=
         FParametersGroup.qSubParameters.DataSource;
 
-      P := clIDParameterType.Properties as TcxLookupComboBoxProperties;
-      P.ListSource := FParametersGroup.qParameterTypes.DataSource;
-      P.ListFieldNames := 'ParameterType';
-      P.KeyFieldNames := 'ID';
+      InitializeLookupColumn(clIDParameterType,
+        FParametersGroup.qParameterTypes.DataSource, lsEditList,
+        FParametersGroup.qParameterTypes.ParameterType.FieldName);
 
-      TNotifyEventWrap.Create(FParametersGroup.AfterDataChange,
-        DoOnDataChange, FEventList);
+      TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
+        FEventList);
       TNotifyEventWrap.Create(FParametersGroup.qParameterTypes.AfterOpen,
         DoOnDataChange, FEventList);
       TNotifyEventWrap.Create(FParametersGroup.qMainParameters.AfterOpen,
@@ -1159,9 +1174,7 @@ begin
       TNotifyEventWrap.Create(FParametersGroup.qSubParameters.AfterOpen,
         DoOnDataChange, FEventList);
 
-      // Будем работать в рамках транзакции
-      // Но транзакцию начинают сами компоненты
-      // FParametersGroup.Connection.StartTransaction;
+      UpdateAutoTransaction;
     end;
 
     UpdateView;
@@ -1185,6 +1198,13 @@ begin
   end;
   X := IfThen(X >= 0, X, 0);
   StatusBar.Panels[EmptyPanelIndex].Width := X;
+end;
+
+procedure TViewParameters.UpdateAutoTransaction;
+begin
+  ParametersGroup.qParameterTypes.AutoTransaction := FCheckedMode;
+  ParametersGroup.qMainParameters.AutoTransaction := FCheckedMode;
+  ParametersGroup.qSubParameters.AutoTransaction := FCheckedMode;
 end;
 
 procedure TViewParameters.UpdateTotalCount;

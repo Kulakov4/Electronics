@@ -470,8 +470,6 @@ begin
 end;
 
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);
-var
-  P: TcxLookupComboBoxProperties;
 begin
   if FBodyTypesGroup <> Value then
   begin
@@ -483,15 +481,9 @@ begin
       cxGridDBBandedTableView2.DataController.DataSource :=
         FBodyTypesGroup.qBodyTypes2.DataSource;
 
-      P := clIDParentBodyType1.Properties as TcxLookupComboBoxProperties;
-      P.ListSource := FBodyTypesGroup.qBodyKinds.DataSource;
-      P.ListFieldNames := 'BodyType';
-      P.KeyFieldNames := 'ID';
-
-      // P := clID2.Properties as TcxLookupComboBoxProperties;
-      // P.ListSource := FBodyTypesGroup.qBodyTypesBranch2.DataSource;
-      // P.ListFieldNames := 'BodyType';
-      // P.KeyFieldNames := 'ID';
+      InitializeLookupColumn(clIDParentBodyType1,
+        FBodyTypesGroup.qBodyKinds.DataSource, lsEditFixedList,
+        FBodyTypesGroup.qBodyKinds.BodyType.FieldName);
 
       TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.AfterOpen,
         DoAfterDataChange, FEventList);

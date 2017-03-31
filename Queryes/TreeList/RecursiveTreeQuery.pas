@@ -24,7 +24,6 @@ type
     function GetParentID: TField;
     function GetValue: TField;
     procedure MarkAllAsDeleted;
-    function NewExternalID(AExternalID: Variant): Variant;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -139,7 +138,6 @@ end;
 
 procedure TQueryRecursiveTree.LoadRecords(ATreeExcelTable: TTreeExcelTable);
 var
-  ANewExternalID: string;
   AParentID: Integer;
   OK: Boolean;
 begin
@@ -257,15 +255,6 @@ begin
   finally
     FDQuery.OnUpdateRecord := nil;
   end;
-end;
-
-function TQueryRecursiveTree.NewExternalID(AExternalID: Variant): Variant;
-begin
-  Result := AExternalID;
-  if VarIsNull(AExternalID) then
-    Exit;
-
-  Result := Format('~%s~', [AExternalID]);
 end;
 
 end.

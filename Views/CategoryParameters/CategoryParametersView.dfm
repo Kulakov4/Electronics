@@ -3,11 +3,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       OptionsData.DeletingConfirmation = False
+      OptionsView.ColumnAutoWidth = False
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
-        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False
@@ -52,7 +52,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clParameterType: TcxGridDBBandedColumn
         Caption = #1058#1080#1087
         DataBinding.FieldName = 'ParameterType'
-        BestFitMaxWidth = 100
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
@@ -99,7 +98,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         end
         item
           Visible = True
-          ItemName = 'dxBarButton9'
+          ItemName = 'dxBarSubItem1'
         end
         item
           Visible = True
@@ -132,6 +131,10 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton10'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -169,10 +172,44 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton9: TdxBarButton
-      Action = actAdd
+    object dxBarButton10: TdxBarButton
+      Caption = 'New Button'
       Category = 0
-      PaintStyle = psCaptionGlyph
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton10Click
+    end
+    object dxBarSubItem1: TdxBarSubItem
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 1
+      OnClick = dxBarSubItem1Click
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton9'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton11'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton12'
+        end>
+    end
+    object dxBarButton9: TdxBarButton
+      Action = actAddToBegin
+      Category = 0
+    end
+    object dxBarButton11: TdxBarButton
+      Action = actAddToCenter
+      Category = 0
+    end
+    object dxBarButton12: TdxBarButton
+      Action = actAddToEnd
+      Category = 0
     end
   end
   inherited ActionList: TActionList
@@ -215,10 +252,20 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       ImageIndex = 2
       OnExecute = actDeleteExecute
     end
-    object actAdd: TAction
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+    object actAddToBegin: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074' '#1085#1072#1095#1072#1083#1086
       ImageIndex = 1
-      OnExecute = actAddExecute
+      OnExecute = actAddToBeginExecute
+    end
+    object actAddToCenter: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074' '#1089#1077#1088#1077#1076#1080#1085#1091
+      ImageIndex = 1
+      OnExecute = actAddToCenterExecute
+    end
+    object actAddToEnd: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074' '#1082#1086#1085#1077#1094
+      ImageIndex = 1
+      OnExecute = actAddToEndExecute
     end
   end
   object cxStyleRepository: TcxStyleRepository
