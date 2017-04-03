@@ -30,8 +30,7 @@ type
     class property QuerySearchMainParameter: TQuerySearchMainParameter
       read GetQuerySearchMainParameter;
   public
-    class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
-        UpdateOrder: Boolean); static;
+    class procedure LoadParameterValues(AExcelTable: TParametricExcelTable); static;
     class property PackagePinsParameterID: Integer
       read GetPackagePinsParameterID;
     class property DatasheetParameterID: Integer read GetDatasheetParameterID;
@@ -48,7 +47,8 @@ implementation
 uses
   System.SysUtils, ParametersForProductQuery, ParametersValueQuery,
   ProgressInfo, System.Classes, FieldInfoUnit, System.Math,
-  ProjectConst, SearchComponentCategoryQuery2, SearchParametersForCategoryQuery;
+  ProjectConst, SearchComponentCategoryQuery2, SearchParametersForCategoryQuery,
+  MaxCategoryParameterOrderQuery;
 
 class function TParameterValues.GetPackagePinsParameterID: Integer;
 begin
@@ -151,43 +151,50 @@ begin
 end;
 
 class procedure TParameterValues.LoadParameterValues(AExcelTable:
-    TParametricExcelTable; UpdateOrder: Boolean);
+    TParametricExcelTable);
 var
   a: TArray<String>;
-  ACaregoryIDList: TList<Integer>;
+//  ACaregoryIDList: TList<Integer>;
   AFieldInfo: TFieldInfo;
   AIDComponent: Integer;
   AIDComponents: TList<Integer>;
+  AIDP: Integer;
   AIDParameter: Integer;
+  AIDParentParameter: Integer;
   AOrder: Integer;
+  AParamOrders: TDictionary<Integer,Integer>;
   AQueryParametersForProduct: TQueryParametersForProduct;
   AQueryParametersValue: TQueryParametersValue;
-  AQrySearchComponentCategory2: TQuerySearchComponentCategory2;
-  AQrySearchParamForCat: TQuerySearchParametersForCategory;
+//  AQrySearchComponentCategory2: TQuerySearchComponentCategory2;
+//  AQrySearchParamForCat: TQuerySearchParametersForCategory;
   AValue: String;
   S: string;
 begin
   if AExcelTable.RecordCount = 0 then
     Exit;
-
+{
   if UpdateOrder then
   begin
     AQrySearchComponentCategory2 := TQuerySearchComponentCategory2.Create(nil);
     AQrySearchParamForCat := TQuerySearchParametersForCategory.Create(nil);
     ACaregoryIDList := TList<Integer>.Create;
   end;
+}
+  AParamOrders := TDictionary<Integer,Integer>.Create;
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AQueryParametersValue := TQueryParametersValue.Create(nil);
   AIDComponents := TList<Integer>.Create;
   try
     AExcelTable.DisableControls;
     try
+      // Максимальный порядковый номер в любой категории
+      AOrder := TQueryMaxCategoryParameterOrder.Max_Order;
       AExcelTable.First;
       AExcelTable.CallOnProcessEvent;
       while not AExcelTable.Eof do
       begin
         Assert(AExcelTable.IDComponent.AsInteger > 0);
-
+{
         if UpdateOrder then
         begin
           // Сначала ищем, в какие категории входит наш компонент
@@ -209,26 +216,38 @@ begin
             AQrySearchComponentCategory2.FDQuery.Next;
           end;
         end;
-
-        AOrder := 0;
-
+}
         // Цикл по всем описаниям полей
         for AFieldInfo in AExcelTable.FieldsInfo do
         begin
           AExcelTable.CallOnProcessEvent;
-          AIDParameter := AExcelTable.GetIDParamByFieldName
-            (AFieldInfo.FieldName);
-          if AIDParameter > 0 then
+
+          if AExcelTable.GetIDParamByFieldName
+            (AFieldInfo.FieldName, AIDParameter, AIDParentParameter)  then
           begin
-            Inc(AOrder); // Новый порядковый номер нашего параметра
+            // Берём либо сам параметр, либо родительский
+            AIDP := IfThen(AIDParentParameter > 0, AIDParentParameter, AIDParameter);
+
+            // Если такой параметр уже добавляли
+            if AParamOrders.ContainsKey(AIDP) then
+              AOrder := AParamOrders[AIDP]
+            else
+            begin
+              Inc(AOrder); // Новый порядковый номер нашего параметра
+              AParamOrders.Add(AIDP, AOrder);
+            end;
 
             AIDComponent := IfThen(AExcelTable.IDParentComponent.AsInteger > 0,
               AExcelTable.IDParentComponent.AsInteger,
               AExcelTable.IDComponent.AsInteger);
 
             // Даже если значение будет пустым нужно добавить этот параметр во все категории текущего компонента
-            AQueryParametersForProduct.LoadAndProcess(AIDParameter,
-              AIDComponent, AOrder);
+            AQueryParametersForProduct.LoadAndProcess(AIDP, AIDComponent, AOrder);
+
+            // Для дочернего параметра добавляем его тоже во все категории текущего компонента
+            if AIDParameter <> AIDP then
+              AQueryParametersForProduct.LoadAndProcess(AIDP, AIDComponent, 0);
+
             AExcelTable.CallOnProcessEvent;
 
             AValue := AExcelTable.FieldByName(AFieldInfo.FieldName).AsString;
@@ -251,9 +270,6 @@ begin
                   // Цикл по дочернему и родительскому компоненту
                   for AIDComponent in AIDComponents do
                   begin
-                    // Сначала добавим параметр во все категории каждого компонента
-                    // AQueryParametersForProduct.LoadAndProcess(AIDParameter,
-                    // AIDComponent, AOrder);
                     AExcelTable.CallOnProcessEvent;
 
                     // Добавляем значение в таблицу значений параметра
@@ -280,12 +296,15 @@ begin
     FreeAndNil(AQueryParametersForProduct);
     FreeAndNil(AQueryParametersValue);
     FreeAndNil(AIDComponents);
+    FreeAndNil(AParamOrders);
+{
     if UpdateOrder then
     begin
       FreeAndNil(AQrySearchParamForCat);
       FreeAndNil(AQrySearchComponentCategory2);
       FreeAndNil(ACaregoryIDList);
     end;
+}
   end;
 end;
 

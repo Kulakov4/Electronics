@@ -131,10 +131,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton7'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton10'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -172,19 +168,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton10: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-      OnClick = dxBarButton10Click
-    end
     object dxBarSubItem1: TdxBarSubItem
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Category = 0
       Visible = ivAlways
       ImageIndex = 1
-      OnClick = dxBarSubItem1Click
       ItemLinks = <
         item
           Visible = True

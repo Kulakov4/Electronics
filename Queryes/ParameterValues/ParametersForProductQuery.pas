@@ -124,7 +124,7 @@ begin
     FDQuery.Edit;
 
     // если хотим изменить порядок
-    if AOrder > 0 then
+    if (AOrder > 0) and (Order.AsInteger = 0) then
       Order.AsInteger := AOrder;
 
     // Обязательно делаем параметр видимым

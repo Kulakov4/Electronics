@@ -28,8 +28,10 @@ type
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
         reintroduce;
     function CheckRecord: Boolean; override;
-    class function GetFieldNameByIDParam(AIDParameter: Integer): String; static;
-    function GetIDParamByFieldName(AFieldName: string): Integer;
+    class function GetFieldNameByIDParam(AIDParameter, AIDParentParameter:
+        Integer): String; static;
+    function GetIDParamByFieldName(AFieldName: string; out AIDParameter,
+        AIDParentParameter: Integer): Boolean;
     property ComponentName: TField read GetComponentName;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
@@ -117,13 +119,13 @@ begin
   Result := FieldByName(FieldsInfo[0].FieldName);
 end;
 
-class function TParametricExcelTable.GetFieldNameByIDParam(AIDParameter:
-    Integer): String;
+class function TParametricExcelTable.GetFieldNameByIDParam(AIDParameter,
+    AIDParentParameter: Integer): String;
 begin
   Assert(AIDParameter > 0);
   Assert(not FParamPrefix.IsEmpty);
 
-  Result := Format('%s%d', [FParamPrefix, AIDParameter]);
+  Result := Format('%s_%d_%d', [FParamPrefix, AIDParameter, AIDParentParameter]);
 end;
 
 function TParametricExcelTable.GetIDComponent: TField;
@@ -131,21 +133,31 @@ begin
   Result := FieldByName('IDComponent');
 end;
 
-function TParametricExcelTable.GetIDParamByFieldName(AFieldName: string):
-    Integer;
+function TParametricExcelTable.GetIDParamByFieldName(AFieldName: string; out
+    AIDParameter, AIDParentParameter: Integer): Boolean;
 var
+  m: TArray<String>;
   S: string;
 begin
   Assert(not FParamPrefix.IsEmpty);
   Assert(not AFieldName.IsEmpty);
 
-  if AFieldName.IndexOf(FParamPrefix) = 0 then
+  // Делим имя поля на части
+  m := AFieldName.Split(['_']);
+  Result := Length(m) = 3;
+
+  if Result then
   begin
-    S := AFieldName.Substring( FParamPrefix.Length );
-    Result := StrToIntDef(S, 0);
+    AIDParameter := m[1].ToInteger;
+    Assert(AIDParameter > 0);
+    AIDParentParameter := m[2].ToInteger;
   end
   else
-    Result := 0;
+  begin
+    Assert(Length(m) = 1);
+    AIDParameter := 0;
+    AIDParentParameter := 0;
+  end;
 end;
 
 function TParametricExcelTable.GetIDParentComponent: TField;

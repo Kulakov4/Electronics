@@ -8,9 +8,9 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
     SQL.Strings = (
       'SELECT '
       
-        '  t.ID, t.Value, t.ValueT, t.TableName, t.Definition, t."Order",' +
-        ' t.FieldType, t.ParentParameter, t.IsCustomParameter, t.Band, cp' +
-        '.IsAttribute'
+        '  t.ID, t.Value, t.ValueT, t.TableName, t.Definition, t.FieldTyp' +
+        'e, t.ParentParameter, t.IsCustomParameter, t.Band, cp.IsAttribut' +
+        'e, cp.PosID, cp."Order"'
       'FROM CategoryParams cp '
       'join'
       '('
@@ -36,7 +36,7 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       
         'WHERE cp.ProductCategoryId = :ProductCategoryId and cp.IsEnabled' +
         ' = 1 '
-      'order by cp."Order", t.ParentParameter')
+      'order by cp.PosID, cp."Order", t.ParentParameter')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'

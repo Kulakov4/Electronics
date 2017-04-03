@@ -555,7 +555,7 @@ begin
           procedure
           begin
             TParameterValues.LoadParameterValues
-              (AParametricExcelDM.ExcelTable, true);
+              (AParametricExcelDM.ExcelTable);
           end, 'Сохранение параметрических данных в БД', sRecords);
       end;
 
