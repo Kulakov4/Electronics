@@ -116,8 +116,6 @@ end;
 
 procedure TQueryParametersForProduct.Process(AOrder: Integer);
 begin
-  Assert(AOrder > 0);
-
   FDQuery.First;
   while not FDQuery.Eof do
   begin

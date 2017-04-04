@@ -61,7 +61,7 @@ implementation
 uses ProgressInfo, System.Variants;
 
 const
-  FParamPrefix = 'Param_';
+  FParamPrefix = 'Param';
 
 constructor TParametricExcelTable.Create(AOwner: TComponent; AFieldsInfo:
     TList<TFieldInfo>);
@@ -154,7 +154,7 @@ begin
   end
   else
   begin
-    Assert(Length(m) = 1);
+    Assert(Length(m) = 2);
     AIDParameter := 0;
     AIDParentParameter := 0;
   end;
