@@ -175,7 +175,9 @@ uses
   CategoryParametersFrame in 'Views\CategoryParameters\CategoryParametersFrame.pas' {FrameCategoryParameters: TFrame},
   ParameterPosQuery in 'Queryes\Parameters\ParameterPosQuery.pas' {QueryParameterPos: TFrame},
   RecursiveParametersQuery in 'Queryes\ParametersForCategories\RecursiveParametersQuery.pas' {QueryRecursiveParameters: TFrame},
-  MaxCategoryParameterOrderQuery in 'Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas' {QueryMaxCategoryParameterOrder: TFrame};
+  MaxCategoryParameterOrderQuery in 'Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas' {QueryMaxCategoryParameterOrder: TFrame},
+  SequenceQuery in 'Queryes\Sequence\SequenceQuery.pas' {QuerySequence: TFrame},
+  IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame};
 
 {$R *.res}
 
