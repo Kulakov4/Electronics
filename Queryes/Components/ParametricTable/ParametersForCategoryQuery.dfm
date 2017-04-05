@@ -14,25 +14,21 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       'FROM CategoryParams cp '
       'join'
       '('
-      '    select up.*, '#39'X'#39' Band'
-      '    from Parameters up'
-      '    where up.ParentParameter is null'
+      '    select p.*, '#39'X'#39' Band'
+      '    from Parameters p'
+      '    where p.ParentParameter is null'
       
-        '    and not exists (select id from Parameters up2 where up2.Pare' +
-        'ntParameter = up.id)'
+        '    and not exists (select id from Parameters dp where dp.Parent' +
+        'Parameter = p.id)'
       '    '
       '    union'
       '  '
-      '    select up.*, parent_up.TableName Band'
-      '    from Parameters up'
-      
-        '    join Parameters parent_up on up.ParentParameter = parent_up.' +
-        'id'
-      '    where up.ParentParameter is not null'
+      '    select p.*, pp.TableName Band'
+      '    from Parameters p'
+      '    join Parameters pp on p.ParentParameter = pp.id'
+      '    where p.ParentParameter is not null'
       '    '
-      
-        ') t on (t.Id = cp.ParameterId) or (t.ParentParameter = cp.Parame' +
-        'terId)'
+      ') t on (t.Id = cp.ParameterId)'
       
         'WHERE cp.ProductCategoryId = :ProductCategoryId and cp.IsEnabled' +
         ' = 1 '

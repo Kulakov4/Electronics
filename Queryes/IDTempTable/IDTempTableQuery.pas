@@ -12,10 +12,15 @@ uses
 type
   TQueryIDTempTable = class(TQueryBase)
   private
+    FTableName: string;
     function CreateTempTable: string;
+    function GetID: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AppendData(AField: TField);
+    property ID: TField read GetID;
+    property TableName: string read FTableName;
     { Public declarations }
   end;
 
@@ -28,12 +33,32 @@ const temp_table_prefix = 'temp_table';
 constructor TQueryIDTempTable.Create(AOwner: TComponent);
 var
   ASQL: string;
-  ATableName: string;
 begin
   inherited;
-  ATableName := CreateTempTable;
-  ASQL := String.Format('SELECT ID FROM %s', [ATableName]);
+  FTableName := CreateTempTable;
+  ASQL := String.Format('SELECT ID FROM %s', [FTableName]);
   FDQuery.Open( ASQL );
+end;
+
+procedure TQueryIDTempTable.AppendData(AField: TField);
+begin
+  Assert(AField <> nil);
+  Assert(AField.DataSet <> nil);
+  Assert(AField.DataSet.Active);
+
+  AField.DataSet.DisableControls;
+  try
+    AField.DataSet.First;
+    while not AField.DataSet.Eof do
+    begin
+      TryAppend;
+      ID.Value := AField.Value;
+      TryPost;
+      AField.DataSet.Next;
+    end;
+  finally
+    AField.DataSet.EnableControls;
+  end;
 end;
 
 function TQueryIDTempTable.CreateTempTable: string;
@@ -45,6 +70,11 @@ begin
   Result := String.Format('%s_%d', [temp_table_prefix, i]);
   ASQL := String.Format('CREATE TEMP TABLE %s (ID INTEGER)', [Result]);
   FDQuery.ExecSQL(ASQL);
+end;
+
+function TQueryIDTempTable.GetID: TField;
+begin
+  Result := Field('ID');
 end;
 
 end.

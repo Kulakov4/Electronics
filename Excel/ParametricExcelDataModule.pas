@@ -137,7 +137,6 @@ function TParametricExcelTable.GetIDParamByFieldName(AFieldName: string; out
     AIDParameter, AIDParentParameter: Integer): Boolean;
 var
   m: TArray<String>;
-  S: string;
 begin
   Assert(not FParamPrefix.IsEmpty);
   Assert(not AFieldName.IsEmpty);
