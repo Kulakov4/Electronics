@@ -166,7 +166,7 @@ begin
   begin
     // ≈сли дл€ такого параметра в SQL запросе пол€ не существует
     if not AData.ParameterFields.ContainsKey
-      (FQueryParametersForCategory.ID.AsInteger) then
+      (FQueryParametersForCategory.ParameterID.AsInteger) then
     begin
       ASize := 0;
       // AFieldType := ftInteger;
@@ -194,15 +194,15 @@ begin
         ASize := 200;
       end;
 
-      AFieldName := GetFieldName(FQueryParametersForCategory.ID.AsInteger);
+      AFieldName := GetFieldName(FQueryParametersForCategory.ParameterID.AsInteger);
       // ƒобавл€ем очередное поле
       AFDQuery.FieldDefs.Add(AFieldName, AFieldType, ASize);
-      FAllParameterFields.Add(FQueryParametersForCategory.ID.AsInteger,
+      FAllParameterFields.Add(FQueryParametersForCategory.ParameterID.AsInteger,
         AFieldName);
     end
     else
-      FAllParameterFields.Add(FQueryParametersForCategory.ID.AsInteger,
-        AData.ParameterFields[FQueryParametersForCategory.ID.AsInteger]);
+      FAllParameterFields.Add(FQueryParametersForCategory.ParameterID.AsInteger,
+        AData.ParameterFields[FQueryParametersForCategory.ParameterID.AsInteger]);
 
     FQueryParametersForCategory.FDQuery.Next;
   end;
@@ -213,9 +213,9 @@ begin
   while not FQueryParametersForCategory.FDQuery.Eof do
   begin
     if not AData.ParameterFields.ContainsKey
-      (FQueryParametersForCategory.ID.AsInteger) then
+      (FQueryParametersForCategory.ParameterID.AsInteger) then
     begin
-      AFieldName := GetFieldName(FQueryParametersForCategory.ID.AsInteger);
+      AFieldName := GetFieldName(FQueryParametersForCategory.ParameterID.AsInteger);
       AFDQuery.FieldByName(AFieldName).FieldKind := fkInternalCalc;
     end;
     FQueryParametersForCategory.FDQuery.Next;
@@ -239,8 +239,7 @@ begin
   QueryParametersForCategory.FDQuery.First;
   while not QueryParametersForCategory.FDQuery.Eof do
   begin
-//    AFieldName := GetFieldName(FQueryParametersForCategory.ID.AsInteger);
-    AFieldName := AllParameterFields[FQueryParametersForCategory.ID.AsInteger];
+    AFieldName := AllParameterFields[FQueryParametersForCategory.ParameterID.AsInteger];
     AField := ADataSet.FieldByName(AFieldName);
 
     if AField.OldValue <> AField.Value then
@@ -249,7 +248,7 @@ begin
       FQueryProductParameters.FDQuery.Filter :=
         Format('(ProductID=%d) and (ParameterID=%d)',
         [ADataSet.FieldByName('ID').AsInteger,
-        FQueryParametersForCategory.ID.AsInteger]);
+        FQueryParametersForCategory.ParameterID.AsInteger]);
       FQueryProductParameters.FDQuery.Filtered := True;
       FQueryProductParameters.FDQuery.First;
 
@@ -269,7 +268,7 @@ begin
           begin
             FQueryProductParameters.FDQuery.Append;
             FQueryProductParameters.ParameterID.AsInteger :=
-              FQueryParametersForCategory.ID.AsInteger;
+              FQueryParametersForCategory.ParameterID.AsInteger;
             FQueryProductParameters.ProductID.AsInteger :=
               ADataSet.FieldByName('ID').AsInteger;
           end;
@@ -345,7 +344,7 @@ begin
 
       // ≈сли дл€ такого параметра в SQL запросе пол€ не существует
       if not qryComponents.ParameterFields.ContainsKey
-        (FQueryParametersForCategory.ID.AsInteger) then
+        (FQueryParametersForCategory.ParameterID.AsInteger) then
       begin
         AFieldName := GetFieldName
           (FQueryProductParameters.ParameterID.AsInteger);

@@ -12,25 +12,27 @@ uses
 type
   TQueryParametersForCategory = class(TQueryBase)
   private
-    function GetBand: TField;
+    function GetParentCaption: TField;
     function GetFieldType: TField;
     function GetID: TField;
     function GetIsAttribute: TField;
     function GetParentParameter: TField;
-    function GetTableName: TField;
-    function GetValue: TField;
-    function GetValueT: TField;
+    function GetCaption: TField;
+    function GetHint: TField;
+    function GetOrd: TField;
+    function GetParameterID: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    property Band: TField read GetBand;
+    property ParentCaption: TField read GetParentCaption;
     property FieldType: TField read GetFieldType;
     property ID: TField read GetID;
     property IsAttribute: TField read GetIsAttribute;
     property ParentParameter: TField read GetParentParameter;
-    property TableName: TField read GetTableName;
-    property Value: TField read GetValue;
-    property ValueT: TField read GetValueT;
+    property Caption: TField read GetCaption;
+    property Hint: TField read GetHint;
+    property Ord: TField read GetOrd;
+    property ParameterID: TField read GetParameterID;
     { Public declarations }
   end;
 
@@ -44,9 +46,9 @@ begin
   DetailParameterName := 'ProductCategoryId';
 end;
 
-function TQueryParametersForCategory.GetBand: TField;
+function TQueryParametersForCategory.GetParentCaption: TField;
 begin
-  Result := Field('Band');
+  Result := Field('ParentCaption');
 end;
 
 function TQueryParametersForCategory.GetFieldType: TField;
@@ -69,19 +71,24 @@ begin
   Result := Field('ParentParameter');
 end;
 
-function TQueryParametersForCategory.GetTableName: TField;
+function TQueryParametersForCategory.GetCaption: TField;
 begin
-  Result := Field('TableName');
+  Result := Field('Caption');
 end;
 
-function TQueryParametersForCategory.GetValue: TField;
+function TQueryParametersForCategory.GetHint: TField;
 begin
-  Result := Field('Value');
+  Result := Field('Hint');
 end;
 
-function TQueryParametersForCategory.GetValueT: TField;
+function TQueryParametersForCategory.GetOrd: TField;
 begin
-  Result := Field('ValueT');
+  Result := Field('ord');
+end;
+
+function TQueryParametersForCategory.GetParameterID: TField;
+begin
+  Result := Field('ParameterID');
 end;
 
 end.

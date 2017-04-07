@@ -6,33 +6,27 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'SELECT '
+      'select '
+      '    cp.*'
+      '    , ifnull(cp."Order", pcp."Order") ord'
+      '    , ifnull(p.TableName, p.Value) Caption'
+      '    , ifnull(pp.TableName, pp.Value) ParentCaption  '
+      '    , pcp.id ParentID  '
+      '    , ifnull(p.ValueT, pp.ValueT) Hint'
+      '    , p.ParentParameter'
+      '    , p.FieldType'
+      'from CategoryParams cp'
       
-        '  t.ID, t.Value, t.ValueT, t.TableName, t.Definition, t.FieldTyp' +
-        'e, t.ParentParameter, t.IsCustomParameter, t.Band, cp.IsAttribut' +
-        'e, cp.PosID, cp."Order"'
-      'FROM CategoryParams cp '
-      'join'
-      '('
-      '    select p.*, '#39'X'#39' Band'
-      '    from Parameters p'
-      '    where p.ParentParameter is null'
+        'join Parameters p on cp.ParameterId = p.id  and not exists (sele' +
+        'ct id from Parameters dp where dp.ParentParameter = p.id)'
+      'left join Parameters pp on p.ParentParameter = pp.id'
       
-        '    and not exists (select id from Parameters dp where dp.Parent' +
-        'Parameter = p.id)'
-      '    '
-      '    union'
-      '  '
-      '    select p.*, pp.TableName Band'
-      '    from Parameters p'
-      '    join Parameters pp on p.ParentParameter = pp.id'
-      '    where p.ParentParameter is not null'
-      '    '
-      ') t on (t.Id = cp.ParameterId)'
+        'left join CategoryParams pcp on pcp.ProductCategoryId = cp.Produ' +
+        'ctCategoryId and pcp.ParameterId = p.ParentParameter'
       
         'WHERE cp.ProductCategoryId = :ProductCategoryId and cp.IsEnabled' +
         ' = 1 '
-      'order by cp.PosID, cp."Order", t.ParentParameter')
+      'order by cp.PosID, ord, cp.id')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'
