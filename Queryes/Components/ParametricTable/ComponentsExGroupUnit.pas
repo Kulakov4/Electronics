@@ -11,7 +11,7 @@ uses
   System.Contnrs, System.Generics.Collections, QueryWithDataSourceUnit,
   BaseQuery, BaseEventsQuery, QueryWithMasterUnit, FamilyQuery, BaseFamilyQuery,
   BaseComponentsQuery, ComponentsQuery, ComponentsExQuery,
-  BaseComponentsGroupUnit;
+  BaseComponentsGroupUnit, NotifyEvents;
 
 type
   TComponentsExGroup = class(TBaseComponentsGroup)
@@ -26,6 +26,7 @@ type
     FMark: string;
     FAllParameterFields: TDictionary<Integer, String>;
     FNeedRefresh: Boolean;
+    FOnParamOrderChange: TNotifyEventsEx;
     FQueryParametersForCategory: TQueryParametersForCategory;
     FQueryProductParameters: TQueryProductParameters;
 
@@ -50,6 +51,7 @@ type
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
     property NeedRefresh: Boolean read FNeedRefresh write FNeedRefresh;
+    property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
     property QueryParametersForCategory: TQueryParametersForCategory
       read FQueryParametersForCategory;
     property QueryProductParameters: TQueryProductParameters
@@ -60,8 +62,6 @@ type
 implementation
 
 {$R *.dfm}
-
-uses NotifyEvents;
 
 { TfrmComponentsMasterDetail }
 
@@ -87,6 +87,8 @@ begin
 
   FClientCount := 1;
   DecClient; // Искусственно блокируем обновление
+
+  FOnParamOrderChange := TNotifyEventsEx.Create(Self);
 end;
 
 destructor TComponentsExGroup.Destroy;

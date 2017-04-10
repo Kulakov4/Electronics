@@ -409,6 +409,7 @@ object DM: TDM
     TabOrder = 16
     ExplicitLeft = 904
     ExplicitTop = 584
+    ExplicitWidth = 125
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'

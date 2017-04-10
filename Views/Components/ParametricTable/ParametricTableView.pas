@@ -31,7 +31,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
-  cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit;
+  cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
+  System.Generics.Defaults;
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
@@ -46,6 +47,7 @@ type
     FDefaultVisible: Boolean;
     FOrder: Integer;
     FParameterID: Integer;
+    FColIndex: Integer;
     FPos: Integer;
   public
     constructor Create(ABand: TcxGridBand; AParameterID: Integer);
@@ -56,18 +58,25 @@ type
     property DefaultVisible: Boolean read FDefaultVisible write FDefaultVisible;
     property Order: Integer read FOrder write FOrder;
     property ParameterID: Integer read FParameterID write FParameterID;
+    property ColIndex: Integer read FColIndex write FColIndex;
     property Pos: Integer read FPos write FPos;
+  end;
+
+  TDescComparer = class(TComparer<TBandInfo>)
+  public
+    function Compare(const Left, Right: TBandInfo): Integer; override;
   end;
 
   TBandsInfo = class(TList<TBandInfo>)
   public
     procedure FreeNotDefaultBands;
-    function GetChangedPos: TBandsInfo;
+    function GetChangedPos(AView: TcxGridBandedTableView): TBandsInfo;
     procedure HideDefaultBands;
-    function Search(AView: TcxGridBandedTableView; AParameterID: Integer):
-        TBandInfo; overload;
+    function Search(AView: TcxGridBandedTableView; AParameterID: Integer)
+      : TBandInfo; overload;
     function Search(ABand: TcxGridBand): TBandInfo; overload;
-    function SearchByPos(AView: TcxGridBandedTableView; APos: Integer): TBandInfo;
+    function SearchByPos(AView: TcxGridBandedTableView; AColIndex: Integer):
+        TBandInfo;
   end;
 
   TViewParametricTable = class(TViewComponentsBase)
@@ -112,7 +121,7 @@ type
     FMark: string;
     procedure CreateColumn(AView: TcxGridDBBandedTableView; AIDParameter: Integer;
         const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
-        const AHint: string; ACategoryParamID, AOrder: Integer);
+        const AHint: string; ACategoryParamID, AOrder, APosID: Integer);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure DoAfterLoad(Sender: TObject);
@@ -196,8 +205,7 @@ implementation
 uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
-  SearchParametersForCategoryQuery, System.Generics.Defaults, GridExtension,
-  DragHelper;
+  SearchParametersForCategoryQuery, GridExtension, DragHelper;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -526,8 +534,8 @@ end;
 
 procedure TViewParametricTable.CreateColumn(AView: TcxGridDBBandedTableView;
     AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName:
-    String; AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder:
-    Integer);
+    String; AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder,
+    APosID: Integer);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -564,10 +572,9 @@ begin
     ABand.AlternateCaption := AHint;
     if ABandInfo.DefaultCreated then
       ABand.Position.ColIndex := 1000; // Помещаем бэнд в конец
-    // запоминаем в какой позиции находится наш бэнд
-    ABandInfo.Pos := ABand.Position.ColIndex;
     // Какой порядок имеет параметр в БД
     ABandInfo.Order := AOrder;
+    ABandInfo.Pos := APosID;
   end;
 
   // Если такой бэнд не существовал по "умолчанию"
@@ -616,6 +623,8 @@ procedure TViewParametricTable.cxGridDBBandedTableViewBandPosChanged
   (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
 var
   ABandInfo, ADaughterBandInfo: TBandInfo;
+  ABI: TBandInfo;
+  L: TBandsInfo;
 begin
   inherited;
   // Ищем информацию о перемещаемом бэнде
@@ -623,8 +632,19 @@ begin
   // Перемещать можно только бэнд-параметр
   Assert(ABandInfo <> nil);
 
+
+  L := FBandsInfo.GetChangedPos(ABand.GridView);
+  try
+//    for ABI in L do
+//      ABI.
+  finally
+    FreeAndNil(L);
+  end;
+
+
   // Ищем соответствующий дочерний бэнд
-  ADaughterBandInfo := FBandsInfo.Search(GridView(cxGridLevel2), ABandInfo.ParameterID);
+  ADaughterBandInfo := FBandsInfo.Search(GridView(cxGridLevel2),
+    ABandInfo.ParameterID);
   Assert(ADaughterBandInfo <> nil);
   // Меняем позицию дочернего бэнда
   ADaughterBandInfo.Band.Position.ColIndex := ABand.Position.ColIndex;
@@ -850,6 +870,7 @@ end;
 procedure TViewParametricTable.DoAfterLoad(Sender: TObject);
 var
   ABandCaption: string;
+  ABandInfo: TBandInfo;
   ACaption: String;
   ACategoryParamID: Integer;
   AHint: String;
@@ -857,6 +878,7 @@ var
   AFieldName: String;
   AIDBand: Integer;
   AOrder: Integer;
+  APosID: Integer;
   qParametersForCategory: TQueryParametersForCategory;
   AVisible: Boolean;
 begin
@@ -883,6 +905,7 @@ begin
       AHint := qParametersForCategory.Hint.AsString;
       ACategoryParamID := qParametersForCategory.ID.AsInteger;
       AOrder := qParametersForCategory.Ord.AsInteger;
+      APosID := qParametersForCategory.PosID.AsInteger;
 
       // Если это родительский параметр
       if qParametersForCategory.ParentParameter.IsNull then
@@ -900,14 +923,18 @@ begin
 
       // Создаём колонку в главном представлении
       CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, AHint, ACategoryParamID, AOrder);
+        AVisible, AHint, ACategoryParamID, AOrder, APosID);
 
       // Создаём колонку в дочернем представлении
       CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-        AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID, AOrder);
+        AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID, AOrder, APosID);
 
       qParametersForCategory.FDQuery.Next;
     end;
+
+    // запоминаем в какой позиции находится наш бэнд
+    for ABandInfo in FBandsInfo do
+      ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
 
     MainView.ViewData.Collapse(True);
   finally
@@ -1104,48 +1131,78 @@ end;
 procedure TViewParametricTable.Timer2Timer(Sender: TObject);
 var
   ABandInfo: TBandInfo;
-  ABI: TBandsInfo;
+  AOrder: Integer;
+  BIList: TBandsInfo;
+  i: Integer;
   L: TList<TRecOrder>;
 begin
   Timer2.Enabled := False;
-//  PostMessage(Handle, WM_ON_BAND_POS_CHANGE, 0, 0);
+  // PostMessage(Handle, WM_ON_BAND_POS_CHANGE, 0, 0);
 
   Assert(FBandInfo <> nil);
-  Assert(FBandInfo.Pos <> FBandInfo.Band.Position.ColIndex);
+  Assert(FBandInfo.ColIndex <> FBandInfo.Band.Position.ColIndex);
+  {
+    // Надо найти, какой бэнд был на этой позиции до переноса
+    ABandInfo := FBandsInfo.SearchByPos(FBandInfo.Band.GridView,
+    FBandInfo.Band.Position.ColIndex);
+    Assert(ABandInfo <> nil);
+    Assert(ABandInfo <> FBandInfo);
+  }
+  BIList := FBandsInfo.GetChangedPos(MainView);
+  try
+    // Как минимум 2 бэнда должны дыли поменять свою позицию
+    Assert(BIList.Count >= 2);
 
-  // Надо найти, какой бэнд был на этой позиции до переноса
-  ABandInfo := FBandsInfo.SearchByPos( FBandInfo.Band.GridView, FBandInfo.Band.Position.ColIndex );
-  Assert(ABandInfo <> nil);
-  Assert(ABandInfo <> FBandInfo);
+    // Если произошло перемещение влево
+    if FBandInfo.ColIndex > FBandInfo.Band.Position.ColIndex then
+    begin
+      // Бэнды нужно отсортировать по их позициям до переноса
+      BIList.Sort(TComparer<TBandInfo>.Construct(
+        function(const Left, Right: TBandInfo): Integer
+        begin
+          Result := -1 * (Left.ColIndex - Right.ColIndex);
+        end));
+    end
+    else
+    begin
+      // Бэнды нужно отсортировать по их позициям до переноса
+      BIList.Sort(TComparer<TBandInfo>.Construct(
+        function(const Left, Right: TBandInfo): Integer
+        begin
+          Result := 1 * (Left.ColIndex - Right.ColIndex);
+        end));
+    end;
 
-
-  ABI := FBandsInfo.GetChangedPos;
-  // Как минимум 2 бэнда должны дыли поменять свою позицию
-  Assert(ABI.Count >= 2);
-
-  // Бэнды нужно отсортировать по их позициям до переноса
-  ABI.Sort();
-
-  // Если произошло перемещение влево
-  if FBandInfo.Pos > FBandInfo.Band.Position.ColIndex then
-  begin
-
+    // Первым элементом списка должен стать тот, который мы перетаскивали
+    Assert(BIList.First = FBandInfo);
 
     L := TList<TRecOrder>.Create;
     try
-        // Меняем порядок записи на противоположный
-        L.Add(TRecOrder.Create( FBandInfo.CategoryParamID, -ABandInfo.Order));
-        // Смещаем остальные записи
-        for i in m do
-        begin
-          L.Add(TRecOrder.Create(Value(MainView, clID, i), AOrder));
-          AOrder := Value(MainView, clOrder, i);
-        end;
-        L.Add(TRecOrder.Create(AID, AOrder));
-//        QueryCategoryParameters.Move(L);
+      // Меняем порядок записи на противоположный
+      AOrder := BIList.First.Order;
+      L.Add(TRecOrder.Create(BIList.First.CategoryParamID, -AOrder));
+      // Смещаем остальные записи
+      for i := 1 to BIList.Count - 1 do
+      begin
+        ABandInfo := BIList[i];
+        L.Add(TRecOrder.Create(ABandInfo.CategoryParamID, AOrder));
+        AOrder := ABandInfo.Order;
+        ABandInfo.Order := AOrder;
+//        ABandInfo.Pos := ABandInfo.Band.Position.ColIndex;
+      end;
+      L.Add(TRecOrder.Create(BIList.First.CategoryParamID, AOrder));
+      BIList.First.Order := AOrder;
+
+      ComponentsExGroup.OnParamOrderChange.CallEventHandlers(L);
+
+      // запоминаем в какой позиции находится наш бэнд
+      for ABandInfo in FBandsInfo do
+        ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
     finally
       FreeAndNil(L);
     end;
+  finally
+    FreeAndNil(BIList);
   end;
 end;
 
@@ -1370,15 +1427,17 @@ begin
 
 end;
 
-function TBandsInfo.GetChangedPos: TBandsInfo;
+function TBandsInfo.GetChangedPos(AView: TcxGridBandedTableView): TBandsInfo;
 var
   ABandInfo: TBandInfo;
 begin
+  Assert(AView <> nil);
   Result := TBandsInfo.Create;
   for ABandInfo in Self do
   begin
-    if ABandInfo.Pos <> ABandInfo.Band.Position.ColIndex then
-      Result.Add( ABandInfo );
+    if (ABandInfo.Band.GridView = AView) and
+      (ABandInfo.ColIndex <> ABandInfo.Band.Position.ColIndex) then
+      Result.Add(ABandInfo);
   end;
 end;
 
@@ -1394,8 +1453,8 @@ begin
     end;
 end;
 
-function TBandsInfo.Search(AView: TcxGridBandedTableView; AParameterID:
-    Integer): TBandInfo;
+function TBandsInfo.Search(AView: TcxGridBandedTableView; AParameterID: Integer)
+  : TBandInfo;
 var
   ABandInfo: TBandInfo;
 begin
@@ -1429,23 +1488,28 @@ begin
   Result := nil;
 end;
 
-function TBandsInfo.SearchByPos(AView: TcxGridBandedTableView; APos: Integer):
-    TBandInfo;
+function TBandsInfo.SearchByPos(AView: TcxGridBandedTableView; AColIndex:
+    Integer): TBandInfo;
 var
   ABandInfo: TBandInfo;
 begin
-  Assert(APos > 0);
+  Assert(AColIndex > 0);
   Assert(AView <> nil);
 
   for ABandInfo in Self do
   begin
     Result := ABandInfo;
 
-    if (ABandInfo.Pos = APos) and
-      (ABandInfo.Band.GridView = AView) then
+    if (ABandInfo.ColIndex = AColIndex) and (ABandInfo.Band.GridView = AView) then
       Exit;
   end;
   Result := nil;
+end;
+
+function TDescComparer.Compare(const Left, Right: TBandInfo): Integer;
+begin
+  // Сортировка в обратном порядке
+  Result := -1 * ( Left.ColIndex - Right.ColIndex );
 end;
 
 end.

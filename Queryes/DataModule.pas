@@ -46,6 +46,7 @@ type
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterParamForCategoriesPost(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
+    procedure DoOnParamOrderChange(Sender: TObject);
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
@@ -67,7 +68,7 @@ implementation
 {$R *.dfm}
 
 uses SettingsController, System.IOUtils, RepositoryDataModule, NotifyEvents,
-  ModCheckDatabase, ProjectConst;
+  ModCheckDatabase, ProjectConst, DragHelper;
 
 constructor TDM.Create(AOwner: TComponent);
 begin
@@ -163,6 +164,9 @@ begin
   // Чтобы выпадающий список складов обновлялся вместе со списком складов
   TNotifyEventWrap.Create(StoreHouseGroup.qStoreHouseList.AfterPost,
     DoAfterStoreHousePost, FEventList);
+
+  // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
+  TNotifyEventWrap.Create( ComponentsExGroup.OnParamOrderChange, DoOnParamOrderChange, FEventList );
 end;
 
 { закрытие датасетов }
@@ -240,6 +244,15 @@ end;
 procedure TDM.DoAfterStoreHousePost(Sender: TObject);
 begin
   qStoreHouseList.RefreshQuery;
+end;
+
+procedure TDM.DoOnParamOrderChange(Sender: TObject);
+var
+  L: TList<TRecOrder>;
+begin
+  L := Sender as TList<TRecOrder>;
+  qCategoryParameters.Move(L);
+  qCategoryParameters.ApplyUpdates;
 end;
 
 function TDM.HaveAnyChanges: Boolean;

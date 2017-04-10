@@ -1,4 +1,6 @@
 inherited QueryParametersForCategory: TQueryParametersForCategory
+  Width = 150
+  ExplicitWidth = 150
   inherited Label1: TLabel
     Width = 156
     Caption = 'ParametersForCategory'
@@ -30,6 +32,28 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
+  end
+  object fdqUpdateOrder: TFDQuery
+    Connection = DMRepository.dbConnection
+    SQL.Strings = (
+      'update CategoryParams'
+      'set [Order]=:Order'
+      'where ID = :ID')
+    Left = 80
+    Top = 24
+    ParamData = <
+      item
+        Name = 'ORDER'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'ID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
