@@ -21,6 +21,7 @@ type
     function GetParentParameter: TField;
     function GetCaption: TField;
     function GetHint: TField;
+    function GetIDCategory: TField;
     function GetOrd: TField;
     function GetParameterID: TField;
     function GetPosID: TField;
@@ -35,6 +36,7 @@ type
     property ParentParameter: TField read GetParentParameter;
     property Caption: TField read GetCaption;
     property Hint: TField read GetHint;
+    property IDCategory: TField read GetIDCategory;
     property Ord: TField read GetOrd;
     property ParameterID: TField read GetParameterID;
     property PosID: TField read GetPosID;
@@ -86,6 +88,11 @@ end;
 function TQueryParametersForCategory.GetHint: TField;
 begin
   Result := Field('Hint');
+end;
+
+function TQueryParametersForCategory.GetIDCategory: TField;
+begin
+  Result := Field('IDCategory');
 end;
 
 function TQueryParametersForCategory.GetOrd: TField;

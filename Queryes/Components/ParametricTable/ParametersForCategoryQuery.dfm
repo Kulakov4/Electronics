@@ -13,7 +13,7 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       '    , ifnull(cp."Order", pcp."Order") ord'
       '    , ifnull(p.TableName, p.Value) Caption'
       '    , ifnull(pp.TableName, pp.Value) ParentCaption  '
-      '    , pcp.id ParentID  '
+      '    , ifnull(pcp.id, cp.id) IDCategory'
       '    , ifnull(p.ValueT, pp.ValueT) Hint'
       '    , p.ParentParameter'
       '    , p.FieldType'

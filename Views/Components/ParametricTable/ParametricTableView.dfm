@@ -14,6 +14,7 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsView.BandHeaderEndEllipsis = True
       OptionsView.BandHeaderHeight = 40
       OptionsView.BandHeaders = True
+      Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       Bands = <
         item
           FixedKind = fkLeft
@@ -300,5 +301,18 @@ inherited ViewParametricTable: TViewParametricTable
     OnTimer = Timer2Timer
     Left = 56
     Top = 152
+  end
+  object cxStyleRepository: TcxStyleRepository
+    Left = 594
+    Top = 120
+    PixelsPerInch = 96
+    object cxStyleBegin: TcxStyle
+      AssignedValues = [svColor]
+      Color = 16113353
+    end
+    object cxStyleEnd: TcxStyle
+      AssignedValues = [svColor]
+      Color = 13431295
+    end
   end
 end

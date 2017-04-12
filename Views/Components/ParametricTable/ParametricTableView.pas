@@ -68,14 +68,16 @@ type
   end;
 
   TBandsInfo = class(TList<TBandInfo>)
+  private
+    function HaveDifferentPos: Boolean;
   public
     procedure FreeNotDefaultBands;
-    function GetChangedPos(AView: TcxGridBandedTableView): TBandsInfo;
+    function GetChangedColIndex(AView: TcxGridBandedTableView): TBandsInfo;
     procedure HideDefaultBands;
     function Search(AView: TcxGridBandedTableView; AParameterID: Integer)
       : TBandInfo; overload;
     function Search(ABand: TcxGridBand): TBandInfo; overload;
-    function SearchByPos(AView: TcxGridBandedTableView; AColIndex: Integer):
+    function SearchByColIndex(AView: TcxGridBandedTableView; AColIndex: Integer):
         TBandInfo;
   end;
 
@@ -93,6 +95,9 @@ type
     Timer2: TTimer;
     dxBarButton1: TdxBarButton;
     actLocateInStorehouse: TAction;
+    cxStyleRepository: TcxStyleRepository;
+    cxStyleBegin: TcxStyle;
+    cxStyleEnd: TcxStyle;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
@@ -110,6 +115,9 @@ type
     procedure dxBarButton2Click(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
+    procedure cxGridDBBandedTableViewStylesGetContentStyle(
+      Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+      AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -633,10 +641,15 @@ begin
   Assert(ABandInfo <> nil);
 
 
-  L := FBandsInfo.GetChangedPos(ABand.GridView);
+  L := FBandsInfo.GetChangedColIndex(ABand.GridView);
   try
-//    for ABI in L do
-//      ABI.
+    if L.HaveDifferentPos then
+    begin
+      // Возвращаем колонки на место
+      for ABI in L do
+        ABI.Band.Position.ColIndex := ABI.ColIndex;
+      Exit;
+    end;
   finally
     FreeAndNil(L);
   end;
@@ -757,6 +770,36 @@ begin
   begin
     GetCursorPos(P);
     Application.ActivateHint(P);
+  end;
+
+end;
+
+procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetContentStyle(
+  Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+  AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
+var
+  ABI: TBandInfo;
+  AColumn: TcxGridDBBandedColumn;
+begin
+  inherited;
+  if (ARecord = nil) or (AItem = nil) or (not ARecord.IsData) then
+    Exit;
+
+  if not (AItem is TcxGridDBBandedColumn) then
+    Exit;
+
+  AColumn := AItem as TcxGridDBBandedColumn;
+
+  ABI := FBandsInfo.Search(AColumn.Position.Band);
+  if ABI = nil then
+    Exit;
+//  Assert(ABI <> nil);
+
+  case ABI.Pos of
+    0:
+      AStyle := cxStyleBegin;
+    2:
+      AStyle := cxStyleEnd;
   end;
 
 end;
@@ -903,7 +946,7 @@ begin
       AVisible := qParametersForCategory.IsAttribute.AsBoolean;
       ACaption := qParametersForCategory.Caption.AsString;
       AHint := qParametersForCategory.Hint.AsString;
-      ACategoryParamID := qParametersForCategory.ID.AsInteger;
+      ACategoryParamID := qParametersForCategory.IDCategory.AsInteger;
       AOrder := qParametersForCategory.Ord.AsInteger;
       APosID := qParametersForCategory.PosID.AsInteger;
 
@@ -1148,7 +1191,7 @@ begin
     Assert(ABandInfo <> nil);
     Assert(ABandInfo <> FBandInfo);
   }
-  BIList := FBandsInfo.GetChangedPos(MainView);
+  BIList := FBandsInfo.GetChangedColIndex(MainView);
   try
     // Как минимум 2 бэнда должны дыли поменять свою позицию
     Assert(BIList.Count >= 2);
@@ -1427,7 +1470,8 @@ begin
 
 end;
 
-function TBandsInfo.GetChangedPos(AView: TcxGridBandedTableView): TBandsInfo;
+function TBandsInfo.GetChangedColIndex(AView: TcxGridBandedTableView):
+    TBandsInfo;
 var
   ABandInfo: TBandInfo;
 begin
@@ -1439,6 +1483,21 @@ begin
       (ABandInfo.ColIndex <> ABandInfo.Band.Position.ColIndex) then
       Result.Add(ABandInfo);
   end;
+end;
+
+function TBandsInfo.HaveDifferentPos: Boolean;
+var
+  ABI: TBandInfo;
+  APos: Integer;
+begin
+  Result := True;
+  APos := First.Pos;
+  for ABI in Self do
+  begin
+    if ABI.Pos <> APos then
+      Exit;
+  end;
+  Result := False;
 end;
 
 procedure TBandsInfo.HideDefaultBands;
@@ -1488,7 +1547,7 @@ begin
   Result := nil;
 end;
 
-function TBandsInfo.SearchByPos(AView: TcxGridBandedTableView; AColIndex:
+function TBandsInfo.SearchByColIndex(AView: TcxGridBandedTableView; AColIndex:
     Integer): TBandInfo;
 var
   ABandInfo: TBandInfo;
