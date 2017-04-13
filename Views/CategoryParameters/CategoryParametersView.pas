@@ -377,14 +377,20 @@ var
   L: TList<TRecOrder>;
 begin
   inherited;
+
   MainView.BeginSortingUpdate;
   try
     m := TList<Integer>.Create;
     try
-      for i := 0 to MainView.Controller.SelectedRowCount - 1 do
+      if MainView.Controller.SelectedRowCount > 0 then
       begin
-        m.Add(MainView.Controller.SelectedRows[i].Index);
-      end;
+        for i := 0 to MainView.Controller.SelectedRowCount - 1 do
+        begin
+          m.Add(MainView.Controller.SelectedRows[i].Index);
+        end;
+      end
+      else
+        m.Add(MainView.Controller.FocusedRow.Index);
 
       m.Sort;
       // Убеждаемся что индексы в списке непрерывны
@@ -497,6 +503,13 @@ begin
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 
   actDelete.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
+
+  actAddToBegin.Enabled := OK and not FQueryCategoryParameters.HaveAnyChanges;
+  actAddToCenter.Enabled := actAddToBegin.Enabled;
+  actAddToEnd.Enabled := actAddToBegin.Enabled;
+
+  actUp.Enabled := OK and not FQueryCategoryParameters.HaveInserted;
+  actDown.Enabled := actUp.Enabled;
 end;
 
 end.

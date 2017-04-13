@@ -16,13 +16,17 @@ uses
 type
   TQueryCategoryParameters = class(TQueryWithDataSource)
   private
+    FInsertedClone: TFDMemTable;
     FMaxOrder: Integer;
     FQueryRecursiveParameters: TQueryRecursiveParameters;
     FRefreshQry: TQueryCategoryParameters;
+    procedure DoAfterClose(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetCategoryID: TField;
+    function GetHaveInserted: Boolean;
     function GetID: TField;
+    function GetInsertedClone: TFDMemTable;
     function GetIsAttribute: TField;
     function GetIsEnabled: TField;
     function GetOrder: TField;
@@ -36,6 +40,7 @@ type
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
+    property InsertedClone: TFDMemTable read GetInsertedClone;
     property QueryRecursiveParameters: TQueryRecursiveParameters
       read GetQueryRecursiveParameters;
     property RefreshQry: TQueryCategoryParameters read GetRefreshQry;
@@ -48,6 +53,7 @@ type
     function NextOrder: Integer;
     procedure SetPos(APosID: Integer);
     property CategoryID: TField read GetCategoryID;
+    property HaveInserted: Boolean read GetHaveInserted;
     property ID: TField read GetID;
     property IsAttribute: TField read GetIsAttribute;
     property IsEnabled: TField read GetIsEnabled;
@@ -73,6 +79,7 @@ begin
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
 procedure TQueryCategoryParameters.AppendParameter(ARecordHolder: TRecordHolder;
@@ -165,10 +172,22 @@ begin
   FMaxOrder := 0;
 end;
 
+procedure TQueryCategoryParameters.DoAfterClose(Sender: TObject);
+begin
+  if FInsertedClone <> nil then
+    FInsertedClone.Close;
+end;
+
 procedure TQueryCategoryParameters.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsReadOnly(False);
   FMaxOrder := 0;
+
+  if FInsertedClone <> nil then
+  begin
+    FInsertedClone.CloneCursor(FDQuery);
+    FInsertedClone.FilterChanges := [rtInserted];
+  end;
 end;
 
 procedure TQueryCategoryParameters.DoBeforePost(Sender: TObject);
@@ -183,9 +202,29 @@ begin
   Result := Field('ProductCategoryID');
 end;
 
+function TQueryCategoryParameters.GetHaveInserted: Boolean;
+begin
+  Result := FDQuery.Active and (InsertedClone.RecordCount > 0);
+end;
+
 function TQueryCategoryParameters.GetID: TField;
 begin
   Result := Field('ID');
+end;
+
+function TQueryCategoryParameters.GetInsertedClone: TFDMemTable;
+begin
+  if FInsertedClone = nil then
+  begin
+    FInsertedClone := TFDMemTable.Create(Self);
+    FInsertedClone.Name := 'qwewe';
+    if FDQuery.Active then
+    begin
+      FInsertedClone.CloneCursor(FDQuery);
+      FInsertedClone.FilterChanges := [rtInserted];
+    end;
+  end;
+  Result := FInsertedClone;
 end;
 
 function TQueryCategoryParameters.GetIsAttribute: TField;

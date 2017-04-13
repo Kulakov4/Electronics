@@ -643,7 +643,8 @@ begin
 
   L := FBandsInfo.GetChangedColIndex(ABand.GridView);
   try
-    if L.HaveDifferentPos then
+    // Если переместили в другую группу или предыдущий запрос ещё не обработан
+    if (L.HaveDifferentPos) or (Timer2.Enabled) then
     begin
       // Возвращаем колонки на место
       for ABI in L do
@@ -1178,6 +1179,7 @@ var
   BIList: TBandsInfo;
   i: Integer;
   L: TList<TRecOrder>;
+  x: Integer;
 begin
   Timer2.Enabled := False;
   // PostMessage(Handle, WM_ON_BAND_POS_CHANGE, 0, 0);
@@ -1229,9 +1231,10 @@ begin
       begin
         ABandInfo := BIList[i];
         L.Add(TRecOrder.Create(ABandInfo.CategoryParamID, AOrder));
-        AOrder := ABandInfo.Order;
+        // Обмен местами
+        x := ABandInfo.Order;
         ABandInfo.Order := AOrder;
-//        ABandInfo.Pos := ABandInfo.Band.Position.ColIndex;
+        AOrder := x;
       end;
       L.Add(TRecOrder.Create(BIList.First.CategoryParamID, AOrder));
       BIList.First.Order := AOrder;

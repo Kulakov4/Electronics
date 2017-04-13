@@ -8,7 +8,10 @@ inherited ViewParametricTable: TViewParametricTable
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
       OptionsBehavior.EditAutoHeight = eahRow
+      OptionsCustomize.ColumnGrouping = False
+      OptionsCustomize.ColumnMoving = False
       OptionsCustomize.ColumnSorting = False
+      OptionsCustomize.ColumnVertSizing = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
       OptionsView.BandHeaderEndEllipsis = True
