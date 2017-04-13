@@ -13,6 +13,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
+        Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -26,6 +27,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
@@ -38,6 +40,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -45,6 +48,12 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clValueT: TcxGridDBBandedColumn
         Caption = #1055#1077#1088#1077#1074#1086#1076
         DataBinding.FieldName = 'ValueT'
+        Options.Editing = False
+        Options.IncSearch = False
+        Options.Grouping = False
+        Options.Moving = False
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 3
         Position.RowIndex = 0
@@ -52,6 +61,12 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clParameterType: TcxGridDBBandedColumn
         Caption = #1058#1080#1087
         DataBinding.FieldName = 'ParameterType'
+        Options.Editing = False
+        Options.IncSearch = False
+        Options.Grouping = False
+        Options.Moving = False
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
@@ -63,6 +78,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 0
         SortOrder = soAscending
         Position.BandIndex = 0
@@ -76,10 +92,19 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 1
         SortOrder = soAscending
         Position.BandIndex = 0
         Position.ColIndex = 6
+        Position.RowIndex = 0
+      end
+      object clIsAttribute: TcxGridDBBandedColumn
+        Caption = #1040#1082#1090#1080#1074#1085#1099#1081
+        DataBinding.FieldName = 'IsAttribute'
+        Options.VertSizing = False
+        Position.BandIndex = 0
+        Position.ColIndex = 7
         Position.RowIndex = 0
       end
     end
@@ -131,6 +156,10 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton10'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -198,6 +227,13 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     object dxBarButton12: TdxBarButton
       Action = actAddToEnd
       Category = 0
+    end
+    object dxBarButton10: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton10Click
     end
   end
   inherited ActionList: TActionList

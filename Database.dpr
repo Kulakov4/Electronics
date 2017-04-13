@@ -172,7 +172,6 @@ uses
   DeleteLostFamily in 'Queryes\Components\DeleteLostFamily.pas' {QueryDeleteLostFamily: TFrame},
   CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParameters: TFrame},
   CategoryParametersView in 'Views\CategoryParameters\CategoryParametersView.pas' {ViewCategoryParameters: TFrame},
-  CategoryParametersFrame in 'Views\CategoryParameters\CategoryParametersFrame.pas' {FrameCategoryParameters: TFrame},
   ParameterPosQuery in 'Queryes\Parameters\ParameterPosQuery.pas' {QueryParameterPos: TFrame},
   RecursiveParametersQuery in 'Queryes\ParametersForCategories\RecursiveParametersQuery.pas' {QueryRecursiveParameters: TFrame},
   MaxCategoryParameterOrderQuery in 'Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas' {QueryMaxCategoryParameterOrder: TFrame},

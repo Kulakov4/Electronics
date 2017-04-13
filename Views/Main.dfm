@@ -170,10 +170,6 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -331,93 +327,41 @@ object frmMain: TfrmMain
             Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
             ImageIndex = 4
             OnShow = cxtsParametersForCategoriesShow
-            inline FrameCategoryParameters: TFrameCategoryParameters
+            inline ViewCategoryParameters: TViewCategoryParameters
               Left = 0
               Top = 0
               Width = 833
               Height = 500
               Align = alClient
               TabOrder = 0
-              ExplicitWidth = 833
-              ExplicitHeight = 500
-              inherited cxPageControl1: TcxPageControl
+              ExplicitLeft = -60
+              ExplicitTop = 9
+              inherited cxGrid: TcxGrid
                 Width = 833
-                Height = 500
-                ExplicitWidth = 833
-                ExplicitHeight = 500
-                ClientRectBottom = 496
-                ClientRectRight = 829
-                inherited cxtsCategorized: TcxTabSheet
-                  inherited ViewParametersForCategories: TViewParametersForCategories
-                    inherited dxBarManager: TdxBarManager
-                      DockControlHeights = (
-                        0
-                        0
-                        0
-                        0)
-                    end
-                    inherited cxGridPopupMenu: TcxGridPopupMenu
-                      PopupMenus = <
-                        item
-                          GridView = FrameCategoryParameters.ViewParametersForCategories.cxGridDBBandedTableView
-                          HitTypes = [gvhtCell]
-                          Index = 0
-                          PopupMenu = FrameCategoryParameters.ViewParametersForCategories.pmGrid
-                        end>
-                    end
-                  end
-                end
-                inherited cxtsList: TcxTabSheet
-                  ExplicitWidth = 781
-                  ExplicitHeight = 492
-                  inherited ViewCategoryParameters: TViewCategoryParameters
-                    Width = 781
-                    Height = 492
-                    ExplicitWidth = 781
-                    ExplicitHeight = 492
-                    inherited cxGrid: TcxGrid
-                      Width = 781
-                      Height = 445
-                      ExplicitWidth = 781
-                      ExplicitHeight = 445
-                    end
-                    inherited StatusBar: TStatusBar
-                      Top = 473
-                      Width = 781
-                      ExplicitTop = 473
-                      ExplicitWidth = 781
-                    end
-                    inherited dxBarManager: TdxBarManager
-                      DockControlHeights = (
-                        0
-                        0
-                        28
-                        0)
-                    end
-                    inherited cxGridPopupMenu: TcxGridPopupMenu
-                      PopupMenus = <
-                        item
-                          GridView = FrameCategoryParameters.ViewCategoryParameters.cxGridDBBandedTableView
-                          HitTypes = [gvhtCell]
-                          Index = 0
-                          PopupMenu = FrameCategoryParameters.ViewCategoryParameters.pmGrid
-                        end>
-                    end
-                    inherited cxStyleRepository: TcxStyleRepository
-                      PixelsPerInch = 96
-                    end
-                  end
-                end
+                Height = 453
+              end
+              inherited StatusBar: TStatusBar
+                Top = 481
+                Width = 833
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
                   0
-                  0
+                  28
                   0)
               end
-              inherited cxImageList: TcxImageList
-                FormatVersion = 1
+              inherited cxGridPopupMenu: TcxGridPopupMenu
+                PopupMenus = <
+                  item
+                    GridView = ViewCategoryParameters.cxGridDBBandedTableView
+                    HitTypes = [gvhtCell]
+                    Index = 0
+                    PopupMenu = ViewCategoryParameters.pmGrid
+                  end>
+              end
+              inherited cxStyleRepository: TcxStyleRepository
+                PixelsPerInch = 96
               end
             end
           end
@@ -628,6 +572,9 @@ object frmMain: TfrmMain
                     Index = 1
                     PopupMenu = ViewParametricTable.pmGrid
                   end>
+              end
+              inherited cxStyleRepository: TcxStyleRepository
+                PixelsPerInch = 96
               end
             end
           end

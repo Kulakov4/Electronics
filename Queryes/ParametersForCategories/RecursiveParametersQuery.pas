@@ -18,11 +18,12 @@ type
   private
     { Private declarations }
   public
-    procedure ExecUpdateSQL(const AOldPosID, ANewPosID, AOldOrder, ANewOrder,
-        AParameterID, ACategoryID: Integer);
+    procedure ExecUpdateSQL(const AOldPosID, ANewPosID, AOldOrder,
+      ANewOrder: Integer; const AOldIsAttribute, ANewIsAttribute: Boolean;
+      const AParameterID, ACategoryID: Integer);
     procedure ExecDeleteSQL(const AParameterID, ACategoryID: Integer);
-    procedure ExecInsertSQL(APosID, AOrder: Integer; const AParameterID,
-        ACategoryID: Integer);
+    procedure ExecInsertSQL(APosID, AOrder: Integer;
+      const AParameterID, ACategoryID: Integer);
     { Public declarations }
   end;
 
@@ -31,7 +32,8 @@ implementation
 {$R *.dfm}
 
 procedure TQueryRecursiveParameters.ExecUpdateSQL(const AOldPosID, ANewPosID,
-    AOldOrder, ANewOrder, AParameterID, ACategoryID: Integer);
+  AOldOrder, ANewOrder: Integer; const AOldIsAttribute, ANewIsAttribute
+  : Boolean; const AParameterID, ACategoryID: Integer);
 begin
   // Assert(ANewPosID <> AOldPosID);
   Assert(AParameterID > 0);
@@ -43,14 +45,15 @@ begin
 
   // Устанавливаем параметры запроса
   SetParameters(['OLD_POSID', 'NEW_POSID', 'OLD_ORDER', 'NEW_ORDER',
-    'ParameterID', 'CATEGORYID'], [AOldPosID, ANewPosID, AOldOrder, ANewOrder,
-    AParameterID, ACategoryID]);
+    'OLD_ISATTRIBUTE', 'NEW_ISATTRIBUTE', 'ParameterID', 'CATEGORYID'],
+    [AOldPosID, ANewPosID, AOldOrder, ANewOrder, AOldIsAttribute,
+    ANewIsAttribute, AParameterID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;
 
 procedure TQueryRecursiveParameters.ExecDeleteSQL(const AParameterID,
-    ACategoryID: Integer);
+  ACategoryID: Integer);
 begin
   Assert(AParameterID > 0);
   Assert(ACategoryID > 0);
@@ -66,7 +69,7 @@ begin
 end;
 
 procedure TQueryRecursiveParameters.ExecInsertSQL(APosID, AOrder: Integer;
-    const AParameterID, ACategoryID: Integer);
+  const AParameterID, ACategoryID: Integer);
 begin
   // Assert(ANewPosID <> AOldPosID);
   Assert(AParameterID > 0);

@@ -37,7 +37,7 @@ uses
   dxSkinVisualStudio2013Dark, dxSkinVisualStudio2013Light, dxSkinVS2010,
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
-  SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersFrame;
+  SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -128,7 +128,7 @@ type
     Excel1: TMenuItem;
     actLoadTreeFromExcelDocument: TAction;
     Excel2: TMenuItem;
-    FrameCategoryParameters: TFrameCategoryParameters;
+    ViewCategoryParameters: TViewCategoryParameters;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
@@ -909,7 +909,7 @@ end;
 
 procedure TfrmMain.cxtsParametersForCategoriesShow(Sender: TObject);
 begin
-  FrameCategoryParameters.ViewCategoryParameters.ApplyBestFitEx;
+  ViewCategoryParameters.ApplyBestFitEx;
 end;
 
 procedure TfrmMain.cxtsParametricTableShow(Sender: TObject);
@@ -1031,12 +1031,11 @@ begin
       ViewComponentsSearch.ComponentsSearchGroup := DM.ComponentsSearchGroup;
 
       // Параметры в виде категорий
-      FrameCategoryParameters.ViewParametersForCategories.
-        ParametersForCategoriesGroup := DM.ParametersForCategoriesGroup;
+//      FrameCategoryParameters.ViewParametersForCategories.
+//        ParametersForCategoriesGroup := DM.ParametersForCategoriesGroup;
 
       // Параметры в виде списка
-      FrameCategoryParameters.ViewCategoryParameters.QueryCategoryParameters :=
-        DM.qCategoryParameters;
+      ViewCategoryParameters.QueryCategoryParameters := DM.qCategoryParameters;
 
       ViewParametricTable.ComponentsExGroup := DM.ComponentsExGroup;
 
@@ -1337,8 +1336,7 @@ procedure TfrmMain.tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
 ANode: TcxTreeListNode; var Allow: Boolean);
 begin
   Allow := (ViewComponents.CheckAndSaveChanges <> IDCancel) and
-    (FrameCategoryParameters.ViewCategoryParameters.CheckAndSaveChanges <>
-    IDCancel);
+    (ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
 end;
 
 procedure TfrmMain.tlLeftControlClick(Sender: TObject);

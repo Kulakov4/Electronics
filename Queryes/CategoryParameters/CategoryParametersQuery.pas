@@ -21,6 +21,7 @@ type
     FQueryRecursiveParameters: TQueryRecursiveParameters;
     FRefreshQry: TQueryCategoryParameters;
     procedure DoAfterClose(Sender: TObject);
+    procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetCategoryID: TField;
@@ -79,6 +80,7 @@ begin
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
@@ -141,6 +143,7 @@ end;
 procedure TQueryCategoryParameters.ApplyUpdate(ASender: TDataSet);
 var
   ACategoryID: TField;
+  AIsAttribute: TField;
   AOrder: TField;
   AParameterID: TField;
   APosID: TField;
@@ -149,13 +152,17 @@ begin
   AOrder := ASender.FieldByName(Order.FieldName);
   AParameterID := ASender.FieldByName(ParameterID.FieldName);
   ACategoryID := ASender.FieldByName(CategoryID.FieldName);
+  AIsAttribute := ASender.FieldByName(IsAttribute.FieldName);
 
   // Если изменилось положение параметра или его порядок
-  if (APosID.OldValue <> APosID.Value) or (AOrder.OldValue <> AOrder.Value) then
+  if (APosID.OldValue <> APosID.Value) or
+  (AOrder.OldValue <> AOrder.Value) or
+  (AIsAttribute.OldValue <> AIsAttribute.NewValue)
+  then
   begin
     QueryRecursiveParameters.ExecUpdateSQL(APosID.OldValue, APosID.Value,
-      AOrder.OldValue, AOrder.Value, AParameterID.AsInteger,
-      ACategoryID.AsInteger);
+      AOrder.OldValue, AOrder.Value, AIsAttribute.OldValue, AIsAttribute.Value,
+      AParameterID.AsInteger, ACategoryID.AsInteger);
   end;
 end;
 
@@ -178,6 +185,12 @@ begin
     FInsertedClone.Close;
 end;
 
+procedure TQueryCategoryParameters.DoAfterInsert(Sender: TObject);
+begin
+  IsEnabled.AsBoolean := True;
+  IsAttribute.AsBoolean := True;
+end;
+
 procedure TQueryCategoryParameters.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsReadOnly(False);
@@ -188,13 +201,14 @@ begin
     FInsertedClone.CloneCursor(FDQuery);
     FInsertedClone.FilterChanges := [rtInserted];
   end;
+
+  IsEnabled.DefaultExpression := 'true';
+  IsAttribute.DefaultExpression := 'true';
 end;
 
 procedure TQueryCategoryParameters.DoBeforePost(Sender: TObject);
 begin
   ProductCategoryID.AsInteger := ParentValue;
-  IsEnabled.AsBoolean := True;
-  IsAttribute.AsBoolean := True;
 end;
 
 function TQueryCategoryParameters.GetCategoryID: TField;

@@ -58,7 +58,8 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
     SQL.Strings = (
       'UPDATE CATEGORYPARAMS'
       'SET POSID = :NEW_POSID,'
-      '    [ORDER] = :NEW_ORDER'
+      '    [ORDER] = :NEW_ORDER,'
+      '    ISATTRIBUTE = :NEW_ISATTRIBUTE'
       'WHERE ID in'
       '('
       
@@ -89,7 +90,8 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       '    from m'
       ')'
       'and POSID = :OLD_POSID'
-      'and [ORDER] = :OLD_ORDER')
+      'and [ORDER] = :OLD_ORDER'
+      'and ISATTRIBUTE = :OLD_ISATTRIBUTE')
     Left = 176
     Top = 25
     ParamData = <
@@ -102,6 +104,12 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       item
         Name = 'NEW_ORDER'
         DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'NEW_ISATTRIBUTE'
+        DataType = ftBoolean
         ParamType = ptInput
         Value = Null
       end
@@ -126,6 +134,12 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       item
         Name = 'OLD_ORDER'
         DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'OLD_ISATTRIBUTE'
+        DataType = ftBoolean
         ParamType = ptInput
         Value = Null
       end>

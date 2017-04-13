@@ -108,7 +108,7 @@ inherited QueryMainParameters: TQueryMainParameters
         Name = 'PRODUCTCATEGORYID'
         DataType = ftInteger
         ParamType = ptInput
-        Value = Null
+        Value = 0
       end
       item
         Name = 'TABLENAME'
@@ -120,8 +120,11 @@ inherited QueryMainParameters: TQueryMainParameters
   object FDQuery2: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'select *'
+      'select *, IFNULL(cp.id, 0) > 0 Checked'
       'from Parameters'
+      
+        'LEFT JOIN CategoryParams cp on cp.ProductCategoryId = :ProductCa' +
+        'tegoryId and cp.ParameterId = p.id'
       'where ParentParameter is null and IDParameterType is not null'
       'and tablename in'
       '('
@@ -138,6 +141,12 @@ inherited QueryMainParameters: TQueryMainParameters
     Left = 136
     Top = 24
     ParamData = <
+      item
+        Name = 'PRODUCTCATEGORYID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = 0
+      end
       item
         Name = 'TABLENAME'
         DataType = ftWideString
