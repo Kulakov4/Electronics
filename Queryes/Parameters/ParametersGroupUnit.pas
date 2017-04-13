@@ -28,7 +28,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Commit; override;
-    function Find(const S: string): TList<String>;
+    function Find(const AFieldName, S: string): TList<String>;
     procedure InsertList(AParametersExcelTable: TParametersExcelTable);
     procedure ReOpen; override;
     procedure Rollback; override;
@@ -96,14 +96,15 @@ begin
     qMainParameters.IDParameterType.FieldName);
 end;
 
-function TParametersGroup.Find(const S: string): TList<String>;
+function TParametersGroup.Find(const AFieldName, S: string): TList<String>;
 var
   OK: Boolean;
 begin
+  Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
 
-  // ѕытаемс€ искать среди параметров
-  if qMainParameters.Locate(S) then
+  // ѕытаемс€ искать среди параметров по какому-то полю
+  if qMainParameters.Locate(AFieldName, S) then
   begin
     OK := qParameterTypes.LocateByPK(qMainParameters.IDParameterType.Value);
     Assert(OK);

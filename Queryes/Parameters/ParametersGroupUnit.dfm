@@ -34,8 +34,8 @@ inherited ParametersGroup: TParametersGroup
       end>
     ExplicitLeft = 0
     ExplicitTop = 0
-    ExplicitWidth = 480
-    ExplicitHeight = 145
+    ExplicitWidth = 790
+    ExplicitHeight = 79
     inline qParameterTypes: TQueryParameterTypes
       Left = 1
       Top = 1
@@ -43,10 +43,10 @@ inherited ParametersGroup: TParametersGroup
       Height = 77
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 18
-      ExplicitTop = 37
-      ExplicitWidth = 125
-      ExplicitHeight = 71
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 263
+      ExplicitHeight = 77
     end
     inline qMainParameters: TQueryMainParameters
       Left = 264
@@ -55,10 +55,10 @@ inherited ParametersGroup: TParametersGroup
       Height = 77
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 164
-      ExplicitTop = 37
-      ExplicitWidth = 150
-      ExplicitHeight = 71
+      ExplicitLeft = 264
+      ExplicitTop = 1
+      ExplicitWidth = 262
+      ExplicitHeight = 77
     end
     inline qSubParameters: TQuerySubParameters
       Left = 526
@@ -67,9 +67,10 @@ inherited ParametersGroup: TParametersGroup
       Height = 77
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 336
-      ExplicitTop = 37
-      ExplicitHeight = 71
+      ExplicitLeft = 526
+      ExplicitTop = 1
+      ExplicitWidth = 263
+      ExplicitHeight = 77
     end
   end
 end

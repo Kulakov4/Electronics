@@ -26,8 +26,8 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    SELECT *'
       '    FROM Parameters'
       
-        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL AN' +
-        'D IsCustomParameter = 0 AND '
+        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
+        'd IDParameterType is not null AND '
       '    ( (TableName = :TableName) or (:TableName = '#39#39') )'
       ')'
       'order by ParameterType')
@@ -91,8 +91,8 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    SELECT *'
       '    FROM Parameters'
       
-        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL AN' +
-        'D '
+        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
+        'd IDParameterType is not null AND '
       '    tablename IN '
       '    ('
       '        SELECT TableName'

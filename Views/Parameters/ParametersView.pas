@@ -442,6 +442,7 @@ end;
 
 procedure TViewParameters.actSearchExecute(Sender: TObject);
 var
+  AColumn: TcxGridDBBandedColumn;
   ARow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
   List: TList<String>;
@@ -450,21 +451,24 @@ begin
   S := cxbeiSearch.CurEditValue;
   S := cxbeiSearch.EditValue;
 
-  List := ParametersGroup.Find(S);
+  // Будем искать по табличному имени (либо по названию категории)
+  AColumn := clTableName;
+
+  List := ParametersGroup.Find(AColumn.DataBinding.FieldName, S);
   try
-    // сначала ищем на первом уровне
+    // сначала ищем на первом уровне (по названию категории)
     if (List.Count > 0) and
       (MainView.DataController.Search.Locate(clParameterType.Index, List[0],
       True)) then
     begin
-      // Затем ищем на втором уровне
+      // Затем ищем на втором уровне (по табличному имени)
       if List.Count > 1 then
       begin
         ARow := GetRow(0) as TcxGridMasterDataRow;
         ARow.Expand(False);
         AView := GetDBBandedTableView(1);
         AView.Focused := True;
-        AView.DataController.Search.Locate(clValue2.Index, List[1], True);
+        AView.DataController.Search.Locate(AColumn.Index, List[1], True);
         PutInTheCenterFocusedRecord(AView);
       end
       else

@@ -459,7 +459,7 @@ begin
       // Получаем строку в гриде
       // AcxGridMasterDataRow := GetRow(0) as TcxGridMasterDataRow;
       // Раскрываем эту строку
-      MainView.ViewData.Expand(True);
+      MainView.ViewData.Expand(False);
 
       // Получаем дочернее представление
       AView := GetDBBandedTableView(1);

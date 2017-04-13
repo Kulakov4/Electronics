@@ -117,15 +117,19 @@ inherited QueryMainParameters: TQueryMainParameters
         Value = ''
       end>
   end
-  object FDQuery2: TFDQuery
+  object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'select *, IFNULL(cp.id, 0) > 0 Checked'
-      'from Parameters'
+      'select p.*, IFNULL(cp.id, 0) > 0 Checked'
+      'from Parameters p'
       
         'LEFT JOIN CategoryParams cp on cp.ProductCategoryId = :ProductCa' +
         'tegoryId and cp.ParameterId = p.id'
-      'where ParentParameter is null and IDParameterType is not null'
+      
+        'where p.ParentParameter is null and p.IDParameterType is not nul' +
+        'l'
+      '-- and tablename in'
+      '/*'
       'and tablename in'
       '('
       '    select TableName'
@@ -136,8 +140,9 @@ inherited QueryMainParameters: TQueryMainParameters
       '    group by TableName'
       '    having count(*) > 1'
       ')'
-      'and ( ( TableName = :TableName ) or ( :TableName = '#39#39' ) )'
-      'order by IDParameterType, `Order`')
+      '*/'
+      'and ( ( p.TableName = :TableName ) or ( :TableName = '#39#39' ) )'
+      'order by p.IDParameterType, p.[Order]')
     Left = 136
     Top = 24
     ParamData = <

@@ -17,7 +17,7 @@ const
 
 type
   TQueryMainParameters = class(TQueryWithDataSource)
-    FDQuery2: TFDQuery;
+    fdqBase: TFDQuery;
     ParametersApplyQuery: TfrmApplyQuery;
   private
     FHaveAnyChanges: Boolean;
@@ -56,7 +56,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function GetCheckedPKValues: string;
-    function Locate(const AValue: string): Boolean;
+    function Locate(const AFieldName, AValue: string): Boolean;
     function Lookup(AValue: string): Integer;
     procedure MoveDSRecord(AStartDrag: TStartDrag; ADropDrag: TDropDrag);
     property Checked: TField read GetChecked;
@@ -77,7 +77,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, DBRecordHolder, System.StrUtils;
+uses RepositoryDataModule, DBRecordHolder, System.StrUtils, StrHelper;
 
 constructor TQueryMainParameters.Create(AOwner: TComponent);
 begin
@@ -278,7 +278,6 @@ begin
   // Checked.FieldKind := fkInternalCalc;
   Checked.ReadOnly := False;
 
-
 end;
 
 procedure TQueryMainParameters.DoAfterPost(Sender: TObject);
@@ -391,9 +390,10 @@ begin
   Result := Field('Value');
 end;
 
-function TQueryMainParameters.Locate(const AValue: string): Boolean;
+function TQueryMainParameters.Locate(const AFieldName, AValue: string): Boolean;
 begin
-  Result := FDQuery.LocateEx(Value.FieldName, AValue,
+  Assert(not AFieldName.IsEmpty);
+  Result := FDQuery.LocateEx(AFieldName , AValue,
     [lxoCaseInsensitive, lxoPartialKey]);
 end;
 
@@ -483,24 +483,25 @@ end;
 
 procedure TQueryMainParameters.SetShowDublicate(const Value: Boolean);
 var
-  ASQL: TStringList;
+  ASQL: String;
+  S: string;
 begin
   if FShowDublicate <> Value then
   begin
     FShowDublicate := Value;
 
-    ASQL := TStringList.Create;
-    try
-      ASQL.Assign(FDQuery.SQL);
+    S := 'and tablename in '#13#10 + '( '#13#10 + 'select TableName'#13#10 +
+      'from Parameters'#13#10 +
+      'where ParentParameter is null and IDParameterType is not null'#13#10 +
+      'group by TableName'#13#10 + 'having count(*) > 1'#13#10 + ')';
 
-      FDQuery.Close;
-      FDQuery.SQL.Assign(FDQuery2.SQL);
-      FDQuery.Open;
+    ASQL := fdqBase.SQL.Text;
+    if FShowDublicate then
+      ASQL := Replace(ASQL, S, '-- and tablename in');
 
-      FDQuery2.SQL.Assign(ASQL);
-    finally
-      FreeAndNil(ASQL)
-    end;
+    FDQuery.Close;
+    FDQuery.SQL.Text := ASQL;
+    FDQuery.Open;
   end;
 end;
 
