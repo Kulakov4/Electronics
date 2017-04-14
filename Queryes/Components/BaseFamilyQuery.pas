@@ -23,8 +23,8 @@ type
     FQuerySearchComponentCategory: TQuerySearchComponentCategory;
     FQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
     procedure DoBeforeOpen(Sender: TObject);
-    function GetCurCategoryExternalID: TField;
-    function GetCurProductCategoriesExternalID: string;
+    function GetExternalID: TField;
+    function GetCategoryExternalID: string;
     function GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
     function GetQuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup;
     function GetQuerySearchFamilyByValue: TQuerySearchFamilyByValue;
@@ -48,9 +48,8 @@ type
       read GetQuerySearchComponentCategory2;
   public
     constructor Create(AOwner: TComponent); override;
-    property CurCategoryExternalID: TField read GetCurCategoryExternalID;
-    property CurProductCategoriesExternalID: string read
-        GetCurProductCategoriesExternalID;
+    property ExternalID: TField read GetExternalID;
+    property CategoryExternalID: string read GetCategoryExternalID;
     { Public declarations }
   end;
 
@@ -203,20 +202,20 @@ begin
 
 end;
 
-function TQueryBaseFamily.GetCurCategoryExternalID: TField;
+function TQueryBaseFamily.GetExternalID: TField;
 begin
-  Result := Field('CurCategoryExternalID');
+  Result := Field('ExternalID');
 end;
 
-function TQueryBaseFamily.GetCurProductCategoriesExternalID: string;
+function TQueryBaseFamily.GetCategoryExternalID: string;
 var
   rc: Integer;
 begin
   Assert(FDQuery.Active);
 
-  if not CurCategoryExternalID.AsString.IsEmpty then
+  if not ExternalID.AsString.IsEmpty then
   begin
-    Result := CurCategoryExternalID.AsString;
+    Result := ExternalID.AsString;
     Exit;
   end;
 

@@ -323,6 +323,7 @@ var
   ANewValue: string;
   AValue: string;
   OK: Boolean;
+  S: string;
 begin
   // ¬о врем€ загрузки ничего сохран€ть не будем
   FApplyUpdateEvents.Clear;
@@ -350,15 +351,19 @@ begin
       begin
         AFieldName := GetFieldName
           (FQueryProductParameters.ParameterID.AsInteger);
-        ANewValue := Format('%s%s%s',
-          [FMark, FQueryProductParameters.Value.AsString.Trim, FMark]);
-        if not ANewValue.IsEmpty then
+        S := FQueryProductParameters.Value.AsString.Trim;
+        if not s.IsEmpty then
         begin
           // ¬озможно такого параметра у нашей категории уже нет
           AField := qryComponents.FDQuery.FindField(AFieldName);
           // ≈сли такой параметр у нашей категории есть
           if AField <> nil then
           begin
+            // ƒобавл€ем ограничители, чтобы потом можно было фильтровать
+            ANewValue := Format('%s%s%s',
+              [FMark, FQueryProductParameters.Value.AsString.Trim, FMark]);
+
+
             AValue := AField.AsString.Trim;
             if AValue <> '' then
               AValue := AValue + #13#10;

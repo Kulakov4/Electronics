@@ -329,7 +329,7 @@ begin
   S := S.Replace(' ', '', [rfReplaceAll]);
 
   Assert(S.Length > 0);
-  AMainExternalID := BaseComponentsGroup.QueryBaseFamily.CurProductCategoriesExternalID;
+  AMainExternalID := BaseComponentsGroup.QueryBaseFamily.CategoryExternalID;
 
   QuerySubGroups.Load(AMainExternalID, Format(',%s,', [S]));
   frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
@@ -405,13 +405,13 @@ begin
   // Инициализируем Combobox колонки
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
     lsEditList,  QuerySearchParameterValues.Value);
-
+  {
   // Ищем возможные значения корпусов для выпадающего списка
   QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
 
   InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
     lsEditList, QuerySearchParameterValues.Value);
-
+  }
 end;
 
 procedure TViewComponentsBase.OnGridPopupMenuPopup

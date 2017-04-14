@@ -598,6 +598,7 @@ begin
     AColumn.Caption := DeleteDoubleSpace(AColumnCaption);
     AColumn.AlternateCaption := AHint;
     AColumn.DataBinding.FieldName := AFieldName;
+    // ¬ режиме просмотра убираем ограничители
     AColumn.OnGetDataText := DoOnGetDataText;
 
     if AView = MainView then
@@ -1177,7 +1178,6 @@ end;
 procedure TViewParametricTable.Timer2Timer(Sender: TObject);
 var
   ABandInfo: TBandInfo;
-  ABI: TBandInfo;
   AOrder: Integer;
   BIList: TBandsInfo;
   i: Integer;

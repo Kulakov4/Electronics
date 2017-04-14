@@ -58,7 +58,7 @@ end;
 procedure TQueryFamily.DoAfterInsert(Sender: TObject);
 begin
   // Заполняем SubGroup внешним идентификатором текущей категории компонентов
-  FDQuery.FieldByName('SubGroup').AsString := CurProductCategoriesExternalID;
+  FDQuery.FieldByName('SubGroup').AsString := CategoryExternalID;
 end;
 
 procedure TQueryFamily.DoAfterOpen(Sender: TObject);

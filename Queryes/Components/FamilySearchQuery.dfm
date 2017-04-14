@@ -10,70 +10,70 @@ inherited QueryFamilySearch: TQueryFamilySearch
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'SELECT '
-      '  t.*, '
-      
-        '  trim(CurCategoryExternalID || REPLACE(subgroup2, '#39','#39'||CurCateg' +
-        'oryExternalID||'#39','#39', '#39','#39'), '#39','#39') subGroup'
-      'from'
+      'select'
+      '  p.*'
+      '  , pv.ID AS IDProducer'
+      '  , pv.Value AS Producer'
+      '  , pv3.ID AS IDDatasheet'
+      '  , pv3.Value AS Datasheet'
+      '  , pv4.ID AS IDDiagram'
+      '  , pv4.Value AS Diagram'
+      '  , pv5.ID AS IDDrawing'
+      '  , pv5.Value AS Drawing'
+      '  , pv6.ID AS IDImage'
+      '  , pv6.Value AS Image'
+      '  , d.Description  '
+      '  , PackagePins.ValueSet PackagePins'
+      '  , cat.ExternalID'
+      '  , cat.ExternalIDSet subGroup'
+      'from Products p'
+      'join'
       '('
-      '    SELECT p.Id,'
-      '       p.DescriptionId,'
-      '       p.Value,'
-      '       '#39','#39'||GROUP_CONCAT(pc.ExternalId,'#39','#39')||'#39','#39' subGroup2,'
-      '       p.ParentProductId,'
-      '       Min(pc.ExternalId) CurCategoryExternalID,'
-      '       pv.ID as IDProducer,'
-      '       pv.Value as Producer,'
-      '       pv2.ID as IDPackagePins,'
-      '       pv2.Value as PackagePins,'
-      '       pv3.ID as IDDatasheet,'
-      '       pv3.Value as Datasheet,'
-      '       pv4.ID as IDDiagram,'
-      '       pv4.Value as Diagram,'
-      '       pv5.ID as IDDrawing,'
-      '       pv5.Value as Drawing,'
-      '       pv6.ID as IDImage,'
-      '       pv6.Value as Image,'
-      '       d.Description'
-      '   FROM Products p'
-      '   JOIN ProductProductCategories ppc ON p.Id = ppc.ProductId'
-      '   JOIN ProductCategories pc ON pc.Id = ppc.ProductCategoryId  '
       
-        '   left join ParameterValues pv on pv.ProductID = p.Id and pv.Pa' +
-        'rameterId = :ProducerParameterID'
+        '    select ppc.ProductID, GROUP_CONCAT(pc.ExternalID,'#39','#39') Extern' +
+        'alIDSet, min(pc.ExternalID) ExternalID'
+      '    from ProductProductCategories ppc'
+      '    JOIN ProductCategories pc ON pc.Id = ppc.ProductCategoryId'
+      '    group by ppc.ProductID'
+      ') Cat on cat.ProductID = p.id'
+      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
+      'left join'
+      '('
+      '    select pv.ProductId, GROUP_CONCAT(pv.Value,'#39','#39') ValueSet'
+      '    from ParameterValues pv'
+      '    where '
+      '    pv.ParameterId = :PackagePinsParameterID'
+      '    group by pv.ProductId'
+      ') PackagePins on PackagePins.ProductId = p.id'
       
-        '   left join ParameterValues pv2 on pv2.ProductID = p.Id and pv2' +
-        '.ParameterId = :PackagePinsParameterID'
+        'LEFT JOIN ParameterValues pv ON pv.ProductID = p.Id AND pv.Param' +
+        'eterId = :ProducerParameterID'
       
-        '   left join ParameterValues pv3 on pv3.ProductID = p.Id and pv3' +
-        '.ParameterId = :DatasheetParameterID'
+        'LEFT JOIN ParameterValues pv3 ON pv3.ProductID = p.Id AND pv3.Pa' +
+        'rameterId = :DatasheetParameterID'
       
-        '   left join ParameterValues pv4 on pv4.ProductID = p.Id and pv4' +
-        '.ParameterId = :DiagramParameterID'
+        'LEFT JOIN ParameterValues pv4 ON pv4.ProductID = p.Id AND pv4.Pa' +
+        'rameterId = :DiagramParameterID'
       
-        '   left join ParameterValues pv5 on pv5.ProductID = p.Id and pv5' +
-        '.ParameterId = :DrawingParameterID'
+        'LEFT JOIN ParameterValues pv5 ON pv5.ProductID = p.Id AND pv5.Pa' +
+        'rameterId = :DrawingParameterID'
       
-        '   left join ParameterValues pv6 on pv6.ProductID = p.Id and pv6' +
-        '.ParameterId = :ImageParameterID'
-      '   LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
+        'LEFT JOIN ParameterValues pv6 ON pv6.ProductID = p.Id AND pv6.Pa' +
+        'rameterId = :ImageParameterID'
+      ''
       
-        '   WHERE instr('#39','#39' || :IDList || '#39','#39'   ,    '#39','#39' || p.Id || '#39','#39') ' +
-        '> 0 '
-      '      AND ParentProductId IS NULL'
-      'GROUP BY p.Id'
-      ') t'
-      'ORDER BY t.value')
+        'WHERE instr('#39','#39' || :IDList || '#39','#39'   ,    '#39','#39' || p.Id || '#39','#39') > 0' +
+        ' '
+      '      AND p.ParentProductId IS NULL')
     ParamData = <
       item
-        Name = 'PRODUCERPARAMETERID'
+        Name = 'PACKAGEPINSPARAMETERID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'PACKAGEPINSPARAMETERID'
+        Name = 'PRODUCERPARAMETERID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

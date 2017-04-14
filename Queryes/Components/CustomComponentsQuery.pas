@@ -32,7 +32,6 @@ type
     function GetIDDiagram: TField;
     function GetIDDrawing: TField;
     function GetIDImage: TField;
-    function GetIDPackagePins: TField;
     function GetIDProducer: TField;
     function GetQuerySearchProductParameterValues
       : TQuerySearchProductParameterValues;
@@ -66,7 +65,6 @@ type
     property IDDiagram: TField read GetIDDiagram;
     property IDDrawing: TField read GetIDDrawing;
     property IDImage: TField read GetIDImage;
-    property IDPackagePins: TField read GetIDPackagePins;
     property IDProducer: TField read GetIDProducer;
     property ParameterFields: TDictionary<Integer, String>
       read FParameterFields;
@@ -156,14 +154,7 @@ var
   AFieldName: string;
   F: TField;
 begin
-{
-  if FParameterFields.Count = 0 then
-  begin
-    InitParameterFields;
-  end;
-}
   // Проверяем что все поля, которые являются параметрами существуют
-
   for AFieldName in FParameterFields.Values do
   begin
     F := Field(AFieldName);
@@ -228,11 +219,6 @@ begin
   Result := Field('IDImage');
 end;
 
-function TQueryCustomComponents.GetIDPackagePins: TField;
-begin
-  Result := Field('IDPackagePins');
-end;
-
 function TQueryCustomComponents.GetIDProducer: TField;
 begin
   Result := Field('IDProducer');
@@ -265,7 +251,7 @@ begin
   FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
 
   // Поле Package/Pins (Корпус/Кол-во выводов)
-  FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
+  //  FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
 
   // Поле Datasheet (техническая спецификация)
   FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
@@ -377,10 +363,10 @@ var
   AIDDiagram: TField;
   AIDDrawing: TField;
   AIDImage: TField;
-  AIDPackagePins: TField;
+//  AIDPackagePins: TField;
   AIDProducer: TField;
   AImage: TField;
-  APackagePins: TField;
+//  APackagePins: TField;
   AIDComponent: TField;
   AProducer: TField;
 begin
@@ -388,9 +374,9 @@ begin
   Assert(ASender <> nil);
   AIDComponent := ASender.FieldByName(AProductIDFieldName);
   AIDProducer := ASender.FieldByName(IDProducer.FieldName);
-  AIDPackagePins := ASender.FieldByName(IDPackagePins.FieldName);
+//  AIDPackagePins := ASender.FieldByName(IDPackagePins.FieldName);
   AProducer := ASender.FieldByName(Producer.FieldName);
-  APackagePins := ASender.FieldByName(PackagePins.FieldName);
+//  APackagePins := ASender.FieldByName(PackagePins.FieldName);
   AIDDatasheet := ASender.FieldByName(IDDatasheet.FieldName);
   ADatasheet := ASender.FieldByName(Datasheet.FieldName);
   AIDDiagram := ASender.FieldByName(IDDiagram.FieldName);
@@ -404,10 +390,11 @@ begin
   ProcessParamValue(AIDComponent.AsInteger, AIDProducer, AProducer.AsString,
     TParameterValues.ProducerParameterID);
 
+{
   // Обрабатываем корпус
   ProcessParamValue(AIDComponent.AsInteger, AIDPackagePins,
     APackagePins.AsString, TParameterValues.PackagePinsParameterID);
-
+}
   // Обрабатываем спецификацию
   ProcessParamValue(AIDComponent.AsInteger, AIDDatasheet, ADatasheet.AsString,
     TParameterValues.DatasheetParameterID);
