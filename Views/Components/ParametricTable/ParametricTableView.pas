@@ -484,6 +484,9 @@ begin
     // AValueList.Add(fviNonBlanks, null, '(Не пустые)', True);
     // AValueList.Add(fviUserEx, null, '(Все)', True);
 
+    // Сортируем варианты фильтров
+    AValues.Sort;
+
     for S in AValues do
     begin
       AValueList.Add(fviUserEx, Format('%%%s%s%s%%', [Mark, S, Mark]),
