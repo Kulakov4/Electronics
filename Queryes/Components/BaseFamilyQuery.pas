@@ -151,10 +151,13 @@ end;
 
 procedure TQueryBaseFamily.ApplyUpdate(ASender: TDataSet);
 var
+  APackagePins: TField;
   APK: TField;
   ARH: TRecordHolder;
   ASubGroup: TField;
 begin
+  APackagePins := ASender.FieldByName(PackagePins.FieldName);
+
   ARH := TRecordHolder.Create(ASender);
   try
     // Обновляем те поля, которые есть у компонента

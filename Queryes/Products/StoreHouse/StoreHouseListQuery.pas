@@ -65,7 +65,7 @@ begin
   // Если сокращённое наименование не задано
   if (FDQuery.State = dsInsert) and Abbreviation.IsNull then
   begin
-    Abbreviation.AsString := DeleteDoubleSpace(Title.AsString).Replace(' ', '');
+    Abbreviation.AsString := DeleteDouble(Title.AsString, ' ').Replace(' ', '');
   end;
 
 end;

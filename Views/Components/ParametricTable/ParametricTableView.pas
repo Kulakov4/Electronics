@@ -582,7 +582,7 @@ begin
     ABandInfo.DefaultVisible := AVisible;
     ABand.Visible := AVisible;
     ABand.VisibleForCustomization := True;
-    ABand.Caption := DeleteDoubleSpace(ABandCaption);
+    ABand.Caption := DeleteDouble(ABandCaption, ' ');
     ABand.AlternateCaption := AHint;
     if ABandInfo.DefaultCreated then
       ABand.Position.ColIndex := 1000; // Помещаем бэнд в конец
@@ -598,7 +598,7 @@ begin
     AColumn := AView.CreateColumn;
     AColumn.Position.BandIndex := ABand.Index;
     AColumn.MinWidth := 40;
-    AColumn.Caption := DeleteDoubleSpace(AColumnCaption);
+    AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.AlternateCaption := AHint;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители

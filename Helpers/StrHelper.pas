@@ -2,7 +2,7 @@ unit StrHelper;
 
 interface
 
-function DeleteDoubleSpace(const S: string): String;
+function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String; const ADelimiter: Char =
     ','): Boolean;
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
@@ -58,14 +58,21 @@ begin
   Result := S1.IndexOf(S2) >= 0;
 end;
 
-function DeleteDoubleSpace(const S: string): String;
+function DeleteDouble(const S: string; const AChar: Char): String;
 var
+  S1: String;
+  S2: String;
   SS: string;
 begin
+  Assert(AChar <> #0);
+  S1 := String.Create(AChar, 1);
+  S2 := String.Create(AChar, 2);
+
+
   Result := S;
   repeat
     SS := Result;
-    Result := SS.Replace('  ', ' ', [rfReplaceAll]);
+    Result := SS.Replace(S2, S1, [rfReplaceAll]);
   until Result = SS;
 end;
 

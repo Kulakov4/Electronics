@@ -37,12 +37,12 @@ type
       : TQuerySearchProductParameterValues;
     function GetSubGroup: TField;
     function GetValue: TField;
-    procedure ProcessParamValue(AIDComponent: Integer;
-      AIDProductParameterValue: TField; const AValue: String;
-      AIDParameter: Integer);
     { Private declarations }
   protected
     procedure InitParameterFields; virtual;
+    procedure ProcessParamValue(AIDComponent: Integer;
+      AIDProductParameterValue: TField; const AValue: Variant;
+      AIDParameter: Integer);
     procedure UpdateParamValue(const AProductIDFieldName: string;
       ASender: TDataSet);
     property QuerySearchProductParameterValues
@@ -78,7 +78,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, SearchMainParameterQuery, ProjectConst,
-  ParameterValuesUnit;
+  ParameterValuesUnit, StrHelper;
 
 constructor TQueryCustomComponents.Create(AOwner: TComponent);
 begin
@@ -90,7 +90,8 @@ begin
   // Если соединение с БД ещё не установлено
   if not DMRepository.dbConnection.Connected then
   begin
-    TNotifyEventWrap.Create(DMRepository.AfterConnect, DoAfterConnect, FEventList);
+    TNotifyEventWrap.Create(DMRepository.AfterConnect, DoAfterConnect,
+      FEventList);
   end
   else
     InitParameterFields;
@@ -161,7 +162,7 @@ begin
     Assert(F <> nil);
   end;
 
-  SetFieldsRequired(False);
+  SetFieldsRequired(false);
 end;
 
 function TQueryCustomComponents.GetDatasheet: TField;
@@ -251,7 +252,7 @@ begin
   FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
 
   // Поле Package/Pins (Корпус/Кол-во выводов)
-  //  FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
+  // FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
 
   // Поле Datasheet (техническая спецификация)
   FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
@@ -270,9 +271,11 @@ begin
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;
-  AIDProductParameterValue: TField; const AValue: String;
+  AIDProductParameterValue: TField; const AValue: Variant;
   AIDParameter: Integer);
 var
+  i: Integer;
+  k: Integer;
   rc: Integer;
 begin
   Assert(AIDParameter > 0);
@@ -280,42 +283,73 @@ begin
   // Ищем значение производителя для нашего компонента
   rc := QuerySearchProductParameterValues.Search(AIDParameter, AIDComponent);
 
-  // Если новое значение производителя пустое
-  if AValue.IsEmpty then
+  // Если новое значение параметра пустое
+  if VarIsStr(AValue) and VarToStr(AValue).IsEmpty then
   begin
     // Удаляем все значения выбранного параметра связанные с нашим компонентом
     while not QuerySearchProductParameterValues.FDQuery.Eof do
       QuerySearchProductParameterValues.FDQuery.Delete;
 
-    AIDProductParameterValue.Value := NULL;
+    if AIDProductParameterValue <> nil then
+      AIDProductParameterValue.Value := NULL;
   end
   else
   begin
-
+    k := 1;
     // Старого значение не существует
-    if rc = 0 then
+    if rc = 0 then // если меняем старые значения на новое
     begin
-      // Добавляем новое значение
-      QuerySearchProductParameterValues.AppendValue(AValue);
+      // Если надо сохранить несколько значений
+      if VarIsArray(AValue) then
+      begin
+        for i := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+        begin
+          // Добавляем новое значение
+          QuerySearchProductParameterValues.AppendValue(AValue[i]);
+        end;
+        k := 1 + VarArrayHighBound(AValue, 1) - VarArrayLowBound(AValue, 1);
+      end
+      else
+        // Добавляем новое значение
+        QuerySearchProductParameterValues.AppendValue(AValue);
     end
     else
     begin
-      // Если старое значение не равно новому
-      QuerySearchProductParameterValues.EditValue(AValue);
+      // Если надо сохранить несколько значений
+      if VarIsArray(AValue) then
+      begin
+        for i := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+        begin
+          if QuerySearchProductParameterValues.FDQuery.Eof then
+            // Добавляем новое значение
+            QuerySearchProductParameterValues.AppendValue(AValue[i])
+          else
+            // Если старое значение не равно новому
+            QuerySearchProductParameterValues.EditValue(AValue[i]);
+
+          QuerySearchProductParameterValues.FDQuery.Next;
+        end;
+        k := 1 + VarArrayHighBound(AValue, 1) - VarArrayLowBound(AValue, 1);
+      end
+      else
+      begin
+        QuerySearchProductParameterValues.EditValue(AValue);
+      end;
 
       // Удаляем "лишние" записи
-      while QuerySearchProductParameterValues.FDQuery.RecordCount > 1 do
+      while QuerySearchProductParameterValues.FDQuery.RecordCount > k do
       begin
         QuerySearchProductParameterValues.FDQuery.Last;
         QuerySearchProductParameterValues.FDQuery.Delete;
       end;
-
     end;
 
-    Assert(QuerySearchProductParameterValues.FDQuery.RecordCount = 1);
+    Assert(QuerySearchProductParameterValues.FDQuery.RecordCount = k);
     Assert(QuerySearchProductParameterValues.PKValue > 0);
 
-    AIDProductParameterValue.Value := QuerySearchProductParameterValues.PKValue;
+    if AIDProductParameterValue <> nil then
+      AIDProductParameterValue.Value :=
+        QuerySearchProductParameterValues.PKValue;
   end;
 end;
 
@@ -363,20 +397,25 @@ var
   AIDDiagram: TField;
   AIDDrawing: TField;
   AIDImage: TField;
-//  AIDPackagePins: TField;
+  // AIDPackagePins: TField;
   AIDProducer: TField;
   AImage: TField;
-//  APackagePins: TField;
+  APackagePins: TField;
   AIDComponent: TField;
   AProducer: TField;
+  i: Integer;
+  L: TStringList;
+  m: TArray<String>;
+  S: string;
+  VarArr: Variant;
 begin
   Assert(not AProductIDFieldName.IsEmpty);
   Assert(ASender <> nil);
   AIDComponent := ASender.FieldByName(AProductIDFieldName);
   AIDProducer := ASender.FieldByName(IDProducer.FieldName);
-//  AIDPackagePins := ASender.FieldByName(IDPackagePins.FieldName);
   AProducer := ASender.FieldByName(Producer.FieldName);
-//  APackagePins := ASender.FieldByName(PackagePins.FieldName);
+  // AIDPackagePins := ASender.FieldByName(IDPackagePins.FieldName);
+  APackagePins := ASender.FieldByName(PackagePins.FieldName);
   AIDDatasheet := ASender.FieldByName(IDDatasheet.FieldName);
   ADatasheet := ASender.FieldByName(Datasheet.FieldName);
   AIDDiagram := ASender.FieldByName(IDDiagram.FieldName);
@@ -386,15 +425,60 @@ begin
   AIDImage := ASender.FieldByName(IDImage.FieldName);
   AImage := ASender.FieldByName(Image.FieldName);
 
+  // Обрабатываем редактирование списка корпусов
+  if APackagePins.OldValue <> APackagePins.Value then
+  begin
+    if not VarIsNull(APackagePins.Value) then
+    begin
+      // Обязательно удаляем двойные запятые
+      S := DeleteDouble(VarToStr(APackagePins.Value), ',');
+      // Делим корпуса на части
+      m := S.Split([',']);
+      L := TStringList.Create;
+      try
+        for i := Low(m) to High(m) do
+        begin
+          if not m[i].IsEmpty then
+            L.Add(m[i]);
+        end;
+
+        if L.Count > 0 then
+        begin
+          VarArr := VarArrayCreate([0, L.Count - 1], varVariant);
+          try
+            for i := 0 to l.Count - 1 do
+              VarArr[i] := L[i];
+
+            ProcessParamValue(AIDComponent.AsInteger, nil, VarArr,
+              TParameterValues.PackagePinsParameterID);
+
+          finally
+            VarClear(VarArr);
+          end;
+        end
+        else
+          ProcessParamValue(AIDComponent.AsInteger, nil, '',
+            TParameterValues.PackagePinsParameterID);
+
+        APackagePins.Value := L.ToString;
+      finally
+        FreeAndNil(L);
+      end;
+    end
+    else
+      ProcessParamValue(AIDComponent.AsInteger, nil, '',
+        TParameterValues.PackagePinsParameterID);
+  end;
+
   // Обрабатываем производителя
   ProcessParamValue(AIDComponent.AsInteger, AIDProducer, AProducer.AsString,
     TParameterValues.ProducerParameterID);
 
-{
-  // Обрабатываем корпус
-  ProcessParamValue(AIDComponent.AsInteger, AIDPackagePins,
+  {
+    // Обрабатываем корпус
+    ProcessParamValue(AIDComponent.AsInteger, AIDPackagePins,
     APackagePins.AsString, TParameterValues.PackagePinsParameterID);
-}
+  }
   // Обрабатываем спецификацию
   ProcessParamValue(AIDComponent.AsInteger, AIDDatasheet, ADatasheet.AsString,
     TParameterValues.DatasheetParameterID);
@@ -410,7 +494,6 @@ begin
   // Обрабатываем изображение
   ProcessParamValue(AIDComponent.AsInteger, AIDImage, AImage.AsString,
     TParameterValues.ImageParameterID);
-
 end;
 
 end.

@@ -165,7 +165,7 @@ begin
   // »збавл€емс€ от двойных кавычек, переносов на новую строку
   Result := AValue.Trim(['"']).Replace(#13, ' ', [rfReplaceAll]).Replace(#10, ' ', [rfReplaceAll]);
   // »збавл€емс€ от двойных пробелов
-  Result := DeleteDoubleSpace(Result);
+  Result := DeleteDouble(Result, ' ');
 end;
 
 procedure TParametersExcelTable.SetFieldsInfo;

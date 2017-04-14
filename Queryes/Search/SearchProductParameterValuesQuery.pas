@@ -43,12 +43,17 @@ begin
 end;
 
 procedure TQuerySearchProductParameterValues.EditValue(AValue: Variant);
+var
+  S: string;
 begin
   Assert(not VarIsNull(AValue));
   Assert(FDQuery.RecordCount > 0);
-
+  // Если старое значение не равно новому
   if Value.Value <> AValue then
   begin
+    S := VarToStr(AValue);
+    // Пустую строку в БД не сохраняем
+    Assert(not S.IsEmpty);
     FDQuery.Edit;
     Value.Value := AValue;
     FDQuery.Post;

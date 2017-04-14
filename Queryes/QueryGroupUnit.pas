@@ -93,7 +93,8 @@ begin
   Main.TryPost;
   Detail.TryPost;
 
-  Connection.Commit;
+  if Connection.InTransaction then
+    Connection.Commit;
 end;
 
 function TQueryGroup.GetChangeCount: Integer;
@@ -126,15 +127,17 @@ end;
 procedure TQueryGroup.Rollback;
 begin
   CheckMasterAndDetail;
-  // Предполагается что мы работаем в транзакции
-  Assert(Connection.InTransaction);
 
   Detail.TryCancel;
   Main.TryCancel;
 
-  Connection.Rollback;
-
-  ReOpen;
+  // Предполагается что мы работаем в транзакции
+  if Connection.InTransaction then
+  begin
+    Connection.Rollback;
+    ReOpen;
+  end;
+  // Иногда транзакция уже завершилась но программа об этом не знает
 end;
 
 procedure TQueryGroup.SetDetail(const Value: TQueryWithDataSource);
