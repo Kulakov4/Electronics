@@ -27,7 +27,10 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit;
+  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox;
+
+const
+  WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
 
 type
   TViewProducers = class(TfrmGrid)
@@ -62,14 +65,21 @@ type
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
-        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
-        TShiftState);
+    procedure cxGridDBBandedTableView2EditKeyDown
+      (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+      AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
-    procedure StatusBarResize(Sender: TObject);
+    procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+      (ASender: TcxDataSummary);
+    procedure clProducerTypeIDPropertiesCloseUp(Sender: TObject);
+    procedure clProducerTypeIDPropertiesEditValueChanged(Sender: TObject);
+    procedure clProducerTypeIDPropertiesNewLookupDisplayText(Sender: TObject;
+      const AText: TCaption);
   private
+    FEditValueChanged: Boolean;
+    FNewValue: string;
     FProducersGroup: TProducersGroup;
     FQuerySearchProducerTypes: TQuerySearchProducerTypes;
     function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
@@ -78,15 +88,19 @@ type
     procedure UpdateTotalCount;
     { Private declarations }
   protected
+    procedure AfterSetNewValue(var Message: TMessage); message
+        WM_AFTER_SET_NEW_VALUE;
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
+    function GetFocusedTableView: TcxGridDBBandedTableView; override;
     property QuerySearchProducerTypes: TQuerySearchProducerTypes
       read GetQuerySearchProducerTypes;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property ProducersGroup: TProducersGroup read FProducersGroup write
-        SetProducersGroup;
+    property ProducersGroup: TProducersGroup read FProducersGroup
+      write SetProducersGroup;
     { Public declarations }
   end;
 
@@ -98,6 +112,12 @@ uses NotifyEvents, RepositoryDataModule, DialogUnit,
   ProducersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
   SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
   SearchParameterValues, cxDropDownEdit;
+
+constructor TViewProducers.Create(AOwner: TComponent);
+begin
+  inherited;
+  StatusBarEmptyPanelIndex := 1;
+end;
 
 procedure TViewProducers.actAddExecute(Sender: TObject);
 var
@@ -114,7 +134,9 @@ end;
 procedure TViewProducers.actAddTypeExecute(Sender: TObject);
 begin
   inherited;
+  MainView.Controller.ClearSelection;
   MainView.DataController.Append;
+  // MainView.Controller.FocusedRow.Selected := True;
   FocusColumnEditor(0, clProducerType.DataBinding.FieldName);
 
   UpdateView;
@@ -187,7 +209,8 @@ begin
   ExportViewToExcel(MainView, AFileName,
     procedure(AView: TcxGridDBBandedTableView)
     begin
-      AView.GetColumnByFieldName(ProducersGroup.qProducers.Cnt.FieldName).Visible := False;
+      AView.GetColumnByFieldName(ProducersGroup.qProducers.Cnt.FieldName)
+        .Visible := false;
     end);
 end;
 
@@ -284,19 +307,103 @@ begin
   UpdateView;
 end;
 
-procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown(Sender:
-    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
-    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TViewProducers.AfterSetNewValue(var Message: TMessage);
+var
+  ADetailID: Integer;
+  ARow: TcxGridMasterDataRow;
+  AMasterID: Integer;
 begin
   inherited;
+
+  // Добавляем новый тип описания
+  ProducersGroup.qProducerTypes.LocateOrAppend(FNewValue);
+  FNewValue := '';
+
+  AMasterID := ProducersGroup.qProducerTypes.PKValue;
+  ADetailID := Message.WParam;
+
+  // Ищем параметр
+  ProducersGroup.qProducers.LocateByPK(ADetailID);
+  ProducersGroup.qProducers.TryEdit;
+  ProducersGroup.qProducers.ProducerTypeID.AsInteger := AMasterID;
+  ProducersGroup.qProducers.TryPost;
+
+  ARow := GetRow(0) as TcxGridMasterDataRow;
+  Assert(ARow <> nil);
+
+  ARow.Expand(false);
+  FocusColumnEditor(1, clProducerTypeID.DataBinding.FieldName);
+end;
+
+procedure TViewProducers.clProducerTypeIDPropertiesCloseUp(Sender: TObject);
+begin
+  inherited;
+  if FEditValueChanged then
+  begin
+    FEditValueChanged := false;
+    cxGridDBBandedTableView2.DataController.Post();
+  end
+end;
+
+procedure TViewProducers.clProducerTypeIDPropertiesEditValueChanged(
+  Sender: TObject);
+var
+  ADetailID: Integer;
+  AMasterID: Integer;
+begin
+  if not FNewValue.IsEmpty then
+  begin
+    ADetailID := ProducersGroup.qProducers.PKValue;
+    AMasterID := ProducersGroup.qProducerTypes.PKValue;
+
+    // Возвращаем пока старое значение внешнего ключа
+    ProducersGroup.qProducers.ProducerTypeID.AsInteger := AMasterID;
+    ProducersGroup.qProducers.TryPost;
+
+    // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
+    PostMessage(Handle, WM_AFTER_SET_NEW_VALUE, ADetailID, 0);
+  end
+  else
+    FEditValueChanged := True;
+end;
+
+procedure TViewProducers.clProducerTypeIDPropertiesNewLookupDisplayText(
+  Sender: TObject; const AText: TCaption);
+begin
+  inherited;
+  FNewValue := AText;
+end;
+
+procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   if (Key = 13) and (AItem = clName2) then
     cxGridDBBandedTableView2.DataController.Post();
+end;
+
+procedure TViewProducers.
+  cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+  (ASender: TcxDataSummary);
+var
+  AIndex: Integer;
+  S: string;
+begin
+  inherited;
+  AIndex := MainView.DataController.Summary.FooterSummaryItems.IndexOfItemLink
+    (clProducerType);
+  S := VarToStrDef(MainView.DataController.Summary.FooterSummaryValues
+    [AIndex], '---');
+  StatusBar.Panels[0].Text := S;
 end;
 
 procedure TViewProducers.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
+  inherited;
   if (Key = 13) and (AItem = clProducerType) then
     cxGridDBBandedTableView.DataController.Post();
 end;
@@ -311,6 +418,19 @@ begin
   UpdateView;
 end;
 
+function TViewProducers.GetFocusedTableView: TcxGridDBBandedTableView;
+begin
+  Result := inherited;
+
+  // Если не первый уровень в фокусе
+  if (Result = nil) then
+  begin
+    Result := GetDBBandedTableView(1);
+    if (Result <> nil) and (not Result.Focused) then
+      Result := nil;
+  end;
+end;
+
 function TViewProducers.GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
 begin
   if FQuerySearchProducerTypes = nil then
@@ -323,7 +443,7 @@ procedure TViewProducers.MyApplyBestFit;
 begin
   inherited;
   GetDBBandedTableView(1).ApplyBestFit(nil, True, True);
-//  GridView(cxGridLevel2).ApplyBestFit(nil, True, True);
+  // GridView(cxGridLevel2).ApplyBestFit(nil, True, True);
 end;
 
 procedure TViewProducers.MyInitializeComboBoxColumn;
@@ -343,15 +463,17 @@ begin
     FProducersGroup := Value;
     if FProducersGroup <> nil then
     begin
-      MainView.DataController.DataSource := FProducersGroup.qProducerTypes.DataSource;
-      GridView(cxGridLevel2).DataController.DataSource := FProducersGroup.qProducers.DataSource;
+      MainView.DataController.DataSource :=
+        FProducersGroup.qProducerTypes.DataSource;
+      GridView(cxGridLevel2).DataController.DataSource :=
+        FProducersGroup.qProducers.DataSource;
 
-      TNotifyEventWrap.Create(FProducersGroup.qProducers.OnDataChange, DoOnDataChange);
+      TNotifyEventWrap.Create(FProducersGroup.qProducers.OnDataChange,
+        DoOnDataChange);
 
-      // Подписываемся на событие о коммите
-//      TNotifyEventWrap.Create(FProducersGroup.qProducers.AfterPost, DoAfterPost);
-
-//      MyInitializeComboBoxColumn;
+      InitializeLookupColumn(clProducerTypeID,
+        FProducersGroup.qProducerTypes.DataSource, lsEditList,
+        FProducersGroup.qProducerTypes.ProducerType.FieldName);
     end
     else
     begin
@@ -364,30 +486,11 @@ begin
   end;
 end;
 
-procedure TViewProducers.StatusBarResize(Sender: TObject);
-const
-  EmptyPanelIndex = 0;
-var
-  I: Integer;
-  x: Integer;
-begin
-  x := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
-  begin
-    if I <> EmptyPanelIndex then
-    begin
-      Dec(x, StatusBar.Panels[I].Width);
-    end;
-  end;
-  x := IfThen(x >= 0, x, 0);
-  StatusBar.Panels[EmptyPanelIndex].Width := x;
-end;
-
 procedure TViewProducers.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[1].Text := Format('Всего: %d',
-    [ProducersGroup.qProducers.FDQuery.RecordCount]);
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text :=
+    Format('Всего: %d', [ProducersGroup.qProducers.FDQuery.RecordCount]);
 end;
 
 procedure TViewProducers.UpdateView;
@@ -396,11 +499,13 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  OK := (ProducersGroup <> nil)
-    and (ProducersGroup.qProducerTypes.FDQuery.Active)
-    and (ProducersGroup.qProducers.FDQuery.Active);
+  OK := (ProducersGroup <> nil) and
+    (ProducersGroup.qProducerTypes.FDQuery.Active) and
+    (ProducersGroup.qProducers.FDQuery.Active);
 
-  actAdd.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
+  actAdd.Enabled := OK and (AView <> nil) and
+    (MainView.DataController.RecordCount > 0);
+  actAddType.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
   actDelete.Enabled := OK and (AView <> nil) and
     (AView.DataController.RecordCount > 0);

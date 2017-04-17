@@ -56,8 +56,11 @@ type
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure cxGridPopupMenuPopup(ASenderMenu: TComponent;
       AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+    procedure StatusBarResize(Sender: TObject);
   private
+    FStatusBarEmptyPanelIndex: Integer;
     function GetMainView: TcxGridDBBandedTableView;
+    procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
     FColumnsBarButtons: TColumnsBarButtons;
@@ -71,19 +74,22 @@ type
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
     function GetFocusedTableView: TcxGridDBBandedTableView; virtual;
-    procedure InitializeLookupColumn(AColumn: TcxGridDBBandedColumn; ADataSource:
-        TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
-        AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
+    procedure InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
+      ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+      const AListFieldNames: string;
+      const AKeyFieldNames: string = 'ID'); overload;
     procedure InitializeComboBoxColumn(AColumn: TcxGridDBBandedColumn;
       ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
-    procedure InitializeComboBoxColumn(AView: TcxGridDBBandedTableView; AFieldName:
-        string; ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
-        overload;
-    procedure InitializeLookupColumn(AView: TcxGridDBBandedTableView; const
-        AFieldName: string; ADataSource: TDataSource; ADropDownListStyle:
-        TcxEditDropDownListStyle; const AListFieldNames: string; const
-        AKeyFieldNames: string = 'ID'); overload;
+    procedure InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
+      AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
+      AField: TField); overload;
+    procedure InitializeLookupColumn(AView: TcxGridDBBandedTableView;
+      const AFieldName: string; ADataSource: TDataSource;
+      ADropDownListStyle: TcxEditDropDownListStyle;
+      const AListFieldNames: string;
+      const AKeyFieldNames: string = 'ID'); overload;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); virtual;
+    procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -97,8 +103,8 @@ type
     procedure FocusColumnEditor(ALevel: Integer; AFieldName: string);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
     procedure FocusSelectedRecord; overload;
-    procedure PutInTheCenterFocusedRecord(AView: TcxGridDBBandedTableView);
-        overload;
+    procedure PutInTheCenterFocusedRecord
+      (AView: TcxGridDBBandedTableView); overload;
     function GetDBBandedTableView(ALevel: Cardinal): TcxGridDBBandedTableView;
     function GetRow(ALevel: Cardinal; ARowIndex: Integer = -1)
       : TcxCustomGridRow;
@@ -115,6 +121,8 @@ type
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
     property MainView: TcxGridDBBandedTableView read GetMainView;
+    property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex write
+        SetStatusBarEmptyPanelIndex;
     { Public declarations }
   end;
 
@@ -129,6 +137,7 @@ begin
   inherited;
   FUpdateCount := 0;
   FEventList := TObjectList.Create;
+  FStatusBarEmptyPanelIndex := -1;
 end;
 
 destructor TfrmGrid.Destroy;
@@ -408,8 +417,8 @@ begin
 end;
 
 procedure TfrmGrid.InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
-    ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
-    const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
+  ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+  const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
 var
   AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
 begin
@@ -539,8 +548,8 @@ begin
 end;
 
 procedure TfrmGrid.InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
-    AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle; AField:
-    TField);
+  AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
+  AField: TField);
 begin
   Assert(AView <> nil);
   Assert(not AFieldName.IsEmpty);
@@ -550,15 +559,15 @@ begin
 end;
 
 procedure TfrmGrid.InitializeLookupColumn(AView: TcxGridDBBandedTableView;
-    const AFieldName: string; ADataSource: TDataSource; ADropDownListStyle:
-    TcxEditDropDownListStyle; const AListFieldNames: string; const
-    AKeyFieldNames: string = 'ID');
+  const AFieldName: string; ADataSource: TDataSource;
+  ADropDownListStyle: TcxEditDropDownListStyle; const AListFieldNames: string;
+  const AKeyFieldNames: string = 'ID');
 begin
   Assert(AView <> nil);
   Assert(not AFieldName.IsEmpty);
 
-  InitializeLookupColumn( AView.GetColumnByFieldName(AFieldName),
-    ADataSource, ADropDownListStyle, AListFieldNames, AKeyFieldNames );
+  InitializeLookupColumn(AView.GetColumnByFieldName(AFieldName), ADataSource,
+    ADropDownListStyle, AListFieldNames, AKeyFieldNames);
 end;
 
 procedure TfrmGrid.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
@@ -572,6 +581,44 @@ begin
   AView := FocusedTableView;
   if AView <> nil then
     PutInTheCenterFocusedRecord(AView);
+end;
+
+procedure TfrmGrid.DoStatusBarResize(AEmptyPanelIndex: Integer);
+var
+  I: Integer;
+  X: Integer;
+begin
+  Assert(AEmptyPanelIndex >= 0);
+  Assert(AEmptyPanelIndex < StatusBar.Panels.Count);
+
+  X := StatusBar.ClientWidth;
+  for I := 0 to StatusBar.Panels.Count - 1 do
+  begin
+    if I <> AEmptyPanelIndex then
+    begin
+      Dec(X, StatusBar.Panels[I].Width);
+    end;
+  end;
+  X := IfThen(X >= 0, X, 0);
+  StatusBar.Panels[AEmptyPanelIndex].Width := X;
+end;
+
+procedure TfrmGrid.SetStatusBarEmptyPanelIndex(const Value: Integer);
+begin
+  if FStatusBarEmptyPanelIndex <> Value then
+  begin
+    if not (Value > 0) and (Value < StatusBar.Panels.Count) then
+      raise Exception.Create('Неверный индекс панели состояния');
+
+    FStatusBarEmptyPanelIndex := Value;
+  end;
+end;
+
+procedure TfrmGrid.StatusBarResize(Sender: TObject);
+begin
+  if (FStatusBarEmptyPanelIndex >= 0) and
+    (FStatusBarEmptyPanelIndex < StatusBar.Panels.Count) then
+    DoStatusBarResize(FStatusBarEmptyPanelIndex);
 end;
 
 function TfrmGrid.Value(AView: TcxGridDBBandedTableView;

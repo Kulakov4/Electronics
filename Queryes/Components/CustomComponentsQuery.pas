@@ -248,6 +248,9 @@ end;
 
 procedure TQueryCustomComponents.InitParameterFields;
 begin
+  if FParameterFields.Count > 0 then
+    Exit;
+
   // Поле Producer (производитель)
   FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
 
@@ -405,7 +408,6 @@ var
   AProducer: TField;
   i: Integer;
   L: TStringList;
-  S: string;
   VarArr: Variant;
 begin
   Assert(not AProductIDFieldName.IsEmpty);

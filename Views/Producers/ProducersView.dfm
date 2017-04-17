@@ -3,6 +3,12 @@ inherited ViewProducers: TViewProducers
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       DataController.KeyFieldNames = 'ID'
+      DataController.Summary.FooterSummaryItems = <
+        item
+          Kind = skCount
+          Column = clProducerType
+        end>
+      DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       OptionsBehavior.CellHints = True
       OptionsView.HeaderAutoHeight = True
       object clID: TcxGridDBBandedColumn
@@ -23,16 +29,26 @@ inherited ViewProducers: TViewProducers
       end
     end
     object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
+      OnKeyDown = cxGridDBBandedTableViewKeyDown
+      OnMouseDown = cxGridDBBandedTableViewMouseDown
       Navigator.Buttons.CustomButtons = <>
       OnEditKeyDown = cxGridDBBandedTableView2EditKeyDown
       DataController.DetailKeyFieldNames = 'ProducerTypeID'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
-      DataController.Summary.FooterSummaryItems = <>
+      DataController.Summary.FooterSummaryItems = <
+        item
+          Kind = skCount
+          Column = clName2
+        end>
       DataController.Summary.SummaryGroups = <>
       OptionsBehavior.CellHints = True
+      OptionsView.CellEndEllipsis = True
+      OptionsView.CellAutoHeight = True
+      OptionsView.Footer = True
       OptionsView.GroupByBox = False
+      OptionsView.BandHeaders = False
       Bands = <
         item
         end>
@@ -74,6 +90,11 @@ inherited ViewProducers: TViewProducers
       object clProducerTypeID: TcxGridDBBandedColumn
         Caption = #1058#1080#1087
         DataBinding.FieldName = 'ProducerTypeID'
+        PropertiesClassName = 'TcxLookupComboBoxProperties'
+        Properties.ListColumns = <>
+        Properties.OnCloseUp = clProducerTypeIDPropertiesCloseUp
+        Properties.OnEditValueChanged = clProducerTypeIDPropertiesEditValueChanged
+        Properties.OnNewLookupDisplayText = clProducerTypeIDPropertiesNewLookupDisplayText
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
@@ -92,8 +113,10 @@ inherited ViewProducers: TViewProducers
       end
       item
         Width = 150
+      end
+      item
+        Width = 150
       end>
-    OnResize = StatusBarResize
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

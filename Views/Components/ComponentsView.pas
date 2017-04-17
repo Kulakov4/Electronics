@@ -59,7 +59,6 @@ type
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
-    procedure StatusBarResize(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
@@ -105,6 +104,8 @@ begin
 
   // Событие о отображении формы с параметрической таблицей
   FOnShowParametricTableEvent := TNotifyEventsEx.Create(Self);
+
+  StatusBarEmptyPanelIndex := 3;
 end;
 
 destructor TViewComponents.Destroy;
@@ -344,25 +345,6 @@ begin
         CreateCountEvents;
     end;
   end;
-end;
-
-procedure TViewComponents.StatusBarResize(Sender: TObject);
-const
-  EmptyPanelIndex = 3;
-var
-  i: Integer;
-  x: Integer;
-begin
-  x := StatusBar.ClientWidth;
-  for i := 0 to StatusBar.Panels.Count - 1 do
-  begin
-    if i <> EmptyPanelIndex then
-    begin
-      Dec(x, StatusBar.Panels[i].Width);
-    end;
-  end;
-  x := IfThen(x >= 0, x, 0);
-  StatusBar.Panels[EmptyPanelIndex].Width := x;
 end;
 
 procedure TViewComponents.UpdateSelectedCount;

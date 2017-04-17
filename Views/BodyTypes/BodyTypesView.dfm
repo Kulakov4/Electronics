@@ -192,7 +192,6 @@ inherited ViewBodyTypes: TViewBodyTypes
       item
         Width = 150
       end>
-    OnResize = StatusBarResize
     ExplicitTop = 581
   end
   inherited dxBarManager: TdxBarManager

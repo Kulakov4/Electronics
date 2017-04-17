@@ -79,7 +79,6 @@ type
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
-    procedure StatusBarResize(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure clBodyType1PropertiesInitPopup(Sender: TObject);
@@ -100,6 +99,7 @@ type
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
     property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup write
         SetBodyTypesGroup;
@@ -114,6 +114,12 @@ uses BodyTypesExcelDataModule3, ImportErrorForm, DialogUnit,
   System.Math, System.IOUtils, ProgressBarForm;
 
 {$R *.dfm}
+
+constructor TViewBodyTypes.Create(AOwner: TComponent);
+begin
+  inherited;
+  StatusBarEmptyPanelIndex := 1;
+end;
 
 procedure TViewBodyTypes.actAddBodyExecute(Sender: TObject);
 var
@@ -504,29 +510,10 @@ begin
   end;
 end;
 
-procedure TViewBodyTypes.StatusBarResize(Sender: TObject);
-const
-  EmptyPanelIndex = 1;
-var
-  I: Integer;
-  x: Integer;
-begin
-  x := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
-  begin
-    if I <> EmptyPanelIndex then
-    begin
-      Dec(x, StatusBar.Panels[I].Width);
-    end;
-  end;
-  x := IfThen(x >= 0, x, 0);
-  StatusBar.Panels[EmptyPanelIndex].Width := x;
-end;
-
 procedure TViewBodyTypes.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[2].Text := Format('Всего: %d',
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text := Format('Всего: %d',
     [BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount]);
 end;
 

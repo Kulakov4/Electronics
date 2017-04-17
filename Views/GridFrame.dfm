@@ -39,6 +39,7 @@ object frmGrid: TfrmGrid
     Width = 893
     Height = 19
     Panels = <>
+    OnResize = StatusBarResize
   end
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET

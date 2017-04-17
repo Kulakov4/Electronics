@@ -60,7 +60,6 @@ type
     procedure cxGridDBBandedTableViewDataControllerCompare(ADataController
       : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
-    procedure StatusBarResize(Sender: TObject);
   private
     procedure AfterDelete(Sender: TObject);
     procedure AfterLoad(Sender: TObject);
@@ -78,6 +77,7 @@ type
   protected
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
   public
+    constructor Create(AOwner: TComponent); override;
     function GetFieldInfoByColumnCaption(ABandCaption: string;
       const AColumnCaption: String): TFieldInfo;
     function LoadExcelFileHeader(const AFileName: String;
@@ -111,6 +111,12 @@ uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   DialogUnit, Vcl.Clipbrd, SettingsController, ExcelDataModule,
   ProductsExcelDataModule, ProgressBarForm, ErrorForm, CustomExcelTable,
   GridViewForm, ProductsForm;
+
+constructor TViewProducts.Create(AOwner: TComponent);
+begin
+  inherited;
+  StatusBarEmptyPanelIndex := 2;
+end;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var
@@ -604,25 +610,6 @@ begin
 
     UpdateView;
   end;
-end;
-
-procedure TViewProducts.StatusBarResize(Sender: TObject);
-const
-  EmptyPanelIndex = 2;
-var
-  I: Integer;
-  x: Integer;
-begin
-  x := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
-  begin
-    if I <> EmptyPanelIndex then
-    begin
-      Dec(x, StatusBar.Panels[I].Width);
-    end;
-  end;
-  x := IfThen(x >= 0, x, 0);
-  StatusBar.Panels[EmptyPanelIndex].Width := x;
 end;
 
 procedure TViewProducts.UpdateProductCount;

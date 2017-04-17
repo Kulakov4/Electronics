@@ -151,12 +151,12 @@ end;
 
 procedure TQueryBaseFamily.ApplyUpdate(ASender: TDataSet);
 var
-  APackagePins: TField;
+//  APackagePins: TField;
   APK: TField;
   ARH: TRecordHolder;
   ASubGroup: TField;
 begin
-  APackagePins := ASender.FieldByName(PackagePins.FieldName);
+//  APackagePins := ASender.FieldByName(PackagePins.FieldName);
 
   ARH := TRecordHolder.Create(ASender);
   try

@@ -279,7 +279,6 @@ inherited ViewParameters: TViewParameters
       item
         Width = 100
       end>
-    OnResize = StatusBarResize
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

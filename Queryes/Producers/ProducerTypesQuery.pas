@@ -13,6 +13,7 @@ uses
 type
   TQueryProducerTypes = class(TQueryWithDataSource)
   private
+    procedure DoAfterOpen(Sender: TObject);
     function GetProducerType: TField;
     { Private declarations }
   public
@@ -29,10 +30,18 @@ implementation
 
 {$R *.dfm}
 
+uses NotifyEvents;
+
 constructor TQueryProducerTypes.Create(AOwner: TComponent);
 begin
   inherited;
   AutoTransaction := False;
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+end;
+
+procedure TQueryProducerTypes.DoAfterOpen(Sender: TObject);
+begin
+  ProducerType.DisplayLabel := '“ËÔ';
 end;
 
 function TQueryProducerTypes.GetProducerType: TField;

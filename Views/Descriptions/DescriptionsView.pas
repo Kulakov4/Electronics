@@ -78,7 +78,6 @@ type
       const AText: TCaption);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
-    procedure StatusBarResize(Sender: TObject);
   private
     FDescriptionsGroup: TDescriptionsGroup;
     FEditValueChanged: Boolean;
@@ -95,6 +94,7 @@ type
       ASource: TcxGridDBBandedTableView); override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
     property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup
       write SetDescriptionsGroup;
@@ -112,6 +112,12 @@ uses
 
 var
   b: Boolean = false;
+
+constructor TViewDescriptions.Create(AOwner: TComponent);
+begin
+  inherited;
+  StatusBarEmptyPanelIndex := 1;
+end;
 
 procedure TViewDescriptions.actAddDescriptionExecute(Sender: TObject);
 var
@@ -362,8 +368,6 @@ begin
 end;
 
 procedure TViewDescriptions.clIDComponentTypePropertiesCloseUp(Sender: TObject);
-// var
-// AColumn: TcxGridDBBandedColumn;
 begin
   inherited;
   if FEditValueChanged then
@@ -476,7 +480,7 @@ end;
 
 procedure TViewDescriptions.DoAfterDataChange(Sender: TObject);
 begin
-  UpdateView;
+//  UpdateView;
 end;
 
 function TViewDescriptions.GetFocusedTableView: TcxGridDBBandedTableView;
@@ -530,29 +534,10 @@ begin
   UpdateView;
 end;
 
-procedure TViewDescriptions.StatusBarResize(Sender: TObject);
-const
-  EmptyPanelIndex = 1;
-var
-  I: Integer;
-  X: Integer;
-begin
-  X := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
-  begin
-    if I <> EmptyPanelIndex then
-    begin
-      Dec(X, StatusBar.Panels[I].Width);
-    end;
-  end;
-  X := IfThen(X >= 0, X, 0);
-  StatusBar.Panels[EmptyPanelIndex].Width := X;
-end;
-
 procedure TViewDescriptions.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[2].Text := Format('Всего: %d',
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text := Format('Всего: %d',
     [DescriptionsGroup.qDescriptions.FDQuery.RecordCount]);
 end;
 

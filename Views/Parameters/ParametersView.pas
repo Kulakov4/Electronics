@@ -126,7 +126,6 @@ type
       (ASender: TcxDataSummary);
     procedure cxGridDBBandedTableView2DataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
-    procedure StatusBarResize(Sender: TObject);
     procedure cxbeiSearchPropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
@@ -192,6 +191,7 @@ begin
   // Имитируем выключение режима "галочки"
   FCheckedMode := True;
   CheckedMode := False;
+  StatusBarEmptyPanelIndex := 1;
 end;
 
 procedure TViewParameters.actAddMainParameterExecute(Sender: TObject);
@@ -1185,25 +1185,6 @@ begin
   end;
 end;
 
-procedure TViewParameters.StatusBarResize(Sender: TObject);
-const
-  EmptyPanelIndex = 1;
-var
-  I: Integer;
-  X: Integer;
-begin
-  X := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
-  begin
-    if I <> EmptyPanelIndex then
-    begin
-      Dec(X, StatusBar.Panels[I].Width);
-    end;
-  end;
-  X := IfThen(X >= 0, X, 0);
-  StatusBar.Panels[EmptyPanelIndex].Width := X;
-end;
-
 procedure TViewParameters.UpdateAutoTransaction;
 begin
   ParametersGroup.qParameterTypes.AutoTransaction := FCheckedMode;
@@ -1214,7 +1195,7 @@ end;
 procedure TViewParameters.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[2].Text := Format('Всего: %d',
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text := Format('Всего: %d',
     [ParametersGroup.qMainParameters.FDQuery.RecordCount]);
 end;
 

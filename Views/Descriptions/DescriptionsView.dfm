@@ -140,7 +140,6 @@ inherited ViewDescriptions: TViewDescriptions
       item
         Width = 150
       end>
-    OnResize = StatusBarResize
     ExplicitTop = 491
     ExplicitWidth = 991
   end
