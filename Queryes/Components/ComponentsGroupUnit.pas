@@ -69,7 +69,7 @@ type
 implementation
 
 uses System.Types, System.StrUtils, RepositoryDataModule, BodyTypesQuery2,
-  BodyTypesQuery, ErrorTable, TreeListQuery, System.IOUtils;
+  BodyTypesQuery, ErrorTable, TreeListQuery, System.IOUtils, StrHelper;
 
 {$R *.dfm}
 { TfrmComponentsMasterDetail }
@@ -184,57 +184,57 @@ begin
     qFamily.FDQuery.DisableControls;
     qComponents.FDQuery.DisableControls;
     try
-      AComponentsExcelTable.First;
-      AComponentsExcelTable.CallOnProcessEvent;
-      while not AComponentsExcelTable.Eof do
-      begin
-        // Добавляем компонент в базу данных
-        qFamily.LocateOrAppend(AComponentsExcelTable.MainValue.AsString,
-          AProducer);
-
-        // Если в Excel файле указаны дополнительные подгруппы
-        if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
-        begin
-          // Получаем все коды категорий отдельно
-          m := AComponentsExcelTable.SubGroup.AsString.Split([',']);
-          S := ',' + qFamily.SubGroup.AsString + ',';
-          for I := Low(m) to High(m) do
-          begin
-            // Если такой категории в списке ещё не было
-            if S.IndexOf(',' + m[I] + ',') < 0 then
-              S := S + m[I] + ',';
-          end;
-          m := nil;
-          S := S.Trim([',']);
-
-          // Если что-то изменилось
-          if qFamily.SubGroup.AsString <> S then
-          begin
-            qFamily.TryEdit;
-            qFamily.SubGroup.AsString := S;
-            qFamily.TryPost
-          end;
-        end;
-
-        // Добавляем дочерний компонент
-        if not AComponentsExcelTable.Value.AsString.IsEmpty then
-        begin
-          qComponents.LocateOrAppend(qFamily.PKValue,
-            AComponentsExcelTable.Value.AsString);
-        end;
-
-        Inc(k);
-        // Уже много записей обновили в рамках одной транзакции
-        if k >= 1000 then
-        begin
-          k := 0;
-          Connection.Commit;
-          Connection.StartTransaction;
-        end;
-
-        AComponentsExcelTable.Next;
+        AComponentsExcelTable.First;
         AComponentsExcelTable.CallOnProcessEvent;
-      end;
+        while not AComponentsExcelTable.Eof do
+        begin
+          // Добавляем компонент в базу данных
+          qFamily.LocateOrAppend(AComponentsExcelTable.MainValue.AsString,
+            AProducer);
+
+          // Если в Excel файле указаны дополнительные подгруппы
+          if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
+          begin
+            // Получаем все коды категорий отдельно
+            m := AComponentsExcelTable.SubGroup.AsString.Replace(' ', '', [rfReplaceAll]).Split([',']);
+            S := ',' + qFamily.SubGroup.AsString + ',';
+            for I := Low(m) to High(m) do
+            begin
+              // Если такой категории в списке ещё не было
+              if S.IndexOf(',' + m[I] + ',') < 0 then
+                S := S + m[I] + ',';
+            end;
+            m := nil;
+            S := S.Trim([',']);
+
+            // Если что-то изменилось
+            if qFamily.SubGroup.AsString <> S then
+            begin
+              qFamily.TryEdit;
+              qFamily.SubGroup.AsString := S;
+              qFamily.TryPost
+            end;
+          end;
+
+          // Добавляем дочерний компонент
+          if not AComponentsExcelTable.Value.AsString.IsEmpty then
+          begin
+            qComponents.LocateOrAppend(qFamily.PKValue,
+              AComponentsExcelTable.Value.AsString);
+          end;
+
+          Inc(k);
+          // Уже много записей обновили в рамках одной транзакции
+          if k >= 1000 then
+          begin
+            k := 0;
+            Connection.Commit;
+            Connection.StartTransaction;
+          end;
+
+          AComponentsExcelTable.Next;
+          AComponentsExcelTable.CallOnProcessEvent;
+        end;
     finally
       qComponents.FDQuery.EnableControls;
       qFamily.FDQuery.EnableControls

@@ -33,8 +33,6 @@ inherited ComponentsGroup: TComponentsGroup
         Control = qComponents
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
     ExplicitWidth = 514
     ExplicitHeight = 122
     inline qFamily: TQueryFamily
