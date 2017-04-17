@@ -41,8 +41,8 @@ type
     cxGridDBBandedTableView2: TcxGridDBBandedTableView;
     actDeleteFromAllCategories: TAction;
     actDelete: TAction;
+    actAddFamily: TAction;
     actAddComponent: TAction;
-    actAddSubComponent: TAction;
     actCommit: TAction;
     actOpenDatasheet: TAction;
     actLoadDatasheet: TAction;
@@ -62,10 +62,10 @@ type
     clID2: TcxGridDBBandedColumn;
     clValue2: TcxGridDBBandedColumn;
     actRollback: TAction;
-    procedure actAddComponentExecute(Sender: TObject);
+    procedure actAddFamilyExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actDeleteFromAllCategoriesExecute(Sender: TObject);
-    procedure actAddSubComponentExecute(Sender: TObject);
+    procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actLoadDrawingExecute(Sender: TObject);
@@ -197,7 +197,7 @@ begin
   FOnDetailExpandedReceive := True;
 end;
 
-procedure TViewComponentsParent.actAddComponentExecute(Sender: TObject);
+procedure TViewComponentsParent.actAddFamilyExecute(Sender: TObject);
 var
   AColumn: TcxGridDBBandedColumn;
   AView: TcxGridDBBandedTableView;
@@ -227,14 +227,14 @@ begin
   Delete(True);
 end;
 
-procedure TViewComponentsParent.actAddSubComponentExecute(Sender: TObject);
+procedure TViewComponentsParent.actAddComponentExecute(Sender: TObject);
 var
   AColumn: TcxGridDBBandedColumn;
   ARow: TcxMyGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
-  // Сначала сохраняем родительский компонент
-  BaseComponentsGroup.Main.TryPost;
+  // Сначала сохраняем семейство компонентов
+  BaseComponentsGroup.QueryBaseFamily.TryPost;
 
   // начинаем транзакцию
   // if not BaseComponentsGroup.Connection.InTransaction then
@@ -1002,8 +1002,8 @@ begin
     actDelete.Caption := 'Удалить дочерний компонент';
   end;
 
+  actAddFamily.Enabled := Ok and (AFocusedView <> nil);
   actAddComponent.Enabled := Ok and (AFocusedView <> nil);
-  actAddSubComponent.Enabled := Ok and (AFocusedView <> nil);
   // and (AFocusedView.Level = tlComponentsDetails);
 
   actCommit.Enabled := Ok and BaseComponentsGroup.Connection.

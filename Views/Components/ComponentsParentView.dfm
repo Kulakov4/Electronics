@@ -113,17 +113,17 @@ inherited ViewComponentsParent: TViewComponentsParent
       ImageIndex = 2
       OnExecute = actDeleteExecute
     end
+    object actAddFamily: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
+      ImageIndex = 1
+      OnExecute = actAddFamilyExecute
+    end
     object actAddComponent: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
       Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
       ImageIndex = 1
       OnExecute = actAddComponentExecute
-    end
-    object actAddSubComponent: TAction
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1076#1086#1095#1077#1088#1085#1080#1081' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
-      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1076#1086#1095#1077#1088#1085#1080#1081' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
-      ImageIndex = 1
-      OnExecute = actAddSubComponentExecute
     end
     object actCommit: TAction
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100

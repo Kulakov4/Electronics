@@ -160,7 +160,7 @@ object frmMain: TfrmMain
           Height = 531
           Align = alClient
           TabOrder = 2
-          Properties.ActivePage = cxtsParametersForCategories
+          Properties.ActivePage = tsComponents
           Properties.CustomButtons.Buttons = <>
           OnPageChanging = cxpgcntrlMainPageChanging
           ClientRectBottom = 527
@@ -170,6 +170,10 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -334,15 +338,19 @@ object frmMain: TfrmMain
               Height = 500
               Align = alClient
               TabOrder = 0
-              ExplicitLeft = -60
-              ExplicitTop = 9
+              ExplicitWidth = 833
+              ExplicitHeight = 500
               inherited cxGrid: TcxGrid
                 Width = 833
                 Height = 453
+                ExplicitWidth = 833
+                ExplicitHeight = 453
               end
               inherited StatusBar: TStatusBar
                 Top = 481
                 Width = 833
+                ExplicitTop = 481
+                ExplicitWidth = 833
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

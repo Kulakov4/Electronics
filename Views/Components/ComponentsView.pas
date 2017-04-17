@@ -38,8 +38,8 @@ uses
 type
   TViewComponents = class(TViewComponentsBase)
     dxbrsbtmAdd: TdxBarSubItem;
-    dxbrbtnAddMain: TdxBarButton;
-    dxbrbtnAddDetail: TdxBarButton;
+    dxbrbtnAddFamily: TdxBarButton;
+    dxbrbtnAddComponent: TdxBarButton;
     dxbrsbtmDelete: TdxBarSubItem;
     dxbrbtnDeleteMain: TdxBarButton;
     dxbrbtnDeleteFromAllCategories: TdxBarButton;

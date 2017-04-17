@@ -69,19 +69,19 @@ inherited ViewComponents: TViewComponents
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrbtnAddMain'
+          ItemName = 'dxbrbtnAddFamily'
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnAddDetail'
+          ItemName = 'dxbrbtnAddComponent'
         end>
     end
-    object dxbrbtnAddMain: TdxBarButton
-      Action = actAddComponent
+    object dxbrbtnAddFamily: TdxBarButton
+      Action = actAddFamily
       Category = 0
     end
-    object dxbrbtnAddDetail: TdxBarButton
-      Action = actAddSubComponent
+    object dxbrbtnAddComponent: TdxBarButton
+      Action = actAddComponent
       Category = 0
     end
     object dxbrsbtmDelete: TdxBarSubItem
