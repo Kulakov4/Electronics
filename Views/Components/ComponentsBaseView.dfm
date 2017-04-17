@@ -265,7 +265,7 @@ inherited ViewComponentsBase: TViewComponentsBase
       OnExecute = actPastePackagePinsExecute
     end
     object actPasteFamily: TAction
-      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' c'#1089#1077#1084#1077#1081#1089#1090#1074#1086
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100' c'#1077#1084#1077#1081#1089#1090#1074#1086
       ImageIndex = 5
       OnExecute = actPasteFamilyExecute
     end
