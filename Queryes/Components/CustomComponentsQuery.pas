@@ -405,7 +405,6 @@ var
   AProducer: TField;
   i: Integer;
   L: TStringList;
-  m: TArray<String>;
   S: string;
   VarArr: Variant;
 begin
@@ -430,18 +429,20 @@ begin
   begin
     if not VarIsNull(APackagePins.Value) then
     begin
-      // Обязательно удаляем двойные запятые
-      S := DeleteDouble(VarToStr(APackagePins.Value), ',');
-      // Делим корпуса на части
-      m := S.Split([',']);
       L := TStringList.Create;
       try
-        for i := Low(m) to High(m) do
-        begin
-          if not m[i].IsEmpty then
-            L.Add(m[i]);
-        end;
+        // Разделитель в строке корпусов
+        L.Delimiter := ',';
+        L.StrictDelimiter := True;
+        L.DelimitedText := APackagePins.AsString.Trim;
+        // Убираем пустые строки
+        for I := L.Count - 1 downto 0 do
+          if L[i].Trim.IsEmpty then
+            L.Delete(i)
+          else
+            L[i] := L[i].Trim;
 
+        // Если остались не пустые строки
         if L.Count > 0 then
         begin
           VarArr := VarArrayCreate([0, L.Count - 1], varVariant);
@@ -460,7 +461,7 @@ begin
           ProcessParamValue(AIDComponent.AsInteger, nil, '',
             TParameterValues.PackagePinsParameterID);
 
-        APackagePins.Value := L.ToString;
+        APackagePins.Value := L.DelimitedText;
       finally
         FreeAndNil(L);
       end;
