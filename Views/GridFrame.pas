@@ -95,8 +95,10 @@ type
     procedure ExportViewToExcel(AView: TcxGridDBBandedTableView;
       AFileName: string; AGridProcRef: TGridProcRef = nil);
     procedure FocusColumnEditor(ALevel: Integer; AFieldName: string);
-    procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView);
+    procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
+    procedure FocusSelectedRecord; overload;
     procedure PutInTheCenterFocusedRecord(AView: TcxGridDBBandedTableView);
+        overload;
     function GetDBBandedTableView(ALevel: Cardinal): TcxGridDBBandedTableView;
     function GetRow(ALevel: Cardinal; ARowIndex: Integer = -1)
       : TcxCustomGridRow;
@@ -107,6 +109,7 @@ type
     procedure UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
+    procedure PutInTheCenterFocusedRecord; overload;
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
     property FocusedTableView: TcxGridDBBandedTableView
@@ -308,14 +311,25 @@ end;
 
 procedure TfrmGrid.FocusSelectedRecord(AView: TcxGridDBBandedTableView);
 begin
+  Assert(AView <> nil);
   if AView.Controller.SelectedRowCount > 0 then
     AView.Controller.SelectedRows[0].Focused := True;
+end;
+
+procedure TfrmGrid.FocusSelectedRecord;
+var
+  AView: TcxGridDBBandedTableView;
+begin
+  AView := FocusedTableView;
+  if AView <> nil then
+    FocusSelectedRecord(AView);
 end;
 
 procedure TfrmGrid.PutInTheCenterFocusedRecord(AView: TcxGridDBBandedTableView);
 var
   Cnt: Integer;
 begin
+  Assert(AView <> nil);
   if AView.Controller.FocusedRecordIndex >= 0 then
   begin
     Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
@@ -549,6 +563,15 @@ end;
 
 procedure TfrmGrid.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
 begin
+end;
+
+procedure TfrmGrid.PutInTheCenterFocusedRecord;
+var
+  AView: TcxGridDBBandedTableView;
+begin
+  AView := FocusedTableView;
+  if AView <> nil then
+    PutInTheCenterFocusedRecord(AView);
 end;
 
 function TfrmGrid.Value(AView: TcxGridDBBandedTableView;

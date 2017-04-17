@@ -146,13 +146,13 @@ begin
     // DescriptionsGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    FocusSelectedRecord;
   finally
     cxGrid.EndUpdate;
   end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;
@@ -290,13 +290,13 @@ begin
     // DescriptionsGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    FocusSelectedRecord;
   finally
     cxGrid.EndUpdate;
   end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;

@@ -13,7 +13,8 @@ uses
   ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
   ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
   QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery, CategoryParametersQuery;
+  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery, CategoryParametersQuery,
+  ProducersGroupUnit;
 
 type
   TDM = class(TForm)
@@ -31,10 +32,10 @@ type
     ComponentsGroup: TComponentsGroup;
     ComponentsExGroup: TComponentsExGroup;
     ParametersGroup: TParametersGroup;
-    qProducers: TQueryProducers;
     DescriptionsGroup: TDescriptionsGroup;
     qVersion: TQueryVersion;
     qCategoryParameters: TQueryCategoryParameters;
+    ProducersGroup: TProducersGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -88,7 +89,8 @@ begin
     Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
     Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
     Add(qBodyTypesTree); // Типы корпусов
-    Add(qProducers); // Производители
+    Add(ProducersGroup.qProducerTypes); // Типы производителей
+    Add(ProducersGroup.qProducers); // Производители
     Add(qProductsSearch); // Поиск на складе и редактирование найденного
     Add(qStoreHouseList); // Склады (выпадающий список)
     Add(StoreHouseGroup.qStoreHouseList); // Склады - главное
@@ -112,12 +114,11 @@ begin
   qProductsSearch.QueryStoreHouseList := qStoreHouseList;
 
   // Для компонентов указываем откуда брать производителя и корпус
-
-  ComponentsGroup.Producers := qProducers;
+  ComponentsGroup.Producers := ProducersGroup.qProducers;
   ComponentsGroup.BodyTypes := qBodyTypes;
-  ComponentsSearchGroup.Producers := qProducers;
+  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   ComponentsSearchGroup.BodyTypes := qBodyTypes;
-  ComponentsExGroup.Producers := qProducers;
+  ComponentsExGroup.Producers := ProducersGroup.qProducers;
   ComponentsExGroup.BodyTypes := qBodyTypes;
 
   // Связываем запросы отношением главный-подчинённый
@@ -158,8 +159,8 @@ begin
 
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
-  TNotifyEventWrap.Create(qProducers.AfterCommit, DoAfterProducerCommit,
-    FEventList);
+  TNotifyEventWrap.Create(ProducersGroup.qProducers.AfterCommit,
+    DoAfterProducerCommit, FEventList);
 
   // Чтобы выпадающий список складов обновлялся вместе со списком складов
   TNotifyEventWrap.Create(StoreHouseGroup.qStoreHouseList.AfterPost,

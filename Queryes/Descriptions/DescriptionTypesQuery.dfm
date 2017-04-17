@@ -1,8 +1,8 @@
 inherited QueryDescriptionTypes: TQueryDescriptionTypes
-  Width = 216
-  Height = 100
-  ExplicitWidth = 216
-  ExplicitHeight = 100
+  Width = 193
+  Height = 79
+  ExplicitWidth = 193
+  ExplicitHeight = 79
   inherited Label1: TLabel
     Width = 111
     Caption = 'DescriptionTypes'

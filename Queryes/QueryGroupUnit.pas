@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
-  FireDAC.Comp.Client, QueryWithDataSourceUnit, System.Contnrs;
+  FireDAC.Comp.Client, QueryWithDataSourceUnit, System.Contnrs,
+  ProducersExcelDataModule;
 
 type
   TQueryGroup = class(TFrame)

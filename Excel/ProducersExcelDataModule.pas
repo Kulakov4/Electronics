@@ -1,4 +1,4 @@
-unit ManufacturersExcelDataModule;
+unit ProducersExcelDataModule;
 
 interface
 
@@ -13,11 +13,12 @@ uses
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
-  TManufacturesExcelTable = class(TCustomExcelTable)
+  TProducersExcelTable = class(TCustomExcelTable)
   private
     FDMemTable: TFDMemTable;
     FManufacturersDataSet: TFDDataSet;
     function GetName: TField;
+    function GetProducerType: TField;
     procedure SetManufacturersDataSet(const Value: TFDDataSet);
   protected
     function CheckManufacturer: Boolean;
@@ -29,16 +30,17 @@ type
     property ManufacturersDataSet: TFDDataSet read FManufacturersDataSet
       write SetManufacturersDataSet;
     property Name: TField read GetName;
+    property ProducerType: TField read GetProducerType;
   end;
 
-  TManufacturersExcelDM = class(TExcelDM)
+  TProducersExcelDM = class(TExcelDM)
   private
-    function GetExcelTable: TManufacturesExcelTable;
+    function GetExcelTable: TProducersExcelTable;
     { Private declarations }
   protected
     function CreateExcelTable: TCustomExcelTable; override;
   public
-    property ExcelTable: TManufacturesExcelTable read GetExcelTable;
+    property ExcelTable: TProducersExcelTable read GetExcelTable;
     { Public declarations }
   end;
 
@@ -50,13 +52,13 @@ implementation
 
 uses System.Variants, System.Math, FieldInfoUnit, ProgressInfo;
 
-constructor TManufacturesExcelTable.Create(AOwner: TComponent);
+constructor TProducersExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
   FDMemTable := TFDMemTable.Create(Self);
 end;
 
-function TManufacturesExcelTable.CheckManufacturer: Boolean;
+function TProducersExcelTable.CheckManufacturer: Boolean;
 var
   V: Variant;
 begin
@@ -76,7 +78,7 @@ begin
   end;
 end;
 
-function TManufacturesExcelTable.CheckRecord: Boolean;
+function TProducersExcelTable.CheckRecord: Boolean;
 begin
   Result := inherited;
   if Result then
@@ -86,7 +88,7 @@ begin
   end;
 end;
 
-procedure TManufacturesExcelTable.Clone;
+procedure TProducersExcelTable.Clone;
 var
   AFDIndex: TFDIndex;
 begin
@@ -101,20 +103,26 @@ begin
   FDMemTable.IndexName := AFDIndex.Name;
 end;
 
-function TManufacturesExcelTable.GetName: TField;
+function TProducersExcelTable.GetName: TField;
 begin
   Result := FieldByName('Name');
 end;
 
-procedure TManufacturesExcelTable.SetFieldsInfo;
+function TProducersExcelTable.GetProducerType: TField;
+begin
+  Result := FieldByName('ProducerType');
+end;
+
+procedure TProducersExcelTable.SetFieldsInfo;
 begin
   FieldsInfo.Add(TFieldInfo.Create('Name', True,
     'Ќазвание производител€ не может быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('Products'));
-  FieldsInfo.Add(TFieldInfo.Create('ProducerType'));
+  FieldsInfo.Add(TFieldInfo.Create('ProducerType', True,
+    '“ип производител€ не может быть пустым'));
 end;
 
-procedure TManufacturesExcelTable.SetManufacturersDataSet
+procedure TProducersExcelTable.SetManufacturersDataSet
   (const Value: TFDDataSet);
 begin
   if FManufacturersDataSet <> Value then
@@ -128,14 +136,14 @@ begin
   end;
 end;
 
-function TManufacturersExcelDM.CreateExcelTable: TCustomExcelTable;
+function TProducersExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
-  Result := TManufacturesExcelTable.Create(Self);
+  Result := TProducersExcelTable.Create(Self);
 end;
 
-function TManufacturersExcelDM.GetExcelTable: TManufacturesExcelTable;
+function TProducersExcelDM.GetExcelTable: TProducersExcelTable;
 begin
-  Result := CustomExcelTable as TManufacturesExcelTable;
+  Result := CustomExcelTable as TProducersExcelTable;
 end;
 
 end.

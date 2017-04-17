@@ -27,12 +27,11 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  SearchProducerTypesQuery, cxMemo;
+  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit;
 
 type
   TViewProducers = class(TfrmGrid)
     clID: TcxGridDBBandedColumn;
-    clName: TcxGridDBBandedColumn;
     actAdd: TAction;
     actDelete: TAction;
     dxbbAdd: TdxBarButton;
@@ -46,25 +45,36 @@ type
     dxbrbtnImport: TdxBarButton;
     actExportToExcelDocument: TAction;
     actLoadFromExcelDocument: TAction;
-    clProducts: TcxGridDBBandedColumn;
-    clCount: TcxGridDBBandedColumn;
     clProducerType: TcxGridDBBandedColumn;
+    cxGridLevel2: TcxGridLevel;
+    cxGridDBBandedTableView2: TcxGridDBBandedTableView;
+    clName2: TcxGridDBBandedColumn;
+    clProducts2: TcxGridDBBandedColumn;
+    clCount2: TcxGridDBBandedColumn;
+    clID2: TcxGridDBBandedColumn;
+    clProducerTypeID: TcxGridDBBandedColumn;
+    actAddType: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
+    procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
+    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
+        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+        TShiftState);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
     procedure StatusBarResize(Sender: TObject);
   private
-    FQueryProducers: TQueryProducers;
+    FProducersGroup: TProducersGroup;
     FQuerySearchProducerTypes: TQuerySearchProducerTypes;
     function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
     procedure MyInitializeComboBoxColumn;
-    procedure SetQueryProducers(const Value: TQueryProducers);
+    procedure SetProducersGroup(const Value: TProducersGroup);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -73,9 +83,10 @@ type
     property QuerySearchProducerTypes: TQuerySearchProducerTypes
       read GetQuerySearchProducerTypes;
   public
+    procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property QueryProducers: TQueryProducers read FQueryProducers
-      write SetQueryProducers;
+    property ProducersGroup: TProducersGroup read FProducersGroup write
+        SetProducersGroup;
     { Public declarations }
   end;
 
@@ -84,14 +95,27 @@ implementation
 {$R *.dfm}
 
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
-  ManufacturersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
+  ProducersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
   SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
   SearchParameterValues, cxDropDownEdit;
 
 procedure TViewProducers.actAddExecute(Sender: TObject);
+var
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
 begin
+  ARow := GetRow(0) as TcxGridMasterDataRow;
+  ARow.Expand(false);
+  AView := GetDBBandedTableView(1);
+  AView.DataController.Append;
+  FocusColumnEditor(1, clName2.DataBinding.FieldName);
+end;
+
+procedure TViewProducers.actAddTypeExecute(Sender: TObject);
+begin
+  inherited;
   MainView.DataController.Append;
-  FocusColumnEditor(0, clName.DataBinding.FieldName);
+  FocusColumnEditor(0, clProducerType.DataBinding.FieldName);
 
   UpdateView;
 end;
@@ -100,20 +124,17 @@ procedure TViewProducers.actCommitExecute(Sender: TObject);
 begin
   cxGrid.BeginUpdate();
   try
-    // Сохраняем все сделанные изменения
-    QueryProducers.ApplyUpdates;
-
-    // Начинаем новую транзакцию
-    // FQueryProducers.FDQuery.Connection.StartTransaction;
+    // Сохраняем изменения и завершаем транзакцию
+    ProducersGroup.Commit;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    FocusSelectedRecord;
   finally
     cxGrid.EndUpdate;
   end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;
@@ -130,6 +151,9 @@ begin
 
   S := '';
   if AView.Level = cxGridLevel then
+    S := 'Удалить тип';
+
+  if AView.Level = cxGridLevel2 then
     S := 'Удалить производителя';
 
   if (S <> '') and (TDialog.Create.DeleteRecordsDialog(S)) and
@@ -143,13 +167,12 @@ begin
     if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
     then
     begin
-      AView.MasterGridRecord.Collapse(False);
+      AView.MasterGridRecord.Collapse(false);
     end;
 
   end;
 
   UpdateView;
-
 end;
 
 procedure TViewProducers.actExportToExcelDocumentExecute(Sender: TObject);
@@ -164,13 +187,13 @@ begin
   ExportViewToExcel(MainView, AFileName,
     procedure(AView: TcxGridDBBandedTableView)
     begin
-      AView.GetColumnByFieldName(QueryProducers.Cnt.FieldName).Visible := False;
+      AView.GetColumnByFieldName(ProducersGroup.qProducers.Cnt.FieldName).Visible := False;
     end);
 end;
 
 procedure TViewProducers.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
-  AManufacturersExcelDM: TManufacturersExcelDM;
+  AProducersExcelDM: TProducersExcelDM;
   AFileName: string;
   AfrmImportError: TfrmImportError;
   OK: Boolean;
@@ -184,36 +207,36 @@ begin
   // Сохраняем эту папку в настройках
   TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
 
-  AManufacturersExcelDM := TManufacturersExcelDM.Create(Self);
+  AProducersExcelDM := TProducersExcelDM.Create(Self);
   try
-    AManufacturersExcelDM.ExcelTable.ManufacturersDataSet :=
-      QueryProducers.FDQuery;
+    AProducersExcelDM.ExcelTable.ManufacturersDataSet :=
+      ProducersGroup.qProducers.FDQuery;
 
-    TfrmProgressBar.Process(AManufacturersExcelDM,
+    TfrmProgressBar.Process(AProducersExcelDM,
       procedure
       begin
-        AManufacturersExcelDM.LoadExcelFile(AFileName);
+        AProducersExcelDM.LoadExcelFile(AFileName);
       end, 'Загрузка данных о производителе', sRows);
 
-    OK := AManufacturersExcelDM.ExcelTable.Errors.RecordCount = 0;
+    OK := AProducersExcelDM.ExcelTable.Errors.RecordCount = 0;
 
     if not OK then
     begin
       AfrmImportError := TfrmImportError.Create(Self);
       try
-        AfrmImportError.ErrorTable := AManufacturersExcelDM.ExcelTable.Errors;
+        AfrmImportError.ErrorTable := AProducersExcelDM.ExcelTable.Errors;
         OK := AfrmImportError.ShowModal = mrOk;
         if OK then
         begin
           if AfrmImportError.ContinueType = ctSkip then
           begin
             // Убираем записи с ошибками и предупреждениями
-            AManufacturersExcelDM.ExcelTable.ExcludeErrors(etWarring);
+            AProducersExcelDM.ExcelTable.ExcludeErrors(etWarring);
           end
           else
           begin
             // Убираем все записи с ошибками
-            AManufacturersExcelDM.ExcelTable.ExcludeErrors(etError);
+            AProducersExcelDM.ExcelTable.ExcludeErrors(etError);
           end;
         end;
       finally
@@ -225,17 +248,17 @@ begin
     begin
       cxGrid.BeginUpdate;
       try
-        TfrmProgressBar.Process(AManufacturersExcelDM.ExcelTable,
+        TfrmProgressBar.Process(AProducersExcelDM.ExcelTable,
           procedure
           begin
-            QueryProducers.InsertRecordList(AManufacturersExcelDM.ExcelTable);
+            ProducersGroup.InsertRecordList(AProducersExcelDM.ExcelTable);
           end, 'Сохранение данных о производителях в БД', sRecords);
       finally
         cxGrid.EndUpdate;
       end;
     end;
   finally
-    FreeAndNil(AManufacturersExcelDM);
+    FreeAndNil(AProducersExcelDM);
   end;
   UpdateView;
 
@@ -246,29 +269,35 @@ begin
   cxGrid.BeginUpdate();
   try
     // Отменяем все сделанные изменения
-    QueryProducers.CancelUpdates;
-
-    // Начинаем новую транзакцию
-    // FQueryProducers.FDQuery.Connection.StartTransaction;
+    ProducersGroup.Rollback;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    FocusSelectedRecord;
   finally
     cxGrid.EndUpdate;
   end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;
+end;
+
+procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown(Sender:
+    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
+    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = 13) and (AItem = clName2) then
+    cxGridDBBandedTableView2.DataController.Post();
 end;
 
 procedure TViewProducers.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
-  if (Key = 13) and (AItem = clName) then
+  if (Key = 13) and (AItem = clProducerType) then
     cxGridDBBandedTableView.DataController.Post();
 end;
 
@@ -290,6 +319,13 @@ begin
   Result := FQuerySearchProducerTypes;
 end;
 
+procedure TViewProducers.MyApplyBestFit;
+begin
+  inherited;
+  GetDBBandedTableView(1).ApplyBestFit(nil, True, True);
+//  GridView(cxGridLevel2).ApplyBestFit(nil, True, True);
+end;
+
 procedure TViewProducers.MyInitializeComboBoxColumn;
 begin
   // Ищем возможные значения типа производителя для выпадающего списка
@@ -300,21 +336,22 @@ begin
     QuerySearchProducerTypes.ProducerType);
 end;
 
-procedure TViewProducers.SetQueryProducers(const Value: TQueryProducers);
+procedure TViewProducers.SetProducersGroup(const Value: TProducersGroup);
 begin
-  if FQueryProducers <> Value then
+  if FProducersGroup <> Value then
   begin
-    FQueryProducers := Value;
-    if FQueryProducers <> nil then
+    FProducersGroup := Value;
+    if FProducersGroup <> nil then
     begin
-      MainView.DataController.DataSource := FQueryProducers.DataSource;
+      MainView.DataController.DataSource := FProducersGroup.qProducerTypes.DataSource;
+      GridView(cxGridLevel2).DataController.DataSource := FProducersGroup.qProducers.DataSource;
 
-      TNotifyEventWrap.Create(FQueryProducers.OnDataChange, DoOnDataChange);
+      TNotifyEventWrap.Create(FProducersGroup.qProducers.OnDataChange, DoOnDataChange);
 
       // Подписываемся на событие о коммите
-      TNotifyEventWrap.Create(FQueryProducers.AfterPost, DoAfterPost);
+//      TNotifyEventWrap.Create(FProducersGroup.qProducers.AfterPost, DoAfterPost);
 
-      MyInitializeComboBoxColumn;
+//      MyInitializeComboBoxColumn;
     end
     else
     begin
@@ -350,7 +387,7 @@ procedure TViewProducers.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
   StatusBar.Panels[1].Text := Format('Всего: %d',
-    [QueryProducers.FDQuery.RecordCount]);
+    [ProducersGroup.qProducers.FDQuery.RecordCount]);
 end;
 
 procedure TViewProducers.UpdateView;
@@ -359,19 +396,21 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  OK := (QueryProducers <> nil) and (QueryProducers.FDQuery.Active);
+  OK := (ProducersGroup <> nil)
+    and (ProducersGroup.qProducerTypes.FDQuery.Active)
+    and (ProducersGroup.qProducers.FDQuery.Active);
 
   actAdd.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
   actDelete.Enabled := OK and (AView <> nil) and
     (AView.DataController.RecordCount > 0);
 
-  actCommit.Enabled := OK and (QueryProducers.FDQuery.Connection.InTransaction);
+  actCommit.Enabled := OK and (ProducersGroup.Connection.InTransaction);
 
   actRollback.Enabled := actCommit.Enabled;
 
   actExportToExcelDocument.Enabled := OK and
-    (QueryProducers.FDQuery.RecordCount > 0);
+    (ProducersGroup.qProducers.FDQuery.RecordCount > 0);
 
   UpdateTotalCount;
 end;

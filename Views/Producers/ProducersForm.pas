@@ -46,7 +46,7 @@ implementation
 
 {$R *.dfm}
 
-uses ProducersQuery, DialogUnit;
+uses ProducersQuery, DialogUnit, ProducersGroupUnit;
 
 procedure TfrmProducers.ApplyUpdates;
 begin
@@ -65,42 +65,41 @@ end;
 
 function TfrmProducers.HaveAnyChanges: Boolean;
 begin
-  Result := ViewProducers.QueryProducers.FDQuery.Connection.InTransaction;
+  Result := ViewProducers.ProducersGroup.Connection.InTransaction;
 end;
 
 class function TfrmProducers.TakeProducer: String;
 var
   AfrmProducers: TfrmProducers;
-  AQueryProducers: TQueryProducers;
+  AProducersGroup: TProducersGroup;
 begin
   Result := '';
   // Сначала выберем производителя из справочника
-  AQueryProducers := TQueryProducers.Create(nil);
+  AProducersGroup := TProducersGroup.Create(nil);
   try
-    AQueryProducers.RefreshQuery;
+    AProducersGroup.ReOpen;
     AfrmProducers := TfrmProducers.Create(nil);
     try
       AfrmProducers.Caption := 'Выберите производителя';
       AfrmProducers.btnOk.ModalResult := mrOk;
 
-      AfrmProducers.ViewProducers.QueryProducers :=
-        AQueryProducers;
+      AfrmProducers.ViewProducers.ProducersGroup := AProducersGroup;
       if AfrmProducers.ShowModal <> mrOk then
         Exit;
     finally
       FreeAndNil(AfrmProducers);
     end;
 
-    if AQueryProducers.FDQuery.RecordCount = 0 then
+    if AProducersGroup.qProducers.FDQuery.RecordCount = 0 then
     begin
       TDialog.Create.ErrorMessageDialog('Справочник производителя пустой. ' +
         'Необходимо добавить производителя загружаемых компонентов.');
       Exit;
     end;
 
-    Result := AQueryProducers.Name.AsString;
+    Result := AProducersGroup.qProducers.Name.AsString;
   finally
-    FreeAndNil(AQueryProducers);
+    FreeAndNil(AProducersGroup);
   end;
 end;
 

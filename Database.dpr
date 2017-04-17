@@ -44,7 +44,7 @@ uses
   ReportQuery in 'Queryes\Report\ReportQuery.pas' {QueryReports: TFrame},
   ReportsView in 'Views\Reports\ReportsView.pas' {ViewReports: TFrame},
   ReportsForm in 'Views\Reports\ReportsForm.pas' {frmReports},
-  ManufacturersExcelDataModule in 'Excel\ManufacturersExcelDataModule.pas' {ManufacturersExcelDM: TDataModule},
+  ProducersExcelDataModule in 'Excel\ProducersExcelDataModule.pas' {ProducersExcelDM: TDataModule},
   ProducersQuery in 'Queryes\Producers\ProducersQuery.pas' {QueryProducers: TFrame},
   ProducersView in 'Views\Producers\ProducersView.pas' {ViewProducers: TFrame},
   ProducersForm in 'Views\Producers\ProducersForm.pas' {frmProducers},
@@ -176,7 +176,9 @@ uses
   RecursiveParametersQuery in 'Queryes\ParametersForCategories\RecursiveParametersQuery.pas' {QueryRecursiveParameters: TFrame},
   MaxCategoryParameterOrderQuery in 'Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas' {QueryMaxCategoryParameterOrder: TFrame},
   SequenceQuery in 'Queryes\Sequence\SequenceQuery.pas' {QuerySequence: TFrame},
-  IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame};
+  IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame},
+  ProducersGroupUnit in 'Queryes\Producers\ProducersGroupUnit.pas' {ProducersGroup: TFrame},
+  ProducerTypesQuery in 'Queryes\Producers\ProducerTypesQuery.pas' {QueryProducerTypes: TFrame};
 
 {$R *.res}
 

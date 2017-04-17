@@ -32,11 +32,11 @@ object DM: TDM
   end
   inline qBodyTypesTree: TQueryBodyTypesTree
     Left = 0
-    Top = 150
+    Top = 158
     Width = 257
     Height = 80
     TabOrder = 2
-    ExplicitTop = 150
+    ExplicitTop = 158
     ExplicitWidth = 257
     ExplicitHeight = 80
   end
@@ -70,13 +70,13 @@ object DM: TDM
     ExplicitTop = 64
   end
   inline qStoreHouseList: TQueryStoreHouseList
-    Left = 800
-    Top = 371
+    Left = 275
+    Top = 150
     Width = 208
     Height = 86
     TabOrder = 5
-    ExplicitLeft = 800
-    ExplicitTop = 371
+    ExplicitLeft = 275
+    ExplicitTop = 150
   end
   inline BodyTypesGroup: TBodyTypesGroup
     Left = 2
@@ -341,21 +341,12 @@ object DM: TDM
         end>
     end
   end
-  inline qProducers: TQueryProducers
-    Left = 352
-    Top = 144
-    Width = 204
-    Height = 78
-    TabOrder = 13
-    ExplicitLeft = 352
-    ExplicitTop = 144
-  end
   inline DescriptionsGroup: TDescriptionsGroup
     Left = 514
     Top = -4
     Width = 604
     Height = 90
-    TabOrder = 14
+    TabOrder = 13
     ExplicitLeft = 514
     ExplicitTop = -4
     ExplicitHeight = 90
@@ -393,23 +384,58 @@ object DM: TDM
     end
   end
   inline qVersion: TQueryVersion
-    Left = 824
-    Top = 463
+    Left = 489
+    Top = 140
     Width = 125
     Height = 80
-    TabOrder = 15
-    ExplicitLeft = 824
-    ExplicitTop = 463
+    TabOrder = 14
+    ExplicitLeft = 489
+    ExplicitTop = 140
   end
   inline qCategoryParameters: TQueryCategoryParameters
     Left = 904
     Top = 584
     Width = 125
     Height = 80
-    TabOrder = 16
+    TabOrder = 15
     ExplicitLeft = 904
     ExplicitTop = 584
     ExplicitWidth = 125
+  end
+  inline ProducersGroup: TProducersGroup
+    Left = 798
+    Top = 373
+    Width = 315
+    Height = 90
+    TabOrder = 16
+    ExplicitLeft = 798
+    ExplicitTop = 373
+    inherited GridPanel1: TGridPanel
+      ControlCollection = <
+        item
+          Column = 0
+          Control = ProducersGroup.qProducerTypes
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = ProducersGroup.qProducers
+          Row = 0
+        end>
+      ExplicitWidth = 315
+      ExplicitHeight = 90
+      inherited qProducerTypes: TQueryProducerTypes
+        ExplicitLeft = -50
+        ExplicitTop = 1
+        ExplicitWidth = 156
+        ExplicitHeight = 88
+      end
+      inherited qProducers: TQueryProducers
+        ExplicitLeft = 157
+        ExplicitWidth = 157
+        ExplicitHeight = 88
+      end
+    end
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor
     Provider = 'Forms'

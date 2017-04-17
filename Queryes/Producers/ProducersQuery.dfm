@@ -1,7 +1,7 @@
 inherited QueryProducers: TQueryProducers
-  Width = 204
+  Width = 127
   Height = 78
-  ExplicitWidth = 204
+  ExplicitWidth = 127
   ExplicitHeight = 78
   inherited Label1: TLabel
     Width = 66
@@ -9,6 +9,14 @@ inherited QueryProducers: TQueryProducers
     ExplicitWidth = 66
   end
   inherited FDQuery: TFDQuery
+    Indexes = <
+      item
+        Active = True
+        Selected = True
+        Name = 'idxOrder'
+        Fields = 'ProducerTypeID;Name'
+      end>
+    IndexName = 'idxOrder'
     SQL.Strings = (
       'select '
       '    pr.*, ifnull(t.cnt, 0) + ifnull(t2.cnt, 0) Cnt'
@@ -40,7 +48,7 @@ inherited QueryProducers: TQueryProducers
       '    )'
       '    group by pv.Value'
       ') t2 on pr.name = t.Value'
-      'order by pr.Name')
+      'order by pr.ProducerTypeID, pr.Name')
     ParamData = <
       item
         Name = 'PRODUCERPARAMETERID'
@@ -48,23 +56,5 @@ inherited QueryProducers: TQueryProducers
         ParamType = ptInput
         Value = Null
       end>
-  end
-  object fdqDropUnused22: TFDQuery
-    Connection = DMRepository.dbConnection
-    SQL.Strings = (
-      'delete from manufacturers2'
-      'where id in'
-      '('
-      '    select m.id'
-      '    from manufacturers2 m'
-      '    where not exists'
-      '    ('
-      '        select *'
-      '            from descriptions2'
-      '            where IDManufacturer = m.id '
-      '    )'
-      ')')
-    Left = 144
-    Top = 24
   end
 end

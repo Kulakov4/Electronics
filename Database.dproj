@@ -220,8 +220,8 @@
             <Form>frmReports</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Excel\ManufacturersExcelDataModule.pas">
-            <Form>ManufacturersExcelDM</Form>
+        <DCCReference Include="Excel\ProducersExcelDataModule.pas">
+            <Form>ProducersExcelDM</Form>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
@@ -821,6 +821,16 @@
         </DCCReference>
         <DCCReference Include="Queryes\IDTempTable\IDTempTableQuery.pas">
             <Form>QueryIDTempTable</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Producers\ProducersGroupUnit.pas">
+            <Form>ProducersGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Producers\ProducerTypesQuery.pas">
+            <Form>QueryProducerTypes</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -2562,13 +2572,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>

@@ -809,10 +809,10 @@ begin
   if frmProducers = nil then
   begin
     frmProducers := TfrmProducers.Create(Self);
-    frmProducers.ViewProducers.QueryProducers := DM.qProducers;
+    frmProducers.ViewProducers.ProducersGroup := DM.ProducersGroup;
   end;
 
-  DM.qProducers.RefreshQuery;
+  DM.ProducersGroup.ReOpen;
   frmProducers.Show;
 end;
 

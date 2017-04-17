@@ -23,9 +23,5 @@ object QueryGroup: TQueryGroup
         Value = 100.000000000000000000
       end>
     TabOrder = 0
-    ExplicitLeft = 48
-    ExplicitTop = 40
-    ExplicitWidth = 185
-    ExplicitHeight = 41
   end
 end

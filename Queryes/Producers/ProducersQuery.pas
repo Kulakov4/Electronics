@@ -8,12 +8,11 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ManufacturersExcelDataModule,
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ProducersExcelDataModule,
   QueryWithDataSourceUnit;
 
 type
   TQueryProducers = class(TQueryWithDataSource)
-    fdqDropUnused22: TFDQuery;
     procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
         Boolean);
   private
@@ -23,7 +22,7 @@ type
     procedure DropUnuses;
     function GetCnt: TField;
     function GetName: TField;
-    function GetProducerType: TField;
+    function GetProducerTypeID: TField;
     { Private declarations }
   protected
     procedure DoAfterOpen(Sender: TObject);
@@ -32,14 +31,12 @@ type
     procedure AddNewValue(const AValue: string);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
-    procedure InsertRecordList(AManufacturesExcelTable
-      : TManufacturesExcelTable);
     function Locate(AValue: string): Boolean;
     procedure LocateOrAppend(AValue: string);
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property Cnt: TField read GetCnt;
     property Name: TField read GetName;
-    property ProducerType: TField read GetProducerType;
+    property ProducerTypeID: TField read GetProducerTypeID;
     { Public declarations }
   end;
 
@@ -129,47 +126,9 @@ begin
   Result := Field('Name');
 end;
 
-function TQueryProducers.GetProducerType: TField;
+function TQueryProducers.GetProducerTypeID: TField;
 begin
-  Result := Field('ProducerType');
-end;
-
-procedure TQueryProducers.InsertRecordList(AManufacturesExcelTable
-  : TManufacturesExcelTable);
-var
-  AField: TField;
-  I: Integer;
-begin
-  FDQuery.DisableControls;
-  try
-    // ÷икл по всем запис€м, которые будем добавл€ть
-    AManufacturesExcelTable.First;
-    AManufacturesExcelTable.CallOnProcessEvent;
-    while not AManufacturesExcelTable.Eof do
-    begin
-      // ≈сли производитель с таким именем уже есть
-      if Locate( AManufacturesExcelTable.Name.AsString ) then
-        TryEdit
-      else
-        TryAppend;
-
-      for I := 0 to AManufacturesExcelTable.FieldCount - 1 do
-      begin
-        AField := FDQuery.FindField(AManufacturesExcelTable.Fields[I]
-          .FieldName);
-        if AField <> nil then
-          AField.Value := AManufacturesExcelTable.Fields[I].Value;
-      end;
-
-      TryPost;
-
-      AManufacturesExcelTable.Next;
-      AManufacturesExcelTable.CallOnProcessEvent;
-    end;
-
-  finally
-    FDQuery.EnableControls;
-  end;
+  Result := Field('ProducerTypeID');
 end;
 
 function TQueryProducers.Locate(AValue: string): Boolean;
