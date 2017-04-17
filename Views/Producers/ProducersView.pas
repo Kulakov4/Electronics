@@ -372,6 +372,7 @@ procedure TViewProducers.clProducerTypeIDPropertiesNewLookupDisplayText(
 begin
   inherited;
   FNewValue := AText;
+
 end;
 
 procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown
