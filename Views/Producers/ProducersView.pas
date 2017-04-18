@@ -276,6 +276,7 @@ begin
           begin
             ProducersGroup.InsertRecordList(AProducersExcelDM.ExcelTable);
           end, 'Сохранение данных о производителях в БД', sRecords);
+        MainView.ViewData.Collapse(True);
       finally
         cxGrid.EndUpdate;
       end;
