@@ -19,6 +19,7 @@ type
   TQueryMainParameters = class(TQueryWithDataSource)
     fdqBase: TFDQuery;
     ParametersApplyQuery: TfrmApplyQuery;
+    fdqDeleteFromCategoryParams: TFDQuery;
   private
     FHaveAnyChanges: Boolean;
     FProductCategoryIDValue: Integer;
@@ -123,6 +124,10 @@ begin
     try
       RH.Find(IDParameterType.FieldName).Value := NULL;
       ParametersApplyQuery.UpdateRecord(RH);
+
+      // Тут надо удалить ссылки на этот параметр
+      fdqDeleteFromCategoryParams.ParamByName('ParameterID').AsInteger := AID.AsInteger;
+      fdqDeleteFromCategoryParams.ExecSQL;
     finally
       FreeAndNil(RH);
     end;

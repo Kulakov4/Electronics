@@ -1,7 +1,7 @@
 inherited QueryMainParameters: TQueryMainParameters
-  Width = 337
+  Width = 551
   Height = 86
-  ExplicitWidth = 337
+  ExplicitWidth = 551
   ExplicitHeight = 86
   inherited Label1: TLabel
     Width = 106
@@ -157,6 +157,19 @@ inherited QueryMainParameters: TQueryMainParameters
         DataType = ftWideString
         ParamType = ptInput
         Value = ''
+      end>
+  end
+  object fdqDeleteFromCategoryParams: TFDQuery
+    SQL.Strings = (
+      'delete from CategoryParams where ParameterID = :ParameterID')
+    Left = 400
+    Top = 24
+    ParamData = <
+      item
+        Name = 'PARAMETERID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
       end>
   end
 end

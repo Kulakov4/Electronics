@@ -162,8 +162,9 @@ end;
 
 function TParametersExcelTable.ProcessValue(const AValue: string): String;
 begin
-  // Избавляемся от двойных кавычек, переносов на новую строку
-  Result := AValue.Trim(['"']).Replace(#13, ' ', [rfReplaceAll]).Replace(#10, ' ', [rfReplaceAll]);
+  // Избавляемся от переносов на новую строку
+  // Двойные кавычки могут встречаться !!! Напр. Класс изделия "Green"
+  Result := AValue.Replace(#13, ' ', [rfReplaceAll]).Replace(#10, ' ', [rfReplaceAll]);
   // Избавляемся от двойных пробелов
   Result := DeleteDouble(Result, ' ');
 end;

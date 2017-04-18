@@ -1264,7 +1264,7 @@ begin
     (actShowDublicate.Checked or
     (FParametersGroup.qMainParameters.FDQuery.RecordCount > 0));
   actShowDublicate.Caption := IfThen(actShowDublicate.Checked, 'Показать всё',
-    'Всё дубликаты');
+    'Все дубликаты');
 
   UpdateTotalCount;
 end;

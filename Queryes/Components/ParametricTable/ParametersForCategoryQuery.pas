@@ -12,7 +12,6 @@ uses
 
 type
   TQueryParametersForCategory = class(TQueryBase)
-    fdqUpdateOrder: TFDQuery;
   private
     function GetParentCaption: TField;
     function GetFieldType: TField;
@@ -28,7 +27,6 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    procedure Move(AData: TList<TRecOrder>);
     property ParentCaption: TField read GetParentCaption;
     property FieldType: TField read GetFieldType;
     property ID: TField read GetID;
@@ -108,24 +106,6 @@ end;
 function TQueryParametersForCategory.GetPosID: TField;
 begin
   Result := Field('PosID');
-end;
-
-procedure TQueryParametersForCategory.Move(AData: TList<TRecOrder>);
-var
-  ARecOrder: TRecOrder;
-begin
-  FDQuery.DisableControls;
-  try
-    for ARecOrder in AData do
-    begin
-      // ¬ыполн€ем SQL запрос который мен€ет пор€док
-      fdqUpdateOrder.ParamByName('ID').AsInteger := ARecOrder.Key;
-      fdqUpdateOrder.ParamByName('ORDER').AsInteger := ARecOrder.Order;
-      fdqUpdateOrder.ExecSQL;
-    end;
-  finally
-    FDQuery.EnableControls;
-  end;
 end;
 
 end.
