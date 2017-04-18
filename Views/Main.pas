@@ -554,8 +554,14 @@ begin
         TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
           procedure
           begin
+            TParameterValues.LoadParameters(AParametricExcelDM.ExcelTable);
+          end, 'Добавление параметров в категорию', sParameters);
+
+        TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
+          procedure
+          begin
             TParameterValues.LoadParameterValues
-              (AParametricExcelDM.ExcelTable);
+              (AParametricExcelDM.ExcelTable, False);
           end, 'Сохранение параметрических данных в БД', sRecords);
       end;
 

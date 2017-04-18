@@ -65,6 +65,7 @@ resourcestring
   sRecords = 'записей';
   sComponents = 'компонентов';
   sFiles = 'файлов';
+  sParameters = 'параметров';
 
   sTreeRootNodeName = 'Структура';
 const

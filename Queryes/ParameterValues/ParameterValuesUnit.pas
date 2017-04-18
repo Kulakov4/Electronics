@@ -31,8 +31,8 @@ type
       read GetQuerySearchMainParameter;
   public
     class procedure LoadParameters(AExcelTable: TParametricExcelTable); static;
-    class procedure LoadParameterValues(AExcelTable
-      : TParametricExcelTable); static;
+    class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
+        AddParameters: Boolean); static;
     class property PackagePinsParameterID: Integer
       read GetPackagePinsParameterID;
     class property DatasheetParameterID: Integer read GetDatasheetParameterID;
@@ -162,7 +162,9 @@ var
   AOrder: Integer;
   ATempTable: TQueryIDTempTable;
   AParamOrders: TDictionary<Integer, Integer>;
+  API: TProgressInfo;
   AQueryParametersForProduct: TQueryParametersForProduct;
+  i: Integer;
 begin
   if AExcelTable.RecordCount = 0 then
     Exit;
@@ -170,15 +172,23 @@ begin
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AParamOrders := TDictionary<Integer, Integer>.Create;
   ATempTable := TQueryIDTempTable.Create(nil);
+  API := TProgressInfo.Create;;
   try
     // Сохраняем идентификаторы всех компонентов во временную таблицу
     ATempTable.AppendData(AExcelTable.IDComponent);
 
     AOrder := TQueryMaxCategoryParameterOrder.Max_Order;
 
+    API.TotalRecords := AExcelTable.FieldsInfo.Count;
+    i := 0;
     // Цикл по всем описаниям полей
     for AFieldInfo in AExcelTable.FieldsInfo do
     begin
+      // Извещаем о том, сколько параметров уже добавили
+      Inc(i);
+      API.ProcessRecords := i;
+      AExcelTable.OnProgress.CallEventHandlers(API);
+
       if not AExcelTable.GetIDParamByFieldName(AFieldInfo.FieldName,
         AIDParameter, AIDParentParameter) then
         continue;
@@ -212,8 +222,8 @@ begin
   end;
 end;
 
-class procedure TParameterValues.LoadParameterValues
-  (AExcelTable: TParametricExcelTable);
+class procedure TParameterValues.LoadParameterValues(AExcelTable:
+    TParametricExcelTable; AddParameters: Boolean);
 var
   a: TArray<String>;
   AFieldInfo: TFieldInfo;
@@ -229,7 +239,8 @@ begin
   if AExcelTable.RecordCount = 0 then
     Exit;
 
-  LoadParameters(AExcelTable);
+  if AddParameters then
+    LoadParameters(AExcelTable);
 
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AQueryParametersValue := TQueryParametersValue.Create(nil);
