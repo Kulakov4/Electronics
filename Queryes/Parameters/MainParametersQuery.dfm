@@ -160,6 +160,7 @@ inherited QueryMainParameters: TQueryMainParameters
       end>
   end
   object fdqDeleteFromCategoryParams: TFDQuery
+    Connection = DMRepository.dbConnection
     SQL.Strings = (
       'delete from CategoryParams where ParameterID = :ParameterID')
     Left = 400
