@@ -1,6 +1,6 @@
 inherited QueryRecursiveParameters: TQueryRecursiveParameters
-  Width = 332
-  ExplicitWidth = 332
+  Width = 316
+  ExplicitWidth = 316
   inherited Label1: TLabel
     Width = 140
     Caption = 'RecursiveParameters'

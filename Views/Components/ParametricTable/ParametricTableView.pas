@@ -953,6 +953,7 @@ begin
       ACaption := qParametersForCategory.Caption.AsString;
       AHint := qParametersForCategory.Hint.AsString;
       ACategoryParamID := qParametersForCategory.IDCategory.AsInteger;
+      Assert(not qParametersForCategory.Ord.IsNull);
       AOrder := qParametersForCategory.Ord.AsInteger;
       APosID := qParametersForCategory.PosID.AsInteger;
 

@@ -15,6 +15,7 @@ uses
 
 type
   TQueryCategoryParameters = class(TQueryWithDataSource)
+    fdqDeleteSubParameters: TFDQuery;
   private
     FInsertedClone: TFDMemTable;
     FMaxOrder: Integer;
@@ -41,6 +42,7 @@ type
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure DoBeforeDelete(Sender: TObject);
     property InsertedClone: TFDMemTable read GetInsertedClone;
     property QueryRecursiveParameters: TQueryRecursiveParameters
       read GetQueryRecursiveParameters;
@@ -69,7 +71,7 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents;
+uses NotifyEvents, RepositoryDataModule;
 
 constructor TQueryCategoryParameters.Create(AOwner: TComponent);
 begin
@@ -82,6 +84,9 @@ begin
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
+
+  // Для каскадного удаления
+  TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete);
 end;
 
 procedure TQueryCategoryParameters.AppendParameter(ARecordHolder: TRecordHolder;
@@ -103,8 +108,12 @@ begin
   AParameterID := ASender.FieldByName(ParameterID.FieldName);
   ACategoryID := ASender.FieldByName(CategoryID.FieldName);
 
+  // Рекурсивно удаляем из категорий сам параметр
   QueryRecursiveParameters.ExecDeleteSQL(AParameterID.OldValue,
     ACategoryID.OldValue);
+
+  // Удаляем из категорий подпараметры удалённых параметров
+  fdqDeleteSubParameters.ExecSQL;
 end;
 
 procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet);
@@ -204,6 +213,11 @@ begin
 
   IsEnabled.DefaultExpression := 'true';
   IsAttribute.DefaultExpression := 'true';
+end;
+
+procedure TQueryCategoryParameters.DoBeforeDelete(Sender: TObject);
+begin
+//  CascadeDelete();
 end;
 
 procedure TQueryCategoryParameters.DoBeforePost(Sender: TObject);
