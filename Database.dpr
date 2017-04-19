@@ -180,7 +180,8 @@ uses
   ProducersGroupUnit in 'Queryes\Producers\ProducersGroupUnit.pas' {ProducersGroup: TFrame},
   ProducerTypesQuery in 'Queryes\Producers\ProducerTypesQuery.pas' {QueryProducerTypes: TFrame},
   DocBindExcelDataModule in 'Excel\DocBindExcelDataModule.pas' {DocBindExcelDM: TDataModule},
-  BindDocUnit in 'Helpers\BindDocUnit.pas';
+  BindDocUnit in 'Helpers\BindDocUnit.pas',
+  ComponentsTabSheetView in 'Views\Components\ComponentsTabSheetView.pas' {ComponentsFrame: TFrame};
 
 {$R *.res}
 

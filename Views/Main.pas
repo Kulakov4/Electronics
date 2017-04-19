@@ -37,7 +37,9 @@ uses
   dxSkinVisualStudio2013Dark, dxSkinVisualStudio2013Light, dxSkinVS2010,
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
-  SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView;
+  SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
+  ProductsSearchView, ProductsBaseView, ProductsView, StoreHouseInfoView,
+  ComponentsTabSheetView;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -53,41 +55,17 @@ type
     dxbrbtn6: TdxBarButton;
     dxbrbtn7: TdxBarButton;
     sbMain: TdxStatusBar;
-    pnlMain: TPanel;
-    pnlList: TPanel;
-    cxspltrMain: TcxSplitter;
-    cxpgcntrlMain: TcxPageControl;
-    tsFunctionalGroup: TcxTabSheet;
-    tsComponents: TcxTabSheet;
-    cxtsDatabase: TcxTabSheet;
     pmLeftTreeList: TPopupMenu;
     mniAddRecord: TMenuItem;
     mniRenameRecord: TMenuItem;
     mniDeleteRecord: TMenuItem;
-    tvFunctionalGroup: TcxGridDBTableView;
-    glFunctionalGroup: TcxGridLevel;
-    cxgrdFunctionalGroup: TcxGrid;
     dxbrMainBar2: TdxBar;
     dxbrbtnSettings: TdxBarButton;
-    clFunctionalGroupId: TcxGridDBColumn;
-    clFunctionalGroupValue: TcxGridDBColumn;
-    clFunctionalGroupExternalId: TcxGridDBColumn;
-    clFunctionalGroupOrder: TcxGridDBColumn;
-    clFunctionalGroupParentExternalId: TcxGridDBColumn;
-    cxPageControl: TcxPageControl;
-    tsStructure: TcxTabSheet;
-    tsStorehouse: TcxTabSheet;
-    tlLeftControl: TcxDBTreeList;
-    clValue: TcxDBTreeListColumn;
-    clId: TcxDBTreeListColumn;
-    clParentId: TcxDBTreeListColumn;
-    clOrder: TcxDBTreeListColumn;
+    cxpcLeft: TcxPageControl;
+    cxtsComponents: TcxTabSheet;
+    cxtsStorehouses: TcxTabSheet;
     ActionList: TActionList;
     actShowManufacturers: TAction;
-    cxtsParametersForCategories: TcxTabSheet;
-    cxtsParametricTable: TcxTabSheet;
-    ViewParametricTable: TViewParametricTable;
-    ViewComponentsSearch: TViewComponentsSearch;
     actShowDescriptions: TAction;
     actShowParameters: TAction;
     actShowBodyTypes: TAction;
@@ -119,8 +97,6 @@ type
     actAutoBindingDescriptions: TAction;
     dxBarButton1: TdxBarButton;
     dxBarButton7: TdxBarButton;
-    ViewComponents: TViewComponents;
-    ViewStoreHouse: TViewStoreHouse;
     dxBarSubItem6: TdxBarSubItem;
     actLoadProductsFromExcelTable: TAction;
     dxBarButton9: TdxBarButton;
@@ -128,9 +104,29 @@ type
     Excel1: TMenuItem;
     actLoadTreeFromExcelDocument: TAction;
     Excel2: TMenuItem;
-    ViewCategoryParameters: TViewCategoryParameters;
     actLoadDocBinds: TAction;
     dxBarButton10: TdxBarButton;
+    dbtlCategories: TcxDBTreeList;
+    clValue: TcxDBTreeListColumn;
+    clId: TcxDBTreeListColumn;
+    clParentId: TcxDBTreeListColumn;
+    clOrder: TcxDBTreeListColumn;
+    cxpcRight: TcxPageControl;
+    cxspltrMain: TcxSplitter;
+    cxtsRComponents: TcxTabSheet;
+    cxtsRStorehouses: TcxTabSheet;
+    cxpcStorehouse: TcxPageControl;
+    tsStorehouseInfo: TcxTabSheet;
+    ViewStorehouseInfo: TViewStorehouseInfo;
+    tsStorehouseProducts: TcxTabSheet;
+    ViewProducts: TViewProducts;
+    tsStorehouseSearch: TcxTabSheet;
+    ViewProductsSearch: TViewProductsSearch;
+    CxGridStorehouseList: TcxGrid;
+    tvStorehouseList: TcxGridDBTableView;
+    clStorehouseListTitle: TcxGridDBColumn;
+    glStorehouseList: TcxGridLevel;
+    ComponentsFrame: TComponentsFrame;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
@@ -156,33 +152,29 @@ type
     procedure actShowParametersExecute(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure tlLeftControlDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure tlLeftControlDragOver(Sender, Source: TObject; X, Y: Integer;
+    procedure dbtlCategoriesDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure dbtlCategoriesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
-    procedure tlLeftControlStartDrag(Sender: TObject;
+    procedure dbtlCategoriesStartDrag(Sender: TObject;
       var DragObject: TDragObject);
     procedure btnFocusRootClick(Sender: TObject);
-    procedure cxPageControlChange(Sender: TObject);
-    procedure cxpgcntrlMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
-      var AllowChange: Boolean);
-    procedure cxtsParametersForCategoriesShow(Sender: TObject);
-    procedure cxtsParametricTableShow(Sender: TObject);
+    procedure cxpcLeftChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure tlLeftControlClick(Sender: TObject);
-    procedure tlLeftControlCollapsed(Sender: TcxCustomTreeList;
+    procedure dbtlCategoriesClick(Sender: TObject);
+    procedure dbtlCategoriesCollapsed(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode);
-    procedure tlLeftControlExpanded(Sender: TcxCustomTreeList;
+    procedure dbtlCategoriesExpanded(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode);
     procedure tlLeftControlMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormResize(Sender: TObject);
-    procedure tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
+    procedure dbtlCategoriesCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
-    procedure tsComponentsShow(Sender: TObject);
+    procedure cxtsComponentsShow(Sender: TObject);
+    procedure cxtsStorehousesShow(Sender: TObject);
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
-    F1: Boolean;
     FCategoryPath: string;
     FEventList: TObjectList;
     FOnProductCategoriesChange: TNotifyEventWrap;
@@ -239,7 +231,8 @@ uses
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit,
-  RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit;
+  RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit,
+  DialogUnit2;
 
 {$R *.dfm}
 
@@ -261,7 +254,8 @@ begin
   begin
     DM.qTreeList.FDQuery.DisableControls;
     try
-      DM.qTreeList.AddChildCategory(value, GetLevel(tlLeftControl.FocusedNode));
+      DM.qTreeList.AddChildCategory(value,
+        GetLevel(dbtlCategories.FocusedNode));
     finally
       DM.qTreeList.FDQuery.EnableControls;
     end;
@@ -299,6 +293,9 @@ var
   frmAutoBindingDoc: TfrmAutoBindingDoc;
   MR: Integer;
 begin
+  if DM = nil then
+    Exit;
+
   AQueryAllFamily := nil;
   AFDQuery := nil;
   frmAutoBindingDoc := TfrmAutoBindingDoc.Create(Self);
@@ -312,7 +309,7 @@ begin
           AFDQuery := AQueryAllFamily.FDQuery;
         end;
       mrOk:
-        AFDQuery := ViewComponents.ComponentsGroup.qFamily.FDQuery
+        AFDQuery := DM.ComponentsGroup.qFamily.FDQuery
     end;
     if AFDQuery <> nil then
     begin
@@ -321,9 +318,9 @@ begin
         frmAutoBindingDoc.cxcbAbsentDoc.Checked);
 
       // Если привязывали текущую категорию
-      if AFDQuery = ViewComponents.ComponentsGroup.qFamily.FDQuery then
+      if AFDQuery = DM.ComponentsGroup.qFamily.FDQuery then
       begin
-        ViewComponents.ComponentsGroup.ReOpen;
+        DM.ComponentsGroup.ReOpen;
       end;
 
     end;
@@ -427,7 +424,7 @@ begin
       TfrmProgressBar.Process(AComponentBodyTypesExcelDM.ExcelTable,
         procedure
         begin
-          ViewComponents.ComponentsGroup.LoadBodyList
+          DM.ComponentsGroup.LoadBodyList
             (AComponentBodyTypesExcelDM.ExcelTable);
         end, 'Сохранение корпусных данных в БД', sRecords);
     end;
@@ -439,7 +436,7 @@ begin
   // Обновляем запрос использующийся для поиска в справочнике корпусов
   DM.qBodyTypes.RefreshQuery;
 
-  ViewComponents.ComponentsGroup.ReOpen;
+  DM.ComponentsGroup.ReOpen;
 end;
 
 procedure TfrmMain.actLoadDocBindsExecute(Sender: TObject);
@@ -506,7 +503,7 @@ begin
     Exit;
   end;
 
-  ViewComponents.LoadFromExcelDocument(AFileName, AProducer);
+  ComponentsFrame.ViewComponents.LoadFromExcelDocument(AFileName, AProducer);
 end;
 
 procedure TfrmMain.actLoadFromExcelFolderExecute(Sender: TObject);
@@ -529,7 +526,7 @@ begin
 
   TSettings.Create.LastFolderForComponentsLoad := AFolderName;
 
-  ViewComponents.LoadFromExcelFolder(AFolderName, AProducer);
+  ComponentsFrame.ViewComponents.LoadFromExcelFolder(AFolderName, AProducer);
 end;
 
 procedure TfrmMain.actLoadParametricTableExecute(Sender: TObject);
@@ -595,10 +592,34 @@ begin
 end;
 
 procedure TfrmMain.actLoadProductsFromExcelTableExecute(Sender: TObject);
+var
+  AFileName: String;
+  m: TArray<String>;
+  S: string;
 begin
   // Переключаемся на вкладку склады
-  cxPageControl.ActivePage := tsStorehouse;
-  ViewStoreHouse.LoadFromExcelDocument;
+  cxpcLeft.ActivePage := cxtsStorehouses;
+
+  // Открываем диалог выбора excel файла из последнего места
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+    Exit;
+
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+
+  m := S.Split([' ']);
+  if Length(m) <= 1 then
+    TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
+
+  // Всё что до пробела - сокращённое название склада
+  S := m[0];
+
+  // Ищем склад с таким сокращением
+  if DM.StoreHouseGroup.qStoreHouseList.LocateByAbbreviation(S) then
+    ViewProducts.LoadFromExcelDocument(AFileName)
+  else
+    TDialog.Create.ErrorMessageDialog
+      (Format('Склад с сокращённым названием "%s" не найден', [S]));
+
 end;
 
 procedure TfrmMain.actLoadTreeFromExcelDocumentExecute(Sender: TObject);
@@ -678,12 +699,12 @@ begin
   end;
 
   // Перечитываем дерево из БД
-  tlLeftControl.BeginUpdate;
+  dbtlCategories.BeginUpdate;
   try
     DM.qTreeList.RefreshQuery;
   finally
-    tlLeftControl.EndUpdate;
-    tlLeftControl.FocusedNode.Expand(False);
+    dbtlCategories.EndUpdate;
+    dbtlCategories.FocusedNode.Expand(False);
   end;
 end;
 
@@ -745,15 +766,15 @@ begin
     // Если путь до базы данных изменился
     if AOldDataBasePath <> ANewDataBasePath then
     begin
-      tlLeftControl.BeginUpdate;
+      dbtlCategories.BeginUpdate;
       try
         DM.CreateOrOpenDataBase;
         // Искусственно вызываем событие
         DoOnProductCategoriesChange(nil);
       finally
         try
-          tlLeftControl.EndUpdate;
-          tlLeftControl.FocusedNode.Expand(False);
+          dbtlCategories.EndUpdate;
+          dbtlCategories.FocusedNode.Expand(False);
         finally
         end;
       end;
@@ -898,50 +919,11 @@ begin
   Result := (databasePath <> '') and (TDirectory.Exists(databasePath));
 end;
 
-procedure TfrmMain.cxPageControlChange(Sender: TObject);
+procedure TfrmMain.cxpcLeftChange(Sender: TObject);
 begin
-  ViewStoreHouse.ViewProducts.CheckAndSaveChanges;
-  ViewStoreHouse.ViewProductsSearch.CheckAndSaveChanges;
-  ViewComponents.CheckAndSaveChanges;
-end;
-
-procedure TfrmMain.cxpgcntrlMainPageChanging(Sender: TObject;
-NewPage: TcxTabSheet; var AllowChange: Boolean);
-begin
-  if DM = nil then
-    Exit;
-
-  // если переходим на вкладку "Содержимое базы данных"
-  if (cxpgcntrlMain.ActivePage <> cxtsDatabase) and (NewPage = cxtsDatabase)
-  then
-  begin
-    ViewComponentsSearch.ApplyBestFitEx;
-  end;
-
-  // если переходим на вкладку "Параметрическая таблица"
-  if (cxpgcntrlMain.ActivePage <> cxtsParametricTable) and
-    (NewPage = cxtsParametricTable) then
-  begin
-    // сообщаем о том, что этот запрос понадобится и его надо разблокировать
-    DM.ComponentsExGroup.AddClient;
-  end;
-
-  if (cxpgcntrlMain.ActivePage = cxtsParametricTable) and
-    (NewPage <> cxtsParametricTable) then
-  begin
-    DM.ComponentsExGroup.DecClient;
-  end;
-
-end;
-
-procedure TfrmMain.cxtsParametersForCategoriesShow(Sender: TObject);
-begin
-  ViewCategoryParameters.ApplyBestFitEx;
-end;
-
-procedure TfrmMain.cxtsParametricTableShow(Sender: TObject);
-begin
-  // ViewParametricTable.MyApplyBestFit;
+  ViewProducts.CheckAndSaveChanges;
+  ViewProductsSearch.CheckAndSaveChanges;
+  ComponentsFrame.ViewComponents.CheckAndSaveChanges;
 end;
 
 procedure TfrmMain.DoBeforeParametricTableFormClose(Sender: TObject);
@@ -966,12 +948,12 @@ begin
   DM.qProductsSearch.Search(l);
 
   // Переключаемся на вкладку склады
-  cxPageControl.ActivePage := tsStorehouse;
+  cxpcLeft.ActivePage := cxtsStorehouses;
   // Переключаемся на вкладку поиск на складе
-  ViewStoreHouse.cxpcStorehouse.ActivePage := ViewStoreHouse.tsStorehouseSearch;
+  cxpcStorehouse.ActivePage := tsStorehouseSearch;
 
   BringToFront;
-  ViewStoreHouse.ViewProductsSearch.FocusValueColumn;
+  ViewProductsSearch.FocusValueColumn;
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -993,8 +975,9 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var
   OK: Boolean;
 begin
-  cxpgcntrlMain.ActivePageIndex := 0;
-  cxPageControl.ActivePage := tsStructure;
+  cxpcRight.Properties.HideTabs := True;
+  cxpcLeft.ActivePage := cxtsComponents;
+  ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
 
   // Создаём модуль репозитория
   if DMRepository = nil then
@@ -1049,31 +1032,47 @@ begin
       TNotifyEventWrap.Create(DM.qProductsSearch.OnLocate, DoOnProductLocate);
 
       // Привязываем представления к данным
-      ViewComponents.ComponentsGroup := DM.ComponentsGroup;
+      ComponentsFrame.ViewComponents.ComponentsGroup := DM.ComponentsGroup;
 
       // Подписываемся на событие о отображении параметрической таблицы
-      TNotifyEventWrap.Create(ViewComponents.OnShowParametricTableEvent,
+      TNotifyEventWrap.Create
+        (ComponentsFrame.ViewComponents.OnShowParametricTableEvent,
         DoOnShowParametricTable, FEventList);
 
-      ViewComponentsSearch.ComponentsSearchGroup := DM.ComponentsSearchGroup;
+      ComponentsFrame.ViewComponentsSearch.ComponentsSearchGroup :=
+        DM.ComponentsSearchGroup;
 
       // Параметры в виде категорий
-//      FrameCategoryParameters.ViewParametersForCategories.
-//        ParametersForCategoriesGroup := DM.ParametersForCategoriesGroup;
+      // FrameCategoryParameters.ViewParametersForCategories.
+      // ParametersForCategoriesGroup := DM.ParametersForCategoriesGroup;
 
       // Параметры в виде списка
-      ViewCategoryParameters.QueryCategoryParameters := DM.qCategoryParameters;
+      ComponentsFrame.ViewCategoryParameters.QueryCategoryParameters :=
+        DM.qCategoryParameters;
 
-      ViewParametricTable.ComponentsExGroup := DM.ComponentsExGroup;
+      ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
+        DM.ComponentsExGroup;
 
-      ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
-      ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;
+      // Привязываем список складов к данным
+      tvStorehouseList.DataController.DataSource :=
+        DM.StoreHouseGroup.qStoreHouseList.DataSource;
+      clStorehouseListTitle.ApplyBestFit();
+      // Привязываем информацию о складе к данным
+      ViewStorehouseInfo.QueryStoreHouseList :=
+        DM.StoreHouseGroup.qStoreHouseList;
+      // Привязываем текущий склад к данным
+      ViewProducts.QueryProducts := DM.StoreHouseGroup.qProducts;
+      // Привязываем поиск по складам к данным
+      ViewProductsSearch.QueryProductsSearch := DM.qProductsSearch;
+
+      // ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
+      // ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;
 
       // привязываем дерево катогорий к данным
-      tlLeftControl.DataController.DataSource := DM.qTreeList.DataSource;
+      dbtlCategories.DataController.DataSource := DM.qTreeList.DataSource;
 
       // Привязываем подкатегории к данным (функциональная группа)
-      tvFunctionalGroup.DataController.DataSource :=
+      ComponentsFrame.tvFunctionalGroup.DataController.DataSource :=
         DM.qChildCategories.DataSource;
 
       FOnProductCategoriesChange := TNotifyEventWrap.Create
@@ -1095,13 +1094,14 @@ end;
 procedure TfrmMain.FormShow(Sender: TObject);
 begin
   if (Enabled) and (DMRepository.dbConnection.Connected) and
-    (tlLeftControl.FocusedNode <> nil) then
-    tlLeftControl.FocusedNode.Expand(False);
+    (dbtlCategories.FocusedNode <> nil) then
+    dbtlCategories.FocusedNode.Expand(False);
 end;
 
 procedure TfrmMain.DoOnProductCategoriesChange(Sender: TObject);
 begin
-  tsComponents.Enabled := not DM.qTreeList.IsRootFocused;
+  ComponentsFrame.cxtsCategoryComponents.Enabled :=
+    not DM.qTreeList.IsRootFocused;
 
   Assert(DM.qTreeList.PKValue > 0);
   FCategoryPath := FQuerySearchCategoriesPath.GetFullPath(DM.qTreeList.PKValue);
@@ -1239,7 +1239,8 @@ begin
                       // Запоминаем описание поля связанного с подпараметром
                       AFieldNames.Add
                         (TParametricExcelTable.GetFieldNameByIDParam
-                        (AQuerySearchDaughterParameter.PKValue, AQuerySearchMainParameter.PKValue))
+                        (AQuerySearchDaughterParameter.PKValue,
+                        AQuerySearchMainParameter.PKValue))
                     end;
                   end;
                 end
@@ -1253,7 +1254,7 @@ begin
               end
               else
               begin
-                nf := true;
+                nf := True;
               end;
             end;
 
@@ -1359,27 +1360,27 @@ begin
   end;
 end;
 
-procedure TfrmMain.tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
+procedure TfrmMain.dbtlCategoriesCanFocusNode(Sender: TcxCustomTreeList;
 ANode: TcxTreeListNode; var Allow: Boolean);
 begin
-  Allow := (ViewComponents.CheckAndSaveChanges <> IDCancel) and
-    (ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
+  Allow := (ComponentsFrame.ViewComponents.CheckAndSaveChanges <> IDCancel) and
+    (ComponentsFrame.ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
 end;
 
-procedure TfrmMain.tlLeftControlClick(Sender: TObject);
+procedure TfrmMain.dbtlCategoriesClick(Sender: TObject);
 begin
-  tlLeftControl.ApplyBestFit;
+  dbtlCategories.ApplyBestFit;
 end;
 
-procedure TfrmMain.tlLeftControlCollapsed(Sender: TcxCustomTreeList;
+procedure TfrmMain.dbtlCategoriesCollapsed(Sender: TcxCustomTreeList;
 ANode: TcxTreeListNode);
 begin
-  tlLeftControl.ApplyBestFit;
+  dbtlCategories.ApplyBestFit;
   /// todo: придумать как обработать правильно
-  tlLeftControl.OptionsView.ScrollBars := ssBoth;
+  dbtlCategories.OptionsView.ScrollBars := ssBoth;
 end;
 
-procedure TfrmMain.tlLeftControlDragDrop(Sender, Source: TObject;
+procedure TfrmMain.dbtlCategoriesDragDrop(Sender, Source: TObject;
 X, Y: Integer);
 var
   cn: string;
@@ -1395,39 +1396,39 @@ begin
   end;
 end;
 
-procedure TfrmMain.tlLeftControlDragOver(Sender, Source: TObject; X, Y: Integer;
-State: TDragState; var Accept: Boolean);
+procedure TfrmMain.dbtlCategoriesDragOver(Sender, Source: TObject;
+X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
-  Accept := true;
+  Accept := True;
 end;
 
-procedure TfrmMain.tlLeftControlExpanded(Sender: TcxCustomTreeList;
+procedure TfrmMain.dbtlCategoriesExpanded(Sender: TcxCustomTreeList;
 ANode: TcxTreeListNode);
 var
   vOldWidth: Integer;
 begin
-  vOldWidth := tlLeftControl.Columns[0].DisplayWidth;
-  tlLeftControl.Columns[0].ApplyBestFit;
+  vOldWidth := dbtlCategories.Columns[0].DisplayWidth;
+  dbtlCategories.Columns[0].ApplyBestFit;
   // tlLeftControl.ApplyBestFit;
-  if tlLeftControl.Columns[0].DisplayWidth < vOldWidth then
+  if dbtlCategories.Columns[0].DisplayWidth < vOldWidth then
   // при раскрытии убедиться что ширина не станет меньше чем была
   begin
     Application.ProcessMessages;
-    tlLeftControl.Columns[0].DisplayWidth := vOldWidth;
-    tlLeftControl.Columns[0].Width := vOldWidth;
-    tlLeftControl.Columns[0].MinWidth := vOldWidth;
+    dbtlCategories.Columns[0].DisplayWidth := vOldWidth;
+    dbtlCategories.Columns[0].Width := vOldWidth;
+    dbtlCategories.Columns[0].MinWidth := vOldWidth;
   end;
-  tlLeftControl.OptionsView.ScrollBars := ssBoth;
+  dbtlCategories.OptionsView.ScrollBars := ssBoth;
 end;
 
 procedure TfrmMain.tlLeftControlMouseDown(Sender: TObject; Button: TMouseButton;
 Shift: TShiftState; X, Y: Integer);
 begin
-  pmLeftTreeList.Items[1].Enabled := true;
-  pmLeftTreeList.Items[2].Enabled := true;
+  pmLeftTreeList.Items[1].Enabled := True;
+  pmLeftTreeList.Items[2].Enabled := True;
   with TcxTreeList(Sender) do
   begin
-    OptionsData.Editing := true;
+    OptionsData.Editing := True;
     HitTest.ReCalculate(Point(X, Y));
 
     if HitTest.HitAtBackground then
@@ -1457,19 +1458,22 @@ begin
   end;
 end;
 
-procedure TfrmMain.tlLeftControlStartDrag(Sender: TObject;
+procedure TfrmMain.dbtlCategoriesStartDrag(Sender: TObject;
 var DragObject: TDragObject);
 begin
-  FSelectedId := tlLeftControl.FocusedNode.Values[1];
+  FSelectedId := dbtlCategories.FocusedNode.Values[1];
 end;
 
-procedure TfrmMain.tsComponentsShow(Sender: TObject);
+procedure TfrmMain.cxtsComponentsShow(Sender: TObject);
 begin
-  if Not F1 then
-  begin
-    ViewComponents.PostApplyBestFit;
-    F1 := true;
-  end;
+  // Справа активизируем вкладку "Компоненты"
+  cxpcRight.ActivePage := cxtsRComponents;
+end;
+
+procedure TfrmMain.cxtsStorehousesShow(Sender: TObject);
+begin
+  // Справа активизируем вкладку "Склады"
+  cxpcRight.ActivePage := cxtsRStorehouses;
 end;
 
 procedure TfrmMain.UpdateCaption;
@@ -1493,8 +1497,7 @@ end;
 
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
 begin
-  ViewComponents.actOpenDatasheetExecute(Sender);
-
+  ComponentsFrame.ViewComponents.actOpenDatasheetExecute(Sender);
 end;
 
 constructor TParametricErrorTable.Create(AOwner: TComponent);
