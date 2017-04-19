@@ -80,8 +80,8 @@ type
     procedure EndUpdate; override;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
-    property ComponentsGroup: TComponentsGroup read GetComponentsGroup write
-        SetComponentsGroup;
+    property ComponentsGroup: TComponentsGroup read GetComponentsGroup
+      write SetComponentsGroup;
     property OnShowParametricTableEvent: TNotifyEventsEx
       read FOnShowParametricTableEvent;
     { Public declarations }
@@ -94,7 +94,7 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst;
+  ImportProcessForm, ProjectConst, DocBindExcelDataModule, ErrorForm;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -195,8 +195,8 @@ begin
   Result := BaseComponentsGroup as TComponentsGroup;
 end;
 
-procedure TViewComponents.LoadFromExcelDocument(const AFileName, AProducer:
-    string);
+procedure TViewComponents.LoadFromExcelDocument(const AFileName,
+  AProducer: string);
 var
   AComponentsExcelDM: TComponentsExcelDM;
   AfrmImportError: TfrmImportError;
@@ -204,7 +204,6 @@ var
 begin
   Assert(not AFileName.IsEmpty);
   Assert(not AProducer.IsEmpty);
-
 
   AComponentsExcelDM := TComponentsExcelDM.Create(Self);
   try
@@ -251,8 +250,8 @@ begin
         TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
           procedure
           begin
-            ComponentsGroup.InsertRecordList
-              (AComponentsExcelDM.ExcelTable, AProducer);
+            ComponentsGroup.InsertRecordList(AComponentsExcelDM.ExcelTable,
+              AProducer);
           end, 'Сохранение компонентов в БД', sRecords);
       finally
         EndUpdate;
@@ -264,8 +263,8 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponents.LoadFromExcelFolder(const AFolderName, AProducer:
-    string);
+procedure TViewComponents.LoadFromExcelFolder(const AFolderName,
+  AProducer: string);
 var
   AFileName: string;
   AFileNames: TList<String>;
@@ -319,8 +318,8 @@ begin
 
     BeginUpdate; // Замораживаем представление
     try
-      ComponentsGroup.LoadFromExcelFolder(AFileNames,
-        AutomaticLoadErrorTable, AProducer);
+      ComponentsGroup.LoadFromExcelFolder(AFileNames, AutomaticLoadErrorTable,
+        AProducer);
     finally
       // Разрешаем закрыть форму
       frmImportProcess.Done := True;
@@ -358,8 +357,7 @@ end;
 procedure TViewComponents.UpdateTotalComponentCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[4].Text := Format('Всего: %d',
-    [ComponentsGroup.TotalCount]);
+  StatusBar.Panels[4].Text := Format('Всего: %d', [ComponentsGroup.TotalCount]);
 end;
 
 end.

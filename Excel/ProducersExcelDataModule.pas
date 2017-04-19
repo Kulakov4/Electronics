@@ -16,19 +16,19 @@ type
   TProducersExcelTable = class(TCustomExcelTable)
   private
     FDMemTable: TFDMemTable;
-    FManufacturersDataSet: TFDDataSet;
+    FProducersDataSet: TFDDataSet;
     function GetName: TField;
     function GetProducerType: TField;
-    procedure SetManufacturersDataSet(const Value: TFDDataSet);
+    procedure SetProducersDataSet(const Value: TFDDataSet);
   protected
-    function CheckManufacturer: Boolean;
+    function CheckProducer: Boolean;
     procedure Clone;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
-    property ManufacturersDataSet: TFDDataSet read FManufacturersDataSet
-      write SetManufacturersDataSet;
+    property ProducersDataSet: TFDDataSet read FProducersDataSet write
+        SetProducersDataSet;
     property Name: TField read GetName;
     property ProducerType: TField read GetProducerType;
   end;
@@ -58,7 +58,7 @@ begin
   FDMemTable := TFDMemTable.Create(Self);
 end;
 
-function TProducersExcelTable.CheckManufacturer: Boolean;
+function TProducersExcelTable.CheckProducer: Boolean;
 var
   V: Variant;
 begin
@@ -84,7 +84,7 @@ begin
   if Result then
   begin
     // Проверяем что такой производитель существует
-    Result := CheckManufacturer;
+    Result := CheckProducer;
   end;
 end;
 
@@ -93,7 +93,7 @@ var
   AFDIndex: TFDIndex;
 begin
   // Клонируем курсор
-  FDMemTable.CloneCursor(ManufacturersDataSet);
+  FDMemTable.CloneCursor(ProducersDataSet);
 
   // Создаём индекс
   AFDIndex := FDMemTable.Indexes.Add;
@@ -122,13 +122,12 @@ begin
     'Тип производителя не может быть пустым'));
 end;
 
-procedure TProducersExcelTable.SetManufacturersDataSet
-  (const Value: TFDDataSet);
+procedure TProducersExcelTable.SetProducersDataSet(const Value: TFDDataSet);
 begin
-  if FManufacturersDataSet <> Value then
+  if FProducersDataSet <> Value then
   begin
-    FManufacturersDataSet := Value;
-    if FManufacturersDataSet <> nil then
+    FProducersDataSet := Value;
+    if FProducersDataSet <> nil then
     begin
       Clone;
     end;

@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, DocFieldInfo, System.Generics.Collections,
   FireDAC.Comp.Client, TableWithProgress, Data.DB,
-  SearchProductParameterValuesQuery;
+  SearchProductParameterValuesQuery, DocBindExcelDataModule;
 
 type
   MySplitRec = record
@@ -501,7 +501,7 @@ begin
                 // если первый из нескольких файлов в точности равен названию компонента
                 OK := string.Compare(S,
                   APossibleLinkDocTable.ComponentName.AsString, True) = 0;
-                // Всё таки несколько файлов и ни один очно компоненту не соответствует
+                // Всё таки несколько файлов и ни один точно компоненту не соответствует
                 if not OK then
                 begin
                   // Добавляем сообщение об ошибке

@@ -232,7 +232,7 @@ begin
 
   AProducersExcelDM := TProducersExcelDM.Create(Self);
   try
-    AProducersExcelDM.ExcelTable.ManufacturersDataSet :=
+    AProducersExcelDM.ExcelTable.ProducersDataSet :=
       ProducersGroup.qProducers.FDQuery;
 
     TfrmProgressBar.Process(AProducersExcelDM,

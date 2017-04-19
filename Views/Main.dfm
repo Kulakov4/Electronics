@@ -170,10 +170,6 @@ object frmMain: TfrmMain
           object tsFunctionalGroup: TcxTabSheet
             Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
             ImageIndex = 0
-            ExplicitLeft = 0
-            ExplicitTop = 0
-            ExplicitWidth = 0
-            ExplicitHeight = 0
             object cxgrdFunctionalGroup: TcxGrid
               Left = 0
               Top = 0
@@ -309,6 +305,11 @@ object frmMain: TfrmMain
                   0
                   28
                   0)
+              end
+              inherited ActionList: TActionList
+                inherited actOpenDatasheet: TAction
+                  OnExecute = ViewComponentsactOpenDatasheetExecute
+                end
               end
               inherited cxGridPopupMenu: TcxGridPopupMenu
                 PopupMenus = <
@@ -897,6 +898,10 @@ object frmMain: TfrmMain
         item
           Visible = True
           ItemName = 'dxbrbtnSettings'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton10'
         end>
       OneOnRow = True
       Row = 1
@@ -1105,6 +1110,10 @@ object frmMain: TfrmMain
       Action = actLoadProductsFromExcelTable
       Category = 0
     end
+    object dxBarButton10: TdxBarButton
+      Action = actLoadDocBinds
+      Category = 0
+    end
   end
   object pmLeftTreeList: TPopupMenu
     Images = DMRepository.cxImageList
@@ -1240,6 +1249,11 @@ object frmMain: TfrmMain
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 6
       OnExecute = actLoadTreeFromExcelDocumentExecute
+    end
+    object actLoadDocBinds: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1087#1088#1080#1074#1103#1079#1082#1077' '#1082' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1087#1088#1080#1074#1103#1079#1082#1077' '#1082' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
+      OnExecute = actLoadDocBindsExecute
     end
   end
 end

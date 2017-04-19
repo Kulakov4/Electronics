@@ -189,7 +189,7 @@ begin
         while not AComponentsExcelTable.Eof do
         begin
           // Добавляем компонент в базу данных
-          qFamily.LocateOrAppend(AComponentsExcelTable.MainValue.AsString,
+          qFamily.LocateOrAppend(AComponentsExcelTable.FamilyName.AsString,
             AProducer);
 
           // Если в Excel файле указаны дополнительные подгруппы
@@ -217,10 +217,10 @@ begin
           end;
 
           // Добавляем дочерний компонент
-          if not AComponentsExcelTable.Value.AsString.IsEmpty then
+          if not AComponentsExcelTable.ComponentName.AsString.IsEmpty then
           begin
             qComponents.LocateOrAppend(qFamily.PKValue,
-              AComponentsExcelTable.Value.AsString);
+              AComponentsExcelTable.ComponentName.AsString);
           end;
 
           Inc(k);

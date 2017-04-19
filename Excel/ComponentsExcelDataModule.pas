@@ -18,10 +18,10 @@ type
     FGoodSubGroup: TList<String>;
     FQuerySearchFamilyByValue2: TQuerySearchFamilyByValue2;
     FQuerySearchCategoryByExternalID: TQuerySearchCategoryByExternalID;
-    function GetIDMainComponent: TField;
-    function GetMainValue: TField;
+    function GetIDFamily: TField;
+    function GetFamilyName: TField;
     function GetSubGroup: TField;
-    function GetValue: TField;
+    function GetComponentName: TField;
   protected
     function CheckComponent: Boolean;
     function CheckSubGroup: Boolean;
@@ -30,10 +30,10 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
-    property IDMainComponent: TField read GetIDMainComponent;
-    property MainValue: TField read GetMainValue;
+    property IDFamily: TField read GetIDFamily;
+    property FamilyName: TField read GetFamilyName;
     property SubGroup: TField read GetSubGroup;
-    property Value: TField read GetValue;
+    property ComponentName: TField read GetComponentName;
   end;
 
   TComponentsExcelDM = class(TExcelDM)
@@ -183,20 +183,20 @@ end;
 
 function TComponentsExcelTable.CheckComponent: Boolean;
 begin
-  Result := FQuerySearchFamilyByValue2.Search(MainValue.AsString) = 0;
+  Result := FQuerySearchFamilyByValue2.Search(FamilyName.AsString) = 0;
 
   // Если нашли такой компонент
   if not Result then
   begin
     // Запоминаем код родительского компонента
     Edit;
-    IDMainComponent.AsInteger := FQuerySearchFamilyByValue2.PKValue;
+    IDFamily.AsInteger := FQuerySearchFamilyByValue2.PKValue;
     Post;
 
     MarkAsError(etWarring);
 
-    Errors.AddWarring(ExcelRow.AsInteger, MainValue.Index + 1,
-      MainValue.AsString,
+    Errors.AddWarring(ExcelRow.AsInteger, FamilyName.Index + 1,
+      FamilyName.AsString,
       Format('Компонент с таким именем уже занесён в БД в категорию %s',
       [FQuerySearchFamilyByValue2.SubGroup.AsString]));
   end;
@@ -282,17 +282,17 @@ procedure TComponentsExcelTable.CreateFieldDefs;
 begin
   inherited;
   // при проверке будем заполнять код родительского компонента
-  FieldDefs.Add('IDMainComponent', ftInteger);
+  FieldDefs.Add('IDFamily', ftInteger);
 end;
 
-function TComponentsExcelTable.GetIDMainComponent: TField;
+function TComponentsExcelTable.GetIDFamily: TField;
 begin
-  Result := FieldByName('IDMainComponent');
+  Result := FieldByName('IDFamily');
 end;
 
-function TComponentsExcelTable.GetMainValue: TField;
+function TComponentsExcelTable.GetFamilyName: TField;
 begin
-  Result := FieldByName('MainValue');
+  Result := FieldByName('FamilyName');
 end;
 
 function TComponentsExcelTable.GetSubGroup: TField;
@@ -300,15 +300,15 @@ begin
   Result := FieldByName('SubGroup');
 end;
 
-function TComponentsExcelTable.GetValue: TField;
+function TComponentsExcelTable.GetComponentName: TField;
 begin
-  Result := FieldByName('Value');
+  Result := FieldByName('ComponentName');
 end;
 
 procedure TComponentsExcelTable.SetFieldsInfo;
 begin
-  FieldsInfo.Add(TFieldInfo.Create('MainValue'));
-  FieldsInfo.Add(TFieldInfo.Create('Value', True,
+  FieldsInfo.Add(TFieldInfo.Create('FamilyName'));
+  FieldsInfo.Add(TFieldInfo.Create('ComponentName', True,
     'Дочернее наименование не должно быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('SubGroup'));
 end;

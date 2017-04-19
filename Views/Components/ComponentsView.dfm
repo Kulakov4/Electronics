@@ -21,7 +21,6 @@ inherited ViewComponents: TViewComponents
       item
         Width = 150
       end>
-    OnResize = StatusBarResize
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

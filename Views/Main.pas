@@ -129,6 +129,8 @@ type
     actLoadTreeFromExcelDocument: TAction;
     Excel2: TMenuItem;
     ViewCategoryParameters: TViewCategoryParameters;
+    actLoadDocBinds: TAction;
+    dxBarButton10: TdxBarButton;
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
@@ -136,6 +138,7 @@ type
     procedure actExitExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
+    procedure actLoadDocBindsExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
@@ -177,6 +180,7 @@ type
     procedure tlLeftControlCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
     procedure tsComponentsShow(Sender: TObject);
+    procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
     F1: Boolean;
     FCategoryPath: string;
@@ -235,7 +239,7 @@ uses
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit,
-  RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule;
+  RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit;
 
 {$R *.dfm}
 
@@ -436,6 +440,23 @@ begin
   DM.qBodyTypes.RefreshQuery;
 
   ViewComponents.ComponentsGroup.ReOpen;
+end;
+
+procedure TfrmMain.actLoadDocBindsExecute(Sender: TObject);
+var
+  AFileName: string;
+begin
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForComponentsLoad);
+
+  if AFileName.IsEmpty then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForComponentsLoad :=
+    TPath.GetDirectoryName(AFileName);
+
+  TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
 end;
 
 procedure TfrmMain.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -1468,6 +1489,12 @@ begin
 
     Caption := Format('%s - %s', [sMainFormCaption, S]);
   end;
+end;
+
+procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
+begin
+  ViewComponents.actOpenDatasheetExecute(Sender);
+
 end;
 
 constructor TParametricErrorTable.Create(AOwner: TComponent);
