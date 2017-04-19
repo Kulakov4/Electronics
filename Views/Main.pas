@@ -84,14 +84,7 @@ type
     dxBarSubItem2: TdxBarSubItem;
     actLoadBodyTypes: TAction;
     dxBarButton3: TdxBarButton;
-    actLoadParametricTable: TAction;
-    dxBarButton5: TdxBarButton;
-    dxBarSubItem3: TdxBarSubItem;
     dxBarSubItem4: TdxBarSubItem;
-    actLoadFromExcelFolder: TAction;
-    dxBarButton6: TdxBarButton;
-    actLoadFromExcelDocument: TAction;
-    dxBarButton8: TdxBarButton;
     dxBarSubItem5: TdxBarSubItem;
     actAutoBindingDoc: TAction;
     actAutoBindingDescriptions: TAction;
@@ -135,9 +128,6 @@ type
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
     procedure actLoadDocBindsExecute(Sender: TObject);
-    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
-    procedure actLoadFromExcelFolderExecute(Sender: TObject);
-    procedure actLoadParametricTableExecute(Sender: TObject);
     procedure actLoadProductsFromExcelTableExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameTreeNodeExecute(Sender: TObject);
@@ -185,8 +175,6 @@ type
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
     function GetLevel(ANode: TcxTreeListNode): Integer;
-    function LoadExcelFileHeader(var AFileName: String;
-      AFieldsInfo: TList<TFieldInfo>): Boolean;
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
@@ -197,20 +185,6 @@ type
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
     { Public declarations }
-  end;
-
-type
-  TParametricErrorTable = class(TCustomErrorTable)
-  private
-    function GetDescription: TField;
-    function GetError: TField;
-    function GetParameterName: TField;
-  public
-    constructor Create(AOwner: TComponent); override;
-    procedure AddErrorMessage(const AParameterName: string; AMessage: string);
-    property Description: TField read GetDescription;
-    property Error: TField read GetError;
-    property ParameterName: TField read GetParameterName;
   end;
 
 var
@@ -454,141 +428,6 @@ begin
     TPath.GetDirectoryName(AFileName);
 
   TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
-end;
-
-procedure TfrmMain.actLoadFromExcelDocumentExecute(Sender: TObject);
-var
-  AFileName: string;
-  AProducer: String;
-  m: TArray<String>;
-  S: string;
-begin
-  AProducer := TfrmProducers.TakeProducer;
-  if AProducer.IsEmpty then
-    Exit;
-
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForComponentsLoad);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForComponentsLoad :=
-    TPath.GetDirectoryName(AFileName);
-
-  S := TPath.GetFileNameWithoutExtension(AFileName);
-
-  m := S.Split([' ']);
-  if Length(m) = 0 then
-  begin
-    TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
-    Exit;
-  end;
-
-  try
-    // Проверяем что первая часть содержит целочисленный код категории
-    m[0].ToInteger;
-  except
-    TDialog.Create.ErrorMessageDialog
-      ('В начале имени файла должен быть код категории');
-    Exit;
-  end;
-
-  // Переходим в дереве категорий на загружаемую категорию
-  if not DM.qTreeList.LocateByExternalID(m[0]) then
-  begin
-    TDialog.Create.ErrorMessageDialog(Format('Категория %s не найдена',
-      [m[0]]));
-    Exit;
-  end;
-
-  ComponentsFrame.ViewComponents.LoadFromExcelDocument(AFileName, AProducer);
-end;
-
-procedure TfrmMain.actLoadFromExcelFolderExecute(Sender: TObject);
-var
-  AFileName: string;
-  AFolderName: string;
-  AProducer: String;
-begin
-  // Выбираем производителя
-  AProducer := TfrmProducers.TakeProducer;
-  if AProducer.IsEmpty then
-    Exit;
-
-  AFileName := TDialog.Create.OpenDialog(TExcelFilesFolderOpenDialog,
-    TSettings.Create.LastFolderForComponentsLoad);
-  if AFileName.IsEmpty then
-    Exit;
-
-  AFolderName := TPath.GetDirectoryName(AFileName);
-
-  TSettings.Create.LastFolderForComponentsLoad := AFolderName;
-
-  ComponentsFrame.ViewComponents.LoadFromExcelFolder(AFolderName, AProducer);
-end;
-
-procedure TfrmMain.actLoadParametricTableExecute(Sender: TObject);
-var
-  AFieldsInfo: TList<TFieldInfo>;
-  AFileName: string;
-  AfrmError: TfrmError;
-  AParametricExcelDM: TParametricExcelDM;
-  OK: Boolean;
-begin
-  AFieldsInfo := TList<TFieldInfo>.Create();
-  try
-    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
-      Exit;
-
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo);
-    try
-      // Загружаем данные из Excel файла
-      TfrmProgressBar.Process(AParametricExcelDM,
-        procedure
-        begin
-          AParametricExcelDM.LoadExcelFile(AFileName);
-        end, 'Загрузка параметрических данных', sRows);
-
-      OK := AParametricExcelDM.ExcelTable.Errors.RecordCount = 0;
-      // Если в ходе загрузки данных произошли ошибки (компонент не найден)
-      if not OK then
-      begin
-        AfrmError := TfrmError.Create(Self);
-        try
-          AfrmError.ErrorTable := AParametricExcelDM.ExcelTable.Errors;
-          // Показываем ошибки
-          OK := AfrmError.ShowModal = mrOk;
-          AParametricExcelDM.ExcelTable.ExcludeErrors(etError);
-        finally
-          FreeAndNil(AfrmError);
-        end;
-      end;
-
-      if OK then
-      begin
-        // Сохраняем данные в БД
-        TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure
-          begin
-            TParameterValues.LoadParameters(AParametricExcelDM.ExcelTable);
-          end, 'Добавление параметров в категорию', sParameters);
-
-        TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure
-          begin
-            TParameterValues.LoadParameterValues
-              (AParametricExcelDM.ExcelTable, False);
-          end, 'Сохранение параметрических данных в БД', sRecords);
-      end;
-
-    finally
-      FreeAndNil(AParametricExcelDM);
-    end;
-  finally
-    FreeAndNil(AFieldsInfo);
-  end;
 end;
 
 procedure TfrmMain.actLoadProductsFromExcelTableExecute(Sender: TObject);
@@ -1148,167 +987,6 @@ begin
     Result := Result + GetLevel(ANode.Parent);
 end;
 
-function TfrmMain.LoadExcelFileHeader(var AFileName: String;
-AFieldsInfo: TList<TFieldInfo>): Boolean;
-var
-  AExcelDM: TExcelDM;
-  AFieldName: string;
-  AfrmGridView: TfrmGridView;
-  AParametricErrorTable: TParametricErrorTable;
-  AQuerySearchDaughterParameter: TQuerySearchDaughterParameter;
-  AQuerySearchMainParameter: TQuerySearchMainParameter;
-  ARootTreeNode: TStringTreeNode;
-  AStringTreeNode: TStringTreeNode;
-  AStringTreeNode2: TStringTreeNode;
-  I: Integer;
-  nf: Boolean;
-  OK: Boolean;
-  rc: Integer;
-  AFieldNames: TList<String>;
-begin
-  Result := False;
-  Assert(AFieldsInfo <> nil);
-
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.ParametricDataFolder);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
-
-  // Описания полей excel файла
-  AParametricErrorTable := TParametricErrorTable.Create(Self);
-  try
-
-    AExcelDM := TExcelDM.Create(Self);
-    try
-      // Загружаем описания полей Excel файла
-      ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
-      AQuerySearchMainParameter := TQuerySearchMainParameter.Create(Self);
-      AQuerySearchDaughterParameter :=
-        TQuerySearchDaughterParameter.Create(Self);
-      try
-        I := 0;
-
-        AFieldNames := TList<String>.Create;
-        try
-          // Цикл по всем заголовкам таблицы
-          for AStringTreeNode in ARootTreeNode.Childs do
-          begin
-            AFieldNames.Clear;
-            nf := AStringTreeNode.value.ToUpper = 'Part'.ToUpper;
-
-            if not nf then
-            begin
-              // Нужно найти такой параметр
-              rc := AQuerySearchMainParameter.Search(AStringTreeNode.value);
-              if rc = 0 then
-                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  'Параметр не найден');
-              if rc > 1 then
-                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  Format('Параметр найден %d раз', [rc]));
-
-              // Если нашли ровно один параметр в справочнике
-              if rc = 1 then
-              begin
-
-                if AStringTreeNode.Childs.Count > 0 then
-                begin
-                  for AStringTreeNode2 in AStringTreeNode.Childs do
-                  begin
-                    rc := AQuerySearchDaughterParameter.Search
-                      (AStringTreeNode2.value,
-                      AQuerySearchMainParameter.PKValue);
-                    if rc > 1 then
-                    begin
-                      AParametricErrorTable.AddErrorMessage
-                        (AStringTreeNode2.value,
-                        Format('Подпараметр найден %d раз', [rc]));
-                    end
-                    else
-                    begin
-                      // Если такого дочернего параметра мы не нашли
-                      if rc = 0 then
-                      begin
-                        AQuerySearchDaughterParameter.Append
-                          (AStringTreeNode2.value);
-                      end;
-                      // Запоминаем описание поля связанного с подпараметром
-                      AFieldNames.Add
-                        (TParametricExcelTable.GetFieldNameByIDParam
-                        (AQuerySearchDaughterParameter.PKValue,
-                        AQuerySearchMainParameter.PKValue))
-                    end;
-                  end;
-                end
-                else
-                begin
-                  // Если у нашего параметра нет дочерних параметров
-                  // Запоминаем описание поля связанного с параметром
-                  AFieldNames.Add(TParametricExcelTable.GetFieldNameByIDParam
-                    (AQuerySearchMainParameter.PKValue, 0));
-                end;
-              end
-              else
-              begin
-                nf := True;
-              end;
-            end;
-
-            if nf then
-            begin
-              // Создаём описание поля не связанного с параметром
-              AFieldNames.Add(Format('NotFoundParam_%d', [I]));
-              Inc(I);
-            end;
-
-            // Для всех найденных полей создаём их описания
-            for AFieldName in AFieldNames do
-              AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
-          end;
-        finally
-          FreeAndNil(AFieldNames);
-        end;
-
-      finally
-        FreeAndNil(AQuerySearchMainParameter);
-        FreeAndNil(AQuerySearchDaughterParameter);
-      end;
-
-    finally
-      FreeAndNil(AExcelDM);
-    end;
-
-    if AFieldsInfo.Count = 0 then
-    begin
-      TDialog.Create.ParametricTableNotFound;
-      Exit;
-    end;
-
-    // Если среди параметров есть ошибки (не найденные)
-    OK := AParametricErrorTable.RecordCount = 0;
-    if not OK then
-    begin
-      AfrmGridView := TfrmGridView.Create(Self);
-      try
-        AfrmGridView.Caption := 'Ошибки среди параметров';
-        AfrmGridView.DataSet := AParametricErrorTable;
-        // Показываем что мы собираемся привязывать
-        OK := AfrmGridView.ShowModal = mrOk;
-      finally
-        FreeAndNil(AfrmGridView);
-      end;
-
-    end;
-  finally
-    FreeAndNil(AParametricErrorTable)
-  end;
-  Result := OK;
-end;
-
 procedure TfrmMain.ShowParametricTable;
 var
   ACategoryPath: string;
@@ -1498,50 +1176,6 @@ end;
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
 begin
   ComponentsFrame.ViewComponents.actOpenDatasheetExecute(Sender);
-end;
-
-constructor TParametricErrorTable.Create(AOwner: TComponent);
-begin
-  inherited;
-  FieldDefs.Add('ParameterName', ftString, 100);
-  FieldDefs.Add('Error', ftString, 50);
-  FieldDefs.Add('Description', ftString, 150);
-  CreateDataSet;
-
-  Open;
-
-  ParameterName.DisplayLabel := 'Параметр';
-  Description.DisplayLabel := 'Описание';
-  Error.DisplayLabel := 'Вид ошибки';
-end;
-
-function TParametricErrorTable.GetDescription: TField;
-begin
-  Result := FieldByName('Description');
-end;
-
-function TParametricErrorTable.GetError: TField;
-begin
-  Result := FieldByName('Error');
-end;
-
-function TParametricErrorTable.GetParameterName: TField;
-begin
-  Result := FieldByName('ParameterName');
-end;
-
-procedure TParametricErrorTable.AddErrorMessage(const AParameterName: string;
-AMessage: string);
-begin
-  Assert(Active);
-
-  if not(State in [dsEdit, dsInsert]) then
-    Append;
-
-  ParameterName.AsString := AParameterName;
-  Error.AsString := ErrorMessage;
-  Description.AsString := AMessage;
-  Post;
 end;
 
 end.

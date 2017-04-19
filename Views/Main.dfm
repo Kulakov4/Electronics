@@ -192,25 +192,24 @@ object frmMain: TfrmMain
         ExplicitHeight = 533
         inherited cxpcComponents: TcxPageControl
           Width = 926
-          Height = 533
+          Height = 505
           ExplicitWidth = 926
-          ExplicitHeight = 533
-          ClientRectBottom = 529
+          ClientRectBottom = 501
           ClientRectRight = 922
           ClientRectTop = 27
           inherited cxtsCategory: TcxTabSheet
             inherited cxgrdFunctionalGroup: TcxGrid
               Width = 918
-              Height = 502
+              Height = 474
+              ExplicitWidth = 918
+              ExplicitHeight = 502
             end
           end
           inherited cxtsCategoryComponents: TcxTabSheet
             inherited ViewComponents: TViewComponents
-              Width = 918
-              Height = 502
+              Height = 480
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 455
+                Height = 433
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -263,9 +262,7 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 483
-                Width = 918
-                ExplicitTop = 483
+                Top = 461
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -293,19 +290,12 @@ object frmMain: TfrmMain
           end
           inherited cxtsCategoryParameters: TcxTabSheet
             inherited ViewCategoryParameters: TViewCategoryParameters
-              Width = 918
-              Height = 502
+              Height = 480
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 455
-                ExplicitWidth = 918
-                ExplicitHeight = 455
+                Height = 433
               end
               inherited StatusBar: TStatusBar
-                Top = 483
-                Width = 918
-                ExplicitTop = 483
-                ExplicitWidth = 918
+                Top = 461
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -330,11 +320,9 @@ object frmMain: TfrmMain
           end
           inherited cxtsComponentsSearch: TcxTabSheet
             inherited ViewComponentsSearch: TViewComponentsSearch
-              Width = 918
-              Height = 502
+              Height = 480
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 455
+                Height = 433
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDiagram: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -375,9 +363,7 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 483
-                Width = 918
-                ExplicitTop = 483
+                Top = 461
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -404,19 +390,10 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsParametricTable: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 918
-            ExplicitHeight = 502
             inherited ViewParametricTable: TViewParametricTable
-              Width = 918
-              Height = 502
-              ExplicitWidth = 918
-              ExplicitHeight = 502
+              Height = 480
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 455
-                ExplicitWidth = 918
-                ExplicitHeight = 455
+                Height = 433
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clProducer: TcxGridDBBandedColumn
                     IsCaptionAssigned = True
@@ -482,10 +459,7 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 483
-                Width = 918
-                ExplicitTop = 483
-                ExplicitWidth = 918
+                Top = 461
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -514,6 +488,16 @@ object frmMain: TfrmMain
               end
             end
           end
+        end
+        inherited dxBarManager: TdxBarManager
+          DockControlHeights = (
+            0
+            0
+            28
+            0)
+        end
+        inherited ActionList: TActionList
+          Images = nil
         end
       end
     end
@@ -961,10 +945,6 @@ object frmMain: TfrmMain
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxBarSubItem3'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarSubItem4'
         end
         item
@@ -976,26 +956,6 @@ object frmMain: TfrmMain
       Action = actLoadBodyTypes
       Category = 0
     end
-    object dxBarButton5: TdxBarButton
-      Action = actLoadParametricTable
-      Category = 0
-    end
-    object dxBarSubItem3: TdxBarSubItem
-      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
-      Category = 0
-      Visible = ivAlways
-      ImageIndex = 21
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxBarButton6'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton8'
-        end>
-    end
     object dxBarSubItem4: TdxBarSubItem
       Caption = #1044#1072#1085#1085#1099#1077
       Category = 0
@@ -1005,19 +965,7 @@ object frmMain: TfrmMain
         item
           Visible = True
           ItemName = 'dxBarButton3'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton5'
         end>
-    end
-    object dxBarButton6: TdxBarButton
-      Action = actLoadFromExcelFolder
-      Category = 0
-    end
-    object dxBarButton8: TdxBarButton
-      Action = actLoadFromExcelDocument
-      Category = 0
     end
     object dxBarSubItem5: TdxBarSubItem
       Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
@@ -1158,21 +1106,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 25
       OnExecute = actLoadBodyTypesExecute
-    end
-    object actLoadParametricTable: TAction
-      Caption = #1058#1072#1073#1083#1080#1095#1085#1099#1077' '#1076#1072#1085#1085#1099#1077' '#1089#1077#1084#1077#1081#1089#1090#1074
-      ImageIndex = 31
-      OnExecute = actLoadParametricTableExecute
-    end
-    object actLoadFromExcelFolder: TAction
-      Caption = #1048#1079' '#1087#1072#1087#1082#1080' '#1076#1086#1082#1091#1084#1077#1085#1090#1086#1074' Excel'
-      ImageIndex = 24
-      OnExecute = actLoadFromExcelFolderExecute
-    end
-    object actLoadFromExcelDocument: TAction
-      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 32
-      OnExecute = actLoadFromExcelDocumentExecute
     end
     object actAutoBindingDoc: TAction
       Caption = #1050' '#1092#1072#1081#1083#1072#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
