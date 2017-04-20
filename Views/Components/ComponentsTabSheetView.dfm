@@ -14,8 +14,6 @@ object ComponentsFrame: TComponentsFrame
     Properties.ActivePage = cxtsCategory
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcComponentsPageChanging
-    ExplicitTop = 0
-    ExplicitHeight = 508
     ClientRectBottom = 476
     ClientRectLeft = 4
     ClientRectRight = 874
@@ -23,7 +21,6 @@ object ComponentsFrame: TComponentsFrame
     object cxtsCategory: TcxTabSheet
       Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
       ImageIndex = 0
-      ExplicitHeight = 480
       object cxgrdFunctionalGroup: TcxGrid
         Left = 0
         Top = 0
@@ -31,7 +28,6 @@ object ComponentsFrame: TComponentsFrame
         Height = 452
         Align = alClient
         TabOrder = 0
-        ExplicitHeight = 480
         object tvFunctionalGroup: TcxGridDBTableView
           Navigator.Buttons.CustomButtons = <>
           DataController.Summary.DefaultGroupSummaryItems = <>
@@ -83,7 +79,6 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
       ImageIndex = 1
       OnShow = cxtsCategoryComponentsShow
-      ExplicitHeight = 480
       inline ViewComponents: TViewComponents
         Left = 0
         Top = 0
@@ -92,12 +87,12 @@ object ComponentsFrame: TComponentsFrame
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 870
-        ExplicitHeight = 480
+        ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 433
+          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -152,7 +147,7 @@ object ComponentsFrame: TComponentsFrame
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 461
+          ExplicitTop = 433
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
@@ -183,7 +178,6 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
       ImageIndex = 4
       OnShow = cxtsCategoryParametersShow
-      ExplicitHeight = 480
       inline ViewCategoryParameters: TViewCategoryParameters
         Left = 0
         Top = 0
@@ -192,17 +186,17 @@ object ComponentsFrame: TComponentsFrame
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 870
-        ExplicitHeight = 480
+        ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 433
+          ExplicitHeight = 405
         end
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 461
+          ExplicitTop = 433
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
@@ -230,7 +224,6 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1073#1072#1079#1099' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 3
       OnShow = cxtsComponentsSearchShow
-      ExplicitHeight = 480
       inline ViewComponentsSearch: TViewComponentsSearch
         Left = 0
         Top = 0
@@ -239,12 +232,12 @@ object ComponentsFrame: TComponentsFrame
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 870
-        ExplicitHeight = 480
+        ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 433
+          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -297,7 +290,7 @@ object ComponentsFrame: TComponentsFrame
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 461
+          ExplicitTop = 433
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
@@ -327,7 +320,6 @@ object ComponentsFrame: TComponentsFrame
     object cxtsParametricTable: TcxTabSheet
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       ImageIndex = 4
-      ExplicitHeight = 480
       inline ViewParametricTable: TViewParametricTable
         Left = 0
         Top = 0
@@ -338,12 +330,12 @@ object ComponentsFrame: TComponentsFrame
         ShowHint = True
         TabOrder = 0
         ExplicitWidth = 870
-        ExplicitHeight = 480
+        ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 433
+          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True
@@ -411,7 +403,7 @@ object ComponentsFrame: TComponentsFrame
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 461
+          ExplicitTop = 433
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
@@ -479,6 +471,14 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarSubItem1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarSubItem4'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton4'
         end>
       OneOnRow = True
       Row = 0
@@ -499,6 +499,10 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarSubItem3'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarSubItem2: TdxBarSubItem
@@ -517,7 +521,7 @@ object ComponentsFrame: TComponentsFrame
         end>
     end
     object dxBarSubItem3: TdxBarSubItem
-      Caption = #1044#1072#1085#1085#1099#1077
+      Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       Category = 0
       Visible = ivAlways
       ImageIndex = 22
@@ -539,6 +543,38 @@ object ComponentsFrame: TComponentsFrame
       Action = actLoadParametricTable
       Category = 0
     end
+    object dxBarButton4: TdxBarButton
+      Action = actReport
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarSubItem4: TdxBarSubItem
+      Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 29
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton6'
+        end>
+    end
+    object dxBarButton5: TdxBarButton
+      Action = actAutoBindingDoc
+      Category = 0
+    end
+    object dxBarButton6: TdxBarButton
+      Action = actAutoBindingDescriptions
+      Category = 0
+    end
+    object dxBarButton7: TdxBarButton
+      Action = actLoadDocFromExcelDocument
+      Category = 0
+    end
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -558,6 +594,32 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1058#1072#1073#1083#1080#1095#1085#1099#1077' '#1076#1072#1085#1085#1099#1077' '#1089#1077#1084#1077#1081#1089#1090#1074
       ImageIndex = 31
       OnExecute = actLoadParametricTableExecute
+    end
+    object actReport: TAction
+      Caption = #1054#1090#1095#1105#1090
+      Hint = #1054#1090#1095#1105#1090
+      ImageIndex = 19
+      OnExecute = actReportExecute
+    end
+    object actAutoBindingDoc: TAction
+      Caption = #1050' '#1092#1072#1081#1083#1072#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
+      Hint = #1055#1088#1080#1074#1103#1079#1082#1072' '#1092#1072#1081#1083#1086#1074' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080' '#1085#1072' '#1086#1089#1085#1086#1074#1077' '#1072#1085#1072#1083#1080#1079#1072' '#1080#1084#1105#1085' '#1092#1072#1081#1083#1086#1074
+      ImageIndex = 29
+      OnExecute = actAutoBindingDocExecute
+    end
+    object actAutoBindingDescriptions: TAction
+      Caption = #1050' '#1082#1088#1072#1090#1082#1080#1084' '#1086#1087#1080#1089#1072#1085#1080#1103#1084
+      Hint = 
+        #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074' '#1082' '#1082#1088#1072#1090#1082#1080#1084' '#1086#1087#1080#1089#1072#1085#1080#1103#1084' '#1080#1079' '#1089#1087#1088#1072#1074 +
+        #1086#1095#1085#1080#1082#1072
+      ImageIndex = 29
+      OnExecute = actAutoBindingDescriptionsExecute
+    end
+    object actLoadDocFromExcelDocument: TAction
+      Caption = #1044#1072#1085#1085#1099#1077' '#1086' '#1092#1072#1081#1083#1072#1093' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1092#1072#1081#1083#1072#1093' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 29
+      OnExecute = actLoadDocFromExcelDocumentExecute
     end
   end
 end

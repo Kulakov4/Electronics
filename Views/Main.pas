@@ -39,7 +39,7 @@ uses
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
   ProductsSearchView, ProductsBaseView, ProductsView, StoreHouseInfoView,
-  ComponentsTabSheetView;
+  ComponentsTabSheetView, ProductsTabSheetView;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -72,8 +72,6 @@ type
     actShowBodyTypes2: TAction;
     dxBarButton2: TdxBarButton;
     actShowBodyTypes3: TAction;
-    actReport: TAction;
-    dxbrb: TdxBarButton;
     actSelectDataBasePath: TAction;
     actSaveAll: TAction;
     dxBarButton4: TdxBarButton;
@@ -81,23 +79,11 @@ type
     actDeleteTreeNode: TAction;
     actRenameTreeNode: TAction;
     actAddTreeNode: TAction;
-    dxBarSubItem2: TdxBarSubItem;
     actLoadBodyTypes: TAction;
-    dxBarButton3: TdxBarButton;
-    dxBarSubItem4: TdxBarSubItem;
-    dxBarSubItem5: TdxBarSubItem;
-    actAutoBindingDoc: TAction;
-    actAutoBindingDescriptions: TAction;
-    dxBarButton1: TdxBarButton;
-    dxBarButton7: TdxBarButton;
-    dxBarSubItem6: TdxBarSubItem;
-    actLoadProductsFromExcelTable: TAction;
-    dxBarButton9: TdxBarButton;
     actExportTreeToExcelDocument: TAction;
     Excel1: TMenuItem;
     actLoadTreeFromExcelDocument: TAction;
     Excel2: TMenuItem;
-    actLoadDocBinds: TAction;
     dxBarButton10: TdxBarButton;
     dbtlCategories: TcxDBTreeList;
     clValue: TcxDBTreeListColumn;
@@ -108,30 +94,19 @@ type
     cxspltrMain: TcxSplitter;
     cxtsRComponents: TcxTabSheet;
     cxtsRStorehouses: TcxTabSheet;
-    cxpcStorehouse: TcxPageControl;
-    tsStorehouseInfo: TcxTabSheet;
-    ViewStorehouseInfo: TViewStorehouseInfo;
-    tsStorehouseProducts: TcxTabSheet;
-    ViewProducts: TViewProducts;
-    tsStorehouseSearch: TcxTabSheet;
-    ViewProductsSearch: TViewProductsSearch;
     CxGridStorehouseList: TcxGrid;
     tvStorehouseList: TcxGridDBTableView;
     clStorehouseListTitle: TcxGridDBColumn;
     glStorehouseList: TcxGridLevel;
     ComponentsFrame: TComponentsFrame;
+    ProductsFrame: TProductsFrame;
     procedure actAddTreeNodeExecute(Sender: TObject);
-    procedure actAutoBindingDescriptionsExecute(Sender: TObject);
-    procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
-    procedure actLoadDocBindsExecute(Sender: TObject);
-    procedure actLoadProductsFromExcelTableExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameTreeNodeExecute(Sender: TObject);
-    procedure actReportExecute(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
     procedure actSelectDataBasePathExecute(Sender: TObject);
     procedure actShowBodyTypes2Execute(Sender: TObject);
@@ -233,75 +208,6 @@ begin
     finally
       DM.qTreeList.FDQuery.EnableControls;
     end;
-  end;
-end;
-
-procedure TfrmMain.actAutoBindingDescriptionsExecute(Sender: TObject);
-var
-  AIDCategory: Integer;
-  frmAutoBindingDescriptions: TfrmAutoBindingDescriptions;
-  MR: Integer;
-begin
-  frmAutoBindingDescriptions := TfrmAutoBindingDescriptions.Create(Self);
-  try
-    MR := frmAutoBindingDescriptions.ShowModal;
-    case MR of
-      mrOk:
-        AIDCategory := DM.qTreeList.PKValue;
-      mrAll:
-        AIDCategory := 0;
-    else
-      AIDCategory := -1;
-    end;
-    if MR <> mrCancel then
-      TAutoBind.BindDescriptions(AIDCategory);
-  finally
-    FreeAndNil(frmAutoBindingDescriptions);
-  end;
-end;
-
-procedure TfrmMain.actAutoBindingDocExecute(Sender: TObject);
-var
-  AFDQuery: TFDQuery;
-  AQueryAllFamily: TQueryAllFamily;
-  frmAutoBindingDoc: TfrmAutoBindingDoc;
-  MR: Integer;
-begin
-  if DM = nil then
-    Exit;
-
-  AQueryAllFamily := nil;
-  AFDQuery := nil;
-  frmAutoBindingDoc := TfrmAutoBindingDoc.Create(Self);
-  try
-    MR := frmAutoBindingDoc.ShowModal;
-    case MR of
-      mrAll:
-        begin
-          AQueryAllFamily := TQueryAllFamily.Create(Self);
-          AQueryAllFamily.RefreshQuery;
-          AFDQuery := AQueryAllFamily.FDQuery;
-        end;
-      mrOk:
-        AFDQuery := DM.ComponentsGroup.qFamily.FDQuery
-    end;
-    if AFDQuery <> nil then
-    begin
-      TAutoBind.BindDocs(frmAutoBindingDoc.Docs, AFDQuery,
-        frmAutoBindingDoc.cxrbNoRange.Checked,
-        frmAutoBindingDoc.cxcbAbsentDoc.Checked);
-
-      // Если привязывали текущую категорию
-      if AFDQuery = DM.ComponentsGroup.qFamily.FDQuery then
-      begin
-        DM.ComponentsGroup.ReOpen;
-      end;
-
-    end;
-  finally
-    FreeAndNil(frmAutoBindingDoc);
-    if AQueryAllFamily <> nil then
-      FreeAndNil(AQueryAllFamily);
   end;
 end;
 
@@ -413,54 +319,6 @@ begin
   DM.ComponentsGroup.ReOpen;
 end;
 
-procedure TfrmMain.actLoadDocBindsExecute(Sender: TObject);
-var
-  AFileName: string;
-begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForComponentsLoad);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForComponentsLoad :=
-    TPath.GetDirectoryName(AFileName);
-
-  TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
-end;
-
-procedure TfrmMain.actLoadProductsFromExcelTableExecute(Sender: TObject);
-var
-  AFileName: String;
-  m: TArray<String>;
-  S: string;
-begin
-  // Переключаемся на вкладку склады
-  cxpcLeft.ActivePage := cxtsStorehouses;
-
-  // Открываем диалог выбора excel файла из последнего места
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
-    Exit;
-
-  S := TPath.GetFileNameWithoutExtension(AFileName);
-
-  m := S.Split([' ']);
-  if Length(m) <= 1 then
-    TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
-
-  // Всё что до пробела - сокращённое название склада
-  S := m[0];
-
-  // Ищем склад с таким сокращением
-  if DM.StoreHouseGroup.qStoreHouseList.LocateByAbbreviation(S) then
-    ViewProducts.LoadFromExcelDocument(AFileName)
-  else
-    TDialog.Create.ErrorMessageDialog
-      (Format('Склад с сокращённым названием "%s" не найден', [S]));
-
-end;
-
 procedure TfrmMain.actLoadTreeFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
@@ -563,28 +421,6 @@ begin
     DM.qTreeList.TryPost;
   end;
 
-end;
-
-procedure TfrmMain.actReportExecute(Sender: TObject);
-var
-  AQueryReports: TQueryReports;
-  frmReports: TfrmReports;
-begin
-  frmReports := TfrmReports.Create(Self);
-  try
-    AQueryReports := TQueryReports.Create(Self);
-    try
-      AQueryReports.RefreshQuery;
-
-      frmReports.ViewReports.QueryReports := AQueryReports;
-
-      frmReports.ShowModal;
-    finally
-      FreeAndNil(AQueryReports);
-    end;
-  finally
-    FreeAndNil(frmReports);
-  end;
 end;
 
 procedure TfrmMain.actSaveAllExecute(Sender: TObject);
@@ -760,8 +596,8 @@ end;
 
 procedure TfrmMain.cxpcLeftChange(Sender: TObject);
 begin
-  ViewProducts.CheckAndSaveChanges;
-  ViewProductsSearch.CheckAndSaveChanges;
+  ProductsFrame.ViewProducts.CheckAndSaveChanges;
+  ProductsFrame.ViewProductsSearch.CheckAndSaveChanges;
   ComponentsFrame.ViewComponents.CheckAndSaveChanges;
 end;
 
@@ -789,10 +625,10 @@ begin
   // Переключаемся на вкладку склады
   cxpcLeft.ActivePage := cxtsStorehouses;
   // Переключаемся на вкладку поиск на складе
-  cxpcStorehouse.ActivePage := tsStorehouseSearch;
+  ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseSearch;
 
   BringToFront;
-  ViewProductsSearch.FocusValueColumn;
+  ProductsFrame.ViewProductsSearch.FocusValueColumn;
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -897,12 +733,12 @@ begin
         DM.StoreHouseGroup.qStoreHouseList.DataSource;
       clStorehouseListTitle.ApplyBestFit();
       // Привязываем информацию о складе к данным
-      ViewStorehouseInfo.QueryStoreHouseList :=
+      ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
         DM.StoreHouseGroup.qStoreHouseList;
       // Привязываем текущий склад к данным
-      ViewProducts.QueryProducts := DM.StoreHouseGroup.qProducts;
+      ProductsFrame.ViewProducts.QueryProducts := DM.StoreHouseGroup.qProducts;
       // Привязываем поиск по складам к данным
-      ViewProductsSearch.QueryProductsSearch := DM.qProductsSearch;
+      ProductsFrame.ViewProductsSearch.QueryProductsSearch := DM.qProductsSearch;
 
       // ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;

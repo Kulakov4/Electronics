@@ -61,9 +61,22 @@ type
     actLoadParametricTable: TAction;
     dxBarButton2: TdxBarButton;
     dxBarButton3: TdxBarButton;
+    actReport: TAction;
+    dxBarButton4: TdxBarButton;
+    dxBarSubItem4: TdxBarSubItem;
+    actAutoBindingDoc: TAction;
+    dxBarButton5: TdxBarButton;
+    actAutoBindingDescriptions: TAction;
+    dxBarButton6: TdxBarButton;
+    actLoadDocFromExcelDocument: TAction;
+    dxBarButton7: TdxBarButton;
+    procedure actAutoBindingDescriptionsExecute(Sender: TObject);
+    procedure actAutoBindingDocExecute(Sender: TObject);
+    procedure actLoadDocFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
+    procedure actReportExecute(Sender: TObject);
     procedure cxpcComponentsPageChanging(Sender: TObject; NewPage: TcxTabSheet; var
         AllowChange: Boolean);
     procedure cxtsCategoryComponentsShow(Sender: TObject);
@@ -99,7 +112,93 @@ uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
   System.IOUtils, TreeListQuery, ErrorForm, ParametricExcelDataModule,
   ProgressBarForm, ProjectConst, CustomExcelTable, ParameterValuesUnit,
   ExcelDataModule, GridViewForm, SearchDaughterParameterQuery,
-  SearchMainParameterQuery;
+  SearchMainParameterQuery, ReportQuery, ReportsForm, FireDAC.Comp.Client,
+  AllFamilyQuery, AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm,
+  BindDocUnit;
+
+procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);
+var
+  AIDCategory: Integer;
+  frmAutoBindingDescriptions: TfrmAutoBindingDescriptions;
+  MR: Integer;
+begin
+  frmAutoBindingDescriptions := TfrmAutoBindingDescriptions.Create(Self);
+  try
+    MR := frmAutoBindingDescriptions.ShowModal;
+    case MR of
+      mrOk:
+        AIDCategory := ViewComponents.ComponentsGroup.qFamily.ParentValue;
+      mrAll:
+        AIDCategory := 0;
+    else
+      AIDCategory := -1;
+    end;
+    if MR <> mrCancel then
+      TAutoBind.BindDescriptions(AIDCategory);
+  finally
+    FreeAndNil(frmAutoBindingDescriptions);
+  end;
+
+end;
+
+procedure TComponentsFrame.actAutoBindingDocExecute(Sender: TObject);
+var
+  AFDQuery: TFDQuery;
+  AQueryAllFamily: TQueryAllFamily;
+  frmAutoBindingDoc: TfrmAutoBindingDoc;
+  MR: Integer;
+begin
+  AQueryAllFamily := nil;
+  AFDQuery := nil;
+  frmAutoBindingDoc := TfrmAutoBindingDoc.Create(Self);
+  try
+    MR := frmAutoBindingDoc.ShowModal;
+    case MR of
+      mrAll:
+        begin
+          AQueryAllFamily := TQueryAllFamily.Create(Self);
+          AQueryAllFamily.RefreshQuery;
+          AFDQuery := AQueryAllFamily.FDQuery;
+        end;
+      mrOk:
+        AFDQuery := ViewComponents.ComponentsGroup.qFamily.FDQuery
+    end;
+    if AFDQuery <> nil then
+    begin
+      TAutoBind.BindDocs(frmAutoBindingDoc.Docs, AFDQuery,
+        frmAutoBindingDoc.cxrbNoRange.Checked,
+        frmAutoBindingDoc.cxcbAbsentDoc.Checked);
+
+      // Если привязывали текущую категорию
+      if AFDQuery = ViewComponents.ComponentsGroup.qFamily.FDQuery then
+      begin
+        ViewComponents.ComponentsGroup.ReOpen;
+      end;
+
+    end;
+  finally
+    FreeAndNil(frmAutoBindingDoc);
+    if AQueryAllFamily <> nil then
+      FreeAndNil(AQueryAllFamily);
+  end;
+end;
+
+procedure TComponentsFrame.actLoadDocFromExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: string;
+begin
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForComponentsLoad);
+
+  if AFileName.IsEmpty then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForComponentsLoad :=
+    TPath.GetDirectoryName(AFileName);
+
+  TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
+end;
 
 procedure TComponentsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
@@ -238,6 +337,30 @@ begin
   finally
     FreeAndNil(AFieldsInfo);
   end;
+
+end;
+
+procedure TComponentsFrame.actReportExecute(Sender: TObject);
+var
+  AQueryReports: TQueryReports;
+  frmReports: TfrmReports;
+begin
+  frmReports := TfrmReports.Create(Self);
+  try
+    AQueryReports := TQueryReports.Create(Self);
+    try
+      AQueryReports.RefreshQuery;
+
+      frmReports.ViewReports.QueryReports := AQueryReports;
+
+      frmReports.ShowModal;
+    finally
+      FreeAndNil(AQueryReports);
+    end;
+  finally
+    FreeAndNil(frmReports);
+  end;
+
 
 end;
 
