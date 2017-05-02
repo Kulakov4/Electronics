@@ -1,6 +1,8 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      DataController.OnSortingChanged = cxGridDBBandedTableViewDataControllerSortingChanged
+      OptionsCustomize.ColumnVertSizing = False
       Bands = <
         item
           FixedKind = fkLeft
@@ -11,6 +13,10 @@ inherited ViewComponentsBase: TViewComponentsBase
           Options.HoldOwnColumnsOnly = True
           Options.Moving = False
         end>
+      inherited clValue: TcxGridDBBandedColumn
+        SortIndex = 0
+        SortOrder = soAscending
+      end
       object clProducer: TcxGridDBBandedColumn
         AlternateCaption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
         Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
@@ -26,6 +32,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         DataBinding.FieldName = 'subGroup'
         PropertiesClassName = 'TcxPopupEditProperties'
         OnGetProperties = clSubGroupGetProperties
+        Options.Sorting = False
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 1
@@ -38,6 +45,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         PropertiesClassName = 'TcxBlobEditProperties'
         Properties.ReadOnly = True
         MinWidth = 50
+        Options.Sorting = False
         Position.BandIndex = 1
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -58,6 +66,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Kind = bkEllipsis
           end>
         OnGetDataText = clDatasheetGetDataText
+        Options.Sorting = False
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 3
@@ -79,6 +88,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Kind = bkEllipsis
           end>
         OnGetDataText = clDatasheetGetDataText
+        Options.Sorting = False
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 4
@@ -100,6 +110,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Kind = bkEllipsis
           end>
         OnGetDataText = clDatasheetGetDataText
+        Options.Sorting = False
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 5
@@ -121,6 +132,7 @@ inherited ViewComponentsBase: TViewComponentsBase
             Kind = bkEllipsis
           end>
         OnGetDataText = clDatasheetGetDataText
+        Options.Sorting = False
         Width = 100
         Position.BandIndex = 1
         Position.ColIndex = 6
@@ -131,6 +143,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Caption = #1050#1086#1088#1087#1091#1089
         DataBinding.FieldName = 'PackagePins'
         MinWidth = 120
+        Options.Sorting = False
         Position.BandIndex = 1
         Position.ColIndex = 7
         Position.RowIndex = 0

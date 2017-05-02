@@ -80,6 +80,8 @@ type
       const AText: TCaption);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
+    procedure cxGridDBBandedTableViewDataControllerSortingChanged
+      (Sender: TObject);
   private
     FQuerySearchBodyType: TQuerySearchBodyType;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
@@ -335,6 +337,38 @@ begin
   frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
 end;
 
+procedure TViewComponentsBase.
+  cxGridDBBandedTableViewDataControllerSortingChanged(Sender: TObject);
+var
+  AclProducer: TcxGridDBBandedColumn;
+  AclValue: TcxGridDBBandedColumn;
+  AColumn: TcxGridDBBandedColumn;
+begin
+  inherited;
+  // При изменении сортировки
+  if MainView.SortedItemCount > 0 then
+  begin
+    AColumn := MainView.SortedItems[0] as TcxGridDBBandedColumn;
+
+    AclProducer := MainView.GetColumnByFieldName
+      (clProducer.DataBinding.FieldName);
+    Assert(AclProducer <> nil);
+
+    if AColumn = AclProducer then
+    begin
+      // Сортируем по роизводителю
+      // AclProducer.SortIndex := 0;
+
+      AclValue := MainView.GetColumnByFieldName(clValue.DataBinding.FieldName);
+      Assert(AclValue <> nil);
+      // А потом по наименованию
+      AclValue.SortOrder := AclProducer.SortOrder;
+      AclValue.SortIndex := 1;
+    end;
+
+  end;
+end;
+
 procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);
 begin
   // Инициализируем выпадающие столбцы
@@ -404,12 +438,12 @@ begin
 
   // Инициализируем Combobox колонки
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditList,  QuerySearchParameterValues.Value);
+    lsEditList, QuerySearchParameterValues.Value);
   {
-  // Ищем возможные значения корпусов для выпадающего списка
-  QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
+    // Ищем возможные значения корпусов для выпадающего списка
+    QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
 
-  InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
+    InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
     lsEditList, QuerySearchParameterValues.Value);
   }
 end;
@@ -434,7 +468,6 @@ begin
   actPasteComponents.Visible := AColumnIsValue;
 
   actPasteComponents.Enabled := actPasteComponents.Visible and IsText;
-
 
   actPasteProducer.Visible := (AColumn <> nil) and
     (AColumn.DataBinding.FieldName = clProducer.DataBinding.FieldName);

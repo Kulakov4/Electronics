@@ -51,6 +51,8 @@ type
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
+    procedure cxGridDBBandedTableViewDataControllerSortingChanged(
+      Sender: TObject);
   private
     function GetComponentsSearchGroup: TComponentsSearchGroup;
     procedure Search(ALike: Boolean);
@@ -127,6 +129,13 @@ begin
     IsClearEnabled or not S.IsEmpty;
   actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.
     IsSearchEnabled or not S.IsEmpty;
+end;
+
+procedure TViewComponentsSearch.cxGridDBBandedTableViewDataControllerSortingChanged(
+  Sender: TObject);
+begin
+  inherited;
+;
 end;
 
 procedure TViewComponentsSearch.cxGridDBBandedTableViewEditKeyDown

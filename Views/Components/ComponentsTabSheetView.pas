@@ -3,7 +3,8 @@ unit ComponentsTabSheetView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore, dxSkinBlack, dxSkinBlue,
   dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -77,14 +78,20 @@ type
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
     procedure actReportExecute(Sender: TObject);
-    procedure cxpcComponentsPageChanging(Sender: TObject; NewPage: TcxTabSheet; var
-        AllowChange: Boolean);
+    procedure cxpcComponentsPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
     procedure cxtsCategoryComponentsShow(Sender: TObject);
     procedure cxtsCategoryParametersShow(Sender: TObject);
     procedure cxtsComponentsSearchShow(Sender: TObject);
+    procedure ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
+      (Sender: TObject);
+    procedure ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged(
+      Sender: TObject);
+    procedure ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged(
+      Sender: TObject);
   private
-    function LoadExcelFileHeader(var AFileName: String; AFieldsInfo:
-        TList<TFieldInfo>): Boolean;
+    function LoadExcelFileHeader(var AFileName: String;
+      AFieldsInfo: TList<TFieldInfo>): Boolean;
     { Private declarations }
   public
     { Public declarations }
@@ -240,7 +247,8 @@ begin
     Exit;
   end;
 
-  qTreeList := (ViewComponents.ComponentsGroup.qFamily.Master as TQueryTreeList);
+  qTreeList := (ViewComponents.ComponentsGroup.qFamily.Master as
+    TQueryTreeList);
 
   // Переходим в дереве категорий на загружаемую категорию
   if not qTreeList.LocateByExternalID(m[0]) then
@@ -361,11 +369,10 @@ begin
     FreeAndNil(frmReports);
   end;
 
-
 end;
 
-procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject; NewPage:
-    TcxTabSheet; var AllowChange: Boolean);
+procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
+NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
   // если переходим на вкладку "Параметрическая таблица"
   if (cxpcComponents.ActivePage <> cxtsParametricTable) and
@@ -377,8 +384,7 @@ begin
   end;
 
   if (cxpcComponents.ActivePage = cxtsParametricTable) and
-    (NewPage <> cxtsParametricTable)
-  then
+    (NewPage <> cxtsParametricTable) then
   begin
     if ViewParametricTable.ComponentsExGroup <> nil then
       ViewParametricTable.ComponentsExGroup.DecClient;
@@ -387,7 +393,7 @@ end;
 
 procedure TComponentsFrame.cxtsCategoryComponentsShow(Sender: TObject);
 begin
- ViewComponents.PostApplyBestFit;
+  ViewComponents.PostApplyBestFit;
 end;
 
 procedure TComponentsFrame.cxtsCategoryParametersShow(Sender: TObject);
@@ -401,7 +407,7 @@ begin
 end;
 
 function TComponentsFrame.LoadExcelFileHeader(var AFileName: String;
-    AFieldsInfo: TList<TFieldInfo>): Boolean;
+AFieldsInfo: TList<TFieldInfo>): Boolean;
 var
   AExcelDM: TExcelDM;
   AFieldName: string;
@@ -559,6 +565,28 @@ begin
     FreeAndNil(AParametricErrorTable)
   end;
   Result := OK;
+end;
+
+procedure TComponentsFrame.
+  ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
+  (Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
+procedure TComponentsFrame.ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged(
+  Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
+procedure TComponentsFrame.ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged(
+  Sender: TObject);
+begin
+  inherited;
+  ;
 end;
 
 constructor TParametricErrorTable.Create(AOwner: TComponent);

@@ -193,20 +193,16 @@ object frmMain: TfrmMain
         inherited cxpcComponents: TcxPageControl
           Width = 926
           Height = 505
+          Properties.ActivePage = ComponentsFrame.cxtsParametricTable
           ExplicitWidth = 926
           ExplicitHeight = 505
           ClientRectBottom = 501
           ClientRectRight = 922
           ClientRectTop = 27
           inherited cxtsCategory: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 918
-            ExplicitHeight = 474
             inherited cxgrdFunctionalGroup: TcxGrid
               Width = 918
               Height = 474
-              ExplicitWidth = 918
-              ExplicitHeight = 474
             end
           end
           inherited cxtsCategoryComponents: TcxTabSheet
@@ -217,6 +213,8 @@ object frmMain: TfrmMain
                 Width = 918
                 Height = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+                  DataController.OnCompare = nil
+                  DataController.OnSortingChanged = ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
@@ -270,7 +268,6 @@ object frmMain: TfrmMain
               inherited StatusBar: TStatusBar
                 Top = 455
                 Width = 918
-                ExplicitTop = 455
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -298,6 +295,14 @@ object frmMain: TfrmMain
           end
           inherited cxtsCategoryParameters: TcxTabSheet
             inherited ViewCategoryParameters: TViewCategoryParameters
+              inherited cxGrid: TcxGrid
+                ExplicitWidth = 918
+                ExplicitHeight = 427
+              end
+              inherited StatusBar: TStatusBar
+                ExplicitTop = 455
+                ExplicitWidth = 918
+              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
@@ -320,9 +325,21 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsComponentsSearch: TcxTabSheet
+            ExplicitTop = 27
+            ExplicitWidth = 918
+            ExplicitHeight = 474
             inherited ViewComponentsSearch: TViewComponentsSearch
+              Width = 918
+              Height = 474
+              ExplicitWidth = 918
+              ExplicitHeight = 474
               inherited cxGrid: TcxGrid
+                Width = 918
+                Height = 427
+                ExplicitWidth = 918
+                ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+                  DataController.OnSortingChanged = ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged
                   inherited clDiagram: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
@@ -361,6 +378,12 @@ object frmMain: TfrmMain
                   end
                 end
               end
+              inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
+                ExplicitTop = 455
+                ExplicitWidth = 918
+              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
@@ -387,8 +410,13 @@ object frmMain: TfrmMain
           end
           inherited cxtsParametricTable: TcxTabSheet
             inherited ViewParametricTable: TViewParametricTable
+              Width = 918
+              Height = 474
               inherited cxGrid: TcxGrid
+                Width = 918
+                Height = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+                  DataController.OnSortingChanged = ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged
                   inherited clProducer: TcxGridDBBandedColumn
                     IsCaptionAssigned = True
                   end
@@ -452,6 +480,10 @@ object frmMain: TfrmMain
                   end
                 end
               end
+              inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
+              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
@@ -502,21 +534,26 @@ object frmMain: TfrmMain
         Height = 533
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -72
-        ExplicitTop = -102
+        ExplicitWidth = 926
+        ExplicitHeight = 533
         inherited cxpcStorehouse: TcxPageControl
           Width = 926
           Height = 505
+          ExplicitTop = 28
+          ExplicitWidth = 926
+          ExplicitHeight = 505
           ClientRectBottom = 501
           ClientRectRight = 922
           ClientRectTop = 27
           inherited tsStorehouseInfo: TcxTabSheet
             ExplicitTop = 27
-            ExplicitHeight = 604
+            ExplicitWidth = 918
+            ExplicitHeight = 474
             inherited ViewStorehouseInfo: TViewStorehouseInfo
               Width = 918
               Height = 474
-              ExplicitHeight = 502
+              ExplicitWidth = 918
+              ExplicitHeight = 474
               inherited lblTitle: TcxLabel
                 ExplicitWidth = 90
                 ExplicitHeight = 20
@@ -533,19 +570,18 @@ object frmMain: TfrmMain
                 ExplicitWidth = 39
                 ExplicitHeight = 20
               end
+              inherited cxTeResponsible: TcxDBTextEdit
+                ExplicitHeight = 24
+              end
+              inherited cxdbteAbbreviation: TcxDBTextEdit
+                ExplicitHeight = 24
+              end
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitHeight = 604
             inherited ViewProducts: TViewProducts
-              Width = 918
-              Height = 502
-              ExplicitHeight = 604
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 455
-                ExplicitHeight = 557
+                ExplicitHeight = 532
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -598,9 +634,7 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 483
-                Width = 918
-                ExplicitTop = 585
+                ExplicitTop = 560
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -621,13 +655,9 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseSearch: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitHeight = 604
             inherited ViewProductsSearch: TViewProductsSearch
-              Height = 604
-              ExplicitHeight = 604
               inherited cxGrid: TcxGrid
-                Height = 557
+                ExplicitHeight = 532
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -680,7 +710,7 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 585
+                ExplicitTop = 560
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

@@ -11,7 +11,7 @@ object ComponentsFrame: TComponentsFrame
     Height = 480
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = cxtsCategory
+    Properties.ActivePage = cxtsCategoryComponents
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcComponentsPageChanging
     ClientRectBottom = 476
@@ -94,6 +94,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
           ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+            DataController.OnSortingChanged = ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
                 item
@@ -239,6 +240,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
           ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+            DataController.OnSortingChanged = ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
                 item
@@ -337,6 +339,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
           ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+            DataController.OnSortingChanged = ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True
             end

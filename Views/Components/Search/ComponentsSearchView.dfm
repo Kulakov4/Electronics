@@ -1,4 +1,9 @@
 inherited ViewComponentsSearch: TViewComponentsSearch
+  inherited cxGrid: TcxGrid
+    inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
+    end
+  end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0

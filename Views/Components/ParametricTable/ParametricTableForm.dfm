@@ -24,6 +24,70 @@ inherited frmParametricTable: TfrmParametricTable
       Height = 491
       ExplicitWidth = 852
       ExplicitHeight = 491
+      inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+        DataController.OnSortingChanged = ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged
+        inherited clProducer: TcxGridDBBandedColumn
+          IsCaptionAssigned = True
+        end
+        inherited clDescription: TcxGridDBBandedColumn
+          IsCaptionAssigned = True
+        end
+        inherited clDatasheet: TcxGridDBBandedColumn
+          Properties.Buttons = <
+            item
+              Action = ViewParametricTable.actOpenDatasheet
+              Kind = bkText
+            end
+            item
+              Action = ViewParametricTable.actLoadDatasheet
+              Default = True
+              Kind = bkEllipsis
+            end>
+          IsCaptionAssigned = True
+        end
+        inherited clDiagram: TcxGridDBBandedColumn
+          Properties.Buttons = <
+            item
+              Action = ViewParametricTable.actOpenDiagram
+              Kind = bkText
+            end
+            item
+              Action = ViewParametricTable.actLoadDiagram
+              Default = True
+              Kind = bkEllipsis
+            end>
+          IsCaptionAssigned = True
+        end
+        inherited clDrawing: TcxGridDBBandedColumn
+          Properties.Buttons = <
+            item
+              Action = ViewParametricTable.actOpenDrawing
+              Kind = bkText
+            end
+            item
+              Action = ViewParametricTable.actLoadDrawing
+              Default = True
+              Kind = bkEllipsis
+            end>
+          IsCaptionAssigned = True
+        end
+        inherited clImage: TcxGridDBBandedColumn
+          Properties.Buttons = <
+            item
+              Action = ViewParametricTable.actOpenImage
+              Kind = bkText
+            end
+            item
+              Action = ViewParametricTable.actLoadImage
+              Default = True
+              Kind = bkEllipsis
+            end>
+          IsCaptionAssigned = True
+        end
+        inherited clPackagePins: TcxGridDBBandedColumn
+          IsCaptionAssigned = True
+        end
+      end
     end
     inherited StatusBar: TStatusBar
       Top = 519
@@ -52,6 +116,9 @@ inherited frmParametricTable: TfrmParametricTable
           Index = 1
           PopupMenu = ViewParametricTable.pmGrid
         end>
+    end
+    inherited cxStyleRepository: TcxStyleRepository
+      PixelsPerInch = 96
     end
   end
 end

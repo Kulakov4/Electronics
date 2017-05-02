@@ -7,11 +7,11 @@ inherited ViewParametricTable: TViewParametricTable
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
+      DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnMoving = False
       OptionsCustomize.ColumnSorting = False
-      OptionsCustomize.ColumnVertSizing = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
       OptionsView.BandHeaderEndEllipsis = True

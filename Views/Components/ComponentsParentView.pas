@@ -343,6 +343,8 @@ procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerCompare
   AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
 begin
   inherited;
+  // Зачем всё это????
+  {
   if AItemIndex = 1 then
   begin
     if VarIsNull(V1) and not(VarIsNull(V2)) then
@@ -377,6 +379,7 @@ begin
 
   if MainView.Columns[AItemIndex].SortOrder = soAscending then
     Compare := Compare * (-1); // инвертировать порядок при необходимости
+  }
 end;
 
 procedure TViewComponentsParent.

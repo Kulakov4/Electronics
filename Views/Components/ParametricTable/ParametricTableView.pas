@@ -119,6 +119,8 @@ type
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableViewDataControllerSortingChanged(
+      Sender: TObject);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -733,6 +735,13 @@ begin
     end;
   }
   // cxGridDBBandedTableView2.DataController.Filter.Active := True;
+end;
+
+procedure TViewParametricTable.cxGridDBBandedTableViewDataControllerSortingChanged(
+  Sender: TObject);
+begin
+  inherited;
+;
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewInitEditValue

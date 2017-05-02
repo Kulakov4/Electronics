@@ -11,3 +11,4 @@
 /ModelSupport_Database/
 *.stat
 *.identcache
+*.dproj.local

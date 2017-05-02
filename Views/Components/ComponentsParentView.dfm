@@ -6,8 +6,8 @@ inherited ViewComponentsParent: TViewComponentsParent
       OnEditKeyUp = cxGridDBBandedTableViewEditKeyUp
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       DataController.KeyFieldNames = 'ID'
-      DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
+      DataController.OnSortingChanged = cxGridDBBandedTableViewDataControllerSortingChanged
       OptionsData.Deleting = False
       OptionsData.DeletingConfirmation = False
       OptionsData.Inserting = False
