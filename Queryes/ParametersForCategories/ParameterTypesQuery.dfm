@@ -18,26 +18,6 @@ inherited QueryParameterTypes: TQueryParameterTypes
       end>
     IndexName = 'idxOrd'
     UpdateObject = FDUpdateSQL
-    SQL.Strings = (
-      'select pt.* '
-      'from ParameterTypes pt'
-      'WHERE EXISTS '
-      '('
-      '    SELECT *'
-      '    FROM Parameters'
-      
-        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
-        'd IDParameterType is not null AND '
-      '    ( (TableName = :TableName) or (:TableName = '#39#39') )'
-      ')'
-      'order by ParameterType')
-    ParamData = <
-      item
-        Name = 'TABLENAME'
-        DataType = ftWideString
-        ParamType = ptInput
-        Value = ''
-      end>
     object FDQueryID: TFDAutoIncField
       FieldName = 'ID'
       Origin = 'ID'
@@ -81,7 +61,7 @@ inherited QueryParameterTypes: TQueryParameterTypes
     Left = 144
     Top = 24
   end
-  object FDQuery2: TFDQuery
+  object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
       'SELECT pt.*'
@@ -92,8 +72,9 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    FROM Parameters'
       
         '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
-        'd IDParameterType is not null AND '
-      '    tablename IN '
+        'd IDParameterType is not null '
+      '    /* ShowDublicate    '
+      '    AND tablename IN '
       '    ('
       '        SELECT TableName'
       '        FROM Parameters'
@@ -101,7 +82,8 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '        GROUP BY TableName'
       '        HAVING count( * ) > 1'
       '    )'
-      '    and ( (tablename = :tablename) or (:tablename = '#39#39') )'
+      '    ShowDublicate */    '
+      '    AND ( (tablename = :tablename) or (:tablename = '#39#39') )'
       '    ORDER BY IDParameterType, [Order]'
       ')'
       'ORDER BY Ord;')

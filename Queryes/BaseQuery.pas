@@ -48,6 +48,7 @@ type
     procedure AppendRows(AFieldNames: Array of String; AValues: TArray<String>);
       overload; virtual;
     procedure ApplyUpdates; virtual;
+    procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Integer;
       const ADetailKeyFieldName: String); virtual;
@@ -183,6 +184,18 @@ begin
 
   FDQuery.ApplyUpdates();
   FDQuery.CommitUpdates;
+end;
+
+procedure TQueryBase.AssignFrom(AFDQuery: TFDQuery);
+begin
+  Assert(AFDQuery <> nil);
+  Assert(AFDQuery <> FDQuery);
+  Assert(not AFDQuery.SQL.Text.IsEmpty);
+
+  // Копируем базовый запрос
+  FDQuery.SQL.Text := FDQuery.SQL.Text;
+  // Копируем параметры
+  FDQuery.Params.Assign(FDQuery.Params);
 end;
 
 // Есть-ли изменения не сохранённые в БД

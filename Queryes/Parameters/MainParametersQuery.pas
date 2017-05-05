@@ -83,6 +83,10 @@ uses RepositoryDataModule, DBRecordHolder, System.StrUtils, StrHelper;
 constructor TQueryMainParameters.Create(AOwner: TComponent);
 begin
   inherited;
+
+  //  опируем базовый запрос и параметры
+  AssignFrom(fdqBase);
+
   FRecOrderList := TList<TRecOrder>.Create;
 
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
@@ -489,20 +493,17 @@ end;
 procedure TQueryMainParameters.SetShowDublicate(const Value: Boolean);
 var
   ASQL: String;
-  S: string;
 begin
   if FShowDublicate <> Value then
   begin
     FShowDublicate := Value;
 
-    S := 'and tablename in '#13#10 + '( '#13#10 + 'select TableName'#13#10 +
-      'from Parameters'#13#10 +
-      'where ParentParameter is null and IDParameterType is not null'#13#10 +
-      'group by TableName'#13#10 + 'having count(*) > 1'#13#10 + ')';
-
     ASQL := fdqBase.SQL.Text;
     if FShowDublicate then
-      ASQL := Replace(ASQL, S, '-- and tablename in');
+    begin
+      ASQL := Replace(ASQL, '', '/* ShowDublicate');
+      ASQL := Replace(ASQL, '', 'ShowDublicate */');
+    end;
 
     FDQuery.Close;
     FDQuery.SQL.Text := ASQL;

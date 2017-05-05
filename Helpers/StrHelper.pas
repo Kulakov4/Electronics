@@ -18,7 +18,7 @@ var
   j: Integer;
 begin
   Assert(not S.IsEmpty);
-  Assert(not ANewValue.IsEmpty);
+//  Assert(not ANewValue.IsEmpty);
   Assert(not AMark.IsEmpty);
 
   // »щем место в SQL запросе

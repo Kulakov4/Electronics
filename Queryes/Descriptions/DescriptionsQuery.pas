@@ -12,7 +12,7 @@ uses
 
 type
   TQueryDescriptions = class(TQueryWithDataSource)
-    FDQuery2: TFDQuery;
+    fdqBase: TFDQuery;
     FDQueryID: TFDAutoIncField;
     FDQueryComponentName: TWideStringField;
     FDQueryDescription: TWideMemoField;
@@ -41,11 +41,14 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, NotifyEvents;
+uses RepositoryDataModule, NotifyEvents, StrHelper;
 
 constructor TQueryDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
+  //  опируем базовый запрос и параметры
+  AssignFrom(fdqBase);
+
   AutoTransaction := False;
 end;
 
@@ -71,24 +74,22 @@ end;
 
 procedure TQueryDescriptions.SetShowDublicate(const Value: Boolean);
 var
-  ASQL: TStringList;
+  ASQL: String;
 begin
   if FShowDublicate <> Value then
   begin
     FShowDublicate := Value;
 
-    ASQL := TStringList.Create;
-    try
-      ASQL.Assign(FDQuery.SQL);
-
-      FDQuery.Close;
-      FDQuery.SQL.Assign(FDQuery2.SQL);
-      FDQuery.Open;
-
-      FDQuery2.SQL.Assign(ASQL);
-    finally
-      FreeAndNil(ASQL)
+    ASQL := fdqBase.SQL.Text;
+    if FShowDublicate then
+    begin
+      ASQL := Replace(ASQL, '', '/* ShowDublicate');
+      ASQL := Replace(ASQL, '', 'ShowDublicate */');
     end;
+
+    FDQuery.Close;
+    FDQuery.SQL.Text := ASQL;
+    FDQuery.Open;
   end;
 end;
 

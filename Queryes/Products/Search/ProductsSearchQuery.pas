@@ -264,23 +264,5 @@ begin
     FOnEndUpdate.CallEventHandlers(Self);
   end;
 end;
-{
-procedure TQueryProductsSearch.SetConditionSQL(const AConditionSQL,
-  AMark: String; ANotifyEventRef: TNotifyEventRef = nil);
-begin
-  Assert(not AConditionSQL.IsEmpty);
-  Assert(not AMark.IsEmpty);
 
-  FDQuery.DisableControls;
-  try
-    FDQuery.Close;
-    FDQuery.SQL.Text := Replace(FDBaseQuery.SQL.Text, AConditionSQL, AMark);
-    if Assigned(ANotifyEventRef) then
-      ANotifyEventRef(Self);
-    FDQuery.Open;
-  finally
-    FDQuery.EnableControls;
-  end;
-end;
-}
 end.

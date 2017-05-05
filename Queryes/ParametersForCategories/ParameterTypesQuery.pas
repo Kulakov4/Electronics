@@ -17,7 +17,7 @@ type
     FDQueryParameterType: TWideStringField;
     FDQueryOrd: TIntegerField;
     FDUpdateSQL: TFDUpdateSQL;
-    FDQuery2: TFDQuery;
+    fdqBase: TFDQuery;
   private
     FRecOrderList: TList<TRecOrder>;
     FShowDublicate: Boolean;
@@ -48,11 +48,15 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, NotifyEvents;
+uses RepositoryDataModule, NotifyEvents, StrHelper;
 
 constructor TQueryParameterTypes.Create(AOwner: TComponent);
 begin
   inherited;
+
+  //  опируем базовый запрос и параметры
+  AssignFrom(fdqBase);
+
   FRecOrderList := TList<TRecOrder>.Create;
 
   AutoTransaction := False;
@@ -171,24 +175,22 @@ end;
 
 procedure TQueryParameterTypes.SetShowDublicate(const Value: Boolean);
 var
-  ASQL: TStringList;
+  ASQL: String;
 begin
   if FShowDublicate <> Value then
   begin
     FShowDublicate := Value;
 
-    ASQL := TStringList.Create;
-    try
-      ASQL.Assign(FDQuery.SQL);
-
-      FDQuery.Close;
-      FDQuery.SQL.Assign(FDQuery2.SQL);
-      FDQuery.Open;
-
-      FDQuery2.SQL.Assign(ASQL);
-    finally
-      FreeAndNil(ASQL)
+    ASQL := fdqBase.SQL.Text;
+    if FShowDublicate then
+    begin
+      ASQL := Replace(ASQL, '', '/* ShowDublicate');
+      ASQL := Replace(ASQL, '', 'ShowDublicate */');
     end;
+
+    FDQuery.Close;
+    FDQuery.SQL.Text := ASQL;
+    FDQuery.Open;
   end;
 end;
 

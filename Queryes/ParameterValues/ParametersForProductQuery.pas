@@ -116,7 +116,7 @@ begin
   FDQuery.SQL.Text := Replace(fdqSelect.SQL.Text, ATempTableName,
     '--temp_table_name');
 
-  // Копируем апраметры
+  // Копируем параметры
   FDQuery.Params.Assign(fdqSelect.Params);
 
   Load([ParameterIDParam.Name], [AParameterID]);
