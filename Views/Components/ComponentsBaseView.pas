@@ -115,7 +115,7 @@ implementation
 uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
   System.IOUtils, Winapi.ShellAPI, RepositoryDataModule, System.UITypes,
   ColumnsBarButtonsHelper, DialogUnit, Vcl.Clipbrd, PathSettingsForm,
-  ClipboardUnit, ParameterValuesUnit, ProducersQuery;
+  ClipboardUnit, ParameterValuesUnit, ProducersQuery, cxGridDBDataDefinitions;
 
 constructor TViewComponentsBase.Create(AOwner: TComponent);
 // var
@@ -356,9 +356,6 @@ begin
 
     if AColumn = AclProducer then
     begin
-      // Сортируем по роизводителю
-      // AclProducer.SortIndex := 0;
-
       AclValue := MainView.GetColumnByFieldName(clValue.DataBinding.FieldName);
       Assert(AclValue <> nil);
       // А потом по наименованию

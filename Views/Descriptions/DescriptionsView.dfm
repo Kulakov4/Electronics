@@ -65,6 +65,8 @@ inherited ViewDescriptions: TViewDescriptions
           Column = clComponentName
         end>
       DataController.Summary.SummaryGroups = <>
+      DataController.OnCompare = cxGridDBBandedTableView2DataControllerCompare
+      DataController.OnSortingChanged = cxGridDBBandedTableView2DataControllerSortingChanged
       OptionsBehavior.CopyCaptionsToClipboard = False
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsBehavior.RecordScrollMode = rsmByPixel

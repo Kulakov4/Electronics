@@ -1,7 +1,6 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-      DataController.OnSortingChanged = cxGridDBBandedTableViewDataControllerSortingChanged
       OptionsCustomize.ColumnVertSizing = False
       Bands = <
         item

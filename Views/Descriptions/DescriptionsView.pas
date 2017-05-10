@@ -80,12 +80,17 @@ type
       const AText: TCaption);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
-    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
-        Integer);
-    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
-        Integer; State: TDragState; var Accept: Boolean);
-    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
-        TDragObject);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
+      X, Y: Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject;
+      X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
+    procedure cxGridDBBandedTableView2DataControllerSortingChanged
+      (Sender: TObject);
+    procedure cxGridDBBandedTableView2DataControllerCompare(ADataController
+      : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
+      AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
   private
     FDescriptionsGroup: TDescriptionsGroup;
     FDropDrag: TDropDrag;
@@ -119,7 +124,8 @@ implementation
 uses
   DescriptionsExcelDataModule, DialogUnit, ImportErrorForm, NotifyEvents,
   cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
-  System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit;
+  System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit,
+  cxGridDBDataDefinitions, cxVariants;
 
 {$R *.dfm}
 
@@ -484,6 +490,87 @@ begin
   end;
 end;
 
+procedure TViewDescriptions.cxGridDBBandedTableView2DataControllerCompare
+  (ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
+  AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
+var
+  AController: TcxGridDBDataController;
+  AItem1: TcxCustomGridTableItem;
+  IsStr: Boolean;
+  S1: string;
+  S2: string;
+  Val1: Variant;
+  Val2: Variant;
+begin
+
+  // inherited;
+  AController := ADataController as TcxGridDBDataController;
+  AItem1 := TcxGridDBDataController(ADataController)
+    .GetItemByFieldName(clIDProducer.DataBinding.FieldName);
+
+  IsStr := AItemIndex = AItem1.Index;
+  if IsStr then
+  begin
+    try
+      Val1 := AController.DisplayTexts[ARecordIndex1, AItem1.Index];
+      Val2 := AController.DisplayTexts[ARecordIndex2, AItem1.Index];
+    except
+      Val1 := NULL;
+      Val2 := NULL;
+    end;
+    IsStr := (not VarIsNull(Val1)) and (not VarIsNull(Val2));
+  end;
+
+  if IsStr then
+  begin
+    S1 := Val1;
+    S2 := Val2;
+
+    Compare := String.Compare(S1, S2);
+    // Compare := VarCompare(VarAsType(Val1, varString), VarAsType(Val2, varString));
+  end
+  else
+
+    Compare := VarCompare(V1, V2);
+end;
+
+procedure TViewDescriptions.cxGridDBBandedTableView2DataControllerSortingChanged
+  (Sender: TObject);
+var
+  AclComponentName: TcxGridDBBandedColumn;
+  AclIDProducer: TcxGridDBBandedColumn;
+  AColumn: TcxGridDBBandedColumn;
+  AView: TcxGridDBBandedTableView;
+  C: TcxGridDBDataController;
+begin
+  inherited;
+  C := Sender as TcxGridDBDataController;
+  AView := C.GridView as TcxGridDBBandedTableView;
+
+  // При изменении сортировки
+  if AView.SortedItemCount > 0 then
+  begin
+    AColumn := AView.SortedItems[0] as TcxGridDBBandedColumn;
+
+    AclIDProducer := AView.GetColumnByFieldName
+      (clIDProducer.DataBinding.FieldName);
+    Assert(AclIDProducer <> nil);
+
+    if AColumn = AclIDProducer then
+    begin
+      AclComponentName := AView.GetColumnByFieldName
+        (clComponentName.DataBinding.FieldName);
+      Assert(AclComponentName <> nil);
+
+      // А потом по наименованию
+      AclComponentName.SortOrder := AclIDProducer.SortOrder;
+      AclComponentName.SortIndex := 1;
+    end;
+
+  end;
+
+end;
+
 procedure TViewDescriptions.
   cxGridDBBandedTableViewDataControllerSummaryAfterSummary
   (ASender: TcxDataSummary);
@@ -499,8 +586,8 @@ begin
   StatusBar.Panels[0].Text := S;
 end;
 
-procedure TViewDescriptions.cxGridDBBandedTableViewDragDrop(Sender, Source:
-    TObject; X, Y: Integer);
+procedure TViewDescriptions.cxGridDBBandedTableViewDragDrop(Sender,
+  Source: TObject; X, Y: Integer);
 var
   AcxCustomGridHitTest: TcxCustomGridHitTest;
   AcxGridDBBandedTableView: TcxGridDBBandedTableView;
@@ -563,15 +650,15 @@ begin
 
 end;
 
-procedure TViewDescriptions.cxGridDBBandedTableViewDragOver(Sender, Source:
-    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TViewDescriptions.cxGridDBBandedTableViewDragOver(Sender,
+  Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 var
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
   AcxGridSite: TcxGridSite;
   AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
   HT: TcxCustomGridHitTest;
 begin
-  Accept := False;
+  Accept := false;
 
   AcxGridSite := Sender as TcxGridSite;
   HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
@@ -596,7 +683,7 @@ begin
 end;
 
 procedure TViewDescriptions.cxGridDBBandedTableViewStartDrag(Sender: TObject;
-    var DragObject: TDragObject);
+var DragObject: TDragObject);
 var
   I: Integer;
 begin
@@ -630,7 +717,7 @@ end;
 
 procedure TViewDescriptions.DoAfterDataChange(Sender: TObject);
 begin
-//  UpdateView;
+  // UpdateView;
 end;
 
 function TViewDescriptions.GetFocusedTableView: TcxGridDBBandedTableView;
@@ -683,8 +770,8 @@ end;
 procedure TViewDescriptions.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[StatusBar.Panels.Count - 1].Text := Format('Всего: %d',
-    [DescriptionsGroup.qDescriptions.FDQuery.RecordCount]);
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text :=
+    Format('Всего: %d', [DescriptionsGroup.qDescriptions.FDQuery.RecordCount]);
 end;
 
 procedure TViewDescriptions.UpdateView;
