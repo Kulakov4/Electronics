@@ -119,9 +119,6 @@ type
     procedure cxGridDBBandedTableView3EditKeyDown
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
       AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
-      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
-      Shift: TShiftState);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure cxGridDBBandedTableView2DataControllerSummaryAfterSummary
@@ -164,6 +161,7 @@ type
     procedure LoadFromExcel(AFileName: string);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
@@ -192,6 +190,18 @@ begin
   FCheckedMode := True;
   CheckedMode := False;
   StatusBarEmptyPanelIndex := 1;
+
+  PostOnEnterFields.Add(clParameterType.DataBinding.FieldName);
+  PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
+  PostOnEnterFields.Add(clIDParameterType.DataBinding.FieldName);
+  PostOnEnterFields.Add(clValue3.DataBinding.FieldName);
+end;
+
+destructor TViewParameters.Destroy;
+begin
+  FreeAndNil(FStartDrag);
+  FreeAndNil(FDropDrag);
+  inherited;
 end;
 
 procedure TViewParameters.actAddMainParameterExecute(Sender: TObject);
@@ -719,6 +729,7 @@ begin
   end;
 
   GetDBBandedTableView(1).Focused := True;
+  UpdateView;
 end;
 
 procedure TViewParameters.cxGridDBBandedTableView2DragOver(Sender,
@@ -757,16 +768,10 @@ end;
 procedure TViewParameters.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-var
-  AColumn: TcxGridDBBandedColumn;
-  S: string;
 begin
   inherited;
-  AColumn := AItem as TcxGridDBBandedColumn;
-  S := Format(',%s,', [AColumn.DataBinding.FieldName.ToLower]);
-
-  if (Key = 13) and (',value,idparametertype,'.IndexOf(S) >= 0) then
-    cxGridDBBandedTableView2.DataController.Post();
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableView2StartDrag(Sender: TObject;
@@ -814,16 +819,10 @@ end;
 procedure TViewParameters.cxGridDBBandedTableView3EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-var
-  AColumn: TcxGridDBBandedColumn;
-  S: string;
 begin
   inherited;
-  AColumn := AItem as TcxGridDBBandedColumn;
-  S := Format(',%s,', [AColumn.DataBinding.FieldName.ToLower]);
-
-  if (Key = 13) and (',value,'.IndexOf(S) >= 0) then
-    cxGridDBBandedTableView3.DataController.Post();
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableViewDataControllerDetailExpanded
@@ -943,15 +942,6 @@ begin
       AcxGridSite.GridView.DataController.FocusedRecordIndex);
   end
 
-end;
-
-procedure TViewParameters.cxGridDBBandedTableViewEditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-begin
-  inherited;
-  if (Key = 13) and (AItem = clParameterType) then
-    cxGridDBBandedTableView.DataController.Post();
 end;
 
 procedure TViewParameters.cxGridDBBandedTableViewStartDrag(Sender: TObject;

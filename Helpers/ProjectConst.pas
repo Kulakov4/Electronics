@@ -69,7 +69,7 @@ resourcestring
 
   sTreeRootNodeName = 'Структура';
 const
-  DBVersion = 23;
+  DBVersion = 24;
 
 implementation
 

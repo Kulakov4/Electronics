@@ -28,7 +28,8 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter;
+  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, HRTimer,
+  DragHelper;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 11;
@@ -62,6 +63,7 @@ type
     actExportToExcelDocument: TAction;
     dxbrbtnExportToExcelDocument: TdxBarButton;
     dxbrbtn1: TdxBarButton;
+    clOrder: TcxGridDBBandedColumn;
     procedure actAddDescriptionExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -78,10 +80,20 @@ type
       const AText: TCaption);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
+        Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
+        Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
+        TDragObject);
   private
     FDescriptionsGroup: TDescriptionsGroup;
+    FDropDrag: TDropDrag;
     FEditValueChanged: Boolean;
+    FHRTimer: THRTimer;
     FNewValue: string;
+    FStartDrag: TStartDrag;
+    FStartDragLevel: TcxGridLevel;
     procedure DoAfterDataChange(Sender: TObject);
     procedure SetDescriptionsGroup(const Value: TDescriptionsGroup);
     procedure UpdateTotalCount;
@@ -95,6 +107,7 @@ type
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure UpdateView; override;
     property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup
       write SetDescriptionsGroup;
@@ -117,6 +130,17 @@ constructor TViewDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
+  FStartDrag := TStartDrag.Create;
+  FDropDrag := TDropDrag.Create;
+
+  PostOnEnterFields.Add(clComponentType.DataBinding.FieldName);
+end;
+
+destructor TViewDescriptions.Destroy;
+begin
+  FreeAndNil(FStartDrag);
+  FreeAndNil(FDropDrag);
+  inherited;
 end;
 
 procedure TViewDescriptions.actAddDescriptionExecute(Sender: TObject);
@@ -317,23 +341,20 @@ begin
   try
     DescriptionsGroup.qDescriptions.TryPost;
     DescriptionsGroup.qDescriptionTypes.TryPost;
+
     DescriptionsGroup.qDescriptions.ShowDublicate := d;
     DescriptionsGroup.qDescriptionTypes.ShowDublicate := d;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    FocusSelectedRecord();
   finally
     cxGrid.EndUpdate;
   end;
 
   actShowDublicate.Checked := d;
-  if actShowDublicate.Checked then
-    actShowDublicate.Caption := 'Показать всё'
-  else
-    actShowDublicate.Caption := 'Показать дубликаты';
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  PutInTheCenterFocusedRecord();
 
   // Обновляем представление
   UpdateView;
@@ -478,6 +499,135 @@ begin
   StatusBar.Panels[0].Text := S;
 end;
 
+procedure TViewDescriptions.cxGridDBBandedTableViewDragDrop(Sender, Source:
+    TObject; X, Y: Integer);
+var
+  AcxCustomGridHitTest: TcxCustomGridHitTest;
+  AcxGridDBBandedTableView: TcxGridDBBandedTableView;
+  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
+  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
+  time: Double;
+begin
+  // Таймер должны были запустить
+  Assert(FHRTimer <> nil);
+  time := FHRTimer.ReadTimer;
+  // Таймер больше не нужен
+  FreeAndNil(FHRTimer);
+
+  // Если это было случайное перемещение, то ничего не делаем
+  if time < 500 then
+    Exit;
+
+  AcxGridDBBandedTableView := nil;
+
+  cxGrid.BeginUpdate();
+  try
+    // Определяем точку переноса
+    AcxCustomGridHitTest := (Sender as TcxGridSite).ViewInfo.GetHitTest(X, Y);
+
+    if AcxCustomGridHitTest is TcxGridRecordCellHitTest then
+    begin
+      AcxGridRecordCellHitTest :=
+        AcxCustomGridHitTest as TcxGridRecordCellHitTest;
+      AcxGridDBBandedTableView := AcxGridRecordCellHitTest.GridView as
+        TcxGridDBBandedTableView;
+
+      // определяем порядок в точке переноса
+      FDropDrag.OrderValue := AcxGridRecordCellHitTest.GridRecord.Values
+        [clOrder.Index];
+
+      // определяем код параметра в точке переноса
+      FDropDrag.Key := AcxGridRecordCellHitTest.GridRecord.Values[clID2.Index];
+    end;
+
+    if AcxCustomGridHitTest is TcxGridViewNoneHitTest then
+    begin
+      AcxGridViewNoneHitTest := AcxCustomGridHitTest as TcxGridViewNoneHitTest;
+      AcxGridDBBandedTableView := AcxGridViewNoneHitTest.GridView as
+        TcxGridDBBandedTableView;
+
+      FDropDrag.Key := 0;
+      FDropDrag.OrderValue := 0;
+    end;
+
+    if AcxGridDBBandedTableView <> nil then
+    begin
+      FDescriptionsGroup.qDescriptionTypes.MoveDSRecord(FStartDrag, FDropDrag);
+    end;
+  finally
+    cxGrid.EndUpdate;
+  end;
+
+  GetDBBandedTableView(1).Focused := True;
+  UpdateView;
+
+end;
+
+procedure TViewDescriptions.cxGridDBBandedTableViewDragOver(Sender, Source:
+    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+var
+  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
+  AcxGridSite: TcxGridSite;
+  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
+  HT: TcxCustomGridHitTest;
+begin
+  Accept := False;
+
+  AcxGridSite := Sender as TcxGridSite;
+  HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
+
+  // Если перетаскиваем на пустой GridView
+  if HT is TcxGridViewNoneHitTest then
+  begin
+    AcxGridViewNoneHitTest := HT as TcxGridViewNoneHitTest;
+
+    Accept := AcxGridViewNoneHitTest.GridView.Level = FStartDragLevel;
+  end;
+
+  // Если перетаскиваем на ячейку GridView
+  if HT is TcxGridRecordCellHitTest then
+  begin
+    AcxGridRecordCellHitTest := HT as TcxGridRecordCellHitTest;
+
+    Accept := (AcxGridRecordCellHitTest.GridView.Level = FStartDragLevel) and
+      (AcxGridRecordCellHitTest.GridRecord.RecordIndex <>
+      AcxGridSite.GridView.DataController.FocusedRecordIndex);
+  end
+end;
+
+procedure TViewDescriptions.cxGridDBBandedTableViewStartDrag(Sender: TObject;
+    var DragObject: TDragObject);
+var
+  I: Integer;
+begin
+  with (Sender as TcxGridSite).GridView as TcxGridDBBandedTableView do
+  begin
+    FStartDragLevel := Level as TcxGridLevel;
+    Assert(Controller.SelectedRowCount > 0);
+
+    if VarIsNull(Controller.SelectedRows[0].Values[clOrder.Index]) then
+      Exit;
+
+    // запоминаем минимальный порядок записи которую начали переносить
+    FStartDrag.MinOrderValue := Controller.SelectedRows[0].Values
+      [clOrder.Index];
+
+    // запоминаем максимальный порядок записи которую начали переносить
+    FStartDrag.MaxOrderValue := Controller.SelectedRows
+      [Controller.SelectedRecordCount - 1].Values[clOrder.Index];
+
+    SetLength(FStartDrag.Keys, Controller.SelectedRowCount);
+    for I := 0 to Controller.SelectedRowCount - 1 do
+    begin
+      FStartDrag.Keys[I] := Controller.SelectedRecords[I].Values[clID2.Index];
+    end;
+
+  end;
+
+  // Запускаем таймер чтобы рассчитать время переноса записей
+  FHRTimer := THRTimer.Create(True);
+end;
+
 procedure TViewDescriptions.DoAfterDataChange(Sender: TObject);
 begin
 //  UpdateView;
@@ -526,10 +676,6 @@ begin
       DoAfterDataChange, FEventList);
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.AfterOpen,
       DoAfterDataChange, FEventList);
-
-    // Будем работать в рамках транзакции
-    // Транзакцию начинают сами компоненты
-    // FDescriptionsGroup.Connection.StartTransaction;
   end;
   UpdateView;
 end;
@@ -571,6 +717,11 @@ begin
   actExportToExcelDocument.Enabled := (DescriptionsGroup <> nil) and
     (not DescriptionsGroup.qDescriptionTypes.ShowDublicate) and
     (DescriptionsGroup.qDescriptions.FDQuery.RecordCount > 0);
+
+  if actShowDublicate.Checked then
+    actShowDublicate.Caption := 'Показать всё'
+  else
+    actShowDublicate.Caption := 'Показать дубликаты';
 
   UpdateTotalCount;
 end;

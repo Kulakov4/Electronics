@@ -73,12 +73,6 @@ type
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
-    procedure cxGridDBBandedTableView2EditKeyDown
-      (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-      AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
-      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
-      Shift: TShiftState);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure clBodyType1PropertiesInitPopup(Sender: TObject);
@@ -89,6 +83,9 @@ type
       AButtonIndex: Integer);
     procedure clOutlineDrawingPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+      Shift: TShiftState);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     procedure DoAfterDataChange(Sender: TObject);
@@ -119,6 +116,7 @@ constructor TViewBodyTypes.Create(AOwner: TComponent);
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
+  PostOnEnterFields.Add(clBodyType.DataBinding.FieldName);
 end;
 
 procedure TViewBodyTypes.actAddBodyExecute(Sender: TObject);
@@ -417,21 +415,6 @@ begin
     dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-var
-  AColumn: TcxGridDBBandedColumn;
-  S: string;
-begin
-  inherited;
-  AColumn := AItem as TcxGridDBBandedColumn;
-  S := Format(',%s,', [AColumn.DataBinding.FieldName.ToLower]);
-
-  if (Key = 13) and (',BodyType,IDBodyKind,'.IndexOf(S) >= 0) then
-    cxGridDBBandedTableView2.DataController.Post();
-end;
-
 procedure TViewBodyTypes.
   cxGridDBBandedTableViewDataControllerSummaryAfterSummary
   (ASender: TcxDataSummary);
@@ -448,13 +431,12 @@ begin
   StatusBar.Panels[0].Text := S;
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableViewEditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TViewBodyTypes.cxGridDBBandedTableViewEditKeyDown(
+  Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
-  if (Key = 13) and (AItem = clBodyType) then
-    cxGridDBBandedTableView.DataController.Post();
-  // FBodyTypesGroup.qBodyKinds.TryPost;
+  inherited;
+  ;
 end;
 
 procedure TViewBodyTypes.DoAfterDataChange(Sender: TObject);

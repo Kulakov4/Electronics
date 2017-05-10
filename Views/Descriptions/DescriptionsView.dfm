@@ -9,8 +9,12 @@ inherited ViewDescriptions: TViewDescriptions
     ExplicitWidth = 991
     ExplicitHeight = 463
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      DragMode = dmAutomatic
+      OnDragDrop = cxGridDBBandedTableViewDragDrop
+      OnDragOver = cxGridDBBandedTableViewDragOver
       OnKeyDown = nil
       OnMouseDown = nil
+      OnStartDrag = cxGridDBBandedTableViewStartDrag
       DataController.Summary.FooterSummaryItems = <
         item
           Kind = skCount
@@ -35,6 +39,15 @@ inherited ViewDescriptions: TViewDescriptions
         Width = 200
         Position.BandIndex = 0
         Position.ColIndex = 1
+        Position.RowIndex = 0
+      end
+      object clOrder: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'Ord'
+        SortIndex = 0
+        SortOrder = soAscending
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
     end

@@ -30,7 +30,6 @@ inherited ViewBodyTypes: TViewBodyTypes
     end
     object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
       Navigator.Buttons.CustomButtons = <>
-      OnEditKeyDown = cxGridDBBandedTableView2EditKeyDown
       DataController.DetailKeyFieldNames = 'IDParentBodyType1'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'

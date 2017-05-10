@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, ParametersDetailQuery, ParameterTypesQuery,
   QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit;
+  QueryGroupUnit, OrderQuery;
 
 type
   TParametersForCategoriesGroup = class(TQueryGroup)

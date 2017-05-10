@@ -279,7 +279,7 @@ begin
   if (Key = 13) and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
   begin
-    // само наименование ещё может быть в едите а не в датасете
+    // само наименование ещё может быть в эдите а не в датасете
     ATextEdit := (AEdit as TcxTextEdit);
     S := ATextEdit.Text;
     // Если наименование задано

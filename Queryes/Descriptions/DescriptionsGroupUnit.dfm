@@ -32,10 +32,11 @@ inherited DescriptionsGroup: TDescriptionsGroup
         Control = qProducers
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
     ExplicitWidth = 604
     ExplicitHeight = 81
+    DesignSize = (
+      604
+      81)
     inline qDescriptionTypes: TQueryDescriptionTypes
       Left = 1
       Top = 1
@@ -46,7 +47,6 @@ inherited DescriptionsGroup: TDescriptionsGroup
       ExplicitLeft = 1
       ExplicitTop = 1
       ExplicitWidth = 201
-      ExplicitHeight = 79
     end
     inline qDescriptions: TQueryDescriptions
       Left = 202

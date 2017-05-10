@@ -10,7 +10,6 @@ inherited ViewParameters: TViewParameters
       OnDragDrop = cxGridDBBandedTableViewDragDrop
       OnDragOver = cxGridDBBandedTableViewDragOver
       OnStartDrag = cxGridDBBandedTableViewStartDrag
-      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       DataController.Summary.FooterSummaryItems = <
         item
           Kind = skCount

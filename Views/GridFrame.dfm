@@ -15,6 +15,7 @@ object frmGrid: TfrmGrid
       OnKeyDown = cxGridDBBandedTableViewKeyDown
       OnMouseDown = cxGridDBBandedTableViewMouseDown
       Navigator.Buttons.CustomButtons = <>
+      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>

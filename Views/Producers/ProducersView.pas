@@ -68,9 +68,6 @@ type
     procedure cxGridDBBandedTableView2EditKeyDown
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
       AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
-      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
-      Shift: TShiftState);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure clProducerTypeIDPropertiesCloseUp(Sender: TObject);
@@ -117,6 +114,9 @@ constructor TViewProducers.Create(AOwner: TComponent);
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
+
+  PostOnEnterFields.Add(clProducerType.DataBinding.FieldName);
+  PostOnEnterFields.Add(clName2.DataBinding.FieldName);
 end;
 
 procedure TViewProducers.actAddExecute(Sender: TObject);
@@ -382,8 +382,7 @@ AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
-  if (Key = 13) and (AItem = clName2) then
-    cxGridDBBandedTableView2.DataController.Post();
+  DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
 procedure TViewProducers.
@@ -399,15 +398,6 @@ begin
   S := VarToStrDef(MainView.DataController.Summary.FooterSummaryValues
     [AIndex], '---');
   StatusBar.Panels[0].Text := S;
-end;
-
-procedure TViewProducers.cxGridDBBandedTableViewEditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-begin
-  inherited;
-  if (Key = 13) and (AItem = clProducerType) then
-    cxGridDBBandedTableView.DataController.Post();
 end;
 
 procedure TViewProducers.DoAfterPost(Sender: TObject);

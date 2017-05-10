@@ -8,7 +8,7 @@ uses
   Vcl.ExtCtrls, DescriptionTypesQuery, DescriptionsQuery,
   FireDAC.Comp.Client, FireDAC.Stan.Intf, ProducersQuery, NotifyEvents,
   DescriptionsExcelDataModule, QueryWithDataSourceUnit, BaseQuery,
-  BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit;
+  BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit, OrderQuery;
 
 type
   TDescriptionsGroup = class(TQueryGroup)

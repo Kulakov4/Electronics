@@ -1,7 +1,6 @@
 inherited ViewProducers: TViewProducers
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       DataController.KeyFieldNames = 'ID'
       DataController.Summary.FooterSummaryItems = <
         item

@@ -21,8 +21,6 @@ inherited ParametersForCategoriesGroup: TParametersForCategoriesGroup
         Control = qParametersDetail
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
     ExplicitWidth = 400
     ExplicitHeight = 81
     inline qParameterTypes: TQueryParameterTypes

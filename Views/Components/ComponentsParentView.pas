@@ -110,6 +110,8 @@ type
     procedure cxGridDBBandedTableView2EditKeyDown
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
       AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+    procedure cxGridDBBandedTableViewDataControllerSortingChanged(
+      Sender: TObject);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -195,6 +197,9 @@ begin
   cxGridPopupMenu.PopupMenus[0].GridView := AView;
 
   FOnDetailExpandedReceive := True;
+
+  PostOnEnterFields.Add(clValue.DataBinding.FieldName);
+  PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
 end;
 
 procedure TViewComponentsParent.actAddFamilyExecute(Sender: TObject);
@@ -395,6 +400,13 @@ begin
   end;
 end;
 
+procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerSortingChanged(
+  Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
 begin
   FisCurrentlySyncing := False;
@@ -589,21 +601,14 @@ end;
 procedure TViewComponentsParent.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-var
-  AcxGridDBBandedColumn: TcxGridDBBandedColumn;
 begin
-  AcxGridDBBandedColumn := AItem as TcxGridDBBandedColumn;
-
-  if (Key = 13) and (AcxGridDBBandedColumn.DataBinding.FieldName = clValue2.
-    DataBinding.FieldName) then
-    Sender.DataController.Post();
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewBandSizeChanged
   (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
 begin
-  // UpdateDetailBandsWidth;
-
   UpdateDetailColumnsWidth;
 end;
 
@@ -621,19 +626,12 @@ begin
   UpdateDetailColumnsWidth;
 end;
 
-procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyDown(
+  Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-var
-  AColumn: TcxGridDBBandedColumn;
 begin
-  AColumn := AItem as TcxGridDBBandedColumn;
-  if (Key = 13) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
-  begin
-    Sender.DataController.Post();
-    UpdateView;
-  end;
+  inherited;
+  ;
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyUp

@@ -27,7 +27,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
-  BaseQuery;
+  BaseQuery, System.Generics.Collections;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -50,6 +50,9 @@ type
     N1: TMenuItem;
     cxGridPopupMenu: TcxGridPopupMenu;
     procedure actCopyToClipboardExecute(Sender: TObject);
+    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
+        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+        TShiftState);
     procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure cxGridDBBandedTableViewMouseDown(Sender: TObject;
@@ -58,6 +61,7 @@ type
       AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
     procedure StatusBarResize(Sender: TObject);
   private
+    FPostOnEnterFields: TList<String>;
     FStatusBarEmptyPanelIndex: Integer;
     function GetMainView: TcxGridDBBandedTableView;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
@@ -71,6 +75,9 @@ type
     procedure CreateColumnsBarButtons; virtual;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); virtual;
+    procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView; AItem:
+        TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+        TShiftState);
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
     function GetFocusedTableView: TcxGridDBBandedTableView; virtual;
@@ -121,6 +128,7 @@ type
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
     property MainView: TcxGridDBBandedTableView read GetMainView;
+    property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex write
         SetStatusBarEmptyPanelIndex;
     { Public declarations }
@@ -138,10 +146,14 @@ begin
   FUpdateCount := 0;
   FEventList := TObjectList.Create;
   FStatusBarEmptyPanelIndex := -1;
+
+  // Список полей при дедактировании которых Enter - сохранение
+  FPostOnEnterFields := TList<String>.Create;
 end;
 
 destructor TfrmGrid.Destroy;
 begin
+  FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FEventList);
   inherited;
 end;
@@ -215,6 +227,13 @@ begin
   AView.DataController.Filter.Assign(ASource.DataController.Filter);
 end;
 
+procedure TfrmGrid.cxGridDBBandedTableViewEditKeyDown(Sender:
+    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
+    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+begin
+  DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
+end;
+
 procedure TfrmGrid.cxGridDBBandedTableViewKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
@@ -246,6 +265,21 @@ begin
   end;
 
   OnGridPopupMenuPopup(AColumn);
+end;
+
+procedure TfrmGrid.DoOnEditKeyDown(Sender: TcxCustomGridTableView; AItem:
+    TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+    TShiftState);
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  AColumn := AItem as TcxGridDBBandedColumn;
+
+  if (Key = 13) and (FPostOnEnterFields.IndexOf(AColumn.DataBinding.FieldName) >= 0) then
+  begin
+    cxGridDBBandedTableView.DataController.Post();
+    UpdateView;
+  end;
 end;
 
 procedure TfrmGrid.DoOnMyApplyBestFit(var Message: TMessage);

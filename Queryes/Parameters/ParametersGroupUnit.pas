@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
-  QueryWithMasterUnit, QueryGroupUnit;
+  QueryWithMasterUnit, QueryGroupUnit, OrderQuery;
 
 type
   TParametersGroup = class(TQueryGroup)

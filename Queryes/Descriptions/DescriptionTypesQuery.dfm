@@ -1,7 +1,7 @@
 inherited QueryDescriptionTypes: TQueryDescriptionTypes
-  Width = 193
+  Width = 264
   Height = 79
-  ExplicitWidth = 193
+  ExplicitWidth = 264
   ExplicitHeight = 79
   inherited Label1: TLabel
     Width = 111
@@ -9,36 +9,18 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
     ExplicitWidth = 111
   end
   inherited FDQuery: TFDQuery
-    SQL.Strings = (
-      'select *'
-      'from DescriptionComponentTypes'
-      'order by ComponentType')
-    object FDQueryID: TFDAutoIncField
-      AutoGenerateValue = arDefault
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
-    end
-    object FDQueryComponentType: TWideStringField
-      DisplayLabel = #1058#1080#1087
-      DisplayWidth = 100
-      FieldName = 'ComponentType'
-      Origin = 'ComponentType'
-      Required = True
-      Size = 200
-    end
-  end
-  object FDQuery2: TFDQuery
+    UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select dct.*'
       'from DescriptionComponentTypes dct'
+      '/* ShowDublicate'
       'where exists'
       '('
       '    select d.*'
       '    from descriptions2 d'
-      '    where '
-      '    d.ComponentName in'
+      '    where'
+      '    d.IDComponentType = dct.ID'
+      '    and d.ComponentName in'
       '    ('
       '        select ComponentName'
       '        from descriptions2 '
@@ -46,8 +28,57 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
       '        having count(*) > 1'
       '    )'
       ')'
-      'order by dct.ComponentType')
+      'ShowDublicate */'
+      'order by dct.Ord')
+  end
+  inherited DataSource: TDataSource
+    Top = 25
+  end
+  object fdqBase: TFDQuery
+    Connection = DMRepository.dbConnection
+    SQL.Strings = (
+      'select dct.*'
+      'from DescriptionComponentTypes dct'
+      '/* ShowDublicate'
+      'where exists'
+      '('
+      '    select d.*'
+      '    from descriptions2 d'
+      '    where'
+      '    d.IDComponentType = dct.ID'
+      '    and d.ComponentName in'
+      '    ('
+      '        select ComponentName'
+      '        from descriptions2 '
+      '        group by ComponentName'
+      '        having count(*) > 1'
+      '    )'
+      ')'
+      'ShowDublicate */'
+      'order by dct.Ord')
+    Left = 216
+    Top = 25
+  end
+  object FDUpdateSQL: TFDUpdateSQL
+    InsertSQL.Strings = (
+      'INSERT INTO DESCRIPTIONCOMPONENTTYPES'
+      '(COMPONENTTYPE, ORD)'
+      'VALUES (:NEW_COMPONENTTYPE, :NEW_ORD);'
+      'SELECT ID, ORD'
+      'FROM DESCRIPTIONCOMPONENTTYPES'
+      'WHERE ID = LAST_INSERT_AUTOGEN();')
+    ModifySQL.Strings = (
+      'UPDATE DESCRIPTIONCOMPONENTTYPES'
+      'SET COMPONENTTYPE = :NEW_COMPONENTTYPE, ORD = :NEW_ORD'
+      'WHERE ID = :OLD_ID')
+    DeleteSQL.Strings = (
+      'DELETE FROM DESCRIPTIONCOMPONENTTYPES'
+      'WHERE ID = :OLD_ID')
+    FetchRowSQL.Strings = (
+      'SELECT ID, COMPONENTTYPE, ORD'
+      'FROM DESCRIPTIONCOMPONENTTYPES'
+      'WHERE ID = :ID')
     Left = 144
-    Top = 26
+    Top = 25
   end
 end

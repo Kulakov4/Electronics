@@ -193,9 +193,9 @@ begin
   Assert(not AFDQuery.SQL.Text.IsEmpty);
 
   // Копируем базовый запрос
-  FDQuery.SQL.Text := FDQuery.SQL.Text;
+  FDQuery.SQL.Text := AFDQuery.SQL.Text;
   // Копируем параметры
-  FDQuery.Params.Assign(FDQuery.Params);
+  FDQuery.Params.Assign(AFDQuery.Params);
 end;
 
 // Есть-ли изменения не сохранённые в БД

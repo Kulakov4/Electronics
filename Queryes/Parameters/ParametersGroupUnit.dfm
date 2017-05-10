@@ -32,8 +32,6 @@ inherited ParametersGroup: TParametersGroup
         Control = qSubParameters
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
     ExplicitWidth = 790
     ExplicitHeight = 79
     inline qParameterTypes: TQueryParameterTypes
