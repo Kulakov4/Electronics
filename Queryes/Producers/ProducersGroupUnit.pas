@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   ProducersQuery, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryWithDataSourceUnit, ProducerTypesQuery, ProducersExcelDataModule;
+  QueryWithDataSourceUnit, ProducerTypesQuery, ProducersExcelDataModule,
+  OrderQuery;
 
 type
   TProducersGroup = class(TQueryGroup)

@@ -139,12 +139,6 @@ type
     procedure cxtsComponentsShow(Sender: TObject);
     procedure cxtsStorehousesShow(Sender: TObject);
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
-    procedure ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
-    procedure ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
-    procedure ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
   private
     FCategoryPath: string;
     FEventList: TObjectList;
@@ -1018,27 +1012,6 @@ end;
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
 begin
   ComponentsFrame.ViewComponents.actOpenDatasheetExecute(Sender);
-end;
-
-procedure TfrmMain.ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-  ;
-end;
-
-procedure TfrmMain.ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-  ;
-end;
-
-procedure TfrmMain.ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-  ;
 end;
 
 end.

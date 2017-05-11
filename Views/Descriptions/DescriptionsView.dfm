@@ -12,8 +12,6 @@ inherited ViewDescriptions: TViewDescriptions
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
       OnDragOver = cxGridDBBandedTableViewDragOver
-      OnKeyDown = nil
-      OnMouseDown = nil
       OnStartDrag = cxGridDBBandedTableViewStartDrag
       DataController.Summary.FooterSummaryItems = <
         item
@@ -43,6 +41,7 @@ inherited ViewDescriptions: TViewDescriptions
       end
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
+        Visible = False
         SortIndex = 0
         SortOrder = soAscending
         VisibleForCustomization = False
@@ -65,13 +64,12 @@ inherited ViewDescriptions: TViewDescriptions
           Column = clComponentName
         end>
       DataController.Summary.SummaryGroups = <>
-      DataController.OnCompare = cxGridDBBandedTableView2DataControllerCompare
-      DataController.OnSortingChanged = cxGridDBBandedTableView2DataControllerSortingChanged
       OptionsBehavior.CopyCaptionsToClipboard = False
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsBehavior.RecordScrollMode = rsmByPixel
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnMoving = False
+      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
       OptionsSelection.InvertSelect = False
@@ -82,6 +80,9 @@ inherited ViewDescriptions: TViewDescriptions
       OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
+      Styles.OnGetHeaderStyle = cxGridDBBandedTableView2StylesGetHeaderStyle
+      OnColumnHeaderClick = cxGridDBBandedTableView2ColumnHeaderClick
+      OnCustomDrawColumnHeader = cxGridDBBandedTableView2CustomDrawColumnHeader
       Bands = <
         item
         end>
@@ -96,6 +97,8 @@ inherited ViewDescriptions: TViewDescriptions
       object clComponentName: TcxGridDBBandedColumn
         Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090
         DataBinding.FieldName = 'ComponentName'
+        SortIndex = 0
+        SortOrder = soAscending
         Width = 100
         Position.BandIndex = 0
         Position.ColIndex = 1
@@ -108,6 +111,7 @@ inherited ViewDescriptions: TViewDescriptions
         Properties.DropDownListStyle = lsEditList
         Properties.ListColumns = <>
         Properties.OnNewLookupDisplayText = clIDManufacturerPropertiesNewLookupDisplayText
+        Options.SortByDisplayText = isbtOn
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0

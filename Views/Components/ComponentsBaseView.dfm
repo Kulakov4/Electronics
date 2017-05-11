@@ -1,7 +1,12 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
+    LookAndFeel.Kind = lfFlat
+    LookAndFeel.NativeStyle = False
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
+      OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
+      OnCustomDrawColumnHeader = cxGridDBBandedTableViewCustomDrawColumnHeader
       Bands = <
         item
           FixedKind = fkLeft

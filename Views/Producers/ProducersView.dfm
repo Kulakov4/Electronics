@@ -1,6 +1,10 @@
 inherited ViewProducers: TViewProducers
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      DragMode = dmAutomatic
+      OnDragDrop = cxGridDBBandedTableViewDragDrop
+      OnDragOver = cxGridDBBandedTableViewDragOver
+      OnStartDrag = cxGridDBBandedTableViewStartDrag
       DataController.KeyFieldNames = 'ID'
       DataController.Summary.FooterSummaryItems = <
         item
@@ -24,6 +28,14 @@ inherited ViewProducers: TViewProducers
         MinWidth = 100
         Position.BandIndex = 0
         Position.ColIndex = 1
+        Position.RowIndex = 0
+      end
+      object clOrder: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'Ord'
+        SortIndex = 0
+        SortOrder = soAscending
+        Position.BandIndex = 0
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
     end

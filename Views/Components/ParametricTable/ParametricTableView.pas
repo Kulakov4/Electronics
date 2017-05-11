@@ -119,8 +119,8 @@ type
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
-    procedure cxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
+    procedure cxGridDBBandedTableViewStylesGetHeaderStyle(
+      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -737,13 +737,6 @@ begin
   // cxGridDBBandedTableView2.DataController.Filter.Active := True;
 end;
 
-procedure TViewParametricTable.cxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-;
-end;
-
 procedure TViewParametricTable.cxGridDBBandedTableViewInitEditValue
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var AValue: Variant);
@@ -817,6 +810,13 @@ begin
       AStyle := cxStyleEnd;
   end;
 
+end;
+
+procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetHeaderStyle(
+  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+begin
+  inherited;
+  ;
 end;
 
 procedure TViewParametricTable.DeleteBands;

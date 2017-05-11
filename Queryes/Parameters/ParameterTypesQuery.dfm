@@ -1,7 +1,7 @@
 inherited QueryParameterTypes: TQueryParameterTypes
-  Width = 203
+  Width = 280
   Height = 82
-  ExplicitWidth = 203
+  ExplicitWidth = 280
   ExplicitHeight = 82
   inherited Label1: TLabel
     Width = 107
@@ -9,18 +9,7 @@ inherited QueryParameterTypes: TQueryParameterTypes
     ExplicitWidth = 107
   end
   inherited FDQuery: TFDQuery
-    Indexes = <
-      item
-        Active = True
-        Selected = True
-        Name = 'idxOrd'
-        Fields = 'Ord'
-      end>
-    IndexName = 'idxOrd'
     UpdateObject = FDUpdateSQL
-    SQL.Strings = (
-      'select * from ParameterTypes'
-      'order by ParameterType')
     object FDQueryID: TFDAutoIncField
       FieldName = 'ID'
       Origin = 'ID'
@@ -63,5 +52,41 @@ inherited QueryParameterTypes: TQueryParameterTypes
       'WHERE ID = :ID')
     Left = 144
     Top = 24
+  end
+  object fdqBase: TFDQuery
+    Connection = DMRepository.dbConnection
+    SQL.Strings = (
+      'SELECT pt.*'
+      'FROM ParameterTypes pt'
+      'WHERE EXISTS '
+      '('
+      '    SELECT *'
+      '    FROM Parameters'
+      
+        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
+        'd IDParameterType is not null '
+      '    /* ShowDublicate    '
+      '    AND tablename IN '
+      '    ('
+      '        SELECT TableName'
+      '        FROM Parameters'
+      '        WHERE ParentParameter IS NULL'
+      '        GROUP BY TableName'
+      '        HAVING count( * ) > 1'
+      '    )'
+      '    ShowDublicate */    '
+      '    AND ( (tablename = :tablename) or (:tablename = '#39#39') )'
+      '    ORDER BY IDParameterType, [Order]'
+      ')'
+      'ORDER BY Ord;')
+    Left = 216
+    Top = 24
+    ParamData = <
+      item
+        Name = 'TABLENAME'
+        DataType = ftWideString
+        ParamType = ptInput
+        Value = Null
+      end>
   end
 end

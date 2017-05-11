@@ -273,7 +273,7 @@ begin
                 QueryCategoryParameters.ParameterID.FieldName;
 
               // Порядок - надо вычислить как максимум
-              RH.Find(AParametersGroup.qMainParameters.Order.FieldName).Value :=
+              RH.Find(AParametersGroup.qMainParameters.Ord.FieldName).Value :=
                 QueryCategoryParameters.NextOrder;
 
               // Добавляем поле "Тип параметра"

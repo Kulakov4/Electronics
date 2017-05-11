@@ -80,8 +80,8 @@ type
       const AText: TCaption);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
-    procedure cxGridDBBandedTableViewDataControllerSortingChanged
-      (Sender: TObject);
+    procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
+        AColumn: TcxGridColumn);
   private
     FQuerySearchBodyType: TQuerySearchBodyType;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
@@ -337,33 +337,52 @@ begin
   frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
 end;
 
-procedure TViewComponentsBase.
-  cxGridDBBandedTableViewDataControllerSortingChanged(Sender: TObject);
+procedure TViewComponentsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
+    TcxGridTableView; AColumn: TcxGridColumn);
 var
-  AclProducer: TcxGridDBBandedColumn;
-  AclValue: TcxGridDBBandedColumn;
-  AColumn: TcxGridDBBandedColumn;
+  ASortOrder: TdxSortOrder;
+  AView: TcxGridDBBandedTableView;
+  Col: TcxGridDBBandedColumn;
+  Col2: TcxGridDBBandedColumn;
+  S: string;
 begin
   inherited;
-  // При изменении сортировки
-  if MainView.SortedItemCount > 0 then
-  begin
-    AColumn := MainView.SortedItems[0] as TcxGridDBBandedColumn;
 
-    AclProducer := MainView.GetColumnByFieldName
-      (clProducer.DataBinding.FieldName);
-    Assert(AclProducer <> nil);
+  Col := AColumn as TcxGridDBBandedColumn;
+  AView := Sender as TcxGridDBBandedTableView;
 
-    if AColumn = AclProducer then
+
+  S := String.Format(',%s,%s,', [clProducer.DataBinding.FieldName,
+    clValue.DataBinding.FieldName]);
+
+  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
+    Exit;
+
+  if (Col.SortOrder = soAscending) and (Col.SortIndex = 0) then
+    ASortOrder := soDescending
+  else
+    ASortOrder := soAscending;
+
+  AView.BeginSortingUpdate;
+  try
+    // Очистили сортировку
+    ClearSort(AView);
+
+    // В первую очередь отсортировали по этому столбцу
+    Col.SortOrder := ASortOrder;
+
+    // Щёлкнули по производителю
+    if Col.DataBinding.FieldName = clProducer.DataBinding.FieldName then
     begin
-      AclValue := MainView.GetColumnByFieldName(clValue.DataBinding.FieldName);
-      Assert(AclValue <> nil);
-      // А потом по наименованию
-      AclValue.SortOrder := AclProducer.SortOrder;
-      AclValue.SortIndex := 1;
+      // Во вторую очередь по названию компонента
+      Col2 := AView.GetColumnByFieldName(clValue.DataBinding.FieldName);
+      Col2.SortOrder := ASortOrder;
     end;
-
+  finally
+    AView.EndSortingUpdate;
   end;
+
+
 end;
 
 procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);

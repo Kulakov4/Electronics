@@ -422,19 +422,6 @@ object DM: TDM
           Control = ProducersGroup.qProducers
           Row = 0
         end>
-      ExplicitWidth = 315
-      ExplicitHeight = 90
-      inherited qProducerTypes: TQueryProducerTypes
-        ExplicitLeft = -50
-        ExplicitTop = 1
-        ExplicitWidth = 156
-        ExplicitHeight = 88
-      end
-      inherited qProducers: TQueryProducers
-        ExplicitLeft = 157
-        ExplicitWidth = 157
-        ExplicitHeight = 88
-      end
     end
   end
   object FDGUIxWaitCursor1: TFDGUIxWaitCursor

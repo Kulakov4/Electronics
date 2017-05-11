@@ -1535,4 +1535,13 @@ object DMRepository: TDMRepository
           0414000000000000000000000000000000000000000000000000}
       end>
   end
+  object cxStyleRepository: TcxStyleRepository
+    Left = 152
+    Top = 80
+    PixelsPerInch = 96
+    object cxHeaderStyle: TcxStyle
+      AssignedValues = [svColor]
+      Color = 16113353
+    end
+  end
 end

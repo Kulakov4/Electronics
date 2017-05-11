@@ -2,16 +2,15 @@ inherited ViewComponentsParent: TViewComponentsParent
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnCellClick = cxGridDBBandedTableViewCellClick
-      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
       OnEditKeyUp = cxGridDBBandedTableViewEditKeyUp
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       DataController.KeyFieldNames = 'ID'
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
-      DataController.OnSortingChanged = cxGridDBBandedTableViewDataControllerSortingChanged
       OptionsData.Deleting = False
       OptionsData.DeletingConfirmation = False
       OptionsData.Inserting = False
       OptionsView.ColumnAutoWidth = False
+      Styles.OnGetHeaderStyle = cxGridDBBandedTableViewStylesGetHeaderStyle
       OnColumnSizeChanged = cxGridDBBandedTableViewColumnSizeChanged
       OnLeftPosChanged = cxGridDBBandedTableViewLeftPosChanged
       Bands = <

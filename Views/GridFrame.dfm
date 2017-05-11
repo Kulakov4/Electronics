@@ -11,6 +11,8 @@ object frmGrid: TfrmGrid
     Height = 444
     Align = alClient
     TabOrder = 0
+    LookAndFeel.Kind = lfFlat
+    LookAndFeel.NativeStyle = False
     object cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnKeyDown = cxGridDBBandedTableViewKeyDown
       OnMouseDown = cxGridDBBandedTableViewMouseDown
@@ -26,6 +28,8 @@ object frmGrid: TfrmGrid
       OptionsView.ColumnAutoWidth = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
+      Styles.OnGetHeaderStyle = cxGridDBBandedTableViewStylesGetHeaderStyle
+      OnCustomDrawColumnHeader = cxGridDBBandedTableViewCustomDrawColumnHeader
       Bands = <
         item
         end>

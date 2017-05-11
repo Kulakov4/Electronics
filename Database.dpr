@@ -49,7 +49,7 @@ uses
   ProducersView in 'Views\Producers\ProducersView.pas' {ViewProducers: TFrame},
   ProducersForm in 'Views\Producers\ProducersForm.pas' {frmProducers},
   ChildCategoriesQuery in 'Queryes\ChildCategories\ChildCategoriesQuery.pas' {QueryChildCategories: TFrame},
-  ParameterTypesQuery in 'Queryes\ParametersForCategories\ParameterTypesQuery.pas' {QueryParameterTypes: TFrame},
+  ParameterTypesQuery in 'Queryes\Parameters\ParameterTypesQuery.pas' {QueryParameterTypes: TFrame},
   ParametersForCategories in 'Queryes\ParametersForCategories\ParametersForCategories.pas',
   ParametersDetailQuery in 'Queryes\ParametersForCategories\ParametersDetailQuery.pas' {QueryParametersDetail: TFrame},
   ParametersForCategoriesGroupUnit in 'Queryes\ParametersForCategories\ParametersForCategoriesGroupUnit.pas' {ParametersForCategoriesGroup: TFrame},

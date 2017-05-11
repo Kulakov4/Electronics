@@ -134,14 +134,13 @@ type
       var DragObject: TDragObject);
   private
     FCheckedMode: Boolean;
-    FDropDrag: TDropDrag;
+    FParameterTypesDI: TDragAndDropInfo;
     FEditValueChanged: Boolean;
     FExpandedRecordIndex: Integer;
     FHRTimer: THRTimer;
     FNewValue: string;
     FParametersGroup: TParametersGroup;
-    FStartDrag: TStartDrag;
-    FStartDragLevel: TcxGridLevel;
+    FParametersDI: TDragAndDropInfo;
     procedure InsertParametersList(AList: TParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetParametersGroup(const Value: TParametersGroup);
@@ -183,8 +182,9 @@ constructor TViewParameters.Create(AOwner: TComponent);
 begin
   inherited;
   FExpandedRecordIndex := -1;
-  FStartDrag := TStartDrag.Create;
-  FDropDrag := TDropDrag.Create;
+
+  FParameterTypesDI := TDragAndDropInfo.Create(clID, clOrd);
+  FParametersDI := TDragAndDropInfo.Create(clID2, clOrder);
 
   // »митируем выключение режима "галочки"
   FCheckedMode := True;
@@ -199,8 +199,7 @@ end;
 
 destructor TViewParameters.Destroy;
 begin
-  FreeAndNil(FStartDrag);
-  FreeAndNil(FDropDrag);
+  FreeAndNil(FParameterTypesDI);
   inherited;
 end;
 
@@ -275,13 +274,13 @@ begin
     // FParametersGroup.Connection.StartTransaction;
 
     // ѕереносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    FocusSelectedRecord();
   finally
     cxGrid.EndUpdate;
   end;
 
   // ѕомещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  PutInTheCenterFocusedRecord();
 
   // ќбновл€ем представление
   UpdateView;
@@ -338,10 +337,7 @@ end;
 
 procedure TViewParameters.actFilterByTableNameExecute(Sender: TObject);
 var
-  // AColumn: TcxGridDBBandedColumn;
-  // AcxGridMasterDataRow: TcxGridMasterDataRow;
   AID: Integer;
-  // AView: TcxGridDBBandedTableView;
   S: string;
 begin
   actFilterByTableName.Checked := not actFilterByTableName.Checked;
@@ -371,37 +367,7 @@ begin
 
   if actFilterByTableName.Checked then
     MainView.ViewData.Expand(True);
-  {
 
-
-    if ParametersGroup.qMainParameters.LocateByPK(AID) then
-    begin
-    // »щем  атегорию нашего параметра
-    if ParametersGroup.qParameterTypes.LocateByPK
-    (ParametersGroup.qMainParameters.IDParameterType.AsInteger) then
-    begin
-    // ѕолучаем строку в гриде
-    AcxGridMasterDataRow := GetRow(0) as TcxGridMasterDataRow;
-
-    if actFilterByTableName.Checked then
-    MainView.ViewData.Expand(True)
-    else
-    AcxGridMasterDataRow.Expand(false);
-
-    // ѕолучаем дочернее представление
-    AView := GetDBBandedTableView(1);
-    // ‘окусируем его
-    AView.Focused := True;
-    PutInTheCenterFocusedRecord(AView);
-
-    AColumn := AView.GetColumnByFieldName('TableName');
-    // Site обеспечивает доступ к элементам размещЄнным на cxGrid
-    AView.Site.SetFocus;
-    // ѕоказываем редактор дл€ колонки
-    AView.Controller.EditingController.ShowEdit(AColumn);
-    end;
-    end;
-    { }
   // ќбновл€ем представление
   UpdateView;
 end;
@@ -496,7 +462,6 @@ var
   AID: Integer;
   d: Boolean;
 begin
-  // if ParametersGroup.qMainParameters.FDQuery.RecordCount > 0 then
   AID := ParametersGroup.qMainParameters.PKValue;
 
   d := not ParametersGroup.qMainParameters.ShowDublicate;
@@ -672,10 +637,6 @@ end;
 procedure TViewParameters.cxGridDBBandedTableView2DragDrop(Sender,
   Source: TObject; X, Y: Integer);
 var
-  AcxCustomGridHitTest: TcxCustomGridHitTest;
-  AcxGridDBBandedTableView: TcxGridDBBandedTableView;
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
   time: Double;
 begin
   // “аймер должны были запустить
@@ -685,84 +646,17 @@ begin
   FreeAndNil(FHRTimer);
 
   // ≈сли это было случайное перемещение, то ничего не делаем
-  if time < 500 then
+  if time < DragDropTimeOut then
     Exit;
 
-  AcxGridDBBandedTableView := nil;
-
-  cxGrid.BeginUpdate();
-  try
-    // ќпредел€ем точку переноса
-    AcxCustomGridHitTest := (Sender as TcxGridSite).ViewInfo.GetHitTest(X, Y);
-
-    if AcxCustomGridHitTest is TcxGridRecordCellHitTest then
-    begin
-      AcxGridRecordCellHitTest :=
-        AcxCustomGridHitTest as TcxGridRecordCellHitTest;
-      AcxGridDBBandedTableView := AcxGridRecordCellHitTest.GridView as
-        TcxGridDBBandedTableView;
-
-      // определ€ем пор€док в точке переноса
-      FDropDrag.OrderValue := AcxGridRecordCellHitTest.GridRecord.Values
-        [clOrder.Index];
-
-      // определ€ем код параметра в точке переноса
-      FDropDrag.Key := AcxGridRecordCellHitTest.GridRecord.Values[clID2.Index];
-    end;
-
-    if AcxCustomGridHitTest is TcxGridViewNoneHitTest then
-    begin
-      AcxGridViewNoneHitTest := AcxCustomGridHitTest as TcxGridViewNoneHitTest;
-      AcxGridDBBandedTableView := AcxGridViewNoneHitTest.GridView as
-        TcxGridDBBandedTableView;
-
-      FDropDrag.Key := 0;
-      FDropDrag.OrderValue := 0;
-    end;
-
-    if AcxGridDBBandedTableView <> nil then
-    begin
-      FParametersGroup.qMainParameters.MoveDSRecord(FStartDrag, FDropDrag);
-    end;
-  finally
-    cxGrid.EndUpdate;
-  end;
-
-  GetDBBandedTableView(1).Focused := True;
-  UpdateView;
+  DoDragDrop(Sender as TcxGridSite, FParametersDI,
+    FParametersGroup.qMainParameters, X, Y);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableView2DragOver(Sender,
   Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
-var
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-  AcxGridSite: TcxGridSite;
-  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
-  HT: TcxCustomGridHitTest;
 begin
-  Accept := False;
-
-  AcxGridSite := Sender as TcxGridSite;
-  HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
-
-  // ≈сли перетаскиваем на пустой GridView
-  if HT is TcxGridViewNoneHitTest then
-  begin
-    AcxGridViewNoneHitTest := HT as TcxGridViewNoneHitTest;
-
-    Accept := AcxGridViewNoneHitTest.GridView.Level = FStartDragLevel;
-  end;
-
-  // ≈сли перетаскиваем на €чейку GridView
-  if HT is TcxGridRecordCellHitTest then
-  begin
-    AcxGridRecordCellHitTest := HT as TcxGridRecordCellHitTest;
-
-    Accept := (AcxGridRecordCellHitTest.GridView.Level = FStartDragLevel) and
-      (AcxGridRecordCellHitTest.GridRecord.RecordIndex <>
-      AcxGridSite.GridView.DataController.FocusedRecordIndex);
-  end
-
+  DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableView2EditKeyDown
@@ -776,36 +670,12 @@ end;
 
 procedure TViewParameters.cxGridDBBandedTableView2StartDrag(Sender: TObject;
   var DragObject: TDragObject);
-var
-  I: Integer;
 begin
-  with (Sender as TcxGridSite).GridView as TcxGridDBBandedTableView do
-  begin
-    FStartDragLevel := Level as TcxGridLevel;
-    Assert(Controller.SelectedRowCount > 0);
-
-    if VarIsNull(Controller.SelectedRows[0].Values[clOrder.Index]) then
-      Exit;
-
-    // запоминаем минимальный пор€док записи которую начали переносить
-    FStartDrag.MinOrderValue := Controller.SelectedRows[0].Values
-      [clOrder.Index];
-
-    // запоминаем максимальный пор€док записи которую начали переносить
-    FStartDrag.MaxOrderValue := Controller.SelectedRows
-      [Controller.SelectedRecordCount - 1].Values[clOrder.Index];
-
-    SetLength(FStartDrag.Keys, Controller.SelectedRowCount);
-    for I := 0 to Controller.SelectedRowCount - 1 do
-    begin
-      FStartDrag.Keys[I] := Controller.SelectedRecords[I].Values[clID2.Index];
-    end;
-
-  end;
+  inherited;
+  DoOnStartDrag(Sender as TcxGridSite, FParametersDI);
 
   // «апускаем таймер чтобы рассчитать врем€ переноса записей
   FHRTimer := THRTimer.Create(True);
-
 end;
 
 procedure TViewParameters.
@@ -851,10 +721,6 @@ end;
 procedure TViewParameters.cxGridDBBandedTableViewDragDrop(Sender,
   Source: TObject; X, Y: Integer);
 var
-  AcxCustomGridHitTest: TcxCustomGridHitTest;
-  AcxGridDBBandedTableView: TcxGridDBBandedTableView;
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
   time: Double;
 begin
   // “аймер должны были запустить
@@ -864,116 +730,28 @@ begin
   FreeAndNil(FHRTimer);
 
   // ≈сли это было случайное перемещение, то ничего не делаем
-  if time < 500 then
+  if time < DragDropTimeOut then
     Exit;
 
-  AcxGridDBBandedTableView := nil;
-
-  cxGrid.BeginUpdate();
-  try
-    // ќпредел€ем точку переноса
-    AcxCustomGridHitTest := (Sender as TcxGridSite).ViewInfo.GetHitTest(X, Y);
-
-    // ѕеренос на €чейку грида
-    if AcxCustomGridHitTest is TcxGridRecordCellHitTest then
-    begin
-      AcxGridRecordCellHitTest :=
-        AcxCustomGridHitTest as TcxGridRecordCellHitTest;
-      AcxGridDBBandedTableView := AcxGridRecordCellHitTest.GridView as
-        TcxGridDBBandedTableView;
-
-      // определ€ем пор€док в точке переноса
-      FDropDrag.OrderValue := AcxGridRecordCellHitTest.GridRecord.Values
-        [clOrd.Index];
-
-      // определ€ем код параметра в точке переноса
-      FDropDrag.Key := AcxGridRecordCellHitTest.GridRecord.Values[clID.Index];
-    end;
-
-    // ѕеренос на пустое место
-    if AcxCustomGridHitTest is TcxGridViewNoneHitTest then
-    begin
-      AcxGridViewNoneHitTest := AcxCustomGridHitTest as TcxGridViewNoneHitTest;
-      AcxGridDBBandedTableView := AcxGridViewNoneHitTest.GridView as
-        TcxGridDBBandedTableView;
-
-      FDropDrag.Key := 0;
-      FDropDrag.OrderValue := 0;
-    end;
-
-    if AcxGridDBBandedTableView <> nil then
-    begin
-      FParametersGroup.qParameterTypes.MoveDSRecord(FStartDrag, FDropDrag);
-    end;
-
-  finally
-    cxGrid.EndUpdate;
-  end;
+  DoDragDrop(Sender as TcxGridSite, FParameterTypesDI,
+    FParametersGroup.qParameterTypes, X, Y);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableViewDragOver(Sender,
   Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
-var
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-  AcxGridSite: TcxGridSite;
-  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
-  HT: TcxCustomGridHitTest;
 begin
-  Accept := False;
-
-  AcxGridSite := Sender as TcxGridSite;
-  HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
-
-  // ≈сли перетаскиваем на пустой GridView
-  if HT is TcxGridViewNoneHitTest then
-  begin
-    AcxGridViewNoneHitTest := HT as TcxGridViewNoneHitTest;
-
-    Accept := AcxGridViewNoneHitTest.GridView.Level = FStartDragLevel;
-  end;
-
-  // ≈сли перетаскиваем на €чейку GridView
-  if HT is TcxGridRecordCellHitTest then
-  begin
-    AcxGridRecordCellHitTest := HT as TcxGridRecordCellHitTest;
-
-    Accept := (AcxGridRecordCellHitTest.GridView.Level = FStartDragLevel) and
-      (AcxGridRecordCellHitTest.GridRecord.RecordIndex <>
-      AcxGridSite.GridView.DataController.FocusedRecordIndex);
-  end
-
+  DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableViewStartDrag(Sender: TObject;
   var DragObject: TDragObject);
-var
-  I: Integer;
 begin
   inherited;
-  with (Sender as TcxGridSite).GridView as TcxGridDBBandedTableView do
-  begin
-    FStartDragLevel := Level as TcxGridLevel;
-    Assert(Controller.SelectedRowCount > 0);
 
-    if VarIsNull(Controller.SelectedRows[0].Values[clOrd.Index]) then
-      Exit;
+  DoOnStartDrag(Sender as TcxGridSite, FParameterTypesDI);
 
-    // запоминаем минимальный пор€док записи которую начали переносить
-    FStartDrag.MinOrderValue := Controller.SelectedRows[0].Values[clOrd.Index];
-
-    // запоминаем максимальный пор€док записи которую начали переносить
-    FStartDrag.MaxOrderValue := Controller.SelectedRows
-      [Controller.SelectedRecordCount - 1].Values[clOrd.Index];
-
-    SetLength(FStartDrag.Keys, Controller.SelectedRowCount);
-    for I := 0 to Controller.SelectedRowCount - 1 do
-    begin
-      FStartDrag.Keys[I] := Controller.SelectedRecords[I].Values[clID.Index];
-    end;
-
-    // «апускаем таймер чтобы рассчитать врем€ переноса записей
-    FHRTimer := THRTimer.Create(True);
-  end;
+  // «апускаем таймер чтобы рассчитать врем€ переноса записей
+  FHRTimer := THRTimer.Create(True);
 end;
 
 procedure TViewParameters.DoAfterEditValueChanged(var Message: TMessage);

@@ -8,10 +8,11 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls;
+  FireDAC.Comp.Client, Vcl.StdCtrls, OrderQuery;
 
 type
-  TQueryProducerTypes = class(TQueryWithDataSource)
+  TQueryProducerTypes = class(TQueryOrder)
+    FDUpdateSQL: TFDUpdateSQL;
   private
     procedure DoAfterOpen(Sender: TObject);
     function GetProducerType: TField;

@@ -2,7 +2,6 @@ inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
   ShowHint = True
   inherited cxGrid: TcxGrid
-    LookAndFeel.NativeStyle = False
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -11,7 +10,6 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnMoving = False
-      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
       OptionsView.BandHeaderEndEllipsis = True

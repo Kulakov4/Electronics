@@ -43,13 +43,10 @@ type
     clFunctionalGroupParentExternalId: TcxGridDBColumn;
     glFunctionalGroup: TcxGridLevel;
     cxtsCategoryComponents: TcxTabSheet;
-    ViewComponents: TViewComponents;
     cxtsCategoryParameters: TcxTabSheet;
     ViewCategoryParameters: TViewCategoryParameters;
     cxtsComponentsSearch: TcxTabSheet;
-    ViewComponentsSearch: TViewComponentsSearch;
     cxtsParametricTable: TcxTabSheet;
-    ViewParametricTable: TViewParametricTable;
     dxBarManager: TdxBarManager;
     dxBarManagerBar1: TdxBar;
     ActionList: TActionList;
@@ -71,6 +68,9 @@ type
     dxBarButton6: TdxBarButton;
     actLoadDocFromExcelDocument: TAction;
     dxBarButton7: TdxBarButton;
+    ViewComponents: TViewComponents;
+    ViewComponentsSearch: TViewComponentsSearch;
+    ViewParametricTable: TViewParametricTable;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadDocFromExcelDocumentExecute(Sender: TObject);
@@ -83,12 +83,6 @@ type
     procedure cxtsCategoryComponentsShow(Sender: TObject);
     procedure cxtsCategoryParametersShow(Sender: TObject);
     procedure cxtsComponentsSearchShow(Sender: TObject);
-    procedure ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
-      (Sender: TObject);
-    procedure ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
-    procedure ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
   private
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TList<TFieldInfo>): Boolean;
@@ -565,28 +559,6 @@ begin
     FreeAndNil(AParametricErrorTable)
   end;
   Result := OK;
-end;
-
-procedure TComponentsFrame.
-  ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
-  (Sender: TObject);
-begin
-  inherited;
-  ;
-end;
-
-procedure TComponentsFrame.ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-  ;
-end;
-
-procedure TComponentsFrame.ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-  ;
 end;
 
 constructor TParametricErrorTable.Create(AOwner: TComponent);

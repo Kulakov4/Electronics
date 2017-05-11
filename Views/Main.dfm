@@ -134,6 +134,10 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -200,21 +204,27 @@ object frmMain: TfrmMain
           ClientRectRight = 922
           ClientRectTop = 27
           inherited cxtsCategory: TcxTabSheet
+            ExplicitLeft = 0
+            ExplicitTop = 0
+            ExplicitWidth = 0
+            ExplicitHeight = 0
             inherited cxgrdFunctionalGroup: TcxGrid
               Width = 918
               Height = 474
+              ExplicitWidth = 918
+              ExplicitHeight = 474
             end
           end
           inherited cxtsCategoryComponents: TcxTabSheet
             inherited ViewComponents: TViewComponents
-              Width = 918
-              Height = 474
+              ExplicitLeft = 0
+              ExplicitTop = 0
+              ExplicitWidth = 870
+              ExplicitHeight = 452
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 427
+                ExplicitWidth = 870
+                ExplicitHeight = 405
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-                  DataController.OnCompare = nil
-                  DataController.OnSortingChanged = ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
@@ -266,8 +276,8 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 455
-                Width = 918
+                ExplicitTop = 433
+                ExplicitWidth = 870
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -325,21 +335,28 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsComponentsSearch: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 918
-            ExplicitHeight = 474
             inherited ViewComponentsSearch: TViewComponentsSearch
-              Width = 918
-              Height = 474
-              ExplicitWidth = 918
-              ExplicitHeight = 474
+              ExplicitLeft = 0
+              ExplicitTop = 0
+              ExplicitWidth = 870
+              ExplicitHeight = 452
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 427
                 ExplicitWidth = 918
                 ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-                  DataController.OnSortingChanged = ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged
+                  Styles.OnGetHeaderStyle = nil
+                  inherited clDatasheet: TcxGridDBBandedColumn
+                    Properties.Buttons = <
+                      item
+                        Action = ComponentsFrame.ViewComponentsSearch.actOpenDatasheet
+                        Kind = bkText
+                      end
+                      item
+                        Action = ComponentsFrame.ViewComponentsSearch.actLoadDatasheet
+                        Default = True
+                        Kind = bkEllipsis
+                      end>
+                  end
                   inherited clDiagram: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
@@ -379,8 +396,6 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 455
-                Width = 918
                 ExplicitTop = 455
                 ExplicitWidth = 918
               end
@@ -409,14 +424,23 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsParametricTable: TcxTabSheet
+            ExplicitTop = 27
+            ExplicitWidth = 918
+            ExplicitHeight = 474
             inherited ViewParametricTable: TViewParametricTable
               Width = 918
               Height = 474
+              ExplicitLeft = 0
+              ExplicitTop = 0
+              ExplicitWidth = 918
+              ExplicitHeight = 474
               inherited cxGrid: TcxGrid
                 Width = 918
                 Height = 427
+                ExplicitWidth = 918
+                ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-                  DataController.OnSortingChanged = ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged
+                  Styles.OnGetHeaderStyle = nil
                   inherited clProducer: TcxGridDBBandedColumn
                     IsCaptionAssigned = True
                   end
@@ -483,6 +507,8 @@ object frmMain: TfrmMain
               inherited StatusBar: TStatusBar
                 Top = 455
                 Width = 918
+                ExplicitTop = 455
+                ExplicitWidth = 918
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

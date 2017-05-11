@@ -86,15 +86,12 @@ object ComponentsFrame: TComponentsFrame
         Height = 452
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 870
-        ExplicitHeight = 452
+        ExplicitLeft = -23
+        ExplicitTop = -39
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
-          ExplicitWidth = 870
-          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-            DataController.OnSortingChanged = ViewComponentscxGridDBBandedTableViewDataControllerSortingChanged
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
                 item
@@ -148,8 +145,6 @@ object ComponentsFrame: TComponentsFrame
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 433
-          ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
@@ -232,21 +227,20 @@ object ComponentsFrame: TComponentsFrame
         Height = 452
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 870
-        ExplicitHeight = 452
+        ExplicitLeft = -23
+        ExplicitTop = -39
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
-          ExplicitWidth = 870
-          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-            DataController.OnSortingChanged = ViewComponentsSearchcxGridDBBandedTableViewDataControllerSortingChanged
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
                 item
-                  Kind = bkGlyph
+                  Action = ViewComponentsSearch.actOpenDatasheet
+                  Kind = bkText
                 end
                 item
+                  Action = ViewComponentsSearch.actLoadDatasheet
                   Default = True
                   Kind = bkEllipsis
                 end>
@@ -267,7 +261,7 @@ object ComponentsFrame: TComponentsFrame
               Properties.Buttons = <
                 item
                   Action = ViewComponentsSearch.actOpenDrawing
-                  Kind = bkGlyph
+                  Kind = bkText
                 end
                 item
                   Action = ViewComponentsSearch.actLoadDrawing
@@ -279,7 +273,7 @@ object ComponentsFrame: TComponentsFrame
               Properties.Buttons = <
                 item
                   Action = ViewComponentsSearch.actOpenImage
-                  Kind = bkGlyph
+                  Kind = bkText
                 end
                 item
                   Action = ViewComponentsSearch.actLoadImage
@@ -292,8 +286,6 @@ object ComponentsFrame: TComponentsFrame
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 433
-          ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
@@ -306,13 +298,13 @@ object ComponentsFrame: TComponentsFrame
           PopupMenus = <
             item
               GridView = ViewComponentsSearch.cxGridDBBandedTableView
-              HitTypes = [gvhtCell]
+              HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
               Index = 0
               PopupMenu = ViewComponentsSearch.pmGrid
             end
             item
               GridView = ViewComponentsSearch.cxGridDBBandedTableView2
-              HitTypes = [gvhtCell]
+              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
               Index = 1
               PopupMenu = ViewComponentsSearch.pmGrid
             end>
@@ -331,15 +323,12 @@ object ComponentsFrame: TComponentsFrame
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
-        ExplicitWidth = 870
-        ExplicitHeight = 452
+        ExplicitLeft = -23
+        ExplicitTop = -39
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
-          ExplicitWidth = 870
-          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-            DataController.OnSortingChanged = ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True
             end
@@ -406,8 +395,6 @@ object ComponentsFrame: TComponentsFrame
         inherited StatusBar: TStatusBar
           Top = 433
           Width = 870
-          ExplicitTop = 433
-          ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
@@ -420,13 +407,13 @@ object ComponentsFrame: TComponentsFrame
           PopupMenus = <
             item
               GridView = ViewParametricTable.cxGridDBBandedTableView
-              HitTypes = [gvhtCell]
+              HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
               Index = 0
               PopupMenu = ViewParametricTable.pmGrid
             end
             item
               GridView = ViewParametricTable.cxGridDBBandedTableView2
-              HitTypes = [gvhtCell]
+              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
               Index = 1
               PopupMenu = ViewParametricTable.pmGrid
             end>

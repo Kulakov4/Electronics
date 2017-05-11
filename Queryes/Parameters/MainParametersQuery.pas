@@ -10,48 +10,40 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, DragHelper, System.Generics.Collections,
   NotifyEvents, QueryWithDataSourceUnit, SearchMainParameterQuery,
-  ApplyQueryFrame;
+  ApplyQueryFrame, OrderQuery;
 
 const
   WM_arInsert = WM_USER + 139;
 
 type
-  TQueryMainParameters = class(TQueryWithDataSource)
+  TQueryMainParameters = class(TQueryOrder)
     fdqBase: TFDQuery;
     ParametersApplyQuery: TfrmApplyQuery;
     fdqDeleteFromCategoryParams: TFDQuery;
   private
-    FHaveAnyChanges: Boolean;
     FProductCategoryIDValue: Integer;
     FQuerySearchMainParameter: TQuerySearchMainParameter;
-    FRecOrderList: TList<TRecOrder>;
     FShowDublicate: Boolean;
     FTableNameFilter: string;
-    procedure DoAfterCommitOrRollback(Sender: TObject);
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
-    procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    procedure DoBeforePost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
     function GetChecked: TField;
     function GetIDParameterType: TField;
     function GetIsCustomParameter: TField;
-    function GetOrder: TField;
     function GetQuerySearchMainParameter: TQuerySearchMainParameter;
     function GetTableName: TField;
     function GetValue: TField;
     procedure SetShowDublicate(const Value: Boolean);
     procedure SetTableNameFilter(const Value: string);
-    procedure TryCommit;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
-    procedure DoOnUpdateOrder(ARecOrder: TRecOrder);
-    procedure UpdateOrder;
+    function GetOrd: TField; override;
     property QuerySearchMainParameter: TQuerySearchMainParameter
       read GetQuerySearchMainParameter;
   public
@@ -59,11 +51,9 @@ type
     function GetCheckedPKValues: string;
     function Locate(const AFieldName, AValue: string): Boolean;
     function Lookup(AValue: string): Integer;
-    procedure MoveDSRecord(AStartDrag: TStartDrag; ADropDrag: TDropDrag);
     property Checked: TField read GetChecked;
     property IDParameterType: TField read GetIDParameterType;
     property IsCustomParameter: TField read GetIsCustomParameter;
-    property Order: TField read GetOrder;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue
       write FProductCategoryIDValue;
     property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
@@ -87,22 +77,12 @@ begin
   // Копируем базовый запрос и параметры
   AssignFrom(fdqBase);
 
-  FRecOrderList := TList<TRecOrder>.Create;
-
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Подписываемся на события
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
-
-  TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
-
-  TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommitOrRollback,
-    FEventList);
-  TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterCommitOrRollback,
-    FEventList);
 
   TNotifyEventWrap.Create(OnDataChange, DoOnDataChange, FEventList);
 
@@ -256,11 +236,6 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.DoAfterCommitOrRollback(Sender: TObject);
-begin
-  FHaveAnyChanges := False;
-end;
-
 procedure TQueryMainParameters.DoAfterInsert(Sender: TObject);
 begin
   FDQuery.FieldByName('IsCustomParameter').AsBoolean := False;
@@ -289,11 +264,6 @@ begin
 
 end;
 
-procedure TQueryMainParameters.DoAfterPost(Sender: TObject);
-begin
-  TryCommit;
-end;
-
 procedure TQueryMainParameters.DoBeforeOpen(Sender: TObject);
 begin
   SetParameters(['TableName', 'ProductCategoryID'],
@@ -309,31 +279,9 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.DoBeforePost(Sender: TObject);
-var
-  AField: TField;
-begin
-  if FHaveAnyChanges then
-    Exit;
-
-  for AField in FDQuery.Fields do
-  begin
-    if (AField <> Checked) and (AField.OldValue <> AField.Value) then
-    begin
-      FHaveAnyChanges := True;
-      break;
-    end;
-  end;
-end;
-
 procedure TQueryMainParameters.DoOnDataChange(Sender: TObject);
 begin
   // TryCommit;
-end;
-
-procedure TQueryMainParameters.DoOnUpdateOrder(ARecOrder: TRecOrder);
-begin
-  Order.Value := ARecOrder.Order;
 end;
 
 function TQueryMainParameters.GetChecked: TField;
@@ -373,7 +321,7 @@ begin
   Result := Field('IsCustomParameter');
 end;
 
-function TQueryMainParameters.GetOrder: TField;
+function TQueryMainParameters.GetOrd: TField;
 begin
   Result := Field('Order');
 end;
@@ -418,78 +366,6 @@ begin
     Result := V;
 end;
 
-procedure TQueryMainParameters.MoveDSRecord(AStartDrag: TStartDrag;
-  ADropDrag: TDropDrag);
-var
-  AClone: TFDMemTable;
-  AKeyField: TField;
-  ANewOrderValue: Integer;
-  AOrderField: TField;
-  // ARecOrder: TRecOrder;
-  i: Integer;
-  IsDown: Boolean;
-  IsUp: Boolean;
-  Sign: Integer;
-begin
-
-  // Готовимся обновить порядок параметров
-  AClone := TFDMemTable.Create(Self);
-  try
-    AClone.CloneCursor(FDQuery);
-    AClone.First;
-
-    // Если был перенос вверх
-    IsUp := (ADropDrag.OrderValue < AStartDrag.MinOrderValue);
-    // Если был перенос вниз
-    IsDown := not IsUp;
-
-    AOrderField := AClone.FieldByName(Order.FieldName);
-    AKeyField := AClone.FieldByName(PKFieldName);
-
-    while not AClone.Eof do
-    begin
-      Sign := 0;
-
-      // Если перетаскиваем вверх
-      if IsUp and (AOrderField.AsInteger >= ADropDrag.OrderValue) and
-        (AOrderField.AsInteger < AStartDrag.MinOrderValue) then
-        Sign := 1;
-
-      // Если перетаскиваем вниз
-      if IsDown and (AOrderField.AsInteger <= ADropDrag.OrderValue) and
-        (AOrderField.AsInteger > AStartDrag.MaxOrderValue) then
-        Sign := -1;
-
-      // Если текущую запись нужно сместить
-      if Sign <> 0 then
-      begin
-        // Запоминаем, что нужно изменить
-        FRecOrderList.Add(TRecOrder.Create(AKeyField.AsInteger,
-          AOrderField.AsInteger + Sign * Length(AStartDrag.Keys)));
-      end;
-
-      AClone.Next;
-    end;
-
-    ANewOrderValue := ADropDrag.OrderValue;
-    if IsDown then
-      ANewOrderValue := ADropDrag.OrderValue - Length(AStartDrag.Keys) + 1;
-
-    for i := Low(AStartDrag.Keys) to High(AStartDrag.Keys) do
-    begin
-      // Запоминаем, что нужно изменить
-      FRecOrderList.Add(TRecOrder.Create(AStartDrag.Keys[i],
-        ANewOrderValue + i));
-    end;
-  finally
-    FreeAndNil(AClone);
-  end;
-
-  // Выполняем все изменения
-  UpdateOrder;
-
-end;
-
 procedure TQueryMainParameters.SetShowDublicate(const Value: Boolean);
 var
   ASQL: String;
@@ -519,54 +395,6 @@ begin
     FDQuery.Close;
     FDQuery.Open;
   end;
-end;
-
-procedure TQueryMainParameters.TryCommit;
-begin
-  // Если никаких изменений кроме галочки не сделали
-  if (not AutoTransaction) and (not FHaveAnyChanges) and
-    (FDQuery.Connection.InTransaction) then
-  begin
-    FDQuery.Connection.Commit;
-  end;
-end;
-
-procedure TQueryMainParameters.UpdateOrder;
-var
-  APKValue: Integer;
-  i: Integer;
-  Ok: Boolean;
-begin
-  if FRecOrderList.Count = 0 then
-  begin
-    Exit;
-  end;
-
-  FDQuery.DisableControls;
-  try
-    APKValue := PKValue;
-    try
-      // Теперь поменяем порядок
-      for i := 0 to FRecOrderList.Count - 1 do
-      begin
-        Ok := FDQuery.Locate(PKFieldName, FRecOrderList[i].Key, []);
-        Assert(Ok);
-
-        FDQuery.Edit;
-        DoOnUpdateOrder(FRecOrderList[i]);
-        FDQuery.Post;
-      end;
-
-      for i := 0 to FRecOrderList.Count - 1 do
-        FRecOrderList[i].Free;
-      FRecOrderList.Clear;
-    finally
-      FDQuery.Locate(PKFieldName, APKValue, []);
-    end;
-  finally
-    FDQuery.EnableControls;
-  end;
-
 end;
 
 end.

@@ -2,7 +2,6 @@ inherited ViewParameters: TViewParameters
   inherited cxGrid: TcxGrid
     Top = 56
     Height = 416
-    LookAndFeel.NativeStyle = False
     ExplicitTop = 56
     ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -41,6 +40,8 @@ inherited ViewParameters: TViewParameters
         Caption = #1055#1086#1088#1103#1076#1086#1082
         DataBinding.FieldName = 'ord'
         Visible = False
+        SortIndex = 0
+        SortOrder = soAscending
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
@@ -69,7 +70,6 @@ inherited ViewParameters: TViewParameters
       DataController.Summary.SummaryGroups = <>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableView2DataControllerSummaryAfterSummary
       OptionsBehavior.CopyCaptionsToClipboard = False
-      OptionsBehavior.DragFocusing = dfDragDrop
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnVertSizing = False
@@ -97,6 +97,8 @@ inherited ViewParameters: TViewParameters
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Order'
         Visible = False
+        SortIndex = 0
+        SortOrder = soAscending
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1

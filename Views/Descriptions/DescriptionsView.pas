@@ -29,7 +29,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, HRTimer,
-  DragHelper;
+  DragHelper, dxCore;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 11;
@@ -78,6 +78,11 @@ type
     procedure clIDComponentTypePropertiesCloseUp(Sender: TObject);
     procedure clIDManufacturerPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
+    procedure cxGridDBBandedTableView2ColumnHeaderClick
+      (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+    procedure cxGridDBBandedTableView2CustomDrawColumnHeader
+      (Sender: TcxGridTableView; ACanvas: TcxCanvas;
+      AViewInfo: TcxGridColumnHeaderViewInfo; var ADone: Boolean);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
@@ -86,19 +91,17 @@ type
       X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
-    procedure cxGridDBBandedTableView2DataControllerSortingChanged
-      (Sender: TObject);
     procedure cxGridDBBandedTableView2DataControllerCompare(ADataController
       : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
+    procedure cxGridDBBandedTableView2StylesGetHeaderStyle
+      (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FDescriptionsGroup: TDescriptionsGroup;
-    FDropDrag: TDropDrag;
+    FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
-    FStartDrag: TStartDrag;
-    FStartDragLevel: TcxGridLevel;
     procedure DoAfterDataChange(Sender: TObject);
     procedure SetDescriptionsGroup(const Value: TDescriptionsGroup);
     procedure UpdateTotalCount;
@@ -125,7 +128,7 @@ uses
   DescriptionsExcelDataModule, DialogUnit, ImportErrorForm, NotifyEvents,
   cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
   System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit,
-  cxGridDBDataDefinitions, cxVariants;
+  cxGridDBDataDefinitions, cxVariants, RepositoryDataModule;
 
 {$R *.dfm}
 
@@ -136,16 +139,15 @@ constructor TViewDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
-  FStartDrag := TStartDrag.Create;
-  FDropDrag := TDropDrag.Create;
+
+  FDragAndDropInfo := TDragAndDropInfo.Create(clID, clOrder);
 
   PostOnEnterFields.Add(clComponentType.DataBinding.FieldName);
 end;
 
 destructor TViewDescriptions.Destroy;
 begin
-  FreeAndNil(FStartDrag);
-  FreeAndNil(FDropDrag);
+  FreeAndNil(FDragAndDropInfo);
   inherited;
 end;
 
@@ -490,6 +492,60 @@ begin
   end;
 end;
 
+procedure TViewDescriptions.cxGridDBBandedTableView2ColumnHeaderClick
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+var
+  ASortOrder: TdxSortOrder;
+  AView: TcxGridDBBandedTableView;
+  Col: TcxGridDBBandedColumn;
+  Col2: TcxGridDBBandedColumn;
+  S: string;
+begin
+  inherited;
+
+  Col := AColumn as TcxGridDBBandedColumn;
+  AView := Sender as TcxGridDBBandedTableView;
+
+  S := String.Format(',%s,%s,', [clIDProducer.DataBinding.FieldName,
+    clComponentName.DataBinding.FieldName]);
+
+  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
+    Exit;
+
+  if (Col.SortOrder = soAscending) and (Col.SortIndex = 0) then
+    ASortOrder := soDescending
+  else
+    ASortOrder := soAscending;
+
+  AView.BeginSortingUpdate;
+  try
+    // Очистили сортировку
+    ClearSort(AView);
+
+    // В первую очередь отсортировали по этому столбцу
+    Col.SortOrder := ASortOrder;
+
+    // Щёлкнули по производителю
+    if Col.DataBinding.FieldName = clIDProducer.DataBinding.FieldName then
+    begin
+      // Во вторую очередь по названию компонента
+      Col2 := AView.GetColumnByFieldName(clComponentName.DataBinding.FieldName);
+      Col2.SortOrder := ASortOrder;
+    end;
+  finally
+    AView.EndSortingUpdate;
+  end;
+
+end;
+
+procedure TViewDescriptions.cxGridDBBandedTableView2CustomDrawColumnHeader
+  (Sender: TcxGridTableView; ACanvas: TcxCanvas;
+AViewInfo: TcxGridColumnHeaderViewInfo; var ADone: Boolean);
+begin
+  inherited;
+  DoOnCustomDrawColumnHeader(AViewInfo, ACanvas);
+end;
+
 procedure TViewDescriptions.cxGridDBBandedTableView2DataControllerCompare
   (ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
   AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
@@ -534,41 +590,11 @@ begin
     Compare := VarCompare(V1, V2);
 end;
 
-procedure TViewDescriptions.cxGridDBBandedTableView2DataControllerSortingChanged
-  (Sender: TObject);
-var
-  AclComponentName: TcxGridDBBandedColumn;
-  AclIDProducer: TcxGridDBBandedColumn;
-  AColumn: TcxGridDBBandedColumn;
-  AView: TcxGridDBBandedTableView;
-  C: TcxGridDBDataController;
+procedure TViewDescriptions.cxGridDBBandedTableView2StylesGetHeaderStyle
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
 begin
   inherited;
-  C := Sender as TcxGridDBDataController;
-  AView := C.GridView as TcxGridDBBandedTableView;
-
-  // При изменении сортировки
-  if AView.SortedItemCount > 0 then
-  begin
-    AColumn := AView.SortedItems[0] as TcxGridDBBandedColumn;
-
-    AclIDProducer := AView.GetColumnByFieldName
-      (clIDProducer.DataBinding.FieldName);
-    Assert(AclIDProducer <> nil);
-
-    if AColumn = AclIDProducer then
-    begin
-      AclComponentName := AView.GetColumnByFieldName
-        (clComponentName.DataBinding.FieldName);
-      Assert(AclComponentName <> nil);
-
-      // А потом по наименованию
-      AclComponentName.SortOrder := AclIDProducer.SortOrder;
-      AclComponentName.SortIndex := 1;
-    end;
-
-  end;
-
+  DoOnGetHeaderStyle(AColumn, AStyle);
 end;
 
 procedure TViewDescriptions.
@@ -589,10 +615,6 @@ end;
 procedure TViewDescriptions.cxGridDBBandedTableViewDragDrop(Sender,
   Source: TObject; X, Y: Integer);
 var
-  AcxCustomGridHitTest: TcxCustomGridHitTest;
-  AcxGridDBBandedTableView: TcxGridDBBandedTableView;
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
   time: Double;
 begin
   // Таймер должны были запустить
@@ -602,114 +624,27 @@ begin
   FreeAndNil(FHRTimer);
 
   // Если это было случайное перемещение, то ничего не делаем
-  if time < 500 then
+  if time < DragDropTimeOut then
     Exit;
 
-  AcxGridDBBandedTableView := nil;
+  DoDragDrop(Sender as TcxGridSite, FDragAndDropInfo,
+    FDescriptionsGroup.qDescriptionTypes, X, Y);
 
-  cxGrid.BeginUpdate();
-  try
-    // Определяем точку переноса
-    AcxCustomGridHitTest := (Sender as TcxGridSite).ViewInfo.GetHitTest(X, Y);
-
-    if AcxCustomGridHitTest is TcxGridRecordCellHitTest then
-    begin
-      AcxGridRecordCellHitTest :=
-        AcxCustomGridHitTest as TcxGridRecordCellHitTest;
-      AcxGridDBBandedTableView := AcxGridRecordCellHitTest.GridView as
-        TcxGridDBBandedTableView;
-
-      // определяем порядок в точке переноса
-      FDropDrag.OrderValue := AcxGridRecordCellHitTest.GridRecord.Values
-        [clOrder.Index];
-
-      // определяем код параметра в точке переноса
-      FDropDrag.Key := AcxGridRecordCellHitTest.GridRecord.Values[clID2.Index];
-    end;
-
-    if AcxCustomGridHitTest is TcxGridViewNoneHitTest then
-    begin
-      AcxGridViewNoneHitTest := AcxCustomGridHitTest as TcxGridViewNoneHitTest;
-      AcxGridDBBandedTableView := AcxGridViewNoneHitTest.GridView as
-        TcxGridDBBandedTableView;
-
-      FDropDrag.Key := 0;
-      FDropDrag.OrderValue := 0;
-    end;
-
-    if AcxGridDBBandedTableView <> nil then
-    begin
-      FDescriptionsGroup.qDescriptionTypes.MoveDSRecord(FStartDrag, FDropDrag);
-    end;
-  finally
-    cxGrid.EndUpdate;
-  end;
-
-  GetDBBandedTableView(1).Focused := True;
-  UpdateView;
-
+//  GetDBBandedTableView(0).Focused := True;
 end;
 
 procedure TViewDescriptions.cxGridDBBandedTableViewDragOver(Sender,
   Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
-var
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
-  AcxGridSite: TcxGridSite;
-  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
-  HT: TcxCustomGridHitTest;
 begin
-  Accept := false;
-
-  AcxGridSite := Sender as TcxGridSite;
-  HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
-
-  // Если перетаскиваем на пустой GridView
-  if HT is TcxGridViewNoneHitTest then
-  begin
-    AcxGridViewNoneHitTest := HT as TcxGridViewNoneHitTest;
-
-    Accept := AcxGridViewNoneHitTest.GridView.Level = FStartDragLevel;
-  end;
-
-  // Если перетаскиваем на ячейку GridView
-  if HT is TcxGridRecordCellHitTest then
-  begin
-    AcxGridRecordCellHitTest := HT as TcxGridRecordCellHitTest;
-
-    Accept := (AcxGridRecordCellHitTest.GridView.Level = FStartDragLevel) and
-      (AcxGridRecordCellHitTest.GridRecord.RecordIndex <>
-      AcxGridSite.GridView.DataController.FocusedRecordIndex);
-  end
+  inherited;
+  DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
 procedure TViewDescriptions.cxGridDBBandedTableViewStartDrag(Sender: TObject;
 var DragObject: TDragObject);
-var
-  I: Integer;
 begin
-  with (Sender as TcxGridSite).GridView as TcxGridDBBandedTableView do
-  begin
-    FStartDragLevel := Level as TcxGridLevel;
-    Assert(Controller.SelectedRowCount > 0);
-
-    if VarIsNull(Controller.SelectedRows[0].Values[clOrder.Index]) then
-      Exit;
-
-    // запоминаем минимальный порядок записи которую начали переносить
-    FStartDrag.MinOrderValue := Controller.SelectedRows[0].Values
-      [clOrder.Index];
-
-    // запоминаем максимальный порядок записи которую начали переносить
-    FStartDrag.MaxOrderValue := Controller.SelectedRows
-      [Controller.SelectedRecordCount - 1].Values[clOrder.Index];
-
-    SetLength(FStartDrag.Keys, Controller.SelectedRowCount);
-    for I := 0 to Controller.SelectedRowCount - 1 do
-    begin
-      FStartDrag.Keys[I] := Controller.SelectedRecords[I].Values[clID2.Index];
-    end;
-
-  end;
+  inherited;
+  DoOnStartDrag(Sender as TcxGridSite, FDragAndDropInfo);
 
   // Запускаем таймер чтобы рассчитать время переноса записей
   FHRTimer := THRTimer.Create(True);

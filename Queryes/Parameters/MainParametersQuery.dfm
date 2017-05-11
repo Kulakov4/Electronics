@@ -87,7 +87,7 @@ inherited QueryMainParameters: TQueryMainParameters
         Active = True
         Selected = True
         Name = 'idxOrder'
-        Fields = 'IDParameterType;Order'
+        Fields = 'IDParameterType'
       end>
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode, uvUpdateNonBaseFields]

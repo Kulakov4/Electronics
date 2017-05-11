@@ -25,7 +25,6 @@ inherited frmParametricTable: TfrmParametricTable
       ExplicitWidth = 852
       ExplicitHeight = 491
       inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-        DataController.OnSortingChanged = ViewParametricTablecxGridDBBandedTableViewDataControllerSortingChanged
         inherited clProducer: TcxGridDBBandedColumn
           IsCaptionAssigned = True
         end

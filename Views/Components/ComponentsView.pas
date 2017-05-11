@@ -59,8 +59,6 @@ type
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
-    procedure cxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
   private
     FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
@@ -177,13 +175,6 @@ begin
   DoOnUpdateComponentslCount(nil);
   DoOnUpdateFamilyCount(nil);
   UpdateTotalComponentCount;
-end;
-
-procedure TViewComponents.cxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-;
 end;
 
 procedure TViewComponents.cxGridDBBandedTableViewSelectionChanged

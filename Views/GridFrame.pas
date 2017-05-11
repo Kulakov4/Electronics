@@ -27,7 +27,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
-  BaseQuery, System.Generics.Collections;
+  BaseQuery, System.Generics.Collections, DragHelper, OrderQuery;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -50,9 +50,12 @@ type
     N1: TMenuItem;
     cxGridPopupMenu: TcxGridPopupMenu;
     procedure actCopyToClipboardExecute(Sender: TObject);
+    procedure cxGridDBBandedTableViewCustomDrawColumnHeader(Sender:
+        TcxGridTableView; ACanvas: TcxCanvas; AViewInfo:
+        TcxGridColumnHeaderViewInfo; var ADone: Boolean);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
-        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
-        TShiftState);
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+      Shift: TShiftState);
     procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure cxGridDBBandedTableViewMouseDown(Sender: TObject;
@@ -60,8 +63,11 @@ type
     procedure cxGridPopupMenuPopup(ASenderMenu: TComponent;
       AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
     procedure StatusBarResize(Sender: TObject);
+    procedure cxGridDBBandedTableViewStylesGetHeaderStyle(
+      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FPostOnEnterFields: TList<String>;
+    FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
     function GetMainView: TcxGridDBBandedTableView;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
@@ -75,9 +81,9 @@ type
     procedure CreateColumnsBarButtons; virtual;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); virtual;
-    procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView; AItem:
-        TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
-        TShiftState);
+    procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+      Shift: TShiftState);
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
     function GetFocusedTableView: TcxGridDBBandedTableView; virtual;
@@ -104,6 +110,16 @@ type
     procedure ApplyBestFitEx; virtual;
     procedure ApplyBestFitFocusedBand; virtual;
     procedure BeginUpdate; virtual;
+    procedure ClearSort(AView: TcxGridDBBandedTableView);
+    procedure DoDragDrop(AcxGridSite: TcxGridSite; ADragAndDropInfo:
+        TDragAndDropInfo; AQueryOrder: TQueryOrder; X, Y: Integer);
+    procedure DoDragOver(AcxGridSite: TcxGridSite; X, Y: Integer; var Accept:
+        Boolean);
+    procedure DoOnCustomDrawColumnHeader(AViewInfo: TcxGridColumnHeaderViewInfo;
+        ACanvas: TcxCanvas);
+    procedure DoOnGetHeaderStyle(AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure DoOnStartDrag(AcxGridSite: TcxGridSite; ADragAndDropInfo:
+        TDragAndDropInfo);
     procedure EndUpdate; virtual;
     procedure ExportViewToExcel(AView: TcxGridDBBandedTableView;
       AFileName: string; AGridProcRef: TGridProcRef = nil);
@@ -129,8 +145,8 @@ type
       read GetFocusedTableView;
     property MainView: TcxGridDBBandedTableView read GetMainView;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
-    property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex write
-        SetStatusBarEmptyPanelIndex;
+    property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
+      write SetStatusBarEmptyPanelIndex;
     { Public declarations }
   end;
 
@@ -138,7 +154,8 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink;
+uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink,
+  dxCore;
 
 constructor TfrmGrid.Create(AOwner: TComponent);
 begin
@@ -214,6 +231,16 @@ begin
   cxGrid.BeginUpdate();
 end;
 
+procedure TfrmGrid.ClearSort(AView: TcxGridDBBandedTableView);
+var
+  i: Integer;
+begin
+  Assert(AView <> nil);
+
+  for i := 0 to AView.ColumnCount - 1 do
+    AView.Columns[i].SortOrder := soNone;
+end;
+
 procedure TfrmGrid.CreateColumnsBarButtons;
 begin
   if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons = nil) then
@@ -227,9 +254,16 @@ begin
   AView.DataController.Filter.Assign(ASource.DataController.Filter);
 end;
 
-procedure TfrmGrid.cxGridDBBandedTableViewEditKeyDown(Sender:
-    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
-    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TfrmGrid.cxGridDBBandedTableViewCustomDrawColumnHeader(Sender:
+    TcxGridTableView; ACanvas: TcxCanvas; AViewInfo:
+    TcxGridColumnHeaderViewInfo; var ADone: Boolean);
+begin
+  DoOnCustomDrawColumnHeader(AViewInfo, ACanvas);
+end;
+
+procedure TfrmGrid.cxGridDBBandedTableViewEditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
@@ -244,6 +278,12 @@ procedure TfrmGrid.cxGridDBBandedTableViewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TfrmGrid.cxGridDBBandedTableViewStylesGetHeaderStyle(
+  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+begin
+  DoOnGetHeaderStyle(AColumn, AStyle);
 end;
 
 procedure TfrmGrid.cxGridPopupMenuPopup(ASenderMenu: TComponent;
@@ -267,15 +307,16 @@ begin
   OnGridPopupMenuPopup(AColumn);
 end;
 
-procedure TfrmGrid.DoOnEditKeyDown(Sender: TcxCustomGridTableView; AItem:
-    TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
-    TShiftState);
+procedure TfrmGrid.DoOnEditKeyDown(Sender: TcxCustomGridTableView;
+  AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+  Shift: TShiftState);
 var
   AColumn: TcxGridDBBandedColumn;
 begin
   AColumn := AItem as TcxGridDBBandedColumn;
 
-  if (Key = 13) and (FPostOnEnterFields.IndexOf(AColumn.DataBinding.FieldName) >= 0) then
+  if (Key = 13) and (FPostOnEnterFields.IndexOf(AColumn.DataBinding.FieldName)
+    >= 0) then
   begin
     cxGridDBBandedTableView.DataController.Post();
     UpdateView;
@@ -386,7 +427,7 @@ function TfrmGrid.GetDBBandedTableView(ALevel: Cardinal)
 var
   AcxGridDBBandedTableView: TcxGridDBBandedTableView;
   AcxGridMasterDataRow: TcxGridMasterDataRow;
-  I: Integer;
+  i: Integer;
 begin
   Result := nil;
   Assert(ALevel < 3);
@@ -400,12 +441,12 @@ begin
         if AcxGridDBBandedTableView = nil then
           Exit;
 
-        I := AcxGridDBBandedTableView.DataController.FocusedRowIndex;
-        if I < 0 then
+        i := AcxGridDBBandedTableView.DataController.FocusedRowIndex;
+        if i < 0 then
           Exit;
 
         AcxGridMasterDataRow := GetDBBandedTableView(ALevel - 1).ViewData.Rows
-          [I] as TcxGridMasterDataRow;
+          [i] as TcxGridMasterDataRow;
         // Спускаемся на дочерний уровень
         Result := AcxGridMasterDataRow.ActiveDetailGridView as
           TcxGridDBBandedTableView;
@@ -440,14 +481,14 @@ function TfrmGrid.GetRow(ALevel: Cardinal; ARowIndex: Integer = -1)
   : TcxCustomGridRow;
 var
   AcxGridDBBandedTableView: TcxGridDBBandedTableView;
-  I: Integer;
+  i: Integer;
 begin
   Result := nil;
   AcxGridDBBandedTableView := GetDBBandedTableView(ALevel);
-  I := IfThen(ARowIndex = -1,
+  i := IfThen(ARowIndex = -1,
     AcxGridDBBandedTableView.DataController.FocusedRowIndex, ARowIndex);
-  if I >= 0 then
-    Result := AcxGridDBBandedTableView.ViewData.Rows[I];
+  if i >= 0 then
+    Result := AcxGridDBBandedTableView.ViewData.Rows[i];
 end;
 
 procedure TfrmGrid.InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
@@ -552,13 +593,13 @@ end;
 procedure TfrmGrid.UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
 var
   AColumn: TcxGridDBBandedColumn;
-  I: Integer;
+  i: Integer;
   RealColumnWidth: Integer;
 begin
   // изменяем минимальные размеры всех колонок
-  for I := 0 to AView.ColumnCount - 1 do
+  for i := 0 to AView.ColumnCount - 1 do
   begin
-    AColumn := AView.Columns[I];
+    AColumn := AView.Columns[i];
 
     if AColumn.VisibleIndex >= 0 then
     begin
@@ -619,29 +660,172 @@ end;
 
 procedure TfrmGrid.DoStatusBarResize(AEmptyPanelIndex: Integer);
 var
-  I: Integer;
+  i: Integer;
   X: Integer;
 begin
   Assert(AEmptyPanelIndex >= 0);
   Assert(AEmptyPanelIndex < StatusBar.Panels.Count);
 
   X := StatusBar.ClientWidth;
-  for I := 0 to StatusBar.Panels.Count - 1 do
+  for i := 0 to StatusBar.Panels.Count - 1 do
   begin
-    if I <> AEmptyPanelIndex then
+    if i <> AEmptyPanelIndex then
     begin
-      Dec(X, StatusBar.Panels[I].Width);
+      Dec(X, StatusBar.Panels[i].Width);
     end;
   end;
   X := IfThen(X >= 0, X, 0);
   StatusBar.Panels[AEmptyPanelIndex].Width := X;
 end;
 
+procedure TfrmGrid.DoDragDrop(AcxGridSite: TcxGridSite; ADragAndDropInfo:
+    TDragAndDropInfo; AQueryOrder: TQueryOrder; X, Y: Integer);
+var
+  AcxCustomGridHitTest: TcxCustomGridHitTest;
+  AcxGridDBBandedTableView: TcxGridDBBandedTableView;
+  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
+  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
+
+begin
+  Assert(AcxGridSite <> nil);
+  Assert(ADragAndDropInfo <> nil);
+
+  AcxGridDBBandedTableView := nil;
+
+  // Определяем точку переноса
+  AcxCustomGridHitTest := AcxGridSite.ViewInfo.GetHitTest(X, Y);
+
+  if AcxCustomGridHitTest is TcxGridRecordCellHitTest then
+  begin
+    AcxGridRecordCellHitTest :=
+      AcxCustomGridHitTest as TcxGridRecordCellHitTest;
+    AcxGridDBBandedTableView := AcxGridRecordCellHitTest.GridView as
+      TcxGridDBBandedTableView;
+
+    // определяем порядок в точке переноса
+    ADragAndDropInfo.DropDrag.OrderValue := AcxGridRecordCellHitTest.GridRecord.Values
+      [ADragAndDropInfo.OrderColumn.Index];
+
+    // определяем код записи в точке переноса
+    ADragAndDropInfo.DropDrag.Key := AcxGridRecordCellHitTest.GridRecord.Values
+      [ADragAndDropInfo.KeyColumn.Index];
+  end;
+
+  if AcxCustomGridHitTest is TcxGridViewNoneHitTest then
+  begin
+    AcxGridViewNoneHitTest := AcxCustomGridHitTest as TcxGridViewNoneHitTest;
+    AcxGridDBBandedTableView := AcxGridViewNoneHitTest.GridView as
+      TcxGridDBBandedTableView;
+
+    ADragAndDropInfo.DropDrag.Key := 0;
+    ADragAndDropInfo.DropDrag.OrderValue := 0;
+  end;
+
+  if AcxGridDBBandedTableView <> nil then
+  begin
+    cxGrid.BeginUpdate();
+    try
+      AQueryOrder.MoveDSRecord(ADragAndDropInfo.StartDrag, ADragAndDropInfo.DropDrag);
+    finally
+      cxGrid.EndUpdate;
+    end;
+    UpdateView;
+  end;
+end;
+
+procedure TfrmGrid.DoDragOver(AcxGridSite: TcxGridSite; X, Y: Integer; var
+    Accept: Boolean);
+var
+  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
+  AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
+  HT: TcxCustomGridHitTest;
+begin
+  Assert(AcxGridSite <> nil);
+  Assert(FStartDragLevel <> nil);
+
+  Accept := false;
+
+  HT := AcxGridSite.ViewInfo.GetHitTest(X, Y);
+
+  // Если перетаскиваем на пустой GridView
+  if HT is TcxGridViewNoneHitTest then
+  begin
+    AcxGridViewNoneHitTest := HT as TcxGridViewNoneHitTest;
+
+    Accept := AcxGridViewNoneHitTest.GridView.Level = FStartDragLevel;
+  end;
+
+  // Если перетаскиваем на ячейку GridView
+  if HT is TcxGridRecordCellHitTest then
+  begin
+    AcxGridRecordCellHitTest := HT as TcxGridRecordCellHitTest;
+
+    Accept := (AcxGridRecordCellHitTest.GridView.Level = FStartDragLevel) and
+      (AcxGridRecordCellHitTest.GridRecord.RecordIndex <>
+      AcxGridSite.GridView.DataController.FocusedRecordIndex);
+  end
+end;
+
+procedure TfrmGrid.DoOnCustomDrawColumnHeader(AViewInfo:
+    TcxGridColumnHeaderViewInfo; ACanvas: TcxCanvas);
+begin
+  if AViewInfo.IsPressed then
+  begin
+    ACanvas.Brush.Color := DMRepository.cxHeaderStyle.Color XOR $FFFFFF;
+    ACanvas.Font.Color := clBlack XOR $FFFFFF;
+  end
+end;
+
+procedure TfrmGrid.DoOnGetHeaderStyle(AColumn: TcxGridColumn; var AStyle:
+    TcxStyle);
+begin
+  if AColumn = nil then
+    Exit;
+
+  if AColumn.SortIndex = 0 then
+    AStyle := DMRepository.cxHeaderStyle;
+end;
+
+procedure TfrmGrid.DoOnStartDrag(AcxGridSite: TcxGridSite; ADragAndDropInfo:
+    TDragAndDropInfo);
+var
+  I: Integer;
+begin
+  Assert(AcxGridSite <> nil);
+  Assert(ADragAndDropInfo <> nil);
+
+  with AcxGridSite.GridView as TcxGridDBBandedTableView do
+  begin
+    // Запоминаем с какого уровня начали перенос
+    FStartDragLevel := Level as TcxGridLevel;
+    Assert(Controller.SelectedRowCount > 0);
+
+    if VarIsNull(Controller.SelectedRows[0].Values[ADragAndDropInfo.OrderColumn.Index]) then
+      Exit;
+
+    // запоминаем минимальный порядок записи которую начали переносить
+    ADragAndDropInfo.StartDrag.MinOrderValue := Controller.SelectedRows[0].Values
+      [ADragAndDropInfo.OrderColumn.Index];
+
+    // запоминаем максимальный порядок записи которую начали переносить
+    ADragAndDropInfo.StartDrag.MaxOrderValue := Controller.SelectedRows
+      [Controller.SelectedRecordCount - 1].Values[ADragAndDropInfo.OrderColumn.Index];
+
+    SetLength(ADragAndDropInfo.StartDrag.Keys, Controller.SelectedRowCount);
+    for I := 0 to Controller.SelectedRowCount - 1 do
+    begin
+      ADragAndDropInfo.StartDrag.Keys[I] := Controller.SelectedRecords[I].Values[ADragAndDropInfo.KeyColumn.Index];
+    end;
+
+  end;
+
+end;
+
 procedure TfrmGrid.SetStatusBarEmptyPanelIndex(const Value: Integer);
 begin
   if FStatusBarEmptyPanelIndex <> Value then
   begin
-    if not (Value > 0) and (Value < StatusBar.Panels.Count) then
+    if not(Value > 0) and (Value < StatusBar.Panels.Count) then
       raise Exception.Create('Неверный индекс панели состояния');
 
     FStatusBarEmptyPanelIndex := Value;

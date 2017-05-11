@@ -110,11 +110,11 @@ type
     procedure cxGridDBBandedTableView2EditKeyDown
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
       AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-    procedure cxGridDBBandedTableViewDataControllerSortingChanged(
-      Sender: TObject);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
+    procedure cxGridDBBandedTableViewStylesGetHeaderStyle(
+      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FBaseComponentsGroup: TBaseComponentsGroup;
     FEditingValue: Variant;
@@ -349,7 +349,7 @@ procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerCompare
 begin
   inherited;
   // Зачем всё это????
-  {
+{
   if AItemIndex = 1 then
   begin
     if VarIsNull(V1) and not(VarIsNull(V2)) then
@@ -384,7 +384,7 @@ begin
 
   if MainView.Columns[AItemIndex].SortOrder = soAscending then
     Compare := Compare * (-1); // инвертировать порядок при необходимости
-  }
+}
 end;
 
 procedure TViewComponentsParent.
@@ -398,13 +398,6 @@ begin
     FOnDetailExpandedReceive := False;
     PostMessage(Handle, WM_ON_DETAIL_EXPANDED, 0, 0);
   end;
-end;
-
-procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerSortingChanged(
-  Sender: TObject);
-begin
-  inherited;
-  ;
 end;
 
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
@@ -664,6 +657,12 @@ procedure TViewComponentsParent.cxGridDBBandedTableViewLeftPosChanged
   (Sender: TObject);
 begin
   SyncScrollbarPositions;
+end;
+
+procedure TViewComponentsParent.cxGridDBBandedTableViewStylesGetHeaderStyle(
+  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+begin
+  inherited;
 end;
 
 { Удалить все выделенные записи }

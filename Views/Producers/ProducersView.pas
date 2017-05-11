@@ -27,7 +27,8 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox;
+  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox,
+  DragHelper, HRTimer;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
@@ -58,6 +59,7 @@ type
     clProducerTypeID: TcxGridDBBandedColumn;
     actAddType: TAction;
     dxBarButton1: TdxBarButton;
+    clOrder: TcxGridDBBandedColumn;
     procedure actAddExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -74,8 +76,16 @@ type
     procedure clProducerTypeIDPropertiesEditValueChanged(Sender: TObject);
     procedure clProducerTypeIDPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
+        Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
+        Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
+        TDragObject);
   private
+    FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
+    FHRTimer: THRTimer;
     FNewValue: string;
     FProducersGroup: TProducersGroup;
     FQuerySearchProducerTypes: TQuerySearchProducerTypes;
@@ -94,6 +104,7 @@ type
       read GetQuerySearchProducerTypes;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property ProducersGroup: TProducersGroup read FProducersGroup
@@ -115,8 +126,16 @@ begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
 
+  FDragAndDropInfo := TDragAndDropInfo.Create(clID, clOrder);
+
   PostOnEnterFields.Add(clProducerType.DataBinding.FieldName);
   PostOnEnterFields.Add(clName2.DataBinding.FieldName);
+end;
+
+destructor TViewProducers.Destroy;
+begin
+  FreeAndNil(FDragAndDropInfo);
+  inherited;
 end;
 
 procedure TViewProducers.actAddExecute(Sender: TObject);
@@ -398,6 +417,43 @@ begin
   S := VarToStrDef(MainView.DataController.Summary.FooterSummaryValues
     [AIndex], '---');
   StatusBar.Panels[0].Text := S;
+end;
+
+procedure TViewProducers.cxGridDBBandedTableViewDragDrop(Sender, Source:
+    TObject; X, Y: Integer);
+var
+  time: Double;
+begin
+  // Таймер должны были запустить
+  Assert(FHRTimer <> nil);
+  time := FHRTimer.ReadTimer;
+  // Таймер больше не нужен
+  FreeAndNil(FHRTimer);
+
+  // Если это было случайное перемещение, то ничего не делаем
+  if time < DragDropTimeOut then
+    Exit;
+
+  DoDragDrop(Sender as TcxGridSite, FDragAndDropInfo,
+    FProducersGroup.qProducerTypes, X, Y);
+end;
+
+procedure TViewProducers.cxGridDBBandedTableViewDragOver(Sender, Source:
+    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  inherited;
+  DoDragOver(Sender as TcxGridSite, X, Y, Accept);
+end;
+
+procedure TViewProducers.cxGridDBBandedTableViewStartDrag(Sender: TObject; var
+    DragObject: TDragObject);
+begin
+  inherited;
+  DoOnStartDrag(Sender as TcxGridSite, FDragAndDropInfo);
+
+  // Запускаем таймер чтобы рассчитать время переноса записей
+  FHRTimer := THRTimer.Create(True);
+
 end;
 
 procedure TViewProducers.DoAfterPost(Sender: TObject);
