@@ -22,13 +22,13 @@ type
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
     FDetailParameterName: string;
-    FPKFieldName: String;
     function GetCashedRecordBalance: Integer;
     function GetParentValue: Integer;
     function GetPKValue: Integer;
     { Private declarations }
   protected
     FEventList: TObjectList;
+    FPKFieldName: String;
     procedure ApplyDelete(ASender: TDataSet); virtual;
     procedure ApplyInsert(ASender: TDataSet); virtual;
     procedure ApplyUpdate(ASender: TDataSet); virtual;

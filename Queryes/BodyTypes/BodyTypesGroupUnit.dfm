@@ -8,13 +8,16 @@ inherited BodyTypesGroup: TBodyTypesGroup
     Height = 142
     ColumnCollection = <
       item
-        Value = 33.343417990816190000
+        Value = 11.889279042531030000
       end
       item
-        Value = 33.330063136912380000
+        Value = 38.115459404365360000
       end
       item
-        Value = 33.326518872271440000
+        Value = 38.115459538673110000
+      end
+      item
+        Value = 11.879802014430490000
       end>
     ControlCollection = <
       item
@@ -31,44 +34,59 @@ inherited BodyTypesGroup: TBodyTypesGroup
         Column = 2
         Control = qBodyTypesBranch
         Row = 0
+      end
+      item
+        Column = 3
+        Control = qProducers
+        Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 578
-    ExplicitHeight = 113
+    ExplicitWidth = 877
+    ExplicitHeight = 142
     inline qBodyKinds: TQueryBodyKinds
       Left = 1
       Top = 1
-      Width = 291
+      Width = 104
       Height = 140
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 34
-      ExplicitTop = 21
-      ExplicitHeight = 71
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 184
+      ExplicitHeight = 140
     end
     inline qBodyTypes2: TQueryBodyTypes2
-      Left = 292
+      Left = 105
       Top = 1
-      Width = 291
+      Width = 333
       Height = 140
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 223
-      ExplicitTop = 21
-      ExplicitWidth = 130
-      ExplicitHeight = 71
+      ExplicitLeft = 292
+      ExplicitTop = 1
+      ExplicitWidth = 291
+      ExplicitHeight = 140
     end
     inline qBodyTypesBranch: TQueryBodyTypesBranch
-      Left = 583
+      Left = 438
       Top = 1
-      Width = 293
+      Width = 333
       Height = 140
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 418
-      ExplicitTop = 21
-      ExplicitHeight = 71
+      ExplicitLeft = 583
+      ExplicitTop = 1
+      ExplicitWidth = 293
+      ExplicitHeight = 140
+    end
+    inline qProducers: TQueryProducers
+      Left = 771
+      Top = 1
+      Width = 105
+      Height = 140
+      Align = alClient
+      TabOrder = 3
+      ExplicitLeft = 702
+      ExplicitTop = 32
     end
   end
 end

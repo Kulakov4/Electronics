@@ -5,13 +5,17 @@ inherited ViewBodyTypes: TViewBodyTypes
     Height = 553
     ExplicitHeight = 553
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-      OnEditKeyDown = cxGridDBBandedTableViewEditKeyDown
+      OnDragDrop = cxGridDBBandedTableViewDragDrop
+      OnDragOver = cxGridDBBandedTableViewDragOver
+      OnStartDrag = cxGridDBBandedTableViewStartDrag
+      DataController.KeyFieldNames = 'ID'
       DataController.Summary.FooterSummaryItems = <
         item
           Kind = skCount
-          Column = clBodyType
+          Column = clBodyKind
         end>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
@@ -20,154 +24,111 @@ inherited ViewBodyTypes: TViewBodyTypes
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
-      object clBodyType: TcxGridDBBandedColumn
+      object clBodyKind: TcxGridDBBandedColumn
         Caption = #1058#1080#1087' '#1082#1086#1088#1087#1091#1089#1072
-        DataBinding.FieldName = 'BodyType'
+        DataBinding.FieldName = 'BodyKind'
         Position.BandIndex = 0
         Position.ColIndex = 1
+        Position.RowIndex = 0
+      end
+      object clOrd: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'Ord'
+        SortIndex = 0
+        SortOrder = soAscending
+        Position.BandIndex = 0
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
     end
     object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
       Navigator.Buttons.CustomButtons = <>
-      DataController.DetailKeyFieldNames = 'IDParentBodyType1'
-      DataController.KeyFieldNames = 'ID'
+      DataController.DetailKeyFieldNames = 'IDBodyKind'
+      DataController.KeyFieldNames = 'IDS'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <
         item
           Kind = skCount
-          Column = clBodyType1
         end>
       DataController.Summary.SummaryGroups = <>
       OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
-      OptionsView.ColumnAutoWidth = True
       OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
       Bands = <
         item
         end>
-      object clID1: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ID1'
-        Visible = False
-        VisibleForCustomization = False
+      object clIDS: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDS'
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
-      object clBodyType1: TcxGridDBBandedColumn
-        Caption = #1050#1086#1088#1091#1089
-        DataBinding.FieldName = 'BodyType1'
-        PropertiesClassName = 'TcxComboBoxProperties'
-        Properties.OnInitPopup = clBodyType1PropertiesInitPopup
-        MinWidth = 100
+      object clIDBodyData: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDBodyData'
         Position.BandIndex = 0
         Position.ColIndex = 1
-        Position.RowIndex = 0
-      end
-      object clIDParentBodyType1: TcxGridDBBandedColumn
-        Caption = #1058#1080#1087
-        DataBinding.FieldName = 'IDParentBodyType1'
-        PropertiesClassName = 'TcxLookupComboBoxProperties'
-        Properties.ListColumns = <>
-        Visible = False
-        MinWidth = 60
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 11
-        Position.RowIndex = 0
-      end
-      object clID2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ID2'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 2
-        Position.RowIndex = 0
-      end
-      object clBodyType2: TcxGridDBBandedColumn
-        Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
-        DataBinding.FieldName = 'BodyType2'
-        PropertiesClassName = 'TcxComboBoxProperties'
-        Properties.OnInitPopup = clBodyType2PropertiesInitPopup
-        MinWidth = 200
-        Position.BandIndex = 0
-        Position.ColIndex = 3
-        Position.RowIndex = 0
-      end
-      object clIDParentBodyType2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'IDParentBodyType2'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 4
-        Position.RowIndex = 0
-      end
-      object clID3: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ID'
-        Visible = False
-        MinWidth = 60
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 5
-        Position.RowIndex = 0
-      end
-      object clIDBodyType: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'IDBodyType'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 6
         Position.RowIndex = 0
       end
       object clOutlineDrawing: TcxGridDBBandedColumn
         Caption = #1063#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
         DataBinding.FieldName = 'OutlineDrawing'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Default = True
-            Kind = bkEllipsis
-          end>
-        Properties.OnButtonClick = clOutlineDrawingPropertiesButtonClick
         Position.BandIndex = 0
-        Position.ColIndex = 7
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
       object clLandPattern: TcxGridDBBandedColumn
         Caption = #1063#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
         DataBinding.FieldName = 'LandPattern'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Default = True
-            Kind = bkEllipsis
-          end>
-        Properties.OnButtonClick = clLandPatternPropertiesButtonClick
         Position.BandIndex = 0
-        Position.ColIndex = 8
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
-      object clVariation: TcxGridDBBandedColumn
-        Caption = #1042#1072#1088#1080#1072#1085#1090' '#1082#1086#1088#1087#1091#1089#1072
-        DataBinding.FieldName = 'Variation'
+      object clVariations: TcxGridDBBandedColumn
+        Caption = #1042#1072#1088#1080#1072#1085#1090#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
+        DataBinding.FieldName = 'Variations'
         Position.BandIndex = 0
-        Position.ColIndex = 9
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
       object clImage: TcxGridDBBandedColumn
         Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
         DataBinding.FieldName = 'Image'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Default = True
-            Kind = bkEllipsis
-          end>
-        Properties.OnButtonClick = clImagePropertiesButtonClick
+        Position.BandIndex = 0
+        Position.ColIndex = 5
+        Position.RowIndex = 0
+      end
+      object clIDBody: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDBody'
+        Position.BandIndex = 0
+        Position.ColIndex = 6
+        Position.RowIndex = 0
+      end
+      object clIDProducer: TcxGridDBBandedColumn
+        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
+        DataBinding.FieldName = 'IDProducer'
+        Position.BandIndex = 0
+        Position.ColIndex = 7
+        Position.RowIndex = 0
+      end
+      object clBodyData: TcxGridDBBandedColumn
+        Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
+        DataBinding.FieldName = 'BodyData'
+        Position.BandIndex = 0
+        Position.ColIndex = 8
+        Position.RowIndex = 0
+      end
+      object clBody: TcxGridDBBandedColumn
+        Caption = #1050#1086#1088#1087#1091#1089
+        DataBinding.FieldName = 'Body'
+        Position.BandIndex = 0
+        Position.ColIndex = 9
+        Position.RowIndex = 0
+      end
+      object clIDBodyKind: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDBodyKind'
         Position.BandIndex = 0
         Position.ColIndex = 10
         Position.RowIndex = 0

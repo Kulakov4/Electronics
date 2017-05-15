@@ -9,20 +9,20 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit;
+  QueryWithDataSourceUnit, OrderQuery;
 
 type
-  TQueryBodyKinds = class(TQueryWithDataSource)
+  TQueryBodyKinds = class(TQueryOrder)
   private
     procedure DoAfterInsert(Sender: TObject);
-    function GetBodyType: TField;
+    function GetBodyKind: TField;
     function GetLevel: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
-    property BodyType: TField read GetBodyType;
+    property BodyKind: TField read GetBodyKind;
     property Level: TField read GetLevel;
     { Public declarations }
   end;
@@ -44,7 +44,7 @@ end;
 procedure TQueryBodyKinds.AddNewValue(const AValue: string);
 begin
   FDQuery.Append;
-  BodyType.AsString := AValue;
+  BodyKind.AsString := AValue;
   Level.AsInteger := 0;
   FDQuery.Post;
 end;
@@ -54,9 +54,9 @@ begin
   Level.AsInteger := 0;
 end;
 
-function TQueryBodyKinds.GetBodyType: TField;
+function TQueryBodyKinds.GetBodyKind: TField;
 begin
-  Result := Field('BodyType');
+  Result := Field('BodyKind');
 end;
 
 function TQueryBodyKinds.GetLevel: TField;
@@ -66,7 +66,7 @@ end;
 
 procedure TQueryBodyKinds.LocateOrAppend(AValue: string);
 begin
-  if not FDQuery.LocateEx(BodyType.FieldName, AValue, []) then
+  if not FDQuery.LocateEx(BodyKind.FieldName, AValue, []) then
     AddNewValue(AValue);
 end;
 

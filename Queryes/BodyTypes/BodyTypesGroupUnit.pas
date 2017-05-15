@@ -8,13 +8,14 @@ uses
   Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
   NotifyEvents, BodyTypesExcelDataModule3, BodyTypesBranchQuery,
   QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit;
+  QueryGroupUnit, ProducersQuery;
 
 type
   TBodyTypesGroup = class(TQueryGroup)
     qBodyKinds: TQueryBodyKinds;
     qBodyTypes2: TQueryBodyTypes2;
     qBodyTypesBranch: TQueryBodyTypesBranch;
+    qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterOpen(Sender: TObject);
@@ -77,7 +78,7 @@ procedure TBodyTypesGroup.DoBeforeDelete(Sender: TObject);
 begin
   // Каскадно удаляем типы корпусов
   qBodyTypes2.CascadeDelete(qBodyKinds.PKValue,
-    qBodyTypes2.IDParentBodyType1.FieldName);
+    qBodyTypes2.IDBodyKind.FieldName);
 end;
 
 procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable
@@ -91,7 +92,7 @@ begin
     begin
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
-
+{
       qBodyTypes2.LocateOrAppend(qBodyKinds.PKValue,
         ABodyTypesExcelTable.BodyType.AsString,
         ABodyTypesExcelTable.Package.AsString,
@@ -99,7 +100,7 @@ begin
         ABodyTypesExcelTable.LandPattern.AsString,
         ABodyTypesExcelTable.Variation.AsString,
         ABodyTypesExcelTable.Image.AsString);
-
+}
       ABodyTypesExcelTable.Next;
       ABodyTypesExcelTable.CallOnProcessEvent;
     end;

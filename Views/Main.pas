@@ -483,11 +483,11 @@ procedure TfrmMain.actShowBodyTypes3Execute(Sender: TObject);
 begin
   if frmBodyTypes = nil then
   begin
+    DM.BodyTypesGroup.ReOpen;
     frmBodyTypes := TfrmBodyTypes.Create(Self);
     frmBodyTypes.ViewBodyTypes.BodyTypesGroup := DM.BodyTypesGroup;
   end;
 
-  DM.BodyTypesGroup.ReOpen;
   frmBodyTypes.Show;
 end;
 

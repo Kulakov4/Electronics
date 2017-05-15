@@ -7,8 +7,7 @@ inherited QueryBodyKinds: TQueryBodyKinds
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from BodyTypes bt'
-      'where bt.Level = 0'
-      'order by bt.BodyType')
+      'from BodyKinds'
+      'order by Ord')
   end
 end

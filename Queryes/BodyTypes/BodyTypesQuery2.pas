@@ -33,44 +33,31 @@ type
     FQueryBodyTypesBranch: TQueryBodyTypesBranch;
     procedure DoAfterOpen(Sender: TObject);
     procedure DropUnusedBodyTypes;
-    function GetBodyType1: TField;
-    function GetBodyType2: TField;
-    function GetID1: TField;
-    function GetID2: TField;
-    function GetIDBodyType: TField;
-    function GetIDParentBodyType1: TField;
-    function GetIDParentBodyType2: TField;
+    function GetIDBodyKind: TField;
     function GetImage: TField;
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
-    function GetVariation: TField;
+    function GetVariations: TField;
     { Private declarations }
   protected
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AddNewValue(const AValue: string);
     procedure CascadeDelete(const AIDMaster: Integer;
       const ADetailKeyFieldName: String); overload; override;
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
-    procedure LocateOrAppend(AIDParentBodyType: Integer;
-      const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
-      AImage: string);
-    // procedure LocateOrAppend(AValue: string);
-    property BodyType1: TField read GetBodyType1;
-    property BodyType2: TField read GetBodyType2;
-    property ID1: TField read GetID1;
-    property ID2: TField read GetID2;
-    property IDBodyType: TField read GetIDBodyType;
-    property IDParentBodyType1: TField read GetIDParentBodyType1;
-    property IDParentBodyType2: TField read GetIDParentBodyType2;
+    property IDBodyKind: TField read GetIDBodyKind;
+// TODO: LocateOrAppend
+//  procedure LocateOrAppend(AIDParentBodyType: Integer;
+//    const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
+//    AImage: string);
     property Image: TField read GetImage;
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
     property QueryBodyTypesBranch: TQueryBodyTypesBranch
       read FQueryBodyTypesBranch write FQueryBodyTypesBranch;
-    property Variation: TField read GetVariation;
+    property Variations: TField read GetVariations;
     { Public declarations }
   end;
 
@@ -83,16 +70,10 @@ uses NotifyEvents, DBRecordHolder, RepositoryDataModule;
 constructor TQueryBodyTypes2.Create(AOwner: TComponent);
 begin
   inherited;
+  FPKFieldName := 'IDS';
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 
   AutoTransaction := False;
-end;
-
-procedure TQueryBodyTypes2.AddNewValue(const AValue: string);
-begin
-  FDQuery.Append;
-  IDParentBodyType1.AsString := AValue;
-  FDQuery.Post;
 end;
 
 procedure TQueryBodyTypes2.CascadeDelete(const AIDMaster: Integer;
@@ -173,8 +154,8 @@ end;
 procedure TQueryBodyTypes2.DoAfterOpen(Sender: TObject);
 begin
   // Подписываемся на событие об изменении значения поля
-  BodyType1.OnChange := FDQueryBodyType1Change;
-  BodyType2.OnChange := FDQueryBodyType2Change;
+//  BodyType1.OnChange := FDQueryBodyType1Change;
+//  BodyType2.OnChange := FDQueryBodyType2Change;
 end;
 
 procedure TQueryBodyTypes2.DropUnusedBodyTypes;
@@ -196,10 +177,13 @@ begin
 end;
 
 procedure TQueryBodyTypes2.FDQueryBodyType1Change(Sender: TField);
+{
 var
   OK: Boolean;
   AID: Integer;
+}
 begin
+{
   inherited;
 
   if FInChange then
@@ -248,13 +232,17 @@ begin
   finally
     FInChange := False;
   end;
+}
 end;
 
 procedure TQueryBodyTypes2.FDQueryBodyType2Change(Sender: TField);
+{
 var
   AID: Integer;
   // OK: Boolean;
+}
 begin
+{
   inherited;
 
   // Если сейчас происходит изменение BodyType1
@@ -281,34 +269,45 @@ begin
   finally
     FInChange := False;
   end;
+}
 end;
 
 procedure TQueryBodyTypes2.FDQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
+{
 var
   ABodyType1: TField;
   ABodyType2: TField;
   AID: Integer;
+  AIDS: String;
   AID1: TField;
   AID2: TField;
   AIDBodyType: TField;
   AIDParentBodyType1: TField;
   AIDParentBodyType2: TField;
+  m: TArray<String>;
   RH: TRecordHolder;
+  S: string;
+}
 begin
   inherited;
-
+{
   // Если произошло удаление
   if ARequest = arDelete then
   begin
-    AID := ASender.FieldByName(PKFieldName).AsInteger;
-    if AID > 0 then
+    AIDS := ASender.FieldByName(PKFieldName).AsString;
+    if not AIDS.IsEmpty then
     begin
       // Почему-то иногда AID = 0
 
-      // Удаляем вариант корпуса
-      qBodyVariations.DeleteRecord(AID);
+      m := AIDS.Split([',']);
+      for S in m do
+      begin
+        AID := S.Trim.ToInteger();
+        // Удаляем вариант корпуса
+        qBodyVariations.DeleteRecord(AID);
+      end;
 
       // Удаляем неиспользуемые типы корпусов
       DropUnusedBodyTypes;
@@ -388,7 +387,7 @@ begin
     end;
 
   end;
-
+}
   AAction := eaApplied;
 end;
 
@@ -399,39 +398,9 @@ begin
   AAction := eaApplied;
 end;
 
-function TQueryBodyTypes2.GetBodyType1: TField;
+function TQueryBodyTypes2.GetIDBodyKind: TField;
 begin
-  Result := Field('BodyType1');
-end;
-
-function TQueryBodyTypes2.GetBodyType2: TField;
-begin
-  Result := Field('BodyType2');
-end;
-
-function TQueryBodyTypes2.GetID1: TField;
-begin
-  Result := Field('ID1');
-end;
-
-function TQueryBodyTypes2.GetID2: TField;
-begin
-  Result := Field('ID2');
-end;
-
-function TQueryBodyTypes2.GetIDBodyType: TField;
-begin
-  Result := Field('IDBodyType');
-end;
-
-function TQueryBodyTypes2.GetIDParentBodyType1: TField;
-begin
-  Result := Field('IDParentBodyType1');
-end;
-
-function TQueryBodyTypes2.GetIDParentBodyType2: TField;
-begin
-  Result := Field('IDParentBodyType2');
+  Result := Field('IDBodyKind');
 end;
 
 function TQueryBodyTypes2.GetImage: TField;
@@ -449,43 +418,44 @@ begin
   Result := Field('OutlineDrawing');
 end;
 
-function TQueryBodyTypes2.GetVariation: TField;
+function TQueryBodyTypes2.GetVariations: TField;
 begin
-  Result := Field('Variation');
+  Result := Field('Variations');
 end;
 
-procedure TQueryBodyTypes2.LocateOrAppend(AIDParentBodyType: Integer;
-  const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
-  AImage: string);
-var
-  AKeyFields: string;
-  OK: Boolean;
-begin
-
-  AKeyFields := Format('%s;%s;%s;%s', [IDParentBodyType1.FieldName,
-    BodyType1.FieldName, BodyType2.FieldName, Variation.FieldName]);
-
-  OK := FDQuery.LocateEx(AKeyFields, VarArrayOf([AIDParentBodyType, ABodyType1,
-    ABodyType2, AVariation]), []);
-
-  if not OK then
-  begin
-    FDQuery.Append;
-    IDParentBodyType1.Value := AIDParentBodyType;
-    BodyType1.Value := ABodyType1;
-    BodyType2.Value := ABodyType2;
-    Variation.Value := AVariation;
-  end
-  else
-    FDQuery.Edit;
-
-  OutlineDrawing.Value := AOutlineDrawing;
-  LandPattern.Value := ALandPattern;
-  Image.Value := AImage;
-
-  FDQuery.Post;
-
-end;
+// TODO: LocateOrAppend
+//procedure TQueryBodyTypes2.LocateOrAppend(AIDParentBodyType: Integer;
+//const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
+//AImage: string);
+//var
+//AKeyFields: string;
+//OK: Boolean;
+//begin
+//
+//AKeyFields := Format('%s;%s;%s;%s', [IDParentBodyType1.FieldName,
+//  BodyType1.FieldName, BodyType2.FieldName, Variations.FieldName]);
+//
+//OK := FDQuery.LocateEx(AKeyFields, VarArrayOf([AIDParentBodyType, ABodyType1,
+//  ABodyType2, AVariation]), []);
+//
+//if not OK then
+//begin
+//  FDQuery.Append;
+//  IDParentBodyType1.Value := AIDParentBodyType;
+//  BodyType1.Value := ABodyType1;
+//  BodyType2.Value := ABodyType2;
+//  Variations.Value := AVariation;
+//end
+//else
+//  FDQuery.Edit;
+//
+//OutlineDrawing.Value := AOutlineDrawing;
+//LandPattern.Value := ALandPattern;
+//Image.Value := AImage;
+//
+//FDQuery.Post;
+//
+//end;
 
 {
   procedure TQueryBodyTypes2.LocateOrAppend(AValue: string);

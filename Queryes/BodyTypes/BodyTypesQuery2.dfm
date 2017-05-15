@@ -122,7 +122,7 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
         Active = True
         Selected = True
         Name = 'idxOrder'
-        Fields = 'IDParentBodyType1'
+        Fields = 'IDBodyKind'
       end>
     IndexName = 'idxOrder'
     OnUpdateRecord = FDQueryUpdateRecord
@@ -130,20 +130,31 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
     UpdateOptions.RefreshMode = rmAll
     SQL.Strings = (
       'select '
-      
-        '    bv.ID + 0 ID, bv.IDBodyType, bv.OutlineDrawing, bv.LandPatte' +
-        'rn, bv.Variation, bv.Image,'
-      
-        '    bt1.ID + 0 ID1, bt1.BodyType BodyType1, bt1.IDParentBodyType' +
-        ' IDParentBodyType1,'
-      
-        '    bt2.ID + 0 ID2, bt2.BodyType BodyType2, bt2.IDParentBodyType' +
-        ' IDParentBodyType2'
-      'from BodyTypes bt1'
-      'join BodyTypes bt2 on bt2.IDParentBodyType = bt1.ID'
-      'left join BodyVariations bv on bv.IDBodyType = bt2.ID'
-      'where bt1.Level = 1'
-      'order by IDParentBodyType1')
+      '    GROUP_CONCAT(bv.ID, '#39', '#39') IDS,'
+      '    bv.IDBodyData, '
+      '    bv.OutlineDrawing,'
+      '    bv.LandPattern,'
+      '    GROUP_CONCAT(bv.Variation, '#39', '#39') Variations,'
+      '    bv.Image,'
+      '    bd.IDBody,'
+      '    bd.IDProducer,'
+      '    bd.BodyData,'
+      '    b.Body,'
+      '    b.IDBodyKind'
+      'from Bodies b'
+      'join BodyData bd on bd.IDBody = b.id'
+      'join BodyVariations2 bv on bv.IDBodyData = bd.ID'
+      'group by '
+      '    IDBodyData, '
+      '    OutlineDrawing,'
+      '    LandPattern,'
+      '    Image,'
+      '    IDBody,'
+      '    IDProducer,'
+      '    BodyData,'
+      '    Body,'
+      '    IDBodyKind'
+      'order by IDBodyKind, Body, BodyData')
   end
   object fdqUnusedBodyTypes: TFDQuery
     Connection = DMRepository.dbConnection
