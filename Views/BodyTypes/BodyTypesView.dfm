@@ -5,6 +5,7 @@ inherited ViewBodyTypes: TViewBodyTypes
     Height = 553
     ExplicitHeight = 553
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
       OnDragOver = cxGridDBBandedTableViewDragOver
       OnStartDrag = cxGridDBBandedTableViewStartDrag

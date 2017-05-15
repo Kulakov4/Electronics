@@ -3,7 +3,8 @@ unit OrderQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
@@ -34,6 +35,8 @@ implementation
 
 {$R *.dfm}
 
+uses System.Math, System.Generics.Defaults;
+
 constructor TQueryOrder.Create(AOwner: TComponent);
 begin
   inherited;
@@ -56,24 +59,37 @@ begin
   Result := Field('Ord');
 end;
 
-procedure TQueryOrder.MoveDSRecord(AStartDrag: TStartDrag; ADropDrag:
-    TDropDrag);
+procedure TQueryOrder.MoveDSRecord(AStartDrag: TStartDrag;
+  ADropDrag: TDropDrag);
 var
   AClone: TFDMemTable;
+  AClone2: TFDMemTable;
   AKeyField: TField;
   ANewOrderValue: Integer;
+  ANewRecNo: Integer;
   AOrderField: TField;
+  AOrderField2: TField;
   I: Integer;
   IsDown: Boolean;
   IsUp: Boolean;
+  k: Integer;
+  OK: Boolean;
   Sign: Integer;
 begin
+  for I := 0 to FRecOrderList.Count - 1 do
+      FRecOrderList[I].Free;
+  FRecOrderList.Clear;
+
 
   // Готовимся обновить порядок параметров
   AClone := TFDMemTable.Create(Self);
+  AClone2 := TFDMemTable.Create(Self);
   try
     AClone.CloneCursor(FDQuery);
     AClone.First;
+
+    AClone2.CloneCursor(FDQuery);
+    AClone2.First;
 
     // Если был перенос вверх
     IsUp := (ADropDrag.OrderValue < AStartDrag.MinOrderValue);
@@ -81,6 +97,7 @@ begin
     IsDown := not IsUp;
 
     AOrderField := AClone.FieldByName(Ord.FieldName);
+    AOrderField2 := AClone2.FieldByName(Ord.FieldName);
     AKeyField := AClone.FieldByName(PKFieldName);
 
     while not AClone.Eof do
@@ -100,37 +117,72 @@ begin
       // Если текущую запись нужно сместить
       if Sign <> 0 then
       begin
+
+        OK := AClone2.LocateEx(PKFieldName, AKeyField.Value, []);
+        Assert(OK);
+        // Находим смещение
+        ANewRecNo := AClone2.RecNo + Sign * Length(AStartDrag.Keys);
+        Assert((ANewRecNo >= 1) and (ANewRecNo <= AClone2.RecordCount));
+        AClone2.RecNo := ANewRecNo;
+        // Пока уходим в отрицательную сторону
+        FRecOrderList.Add(TRecOrder.Create(AKeyField.AsInteger,
+          -AOrderField2.AsInteger));
         // Запоминаем, что нужно изменить
-        FRecOrderList.Add(TRecOrder.Create(AKeyField.AsInteger, AOrderField.AsInteger + Sign *
-          Length(AStartDrag.Keys)));
+        // FRecOrderList.Add(TRecOrder.Create(AKeyField.AsInteger, AOrderField.AsInteger + Sign *
+        // Length(AStartDrag.Keys)));
       end;
 
       AClone.Next;
     end;
 
-    ANewOrderValue := ADropDrag.OrderValue;
-    if IsDown then
-      ANewOrderValue := ADropDrag.OrderValue - Length(AStartDrag.Keys) + 1;
+    // ANewOrderValue := ADropDrag.OrderValue;
+    // if IsDown then
+    // ANewOrderValue := ADropDrag.OrderValue - Length(AStartDrag.Keys) + 1;
+
+    AClone2.LocateEx(PKFieldName, ADropDrag.Key, []);
+    Assert(OK);
+
+    if IsUp then
+      TArray.Sort<Integer>(AStartDrag.Keys)
+    else
+      TArray.Sort<Integer>(AStartDrag.Keys, TComparer<Integer>.Construct(
+        function(const Left, Right: Integer): Integer
+        begin
+          Result := Right - Left;
+        end));
 
     for I := Low(AStartDrag.Keys) to High(AStartDrag.Keys) do
     begin
       // Запоминаем, что нужно изменить
-      FRecOrderList.Add(TRecOrder.Create(AStartDrag.Keys[I], ANewOrderValue + I));
+      FRecOrderList.Add(TRecOrder.Create(AStartDrag.Keys[I],
+        AOrderField2.AsInteger));
+      ANewRecNo := IfThen(IsUp, AClone2.RecNo + 1, AClone2.RecNo - 1);
+      Assert((ANewRecNo >= 1) and (ANewRecNo <= AClone2.RecordCount));
+      AClone2.RecNo := ANewRecNo;
     end;
   finally
     FreeAndNil(AClone);
+    FreeAndNil(AClone2)
+  end;
+
+  // Меняем отрицательные значения на положительные
+  k := FRecOrderList.Count - 1;
+  for I := 0 to k do
+  begin
+    if FRecOrderList[I].Order < 0 then
+      FRecOrderList.Add(TRecOrder.Create(FRecOrderList[I].Key,
+        -FRecOrderList[I].Order));
   end;
 
   // Выполняем все изменения
   UpdateOrder;
-
 end;
 
 procedure TQueryOrder.UpdateOrder;
 var
   APKValue: Integer;
   I: Integer;
-  Ok: Boolean;
+  OK: Boolean;
 begin
   if FRecOrderList.Count = 0 then
   begin
@@ -144,8 +196,8 @@ begin
       // Теперь поменяем порядок
       for I := 0 to FRecOrderList.Count - 1 do
       begin
-        Ok := FDQuery.Locate(PKFieldName, FRecOrderList[I].Key, []);
-        Assert(Ok);
+        OK := FDQuery.Locate(PKFieldName, FRecOrderList[I].Key, []);
+        Assert(OK);
 
         FDQuery.Edit;
         DoOnUpdateOrder(FRecOrderList[I]);

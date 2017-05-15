@@ -5,6 +5,14 @@ inherited QueryBodyKinds: TQueryBodyKinds
     ExplicitWidth = 66
   end
   inherited FDQuery: TFDQuery
+    Indexes = <
+      item
+        Active = True
+        Selected = True
+        Name = 'idxOrder'
+        Fields = 'Ord'
+      end>
+    IndexName = 'idxOrder'
     SQL.Strings = (
       'select *'
       'from BodyKinds'

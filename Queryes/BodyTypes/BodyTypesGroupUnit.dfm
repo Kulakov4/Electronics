@@ -11,7 +11,7 @@ inherited BodyTypesGroup: TBodyTypesGroup
         Value = 11.889279042531030000
       end
       item
-        Value = 38.115459404365360000
+        Value = 38.115459404365370000
       end
       item
         Value = 38.115459538673110000
@@ -51,7 +51,7 @@ inherited BodyTypesGroup: TBodyTypesGroup
       TabOrder = 0
       ExplicitLeft = 1
       ExplicitTop = 1
-      ExplicitWidth = 184
+      ExplicitWidth = 104
       ExplicitHeight = 140
     end
     inline qBodyTypes2: TQueryBodyTypes2
@@ -61,9 +61,9 @@ inherited BodyTypesGroup: TBodyTypesGroup
       Height = 140
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 292
+      ExplicitLeft = 105
       ExplicitTop = 1
-      ExplicitWidth = 291
+      ExplicitWidth = 333
       ExplicitHeight = 140
     end
     inline qBodyTypesBranch: TQueryBodyTypesBranch
@@ -73,9 +73,9 @@ inherited BodyTypesGroup: TBodyTypesGroup
       Height = 140
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 583
+      ExplicitLeft = 438
       ExplicitTop = 1
-      ExplicitWidth = 293
+      ExplicitWidth = 333
       ExplicitHeight = 140
     end
     inline qProducers: TQueryProducers
@@ -85,8 +85,10 @@ inherited BodyTypesGroup: TBodyTypesGroup
       Height = 140
       Align = alClient
       TabOrder = 3
-      ExplicitLeft = 702
-      ExplicitTop = 32
+      ExplicitLeft = 771
+      ExplicitTop = 1
+      ExplicitWidth = 105
+      ExplicitHeight = 140
     end
   end
 end
