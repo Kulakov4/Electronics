@@ -73,57 +73,57 @@ inherited ViewBodyTypes: TViewBodyTypes
         Position.ColIndex = 1
         Position.RowIndex = 0
       end
-      object clOutlineDrawing: TcxGridDBBandedColumn
-        Caption = #1063#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
-        DataBinding.FieldName = 'OutlineDrawing'
+      object clBody: TcxGridDBBandedColumn
+        Caption = #1050#1086#1088#1087#1091#1089
+        DataBinding.FieldName = 'Body'
         Position.BandIndex = 0
         Position.ColIndex = 2
-        Position.RowIndex = 0
-      end
-      object clLandPattern: TcxGridDBBandedColumn
-        Caption = #1063#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
-        DataBinding.FieldName = 'LandPattern'
-        Position.BandIndex = 0
-        Position.ColIndex = 3
-        Position.RowIndex = 0
-      end
-      object clVariations: TcxGridDBBandedColumn
-        Caption = #1042#1072#1088#1080#1072#1085#1090#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
-        DataBinding.FieldName = 'Variations'
-        Position.BandIndex = 0
-        Position.ColIndex = 4
-        Position.RowIndex = 0
-      end
-      object clImage: TcxGridDBBandedColumn
-        Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
-        DataBinding.FieldName = 'Image'
-        Position.BandIndex = 0
-        Position.ColIndex = 5
-        Position.RowIndex = 0
-      end
-      object clIDBody: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'IDBody'
-        Position.BandIndex = 0
-        Position.ColIndex = 6
-        Position.RowIndex = 0
-      end
-      object clIDProducer: TcxGridDBBandedColumn
-        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
-        DataBinding.FieldName = 'IDProducer'
-        Position.BandIndex = 0
-        Position.ColIndex = 7
         Position.RowIndex = 0
       end
       object clBodyData: TcxGridDBBandedColumn
         Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
         DataBinding.FieldName = 'BodyData'
         Position.BandIndex = 0
+        Position.ColIndex = 3
+        Position.RowIndex = 0
+      end
+      object clOutlineDrawing: TcxGridDBBandedColumn
+        Caption = #1063#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
+        DataBinding.FieldName = 'OutlineDrawing'
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
+      end
+      object clLandPattern: TcxGridDBBandedColumn
+        Caption = #1063#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
+        DataBinding.FieldName = 'LandPattern'
+        Position.BandIndex = 0
+        Position.ColIndex = 5
+        Position.RowIndex = 0
+      end
+      object clVariations: TcxGridDBBandedColumn
+        Caption = #1042#1072#1088#1080#1072#1085#1090#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
+        DataBinding.FieldName = 'Variations'
+        Position.BandIndex = 0
+        Position.ColIndex = 6
+        Position.RowIndex = 0
+      end
+      object clImage: TcxGridDBBandedColumn
+        Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+        DataBinding.FieldName = 'Image'
+        Position.BandIndex = 0
+        Position.ColIndex = 7
+        Position.RowIndex = 0
+      end
+      object clIDBody: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDBody'
+        Position.BandIndex = 0
         Position.ColIndex = 8
         Position.RowIndex = 0
       end
-      object clBody: TcxGridDBBandedColumn
-        Caption = #1050#1086#1088#1087#1091#1089
-        DataBinding.FieldName = 'Body'
+      object clIDProducer: TcxGridDBBandedColumn
+        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
+        DataBinding.FieldName = 'IDProducer'
         Position.BandIndex = 0
         Position.ColIndex = 9
         Position.RowIndex = 0

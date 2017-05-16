@@ -11,6 +11,7 @@ uses
 
 type
   TQueryBodies = class(TQueryBase)
+    FDUpdateSQL: TFDUpdateSQL;
   private
     function GetBody: TField;
     function GetIDBodyKind: TField;

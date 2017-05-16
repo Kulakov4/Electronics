@@ -132,6 +132,7 @@ begin
 
   FDragAndDropInfo := TDragAndDropInfo.Create(clID, clOrd);
 
+  PostOnEnterFields.Add(clBodyKind.DataBinding.FieldName);
   PostOnEnterFields.Add(clBody.DataBinding.FieldName);
   PostOnEnterFields.Add(clBodyData.DataBinding.FieldName);
 end;
@@ -323,17 +324,10 @@ begin
     // Отменяем все сделанные изменения
     BodyTypesGroup.Rollback;
 
-    // Начинаем новую транзакцию
-    // BodyTypesGroup.Connection.StartTransaction;
-
-    // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
+    MainView.ViewData.Collapse(True);
   finally
     cxGrid.EndUpdate;
   end;
-
-  // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
 
   // Обновляем представление
   UpdateView;

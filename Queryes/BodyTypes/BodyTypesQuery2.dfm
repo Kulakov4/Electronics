@@ -17,7 +17,6 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
     ExplicitLeft = 16
     ExplicitTop = 80
     inherited FDQuery: TFDQuery
-      Active = True
       SQL.Strings = (
         'select *'
         'from BodyVariations'
@@ -69,7 +68,6 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
     ExplicitTop = 15
     ExplicitWidth = 127
     inherited FDQuery: TFDQuery
-      Active = True
       SQL.Strings = (
         'select *'
         'from Bodies'
@@ -110,7 +108,6 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
     ExplicitLeft = 160
     ExplicitTop = 80
     inherited FDQuery: TFDQuery
-      Active = True
       SQL.Strings = (
         'select *'
         'from BodyData'

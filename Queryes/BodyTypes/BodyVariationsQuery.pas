@@ -12,6 +12,7 @@ uses
 
 type
   TQueryBodyVariations = class(TQueryBase)
+    FDUpdateSQL: TFDUpdateSQL;
   private
     function GetIDBodyData: TField;
     function GetImage: TField;
@@ -66,10 +67,6 @@ var
   AFieldNames: string;
 begin
   Assert(AIDBodyData > 0);
-  Assert(not AOutlineDrawing.IsEmpty);
-  Assert(not ALandPattern.IsEmpty);
-  Assert(not AVariation.IsEmpty);
-  Assert(not AImage.IsEmpty);
 
   TryAppend;
   IDBodyData.Value := AIDBodyData;

@@ -13,17 +13,19 @@ uses
 
 type
   TQueryBodyKinds = class(TQueryOrder)
+    FDUpdateSQL: TFDUpdateSQL;
   private
-    procedure DoAfterInsert(Sender: TObject);
     function GetBodyKind: TField;
-    function GetLevel: TField;
+    function GetOrd: TField;
     { Private declarations }
+  protected
+    procedure DoAfterOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
     property BodyKind: TField read GetBodyKind;
-    property Level: TField read GetLevel;
+    property Ord: TField read GetOrd;
     { Public declarations }
   end;
 
@@ -36,22 +38,20 @@ uses NotifyEvents;
 constructor TQueryBodyKinds.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
-
   AutoTransaction := False;
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
 procedure TQueryBodyKinds.AddNewValue(const AValue: string);
 begin
   FDQuery.Append;
   BodyKind.AsString := AValue;
-  Level.AsInteger := 0;
   FDQuery.Post;
 end;
 
-procedure TQueryBodyKinds.DoAfterInsert(Sender: TObject);
+procedure TQueryBodyKinds.DoAfterOpen(Sender: TObject);
 begin
-  Level.AsInteger := 0;
+  SetFieldsRequired(False);
 end;
 
 function TQueryBodyKinds.GetBodyKind: TField;
@@ -59,9 +59,9 @@ begin
   Result := Field('BodyKind');
 end;
 
-function TQueryBodyKinds.GetLevel: TField;
+function TQueryBodyKinds.GetOrd: TField;
 begin
-  Result := Field('Level');
+  Result := Field('Ord');
 end;
 
 procedure TQueryBodyKinds.LocateOrAppend(AValue: string);

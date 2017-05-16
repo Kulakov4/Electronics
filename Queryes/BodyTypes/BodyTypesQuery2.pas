@@ -39,8 +39,11 @@ type
     procedure DropUnusedBodyTypes;
     function GetBody: TField;
     function GetBodyData: TField;
+    function GetIDBody: TField;
+    function GetIDBodyData: TField;
     function GetIDBodyKind: TField;
     function GetIDProducer: TField;
+    function GetIDS: TField;
     function GetImage: TField;
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
@@ -54,11 +57,11 @@ type
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
-    property BodyData: TField read GetBodyData;
     property IDProducer: TField read GetIDProducer;
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
-    property QueryBodyVariations: TQueryBodyVariations read GetQueryBodyVariations;
+    property QueryBodyVariations: TQueryBodyVariations
+      read GetQueryBodyVariations;
   public
     constructor Create(AOwner: TComponent); override;
     procedure CascadeDelete(const AIDMaster: Integer;
@@ -66,7 +69,11 @@ type
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
     property Body: TField read GetBody;
+    property BodyData: TField read GetBodyData;
+    property IDBody: TField read GetIDBody;
+    property IDBodyData: TField read GetIDBodyData;
     property IDBodyKind: TField read GetIDBodyKind;
+    property IDS: TField read GetIDS;
     // TODO: LocateOrAppend
     // procedure LocateOrAppend(AIDParentBodyType: Integer;
     // const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
@@ -84,14 +91,14 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, DBRecordHolder, RepositoryDataModule;
+uses NotifyEvents, DBRecordHolder, RepositoryDataModule, System.StrUtils;
 
 constructor TQueryBodyTypes2.Create(AOwner: TComponent);
 begin
   inherited;
   FPKFieldName := 'IDS';
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-
+  FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   AutoTransaction := False;
 end;
 
@@ -124,20 +131,29 @@ procedure TQueryBodyTypes2.ApplyInsert(ASender: TDataSet);
 var
   ABody: TField;
   ABodyData: TField;
+  AIDBody: TField;
+  AIDBodyData: TField;
   AIDBodyKind: TField;
   AIDProducer: TField;
+  AIDS: TField;
+  AIDSS: string;
   AImage: TField;
   ALandPattern: TField;
   AOutlineDrawing: TField;
   AVariation: string;
   AVariations: TField;
+  I: Integer;
+  L: TStringList;
   m: TArray<String>;
   S: string;
   SS: string;
 begin
+  AIDS := ASender.FieldByName(IDS.FieldName);
+  AIDBody := ASender.FieldByName(IDBody.FieldName);
+  AIDBodyData := ASender.FieldByName(IDBodyData.FieldName);
   ABody := ASender.FieldByName(Body.FieldName);
   AIDBodyKind := ASender.FieldByName(IDBodyKind.FieldName);
-  ABodyData := ASender.FieldByName(IDBodyKind.FieldName);
+  ABodyData := ASender.FieldByName(BodyData.FieldName);
   AIDProducer := ASender.FieldByName(IDProducer.FieldName);
   AOutlineDrawing := ASender.FieldByName(OutlineDrawing.FieldName);
   ALandPattern := ASender.FieldByName(LandPattern.FieldName);
@@ -145,18 +161,45 @@ begin
   AImage := ASender.FieldByName(Image.FieldName);
 
   QueryBodies.LocateOrAppend(ABody.Value, IDBodyKind.Value);
-  QueryBodyData.LocateOrAppend(ABodyData.Value, AIDProducer.Value, QueryBodies.PKValue);
+  QueryBodyData.LocateOrAppend(ABodyData.Value, AIDProducer.Value,
+    QueryBodies.PKValue);
 
+  AIDSS := '';
   // Анализируем варианты корпусов
-  S := AVariations.AsString.Trim;
-  m := S.Split(',');
-  for SS in m do
-  begin
-    AVariation := SS.Trim;
-    if AVariation. then
+  L := TStringList.Create;
+  try
+    L.Delimiter := ',';
+    L.StrictDelimiter := True;
+    L.DelimitedText := AVariations.AsString.Trim;
 
+    // Убираем пустые строки
+    for I := L.Count - 1 downto 0 do
+      if L[I].Trim.IsEmpty then
+        L.Delete(I)
+      else
+        L[I] := L[I].Trim;
+
+    // Если никакого варианта корпуса нет
+    if L.Count = 0 then
+    begin
+      // Добавляем пустой вариант корпуса
+      L.Add('');
+    end;
+    for I := 0 to L.Count - 1 do
+    begin
+      QueryBodyVariations.Append(QueryBodyData.PKValue,
+        AOutlineDrawing.AsString, ALandPattern.AsString, L[I], AImage.AsString);
+      AIDSS := IfThen(AIDSS.IsEmpty, '', ', ');
+      AIDSS := AIDSS + QueryBodyVariations.PKValue.ToString();
+    end;
+
+    AIDS.AsString := AIDSS;
+    AIDBodyData.Value := QueryBodyData.PKValue;
+    AIDBody.Value := QueryBodies.PKValue;
+  finally
+    FreeAndNil(L);
   end;
-  QueryBodyVariations.Append(QueryBodyData.PKValue, );
+
 end;
 
 procedure TQueryBodyTypes2.ApplyUpdate(ASender: TDataSet);
@@ -240,6 +283,10 @@ end;
 
 procedure TQueryBodyTypes2.DoAfterOpen(Sender: TObject);
 begin
+  SetFieldsRequired(False);
+  IDProducer.Required := True;
+  Body.Required := True;
+  BodyData.Required := True;
   // Подписываемся на событие об изменении значения поля
   // BodyType1.OnChange := FDQueryBodyType1Change;
   // BodyType2.OnChange := FDQueryBodyType2Change;
@@ -257,7 +304,7 @@ begin
 
     while not fdqUnusedBodyTypes.Eof do
     begin
-      //qBodyTypes.DeleteRecord(fdqUnusedBodyTypes['ID']);
+      // qBodyTypes.DeleteRecord(fdqUnusedBodyTypes['ID']);
       fdqUnusedBodyTypes.Next;
     end;
   end;
@@ -495,6 +542,16 @@ begin
   Result := Field('BodyData');
 end;
 
+function TQueryBodyTypes2.GetIDBody: TField;
+begin
+  Result := Field('IDBody');
+end;
+
+function TQueryBodyTypes2.GetIDBodyData: TField;
+begin
+  Result := Field('IDBodyData');
+end;
+
 function TQueryBodyTypes2.GetIDBodyKind: TField;
 begin
   Result := Field('IDBodyKind');
@@ -503,6 +560,11 @@ end;
 function TQueryBodyTypes2.GetIDProducer: TField;
 begin
   Result := Field('IDProducer');
+end;
+
+function TQueryBodyTypes2.GetIDS: TField;
+begin
+  Result := Field('IDS');
 end;
 
 function TQueryBodyTypes2.GetImage: TField;

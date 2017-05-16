@@ -12,6 +12,7 @@ uses
 
 type
   TQueryBodyData = class(TQueryBase)
+    FDUpdateSQL: TFDUpdateSQL;
   private
     function GetBodyData: TField;
     function GetIDBody: TField;
@@ -56,7 +57,7 @@ begin
 
   AFieldNames := Format('%s;%s', [BodyData.FieldName, IDProducer.FieldName]);
 
-  if FDQuery.LocateEx(AFieldNames, VarArrayCreate([ABodyData, AIDProducer]),
+  if FDQuery.LocateEx(AFieldNames, VarArrayOf([ABodyData, AIDProducer]),
     [lxoCaseInsensitive]) then
   begin
     if IDBody.Value <> AIDBody then
