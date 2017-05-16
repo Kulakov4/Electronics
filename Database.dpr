@@ -30,7 +30,6 @@ uses
   BodyTypesQuery2 in 'Queryes\BodyTypes\BodyTypesQuery2.pas' {QueryBodyTypes2: TFrame},
   BodyTypesTreeQuery in 'Queryes\BodyTypes\BodyTypesTreeQuery.pas' {QueryBodyTypesTree: TFrame},
   BodyTypesGridQuery in 'Queryes\BodyTypes\BodyTypesGridQuery.pas' {QueryBodyTypesGrid: TFrame},
-  BodyTypesGroupUnit in 'Queryes\BodyTypes\BodyTypesGroupUnit.pas' {BodyTypesGroup: TFrame},
   RootForm in 'Views\RootForm.pas' {frmRoot},
   DictonaryForm in 'Views\DictonaryForm.pas' {frmDictonary},
   PathSettingsForm in 'Views\PathSettingsForm.pas' {frmPathSettings},
@@ -183,7 +182,11 @@ uses
   BindDocUnit in 'Helpers\BindDocUnit.pas',
   ComponentsTabSheetView in 'Views\Components\ComponentsTabSheetView.pas' {ComponentsFrame: TFrame},
   ProductsTabSheetView in 'Views\Products\ProductsTabSheetView.pas' {ProductsFrame: TFrame},
-  OrderQuery in 'Queryes\OrderQuery.pas' {QueryOrder: TFrame};
+  OrderQuery in 'Queryes\OrderQuery.pas' {QueryOrder: TFrame},
+  BodyTypesGroupUnit in 'Queryes\BodyTypes\BodyTypesGroupUnit.pas' {BodyTypesGroup: TFrame},
+  BodiesQuery in 'Queryes\BodyTypes\BodiesQuery.pas' {QueryBodies: TFrame},
+  BodyDataQuery in 'Queryes\BodyTypes\BodyDataQuery.pas' {QueryBodyData: TFrame},
+  BodyVariationsQuery in 'Queryes\BodyTypes\BodyVariationsQuery.pas' {QueryBodyVariations: TFrame};
 
 {$R *.res}
 

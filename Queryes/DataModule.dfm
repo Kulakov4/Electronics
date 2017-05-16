@@ -78,67 +78,12 @@ object DM: TDM
     ExplicitLeft = 275
     ExplicitTop = 150
   end
-  inline BodyTypesGroup: TBodyTypesGroup
-    Left = 2
-    Top = 238
-    Width = 623
-    Height = 139
-    TabOrder = 6
-    ExplicitLeft = 2
-    ExplicitTop = 238
-    ExplicitWidth = 623
-    ExplicitHeight = 139
-    inherited GridPanel1: TGridPanel
-      Width = 623
-      Height = 139
-      ControlCollection = <
-        item
-          Column = 0
-          Control = BodyTypesGroup.qBodyKinds
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = BodyTypesGroup.qBodyTypes2
-          Row = 0
-        end
-        item
-          Column = 2
-          Control = BodyTypesGroup.qBodyTypesBranch
-          Row = 0
-        end>
-      ExplicitWidth = 623
-      ExplicitHeight = 139
-      inherited qBodyKinds: TQueryBodyKinds
-        Width = 207
-        Height = 137
-        ExplicitWidth = 207
-        ExplicitHeight = 137
-      end
-      inherited qBodyTypes2: TQueryBodyTypes2
-        Left = 208
-        Width = 206
-        Height = 137
-        ExplicitLeft = 208
-        ExplicitWidth = 206
-        ExplicitHeight = 137
-      end
-      inherited qBodyTypesBranch: TQueryBodyTypesBranch
-        Left = 414
-        Width = 208
-        Height = 137
-        ExplicitLeft = 414
-        ExplicitWidth = 208
-        ExplicitHeight = 137
-      end
-    end
-  end
   inline StoreHouseGroup: TStoreHouseGroup
     Left = 1
     Top = 454
     Width = 525
     Height = 143
-    TabOrder = 7
+    TabOrder = 6
     ExplicitLeft = 1
     ExplicitTop = 454
     ExplicitWidth = 525
@@ -180,7 +125,7 @@ object DM: TDM
     Top = 603
     Width = 526
     Height = 82
-    TabOrder = 8
+    TabOrder = 7
     ExplicitTop = 603
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -209,7 +154,7 @@ object DM: TDM
     Top = -9
     Width = 400
     Height = 81
-    TabOrder = 9
+    TabOrder = 8
     ExplicitLeft = 104
     ExplicitTop = -9
     inherited GridPanel1: TGridPanel
@@ -235,7 +180,7 @@ object DM: TDM
     Top = 240
     Width = 516
     Height = 122
-    TabOrder = 10
+    TabOrder = 9
     ExplicitLeft = 630
     ExplicitTop = 240
     ExplicitWidth = 516
@@ -286,7 +231,7 @@ object DM: TDM
     Top = 120
     Width = 539
     Height = 81
-    TabOrder = 11
+    TabOrder = 10
     ExplicitLeft = 622
     ExplicitTop = 120
     inherited GridPanel1: TGridPanel
@@ -320,7 +265,7 @@ object DM: TDM
     Top = 376
     Width = 790
     Height = 79
-    TabOrder = 12
+    TabOrder = 11
     ExplicitTop = 376
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -346,7 +291,7 @@ object DM: TDM
     Top = -4
     Width = 604
     Height = 90
-    TabOrder = 13
+    TabOrder = 12
     ExplicitLeft = 514
     ExplicitTop = -4
     ExplicitHeight = 90
@@ -388,7 +333,7 @@ object DM: TDM
     Top = 140
     Width = 125
     Height = 80
-    TabOrder = 14
+    TabOrder = 13
     ExplicitLeft = 489
     ExplicitTop = 140
   end
@@ -397,7 +342,7 @@ object DM: TDM
     Top = 584
     Width = 125
     Height = 80
-    TabOrder = 15
+    TabOrder = 14
     ExplicitLeft = 904
     ExplicitTop = 584
     ExplicitWidth = 125
@@ -407,7 +352,7 @@ object DM: TDM
     Top = 373
     Width = 315
     Height = 90
-    TabOrder = 16
+    TabOrder = 15
     ExplicitLeft = 798
     ExplicitTop = 373
     inherited GridPanel1: TGridPanel
@@ -420,6 +365,37 @@ object DM: TDM
         item
           Column = 1
           Control = ProducersGroup.qProducers
+          Row = 0
+        end>
+    end
+  end
+  inline BodyTypesGroup: TBodyTypesGroup
+    Left = 0
+    Top = 239
+    Width = 877
+    Height = 142
+    TabOrder = 16
+    ExplicitTop = 239
+    inherited GridPanel1: TGridPanel
+      ControlCollection = <
+        item
+          Column = 0
+          Control = BodyTypesGroup.qBodyKinds
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = BodyTypesGroup.qBodyTypes2
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = BodyTypesGroup.qBodyTypesBranch
+          Row = 0
+        end
+        item
+          Column = 3
+          Control = BodyTypesGroup.qProducers
           Row = 0
         end>
     end

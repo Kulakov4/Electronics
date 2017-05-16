@@ -8,7 +8,7 @@ uses
   Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
   NotifyEvents, BodyTypesExcelDataModule3, BodyTypesBranchQuery,
   QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, ProducersQuery, OrderQuery;
+  QueryGroupUnit, ProducersQuery, OrderQuery, BodiesQuery;
 
 type
   TBodyTypesGroup = class(TQueryGroup)

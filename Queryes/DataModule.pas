@@ -25,7 +25,6 @@ type
     qProductsSearch: TQueryProductsSearch;
     qBodyTypes: TQueryBodyTypes;
     qStoreHouseList: TQueryStoreHouseList;
-    BodyTypesGroup: TBodyTypesGroup;
     StoreHouseGroup: TStoreHouseGroup;
     ComponentsSearchGroup: TComponentsSearchGroup;
     ParametersForCategoriesGroup: TParametersForCategoriesGroup;
@@ -36,6 +35,7 @@ type
     qVersion: TQueryVersion;
     qCategoryParameters: TQueryCategoryParameters;
     ProducersGroup: TProducersGroup;
+    BodyTypesGroup: TBodyTypesGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
