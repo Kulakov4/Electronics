@@ -6,15 +6,14 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
-  NotifyEvents, BodyTypesExcelDataModule3, BodyTypesBranchQuery,
-  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, ProducersQuery, OrderQuery, BodiesQuery;
+  NotifyEvents, BodyTypesExcelDataModule3, QueryWithDataSourceUnit,
+  BaseQuery, BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit,
+  ProducersQuery, OrderQuery, BodiesQuery;
 
 type
   TBodyTypesGroup = class(TQueryGroup)
     qBodyKinds: TQueryBodyKinds;
     qBodyTypes2: TQueryBodyTypes2;
-    qBodyTypesBranch: TQueryBodyTypesBranch;
     qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
@@ -46,8 +45,6 @@ begin
   inherited;
   Main := qBodyKinds;
   Detail := qBodyTypes2;
-
-  qBodyTypes2.QueryBodyTypesBranch := qBodyTypesBranch;
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 

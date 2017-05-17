@@ -26,7 +26,6 @@ uses
   BodyKindsQuery in 'Queryes\BodyTypes\BodyKindsQuery.pas' {QueryBodyKinds: TFrame},
   BodyTypesQuery in 'Queryes\BodyTypes\BodyTypesQuery.pas' {QueryBodyTypes: TFrame},
   ApplyQueryFrame in 'Queryes\ApplyQuery\ApplyQueryFrame.pas' {frmApplyQuery: TFrame},
-  BodyTypesBranchQuery in 'Queryes\BodyTypes\BodyTypesBranchQuery.pas' {QueryBodyTypesBranch: TFrame},
   BodyTypesQuery2 in 'Queryes\BodyTypes\BodyTypesQuery2.pas' {QueryBodyTypes2: TFrame},
   BodyTypesTreeQuery in 'Queryes\BodyTypes\BodyTypesTreeQuery.pas' {QueryBodyTypesTree: TFrame},
   BodyTypesGridQuery in 'Queryes\BodyTypes\BodyTypesGridQuery.pas' {QueryBodyTypesGrid: TFrame},

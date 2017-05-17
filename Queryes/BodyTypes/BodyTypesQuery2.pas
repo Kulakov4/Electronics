@@ -9,8 +9,8 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  BodyTypesBranchQuery, ApplyQueryFrame, BodyTypesExcelDataModule3,
-  QueryWithDataSourceUnit, BodiesQuery, BodyDataQuery, BodyVariationsQuery;
+  ApplyQueryFrame, BodyTypesExcelDataModule3, QueryWithDataSourceUnit,
+  BodiesQuery, BodyDataQuery, BodyVariationsQuery;
 
 const
   WM_arInsert = WM_USER + 139;
@@ -31,8 +31,6 @@ type
     FInChange: Boolean;
     FQueryBodies: TQueryBodies;
     FQueryBodyData: TQueryBodyData;
-    // FIndexFields: string;
-    FQueryBodyTypesBranch: TQueryBodyTypesBranch;
     FQueryBodyVariations: TQueryBodyVariations;
     procedure DoAfterOpen(Sender: TObject);
     procedure DropUnusedBodies;
@@ -82,8 +80,6 @@ type
     property Image: TField read GetImage;
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
-    property QueryBodyTypesBranch: TQueryBodyTypesBranch
-      read FQueryBodyTypesBranch write FQueryBodyTypesBranch;
     property Variations: TField read GetVariations;
     { Public declarations }
   end;
