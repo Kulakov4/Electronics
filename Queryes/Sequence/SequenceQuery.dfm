@@ -5,7 +5,6 @@ inherited QuerySequence: TQuerySequence
     ExplicitWidth = 63
   end
   inherited FDQuery: TFDQuery
-    Active = True
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select *'

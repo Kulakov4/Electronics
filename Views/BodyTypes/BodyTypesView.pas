@@ -245,9 +245,15 @@ begin
   if AFileName = '' then
     Exit;
 
-  clIDBodyKind.Visible := True;
-  ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
-  clIDBodyKind.Visible := false;
+//  clIDBodyKind.Visible := True;
+  ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
+    procedure(AView: TcxGridDBBandedTableView)
+    begin
+      AView.ApplyBestFit();
+      AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName).Visible := True;
+    end);
+
+//  clIDBodyKind.Visible := false;
 end;
 
 procedure TViewBodyTypes.actLoadFromExcelDocumentExecute(Sender: TObject);

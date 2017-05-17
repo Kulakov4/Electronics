@@ -7,7 +7,6 @@ inherited QueryProducerTypes: TQueryProducerTypes
     ExplicitWidth = 97
   end
   inherited FDQuery: TFDQuery
-    Active = True
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select *'

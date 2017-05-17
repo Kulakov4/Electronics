@@ -370,12 +370,13 @@ object DM: TDM
     end
   end
   inline BodyTypesGroup: TBodyTypesGroup
-    Left = 0
-    Top = 239
-    Width = 877
-    Height = 142
+    Left = 16
+    Top = 272
+    Width = 971
+    Height = 82
     TabOrder = 16
-    ExplicitTop = 239
+    ExplicitLeft = 16
+    ExplicitTop = 272
     inherited GridPanel1: TGridPanel
       ControlCollection = <
         item
@@ -390,11 +391,6 @@ object DM: TDM
         end
         item
           Column = 2
-          Control = BodyTypesGroup.qBodyTypesBranch
-          Row = 0
-        end
-        item
-          Column = 3
           Control = BodyTypesGroup.qProducers
           Row = 0
         end>
