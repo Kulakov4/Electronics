@@ -27,7 +27,6 @@ uses
   BodyTypesQuery in 'Queryes\BodyTypes\BodyTypesQuery.pas' {QueryBodyTypes: TFrame},
   ApplyQueryFrame in 'Queryes\ApplyQuery\ApplyQueryFrame.pas' {frmApplyQuery: TFrame},
   BodyTypesQuery2 in 'Queryes\BodyTypes\BodyTypesQuery2.pas' {QueryBodyTypes2: TFrame},
-  BodyTypesTreeQuery in 'Queryes\BodyTypes\BodyTypesTreeQuery.pas' {QueryBodyTypesTree: TFrame},
   BodyTypesGridQuery in 'Queryes\BodyTypes\BodyTypesGridQuery.pas' {QueryBodyTypesGrid: TFrame},
   RootForm in 'Views\RootForm.pas' {frmRoot},
   DictonaryForm in 'Views\DictonaryForm.pas' {frmDictonary},
@@ -35,8 +34,6 @@ uses
   PopupForm in 'Views\PopupForm.pas' {frmPopupForm},
   GridFrame in 'Views\GridFrame.pas' {frmGrid: TFrame},
   BodyTypesGridView in 'Views\BodyTypes\BodyTypesGridView.pas' {ViewBodyTypesGrid: TFrame},
-  BodyTypesTreeView in 'Views\BodyTypes\BodyTypesTreeView.pas' {ViewBodyTypesTree: TFrame},
-  BodyTypesTreeForm in 'Views\BodyTypes\BodyTypesTreeForm.pas' {frmBodyTypesTree},
   BodyTypesView in 'Views\BodyTypes\BodyTypesView.pas' {ViewBodyTypes: TFrame},
   BodyTypesForm in 'Views\BodyTypes\BodyTypesForm.pas' {frmBodyTypes},
   ReportQuery in 'Queryes\Report\ReportQuery.pas' {QueryReports: TFrame},
@@ -185,7 +182,9 @@ uses
   BodyTypesGroupUnit in 'Queryes\BodyTypes\BodyTypesGroupUnit.pas' {BodyTypesGroup: TFrame},
   BodiesQuery in 'Queryes\BodyTypes\BodiesQuery.pas' {QueryBodies: TFrame},
   BodyDataQuery in 'Queryes\BodyTypes\BodyDataQuery.pas' {QueryBodyData: TFrame},
-  BodyVariationsQuery in 'Queryes\BodyTypes\BodyVariationsQuery.pas' {QueryBodyVariations: TFrame};
+  BodyVariationsQuery in 'Queryes\BodyTypes\BodyVariationsQuery.pas' {QueryBodyVariations: TFrame},
+  BodyTypesBaseQuery in 'Queryes\BodyTypes\BodyTypesBaseQuery.pas' {QueryBodyTypesBase: TFrame},
+  BodyTypesSimpleQuery in 'Queryes\BodyTypes\BodyTypesSimpleQuery.pas' {QueryBodyTypesSimple: TFrame};
 
 {$R *.res}
 

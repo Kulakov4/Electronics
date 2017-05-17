@@ -142,11 +142,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyTypesTreeQuery.pas">
-            <Form>QueryBodyTypesTree</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\BodyTypes\BodyTypesGridQuery.pas">
             <Form>QueryBodyTypesGrid</Form>
             <FormType>dfm</FormType>
@@ -177,15 +172,6 @@
             <Form>ViewBodyTypesGrid</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\BodyTypes\BodyTypesTreeView.pas">
-            <Form>ViewBodyTypesTree</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\BodyTypes\BodyTypesTreeForm.pas">
-            <Form>frmBodyTypesTree</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Views\BodyTypes\BodyTypesView.pas">
             <Form>ViewBodyTypes</Form>
@@ -865,6 +851,16 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesBaseQuery.pas">
+            <Form>QueryBodyTypesBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesSimpleQuery.pas">
+            <Form>QueryBodyTypesSimple</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <None Include="ModelSupport_Database\default.txaPackage"/>
         <None Include="ModelSupport_Database\default.txvpck"/>
         <None Include="ModelSupport_Database\SearchQuery\default.txvpck"/>
@@ -1080,7 +1076,7 @@
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp220.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
-            <Deployment Version="1">
+            <Deployment Version="2">
                 <DeployFile LocalName="ModelSupport_Database\BaseComponentsQuery\default.txvpck" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
@@ -2603,13 +2599,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>

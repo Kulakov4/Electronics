@@ -16,7 +16,6 @@ type
     FDUpdateSQL: TFDUpdateSQL;
   private
     function GetBodyKind: TField;
-    function GetOrd: TField;
     { Private declarations }
   protected
     procedure DoAfterOpen(Sender: TObject);
@@ -25,7 +24,6 @@ type
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
     property BodyKind: TField read GetBodyKind;
-    property Ord: TField read GetOrd;
     { Public declarations }
   end;
 
@@ -57,11 +55,6 @@ end;
 function TQueryBodyKinds.GetBodyKind: TField;
 begin
   Result := Field('BodyKind');
-end;
-
-function TQueryBodyKinds.GetOrd: TField;
-begin
-  Result := Field('Ord');
 end;
 
 procedure TQueryBodyKinds.LocateOrAppend(AValue: string);

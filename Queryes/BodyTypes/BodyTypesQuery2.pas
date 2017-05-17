@@ -10,43 +10,21 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, BodyTypesExcelDataModule3, QueryWithDataSourceUnit,
-  BodiesQuery, BodyDataQuery, BodyVariationsQuery;
+  BodiesQuery, BodyDataQuery, BodyVariationsQuery, BodyTypesBaseQuery;
 
 const
   WM_arInsert = WM_USER + 139;
 
 type
-  TQueryBodyTypes2 = class(TQueryWithDataSource)
-    fdqUnusedBodyData: TFDQuery;
-    fdqUnusedBodies: TFDQuery;
+  TQueryBodyTypes2 = class(TQueryBodyTypesBase)
     procedure FDQueryBodyType1Change(Sender: TField);
     procedure FDQueryBodyType2Change(Sender: TField);
     procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
-      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-      AOptions: TFDUpdateRowOptions);
   private
     FIDS: string;
     FInChange: Boolean;
-    FQueryBodies: TQueryBodies;
-    FQueryBodyData: TQueryBodyData;
-    FQueryBodyVariations: TQueryBodyVariations;
-    procedure DoAfterOpen(Sender: TObject);
-    procedure DropUnusedBodies;
-    function GetBody: TField;
-    function GetBodyData: TField;
-    function GetIDBody: TField;
-    function GetIDBodyData: TField;
-    function GetIDBodyKind: TField;
-    function GetIDProducer: TField;
     function GetIDS: TField;
-    function GetImage: TField;
-    function GetLandPattern: TField;
-    function GetOutlineDrawing: TField;
-    function GetQueryBodies: TQueryBodies;
-    function GetQueryBodyData: TQueryBodyData;
-    function GetQueryBodyVariations: TQueryBodyVariations;
     function GetVariations: TField;
     { Private declarations }
   protected
@@ -56,30 +34,14 @@ type
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     procedure DoBeforeDelete(Sender: TObject);
-    property IDProducer: TField read GetIDProducer;
-    property QueryBodies: TQueryBodies read GetQueryBodies;
-    property QueryBodyData: TQueryBodyData read GetQueryBodyData;
-    property QueryBodyVariations: TQueryBodyVariations
-      read GetQueryBodyVariations;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CascadeDelete(const AIDMaster: Integer;
-      const ADetailKeyFieldName: String); overload; override;
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
-    property Body: TField read GetBody;
-    property BodyData: TField read GetBodyData;
-    property IDBody: TField read GetIDBody;
-    property IDBodyData: TField read GetIDBodyData;
-    property IDBodyKind: TField read GetIDBodyKind;
+    procedure LocateOrAppend(AIDBodyKind: Integer; const ABody, ABodyData: String;
+        AIDProducer: Integer; const AOutlineDrawing, ALandPattern, AVariation,
+        AImage: string);
     property IDS: TField read GetIDS;
-    // TODO: LocateOrAppend
-    // procedure LocateOrAppend(AIDParentBodyType: Integer;
-    // const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
-    // AImage: string);
-    property Image: TField read GetImage;
-    property LandPattern: TField read GetLandPattern;
-    property OutlineDrawing: TField read GetOutlineDrawing;
     property Variations: TField read GetVariations;
     { Public declarations }
   end;
@@ -94,10 +56,7 @@ constructor TQueryBodyTypes2.Create(AOwner: TComponent);
 begin
   inherited;
   FPKFieldName := 'IDS';
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
-  FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
-  AutoTransaction := False;
 end;
 
 procedure TQueryBodyTypes2.ApplyDelete(ASender: TDataSet);
@@ -213,23 +172,6 @@ begin
   ApplyInsertOrUpdate;
 end;
 
-procedure TQueryBodyTypes2.CascadeDelete(const AIDMaster: Integer;
-  const ADetailKeyFieldName: String);
-var
-  E: TFDUpdateRecordEvent;
-begin
-  // каскадное удаление уже реализовано на стороне сервера
-  // ѕросто удалим эти записи с клиента ничего не сохран€€ на стороне сервера
-
-  E := FDQuery.OnUpdateRecord;
-  try
-    FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
-    inherited;
-  finally
-    FDQuery.OnUpdateRecord := E;
-  end;
-end;
-
 function TQueryBodyTypes2.ConstructBodyKind(const APackage: String): string;
 var
   m: TArray<String>;
@@ -288,51 +230,9 @@ begin
   end;
 end;
 
-procedure TQueryBodyTypes2.DoAfterOpen(Sender: TObject);
-begin
-  SetFieldsRequired(False);
-  IDProducer.Required := True;
-  Body.Required := True;
-  BodyData.Required := True;
-  // ѕодписываемс€ на событие об изменении значени€ пол€
-  // BodyType1.OnChange := FDQueryBodyType1Change;
-  // BodyType2.OnChange := FDQueryBodyType2Change;
-end;
-
 procedure TQueryBodyTypes2.DoBeforeDelete(Sender: TObject);
 begin
   FIDS := IDS.AsString
-end;
-
-procedure TQueryBodyTypes2.DropUnusedBodies;
-begin
-  while True do
-  begin
-    fdqUnusedBodyData.Close;
-    fdqUnusedBodyData.Open;
-
-    if fdqUnusedBodyData.RecordCount = 0 then
-      break;
-
-    while not fdqUnusedBodyData.Eof do
-    begin
-      QueryBodyData.LocateByPKAndDelete(fdqUnusedBodyData['ID']);
-      fdqUnusedBodyData.Next;
-    end;
-
-    fdqUnusedBodies.Close;
-    fdqUnusedBodies.Open();
-
-    if fdqUnusedBodies.RecordCount = 0 then
-      break;
-
-    while not fdqUnusedBodies.Eof do
-    begin
-      QueryBodies.LocateByPKAndDelete(fdqUnusedBodies['ID']);
-      fdqUnusedBodies.Next;
-    end;
-
-  end;
 end;
 
 procedure TQueryBodyTypes2.FDQueryBodyType1Change(Sender: TField);
@@ -550,97 +450,20 @@ begin
   AAction := eaApplied;
 end;
 
-procedure TQueryBodyTypes2.FDQueryUpdateRecordOnClient(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
-begin
-  AAction := eaApplied;
-end;
-
-function TQueryBodyTypes2.GetBody: TField;
-begin
-  Result := Field('Body');
-end;
-
-function TQueryBodyTypes2.GetBodyData: TField;
-begin
-  Result := Field('BodyData');
-end;
-
-function TQueryBodyTypes2.GetIDBody: TField;
-begin
-  Result := Field('IDBody');
-end;
-
-function TQueryBodyTypes2.GetIDBodyData: TField;
-begin
-  Result := Field('IDBodyData');
-end;
-
-function TQueryBodyTypes2.GetIDBodyKind: TField;
-begin
-  Result := Field('IDBodyKind');
-end;
-
-function TQueryBodyTypes2.GetIDProducer: TField;
-begin
-  Result := Field('IDProducer');
-end;
-
 function TQueryBodyTypes2.GetIDS: TField;
 begin
   Result := Field('IDS');
 end;
 
-function TQueryBodyTypes2.GetImage: TField;
-begin
-  Result := Field('Image');
-end;
-
-function TQueryBodyTypes2.GetLandPattern: TField;
-begin
-  Result := Field('LandPattern');
-end;
-
-function TQueryBodyTypes2.GetOutlineDrawing: TField;
-begin
-  Result := Field('OutlineDrawing');
-end;
-
-function TQueryBodyTypes2.GetQueryBodies: TQueryBodies;
-begin
-  if FQueryBodies = nil then
-  begin
-    FQueryBodies := TQueryBodies.Create(Self);
-    FQueryBodies.FDQuery.Open();
-  end;
-  Result := FQueryBodies;
-end;
-
-function TQueryBodyTypes2.GetQueryBodyData: TQueryBodyData;
-begin
-  if FQueryBodyData = nil then
-  begin
-    FQueryBodyData := TQueryBodyData.Create(Self);
-    FQueryBodyData.FDQuery.Open;
-  end;
-
-  Result := FQueryBodyData;
-end;
-
-function TQueryBodyTypes2.GetQueryBodyVariations: TQueryBodyVariations;
-begin
-  if FQueryBodyVariations = nil then
-  begin
-    FQueryBodyVariations := TQueryBodyVariations.Create(Self);
-    FQueryBodyVariations.FDQuery.Open;
-  end;
-  Result := FQueryBodyVariations;
-end;
-
 function TQueryBodyTypes2.GetVariations: TField;
 begin
   Result := Field('Variations');
+end;
+
+procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer; const ABody,
+    ABodyData: String; AIDProducer: Integer; const AOutlineDrawing,
+    ALandPattern, AVariation, AImage: string);
+begin
 end;
 
 // TODO: LocateOrAppend

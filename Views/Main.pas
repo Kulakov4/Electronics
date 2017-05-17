@@ -68,7 +68,6 @@ type
     actShowManufacturers: TAction;
     actShowDescriptions: TAction;
     actShowParameters: TAction;
-    actShowBodyTypes: TAction;
     actShowBodyTypes2: TAction;
     dxBarButton2: TdxBarButton;
     actShowBodyTypes3: TAction;
@@ -111,7 +110,6 @@ type
     procedure actSelectDataBasePathExecute(Sender: TObject);
     procedure actShowBodyTypes2Execute(Sender: TObject);
     procedure actShowBodyTypes3Execute(Sender: TObject);
-    procedure actShowBodyTypesExecute(Sender: TObject);
     procedure actShowDescriptionsExecute(Sender: TObject);
     procedure actShowManufacturersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
@@ -169,8 +167,8 @@ implementation
 
 uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
-  ParametersForm, SettingsController, BodyTypesTreeForm,
-  BodyTypesGridQuery, ReportsForm, ReportQuery, ParametricExcelDataModule,
+  ParametersForm, SettingsController, BodyTypesGridQuery, ReportsForm,
+  ReportQuery, ParametricExcelDataModule,
   ComponentBodyTypesExcelDataModule, ParametricTableForm, BodyTypesForm,
   ProjectConst, PathSettingsForm, ImportErrorForm, ErrorForm,
   cxGridDBBandedTableView, System.IOUtils, SearchMainParameterQuery,
@@ -489,30 +487,6 @@ begin
   end;
 
   frmBodyTypes.Show;
-end;
-
-procedure TfrmMain.actShowBodyTypesExecute(Sender: TObject);
-begin
-  if frmBodyTypesTree = nil then
-  begin
-    frmBodyTypesTree := TfrmBodyTypesTree.Create(Self);
-    frmBodyTypesTree.ViewBodyTypesTree.QueryBodyTypesTree := DM.qBodyTypesTree;
-  end;
-
-  DM.qBodyTypesTree.RefreshQuery;
-  frmBodyTypesTree.Show;
-  // Сворачиваем дерево корпусов
-  frmBodyTypesTree.ViewBodyTypesTree.CollapseAll();
-
-  {
-    if frmBodyTypes = nil then
-    begin
-    frmBodyTypes := TfrmBodyTypes.Create(Self);
-    frmBodyTypes.ViewBodyTypes.BodyTypesMasterDetail := DM.BodyTypesMasterDetail;
-    end;
-
-    frmBodyTypes.Show;
-  }
 end;
 
 procedure TfrmMain.actShowDescriptionsExecute(Sender: TObject);

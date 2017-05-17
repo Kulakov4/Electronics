@@ -32,8 +32,8 @@ inherited BodyTypesGroup: TBodyTypesGroup
         Control = qProducers
         Row = 0
       end>
-    ExplicitWidth = 877
-    ExplicitHeight = 142
+    ExplicitWidth = 971
+    ExplicitHeight = 82
     inline qBodyKinds: TQueryBodyKinds
       Left = 1
       Top = 1
@@ -43,8 +43,7 @@ inherited BodyTypesGroup: TBodyTypesGroup
       TabOrder = 0
       ExplicitLeft = 1
       ExplicitTop = 1
-      ExplicitWidth = 288
-      ExplicitHeight = 140
+      ExplicitWidth = 319
     end
     inline qBodyTypes2: TQueryBodyTypes2
       Left = 320
@@ -53,10 +52,9 @@ inherited BodyTypesGroup: TBodyTypesGroup
       Height = 80
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 289
+      ExplicitLeft = 320
       ExplicitTop = 1
-      ExplicitWidth = 288
-      ExplicitHeight = 140
+      ExplicitHeight = 80
     end
     inline qProducers: TQueryProducers
       Left = 639
@@ -65,8 +63,10 @@ inherited BodyTypesGroup: TBodyTypesGroup
       Height = 80
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 663
-      ExplicitTop = 32
+      ExplicitLeft = 639
+      ExplicitTop = 1
+      ExplicitWidth = 331
+      ExplicitHeight = 80
     end
   end
 end

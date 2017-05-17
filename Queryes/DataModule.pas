@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.UI.Intf, FireDAC.VCLUI.Wait, FireDAC.Stan.Intf, FireDAC.Comp.UI,
-  TreeListQuery, ChildCategoriesQuery, BodyTypesGroupUnit, BodyTypesTreeQuery,
+  TreeListQuery, ChildCategoriesQuery, BodyTypesGroupUnit,
   DescriptionsGroupUnit, ProducersQuery, ParametersGroupUnit,
   ComponentsExGroupUnit, System.Contnrs, System.Generics.Collections,
   ComponentsGroupUnit, BodyTypesQuery, ComponentsSearchGroupUnit,
@@ -21,7 +21,6 @@ type
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     qTreeList: TQueryTreeList;
     qChildCategories: TQueryChildCategories;
-    qBodyTypesTree: TQueryBodyTypesTree;
     qProductsSearch: TQueryProductsSearch;
     qBodyTypes: TQueryBodyTypes;
     qStoreHouseList: TQueryStoreHouseList;
@@ -43,7 +42,6 @@ type
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
-    procedure DoAfterBodyTypesTreePostOrDelete(Sender: TObject);
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterParamForCategoriesPost(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
@@ -88,7 +86,6 @@ begin
     Add(qTreeList);
     Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
     Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
-    Add(qBodyTypesTree); // Типы корпусов
     Add(ProducersGroup.qProducerTypes); // Типы производителей
     Add(ProducersGroup.qProducers); // Производители
     Add(qProductsSearch); // Поиск на складе и редактирование найденного
@@ -150,13 +147,6 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
-  // Чтобы корпуса используемые в представлении компонентов
-  // обновлялись вместе с изменением справочника корпусов
-  TNotifyEventWrap.Create(qBodyTypesTree.AfterPost,
-    DoAfterBodyTypesTreePostOrDelete, FEventList);
-  TNotifyEventWrap.Create(qBodyTypesTree.AfterDelete,
-    DoAfterBodyTypesTreePostOrDelete, FEventList);
-
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
   TNotifyEventWrap.Create(ProducersGroup.qProducers.AfterCommit,
@@ -214,11 +204,6 @@ begin
 
   // Открываем новое соединение с БД
   OpenConnection();
-end;
-
-procedure TDM.DoAfterBodyTypesTreePostOrDelete(Sender: TObject);
-begin
-  qBodyTypes.RefreshQuery;
 end;
 
 procedure TDM.DoAfterParametersCommit(Sender: TObject);

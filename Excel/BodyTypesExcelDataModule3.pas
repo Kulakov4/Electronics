@@ -14,11 +14,11 @@ type
     FBodyVariationsDataSet: TFDDataSet;
     FfdmtBodyVariations: TFDMemTable;
     function GetBodyKind: TField;
-    function GetBodyType: TField;
+    function GetBody: TField;
     function GetImage: TField;
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
-    function GetPackage: TField;
+    function GetBodyData: TField;
     function GetVariation: TField;
     procedure SetBodyVariationsDataSet(const Value: TFDDataSet);
   protected
@@ -29,13 +29,13 @@ type
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
     property BodyKind: TField read GetBodyKind;
-    property BodyType: TField read GetBodyType;
+    property Body: TField read GetBody;
     property BodyVariationsDataSet: TFDDataSet read FBodyVariationsDataSet
       write SetBodyVariationsDataSet;
     property Image: TField read GetImage;
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
-    property Package: TField read GetPackage;
+    property BodyData: TField read GetBodyData;
     property Variation: TField read GetVariation;
   end;
 
@@ -115,9 +115,9 @@ begin
   Result := FieldByName('BodyKind');
 end;
 
-function TBodyTypesExcelTable3.GetBodyType: TField;
+function TBodyTypesExcelTable3.GetBody: TField;
 begin
-  Result := FieldByName('BodyType');
+  Result := FieldByName('Body');
 end;
 
 function TBodyTypesExcelTable3.GetImage: TField;
@@ -135,9 +135,9 @@ begin
   Result := FieldByName('OutlineDrawing');
 end;
 
-function TBodyTypesExcelTable3.GetPackage: TField;
+function TBodyTypesExcelTable3.GetBodyData: TField;
 begin
-  Result := FieldByName('Package');
+  Result := FieldByName('BodyData');
 end;
 
 function TBodyTypesExcelTable3.GetVariation: TField;
@@ -160,16 +160,16 @@ end;
 
 procedure TBodyTypesExcelTable3.SetFieldsInfo;
 begin
-  FieldsInfo.Add(TFieldInfo.Create('BodyType', True,
-    'Тип корпуса не может быть пустым'));
-  FieldsInfo.Add(TFieldInfo.Create('Package', True,
-    'Формфактор корпуса не может быть пустым'));
+  FieldsInfo.Add(TFieldInfo.Create('Body', True,
+    'Корпус не может быть пустым'));
+  FieldsInfo.Add(TFieldInfo.Create('BodyData', True,
+    'Корпусные данные не могут быть пустыми'));
   FieldsInfo.Add(TFieldInfo.Create('OutlineDrawing'));
   FieldsInfo.Add(TFieldInfo.Create('LandPattern'));
   FieldsInfo.Add(TFieldInfo.Create('Variation'));
   FieldsInfo.Add(TFieldInfo.Create('Image'));
   FieldsInfo.Add(TFieldInfo.Create('BodyKind', True,
-    'Вид корпуса не может быть пустым'));
+    'Тип корпуса не может быть пустым'));
 
 end;
 

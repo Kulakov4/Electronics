@@ -30,22 +30,12 @@ object DM: TDM
     ExplicitLeft = 138
     ExplicitTop = 75
   end
-  inline qBodyTypesTree: TQueryBodyTypesTree
-    Left = 0
-    Top = 158
-    Width = 257
-    Height = 80
-    TabOrder = 2
-    ExplicitTop = 158
-    ExplicitWidth = 257
-    ExplicitHeight = 80
-  end
   inline qProductsSearch: TQueryProductsSearch
     Left = 555
     Top = 488
     Width = 254
     Height = 159
-    TabOrder = 3
+    TabOrder = 2
     ExplicitLeft = 555
     ExplicitTop = 488
     ExplicitWidth = 254
@@ -65,7 +55,7 @@ object DM: TDM
     Top = 64
     Width = 125
     Height = 80
-    TabOrder = 4
+    TabOrder = 3
     ExplicitLeft = 269
     ExplicitTop = 64
   end
@@ -74,7 +64,7 @@ object DM: TDM
     Top = 150
     Width = 208
     Height = 86
-    TabOrder = 5
+    TabOrder = 4
     ExplicitLeft = 275
     ExplicitTop = 150
   end
@@ -83,7 +73,7 @@ object DM: TDM
     Top = 454
     Width = 525
     Height = 143
-    TabOrder = 6
+    TabOrder = 5
     ExplicitLeft = 1
     ExplicitTop = 454
     ExplicitWidth = 525
@@ -125,7 +115,7 @@ object DM: TDM
     Top = 603
     Width = 526
     Height = 82
-    TabOrder = 7
+    TabOrder = 6
     ExplicitTop = 603
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -154,7 +144,7 @@ object DM: TDM
     Top = -9
     Width = 400
     Height = 81
-    TabOrder = 8
+    TabOrder = 7
     ExplicitLeft = 104
     ExplicitTop = -9
     inherited GridPanel1: TGridPanel
@@ -180,7 +170,7 @@ object DM: TDM
     Top = 240
     Width = 516
     Height = 122
-    TabOrder = 9
+    TabOrder = 8
     ExplicitLeft = 630
     ExplicitTop = 240
     ExplicitWidth = 516
@@ -231,7 +221,7 @@ object DM: TDM
     Top = 120
     Width = 539
     Height = 81
-    TabOrder = 10
+    TabOrder = 9
     ExplicitLeft = 622
     ExplicitTop = 120
     inherited GridPanel1: TGridPanel
@@ -265,7 +255,7 @@ object DM: TDM
     Top = 376
     Width = 790
     Height = 79
-    TabOrder = 11
+    TabOrder = 10
     ExplicitTop = 376
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -291,7 +281,7 @@ object DM: TDM
     Top = -4
     Width = 604
     Height = 90
-    TabOrder = 12
+    TabOrder = 11
     ExplicitLeft = 514
     ExplicitTop = -4
     ExplicitHeight = 90
@@ -333,7 +323,7 @@ object DM: TDM
     Top = 140
     Width = 125
     Height = 80
-    TabOrder = 13
+    TabOrder = 12
     ExplicitLeft = 489
     ExplicitTop = 140
   end
@@ -342,7 +332,7 @@ object DM: TDM
     Top = 584
     Width = 125
     Height = 80
-    TabOrder = 14
+    TabOrder = 13
     ExplicitLeft = 904
     ExplicitTop = 584
     ExplicitWidth = 125
@@ -374,7 +364,7 @@ object DM: TDM
     Top = 272
     Width = 971
     Height = 82
-    TabOrder = 16
+    TabOrder = 14
     ExplicitLeft = 16
     ExplicitTop = 272
     inherited GridPanel1: TGridPanel

@@ -134,10 +134,6 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -887,8 +883,9 @@ object frmMain: TfrmMain
       Category = 0
     end
     object dxbrbtn7: TdxBarButton
-      Action = actShowBodyTypes
+      Caption = #1058#1080#1087#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
       Category = 0
+      Visible = ivNever
     end
     object dxbrbtnSettings: TdxBarButton
       Action = actSelectDataBasePath
@@ -947,11 +944,6 @@ object frmMain: TfrmMain
     object actShowParameters: TAction
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
       OnExecute = actShowParametersExecute
-    end
-    object actShowBodyTypes: TAction
-      Caption = #1058#1080#1087#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
-      Visible = False
-      OnExecute = actShowBodyTypesExecute
     end
     object actShowBodyTypes2: TAction
       Caption = 'actShowBodyTypes2'

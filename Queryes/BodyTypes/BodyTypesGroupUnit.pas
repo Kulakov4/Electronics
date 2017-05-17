@@ -8,7 +8,8 @@ uses
   Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
   NotifyEvents, BodyTypesExcelDataModule3, QueryWithDataSourceUnit,
   BaseQuery, BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit,
-  ProducersQuery, OrderQuery, BodiesQuery;
+  ProducersQuery, OrderQuery, BodiesQuery, BodyTypesSimpleQuery,
+  BodyTypesBaseQuery;
 
 type
   TBodyTypesGroup = class(TQueryGroup)
@@ -17,9 +18,11 @@ type
     qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
+    FQueryBodyTypesSimple: TQueryBodyTypesSimple;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
+    function GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
     { Private declarations }
   protected
   public
@@ -31,6 +34,8 @@ type
     // function Append(APackage, AOutlineDrawing, ALandPattern, AVariation: String):
     // Integer;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
+    property QueryBodyTypesSimple: TQueryBodyTypesSimple
+      read GetQueryBodyTypesSimple;
     { Public declarations }
   end;
 
@@ -38,7 +43,7 @@ implementation
 
 {$R *.dfm}
 
-uses Data.DB, BodyTypesTreeQuery;
+uses Data.DB;
 
 constructor TBodyTypesGroup.Create(AOwner: TComponent);
 begin
@@ -78,26 +83,38 @@ begin
     qBodyTypes2.IDBodyKind.FieldName);
 end;
 
+function TBodyTypesGroup.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
+begin
+  if FQueryBodyTypesSimple = nil then
+  begin
+    FQueryBodyTypesSimple := TQueryBodyTypesSimple.Create(Self);
+  end;
+
+  Result := FQueryBodyTypesSimple;
+end;
+
 procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable
   : TBodyTypesExcelTable3);
 begin
   ABodyTypesExcelTable.DisableControls;
   try
+    QueryBodyTypesSimple.RefreshQuery;
+
     ABodyTypesExcelTable.First;
     ABodyTypesExcelTable.CallOnProcessEvent;
     while not ABodyTypesExcelTable.Eof do
     begin
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
-{
-      qBodyTypes2.LocateOrAppend(qBodyKinds.PKValue,
-        ABodyTypesExcelTable.BodyType.AsString,
-        ABodyTypesExcelTable.Package.AsString,
+
+      QueryBodyTypesSimple.LocateOrAppend(qBodyKinds.PKValue,
+        ABodyTypesExcelTable.Body.AsString,
+        ABodyTypesExcelTable.BodyData.AsString, 1,
         ABodyTypesExcelTable.OutlineDrawing.AsString,
         ABodyTypesExcelTable.LandPattern.AsString,
         ABodyTypesExcelTable.Variation.AsString,
         ABodyTypesExcelTable.Image.AsString);
-}
+
       ABodyTypesExcelTable.Next;
       ABodyTypesExcelTable.CallOnProcessEvent;
     end;
