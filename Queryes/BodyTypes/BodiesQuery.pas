@@ -39,16 +39,16 @@ end;
 
 procedure TQueryBodies.LocateOrAppend(const ABody: string; AIDBodyKind:
     Integer);
+var
+  AFieldNames: string;
 begin
   Assert(not ABody.IsEmpty);
   Assert(AIDBodyKind > 0);
 
-  if FDQuery.LocateEx(Body.FieldName, ABody, [lxoCaseInsensitive]) then
-  begin
-    if IDBodyKind.Value <> AIDBodyKind then
-      raise Exception.Create('Добавляемый корпус относится к другому типу');
-  end
-  else
+  AFieldNames := Format('%s;%s', [IDBodyKind.FieldName, Body.FieldName]);
+
+  if not FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDBodyKind, ABody]),
+    [lxoCaseInsensitive]) then
   begin
     TryAppend;
     Body.Value := ABody;

@@ -55,16 +55,10 @@ begin
   Assert(AIDProducer > 0);
   Assert(AIDBody > 0);
 
-  AFieldNames := Format('%s;%s', [BodyData.FieldName, IDProducer.FieldName]);
+  AFieldNames := Format('%s;%s;%s', [IDBody.FieldName, BodyData.FieldName, IDProducer.FieldName]);
 
-  if FDQuery.LocateEx(AFieldNames, VarArrayOf([ABodyData, AIDProducer]),
+  if not FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDBody, ABodyData, AIDProducer]),
     [lxoCaseInsensitive]) then
-  begin
-    if IDBody.Value <> AIDBody then
-      raise Exception.Create
-        ('Добавляемые корпусные данные относится к другому корпусу');
-  end
-  else
   begin
     TryAppend;
     BodyData.Value := ABodyData;

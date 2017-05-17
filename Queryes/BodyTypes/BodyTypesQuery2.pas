@@ -17,10 +17,8 @@ const
 
 type
   TQueryBodyTypes2 = class(TQueryWithDataSource)
-    qBodyVariations: TfrmApplyQuery;
-    fdqUnusedBodyTypes: TFDQuery;
-    qBodies: TfrmApplyQuery;
-    qBodyData: TfrmApplyQuery;
+    fdqUnusedBodyData: TFDQuery;
+    fdqUnusedBodies: TFDQuery;
     procedure FDQueryBodyType1Change(Sender: TField);
     procedure FDQueryBodyType2Change(Sender: TField);
     procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -29,6 +27,7 @@ type
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
   private
+    FIDS: string;
     FInChange: Boolean;
     FQueryBodies: TQueryBodies;
     FQueryBodyData: TQueryBodyData;
@@ -36,7 +35,7 @@ type
     FQueryBodyTypesBranch: TQueryBodyTypesBranch;
     FQueryBodyVariations: TQueryBodyVariations;
     procedure DoAfterOpen(Sender: TObject);
-    procedure DropUnusedBodyTypes;
+    procedure DropUnusedBodies;
     function GetBody: TField;
     function GetBodyData: TField;
     function GetIDBody: TField;
@@ -55,8 +54,10 @@ type
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsertOrUpdate;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
+    procedure DoBeforeDelete(Sender: TObject);
     property IDProducer: TField read GetIDProducer;
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
@@ -98,6 +99,7 @@ begin
   inherited;
   FPKFieldName := 'IDS';
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   AutoTransaction := False;
 end;
@@ -109,7 +111,9 @@ var
   m: TArray<String>;
   S: string;
 begin
-  AIDS := ASender.FieldByName(PKFieldName).AsString;
+  Assert(ASender = FDQuery);
+  AIDS := FIDS;
+
   if not AIDS.IsEmpty then
   begin
     // Почему-то иногда AID = 0
@@ -118,50 +122,33 @@ begin
     begin
       AID := S.Trim.ToInteger();
       // Удаляем вариант корпуса
-      qBodyVariations.DeleteRecord(AID);
+      QueryBodyVariations.LocateByPKAndDelete(AID);
     end;
 
-    // Удаляем неиспользуемые типы корпусов
-    DropUnusedBodyTypes;
+    // Удаляем неиспользуемые корпуса
+    DropUnusedBodies;
   end;
 
 end;
 
 procedure TQueryBodyTypes2.ApplyInsert(ASender: TDataSet);
+begin
+  Assert(ASender = FDQuery);
+
+  ApplyInsertOrUpdate;
+end;
+
+procedure TQueryBodyTypes2.ApplyInsertOrUpdate;
 var
-  ABody: TField;
-  ABodyData: TField;
-  AIDBody: TField;
-  AIDBodyData: TField;
-  AIDBodyKind: TField;
-  AIDProducer: TField;
-  AIDS: TField;
+  AID: string;
   AIDSS: string;
-  AImage: TField;
-  ALandPattern: TField;
-  AOutlineDrawing: TField;
-  AVariation: string;
-  AVariations: TField;
+  AOLDIDS: string;
   I: Integer;
   L: TStringList;
   m: TArray<String>;
-  S: string;
-  SS: string;
 begin
-  AIDS := ASender.FieldByName(IDS.FieldName);
-  AIDBody := ASender.FieldByName(IDBody.FieldName);
-  AIDBodyData := ASender.FieldByName(IDBodyData.FieldName);
-  ABody := ASender.FieldByName(Body.FieldName);
-  AIDBodyKind := ASender.FieldByName(IDBodyKind.FieldName);
-  ABodyData := ASender.FieldByName(BodyData.FieldName);
-  AIDProducer := ASender.FieldByName(IDProducer.FieldName);
-  AOutlineDrawing := ASender.FieldByName(OutlineDrawing.FieldName);
-  ALandPattern := ASender.FieldByName(LandPattern.FieldName);
-  AVariations := ASender.FieldByName(Variations.FieldName);
-  AImage := ASender.FieldByName(Image.FieldName);
-
-  QueryBodies.LocateOrAppend(ABody.Value, IDBodyKind.Value);
-  QueryBodyData.LocateOrAppend(ABodyData.Value, AIDProducer.Value,
+  QueryBodies.LocateOrAppend(Body.Value, IDBodyKind.Value);
+  QueryBodyData.LocateOrAppend(BodyData.Value, IDProducer.Value,
     QueryBodies.PKValue);
 
   AIDSS := '';
@@ -170,7 +157,7 @@ begin
   try
     L.Delimiter := ',';
     L.StrictDelimiter := True;
-    L.DelimitedText := AVariations.AsString.Trim;
+    L.DelimitedText := Variations.AsString.Trim;
 
     // Убираем пустые строки
     for I := L.Count - 1 downto 0 do
@@ -185,17 +172,38 @@ begin
       // Добавляем пустой вариант корпуса
       L.Add('');
     end;
+
+    AOLDIDS := ','+IDS.AsString.Replace(' ', '')+',';
+
     for I := 0 to L.Count - 1 do
     begin
-      QueryBodyVariations.Append(QueryBodyData.PKValue,
-        AOutlineDrawing.AsString, ALandPattern.AsString, L[I], AImage.AsString);
-      AIDSS := IfThen(AIDSS.IsEmpty, '', ', ');
-      AIDSS := AIDSS + QueryBodyVariations.PKValue.ToString();
+      QueryBodyVariations.LocateOrAppend(QueryBodyData.PKValue,
+        OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString);
+      AID := QueryBodyVariations.PKValue.ToString();
+      Assert(not AID.IsEmpty);
+
+      // Удаляем этот идентификатор из старых
+      AOLDIDS := AOLDIDS.Replace(','+AID+',', ',');
+
+      AIDSS := AIDSS + IfThen(AIDSS.IsEmpty, '', ', ');
+      AIDSS := AIDSS + AID;
     end;
 
-    AIDS.AsString := AIDSS;
-    AIDBodyData.Value := QueryBodyData.PKValue;
-    AIDBody.Value := QueryBodies.PKValue;
+    AOldIDS := AOldIDS.Trim([',']);
+
+    // Если остались какие-то старые варианты корпусов
+    if not AOldIDS.IsEmpty then
+    begin
+      m := AOldIDS.Split([',']);
+      for AID in m do
+        QueryBodyVariations.LocateByPKAndDelete(AID);
+    end;
+
+    IDS.Value := AIDSS;
+    IDS.NewValue := AIDSS;
+    IDBodyData.Value := QueryBodyData.PKValue;
+    IDBody.Value := QueryBodies.PKValue;
+
   finally
     FreeAndNil(L);
   end;
@@ -204,6 +212,9 @@ end;
 
 procedure TQueryBodyTypes2.ApplyUpdate(ASender: TDataSet);
 begin
+  Assert(ASender = FDQuery);
+
+  ApplyInsertOrUpdate;
 end;
 
 procedure TQueryBodyTypes2.CascadeDelete(const AIDMaster: Integer;
@@ -292,21 +303,39 @@ begin
   // BodyType2.OnChange := FDQueryBodyType2Change;
 end;
 
-procedure TQueryBodyTypes2.DropUnusedBodyTypes;
+procedure TQueryBodyTypes2.DoBeforeDelete(Sender: TObject);
+begin
+  FIDS := IDS.AsString
+end;
+
+procedure TQueryBodyTypes2.DropUnusedBodies;
 begin
   while True do
   begin
-    fdqUnusedBodyTypes.Close;
-    fdqUnusedBodyTypes.Open;
+    fdqUnusedBodyData.Close;
+    fdqUnusedBodyData.Open;
 
-    if fdqUnusedBodyTypes.RecordCount = 0 then
+    if fdqUnusedBodyData.RecordCount = 0 then
       break;
 
-    while not fdqUnusedBodyTypes.Eof do
+    while not fdqUnusedBodyData.Eof do
     begin
-      // qBodyTypes.DeleteRecord(fdqUnusedBodyTypes['ID']);
-      fdqUnusedBodyTypes.Next;
+      QueryBodyData.LocateByPKAndDelete(fdqUnusedBodyData['ID']);
+      fdqUnusedBodyData.Next;
     end;
+
+    fdqUnusedBodies.Close;
+    fdqUnusedBodies.Open();
+
+    if fdqUnusedBodies.RecordCount = 0 then
+      break;
+
+    while not fdqUnusedBodies.Eof do
+    begin
+      QueryBodies.LocateByPKAndDelete(fdqUnusedBodies['ID']);
+      fdqUnusedBodies.Next;
+    end;
+
   end;
 end;
 
@@ -444,7 +473,7 @@ begin
     end;
 
     // Удаляем неиспользуемые типы корпусов
-    DropUnusedBodyTypes;
+    DropUnusedBodies;
     end;
     end
     else if ARequest in [arUpdate, arInsert] then

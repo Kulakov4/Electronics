@@ -27,8 +27,8 @@ type
     property OutlineDrawing: TField read GetOutlineDrawing;
     property Variation: TField read GetVariation;
   public
-    procedure Append(AIDBodyData: Integer; const AOutlineDrawing, ALandPattern,
-      AVariation, AImage: string);
+    procedure LocateOrAppend(AIDBodyData: Integer;
+      const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
     { Public declarations }
   end;
 
@@ -61,19 +61,26 @@ begin
   Result := Field('Variation');
 end;
 
-procedure TQueryBodyVariations.Append(AIDBodyData: Integer;
+procedure TQueryBodyVariations.LocateOrAppend(AIDBodyData: Integer;
   const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
 var
   AFieldNames: string;
 begin
   Assert(AIDBodyData > 0);
 
-  TryAppend;
+  AFieldNames := Format('%s;%s', [IDBodyData.FieldName, Variation.FieldName]);
+  if not FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDBodyData, AVariation]),
+    [lxoCaseInsensitive]) then
+    TryAppend
+  else
+    TryEdit;
+
   IDBodyData.Value := AIDBodyData;
   OutlineDrawing.Value := AOutlineDrawing;
   LandPattern.Value := ALandPattern;
   Variation.Value := AVariation;
   Image.Value := AImage;
+
   TryPost;
 end;
 

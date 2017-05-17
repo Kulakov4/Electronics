@@ -64,6 +64,7 @@ type
     procedure SetParameters(const AParamNames: array of string;
       const AParamValues: array of Variant);
     function LocateByPK(APKValue: Variant): Boolean;
+    procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     function Search(const AParamNames: array of string;
       const AParamValues: array of Variant): Integer; overload;
@@ -509,6 +510,15 @@ end;
 function TQueryBase.LocateByPK(APKValue: Variant): Boolean;
 begin
   Result := FDQuery.LocateEx(FPKFieldName, APKValue);
+end;
+
+procedure TQueryBase.LocateByPKAndDelete(APKValue: Variant);
+var
+  OK: Boolean;
+begin
+  OK := LocateByPK(APKValue);
+  Assert(OK);
+  FDQuery.Delete;
 end;
 
 procedure TQueryBase.RefreshQuery;

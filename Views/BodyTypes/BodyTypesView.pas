@@ -28,7 +28,7 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  BodyTypesGroupUnit, DragHelper, HRTimer;
+  BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -85,6 +85,13 @@ type
       AButtonIndex: Integer);
     procedure clOutlineDrawingPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
+        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+        TShiftState);
+    procedure cxGridDBBandedTableView2KeyDown(Sender: TObject; var Key: Word;
+        Shift: TShiftState);
+    procedure cxGridDBBandedTableView2MouseDown(Sender: TObject; Button:
+        TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -432,6 +439,30 @@ procedure TViewBodyTypes.CreateColumnsBarButtons;
 begin
   FColumnsBarButtons := TColumnsBarButtons.Create(Self,
     dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
+end;
+
+procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown(Sender:
+    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
+    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
+end;
+
+procedure TViewBodyTypes.cxGridDBBandedTableView2KeyDown(Sender: TObject; var
+    Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TViewBodyTypes.cxGridDBBandedTableView2MouseDown(Sender: TObject;
+    Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded(
