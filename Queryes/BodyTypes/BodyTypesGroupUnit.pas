@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
-  NotifyEvents, BodyTypesExcelDataModule3, QueryWithDataSourceUnit,
+  NotifyEvents, BodyTypesExcelDataModule, QueryWithDataSourceUnit,
   BaseQuery, BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit,
   ProducersQuery, OrderQuery, BodiesQuery, BodyTypesSimpleQuery,
   BodyTypesBaseQuery;
@@ -27,7 +27,7 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
-    procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable3);
+    procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable);
     // TODO: Append
     /// / TODO: InsertRecordList
     /// /  procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable);
@@ -93,8 +93,11 @@ begin
   Result := FQueryBodyTypesSimple;
 end;
 
-procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable
-  : TBodyTypesExcelTable3);
+procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable:
+    TBodyTypesExcelTable);
+var
+  AField: TField;
+  F: TField;
 begin
   ABodyTypesExcelTable.DisableControls;
   try
@@ -107,13 +110,16 @@ begin
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
 
-      QueryBodyTypesSimple.LocateOrAppend(qBodyKinds.PKValue,
-        ABodyTypesExcelTable.Body.AsString,
-        ABodyTypesExcelTable.BodyData.AsString, 1,
-        ABodyTypesExcelTable.OutlineDrawing.AsString,
-        ABodyTypesExcelTable.LandPattern.AsString,
-        ABodyTypesExcelTable.Variation.AsString,
-        ABodyTypesExcelTable.Image.AsString);
+      QueryBodyTypesSimple.TryAppend;
+
+      for AField in ABodyTypesExcelTable.Fields do
+      begin
+        F := QueryBodyTypesSimple.FDQuery.FindField(AField.FieldName);
+        if F <> nil then
+          F.Value := AField.Value;
+      end;
+
+      QueryBodyTypesSimple.TryPost;
 
       ABodyTypesExcelTable.Next;
       ABodyTypesExcelTable.CallOnProcessEvent;

@@ -157,7 +157,7 @@ begin
       ExcelTable.AppendRow(ARow, Arr, I);
 
       if RH.Count > 0 then
-        ExcelTable.SetDefaultValues(RH);
+        ExcelTable.SetUnionCellValues(RH);
 
       // Проверяем запись на наличие ошибок
       ExcelTable.CheckRecord;

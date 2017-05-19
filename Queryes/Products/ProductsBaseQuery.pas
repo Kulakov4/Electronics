@@ -51,7 +51,8 @@ type
       : TQuerySearchStorehouseProductByID;
     function GetStorehouseId: TField;
     function GetValue: TField;
-    function SplitComponentName(const S: string): TComponentNameParts;
+// TODO: SplitComponentName
+//  function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -477,47 +478,48 @@ begin
   end;
 end;
 
-function TQueryProductsBase.SplitComponentName(const S: string)
-  : TComponentNameParts;
-var
-  Count: Integer;
-  StartIndex: Integer;
-begin
-  // Предполагаем что компонент начинается с буквы, за которыми следуют цифры
-  Result.Name := S;
-  Result.Number := 0;
-  Result.Ending := '';
-
-  Count := 1;
-
-  // Пока в начале строки не находим цифру
-  while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 0,
-    Count) = -1 do
-  begin
-    Inc(Count);
-
-    // Если в строке вообще нет цифр
-    if Count > S.Length then
-      Exit;
-  end;
-
-  Result.Name := S.Substring(0, Count - 1);
-  StartIndex := Count - 1;
-
-  // Пока в строке находим цифру
-  while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-    StartIndex) = StartIndex do
-    Inc(StartIndex);
-
-  Dec(StartIndex);
-
-  // Если нашли хотя-бы одну цифру
-  if StartIndex >= Count then
-  begin
-    Result.Number := StrToInt(S.Substring(Count - 1, StartIndex - Count));
-    Result.Ending := S.Substring(StartIndex + 1);
-  end;
-end;
+// TODO: SplitComponentName
+//function TQueryProductsBase.SplitComponentName(const S: string)
+//: TComponentNameParts;
+//var
+//Count: Integer;
+//StartIndex: Integer;
+//begin
+//// Предполагаем что компонент начинается с буквы, за которыми следуют цифры
+//Result.Name := S;
+//Result.Number := 0;
+//Result.Ending := '';
+//
+//Count := 1;
+//
+//// Пока в начале строки не находим цифру
+//while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 0,
+//  Count) = -1 do
+//begin
+//  Inc(Count);
+//
+//  // Если в строке вообще нет цифр
+//  if Count > S.Length then
+//    Exit;
+//end;
+//
+//Result.Name := S.Substring(0, Count - 1);
+//StartIndex := Count - 1;
+//
+//// Пока в строке находим цифру
+//while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+//  StartIndex) = StartIndex do
+//  Inc(StartIndex);
+//
+//Dec(StartIndex);
+//
+//// Если нашли хотя-бы одну цифру
+//if StartIndex >= Count then
+//begin
+//  Result.Number := StrToInt(S.Substring(Count - 1, StartIndex - Count));
+//  Result.Ending := S.Substring(StartIndex + 1);
+//end;
+//end;
 
 constructor TLocateObject.Create(const AIDCategory: Integer;
   const AFamilyName, AComponentName: string);

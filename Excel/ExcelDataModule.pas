@@ -67,8 +67,8 @@ type
     procedure LoadExcelFileInThread(const AFileName: String);
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
-    procedure Process(AProcRef: TProcRef; ANotifyEventRef: TNotifyEventRef);
-        overload;
+    procedure Process(AProcRef: TProcRef;
+      ANotifyEventRef: TNotifyEventRef); overload;
     property CustomExcelTable: TCustomExcelTable read FCustomExcelTable;
     property OnProgress: TNotifyEventsEx read FOnProgress;
     property OnThreadTerminate: TNotifyEventsEx read FOnThreadTerminate;
@@ -81,7 +81,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, System.Math, ActiveX, ProjectConst;
+uses System.Variants, System.Math, ActiveX, ProjectConst, DBRecordHolder;
 
 constructor TExcelDM.Create(AOwner: TComponent);
 begin
@@ -347,6 +347,7 @@ var
   I: Integer;
   PI: TProgressInfo;
   R: Integer;
+  RH: TRecordHolder;
   V: Variant;
 begin
   CustomExcelTable.Errors.EmptyDataSet;
@@ -372,31 +373,42 @@ begin
   try
     PI.TotalRecords := VarArrayHighBound(Arr, 1) - VarArrayLowBound(Arr, 1) + 1;
     CallOnProcessEvent(PI);
-    // ÷икл по всем строкам диапазона
-    for I := VarArrayLowBound(Arr, 1) to VarArrayHighBound(Arr, 1) do
-    begin
-      ARow := AExcelRange.Row + R;
+    RH := TRecordHolder.Create();
+    try
+      // ÷икл по всем строкам диапазона
+      for I := VarArrayLowBound(Arr, 1) to VarArrayHighBound(Arr, 1) do
+      begin
+        ARow := AExcelRange.Row + R;
 
-      // ƒобавл€ем новую строку в таблицу с excel-данными
-      if CustomExcelTable.AppendRow(ARow, Arr, I) then
-      begin
-        // ѕровер€ем запись на наличие ошибок
-        CustomExcelTable.CheckRecord;
-      end
-      else
-      begin
-        Inc(AEmptyLines);
-        if AEmptyLines >= 5 then
+        // ƒобавл€ем новую строку в таблицу с excel-данными
+        if CustomExcelTable.AppendRow(ARow, Arr, I) then
         begin
-          PI.TotalRecords := PI.ProcessRecords;
-          CallOnProcessEvent(PI);
-          break;
+          if RH.Count > 0 then
+            CustomExcelTable.SetUnionCellValues(RH);
+
+          // ѕровер€ем запись на наличие ошибок
+          CustomExcelTable.CheckRecord;
+
+          // «апоминаем текущие значени€ как значени€ по умолчанию
+          RH.Attach(CustomExcelTable);
+        end
+        else
+        begin
+          Inc(AEmptyLines);
+          if AEmptyLines >= 5 then
+          begin
+            PI.TotalRecords := PI.ProcessRecords;
+            CallOnProcessEvent(PI);
+            break;
+          end;
         end;
+        Inc(R);
+        PI.ProcessRecords := R;
+        if R mod 100 = 0 then
+          CallOnProcessEvent(PI);
       end;
-      Inc(R);
-      PI.ProcessRecords := R;
-      if R mod 100 = 0 then
-        CallOnProcessEvent(PI);
+    finally
+      FreeAndNil(RH);
     end;
     CallOnProcessEvent(PI);
   finally
@@ -440,8 +452,8 @@ begin
   EA.Disconnect;
 end;
 
-procedure TExcelDM.Process(AProcRef: TProcRef; ANotifyEventRef:
-    TNotifyEventRef);
+procedure TExcelDM.Process(AProcRef: TProcRef;
+ANotifyEventRef: TNotifyEventRef);
 var
   ne: TNotifyEventR;
 begin

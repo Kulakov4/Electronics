@@ -22,9 +22,6 @@ type
     procedure ApplyInsertOrUpdate;
     procedure ApplyUpdate(ASender: TDataSet); override;
   public
-    procedure LocateOrAppend(AIDBodyKind: Integer;
-      const ABody, ABodyData: String; AIDProducer: Integer;
-      const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
     property ID: TField read GetID;
     property Variation: TField read GetVariation;
     { Public declarations }
@@ -37,9 +34,6 @@ implementation
 procedure TQueryBodyTypesSimple.ApplyDelete(ASender: TDataSet);
 var
   AID: Integer;
-  AIDS: string;
-  m: TArray<String>;
-  S: string;
 begin
   Assert(ASender = FDQuery);
   AID := PKValue;
@@ -93,12 +87,6 @@ end;
 function TQueryBodyTypesSimple.GetVariation: TField;
 begin
   Result := Field('Variation');
-end;
-
-procedure TQueryBodyTypesSimple.LocateOrAppend(AIDBodyKind: Integer;
-  const ABody, ABodyData: String; AIDProducer: Integer;
-  const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
-begin;;
 end;
 
 end.

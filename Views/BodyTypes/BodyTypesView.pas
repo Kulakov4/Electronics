@@ -75,34 +75,34 @@ type
     procedure actSettingsExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
-// TODO: clBodyType2PropertiesInitPopup
-//// TODO: clBodyType1PropertiesInitPopup
-////  procedure clBodyType1PropertiesInitPopup(Sender: TObject);
-//  procedure clBodyType2PropertiesInitPopup(Sender: TObject);
+    // TODO: clBodyType2PropertiesInitPopup
+    /// / TODO: clBodyType1PropertiesInitPopup
+    /// /  procedure clBodyType1PropertiesInitPopup(Sender: TObject);
+    // procedure clBodyType2PropertiesInitPopup(Sender: TObject);
     procedure clImagePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure clLandPatternPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure clOutlineDrawingPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
-    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
-        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
-        TShiftState);
+    procedure cxGridDBBandedTableView2EditKeyDown
+      (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+      AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
     procedure cxGridDBBandedTableView2KeyDown(Sender: TObject; var Key: Word;
-        Shift: TShiftState);
-    procedure cxGridDBBandedTableView2MouseDown(Sender: TObject; Button:
-        TMouseButton; Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState);
+    procedure cxGridDBBandedTableView2MouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
-      ADataController: TcxCustomDataController; ARecordIndex: Integer);
-    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
-        Integer);
-    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
-        Integer; State: TDragState; var Accept: Boolean);
-    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
-        TDragObject);
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
+      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
+      X, Y: Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject;
+      X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -118,17 +118,17 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure UpdateView; override;
-    property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup write
-        SetBodyTypesGroup;
+    property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup
+      write SetBodyTypesGroup;
     { Public declarations }
   end;
 
 implementation
 
-uses BodyTypesExcelDataModule3, ImportErrorForm, DialogUnit,
+uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
-  System.Math, System.IOUtils, ProgressBarForm;
+  System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2;
 
 {$R *.dfm}
 
@@ -245,37 +245,32 @@ begin
   if AFileName = '' then
     Exit;
 
-//  clIDBodyKind.Visible := True;
+  // clIDBodyKind.Visible := True;
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
     procedure(AView: TcxGridDBBandedTableView)
     begin
       AView.ApplyBestFit();
-      AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName).Visible := True;
+      AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName)
+        .Visible := True;
     end);
 
-//  clIDBodyKind.Visible := false;
+  // clIDBodyKind.Visible := false;
 end;
 
 procedure TViewBodyTypes.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
-  ABodyTypesExcelDM: TBodyTypesExcelDM3;
+  ABodyTypesExcelDM: TBodyTypesExcelDM;
   AFileName: string;
-  AfrmImportError: TfrmImportError;
+  AfrmError: TfrmError;
   OK: Boolean;
 begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+    Exit;
 
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
-
-  ABodyTypesExcelDM := TBodyTypesExcelDM3.Create(Self);
+  ABodyTypesExcelDM := TBodyTypesExcelDM.Create(Self);
   try
-    ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
-      BodyTypesGroup.qBodyTypes2.FDQuery;
+    // ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
+    // BodyTypesGroup.qBodyTypes2.FDQuery;
 
     TfrmProgressBar.Process(ABodyTypesExcelDM,
       procedure
@@ -285,27 +280,17 @@ begin
 
     OK := ABodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
 
+    // Если в ходе загрузки данных произошли ошибки (поле не заполнено)
     if not OK then
     begin
-      AfrmImportError := TfrmImportError.Create(Self);
+      AfrmError := TfrmError.Create(Self);
       try
-        AfrmImportError.ErrorTable := ABodyTypesExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-        if OK then
-        begin
-          if AfrmImportError.ContinueType = ctSkip then
-          begin
-            // Убираем записи с ошибками и предупреждениями
-            ABodyTypesExcelDM.ExcelTable.ExcludeErrors(etWarring);
-          end
-          else
-          begin
-            // Убираем все записи с ошибками
-            ABodyTypesExcelDM.ExcelTable.ExcludeErrors(etError);
-          end;
-        end;
+        AfrmError.ErrorTable := ABodyTypesExcelDM.ExcelTable.Errors;
+        // Показываем ошибки
+        OK := AfrmError.ShowModal = mrOk;
+        ABodyTypesExcelDM.ExcelTable.ExcludeErrors(etError);
       finally
-        FreeAndNil(AfrmImportError);
+        FreeAndNil(AfrmError);
       end;
     end;
 
@@ -316,8 +301,7 @@ begin
         TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
           procedure
           begin
-            BodyTypesGroup.InsertRecordList
-              (ABodyTypesExcelDM.ExcelTable);
+            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable);
           end, 'Сохранение корпусных данных в БД', sRecords);
       finally
         cxGrid.EndUpdate;
@@ -326,8 +310,8 @@ begin
   finally
     FreeAndNil(ABodyTypesExcelDM);
   end;
-  UpdateView;
 
+  UpdateView;
 end;
 
 procedure TViewBodyTypes.actRollbackExecute(Sender: TObject);
@@ -360,57 +344,57 @@ begin
 end;
 
 // TODO: clBodyType2PropertiesInitPopup
-//// TODO: clBodyType1PropertiesInitPopup
-////procedure TViewBodyTypes.clBodyType1PropertiesInitPopup(Sender: TObject);
-////var
-////AcxComboBox: TcxComboBox;
-////begin
-////inherited;
-////
-////if BodyTypesGroup.qBodyTypes2.IDParentBodyType1.IsNull then
-////  Exit;
-////
-////// Загружаем все возможные варианты корпуса для открытого типа корпуса
-////BodyTypesGroup.qBodyTypesBranch.Load
-////  (BodyTypesGroup.qBodyTypes2.IDParentBodyType1.Value);
-////
-////AcxComboBox := Sender as TcxComboBox;
-////AcxComboBox.Properties.Items.Clear;
-////
-////BodyTypesGroup.qBodyTypesBranch.FDQuery.First;
-////while not BodyTypesGroup.qBodyTypesBranch.FDQuery.Eof do
-////begin
-////  AcxComboBox.Properties.Items.Add
-////    (BodyTypesGroup.qBodyTypesBranch.BodyType.AsString);
-////  BodyTypesGroup.qBodyTypesBranch.FDQuery.Next;
-////end;
-////end;
+/// / TODO: clBodyType1PropertiesInitPopup
+/// /procedure TViewBodyTypes.clBodyType1PropertiesInitPopup(Sender: TObject);
+/// /var
+/// /AcxComboBox: TcxComboBox;
+/// /begin
+/// /inherited;
+/// /
+/// /if BodyTypesGroup.qBodyTypes2.IDParentBodyType1.IsNull then
+/// /  Exit;
+/// /
+/// /// Загружаем все возможные варианты корпуса для открытого типа корпуса
+/// /BodyTypesGroup.qBodyTypesBranch.Load
+/// /  (BodyTypesGroup.qBodyTypes2.IDParentBodyType1.Value);
+/// /
+/// /AcxComboBox := Sender as TcxComboBox;
+/// /AcxComboBox.Properties.Items.Clear;
+/// /
+/// /BodyTypesGroup.qBodyTypesBranch.FDQuery.First;
+/// /while not BodyTypesGroup.qBodyTypesBranch.FDQuery.Eof do
+/// /begin
+/// /  AcxComboBox.Properties.Items.Add
+/// /    (BodyTypesGroup.qBodyTypesBranch.BodyType.AsString);
+/// /  BodyTypesGroup.qBodyTypesBranch.FDQuery.Next;
+/// /end;
+/// /end;
 //
-//procedure TViewBodyTypes.clBodyType2PropertiesInitPopup(Sender: TObject);
-//var
-//AcxComboBox: TcxComboBox;
-//begin
-//inherited;
+// procedure TViewBodyTypes.clBodyType2PropertiesInitPopup(Sender: TObject);
+// var
+// AcxComboBox: TcxComboBox;
+// begin
+// inherited;
 //
-//if BodyTypesGroup.qBodyTypes2.ID1.IsNull then
-//  Exit;
+// if BodyTypesGroup.qBodyTypes2.ID1.IsNull then
+// Exit;
 //
-//// Загружаем все возможные варианты корпуса для открытого типа корпуса
-//BodyTypesGroup.qBodyTypesBranch.Load
-//  (BodyTypesGroup.qBodyTypes2.ID1.Value);
+/// / Загружаем все возможные варианты корпуса для открытого типа корпуса
+// BodyTypesGroup.qBodyTypesBranch.Load
+// (BodyTypesGroup.qBodyTypes2.ID1.Value);
 //
-//AcxComboBox := Sender as TcxComboBox;
-//AcxComboBox.Properties.Items.Clear;
+// AcxComboBox := Sender as TcxComboBox;
+// AcxComboBox.Properties.Items.Clear;
 //
-//BodyTypesGroup.qBodyTypesBranch.FDQuery.First;
-//while not BodyTypesGroup.qBodyTypesBranch.FDQuery.Eof do
-//begin
-//  AcxComboBox.Properties.Items.Add
-//    (BodyTypesGroup.qBodyTypesBranch.BodyType.AsString);
-//  BodyTypesGroup.qBodyTypesBranch.FDQuery.Next;
-//end;
+// BodyTypesGroup.qBodyTypesBranch.FDQuery.First;
+// while not BodyTypesGroup.qBodyTypesBranch.FDQuery.Eof do
+// begin
+// AcxComboBox.Properties.Items.Add
+// (BodyTypesGroup.qBodyTypesBranch.BodyType.AsString);
+// BodyTypesGroup.qBodyTypesBranch.FDQuery.Next;
+// end;
 //
-//end;
+// end;
 
 procedure TViewBodyTypes.clImagePropertiesButtonClick(Sender: TObject;
 AButtonIndex: Integer);
@@ -447,9 +431,9 @@ begin
     dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown(Sender:
-    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
-    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   inherited;
   inherited;
@@ -457,30 +441,30 @@ begin
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableView2KeyDown(Sender: TObject; var
-    Key: Word; Shift: TShiftState);
+procedure TViewBodyTypes.cxGridDBBandedTableView2KeyDown(Sender: TObject;
+var Key: Word; Shift: TShiftState);
 begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2MouseDown(Sender: TObject;
-    Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded(
-  ADataController: TcxCustomDataController; ARecordIndex: Integer);
+procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded
+  (ADataController: TcxCustomDataController; ARecordIndex: Integer);
 var
   AcxGridMasterDataRow: TcxGridMasterDataRow;
 begin
   if ARecordIndex < 0 then
     Exit;
 
-  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records
-    [ARecordIndex] as TcxGridMasterDataRow;
+  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
+    as TcxGridMasterDataRow;
   (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
     .ApplyBestFit();
 end;
@@ -494,15 +478,15 @@ var
 begin
   inherited;
 
-  AIndex := MainView.DataController.Summary.FooterSummaryItems.IndexOfItemLink
-    (clBody);
+  AIndex := MainView.DataController.Summary.FooterSummaryItems.
+    IndexOfItemLink(clBody);
   S := VarToStrDef(MainView.DataController.Summary.FooterSummaryValues
     [AIndex], '---');
   StatusBar.Panels[0].Text := S;
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableViewDragDrop(Sender, Source:
-    TObject; X, Y: Integer);
+procedure TViewBodyTypes.cxGridDBBandedTableViewDragDrop(Sender,
+  Source: TObject; X, Y: Integer);
 var
   time: Double;
 begin
@@ -521,23 +505,22 @@ begin
     FBodyTypesGroup.qBodyKinds, X, Y);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableViewDragOver(Sender, Source:
-    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TViewBodyTypes.cxGridDBBandedTableViewDragOver(Sender,
+  Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   inherited;
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableViewEditKeyDown(
-  Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TViewBodyTypes.cxGridDBBandedTableViewEditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableViewStartDrag(Sender: TObject; var
-    DragObject: TDragObject);
+procedure TViewBodyTypes.cxGridDBBandedTableViewStartDrag(Sender: TObject;
+var DragObject: TDragObject);
 begin
   inherited;
   DoOnStartDrag(Sender as TcxGridSite, FDragAndDropInfo);
@@ -587,7 +570,6 @@ begin
         FBodyTypesGroup.qProducers.DataSource, lsEditFixedList,
         FBodyTypesGroup.qProducers.Name.FieldName);
 
-
       TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.AfterOpen,
         DoAfterDataChange, FEventList);
       TNotifyEventWrap.Create(FBodyTypesGroup.qBodyTypes2.AfterOpen,
@@ -609,8 +591,8 @@ end;
 procedure TViewBodyTypes.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[StatusBar.Panels.Count - 1].Text := Format('Всего: %d',
-    [BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount]);
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text :=
+    Format('Всего: %d', [BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount]);
 end;
 
 procedure TViewBodyTypes.UpdateView;

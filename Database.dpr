@@ -22,7 +22,7 @@ uses
   ErrorTable in 'Excel\ErrorTable.pas',
   CustomExcelTable in 'Excel\CustomExcelTable.pas',
   ExcelDataModule in 'Excel\ExcelDataModule.pas' {ExcelDM: TDataModule},
-  BodyTypesExcelDataModule3 in 'Excel\BodyTypesExcelDataModule3.pas' {BodyTypesExcelDM3: TDataModule},
+  BodyTypesExcelDataModule in 'Excel\BodyTypesExcelDataModule.pas' {BodyTypesExcelDM: TDataModule},
   BodyKindsQuery in 'Queryes\BodyTypes\BodyKindsQuery.pas' {QueryBodyKinds: TFrame},
   BodyTypesQuery in 'Queryes\BodyTypes\BodyTypesQuery.pas' {QueryBodyTypes: TFrame},
   ApplyQueryFrame in 'Queryes\ApplyQuery\ApplyQueryFrame.pas' {frmApplyQuery: TFrame},

@@ -22,7 +22,6 @@ type
     function ProcessValue(const AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
     procedure MarkAsError(AErrorType: TErrorTypes);
-    procedure SetDefaultValues(ARecHolder: TRecordHolder);
     procedure SetFieldsInfo; virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -32,6 +31,7 @@ type
       ArrayRow: Integer): Boolean;
     function CheckRecord: Boolean; virtual;
     procedure ExcludeErrors(AErrorTypes: TErrorTypes);
+    procedure SetUnionCellValues(ARecHolder: TRecordHolder);
     procedure TryEdit;
     procedure TryPost;
     property Errors: TErrorTable read FErrors;
@@ -169,14 +169,15 @@ begin
   Post;
 end;
 
-procedure TCustomExcelTable.SetDefaultValues(ARecHolder: TRecordHolder);
+procedure TCustomExcelTable.SetUnionCellValues(ARecHolder: TRecordHolder);
 var
   AFieldInfo: TFieldInfo;
 begin
   // Цикл по всем полям из excel-файла
   for AFieldInfo in FieldsInfo do
   begin
-    if FieldByName(AFieldInfo.FieldName).IsNull then
+    // Если в Excel файле пустая ячейка и возможно она была объеденина
+    if (FieldByName(AFieldInfo.FieldName).IsNull) and (AFieldInfo.IsCellUnion) then
     begin
       TryEdit;
       FieldByName(AFieldInfo.FieldName).Value := ARecHolder.Field

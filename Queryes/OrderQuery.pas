@@ -139,7 +139,7 @@ begin
     // if IsDown then
     // ANewOrderValue := ADropDrag.OrderValue - Length(AStartDrag.Keys) + 1;
 
-    AClone2.LocateEx(PKFieldName, ADropDrag.Key, []);
+    OK := AClone2.LocateEx(PKFieldName, ADropDrag.Key, []);
     Assert(OK);
 
     if IsUp then
