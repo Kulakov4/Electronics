@@ -59,7 +59,7 @@ end;
 
 procedure TQueryBodyKinds.LocateOrAppend(AValue: string);
 begin
-  if not FDQuery.LocateEx(BodyKind.FieldName, AValue, []) then
+  if not FDQuery.LocateEx(BodyKind.FieldName, AValue, [lxoCaseInsensitive]) then
     AddNewValue(AValue);
 end;
 

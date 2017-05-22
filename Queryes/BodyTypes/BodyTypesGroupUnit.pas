@@ -27,7 +27,8 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
-    procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable);
+    procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable;
+        AIDProducer: Integer);
     // TODO: Append
     /// / TODO: InsertRecordList
     /// /  procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable);
@@ -94,23 +95,30 @@ begin
 end;
 
 procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable:
-    TBodyTypesExcelTable);
+    TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
   F: TField;
 begin
+  Assert(AIDProducer > 0);
   ABodyTypesExcelTable.DisableControls;
   try
     QueryBodyTypesSimple.RefreshQuery;
 
     ABodyTypesExcelTable.First;
     ABodyTypesExcelTable.CallOnProcessEvent;
+    QueryBodyTypesSimple.ClearUpdateRecCount;
     while not ABodyTypesExcelTable.Eof do
     begin
+      if ABodyTypesExcelTable.BodyKind.AsString = 'FC2QFN ' then
+        beep;
+
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
 
       QueryBodyTypesSimple.TryAppend;
+      QueryBodyTypesSimple.IDProducer.AsInteger := AIDProducer;
+      QueryBodyTypesSimple.IDBodyKind.AsInteger := qBodyKinds.PKValue;
 
       for AField in ABodyTypesExcelTable.Fields do
       begin
@@ -120,11 +128,13 @@ begin
       end;
 
       QueryBodyTypesSimple.TryPost;
+      QueryBodyTypesSimple.IncUpdateRecCount;
 
       ABodyTypesExcelTable.Next;
       ABodyTypesExcelTable.CallOnProcessEvent;
     end;
-
+    // Финальный коммит
+    QueryBodyTypesSimple.FDQuery.Connection.Commit;
   finally
     ABodyTypesExcelTable.EnableControls;
   end;

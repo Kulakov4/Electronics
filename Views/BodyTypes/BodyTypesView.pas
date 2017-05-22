@@ -301,7 +301,7 @@ begin
         TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
           procedure
           begin
-            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable);
+            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable, 1);
           end, 'Сохранение корпусных данных в БД', sRecords);
       finally
         cxGrid.EndUpdate;

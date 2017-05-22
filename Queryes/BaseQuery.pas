@@ -22,6 +22,8 @@ type
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
     FDetailParameterName: string;
+    FMaxUpdateRecCount: Integer;
+    FUpdateRecCount: Integer;
     function GetCashedRecordBalance: Integer;
     function GetParentValue: Integer;
     function GetPKValue: Integer;
@@ -52,12 +54,14 @@ type
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Integer;
       const ADetailKeyFieldName: String); virtual;
+    procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
     procedure DeleteList(var AList: TList<Variant>);
     function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
+    procedure IncUpdateRecCount;
     procedure Load(AIDParent: Integer); overload; virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
@@ -109,6 +113,9 @@ begin
   // Создаём события
   FBeforeLoad := TNotifyEventsEx.Create(Self);
   FAfterLoad := TNotifyEventsEx.Create(Self);
+
+  // Максимальное количество обновлённых записей в рамках одной транзакции
+  FMaxUpdateRecCount := 1000;
 end;
 
 destructor TQueryBase.Destroy;
@@ -238,6 +245,11 @@ begin
 
   // Формируем фильтр и удаляем
   DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
+end;
+
+procedure TQueryBase.ClearUpdateRecCount;
+begin
+  FUpdateRecCount := 0;
 end;
 
 procedure TQueryBase.CreateDefaultFields(AUpdate: Boolean);
@@ -460,6 +472,19 @@ function TQueryBase.GetParentValue: Integer;
 begin
   Assert(DetailParameterName <> '');
   Result := FDQuery.Params.ParamByName(DetailParameterName).AsInteger;
+end;
+
+procedure TQueryBase.IncUpdateRecCount;
+begin
+  Assert(FDQuery.Connection.InTransaction);
+  Assert(FUpdateRecCount < FMaxUpdateRecCount);
+  Inc(FUpdateRecCount);
+  if FUpdateRecCount >= FMaxUpdateRecCount  then
+  begin
+    // Делаем промежуточный коммит
+    FDQuery.Connection.Commit;
+    FUpdateRecCount := 0;
+  end;
 end;
 
 procedure TQueryBase.Load(AIDParent: Integer);

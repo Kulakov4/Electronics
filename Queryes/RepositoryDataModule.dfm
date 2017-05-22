@@ -72,7 +72,7 @@ object DMRepository: TDMRepository
       'Synchronous=Full'
       'StringFormat=Unicode'
       'LockingMode=Normal'
-      'Database=C:\Public\Database\database.db'
+      'Database=C:\Public\ElectronicDB\database.db'
       'DriverID=SQLite')
     LoginPrompt = False
     AfterConnect = dbConnectionAfterConnect
