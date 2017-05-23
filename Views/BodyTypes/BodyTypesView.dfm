@@ -2,7 +2,9 @@ inherited ViewBodyTypes: TViewBodyTypes
   Height = 600
   ExplicitHeight = 600
   inherited cxGrid: TcxGrid
+    Width = 573
     Height = 553
+    ExplicitWidth = 573
     ExplicitHeight = 553
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
@@ -53,6 +55,7 @@ inherited ViewBodyTypes: TViewBodyTypes
       DataController.Summary.FooterSummaryItems = <
         item
           Kind = skCount
+          Column = clBody
         end>
       DataController.Summary.SummaryGroups = <>
       OptionsSelection.InvertSelect = False
@@ -66,12 +69,16 @@ inherited ViewBodyTypes: TViewBodyTypes
         end>
       object clIDS: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDS'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
       object clIDBodyData: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDBodyData'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
@@ -93,6 +100,14 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clOutlineDrawing: TcxGridDBBandedColumn
         Caption = #1063#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
         DataBinding.FieldName = 'OutlineDrawing'
+        PropertiesClassName = 'TcxButtonEditProperties'
+        Properties.Buttons = <
+          item
+            Action = actOpenOutlineDrawing
+            Default = True
+            Kind = bkEllipsis
+          end>
+        OnGetDataText = clOutlineDrawingGetDataText
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
@@ -100,6 +115,14 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clLandPattern: TcxGridDBBandedColumn
         Caption = #1063#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
         DataBinding.FieldName = 'LandPattern'
+        PropertiesClassName = 'TcxButtonEditProperties'
+        Properties.Buttons = <
+          item
+            Action = actOpenLandPattern
+            Default = True
+            Kind = bkEllipsis
+          end>
+        OnGetDataText = clOutlineDrawingGetDataText
         Position.BandIndex = 0
         Position.ColIndex = 5
         Position.RowIndex = 0
@@ -114,25 +137,38 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clImage: TcxGridDBBandedColumn
         Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
         DataBinding.FieldName = 'Image'
+        PropertiesClassName = 'TcxButtonEditProperties'
+        Properties.Buttons = <
+          item
+            Action = actOpenImage
+            Default = True
+            Kind = bkEllipsis
+          end>
+        OnGetDataText = clOutlineDrawingGetDataText
         Position.BandIndex = 0
         Position.ColIndex = 7
         Position.RowIndex = 0
       end
       object clIDBody: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDBody'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 8
+        Position.RowIndex = 0
+      end
+      object clIDBodyKind: TcxGridDBBandedColumn
+        Caption = #1058#1080#1087
+        DataBinding.FieldName = 'IDBodyKind'
+        Visible = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 9
         Position.RowIndex = 0
       end
       object clIDProducer: TcxGridDBBandedColumn
         Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
         DataBinding.FieldName = 'IDProducer'
-        Position.BandIndex = 0
-        Position.ColIndex = 9
-        Position.RowIndex = 0
-      end
-      object clIDBodyKind: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'IDBodyKind'
         Position.BandIndex = 0
         Position.ColIndex = 10
         Position.RowIndex = 0
@@ -157,6 +193,20 @@ inherited ViewBodyTypes: TViewBodyTypes
         Width = 150
       end>
     ExplicitTop = 581
+  end
+  object DBGrid1: TDBGrid [2]
+    Left = 573
+    Top = 28
+    Width = 320
+    Height = 553
+    Align = alRight
+    TabOrder = 6
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+    Visible = False
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
@@ -296,6 +346,21 @@ inherited ViewBodyTypes: TViewBodyTypes
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       ImageIndex = 18
       OnExecute = actSettingsExecute
+    end
+    object actOpenOutlineDrawing: TAction
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
+      OnExecute = actOpenOutlineDrawingExecute
+    end
+    object actOpenLandPattern: TAction
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
+      OnExecute = actOpenLandPatternExecute
+    end
+    object actOpenImage: TAction
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      OnExecute = actOpenImageExecute
     end
   end
 end

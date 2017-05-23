@@ -24,8 +24,6 @@ type
   private
     FIDS: string;
     FInChange: Boolean;
-    function GetIDS: TField;
-    function GetVariations: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -41,8 +39,6 @@ type
     procedure LocateOrAppend(AIDBodyKind: Integer; const ABody, ABodyData: String;
         AIDProducer: Integer; const AOutlineDrawing, ALandPattern, AVariation,
         AImage: string);
-    property IDS: TField read GetIDS;
-    property Variations: TField read GetVariations;
     { Public declarations }
   end;
 
@@ -55,7 +51,6 @@ uses NotifyEvents, DBRecordHolder, RepositoryDataModule, System.StrUtils;
 constructor TQueryBodyTypes2.Create(AOwner: TComponent);
 begin
   inherited;
-  FPKFieldName := 'IDS';
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
 end;
 
@@ -448,16 +443,6 @@ begin
     end;
   }
   AAction := eaApplied;
-end;
-
-function TQueryBodyTypes2.GetIDS: TField;
-begin
-  Result := Field('IDS');
-end;
-
-function TQueryBodyTypes2.GetVariations: TField;
-begin
-  Result := Field('Variations');
 end;
 
 procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer; const ABody,

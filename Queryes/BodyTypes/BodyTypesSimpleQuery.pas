@@ -13,8 +13,6 @@ uses
 type
   TQueryBodyTypesSimple = class(TQueryBodyTypesBase)
   private
-    function GetID: TField;
-    function GetVariation: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -22,8 +20,6 @@ type
     procedure ApplyInsertOrUpdate;
     procedure ApplyUpdate(ASender: TDataSet); override;
   public
-    property ID: TField read GetID;
-    property Variation: TField read GetVariation;
     { Public declarations }
   end;
 
@@ -62,12 +58,12 @@ begin
     QueryBodies.PKValue);
 
   QueryBodyVariations.LocateOrAppend(QueryBodyData.PKValue,
-    OutlineDrawing.AsString, LandPattern.AsString, Variation.AsString,
+    OutlineDrawing.AsString, LandPattern.AsString, Variations.AsString,
     Image.AsString);
   AID := QueryBodyVariations.PKValue;
   Assert(AID > 0);
 
-  ID.Value := AID;
+  IDS.Value := AID;
   IDBodyData.Value := QueryBodyData.PKValue;
   IDBody.Value := QueryBodies.PKValue;
 end;
@@ -77,16 +73,6 @@ begin
   Assert(ASender = FDQuery);
 
   ApplyInsertOrUpdate;
-end;
-
-function TQueryBodyTypesSimple.GetID: TField;
-begin
-  Result := Field(PKFieldName);
-end;
-
-function TQueryBodyTypesSimple.GetVariation: TField;
-begin
-  Result := Field('Variation');
 end;
 
 end.

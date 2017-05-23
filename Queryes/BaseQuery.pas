@@ -243,8 +243,19 @@ procedure TQueryBase.CascadeDelete(const AIDMaster: Integer;
 begin
   Assert(AIDMaster > 0);
 
+  FDQuery.DisableControls;
+  try
+    // Пока есть записи подчинённые мастеру
+    while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
+    begin
+      FDQuery.Delete;
+    end;
+  finally
+    FDQuery.EnableControls;
+  end;
+
   // Формируем фильтр и удаляем
-  DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
+  //DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
 end;
 
 procedure TQueryBase.ClearUpdateRecCount;

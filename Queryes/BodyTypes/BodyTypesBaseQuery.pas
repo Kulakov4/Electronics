@@ -29,15 +29,19 @@ type
     function GetIDBodyData: TField;
     function GetIDBodyKind: TField;
     function GetIDProducer: TField;
+    function GetIDS: TField;
     function GetImage: TField;
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
     function GetQueryBodies: TQueryBodies;
     function GetQueryBodyData: TQueryBodyData;
     function GetQueryBodyVariations: TQueryBodyVariations;
+    function GetVariations: TField;
     { Private declarations }
   protected
     procedure DropUnusedBodies;
+    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField; var Text:
+        String; DisplayText: Boolean);
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
     property QueryBodyVariations: TQueryBodyVariations read GetQueryBodyVariations;
@@ -51,6 +55,7 @@ type
     property IDBodyData: TField read GetIDBodyData;
     property IDBodyKind: TField read GetIDBodyKind;
     property IDProducer: TField read GetIDProducer;
+    property IDS: TField read GetIDS;
     // TODO: LocateOrAppend
     // procedure LocateOrAppend(AIDParentBodyType: Integer;
     // const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
@@ -58,6 +63,7 @@ type
     property Image: TField read GetImage;
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
+    property Variations: TField read GetVariations;
     { Public declarations }
   end;
 
@@ -65,11 +71,12 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents;
+uses NotifyEvents, System.IOUtils;
 
 constructor TQueryBodyTypesBase.Create(AOwner: TComponent);
 begin
   inherited;
+  FPKFieldName := 'IDS';
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   AutoTransaction := False;
@@ -98,6 +105,10 @@ begin
   IDProducer.Required := True;
   Body.Required := True;
   BodyData.Required := True;
+  OutlineDrawing.OnGetText := OnGetFileNameWithoutExtensionGetText;
+  LandPattern.OnGetText := OnGetFileNameWithoutExtensionGetText;
+  Image.OnGetText := OnGetFileNameWithoutExtensionGetText;
+
   // Подписываемся на событие об изменении значения поля
   // BodyType1.OnChange := FDQueryBodyType1Change;
   // BodyType2.OnChange := FDQueryBodyType2Change;
@@ -171,6 +182,11 @@ begin
   Result := Field('IDProducer');
 end;
 
+function TQueryBodyTypesBase.GetIDS: TField;
+begin
+  Result := Field('IDS');
+end;
+
 function TQueryBodyTypesBase.GetImage: TField;
 begin
   Result := Field('Image');
@@ -215,6 +231,18 @@ begin
     FQueryBodyVariations.FDQuery.Open;
   end;
   Result := FQueryBodyVariations;
+end;
+
+function TQueryBodyTypesBase.GetVariations: TField;
+begin
+  Result := Field('Variations');
+end;
+
+procedure TQueryBodyTypesBase.OnGetFileNameWithoutExtensionGetText(Sender:
+    TField; var Text: String; DisplayText: Boolean);
+begin
+  if not Sender.AsString.IsEmpty then
+    Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
 end;
 
 end.

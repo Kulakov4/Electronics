@@ -7,11 +7,11 @@ inherited QueryBodyTypesSimple: TQueryBodyTypesSimple
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '
-      '    bv.ID,'
+      '    bv.ID IDS,'
       '    bv.IDBodyData, '
       '    bv.OutlineDrawing,'
       '    bv.LandPattern,'
-      '    bv.Variation,'
+      '    bv.Variation Variations,'
       '    bv.Image,'
       '    bd.IDBody,'
       '    bd.IDProducer,'

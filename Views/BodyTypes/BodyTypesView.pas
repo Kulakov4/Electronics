@@ -28,7 +28,8 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit;
+  BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
+  Vcl.Grids, Vcl.DBGrids;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -65,26 +66,25 @@ type
     clBody: TcxGridDBBandedColumn;
     clIDBodyKind: TcxGridDBBandedColumn;
     clOrd: TcxGridDBBandedColumn;
+    actOpenOutlineDrawing: TAction;
+    actOpenLandPattern: TAction;
+    actOpenImage: TAction;
+    DBGrid1: TDBGrid;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
+    procedure actOpenImageExecute(Sender: TObject);
+    procedure actOpenLandPatternExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
+    procedure actOpenOutlineDrawingExecute(Sender: TObject);
+    procedure clOutlineDrawingGetDataText(Sender: TcxCustomGridTableItem;
+        ARecordIndex: Integer; var AText: string);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
-    // TODO: clBodyType2PropertiesInitPopup
-    /// / TODO: clBodyType1PropertiesInitPopup
-    /// /  procedure clBodyType1PropertiesInitPopup(Sender: TObject);
-    // procedure clBodyType2PropertiesInitPopup(Sender: TObject);
-    procedure clImagePropertiesButtonClick(Sender: TObject;
-      AButtonIndex: Integer);
-    procedure clLandPatternPropertiesButtonClick(Sender: TObject;
-      AButtonIndex: Integer);
-    procedure clOutlineDrawingPropertiesButtonClick(Sender: TObject;
-      AButtonIndex: Integer);
     procedure cxGridDBBandedTableView2EditKeyDown
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
       AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
@@ -128,7 +128,8 @@ implementation
 uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
-  System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2;
+  System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2,
+  BodyTypesSimpleQuery;
 
 {$R *.dfm}
 
@@ -239,20 +240,40 @@ end;
 procedure TViewBodyTypes.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
+  Q: TQueryBodyTypesSimple;
 begin
-  AFileName := 'Типы корпусов';
-  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-  if AFileName = '' then
-    Exit;
+  Q := TQueryBodyTypesSimple.Create(Self);
+  try
 
-  // clIDBodyKind.Visible := True;
-  ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
-    procedure(AView: TcxGridDBBandedTableView)
-    begin
-      AView.ApplyBestFit();
-      AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName)
-        .Visible := True;
-    end);
+    Q.RefreshQuery;
+
+    cxGridDBBandedTableView2.DataController.DataSource := Q.DataSource;
+    try
+
+      AFileName := 'Типы корпусов';
+      AFileName := TDialog.Create.SaveToExcelFile(AFileName);
+      if AFileName = '' then
+        Exit;
+
+      // clIDBodyKind.Visible := True;
+      ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
+        procedure(AView: TcxGridDBBandedTableView)
+        begin
+          AView.GetColumnByFieldName(clVariations.DataBinding.FieldName).Caption
+            := 'Вариант корпуса';
+          AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName)
+            .Visible := True;
+          AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName)
+            .Options.CellMerging := True;
+          AView.ApplyBestFit();
+        end);
+    finally
+      cxGridDBBandedTableView2.DataController.DataSource :=
+        BodyTypesGroup.qBodyTypes2.DataSource;
+    end;
+  finally
+    FreeAndNil(Q);
+  end;
 
   // clIDBodyKind.Visible := false;
 end;
@@ -304,6 +325,7 @@ begin
             BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable, 1);
           end, 'Сохранение корпусных данных в БД', sRecords);
       finally
+        MainView.ViewData.Collapse(True);
         cxGrid.EndUpdate;
       end;
     end;
@@ -312,6 +334,22 @@ begin
   end;
 
   UpdateView;
+end;
+
+procedure TViewBodyTypes.actOpenImageExecute(Sender: TObject);
+begin
+  inherited;
+  TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
+    BodyTypesGroup.qBodyTypes2.Image.AsString,
+    'Файл %s не найден', 'Изображение не задано', sBodyTypesFilesExt);
+end;
+
+procedure TViewBodyTypes.actOpenLandPatternExecute(Sender: TObject);
+begin
+  inherited;
+  TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
+    BodyTypesGroup.qBodyTypes2.LandPattern.AsString,
+    'Файл %s не найден','Чертёж посадочной площадки не задан', sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyTypes.actRollbackExecute(Sender: TObject);
@@ -341,6 +379,22 @@ begin
   finally
     FreeAndNil(frmPathSettings);
   end;
+end;
+
+procedure TViewBodyTypes.actOpenOutlineDrawingExecute(Sender: TObject);
+begin
+  inherited;
+  TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
+    BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString,
+    'Файл %s не найден', 'Чертёж корпуса не задан', sBodyTypesFilesExt);
+end;
+
+procedure TViewBodyTypes.clOutlineDrawingGetDataText(Sender:
+    TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
+begin
+  inherited;
+  if not AText.IsEmpty then
+    AText := TPath.GetFileNameWithoutExtension(AText);
 end;
 
 // TODO: clBodyType2PropertiesInitPopup
@@ -396,35 +450,6 @@ end;
 //
 // end;
 
-procedure TViewBodyTypes.clImagePropertiesButtonClick(Sender: TObject;
-AButtonIndex: Integer);
-begin
-  inherited;
-  TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
-    BodyTypesGroup.qBodyTypes2.Image.AsString,
-    'Файл изображения корпуса с именем %s не найден',
-    'Файл изображения корпуса не задан', sBodyTypesFilesExt);
-end;
-
-procedure TViewBodyTypes.clLandPatternPropertiesButtonClick(Sender: TObject;
-AButtonIndex: Integer);
-begin
-  TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
-    BodyTypesGroup.qBodyTypes2.LandPattern.AsString,
-    'Файл чертежа посадочной площадки корпуса с именем %s не найден',
-    'Чертёж посадочной площадки корпуса не задан', sBodyTypesFilesExt);
-end;
-
-procedure TViewBodyTypes.clOutlineDrawingPropertiesButtonClick(Sender: TObject;
-AButtonIndex: Integer);
-begin
-  inherited;
-  TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
-    BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString,
-    'Файл чертежа корпуса с именем %s не найден', 'Чертёж корпуса не задан',
-    sBodyTypesFilesExt);
-end;
-
 procedure TViewBodyTypes.CreateColumnsBarButtons;
 begin
   FColumnsBarButtons := TColumnsBarButtons.Create(Self,
@@ -479,9 +504,14 @@ begin
   inherited;
 
   AIndex := MainView.DataController.Summary.FooterSummaryItems.
-    IndexOfItemLink(clBody);
-  S := VarToStrDef(MainView.DataController.Summary.FooterSummaryValues
-    [AIndex], '---');
+    IndexOfItemLink(clBodyKind);
+
+  if AIndex < 0 then
+    S := ''
+  else
+    S := VarToStrDef(MainView.DataController.Summary.FooterSummaryValues
+      [AIndex], '---');
+
   StatusBar.Panels[0].Text := S;
 end;
 
@@ -559,6 +589,8 @@ begin
         FBodyTypesGroup.qBodyKinds.DataSource;
       cxGridDBBandedTableView2.DataController.DataSource :=
         FBodyTypesGroup.qBodyTypes2.DataSource;
+
+      DBGrid1.DataSource := FBodyTypesGroup.qBodyTypes2.DataSource;
 
       InitializeLookupColumn(clIDBodyKind,
         FBodyTypesGroup.qBodyKinds.DataSource, lsEditFixedList,

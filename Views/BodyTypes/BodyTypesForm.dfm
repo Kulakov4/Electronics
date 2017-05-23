@@ -1,6 +1,7 @@
 inherited frmBodyTypes: TfrmBodyTypes
   Caption = #1058#1080#1087#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
   ClientHeight = 490
+  ExplicitWidth = 806
   ExplicitHeight = 529
   PixelsPerInch = 96
   TextHeight = 16
@@ -11,38 +12,59 @@ inherited frmBodyTypes: TfrmBodyTypes
       Width = 788
       Height = 427
       Align = alClient
-      Constraints.MinHeight = 200
-      Constraints.MinWidth = 600
       TabOrder = 0
-      ExplicitLeft = 1
-      ExplicitTop = 1
-      ExplicitWidth = 788
-      ExplicitHeight = 427
+      ExplicitLeft = -103
+      ExplicitTop = -171
       inherited cxGrid: TcxGrid
-        Width = 788
+        Width = 468
         Height = 380
-        ExplicitWidth = 788
-        ExplicitHeight = 380
         inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
           DataController.Summary.FooterSummaryItems = <
             item
               Kind = skCount
-              Column = ViewBodyTypes.clBodyType
+              Column = ViewBodyTypes.clBodyKind
             end>
         end
         inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
           DataController.Summary.FooterSummaryItems = <
             item
               Kind = skCount
-              Column = ViewBodyTypes.clBodyType1
+              Column = ViewBodyTypes.clBody
             end>
+          inherited clOutlineDrawing: TcxGridDBBandedColumn
+            Properties.Buttons = <
+              item
+                Action = ViewBodyTypes.actOpenOutlineDrawing
+                Default = True
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clLandPattern: TcxGridDBBandedColumn
+            Properties.Buttons = <
+              item
+                Action = ViewBodyTypes.actOpenLandPattern
+                Default = True
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clImage: TcxGridDBBandedColumn
+            Properties.Buttons = <
+              item
+                Action = ViewBodyTypes.actOpenImage
+                Default = True
+                Kind = bkEllipsis
+              end>
+          end
         end
       end
       inherited StatusBar: TStatusBar
         Top = 408
         Width = 788
-        ExplicitTop = 408
-        ExplicitWidth = 788
+      end
+      inherited DBGrid1: TDBGrid
+        Left = 468
+        Height = 380
+        TitleFont.Height = -13
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (

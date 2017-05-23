@@ -18,7 +18,9 @@ type
     qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
+    FOldIDBodyKind: Integer;
     FQueryBodyTypesSimple: TQueryBodyTypesSimple;
+    procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
@@ -62,6 +64,14 @@ begin
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qBodyKinds.BeforeDelete, DoBeforeDelete);
+  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete);
+end;
+
+procedure TBodyTypesGroup.DoAfterDelete(Sender: TObject);
+begin
+  Assert(FOldIDBodyKind > 0);
+  // Каскадно удаляем типы корпусов
+  qBodyTypes2.CascadeDelete(FOldIDBodyKind, qBodyTypes2.IDBodyKind.FieldName);
 end;
 
 procedure TBodyTypesGroup.DoAfterOpen(Sender: TObject);
@@ -79,9 +89,10 @@ end;
 
 procedure TBodyTypesGroup.DoBeforeDelete(Sender: TObject);
 begin
+  FOldIDBodyKind := qBodyKinds.PKValue;
   // Каскадно удаляем типы корпусов
-  qBodyTypes2.CascadeDelete(qBodyKinds.PKValue,
-    qBodyTypes2.IDBodyKind.FieldName);
+//  qBodyTypes2.CascadeDelete(qBodyKinds.PKValue,
+//    qBodyTypes2.IDBodyKind.FieldName);
 end;
 
 function TBodyTypesGroup.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
@@ -110,9 +121,6 @@ begin
     QueryBodyTypesSimple.ClearUpdateRecCount;
     while not ABodyTypesExcelTable.Eof do
     begin
-      if ABodyTypesExcelTable.BodyKind.AsString = 'FC2QFN ' then
-        beep;
-
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
 
@@ -135,6 +143,9 @@ begin
     end;
     // Финальный коммит
     QueryBodyTypesSimple.FDQuery.Connection.Commit;
+
+    // Обновляем данные в сгруппированном запросе
+    qBodyTypes2.RefreshQuery;
   finally
     ABodyTypesExcelTable.EnableControls;
   end;

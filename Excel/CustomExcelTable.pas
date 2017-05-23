@@ -130,7 +130,7 @@ end;
 
 function TCustomExcelTable.ProcessValue(const AValue: string): String;
 begin
-  Result := AValue;
+  Result := AValue.Trim;
 end;
 
 procedure TCustomExcelTable.CreateFieldDefs;
