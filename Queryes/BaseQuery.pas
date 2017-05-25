@@ -24,6 +24,9 @@ type
     FDetailParameterName: string;
     FMaxUpdateRecCount: Integer;
     FUpdateRecCount: Integer;
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+        TFDUpdateRowOptions);
     function GetCashedRecordBalance: Integer;
     function GetParentValue: Integer;
     function GetPKValue: Integer;
@@ -53,7 +56,8 @@ type
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Integer;
-      const ADetailKeyFieldName: String); virtual;
+      const ADetailKeyFieldName: String;
+      AFromClientOnly: Boolean = False); virtual;
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -73,7 +77,7 @@ type
     function Search(const AParamNames: array of string;
       const AParamValues: array of Variant): Integer; overload;
     procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
-        ANotifyEventRef: TNotifyEventRef = nil);
+      ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure TryEdit;
@@ -239,23 +243,37 @@ begin
 end;
 
 procedure TQueryBase.CascadeDelete(const AIDMaster: Integer;
-  const ADetailKeyFieldName: String);
+  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+var
+  E: TFDUpdateRecordEvent;
 begin
   Assert(AIDMaster > 0);
 
-  FDQuery.DisableControls;
+  E := FDQuery.OnUpdateRecord;
   try
-    // Пока есть записи подчинённые мастеру
-    while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
-    begin
-      FDQuery.Delete;
+    // Если каскадное удаление уже реализовано на стороне сервера
+    // Просто удалим эти записи с клиента ничего не сохраняя на стороне сервера
+    if AFromClientOnly then
+      FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
+
+    FDQuery.DisableControls;
+    try
+      // Пока есть записи подчинённые мастеру
+      while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
+      begin
+        FDQuery.Delete;
+      end;
+    finally
+      FDQuery.EnableControls;
     end;
+
   finally
-    FDQuery.EnableControls;
+   if AFromClientOnly then
+      FDQuery.OnUpdateRecord := E;
   end;
 
   // Формируем фильтр и удаляем
-  //DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
+  // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
 end;
 
 procedure TQueryBase.ClearUpdateRecCount;
@@ -386,6 +404,13 @@ procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
 begin;
 end;
 
+procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
+begin
+  AAction := eaApplied;
+end;
+
 function TQueryBase.Field(const AFieldName: String): TField;
 begin
   Result := FDQuery.FieldByName(AFieldName);
@@ -490,7 +515,7 @@ begin
   Assert(FDQuery.Connection.InTransaction);
   Assert(FUpdateRecCount < FMaxUpdateRecCount);
   Inc(FUpdateRecCount);
-  if FUpdateRecCount >= FMaxUpdateRecCount  then
+  if FUpdateRecCount >= FMaxUpdateRecCount then
   begin
     // Делаем промежуточный коммит
     FDQuery.Connection.Commit;
@@ -590,8 +615,8 @@ begin
   Result := FDQuery.RecordCount;
 end;
 
-procedure TQueryBase.SetConditionSQL(const ABaseSQL, AConditionSQL, AMark:
-    string; ANotifyEventRef: TNotifyEventRef = nil);
+procedure TQueryBase.SetConditionSQL(const ABaseSQL, AConditionSQL,
+  AMark: string; ANotifyEventRef: TNotifyEventRef = nil);
 begin
   Assert(not ABaseSQL.IsEmpty);
   Assert(not AConditionSQL.IsEmpty);

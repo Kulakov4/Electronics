@@ -205,12 +205,12 @@ procedure TComponentsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
   AProducer: String;
+  AProducerID: Integer;
   m: TArray<String>;
   qTreeList: TQueryTreeList;
   S: string;
 begin
-  AProducer := TfrmProducers.TakeProducer;
-  if AProducer.IsEmpty then
+  if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
     Exit;
 
   AFileName := TDialog.Create.OpenExcelFile
@@ -261,10 +261,10 @@ var
   AFileName: string;
   AFolderName: string;
   AProducer: String;
+  AProducerID: Integer;
 begin
   // Выбираем производителя
-  AProducer := TfrmProducers.TakeProducer;
-  if AProducer.IsEmpty then
+  if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
     Exit;
 
   AFileName := TDialog.Create.OpenDialog(TExcelFilesFolderOpenDialog,

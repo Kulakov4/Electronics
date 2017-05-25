@@ -3,7 +3,8 @@ unit BodyTypesBaseQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
@@ -11,17 +12,18 @@ uses
   FireDAC.Comp.Client, Vcl.StdCtrls, BodiesQuery, BodyDataQuery,
   BodyVariationsQuery;
 
+const
+  WM_AFTER_CASCADE_DELETE = WM_USER + 574;
+
 type
   TQueryBodyTypesBase = class(TQueryWithDataSource)
     fdqUnusedBodies: TFDQuery;
     fdqUnusedBodyData: TFDQuery;
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-        TFDUpdateRowOptions);
   private
     FQueryBodies: TQueryBodies;
     FQueryBodyData: TQueryBodyData;
     FQueryBodyVariations: TQueryBodyVariations;
+    FMessagePosted: Boolean;
     procedure DoAfterOpen(Sender: TObject);
     function GetBody: TField;
     function GetBodyData: TField;
@@ -40,15 +42,20 @@ type
     { Private declarations }
   protected
     procedure DropUnusedBodies;
-    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField; var Text:
-        String; DisplayText: Boolean);
+    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage); message
+        WM_AFTER_CASCADE_DELETE;
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
-    property QueryBodyVariations: TQueryBodyVariations read GetQueryBodyVariations;
+    property QueryBodyVariations: TQueryBodyVariations
+      read GetQueryBodyVariations;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CascadeDelete(const AIDMaster: Integer; const ADetailKeyFieldName:
-        String); overload; override;
+    procedure CascadeDelete(const AIDMaster: Integer;
+      const ADetailKeyFieldName: String;
+      AFromClientOnly: Boolean = False); override;
+    procedure RefreshLinkedData;
     property Body: TField read GetBody;
     property BodyData: TField read GetBodyData;
     property IDBody: TField read GetIDBody;
@@ -82,20 +89,15 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Integer; const
-    ADetailKeyFieldName: String);
-var
-  E: TFDUpdateRecordEvent;
+procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Integer;
+  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
 begin
-  // каскадное удаление уже реализовано на стороне сервера
-  // Просто удалим эти записи с клиента ничего не сохраняя на стороне сервера
+  inherited;
 
-  E := FDQuery.OnUpdateRecord;
-  try
-    FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
-    inherited;
-  finally
-    FDQuery.OnUpdateRecord := E;
+  if not FMessagePosted then
+  begin
+    FMessagePosted := True;
+    PostMessage(Handle, WM_AFTER_CASCADE_DELETE, 0, 0);
   end;
 end;
 
@@ -143,13 +145,6 @@ begin
     end;
 
   end;
-end;
-
-procedure TQueryBodyTypesBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
-    ARequest: TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
-begin
-  AAction := eaApplied;
 end;
 
 function TQueryBodyTypesBase.GetBody: TField;
@@ -238,11 +233,35 @@ begin
   Result := Field('Variations');
 end;
 
-procedure TQueryBodyTypesBase.OnGetFileNameWithoutExtensionGetText(Sender:
-    TField; var Text: String; DisplayText: Boolean);
+procedure TQueryBodyTypesBase.OnGetFileNameWithoutExtensionGetText
+  (Sender: TField; var Text: String; DisplayText: Boolean);
 begin
   if not Sender.AsString.IsEmpty then
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
+end;
+
+procedure TQueryBodyTypesBase.ProcessAfterCascadeDeleteMessage(var Message:
+    TMessage);
+begin
+  inherited;
+
+  // На сервере из этих таблиц каскадно удалились данные.
+  // Обновим содержимое этих таблиц на клиенте
+
+  RefreshLinkedData;
+  FMessagePosted := False;
+end;
+
+procedure TQueryBodyTypesBase.RefreshLinkedData;
+begin
+  if FQueryBodies <> nil then
+    FQueryBodies.RefreshQuery;
+
+  if FQueryBodyData <> nil then
+    FQueryBodyData.RefreshQuery;
+
+  if FQueryBodyVariations <> nil then
+    FQueryBodyVariations.RefreshQuery;
 end;
 
 end.

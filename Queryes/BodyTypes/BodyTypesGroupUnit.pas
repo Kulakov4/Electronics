@@ -18,12 +18,10 @@ type
     qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
-    FOldIDBodyKind: Integer;
     FQueryBodyTypesSimple: TQueryBodyTypesSimple;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPostOrDelete(Sender: TObject);
-    procedure DoBeforeDelete(Sender: TObject);
     function GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
     { Private declarations }
   protected
@@ -31,6 +29,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable;
         AIDProducer: Integer);
+    procedure Rollback; override;
     // TODO: Append
     /// / TODO: InsertRecordList
     /// /  procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable);
@@ -63,15 +62,14 @@ begin
   TNotifyEventWrap.Create(qBodyTypes2.AfterOpen, DoAfterOpen);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qBodyKinds.BeforeDelete, DoBeforeDelete);
   TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete);
 end;
 
 procedure TBodyTypesGroup.DoAfterDelete(Sender: TObject);
 begin
-  Assert(FOldIDBodyKind > 0);
+  Assert(qBodyKinds.OldPKValue > 0);
   // Каскадно удаляем типы корпусов
-  qBodyTypes2.CascadeDelete(FOldIDBodyKind, qBodyTypes2.IDBodyKind.FieldName);
+  qBodyTypes2.CascadeDelete(qBodyKinds.OldPKValue, qBodyTypes2.IDBodyKind.FieldName, True);
 end;
 
 procedure TBodyTypesGroup.DoAfterOpen(Sender: TObject);
@@ -85,14 +83,6 @@ end;
 procedure TBodyTypesGroup.DoAfterPostOrDelete(Sender: TObject);
 begin
   FAfterDataChange.CallEventHandlers(Self);
-end;
-
-procedure TBodyTypesGroup.DoBeforeDelete(Sender: TObject);
-begin
-  FOldIDBodyKind := qBodyKinds.PKValue;
-  // Каскадно удаляем типы корпусов
-//  qBodyTypes2.CascadeDelete(qBodyKinds.PKValue,
-//    qBodyTypes2.IDBodyKind.FieldName);
 end;
 
 function TBodyTypesGroup.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
@@ -150,6 +140,12 @@ begin
     ABodyTypesExcelTable.EnableControls;
   end;
 
+end;
+
+procedure TBodyTypesGroup.Rollback;
+begin
+  inherited;
+  qBodyTypes2.RefreshLinkedData;
 end;
 
 end.

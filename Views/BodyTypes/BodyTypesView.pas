@@ -69,7 +69,6 @@ type
     actOpenOutlineDrawing: TAction;
     actOpenLandPattern: TAction;
     actOpenImage: TAction;
-    DBGrid1: TDBGrid;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -129,7 +128,7 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
   System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2,
-  BodyTypesSimpleQuery;
+  BodyTypesSimpleQuery, ProducersForm;
 
 {$R *.dfm}
 
@@ -283,8 +282,14 @@ var
   ABodyTypesExcelDM: TBodyTypesExcelDM;
   AFileName: string;
   AfrmError: TfrmError;
+  AProducer: string;
+  AProducerID: Integer;
   OK: Boolean;
 begin
+  // Выбираем производителя
+  if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
+    Exit;
+
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
@@ -322,7 +327,7 @@ begin
         TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
           procedure
           begin
-            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable, 1);
+            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable, AProducerID);
           end, 'Сохранение корпусных данных в БД', sRecords);
       finally
         MainView.ViewData.Collapse(True);
@@ -589,8 +594,6 @@ begin
         FBodyTypesGroup.qBodyKinds.DataSource;
       cxGridDBBandedTableView2.DataController.DataSource :=
         FBodyTypesGroup.qBodyTypes2.DataSource;
-
-      DBGrid1.DataSource := FBodyTypesGroup.qBodyTypes2.DataSource;
 
       InitializeLookupColumn(clIDBodyKind,
         FBodyTypesGroup.qBodyKinds.DataSource, lsEditFixedList,

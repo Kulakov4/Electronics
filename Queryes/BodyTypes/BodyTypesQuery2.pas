@@ -19,11 +19,8 @@ type
   TQueryBodyTypes2 = class(TQueryBodyTypesBase)
     procedure FDQueryBodyType1Change(Sender: TField);
     procedure FDQueryBodyType2Change(Sender: TField);
-    procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
   private
     FIDS: string;
-    FInChange: Boolean;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -324,125 +321,6 @@ begin
     FInChange := False;
     end;
   }
-end;
-
-procedure TQueryBodyTypes2.FDQueryUpdateRecord(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
-{
-  var
-  ABodyType1: TField;
-  ABodyType2: TField;
-  AID: Integer;
-  AIDS: String;
-  AID1: TField;
-  AID2: TField;
-  AIDBodyType: TField;
-  AIDParentBodyType1: TField;
-  AIDParentBodyType2: TField;
-  m: TArray<String>;
-  RH: TRecordHolder;
-  S: string;
-}
-begin
-  inherited;
-  {
-    // Если произошло удаление
-    if ARequest = arDelete then
-    begin
-    AIDS := ASender.FieldByName(PKFieldName).AsString;
-    if not AIDS.IsEmpty then
-    begin
-    // Почему-то иногда AID = 0
-
-    m := AIDS.Split([',']);
-    for S in m do
-    begin
-    AID := S.Trim.ToInteger();
-    // Удаляем вариант корпуса
-    qBodyVariations.DeleteRecord(AID);
-    end;
-
-    // Удаляем неиспользуемые типы корпусов
-    DropUnusedBodies;
-    end;
-    end
-    else if ARequest in [arUpdate, arInsert] then
-    begin
-    ABodyType1 := ASender.FieldByName(BodyType1.FieldName);
-    AIDParentBodyType1 := ASender.FieldByName(IDParentBodyType1.FieldName);
-    AID1 := ASender.FieldByName(ID1.FieldName);
-    ABodyType2 := ASender.FieldByName(BodyType2.FieldName);
-    AIDParentBodyType2 := ASender.FieldByName(IDParentBodyType2.FieldName);
-    AID2 := ASender.FieldByName(ID2.FieldName);
-    AIDBodyType := ASender.FieldByName(IDBodyType.FieldName);
-
-    // Если указан корпус
-    if not ABodyType1.AsString.Trim.IsEmpty then
-    begin
-    FInChange := True;
-    try
-    // Загружаем все возможные варианты корпуса для редактируемого типа корпуса
-    QueryBodyTypesBranch.Load(AIDParentBodyType1.AsInteger);
-    // Ищем или добавляем корпус
-    QueryBodyTypesBranch.LocateOrAppend(ABodyType1.AsString, 1);
-    AID1.Value := QueryBodyTypesBranch.PKValue;
-    AID := AID1.Value;
-
-    // Если указаны корпусные данные
-    if not ABodyType2.AsString.Trim.IsEmpty then
-    begin
-    // Загружаем все возможные варианты корпусных данных
-    QueryBodyTypesBranch.Load(AID1.Value);
-
-    // Ищем или добавляем корпусные данные
-    QueryBodyTypesBranch.LocateOrAppend(ABodyType2.AsString, 2);
-    AIDParentBodyType2.AsInteger := AID1.AsInteger;
-    AID2.AsInteger := QueryBodyTypesBranch.PKValue;
-    AID := AID2.AsInteger;
-    end;
-
-    finally
-    FInChange := False;
-    end;
-    end
-    else
-    begin
-    AID := AIDParentBodyType1.AsInteger;
-    end;
-
-    // привязываем вариант корпуса к типу корпуса, корпусу или корпусным данным
-    AIDBodyType.AsInteger := AID;
-
-    RH := TRecordHolder.Create();
-    try
-    RH.Attach(ASender);
-
-    // Обновление данных
-    if ARequest = arUpdate then
-    begin
-    qBodyVariations.UpdateRecord(RH);
-    end;
-
-    // Обновление данных
-    if ARequest = arInsert then
-    begin
-    // Вставляем запись
-    qBodyVariations.InsertRecord(RH);
-    // Обновляем первичный ключ
-    AID := qBodyVariations.FDQuery.FieldByName(PKFieldName).AsInteger;
-    ASender.FieldByName(PKFieldName).AsInteger := AID;
-    // Заплатка.
-    PostMessage(Handle, WM_arInsert, ASender[PKFieldName], 0);
-    end;
-
-    finally
-    FreeAndNil(RH);
-    end;
-
-    end;
-  }
-  AAction := eaApplied;
 end;
 
 procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer; const ABody,

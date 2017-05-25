@@ -35,7 +35,8 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
-    class function TakeProducer: String; static;
+    class function TakeProducer(var AProducerID: Integer; var AProducerName:
+        String): Boolean; static;
     { Public declarations }
   end;
 
@@ -68,12 +69,13 @@ begin
   Result := ViewProducers.ProducersGroup.Connection.InTransaction;
 end;
 
-class function TfrmProducers.TakeProducer: String;
+class function TfrmProducers.TakeProducer(var AProducerID: Integer; var
+    AProducerName: String): Boolean;
 var
   AfrmProducers: TfrmProducers;
   AProducersGroup: TProducersGroup;
 begin
-  Result := '';
+  Result := False;
   // —начала выберем производител€ из справочника
   AProducersGroup := TProducersGroup.Create(nil);
   try
@@ -97,7 +99,10 @@ begin
       Exit;
     end;
 
-    Result := AProducersGroup.qProducers.Name.AsString;
+    AProducerID := AProducersGroup.qProducers.PKValue;
+    AProducerName := AProducersGroup.qProducers.Name.AsString;
+
+    Result := True;
   finally
     FreeAndNil(AProducersGroup);
   end;

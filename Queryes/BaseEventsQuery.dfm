@@ -1,6 +1,5 @@
 inherited QueryBaseEvents: TQueryBaseEvents
   inherited FDQuery: TFDQuery
-    BeforeOpen = FDQueryBeforeOpen
     AfterOpen = FDQueryAfterOpen
     AfterClose = FDQueryAfterClose
     BeforeInsert = FDQueryBeforeInsert

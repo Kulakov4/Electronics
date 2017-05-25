@@ -2,7 +2,6 @@ inherited ViewBodyTypes: TViewBodyTypes
   Height = 600
   ExplicitHeight = 600
   inherited cxGrid: TcxGrid
-    Width = 573
     Height = 553
     ExplicitWidth = 573
     ExplicitHeight = 553
@@ -193,20 +192,6 @@ inherited ViewBodyTypes: TViewBodyTypes
         Width = 150
       end>
     ExplicitTop = 581
-  end
-  object DBGrid1: TDBGrid [2]
-    Left = 573
-    Top = 28
-    Width = 320
-    Height = 553
-    Align = alRight
-    TabOrder = 6
-    TitleFont.Charset = DEFAULT_CHARSET
-    TitleFont.Color = clWindowText
-    TitleFont.Height = -11
-    TitleFont.Name = 'Tahoma'
-    TitleFont.Style = []
-    Visible = False
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

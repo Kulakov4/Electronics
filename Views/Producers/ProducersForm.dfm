@@ -19,6 +19,20 @@ inherited frmProducers: TfrmProducers
         Height = 380
         ExplicitWidth = 788
         ExplicitHeight = 380
+        inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+          DataController.Summary.FooterSummaryItems = <
+            item
+              Kind = skCount
+              Column = ViewProducers.clProducerType
+            end>
+        end
+        inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
+          DataController.Summary.FooterSummaryItems = <
+            item
+              Kind = skCount
+              Column = ViewProducers.clName2
+            end>
+        end
       end
       inherited StatusBar: TStatusBar
         Top = 408
