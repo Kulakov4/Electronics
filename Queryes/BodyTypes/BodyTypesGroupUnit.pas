@@ -117,6 +117,7 @@ begin
       QueryBodyTypesSimple.TryAppend;
       QueryBodyTypesSimple.IDProducer.AsInteger := AIDProducer;
       QueryBodyTypesSimple.IDBodyKind.AsInteger := qBodyKinds.PKValue;
+      QueryBodyTypesSimple.Variations.AsString := ABodyTypesExcelTable.Variation.AsString;
 
       for AField in ABodyTypesExcelTable.Fields do
       begin
