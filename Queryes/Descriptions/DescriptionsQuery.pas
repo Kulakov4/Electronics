@@ -19,12 +19,12 @@ type
     FDQueryIDComponentType: TIntegerField;
     FDQueryIDProducer: TIntegerField;
   private
-    FShowDublicate: Boolean;
+    FShowDuplicate: Boolean;
     function GetComponentName: TField;
     function GetDescription: TField;
     function GetIDComponentType: TField;
     function GetIDProducer: TField;
-    procedure SetShowDublicate(const Value: Boolean);
+    procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
   public
@@ -33,7 +33,7 @@ type
     property Description: TField read GetDescription;
     property IDComponentType: TField read GetIDComponentType;
     property IDProducer: TField read GetIDProducer;
-    property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
+    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     { Public declarations }
   end;
 
@@ -72,19 +72,19 @@ begin
   Result := Field('IDProducer');
 end;
 
-procedure TQueryDescriptions.SetShowDublicate(const Value: Boolean);
+procedure TQueryDescriptions.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
-  if FShowDublicate <> Value then
+  if FShowDuplicate <> Value then
   begin
-    FShowDublicate := Value;
+    FShowDuplicate := Value;
 
     ASQL := fdqBase.SQL.Text;
-    if FShowDublicate then
+    if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDublicate');
-      ASQL := Replace(ASQL, '', 'ShowDublicate */');
+      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
+      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
     end;
 
     FDQuery.Close;

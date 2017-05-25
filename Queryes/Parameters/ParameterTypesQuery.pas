@@ -19,11 +19,11 @@ type
     FDUpdateSQL: TFDUpdateSQL;
     fdqBase: TFDQuery;
   private
-    FShowDublicate: Boolean;
+    FShowDuplicate: Boolean;
     FTableNameFilter: string;
     procedure DoBeforeOpen(Sender: TObject);
     function GetParameterType: TField;
-    procedure SetShowDublicate(const Value: Boolean);
+    procedure SetShowDuplicate(const Value: Boolean);
     procedure SetTableNameFilter(const Value: string);
     { Private declarations }
   protected
@@ -33,7 +33,7 @@ type
     procedure LocateOrAppend(AValue: string);
     function Locate(AValue: string): Boolean;
     property ParameterType: TField read GetParameterType;
-    property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
+    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     property TableNameFilter: string read FTableNameFilter write SetTableNameFilter;
     { Public declarations }
   end;
@@ -84,19 +84,19 @@ begin
   Result := FDQuery.LocateEx(ParameterType.FieldName, AValue, [lxoPartialKey, lxoCaseInsensitive]);
 end;
 
-procedure TQueryParameterTypes.SetShowDublicate(const Value: Boolean);
+procedure TQueryParameterTypes.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
-  if FShowDublicate <> Value then
+  if FShowDuplicate <> Value then
   begin
-    FShowDublicate := Value;
+    FShowDuplicate := Value;
 
     ASQL := fdqBase.SQL.Text;
-    if FShowDublicate then
+    if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDublicate');
-      ASQL := Replace(ASQL, '', 'ShowDublicate */');
+      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
+      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
     end;
 
     FDQuery.Close;

@@ -3,7 +3,6 @@ inherited ViewBodyTypes: TViewBodyTypes
   ExplicitHeight = 600
   inherited cxGrid: TcxGrid
     Height = 553
-    ExplicitWidth = 573
     ExplicitHeight = 553
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
@@ -346,6 +345,11 @@ inherited ViewBodyTypes: TViewBodyTypes
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       OnExecute = actOpenImageExecute
+    end
+    object actShowDuplicate: TAction
+      Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1091#1073#1083#1080#1082#1072#1090#1099
+      ImageIndex = 9
+      OnExecute = actShowDuplicateExecute
     end
   end
 end

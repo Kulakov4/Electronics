@@ -455,7 +455,7 @@ inherited ViewParameters: TViewParameters
       InternalEditValue = ''
     end
     object dxBarButton1: TdxBarButton
-      Action = actShowDublicate
+      Action = actShowDuplicate
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -516,10 +516,10 @@ inherited ViewParameters: TViewParameters
       ImageIndex = 9
       OnExecute = actSearchExecute
     end
-    object actShowDublicate: TAction
+    object actShowDuplicate: TAction
       Caption = #1042#1089#1077' '#1076#1091#1073#1083#1080#1082#1072#1090#1099
       ImageIndex = 9
-      OnExecute = actShowDublicateExecute
+      OnExecute = actShowDuplicateExecute
     end
     object actFilterByTableName: TAction
       Caption = #1044#1091#1073#1083#1080#1082#1072#1090#1099

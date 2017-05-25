@@ -65,7 +65,7 @@ inherited QueryParameterTypes: TQueryParameterTypes
       
         '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
         'd IDParameterType is not null '
-      '    /* ShowDublicate    '
+      '    /* ShowDuplicate    '
       '    AND tablename IN '
       '    ('
       '        SELECT TableName'
@@ -74,7 +74,7 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '        GROUP BY TableName'
       '        HAVING count( * ) > 1'
       '    )'
-      '    ShowDublicate */    '
+      '    ShowDuplicate */    '
       '    AND ( (tablename = :tablename) or (:tablename = '#39#39') )'
       '    ORDER BY IDParameterType, [Order]'
       ')'

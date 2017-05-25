@@ -14,8 +14,11 @@ uses
 type
   TQueryBodyKinds = class(TQueryOrder)
     FDUpdateSQL: TFDUpdateSQL;
+    fdqBase: TFDQuery;
   private
+    FShowDuplicate: Boolean;
     function GetBodyKind: TField;
+    procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
     procedure DoAfterOpen(Sender: TObject);
@@ -24,18 +27,22 @@ type
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
     property BodyKind: TField read GetBodyKind;
+    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     { Public declarations }
   end;
 
 implementation
 
-uses NotifyEvents;
+uses NotifyEvents, StrHelper;
 
 {$R *.dfm}
 
 constructor TQueryBodyKinds.Create(AOwner: TComponent);
 begin
   inherited;
+  //  опируем базовый запрос и параметры
+  AssignFrom(fdqBase);
+
   AutoTransaction := False;
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
@@ -61,6 +68,27 @@ procedure TQueryBodyKinds.LocateOrAppend(AValue: string);
 begin
   if not FDQuery.LocateEx(BodyKind.FieldName, AValue, [lxoCaseInsensitive]) then
     AddNewValue(AValue);
+end;
+
+procedure TQueryBodyKinds.SetShowDuplicate(const Value: Boolean);
+var
+  ASQL: String;
+begin
+  if FShowDuplicate <> Value then
+  begin
+    FShowDuplicate := Value;
+
+    ASQL := fdqBase.SQL.Text;
+    if FShowDuplicate then
+    begin
+      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
+      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
+    end;
+
+    FDQuery.Close;
+    FDQuery.SQL.Text := ASQL;
+    FDQuery.Open;
+  end;
 end;
 
 end.

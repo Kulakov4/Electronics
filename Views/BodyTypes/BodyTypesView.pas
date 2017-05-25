@@ -69,6 +69,7 @@ type
     actOpenOutlineDrawing: TAction;
     actOpenLandPattern: TAction;
     actOpenImage: TAction;
+    actShowDuplicate: TAction;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -80,6 +81,7 @@ type
     procedure actRollbackExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
     procedure actOpenOutlineDrawingExecute(Sender: TObject);
+    procedure actShowDuplicateExecute(Sender: TObject);
     procedure clOutlineDrawingGetDataText(Sender: TcxCustomGridTableItem;
         ARecordIndex: Integer; var AText: string);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
@@ -392,6 +394,35 @@ begin
   TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
     BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString,
     'Файл %s не найден', 'Чертёж корпуса не задан', sBodyTypesFilesExt);
+end;
+
+procedure TViewBodyTypes.actShowDuplicateExecute(Sender: TObject);
+var
+  d: Boolean;
+begin
+  d := not BodyTypesGroup.qBodyTypes2.ShowDuplicate;
+  cxGrid.BeginUpdate();
+  try
+    BodyTypesGroup.qBodyTypes2.TryPost;
+    BodyTypesGroup.qBodyKinds.TryPost;
+
+    BodyTypesGroup.qBodyTypes2.ShowDuplicate := d;
+    BodyTypesGroup.qBodyKinds.ShowDuplicate := d;
+
+    // Переносим фокус на первую выделенную запись
+    FocusSelectedRecord();
+  finally
+    cxGrid.EndUpdate;
+  end;
+
+  actShowDuplicate.Checked := d;
+
+  // Помещаем фокус в центр грида
+  PutInTheCenterFocusedRecord();
+
+  // Обновляем представление
+  UpdateView;
+
 end;
 
 procedure TViewBodyTypes.clOutlineDrawingGetDataText(Sender:

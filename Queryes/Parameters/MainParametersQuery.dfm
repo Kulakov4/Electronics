@@ -103,7 +103,7 @@ inherited QueryMainParameters: TQueryMainParameters
       
         'where p.ParentParameter is null and p.IDParameterType is not nul' +
         'l'
-      '/* ShowDublicate'
+      '/* ShowDuplicate'
       'and tablename in'
       '('
       '    select TableName'
@@ -114,7 +114,7 @@ inherited QueryMainParameters: TQueryMainParameters
       '    group by TableName'
       '    having count(*) > 1'
       ')'
-      'ShowDublicate */'
+      'ShowDuplicate */'
       'and ( ( p.TableName = :TableName ) or ( :TableName = '#39#39' ) )'
       'order by p.IDParameterType, p.[Order]')
     Left = 136

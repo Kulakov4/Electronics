@@ -56,8 +56,8 @@ type
     dxbrbtnApplyUpdates: TdxBarButton;
     actRollback: TAction;
     dxbrbtnRollback: TdxBarButton;
-    actShowDublicate: TAction;
-    dxbrbtnShowDublicate: TdxBarButton;
+    actShowDuplicate: TAction;
+    dxbrbtnShowDuplicate: TdxBarButton;
     clIDProducer: TcxGridDBBandedColumn;
     dxbrsbtmExportImport: TdxBarSubItem;
     actExportToExcelDocument: TAction;
@@ -71,7 +71,7 @@ type
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure actShowDublicateExecute(Sender: TObject);
+    procedure actShowDuplicateExecute(Sender: TObject);
     procedure clIDComponentTypePropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
     procedure clIDComponentTypePropertiesEditValueChanged(Sender: TObject);
@@ -340,18 +340,18 @@ begin
   UpdateView;
 end;
 
-procedure TViewDescriptions.actShowDublicateExecute(Sender: TObject);
+procedure TViewDescriptions.actShowDuplicateExecute(Sender: TObject);
 var
   d: Boolean;
 begin
-  d := not DescriptionsGroup.qDescriptions.ShowDublicate;
+  d := not DescriptionsGroup.qDescriptions.ShowDuplicate;
   cxGrid.BeginUpdate();
   try
     DescriptionsGroup.qDescriptions.TryPost;
     DescriptionsGroup.qDescriptionTypes.TryPost;
 
-    DescriptionsGroup.qDescriptions.ShowDublicate := d;
-    DescriptionsGroup.qDescriptionTypes.ShowDublicate := d;
+    DescriptionsGroup.qDescriptions.ShowDuplicate := d;
+    DescriptionsGroup.qDescriptionTypes.ShowDuplicate := d;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord();
@@ -359,7 +359,7 @@ begin
     cxGrid.EndUpdate;
   end;
 
-  actShowDublicate.Checked := d;
+  actShowDuplicate.Checked := d;
 
   // Помещаем фокус в центр грида
   PutInTheCenterFocusedRecord();
@@ -719,12 +719,12 @@ begin
 
   actAddType.Enabled := OK and
     (DescriptionsGroup.qDescriptionTypes.FDQuery.Active) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDublicate) and
+    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
     (AView.Level = cxGridLevel);
 
   actAddDescription.Enabled := OK and
     (DescriptionsGroup.qDescriptions.FDQuery.Active) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDublicate) and
+    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
     ((AView.Level = cxGridLevel) or (AView.Level = cxGridLevel2));
 
   actDelete.Enabled := OK and (AView.DataController.RecordCount > 0);
@@ -734,16 +734,16 @@ begin
   actRollback.Enabled := actCommit.Enabled;
 
   actLoadFromExcelDocument.Enabled := (DescriptionsGroup <> nil) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDublicate);
+    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate);
 
   actExportToExcelDocument.Enabled := (DescriptionsGroup <> nil) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDublicate) and
+    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
     (DescriptionsGroup.qDescriptions.FDQuery.RecordCount > 0);
 
-  if actShowDublicate.Checked then
-    actShowDublicate.Caption := 'Показать всё'
+  if actShowDuplicate.Checked then
+    actShowDuplicate.Caption := 'Показать всё'
   else
-    actShowDublicate.Caption := 'Показать дубликаты';
+    actShowDuplicate.Caption := 'Показать дубликаты';
 
   UpdateTotalCount;
 end;

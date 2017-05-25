@@ -80,7 +80,7 @@ type
     actSearch: TAction;
     cxbeiSearch: TcxBarEditItem;
     clOrd: TcxGridDBBandedColumn;
-    actShowDublicate: TAction;
+    actShowDuplicate: TAction;
     dxBarManagerBar1: TdxBar;
     dxBarButton1: TdxBarButton;
     actFilterByTableName: TAction;
@@ -97,7 +97,7 @@ type
     procedure actLoadFromExcelSheetExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
-    procedure actShowDublicateExecute(Sender: TObject);
+    procedure actShowDuplicateExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerDetailExpanded
       (ADataController: TcxCustomDataController; ARecordIndex: Integer);
     procedure clIDParameterTypePropertiesNewLookupDisplayText(Sender: TObject;
@@ -457,23 +457,23 @@ begin
   UpdateView;
 end;
 
-procedure TViewParameters.actShowDublicateExecute(Sender: TObject);
+procedure TViewParameters.actShowDuplicateExecute(Sender: TObject);
 var
   AID: Integer;
   d: Boolean;
 begin
   AID := ParametersGroup.qMainParameters.PKValue;
 
-  d := not ParametersGroup.qMainParameters.ShowDublicate;
-  actShowDublicate.Checked := d;
+  d := not ParametersGroup.qMainParameters.ShowDuplicate;
+  actShowDuplicate.Checked := d;
 
   cxGrid.BeginUpdate();
   try
     ParametersGroup.qParameterTypes.TryPost;
     ParametersGroup.qMainParameters.TryPost;
     ParametersGroup.qSubParameters.TryPost;
-    ParametersGroup.qParameterTypes.ShowDublicate := d;
-    ParametersGroup.qMainParameters.ShowDublicate := d;
+    ParametersGroup.qParameterTypes.ShowDuplicate := d;
+    ParametersGroup.qMainParameters.ShowDuplicate := d;
   finally
     cxGrid.EndUpdate;
   end;
@@ -1028,10 +1028,10 @@ begin
   actFilterByTableName.Caption := IfThen(actFilterByTableName.Checked,
     'Снять фильтр', S);
 
-  actShowDublicate.Enabled := OK and
-    (actShowDublicate.Checked or
+  actShowDuplicate.Enabled := OK and
+    (actShowDuplicate.Checked or
     (FParametersGroup.qMainParameters.FDQuery.RecordCount > 0));
-  actShowDublicate.Caption := IfThen(actShowDublicate.Checked, 'Показать всё',
+  actShowDuplicate.Caption := IfThen(actShowDuplicate.Checked, 'Показать всё',
     'Все дубликаты');
 
   UpdateTotalCount;

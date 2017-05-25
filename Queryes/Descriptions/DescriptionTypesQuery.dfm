@@ -10,26 +10,6 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
   end
   inherited FDQuery: TFDQuery
     UpdateObject = FDUpdateSQL
-    SQL.Strings = (
-      'select dct.*'
-      'from DescriptionComponentTypes dct'
-      '/* ShowDublicate'
-      'where exists'
-      '('
-      '    select d.*'
-      '    from descriptions2 d'
-      '    where'
-      '    d.IDComponentType = dct.ID'
-      '    and d.ComponentName in'
-      '    ('
-      '        select ComponentName'
-      '        from descriptions2 '
-      '        group by ComponentName'
-      '        having count(*) > 1'
-      '    )'
-      ')'
-      'ShowDublicate */'
-      'order by dct.Ord')
   end
   inherited DataSource: TDataSource
     Top = 25
@@ -39,7 +19,7 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
     SQL.Strings = (
       'select dct.*'
       'from DescriptionComponentTypes dct'
-      '/* ShowDublicate'
+      '/* ShowDuplicate'
       'where exists'
       '('
       '    select d.*'
@@ -54,7 +34,7 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
       '        having count(*) > 1'
       '    )'
       ')'
-      'ShowDublicate */'
+      'ShowDuplicate */'
       'order by dct.Ord')
     Left = 216
     Top = 25

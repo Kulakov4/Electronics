@@ -200,7 +200,7 @@ inherited ViewDescriptions: TViewDescriptions
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnShowDublicate'
+          ItemName = 'dxbrbtnShowDuplicate'
         end>
     end
     object dxbrbtnAdd: TdxBarButton
@@ -233,8 +233,8 @@ inherited ViewDescriptions: TViewDescriptions
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxbrbtnShowDublicate: TdxBarButton
-      Action = actShowDublicate
+    object dxbrbtnShowDuplicate: TdxBarButton
+      Action = actShowDuplicate
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -290,10 +290,10 @@ inherited ViewDescriptions: TViewDescriptions
       ImageIndex = 14
       OnExecute = actRollbackExecute
     end
-    object actShowDublicate: TAction
+    object actShowDuplicate: TAction
       Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1091#1073#1083#1080#1082#1072#1090#1099
       ImageIndex = 9
-      OnExecute = actShowDublicateExecute
+      OnExecute = actShowDuplicateExecute
     end
     object actLoadFromExcelDocument: TAction
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1103

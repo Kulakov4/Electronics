@@ -15,9 +15,9 @@ type
     fdqBase: TFDQuery;
     FDUpdateSQL: TFDUpdateSQL;
   private
-    FShowDublicate: Boolean;
+    FShowDuplicate: Boolean;
     function GetComponentType: TField;
-    procedure SetShowDublicate(const Value: Boolean);
+    procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
     procedure DoAfterOpen(Sender: TObject);
@@ -26,7 +26,7 @@ type
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
     property ComponentType: TField read GetComponentType;
-    property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
+    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     { Public declarations }
   end;
 
@@ -75,19 +75,19 @@ begin
     AddNewValue(AValue);
 end;
 
-procedure TQueryDescriptionTypes.SetShowDublicate(const Value: Boolean);
+procedure TQueryDescriptionTypes.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
-  if FShowDublicate <> Value then
+  if FShowDuplicate <> Value then
   begin
-    FShowDublicate := Value;
+    FShowDuplicate := Value;
 
     ASQL := fdqBase.SQL.Text;
-    if FShowDublicate then
+    if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDublicate');
-      ASQL := Replace(ASQL, '', 'ShowDublicate */');
+      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
+      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
     end;
 
     FDQuery.Close;

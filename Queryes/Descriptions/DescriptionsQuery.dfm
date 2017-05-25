@@ -48,7 +48,7 @@ inherited QueryDescriptions: TQueryDescriptions
     SQL.Strings = (
       'select d.*'
       'from descriptions2 d'
-      '/* ShowDublicate'
+      '/* ShowDuplicate'
       'where '
       '    d.ComponentName in'
       '    ('
@@ -57,7 +57,7 @@ inherited QueryDescriptions: TQueryDescriptions
       '        group by ComponentName'
       '        having count(*) > 1'
       '    )'
-      'ShowDublicate */')
+      'ShowDuplicate */')
     Left = 144
     Top = 24
   end

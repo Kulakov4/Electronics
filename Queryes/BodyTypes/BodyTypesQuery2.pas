@@ -17,10 +17,13 @@ const
 
 type
   TQueryBodyTypes2 = class(TQueryBodyTypesBase)
+    fdqBase: TFDQuery;
     procedure FDQueryBodyType1Change(Sender: TField);
     procedure FDQueryBodyType2Change(Sender: TField);
   private
     FIDS: string;
+    FShowDuplicate: Boolean;
+    procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -36,6 +39,7 @@ type
     procedure LocateOrAppend(AIDBodyKind: Integer; const ABody, ABodyData: String;
         AIDProducer: Integer; const AOutlineDrawing, ALandPattern, AVariation,
         AImage: string);
+    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     { Public declarations }
   end;
 
@@ -43,11 +47,15 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, DBRecordHolder, RepositoryDataModule, System.StrUtils;
+uses NotifyEvents, DBRecordHolder, RepositoryDataModule, System.StrUtils,
+  StrHelper;
 
 constructor TQueryBodyTypes2.Create(AOwner: TComponent);
 begin
   inherited;
+  //  опируем базовый запрос и параметры
+  AssignFrom(fdqBase);
+
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
 end;
 
@@ -327,6 +335,27 @@ procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer; const ABody,
     ABodyData: String; AIDProducer: Integer; const AOutlineDrawing,
     ALandPattern, AVariation, AImage: string);
 begin
+end;
+
+procedure TQueryBodyTypes2.SetShowDuplicate(const Value: Boolean);
+var
+  ASQL: String;
+begin
+  if FShowDuplicate <> Value then
+  begin
+    FShowDuplicate := Value;
+
+    ASQL := fdqBase.SQL.Text;
+    if FShowDuplicate then
+    begin
+      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
+      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
+    end;
+
+    FDQuery.Close;
+    FDQuery.SQL.Text := ASQL;
+    FDQuery.Open;
+  end;
 end;
 
 // TODO: LocateOrAppend

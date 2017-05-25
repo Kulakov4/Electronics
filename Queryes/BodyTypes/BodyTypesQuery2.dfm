@@ -1,7 +1,7 @@
 inherited QueryBodyTypes2: TQueryBodyTypes2
-  Width = 319
+  Width = 400
   Height = 81
-  ExplicitWidth = 319
+  ExplicitWidth = 400
   ExplicitHeight = 81
   inherited Label1: TLabel
     Width = 78
@@ -19,6 +19,8 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode]
     UpdateOptions.RefreshMode = rmAll
+  end
+  object fdqBase: TFDQuery
     SQL.Strings = (
       'select '
       '    GROUP_CONCAT(bv.ID, '#39', '#39') IDS,'
@@ -34,7 +36,17 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
       '    b.IDBodyKind'
       'from Bodies b'
       'join BodyData bd on bd.IDBody = b.id'
-      'join BodyVariations2 bv on bv.IDBodyData = bd.ID'
+      'join BodyVariations2 bv on bv.IDBodyData = bd.ID '
+      '/* ShowDuplicate'
+      'and bv.Variation in'
+      '('
+      '    select Variation'
+      '    from BodyVariations2'
+      '    where variation <> '#39#39
+      '    group by Variation'
+      '    having count(*) > 1'
+      ')'
+      'ShowDuplicate */'
       'group by '
       '    IDBodyData, '
       '    OutlineDrawing,'
@@ -46,5 +58,7 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
       '    Body,'
       '    IDBodyKind'
       'order by IDBodyKind, Body, BodyData')
+    Left = 331
+    Top = 25
   end
 end

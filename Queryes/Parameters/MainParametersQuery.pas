@@ -23,7 +23,7 @@ type
   private
     FProductCategoryIDValue: Integer;
     FQuerySearchMainParameter: TQuerySearchMainParameter;
-    FShowDublicate: Boolean;
+    FShowDuplicate: Boolean;
     FTableNameFilter: string;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
@@ -35,7 +35,7 @@ type
     function GetQuerySearchMainParameter: TQuerySearchMainParameter;
     function GetTableName: TField;
     function GetValue: TField;
-    procedure SetShowDublicate(const Value: Boolean);
+    procedure SetShowDuplicate(const Value: Boolean);
     procedure SetTableNameFilter(const Value: string);
     { Private declarations }
   protected
@@ -56,7 +56,7 @@ type
     property IsCustomParameter: TField read GetIsCustomParameter;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue
       write FProductCategoryIDValue;
-    property ShowDublicate: Boolean read FShowDublicate write SetShowDublicate;
+    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     property TableName: TField read GetTableName;
     property TableNameFilter: string read FTableNameFilter
       write SetTableNameFilter;
@@ -366,19 +366,19 @@ begin
     Result := V;
 end;
 
-procedure TQueryMainParameters.SetShowDublicate(const Value: Boolean);
+procedure TQueryMainParameters.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
-  if FShowDublicate <> Value then
+  if FShowDuplicate <> Value then
   begin
-    FShowDublicate := Value;
+    FShowDuplicate := Value;
 
     ASQL := fdqBase.SQL.Text;
-    if FShowDublicate then
+    if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDublicate');
-      ASQL := Replace(ASQL, '', 'ShowDublicate */');
+      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
+      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
     end;
 
     FDQuery.Close;
