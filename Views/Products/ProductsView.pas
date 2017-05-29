@@ -55,6 +55,8 @@ type
     procedure actPasteComponentsExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
+    procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
+      AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
     procedure cxGridDBBandedTableViewDataControllerCompare(ADataController
@@ -110,7 +112,7 @@ uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
   DialogUnit, Vcl.Clipbrd, SettingsController, ExcelDataModule,
   ProductsExcelDataModule, ProgressBarForm, ErrorForm, CustomExcelTable,
-  GridViewForm, ProductsForm;
+  GridViewForm, ProductsForm, dxCore;
 
 constructor TViewProducts.Create(AOwner: TComponent);
 begin
@@ -222,7 +224,6 @@ begin
           FreeAndNil(AProducers);
         end;
 
-
       end;
   end;
 
@@ -271,12 +272,65 @@ begin
     raise EAbort.Create('Cancel scroll');
 end;
 
+procedure TViewProducts.cxGridDBBandedTableViewColumnHeaderClick
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+var
+  AView: TcxGridDBBandedTableView;
+  Col: TcxGridDBBandedColumn;
+  S: string;
+begin
+  inherited;
+
+  Col := AColumn as TcxGridDBBandedColumn;
+  AView := Sender as TcxGridDBBandedTableView;
+
+  // Разрешаем сортировку только по группе компонентов, наименованию или производителю
+
+  S := String.Format(',%s,%s,%s,', [clSubgroup.DataBinding.FieldName,
+    clProducer.DataBinding.FieldName, clValue.DataBinding.FieldName]);
+
+  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
+    Exit;
+
+
+  AView.BeginSortingUpdate;
+  try
+    // Если щёлкнули по группе компонентов
+    if Col.DataBinding.FieldName = clSubgroup.DataBinding.FieldName then
+    begin
+      InvertSortOrder(Col);
+    end;
+
+    // Если щёлкнули по группе компонентов
+    if Col.DataBinding.FieldName = clValue.DataBinding.FieldName then
+    begin
+      InvertSortOrder(Col);
+      Col.SortIndex := 1;
+      clProducer.SortIndex := 2;
+    end;
+
+    // Если щёлкнули по Производителю
+    if Col.DataBinding.FieldName = clProducer.DataBinding.FieldName then
+    begin
+      InvertSortOrder(Col);
+      Col.SortIndex := 1;
+      clValue.SortIndex := 2;
+    end;
+  finally
+    AView.EndSortingUpdate;
+  end;
+
+end;
+
 procedure TViewProducts.cxGridDBBandedTableViewDataControllerCompare
   (ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
   AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
+{
 var
   AVar1, AVar2: Integer;
+}
 begin
+(*
   if AItemIndex = 1 then
   begin
     if VarIsNull(V1) and not(VarIsNull(V2)) then
@@ -328,6 +382,7 @@ begin
       Compare := 0;
     end;
   end;
+*)
 end;
 
 procedure TViewProducts.cxGridDBBandedTableViewSelectionChanged

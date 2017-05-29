@@ -138,6 +138,7 @@ type
     procedure UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
+    procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
     procedure PutInTheCenterFocusedRecord; overload;
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
@@ -822,6 +823,15 @@ begin
 
   end;
 
+end;
+
+procedure TfrmGrid.InvertSortOrder(AColumn: TcxGridDBBandedColumn);
+begin
+  Assert(AColumn <> nil);
+  if AColumn.SortOrder = soAscending then
+    AColumn.SortOrder := soDescending
+  else
+    AColumn.SortOrder := soAscending;
 end;
 
 procedure TfrmGrid.SetStatusBarEmptyPanelIndex(const Value: Integer);

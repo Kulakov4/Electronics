@@ -2,11 +2,7 @@ inherited ViewProducts: TViewProducts
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
-      DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
-      inherited clStorehouseID: TcxGridDBBandedColumn
-        Visible = False
-        VisibleForCustomization = False
-      end
+      OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
     end
   end
   inherited StatusBar: TStatusBar
@@ -23,7 +19,6 @@ inherited ViewProducts: TViewProducts
       item
         Width = 150
       end>
-    OnResize = StatusBarResize
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
