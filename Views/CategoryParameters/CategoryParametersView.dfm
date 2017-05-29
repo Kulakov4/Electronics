@@ -9,6 +9,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
+        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False

@@ -7,7 +7,9 @@ inherited ViewBodyTypes: TViewBodyTypes
     Top = 56
     Width = 942
     Height = 525
-    ExplicitHeight = 553
+    ExplicitTop = 56
+    ExplicitWidth = 942
+    ExplicitHeight = 525
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
@@ -38,8 +40,10 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clOrd: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
+        Visible = False
         SortIndex = 0
         SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -196,6 +200,7 @@ inherited ViewBodyTypes: TViewBodyTypes
         Width = 150
       end>
     ExplicitTop = 581
+    ExplicitWidth = 942
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
