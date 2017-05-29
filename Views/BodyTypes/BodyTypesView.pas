@@ -70,6 +70,8 @@ type
     actOpenLandPattern: TAction;
     actOpenImage: TAction;
     actShowDuplicate: TAction;
+    dxBarButton2: TdxBarButton;
+    dxBarManagerBar1: TdxBar;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -690,6 +692,12 @@ begin
   actRollback.Enabled := actCommit.Enabled;
 
   UpdateTotalCount;
+
+  if actShowDuplicate.Checked then
+    actShowDuplicate.Caption := 'Показать всё'
+  else
+    actShowDuplicate.Caption := 'Показать дубликаты';
+
 end;
 
 end.

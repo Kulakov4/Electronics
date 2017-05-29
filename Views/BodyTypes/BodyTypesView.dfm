@@ -1,8 +1,12 @@
 inherited ViewBodyTypes: TViewBodyTypes
+  Width = 942
   Height = 600
+  ExplicitWidth = 942
   ExplicitHeight = 600
   inherited cxGrid: TcxGrid
-    Height = 553
+    Top = 56
+    Width = 942
+    Height = 525
     ExplicitHeight = 553
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
@@ -180,6 +184,7 @@ inherited ViewBodyTypes: TViewBodyTypes
   end
   inherited StatusBar: TStatusBar
     Top = 581
+    Width = 942
     Panels = <
       item
         Width = 150
@@ -196,7 +201,7 @@ inherited ViewBodyTypes: TViewBodyTypes
     DockControlHeights = (
       0
       0
-      28
+      56
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -223,15 +228,38 @@ inherited ViewBodyTypes: TViewBodyTypes
         item
           Visible = True
           ItemName = 'dxbrbtnRollback'
-        end
+        end>
+    end
+    object dxBarManagerBar1: TdxBar [1]
+      Caption = 'Custom 1'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 0
+      DockedTop = 28
+      DockingStyle = dsTop
+      FloatLeft = 952
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      Images = DMRepository.cxImageList
+      ItemLinks = <
         item
           Visible = True
           ItemName = 'dxbrsbtmExportImport'
         end
         item
           Visible = True
+          ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarButton1'
         end>
+      OneOnRow = True
+      Row = 1
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
     end
     object dxbbAdd: TdxBarButton
       Action = actAdd
@@ -284,6 +312,11 @@ inherited ViewBodyTypes: TViewBodyTypes
     end
     object dxBarButton1: TdxBarButton
       Action = actSettings
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton2: TdxBarButton
+      Action = actShowDuplicate
       Category = 0
       PaintStyle = psCaptionGlyph
     end
