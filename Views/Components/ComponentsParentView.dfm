@@ -10,7 +10,6 @@ inherited ViewComponentsParent: TViewComponentsParent
       OptionsData.DeletingConfirmation = False
       OptionsData.Inserting = False
       OptionsView.ColumnAutoWidth = False
-      Styles.OnGetHeaderStyle = cxGridDBBandedTableViewStylesGetHeaderStyle
       OnColumnSizeChanged = cxGridDBBandedTableViewColumnSizeChanged
       OnLeftPosChanged = cxGridDBBandedTableViewLeftPosChanged
       Bands = <

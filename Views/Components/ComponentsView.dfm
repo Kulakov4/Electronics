@@ -57,6 +57,10 @@ inherited ViewComponents: TViewComponents
         item
           Visible = True
           ItemName = 'dxbbSettings'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end>
     end
     object dxbrsbtmAdd: TdxBarSubItem
@@ -175,6 +179,13 @@ inherited ViewComponents: TViewComponents
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton1: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton1Click
     end
   end
   inherited ActionList: TActionList

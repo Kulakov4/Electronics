@@ -56,9 +56,11 @@ type
     dxbbParametricTable: TdxBarButton;
     dxbbSettings: TdxBarButton;
     dxBarButton3: TdxBarButton;
+    dxBarButton1: TdxBarButton;
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
+    procedure dxBarButton1Click(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
@@ -140,6 +142,17 @@ begin
 
     UpdateTotalComponentCount;
   end;
+end;
+
+procedure TViewComponents.dxBarButton1Click(Sender: TObject);
+var
+  AColumn: TcxGridDBBandedColumn;
+  AcxPopupEditProperties: TcxPopupEditProperties;
+begin
+  inherited;
+  AColumn := MainView.GetColumnByFieldName(clDescription.DataBinding.FieldName);
+  AcxPopupEditProperties := AColumn.Properties as TcxPopupEditProperties;
+  Assert(AcxPopupEditProperties.PopupControl <> nil);
 end;
 
 procedure TViewComponents.BeginUpdate;

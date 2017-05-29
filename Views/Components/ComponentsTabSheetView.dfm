@@ -98,6 +98,9 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
           ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+            inherited clDescription: TcxGridDBBandedColumn
+              Properties.OnInitPopup = nil
+            end
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
                 item

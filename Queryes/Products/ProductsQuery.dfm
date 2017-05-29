@@ -102,6 +102,7 @@ inherited QueryProducts: TQueryProducts
       '       p.Diagram,'
       '       p.Drawing,'
       '       p.Image,'
+      '       d.ComponentName DescriptionComponentName,'
       '       d.Description'
       ''
       'from StorehouseProducts sp'

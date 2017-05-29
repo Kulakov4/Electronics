@@ -31,6 +31,7 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '       p.Diagram,'
       '       p.Drawing,'
       '       p.Image,'
+      '       d.ComponentName DescriptionComponentName,'
       '       d.Description'
       'from StorehouseProducts sp'
       'join Products2 p on sp.ProductId = p.id'

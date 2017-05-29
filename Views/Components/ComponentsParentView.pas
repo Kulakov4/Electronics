@@ -163,43 +163,9 @@ uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
   ProjectConst;
 
 constructor TViewComponentsParent.Create(AOwner: TComponent);
-var
-  ACol: TcxGridDBBandedColumn;
-  AColIndex: Integer;
-  AView: TcxGridDBBandedTableView;
-  i: Integer;
 begin
   inherited;
 
-  // Чтобы убрать значки своравчивания/разворачивания слева от грида
-  // Создаём новое представление своего типа
-  AView := cxGrid.CreateView(TcxGridDBBandedTableViewWithoutExpand)
-    as TcxGridDBBandedTableView;
-
-  // Копируем в новое представление все колонки
-  AView.Assign(cxGridDBBandedTableView);
-
-  // ACol := cxGridDBBandedTableView.GetColumnByFieldName('Producer');
-
-  // После копирования создались новые колонки.
-  // Но они почему-то не на своих местах
-  for i := 0 to cxGridDBBandedTableView.ColumnCount - 1 do
-  begin
-    ACol := cxGridDBBandedTableView.Columns[i];
-    AColIndex := IfThen(ACol.Position.ColIndex >= 0, ACol.Position.ColIndex,
-      ACol.Index);
-    AView.Columns[ACol.Index].Position.ColIndex := AColIndex;
-  end;
-
-  // Новое представление будет отображаться на первом уровне
-  cxGridLevel.GridView := AView;
-
-  cxGridPopupMenu.PopupMenus[0].GridView := AView;
-
-  FOnDetailExpandedReceive := True;
-
-  PostOnEnterFields.Add(clValue.DataBinding.FieldName);
-  PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
 end;
 
 procedure TViewComponentsParent.actAddFamilyExecute(Sender: TObject);
@@ -338,9 +304,43 @@ begin
 end;
 
 procedure TViewComponentsParent.AfterConstruction;
+var
+  ACol: TcxGridDBBandedColumn;
+  AColIndex: Integer;
+  AView: TcxGridDBBandedTableView;
+  i: Integer;
 begin
   inherited;
-  // UpdateDetailColumnsWidth;
+  // Чтобы убрать значки своравчивания/разворачивания слева от грида
+  // Создаём новое представление своего типа
+  AView := cxGrid.CreateView(TcxGridDBBandedTableViewWithoutExpand)
+    as TcxGridDBBandedTableView;
+
+  // Копируем в новое представление все колонки
+  AView.Assign(cxGridDBBandedTableView);
+
+  // ACol := cxGridDBBandedTableView.GetColumnByFieldName('Producer');
+
+  // После копирования создались новые колонки.
+  // Но они почему-то не на своих местах
+  for i := 0 to cxGridDBBandedTableView.ColumnCount - 1 do
+  begin
+    ACol := cxGridDBBandedTableView.Columns[i];
+    AColIndex := IfThen(ACol.Position.ColIndex >= 0, ACol.Position.ColIndex,
+      ACol.Index);
+    AView.Columns[ACol.Index].Position.ColIndex := AColIndex;
+  end;
+
+  // Новое представление будет отображаться на первом уровне
+  cxGridLevel.GridView := AView;
+
+  cxGridPopupMenu.PopupMenus[0].GridView := AView;
+
+  FOnDetailExpandedReceive := True;
+
+  PostOnEnterFields.Add(clValue.DataBinding.FieldName);
+  PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
+
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerCompare

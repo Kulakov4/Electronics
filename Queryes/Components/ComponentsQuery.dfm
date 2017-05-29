@@ -27,6 +27,7 @@ inherited QueryComponents: TQueryComponents
       '    '#39#39' Diagram,'
       '    '#39#39' Drawing,'
       '    '#39#39' Image,'
+      '    '#39#39' DescriptionComponentName,'
       '    '#39#39' Description'
       'from Products p'
       

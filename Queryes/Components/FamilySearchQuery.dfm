@@ -22,6 +22,7 @@ inherited QueryFamilySearch: TQueryFamilySearch
       '  , pv5.Value AS Drawing'
       '  , pv6.ID AS IDImage'
       '  , pv6.Value AS Image'
+      '  , d.ComponentName DescriptionComponentName'
       '  , d.Description  '
       '  , PackagePins.ValueSet PackagePins'
       '  , cat.ExternalID'

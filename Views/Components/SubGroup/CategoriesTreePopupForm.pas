@@ -58,9 +58,6 @@ type
     { Public declarations }
   end;
 
-var
-  frmCategoriesTreePopup: TfrmCategoriesTreePopup;
-
 implementation
 
 {$R *.dfm}

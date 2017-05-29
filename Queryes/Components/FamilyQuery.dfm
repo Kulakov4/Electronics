@@ -29,6 +29,7 @@ inherited QueryFamily: TQueryFamily
       '  , pv5.Value AS Drawing'
       '  , pv6.ID AS IDImage'
       '  , pv6.Value AS Image'
+      '  , d.ComponentName DescriptionComponentName'
       '  , d.Description  '
       '  , pc.ExternalId'
       '  , PackagePins.ValueSet PackagePins'

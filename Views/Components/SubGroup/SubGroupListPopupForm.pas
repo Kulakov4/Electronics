@@ -68,11 +68,13 @@ type
     procedure cxEditRepositoryPopupItemPropertiesInitPopup(Sender: TObject);
   private
     FEventList: TObjectList;
+    FfrmCategoriesTreePopup: TfrmCategoriesTreePopup;
     FQuerySubGroups: TfrmQuerySubGroups;
     FQueryTreeList: TQueryTreeList;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterScroll(Sender: TObject);
     procedure DoOnClosePopup(Sender: TObject);
+    function GetfrmCategoriesTreePopup: TfrmCategoriesTreePopup;
     function GetQueryTreeList: TQueryTreeList;
     procedure SetQuerySubGroups(const Value: TfrmQuerySubGroups);
     procedure ShowPopupForm;
@@ -80,6 +82,8 @@ type
     { Private declarations }
   protected
     procedure OnClosePopupProcess(var Message: TMessage); message WM_ON_CLOSE_POPUP;
+    property frmCategoriesTreePopup: TfrmCategoriesTreePopup read
+        GetfrmCategoriesTreePopup;
     property QueryTreeList: TQueryTreeList read GetQueryTreeList;
   public
     constructor Create(AOwner: TComponent); override;
@@ -88,9 +92,6 @@ type
       write SetQuerySubGroups;
     { Public declarations }
   end;
-
-var
-  frmSubgroupListPopup: TfrmSubgroupListPopup;
 
 implementation
 
@@ -211,6 +212,14 @@ begin
   inherited;
   UpdateReadOnly;
 
+end;
+
+function TfrmSubgroupListPopup.GetfrmCategoriesTreePopup:
+    TfrmCategoriesTreePopup;
+begin
+  if FfrmCategoriesTreePopup = nil then
+    FfrmCategoriesTreePopup := TfrmCategoriesTreePopup.Create(Self);
+  Result := FfrmCategoriesTreePopup;
 end;
 
 function TfrmSubgroupListPopup.GetQueryTreeList: TQueryTreeList;

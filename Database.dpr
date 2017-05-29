@@ -184,7 +184,8 @@ uses
   BodyDataQuery in 'Queryes\BodyTypes\BodyDataQuery.pas' {QueryBodyData: TFrame},
   BodyVariationsQuery in 'Queryes\BodyTypes\BodyVariationsQuery.pas' {QueryBodyVariations: TFrame},
   BodyTypesBaseQuery in 'Queryes\BodyTypes\BodyTypesBaseQuery.pas' {QueryBodyTypesBase: TFrame},
-  BodyTypesSimpleQuery in 'Queryes\BodyTypes\BodyTypesSimpleQuery.pas' {QueryBodyTypesSimple: TFrame};
+  BodyTypesSimpleQuery in 'Queryes\BodyTypes\BodyTypesSimpleQuery.pas' {QueryBodyTypesSimple: TFrame},
+  DescriptionPopupForm in 'Views\Components\Descriptions\DescriptionPopupForm.pas' {frmDescriptionPopup};
 
 {$R *.res}
 
@@ -193,8 +194,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TDMRepository, DMRepository);
   Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TfrmCategoriesTreePopup, frmCategoriesTreePopup);
-  Application.CreateForm(TfrmSubgroupListPopup, frmSubgroupListPopup);
   Application.Run;
 
 end.

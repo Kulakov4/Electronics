@@ -30,7 +30,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   CustomComponentsQuery, SearchBodyType, SearchParameterValues,
-  cxTextEdit, cxBlobEdit;
+  cxTextEdit, cxBlobEdit, cxRichEdit, DescriptionPopupForm;
 
 type
   TViewComponentsBase = class(TViewComponentsParent)
@@ -82,12 +82,16 @@ type
       ARecordIndex: Integer; var AText: string);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
         AColumn: TcxGridColumn);
+    procedure clDescriptionPropertiesInitPopup(Sender: TObject);
   private
+    FfrmDescriptionPopup: TfrmDescriptionPopup;
+    FfrmSubgroupListPopup: TfrmSubgroupListPopup;
     FQuerySearchBodyType: TQuerySearchBodyType;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
     FQuerySubGroups: TfrmQuerySubGroups;
     procedure DoAfterCommit(Sender: TObject);
     function GetFocusedQuery: TQueryCustomComponents;
+    function GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
     function GetQuerySearchBodyType: TQuerySearchBodyType;
     function GetQuerySearchParameterValues: TQuerySearchParameterValues;
     function GetQuerySubGroups: TfrmQuerySubGroups;
@@ -97,6 +101,8 @@ type
     procedure DoOnMasterDetailChange; override;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
+    property frmSubgroupListPopup: TfrmSubgroupListPopup read
+        GetfrmSubgroupListPopup;
     property QuerySearchBodyType: TQuerySearchBodyType
       read GetQuerySearchBodyType;
     property QuerySearchParameterValues: TQuerySearchParameterValues
@@ -118,20 +124,17 @@ uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
   ClipboardUnit, ParameterValuesUnit, ProducersQuery, cxGridDBDataDefinitions;
 
 constructor TViewComponentsBase.Create(AOwner: TComponent);
-// var
-// i: Integer;
+var
+  AcxPopupEditproperties: TcxPopupEditproperties;
 begin
   inherited;
-  {
-    // Классы редакторов в дочернем такие-же как в мастере
-    for i := 3 to 6 do
-    begin
-    cxGridDBBandedTableView2.Columns[i].PropertiesClass := MainView.Columns[i]
-    .PropertiesClass;
-    cxGridDBBandedTableView2.Columns[i].Properties := MainView.Columns[i]
-    .Properties;
-    end;
-  }
+  // Форма с кодами категорий
+  cxerpiSubGroup.Properties.PopupControl := frmSubgroupListPopup;
+
+  // Всплывающая форма с кратким описанием
+  FfrmDescriptionPopup := TfrmDescriptionPopup.Create(Self);
+  AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
+  AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
 end;
 
 destructor TViewComponentsBase.Destroy;
@@ -260,6 +263,14 @@ begin
   inherited;
   if not AText.IsEmpty then
     AText := TPath.GetFileNameWithoutExtension(AText);
+end;
+
+procedure TViewComponentsBase.clDescriptionPropertiesInitPopup(Sender: TObject);
+begin
+  inherited;
+  Assert(FfrmDescriptionPopup <> nil);
+  // Привязываем выпадающую форму к данным
+  FfrmDescriptionPopup.QueryCustomComponents := BaseComponentsGroup.QueryBaseFamily;
 end;
 
 procedure TViewComponentsBase.clManufacturerIdPropertiesNewLookupDisplayText
@@ -417,6 +428,14 @@ begin
     if AView.Level = cxGridLevel2 then
       Result := BaseComponentsGroup.QueryBaseComponents;
   end;
+end;
+
+function TViewComponentsBase.GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
+begin
+  if FfrmSubgroupListPopup = nil then
+    FfrmSubgroupListPopup := TfrmSubgroupListPopup.Create(Self);
+
+  Result := FfrmSubgroupListPopup;
 end;
 
 function TViewComponentsBase.GetQuerySearchBodyType: TQuerySearchBodyType;

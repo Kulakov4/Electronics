@@ -22,6 +22,7 @@ type
     procedure DoAfterConnect(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     function GetDatasheet: TField;
+    function GetDescription: TField;
     function GetPackagePins: TField;
     function GetParentProductID: TField;
     function GetProducer: TField;
@@ -55,6 +56,7 @@ type
     procedure SetProducer(AIDComponent: Integer; const AProducer: String);
     procedure SetPackagePins(AIDComponent: Integer; APackagePins: string);
     property Datasheet: TField read GetDatasheet;
+    property Description: TField read GetDescription;
     property PackagePins: TField read GetPackagePins;
     property ParentProductID: TField read GetParentProductID;
     property Producer: TField read GetProducer;
@@ -170,6 +172,11 @@ begin
   Result := Field('Datasheet');
 end;
 
+function TQueryCustomComponents.GetDescription: TField;
+begin
+  Result := Field('Description');
+end;
+
 function TQueryCustomComponents.GetPackagePins: TField;
 begin
   Result := Field('PackagePins');
@@ -270,7 +277,7 @@ begin
   FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
 
   // Поле Description (описание)
-  FParameterFields.Add(TParameterValues.DescriptionParameterID, 'Description');
+  FParameterFields.Add(TParameterValues.DescriptionParameterID, 'DescriptionComponentName');
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;

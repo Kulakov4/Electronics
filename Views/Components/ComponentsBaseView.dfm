@@ -1,12 +1,9 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
-    LookAndFeel.Kind = lfFlat
-    LookAndFeel.NativeStyle = False
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
-      OnCustomDrawColumnHeader = cxGridDBBandedTableViewCustomDrawColumnHeader
       Bands = <
         item
           FixedKind = fkLeft
@@ -45,9 +42,9 @@ inherited ViewComponentsBase: TViewComponentsBase
       object clDescription: TcxGridDBBandedColumn
         AlternateCaption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
         Caption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
-        DataBinding.FieldName = 'Description'
-        PropertiesClassName = 'TcxBlobEditProperties'
-        Properties.ReadOnly = True
+        DataBinding.FieldName = 'DescriptionComponentName'
+        PropertiesClassName = 'TcxPopupEditProperties'
+        Properties.OnInitPopup = clDescriptionPropertiesInitPopup
         MinWidth = 50
         Options.Sorting = False
         Position.BandIndex = 1
@@ -190,7 +187,7 @@ inherited ViewComponentsBase: TViewComponentsBase
         Position.RowIndex = 0
       end
       object clDescription2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Description'
+        DataBinding.FieldName = 'DescriptionComponentName'
         Position.BandIndex = 1
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -320,7 +317,6 @@ inherited ViewComponentsBase: TViewComponentsBase
     object cxerlSubGroup: TcxEditRepositoryLabel
     end
     object cxerpiSubGroup: TcxEditRepositoryPopupItem
-      Properties.PopupControl = frmSubgroupListPopup.Owner
       Properties.OnCloseUp = cxerpiSubGroup_PropertiesCloseUp
       Properties.OnInitPopup = cxerpiSubGroup_PropertiesInitPopup
     end
