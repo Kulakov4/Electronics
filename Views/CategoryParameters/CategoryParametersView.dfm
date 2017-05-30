@@ -158,10 +158,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton7'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton10'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -229,13 +225,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     object dxBarButton12: TdxBarButton
       Action = actAddToEnd
       Category = 0
-    end
-    object dxBarButton10: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-      OnClick = dxBarButton10Click
     end
   end
   inherited ActionList: TActionList

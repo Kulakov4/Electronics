@@ -488,10 +488,13 @@ begin
 end;
 
 procedure TViewProducers.MyApplyBestFit;
+var
+  AView: TcxGridDBBandedTableView;
 begin
   inherited;
-  GetDBBandedTableView(1).ApplyBestFit(nil, True, True);
-  // GridView(cxGridLevel2).ApplyBestFit(nil, True, True);
+  AView := GetDBBandedTableView(1);
+  if AView <> nil then
+    AView.ApplyBestFit(nil, True, True);
 end;
 
 procedure TViewProducers.MyInitializeComboBoxColumn;

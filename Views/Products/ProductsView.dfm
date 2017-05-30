@@ -2,7 +2,6 @@ inherited ViewProducts: TViewProducts
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
-      OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
     end
   end
   inherited StatusBar: TStatusBar

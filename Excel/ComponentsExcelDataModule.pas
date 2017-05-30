@@ -307,10 +307,10 @@ end;
 
 procedure TComponentsExcelTable.SetFieldsInfo;
 begin
-  FieldsInfo.Add(TFieldInfo.Create('FamilyName'));
+  FieldsInfo.Add(TFieldInfo.Create('FamilyName', False, '', True));
   FieldsInfo.Add(TFieldInfo.Create('ComponentName', True,
     'ƒочернее наименование не должно быть пустым'));
-  FieldsInfo.Add(TFieldInfo.Create('SubGroup'));
+  FieldsInfo.Add(TFieldInfo.Create('SubGroup', False, '', True));
 end;
 
 end.

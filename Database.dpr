@@ -105,7 +105,6 @@ uses
   ProductsSearchView in 'Views\Products\ProductsSearchView.pas' {ViewProductsSearch: TFrame},
   ParametersForCategoriesView in 'Views\ParametersForCategories\ParametersForCategoriesView.pas' {ViewParametersForCategories: TFrame},
   StoreHouseInfoView in 'Views\StoreHouse\StoreHouseInfoView.pas' {ViewStorehouseInfo: TFrame},
-  StoreHouseView in 'Views\StoreHouse\StoreHouseView.pas' {ViewStoreHouse: TFrame},
   ComponentsSearchView in 'Views\Components\Search\ComponentsSearchView.pas' {ViewComponentsSearch: TFrame},
   ModCheckDatabase in 'Helpers\ModCheckDatabase.pas',
   DataModule in 'Queryes\DataModule.pas' {DM},

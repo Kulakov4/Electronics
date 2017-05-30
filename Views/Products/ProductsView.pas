@@ -55,8 +55,6 @@ type
     procedure actPasteComponentsExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
-      AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
     procedure cxGridDBBandedTableViewDataControllerCompare(ADataController
@@ -270,56 +268,6 @@ begin
   { при выборе другого склада проверить наличие изменений в старом складе }
   if CheckAndSaveChanges = IDCANCEL then
     raise EAbort.Create('Cancel scroll');
-end;
-
-procedure TViewProducts.cxGridDBBandedTableViewColumnHeaderClick
-  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
-var
-  AView: TcxGridDBBandedTableView;
-  Col: TcxGridDBBandedColumn;
-  S: string;
-begin
-  inherited;
-
-  Col := AColumn as TcxGridDBBandedColumn;
-  AView := Sender as TcxGridDBBandedTableView;
-
-  // Разрешаем сортировку только по группе компонентов, наименованию или производителю
-
-  S := String.Format(',%s,%s,%s,', [clSubgroup.DataBinding.FieldName,
-    clProducer.DataBinding.FieldName, clValue.DataBinding.FieldName]);
-
-  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
-    Exit;
-
-
-  AView.BeginSortingUpdate;
-  try
-    // Если щёлкнули по группе компонентов
-    if Col.DataBinding.FieldName = clSubgroup.DataBinding.FieldName then
-    begin
-      InvertSortOrder(Col);
-    end;
-
-    // Если щёлкнули по группе компонентов
-    if Col.DataBinding.FieldName = clValue.DataBinding.FieldName then
-    begin
-      InvertSortOrder(Col);
-      Col.SortIndex := 1;
-      clProducer.SortIndex := 2;
-    end;
-
-    // Если щёлкнули по Производителю
-    if Col.DataBinding.FieldName = clProducer.DataBinding.FieldName then
-    begin
-      InvertSortOrder(Col);
-      Col.SortIndex := 1;
-      clValue.SortIndex := 2;
-    end;
-  finally
-    AView.EndSortingUpdate;
-  end;
-
 end;
 
 procedure TViewProducts.cxGridDBBandedTableViewDataControllerCompare

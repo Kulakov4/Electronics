@@ -13,8 +13,6 @@ object ProductsFrame: TProductsFrame
     TabOrder = 0
     Properties.ActivePage = tsStorehouseInfo
     Properties.CustomButtons.Buttons = <>
-    ExplicitTop = 0
-    ExplicitHeight = 635
     ClientRectBottom = 603
     ClientRectLeft = 4
     ClientRectRight = 994
@@ -22,7 +20,6 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseInfo: TcxTabSheet
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1082#1083#1072#1076#1077
       ImageIndex = 0
-      ExplicitHeight = 607
       inline ViewStorehouseInfo: TViewStorehouseInfo
         Left = 0
         Top = 0
@@ -33,13 +30,12 @@ object ProductsFrame: TProductsFrame
         ParentColor = False
         TabOrder = 0
         ExplicitWidth = 990
-        ExplicitHeight = 607
+        ExplicitHeight = 579
       end
     end
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
-      ExplicitHeight = 607
       inline ViewProducts: TViewProducts
         Left = 0
         Top = 0
@@ -48,12 +44,12 @@ object ProductsFrame: TProductsFrame
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 990
-        ExplicitHeight = 607
+        ExplicitHeight = 579
         inherited cxGrid: TcxGrid
           Width = 990
           Height = 532
           ExplicitWidth = 990
-          ExplicitHeight = 560
+          ExplicitHeight = 532
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -108,7 +104,7 @@ object ProductsFrame: TProductsFrame
         inherited StatusBar: TStatusBar
           Top = 560
           Width = 990
-          ExplicitTop = 588
+          ExplicitTop = 560
           ExplicitWidth = 990
         end
         inherited dxBarManager: TdxBarManager
@@ -132,7 +128,6 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseSearch: TcxTabSheet
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 2
-      ExplicitHeight = 607
       inline ViewProductsSearch: TViewProductsSearch
         Left = 0
         Top = 0
@@ -141,12 +136,12 @@ object ProductsFrame: TProductsFrame
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 990
-        ExplicitHeight = 607
+        ExplicitHeight = 579
         inherited cxGrid: TcxGrid
           Width = 990
           Height = 532
           ExplicitWidth = 990
-          ExplicitHeight = 560
+          ExplicitHeight = 532
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -201,7 +196,7 @@ object ProductsFrame: TProductsFrame
         inherited StatusBar: TStatusBar
           Top = 560
           Width = 990
-          ExplicitTop = 588
+          ExplicitTop = 560
           ExplicitWidth = 990
         end
         inherited dxBarManager: TdxBarManager

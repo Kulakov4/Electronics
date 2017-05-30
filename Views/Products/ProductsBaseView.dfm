@@ -5,6 +5,7 @@ inherited ViewProductsBase: TViewProductsBase
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False
       OptionsView.BandHeaders = True
+      OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
       Bands = <
         item
           FixedKind = fkLeft
@@ -57,6 +58,8 @@ inherited ViewProductsBase: TViewProductsBase
         BestFitMaxWidth = 300
         Options.Sorting = False
         Options.VertSizing = False
+        SortIndex = 0
+        SortOrder = soAscending
         Width = 145
         Position.BandIndex = 0
         Position.ColIndex = 1

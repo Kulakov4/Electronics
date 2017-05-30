@@ -65,7 +65,6 @@ type
     dxBarButton11: TdxBarButton;
     dxBarButton12: TdxBarButton;
     clIsAttribute: TcxGridDBBandedColumn;
-    dxBarButton10: TdxBarButton;
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
     procedure actAddToEndExecute(Sender: TObject);
@@ -82,7 +81,6 @@ type
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
-    procedure dxBarButton10Click(Sender: TObject);
   private
     FQueryCategoryParameters: TQueryCategoryParameters;
     FQueryParameterPos: TQueryParameterPos;
@@ -359,14 +357,6 @@ end;
 procedure TViewCategoryParameters.DoAfterLoad(Sender: TObject);
 begin
   UpdateView;
-end;
-
-procedure TViewCategoryParameters.dxBarButton10Click(Sender: TObject);
-begin
-  inherited;
-  QueryCategoryParameters.TryEdit;
-  QueryCategoryParameters.IsAttribute.AsBoolean := not QueryCategoryParameters.IsAttribute.AsBoolean;
-  QueryCategoryParameters.TryPost;
 end;
 
 function TViewCategoryParameters.GetQueryParameterPos: TQueryParameterPos;

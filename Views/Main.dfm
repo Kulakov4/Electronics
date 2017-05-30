@@ -39,7 +39,7 @@ object frmMain: TfrmMain
     Height = 564
     Align = alLeft
     TabOrder = 1
-    Properties.ActivePage = cxtsComponents
+    Properties.ActivePage = cxtsStorehouses
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcLeftChange
     ClientRectBottom = 560
@@ -134,10 +134,6 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -146,6 +142,7 @@ object frmMain: TfrmMain
         Align = alClient
         TabOrder = 0
         object tvStorehouseList: TcxGridDBTableView
+          PopupMenu = pmLeftStoreHouse
           Navigator.Buttons.CustomButtons = <>
           DataController.KeyFieldNames = 'Id'
           DataController.Summary.DefaultGroupSummaryItems = <>
@@ -207,12 +204,6 @@ object frmMain: TfrmMain
             ExplicitTop = 24
             ExplicitWidth = 870
             ExplicitHeight = 452
-            inherited cxgrdFunctionalGroup: TcxGrid
-              Width = 918
-              Height = 474
-              ExplicitWidth = 918
-              ExplicitHeight = 474
-            end
           end
           inherited cxtsCategoryComponents: TcxTabSheet
             ExplicitTop = 27
@@ -414,8 +405,6 @@ object frmMain: TfrmMain
           inherited cxtsParametricTable: TcxTabSheet
             inherited ViewParametricTable: TViewParametricTable
               inherited cxGrid: TcxGrid
-                ExplicitWidth = 918
-                ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   Styles.OnGetHeaderStyle = nil
                   inherited clProducer: TcxGridDBBandedColumn
@@ -481,10 +470,6 @@ object frmMain: TfrmMain
                   end
                 end
               end
-              inherited StatusBar: TStatusBar
-                ExplicitTop = 455
-                ExplicitWidth = 918
-              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
@@ -540,7 +525,6 @@ object frmMain: TfrmMain
         inherited cxpcStorehouse: TcxPageControl
           Width = 926
           Height = 505
-          ExplicitTop = 28
           ExplicitWidth = 926
           ExplicitHeight = 505
           ClientRectBottom = 501
@@ -581,8 +565,11 @@ object frmMain: TfrmMain
           end
           inherited tsStorehouseProducts: TcxTabSheet
             inherited ViewProducts: TViewProducts
+              Width = 918
+              Height = 474
               inherited cxGrid: TcxGrid
-                ExplicitHeight = 532
+                Width = 918
+                Height = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -635,7 +622,9 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                ExplicitTop = 560
+                Top = 455
+                Width = 918
+                ExplicitTop = 455
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -658,7 +647,6 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch: TViewProductsSearch
               inherited cxGrid: TcxGrid
-                ExplicitHeight = 532
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -709,9 +697,6 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
-              end
-              inherited StatusBar: TStatusBar
-                ExplicitTop = 560
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -1016,6 +1001,37 @@ object frmMain: TfrmMain
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 6
       OnExecute = actLoadTreeFromExcelDocumentExecute
+    end
+    object actAddStorehouse: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1082#1083#1072#1076
+      ImageIndex = 1
+      OnExecute = actAddStorehouseExecute
+    end
+    object actDeleteStorehouse: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1082#1083#1072#1076
+      ImageIndex = 2
+      OnExecute = actDeleteStorehouseExecute
+      OnUpdate = actDeleteStorehouseUpdate
+    end
+    object actRenameStorehouse: TAction
+      Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1089#1082#1083#1072#1076
+      ImageIndex = 11
+      OnExecute = actRenameStorehouseExecute
+      OnUpdate = actRenameStorehouseUpdate
+    end
+  end
+  object pmLeftStoreHouse: TPopupMenu
+    Images = DMRepository.cxImageList
+    Left = 44
+    Top = 239
+    object N1: TMenuItem
+      Action = actAddStorehouse
+    end
+    object N2: TMenuItem
+      Action = actDeleteStorehouse
+    end
+    object N3: TMenuItem
+      Action = actRenameStorehouse
     end
   end
 end

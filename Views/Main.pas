@@ -15,9 +15,8 @@ uses
   cxGridCustomView, cxGridCustomTableView, cxGridTableView, cxGridDBTableView,
   cxGrid, cxMaskEdit, ComCtrls, dxtree, dxdbtree, dxBarBuiltInMenu,
   cxTextEdit, cxBlobEdit, cxLabel, cxMemo, cxNavigator, RootForm,
-  StorehouseView,
-  System.UITypes, System.Types,
-  System.Contnrs, NotifyEvents, DataModule, System.Actions, Vcl.ActnList,
+  System.UITypes, System.Types, System.Contnrs, NotifyEvents, DataModule,
+  System.Actions, Vcl.ActnList,
   dxSkinsCore, dxSkinsDefaultPainters, GridFrame, ComponentsBaseView,
   ComponentsView, ComponentsSearchView, ParametersForCategoriesView,
   ComponentsParentView, ParametricTableView, CustomExcelTable,
@@ -99,12 +98,24 @@ type
     glStorehouseList: TcxGridLevel;
     ComponentsFrame: TComponentsFrame;
     ProductsFrame: TProductsFrame;
+    pmLeftStoreHouse: TPopupMenu;
+    actAddStorehouse: TAction;
+    actDeleteStorehouse: TAction;
+    actRenameStorehouse: TAction;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    procedure actAddStorehouseExecute(Sender: TObject);
     procedure actAddTreeNodeExecute(Sender: TObject);
+    procedure actDeleteStorehouseExecute(Sender: TObject);
+    procedure actDeleteStorehouseUpdate(Sender: TObject);
     procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadBodyTypesExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
+    procedure actRenameStorehouseExecute(Sender: TObject);
+    procedure actRenameStorehouseUpdate(Sender: TObject);
     procedure actRenameTreeNodeExecute(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
     procedure actSelectDataBasePathExecute(Sender: TObject);
@@ -189,6 +200,25 @@ begin
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
 end;
 
+procedure TfrmMain.actAddStorehouseExecute(Sender: TObject);
+var
+  Value: string;
+begin
+  DM.StoreHouseGroup.qStoreHouseList.TryPost;
+
+  Value := InputBox(sDatabase, sPleaseWrite, '');
+  if Value <> '' then
+  begin
+    DM.StoreHouseGroup.qStoreHouseList.FDQuery.DisableControls;
+    try
+      DM.StoreHouseGroup.qStoreHouseList.LocateOrAppend(Value);
+    finally
+      DM.StoreHouseGroup.qStoreHouseList.FDQuery.EnableControls;
+    end;
+    clStorehouseListTitle.ApplyBestFit();
+  end;
+end;
+
 procedure TfrmMain.actAddTreeNodeExecute(Sender: TObject);
 var
   value: string;
@@ -207,6 +237,23 @@ begin
       DM.qTreeList.FDQuery.EnableControls;
     end;
   end;
+end;
+
+procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
+begin
+  DM.StoreHouseGroup.qStoreHouseList.TryPost;
+  if DM.StoreHouseGroup.qStoreHouseList.FDQuery.RecordCount > 0 then
+  begin
+    if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
+    begin
+      DM.StoreHouseGroup.qStoreHouseList.FDQuery.Delete;
+    end;
+  end;
+end;
+
+procedure TfrmMain.actDeleteStorehouseUpdate(Sender: TObject);
+begin
+ actDeleteStorehouse.Enabled := tvStorehouseList.DataController.RecordCount > 0;
 end;
 
 procedure TfrmMain.actDeleteTreeNodeExecute(Sender: TObject);
@@ -401,6 +448,30 @@ begin
     dbtlCategories.EndUpdate;
     dbtlCategories.FocusedNode.Expand(False);
   end;
+end;
+
+procedure TfrmMain.actRenameStorehouseExecute(Sender: TObject);
+var
+  Value: string;
+begin
+  if tvStorehouseList.Controller.SelectedRecordCount > 0 then
+  begin
+    DM.StoreHouseGroup.qStoreHouseList.TryPost;
+    Value := InputBox(sDatabase, sPleaseWrite,
+      DM.StoreHouseGroup.qStoreHouseList.Title.AsString);
+    if (Value <> '') then
+    begin
+      DM.StoreHouseGroup.qStoreHouseList.TryEdit;
+      DM.StoreHouseGroup.qStoreHouseList.Title.AsString := Value;
+      DM.StoreHouseGroup.qStoreHouseList.TryPost;
+      clStorehouseListTitle.ApplyBestFit();
+    end;
+  end;
+end;
+
+procedure TfrmMain.actRenameStorehouseUpdate(Sender: TObject);
+begin
+  actRenameStorehouse.Enabled := tvStorehouseList.DataController.RecordCount > 0;
 end;
 
 procedure TfrmMain.actRenameTreeNodeExecute(Sender: TObject);

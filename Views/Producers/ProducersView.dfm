@@ -32,8 +32,10 @@ inherited ViewProducers: TViewProducers
       end
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
+        Visible = False
         SortIndex = 0
         SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
