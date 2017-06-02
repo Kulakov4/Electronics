@@ -77,6 +77,7 @@ inherited ViewProducers: TViewProducers
       object clName2: TcxGridDBBandedColumn
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'Name'
+        BestFitMaxWidth = 350
         MinWidth = 100
         Position.BandIndex = 0
         Position.ColIndex = 1
