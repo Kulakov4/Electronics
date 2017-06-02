@@ -64,7 +64,7 @@ type
     cxtsComponents: TcxTabSheet;
     cxtsStorehouses: TcxTabSheet;
     ActionList: TActionList;
-    actShowManufacturers: TAction;
+    actShowProducers: TAction;
     actShowDescriptions: TAction;
     actShowParameters: TAction;
     actShowBodyTypes2: TAction;
@@ -122,7 +122,7 @@ type
     procedure actShowBodyTypes2Execute(Sender: TObject);
     procedure actShowBodyTypes3Execute(Sender: TObject);
     procedure actShowDescriptionsExecute(Sender: TObject);
-    procedure actShowManufacturersExecute(Sender: TObject);
+    procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -572,15 +572,15 @@ begin
   frmDescriptions.Show;
 end;
 
-procedure TfrmMain.actShowManufacturersExecute(Sender: TObject);
+procedure TfrmMain.actShowProducersExecute(Sender: TObject);
 begin
   if frmProducers = nil then
   begin
+    DM.ProducersGroup.ReOpen;
     frmProducers := TfrmProducers.Create(Self);
     frmProducers.ViewProducers.ProducersGroup := DM.ProducersGroup;
   end;
 
-  DM.ProducersGroup.ReOpen;
   frmProducers.Show;
 end;
 
@@ -588,9 +588,9 @@ procedure TfrmMain.actShowParametersExecute(Sender: TObject);
 begin
   if frmParameters = nil then
   begin
+    DM.ParametersGroup.ReOpen;
     frmParameters := TfrmParameters.Create(Self);
     frmParameters.ViewParameters.ParametersGroup := DM.ParametersGroup;
-    DM.ParametersGroup.ReOpen;
   end;
 
   frmParameters.Show;

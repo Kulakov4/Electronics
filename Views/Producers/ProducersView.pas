@@ -28,7 +28,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox,
-  DragHelper, HRTimer;
+  DragHelper, HRTimer, ColumnsBarButtonsHelper;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
@@ -82,6 +82,8 @@ type
         Integer; State: TDragState; var Accept: Boolean);
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
         TDragObject);
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
+      ADataController: TcxCustomDataController; ARecordIndex: Integer);
   private
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
@@ -97,6 +99,7 @@ type
   protected
     procedure AfterSetNewValue(var Message: TMessage); message
         WM_AFTER_SET_NEW_VALUE;
+    procedure CreateColumnsBarButtons; override;
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
@@ -395,6 +398,12 @@ begin
 
 end;
 
+procedure TViewProducers.CreateColumnsBarButtons;
+begin
+  FColumnsBarButtons := TColumnsBarButtons.Create(Self,
+    dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
+end;
+
 procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
@@ -402,6 +411,22 @@ begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
+end;
+
+procedure TViewProducers.cxGridDBBandedTableViewDataControllerDetailExpanded(
+  ADataController: TcxCustomDataController; ARecordIndex: Integer);
+var
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
+begin
+  inherited;
+  if ARecordIndex < 0 then
+    Exit;
+
+  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
+    as TcxGridMasterDataRow;
+  (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
+    .ApplyBestFit();
+
 end;
 
 procedure TViewProducers.
@@ -525,6 +550,8 @@ begin
       InitializeLookupColumn(clProducerTypeID,
         FProducersGroup.qProducerTypes.DataSource, lsEditList,
         FProducersGroup.qProducerTypes.ProducerType.FieldName);
+
+      MainView.ViewData.Collapse(True);
     end
     else
     begin

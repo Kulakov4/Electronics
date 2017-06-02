@@ -565,11 +565,7 @@ object frmMain: TfrmMain
           end
           inherited tsStorehouseProducts: TcxTabSheet
             inherited ViewProducts: TViewProducts
-              Width = 918
-              Height = 474
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -620,11 +616,6 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
-              end
-              inherited StatusBar: TStatusBar
-                Top = 455
-                Width = 918
-                ExplicitTop = 455
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -871,7 +862,7 @@ object frmMain: TfrmMain
       Category = 0
     end
     object dxbrbtn3: TdxBarButton
-      Action = actShowManufacturers
+      Action = actShowProducers
       Category = 0
     end
     object dxbrbtn5: TdxBarButton
@@ -932,10 +923,10 @@ object frmMain: TfrmMain
     Images = DMRepository.cxImageList
     Left = 48
     Top = 419
-    object actShowManufacturers: TAction
+    object actShowProducers: TAction
       Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1080
       Hint = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1080
-      OnExecute = actShowManufacturersExecute
+      OnExecute = actShowProducersExecute
     end
     object actShowDescriptions: TAction
       Caption = #1050#1088#1072#1090#1082#1080#1077' '#1086#1087#1080#1089#1072#1085#1080#1103
