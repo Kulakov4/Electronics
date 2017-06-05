@@ -59,7 +59,7 @@ var
 begin
   FNeedLoad := False;
   Assert(FMaster <> nil);
-  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0, FMaster.PKValue, -1);
+  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0, FMaster.PK.AsInteger, -1);
   Load(AIDParent);
 end;
 
@@ -68,7 +68,7 @@ begin
   Assert(FMaster <> nil);
   Assert(FMaster.FDQuery.RecordCount > 0);
 
-  CascadeDelete(FMaster.PKValue, DetailParameterName);
+  CascadeDelete(FMaster.PK.Value, DetailParameterName);
 end;
 
 procedure TQueryWithMaster.RefreshQuery;

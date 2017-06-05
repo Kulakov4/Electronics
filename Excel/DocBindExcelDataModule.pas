@@ -50,7 +50,7 @@ begin
   if Result then
   begin
     Edit;
-    IDProduct.AsInteger := QuerySearchComponent.PKValue;
+    IDProduct.AsInteger := QuerySearchComponent.PK.Value;
     Post;
   end
   else

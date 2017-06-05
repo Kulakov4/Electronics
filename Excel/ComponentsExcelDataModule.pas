@@ -190,7 +190,7 @@ begin
   begin
     // Запоминаем код родительского компонента
     Edit;
-    IDFamily.AsInteger := FQuerySearchFamilyByValue2.PKValue;
+    IDFamily.Value := FQuerySearchFamilyByValue2.PK.Value;
     Post;
 
     MarkAsError(etWarring);

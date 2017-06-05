@@ -43,11 +43,11 @@ uses System.Generics.Collections, ProjectConst;
 procedure TQueryTreeList.AddChildCategory(const AValue: string; ALevel:
     Integer);
 var
-  AParentId: Integer;
+  AParentId: Variant;
   AExternalId: string;
 begin
   Assert(FDQuery.RecordCount > 0);
-  AParentId := PKValue;
+  AParentId := PK.Value;
 
   if not CheckPossibility(AParentId, AValue) then
     Exit;

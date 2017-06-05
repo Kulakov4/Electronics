@@ -32,7 +32,16 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
       '    bd.IDBody,'
       '    bd.IDProducer,'
       '    bd.BodyData,'
-      '    b.Body,'
+      
+        '    b.Body0 || ifnull(b.Body1, '#39#39') || ifnull(b.Body2, '#39#39') || ifn' +
+        'ull(b.Body3, '#39#39') || ifnull(b.Body4, '#39#39') || ifnull(b.Body5, '#39#39') B' +
+        'ody,'
+      '    b.Body0,'
+      '    b.Body1,'
+      '    b.Body2,'
+      '    b.Body3,'
+      '    b.Body4,'
+      '    b.Body5,'
       '    b.IDBodyKind'
       'from Bodies b'
       'join BodyData bd on bd.IDBody = b.id'

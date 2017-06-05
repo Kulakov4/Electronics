@@ -144,7 +144,7 @@ begin
     // Ищем параметр "по умолчанию" с таким-же табличным именем
     i := QuerySearchMainParameter.Search(ATableName.AsString, True);
     // Если нашли и с другим кодом
-    if (i > 0) and (AID.AsInteger <> QuerySearchMainParameter.PKValue) then
+    if (i > 0) and (AID.AsInteger <> QuerySearchMainParameter.PK.AsInteger) then
     begin
       // Копируем поля в буфер кроме IsCustomParameter
       RH.Attach(ASender, IsCustomParameter.FieldName);
@@ -157,7 +157,7 @@ begin
         FreeAndNil(RH2);
       end;
       // Заполняем идентификатор той записи, которую будем редактировать
-      RH.Field[AID.FieldName] := QuerySearchMainParameter.PKValue;
+      RH.Field[AID.FieldName] := QuerySearchMainParameter.PK.Value;
       // Обновляем имеющуюся запись в БД
       ParametersApplyQuery.UpdateRecord(RH);
       // Обновляем вставленную запись на клиенте
@@ -200,7 +200,7 @@ begin
     // Ищем параметр "по умолчанию" с таким-же табличным именем
     i := QuerySearchMainParameter.Search(ATableName.AsString, True);
     // Если нашли и с другим кодом
-    if (i > 0) and (AID.AsInteger <> QuerySearchMainParameter.PKValue) then
+    if (i > 0) and (AID.AsInteger <> QuerySearchMainParameter.PK.AsInteger) then
     begin
       // Будем копировать из изменившейся записи в имеющуюся
       // Копируем поля в буфер
@@ -218,7 +218,7 @@ begin
       ParametersApplyQuery.DeleteRecord(AID.AsInteger);
 
       // Меняем идентификатор той записи, что сейчас на клиенте
-      AID.AsInteger := QuerySearchMainParameter.PKValue;
+      AID.Value := QuerySearchMainParameter.PK.Value;
       // Помечаем, что мы имеем дело с параметром "по умолчанию"
       AIsCustomParameter.AsBoolean := True;
       // Заплатка.

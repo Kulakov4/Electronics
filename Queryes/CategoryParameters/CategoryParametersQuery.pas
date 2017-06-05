@@ -140,12 +140,12 @@ begin
   // Должна быть выбрана только одна запись
   // Иначе - нарушено ограничение уникальности
   Assert(RefreshQry.FDQuery.RecordCount = 1);
-  Assert(RefreshQry.PKValue > 0);
+  Assert(RefreshQry.PK.AsInteger > 0);
 
   // Заполняем первычный ключ у вставленной записи
 //  if ASender.State in [dsEdit, dsInsert] then
   ASender.Edit;
-  AID.AsInteger := RefreshQry.PKValue;
+  AID.AsInteger := RefreshQry.PK.Value;
   ASender.Post;
 end;
 

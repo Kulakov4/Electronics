@@ -49,7 +49,7 @@ type
     FAfterCommit: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
-    FOldPKValue: Integer;
+    FOldPKValue: Variant;
     FResiveAfterPostMessage: Boolean;
     FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
@@ -90,7 +90,7 @@ type
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
-    property OldPKValue: Integer read FOldPKValue;
+    property OldPKValue: Variant read FOldPKValue;
     property UseAfterPostMessage: Boolean read FUseAfterPostMessage
       write FUseAfterPostMessage;
     { Public declarations }
@@ -250,7 +250,7 @@ procedure TQueryBaseEvents.FDQueryBeforeDelete(DataSet: TDataSet);
 begin
   inherited;
   // Запоминаем удаляемое значение первичного ключа
-  FOldPKValue := PKValue;
+  FOldPKValue := PK.Value;
 
   FBeforeDelete.CallEventHandlers(FDQuery);
 end;

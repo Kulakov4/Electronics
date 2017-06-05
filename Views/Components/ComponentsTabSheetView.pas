@@ -473,7 +473,7 @@ begin
                   begin
                     rc := AQuerySearchDaughterParameter.Search
                       (AStringTreeNode2.value,
-                      AQuerySearchMainParameter.PKValue);
+                      AQuerySearchMainParameter.PK.AsInteger);
                     if rc > 1 then
                     begin
                       AParametricErrorTable.AddErrorMessage
@@ -491,8 +491,8 @@ begin
                       // «апоминаем описание пол€ св€занного с подпараметром
                       AFieldNames.Add
                         (TParametricExcelTable.GetFieldNameByIDParam
-                        (AQuerySearchDaughterParameter.PKValue,
-                        AQuerySearchMainParameter.PKValue))
+                        (AQuerySearchDaughterParameter.PK.Value,
+                        AQuerySearchMainParameter.PK.Value))
                     end;
                   end;
                 end
@@ -501,7 +501,7 @@ begin
                   // ≈сли у нашего параметра нет дочерних параметров
                   // «апоминаем описание пол€ св€занного с параметром
                   AFieldNames.Add(TParametricExcelTable.GetFieldNameByIDParam
-                    (AQuerySearchMainParameter.PKValue, 0));
+                    (AQuerySearchMainParameter.PK.Value, 0));
                 end;
               end
               else

@@ -112,7 +112,6 @@ type
     procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
-    procedure actLoadBodyTypesExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseUpdate(Sender: TObject);
@@ -184,7 +183,7 @@ uses
   ProjectConst, PathSettingsForm, ImportErrorForm, ErrorForm,
   cxGridDBBandedTableView, System.IOUtils, SearchMainParameterQuery,
   ImportProcessForm, SearchDaughterParameterQuery, ProgressInfo,
-  ProgressBarForm, BodyTypesQuery, Vcl.FileCtrl, SearchDescriptionsQuery,
+  ProgressBarForm, Vcl.FileCtrl, SearchDescriptionsQuery,
   SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
   GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
@@ -286,82 +285,6 @@ begin
     FreeAndNil(AViewRecursiveTree);
     FreeAndNil(AQueryRecursiveTree);
   end;
-end;
-
-procedure TfrmMain.actLoadBodyTypesExecute(Sender: TObject);
-var
-  AComponentBodyTypesExcelDM: TComponentBodyTypesExcelDM;
-  AFileName: string;
-  AfrmImportError: TfrmImportError;
-  OK: Boolean;
-begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
-
-  AComponentBodyTypesExcelDM := TComponentBodyTypesExcelDM.Create(Self);
-  try
-    // Этот запрос будет использоваться для поиска корпусов
-    DM.qBodyTypes.RefreshQuery;
-    AComponentBodyTypesExcelDM.BodyTypesDataSet := DM.qBodyTypes.FDQuery;
-
-    // Загружаем данные из excel файла
-    TfrmProgressBar.Process(AComponentBodyTypesExcelDM,
-      procedure
-      begin
-        AComponentBodyTypesExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка корпусных данных', sRows);
-
-    OK := AComponentBodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-      AfrmImportError := TfrmImportError.Create(Self);
-      try
-        AfrmImportError.ErrorTable :=
-          AComponentBodyTypesExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-
-        if OK then
-        begin
-          case AfrmImportError.ContinueType of
-            // Исключаем все ошибки
-            ctAll:
-              AComponentBodyTypesExcelDM.ExcelTable.ExcludeErrors(etError);
-            // Исключаем все ошибки и предупреждения
-            ctSkip:
-              AComponentBodyTypesExcelDM.ExcelTable.ExcludeErrors(etWarring);
-          end;
-        end;
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
-    end;
-
-    if OK then
-    begin
-      // Сохраняем данные в БД
-      TfrmProgressBar.Process(AComponentBodyTypesExcelDM.ExcelTable,
-        procedure
-        begin
-          DM.ComponentsGroup.LoadBodyList
-            (AComponentBodyTypesExcelDM.ExcelTable);
-        end, 'Сохранение корпусных данных в БД', sRecords);
-    end;
-
-  finally
-    FreeAndNil(AComponentBodyTypesExcelDM);
-  end;
-
-  // Обновляем запрос использующийся для поиска в справочнике корпусов
-  DM.qBodyTypes.RefreshQuery;
-
-  DM.ComponentsGroup.ReOpen;
 end;
 
 procedure TfrmMain.actLoadTreeFromExcelDocumentExecute(Sender: TObject);
@@ -823,8 +746,8 @@ begin
   ComponentsFrame.cxtsCategoryComponents.Enabled :=
     not DM.qTreeList.IsRootFocused;
 
-  Assert(DM.qTreeList.PKValue > 0);
-  FCategoryPath := FQuerySearchCategoriesPath.GetFullPath(DM.qTreeList.PKValue);
+  Assert(DM.qTreeList.PK.AsInteger > 0);
+  FCategoryPath := FQuerySearchCategoriesPath.GetFullPath(DM.qTreeList.PK.AsInteger);
 
   UpdateCaption;
 
@@ -877,7 +800,7 @@ begin
   begin
 
     // Нам надо узнать, есть-ли у текущей категории подкатегории
-    rc := TSearchSubCategories.Search(DM.qTreeList.PKValue);
+    rc := TSearchSubCategories.Search(DM.qTreeList.PK.Value);
     // Если у нашей категории есть подкатегории
     if rc > 0 then
       ACategoryPath := DM.qTreeList.value.AsString
@@ -885,7 +808,7 @@ begin
     begin
       // Если в цепочке категорий мы последнее звено
       ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-        (DM.qTreeList.PKValue, 2, '-');
+        (DM.qTreeList.PK.Value, 2, '-');
     end;
 
     // Создаём окно с параметрической таблицей

@@ -54,6 +54,7 @@ inherited BodyTypesGroup: TBodyTypesGroup
       TabOrder = 1
       ExplicitLeft = 320
       ExplicitTop = 1
+      ExplicitWidth = 319
       ExplicitHeight = 80
     end
     inline qProducers: TQueryProducers

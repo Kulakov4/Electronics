@@ -29,7 +29,7 @@ type
         TFDUpdateRowOptions);
     function GetCashedRecordBalance: Integer;
     function GetParentValue: Integer;
-    function GetPKValue: Integer;
+    function GetPK: TField;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -55,9 +55,8 @@ type
     procedure ApplyUpdates; virtual;
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
-    procedure CascadeDelete(const AIDMaster: Integer;
-      const ADetailKeyFieldName: String;
-      AFromClientOnly: Boolean = False); virtual;
+    procedure CascadeDelete(const AIDMaster: Variant; const ADetailKeyFieldName:
+        String; AFromClientOnly: Boolean = False); virtual;
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -92,8 +91,8 @@ type
       write FDetailParameterName;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property ParentValue: Integer read GetParentValue;
+    property PK: TField read GetPK;
     property PKFieldName: String read FPKFieldName;
-    property PKValue: Integer read GetPKValue;
     { Public declarations }
   published
   end;
@@ -230,11 +229,6 @@ begin
 
 end;
 
-function TQueryBase.GetPKValue: Integer;
-begin
-  Result := FDQuery.FieldByName(FPKFieldName).AsInteger;
-end;
-
 procedure TQueryBase.CancelUpdates;
 begin
   // отменяем все сделанные изменения на стороне клиента
@@ -242,8 +236,8 @@ begin
   FDQuery.CancelUpdates;
 end;
 
-procedure TQueryBase.CascadeDelete(const AIDMaster: Integer;
-  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+procedure TQueryBase.CascadeDelete(const AIDMaster: Variant; const
+    ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
 var
   E: TFDUpdateRecordEvent;
 begin
@@ -508,6 +502,11 @@ function TQueryBase.GetParentValue: Integer;
 begin
   Assert(DetailParameterName <> '');
   Result := FDQuery.Params.ParamByName(DetailParameterName).AsInteger;
+end;
+
+function TQueryBase.GetPK: TField;
+begin
+  Result := Field(FPKFieldName);
 end;
 
 procedure TQueryBase.IncUpdateRecCount;

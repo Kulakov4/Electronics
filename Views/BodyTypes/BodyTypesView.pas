@@ -72,6 +72,12 @@ type
     actShowDuplicate: TAction;
     dxBarButton2: TdxBarButton;
     dxBarManagerBar1: TdxBar;
+    clBody0: TcxGridDBBandedColumn;
+    clBody1: TcxGridDBBandedColumn;
+    clBody2: TcxGridDBBandedColumn;
+    clBody3: TcxGridDBBandedColumn;
+    clBody4: TcxGridDBBandedColumn;
+    clBody5: TcxGridDBBandedColumn;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);

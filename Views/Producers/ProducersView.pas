@@ -341,7 +341,7 @@ begin
   ProducersGroup.qProducerTypes.LocateOrAppend(FNewValue);
   FNewValue := '';
 
-  AMasterID := ProducersGroup.qProducerTypes.PKValue;
+  AMasterID := ProducersGroup.qProducerTypes.PK.AsInteger;
   ADetailID := Message.WParam;
 
   // Ищем параметр
@@ -375,8 +375,8 @@ var
 begin
   if not FNewValue.IsEmpty then
   begin
-    ADetailID := ProducersGroup.qProducers.PKValue;
-    AMasterID := ProducersGroup.qProducerTypes.PKValue;
+    ADetailID := ProducersGroup.qProducers.PK.AsInteger;
+    AMasterID := ProducersGroup.qProducerTypes.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
     ProducersGroup.qProducers.ProducerTypeID.AsInteger := AMasterID;

@@ -180,7 +180,7 @@ end;
 
 procedure TQueryOrder.UpdateOrder;
 var
-  APKValue: Integer;
+  APKValue: Variant;
   I: Integer;
   OK: Boolean;
 begin
@@ -191,7 +191,7 @@ begin
 
   FDQuery.DisableControls;
   try
-    APKValue := PKValue;
+    APKValue := PK.Value;
     try
       // Теперь поменяем порядок
       for I := 0 to FRecOrderList.Count - 1 do

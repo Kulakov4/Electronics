@@ -104,7 +104,7 @@ var
 begin
   QueryBodies.LocateOrAppend(Body.Value, IDBodyKind.Value);
   QueryBodyData.LocateOrAppend(BodyData.Value, IDProducer.Value,
-    QueryBodies.PKValue);
+    QueryBodies.PK.Value);
 
   AIDSS := '';
   // Анализируем варианты корпусов
@@ -132,9 +132,9 @@ begin
 
     for I := 0 to L.Count - 1 do
     begin
-      QueryBodyVariations.LocateOrAppend(QueryBodyData.PKValue,
+      QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
         OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString);
-      AID := QueryBodyVariations.PKValue.ToString();
+      AID := QueryBodyVariations.PK.AsString;
       Assert(not AID.IsEmpty);
 
       // Удаляем этот идентификатор из старых
@@ -156,8 +156,15 @@ begin
 
     IDS.Value := AIDSS;
     IDS.NewValue := AIDSS;
-    IDBodyData.Value := QueryBodyData.PKValue;
-    IDBody.Value := QueryBodies.PKValue;
+    Body0.Value := QueryBodies.Body0.Value;
+    Body1.Value := QueryBodies.Body1.Value;
+    Body2.Value := QueryBodies.Body2.Value;
+    Body3.Value := QueryBodies.Body3.Value;
+    Body4.Value := QueryBodies.Body4.Value;
+    Body5.Value := QueryBodies.Body5.Value;
+
+    IDBodyData.Value := QueryBodyData.PK.Value;
+    IDBody.Value := QueryBodies.PK.Value;
 
   finally
     FreeAndNil(L);

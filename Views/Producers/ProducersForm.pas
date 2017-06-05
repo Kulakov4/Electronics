@@ -99,7 +99,7 @@ begin
       Exit;
     end;
 
-    AProducerID := AProducersGroup.qProducers.PKValue;
+    AProducerID := AProducersGroup.qProducers.PK.AsInteger;
     AProducerName := AProducersGroup.qProducers.Name.AsString;
 
     Result := True;

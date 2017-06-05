@@ -18,7 +18,7 @@ type
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
-    procedure DoBeforeDelete(Sender: TObject);
+    procedure DoAfterDelete(Sender: TObject);
     { Private declarations }
   protected
   public
@@ -50,8 +50,9 @@ begin
   TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterPostOrDelete);
   TNotifyEventWrap.Create(qDescriptions.AfterPost, DoAfterPostOrDelete);
   TNotifyEventWrap.Create(qDescriptions.AfterDelete, DoAfterPostOrDelete);
+
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qDescriptionTypes.BeforeDelete, DoBeforeDelete);
+  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterDelete);
 end;
 
 procedure TDescriptionsGroup.Commit;
@@ -65,10 +66,11 @@ begin
   FAfterDataChange.CallEventHandlers(Self);
 end;
 
-procedure TDescriptionsGroup.DoBeforeDelete(Sender: TObject);
+procedure TDescriptionsGroup.DoAfterDelete(Sender: TObject);
 begin
-  // Каскадно удаляем описания
-  qDescriptions.CascadeDelete(qDescriptionTypes.PKValue, qDescriptions.IDComponentType.FieldName);
+  Assert(qDescriptionTypes.OldPKValue > 0);
+  // Каскадно удаляем производителей
+  qDescriptions.CascadeDelete(qDescriptionTypes.OldPKValue, qDescriptions.IDComponentType.FieldName, True);
 end;
 
 procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable:
@@ -98,9 +100,8 @@ begin
         if AField <> nil then
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
-      qDescriptions.IDComponentType.AsInteger :=
-        qDescriptionTypes.PKValue;
-      qDescriptions.IDProducer.AsInteger := qProducers.PKValue;
+      qDescriptions.IDComponentType.Value := qDescriptionTypes.PK.Value;
+      qDescriptions.IDProducer.Value := qProducers.PK.Value;
       qDescriptions.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;

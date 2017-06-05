@@ -115,7 +115,7 @@ begin
   begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
-    APK.AsInteger := QuerySearchFamilyByValue.PKValue;
+    APK.Value := QuerySearchFamilyByValue.PK.Value;
 
     // Заполняем пустые поля значениями с сервера
     ARH := TDBRecord.Fill(ASender, QuerySearchFamilyByValue.FDQuery, PKFieldName);
@@ -292,7 +292,7 @@ begin
     begin
       // Если компонент не находится в этой категории то добавляем его в эту категорию
       QuerySearchComponentCategory.LocateOrAddValue(AIDComponent,
-        QuerySearchCategoryBySubGroup.PKValue);
+        QuerySearchCategoryBySubGroup.PK.Value);
 
       QuerySearchCategoryBySubGroup.FDQuery.Next;
     end;

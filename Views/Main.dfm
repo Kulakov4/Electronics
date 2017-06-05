@@ -50,6 +50,10 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -134,6 +138,10 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -981,7 +989,6 @@ object frmMain: TfrmMain
     object actLoadBodyTypes: TAction
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 25
-      OnExecute = actLoadBodyTypesExecute
     end
     object actExportTreeToExcelDocument: TAction
       Caption = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'

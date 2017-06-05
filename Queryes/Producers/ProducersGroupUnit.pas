@@ -69,7 +69,7 @@ begin
         qProducers.TryAppend;
 
       // Связываем производителя с его типом
-      qProducers.ProducerTypeID.AsInteger := qProducerTypes.PKValue;
+      qProducers.ProducerTypeID.AsInteger := qProducerTypes.PK.AsInteger;
 
       for I := 0 to AProducersExcelTable.FieldCount - 1 do
       begin

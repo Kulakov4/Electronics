@@ -136,7 +136,7 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('Manufacturer', True,
     'Наименование производителя не должно быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('Description', True,
-    'Описание компонента не должно быть пустым'));
+    'Описание компонента не должно быть пустым', False, 3000));
   FieldsInfo.Add(TFieldInfo.Create('ComponentType', True,
     'Тип компонента не должен быть пустым'));
 end;

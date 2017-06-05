@@ -337,11 +337,11 @@ end;
 
 procedure TViewParameters.actFilterByTableNameExecute(Sender: TObject);
 var
-  AID: Integer;
+  AID: Variant;
   S: string;
 begin
   actFilterByTableName.Checked := not actFilterByTableName.Checked;
-  AID := ParametersGroup.qMainParameters.PKValue;
+  AID := ParametersGroup.qMainParameters.PK.Value;
 
   S := IfThen(actFilterByTableName.Checked,
     ParametersGroup.qMainParameters.TableName.AsString, '');
@@ -459,10 +459,10 @@ end;
 
 procedure TViewParameters.actShowDuplicateExecute(Sender: TObject);
 var
-  AID: Integer;
+  AID: Variant;
   d: Boolean;
 begin
-  AID := ParametersGroup.qMainParameters.PKValue;
+  AID := ParametersGroup.qMainParameters.PK.Value;
 
   d := not ParametersGroup.qMainParameters.ShowDuplicate;
   actShowDuplicate.Checked := d;
@@ -500,7 +500,7 @@ begin
   FParametersGroup.qParameterTypes.LocateOrAppend(FNewValue);
   FNewValue := '';
 
-  AMasterID := FParametersGroup.qParameterTypes.PKValue;
+  AMasterID := FParametersGroup.qParameterTypes.PK.AsInteger;
   ADetailID := Message.WParam;
 
   // Ищем параметр
@@ -535,8 +535,8 @@ var
 begin
   if not FNewValue.IsEmpty then
   begin
-    ADetailID := FParametersGroup.qMainParameters.PKValue;
-    AMasterID := FParametersGroup.qParameterTypes.PKValue;
+    ADetailID := FParametersGroup.qMainParameters.PK.AsInteger;
+    AMasterID := FParametersGroup.qParameterTypes.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
     FParametersGroup.qMainParameters.IDParameterType.AsInteger := AMasterID;

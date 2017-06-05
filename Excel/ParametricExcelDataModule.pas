@@ -81,7 +81,7 @@ begin
 
   if Result then
   begin
-    IDComponent.AsInteger := QuerySearchComponent.PKValue;
+    IDComponent.AsInteger := QuerySearchComponent.PK.AsInteger;
     IDParentComponent.AsInteger := QuerySearchComponent.ParentProductID.AsInteger;
   end
   else

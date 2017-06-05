@@ -9,7 +9,7 @@ uses
   TreeListQuery, ChildCategoriesQuery, BodyTypesGroupUnit,
   DescriptionsGroupUnit, ProducersQuery, ParametersGroupUnit,
   ComponentsExGroupUnit, System.Contnrs, System.Generics.Collections,
-  ComponentsGroupUnit, BodyTypesQuery, ComponentsSearchGroupUnit,
+  ComponentsGroupUnit, ComponentsSearchGroupUnit,
   ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
   ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
   QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
@@ -22,7 +22,6 @@ type
     qTreeList: TQueryTreeList;
     qChildCategories: TQueryChildCategories;
     qProductsSearch: TQueryProductsSearch;
-    qBodyTypes: TQueryBodyTypes;
     qStoreHouseList: TQueryStoreHouseList;
     StoreHouseGroup: TStoreHouseGroup;
     ComponentsSearchGroup: TComponentsSearchGroup;
@@ -103,8 +102,6 @@ begin
     Add(ParametersForCategoriesGroup.qParametersDetail);
     // вкладка параметры - список параметров
     Add(qCategoryParameters);
-
-    Add(qBodyTypes); // Выпадающий список корпусов
   end;
 
   // Для выпадающего списка складов
@@ -112,11 +109,8 @@ begin
 
   // Для компонентов указываем откуда брать производителя и корпус
   ComponentsGroup.Producers := ProducersGroup.qProducers;
-  ComponentsGroup.BodyTypes := qBodyTypes;
   ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
-  ComponentsSearchGroup.BodyTypes := qBodyTypes;
   ComponentsExGroup.Producers := ProducersGroup.qProducers;
-  ComponentsExGroup.BodyTypes := qBodyTypes;
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;

@@ -85,7 +85,7 @@ begin
     TableName.AsString := ATableName;
     IsCustomParameter.AsBoolean := AIsCustomParameter;
     TryPost;
-    Assert(PKValue > 0);
+    Assert(PK.AsInteger > 0);
   end;
 end;
 

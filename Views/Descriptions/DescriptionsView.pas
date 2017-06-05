@@ -380,7 +380,7 @@ begin
   DescriptionsGroup.qDescriptionTypes.LocateOrAppend(FNewValue);
   FNewValue := '';
 
-  AMasterID := DescriptionsGroup.qDescriptionTypes.PKValue;
+  AMasterID := DescriptionsGroup.qDescriptionTypes.PK.AsInteger;
   ADetailID := Message.WParam;
 
   // Ищем параметр
@@ -414,8 +414,8 @@ var
 begin
   if not FNewValue.IsEmpty then
   begin
-    ADetailID := DescriptionsGroup.qDescriptions.PKValue;
-    AMasterID := DescriptionsGroup.qDescriptionTypes.PKValue;
+    ADetailID := DescriptionsGroup.qDescriptions.PK.AsInteger;
+    AMasterID := DescriptionsGroup.qDescriptionTypes.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
     DescriptionsGroup.qDescriptions.IDComponentType.AsInteger := AMasterID;

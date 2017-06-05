@@ -147,7 +147,7 @@ var
   OK: Boolean;
 begin
   // Если проверяем текущую запись
-  if PKValue = APKValue then
+  if PK.Value = APKValue then
     AFDDataSet := FDQuery
   else
   begin

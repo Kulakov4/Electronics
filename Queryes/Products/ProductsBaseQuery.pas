@@ -123,12 +123,12 @@ procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
 var
   AProductID: TField;
 begin
-  Assert(PKValue > 0);
+  Assert(PK.Value > 0);
 
   AProductID := ASender.FieldByName(ProductID.FieldName);
 
   // Удаляем продукт со склада. Сам продукт не удаляем.
-  qStoreHouseProducts.DeleteRecord(PKValue);
+  qStoreHouseProducts.DeleteRecord(PK.Value);
 
   // Если подобных продуктов на складе больше нет
   if QuerySearchStorehouseProductByID.Search(AProductID.AsInteger) = 0 then
@@ -180,7 +180,7 @@ begin
       QueryProducers.LocateOrAppend
         (QuerySearchDaughterComponent.Producer.AsString);
       // Заполняем производителя
-      AIDProducer.AsInteger := QueryProducers.PKValue;
+      AIDProducer.AsInteger := QueryProducers.PK.Value;
     end;
   end;
 
@@ -246,8 +246,8 @@ begin
     begin
       // Если такой продукт уже есть
       // Запоминаем найденный первичный ключ
-      ARH.Field[ProductID.FieldName] := QuerySearchProduct.PKValue;
-      AProductID.AsInteger := QuerySearchProduct.PKValue;
+      ARH.Field[ProductID.FieldName] := QuerySearchProduct.PK.Value;
+      AProductID.AsInteger := QuerySearchProduct.PK.Value;
 
       // Запоминаем поля семейства компонента
       ARH2 := TRecordHolder.Create(QuerySearchProduct.FDQuery);

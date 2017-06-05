@@ -89,7 +89,7 @@ begin
         AField.Value := AExcelField.Value;
     end;
     // Дополнительно заполняем
-    IDProducer.AsInteger := QueryProducers.PKValue;
+    IDProducer.AsInteger := QueryProducers.PK.Value;
     FDQuery.Post;
 
     AExcelTable.Next;
@@ -116,7 +116,7 @@ begin
 
     TryAppend;
     Value.AsString := AValues[i];
-    IDProducer.AsInteger := QueryProducers.PKValue;
+    IDProducer.AsInteger := QueryProducers.PK.Value;
     TryPost;
   end;
 end;

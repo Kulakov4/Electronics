@@ -58,7 +58,8 @@ type
     procedure Commit; override;
     procedure InsertRecordList(AComponentsExcelTable: TComponentsExcelTable;
       const AProducer: string);
-    procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
+// TODO: LoadBodyList
+//  procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
       AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
       const AProducer: String);
@@ -69,7 +70,7 @@ type
 implementation
 
 uses System.Types, System.StrUtils, RepositoryDataModule, BodyTypesQuery2,
-  BodyTypesQuery, ErrorTable, TreeListQuery, System.IOUtils, StrHelper;
+  ErrorTable, TreeListQuery, System.IOUtils, StrHelper;
 
 {$R *.dfm}
 { TfrmComponentsMasterDetail }
@@ -117,9 +118,9 @@ end;
 procedure TComponentsGroup.DoBeforeDetailPost(Sender: TObject);
 begin
   Assert(qFamily.FDQuery.RecordCount > 0);
-  if qComponents.FDQuery.FieldByName('ParentProductId').IsNull then
-    qComponents.FDQuery.FieldByName('ParentProductId').AsInteger :=
-      qFamily.PKValue;
+
+  if qComponents.ParentProductID.IsNull then
+    qComponents.ParentProductID.Value := qFamily.PK.Value;
 end;
 
 function TComponentsGroup.GetQueryComponentsCount: TQueryComponentsCount;
@@ -219,7 +220,7 @@ begin
           // Добавляем дочерний компонент
           if not AComponentsExcelTable.ComponentName.AsString.IsEmpty then
           begin
-            qComponents.LocateOrAppend(qFamily.PKValue,
+            qComponents.LocateOrAppend(qFamily.PK.Value,
               AComponentsExcelTable.ComponentName.AsString);
           end;
 
@@ -244,48 +245,49 @@ begin
   end;
 end;
 
-procedure TComponentsGroup.LoadBodyList(AExcelTable
-  : TComponentBodyTypesExcelTable);
-var
-  AIDBodyType: Integer;
-  AIDComponent: Integer;
-  AQueryBodyTypes: TQueryBodyTypes;
-begin
-  if AExcelTable.RecordCount = 0 then
-    Exit;
-
-  AQueryBodyTypes := TQueryBodyTypes.Create(Self);
-  try
-    AQueryBodyTypes.FDQuery.Open;
-
-    AExcelTable.First;
-    AExcelTable.CallOnProcessEvent;
-    while not AExcelTable.Eof do
-    begin
-      AIDComponent := AExcelTable.IDComponent.AsInteger;
-      Assert(AIDComponent <> 0);
-
-      // Если неизвестный тип корпуса
-      if AExcelTable.IDBodyType.IsNull then
-      begin
-        AQueryBodyTypes.LocateOrAppend(AExcelTable.BodyType.AsString);
-        AIDBodyType := AQueryBodyTypes.PKValue;
-      end
-      else
-        AIDBodyType := AExcelTable.IDBodyType.AsInteger;
-
-      fdqUpdateBody.ParamByName('ID').AsInteger := AIDComponent;
-      fdqUpdateBody.ParamByName('BodyID').AsInteger := AIDBodyType;
-      fdqUpdateBody.ExecSQL;
-
-      AExcelTable.Next;
-      AExcelTable.CallOnProcessEvent;
-    end;
-  finally
-    FreeAndNil(AQueryBodyTypes);
-  end;
-
-end;
+// TODO: LoadBodyList
+//procedure TComponentsGroup.LoadBodyList(AExcelTable
+//: TComponentBodyTypesExcelTable);
+//var
+//AIDBodyType: Integer;
+//AIDComponent: Integer;
+//AQueryBodyTypes: TQueryBodyTypes;
+//begin
+//if AExcelTable.RecordCount = 0 then
+//  Exit;
+//
+//AQueryBodyTypes := TQueryBodyTypes.Create(Self);
+//try
+//  AQueryBodyTypes.FDQuery.Open;
+//
+//  AExcelTable.First;
+//  AExcelTable.CallOnProcessEvent;
+//  while not AExcelTable.Eof do
+//  begin
+//    AIDComponent := AExcelTable.IDComponent.AsInteger;
+//    Assert(AIDComponent <> 0);
+//
+//    // Если неизвестный тип корпуса
+//    if AExcelTable.IDBodyType.IsNull then
+//    begin
+//      AQueryBodyTypes.LocateOrAppend(AExcelTable.BodyType.AsString);
+//      AIDBodyType := AQueryBodyTypes.PKValue;
+//    end
+//    else
+//      AIDBodyType := AExcelTable.IDBodyType.AsInteger;
+//
+//    fdqUpdateBody.ParamByName('ID').AsInteger := AIDComponent;
+//    fdqUpdateBody.ParamByName('BodyID').AsInteger := AIDBodyType;
+//    fdqUpdateBody.ExecSQL;
+//
+//    AExcelTable.Next;
+//    AExcelTable.CallOnProcessEvent;
+//  end;
+//finally
+//  FreeAndNil(AQueryBodyTypes);
+//end;
+//
+//end;
 
 procedure TComponentsGroup.LoadFromExcelFolder(AFileNames: TList<String>;
   AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
@@ -349,8 +351,8 @@ begin
           AQueryTreeList.Value.AsString, 'Идёт обработка этого файла...', '');
 
         // загружаем компоненты из нужной нам категории
-        qComponents.Load(AQueryTreeList.PKValue);
-        qFamily.Load(AQueryTreeList.PKValue);
+        qComponents.Load(AQueryTreeList.PK.Value);
+        qFamily.Load(AQueryTreeList.PK.Value);
 
         AutomaticLoadErrorTable.LocateOrAppendData(AFileName,
           AQueryTreeList.Value.AsString, 'Загружаем данные из файла...', '');
@@ -433,8 +435,8 @@ begin
   end;
 
   // загружаем компоненты из нужной нам категории
-  qComponents.Load(qComponents.Master.PKValue);
-  qFamily.Load(qComponents.Master.PKValue);
+  qComponents.Load(qComponents.Master.PK.Value);
+  qFamily.Load(qComponents.Master.PK.Value);
 
 end;
 

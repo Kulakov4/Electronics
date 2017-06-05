@@ -8,7 +8,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, Data.DB,
   System.Generics.Collections, NotifyEvents, FireDAC.Comp.DataSet,
   ProducersQuery, BodyTypesQuery2, ExcelDataModule, CustomErrorTable,
-  DocFieldInfo, BodyTypesQuery, CustomComponentsQuery, ProcRefUnit,
+  DocFieldInfo, CustomComponentsQuery, ProcRefUnit,
   TableWithProgress, BaseComponentsQuery, BaseFamilyQuery, QueryGroupUnit;
 
 type
@@ -17,7 +17,6 @@ type
   private
     FAfterApplyUpdates: TNotifyEventsEx;
     FFullDeleted: TList<Integer>;
-    FBodyTypes: TQueryBodyTypes;
     FProducers: TQueryProducers;
     function GetQueryBaseComponents: TQueryBaseComponents;
     function GetQueryBaseFamily: TQueryBaseFamily;
@@ -32,7 +31,6 @@ type
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterApplyUpdates: TNotifyEventsEx read FAfterApplyUpdates;
-    property BodyTypes: TQueryBodyTypes read FBodyTypes write FBodyTypes;
     property FullDeleted: TList<Integer> read FFullDeleted;
     property QueryBaseComponents: TQueryBaseComponents read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;

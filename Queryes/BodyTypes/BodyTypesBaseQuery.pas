@@ -26,6 +26,12 @@ type
     FMessagePosted: Boolean;
     procedure DoAfterOpen(Sender: TObject);
     function GetBody: TField;
+    function GetBody0: TField;
+    function GetBody1: TField;
+    function GetBody2: TField;
+    function GetBody3: TField;
+    function GetBody4: TField;
+    function GetBody5: TField;
     function GetBodyData: TField;
     function GetIDBody: TField;
     function GetIDBodyData: TField;
@@ -52,11 +58,16 @@ type
       read GetQueryBodyVariations;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CascadeDelete(const AIDMaster: Integer;
-      const ADetailKeyFieldName: String;
-      AFromClientOnly: Boolean = False); override;
+    procedure CascadeDelete(const AIDMaster: Variant; const ADetailKeyFieldName:
+        String; AFromClientOnly: Boolean = False); override;
     procedure RefreshLinkedData;
     property Body: TField read GetBody;
+    property Body0: TField read GetBody0;
+    property Body1: TField read GetBody1;
+    property Body2: TField read GetBody2;
+    property Body3: TField read GetBody3;
+    property Body4: TField read GetBody4;
+    property Body5: TField read GetBody5;
     property BodyData: TField read GetBodyData;
     property IDBody: TField read GetIDBody;
     property IDBodyData: TField read GetIDBodyData;
@@ -89,8 +100,8 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Integer;
-  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Variant; const
+    ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
 begin
   inherited;
 
@@ -150,6 +161,36 @@ end;
 function TQueryBodyTypesBase.GetBody: TField;
 begin
   Result := Field('Body');
+end;
+
+function TQueryBodyTypesBase.GetBody0: TField;
+begin
+  Result := Field('Body0');
+end;
+
+function TQueryBodyTypesBase.GetBody1: TField;
+begin
+  Result := Field('Body1');
+end;
+
+function TQueryBodyTypesBase.GetBody2: TField;
+begin
+  Result := Field('Body2');
+end;
+
+function TQueryBodyTypesBase.GetBody3: TField;
+begin
+  Result := Field('Body3');
+end;
+
+function TQueryBodyTypesBase.GetBody4: TField;
+begin
+  Result := Field('Body4');
+end;
+
+function TQueryBodyTypesBase.GetBody5: TField;
+begin
+  Result := Field('Body5');
 end;
 
 function TQueryBodyTypesBase.GetBodyData: TField;

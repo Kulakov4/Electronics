@@ -28,18 +28,14 @@ implementation
 {$R *.dfm}
 
 procedure TQueryBodyTypesSimple.ApplyDelete(ASender: TDataSet);
-var
-  AID: Integer;
 begin
   Assert(ASender = FDQuery);
-  AID := PKValue;
 
   // Удаляем вариант корпуса
-  QueryBodyVariations.LocateByPKAndDelete(AID);
+  QueryBodyVariations.LocateByPKAndDelete(PK.Value);
 
   // Удаляем неиспользуемые корпуса
   DropUnusedBodies;
-
 end;
 
 procedure TQueryBodyTypesSimple.ApplyInsert(ASender: TDataSet);
@@ -55,17 +51,24 @@ var
 begin
   QueryBodies.LocateOrAppend(Body.Value, IDBodyKind.Value);
   QueryBodyData.LocateOrAppend(BodyData.Value, IDProducer.Value,
-    QueryBodies.PKValue);
+    QueryBodies.PK.Value);
 
-  QueryBodyVariations.LocateOrAppend(QueryBodyData.PKValue,
+  QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
     OutlineDrawing.AsString, LandPattern.AsString, Variations.AsString,
     Image.AsString);
-  AID := QueryBodyVariations.PKValue;
+  AID := QueryBodyVariations.PK.Value;
   Assert(AID > 0);
 
   IDS.Value := AID;
-  IDBodyData.Value := QueryBodyData.PKValue;
-  IDBody.Value := QueryBodies.PKValue;
+  Body0.Value := QueryBodies.Body0.Value;
+  Body1.Value := QueryBodies.Body1.Value;
+  Body2.Value := QueryBodies.Body2.Value;
+  Body3.Value := QueryBodies.Body3.Value;
+  Body4.Value := QueryBodies.Body4.Value;
+  Body5.Value := QueryBodies.Body5.Value;
+
+  IDBodyData.Value := QueryBodyData.PK.Value;
+  IDBody.Value := QueryBodies.PK.Value;
 end;
 
 procedure TQueryBodyTypesSimple.ApplyUpdate(ASender: TDataSet);

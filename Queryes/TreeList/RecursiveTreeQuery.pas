@@ -138,7 +138,7 @@ end;
 
 procedure TQueryRecursiveTree.LoadRecords(ATreeExcelTable: TTreeExcelTable);
 var
-  AParentID: Integer;
+  AParentID: Variant;
   OK: Boolean;
 begin
 //  DeleteAll;
@@ -175,7 +175,7 @@ begin
           // »щем родительскую запись по внешнему идентификатору
           OK := LocateByExternalID(ATreeExcelTable.ParentExternalID.AsString);
           Assert(OK);
-          AParentID := PKValue;
+          AParentID := PK.Value;
 
           TryAppend;
           ExternalID.AsString := ATreeExcelTable.ExternalID.AsString;

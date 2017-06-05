@@ -24,7 +24,6 @@ uses
   ExcelDataModule in 'Excel\ExcelDataModule.pas' {ExcelDM: TDataModule},
   BodyTypesExcelDataModule in 'Excel\BodyTypesExcelDataModule.pas' {BodyTypesExcelDM: TDataModule},
   BodyKindsQuery in 'Queryes\BodyTypes\BodyKindsQuery.pas' {QueryBodyKinds: TFrame},
-  BodyTypesQuery in 'Queryes\BodyTypes\BodyTypesQuery.pas' {QueryBodyTypes: TFrame},
   ApplyQueryFrame in 'Queryes\ApplyQuery\ApplyQueryFrame.pas' {frmApplyQuery: TFrame},
   BodyTypesQuery2 in 'Queryes\BodyTypes\BodyTypesQuery2.pas' {QueryBodyTypes2: TFrame},
   BodyTypesGridQuery in 'Queryes\BodyTypes\BodyTypesGridQuery.pas' {QueryBodyTypesGrid: TFrame},

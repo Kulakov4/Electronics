@@ -92,7 +92,7 @@ end;
 procedure TParametersGroup.DoBeforeDelete(Sender: TObject);
 begin
   // Каскадно удаляем параметры
-  qMainParameters.CascadeDelete(qParameterTypes.PKValue,
+  qMainParameters.CascadeDelete(qParameterTypes.PK.Value,
     qMainParameters.IDParameterType.FieldName);
 end;
 
@@ -154,7 +154,7 @@ begin
           end;
         end;
 
-        qMainParameters.IDParameterType.AsInteger := qParameterTypes.PKValue;
+        qMainParameters.IDParameterType.AsInteger := qParameterTypes.PK.AsInteger;
         qMainParameters.FDQuery.Post;
       except
         qMainParameters.FDQuery.Cancel;

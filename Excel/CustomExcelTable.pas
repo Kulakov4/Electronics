@@ -140,7 +140,7 @@ begin
   // Сначала создаём все поля из Excel файла
   for AFieldInfo in FFieldsInfo do
   begin
-    FieldDefs.Add(AFieldInfo.FieldName, ftWideString, 1000);
+    FieldDefs.Add(AFieldInfo.FieldName, ftWideString, AFieldInfo.Size);
   end;
   FieldDefs.Add('ExcelRow', ftInteger, 0, True); // Обяз. для заполнения
   FieldDefs.Add('ErrorType', ftInteger);

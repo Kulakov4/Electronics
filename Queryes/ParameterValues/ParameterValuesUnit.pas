@@ -59,7 +59,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sPackagePinsParamTableName, True);
-    FPackagePinsParameterID := QuerySearchMainParameter.PKValue;
+    FPackagePinsParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FPackagePinsParameterID;
@@ -72,7 +72,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sDatasheetParamTableName, True);
-    FDatasheetParameterID := QuerySearchMainParameter.PKValue;
+    FDatasheetParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FDatasheetParameterID;
@@ -85,7 +85,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sDiagramParamTableName, True);
-    FDiagramParameterID := QuerySearchMainParameter.PKValue;
+    FDiagramParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FDiagramParameterID;
@@ -98,7 +98,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sDrawingParamTableName, True);
-    FDrawingParameterID := QuerySearchMainParameter.PKValue;
+    FDrawingParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FDrawingParameterID;
@@ -111,7 +111,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sProducerParamTableName, True);
-    FProducerParameterID := QuerySearchMainParameter.PKValue;
+    FProducerParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FProducerParameterID;
@@ -124,7 +124,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sImageParamTableName, True);
-    FImageParameterID := QuerySearchMainParameter.PKValue;
+    FImageParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FImageParameterID;
@@ -137,7 +137,7 @@ begin
   begin
     // »щем параметр либо добавл€ем его
     QuerySearchMainParameter.SearchOrAppend(sDescriptionParamTableName, True);
-    FDescriptionParameterID := QuerySearchMainParameter.PKValue;
+    FDescriptionParameterID := QuerySearchMainParameter.PK.AsInteger;
   end;
 
   Result := FDescriptionParameterID;
