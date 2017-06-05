@@ -23,9 +23,12 @@ inherited ViewBodyTypes: TViewBodyTypes
         end>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
+      OptionsBehavior.CellHints = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -34,6 +37,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clBodyKind: TcxGridDBBandedColumn
         Caption = #1058#1080#1087' '#1082#1086#1088#1087#1091#1089#1072
         DataBinding.FieldName = 'BodyKind'
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
@@ -41,6 +46,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clOrd: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
         Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 0
         SortOrder = soAscending
         VisibleForCustomization = False
@@ -64,18 +71,24 @@ inherited ViewBodyTypes: TViewBodyTypes
           Column = clBody
         end>
       DataController.Summary.SummaryGroups = <>
+      OptionsBehavior.CellHints = True
       OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
       OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
+      Styles.OnGetHeaderStyle = cxGridDBBandedTableView2StylesGetHeaderStyle
+      OnColumnHeaderClick = cxGridDBBandedTableView2ColumnHeaderClick
+      OnCustomDrawColumnHeader = cxGridDBBandedTableView2CustomDrawColumnHeader
       Bands = <
         item
         end>
       object clIDS: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDS'
         Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -84,6 +97,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clIDBodyData: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDBodyData'
         Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
@@ -92,6 +107,10 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clBody: TcxGridDBBandedColumn
         Caption = #1050#1086#1088#1087#1091#1089
         DataBinding.FieldName = 'Body'
+        Options.Sorting = False
+        Options.VertSizing = False
+        SortIndex = 0
+        SortOrder = soAscending
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -99,6 +118,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clBodyData: TcxGridDBBandedColumn
         Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
         DataBinding.FieldName = 'BodyData'
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 3
         Position.RowIndex = 0
@@ -114,6 +135,8 @@ inherited ViewBodyTypes: TViewBodyTypes
             Kind = bkEllipsis
           end>
         OnGetDataText = clOutlineDrawingGetDataText
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
@@ -129,6 +152,8 @@ inherited ViewBodyTypes: TViewBodyTypes
             Kind = bkEllipsis
           end>
         OnGetDataText = clOutlineDrawingGetDataText
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 5
         Position.RowIndex = 0
@@ -136,6 +161,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clVariations: TcxGridDBBandedColumn
         Caption = #1042#1072#1088#1080#1072#1085#1090#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
         DataBinding.FieldName = 'Variations'
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 6
         Position.RowIndex = 0
@@ -151,6 +178,8 @@ inherited ViewBodyTypes: TViewBodyTypes
             Kind = bkEllipsis
           end>
         OnGetDataText = clOutlineDrawingGetDataText
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 7
         Position.RowIndex = 0
@@ -158,6 +187,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clIDBody: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDBody'
         Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 8
@@ -167,6 +198,8 @@ inherited ViewBodyTypes: TViewBodyTypes
         Caption = #1058#1080#1087
         DataBinding.FieldName = 'IDBodyKind'
         Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 9
@@ -175,6 +208,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clIDProducer: TcxGridDBBandedColumn
         Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
         DataBinding.FieldName = 'IDProducer'
+        Options.Sorting = False
+        Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 10
         Position.RowIndex = 0

@@ -63,6 +63,7 @@ inherited ViewProducers: TViewProducers
       OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
+      Styles.OnGetHeaderStyle = cxGridDBBandedTableView2StylesGetHeaderStyle
       Bands = <
         item
         end>
@@ -80,6 +81,8 @@ inherited ViewProducers: TViewProducers
         DataBinding.FieldName = 'Name'
         BestFitMaxWidth = 350
         MinWidth = 100
+        SortIndex = 0
+        SortOrder = soAscending
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0

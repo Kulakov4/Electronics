@@ -89,6 +89,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Order'
+        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False
@@ -97,6 +98,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.VertSizing = False
         SortIndex = 1
         SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 6
         Position.RowIndex = 0

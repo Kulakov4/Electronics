@@ -86,6 +86,11 @@ type
     procedure actShowDuplicateExecute(Sender: TObject);
     procedure clOutlineDrawingGetDataText(Sender: TcxCustomGridTableItem;
         ARecordIndex: Integer; var AText: string);
+    procedure cxGridDBBandedTableView2ColumnHeaderClick(Sender: TcxGridTableView;
+        AColumn: TcxGridColumn);
+    procedure cxGridDBBandedTableView2CustomDrawColumnHeader(Sender:
+        TcxGridTableView; ACanvas: TcxCanvas; AViewInfo:
+        TcxGridColumnHeaderViewInfo; var ADone: Boolean);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure cxGridDBBandedTableView2EditKeyDown
@@ -106,6 +111,8 @@ type
       X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
+    procedure cxGridDBBandedTableView2StylesGetHeaderStyle(
+      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -132,7 +139,7 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
   System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2,
-  BodyTypesSimpleQuery, ProducersForm;
+  BodyTypesSimpleQuery, ProducersForm, dxCore;
 
 {$R *.dfm}
 
@@ -494,6 +501,60 @@ begin
     dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
 end;
 
+procedure TViewBodyTypes.cxGridDBBandedTableView2ColumnHeaderClick(Sender:
+    TcxGridTableView; AColumn: TcxGridColumn);
+var
+  ASortOrder: TdxSortOrder;
+  AView: TcxGridDBBandedTableView;
+  Col: TcxGridDBBandedColumn;
+  Col2: TcxGridDBBandedColumn;
+  S: string;
+begin
+  inherited;
+
+  Col := AColumn as TcxGridDBBandedColumn;
+  AView := Sender as TcxGridDBBandedTableView;
+
+  S := String.Format(',%s,%s,', [clIDProducer.DataBinding.FieldName,
+    clBody.DataBinding.FieldName]);
+
+  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
+    Exit;
+
+  if (Col.SortOrder = soAscending) and (Col.SortIndex = 0) then
+    ASortOrder := soDescending
+  else
+    ASortOrder := soAscending;
+
+  AView.BeginSortingUpdate;
+  try
+    // Очистили сортировку
+    ClearSort(AView);
+
+    // В первую очередь отсортировали по этому столбцу
+    Col.SortOrder := ASortOrder;
+
+    // Щёлкнули по производителю
+    if Col.DataBinding.FieldName = clIDProducer.DataBinding.FieldName then
+    begin
+      // Во вторую очередь по названию компонента
+      Col2 := AView.GetColumnByFieldName(clBody.DataBinding.FieldName);
+      Col2.SortOrder := ASortOrder;
+    end;
+  finally
+    AView.EndSortingUpdate;
+  end;
+
+end;
+
+procedure TViewBodyTypes.cxGridDBBandedTableView2CustomDrawColumnHeader(Sender:
+    TcxGridTableView; ACanvas: TcxCanvas; AViewInfo:
+    TcxGridColumnHeaderViewInfo; var ADone: Boolean);
+begin
+  inherited;
+  DoOnCustomDrawColumnHeader(AViewInfo, ACanvas);
+end;
+
 procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
@@ -516,6 +577,13 @@ Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TViewBodyTypes.cxGridDBBandedTableView2StylesGetHeaderStyle(
+  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+begin
+  inherited;
+  DoOnGetHeaderStyle(AColumn, AStyle);
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded

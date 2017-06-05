@@ -15,6 +15,8 @@ type
     qProducers: TQueryProducers;
   private
     { Private declarations }
+  protected
+    procedure DoAfterDelete(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     procedure InsertRecordList(AProducersExcelTable: TProducersExcelTable);
@@ -25,13 +27,23 @@ implementation
 
 {$R *.dfm}
 
-uses Data.DB;
+uses Data.DB, NotifyEvents;
 
 constructor TProducersGroup.Create(AOwner: TComponent);
 begin
   inherited;
   Main := qProducerTypes;
   Detail := qProducers;
+
+  // Для каскадного удаления
+  TNotifyEventWrap.Create(qProducerTypes.AfterDelete, DoAfterDelete);
+end;
+
+procedure TProducersGroup.DoAfterDelete(Sender: TObject);
+begin
+  Assert(qProducerTypes.OldPKValue > 0);
+  // Каскадно удаляем производителей
+  qProducers.CascadeDelete(qProducerTypes.OldPKValue, qProducers.ProducerTypeID.FieldName, True);
 end;
 
 procedure TProducersGroup.InsertRecordList(AProducersExcelTable:

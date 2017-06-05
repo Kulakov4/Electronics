@@ -84,6 +84,8 @@ type
         TDragObject);
     procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
       ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridDBBandedTableView2StylesGetHeaderStyle(
+      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
@@ -122,7 +124,7 @@ implementation
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
   ProducersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
   SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
-  SearchParameterValues, cxDropDownEdit;
+  SearchParameterValues, cxDropDownEdit, DialogUnit2;
 
 constructor TViewProducers.Create(AOwner: TComponent);
 begin
@@ -228,11 +230,14 @@ begin
   if AFileName = '' then
     Exit;
 
-  ExportViewToExcel(MainView, AFileName,
+  ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
     procedure(AView: TcxGridDBBandedTableView)
+    var
+      AColumn: TcxGridDBBandedColumn;
     begin
-      AView.GetColumnByFieldName(ProducersGroup.qProducers.Cnt.FieldName)
-        .Visible := false;
+      AColumn := AView.GetColumnByFieldName(ProducersGroup.qProducers.Cnt.FieldName);
+      if AColumn <> nil then
+        AColumn.Visible := false;
     end);
 end;
 
@@ -243,14 +248,8 @@ var
   AfrmImportError: TfrmImportError;
   OK: Boolean;
 begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+    Exit;
 
   AProducersExcelDM := TProducersExcelDM.Create(Self);
   try
@@ -411,6 +410,13 @@ begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
+end;
+
+procedure TViewProducers.cxGridDBBandedTableView2StylesGetHeaderStyle(
+  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+begin
+  inherited;
+  DoOnGetHeaderStyle(AColumn, AStyle);
 end;
 
 procedure TViewProducers.cxGridDBBandedTableViewDataControllerDetailExpanded(

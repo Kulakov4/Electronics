@@ -98,7 +98,7 @@ begin
   // Создаём индекс
   AFDIndex := FDMemTable.Indexes.Add;
   AFDIndex.Fields := 'Name';
-  AFDIndex.Name := 'idxManufacturersName';
+  AFDIndex.Name := 'idxProducersName';
   AFDIndex.Active := True;
   FDMemTable.IndexName := AFDIndex.Name;
 end;
