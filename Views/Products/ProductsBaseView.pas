@@ -28,7 +28,7 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox, cxLabel, SearchParameterValues;
+  cxDBLookupComboBox, cxLabel, SearchParameterValues, GridSort;
 
 type
   TViewProductsBase = class(TfrmGrid)
@@ -104,6 +104,7 @@ type
     property QuerySearchParameterValues: TQuerySearchParameterValues
       read GetQuerySearchParameterValues;
   public
+    constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
     property QueryProductsBase: TQueryProductsBase read FQueryProductsBase
@@ -117,6 +118,19 @@ implementation
 
 uses System.IOUtils, Winapi.ShellAPI, DialogUnit, SettingsController,
   ParameterValuesUnit, cxDropDownEdit, RepositoryDataModule, cxGridExportLink;
+
+constructor TViewProductsBase.Create(AOwner: TComponent);
+begin
+  inherited;
+  // Если щёлкнули по группе компонентов
+  GridSort.Add(TSortVariant.Create( clSubgroup, [clSubgroup] ));
+
+  // Если щёлкнули по производителю
+  GridSort.Add(TSortVariant.Create( clProducer, [clSubgroup, clProducer]));
+
+  // Если щёлкнули по наименованию
+  GridSort.Add(TSortVariant.Create( clValue, [clSubgroup, clValue]));
+end;
 
 procedure TViewProductsBase.actCommitExecute(Sender: TObject);
 begin
@@ -270,53 +284,10 @@ end;
 
 procedure TViewProductsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
     TcxGridTableView; AColumn: TcxGridColumn);
-var
-  AView: TcxGridDBBandedTableView;
-  Col: TcxGridDBBandedColumn;
-  S: string;
-
 begin
   inherited;
 
-  Col := AColumn as TcxGridDBBandedColumn;
-  AView := Sender as TcxGridDBBandedTableView;
-
-  // Разрешаем сортировку только по группе компонентов, наименованию или производителю
-
-  S := String.Format(',%s,%s,%s,', [clSubgroup.DataBinding.FieldName,
-    clProducer.DataBinding.FieldName, clValue.DataBinding.FieldName]);
-
-  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
-    Exit;
-
-
-  AView.BeginSortingUpdate;
-  try
-    // Если щёлкнули по группе компонентов
-    if Col.DataBinding.FieldName = clSubgroup.DataBinding.FieldName then
-    begin
-      InvertSortOrder(Col);
-    end;
-
-    // Если щёлкнули по группе компонентов
-    if Col.DataBinding.FieldName = clValue.DataBinding.FieldName then
-    begin
-      InvertSortOrder(Col);
-      Col.SortIndex := 1;
-      clProducer.SortIndex := 2;
-    end;
-
-    // Если щёлкнули по Производителю
-    if Col.DataBinding.FieldName = clProducer.DataBinding.FieldName then
-    begin
-      InvertSortOrder(Col);
-      Col.SortIndex := 1;
-      clValue.SortIndex := 2;
-    end;
-  finally
-    AView.EndSortingUpdate;
-  end;
-
+  ApplySort(Sender, AColumn);
 end;
 
 procedure TViewProductsBase.cxGridDBBandedTableViewEditKeyDown

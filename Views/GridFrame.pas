@@ -27,7 +27,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
-  BaseQuery, System.Generics.Collections, DragHelper, OrderQuery;
+  BaseQuery, System.Generics.Collections, DragHelper, OrderQuery, GridSort;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -66,6 +66,7 @@ type
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle(
       Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
+    FGridSort: TGridSotr;
     FPostOnEnterFields: TList<String>;
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
@@ -109,8 +110,9 @@ type
     procedure AfterConstruction; override;
     procedure ApplyBestFitEx; virtual;
     procedure ApplyBestFitFocusedBand; virtual;
+    procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
-    procedure ClearSort(AView: TcxGridDBBandedTableView);
+    procedure ClearSort(AView: TcxGridTableView);
     procedure DoDragDrop(AcxGridSite: TcxGridSite; ADragAndDropInfo:
         TDragAndDropInfo; AQueryOrder: TQueryOrder; X, Y: Integer);
     procedure DoDragOver(AcxGridSite: TcxGridSite; X, Y: Integer; var Accept:
@@ -144,6 +146,7 @@ type
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
+    property GridSort: TGridSotr read FGridSort;
     property MainView: TcxGridDBBandedTableView read GetMainView;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
@@ -165,14 +168,16 @@ begin
   FEventList := TObjectList.Create;
   FStatusBarEmptyPanelIndex := -1;
 
-  // —писок полей при дедактировании которых Enter - сохранение
+  // —писок полей при редактировании которых Enter - сохранение
   FPostOnEnterFields := TList<String>.Create;
+  FGridSort := TGridSotr.Create;
 end;
 
 destructor TfrmGrid.Destroy;
 begin
   FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FEventList);
+  FreeAndNil(FGridSort);
   inherited;
 end;
 
@@ -226,13 +231,53 @@ begin
   end;
 end;
 
+procedure TfrmGrid.ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
+var
+  ASortOrder: TdxSortOrder;
+  ASortVariant: TSortVariant;
+  Col: TcxGridDBBandedColumn;
+  S: string;
+begin
+  inherited;
+
+  ASortVariant := FGridSort.GetSortVariant(AColumn);
+
+  // ≈сли при щелчке по этой колоке нет вариантов сортировки
+  if ASortVariant = nil then
+    Exit;
+
+  if (AColumn.SortOrder = soAscending) then
+    ASortOrder := soDescending
+  else
+    ASortOrder := soAscending;
+
+
+  Sender.BeginSortingUpdate;
+  try
+    // ќчистили сортировку
+    ClearSort(Sender);
+
+    // ѕримен€ем сортировку
+    for S in ASortVariant.SortedFieldNames do
+    begin
+      // ¬о вторую очередь по названию компонента
+      Col := (Sender as TcxGridDBBandedTableView).GetColumnByFieldName(S);
+      Assert(Col <> nil);
+      Col.SortOrder := ASortOrder;
+    end;
+
+  finally
+    Sender.EndSortingUpdate;
+  end;
+end;
+
 procedure TfrmGrid.BeginUpdate;
 begin
   Inc(FUpdateCount);
   cxGrid.BeginUpdate();
 end;
 
-procedure TfrmGrid.ClearSort(AView: TcxGridDBBandedTableView);
+procedure TfrmGrid.ClearSort(AView: TcxGridTableView);
 var
   i: Integer;
 begin

@@ -60,12 +60,9 @@ begin
   Assert(AID > 0);
 
   IDS.Value := AID;
-  Body0.Value := QueryBodies.Body0.Value;
-  Body1.Value := QueryBodies.Body1.Value;
-  Body2.Value := QueryBodies.Body2.Value;
-  Body3.Value := QueryBodies.Body3.Value;
-  Body4.Value := QueryBodies.Body4.Value;
-  Body5.Value := QueryBodies.Body5.Value;
+
+  // Заполняем части наименования
+  SetBodyValues;
 
   IDBodyData.Value := QueryBodyData.PK.Value;
   IDBody.Value := QueryBodies.PK.Value;

@@ -128,7 +128,7 @@ uses
   DescriptionsExcelDataModule, DialogUnit, ImportErrorForm, NotifyEvents,
   cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
   System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit,
-  cxGridDBDataDefinitions, cxVariants, RepositoryDataModule;
+  cxGridDBDataDefinitions, cxVariants, RepositoryDataModule, GridSort;
 
 {$R *.dfm}
 
@@ -143,6 +143,9 @@ begin
   FDragAndDropInfo := TDragAndDropInfo.Create(clID, clOrder);
 
   PostOnEnterFields.Add(clComponentType.DataBinding.FieldName);
+
+  GridSort.Add(TSortVariant.Create( clComponentName, [clComponentName]));
+  GridSort.Add(TSortVariant.Create( clIDProducer, [clIDProducer, clComponentName]));
 end;
 
 destructor TViewDescriptions.Destroy;
@@ -494,48 +497,9 @@ end;
 
 procedure TViewDescriptions.cxGridDBBandedTableView2ColumnHeaderClick
   (Sender: TcxGridTableView; AColumn: TcxGridColumn);
-var
-  ASortOrder: TdxSortOrder;
-  AView: TcxGridDBBandedTableView;
-  Col: TcxGridDBBandedColumn;
-  Col2: TcxGridDBBandedColumn;
-  S: string;
 begin
   inherited;
-
-  Col := AColumn as TcxGridDBBandedColumn;
-  AView := Sender as TcxGridDBBandedTableView;
-
-  S := String.Format(',%s,%s,', [clIDProducer.DataBinding.FieldName,
-    clComponentName.DataBinding.FieldName]);
-
-  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
-    Exit;
-
-  if (Col.SortOrder = soAscending) and (Col.SortIndex = 0) then
-    ASortOrder := soDescending
-  else
-    ASortOrder := soAscending;
-
-  AView.BeginSortingUpdate;
-  try
-    // Очистили сортировку
-    ClearSort(AView);
-
-    // В первую очередь отсортировали по этому столбцу
-    Col.SortOrder := ASortOrder;
-
-    // Щёлкнули по производителю
-    if Col.DataBinding.FieldName = clIDProducer.DataBinding.FieldName then
-    begin
-      // Во вторую очередь по названию компонента
-      Col2 := AView.GetColumnByFieldName(clComponentName.DataBinding.FieldName);
-      Col2.SortOrder := ASortOrder;
-    end;
-  finally
-    AView.EndSortingUpdate;
-  end;
-
+  ApplySort(Sender, AColumn);
 end;
 
 procedure TViewDescriptions.cxGridDBBandedTableView2CustomDrawColumnHeader

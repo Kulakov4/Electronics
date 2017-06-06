@@ -2,14 +2,24 @@ unit StrHelper;
 
 interface
 
+uses System.Generics.Collections;
+
+Type
+  TMySplit = class
+    S: String;
+    X: String;
+  public
+    constructor Create(SS, XX: String);
+  end;
+
+
 function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String; const ADelimiter: Char =
     ','): Boolean;
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
 function Replace(const S: String; const ANewValue: String; const AMark: String; const AEndChar: Char = #13): string;
 // Разбивает строку на строку и число
-function MySplit(const S: string; var S0: String; var S1: Integer; var S2:
-    String; var S3: Integer; var S4: string; var S5: Integer): Boolean;
+function MySplit(const S: string): TList<TMySplit>;
 
 implementation
 
@@ -80,38 +90,42 @@ begin
 end;
 
 // Разбивает строку на строку и число
-function MySplit(const S: string; var S0: String; var S1: Integer; var S2:
-    String; var S3: Integer; var S4: string; var S5: Integer): Boolean;
+function MySplit(const S: string): TList<TMySplit>;
 Var
+  I: Integer;
 
   M: TMatchCollection;
   Pattern: string;
   RegEx: TRegEx;
 begin
-  Result := False;
+  Result := nil;
   if S.Trim.IsEmpty then
     Exit;
 
-  Pattern := '^([\D]*)([\d]*)([\D]*)([\d]*)([\D]*)([\d]*)$';
+  Pattern := '([\D]*)([\d]*)';
   RegEx:=TRegEx.Create(Pattern);
   // Проверяем, соответствует ли строка шаблону
   if RegEx.IsMatch(S) then
   begin
     M:=RegEx.Matches(S, Pattern); //получаем коллекцию совпадений
-    // Должно быть ровно одно совпадение
-    Assert(M.Count = 1);
-    // Должно быть ровно 7 группы
-    Assert(M.Item[0].Groups.Count = 7);
+    // Должно быть минимум одно совпадение
+    Assert(M.Count >= 1);
 
-    S0 := M.Item[0].Groups[1].Value;
-    S1 := M.Item[0].Groups[2].Value.ToInteger();
-    S2 := M.Item[0].Groups[1].Value;
-    S3 := M.Item[0].Groups[2].Value.ToInteger();
-    S4 := M.Item[0].Groups[1].Value;
-    S5 := M.Item[0].Groups[2].Value.ToInteger();
-    Result := True;
+    Result := TList<TMySplit>.Create;
+    for I := 0 to M.Count - 1 do
+    begin
+      // Должно быть ровно 3 группы
+      Assert(M.Item[i].Groups.Count = 3);
+      // В первую группу попадает всё совпадение
+      Result.Add( TMySplit.Create(M.Item[i].Groups[1].Value, M.Item[i].Groups[2].Value) );
+    end;
   end;
+end;
 
+constructor TMySplit.Create(SS, XX: String);
+begin
+  S := SS;
+  X := XX;
 end;
 
 end.

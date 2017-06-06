@@ -29,7 +29,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
-  Vcl.Grids, Vcl.DBGrids;
+  Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -91,12 +91,12 @@ type
     procedure actOpenOutlineDrawingExecute(Sender: TObject);
     procedure actShowDuplicateExecute(Sender: TObject);
     procedure clOutlineDrawingGetDataText(Sender: TcxCustomGridTableItem;
-        ARecordIndex: Integer; var AText: string);
-    procedure cxGridDBBandedTableView2ColumnHeaderClick(Sender: TcxGridTableView;
-        AColumn: TcxGridColumn);
-    procedure cxGridDBBandedTableView2CustomDrawColumnHeader(Sender:
-        TcxGridTableView; ACanvas: TcxCanvas; AViewInfo:
-        TcxGridColumnHeaderViewInfo; var ADone: Boolean);
+      ARecordIndex: Integer; var AText: string);
+    procedure cxGridDBBandedTableView2ColumnHeaderClick
+      (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+    procedure cxGridDBBandedTableView2CustomDrawColumnHeader
+      (Sender: TcxGridTableView; ACanvas: TcxCanvas;
+      AViewInfo: TcxGridColumnHeaderViewInfo; var ADone: Boolean);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       (ASender: TcxDataSummary);
     procedure cxGridDBBandedTableView2EditKeyDown
@@ -117,8 +117,8 @@ type
       X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
-    procedure cxGridDBBandedTableView2StylesGetHeaderStyle(
-      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableView2StylesGetHeaderStyle
+      (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -130,9 +130,13 @@ type
   protected
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    function SameCol(AColumn1: TcxGridColumn;
+      AColumn2: TcxGridDBBandedColumn): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function GetSameColumn(AView: TcxGridTableView; AColumn: TcxGridColumn)
+      : TcxGridDBBandedColumn;
     procedure UpdateView; override;
     property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup
       write SetBodyTypesGroup;
@@ -150,6 +154,8 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
 {$R *.dfm}
 
 constructor TViewBodyTypes.Create(AOwner: TComponent);
+//var
+//  AGridSort: TDictionary<TcxGridDBBandedColumn, array of integer>;
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
@@ -159,6 +165,10 @@ begin
   PostOnEnterFields.Add(clBodyKind.DataBinding.FieldName);
   PostOnEnterFields.Add(clBody.DataBinding.FieldName);
   PostOnEnterFields.Add(clBodyData.DataBinding.FieldName);
+
+
+  GridSort.Add(TSortVariant.Create(clBody, [clBody0, clBody1, clBody2, clBody3, clBody4, clBody5, clBody]));
+  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clBody0, clBody1, clBody2, clBody3, clBody4, clBody5]));
 end;
 
 destructor TViewBodyTypes.Destroy;
@@ -344,7 +354,8 @@ begin
         TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
           procedure
           begin
-            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable, AProducerID);
+            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable,
+              AProducerID);
           end, 'Сохранение корпусных данных в БД', sRecords);
       finally
         MainView.ViewData.Collapse(True);
@@ -362,16 +373,16 @@ procedure TViewBodyTypes.actOpenImageExecute(Sender: TObject);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
-    BodyTypesGroup.qBodyTypes2.Image.AsString,
-    'Файл %s не найден', 'Изображение не задано', sBodyTypesFilesExt);
+    BodyTypesGroup.qBodyTypes2.Image.AsString, 'Файл %s не найден',
+    'Изображение не задано', sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyTypes.actOpenLandPatternExecute(Sender: TObject);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
-    BodyTypesGroup.qBodyTypes2.LandPattern.AsString,
-    'Файл %s не найден','Чертёж посадочной площадки не задан', sBodyTypesFilesExt);
+    BodyTypesGroup.qBodyTypes2.LandPattern.AsString, 'Файл %s не найден',
+    'Чертёж посадочной площадки не задан', sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyTypes.actRollbackExecute(Sender: TObject);
@@ -407,8 +418,8 @@ procedure TViewBodyTypes.actOpenOutlineDrawingExecute(Sender: TObject);
 begin
   inherited;
   TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
-    BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString,
-    'Файл %s не найден', 'Чертёж корпуса не задан', sBodyTypesFilesExt);
+    BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString, 'Файл %s не найден',
+    'Чертёж корпуса не задан', sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyTypes.actShowDuplicateExecute(Sender: TObject);
@@ -440,8 +451,8 @@ begin
 
 end;
 
-procedure TViewBodyTypes.clOutlineDrawingGetDataText(Sender:
-    TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
+procedure TViewBodyTypes.clOutlineDrawingGetDataText
+  (Sender: TcxCustomGridTableItem; ARecordIndex: Integer; var AText: string);
 begin
   inherited;
   if not AText.IsEmpty then
@@ -507,55 +518,17 @@ begin
     dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableView2ColumnHeaderClick(Sender:
-    TcxGridTableView; AColumn: TcxGridColumn);
-var
-  ASortOrder: TdxSortOrder;
-  AView: TcxGridDBBandedTableView;
-  Col: TcxGridDBBandedColumn;
-  Col2: TcxGridDBBandedColumn;
-  S: string;
+procedure TViewBodyTypes.cxGridDBBandedTableView2ColumnHeaderClick
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin
   inherited;
 
-  Col := AColumn as TcxGridDBBandedColumn;
-  AView := Sender as TcxGridDBBandedTableView;
-
-  S := String.Format(',%s,%s,', [clIDProducer.DataBinding.FieldName,
-    clBody.DataBinding.FieldName]);
-
-  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
-    Exit;
-
-  if (Col.SortOrder = soAscending) and (Col.SortIndex = 0) then
-    ASortOrder := soDescending
-  else
-    ASortOrder := soAscending;
-
-  AView.BeginSortingUpdate;
-  try
-    // Очистили сортировку
-    ClearSort(AView);
-
-    // В первую очередь отсортировали по этому столбцу
-    Col.SortOrder := ASortOrder;
-
-    // Щёлкнули по производителю
-    if Col.DataBinding.FieldName = clIDProducer.DataBinding.FieldName then
-    begin
-      // Во вторую очередь по названию компонента
-      Col2 := AView.GetColumnByFieldName(clBody.DataBinding.FieldName);
-      Col2.SortOrder := ASortOrder;
-    end;
-  finally
-    AView.EndSortingUpdate;
-  end;
-
+  ApplySort(Sender, AColumn);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableView2CustomDrawColumnHeader(Sender:
-    TcxGridTableView; ACanvas: TcxCanvas; AViewInfo:
-    TcxGridColumnHeaderViewInfo; var ADone: Boolean);
+procedure TViewBodyTypes.cxGridDBBandedTableView2CustomDrawColumnHeader
+  (Sender: TcxGridTableView; ACanvas: TcxCanvas;
+AViewInfo: TcxGridColumnHeaderViewInfo; var ADone: Boolean);
 begin
   inherited;
   DoOnCustomDrawColumnHeader(AViewInfo, ACanvas);
@@ -585,11 +558,31 @@ begin
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
-procedure TViewBodyTypes.cxGridDBBandedTableView2StylesGetHeaderStyle(
-  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+procedure TViewBodyTypes.cxGridDBBandedTableView2StylesGetHeaderStyle
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+var
+  AIDProducer: TcxGridDBBandedColumn;
+  OK: Boolean;
 begin
   inherited;
-  DoOnGetHeaderStyle(AColumn, AStyle);
+  if AColumn = nil then
+    Exit;
+
+  AIDProducer := GetSameColumn(Sender, clIDProducer);
+
+  // если включена сортировка по производителю
+  if (AIDProducer.SortIndex = 0) then
+  begin
+    OK := AColumn = AIDProducer;
+  end
+  else
+  begin
+    // если включена сортировка по наименованию
+    OK := (AColumn.SortIndex >= 0) and (SameCol(AColumn, clBody));
+  end;
+
+  if OK then
+    AStyle := DMRepository.cxHeaderStyle;
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded
@@ -615,8 +608,8 @@ var
 begin
   inherited;
 
-  AIndex := MainView.DataController.Summary.FooterSummaryItems.
-    IndexOfItemLink(clBodyKind);
+  AIndex := MainView.DataController.Summary.FooterSummaryItems.IndexOfItemLink
+    (clBodyKind);
 
   if AIndex < 0 then
     S := ''
@@ -688,6 +681,24 @@ begin
     if (Result <> nil) and (not Result.Focused) then
       Result := nil;
   end;
+end;
+
+function TViewBodyTypes.GetSameColumn(AView: TcxGridTableView;
+AColumn: TcxGridColumn): TcxGridDBBandedColumn;
+begin
+  Assert(AView <> nil);
+  Assert(AColumn <> nil);
+  Result := (AView as TcxGridDBBandedTableView).GetColumnByFieldName
+    ((AColumn as TcxGridDBBandedColumn).DataBinding.FieldName);
+  Assert(Result <> nil);
+end;
+
+function TViewBodyTypes.SameCol(AColumn1: TcxGridColumn;
+AColumn2: TcxGridDBBandedColumn): Boolean;
+begin
+  Result := (AColumn1 is TcxGridDBBandedColumn) and
+    ((AColumn1 as TcxGridDBBandedColumn).DataBinding.FieldName = AColumn2.
+    DataBinding.FieldName);
 end;
 
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);

@@ -121,7 +121,8 @@ implementation
 uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
   System.IOUtils, Winapi.ShellAPI, RepositoryDataModule, System.UITypes,
   ColumnsBarButtonsHelper, DialogUnit, Vcl.Clipbrd, PathSettingsForm,
-  ClipboardUnit, ParameterValuesUnit, ProducersQuery, cxGridDBDataDefinitions;
+  ClipboardUnit, ParameterValuesUnit, ProducersQuery, cxGridDBDataDefinitions,
+  GridSort;
 
 constructor TViewComponentsBase.Create(AOwner: TComponent);
 var
@@ -135,6 +136,10 @@ begin
   FfrmDescriptionPopup := TfrmDescriptionPopup.Create(Self);
   AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
+
+  GridSort.Add(TSortVariant.Create( clValue, [clValue]));
+  GridSort.Add(TSortVariant.Create( clProducer, [clProducer, clValue]));
+
 end;
 
 destructor TViewComponentsBase.Destroy;
@@ -350,50 +355,9 @@ end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
     TcxGridTableView; AColumn: TcxGridColumn);
-var
-  ASortOrder: TdxSortOrder;
-  AView: TcxGridDBBandedTableView;
-  Col: TcxGridDBBandedColumn;
-  Col2: TcxGridDBBandedColumn;
-  S: string;
 begin
   inherited;
-
-  Col := AColumn as TcxGridDBBandedColumn;
-  AView := Sender as TcxGridDBBandedTableView;
-
-
-  S := String.Format(',%s,%s,', [clProducer.DataBinding.FieldName,
-    clValue.DataBinding.FieldName]);
-
-  if S.IndexOf(String.Format(',%s,', [Col.DataBinding.FieldName])) < 0 then
-    Exit;
-
-  if (Col.SortOrder = soAscending) and (Col.SortIndex = 0) then
-    ASortOrder := soDescending
-  else
-    ASortOrder := soAscending;
-
-  AView.BeginSortingUpdate;
-  try
-    // Очистили сортировку
-    ClearSort(AView);
-
-    // В первую очередь отсортировали по этому столбцу
-    Col.SortOrder := ASortOrder;
-
-    // Щёлкнули по производителю
-    if Col.DataBinding.FieldName = clProducer.DataBinding.FieldName then
-    begin
-      // Во вторую очередь по названию компонента
-      Col2 := AView.GetColumnByFieldName(clValue.DataBinding.FieldName);
-      Col2.SortOrder := ASortOrder;
-    end;
-  finally
-    AView.EndSortingUpdate;
-  end;
-
-
+  ApplySort(Sender, AColumn);
 end;
 
 procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);

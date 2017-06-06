@@ -216,6 +216,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody0: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body0'
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 0
         SortOrder = soAscending
         Position.BandIndex = 0
@@ -224,6 +226,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody1: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body1'
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 1
         SortOrder = soAscending
         Position.BandIndex = 0
@@ -232,6 +236,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body2'
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 2
         SortOrder = soAscending
         Position.BandIndex = 0
@@ -240,6 +246,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody3: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body3'
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 3
         SortOrder = soAscending
         Position.BandIndex = 0
@@ -248,6 +256,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody4: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body4'
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 4
         SortOrder = soAscending
         Position.BandIndex = 0
@@ -256,6 +266,8 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody5: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body5'
+        Options.Sorting = False
+        Options.VertSizing = False
         SortIndex = 5
         SortOrder = soAscending
         Position.BandIndex = 0
