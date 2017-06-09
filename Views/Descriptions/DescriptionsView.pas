@@ -48,7 +48,6 @@ type
     dxbrbtnAddDescription: TdxBarButton;
     actAddType: TAction;
     actAddDescription: TAction;
-    actDelete: TAction;
     dxbrbtnDelete: TdxBarButton;
     dxbrbtnLoad: TdxBarButton;
     actLoadFromExcelDocument: TAction;
@@ -67,7 +66,6 @@ type
     procedure actAddDescriptionExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -146,6 +144,9 @@ begin
 
   GridSort.Add(TSortVariant.Create( clComponentName, [clComponentName]));
   GridSort.Add(TSortVariant.Create( clIDProducer, [clIDProducer, clComponentName]));
+
+  DeleteMessages.Add(cxGridLevel, 'Удалить тип?');
+  DeleteMessages.Add(cxGridLevel2, 'Удалить описание?');
 end;
 
 destructor TViewDescriptions.Destroy;
@@ -196,41 +197,6 @@ begin
   PutInTheCenterFocusedRecord;
 
   // Обновляем представление
-  UpdateView;
-end;
-
-procedure TViewDescriptions.actDeleteExecute(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
-  S: string;
-begin
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  S := '';
-  if AView.Level = cxGridLevel then
-    S := 'Удалить тип';
-
-  if AView.Level = cxGridLevel2 then
-    S := 'Удалить описание';
-
-  if (S <> '') and (TDialog.Create.DeleteRecordsDialog(S)) and
-    (AView.DataController.RecordCount > 0) then
-  begin
-    if AView.Controller.SelectedRowCount > 0 then
-      AView.DataController.DeleteSelection
-    else
-      AView.DataController.DeleteFocused;
-
-    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-    then
-    begin
-      AView.MasterGridRecord.Collapse(false);
-    end;
-
-  end;
-
   UpdateView;
 end;
 
@@ -691,7 +657,7 @@ begin
     (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
     ((AView.Level = cxGridLevel) or (AView.Level = cxGridLevel2));
 
-  actDelete.Enabled := OK and (AView.DataController.RecordCount > 0);
+  actDeleteEx.Enabled := OK and (AView.DataController.RecordCount > 0);
 
   actCommit.Enabled := OK and (DescriptionsGroup.Connection.InTransaction);
 

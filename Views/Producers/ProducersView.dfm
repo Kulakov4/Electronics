@@ -179,7 +179,7 @@ inherited ViewProducers: TViewProducers
       PaintStyle = psCaptionGlyph
     end
     object dxbbDelete: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -234,12 +234,6 @@ inherited ViewProducers: TViewProducers
       Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1103
       ImageIndex = 1
       OnExecute = actAddExecute
-    end
-    object actDelete: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1087#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1103
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
     end
     object actCommit: TAction
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100

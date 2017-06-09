@@ -40,7 +40,6 @@ type
     cxGridLevel2: TcxGridLevel;
     cxGridDBBandedTableView2: TcxGridDBBandedTableView;
     actDeleteFromAllCategories: TAction;
-    actDelete: TAction;
     actAddFamily: TAction;
     actAddComponent: TAction;
     actCommit: TAction;
@@ -63,7 +62,6 @@ type
     clValue2: TcxGridDBBandedColumn;
     actRollback: TAction;
     procedure actAddFamilyExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actDeleteFromAllCategoriesExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -113,16 +111,14 @@ type
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
-    procedure cxGridDBBandedTableViewStylesGetHeaderStyle(
-      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FBaseComponentsGroup: TBaseComponentsGroup;
+    FDeleteFromAllCategories: Boolean;
     FEditingValue: Variant;
     FisCurrentlySyncing: Boolean;
     FOnDetailExpandedReceive: Boolean;
     FQuerySubGroups: TfrmQuerySubGroups;
     procedure AfterLoadData(Sender: TObject);
-    procedure Delete(All: Boolean);
     function GetQuerySubGroups: TfrmQuerySubGroups;
     procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup);
     procedure SyncScrollbarPositions;
@@ -132,6 +128,7 @@ type
     procedure CreateColumnsBarButtons; override;
     procedure DoOnMasterDetailChange; virtual;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure MyDelete; override;
     procedure OnApplyBestFit(var Message: TMessage); message WM_OnApplyBestFit;
     procedure OnDetailExpandedProcess(var Message: TMessage);
       message WM_ON_DETAIL_EXPANDED;
@@ -149,7 +146,7 @@ type
     function GetSelectedIDs: TList<Integer>;
     procedure UpdateView; override;
     property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
-        write SetBaseComponentsGroup;
+      write SetBaseComponentsGroup;
     { Public declarations }
   end;
 
@@ -165,7 +162,8 @@ uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
 constructor TViewComponentsParent.Create(AOwner: TComponent);
 begin
   inherited;
-
+  DeleteMessages.Add(cxGridLevel, sDoYouWantToDeleteFamily);
+  DeleteMessages.Add(cxGridLevel2, sDoYouWantToDeleteComponent);
 end;
 
 procedure TViewComponentsParent.actAddFamilyExecute(Sender: TObject);
@@ -187,15 +185,15 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponentsParent.actDeleteExecute(Sender: TObject);
-begin
-  Delete(False);
-end;
-
 procedure TViewComponentsParent.actDeleteFromAllCategoriesExecute
   (Sender: TObject);
 begin
-  Delete(True);
+  FDeleteFromAllCategories := True;
+  try
+    MyDelete;
+  finally
+    FDeleteFromAllCategories := False;
+  end;
 end;
 
 procedure TViewComponentsParent.actAddComponentExecute(Sender: TObject);
@@ -349,42 +347,42 @@ procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerCompare
 begin
   inherited;
   // Зачем всё это????
-{
-  if AItemIndex = 1 then
-  begin
+  {
+    if AItemIndex = 1 then
+    begin
     if VarIsNull(V1) and not(VarIsNull(V2)) then
-      Compare := -1;
+    Compare := -1;
     if VarIsNull(V2) and not(VarIsNull(V1)) then
-      Compare := 1;
+    Compare := 1;
     if VarIsNull(V1) and VarIsNull(V2) then
-      Compare := 0;
+    Compare := 0;
     if not(VarIsNull(V1) or VarIsNull(V2)) then
     begin
-      if V1 > V2 then
-        Compare := -1;
-      if V1 < V2 then
-        Compare := 1;
-      if V1 = V2 then
-        Compare := 0;
+    if V1 > V2 then
+    Compare := -1;
+    if V1 < V2 then
+    Compare := 1;
+    if V1 = V2 then
+    Compare := 0;
     end;
-  end
-  else
-  begin
-    case VarCompareValue(V1, V2) of
-      vrEqual:
-        Compare := 0;
-      vrLessThan:
-        Compare := -1;
-      vrGreaterThan:
-        Compare := 1;
+    end
     else
-      Compare := 0;
+    begin
+    case VarCompareValue(V1, V2) of
+    vrEqual:
+    Compare := 0;
+    vrLessThan:
+    Compare := -1;
+    vrGreaterThan:
+    Compare := 1;
+    else
+    Compare := 0;
     end;
-  end;
+    end;
 
-  if MainView.Columns[AItemIndex].SortOrder = soAscending then
+    if MainView.Columns[AItemIndex].SortOrder = soAscending then
     Compare := Compare * (-1); // инвертировать порядок при необходимости
-}
+  }
 end;
 
 procedure TViewComponentsParent.
@@ -430,8 +428,8 @@ begin
     Exit;
 
   // Если есть несохранённые изменения
-  if BaseComponentsGroup.Main.HaveAnyChanges or
-    BaseComponentsGroup.Detail.HaveAnyChanges then
+  if BaseComponentsGroup.Main.HaveAnyChanges or BaseComponentsGroup.Detail.HaveAnyChanges
+  then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -619,12 +617,11 @@ begin
   UpdateDetailColumnsWidth;
 end;
 
-procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyDown(
-  Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyUp
@@ -659,80 +656,12 @@ begin
   SyncScrollbarPositions;
 end;
 
-procedure TViewComponentsParent.cxGridDBBandedTableViewStylesGetHeaderStyle(
-  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
-begin
-  inherited;
-end;
-
-{ Удалить все выделенные записи }
-procedure TViewComponentsParent.Delete(All: Boolean);
-var
-  AController: TcxGridBandedTableController;
-  AcxGridMasterDataRow: TcxMyGridMasterDataRow;
-  AFocusedView: TcxGridDBBandedTableView;
-  i: Integer;
-  S: string;
-  X: Integer;
-begin
-  S := IfThen(All, sDoYouWantToDeleteComponentFromAll,
-    sDoYouWantToDeleteComponent);
-
-  if TDialog.Create.DeleteRecordsDialog(S) then
-  begin
-    AFocusedView := FocusedTableView;
-    if AFocusedView <> nil then
-    begin
-      AController := AFocusedView.Controller;
-
-      // если удалить всё
-      if All then
-      begin
-
-        if AController.SelectedRowCount > 0 then
-        begin
-          for i := 0 to AController.SelectedRowCount - 1 do
-          begin
-            X := AController.SelectedRows[i].Values[clID.Index];
-            BaseComponentsGroup.FullDeleted.Add(X);
-          end;
-        end
-        else
-        begin
-          X := AController.FocusedRecord.Values[clID.Index];
-          BaseComponentsGroup.FullDeleted.Add(X);
-        end;
-      end;
-
-      BeginUpdate;
-      try
-        AController.DeleteSelection;
-      finally
-        EndUpdate
-      end;
-
-      // если удалили последнюю "дочернюю" запись
-      if (AFocusedView.Level = cxGridLevel2) and
-        (AFocusedView.DataController.RowCount = 0) then
-      begin
-        AcxGridMasterDataRow := AFocusedView.MasterGridRecord as
-          TcxMyGridMasterDataRow;
-        // Сворачиваем дочернее представление
-        AcxGridMasterDataRow.MyCollapse(False);
-      end;
-
-      UpdateView;
-    end;
-  end;
-end;
-
 procedure TViewComponentsParent.DoOnMasterDetailChange;
 begin
   if FBaseComponentsGroup <> nil then
   begin
     // Привязываем вью к данным
-    MainView.DataController.DataSource :=
-      BaseComponentsGroup.Main.DataSource;
+    MainView.DataController.DataSource := BaseComponentsGroup.Main.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
       FBaseComponentsGroup.Detail.DataSource;
 
@@ -799,6 +728,68 @@ begin
 
 end;
 
+procedure TViewComponentsParent.MyDelete;
+var
+  AController: TcxGridBandedTableController;
+  AView: TcxGridDBBandedTableView;
+  i: Integer;
+  S: string;
+  X: Integer;
+begin
+  AView := FocusedTableView;
+  if AView = nil then
+    Exit;
+
+  if FDeleteFromAllCategories then
+    S := sDoYouWantToDeleteFamilyFromAll
+  else
+    S := DeleteMessages[AView.Level as TcxGridLevel];
+
+  if not TDialog.Create.DeleteRecordsDialog(S) then
+    Exit;
+
+  AController := AView.Controller;
+
+  // если удалить всё
+  if FDeleteFromAllCategories then
+  begin
+    if AController.SelectedRowCount > 0 then
+    begin
+      for i := 0 to AController.SelectedRowCount - 1 do
+      begin
+        X := AController.SelectedRows[i].Values[clID.Index];
+        BaseComponentsGroup.FullDeleted.Add(X);
+      end;
+    end
+    else
+    begin
+      X := AController.FocusedRecord.Values[clID.Index];
+      BaseComponentsGroup.FullDeleted.Add(X);
+    end;
+  end;
+
+  BeginUpdate;
+  try
+    ProcessWithCancelDetailExpanding(AView,
+      procedure()
+      begin
+        AController.DeleteSelection
+      end);
+  finally
+    EndUpdate
+  end;
+
+  // если удалили последнюю "дочернюю" запись
+  if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
+  then
+  begin
+    // Сворачиваем дочернее представление
+    (AView.MasterGridRecord as TcxMyGridMasterDataRow).MyCollapse(False);
+  end;
+
+  UpdateView;
+end;
+
 procedure TViewComponentsParent.OnApplyBestFit(var Message: TMessage);
 begin
   cxGrid.BeginUpdate();
@@ -817,15 +808,15 @@ begin
 end;
 
 procedure TViewComponentsParent.OpenDoc(ADocFieldInfo: TDocFieldInfo;
-  const AErrorMessage, AEmptyErrorMessage: string);
+const AErrorMessage, AEmptyErrorMessage: string);
 begin
   TDocument.Open(Handle, ADocFieldInfo.Folder,
     BaseComponentsGroup.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
     .AsString, AErrorMessage, AEmptyErrorMessage, sBodyTypesFilesExt);
 end;
 
-procedure TViewComponentsParent.SetBaseComponentsGroup(const Value:
-    TBaseComponentsGroup);
+procedure TViewComponentsParent.SetBaseComponentsGroup
+  (const Value: TBaseComponentsGroup);
 begin
   if FBaseComponentsGroup <> Value then
   begin
@@ -984,30 +975,29 @@ begin
     (AFocusedView.Level = cxGridLevel);
   actDeleteFromAllCategories.Visible := actDeleteFromAllCategories.Enabled;
 
-  actDelete.Enabled := Ok and (AFocusedView <> nil) and
+  actDeleteEx.Enabled := Ok and (AFocusedView <> nil) and
     (AFocusedView.DataController.RowCount > 0);
 
   if Ok and (AFocusedView <> nil) and (AFocusedView.Level = cxGridLevel) then
   begin
     if BaseComponentsGroup.Main.Master <> nil then
     begin
-      S := BaseComponentsGroup.Main.Master.FDQuery.FieldByName
-        ('Value').AsString;
-      actDelete.Caption := Format('Удалить компонент из категории «%s»', [S]);
+      S := BaseComponentsGroup.Main.Master.FDQuery.FieldByName('Value')
+        .AsString;
+      actDeleteEx.Caption := Format('Удалить семейство из категории «%s»', [S]);
     end;
   end;
 
   if Ok and (AFocusedView <> nil) and (AFocusedView.Level = cxGridLevel2) then
   begin
-    actDelete.Caption := 'Удалить дочерний компонент';
+    actDeleteEx.Caption := 'Удалить компонент из семейства';
   end;
 
   actAddFamily.Enabled := Ok and (AFocusedView <> nil);
   actAddComponent.Enabled := Ok and (AFocusedView <> nil);
   // and (AFocusedView.Level = tlComponentsDetails);
 
-  actCommit.Enabled := Ok and BaseComponentsGroup.Connection.
-    InTransaction;
+  actCommit.Enabled := Ok and BaseComponentsGroup.Connection.InTransaction;
   actRollback.Enabled := actCommit.Enabled;
 end;
 

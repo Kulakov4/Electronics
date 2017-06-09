@@ -72,9 +72,9 @@ inherited ViewDescriptions: TViewDescriptions
       OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
-      OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.CellAutoHeight = True
       OptionsView.ColumnAutoWidth = True
       OptionsView.Footer = True
@@ -214,7 +214,7 @@ inherited ViewDescriptions: TViewDescriptions
       PaintStyle = psCaptionGlyph
     end
     object dxbrbtnDelete: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -274,11 +274,6 @@ inherited ViewDescriptions: TViewDescriptions
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1077
       ImageIndex = 1
       OnExecute = actAddDescriptionExecute
-    end
-    object actDelete: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
     end
     object actCommit: TAction
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100

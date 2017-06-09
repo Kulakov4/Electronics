@@ -100,7 +100,7 @@ inherited ViewComponents: TViewComponents
         end>
     end
     object dxbrbtnDeleteMain: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
     end
     object dxbrbtnDeleteFromAllCategories: TdxBarButton
@@ -178,7 +178,7 @@ inherited ViewComponents: TViewComponents
     end
   end
   inherited ActionList: TActionList
-    object actShowParametricTable: TAction [15]
+    object actShowParametricTable: TAction [14]
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       Hint = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       ImageIndex = 11

@@ -37,7 +37,6 @@ type
   TViewProducers = class(TfrmGrid)
     clID: TcxGridDBBandedColumn;
     actAdd: TAction;
-    actDelete: TAction;
     dxbbAdd: TdxBarButton;
     dxbbDelete: TdxBarButton;
     actCommit: TAction;
@@ -63,7 +62,6 @@ type
     procedure actAddExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -135,6 +133,9 @@ begin
 
   PostOnEnterFields.Add(clProducerType.DataBinding.FieldName);
   PostOnEnterFields.Add(clName2.DataBinding.FieldName);
+
+  DeleteMessages.Add(cxGridLevel, 'Удалить тип?');
+  DeleteMessages.Add(cxGridLevel2, 'Удалить производителя?');
 end;
 
 destructor TViewProducers.Destroy;
@@ -183,41 +184,6 @@ begin
   PutInTheCenterFocusedRecord;
 
   // Обновляем представление
-  UpdateView;
-end;
-
-procedure TViewProducers.actDeleteExecute(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
-  S: string;
-begin
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  S := '';
-  if AView.Level = cxGridLevel then
-    S := 'Удалить тип';
-
-  if AView.Level = cxGridLevel2 then
-    S := 'Удалить производителя';
-
-  if (S <> '') and (TDialog.Create.DeleteRecordsDialog(S)) and
-    (AView.DataController.RecordCount > 0) then
-  begin
-    if AView.Controller.SelectedRowCount > 0 then
-      AView.DataController.DeleteSelection
-    else
-      AView.DataController.DeleteFocused;
-
-    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-    then
-    begin
-      AView.MasterGridRecord.Collapse(false);
-    end;
-
-  end;
-
   UpdateView;
 end;
 
@@ -591,7 +557,7 @@ begin
     (MainView.DataController.RecordCount > 0);
   actAddType.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
-  actDelete.Enabled := OK and (AView <> nil) and
+  actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.DataController.RecordCount > 0);
 
   actCommit.Enabled := OK and (ProducersGroup.Connection.InTransaction);

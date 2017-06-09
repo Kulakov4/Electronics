@@ -54,9 +54,10 @@ inherited ViewComponentsParent: TViewComponentsParent
       DataController.Summary.SummaryGroups = <>
       DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
       OptionsBehavior.CopyCaptionsToClipboard = False
-      OptionsSelection.InvertSelect = False
+      OptionsData.DeletingConfirmation = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.ScrollBars = ssVertical
       OptionsView.GroupByBox = False
       OptionsView.Header = False
@@ -101,15 +102,10 @@ inherited ViewComponentsParent: TViewComponentsParent
   end
   inherited ActionList: TActionList
     object actDeleteFromAllCategories: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
       Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
       ImageIndex = 33
       OnExecute = actDeleteFromAllCategoriesExecute
-    end
-    object actDelete: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
     end
     object actAddFamily: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086

@@ -54,7 +54,6 @@ type
     clMeasuringUnit: TcxGridDBBandedColumn;
     clTableName: TcxGridDBBandedColumn;
     clDefinition: TcxGridDBBandedColumn;
-    actDelete: TAction;
     dxbrbtnDelete: TdxBarButton;
     actLoadFromExcelDocument: TAction;
     actLoadFromExcelSheet: TAction;
@@ -90,7 +89,6 @@ type
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actFilterByTableNameExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -195,6 +193,10 @@ begin
   PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
   PostOnEnterFields.Add(clIDParameterType.DataBinding.FieldName);
   PostOnEnterFields.Add(clValue3.DataBinding.FieldName);
+
+  DeleteMessages.Add(cxGridLevel, 'Удалить тип?');
+  DeleteMessages.Add(cxGridLevel2, 'Удалить параметр?');
+  DeleteMessages.Add(cxGridLevel3, 'Удалить подпараметр?');
 end;
 
 destructor TViewParameters.Destroy;
@@ -283,43 +285,6 @@ begin
   PutInTheCenterFocusedRecord();
 
   // Обновляем представление
-  UpdateView;
-end;
-
-procedure TViewParameters.actDeleteExecute(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
-  S: string;
-begin
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  S := '';
-  if AView.Level = cxGridLevel then
-    S := 'Удалить тип';
-
-  if AView.Level = cxGridLevel2 then
-    S := 'Удалить параметр';
-
-  if AView.Level = cxGridLevel3 then
-    S := 'Удалить подпараметр';
-
-  if (S <> '') and (TDialog.Create.DeleteRecordsDialog(S)) and
-    (AView.DataController.RecordCount > 0) then
-  begin
-    if AView.Controller.SelectedRowCount > 0 then
-      AView.DataController.DeleteSelection
-    else
-      AView.DataController.DeleteFocused;
-
-    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-    then
-    begin
-      AView.MasterGridRecord.Collapse(False);
-    end;
-  end;
-
   UpdateView;
 end;
 
@@ -990,7 +955,7 @@ begin
   actAddSubParameter.Enabled := OK and (AView <> nil) and
     (((AView.Level = cxGridLevel2)) or (AView.Level = cxGridLevel3));
 
-  actDelete.Enabled := OK and (AView <> nil) and
+  actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.DataController.RecordCount > 0);
 
   actLoadFromExcelDocument.Enabled := OK;

@@ -193,7 +193,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       PaintStyle = psCaptionGlyph
     end
     object dxBarButton8: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -263,11 +263,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Caption = #1054#1090#1084#1077#1085#1080#1090#1100
       ImageIndex = 14
       OnExecute = actCancelUpdatesExecute
-    end
-    object actDelete: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
     end
     object actAddToBegin: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1074' '#1085#1072#1095#1072#1083#1086

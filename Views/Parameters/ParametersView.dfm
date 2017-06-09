@@ -74,9 +74,9 @@ inherited ViewParameters: TViewParameters
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
-      OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.CellAutoHeight = True
       OptionsView.ColumnAutoWidth = True
       OptionsView.ExpandButtonsForEmptyDetails = False
@@ -214,9 +214,9 @@ inherited ViewParameters: TViewParameters
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
-      OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.ColumnAutoWidth = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
@@ -387,7 +387,7 @@ inherited ViewParameters: TViewParameters
       PaintStyle = psCaptionGlyph
     end
     object dxbrbtnDelete: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -480,11 +480,6 @@ inherited ViewParameters: TViewParameters
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 1
       OnExecute = actAddSubParameterExecute
-    end
-    object actDelete: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
     end
     object actLoadFromExcelDocument: TAction
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'

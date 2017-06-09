@@ -36,7 +36,6 @@ uses
 type
   TViewProducts = class(TViewProductsBase)
     actAdd: TAction;
-    actDelete: TAction;
     dxbrbtnAdd: TdxBarButton;
     dxbrbtnDelete: TdxBarButton;
     dxbrbtnSave: TdxBarButton;
@@ -50,7 +49,6 @@ type
     dxBarButton4: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
     procedure actPasteComponentsExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
@@ -116,6 +114,8 @@ constructor TViewProducts.Create(AOwner: TComponent);
 begin
   inherited;
   StatusBarEmptyPanelIndex := 2;
+
+  DeleteMessages.Add(cxgridLevel, sDoYouWantToDeleteProducts);
 end;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
@@ -140,29 +140,6 @@ end;
 procedure TViewProducts.actCommitExecute(Sender: TObject);
 begin
   inherited;;
-end;
-
-procedure TViewProducts.actDeleteExecute(Sender: TObject);
-var
-  AFocusedView: TcxGridDBBandedTableView;
-begin
-
-  if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDeleteProducts) then
-  begin
-    AFocusedView := FocusedTableView;
-    if AFocusedView <> nil then
-    begin
-
-      BeginUpdate;
-      try
-        AFocusedView.Controller.DeleteSelection;
-      finally
-        EndUpdate
-      end;
-
-      UpdateView;
-    end;
-  end;
 end;
 
 procedure TViewProducts.actFullScreenExecute(Sender: TObject);
@@ -646,7 +623,7 @@ begin
     ((QueryProductsBase.FDQuery.State in [dsEdit, dsInsert]) and
     (not QueryProductsBase.Value.AsString.IsEmpty)));
   }
-  actDelete.Enabled := OK and (AFocusedView <> nil) and
+  actDeleteEx.Enabled := OK and (AFocusedView <> nil) and
     (AFocusedView.DataController.RowCount > 0);
 
   cxGridPopupMenu.PopupMenus[0].HitTypes := cxGridPopupMenu.PopupMenus[0]

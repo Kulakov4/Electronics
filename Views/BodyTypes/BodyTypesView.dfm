@@ -72,9 +72,9 @@ inherited ViewBodyTypes: TViewBodyTypes
         end>
       DataController.Summary.SummaryGroups = <>
       OptionsBehavior.CellHints = True
-      OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
@@ -367,7 +367,7 @@ inherited ViewBodyTypes: TViewBodyTypes
       PaintStyle = psCaptionGlyph
     end
     object dxbbDelete: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -432,12 +432,6 @@ inherited ViewBodyTypes: TViewBodyTypes
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1088#1087#1091#1089
       ImageIndex = 1
       OnExecute = actAddBodyExecute
-    end
-    object actDelete: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
     end
     object actLoadFromExcelDocument: TAction
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1090#1080#1087#1099' '#1082#1086#1088#1087#1091#1089#1086#1074

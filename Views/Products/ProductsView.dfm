@@ -66,7 +66,7 @@ inherited ViewProducts: TViewProducts
       PaintStyle = psCaptionGlyph
     end
     object dxbrbtnDelete: TdxBarButton
-      Action = actDelete
+      Action = actDeleteEx
       Category = 0
       PaintStyle = psCaptionGlyph
     end
@@ -113,13 +113,7 @@ inherited ViewProducts: TViewProducts
       ImageIndex = 1
       OnExecute = actAddExecute
     end
-    object actDelete: TAction [7]
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1076#1072#1083#1080#1090#1100
-      ImageIndex = 2
-      OnExecute = actDeleteExecute
-    end
-    object actPasteComponents: TAction [9]
+    object actPasteComponents: TAction [8]
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 5
       OnExecute = actPasteComponentsExecute

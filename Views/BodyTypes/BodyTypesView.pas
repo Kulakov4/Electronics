@@ -34,7 +34,6 @@ uses
 type
   TViewBodyTypes = class(TfrmGrid)
     actAdd: TAction;
-    actDelete: TAction;
     clID: TcxGridDBBandedColumn;
     clBodyKind: TcxGridDBBandedColumn;
     dxbbAdd: TdxBarButton;
@@ -81,7 +80,6 @@ type
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actOpenImageExecute(Sender: TObject);
@@ -130,13 +128,9 @@ type
   protected
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
-    function SameCol(AColumn1: TcxGridColumn;
-      AColumn2: TcxGridDBBandedColumn): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function GetSameColumn(AView: TcxGridTableView; AColumn: TcxGridColumn)
-      : TcxGridDBBandedColumn;
     procedure UpdateView; override;
     property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup
       write SetBodyTypesGroup;
@@ -166,9 +160,11 @@ begin
   PostOnEnterFields.Add(clBody.DataBinding.FieldName);
   PostOnEnterFields.Add(clBodyData.DataBinding.FieldName);
 
-
   GridSort.Add(TSortVariant.Create(clBody, [clBody0, clBody1, clBody2, clBody3, clBody4, clBody5, clBody]));
   GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clBody0, clBody1, clBody2, clBody3, clBody4, clBody5]));
+
+  DeleteMessages.Add(cxGridLevel, 'Удалить тип корпуса?');
+  DeleteMessages.Add(cxGridLevel2, 'Удалить корпус?');
 end;
 
 destructor TViewBodyTypes.Destroy;
@@ -225,41 +221,6 @@ begin
   PutInTheCenterFocusedRecord(MainView);
 
   // Обновляем представление
-  UpdateView;
-end;
-
-procedure TViewBodyTypes.actDeleteExecute(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
-  S: string;
-begin
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  S := '';
-  if AView.Level = cxGridLevel then
-    S := 'Удалить тип корпуса';
-
-  if AView.Level = cxGridLevel2 then
-    S := 'Удалить корпус';
-
-  if (S <> '') and (TDialog.Create.DeleteRecordsDialog(S)) and
-    (AView.DataController.RecordCount > 0) then
-  begin
-    if AView.Controller.SelectedRowCount > 0 then
-      AView.DataController.DeleteSelection
-    else
-      AView.DataController.DeleteFocused;
-
-    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-    then
-    begin
-      AView.MasterGridRecord.Collapse(false);
-    end;
-
-  end;
-
   UpdateView;
 end;
 
@@ -539,7 +500,6 @@ procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
@@ -683,24 +643,6 @@ begin
   end;
 end;
 
-function TViewBodyTypes.GetSameColumn(AView: TcxGridTableView;
-AColumn: TcxGridColumn): TcxGridDBBandedColumn;
-begin
-  Assert(AView <> nil);
-  Assert(AColumn <> nil);
-  Result := (AView as TcxGridDBBandedTableView).GetColumnByFieldName
-    ((AColumn as TcxGridDBBandedColumn).DataBinding.FieldName);
-  Assert(Result <> nil);
-end;
-
-function TViewBodyTypes.SameCol(AColumn1: TcxGridColumn;
-AColumn2: TcxGridDBBandedColumn): Boolean;
-begin
-  Result := (AColumn1 is TcxGridDBBandedColumn) and
-    ((AColumn1 as TcxGridDBBandedColumn).DataBinding.FieldName = AColumn2.
-    DataBinding.FieldName);
-end;
-
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);
 begin
   if FBodyTypesGroup <> Value then
@@ -763,7 +705,7 @@ begin
     (((AView.Level = cxGridLevel) and (AView.DataController.RecordCount > 0)) or
     (AView.Level = cxGridLevel2));
 
-  actDelete.Enabled := (BodyTypesGroup <> nil) and (AView <> nil) and
+  actDeleteEx.Enabled := (BodyTypesGroup <> nil) and (AView <> nil) and
     (AView.DataController.RecordCount > 0);
 
   actLoadFromExcelDocument.Enabled := (BodyTypesGroup <> nil);

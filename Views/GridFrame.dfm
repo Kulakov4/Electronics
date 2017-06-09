@@ -22,9 +22,9 @@ object frmGrid: TfrmGrid
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
       OptionsBehavior.CopyCaptionsToClipboard = False
-      OptionsSelection.InvertSelect = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.ColumnAutoWidth = True
       OptionsView.GroupByBox = False
       OptionsView.BandHeaders = False
@@ -108,6 +108,12 @@ object frmGrid: TfrmGrid
       Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1073#1091#1092#1077#1088' '#1086#1073#1084#1077#1085#1072
       ImageIndex = 12
       OnExecute = actCopyToClipboardExecute
+    end
+    object actDeleteEx: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      Hint = #1059#1076#1072#1083#1080#1090#1100
+      ImageIndex = 2
+      OnExecute = actDeleteExExecute
     end
   end
   object pmGrid: TPopupMenu

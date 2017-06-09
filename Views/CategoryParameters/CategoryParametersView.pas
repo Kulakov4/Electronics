@@ -56,7 +56,6 @@ type
     dxBarButton7: TdxBarButton;
     clParameterType: TcxGridDBBandedColumn;
     dxBarButton8: TdxBarButton;
-    actDelete: TAction;
     actAddToBegin: TAction;
     actAddToCenter: TAction;
     actAddToEnd: TAction;
@@ -70,7 +69,6 @@ type
     procedure actAddToEndExecute(Sender: TObject);
     procedure actApplyUpdatesExecute(Sender: TObject);
     procedure actCancelUpdatesExecute(Sender: TObject);
-    procedure actDeleteExecute(Sender: TObject);
     procedure actDownExecute(Sender: TObject);
     procedure actPosBeginExecute(Sender: TObject);
     procedure actPosCenterExecute(Sender: TObject);
@@ -94,6 +92,7 @@ type
   protected
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
+    constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
     property QueryCategoryParameters: TQueryCategoryParameters
@@ -108,6 +107,12 @@ implementation
 uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math,
   DialogUnit, ProjectConst, ParametersForm, ParametersGroupUnit, DBRecordHolder,
   MaxCategoryParameterOrderQuery;
+
+constructor TViewCategoryParameters.Create(AOwner: TComponent);
+begin
+  inherited;
+  DeleteMessages.Add(cxGridLevel, sDoYouWantToDeleteCategoryParameter);
+end;
 
 procedure TViewCategoryParameters.actAddToBeginExecute(Sender: TObject);
 begin
@@ -137,29 +142,6 @@ procedure TViewCategoryParameters.actCancelUpdatesExecute(Sender: TObject);
 begin
   inherited;
   QueryCategoryParameters.CancelUpdates;
-  UpdateView;
-end;
-
-procedure TViewCategoryParameters.actDeleteExecute(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
-begin
-  inherited;
-  if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDeleteCategoryParameter)
-  then
-    Exit;
-
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  BeginUpdate;
-  try
-    AView.Controller.DeleteSelection;
-  finally
-    EndUpdate
-  end;
-
   UpdateView;
 end;
 
@@ -503,7 +485,7 @@ begin
   actApplyUpdates.Enabled := OK and QueryCategoryParameters.HaveAnyChanges;
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 
-  actDelete.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
+  actDeleteEx.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
 
   actAddToBegin.Enabled := OK and not FQueryCategoryParameters.HaveAnyChanges;
   actAddToCenter.Enabled := actAddToBegin.Enabled;
