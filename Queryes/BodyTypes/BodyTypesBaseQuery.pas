@@ -46,7 +46,7 @@ type
       var Text: String; DisplayText: Boolean);
     procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage); message
         WM_AFTER_CASCADE_DELETE;
-    procedure SetBodyValues;
+    procedure SetMySplitDataValues(AQuery: TFDQuery; const AFieldPrefix: String);
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
     property QueryBodyVariations: TQueryBodyVariations
@@ -264,22 +264,25 @@ begin
     FQueryBodyVariations.RefreshQuery;
 end;
 
-procedure TQueryBodyTypesBase.SetBodyValues;
+procedure TQueryBodyTypesBase.SetMySplitDataValues(AQuery: TFDQuery; const
+    AFieldPrefix: String);
 var
   F: TField;
   i: Integer;
 begin
+  Assert(AQuery <> nil);
   Assert(FDQuery.State in [dsEdit, dsInsert]);
-  Assert(QueryBodies.FDQuery.RecordCount > 0);
+  Assert(AQuery.RecordCount > 0);
+  Assert(not AFieldPrefix.IsEmpty);
 
   // Заполняем части наименования
   i := 0;
-  F := QueryBodies.FDQuery.FindField(Format('BODY%d', [i]));
+  F := AQuery.FindField(Format('%s%d', [AFieldPrefix, i]));
   while F <> nil do
   begin
     Field(F.FieldName).Value := F.Value;
     Inc(i);
-    F := QueryBodies.FDQuery.FindField(Format('BODY%d', [i]));
+    F := QueryBodies.FDQuery.FindField(Format('%s%d', [AFieldPrefix, i]));
   end;
 
 end;

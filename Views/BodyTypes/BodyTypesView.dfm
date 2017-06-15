@@ -109,8 +109,6 @@ inherited ViewBodyTypes: TViewBodyTypes
         DataBinding.FieldName = 'Body'
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 6
-        SortOrder = soAscending
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -216,62 +214,162 @@ inherited ViewBodyTypes: TViewBodyTypes
       end
       object clBody0: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body0'
+        Visible = False
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 0
-        SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 11
         Position.RowIndex = 0
       end
       object clBody1: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body1'
+        Visible = False
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 1
-        SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 12
         Position.RowIndex = 0
       end
       object clBody2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body2'
+        Visible = False
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 2
-        SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 13
         Position.RowIndex = 0
       end
       object clBody3: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body3'
+        Visible = False
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 3
-        SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 14
         Position.RowIndex = 0
       end
       object clBody4: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body4'
+        Visible = False
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 4
-        SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 15
         Position.RowIndex = 0
       end
       object clBody5: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Body5'
+        Visible = False
         Options.Sorting = False
         Options.VertSizing = False
-        SortIndex = 5
-        SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 16
+        Position.RowIndex = 0
+      end
+      object clBodyData0: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData0'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 17
+        Position.RowIndex = 0
+      end
+      object clBodyData1: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData1'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 18
+        Position.RowIndex = 0
+      end
+      object clBodyData2: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData2'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 19
+        Position.RowIndex = 0
+      end
+      object clBodyData3: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData3'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 20
+        Position.RowIndex = 0
+      end
+      object clBodyData4: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData4'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 21
+        Position.RowIndex = 0
+      end
+      object clBodyData5: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData5'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 22
+        Position.RowIndex = 0
+      end
+      object clBodyData6: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData6'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 23
+        Position.RowIndex = 0
+      end
+      object clBodyData7: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData7'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 24
+        Position.RowIndex = 0
+      end
+      object clBodyData8: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData8'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 25
+        Position.RowIndex = 0
+      end
+      object clBodyData9: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'BodyData9'
+        Visible = False
+        Options.Sorting = False
+        Options.VertSizing = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 26
         Position.RowIndex = 0
       end
     end
@@ -328,6 +426,14 @@ inherited ViewBodyTypes: TViewBodyTypes
         item
           Visible = True
           ItemName = 'dxbrbtnRollback'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton4'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -419,6 +525,20 @@ inherited ViewBodyTypes: TViewBodyTypes
       Action = actShowDuplicate
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton3: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton3Click
+    end
+    object dxBarButton4: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton4Click
     end
   end
   inherited ActionList: TActionList

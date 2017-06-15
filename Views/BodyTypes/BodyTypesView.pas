@@ -77,6 +77,18 @@ type
     clBody3: TcxGridDBBandedColumn;
     clBody4: TcxGridDBBandedColumn;
     clBody5: TcxGridDBBandedColumn;
+    clBodyData0: TcxGridDBBandedColumn;
+    clBodyData1: TcxGridDBBandedColumn;
+    clBodyData2: TcxGridDBBandedColumn;
+    clBodyData3: TcxGridDBBandedColumn;
+    clBodyData4: TcxGridDBBandedColumn;
+    clBodyData5: TcxGridDBBandedColumn;
+    clBodyData6: TcxGridDBBandedColumn;
+    clBodyData7: TcxGridDBBandedColumn;
+    clBodyData8: TcxGridDBBandedColumn;
+    clBodyData9: TcxGridDBBandedColumn;
+    dxBarButton3: TdxBarButton;
+    dxBarButton4: TdxBarButton;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -117,6 +129,8 @@ type
       var DragObject: TDragObject);
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure dxBarButton3Click(Sender: TObject);
+    procedure dxBarButton4Click(Sender: TObject);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -148,8 +162,8 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
 {$R *.dfm}
 
 constructor TViewBodyTypes.Create(AOwner: TComponent);
-//var
-//  AGridSort: TDictionary<TcxGridDBBandedColumn, array of integer>;
+// var
+// AGridSort: TDictionary<TcxGridDBBandedColumn, array of integer>;
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
@@ -160,8 +174,15 @@ begin
   PostOnEnterFields.Add(clBody.DataBinding.FieldName);
   PostOnEnterFields.Add(clBodyData.DataBinding.FieldName);
 
-  GridSort.Add(TSortVariant.Create(clBody, [clBody0, clBody1, clBody2, clBody3, clBody4, clBody5, clBody]));
-  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clBody0, clBody1, clBody2, clBody3, clBody4, clBody5]));
+  GridSort.Add(TSortVariant.Create(clBody, [clBody0, clBody1, clBody2, clBody3,
+    clBody4, clBody5, clBody, clBodyData0, clBodyData1, clBodyData2,
+    clBodyData3, clBodyData4, clBodyData5, clBodyData6, clBodyData7,
+    clBodyData8, clBodyData9, clBodyData, clOutlineDrawing, clLandPattern]));
+  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clBody0,
+    clBody1, clBody2, clBody3, clBody4, clBody5, clBody, clBodyData0,
+    clBodyData1, clBodyData2, clBodyData3, clBodyData4, clBodyData5,
+    clBodyData6, clBodyData7, clBodyData8, clBodyData9, clBodyData,
+    clOutlineDrawing, clLandPattern]));
 
   DeleteMessages.Add(cxGridLevel, 'Удалить тип корпуса?');
   DeleteMessages.Add(cxGridLevel2, 'Удалить корпус?');
@@ -630,6 +651,24 @@ begin
   UpdateView;
 end;
 
+procedure TViewBodyTypes.dxBarButton3Click(Sender: TObject);
+begin
+  inherited;
+  MainView.Controller.TopRowIndex := 10;
+end;
+
+procedure TViewBodyTypes.dxBarButton4Click(Sender: TObject);
+var
+  Cnt: Integer;
+  t: Integer;
+begin
+  inherited;
+  t := MainView.Controller.TopRowIndex;
+  Cnt := MainView.ViewInfo.RecordsViewInfo.VisibleCount;
+
+  dxBarButton4.Caption := Format('%d-%d-%d', [Cnt,t, MainView.Controller.FocusedRowIndex]);
+end;
+
 function TViewBodyTypes.GetFocusedTableView: TcxGridDBBandedTableView;
 begin
   Result := inherited;
@@ -673,6 +712,7 @@ begin
         DoAfterDataChange, FEventList);
 
       MainView.ViewData.Collapse(True);
+      ApplySort(cxGridDBBandedTableView2, clBody);
     end
     else
     begin

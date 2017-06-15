@@ -5,7 +5,6 @@ inherited QueryBodies: TQueryBodies
     ExplicitWidth = 42
   end
   inherited FDQuery: TFDQuery
-    Active = True
     UpdateOptions.AssignedValues = [uvRefreshMode]
     UpdateOptions.RefreshMode = rmAll
     UpdateObject = FDUpdateSQL
@@ -13,9 +12,9 @@ inherited QueryBodies: TQueryBodies
       'select '
       '  b.ID, '
       
-        '  b.Body0 || ifnull(b.Body1, '#39#39') || ifnull(b.Body2, '#39#39') || ifnul' +
-        'l(b.Body3, '#39#39') || ifnull(b.Body4, '#39#39') || ifnull(b.Body5, '#39#39') Bod' +
-        'y,'
+        '  ifnull(b.Body0, '#39#39') || ifnull(b.Body1, '#39#39') || ifnull(b.Body2, ' +
+        #39#39') || ifnull(b.Body3, '#39#39') || ifnull(b.Body4, '#39#39') || ifnull(b.Bo' +
+        'dy5, '#39#39') Body,'
       '  b.Body0,'
       '  b.Body1,'
       '  b.Body2,'

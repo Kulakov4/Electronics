@@ -157,7 +157,9 @@ begin
     IDS.Value := AIDSS;
 
     // Заполняем части наименования
-    SetBodyValues;
+    SetMySplitDataValues(QueryBodies.FDQuery, 'BODY');
+    // Заполняем части корпусных данных
+    SetMySplitDataValues(QueryBodyData.FDQuery, 'BODYDATA');
 
     IDBodyData.Value := QueryBodyData.PK.Value;
     IDBody.Value := QueryBodies.PK.Value;
