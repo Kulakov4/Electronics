@@ -301,7 +301,7 @@ var
   t: Integer;
 begin
   Assert(AView <> nil);
-  Assert(ARecordIndex > 0);
+  Assert(ARecordIndex >= 0);
 
   t := AView.Controller.TopRecordIndex;
   Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
