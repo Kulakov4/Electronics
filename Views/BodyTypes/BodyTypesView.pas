@@ -570,6 +570,9 @@ procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded
   (ADataController: TcxCustomDataController; ARecordIndex: Integer);
 var
   AcxGridMasterDataRow: TcxGridMasterDataRow;
+  Cnt: Integer;
+  LastVisibleRecIndex: Integer;
+  t: Integer;
 begin
   if ARecordIndex < 0 then
     Exit;
@@ -578,6 +581,8 @@ begin
     as TcxGridMasterDataRow;
   (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
     .ApplyBestFit();
+
+  ChooseTopRecord(MainView, ARecordIndex);
 end;
 
 procedure TViewBodyTypes.
@@ -666,7 +671,7 @@ begin
   t := MainView.Controller.TopRowIndex;
   Cnt := MainView.ViewInfo.RecordsViewInfo.VisibleCount;
 
-  dxBarButton4.Caption := Format('%d-%d-%d', [Cnt,t, MainView.Controller.FocusedRowIndex]);
+  dxBarButton4.Caption := Format('VisibleCount:%d - TopRowIndex:%d - FocusedRowIndex:%d', [Cnt,t, MainView.Controller.FocusedRowIndex]);
 end;
 
 function TViewBodyTypes.GetFocusedTableView: TcxGridDBBandedTableView;

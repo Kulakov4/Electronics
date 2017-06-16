@@ -122,6 +122,7 @@ type
     procedure ApplyBestFitFocusedBand; virtual;
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
+    procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView; AProcRef:
         TProcRef);
     procedure ClearSort(AView: TcxGridTableView);
@@ -288,6 +289,38 @@ procedure TfrmGrid.BeginUpdate;
 begin
   Inc(FUpdateCount);
   cxGrid.BeginUpdate();
+end;
+
+// Подбирает верхнюю запись так, чтобы нужная нам стала полностью видимой
+procedure TfrmGrid.ChooseTopRecord(AView: TcxGridTableView; ARecordIndex:
+    Integer);
+var
+  Cnt: Integer;
+  i: Integer;
+  LastVisibleRecIndex: Integer;
+  t: Integer;
+begin
+  Assert(AView <> nil);
+  Assert(ARecordIndex > 0);
+
+  t := AView.Controller.TopRecordIndex;
+  Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
+  LastVisibleRecIndex := t - 1 + Cnt;
+
+  i := 0;
+  // Пока текущая запись видна не полностью
+  while (i < 50) and (ARecordIndex > LastVisibleRecIndex) do
+  begin
+    // Сдвигаем вверх на одну запись
+    AView.Controller.TopRecordIndex := t + 1;
+
+    t := AView.Controller.TopRecordIndex;
+    Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
+    LastVisibleRecIndex := t - 1 + Cnt;
+
+    Inc(i); // Увеличиваем кол-во попыток
+  end;
+
 end;
 
 procedure TfrmGrid.ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
