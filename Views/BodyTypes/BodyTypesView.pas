@@ -570,9 +570,6 @@ procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded
   (ADataController: TcxCustomDataController; ARecordIndex: Integer);
 var
   AcxGridMasterDataRow: TcxGridMasterDataRow;
-  Cnt: Integer;
-  LastVisibleRecIndex: Integer;
-  t: Integer;
 begin
   if ARecordIndex < 0 then
     Exit;
