@@ -69,6 +69,7 @@ resourcestring
   sParameters = 'параметров';
 
   sTreeRootNodeName = 'Структура';
+
 const
   DBVersion = 30;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания

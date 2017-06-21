@@ -139,7 +139,7 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем семейство компонентов
-  ProductGroup.qComponentGroups.TryPost;
+  // ProductGroup.qComponentGroups.TryPost;
   MainView.Controller.ClearSelection;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
@@ -426,8 +426,8 @@ begin
       TFieldInfo.Create(ProductGroup.qProducts.Value.FieldName, True,
       'Не задано название компонента'));
 
-    ADefaultFields.Add(clProducer2.Caption.ToUpper, TFieldInfo.Create('Producer',
-      True, 'Не задан производитель'));
+    ADefaultFields.Add(clProducer2.Caption.ToUpper,
+      TFieldInfo.Create('Producer', True, 'Не задан производитель'));
 
     AExcelDM := TExcelDM.Create(Self);
     try

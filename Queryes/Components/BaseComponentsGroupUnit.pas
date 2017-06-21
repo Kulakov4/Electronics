@@ -32,7 +32,8 @@ type
     procedure Rollback; override;
     property AfterApplyUpdates: TNotifyEventsEx read FAfterApplyUpdates;
     property FullDeleted: TList<Integer> read FFullDeleted;
-    property QueryBaseComponents: TQueryBaseComponents read GetQueryBaseComponents;
+    property QueryBaseComponents: TQueryBaseComponents
+      read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
     property Producers: TQueryProducers read FProducers write FProducers;
     { Public declarations }
@@ -66,8 +67,7 @@ begin
   FFullDeleted.Clear;
 end;
 
-function TBaseComponentsGroup.GetQueryBaseComponents:
-    TQueryBaseComponents;
+function TBaseComponentsGroup.GetQueryBaseComponents: TQueryBaseComponents;
 begin
   Assert(Detail <> nil);
   Result := Detail as TQueryBaseComponents;

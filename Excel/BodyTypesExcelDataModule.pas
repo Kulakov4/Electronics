@@ -11,8 +11,8 @@ uses
 type
   TBodyTypesExcelTable = class(TCustomExcelTable)
   private
-// TODO: FBodyVariationsDataSet
-//  FBodyVariationsDataSet: TFDDataSet;
+    // TODO: FBodyVariationsDataSet
+    // FBodyVariationsDataSet: TFDDataSet;
     FfdmtBodyVariations: TFDMemTable;
     function GetBodyKind: TField;
     function GetBody: TField;
@@ -21,23 +21,23 @@ type
     function GetOutlineDrawing: TField;
     function GetBodyData: TField;
     function GetVariation: TField;
-// TODO: SetBodyVariationsDataSet
-//  procedure SetBodyVariationsDataSet(const Value: TFDDataSet);
+    // TODO: SetBodyVariationsDataSet
+    // procedure SetBodyVariationsDataSet(const Value: TFDDataSet);
   protected
-// TODO: CheckBodyVariation
-//  function CheckBodyVariation: Boolean;
-// TODO: Clone
-//  procedure Clone;
+    // TODO: CheckBodyVariation
+    // function CheckBodyVariation: Boolean;
+    // TODO: Clone
+    // procedure Clone;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
-// TODO: CheckRecord
-//  function CheckRecord: Boolean; override;
+    // TODO: CheckRecord
+    // function CheckRecord: Boolean; override;
     property BodyKind: TField read GetBodyKind;
     property Body: TField read GetBody;
-// TODO: BodyVariationsDataSet
-//  property BodyVariationsDataSet: TFDDataSet read FBodyVariationsDataSet
-//    write SetBodyVariationsDataSet;
+    // TODO: BodyVariationsDataSet
+    // property BodyVariationsDataSet: TFDDataSet read FBodyVariationsDataSet
+    // write SetBodyVariationsDataSet;
     property Image: TField read GetImage;
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
@@ -71,54 +71,54 @@ begin
 end;
 
 // TODO: CheckRecord
-//// TODO: CheckBodyVariation
-////function TBodyTypesExcelTable.CheckBodyVariation: Boolean;
-////var
-////V: Variant;
-////begin
-////// Ищем параметр с таким-же именем
-////V := FfdmtBodyVariations.LookupEx(Format('%s', [Variation.FieldName]),
-////  Variation.Value, 'ID');
-////
-////Result := VarIsNull(V);
-////
-////// Если нашли
-////if not Result then
-////begin
-////  MarkAsError(etWarring);
-////
-////  Errors.AddWarring(ExcelRow.AsInteger, Variation.Index + 1,
-////    Variation.AsString, 'Такой вариант корпуса уже существует');
-////end;
-////
-////end;
+/// / TODO: CheckBodyVariation
+/// /function TBodyTypesExcelTable.CheckBodyVariation: Boolean;
+/// /var
+/// /V: Variant;
+/// /begin
+/// /// Ищем параметр с таким-же именем
+/// /V := FfdmtBodyVariations.LookupEx(Format('%s', [Variation.FieldName]),
+/// /  Variation.Value, 'ID');
+/// /
+/// /Result := VarIsNull(V);
+/// /
+/// /// Если нашли
+/// /if not Result then
+/// /begin
+/// /  MarkAsError(etWarring);
+/// /
+/// /  Errors.AddWarring(ExcelRow.AsInteger, Variation.Index + 1,
+/// /    Variation.AsString, 'Такой вариант корпуса уже существует');
+/// /end;
+/// /
+/// /end;
 //
-//function TBodyTypesExcelTable.CheckRecord: Boolean;
-//begin
-//Result := inherited;
-//if Result then
-//begin
-//  // Проверяем что такой корпус существует
-//  Result := CheckBodyVariation;
-//end;
-//end;
+// function TBodyTypesExcelTable.CheckRecord: Boolean;
+// begin
+// Result := inherited;
+// if Result then
+// begin
+// // Проверяем что такой корпус существует
+// Result := CheckBodyVariation;
+// end;
+// end;
 
 // TODO: Clone
-//procedure TBodyTypesExcelTable.Clone;
-//var
-//AFDIndex: TFDIndex;
-//begin
-//// Клонируем курсор
-//FfdmtBodyVariations.CloneCursor(BodyVariationsDataSet);
+// procedure TBodyTypesExcelTable.Clone;
+// var
+// AFDIndex: TFDIndex;
+// begin
+/// / Клонируем курсор
+// FfdmtBodyVariations.CloneCursor(BodyVariationsDataSet);
 //
-//// Создаём индекс
-//AFDIndex := FfdmtBodyVariations.Indexes.Add;
+/// / Создаём индекс
+// AFDIndex := FfdmtBodyVariations.Indexes.Add;
 //
-//AFDIndex.Fields := Format('%s', [Variation.FieldName]);
-//AFDIndex.Name := 'idxBodyVariations';
-//AFDIndex.Active := True;
-//FfdmtBodyVariations.IndexName := AFDIndex.Name;
-//end;
+// AFDIndex.Fields := Format('%s', [Variation.FieldName]);
+// AFDIndex.Name := 'idxBodyVariations';
+// AFDIndex.Active := True;
+// FfdmtBodyVariations.IndexName := AFDIndex.Name;
+// end;
 
 function TBodyTypesExcelTable.GetBodyKind: TField;
 begin
@@ -156,18 +156,18 @@ begin
 end;
 
 // TODO: SetBodyVariationsDataSet
-//procedure TBodyTypesExcelTable.SetBodyVariationsDataSet
-//(const Value: TFDDataSet);
-//begin
-//if FBodyVariationsDataSet <> Value then
-//begin
-//  FBodyVariationsDataSet := Value;
-//  if FBodyVariationsDataSet <> nil then
-//  begin
-//    Clone;
-//  end;
-//end;
-//end;
+// procedure TBodyTypesExcelTable.SetBodyVariationsDataSet
+// (const Value: TFDDataSet);
+// begin
+// if FBodyVariationsDataSet <> Value then
+// begin
+// FBodyVariationsDataSet := Value;
+// if FBodyVariationsDataSet <> nil then
+// begin
+// Clone;
+// end;
+// end;
+// end;
 
 procedure TBodyTypesExcelTable.SetFieldsInfo;
 begin

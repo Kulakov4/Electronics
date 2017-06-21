@@ -3,7 +3,7 @@ unit CustomErrorTable;
 interface
 
 uses FireDAC.Comp.Client, ProgressInfo, System.Classes, NotifyEvents,
-TableWithProgress;
+  TableWithProgress;
 
 type
   TCustomErrorTable = class(TTableWithProgress)

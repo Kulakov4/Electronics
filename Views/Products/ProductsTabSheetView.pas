@@ -3,7 +3,8 @@ unit ProductsTabSheetView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore, dxSkinBlack, dxSkinBlue,
   dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -22,7 +23,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, ProductsSearchView,
   GridFrame, ProductsBaseView, ProductsView, StoreHouseInfoView, cxPC,
-  dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar;
+  dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
+  TreeListFrame, ProductsBaseView2;
 
 type
   TProductsFrame = class(TFrame)
@@ -30,7 +32,6 @@ type
     tsStorehouseInfo: TcxTabSheet;
     ViewStorehouseInfo: TViewStorehouseInfo;
     tsStorehouseProducts: TcxTabSheet;
-    ViewProducts: TViewProducts;
     tsStorehouseSearch: TcxTabSheet;
     ViewProductsSearch: TViewProductsSearch;
     dxBarManager: TdxBarManager;
@@ -40,6 +41,7 @@ type
     dxBarSubItem2: TdxBarSubItem;
     actLoadFromExcelDocument: TAction;
     dxBarButton1: TdxBarButton;
+    ViewProductsBase2: TViewProductsBase2;
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
   private
     { Private declarations }
@@ -75,14 +77,14 @@ begin
   S := m[0];
 
   // »щем склад с таким сокращением
-  qStoreHouseList := ViewProducts.ProductGroup.qProducts.Master as TQueryStoreHouseList;
+  // qStoreHouseList := ViewProductsBase2.ProductBaseGroup.qProducts.Master as TQueryStoreHouseList;
 
   // ѕереходим на нужный склад
-  if qStoreHouseList.LocateByAbbreviation(S) then
-    ViewProducts.LoadFromExcelDocument(AFileName)
-  else
-    TDialog.Create.ErrorMessageDialog
-      (Format('—клад с сокращЄнным названием "%s" не найден', [S]));
+  // if qStoreHouseList.LocateByAbbreviation(S) then
+  // ViewProducts.LoadFromExcelDocument(AFileName)
+  // else
+  // TDialog.Create.ErrorMessageDialog
+  // (Format('—клад с сокращЄнным названием "%s" не найден', [S]));
 end;
 
 end.

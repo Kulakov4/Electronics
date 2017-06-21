@@ -39,14 +39,13 @@ procedure TQueryParametersDetail.FDQueryUpdateRecord(ASender: TDataSet;
   AOptions: TFDUpdateRowOptions);
 var
   AParametersFor: TParametersForCategories;
-//  APKValue: Integer;
+  // APKValue: Integer;
 begin
 
   if ARequest = arUpdate then
   begin
     FDQuery.DisableControls;
     try
-
 
       // FBeforeUpdateEvent.CallEventHandlers(Self);
       AParametersFor := TParametersForCategories.Create;
@@ -59,7 +58,6 @@ begin
         AParametersFor.Free;
         // FAfterUpdateEvent.CallEventHandlers(Self);
       end;
-
 
     finally
       FDQuery.EnableControls;

@@ -3,7 +3,8 @@ unit ParametersForCategoriesView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter,
   cxData, cxDataStorage, cxEdit, cxNavigator, Data.DB, cxDBData,
@@ -42,25 +43,25 @@ type
     clIDParameterType: TcxGridDBBandedColumn;
     clOrder: TcxGridDBBandedColumn;
     clID1: TcxGridDBBandedColumn;
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
-      ADataController: TcxCustomDataController; ARecordIndex: Integer);
-    procedure cxGridDBBandedTableView2DataControllerDataModeControllerDetailFirst(
-      Sender: TcxDBDataModeController; ADataSet: TDataSet;
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
+      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridDBBandedTableView2DataControllerDataModeControllerDetailFirst
+      (Sender: TcxDBDataModeController; ADataSet: TDataSet;
       const AMasterDetailKeyFieldNames: string;
       const AMasterDetailKeyValues: Variant; var AReopened: Boolean);
-    function cxGridDBBandedTableView2DataControllerDataModeControllerDetailIsCurrentQuery(
-      Sender: TcxDBDataModeController; ADataSet: TDataSet;
+    function cxGridDBBandedTableView2DataControllerDataModeControllerDetailIsCurrentQuery
+      (Sender: TcxDBDataModeController; ADataSet: TDataSet;
       const AMasterDetailKeyFieldNames: string;
       const AMasterDetailKeyValues: Variant): Boolean;
     procedure clCheckBoxPropertiesChange(Sender: TObject);
   private
     FParametersForCategoriesGroup: TParametersForCategoriesGroup;
-    procedure SetParametersForCategoriesGroup(const Value:
-        TParametersForCategoriesGroup);
+    procedure SetParametersForCategoriesGroup(const Value
+      : TParametersForCategoriesGroup);
     { Private declarations }
   public
-    property ParametersForCategoriesGroup: TParametersForCategoriesGroup read
-        FParametersForCategoriesGroup write SetParametersForCategoriesGroup;
+    property ParametersForCategoriesGroup: TParametersForCategoriesGroup
+      read FParametersForCategoriesGroup write SetParametersForCategoriesGroup;
     { Public declarations }
   end;
 
@@ -70,8 +71,8 @@ implementation
 
 uses NotifyEvents;
 
-procedure TViewParametersForCategories.clCheckBoxPropertiesChange(
-  Sender: TObject);
+procedure TViewParametersForCategories.clCheckBoxPropertiesChange
+  (Sender: TObject);
 begin
   cxGridDBBandedTableView.BeginUpdate();
   try
@@ -82,8 +83,9 @@ begin
   end;
 end;
 
-procedure TViewParametersForCategories.cxGridDBBandedTableView2DataControllerDataModeControllerDetailFirst(
-  Sender: TcxDBDataModeController; ADataSet: TDataSet;
+procedure TViewParametersForCategories.
+  cxGridDBBandedTableView2DataControllerDataModeControllerDetailFirst
+  (Sender: TcxDBDataModeController; ADataSet: TDataSet;
   const AMasterDetailKeyFieldNames: string;
   const AMasterDetailKeyValues: Variant; var AReopened: Boolean);
 var
@@ -95,7 +97,8 @@ begin
 
   x := AMasterDetailKeyValues;
 
-  if ParametersForCategoriesGroup.qParametersDetail.FDQuery.ParamByName('IDParameterType').AsInteger = x then
+  if ParametersForCategoriesGroup.qParametersDetail.FDQuery.ParamByName
+    ('IDParameterType').AsInteger = x then
   begin
     ParametersForCategoriesGroup.qParametersDetail.FDQuery.First;
     AReopened := False;
@@ -108,18 +111,20 @@ begin
 
 end;
 
-function TViewParametersForCategories.cxGridDBBandedTableView2DataControllerDataModeControllerDetailIsCurrentQuery(
-  Sender: TcxDBDataModeController; ADataSet: TDataSet;
+function TViewParametersForCategories.
+  cxGridDBBandedTableView2DataControllerDataModeControllerDetailIsCurrentQuery
+  (Sender: TcxDBDataModeController; ADataSet: TDataSet;
   const AMasterDetailKeyFieldNames: string;
   const AMasterDetailKeyValues: Variant): Boolean;
 begin
   inherited;
-  Result := ParametersForCategoriesGroup.qParametersDetail.FDQuery.
-    ParamByName('IDParameterType').AsInteger = AMasterDetailKeyValues;
+  Result := ParametersForCategoriesGroup.qParametersDetail.FDQuery.ParamByName
+    ('IDParameterType').AsInteger = AMasterDetailKeyValues;
 end;
 
-procedure TViewParametersForCategories.cxGridDBBandedTableViewDataControllerDetailExpanded(
-  ADataController: TcxCustomDataController; ARecordIndex: Integer);
+procedure TViewParametersForCategories.
+  cxGridDBBandedTableViewDataControllerDetailExpanded(ADataController
+  : TcxCustomDataController; ARecordIndex: Integer);
 var
   I: Integer;
 begin
@@ -128,7 +133,8 @@ begin
     // Сворачиваем все строки кроме развернутой
     for I := 0 to cxGridDBBandedTableView.ViewData.RowCount - 1 do
     begin
-      if cxGridDBBandedTableView.ViewData.Rows[I].RecordIndex <> ARecordIndex then
+      if cxGridDBBandedTableView.ViewData.Rows[I].RecordIndex <> ARecordIndex
+      then
       begin
         cxGridDBBandedTableView.ViewData.Rows[I].Collapse(True);
       end;
@@ -147,8 +153,8 @@ begin
   GetDBBandedTableView(1).Focused := True;
 end;
 
-procedure TViewParametersForCategories.SetParametersForCategoriesGroup(const
-    Value: TParametersForCategoriesGroup);
+procedure TViewParametersForCategories.SetParametersForCategoriesGroup
+  (const Value: TParametersForCategoriesGroup);
 begin
   if FParametersForCategoriesGroup <> Value then
   begin
@@ -159,13 +165,13 @@ begin
     if FParametersForCategoriesGroup <> nil then
     begin
       // Подписываемся на событие
-//      TNotifyEventWrap.Create
-//        (FParametersForCategoriesGroup.qParametersDetail.AfterLoad,
-//        AfterLoadData, FEventList);
+      // TNotifyEventWrap.Create
+      // (FParametersForCategoriesGroup.qParametersDetail.AfterLoad,
+      // AfterLoadData, FEventList);
 
       // Искусственно вызываем событие
-//      AfterLoadData(FParametersForCategoriesGroup.qParametersDetail.
-//        AfterLoad);
+      // AfterLoadData(FParametersForCategoriesGroup.qParametersDetail.
+      // AfterLoad);
 
       cxGridDBBandedTableView.DataController.DataSource :=
         FParametersForCategoriesGroup.qParameterTypes.DataSource;

@@ -3,7 +3,8 @@ unit SearchProductQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -15,8 +16,8 @@ type
     function GetIDProducer: TField;
     { Private declarations }
   public
-    function Search(const AValue: string; const AIDProducer: Integer): Integer;
-        overload;
+    function Search(const AValue: string; const AIDProducer: Integer)
+      : Integer; overload;
     function Search(const AValue: string): Integer; overload;
     property IDProducer: TField read GetIDProducer;
     { Public declarations }
@@ -31,8 +32,8 @@ begin
   Result := Field('IDProducer');
 end;
 
-function TQuerySearchProduct.Search(const AValue: string; const AIDProducer:
-    Integer): Integer;
+function TQuerySearchProduct.Search(const AValue: string;
+  const AIDProducer: Integer): Integer;
 begin
   Assert(not AValue.IsEmpty);
   Assert(AIDProducer > 0);
@@ -50,7 +51,6 @@ end;
 function TQuerySearchProduct.Search(const AValue: string): Integer;
 begin
   Assert(not AValue.IsEmpty);
-
 
   FDQuery.Filtered := False;
   FDQuery.Filter := '';

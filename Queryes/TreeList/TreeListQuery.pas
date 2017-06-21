@@ -29,8 +29,8 @@ type
     procedure LocateToRoot;
     property ExternalID: TField read GetExternalID;
     property IsRootFocused: Boolean read GetIsRootFocused;
-    property ParentID: TField read GetParentID;
-    property Value: TField read GetValue;
+    property ParentId: TField read GetParentID;
+    property value: TField read GetValue;
     { Public declarations }
   end;
 
@@ -40,25 +40,25 @@ uses System.Generics.Collections, ProjectConst;
 
 {$R *.dfm}
 
-procedure TQueryTreeList.AddChildCategory(const AValue: string; ALevel:
-    Integer);
+procedure TQueryTreeList.AddChildCategory(const AValue: string;
+  ALevel: Integer);
 var
   AParentId: Variant;
-  AExternalId: string;
+  AExternalID: string;
 begin
   Assert(FDQuery.RecordCount > 0);
-  AParentId := PK.Value;
+  AParentId := PK.value;
 
   if not CheckPossibility(AParentId, AValue) then
     Exit;
 
   TryPost;
 
-  AExternalId := CalculateExternalId(AParentId, ALevel);
+  AExternalID := CalculateExternalId(AParentId, ALevel);
   TryAppend;
-  Value.AsString := AValue;
-  ParentID.AsInteger := AParentId;
-  ExternalID.AsString := AExternalId;
+  value.AsString := AValue;
+  ParentId.AsInteger := AParentId;
+  ExternalID.AsString := AExternalID;
   TryPost;
 end;
 
@@ -69,14 +69,13 @@ begin
   if FDQuery.RecordCount = 0 then
   begin
     TryAppend;
-    Value.AsString := sTreeRootNodeName;
+    value.AsString := sTreeRootNodeName;
     ExternalID.AsString := '00000';
     TryPost;
   end;
 end;
 
-function TQueryTreeList.CalculateExternalId(ParentId, ALevel: Integer):
-    string;
+function TQueryTreeList.CalculateExternalId(ParentId, ALevel: Integer): string;
 var
   AQuery: TFDQuery;
   vLevel, vId, vInteger: Integer;
@@ -119,12 +118,12 @@ begin
   end;
 end;
 
-function TQueryTreeList.CheckPossibility(ParentId: Integer; value: string):
-    Boolean;
+function TQueryTreeList.CheckPossibility(ParentId: Integer;
+  value: string): Boolean;
 var
   AQuery: TFDQuery;
 begin
-//  Result := false;
+  // Result := false;
   AQuery := TFDQuery.Create(nil);
   try
     AQuery.Connection := FDQuery.Connection;
@@ -159,7 +158,7 @@ end;
 
 function TQueryTreeList.GetIsRootFocused: Boolean;
 begin
-  Result := (FDQuery.RecordCount > 0) and (ParentID.IsNull);
+  Result := (FDQuery.RecordCount > 0) and (ParentId.IsNull);
 end;
 
 function TQueryTreeList.GetParentID: TField;
@@ -180,7 +179,7 @@ end;
 
 procedure TQueryTreeList.LocateToRoot;
 begin
-  FDQuery.LocateEx(ParentID.FieldName, NULL, []);
+  FDQuery.LocateEx(ParentId.FieldName, NULL, []);
 end;
 
 end.

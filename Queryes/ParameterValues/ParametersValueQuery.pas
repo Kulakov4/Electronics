@@ -88,7 +88,8 @@ procedure TQueryParametersValue.Load(AIDComponent, AIDParameter: Integer);
 begin
   Assert(AIDComponent > 0);
   Assert(AIDParameter > 0);
-  Load([ProductIDParam.Name, ParameterIdParam.Name], [AIDComponent, AIDParameter]);
+  Load([ProductIDParam.Name, ParameterIdParam.Name],
+    [AIDComponent, AIDParameter]);
 end;
 
 procedure TQueryParametersValue.LocateOrAppend(AValue: string);

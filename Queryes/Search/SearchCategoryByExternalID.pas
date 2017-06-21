@@ -3,7 +3,8 @@ unit SearchCategoryByExternalID;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -18,12 +19,12 @@ type
     { Public declarations }
   end;
 
-
 implementation
 
 {$R *.dfm}
 
-function TQuerySearchCategoryByExternalID.Search(const AExternalId: string): Integer;
+function TQuerySearchCategoryByExternalID.Search(const AExternalId
+  : string): Integer;
 begin
   Assert(not AExternalId.IsEmpty);
   Result := Search(['vExternalId'], [AExternalId]);

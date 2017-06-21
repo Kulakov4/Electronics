@@ -3,7 +3,8 @@ unit SearchComponentCategoryQuery2;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -16,8 +17,8 @@ type
     { Private declarations }
   public
     procedure DeleteAll;
-    function Search(AIDComponent: Integer; const ASubGroup: String): Integer;
-        overload;
+    function Search(AIDComponent: Integer; const ASubGroup: String)
+      : Integer; overload;
     procedure SearchAndDelete(AIDComponent: Integer; const ASubGroup: String);
     property ProductCategoryID: TField read GetProductCategoryID;
     { Public declarations }
@@ -40,17 +41,17 @@ begin
   Result := Field('ProductCategoryID');
 end;
 
-function TQuerySearchComponentCategory2.Search(AIDComponent: Integer; const
-    ASubGroup: String): Integer;
+function TQuerySearchComponentCategory2.Search(AIDComponent: Integer;
+  const ASubGroup: String): Integer;
 begin
   Assert(AIDComponent > 0);
-//  Assert(not ASubGroup.IsEmpty);
+  // Assert(not ASubGroup.IsEmpty);
 
   Result := Search(['ProductID', 'SubGroup'], [AIDComponent, ASubGroup]);
 end;
 
 procedure TQuerySearchComponentCategory2.SearchAndDelete(AIDComponent: Integer;
-    const ASubGroup: String);
+  const ASubGroup: String);
 begin
   if Search(AIDComponent, ASubGroup) > 0 then
     DeleteAll;

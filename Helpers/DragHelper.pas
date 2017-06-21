@@ -50,8 +50,8 @@ begin
   Order := AOrder;
 end;
 
-constructor TDragAndDropInfo.Create(AKeyColumn, AOrderColumn:
-    TcxGridDBBandedColumn);
+constructor TDragAndDropInfo.Create(AKeyColumn, AOrderColumn
+  : TcxGridDBBandedColumn);
 begin
   inherited Create;
   Assert(AKeyColumn <> nil);

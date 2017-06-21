@@ -26,8 +26,8 @@ implementation
 
 uses System.StrUtils;
 
-function TQuerySearchComponentsByValuesLike.Search(const AComponentNames:
-    string): Integer;
+function TQuerySearchComponentsByValuesLike.Search(const AComponentNames
+  : string): Integer;
 var
   i: Integer;
   j: Integer;

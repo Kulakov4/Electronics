@@ -3,7 +3,8 @@ unit ErrorForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -33,7 +34,8 @@ type
   protected
     procedure AssignDataSet; override;
   public
-    property ErrorTable: TCustomErrorTable read GetErrorTable write SetErrorTable;
+    property ErrorTable: TCustomErrorTable read GetErrorTable
+      write SetErrorTable;
     { Public declarations }
   end;
 
@@ -45,7 +47,8 @@ procedure TfrmError.AssignDataSet;
 begin
   inherited;
   if (ErrorTable <> nil) and (ErrorTable.Active) then
-    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d',
+      [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
 end;
 
 function TfrmError.GetErrorTable: TCustomErrorTable;

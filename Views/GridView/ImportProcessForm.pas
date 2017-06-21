@@ -3,7 +3,8 @@ unit ImportProcessForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, GridFrame,
   Vcl.ExtCtrls, cxGraphics, cxLookAndFeels,
   cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
@@ -59,15 +60,16 @@ begin
   ModalResult := mrOk;
 end;
 
-procedure TfrmImportProcess.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TfrmImportProcess.FormClose(Sender: TObject;
+  var Action: TCloseAction);
 begin
   inherited;
   Action := caFree;
   frmImportProcess := nil;
 end;
 
-procedure TfrmImportProcess.FormCloseQuery(Sender: TObject; var CanClose:
-    Boolean);
+procedure TfrmImportProcess.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
 begin
   inherited;
   CanClose := Done;

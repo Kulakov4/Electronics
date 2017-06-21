@@ -175,7 +175,8 @@ end;
 constructor TComponentsExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FQuerySearchCategoryByExternalID := TQuerySearchCategoryByExternalID.Create(Self);
+  FQuerySearchCategoryByExternalID :=
+    TQuerySearchCategoryByExternalID.Create(Self);
   FQuerySearchFamilyByValue2 := TQuerySearchFamilyByValue2.Create(Self);
   FGoodSubGroup := TList<String>.Create;
   FBadSubGroup := TList<String>.Create;

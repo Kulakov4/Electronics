@@ -77,9 +77,8 @@ var
   Sign: Integer;
 begin
   for I := 0 to FRecOrderList.Count - 1 do
-      FRecOrderList[I].Free;
+    FRecOrderList[I].Free;
   FRecOrderList.Clear;
-
 
   // √отовимс€ обновить пор€док параметров
   AClone := TFDMemTable.Create(Self);

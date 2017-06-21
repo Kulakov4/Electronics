@@ -49,7 +49,7 @@ end;
 
 procedure TQuerySubParameters.DoBeforePost(Sender: TObject);
 begin
-  FDQuery.FieldByName('IsCustomParameter').AsBoolean := false;
+  FDQuery.FieldByName('IsCustomParameter').AsBoolean := False;
 end;
 
 function TQuerySubParameters.GetParentParameter: TField;

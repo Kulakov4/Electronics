@@ -81,8 +81,7 @@ begin
   while not FDQuery.Eof do
   begin
     // Связываем компоненты со своими описаниями
-    if DescriptionID.AsInteger  <>
-      DescrID.AsInteger then
+    if DescriptionID.AsInteger <> DescrID.AsInteger then
     begin
       FDQuery.Edit;
       DescriptionID.AsInteger := DescrID.AsInteger;

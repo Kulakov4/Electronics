@@ -3,6 +3,7 @@ unit NotifyEvents;
 interface
 
 uses System.Contnrs, System.Classes;
+
 type
   TNotifyEventRef = reference to procedure(ASender: TObject);
 
@@ -11,7 +12,7 @@ type
     FOwnerObjectList: TObjectList;
   public
     constructor Create(Collection: TCollection; AOwnerObjectList: TObjectList);
-        reintroduce;
+      reintroduce;
     destructor Destroy; override;
   end;
 
@@ -30,7 +31,7 @@ type
     FNotifyEvent: TNotifyEvent;
   public
     constructor Create(Collection: TCollection; ANotifyEvent: TNotifyEvent;
-        AOwnerObjectList: TObjectList = nil); reintroduce; overload;
+      AOwnerObjectList: TObjectList = nil); reintroduce; overload;
   end;
 
   TNotifyEventsEx = class(TNotifyEvents)
@@ -45,8 +46,9 @@ type
   private
     FNotifyEventRef: TNotifyEventRef;
   public
-    constructor Create(Collection: TCollection; ANotifyEventRef: TNotifyEventRef;
-        AOwnerObjectList: TObjectList = nil); reintroduce; overload;
+    constructor Create(Collection: TCollection;
+      ANotifyEventRef: TNotifyEventRef; AOwnerObjectList: TObjectList = nil);
+      reintroduce; overload;
   end;
 
 implementation
@@ -80,18 +82,19 @@ begin
     ne := (Items[i] as TNotifyEventWrap).FNotifyEvent;
     if @ne = @ANotifyEvent then
     begin
-      Delete( i );
+      Delete(i);
     end;
   end;
 end;
 
-constructor TNotifyEventWrap.Create(Collection: TCollection; ANotifyEvent:
-    TNotifyEvent; AOwnerObjectList: TObjectList = nil);
+constructor TNotifyEventWrap.Create(Collection: TCollection;
+  ANotifyEvent: TNotifyEvent; AOwnerObjectList: TObjectList = nil);
 begin
   Assert(Assigned(ANotifyEvent));
 
   FNotifyEvent := ANotifyEvent;
-  inherited Create(Collection, AOwnerObjectList); // Добавляем элемент коллекции в коллекцию
+  inherited Create(Collection, AOwnerObjectList);
+  // Добавляем элемент коллекции в коллекцию
 end;
 
 procedure TNotifyEventsEx.CallEventHandlers(Sender: TObject);
@@ -107,32 +110,32 @@ begin
   end;
 end;
 
-constructor TNotifyEventR.Create(Collection: TCollection; ANotifyEventRef:
-    TNotifyEventRef; AOwnerObjectList: TObjectList = nil);
+constructor TNotifyEventR.Create(Collection: TCollection;
+  ANotifyEventRef: TNotifyEventRef; AOwnerObjectList: TObjectList = nil);
 begin
   Assert(Assigned(ANotifyEventRef));
 
   FNotifyEventRef := ANotifyEventRef;
-  inherited Create(Collection, AOwnerObjectList); // Добавляем элемент коллекции в коллекцию
+  inherited Create(Collection, AOwnerObjectList);
+  // Добавляем элемент коллекции в коллекцию
 end;
 
 constructor TCustomNotifyEvent.Create(Collection: TCollection;
-    AOwnerObjectList: TObjectList);
+  AOwnerObjectList: TObjectList);
 begin
   Assert(Collection <> nil);
   inherited Create(Collection); // Добавляем элемент коллекции в коллекцию
   FOwnerObjectList := AOwnerObjectList;
   if AOwnerObjectList <> nil then
-    AOwnerObjectList.Add(Self); // Добавляем элемент коллекции в список-владелец элементов
+    AOwnerObjectList.Add(Self);
+  // Добавляем элемент коллекции в список-владелец элементов
 end;
 
 destructor TCustomNotifyEvent.Destroy;
 begin
   if FOwnerObjectList <> nil then
-    FOwnerObjectList.Extract(Self); //Удаляем ссылку на себя из списка объектов
+    FOwnerObjectList.Extract(Self); // Удаляем ссылку на себя из списка объектов
   inherited;
 end;
-
-
 
 end.

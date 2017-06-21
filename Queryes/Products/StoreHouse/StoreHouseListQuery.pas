@@ -3,7 +3,8 @@ unit StoreHouseListQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -35,7 +36,6 @@ implementation
 uses NotifyEvents, RepositoryDataModule, StrHelper;
 
 {$R *.dfm}
-
 { TfrmQueryStoreHouseList }
 
 constructor TQueryStoreHouseList.Create(AOwner: TComponent);
@@ -71,8 +71,7 @@ begin
 end;
 
 procedure TQueryStoreHouseList.FDQueryBeforeOpen(DataSet: TDataSet);
-begin
-;
+begin;
   inherited;
 end;
 
@@ -86,8 +85,8 @@ begin
   Result := Field('Title');
 end;
 
-function TQueryStoreHouseList.LocateByAbbreviation(const AAbbreviation:
-    string): Boolean;
+function TQueryStoreHouseList.LocateByAbbreviation(const AAbbreviation
+  : string): Boolean;
 begin
   Assert(not AAbbreviation.IsEmpty);
   Result := FDQuery.Locate(Abbreviation.FieldName, AAbbreviation, []);

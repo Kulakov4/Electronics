@@ -87,11 +87,11 @@ type
     procedure actRollback2Execute(Sender: TObject);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
-    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
-        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
-        TShiftState);
+    procedure cxGridDBBandedTableView2EditKeyDown
+      (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+      AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
-        AColumn: TcxGridColumn);
+      AColumn: TcxGridColumn);
 
   private
     FProductBaseGroup: TProductBaseGroup;
@@ -111,8 +111,8 @@ type
     constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
-    property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup write
-        SetProductBaseGroup;
+    property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup
+      write SetProductBaseGroup;
     { Public declarations }
   end;
 
@@ -127,13 +127,13 @@ constructor TViewProductsBase.Create(AOwner: TComponent);
 begin
   inherited;
   // Если щёлкнули по группе компонентов
-//  GridSort.Add(TSortVariant.Create( clSubgroup, [clSubgroup] ));
+  // GridSort.Add(TSortVariant.Create( clSubgroup, [clSubgroup] ));
 
   // Если щёлкнули по производителю
-  GridSort.Add(TSortVariant.Create( clProducer2, [clProducer2]));
+  GridSort.Add(TSortVariant.Create(clProducer2, [clProducer2]));
 
   // Если щёлкнули по наименованию
-  GridSort.Add(TSortVariant.Create( clValue2, [clValue2]));
+  GridSort.Add(TSortVariant.Create(clValue2, [clValue2]));
 
   PostOnEnterFields.Add(clComponentGroup.DataBinding.FieldName);
 end;
@@ -288,9 +288,9 @@ begin
   inherited;
 end;
 
-procedure TViewProductsBase.cxGridDBBandedTableView2EditKeyDown(Sender:
-    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
-    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TViewProductsBase.cxGridDBBandedTableView2EditKeyDown
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 var
   AColumn: TcxGridDBBandedColumn;
   ATextEdit: TcxTextEdit;
@@ -305,16 +305,16 @@ begin
     ATextEdit := (AEdit as TcxTextEdit);
     S := ATextEdit.Text;
     // Если наименование задано
-    if (not S.Trim.IsEmpty) and (ProductBaseGroup.qProductsBase.IDProducer.AsInteger > 0)
-    then
+    if (not S.Trim.IsEmpty) and
+      (ProductBaseGroup.qProductsBase.IDProducer.AsInteger > 0) then
       ProductBaseGroup.qProductsBase.TryPost;
     UpdateView;
   end;
 
 end;
 
-procedure TViewProductsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
-    TcxGridTableView; AColumn: TcxGridColumn);
+procedure TViewProductsBase.cxGridDBBandedTableViewColumnHeaderClick
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin
   inherited;
 
@@ -342,8 +342,8 @@ const AErrorMessage, AEmptyErrorMessage: string);
 var
   AFileName: string;
 begin
-  if FProductBaseGroup.qProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
-  then
+  if FProductBaseGroup.qProductsBase.FDQuery.FieldByName
+    (ADocFieldInfo.FieldName).AsString <> '' then
   begin
     AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
       ADocFieldInfo.Folder), FProductBaseGroup.qProductsBase.FDQuery.FieldByName
@@ -368,11 +368,11 @@ begin
     if FProductBaseGroup <> nil then
     begin
       FProductBaseGroup.qProductsBase.qProducers.TryOpen;
-      FProductBaseGroup.qComponentGroups.TryOpen;
+      // FProductBaseGroup.qComponentGroups.TryOpen;
 
       // Привязываем представление к данным\
-      MainView.DataController.DataSource :=
-        FProductBaseGroup.qComponentGroups.DataSource;
+      // MainView.DataController.DataSource :=
+      // FProductBaseGroup.qComponentGroups.DataSource;
 
       cxGridDBBandedTableView2.DataController.DataSource :=
         FProductBaseGroup.qProductsBase.DataSource;
@@ -391,7 +391,8 @@ var
   Ok: Boolean;
 begin
   inherited;
-  Ok := (ProductBaseGroup <> nil) and (ProductBaseGroup.qProductsBase.FDQuery.Active);
+  Ok := (ProductBaseGroup <> nil) and
+    (ProductBaseGroup.qProductsBase.FDQuery.Active);
   actCommit.Enabled := Ok and ProductBaseGroup.qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
   actExportToExcelDocument.Enabled := Ok and

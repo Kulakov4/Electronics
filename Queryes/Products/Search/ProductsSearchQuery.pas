@@ -24,6 +24,7 @@ type
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
     FqStoreHouseList: TQueryStoreHouseList;
+
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;
@@ -39,8 +40,8 @@ type
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
-//    procedure SetConditionSQL(const AConditionSQL, AMark: String;
-//      ANotifyEventRef: TNotifyEventRef = nil);
+    // procedure SetConditionSQL(const AConditionSQL, AMark: String;
+    // ANotifyEventRef: TNotifyEventRef = nil);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;

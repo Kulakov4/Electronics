@@ -3,7 +3,8 @@ unit QueryWithMasterUnit;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseEventsQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -25,8 +26,8 @@ type
     procedure Load; overload;
     procedure MasterCascadeDelete;
     procedure RefreshQuery; override;
-// TODO: PostPostMessage
-//  procedure PostPostMessage;
+    // TODO: PostPostMessage
+    // procedure PostPostMessage;
     procedure TryLoad;
     procedure TryPost; override;
     procedure TryRefresh;
@@ -59,7 +60,8 @@ var
 begin
   FNeedLoad := False;
   Assert(FMaster <> nil);
-  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0, FMaster.PK.AsInteger, -1);
+  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
+    FMaster.PK.AsInteger, -1);
   Load(AIDParent);
 end;
 
@@ -117,10 +119,10 @@ begin
 end;
 
 // TODO: PostPostMessage
-//procedure TQueryWithMaster.PostPostMessage;
-//begin
-//PostMessage(Handle, WM_NEED_POST, PKValue, 0);
-//end;
+// procedure TQueryWithMaster.PostPostMessage;
+// begin
+// PostMessage(Handle, WM_NEED_POST, PKValue, 0);
+// end;
 
 procedure TQueryWithMaster.TryLoad;
 begin

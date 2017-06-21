@@ -89,9 +89,8 @@ function TDialog.ClearTreeDialog: Boolean;
 begin
   Result := Application.MessageBox
     (PChar('Перед загрузкой данных дерево категорий будет очищено' + #13#10 +
-    'Все компоненты будут удалены' + #13#10 +
-    #13#10 + 'Продолжить?'), 'Загрузка дерева категорий',
-    MB_YESNO + MB_ICONQUESTION) = IDYES;
+    'Все компоненты будут удалены' + #13#10 + #13#10 + 'Продолжить?'),
+    'Загрузка дерева категорий', MB_YESNO + MB_ICONQUESTION) = IDYES;
 
 end;
 

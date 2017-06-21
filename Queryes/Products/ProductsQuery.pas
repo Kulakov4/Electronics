@@ -115,7 +115,7 @@ begin
         [AProducers[I]]);
 
     TryAppend;
-    Value.AsString := AValues[i];
+    Value.AsString := AValues[I];
     IDProducer.AsInteger := qProducers.PK.Value;
     TryPost;
   end;
@@ -134,8 +134,7 @@ begin
 end;
 
 procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
-begin
-  ;
+begin;
 end;
 
 function TQueryProducts.GetExportFileName: string;

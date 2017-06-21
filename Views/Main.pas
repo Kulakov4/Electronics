@@ -215,17 +215,17 @@ end;
 
 procedure TfrmMain.actAddTreeNodeExecute(Sender: TObject);
 var
-  value: string;
+  Value: string;
 begin
   DM.qTreeList.TryPost;
 
-  value := InputBox(sDatabase, sPleaseWrite, '');
+  Value := InputBox(sDatabase, sPleaseWrite, '');
 
-  if value <> '' then
+  if Value <> '' then
   begin
     DM.qTreeList.FDQuery.DisableControls;
     try
-      DM.qTreeList.AddChildCategory(value,
+      DM.qTreeList.AddChildCategory(Value,
         GetLevel(dbtlCategories.FocusedNode));
     finally
       DM.qTreeList.FDQuery.EnableControls;
@@ -247,7 +247,8 @@ end;
 
 procedure TfrmMain.actDeleteStorehouseUpdate(Sender: TObject);
 begin
- actDeleteStorehouse.Enabled := tvStorehouseList.DataController.RecordCount > 0;
+  actDeleteStorehouse.Enabled := tvStorehouseList.DataController.
+    RecordCount > 0;
 end;
 
 procedure TfrmMain.actDeleteTreeNodeExecute(Sender: TObject);
@@ -389,22 +390,23 @@ end;
 
 procedure TfrmMain.actRenameStorehouseUpdate(Sender: TObject);
 begin
-  actRenameStorehouse.Enabled := tvStorehouseList.DataController.RecordCount > 0;
+  actRenameStorehouse.Enabled := tvStorehouseList.DataController.
+    RecordCount > 0;
 end;
 
 procedure TfrmMain.actRenameTreeNodeExecute(Sender: TObject);
 var
-  value: string;
+  Value: string;
 begin
   DM.qTreeList.TryPost;
 
-  value := InputBox(sDatabase, sPleaseWrite, DM.qTreeList.value.AsString);
-  if (value <> '') and
+  Value := InputBox(sDatabase, sPleaseWrite, DM.qTreeList.Value.AsString);
+  if (Value <> '') and
     (DM.qTreeList.CheckPossibility(DM.qTreeList.FDQuery.FieldByName('ParentId')
-    .AsInteger, value)) then
+    .AsInteger, Value)) then
   begin
     DM.qTreeList.TryEdit;
-    DM.qTreeList.value.AsString := value;
+    DM.qTreeList.Value.AsString := Value;
     DM.qTreeList.TryPost;
   end;
 
@@ -559,7 +561,7 @@ end;
 
 procedure TfrmMain.cxpcLeftChange(Sender: TObject);
 begin
-  ProductsFrame.ViewProducts.CheckAndSaveChanges;
+  ProductsFrame.ViewProductsBase2.CheckAndSaveChanges;
   ProductsFrame.ViewProductsSearch.CheckAndSaveChanges;
   ComponentsFrame.ViewComponents.CheckAndSaveChanges;
 end;
@@ -667,7 +669,8 @@ begin
       // Подписываемся чтобы искать компонент в параметрической таблице
       TNotifyEventWrap.Create(DM.ProductGroup.qProducts.OnLocate,
         DoOnProductLocate);
-      TNotifyEventWrap.Create(DM.ProductSearchGroup.qProductsSearch.OnLocate, DoOnProductLocate);
+      TNotifyEventWrap.Create(DM.ProductSearchGroup.qProductsSearch.OnLocate,
+        DoOnProductLocate);
 
       // Привязываем представления к данным
       ComponentsFrame.ViewComponents.ComponentsGroup := DM.ComponentsGroup;
@@ -699,9 +702,10 @@ begin
       ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
         DM.ProductGroup.qStoreHouseList;
       // Привязываем текущий склад к данным
-      ProductsFrame.ViewProducts.ProductGroup := DM.ProductGroup;
+      ProductsFrame.ViewProductsBase2.ProductBaseGroup := DM.ProductGroup;
       // Привязываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch.ProductSearchGroup := DM.ProductSearchGroup;
+      ProductsFrame.ViewProductsSearch.ProductSearchGroup :=
+        DM.ProductSearchGroup;
 
       // ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;
@@ -742,7 +746,8 @@ begin
     not DM.qTreeList.IsRootFocused;
 
   Assert(DM.qTreeList.PK.AsInteger > 0);
-  FCategoryPath := FQuerySearchCategoriesPath.GetFullPath(DM.qTreeList.PK.AsInteger);
+  FCategoryPath := FQuerySearchCategoriesPath.GetFullPath
+    (DM.qTreeList.PK.AsInteger);
 
   UpdateCaption;
 
@@ -798,7 +803,7 @@ begin
     rc := TSearchSubCategories.Search(DM.qTreeList.PK.Value);
     // Если у нашей категории есть подкатегории
     if rc > 0 then
-      ACategoryPath := DM.qTreeList.value.AsString
+      ACategoryPath := DM.qTreeList.Value.AsString
     else
     begin
       // Если в цепочке категорий мы последнее звено
@@ -966,7 +971,7 @@ begin
 
     end
     else
-      S := DM.qTreeList.value.AsString;
+      S := DM.qTreeList.Value.AsString;
 
     Caption := Format('%s - %s', [sMainFormCaption, S]);
   end;

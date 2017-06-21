@@ -36,9 +36,9 @@ type
     constructor Create(AOwner: TComponent); override;
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
-    procedure LocateOrAppend(AIDBodyKind: Integer; const ABody, ABodyData: String;
-        AIDProducer: Integer; const AOutlineDrawing, ALandPattern, AVariation,
-        AImage: string);
+    procedure LocateOrAppend(AIDBodyKind: Integer;
+      const ABody, ABodyData: String; AIDProducer: Integer;
+      const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     { Public declarations }
   end;
@@ -128,7 +128,7 @@ begin
       L.Add('');
     end;
 
-    AOLDIDS := ','+IDS.AsString.Replace(' ', '')+',';
+    AOLDIDS := ',' + IDS.AsString.Replace(' ', '') + ',';
 
     for I := 0 to L.Count - 1 do
     begin
@@ -138,18 +138,18 @@ begin
       Assert(not AID.IsEmpty);
 
       // Удаляем этот идентификатор из старых
-      AOLDIDS := AOLDIDS.Replace(','+AID+',', ',');
+      AOLDIDS := AOLDIDS.Replace(',' + AID + ',', ',');
 
       AIDSS := AIDSS + IfThen(AIDSS.IsEmpty, '', ', ');
       AIDSS := AIDSS + AID;
     end;
 
-    AOldIDS := AOldIDS.Trim([',']);
+    AOLDIDS := AOLDIDS.Trim([',']);
 
     // Если остались какие-то старые варианты корпусов
-    if not AOldIDS.IsEmpty then
+    if not AOLDIDS.IsEmpty then
     begin
-      m := AOldIDS.Split([',']);
+      m := AOLDIDS.Split([',']);
       for AID in m do
         QueryBodyVariations.LocateByPKAndDelete(AID);
     end;
@@ -336,9 +336,9 @@ begin
   }
 end;
 
-procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer; const ABody,
-    ABodyData: String; AIDProducer: Integer; const AOutlineDrawing,
-    ALandPattern, AVariation, AImage: string);
+procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer;
+  const ABody, ABodyData: String; AIDProducer: Integer;
+  const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
 begin
 end;
 

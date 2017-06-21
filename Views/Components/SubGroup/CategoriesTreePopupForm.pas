@@ -3,7 +3,8 @@ unit CategoriesTreePopupForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PopupForm, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles, cxTL,
   cxTLdxBarBuiltInMenu, cxInplaceContainer, cxTLData, cxDBTL, TreeListQuery,
@@ -49,12 +50,13 @@ type
     procedure SetQueryTreeList(const Value: TQueryTreeList);
     { Private declarations }
   protected
-    procedure DoAfterFormShow(var Message: TMessage); message WM_AFTER_FORM_SHOW;
+    procedure DoAfterFormShow(var Message: TMessage);
+      message WM_AFTER_FORM_SHOW;
   public
     constructor Create(AOwner: TComponent); override;
     property OnClosePopup: TNotifyEventsEx read FOnClosePopup;
-    property QueryTreeList: TQueryTreeList read FQueryTreeList write
-        SetQueryTreeList;
+    property QueryTreeList: TQueryTreeList read FQueryTreeList
+      write SetQueryTreeList;
     { Public declarations }
   end;
 
@@ -76,8 +78,8 @@ begin
   QueryTreeList.FilterByExternalID('');
 end;
 
-procedure TfrmCategoriesTreePopup.cxBarEditItemPropertiesChange(
-  Sender: TObject);
+procedure TfrmCategoriesTreePopup.cxBarEditItemPropertiesChange
+  (Sender: TObject);
 var
   S: string;
 begin
@@ -85,12 +87,12 @@ begin
   QueryTreeList.FilterByExternalID(S);
 end;
 
-procedure TfrmCategoriesTreePopup.cxBarEditItemPropertiesEditValueChanged(
-  Sender: TObject);
+procedure TfrmCategoriesTreePopup.cxBarEditItemPropertiesEditValueChanged
+  (Sender: TObject);
 begin
   inherited;
   FOnClosePopup.CallEventHandlers(Self);
-//  PopupWindow.CloseUp;
+  // PopupWindow.CloseUp;
 end;
 
 procedure TfrmCategoriesTreePopup.cxdbtlCateroriesDblClick(Sender: TObject);
@@ -109,8 +111,7 @@ begin
   PostMessage(Handle, WM_AFTER_FORM_SHOW, 0, 0);
 end;
 
-procedure TfrmCategoriesTreePopup.SetQueryTreeList(const Value:
-    TQueryTreeList);
+procedure TfrmCategoriesTreePopup.SetQueryTreeList(const Value: TQueryTreeList);
 begin
   if FQueryTreeList <> Value then
   begin

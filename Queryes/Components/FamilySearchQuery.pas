@@ -69,8 +69,8 @@ begin
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
-procedure TQueryFamilySearch.AppendRows(AFieldName: string; AValues:
-    TArray<String>);
+procedure TQueryFamilySearch.AppendRows(AFieldName: string;
+  AValues: TArray<String>);
 begin
   if Mode = SearchMode then
   begin

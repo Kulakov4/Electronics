@@ -63,12 +63,12 @@ type
     property ComponentsDatasheetFolder: String read GetComponentsDatasheetFolder
       write SetComponentsDatasheetFolder;
     property DataBasePath: string read GetDataBasePath write SetDataBasePath;
-    property DBMigrationFolder: string read GetDBMigrationFolder write
-        SetDBMigrationFolder;
+    property DBMigrationFolder: string read GetDBMigrationFolder
+      write SetDBMigrationFolder;
     property LastFolderForComponentsLoad: string
       read GetLastFolderForComponentsLoad write SetLastFolderForComponentsLoad;
-    property ParametricDataFolder: string read GetParametricDataFolder write
-        SetParametricDataFolder;
+    property ParametricDataFolder: string read GetParametricDataFolder
+      write SetParametricDataFolder;
     property LastFolderForExcelFile: string read GetLastFolderForExcelFile
       write SetLastFolderForExcelFile;
   end;
@@ -128,7 +128,8 @@ function TSettings.GetDBMigrationFolder: string;
 var
   ADefaultFolder: string;
 begin
-  ADefaultFolder := TPath.Combine( TPath.GetDirectoryName( Application.ExeName ), 'update');
+  ADefaultFolder := TPath.Combine(TPath.GetDirectoryName(Application.ExeName),
+    'update');
   Result := GetValue('Db', 'DBMigrationFolder', ADefaultFolder);
 end;
 

@@ -19,8 +19,8 @@ type
     function CheckComponent: Boolean;
     procedure CreateFieldDefs; override;
     procedure SetFieldsInfo; override;
-    property QuerySearchComponent: TQuerySearchComponent read
-        GetQuerySearchComponent;
+    property QuerySearchComponent: TQuerySearchComponent
+      read GetQuerySearchComponent;
   public
     function CheckRecord: Boolean; override;
     property ComponentName: TField read GetComponentName;
@@ -40,7 +40,6 @@ type
     { Public declarations }
   end;
 
-
 implementation
 
 function TDocBindExcelTable.CheckComponent: Boolean;
@@ -57,7 +56,8 @@ begin
   begin
     MarkAsError(etError);
     Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
-      ComponentName.AsString, 'Семейство компонентов с таким именем не найдено');
+      ComponentName.AsString,
+      'Семейство компонентов с таким именем не найдено');
   end;
 end;
 
@@ -125,7 +125,7 @@ begin
   Result := CustomExcelTable as TDocBindExcelTable;
 end;
 
-{%CLASSGROUP 'Vcl.Controls.TControl'}
+{ %CLASSGROUP 'Vcl.Controls.TControl' }
 
 {$R *.dfm}
 

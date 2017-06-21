@@ -58,8 +58,8 @@ type
     procedure Commit; override;
     procedure InsertRecordList(AComponentsExcelTable: TComponentsExcelTable;
       const AProducer: string);
-// TODO: LoadBodyList
-//  procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
+    // TODO: LoadBodyList
+    // procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
       AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
       const AProducer: String);
@@ -185,57 +185,58 @@ begin
     qFamily.FDQuery.DisableControls;
     qComponents.FDQuery.DisableControls;
     try
-        AComponentsExcelTable.First;
-        AComponentsExcelTable.CallOnProcessEvent;
-        while not AComponentsExcelTable.Eof do
+      AComponentsExcelTable.First;
+      AComponentsExcelTable.CallOnProcessEvent;
+      while not AComponentsExcelTable.Eof do
+      begin
+        // Добавляем компонент в базу данных
+        qFamily.LocateOrAppend(AComponentsExcelTable.FamilyName.AsString,
+          AProducer);
+
+        // Если в Excel файле указаны дополнительные подгруппы
+        if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
         begin
-          // Добавляем компонент в базу данных
-          qFamily.LocateOrAppend(AComponentsExcelTable.FamilyName.AsString,
-            AProducer);
-
-          // Если в Excel файле указаны дополнительные подгруппы
-          if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
+          // Получаем все коды категорий отдельно
+          m := AComponentsExcelTable.SubGroup.AsString.Replace(' ', '',
+            [rfReplaceAll]).Split([',']);
+          S := ',' + qFamily.SubGroup.AsString + ',';
+          for I := Low(m) to High(m) do
           begin
-            // Получаем все коды категорий отдельно
-            m := AComponentsExcelTable.SubGroup.AsString.Replace(' ', '', [rfReplaceAll]).Split([',']);
-            S := ',' + qFamily.SubGroup.AsString + ',';
-            for I := Low(m) to High(m) do
-            begin
-              // Если такой категории в списке ещё не было
-              if S.IndexOf(',' + m[I] + ',') < 0 then
-                S := S + m[I] + ',';
-            end;
-            m := nil;
-            S := S.Trim([',']);
-
-            // Если что-то изменилось
-            if qFamily.SubGroup.AsString <> S then
-            begin
-              qFamily.TryEdit;
-              qFamily.SubGroup.AsString := S;
-              qFamily.TryPost
-            end;
+            // Если такой категории в списке ещё не было
+            if S.IndexOf(',' + m[I] + ',') < 0 then
+              S := S + m[I] + ',';
           end;
+          m := nil;
+          S := S.Trim([',']);
 
-          // Добавляем дочерний компонент
-          if not AComponentsExcelTable.ComponentName.AsString.IsEmpty then
+          // Если что-то изменилось
+          if qFamily.SubGroup.AsString <> S then
           begin
-            qComponents.LocateOrAppend(qFamily.PK.Value,
-              AComponentsExcelTable.ComponentName.AsString);
+            qFamily.TryEdit;
+            qFamily.SubGroup.AsString := S;
+            qFamily.TryPost
           end;
-
-          Inc(k);
-          // Уже много записей обновили в рамках одной транзакции
-          if k >= 1000 then
-          begin
-            k := 0;
-            Connection.Commit;
-            Connection.StartTransaction;
-          end;
-
-          AComponentsExcelTable.Next;
-          AComponentsExcelTable.CallOnProcessEvent;
         end;
+
+        // Добавляем дочерний компонент
+        if not AComponentsExcelTable.ComponentName.AsString.IsEmpty then
+        begin
+          qComponents.LocateOrAppend(qFamily.PK.Value,
+            AComponentsExcelTable.ComponentName.AsString);
+        end;
+
+        Inc(k);
+        // Уже много записей обновили в рамках одной транзакции
+        if k >= 1000 then
+        begin
+          k := 0;
+          Connection.Commit;
+          Connection.StartTransaction;
+        end;
+
+        AComponentsExcelTable.Next;
+        AComponentsExcelTable.CallOnProcessEvent;
+      end;
     finally
       qComponents.FDQuery.EnableControls;
       qFamily.FDQuery.EnableControls
@@ -246,48 +247,48 @@ begin
 end;
 
 // TODO: LoadBodyList
-//procedure TComponentsGroup.LoadBodyList(AExcelTable
-//: TComponentBodyTypesExcelTable);
-//var
-//AIDBodyType: Integer;
-//AIDComponent: Integer;
-//AQueryBodyTypes: TQueryBodyTypes;
-//begin
-//if AExcelTable.RecordCount = 0 then
-//  Exit;
+// procedure TComponentsGroup.LoadBodyList(AExcelTable
+// : TComponentBodyTypesExcelTable);
+// var
+// AIDBodyType: Integer;
+// AIDComponent: Integer;
+// AQueryBodyTypes: TQueryBodyTypes;
+// begin
+// if AExcelTable.RecordCount = 0 then
+// Exit;
 //
-//AQueryBodyTypes := TQueryBodyTypes.Create(Self);
-//try
-//  AQueryBodyTypes.FDQuery.Open;
+// AQueryBodyTypes := TQueryBodyTypes.Create(Self);
+// try
+// AQueryBodyTypes.FDQuery.Open;
 //
-//  AExcelTable.First;
-//  AExcelTable.CallOnProcessEvent;
-//  while not AExcelTable.Eof do
-//  begin
-//    AIDComponent := AExcelTable.IDComponent.AsInteger;
-//    Assert(AIDComponent <> 0);
+// AExcelTable.First;
+// AExcelTable.CallOnProcessEvent;
+// while not AExcelTable.Eof do
+// begin
+// AIDComponent := AExcelTable.IDComponent.AsInteger;
+// Assert(AIDComponent <> 0);
 //
-//    // Если неизвестный тип корпуса
-//    if AExcelTable.IDBodyType.IsNull then
-//    begin
-//      AQueryBodyTypes.LocateOrAppend(AExcelTable.BodyType.AsString);
-//      AIDBodyType := AQueryBodyTypes.PKValue;
-//    end
-//    else
-//      AIDBodyType := AExcelTable.IDBodyType.AsInteger;
+// // Если неизвестный тип корпуса
+// if AExcelTable.IDBodyType.IsNull then
+// begin
+// AQueryBodyTypes.LocateOrAppend(AExcelTable.BodyType.AsString);
+// AIDBodyType := AQueryBodyTypes.PKValue;
+// end
+// else
+// AIDBodyType := AExcelTable.IDBodyType.AsInteger;
 //
-//    fdqUpdateBody.ParamByName('ID').AsInteger := AIDComponent;
-//    fdqUpdateBody.ParamByName('BodyID').AsInteger := AIDBodyType;
-//    fdqUpdateBody.ExecSQL;
+// fdqUpdateBody.ParamByName('ID').AsInteger := AIDComponent;
+// fdqUpdateBody.ParamByName('BodyID').AsInteger := AIDBodyType;
+// fdqUpdateBody.ExecSQL;
 //
-//    AExcelTable.Next;
-//    AExcelTable.CallOnProcessEvent;
-//  end;
-//finally
-//  FreeAndNil(AQueryBodyTypes);
-//end;
+// AExcelTable.Next;
+// AExcelTable.CallOnProcessEvent;
+// end;
+// finally
+// FreeAndNil(AQueryBodyTypes);
+// end;
 //
-//end;
+// end;
 
 procedure TComponentsGroup.LoadFromExcelFolder(AFileNames: TList<String>;
   AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);

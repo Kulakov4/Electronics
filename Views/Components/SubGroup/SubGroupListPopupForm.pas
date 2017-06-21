@@ -81,9 +81,10 @@ type
     procedure UpdateReadOnly;
     { Private declarations }
   protected
-    procedure OnClosePopupProcess(var Message: TMessage); message WM_ON_CLOSE_POPUP;
-    property frmCategoriesTreePopup: TfrmCategoriesTreePopup read
-        GetfrmCategoriesTreePopup;
+    procedure OnClosePopupProcess(var Message: TMessage);
+      message WM_ON_CLOSE_POPUP;
+    property frmCategoriesTreePopup: TfrmCategoriesTreePopup
+      read GetfrmCategoriesTreePopup;
     property QueryTreeList: TQueryTreeList read GetQueryTreeList;
   public
     constructor Create(AOwner: TComponent); override;
@@ -141,8 +142,7 @@ begin
     S := Format('Убрать компонент из категории «%s»?',
       [QuerySubGroups.FDQuery.FieldByName('ExternalID').AsString]);
 
-    if TDialog.Create.DeleteRecordsDialog(S)
-    then
+    if TDialog.Create.DeleteRecordsDialog(S) then
     begin
       cxGrid1DBTableView1.Focused := True;
       cxGrid1DBTableView1.DataController.DeleteFocused;
@@ -214,8 +214,8 @@ begin
 
 end;
 
-function TfrmSubgroupListPopup.GetfrmCategoriesTreePopup:
-    TfrmCategoriesTreePopup;
+function TfrmSubgroupListPopup.GetfrmCategoriesTreePopup
+  : TfrmCategoriesTreePopup;
 begin
   if FfrmCategoriesTreePopup = nil then
     FfrmCategoriesTreePopup := TfrmCategoriesTreePopup.Create(Self);
@@ -310,9 +310,11 @@ procedure TfrmSubgroupListPopup.UpdateReadOnly;
 begin
   cxGrid1DBTableView1.OptionsData.Deleting := (QuerySubGroups <> nil) and
     not QuerySubGroups.IsRecordReadOnly;
-  cxGrid1DBTableView1.OptionsData.Editing := cxGrid1DBTableView1.OptionsData.Deleting;
+  cxGrid1DBTableView1.OptionsData.Editing :=
+    cxGrid1DBTableView1.OptionsData.Deleting;
   actAdd.Enabled := (QuerySubGroups <> nil);
-  actDelete.Enabled := (cxGrid1DBTableView1.DataController.RecordCount > 0) and cxGrid1DBTableView1.OptionsData.Editing;
+  actDelete.Enabled := (cxGrid1DBTableView1.DataController.RecordCount > 0) and
+    cxGrid1DBTableView1.OptionsData.Editing;
   actEdit.Enabled := actDelete.Enabled;
 end;
 

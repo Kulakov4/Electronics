@@ -13,8 +13,8 @@ type
   protected
   public
     constructor Create(AFieldName: string; ARequired: Boolean = False;
-        AErrorMessage: String = ''; AIsCellUnion: Boolean = False; ASize: Integer =
-        1000);
+      AErrorMessage: String = ''; AIsCellUnion: Boolean = False;
+      ASize: Integer = 1000);
     property ErrorMessage: string read FErrorMessage write FErrorMessage;
     property FieldName: string read FFieldName write FFieldName;
     property IsCellUnion: Boolean read FIsCellUnion write FIsCellUnion;
@@ -27,8 +27,8 @@ implementation
 uses System.SysUtils;
 
 constructor TFieldInfo.Create(AFieldName: string; ARequired: Boolean = False;
-    AErrorMessage: String = ''; AIsCellUnion: Boolean = False; ASize: Integer =
-    1000);
+  AErrorMessage: String = ''; AIsCellUnion: Boolean = False;
+  ASize: Integer = 1000);
 begin
   Assert(not AFieldName.IsEmpty);
   FFieldName := AFieldName;

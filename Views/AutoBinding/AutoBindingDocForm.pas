@@ -3,7 +3,8 @@ unit AutoBindingDocForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -54,7 +55,6 @@ type
     { Public declarations }
   end;
 
-
 implementation
 
 {$R *.dfm}
@@ -77,8 +77,8 @@ begin
     cxcbDrawing.Checked or cxcbImage.Checked;
 end;
 
-procedure TfrmAutoBindingDoc.FormClose(Sender: TObject; var Action:
-    TCloseAction);
+procedure TfrmAutoBindingDoc.FormClose(Sender: TObject;
+  var Action: TCloseAction);
 begin
   if cxcbDatasheet.Checked then
     FDocs.Add(TDatasheetDoc.Create);

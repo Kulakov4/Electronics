@@ -74,16 +74,16 @@ type
     procedure clProducerTypeIDPropertiesEditValueChanged(Sender: TObject);
     procedure clProducerTypeIDPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
-    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
-        Integer);
-    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
-        Integer; State: TDragState; var Accept: Boolean);
-    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
-        TDragObject);
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
-      ADataController: TcxCustomDataController; ARecordIndex: Integer);
-    procedure cxGridDBBandedTableView2StylesGetHeaderStyle(
-      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
+      X, Y: Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject;
+      X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
+      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridDBBandedTableView2StylesGetHeaderStyle
+      (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
@@ -97,8 +97,8 @@ type
     procedure UpdateTotalCount;
     { Private declarations }
   protected
-    procedure AfterSetNewValue(var Message: TMessage); message
-        WM_AFTER_SET_NEW_VALUE;
+    procedure AfterSetNewValue(var Message: TMessage);
+      message WM_AFTER_SET_NEW_VALUE;
     procedure CreateColumnsBarButtons; override;
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
@@ -201,7 +201,8 @@ begin
     var
       AColumn: TcxGridDBBandedColumn;
     begin
-      AColumn := AView.GetColumnByFieldName(ProducersGroup.qProducers.Cnt.FieldName);
+      AColumn := AView.GetColumnByFieldName
+        (ProducersGroup.qProducers.Cnt.FieldName);
       if AColumn <> nil then
         AColumn.Visible := false;
     end);
@@ -333,8 +334,8 @@ begin
   end
 end;
 
-procedure TViewProducers.clProducerTypeIDPropertiesEditValueChanged(
-  Sender: TObject);
+procedure TViewProducers.clProducerTypeIDPropertiesEditValueChanged
+  (Sender: TObject);
 var
   ADetailID: Integer;
   AMasterID: Integer;
@@ -355,8 +356,8 @@ begin
     FEditValueChanged := True;
 end;
 
-procedure TViewProducers.clProducerTypeIDPropertiesNewLookupDisplayText(
-  Sender: TObject; const AText: TCaption);
+procedure TViewProducers.clProducerTypeIDPropertiesNewLookupDisplayText
+  (Sender: TObject; const AText: TCaption);
 begin
   inherited;
   FNewValue := AText;
@@ -378,15 +379,15 @@ begin
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
-procedure TViewProducers.cxGridDBBandedTableView2StylesGetHeaderStyle(
-  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+procedure TViewProducers.cxGridDBBandedTableView2StylesGetHeaderStyle
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
 begin
   inherited;
   DoOnGetHeaderStyle(AColumn, AStyle);
 end;
 
-procedure TViewProducers.cxGridDBBandedTableViewDataControllerDetailExpanded(
-  ADataController: TcxCustomDataController; ARecordIndex: Integer);
+procedure TViewProducers.cxGridDBBandedTableViewDataControllerDetailExpanded
+  (ADataController: TcxCustomDataController; ARecordIndex: Integer);
 var
   AcxGridMasterDataRow: TcxGridMasterDataRow;
 begin
@@ -416,8 +417,8 @@ begin
   StatusBar.Panels[0].Text := S;
 end;
 
-procedure TViewProducers.cxGridDBBandedTableViewDragDrop(Sender, Source:
-    TObject; X, Y: Integer);
+procedure TViewProducers.cxGridDBBandedTableViewDragDrop(Sender,
+  Source: TObject; X, Y: Integer);
 var
   time: Double;
 begin
@@ -435,15 +436,15 @@ begin
     FProducersGroup.qProducerTypes, X, Y);
 end;
 
-procedure TViewProducers.cxGridDBBandedTableViewDragOver(Sender, Source:
-    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TViewProducers.cxGridDBBandedTableViewDragOver(Sender,
+  Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   inherited;
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
-procedure TViewProducers.cxGridDBBandedTableViewStartDrag(Sender: TObject; var
-    DragObject: TDragObject);
+procedure TViewProducers.cxGridDBBandedTableViewStartDrag(Sender: TObject;
+var DragObject: TDragObject);
 begin
   inherited;
   DoOnStartDrag(Sender as TcxGridSite, FDragAndDropInfo);

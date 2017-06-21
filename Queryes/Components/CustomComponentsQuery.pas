@@ -277,7 +277,8 @@ begin
   FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
 
   // Поле Description (описание)
-  FParameterFields.Add(TParameterValues.DescriptionParameterID, 'DescriptionComponentName');
+  FParameterFields.Add(TParameterValues.DescriptionParameterID,
+    'DescriptionComponentName');
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;
@@ -445,7 +446,7 @@ begin
         L.StrictDelimiter := True;
         L.DelimitedText := APackagePins.AsString.Trim;
         // Убираем пустые строки
-        for I := L.Count - 1 downto 0 do
+        for i := L.Count - 1 downto 0 do
           if L[i].Trim.IsEmpty then
             L.Delete(i)
           else
@@ -456,7 +457,7 @@ begin
         begin
           VarArr := VarArrayCreate([0, L.Count - 1], varVariant);
           try
-            for i := 0 to l.Count - 1 do
+            for i := 0 to L.Count - 1 do
               VarArr[i] := L[i];
 
             ProcessParamValue(AIDComponent.AsInteger, nil, VarArr,

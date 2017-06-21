@@ -24,6 +24,7 @@ inherited QuerySearchParametersForCategory: TQuerySearchParametersForCategory
       FieldName = 'Id'
       Origin = 'Id'
       ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
     end
     object FDQueryProductCategoryId: TIntegerField
       FieldName = 'ProductCategoryId'

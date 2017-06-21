@@ -3,7 +3,8 @@ unit SubGroupsQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -47,8 +48,8 @@ end;
 function TfrmQuerySubGroups.GetIsRecordReadOnly: Boolean;
 begin
   Result := (FDQuery.RecordCount > 0) and
-  (not FDQuery.FieldByName('IsMain').IsNull) and
-  (FDQuery.FieldByName('IsMain').AsInteger = 1);
+    (not FDQuery.FieldByName('IsMain').IsNull) and
+    (FDQuery.FieldByName('IsMain').AsInteger = 1);
 end;
 
 procedure TfrmQuerySubGroups.Load(AFirstExternalID, AValue: string);

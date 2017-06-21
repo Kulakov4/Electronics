@@ -60,10 +60,11 @@ begin
   Assert(AIDProducer > 0);
   Assert(AIDBody > 0);
 
-  AFieldNames := Format('%s;%s;%s', [IDBody.FieldName, BodyData.FieldName, IDProducer.FieldName]);
+  AFieldNames := Format('%s;%s;%s', [IDBody.FieldName, BodyData.FieldName,
+    IDProducer.FieldName]);
 
-  if not FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDBody, ABodyData, AIDProducer]),
-    [lxoCaseInsensitive]) then
+  if not FDQuery.LocateEx(AFieldNames,
+    VarArrayOf([AIDBody, ABodyData, AIDProducer]), [lxoCaseInsensitive]) then
   begin
     AMatches := MySplit(ABodyData);
     try
@@ -72,8 +73,8 @@ begin
 
       if (AMatches.Count > 5) then
         raise Exception.CreateFmt
-          ('Слишком сложная комбинация чисел и строк в корпусных данных %s', [ABodyData]
-          );
+          ('Слишком сложная комбинация чисел и строк в корпусных данных %s',
+          [ABodyData]);
 
       TryAppend;
       for I := 0 to AMatches.Count - 1 do

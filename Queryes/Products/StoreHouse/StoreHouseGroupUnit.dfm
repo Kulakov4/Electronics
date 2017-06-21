@@ -11,10 +11,6 @@ inherited StoreHouseGroup: TStoreHouseGroup
         Control = qProducts
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 410
-    ExplicitHeight = 145
     inline qStoreHouseList: TQueryStoreHouseList
       Left = 1
       Top = 1
@@ -22,10 +18,10 @@ inherited StoreHouseGroup: TStoreHouseGroup
       Height = 143
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 40
-      ExplicitTop = 37
-      ExplicitWidth = 125
-      ExplicitHeight = 71
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 204
+      ExplicitHeight = 143
     end
     inline qProducts: TQueryProducts
       Left = 205
@@ -34,10 +30,10 @@ inherited StoreHouseGroup: TStoreHouseGroup
       Height = 143
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 234
-      ExplicitTop = 37
-      ExplicitWidth = 146
-      ExplicitHeight = 71
+      ExplicitLeft = 205
+      ExplicitTop = 1
+      ExplicitWidth = 204
+      ExplicitHeight = 143
     end
   end
 end

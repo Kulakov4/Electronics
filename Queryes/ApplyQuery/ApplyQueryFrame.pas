@@ -109,7 +109,7 @@ var
   I: Integer;
 begin
   AID := ARecordHolder.Field[PKFieldName];
-//  Result :=
+  // Result :=
   // ¬ыбираем запись, которую будем обновл€ть
   I := Search(AID);
   Assert(I = 1);

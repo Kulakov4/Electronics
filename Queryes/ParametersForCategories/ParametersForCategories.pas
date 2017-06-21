@@ -39,7 +39,7 @@ function TParametersForCategories.AddParameter(vProductCategoryId: Integer;
 var
   AQuery: TFDQuery;
 begin
-//  Result := -1;
+  // Result := -1;
   AQuery := TFDQuery.Create(nil);
   try
     { добавить запись }
@@ -115,8 +115,7 @@ begin
     AQuery.Connection := DMRepository.dbConnection;
     // выбрать все параметры для дальнейшей их обработки
     AQuery.SQL.Add('SELECT p.Id, p.ParentParameter, cp.IsAttribute ' +
-      '     FROM CategoryParams cp ' +
-      '   left join Parameters p ' +
+      '     FROM CategoryParams cp ' + '   left join Parameters p ' +
       '   on (p.ParentParameter = cp.ParameterId) ' +
       '    or (p.Id = fc.ParameterId) ' +
       '    WHERE cp.ProductCategoryId = :vProductCategoryId AND ' +
@@ -172,8 +171,8 @@ begin
     AQuery.CachedUpdates := true;
 
     AQuery.SQL.Add
-      ('select * from CategoryParams where ParameterId = :vParameterId '
-      + ' and ProductCategoryId = :vProductCategoryId');
+      ('select * from CategoryParams where ParameterId = :vParameterId ' +
+      ' and ProductCategoryId = :vProductCategoryId');
     AQuery.Params.ParamValues['vParameterId'] := vParameterId;
     AQuery.Params.ParamValues['vProductCategoryId'] := vProductCategoryId;
     AQuery.Open();
@@ -195,8 +194,7 @@ begin
     AQuery.Connection.StartTransaction;
     AQuery.CachedUpdates := true;
 
-    AQuery.SQL.Add('select * from ' + #13#10 +
-      ' CategoryParams cp ' + #13#10 +
+    AQuery.SQL.Add('select * from ' + #13#10 + ' CategoryParams cp ' + #13#10 +
       ' where cp.ParameterId = :vParameterId');
     AQuery.Params.ParamValues['vParameterId'] := vParameterGroupId;
     AQuery.Open();
@@ -244,7 +242,7 @@ end;
 procedure TParametersForCategories.UpdateRecordRecursive(vProductCategoryId,
   vParameterGroupId, vStatus, vAttribute, vOrder: Integer);
 var
-{  AQuery, }ACategoriesQ: TFDQuery;
+  { AQuery, } ACategoriesQ: TFDQuery;
   ACategoriesList: TList<Integer>;
 begin
   ACategoriesQ := TFDQuery.Create(nil);

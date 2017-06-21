@@ -25,21 +25,20 @@ implementation
 
 {$R *.dfm}
 
-constructor TParametersForCategoriesGroup.Create(AOwner:
-    TComponent);
+constructor TParametersForCategoriesGroup.Create(AOwner: TComponent);
 begin
   inherited;
   Main := qParameterTypes;
   Detail := qParametersDetail;
 end;
 
-procedure TParametersForCategoriesGroup.RefreshDetail(AIDParameterType:
-    Integer);
+procedure TParametersForCategoriesGroup.RefreshDetail(AIDParameterType
+  : Integer);
 begin
-//  if qParametersDetail.FDQuery.ParamByName('ParameterGroupType').AsString <> AIDParameterType then
-//  begin
-    qParametersDetail.Load(['IDParameterType'], [AIDParameterType]);
-//  end;
+  // if qParametersDetail.FDQuery.ParamByName('ParameterGroupType').AsString <> AIDParameterType then
+  // begin
+  qParametersDetail.Load(['IDParameterType'], [AIDParameterType]);
+  // end;
 end;
 
 end.

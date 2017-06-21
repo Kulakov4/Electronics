@@ -142,8 +142,9 @@ begin
 
   PostOnEnterFields.Add(clComponentType.DataBinding.FieldName);
 
-  GridSort.Add(TSortVariant.Create( clComponentName, [clComponentName]));
-  GridSort.Add(TSortVariant.Create( clIDProducer, [clIDProducer, clComponentName]));
+  GridSort.Add(TSortVariant.Create(clComponentName, [clComponentName]));
+  GridSort.Add(TSortVariant.Create(clIDProducer,
+    [clIDProducer, clComponentName]));
 
   DeleteMessages.Add(cxGridLevel, 'Удалить тип?');
   DeleteMessages.Add(cxGridLevel2, 'Удалить описание?');
@@ -560,7 +561,7 @@ begin
   DoDragDrop(Sender as TcxGridSite, FDragAndDropInfo,
     FDescriptionsGroup.qDescriptionTypes, X, Y);
 
-//  GetDBBandedTableView(0).Focused := True;
+  // GetDBBandedTableView(0).Focused := True;
 end;
 
 procedure TViewDescriptions.cxGridDBBandedTableViewDragOver(Sender,

@@ -28,7 +28,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable;
-        AIDProducer: Integer);
+      AIDProducer: Integer);
     procedure Rollback; override;
     // TODO: Append
     /// / TODO: InsertRecordList
@@ -69,7 +69,8 @@ procedure TBodyTypesGroup.DoAfterDelete(Sender: TObject);
 begin
   Assert(qBodyKinds.OldPKValue > 0);
   // Каскадно удаляем типы корпусов
-  qBodyTypes2.CascadeDelete(qBodyKinds.OldPKValue, qBodyTypes2.IDBodyKind.FieldName, True);
+  qBodyTypes2.CascadeDelete(qBodyKinds.OldPKValue,
+    qBodyTypes2.IDBodyKind.FieldName, True);
 end;
 
 procedure TBodyTypesGroup.DoAfterOpen(Sender: TObject);
@@ -95,8 +96,8 @@ begin
   Result := FQueryBodyTypesSimple;
 end;
 
-procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable:
-    TBodyTypesExcelTable; AIDProducer: Integer);
+procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable
+  : TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
   F: TField;
@@ -117,7 +118,8 @@ begin
       QueryBodyTypesSimple.TryAppend;
       QueryBodyTypesSimple.IDProducer.AsInteger := AIDProducer;
       QueryBodyTypesSimple.IDBodyKind.Value := qBodyKinds.PK.Value;
-      QueryBodyTypesSimple.Variations.AsString := ABodyTypesExcelTable.Variation.AsString;
+      QueryBodyTypesSimple.Variations.AsString :=
+        ABodyTypesExcelTable.Variation.AsString;
 
       for AField in ABodyTypesExcelTable.Fields do
       begin

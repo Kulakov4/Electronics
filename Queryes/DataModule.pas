@@ -13,7 +13,8 @@ uses
   ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
   ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
   QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery, CategoryParametersQuery,
+  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery,
+  CategoryParametersQuery,
   ProducersGroupUnit, ProductGroupUnit, ProductSearchGroupUnit;
 
 type
@@ -94,10 +95,11 @@ begin
     Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
     Add(ProducersGroup.qProducerTypes); // Типы производителей
     Add(ProducersGroup.qProducers); // Производители
-    Add(FProductSearchGroup.qProductsSearch); // Поиск на складе и редактирование найденного
-//    Add(FProductGroup.qComponentGroups); // группы компонентов на складе
+    Add(FProductSearchGroup.qProductsSearch);
+    // Поиск на складе и редактирование найденного
+    // Add(FProductGroup.qComponentGroups); // группы компонентов на складе
     Add(FProductGroup.qStoreHouseList); // Склады - главное
-    // Add(StoreHouseGroup.qProducts); // Содержимое текущего склада
+    // Add(FProductGroup.qProducts); // Содержимое текущего склада
     Add(ComponentsSearchGroup.qFamilySearch);
     // Поиск среди компонентов (главное)
     Add(ComponentsSearchGroup.qComponentsSearch);
@@ -139,7 +141,7 @@ begin
   FQueryGroups.Add(ComponentsGroup);
   FQueryGroups.Add(ComponentsExGroup);
   FQueryGroups.Add(ComponentsSearchGroup);
-//  FQueryGroups.Add(StoreHouseGroup);
+  // FQueryGroups.Add(StoreHouseGroup);
   FQueryGroups.Add(ParametersForCategoriesGroup);
 
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
@@ -155,7 +157,8 @@ begin
     DoAfterStoreHousePost, FEventList);
 
   // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
-  TNotifyEventWrap.Create( ComponentsExGroup.OnParamOrderChange, DoOnParamOrderChange, FEventList );
+  TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
+    DoOnParamOrderChange, FEventList);
 end;
 
 { закрытие датасетов }

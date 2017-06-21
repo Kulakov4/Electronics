@@ -81,7 +81,7 @@ type
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
-        AColumn: TcxGridColumn);
+      AColumn: TcxGridColumn);
     procedure clDescriptionPropertiesInitPopup(Sender: TObject);
   private
     FfrmDescriptionPopup: TfrmDescriptionPopup;
@@ -101,8 +101,8 @@ type
     procedure DoOnMasterDetailChange; override;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
-    property frmSubgroupListPopup: TfrmSubgroupListPopup read
-        GetfrmSubgroupListPopup;
+    property frmSubgroupListPopup: TfrmSubgroupListPopup
+      read GetfrmSubgroupListPopup;
     property QuerySearchBodyType: TQuerySearchBodyType
       read GetQuerySearchBodyType;
     property QuerySearchParameterValues: TQuerySearchParameterValues
@@ -137,8 +137,8 @@ begin
   AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
 
-  GridSort.Add(TSortVariant.Create( clValue, [clValue]));
-  GridSort.Add(TSortVariant.Create( clProducer, [clProducer, clValue]));
+  GridSort.Add(TSortVariant.Create(clValue, [clValue]));
+  GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
 
 end;
 
@@ -275,7 +275,8 @@ begin
   inherited;
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
-  FfrmDescriptionPopup.QueryCustomComponents := BaseComponentsGroup.QueryBaseFamily;
+  FfrmDescriptionPopup.QueryCustomComponents :=
+    BaseComponentsGroup.QueryBaseFamily;
 end;
 
 procedure TViewComponentsBase.clManufacturerIdPropertiesNewLookupDisplayText
@@ -353,8 +354,8 @@ begin
   frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
 end;
 
-procedure TViewComponentsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
-    TcxGridTableView; AColumn: TcxGridColumn);
+procedure TViewComponentsBase.cxGridDBBandedTableViewColumnHeaderClick
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin
   inherited;
   ApplySort(Sender, AColumn);

@@ -336,8 +336,8 @@ begin
     if APath.IndexOf(AOldDBPath) = 0 then
     begin
       S := TPath.Combine(ANewDBPath, APath.Substring(AOldDBPath.Length + 1));
-//      if TDirectory.Exists(S) then
-        Result := S;
+      // if TDirectory.Exists(S) then
+      Result := S;
     end;
   end;
 end;

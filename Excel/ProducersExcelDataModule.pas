@@ -27,8 +27,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
-    property ProducersDataSet: TFDDataSet read FProducersDataSet write
-        SetProducersDataSet;
+    property ProducersDataSet: TFDDataSet read FProducersDataSet
+      write SetProducersDataSet;
     property Name: TField read GetName;
     property ProducerType: TField read GetProducerType;
   end;

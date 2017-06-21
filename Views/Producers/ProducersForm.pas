@@ -3,7 +3,8 @@ unit ProducersForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, DictonaryForm, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, System.Actions,
   Vcl.ActnList, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls, GridFrame,
@@ -35,8 +36,8 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
-    class function TakeProducer(var AProducerID: Integer; var AProducerName:
-        String): Boolean; static;
+    class function TakeProducer(var AProducerID: Integer;
+      var AProducerName: String): Boolean; static;
     { Public declarations }
   end;
 
@@ -69,8 +70,8 @@ begin
   Result := ViewProducers.ProducersGroup.Connection.InTransaction;
 end;
 
-class function TfrmProducers.TakeProducer(var AProducerID: Integer; var
-    AProducerName: String): Boolean;
+class function TfrmProducers.TakeProducer(var AProducerID: Integer;
+  var AProducerName: String): Boolean;
 var
   AfrmProducers: TfrmProducers;
   AProducersGroup: TProducersGroup;

@@ -3,11 +3,13 @@ unit IDTempTableQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, SequenceQuery;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
+  SequenceQuery;
 
 type
   TQueryIDTempTable = class(TQueryBase)
@@ -26,7 +28,8 @@ type
 
 implementation
 
-const temp_table_prefix = 'temp_table';
+const
+  temp_table_prefix = 'temp_table';
 
 {$R *.dfm}
 
@@ -37,7 +40,7 @@ begin
   inherited;
   FTableName := CreateTempTable;
   ASQL := String.Format('SELECT ID FROM %s', [FTableName]);
-  FDQuery.Open( ASQL );
+  FDQuery.Open(ASQL);
 end;
 
 procedure TQueryIDTempTable.AppendData(AField: TField);

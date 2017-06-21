@@ -76,8 +76,8 @@ begin
   Result := ExcelTable.BodyTypesDataSet;
 end;
 
-function TComponentBodyTypesExcelDM.GetExcelTable:
-    TComponentBodyTypesExcelTable;
+function TComponentBodyTypesExcelDM.GetExcelTable
+  : TComponentBodyTypesExcelTable;
 begin
   Result := CustomExcelTable as TComponentBodyTypesExcelTable;
 end;
@@ -124,8 +124,8 @@ begin
       // если для этого диапазона указан корпус
       if not VarToStrDef(ACell.Value, '').IsEmpty then
       begin
-        ARange := GetExcelRange(ma.Row, Indent + 1, ma.Row + ma.Rows.Count -
-          1, FLastColIndex);
+        ARange := GetExcelRange(ma.Row, Indent + 1, ma.Row + ma.Rows.Count - 1,
+          FLastColIndex);
         ProcessRange2(ARange);
       end;
 
@@ -203,7 +203,6 @@ begin
 
   Edit;
 
-
   if not VarIsNull(V) then
   begin
     // Если нашли подходящий корпус
@@ -227,21 +226,21 @@ end;
 function TComponentBodyTypesExcelTable.CheckComponent: Boolean;
 begin
   Result := FQuerySearchComponent.Search(ComponentName.AsString) > 0;
-{
-  DM.fdqFindComponent.Close;
-  DM.fdqFindComponent.ParamByName('vValue').AsString :=
+  {
+    DM.fdqFindComponent.Close;
+    DM.fdqFindComponent.ParamByName('vValue').AsString :=
     ComponentName.AsString;
-  DM.fdqFindComponent.Open;
+    DM.fdqFindComponent.Open;
 
-  Result := DM.fdqFindComponent.RecordCount > 0;
-}
+    Result := DM.fdqFindComponent.RecordCount > 0;
+  }
   Edit;
 
   if Result then
     IDComponent.AsInteger := FQuerySearchComponent.PK.AsInteger
   else
   begin
-   // Запоминаем, что в этой строке ошибка
+    // Запоминаем, что в этой строке ошибка
     ErrorType.AsInteger := Integer(etError);
 
     Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
@@ -333,10 +332,10 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('BodyType', True,
     'Формфактор корпуса не может быть пустым'));
 
-// Этих полей в Excel файле не будет
-//  FieldsInfo.Add(TFieldInfo.Create('OutlineDrawing'));
-//  FieldsInfo.Add(TFieldInfo.Create('LandPattern'));
-//  FieldsInfo.Add(TFieldInfo.Create('Variation'));
+  // Этих полей в Excel файле не будет
+  // FieldsInfo.Add(TFieldInfo.Create('OutlineDrawing'));
+  // FieldsInfo.Add(TFieldInfo.Create('LandPattern'));
+  // FieldsInfo.Add(TFieldInfo.Create('Variation'));
 end;
 
 end.

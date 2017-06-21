@@ -1,7 +1,5 @@
 inherited ViewProducts: TViewProducts
   inherited cxGrid: TcxGrid
-    ExplicitTop = 28
-    ExplicitHeight = 444
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
     end

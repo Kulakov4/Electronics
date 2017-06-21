@@ -154,7 +154,8 @@ begin
           end;
         end;
 
-        qMainParameters.IDParameterType.AsInteger := qParameterTypes.PK.AsInteger;
+        qMainParameters.IDParameterType.AsInteger :=
+          qParameterTypes.PK.AsInteger;
         qMainParameters.FDQuery.Post;
       except
         qMainParameters.FDQuery.Cancel;

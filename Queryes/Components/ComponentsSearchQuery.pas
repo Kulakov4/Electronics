@@ -3,7 +3,8 @@ unit ComponentsSearchQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -39,9 +40,9 @@ begin
 end;
 
 procedure TQueryComponentsSearch.Search(const AParentIDList,
-    ADetailIDList: string);
+  ADetailIDList: string);
 begin
-  Load(['ParentIDList', 'DetailIDList'],[AParentIDList, ADetailIDList]);
+  Load(['ParentIDList', 'DetailIDList'], [AParentIDList, ADetailIDList]);
 end;
 
 end.

@@ -3,7 +3,8 @@ unit SearchCategoriesPathQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -17,9 +18,9 @@ type
   public
     function GetFullPath(ACategoryID: Integer): string;
     function GetLastTreeNodes(ACategoryID: Integer; const ACount: Integer;
-        ASplitter: string): string;
-    function GetMinimizePath(ACategoryID: Integer; ACanvas: TCanvas; MaxLen:
-        Integer): String;
+      ASplitter: string): string;
+    function GetMinimizePath(ACategoryID: Integer; ACanvas: TCanvas;
+      MaxLen: Integer): String;
     function Search(ACategoryID: Integer): Integer; overload;
     property Path: TField read GetPath;
     { Public declarations }
@@ -31,7 +32,6 @@ var
 implementation
 
 {$R *.dfm}
-
 {$WARN UNIT_PLATFORM OFF}
 
 uses Vcl.FileCtrl;
@@ -46,7 +46,7 @@ begin
 end;
 
 function TQuerySearchCategoriesPath.GetLastTreeNodes(ACategoryID: Integer;
-    const ACount: Integer; ASplitter: string): string;
+  const ACount: Integer; ASplitter: string): string;
 var
   h: Integer;
   I: Integer;
@@ -68,13 +68,13 @@ begin
     if k >= ACount then
       break;
 
-    Result := m[i] + ASplitter + Result;
+    Result := m[I] + ASplitter + Result;
     Inc(k);
   end;
 end;
 
 function TQuerySearchCategoriesPath.GetMinimizePath(ACategoryID: Integer;
-    ACanvas: TCanvas; MaxLen: Integer): String;
+  ACanvas: TCanvas; MaxLen: Integer): String;
 begin
   Result := GetFullPath(ACategoryID);
   Result := MinimizeName(Result, ACanvas, MaxLen);
@@ -90,7 +90,7 @@ function TQuerySearchCategoriesPath.Search(ACategoryID: Integer): Integer;
 begin
   Assert(ACategoryID > 0);
 
-  Result := Search( ['ID'], [ACategoryID] );
+  Result := Search(['ID'], [ACategoryID]);
 end;
 
 end.

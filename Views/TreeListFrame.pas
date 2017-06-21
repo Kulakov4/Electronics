@@ -3,7 +3,8 @@ unit TreeListFrame;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles, cxTL,
   cxTLdxBarBuiltInMenu, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
@@ -33,11 +34,16 @@ type
   private
     { Private declarations }
   public
+    procedure UpdateView; virtual;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+procedure TfrmTreeList.UpdateView;
+begin
+end;
 
 end.

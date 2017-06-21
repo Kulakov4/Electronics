@@ -3,7 +3,8 @@ unit ParametricTableForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, GridFrame,
   ComponentsParentView, ParametricTableView, NotifyEvents, ComponentsBaseView;
 
@@ -42,8 +43,8 @@ begin
   FBeforeClose := TNotifyEventsEx.Create(Self);
 end;
 
-procedure TfrmParametricTable.FormClose(Sender: TObject; var Action:
-    TCloseAction);
+procedure TfrmParametricTable.FormClose(Sender: TObject;
+  var Action: TCloseAction);
 begin
   inherited;
   FBeforeClose.CallEventHandlers(Self);

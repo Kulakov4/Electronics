@@ -25,8 +25,6 @@ inherited ComponentsSearchGroup: TComponentsSearchGroup
         Control = qComponentsSearch
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
     ExplicitWidth = 526
     ExplicitHeight = 82
     inline qFamilySearch: TQueryFamilySearch

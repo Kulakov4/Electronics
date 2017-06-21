@@ -40,8 +40,12 @@ begin
       begin
         qAllFamily.TryEdit;
         // Файл документации должен лежать в папке с именем производителя
-        qAllFamily.Datasheet.AsString := TPath.Combine(qAllFamily.Producer.AsString, ADocBindExcelTable.Datasheet.AsString);
-        qAllFamily.Diagram.AsString := TPath.Combine(qAllFamily.Producer.AsString, ADocBindExcelTable.Diagram.AsString);
+        qAllFamily.Datasheet.AsString :=
+          TPath.Combine(qAllFamily.Producer.AsString,
+          ADocBindExcelTable.Datasheet.AsString);
+        qAllFamily.Diagram.AsString :=
+          TPath.Combine(qAllFamily.Producer.AsString,
+          ADocBindExcelTable.Diagram.AsString);
         qAllFamily.TryPost;
         Inc(i);
         // Уже много записей обновили в рамках одной транзакции

@@ -53,7 +53,7 @@ begin
   begin
     Timer1.Enabled := True;
     FOnUpdateDataPost := True;
-    //PostMessage(Handle, WM_ON_UPDATE_DATA, 0, 0);
+    // PostMessage(Handle, WM_ON_UPDATE_DATA, 0, 0);
   end;
 end;
 

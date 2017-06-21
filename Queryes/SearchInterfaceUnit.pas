@@ -2,8 +2,6 @@ unit SearchInterfaceUnit;
 
 interface
 
-
-
 type
   TContentMode = (SearchMode, RecordsMode);
 

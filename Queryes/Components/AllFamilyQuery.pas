@@ -3,7 +3,8 @@ unit AllFamilyQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -31,7 +32,7 @@ uses NotifyEvents, ParameterValuesUnit;
 constructor TQueryAllFamily.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList );
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
 procedure TQueryAllFamily.DoAfterOpen(Sender: TObject);

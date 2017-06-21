@@ -928,8 +928,8 @@ end;
 procedure TViewParameters.UpdateTotalCount;
 begin
   // Общее число компонентов на в БД
-  StatusBar.Panels[StatusBar.Panels.Count - 1].Text := Format('Всего: %d',
-    [ParametersGroup.qMainParameters.FDQuery.RecordCount]);
+  StatusBar.Panels[StatusBar.Panels.Count - 1].Text :=
+    Format('Всего: %d', [ParametersGroup.qMainParameters.FDQuery.RecordCount]);
 end;
 
 procedure TViewParameters.UpdateView;

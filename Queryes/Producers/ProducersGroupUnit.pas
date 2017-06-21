@@ -3,7 +3,8 @@ unit ProducersGroupUnit;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   ProducersQuery, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
   QueryWithDataSourceUnit, ProducerTypesQuery, ProducersExcelDataModule,
@@ -43,11 +44,12 @@ procedure TProducersGroup.DoAfterDelete(Sender: TObject);
 begin
   Assert(qProducerTypes.OldPKValue > 0);
   //  аскадно удал€ем производителей
-  qProducers.CascadeDelete(qProducerTypes.OldPKValue, qProducers.ProducerTypeID.FieldName, True);
+  qProducers.CascadeDelete(qProducerTypes.OldPKValue,
+    qProducers.ProducerTypeID.FieldName, True);
 end;
 
-procedure TProducersGroup.InsertRecordList(AProducersExcelTable:
-    TProducersExcelTable);
+procedure TProducersGroup.InsertRecordList(AProducersExcelTable
+  : TProducersExcelTable);
 var
   AField: TField;
   I: Integer;
@@ -60,10 +62,11 @@ begin
     AProducersExcelTable.CallOnProcessEvent;
     while not AProducersExcelTable.Eof do
     begin
-      qProducerTypes.LocateOrAppend(AProducersExcelTable.ProducerType.AsString.Trim);
+      qProducerTypes.LocateOrAppend
+        (AProducersExcelTable.ProducerType.AsString.Trim);
 
       // ≈сли производитель с таким именем уже есть
-      if qProducers.Locate( AProducersExcelTable.Name.AsString.Trim ) then
+      if qProducers.Locate(AProducersExcelTable.Name.AsString.Trim) then
         qProducers.TryEdit
       else
         qProducers.TryAppend;

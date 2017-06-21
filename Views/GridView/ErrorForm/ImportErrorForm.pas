@@ -3,7 +3,8 @@ unit ImportErrorForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, GridFrame,
   Vcl.ExtCtrls, cxGraphics, cxLookAndFeels,
   cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
@@ -47,7 +48,8 @@ type
     procedure AssignDataSet; override;
   public
     property ContinueType: TContinueType read FContinueType;
-    property ErrorTable: TCustomErrorTable read GetErrorTable write SetErrorTable;
+    property ErrorTable: TCustomErrorTable read GetErrorTable
+      write SetErrorTable;
     { Public declarations }
   end;
 
@@ -74,7 +76,8 @@ procedure TfrmImportError.AssignDataSet;
 begin
   inherited;
   if (DataSet <> nil) and (DataSet.Active) then
-    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d', [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d',
+      [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
 end;
 
 function TfrmImportError.GetErrorTable: TCustomErrorTable;

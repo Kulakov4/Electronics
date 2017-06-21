@@ -29,8 +29,6 @@ inherited ComponentsExGroup: TComponentsExGroup
         Control = qComponentsEx
         Row = 0
       end>
-    ExplicitLeft = 0
-    ExplicitTop = 0
     ExplicitWidth = 539
     ExplicitHeight = 81
     inline qFamilyEx: TQueryFamilyEx

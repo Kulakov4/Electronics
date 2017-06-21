@@ -3,7 +3,8 @@ unit DescriptionPopupForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PopupForm, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, dxSkinsCore,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
@@ -30,8 +31,8 @@ type
     procedure SetQueryCustomComponents(const Value: TQueryCustomComponents);
     { Private declarations }
   public
-    property QueryCustomComponents: TQueryCustomComponents read
-        FQueryCustomComponents write SetQueryCustomComponents;
+    property QueryCustomComponents: TQueryCustomComponents
+      read FQueryCustomComponents write SetQueryCustomComponents;
     { Public declarations }
   end;
 
@@ -39,8 +40,8 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmDescriptionPopup.SetQueryCustomComponents(const Value:
-    TQueryCustomComponents);
+procedure TfrmDescriptionPopup.SetQueryCustomComponents
+  (const Value: TQueryCustomComponents);
 begin
   if FQueryCustomComponents <> Value then
   begin
@@ -49,8 +50,10 @@ begin
     if FQueryCustomComponents <> nil then
     begin
       Assert(FQueryCustomComponents.FDQuery.Active);
-      cxdbmDescriptions.DataBinding.DataSource := FQueryCustomComponents.DataSource;
-      cxdbmDescriptions.DataBinding.DataField := FQueryCustomComponents.Description.FieldName;
+      cxdbmDescriptions.DataBinding.DataSource :=
+        FQueryCustomComponents.DataSource;
+      cxdbmDescriptions.DataBinding.DataField :=
+        FQueryCustomComponents.Description.FieldName;
     end;
   end;
 end;

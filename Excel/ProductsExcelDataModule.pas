@@ -14,7 +14,7 @@ type
     function GetValue: TField;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
-        reintroduce;
+      reintroduce;
     property Description: TField read GetDescription;
     property Producer: TField read GetProducer;
     property Value: TField read GetValue;
@@ -29,21 +29,19 @@ type
     function CreateExcelTable: TCustomExcelTable; override;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
-        reintroduce; overload;
+      reintroduce; overload;
     property ExcelTable: TProductsExcelTable read GetExcelTable;
     { Public declarations }
   end;
 
-
-
 implementation
 
-{%CLASSGROUP 'Vcl.Controls.TControl'}
+{ %CLASSGROUP 'Vcl.Controls.TControl' }
 
 {$R *.dfm}
 
-constructor TProductsExcelDM.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>);
+constructor TProductsExcelDM.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>);
 begin
   Assert(AFieldsInfo <> nil);
   FFieldsInfo := AFieldsInfo;
@@ -59,11 +57,11 @@ end;
 
 function TProductsExcelDM.GetExcelTable: TProductsExcelTable;
 begin
-    Result := CustomExcelTable as TProductsExcelTable;
+  Result := CustomExcelTable as TProductsExcelTable;
 end;
 
-constructor TProductsExcelTable.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>);
+constructor TProductsExcelTable.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>);
 var
   AFieldInfo: TFieldInfo;
 begin

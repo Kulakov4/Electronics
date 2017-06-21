@@ -62,7 +62,6 @@ type
 implementation
 
 {$R *.dfm}
-
 { TfrmComponentsMasterDetail }
 
 constructor TComponentsExGroup.Create(AOwner: TComponent);
@@ -196,7 +195,8 @@ begin
         ASize := 200;
       end;
 
-      AFieldName := GetFieldName(FQueryParametersForCategory.ParameterID.AsInteger);
+      AFieldName := GetFieldName
+        (FQueryParametersForCategory.ParameterID.AsInteger);
       // Добавляем очередное поле
       AFDQuery.FieldDefs.Add(AFieldName, AFieldType, ASize);
       FAllParameterFields.Add(FQueryParametersForCategory.ParameterID.AsInteger,
@@ -204,7 +204,8 @@ begin
     end
     else
       FAllParameterFields.Add(FQueryParametersForCategory.ParameterID.AsInteger,
-        AData.ParameterFields[FQueryParametersForCategory.ParameterID.AsInteger]);
+        AData.ParameterFields[FQueryParametersForCategory.ParameterID.
+        AsInteger]);
 
     FQueryParametersForCategory.FDQuery.Next;
   end;
@@ -217,7 +218,8 @@ begin
     if not AData.ParameterFields.ContainsKey
       (FQueryParametersForCategory.ParameterID.AsInteger) then
     begin
-      AFieldName := GetFieldName(FQueryParametersForCategory.ParameterID.AsInteger);
+      AFieldName := GetFieldName
+        (FQueryParametersForCategory.ParameterID.AsInteger);
       AFDQuery.FieldByName(AFieldName).FieldKind := fkInternalCalc;
     end;
     FQueryParametersForCategory.FDQuery.Next;
@@ -241,7 +243,8 @@ begin
   QueryParametersForCategory.FDQuery.First;
   while not QueryParametersForCategory.FDQuery.Eof do
   begin
-    AFieldName := AllParameterFields[FQueryParametersForCategory.ParameterID.AsInteger];
+    AFieldName := AllParameterFields
+      [FQueryParametersForCategory.ParameterID.AsInteger];
     AField := ADataSet.FieldByName(AFieldName);
 
     if AField.OldValue <> AField.Value then
@@ -306,8 +309,7 @@ begin
   Result := Format('%s%d', [FFieldPrefix, AIDParameter]);
 end;
 
-function TComponentsExGroup.GetIDParameter(const AFieldName
-  : String): Integer;
+function TComponentsExGroup.GetIDParameter(const AFieldName: String): Integer;
 var
   S: string;
 begin
@@ -352,7 +354,7 @@ begin
         AFieldName := GetFieldName
           (FQueryProductParameters.ParameterID.AsInteger);
         S := FQueryProductParameters.Value.AsString.Trim;
-        if not s.IsEmpty then
+        if not S.IsEmpty then
         begin
           // Возможно такого параметра у нашей категории уже нет
           AField := qryComponents.FDQuery.FindField(AFieldName);
@@ -362,7 +364,6 @@ begin
             // Добавляем ограничители, чтобы потом можно было фильтровать
             ANewValue := Format('%s%s%s',
               [FMark, FQueryProductParameters.Value.AsString.Trim, FMark]);
-
 
             AValue := AField.AsString.Trim;
             if AValue <> '' then

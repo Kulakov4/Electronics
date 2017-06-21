@@ -143,7 +143,7 @@ begin
   Assert(RefreshQry.PK.AsInteger > 0);
 
   // Заполняем первычный ключ у вставленной записи
-//  if ASender.State in [dsEdit, dsInsert] then
+  // if ASender.State in [dsEdit, dsInsert] then
   ASender.Edit;
   AID.AsInteger := RefreshQry.PK.Value;
   ASender.Post;
@@ -164,10 +164,8 @@ begin
   AIsAttribute := ASender.FieldByName(IsAttribute.FieldName);
 
   // Если изменилось положение параметра или его порядок
-  if (APosID.OldValue <> APosID.Value) or
-  (AOrder.OldValue <> AOrder.Value) or
-  (AIsAttribute.OldValue <> AIsAttribute.NewValue)
-  then
+  if (APosID.OldValue <> APosID.Value) or (AOrder.OldValue <> AOrder.Value) or
+    (AIsAttribute.OldValue <> AIsAttribute.NewValue) then
   begin
     QueryRecursiveParameters.ExecUpdateSQL(APosID.OldValue, APosID.Value,
       AOrder.OldValue, AOrder.Value, AIsAttribute.OldValue, AIsAttribute.Value,
@@ -217,7 +215,7 @@ end;
 
 procedure TQueryCategoryParameters.DoBeforeDelete(Sender: TObject);
 begin
-//  CascadeDelete();
+  // CascadeDelete();
 end;
 
 procedure TQueryCategoryParameters.DoBeforePost(Sender: TObject);
@@ -308,8 +306,7 @@ begin
           DataType := ftInteger;
           ParamType := ptInput;
         end;
-      end
-    );
+      end);
   end;
 
   Result := FRefreshQry;

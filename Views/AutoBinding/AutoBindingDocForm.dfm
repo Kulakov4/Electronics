@@ -25,7 +25,6 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
     Anchors = [akLeft, akTop, akRight]
     Caption = ' '#1055#1088#1080#1074#1103#1079#1072#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1082' '#1092#1072#1081#1083#1072#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080' '
     TabOrder = 0
-    ExplicitWidth = 474
     Height = 121
     Width = 485
     object cxcbDatasheet: TcxCheckBox

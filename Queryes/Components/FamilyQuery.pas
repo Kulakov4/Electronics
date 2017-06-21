@@ -69,8 +69,7 @@ begin
   Image.OnGetText := OnDatasheetGetText;
 end;
 
-function TQueryFamily.LocateOrAppend(const AValue, AProducer: string):
-    Boolean;
+function TQueryFamily.LocateOrAppend(const AValue, AProducer: string): Boolean;
 begin
   // Ищем компонент по имени без учёта регистра
   Result := FDQuery.LocateEx(Value.FieldName, AValue, [lxoCaseInsensitive]);

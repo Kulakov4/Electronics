@@ -123,8 +123,8 @@ type
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
-    procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView; AProcRef:
-        TProcRef);
+    procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
+      AProcRef: TProcRef);
     procedure ClearSort(AView: TcxGridTableView);
     procedure DoDragDrop(AcxGridSite: TcxGridSite;
       ADragAndDropInfo: TDragAndDropInfo; AQueryOrder: TQueryOrder;
@@ -292,8 +292,8 @@ begin
 end;
 
 // Подбирает верхнюю запись так, чтобы нужная нам стала полностью видимой
-procedure TfrmGrid.ChooseTopRecord(AView: TcxGridTableView; ARecordIndex:
-    Integer);
+procedure TfrmGrid.ChooseTopRecord(AView: TcxGridTableView;
+  ARecordIndex: Integer);
 var
   Cnt: Integer;
   i: Integer;
@@ -324,7 +324,7 @@ begin
 end;
 
 procedure TfrmGrid.ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
-    AProcRef: TProcRef);
+  AProcRef: TProcRef);
 Var
   E: TcxDataDetailExpandingEvent;
 begin
@@ -334,7 +334,6 @@ begin
     AProcRef;
     Exit;
   end;
-
 
   E := AView.DataController.OnDetailExpanding;
   try

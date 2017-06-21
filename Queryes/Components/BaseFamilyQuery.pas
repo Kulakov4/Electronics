@@ -36,12 +36,12 @@ type
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
-    property QuerySearchCategoryByID: TQuerySearchCategoryByID read
-        GetQuerySearchCategoryByID;
-    property QuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup read
-        GetQuerySearchCategoryBySubGroup;
-    property QuerySearchFamilyByValue: TQuerySearchFamilyByValue read
-        GetQuerySearchFamilyByValue;
+    property QuerySearchCategoryByID: TQuerySearchCategoryByID
+      read GetQuerySearchCategoryByID;
+    property QuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup
+      read GetQuerySearchCategoryBySubGroup;
+    property QuerySearchFamilyByValue: TQuerySearchFamilyByValue
+      read GetQuerySearchFamilyByValue;
     property QuerySearchComponentCategory: TQuerySearchComponentCategory
       read GetQuerySearchComponentCategory;
     property QuerySearchComponentCategory2: TQuerySearchComponentCategory2
@@ -118,7 +118,8 @@ begin
     APK.Value := QuerySearchFamilyByValue.PK.Value;
 
     // «аполн€ем пустые пол€ значени€ми с сервера
-    ARH := TDBRecord.Fill(ASender, QuerySearchFamilyByValue.FDQuery, PKFieldName);
+    ARH := TDBRecord.Fill(ASender, QuerySearchFamilyByValue.FDQuery,
+      PKFieldName);
     try
       // ≈сли есть пол€, которые нужно обновить
       if ARH.Count > 0 then
@@ -151,12 +152,12 @@ end;
 
 procedure TQueryBaseFamily.ApplyUpdate(ASender: TDataSet);
 var
-//  APackagePins: TField;
+  // APackagePins: TField;
   APK: TField;
   ARH: TRecordHolder;
   ASubGroup: TField;
 begin
-//  APackagePins := ASender.FieldByName(PackagePins.FieldName);
+  // APackagePins := ASender.FieldByName(PackagePins.FieldName);
 
   ARH := TRecordHolder.Create(ASender);
   try
@@ -224,8 +225,8 @@ begin
 
   Assert(not DetailParameterName.IsEmpty);
 
-  rc := QuerySearchCategoryByID.Search
-    (FDQuery.ParamByName(DetailParameterName).AsInteger);
+  rc := QuerySearchCategoryByID.Search(FDQuery.ParamByName(DetailParameterName)
+    .AsInteger);
   Assert(rc = 1);
   Result := QuerySearchCategoryByID.ExternalID.AsString;
 end;
@@ -237,17 +238,18 @@ begin
   Result := FQuerySearchCategoryByID;
 end;
 
-function TQueryBaseFamily.GetQuerySearchCategoryBySubGroup:
-    TQuerySearchCategoryBySubGroup;
+function TQueryBaseFamily.GetQuerySearchCategoryBySubGroup
+  : TQuerySearchCategoryBySubGroup;
 begin
   if FQuerySearchCategoryBySubGroup = nil then
-    FQuerySearchCategoryBySubGroup := TQuerySearchCategoryBySubGroup.Create(Self);
+    FQuerySearchCategoryBySubGroup :=
+      TQuerySearchCategoryBySubGroup.Create(Self);
 
   Result := FQuerySearchCategoryBySubGroup;
 end;
 
-function TQueryBaseFamily.GetQuerySearchFamilyByValue:
-    TQuerySearchFamilyByValue;
+function TQueryBaseFamily.GetQuerySearchFamilyByValue
+  : TQuerySearchFamilyByValue;
 begin
   if FQuerySearchFamilyByValue = nil then
     FQuerySearchFamilyByValue := TQuerySearchFamilyByValue.Create(Self);

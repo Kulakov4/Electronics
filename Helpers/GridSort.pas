@@ -44,7 +44,7 @@ begin
   FKeyFieldName := AColumn.DataBinding.FieldName;
   FSortedFieldNames := TList<String>.Create;
 
-  for I := Low(ASortedColumns) to High(ASortedColumns) do
+  for i := Low(ASortedColumns) to High(ASortedColumns) do
     FSortedFieldNames.Add(ASortedColumns[i].DataBinding.FieldName);
 end;
 
@@ -85,14 +85,16 @@ end;
 function TGridSotr.ContainsColumn(AColumn: TcxGridColumn): Boolean;
 begin
   Assert(AColumn <> nil);
-  Result := FSortDictionary.ContainsKey( (AColumn as TcxGridDBBandedColumn).DataBinding.FieldName );
+  Result := FSortDictionary.ContainsKey((AColumn as TcxGridDBBandedColumn)
+    .DataBinding.FieldName);
 end;
 
 function TGridSotr.GetSortVariant(AColumn: TcxGridColumn): TSortVariant;
 begin
   Result := nil;
   if ContainsColumn(AColumn) then
-    Result := FSortDictionary[(AColumn as TcxGridDBBandedColumn).DataBinding.FieldName]
+    Result := FSortDictionary[(AColumn as TcxGridDBBandedColumn)
+      .DataBinding.FieldName]
 end;
 
 end.

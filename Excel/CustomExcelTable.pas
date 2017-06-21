@@ -177,7 +177,8 @@ begin
   for AFieldInfo in FieldsInfo do
   begin
     // Если в Excel файле пустая ячейка и возможно она была объеденина
-    if (FieldByName(AFieldInfo.FieldName).IsNull) and (AFieldInfo.IsCellUnion) then
+    if (FieldByName(AFieldInfo.FieldName).IsNull) and (AFieldInfo.IsCellUnion)
+    then
     begin
       TryEdit;
       FieldByName(AFieldInfo.FieldName).Value := ARecHolder.Field

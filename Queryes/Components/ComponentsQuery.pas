@@ -38,8 +38,8 @@ begin
   DetailParameterName := 'vProductCategoryId';
 end;
 
-procedure TQueryComponents.LocateOrAppend(const AIDParentComponent
-  : Integer; const AValue: string);
+procedure TQueryComponents.LocateOrAppend(const AIDParentComponent: Integer;
+  const AValue: string);
 begin
   // Ещем дочерний компонент
   if not FDQuery.LocateEx(Format('%s;%s', [ParentProductID.FieldName,

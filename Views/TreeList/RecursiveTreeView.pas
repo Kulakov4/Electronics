@@ -3,7 +3,8 @@ unit RecursiveTreeView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -39,11 +40,10 @@ type
     procedure SetQueryRecursiveTree(const Value: TQueryRecursiveTree);
     { Private declarations }
   public
-    property QueryRecursiveTree: TQueryRecursiveTree read FQueryRecursiveTree write
-        SetQueryRecursiveTree;
+    property QueryRecursiveTree: TQueryRecursiveTree read FQueryRecursiveTree
+      write SetQueryRecursiveTree;
     { Public declarations }
   end;
-
 
 implementation
 
@@ -64,7 +64,8 @@ begin
   ExportViewToExcel(MainView, AFileName);
 end;
 
-procedure TViewRecursiveTree.SetQueryRecursiveTree(const Value: TQueryRecursiveTree);
+procedure TViewRecursiveTree.SetQueryRecursiveTree
+  (const Value: TQueryRecursiveTree);
 begin
   if FQueryRecursiveTree <> Value then
   begin

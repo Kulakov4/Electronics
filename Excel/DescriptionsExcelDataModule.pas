@@ -28,8 +28,8 @@ type
     function CheckRecord: Boolean; override;
     property ComponentName: TField read GetComponentName;
     property ComponentType: TField read GetComponentType;
-    property DescriptionsDataSet: TFDDataSet read FDescriptionsDataSet write
-        SetDescriptionsDataSet;
+    property DescriptionsDataSet: TFDDataSet read FDescriptionsDataSet
+      write SetDescriptionsDataSet;
     property Manufacturer: TField read GetManufacturer;
   end;
 
@@ -116,8 +116,8 @@ begin
   Result := FieldByName('Manufacturer');
 end;
 
-procedure TDescriptionsExcelTable.SetDescriptionsDataSet(const Value:
-    TFDDataSet);
+procedure TDescriptionsExcelTable.SetDescriptionsDataSet
+  (const Value: TFDDataSet);
 begin
   if FDescriptionsDataSet <> Value then
   begin

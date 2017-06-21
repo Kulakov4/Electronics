@@ -13,8 +13,8 @@ uses
 
 type
   TQueryProducers = class(TQueryWithDataSource)
-    procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
-        Boolean);
+    procedure FDQueryCntGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
   private
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
@@ -103,12 +103,12 @@ end;
 
 procedure TQueryProducers.DropUnuses;
 begin
-//  fdqDropUnused.ExecSQL;
-//  RefreshQuery;
+  // fdqDropUnused.ExecSQL;
+  // RefreshQuery;
 end;
 
 procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
-    DisplayText: Boolean);
+  DisplayText: Boolean);
 begin
   if (not Sender.IsNull) and (Sender.AsFloat > 0) then
     Text := String.Format('%.0n', [Sender.AsFloat])

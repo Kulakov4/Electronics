@@ -14,29 +14,28 @@ type
   private
     FQuerySearchComponent: TQuerySearchComponent;
     function GetComponentName: TField;
-// TODO: GetIDBodyType
-//  function GetIDBodyType: TField;
+    // TODO: GetIDBodyType
+    // function GetIDBodyType: TField;
     function GetIDComponent: TField;
     function GetIDParentComponent: TField;
     function GetQuerySearchComponent: TQuerySearchComponent;
   protected
     function CheckComponent: Boolean;
     procedure CreateFieldDefs; override;
-    property QuerySearchComponent: TQuerySearchComponent read
-        GetQuerySearchComponent;
+    property QuerySearchComponent: TQuerySearchComponent
+      read GetQuerySearchComponent;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
-        reintroduce;
+      reintroduce;
     function CheckRecord: Boolean; override;
-    class function GetFieldNameByIDParam(AIDParameter, AIDParentParameter:
-        Integer): String; static;
-    function GetIDParamByFieldName(AFieldName: string; out AIDParameter,
-        AIDParentParameter: Integer): Boolean;
+    class function GetFieldNameByIDParam(AIDParameter, AIDParentParameter
+      : Integer): String; static;
+    function GetIDParamByFieldName(AFieldName: string;
+      out AIDParameter, AIDParentParameter: Integer): Boolean;
     property ComponentName: TField read GetComponentName;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
   end;
-
 
   TParametricExcelDM = class(TExcelDM)
   private
@@ -47,7 +46,7 @@ type
     function CreateExcelTable: TCustomExcelTable; override;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
-        reintroduce; overload;
+      reintroduce; overload;
     property ExcelTable: TParametricExcelTable read GetExcelTable;
     { Public declarations }
   end;
@@ -63,8 +62,8 @@ uses ProgressInfo, System.Variants;
 const
   FParamPrefix = 'Param';
 
-constructor TParametricExcelTable.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>);
+constructor TParametricExcelTable.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>);
 var
   AFieldInfo: TFieldInfo;
 begin
@@ -82,7 +81,8 @@ begin
   if Result then
   begin
     IDComponent.AsInteger := QuerySearchComponent.PK.AsInteger;
-    IDParentComponent.AsInteger := QuerySearchComponent.ParentProductID.AsInteger;
+    IDParentComponent.AsInteger :=
+      QuerySearchComponent.ParentProductID.AsInteger;
   end
   else
   begin
@@ -120,12 +120,13 @@ begin
 end;
 
 class function TParametricExcelTable.GetFieldNameByIDParam(AIDParameter,
-    AIDParentParameter: Integer): String;
+  AIDParentParameter: Integer): String;
 begin
   Assert(AIDParameter > 0);
   Assert(not FParamPrefix.IsEmpty);
 
-  Result := Format('%s_%d_%d', [FParamPrefix, AIDParameter, AIDParentParameter]);
+  Result := Format('%s_%d_%d', [FParamPrefix, AIDParameter,
+    AIDParentParameter]);
 end;
 
 function TParametricExcelTable.GetIDComponent: TField;
@@ -133,8 +134,8 @@ begin
   Result := FieldByName('IDComponent');
 end;
 
-function TParametricExcelTable.GetIDParamByFieldName(AFieldName: string; out
-    AIDParameter, AIDParentParameter: Integer): Boolean;
+function TParametricExcelTable.GetIDParamByFieldName(AFieldName: string;
+  out AIDParameter, AIDParentParameter: Integer): Boolean;
 var
   m: TArray<String>;
 begin
@@ -166,14 +167,14 @@ end;
 
 function TParametricExcelTable.GetQuerySearchComponent: TQuerySearchComponent;
 begin
-  if FQuerySearchComponent = nil  then
+  if FQuerySearchComponent = nil then
     FQuerySearchComponent := TQuerySearchComponent.Create(Self);
 
   Result := FQuerySearchComponent;
 end;
 
-constructor TParametricExcelDM.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>);
+constructor TParametricExcelDM.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>);
 begin
   Assert(AFieldsInfo <> nil);
   FFieldsInfo := AFieldsInfo;

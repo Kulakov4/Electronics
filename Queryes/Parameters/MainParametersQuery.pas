@@ -110,7 +110,8 @@ begin
       ParametersApplyQuery.UpdateRecord(RH);
 
       // Тут надо удалить ссылки на этот параметр
-      fdqDeleteFromCategoryParams.ParamByName('ParameterID').AsInteger := AID.AsInteger;
+      fdqDeleteFromCategoryParams.ParamByName('ParameterID').AsInteger :=
+        AID.AsInteger;
       fdqDeleteFromCategoryParams.ExecSQL;
     finally
       FreeAndNil(RH);
@@ -350,7 +351,7 @@ end;
 function TQueryMainParameters.Locate(const AFieldName, AValue: string): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
-  Result := FDQuery.LocateEx(AFieldName , AValue,
+  Result := FDQuery.LocateEx(AFieldName, AValue,
     [lxoCaseInsensitive, lxoPartialKey]);
 end;
 

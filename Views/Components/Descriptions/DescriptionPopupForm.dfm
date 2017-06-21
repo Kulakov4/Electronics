@@ -9,8 +9,6 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
     TabOrder = 0
     ExplicitLeft = 32
     ExplicitTop = 24
-    ExplicitWidth = 185
-    ExplicitHeight = 89
     Height = 300
     Width = 395
   end

@@ -32,7 +32,7 @@ type
   public
     class procedure LoadParameters(AExcelTable: TParametricExcelTable); static;
     class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
-        AddParameters: Boolean); static;
+      AddParameters: Boolean); static;
     class property PackagePinsParameterID: Integer
       read GetPackagePinsParameterID;
     class property DatasheetParameterID: Integer read GetDatasheetParameterID;
@@ -222,8 +222,8 @@ begin
   end;
 end;
 
-class procedure TParameterValues.LoadParameterValues(AExcelTable:
-    TParametricExcelTable; AddParameters: Boolean);
+class procedure TParameterValues.LoadParameterValues
+  (AExcelTable: TParametricExcelTable; AddParameters: Boolean);
 var
   a: TArray<String>;
   AFieldInfo: TFieldInfo;

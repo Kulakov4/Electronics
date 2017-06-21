@@ -12,7 +12,6 @@ type
     procedure Process(AProcRef: TProcRef; ANotifyEventRef: TNotifyEventRef);
   end;
 
-
 implementation
 
 end.

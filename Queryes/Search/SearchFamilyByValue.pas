@@ -40,8 +40,8 @@ begin
   Result := Field('Subgroup');
 end;
 
-function TQuerySearchFamilyByValue.Search(const AComponentName
-  : string): Integer;
+function TQuerySearchFamilyByValue.Search(const AComponentName: string)
+  : Integer;
 begin
   Assert(not AComponentName.IsEmpty);
   Result := Search(['Value', 'ProducerParameterID', 'PackagePinsParameterID',

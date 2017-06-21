@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
-  System.Generics.Collections, FireDAC.Stan.Intf,FireDAC.Stan.Option,
+  System.Generics.Collections, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   CustomExcelTable;
@@ -27,8 +27,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
-    property ParametersDataSet: TFDDataSet read FParametersDataSet write
-        SetParametersDataSet;
+    property ParametersDataSet: TFDDataSet read FParametersDataSet
+      write SetParametersDataSet;
     property ParameterType: TField read GetParameterType;
     property Value: TField read GetValue;
   end;
@@ -46,7 +46,6 @@ type
     property ExcelTable: TParametersExcelTable read GetExcelTable;
     { Public declarations }
   end;
-
 
 implementation
 
@@ -69,7 +68,7 @@ end;
 function TParametersExcelDM.GetIndent: Integer;
 begin
   // отступ слева зависит от того, есть ли колонка с номером
-  Result := IfThen( HaveNumberColumn, 1, 0 );
+  Result := IfThen(HaveNumberColumn, 1, 0);
 end;
 
 function TParametersExcelDM.HaveHeader(const ARow: Integer): Boolean;
@@ -96,7 +95,7 @@ var
   S: string;
 begin
   AFirstCell := EWS.Cells.Item[1, 1];
-  S := VarToStrDef( EWS.Range[AFirstCell, AFirstCell].Value2, '');
+  S := VarToStrDef(EWS.Range[AFirstCell, AFirstCell].Value2, '');
   Result := S.IndexOf('№') >= 0;
 end;
 
@@ -121,8 +120,8 @@ begin
     // Запоминаем, что в этой строке предупреждение
     MarkAsError(etWarring);
 
-    Errors.AddWarring(ExcelRow.AsInteger, Value.Index + 1,
-      Value.AsString, 'Параметр с таким наименованием уже существует');
+    Errors.AddWarring(ExcelRow.AsInteger, Value.Index + 1, Value.AsString,
+      'Параметр с таким наименованием уже существует');
   end;
 end;
 
@@ -164,7 +163,8 @@ function TParametersExcelTable.ProcessValue(const AValue: string): String;
 begin
   // Избавляемся от переносов на новую строку
   // Двойные кавычки могут встречаться !!! Напр. Класс изделия "Green"
-  Result := AValue.Replace(#13, ' ', [rfReplaceAll]).Replace(#10, ' ', [rfReplaceAll]);
+  Result := AValue.Replace(#13, ' ', [rfReplaceAll])
+    .Replace(#10, ' ', [rfReplaceAll]);
   // Избавляемся от двойных пробелов
   Result := DeleteDouble(Result, ' ');
 end;

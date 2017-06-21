@@ -24,7 +24,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
-    procedure InsertRecordList(ADescriptionsExcelTable: TDescriptionsExcelTable);
+    procedure InsertRecordList(ADescriptionsExcelTable
+      : TDescriptionsExcelTable);
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
@@ -58,7 +59,7 @@ end;
 procedure TDescriptionsGroup.Commit;
 begin
   Inherited;
-//  qProducers.DropUnuses;
+  // qProducers.DropUnuses;
 end;
 
 procedure TDescriptionsGroup.DoAfterPostOrDelete(Sender: TObject);
@@ -70,11 +71,12 @@ procedure TDescriptionsGroup.DoAfterDelete(Sender: TObject);
 begin
   Assert(qDescriptionTypes.OldPKValue > 0);
   // Каскадно удаляем производителей
-  qDescriptions.CascadeDelete(qDescriptionTypes.OldPKValue, qDescriptions.IDComponentType.FieldName, True);
+  qDescriptions.CascadeDelete(qDescriptionTypes.OldPKValue,
+    qDescriptions.IDComponentType.FieldName, True);
 end;
 
-procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable:
-    TDescriptionsExcelTable);
+procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable
+  : TDescriptionsExcelTable);
 var
   AField: TField;
   I: Integer;
@@ -87,7 +89,8 @@ begin
     ADescriptionsExcelTable.CallOnProcessEvent;
     while not ADescriptionsExcelTable.Eof do
     begin
-      qDescriptionTypes.LocateOrAppend(ADescriptionsExcelTable.ComponentType.AsString);
+      qDescriptionTypes.LocateOrAppend
+        (ADescriptionsExcelTable.ComponentType.AsString);
 
       qProducers.LocateOrAppend(ADescriptionsExcelTable.Manufacturer.AsString);
 

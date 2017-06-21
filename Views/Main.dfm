@@ -39,7 +39,7 @@ object frmMain: TfrmMain
     Height = 564
     Align = alLeft
     TabOrder = 1
-    Properties.ActivePage = cxtsStorehouses
+    Properties.ActivePage = cxtsComponents
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcLeftChange
     ClientRectBottom = 560
@@ -50,10 +50,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -138,6 +134,10 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -535,14 +535,7 @@ object frmMain: TfrmMain
           ClientRectRight = 922
           ClientRectTop = 27
           inherited tsStorehouseInfo: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 918
-            ExplicitHeight = 474
             inherited ViewStorehouseInfo: TViewStorehouseInfo
-              Width = 918
-              Height = 474
-              ExplicitWidth = 918
-              ExplicitHeight = 474
               inherited lblTitle: TcxLabel
                 ExplicitWidth = 90
                 ExplicitHeight = 20
@@ -568,66 +561,19 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
-            inherited ViewProducts: TViewProducts
+            ExplicitTop = 27
+            ExplicitWidth = 918
+            ExplicitHeight = 474
+            inherited ViewProductsBase2: TViewProductsBase2
               Width = 918
               Height = 474
-              inherited cxGrid: TcxGrid
+              ExplicitWidth = 918
+              ExplicitHeight = 474
+              inherited cxDBTreeList: TcxDBTreeList
                 Width = 918
-                Height = 427
-                inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
-                  inherited clDatasheet2: TcxGridDBBandedColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProducts.actOpenDatasheet
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProducts.actLoadDatasheet
-                        Kind = bkEllipsis
-                      end>
-                  end
-                  inherited clDiagram2: TcxGridDBBandedColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProducts.actOpenDiagram
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProducts.actLoadDiagram
-                        Kind = bkEllipsis
-                      end>
-                  end
-                  inherited clDrawing2: TcxGridDBBandedColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProducts.actOpenDrawing
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProducts.actLoadDrawing
-                        Kind = bkEllipsis
-                      end>
-                  end
-                  inherited clImage2: TcxGridDBBandedColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProducts.actOpenImage
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProducts.actLoadImage
-                        Kind = bkEllipsis
-                      end>
-                  end
-                end
-              end
-              inherited StatusBar: TStatusBar
-                Top = 455
-                Width = 918
+                Height = 446
+                ExplicitWidth = 918
+                ExplicitHeight = 446
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -635,15 +581,6 @@ object frmMain: TfrmMain
                   0
                   28
                   0)
-              end
-              inherited cxGridPopupMenu: TcxGridPopupMenu
-                PopupMenus = <
-                  item
-                    GridView = ProductsFrame.ViewProducts.cxGridDBBandedTableView
-                    HitTypes = [gvhtCell]
-                    Index = 0
-                    PopupMenu = ProductsFrame.ViewProducts.pmGrid
-                  end>
               end
             end
           end

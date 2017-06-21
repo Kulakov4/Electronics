@@ -13,7 +13,8 @@ uses
   SearchProductParameterValuesQuery, SearchFamilyByID,
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchDaughterComponentQuery, System.Generics.Collections,
-  SearchStorehouseProductByID, ProducersQuery, NotifyEvents;
+  SearchStorehouseProductByID, ProducersQuery, NotifyEvents,
+  SearchComponentGroup;
 
 type
   TComponentNameParts = record
@@ -34,40 +35,45 @@ type
   private
     FOnLocate: TNotifyEventsEx;
     FqProducers: TQueryProducers;
-    FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
-    FQuerySearchFamilyByID: TQuerySearchFamilyByID;
-    FQuerySearchProduct: TQuerySearchProduct;
-    FQuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
+    FqSearchComponentGroup: TQuerySearchComponentGroup;
+    FqSearchDaughterComponent: TQuerySearchDaughterComponent;
+    FqSearchFamilyByID: TQuerySearchFamilyByID;
+    FqSearchProduct: TQuerySearchProduct;
+    FqSearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
     procedure DoAfterOpen(Sender: TObject);
     function GetDescriptionID: TField;
-    function GetIDComponentGroup: TField;
+    function GetIDParent: TField;
     function GetIDProducer: TField;
+    function GetIsGroup: TField;
     function GetProductID: TField;
     function GetqProducers: TQueryProducers;
-    function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
-    function GetQuerySearchFamilyByID: TQuerySearchFamilyByID;
-    function GetQuerySearchProduct: TQuerySearchProduct;
-    function GetQuerySearchStorehouseProductByID
-      : TQuerySearchStorehouseProductByID;
+    function GetqSearchComponentGroup: TQuerySearchComponentGroup;
+    function GetqSearchDaughterComponent: TQuerySearchDaughterComponent;
+    function GetqSearchFamilyByID: TQuerySearchFamilyByID;
+    function GetqSearchProduct: TQuerySearchProduct;
+    function GetqSearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
     function GetStorehouseId: TField;
     function GetValue: TField;
-// TODO: SplitComponentName
-//  function SplitComponentName(const S: string): TComponentNameParts;
+    // TODO: SplitComponentName
+    // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetExportFileName: string; virtual; abstract;
-    property QuerySearchDaughterComponent: TQuerySearchDaughterComponent
-      read GetQuerySearchDaughterComponent;
-    property QuerySearchFamilyByID: TQuerySearchFamilyByID
-      read GetQuerySearchFamilyByID;
-    property QuerySearchProduct: TQuerySearchProduct read GetQuerySearchProduct;
-    property QuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID
-      read GetQuerySearchStorehouseProductByID;
+    property qSearchComponentGroup: TQuerySearchComponentGroup
+      read GetqSearchComponentGroup;
+    property qSearchDaughterComponent: TQuerySearchDaughterComponent
+      read GetqSearchDaughterComponent;
+    property qSearchFamilyByID: TQuerySearchFamilyByID
+      read GetqSearchFamilyByID;
+    property qSearchProduct: TQuerySearchProduct read GetqSearchProduct;
+    property qSearchStorehouseProductByID: TQuerySearchStorehouseProductByID
+      read GetqSearchStorehouseProductByID;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AddCategory;
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure LoadDocFile(const AFileName: String;
@@ -75,8 +81,9 @@ type
     function LocateInComponents: Boolean;
     property DescriptionID: TField read GetDescriptionID;
     property ExportFileName: string read GetExportFileName;
-    property IDComponentGroup: TField read GetIDComponentGroup;
+    property IDParent: TField read GetIDParent;
     property IDProducer: TField read GetIDProducer;
+    property IsGroup: TField read GetIsGroup;
     property ProductID: TField read GetProductID;
     property qProducers: TQueryProducers read GetqProducers;
     property StorehouseId: TField read GetStorehouseId;
@@ -119,6 +126,13 @@ begin
   AutoTransaction := False;
 end;
 
+procedure TQueryProductsBase.AddCategory;
+begin
+  TryAppend;
+  Value.AsString := 'Новая запись';
+  IsGroup.AsInteger := 1;
+end;
+
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
 var
   AProductID: TField;
@@ -131,7 +145,7 @@ begin
   qStoreHouseProducts.DeleteRecord(PK.Value);
 
   // Если подобных продуктов на складе больше нет
-  if QuerySearchStorehouseProductByID.Search(AProductID.AsInteger) = 0 then
+  if qSearchStorehouseProductByID.Search(AProductID.AsInteger) = 0 then
   begin
     // Удаляем продукт
     qProducts.DeleteRecord(AProductID.AsInteger);
@@ -143,44 +157,50 @@ end;
 procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet);
 var
   AFieldHolder: TFieldHolder;
-  APK: TField;
-  AIDProducer: TField;
-  AProductID: TField;
   ARH: TRecordHolder;
   ARH2: TRecordHolder;
   ARHFamily: TRecordHolder;
-  AValue: TField;
   OK: Boolean;
   rc: Integer;
 begin
-  AValue := ASender.FieldByName(Value.FieldName);
-  if AValue.AsString.Trim.IsEmpty then
-    raise Exception.Create('Необходимо задать наименование компонента');
-  APK := ASender.FieldByName(PKFieldName);
-  AProductID := ASender.FieldByName(ProductID.FieldName);
-  AIDProducer := ASender.FieldByName(IDProducer.FieldName);
+  Assert(ASender = FDQuery);
+
+  if Value.AsString.Trim.IsEmpty then
+    raise Exception.Create('Необходимо задать наименование');
+
+  // Если надо сохранить только группу
+  if IsGroup.AsInteger = 1 then
+  begin
+    // Ищем такую группу компонентов в справочнике
+    rc := qSearchComponentGroup.Search(Value.AsString);
+    if rc = 0 then
+      qSearchComponentGroup.Append(Value.AsString);
+
+    // Заполняем первичный ключ
+    PK.Value := qSearchComponentGroup.PK.Value;
+    Exit;
+  end;
 
   // Если производитель задан
-  if AIDProducer.AsInteger > 0 then
+  if IDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := qProducers.LocateByPK(AIDProducer.AsInteger);
+    OK := qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
-    rc := QuerySearchDaughterComponent.Search(AValue.AsString,
+    rc := qSearchDaughterComponent.Search(Value.AsString,
       qProducers.Name.AsString);
   end
   else
   begin
     // Ищем в теоретической базе просто по наименованию
-    rc := QuerySearchDaughterComponent.Search(AValue.AsString);
+    rc := qSearchDaughterComponent.Search(Value.AsString);
     if rc > 0 then
     begin
       // Ищем в справочнике такого производителя
-      qProducers.LocateOrAppend
-        (QuerySearchDaughterComponent.Producer.AsString);
+      qProducers.LocateOrAppend(qSearchDaughterComponent.Producer.AsString);
       // Заполняем производителя
-      AIDProducer.AsInteger := qProducers.PK.Value;
+      IDProducer.AsInteger := qProducers.PK.Value;
     end;
   end;
 
@@ -190,11 +210,11 @@ begin
     if rc > 0 then
     begin
       // Ищем соответствующее семейство компонентов
-      rc := QuerySearchFamilyByID.Search
-        (QuerySearchDaughterComponent.ParentProductID.AsInteger);
+      rc := qSearchFamilyByID.Search
+        (qSearchDaughterComponent.ParentProductID.AsInteger);
       Assert(rc = 1);
 
-      ARHFamily := TRecordHolder.Create(QuerySearchFamilyByID.FDQuery);
+      ARHFamily := TRecordHolder.Create(qSearchFamilyByID.FDQuery);
       try
         // Обновляем пустые значения
         ARH.UpdateNullValues(ARHFamily);
@@ -208,29 +228,29 @@ begin
         for ADocFieldInfo in FDocFieldInfos do
         begin
         ASender.FieldByName(ADocFieldInfo.FieldName).AsString :=
-        QuerySearchFamilyByID.Field(ADocFieldInfo.FieldName).AsString;
+        qSearchFamilyByID.Field(ADocFieldInfo.FieldName).AsString;
         end;
         // Заполняем ссылку на краткое описание
         ADescriptionID.AsInteger :=
-        QuerySearchFamilyByID.DescriptionID.AsInteger;
+        qSearchFamilyByID.DescriptionID.AsInteger;
       }
     end;
 
     // Если производитель не задан
-    if AIDProducer.AsInteger = 0 then
+    if IDProducer.AsInteger = 0 then
     begin
       // Ищем такой компонент с таким именем на складе
-      rc := QuerySearchProduct.Search(AValue.AsString);
+      rc := qSearchProduct.Search(Value.AsString);
       if rc > 0 then
         // Заполняем производителя
-        AIDProducer.AsInteger := QuerySearchProduct.IDProducer.AsInteger
+        IDProducer.AsInteger := qSearchProduct.IDProducer.AsInteger
       else
         raise Exception.Create('Необходимо задать производителя');
     end
     else
     begin
       // Если производитель задан
-      rc := QuerySearchProduct.Search(AValue.AsString, AIDProducer.AsInteger);
+      rc := qSearchProduct.Search(Value.AsString, IDProducer.AsInteger);
     end;
 
     // Если такого продукта ещё нет
@@ -240,17 +260,17 @@ begin
       qProducts.InsertRecord(ARH);
 
       ARH.Field[ProductID.FieldName] := qProducts.PKValue;
-      AProductID.AsInteger := qProducts.PKValue;
+      ProductID.AsInteger := qProducts.PKValue;
     end
     else
     begin
       // Если такой продукт уже есть
       // Запоминаем найденный первичный ключ
-      ARH.Field[ProductID.FieldName] := QuerySearchProduct.PK.Value;
-      AProductID.AsInteger := QuerySearchProduct.PK.Value;
+      ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
+      ProductID.AsInteger := qSearchProduct.PK.Value;
 
       // Запоминаем поля семейства компонента
-      ARH2 := TRecordHolder.Create(QuerySearchProduct.FDQuery);
+      ARH2 := TRecordHolder.Create(qSearchProduct.FDQuery);
       try
         // Все пустые поля заполняем значениями из найденного продукта
         ARH.UpdateNullValues(ARH2);
@@ -278,10 +298,10 @@ begin
     Assert(qStoreHouseProducts.PKValue > 0);
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад"
-    APK.AsInteger := qStoreHouseProducts.PKValue;
+    PK.Value := qStoreHouseProducts.PKValue;
 
     // Заполняем код продукта
-    AProductID.AsInteger := ARH.Field[ProductID.FieldName];
+    ProductID.AsInteger := ARH.Field[ProductID.FieldName];
   finally
     FreeAndNil(ARH);
   end;
@@ -333,14 +353,19 @@ begin
   Result := Field('DescriptionID');
 end;
 
-function TQueryProductsBase.GetIDComponentGroup: TField;
+function TQueryProductsBase.GetIDParent: TField;
 begin
-  Result := Field('IDComponentGroup');
+  Result := Field('IDParent');
 end;
 
 function TQueryProductsBase.GetIDProducer: TField;
 begin
   Result := Field('IDProducer');
+end;
+
+function TQueryProductsBase.GetIsGroup: TField;
+begin
+  Result := Field('IsGroup');
 end;
 
 function TQueryProductsBase.GetProductID: TField;
@@ -359,36 +384,46 @@ begin
   Result := FqProducers;
 end;
 
-function TQueryProductsBase.GetQuerySearchDaughterComponent
+function TQueryProductsBase.GetqSearchComponentGroup
+  : TQuerySearchComponentGroup;
+begin
+  if FqSearchComponentGroup = nil then
+  begin
+    FqSearchComponentGroup := TQuerySearchComponentGroup.Create(Self);
+  end;
+  Result := FqSearchComponentGroup;
+end;
+
+function TQueryProductsBase.GetqSearchDaughterComponent
   : TQuerySearchDaughterComponent;
 begin
-  if FQuerySearchDaughterComponent = nil then
-    FQuerySearchDaughterComponent := TQuerySearchDaughterComponent.Create(Self);
-  Result := FQuerySearchDaughterComponent;
+  if FqSearchDaughterComponent = nil then
+    FqSearchDaughterComponent := TQuerySearchDaughterComponent.Create(Self);
+  Result := FqSearchDaughterComponent;
 end;
 
-function TQueryProductsBase.GetQuerySearchFamilyByID: TQuerySearchFamilyByID;
+function TQueryProductsBase.GetqSearchFamilyByID: TQuerySearchFamilyByID;
 begin
-  if FQuerySearchFamilyByID = nil then
-    FQuerySearchFamilyByID := TQuerySearchFamilyByID.Create(Self);
-  Result := FQuerySearchFamilyByID;
+  if FqSearchFamilyByID = nil then
+    FqSearchFamilyByID := TQuerySearchFamilyByID.Create(Self);
+  Result := FqSearchFamilyByID;
 end;
 
-function TQueryProductsBase.GetQuerySearchProduct: TQuerySearchProduct;
+function TQueryProductsBase.GetqSearchProduct: TQuerySearchProduct;
 begin
-  if FQuerySearchProduct = nil then
-    FQuerySearchProduct := TQuerySearchProduct.Create(Self);
+  if FqSearchProduct = nil then
+    FqSearchProduct := TQuerySearchProduct.Create(Self);
 
-  Result := FQuerySearchProduct;
+  Result := FqSearchProduct;
 end;
 
-function TQueryProductsBase.GetQuerySearchStorehouseProductByID
+function TQueryProductsBase.GetqSearchStorehouseProductByID
   : TQuerySearchStorehouseProductByID;
 begin
-  if FQuerySearchStorehouseProductByID = nil then
-    FQuerySearchStorehouseProductByID :=
+  if FqSearchStorehouseProductByID = nil then
+    FqSearchStorehouseProductByID :=
       TQuerySearchStorehouseProductByID.Create(Self);
-  Result := FQuerySearchStorehouseProductByID;
+  Result := FqSearchStorehouseProductByID;
 end;
 
 function TQueryProductsBase.GetStorehouseId: TField;
@@ -432,28 +467,27 @@ begin
     OK := qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
-    rc := QuerySearchDaughterComponent.Search(Value.AsString,
+    rc := qSearchDaughterComponent.Search(Value.AsString,
       qProducers.Name.AsString);
   end;
   if rc > 0 then
   begin
     // Ищем соответствующее семейство компонентов
-    rc := QuerySearchFamilyByID.Search
-      (QuerySearchDaughterComponent.ParentProductID.AsInteger);
+    rc := qSearchFamilyByID.Search
+      (qSearchDaughterComponent.ParentProductID.AsInteger);
 
   end;
   Result := rc > 0;
 
   if Result then
   begin
-    m := QuerySearchFamilyByID.CategoryIDList.AsString.Split([',']);
+    m := qSearchFamilyByID.CategoryIDList.AsString.Split([',']);
     Assert(Length(m) > 0);
 
     AIDCategory := String.ToInteger(m[0]);
 
-    LR := TLocateObject.Create(AIDCategory,
-      QuerySearchFamilyByID.Value.AsString,
-      QuerySearchDaughterComponent.Value.AsString);
+    LR := TLocateObject.Create(AIDCategory, qSearchFamilyByID.Value.AsString,
+      qSearchDaughterComponent.Value.AsString);
     try
       OnLocate.CallEventHandlers(LR);
     finally
@@ -464,47 +498,47 @@ begin
 end;
 
 // TODO: SplitComponentName
-//function TQueryProductsBase.SplitComponentName(const S: string)
-//: TComponentNameParts;
-//var
-//Count: Integer;
-//StartIndex: Integer;
-//begin
-//// Предполагаем что компонент начинается с буквы, за которыми следуют цифры
-//Result.Name := S;
-//Result.Number := 0;
-//Result.Ending := '';
+// function TQueryProductsBase.SplitComponentName(const S: string)
+// : TComponentNameParts;
+// var
+// Count: Integer;
+// StartIndex: Integer;
+// begin
+/// / Предполагаем что компонент начинается с буквы, за которыми следуют цифры
+// Result.Name := S;
+// Result.Number := 0;
+// Result.Ending := '';
 //
-//Count := 1;
+// Count := 1;
 //
-//// Пока в начале строки не находим цифру
-//while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 0,
-//  Count) = -1 do
-//begin
-//  Inc(Count);
+/// / Пока в начале строки не находим цифру
+// while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 0,
+// Count) = -1 do
+// begin
+// Inc(Count);
 //
-//  // Если в строке вообще нет цифр
-//  if Count > S.Length then
-//    Exit;
-//end;
+// // Если в строке вообще нет цифр
+// if Count > S.Length then
+// Exit;
+// end;
 //
-//Result.Name := S.Substring(0, Count - 1);
-//StartIndex := Count - 1;
+// Result.Name := S.Substring(0, Count - 1);
+// StartIndex := Count - 1;
 //
-//// Пока в строке находим цифру
-//while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-//  StartIndex) = StartIndex do
-//  Inc(StartIndex);
+/// / Пока в строке находим цифру
+// while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+// StartIndex) = StartIndex do
+// Inc(StartIndex);
 //
-//Dec(StartIndex);
+// Dec(StartIndex);
 //
-//// Если нашли хотя-бы одну цифру
-//if StartIndex >= Count then
-//begin
-//  Result.Number := StrToInt(S.Substring(Count - 1, StartIndex - Count));
-//  Result.Ending := S.Substring(StartIndex + 1);
-//end;
-//end;
+/// / Если нашли хотя-бы одну цифру
+// if StartIndex >= Count then
+// begin
+// Result.Number := StrToInt(S.Substring(Count - 1, StartIndex - Count));
+// Result.Ending := S.Substring(StartIndex + 1);
+// end;
+// end;
 
 constructor TLocateObject.Create(const AIDCategory: Integer;
   const AFamilyName, AComponentName: string);

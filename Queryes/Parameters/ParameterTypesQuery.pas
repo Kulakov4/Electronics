@@ -34,7 +34,8 @@ type
     function Locate(AValue: string): Boolean;
     property ParameterType: TField read GetParameterType;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
-    property TableNameFilter: string read FTableNameFilter write SetTableNameFilter;
+    property TableNameFilter: string read FTableNameFilter
+      write SetTableNameFilter;
     { Public declarations }
   end;
 
@@ -81,7 +82,8 @@ end;
 
 function TQueryParameterTypes.Locate(AValue: string): Boolean;
 begin
-  Result := FDQuery.LocateEx(ParameterType.FieldName, AValue, [lxoPartialKey, lxoCaseInsensitive]);
+  Result := FDQuery.LocateEx(ParameterType.FieldName, AValue,
+    [lxoPartialKey, lxoCaseInsensitive]);
 end;
 
 procedure TQueryParameterTypes.SetShowDuplicate(const Value: Boolean);

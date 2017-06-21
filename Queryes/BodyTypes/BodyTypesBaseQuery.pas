@@ -44,17 +44,19 @@ type
     procedure DropUnusedBodies;
     procedure OnGetFileNameWithoutExtensionGetText(Sender: TField;
       var Text: String; DisplayText: Boolean);
-    procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage); message
-        WM_AFTER_CASCADE_DELETE;
-    procedure SetMySplitDataValues(AQuery: TFDQuery; const AFieldPrefix: String);
+    procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage);
+      message WM_AFTER_CASCADE_DELETE;
+    procedure SetMySplitDataValues(AQuery: TFDQuery;
+      const AFieldPrefix: String);
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
     property QueryBodyVariations: TQueryBodyVariations
       read GetQueryBodyVariations;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CascadeDelete(const AIDMaster: Variant; const ADetailKeyFieldName:
-        String; AFromClientOnly: Boolean = False); override;
+    procedure CascadeDelete(const AIDMaster: Variant;
+      const ADetailKeyFieldName: String;
+      AFromClientOnly: Boolean = False); override;
     procedure RefreshLinkedData;
     property Body: TField read GetBody;
     property BodyData: TField read GetBodyData;
@@ -89,8 +91,8 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Variant; const
-    ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Variant;
+  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
 begin
   inherited;
 
@@ -240,8 +242,8 @@ begin
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
 end;
 
-procedure TQueryBodyTypesBase.ProcessAfterCascadeDeleteMessage(var Message:
-    TMessage);
+procedure TQueryBodyTypesBase.ProcessAfterCascadeDeleteMessage
+  (var Message: TMessage);
 begin
   inherited;
 
@@ -264,8 +266,8 @@ begin
     FQueryBodyVariations.RefreshQuery;
 end;
 
-procedure TQueryBodyTypesBase.SetMySplitDataValues(AQuery: TFDQuery; const
-    AFieldPrefix: String);
+procedure TQueryBodyTypesBase.SetMySplitDataValues(AQuery: TFDQuery;
+  const AFieldPrefix: String);
 var
   F: TField;
   i: Integer;

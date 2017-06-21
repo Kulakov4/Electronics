@@ -24,9 +24,9 @@ type
     FDetailParameterName: string;
     FMaxUpdateRecCount: Integer;
     FUpdateRecCount: Integer;
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-        TFDUpdateRowOptions);
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
+      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+      AOptions: TFDUpdateRowOptions);
     function GetCashedRecordBalance: Integer;
     function GetParentValue: Integer;
     function GetPK: TField;
@@ -55,8 +55,9 @@ type
     procedure ApplyUpdates; virtual;
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
-    procedure CascadeDelete(const AIDMaster: Variant; const ADetailKeyFieldName:
-        String; AFromClientOnly: Boolean = False); virtual;
+    procedure CascadeDelete(const AIDMaster: Variant;
+      const ADetailKeyFieldName: String;
+      AFromClientOnly: Boolean = False); virtual;
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -247,8 +248,8 @@ begin
   end;
 end;
 
-procedure TQueryBase.CascadeDelete(const AIDMaster: Variant; const
-    ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+procedure TQueryBase.CascadeDelete(const AIDMaster: Variant;
+  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
 var
   E: TFDUpdateRecordEvent;
 begin
@@ -273,7 +274,7 @@ begin
     end;
 
   finally
-   if AFromClientOnly then
+    if AFromClientOnly then
       FDQuery.OnUpdateRecord := E;
   end;
 
@@ -409,9 +410,9 @@ procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
 begin;
 end;
 
-procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   AAction := eaApplied;
 end;

@@ -25,14 +25,13 @@ type
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
-    property QuerySearchDaughterComponent2: TQuerySearchDaughterComponent2 read
-        GetQuerySearchDaughterComponent2;
+    property QuerySearchDaughterComponent2: TQuerySearchDaughterComponent2
+      read GetQuerySearchDaughterComponent2;
   public
     constructor Create(AOwner: TComponent); override;
     function Exists(AMasterID: Integer): Boolean;
     { Public declarations }
   end;
-
 
 implementation
 
@@ -133,25 +132,25 @@ end;
 procedure TQueryBaseComponents.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
-{
-  FDQuery.ParamByName('ProducerParameterID').AsInteger :=
+  {
+    FDQuery.ParamByName('ProducerParameterID').AsInteger :=
     TParameterValues.ProducerParameterID;
-}
+  }
   FDQuery.ParamByName('PackagePinsParameterID').AsInteger :=
     TParameterValues.PackagePinsParameterID;
-{
-  FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
+  {
+    FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
     TParameterValues.DatasheetParameterID;
 
-  FDQuery.ParamByName('DiagramParameterID').AsInteger :=
+    FDQuery.ParamByName('DiagramParameterID').AsInteger :=
     TParameterValues.DiagramParameterID;
 
-  FDQuery.ParamByName('DrawingParameterID').AsInteger :=
+    FDQuery.ParamByName('DrawingParameterID').AsInteger :=
     TParameterValues.DrawingParameterID;
 
-  FDQuery.ParamByName('ImageParameterID').AsInteger :=
+    FDQuery.ParamByName('ImageParameterID').AsInteger :=
     TParameterValues.ImageParameterID;
-}
+  }
 end;
 
 function TQueryBaseComponents.Exists(AMasterID: Integer): Boolean;
@@ -161,17 +160,18 @@ begin
   if FClone.Active then
   begin
     V := FClone.LookupEx('ParentProductID', AMasterID, 'ID');
-    Result := not VarIsNull( V );
+    Result := not VarIsNull(V);
   end
   else
     Result := False;
 end;
 
-function TQueryBaseComponents.GetQuerySearchDaughterComponent2:
-    TQuerySearchDaughterComponent2;
+function TQueryBaseComponents.GetQuerySearchDaughterComponent2
+  : TQuerySearchDaughterComponent2;
 begin
   if FQuerySearchDaughterComponent2 = nil then
-    FQuerySearchDaughterComponent2 := TQuerySearchDaughterComponent2.Create(Self);
+    FQuerySearchDaughterComponent2 :=
+      TQuerySearchDaughterComponent2.Create(Self);
   Result := FQuerySearchDaughterComponent2;
 end;
 

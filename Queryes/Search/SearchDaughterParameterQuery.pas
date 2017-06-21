@@ -3,7 +3,8 @@ unit SearchDaughterParameterQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -18,7 +19,8 @@ type
     { Private declarations }
   public
     procedure Append(const AValue: String);
-    function Search(const AValue: String; AParentID: Integer): Integer; overload;
+    function Search(const AValue: String; AParentID: Integer): Integer;
+      overload;
     property ParentParameter: TField read GetParentParameter;
     property Value: TField read GetValue;
     { Public declarations }
@@ -57,8 +59,8 @@ begin
   Result := Field('Value');
 end;
 
-function TQuerySearchDaughterParameter.Search(const AValue: String; AParentID:
-    Integer): Integer;
+function TQuerySearchDaughterParameter.Search(const AValue: String;
+  AParentID: Integer): Integer;
 begin
   Assert(not AValue.IsEmpty);
   Assert(AParentID > 0);

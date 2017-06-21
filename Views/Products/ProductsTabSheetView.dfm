@@ -11,7 +11,7 @@ object ProductsFrame: TProductsFrame
     Height = 607
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = tsStorehouseInfo
+    Properties.ActivePage = tsStorehouseProducts
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 603
     ClientRectLeft = 4
@@ -36,7 +36,7 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
-      inline ViewProducts: TViewProducts
+      inline ViewProductsBase2: TViewProductsBase2
         Left = 0
         Top = 0
         Width = 990
@@ -45,67 +45,9 @@ object ProductsFrame: TProductsFrame
         TabOrder = 0
         ExplicitWidth = 990
         ExplicitHeight = 579
-        inherited cxGrid: TcxGrid
+        inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 532
-          ExplicitWidth = 990
-          ExplicitHeight = 532
-          inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
-            inherited clDatasheet2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProducts.actOpenDatasheet
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProducts.actLoadDatasheet
-                  Kind = bkEllipsis
-                end>
-            end
-            inherited clDiagram2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProducts.actOpenDiagram
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProducts.actLoadDiagram
-                  Kind = bkEllipsis
-                end>
-            end
-            inherited clDrawing2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProducts.actOpenDrawing
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProducts.actLoadDrawing
-                  Kind = bkEllipsis
-                end>
-            end
-            inherited clImage2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProducts.actOpenImage
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProducts.actLoadImage
-                  Kind = bkEllipsis
-                end>
-            end
-          end
-        end
-        inherited StatusBar: TStatusBar
-          Top = 560
-          Width = 990
-          ExplicitTop = 560
-          ExplicitWidth = 990
+          Height = 551
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
@@ -113,15 +55,6 @@ object ProductsFrame: TProductsFrame
             0
             28
             0)
-        end
-        inherited cxGridPopupMenu: TcxGridPopupMenu
-          PopupMenus = <
-            item
-              GridView = ViewProducts.cxGridDBBandedTableView
-              HitTypes = [gvhtCell]
-              Index = 0
-              PopupMenu = ViewProducts.pmGrid
-            end>
         end
       end
     end

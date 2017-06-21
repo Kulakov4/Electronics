@@ -3,7 +3,8 @@ unit SearchDaughterComponentQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -47,8 +48,8 @@ begin
   Result := Field('Value');
 end;
 
-function TQuerySearchDaughterComponent.Search(const AComponentName: string):
-    Integer;
+function TQuerySearchDaughterComponent.Search(const AComponentName
+  : string): Integer;
 begin
   Assert(not AComponentName.IsEmpty);
 
@@ -61,15 +62,16 @@ begin
     [AComponentName, TParameterValues.ProducerParameterID]);
 end;
 
-function TQuerySearchDaughterComponent.Search(const AComponentName, AProducer:
-    string): Integer;
+function TQuerySearchDaughterComponent.Search(const AComponentName,
+  AProducer: string): Integer;
 begin
   Assert(not AProducer.IsEmpty);
 
-  Result := Search( AComponentName );
+  Result := Search(AComponentName);
   if Result > 0 then
   begin
-    FDQuery.Filter := Format('%s=%s', [Producer.FieldName, QuotedStr(AProducer)]);
+    FDQuery.Filter := Format('%s=%s', [Producer.FieldName,
+      QuotedStr(AProducer)]);
     FDQuery.Filtered := True;
   end;
 end;

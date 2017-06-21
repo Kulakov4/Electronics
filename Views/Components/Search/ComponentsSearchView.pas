@@ -60,8 +60,8 @@ type
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDbBandedColumn); override;
   public
     procedure UpdateView; override;
-    property ComponentsSearchGroup: TComponentsSearchGroup read
-        GetComponentsSearchGroup write SetComponentsSearchGroup;
+    property ComponentsSearchGroup: TComponentsSearchGroup
+      read GetComponentsSearchGroup write SetComponentsSearchGroup;
     { Public declarations }
   end;
 
@@ -123,10 +123,10 @@ var
 begin
   inherited;
   S := (Sender as TcxButtonEdit).EditText;
-  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.
-    IsClearEnabled or not S.IsEmpty;
-  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.
-    IsSearchEnabled or not S.IsEmpty;
+  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled or
+    not S.IsEmpty;
+  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled or
+    not S.IsEmpty;
 end;
 
 procedure TViewComponentsSearch.cxGridDBBandedTableViewEditKeyDown
@@ -177,8 +177,8 @@ begin
   PostApplyBestFit;
 end;
 
-procedure TViewComponentsSearch.SetComponentsSearchGroup(const Value:
-    TComponentsSearchGroup);
+procedure TViewComponentsSearch.SetComponentsSearchGroup
+  (const Value: TComponentsSearchGroup);
 begin
   if BaseComponentsGroup <> Value then
   begin
@@ -191,10 +191,8 @@ end;
 
 procedure TViewComponentsSearch.UpdateView;
 begin
-  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.
-    IsClearEnabled;
-  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.
-    IsSearchEnabled;
+  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
+  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled;
 
   actCommit.Enabled := ComponentsSearchGroup.Connection.InTransaction and
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode);
@@ -205,12 +203,12 @@ begin
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
     (ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
 
-  actPasteFromBuffer.Enabled := ComponentsSearchGroup.qFamilySearch.
-    Mode = SearchMode;
-  MainView.OptionsData.Appending :=
-    ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
-  MainView.OptionsData.Inserting :=
-    ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
+  actPasteFromBuffer.Enabled := ComponentsSearchGroup.qFamilySearch.Mode =
+    SearchMode;
+  MainView.OptionsData.Appending := ComponentsSearchGroup.qFamilySearch.Mode =
+    SearchMode;
+  MainView.OptionsData.Inserting := ComponentsSearchGroup.qFamilySearch.Mode =
+    SearchMode;
 end;
 
 end.

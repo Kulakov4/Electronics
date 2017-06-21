@@ -13,8 +13,8 @@ implementation
 
 uses DialogUnit, SettingsController, System.SysUtils, System.IOUtils;
 
-class function TOpenExcelDialog.SelectInLastFolder(var AFileName: String):
-    Boolean;
+class function TOpenExcelDialog.SelectInLastFolder(var AFileName
+  : String): Boolean;
 begin
   AFileName := TDialog.Create.OpenExcelFile
     (TSettings.Create.LastFolderForExcelFile);
@@ -23,7 +23,8 @@ begin
 
   if Result then
     // Сохраняем эту папку в настройках
-    TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
+    TSettings.Create.LastFolderForExcelFile :=
+      TPath.GetDirectoryName(AFileName);
 
 end;
 

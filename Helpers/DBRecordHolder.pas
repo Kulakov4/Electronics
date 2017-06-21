@@ -247,7 +247,7 @@ var
 begin
   Assert(DataSet <> nil);
 
-  for AField in DataSet.fields do
+  for AField in DataSet.Fields do
   begin
     FH := Find(AField.FieldName);
     if FH <> nil then

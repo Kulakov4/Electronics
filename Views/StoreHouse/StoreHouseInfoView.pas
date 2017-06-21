@@ -41,10 +41,10 @@ type
     { Private declarations }
   protected
   public
-// TODO: SaveChanges
-//  procedure SaveChanges;
+    // TODO: SaveChanges
+    // procedure SaveChanges;
     property QueryStoreHouseList: TQueryStoreHouseList read FQueryStoreHouseList
-        write SetQueryStoreHouseList;
+      write SetQueryStoreHouseList;
     { Public declarations }
   end;
 
@@ -59,14 +59,14 @@ begin
 end;
 
 // TODO: SaveChanges
-//procedure TfrStorehouseInfo.SaveChanges;
-//begin
-//if datamoduleMain.dsStorehouseList.DataSet.State in [dsEdit, dsInsert] then
-//  datamoduleMain.dsStorehouseList.DataSet.Post;
-//end;
+// procedure TfrStorehouseInfo.SaveChanges;
+// begin
+// if datamoduleMain.dsStorehouseList.DataSet.State in [dsEdit, dsInsert] then
+// datamoduleMain.dsStorehouseList.DataSet.Post;
+// end;
 
-procedure TViewStorehouseInfo.SetQueryStoreHouseList(const Value:
-    TQueryStoreHouseList);
+procedure TViewStorehouseInfo.SetQueryStoreHouseList
+  (const Value: TQueryStoreHouseList);
 begin
   if FQueryStoreHouseList <> Value then
   begin
@@ -75,7 +75,8 @@ begin
     if FQueryStoreHouseList <> nil then
     begin
       cxdbmTitle.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
-      cxdbteAbbreviation.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
+      cxdbteAbbreviation.DataBinding.DataSource :=
+        FQueryStoreHouseList.DataSource;
       cxTeResponsible.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
       cxdbmAddress.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
     end

@@ -3,7 +3,8 @@ unit QueryWithDataSourceUnit;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseEventsQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -17,10 +18,10 @@ type
   TQueryWithDataSource = class(TQueryWithMaster)
     DataSource: TDataSource;
     procedure DataSourceDataChange(Sender: TObject; Field: TField);
-    procedure DefaultOnGetText(Sender: TField; var Text: string; DisplayText:
-        Boolean);
-    procedure HideNullGetText(Sender: TField; var Text: string; DisplayText:
-        Boolean);
+    procedure DefaultOnGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure HideNullGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
   private
     FIsModifedClone: TFDMemTable;
     FOnDataChange: TNotifyEventsEx;
@@ -31,7 +32,8 @@ type
     procedure InitializeFields;
     { Private declarations }
   protected
-    procedure ProcessOnDataChange(var Message: TMessage); message WM_ON_DATA_CHANGE;
+    procedure ProcessOnDataChange(var Message: TMessage);
+      message WM_ON_DATA_CHANGE;
   public
     constructor Create(AOwner: TComponent); override;
     function IsModifed(APKValue: Variant): Boolean;
@@ -60,8 +62,8 @@ begin
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
-procedure TQueryWithDataSource.DataSourceDataChange(Sender: TObject; Field:
-    TField);
+procedure TQueryWithDataSource.DataSourceDataChange(Sender: TObject;
+  Field: TField);
 begin
   // если есть подписчики
   if (FOnDataChange.Count > 0) and (FResiveOnDataChangeMessage) then
@@ -71,8 +73,8 @@ begin
   end;
 end;
 
-procedure TQueryWithDataSource.DefaultOnGetText(Sender: TField; var Text:
-    string; DisplayText: Boolean);
+procedure TQueryWithDataSource.DefaultOnGetText(Sender: TField;
+  var Text: string; DisplayText: Boolean);
 begin
   Text := VarToStr(Sender.Value);
 end;
@@ -107,8 +109,8 @@ var
 begin
   for i := 0 to FDQuery.FieldCount - 1 do
   begin
-    if (FDQuery.Fields[i] is TStringField) and (not FDQuery.Fields[i].ReadOnly and not FDQuery.Fields[i].IsNull)
-    then
+    if (FDQuery.Fields[i] is TStringField) and
+      (not FDQuery.Fields[i].ReadOnly and not FDQuery.Fields[i].IsNull) then
     begin
       S := FDQuery.Fields[i].AsString.Trim;
       if FDQuery.Fields[i].AsString <> S then
@@ -117,8 +119,8 @@ begin
   end;
 end;
 
-procedure TQueryWithDataSource.HideNullGetText(Sender: TField; var Text:
-    string; DisplayText: Boolean);
+procedure TQueryWithDataSource.HideNullGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
 begin
   if VarIsNull(Sender.Value) or (Sender.Value = 0) then
     Text := ''

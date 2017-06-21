@@ -668,7 +668,9 @@ begin
   t := MainView.Controller.TopRowIndex;
   Cnt := MainView.ViewInfo.RecordsViewInfo.VisibleCount;
 
-  dxBarButton4.Caption := Format('VisibleCount:%d - TopRowIndex:%d - FocusedRowIndex:%d', [Cnt,t, MainView.Controller.FocusedRowIndex]);
+  dxBarButton4.Caption :=
+    Format('VisibleCount:%d - TopRowIndex:%d - FocusedRowIndex:%d',
+    [Cnt, t, MainView.Controller.FocusedRowIndex]);
 end;
 
 function TViewBodyTypes.GetFocusedTableView: TcxGridDBBandedTableView;

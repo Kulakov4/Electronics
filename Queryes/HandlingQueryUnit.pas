@@ -3,7 +3,8 @@ unit HandlingQueryUnit;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -20,8 +21,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure CallOnProcessEvent;
-    procedure Process(AProcRef: TProcRef; ANotifyEventRef: TNotifyEventRef);
-        overload;
+    procedure Process(AProcRef: TProcRef;
+      ANotifyEventRef: TNotifyEventRef); overload;
     property OnProgress: TNotifyEventsEx read FOnProgress;
     { Public declarations }
   end;
@@ -52,8 +53,8 @@ begin
   OnProgress.CallEventHandlers(FPI)
 end;
 
-procedure THandlingQuery.Process(AProcRef: TProcRef; ANotifyEventRef:
-    TNotifyEventRef);
+procedure THandlingQuery.Process(AProcRef: TProcRef;
+  ANotifyEventRef: TNotifyEventRef);
 var
   ne: TNotifyEventR;
 begin

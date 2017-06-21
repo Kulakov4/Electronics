@@ -119,8 +119,8 @@ type
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
-    procedure cxGridDBBandedTableViewStylesGetHeaderStyle(
-      Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableViewStylesGetHeaderStyle
+      (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -812,11 +812,10 @@ begin
 
 end;
 
-procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetHeaderStyle(
-  Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetHeaderStyle
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
 procedure TViewParametricTable.DeleteBands;
@@ -1293,15 +1292,16 @@ begin
     if ABI.Band.GridView <> MainView then
       continue;
 
-  	// Получаем кнопку
-  	AdxBarButton := dxbrsbtmColumnsCustomization.ItemLinks[i].Item as TdxBarButton;
+    // Получаем кнопку
+    AdxBarButton := dxbrsbtmColumnsCustomization.ItemLinks[i]
+      .Item as TdxBarButton;
 
-  	// С этой кнопкой должно быть связано дейсвие над бэндом
-  	Assert(AdxBarButton.Action is TCustomizeBandActionEx);
-	  ACustomizeBandActionEx := AdxBarButton.Action as TCustomizeBandActionEx;
+    // С этой кнопкой должно быть связано дейсвие над бэндом
+    Assert(AdxBarButton.Action is TCustomizeBandActionEx);
+    ACustomizeBandActionEx := AdxBarButton.Action as TCustomizeBandActionEx;
 
-  	// Привязываем это действие к другому бэнду
-  	ACustomizeBandActionEx.Band :=  ABI.Band;
+    // Привязываем это действие к другому бэнду
+    ACustomizeBandActionEx.Band := ABI.Band;
     Inc(i);
     if i >= dxbrsbtmColumnsCustomization.ItemLinks.Count then
       break;

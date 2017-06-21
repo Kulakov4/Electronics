@@ -491,8 +491,8 @@ begin
                       // «апоминаем описание пол€ св€занного с подпараметром
                       AFieldNames.Add
                         (TParametricExcelTable.GetFieldNameByIDParam
-                        (AQuerySearchDaughterParameter.PK.Value,
-                        AQuerySearchMainParameter.PK.Value))
+                        (AQuerySearchDaughterParameter.PK.value,
+                        AQuerySearchMainParameter.PK.value))
                     end;
                   end;
                 end
@@ -501,7 +501,7 @@ begin
                   // ≈сли у нашего параметра нет дочерних параметров
                   // «апоминаем описание пол€ св€занного с параметром
                   AFieldNames.Add(TParametricExcelTable.GetFieldNameByIDParam
-                    (AQuerySearchMainParameter.PK.Value, 0));
+                    (AQuerySearchMainParameter.PK.value, 0));
                 end;
               end
               else

@@ -3,7 +3,8 @@ unit SearchMainParameterQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -18,11 +19,11 @@ type
     function GetTableName: TField;
     { Private declarations }
   public
-    function Search(const ATableName: String; AIsCustomParameter: Boolean):
-        Integer; overload;
+    function Search(const ATableName: String; AIsCustomParameter: Boolean)
+      : Integer; overload;
     function Search(const ATableName: String): Integer; overload;
-    procedure SearchOrAppend(const ATableName: String; AIsCustomParameter: Boolean
-        = False);
+    procedure SearchOrAppend(const ATableName: String;
+      AIsCustomParameter: Boolean = False);
     property IsCustomParameter: TField read GetIsCustomParameter;
     property TableName: TField read GetTableName;
     { Public declarations }
@@ -51,14 +52,15 @@ begin
 end;
 
 function TQuerySearchMainParameter.Search(const ATableName: String;
-    AIsCustomParameter: Boolean): Integer;
+  AIsCustomParameter: Boolean): Integer;
 begin
   Assert(not ATableName.IsEmpty);
 
   Result := Search(['TableName'], [ATableName]);
   if Result > 0 then
   begin
-    FDQuery.Filter := Format('IsCustomParameter=%s', [BoolToStr(AIsCustomParameter)]);
+    FDQuery.Filter := Format('IsCustomParameter=%s',
+      [BoolToStr(AIsCustomParameter)]);
     FDQuery.Filtered := True;
     Result := FDQuery.RecordCount;
   end;
@@ -74,7 +76,7 @@ begin
 end;
 
 procedure TQuerySearchMainParameter.SearchOrAppend(const ATableName: String;
-    AIsCustomParameter: Boolean = False);
+  AIsCustomParameter: Boolean = False);
 var
   k: Integer;
 begin
