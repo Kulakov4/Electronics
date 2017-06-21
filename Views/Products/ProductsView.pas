@@ -31,11 +31,12 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox, CustomErrorTable, FieldInfoUnit;
+  cxDBLookupComboBox, CustomErrorTable, FieldInfoUnit, ProductGroupUnit;
 
 type
   TViewProducts = class(TViewProductsBase)
     actAdd: TAction;
+    actAddComponentGroup: TAction;
     dxbrbtnAdd: TdxBarButton;
     dxbrbtnDelete: TdxBarButton;
     dxbrbtnSave: TdxBarButton;
@@ -47,6 +48,9 @@ type
     dxBarButton3: TdxBarButton;
     actFullScreen: TAction;
     dxBarButton4: TdxBarButton;
+    dxBarSubItem2: TdxBarSubItem;
+    dxBarButton5: TdxBarButton;
+    procedure actAddComponentGroupExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
@@ -64,8 +68,8 @@ type
     procedure AfterOpen(Sender: TObject);
     procedure AfterPost(Sender: TObject);
     procedure BeforeLoad(Sender: TObject);
-    function GetQueryProducts: TQueryProducts;
-    procedure SetQueryProducts(const Value: TQueryProducts);
+    function GetProductGroup: TProductGroup;
+    procedure SetProductGroup(const Value: TProductGroup);
     // TODO: SortList
     // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
     // : TList<TProductRecord>;
@@ -82,8 +86,8 @@ type
       AFieldsInfo: TList<TFieldInfo>): Boolean;
     procedure LoadFromExcelDocument(const AFileName: String);
     procedure UpdateView; override;
-    property QueryProducts: TQueryProducts read GetQueryProducts
-      write SetQueryProducts;
+    property ProductGroup: TProductGroup read GetProductGroup
+      write SetProductGroup;
     { Public declarations }
   end;
 
@@ -115,25 +119,39 @@ begin
   inherited;
   StatusBarEmptyPanelIndex := 2;
 
-  DeleteMessages.Add(cxgridLevel, sDoYouWantToDeleteProducts);
+  DeleteMessages.Add(cxGridLevel, sDoYouWantToDeleteProducts);
+end;
+
+procedure TViewProducts.actAddComponentGroupExecute(Sender: TObject);
+begin
+  inherited;
+  MainView.Controller.ClearSelection;
+  MainView.DataController.Append;
+
+  FocusColumnEditor(0, clComponentGroup.DataBinding.FieldName);
+
+  UpdateView;
 end;
 
 procedure TViewProducts.actAddExecute(Sender: TObject);
 var
-  AColumn: TcxGridDBBandedColumn;
+  ARow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
-  AView := GetDBBandedTableView(0);
-  AView.Focused := True;
+  // Сначала сохраняем семейство компонентов
+  ProductGroup.qComponentGroups.TryPost;
+  MainView.Controller.ClearSelection;
 
+  ARow := GetRow(0) as TcxGridMasterDataRow;
+  Assert(ARow <> nil);
+
+  AView := GetDBBandedTableView(1);
+
+  ARow.Expand(False);
+  AView.Focused := True;
   AView.DataController.Append;
 
-  AColumn := AView.GetColumnByFieldName(QueryProducts.Value.FieldName);
-  // Site обеспечивает доступ к элементам размещённым на cxGrid
-  AView.Site.SetFocus;
-  // Показываем редактор для колонки
-  AView.Controller.EditingController.ShowEdit(AColumn);
-
+  FocusColumnEditor(1, clValue2.DataBinding.FieldName);
   UpdateView;
 end;
 
@@ -149,13 +167,13 @@ begin
   begin
     frmProducts := TfrmProducts.Create(Application);
     // Подключаем представление к данным
-    frmProducts.ViewProducts.QueryProducts := QueryProducts;
+    frmProducts.ViewProducts.ProductGroup := ProductGroup;
     frmProducts.ViewProducts.actFullScreen.Visible := False;
   end;
-  Assert(frmProducts.ViewProducts.QueryProducts <> nil);
+  Assert(frmProducts.ViewProducts.ProductGroup <> nil);
 
   // Заголовок формы - название склада
-  frmProducts.Caption := QueryProducts.StoreHouseName;
+  frmProducts.Caption := ProductGroup.qProducts.StoreHouseName;
   frmProducts.Show;
 end;
 
@@ -178,7 +196,8 @@ begin
   // Просим добавить компоненты на склад
   case k of
     1:
-      QueryProducts.AppendRows(QueryProducts.Value.FieldName, m);
+      ProductGroup.qProducts.AppendRows
+        (ProductGroup.qProducts.Value.FieldName, m);
     2:
       begin
         AValues := TList<String>.Create;
@@ -193,7 +212,7 @@ begin
             AProducers.Add(n[1]);
           end;
 
-          QueryProducts.AppendRows(AValues, AProducers);
+          ProductGroup.qProducts.AppendRows(AValues, AProducers);
         finally
           FreeAndNil(AValues);
           FreeAndNil(AProducers);
@@ -251,63 +270,63 @@ procedure TViewProducts.cxGridDBBandedTableViewDataControllerCompare
   (ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
   AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
 {
-var
+  var
   AVar1, AVar2: Integer;
 }
 begin
-(*
-  if AItemIndex = 1 then
-  begin
+  (*
+    if AItemIndex = 1 then
+    begin
     if VarIsNull(V1) and not(VarIsNull(V2)) then
-      Compare := -1;
+    Compare := -1;
     if VarIsNull(V2) and not(VarIsNull(V1)) then
-      Compare := 1;
+    Compare := 1;
     if VarIsNull(V1) and VarIsNull(V2) then
-      Compare := 0;
+    Compare := 0;
     if not(VarIsNull(V1) or VarIsNull(V2)) then
     begin
-      if Pos('-', V1) > 0 then
-        AVar1 := StrToInt(Copy(V1, 0, Pos('-', V1) - 1))
-      else
-        AVar1 := StrToInt(V1);
+    if Pos('-', V1) > 0 then
+    AVar1 := StrToInt(Copy(V1, 0, Pos('-', V1) - 1))
+    else
+    AVar1 := StrToInt(V1);
 
-      if Pos('-', V2) > 0 then
-        AVar2 := StrToInt(Copy(V2, 0, Pos('-', V2) - 1))
-      else
-        AVar2 := StrToInt(V2);
+    if Pos('-', V2) > 0 then
+    AVar2 := StrToInt(Copy(V2, 0, Pos('-', V2) - 1))
+    else
+    AVar2 := StrToInt(V2);
 
-      if AVar1 > AVar2 then
-        Compare := -1;
-      if AVar1 < AVar2 then
-        Compare := 1;
-      if AVar1 = AVar2 then
-        Compare := 0;
+    if AVar1 > AVar2 then
+    Compare := -1;
+    if AVar1 < AVar2 then
+    Compare := 1;
+    if AVar1 = AVar2 then
+    Compare := 0;
 
-      { if V1 > V2 then
-        Compare := -1;
-        if V1 < V2 then
-        Compare := 1;
-        if V1 = V2 then
-        Compare := 0; }
+    { if V1 > V2 then
+    Compare := -1;
+    if V1 < V2 then
+    Compare := 1;
+    if V1 = V2 then
+    Compare := 0; }
     end;
     // if btStorehouseProducts.Columns[AItemIndex].SortOrder = soAscending then
     Compare := Compare * (-1); // инвертировать порядок при необходимости
 
-  end
-  else
-  begin
-    case VarCompareValue(V1, V2) of
-      vrEqual:
-        Compare := 0;
-      vrLessThan:
-        Compare := -1;
-      vrGreaterThan:
-        Compare := 1;
+    end
     else
-      Compare := 0;
+    begin
+    case VarCompareValue(V1, V2) of
+    vrEqual:
+    Compare := 0;
+    vrLessThan:
+    Compare := -1;
+    vrGreaterThan:
+    Compare := 1;
+    else
+    Compare := 0;
     end;
-  end;
-*)
+    end;
+  *)
 end;
 
 procedure TViewProducts.cxGridDBBandedTableViewSelectionChanged
@@ -355,9 +374,9 @@ begin
   end;
 end;
 
-function TViewProducts.GetQueryProducts: TQueryProducts;
+function TViewProducts.GetProductGroup: TProductGroup;
 begin
-  Result := QueryProductsBase as TQueryProducts;
+  Result := ProductBaseGroup as TProductGroup;
 end;
 
 function TViewProducts.LoadExcelFileHeader(const AFileName: String;
@@ -403,11 +422,11 @@ begin
   ADefaultFields := TDictionary<String, TFieldInfo>.Create;
   try
     // Заполняем поля "по умолчанию"
-    ADefaultFields.Add(clValue.Caption.ToUpper,
-      TFieldInfo.Create(QueryProducts.Value.FieldName, True,
+    ADefaultFields.Add(clValue2.Caption.ToUpper,
+      TFieldInfo.Create(ProductGroup.qProducts.Value.FieldName, True,
       'Не задано название компонента'));
 
-    ADefaultFields.Add(clProducer.Caption.ToUpper, TFieldInfo.Create('Producer',
+    ADefaultFields.Add(clProducer2.Caption.ToUpper, TFieldInfo.Create('Producer',
       True, 'Не задан производитель'));
 
     AExcelDM := TExcelDM.Create(Self);
@@ -529,7 +548,7 @@ begin
         TfrmProgressBar.Process(AProductsExcelDM.ExcelTable,
           procedure
           begin
-            QueryProducts.AppendList(AProductsExcelDM.ExcelTable);
+            ProductGroup.qProducts.AppendList(AProductsExcelDM.ExcelTable);
           end, 'Сохранение складских данных в БД', sRecords);
       end;
 
@@ -550,42 +569,42 @@ begin
   IsText := Clipboard.HasFormat(CF_TEXT);
 
   actPasteComponents.Visible :=
-    ((AColumn <> nil) and (AColumn.GridView.Level = cxGridLevel) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName)) or
+    ((AColumn <> nil) and (AColumn.GridView.Level = cxGridLevel2) and
+    (AColumn.DataBinding.FieldName = clValue2.DataBinding.FieldName)) or
     (AColumn = nil);
+
   actPasteComponents.Enabled := actPasteComponents.Visible and IsText;
 
   actCopyToClipboard.Visible := AColumn <> nil;
   actCopyToClipboard.Enabled := actCopyToClipboard.Visible
 end;
 
-procedure TViewProducts.SetQueryProducts(const Value: TQueryProducts);
+procedure TViewProducts.SetProductGroup(const Value: TProductGroup);
 begin
-  if QueryProductsBase <> Value then
+  if ProductBaseGroup <> Value then
   begin
-    QueryProductsBase := Value;
+    ProductBaseGroup := Value;
 
     FEventList.Clear;
 
-    if QueryProducts <> nil then
+    if ProductBaseGroup <> nil then
     begin
       // Подписываемся на события
-      TNotifyEventWrap.Create(QueryProducts.Master.BeforeScrollI, BeforeLoad,
-        FEventList);
+      TNotifyEventWrap.Create(ProductGroup.qProducts.Master.BeforeScrollI,
+        BeforeLoad, FEventList);
 
       // Подписываемся на события
-      TNotifyEventWrap.Create(QueryProducts.AfterLoad, AfterLoad, FEventList);
-
-      TNotifyEventWrap.Create(QueryProducts.AfterOpen, AfterOpen, FEventList);
-
-      TNotifyEventWrap.Create(QueryProducts.AfterPost, AfterPost, FEventList);
-
-      TNotifyEventWrap.Create(QueryProducts.AfterDelete, AfterDelete,
+      TNotifyEventWrap.Create(ProductGroup.qProducts.AfterLoad, AfterLoad,
         FEventList);
 
-      Assert(clProducer.DataBinding.FieldName <> '');
-      Assert(MainView.GetColumnByFieldName(clProducer.DataBinding.FieldName)
-        .DataBinding.FieldName <> '');
+      TNotifyEventWrap.Create(ProductGroup.qProducts.AfterOpen, AfterOpen,
+        FEventList);
+
+      TNotifyEventWrap.Create(ProductGroup.qProducts.AfterPost, AfterPost,
+        FEventList);
+
+      TNotifyEventWrap.Create(ProductGroup.qProducts.AfterDelete, AfterDelete,
+        FEventList);
     end;
 
     UpdateView;
@@ -595,10 +614,12 @@ end;
 procedure TViewProducts.UpdateProductCount;
 begin
   // На выбранном складе
-  StatusBar.Panels[0].Text := Format('%d', [QueryProducts.FDQuery.RecordCount]);
+  StatusBar.Panels[0].Text :=
+    Format('%d', [ProductGroup.qProducts.FDQuery.RecordCount]);
 
   // На всех складах
-  StatusBar.Panels[3].Text := Format('Всего: %d', [QueryProducts.TotalCount]);
+  StatusBar.Panels[3].Text := Format('Всего: %d',
+    [ProductGroup.qProducts.TotalCount]);
 
 end;
 
@@ -614,10 +635,12 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
+  OK := (ProductGroup <> nil) and (ProductGroup.qProducts.FDQuery.Active) and
+    (ProductGroup.qStoreHouseList.FDQuery.Active);
   AFocusedView := FocusedTableView;
 
-  actAdd.Enabled := OK;
+  actAdd.Enabled := OK and
+    (ProductGroup.qStoreHouseList.FDQuery.RecordCount > 0);
   {
     and ((QueryProductsBase.FDQuery.State = dsBrowse) or
     ((QueryProductsBase.FDQuery.State in [dsEdit, dsInsert]) and

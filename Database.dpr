@@ -184,7 +184,13 @@ uses
   BodyTypesBaseQuery in 'Queryes\BodyTypes\BodyTypesBaseQuery.pas' {QueryBodyTypesBase: TFrame},
   BodyTypesSimpleQuery in 'Queryes\BodyTypes\BodyTypesSimpleQuery.pas' {QueryBodyTypesSimple: TFrame},
   DescriptionPopupForm in 'Views\Components\Descriptions\DescriptionPopupForm.pas' {frmDescriptionPopup},
-  GridSort in 'Helpers\GridSort.pas';
+  GridSort in 'Helpers\GridSort.pas',
+  QueryGroupUnit3 in 'Queryes\QueryGroupUnit3.pas',
+  ProductBaseGroupUnit in 'Queryes\Products\ProductBaseGroupUnit.pas',
+  ProductGroupUnit in 'Queryes\Products\ProductGroupUnit.pas',
+  ProductSearchGroupUnit in 'Queryes\Products\ProductSearchGroupUnit.pas',
+  ComponentGroupsQuery in 'Queryes\Products\ComponentGroupsQuery.pas' {QueryComponentGroups: TFrame},
+  TreeListFrame in 'Views\TreeListFrame.pas' {frmTreeList: TFrame};
 
 {$R *.res}
 

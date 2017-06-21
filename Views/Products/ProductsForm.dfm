@@ -20,8 +20,8 @@ inherited frmProducts: TfrmProducts
       Height = 533
       ExplicitWidth = 857
       ExplicitHeight = 533
-      inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-        inherited clDatasheet: TcxGridDBBandedColumn
+      inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
+        inherited clDatasheet2: TcxGridDBBandedColumn
           Properties.Buttons = <
             item
               Action = ViewProducts.actOpenDatasheet
@@ -33,7 +33,7 @@ inherited frmProducts: TfrmProducts
               Kind = bkEllipsis
             end>
         end
-        inherited clDiagram: TcxGridDBBandedColumn
+        inherited clDiagram2: TcxGridDBBandedColumn
           Properties.Buttons = <
             item
               Action = ViewProducts.actOpenDiagram
@@ -45,7 +45,7 @@ inherited frmProducts: TfrmProducts
               Kind = bkEllipsis
             end>
         end
-        inherited clDrawing: TcxGridDBBandedColumn
+        inherited clDrawing2: TcxGridDBBandedColumn
           Properties.Buttons = <
             item
               Action = ViewProducts.actOpenDrawing
@@ -57,7 +57,7 @@ inherited frmProducts: TfrmProducts
               Kind = bkEllipsis
             end>
         end
-        inherited clImage: TcxGridDBBandedColumn
+        inherited clImage2: TcxGridDBBandedColumn
           Properties.Buttons = <
             item
               Action = ViewProducts.actOpenImage

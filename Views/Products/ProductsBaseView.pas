@@ -28,46 +28,50 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox, cxLabel, SearchParameterValues, GridSort;
+  cxDBLookupComboBox, cxLabel, SearchParameterValues, GridSort,
+  ProductBaseGroupUnit;
 
 type
   TViewProductsBase = class(TfrmGrid)
     clID: TcxGridDBBandedColumn;
-    clValue: TcxGridDBBandedColumn;
-    clProducer: TcxGridDBBandedColumn;
-    clSubgroup: TcxGridDBBandedColumn;
-    clDescription: TcxGridDBBandedColumn;
-    clDatasheet: TcxGridDBBandedColumn;
-    clImage: TcxGridDBBandedColumn;
-    clPackagePins: TcxGridDBBandedColumn;
-    clReleaseDate: TcxGridDBBandedColumn;
-    clBatchNumber: TcxGridDBBandedColumn;
-    clAmount: TcxGridDBBandedColumn;
-    clPrice: TcxGridDBBandedColumn;
-    clPackaging: TcxGridDBBandedColumn;
-    clOriginCountry: TcxGridDBBandedColumn;
-    clOriginCountryCode: TcxGridDBBandedColumn;
-    clCustomsDeclarationNumber: TcxGridDBBandedColumn;
-    clStorage: TcxGridDBBandedColumn;
-    clStoragePlace: TcxGridDBBandedColumn;
-    clBarcode: TcxGridDBBandedColumn;
-    clSeller: TcxGridDBBandedColumn;
-    clDiagram: TcxGridDBBandedColumn;
-    clDrawing: TcxGridDBBandedColumn;
-    clProductId: TcxGridDBBandedColumn;
     actOpenDatasheet: TAction;
     actLoadDatasheet: TAction;
     actOpenImage: TAction;
     actLoadImage: TAction;
     actCommit: TAction;
     actRollback: TAction;
-    clStorehouseID: TcxGridDBBandedColumn;
     actOpenDiagram: TAction;
     actLoadDiagram: TAction;
     actOpenDrawing: TAction;
     actLoadDrawing: TAction;
     actOpenInParametricTable: TAction;
     actExportToExcelDocument: TAction;
+    cxGridLevel2: TcxGridLevel;
+    cxGridDBBandedTableView2: TcxGridDBBandedTableView;
+    clID2: TcxGridDBBandedColumn;
+    clValue2: TcxGridDBBandedColumn;
+    clProducer2: TcxGridDBBandedColumn;
+    clStorehouseID2: TcxGridDBBandedColumn;
+    clDescription2: TcxGridDBBandedColumn;
+    clDatasheet2: TcxGridDBBandedColumn;
+    clDiagram2: TcxGridDBBandedColumn;
+    clDrawing2: TcxGridDBBandedColumn;
+    clImage2: TcxGridDBBandedColumn;
+    clPackagePins2: TcxGridDBBandedColumn;
+    clReleaseDate2: TcxGridDBBandedColumn;
+    clBatchNumber2: TcxGridDBBandedColumn;
+    clAmount2: TcxGridDBBandedColumn;
+    clPackaging2: TcxGridDBBandedColumn;
+    clPrice2: TcxGridDBBandedColumn;
+    clOriginCountryCode2: TcxGridDBBandedColumn;
+    clOriginCountry2: TcxGridDBBandedColumn;
+    clCustomDeclarationNumber2: TcxGridDBBandedColumn;
+    clStorage2: TcxGridDBBandedColumn;
+    clStoragePlace2: TcxGridDBBandedColumn;
+    clBarcode2: TcxGridDBBandedColumn;
+    clSeller2: TcxGridDBBandedColumn;
+    clProductID2: TcxGridDBBandedColumn;
+    clComponentGroup: TcxGridDBBandedColumn;
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -83,17 +87,17 @@ type
     procedure actRollback2Execute(Sender: TObject);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
+    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
+        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+        TShiftState);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
         AColumn: TcxGridColumn);
-    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
-      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
-      Shift: TShiftState);
 
   private
-    FQueryProductsBase: TQueryProductsBase;
+    FProductBaseGroup: TProductBaseGroup;
     FQuerySearchParameterValues: TQuerySearchParameterValues;
     function GetQuerySearchParameterValues: TQuerySearchParameterValues;
-    procedure SetQueryProductsBase(const Value: TQueryProductsBase);
+    procedure SetProductBaseGroup(const Value: TProductBaseGroup);
     { Private declarations }
   protected
     procedure CreateColumnsBarButtons; override;
@@ -107,8 +111,8 @@ type
     constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
-    property QueryProductsBase: TQueryProductsBase read FQueryProductsBase
-      write SetQueryProductsBase;
+    property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup write
+        SetProductBaseGroup;
     { Public declarations }
   end;
 
@@ -123,18 +127,20 @@ constructor TViewProductsBase.Create(AOwner: TComponent);
 begin
   inherited;
   // Если щёлкнули по группе компонентов
-  GridSort.Add(TSortVariant.Create( clSubgroup, [clSubgroup] ));
+//  GridSort.Add(TSortVariant.Create( clSubgroup, [clSubgroup] ));
 
   // Если щёлкнули по производителю
-  GridSort.Add(TSortVariant.Create( clProducer, [clSubgroup, clProducer]));
+  GridSort.Add(TSortVariant.Create( clProducer2, [clProducer2]));
 
   // Если щёлкнули по наименованию
-  GridSort.Add(TSortVariant.Create( clValue, [clSubgroup, clValue]));
+  GridSort.Add(TSortVariant.Create( clValue2, [clValue2]));
+
+  PostOnEnterFields.Add(clComponentGroup.DataBinding.FieldName);
 end;
 
 procedure TViewProductsBase.actCommitExecute(Sender: TObject);
 begin
-  FQueryProductsBase.ApplyUpdates;
+  FProductBaseGroup.ApplyUpdates;
   UpdateView;
   // Заново заполняем выпадающие списки данными
   MyInitializeComboBoxColumn;
@@ -144,7 +150,7 @@ procedure TViewProductsBase.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  AFileName := QueryProductsBase.ExportFileName;
+  AFileName := ProductBaseGroup.qProductsBase.ExportFileName;
   AFileName := TDialog.Create.SaveToExcelFile(AFileName);
   if AFileName = '' then
     Exit;
@@ -168,7 +174,7 @@ end;
 
 procedure TViewProductsBase.actRollbackExecute(Sender: TObject);
 begin
-  QueryProductsBase.CancelUpdates;
+  ProductBaseGroup.CancelUpdates;
   UpdateView;
 end;
 
@@ -219,25 +225,25 @@ end;
 procedure TViewProductsBase.actOpenInParametricTableExecute(Sender: TObject);
 begin
   inherited;
-  Assert(QueryProductsBase.FDQuery.RecordCount > 0);
+  Assert(ProductBaseGroup.qProductsBase.FDQuery.RecordCount > 0);
 
-  if QueryProductsBase.Value.AsString.Trim.IsEmpty then
+  if ProductBaseGroup.qProductsBase.Value.AsString.Trim.IsEmpty then
   begin
     TDialog.Create.ErrorMessageDialog('Не задано наименование');
     Exit;
   end;
 
-  if QueryProductsBase.IDProducer.AsInteger = 0 then
+  if ProductBaseGroup.qProductsBase.IDProducer.AsInteger = 0 then
   begin
     TDialog.Create.ErrorMessageDialog('Не задан производитель');
     Exit;
   end;
 
-  if not QueryProductsBase.LocateInComponents then
+  if not ProductBaseGroup.qProductsBase.LocateInComponents then
   begin
     TDialog.Create.ErrorMessageDialog
       (Format('Компонент %s не найден в теоретической базе',
-      [QueryProductsBase.Value.AsString]));
+      [ProductBaseGroup.qProductsBase.Value.AsString]));
     Exit;
   end;
 
@@ -245,17 +251,17 @@ end;
 
 procedure TViewProductsBase.actRollback2Execute(Sender: TObject);
 begin
-  QueryProductsBase.CancelUpdates;
+  ProductBaseGroup.CancelUpdates;
   UpdateView;
 end;
 
 function TViewProductsBase.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if QueryProductsBase = nil then
+  if ProductBaseGroup = nil then
     Exit;
 
-  if QueryProductsBase.HaveAnyChanges then
+  if ProductBaseGroup.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -282,17 +288,9 @@ begin
   inherited;
 end;
 
-procedure TViewProductsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
-    TcxGridTableView; AColumn: TcxGridColumn);
-begin
-  inherited;
-
-  ApplySort(Sender, AColumn);
-end;
-
-procedure TViewProductsBase.cxGridDBBandedTableViewEditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
+procedure TViewProductsBase.cxGridDBBandedTableView2EditKeyDown(Sender:
+    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
+    TcxCustomEdit; var Key: Word; Shift: TShiftState);
 var
   AColumn: TcxGridDBBandedColumn;
   ATextEdit: TcxTextEdit;
@@ -301,17 +299,26 @@ begin
   inherited;
   AColumn := AItem as TcxGridDBBandedColumn;
   if (Key = 13) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
+    (AColumn.DataBinding.FieldName = clValue2.DataBinding.FieldName) then
   begin
     // само наименование ещё может быть в эдите а не в датасете
     ATextEdit := (AEdit as TcxTextEdit);
     S := ATextEdit.Text;
     // Если наименование задано
-    if (not S.Trim.IsEmpty) and (QueryProductsBase.IDProducer.AsInteger > 0)
+    if (not S.Trim.IsEmpty) and (ProductBaseGroup.qProductsBase.IDProducer.AsInteger > 0)
     then
-      QueryProductsBase.TryPost;
+      ProductBaseGroup.qProductsBase.TryPost;
     UpdateView;
   end;
+
+end;
+
+procedure TViewProductsBase.cxGridDBBandedTableViewColumnHeaderClick(Sender:
+    TcxGridTableView; AColumn: TcxGridColumn);
+begin
+  inherited;
+
+  ApplySort(Sender, AColumn);
 end;
 
 function TViewProductsBase.GetQuerySearchParameterValues
@@ -325,9 +332,9 @@ end;
 
 procedure TViewProductsBase.MyInitializeComboBoxColumn;
 begin
-  InitializeLookupColumn(clProducer,
-    QueryProductsBase.QueryProducers.DataSource, lsEditList,
-    QueryProductsBase.QueryProducers.Name.FieldName);
+  InitializeLookupColumn(clProducer2,
+    ProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditList,
+    ProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo;
@@ -335,11 +342,11 @@ const AErrorMessage, AEmptyErrorMessage: string);
 var
   AFileName: string;
 begin
-  if FQueryProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
+  if FProductBaseGroup.qProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
   then
   begin
     AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
-      ADocFieldInfo.Folder), FQueryProductsBase.FDQuery.FieldByName
+      ADocFieldInfo.Folder), FProductBaseGroup.qProductsBase.FDQuery.FieldByName
       (ADocFieldInfo.FieldName).AsString);
 
     if FileExists(AFileName) then
@@ -352,20 +359,23 @@ begin
 
 end;
 
-procedure TViewProductsBase.SetQueryProductsBase(const Value
-  : TQueryProductsBase);
+procedure TViewProductsBase.SetProductBaseGroup(const Value: TProductBaseGroup);
 begin
-  if FQueryProductsBase <> Value then
+  if FProductBaseGroup <> Value then
   begin
-    FQueryProductsBase := Value;
+    FProductBaseGroup := Value;
 
-    if FQueryProductsBase <> nil then
+    if FProductBaseGroup <> nil then
     begin
-      FQueryProductsBase.QueryProducers.TryOpen;
+      FProductBaseGroup.qProductsBase.qProducers.TryOpen;
+      FProductBaseGroup.qComponentGroups.TryOpen;
 
       // Привязываем представление к данным\
-      cxGridDBBandedTableView.DataController.DataSource :=
-        FQueryProductsBase.DataSource;
+      MainView.DataController.DataSource :=
+        FProductBaseGroup.qComponentGroups.DataSource;
+
+      cxGridDBBandedTableView2.DataController.DataSource :=
+        FProductBaseGroup.qProductsBase.DataSource;
 
       // Инициализируем выпадающие списки
       MyInitializeComboBoxColumn;
@@ -381,11 +391,11 @@ var
   Ok: Boolean;
 begin
   inherited;
-  Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
-  actCommit.Enabled := Ok and QueryProductsBase.HaveAnyChanges;
+  Ok := (ProductBaseGroup <> nil) and (ProductBaseGroup.qProductsBase.FDQuery.Active);
+  actCommit.Enabled := Ok and ProductBaseGroup.qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
   actExportToExcelDocument.Enabled := Ok and
-    (QueryProductsBase.FDQuery.RecordCount > 0);
+    (ProductBaseGroup.qProductsBase.FDQuery.RecordCount > 0);
   actOpenInParametricTable.Enabled := Ok and
     (MainView.DataController.RecordCount > 0);
 end;
@@ -399,7 +409,7 @@ begin
   if sourceFileName.IsEmpty then
     Exit;
 
-  FQueryProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
+  FProductBaseGroup.qProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
 end;
 
 end.

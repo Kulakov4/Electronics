@@ -15,7 +15,7 @@ uses
 
 type
   TQueryProductsSearch = class(TQueryProductsBase)
-    FDBaseQuery: TFDQuery;
+    fdqBase: TFDQuery;
   strict private
   private
     FClone: TFDMemTable;
@@ -23,8 +23,7 @@ type
     FMode: TContentMode;
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
-    FQueryStoreHouseList: TQueryStoreHouseList;
-
+    FqStoreHouseList: TQueryStoreHouseList;
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;
@@ -32,6 +31,7 @@ type
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
+    function GetqStoreHouseList: TQueryStoreHouseList;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -52,8 +52,7 @@ type
     property Mode: TContentMode read FMode;
     property OnBeginUpdate: TNotifyEventsEx read FOnBeginUpdate;
     property OnEndUpdate: TNotifyEventsEx read FOnEndUpdate;
-    property QueryStoreHouseList: TQueryStoreHouseList read FQueryStoreHouseList
-      write FQueryStoreHouseList;
+    property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     { Public declarations }
   end;
 
@@ -70,6 +69,8 @@ begin
 
   // В режиме поиска - транзакции автоматом
   AutoTransaction := True;
+
+  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where p.ID = 0', '--where');
 
   // Создаём два клона
   FGetModeClone := TFDMemTable.Create(Self);
@@ -123,7 +124,7 @@ end;
 
 procedure TQueryProductsSearch.ClearSearchResult;
 begin
-  SetConditionSQL(FDBaseQuery.SQL.Text, 'where p.ID = 0', '--where');
+  SetConditionSQL(fdqBase.SQL.Text, 'where p.ID = 0', '--where');
 end;
 
 procedure TQueryProductsSearch.DoAfterClose(Sender: TObject);
@@ -193,13 +194,13 @@ begin
         [QuotedStr(s + '%')]);
     end;
     AConditionSQL := Format(' and (%s)', [AConditionSQL]);
-    SetConditionSQL(FDBaseQuery.SQL.Text, AConditionSQL, AMark);
+    SetConditionSQL(fdqBase.SQL.Text, AConditionSQL, AMark);
   end
   else
   begin
     AConditionSQL :=
       ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
-    SetConditionSQL(FDBaseQuery.SQL.Text, AConditionSQL, AMark,
+    SetConditionSQL(fdqBase.SQL.Text, AConditionSQL, AMark,
       procedure(Sender: TObject)
       begin
         with FDQuery.ParamByName('Value') do
@@ -246,6 +247,16 @@ end;
 function TQueryProductsSearch.GetIsSearchEnabled: Boolean;
 begin
   Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
+end;
+
+function TQueryProductsSearch.GetqStoreHouseList: TQueryStoreHouseList;
+begin
+  if FqStoreHouseList = nil then
+  begin
+    FqStoreHouseList := TQueryStoreHouseList.Create(Self);
+    FqStoreHouseList.RefreshQuery;
+  end;
+  Result := FqStoreHouseList;
 end;
 
 procedure TQueryProductsSearch.Search(AValues: TList<String>);

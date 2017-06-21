@@ -1,5 +1,7 @@
 inherited ViewProducts: TViewProducts
   inherited cxGrid: TcxGrid
+    ExplicitTop = 28
+    ExplicitHeight = 444
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
     end
@@ -33,7 +35,7 @@ inherited ViewProducts: TViewProducts
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnAdd'
+          ItemName = 'dxBarSubItem2'
         end
         item
           Visible = True
@@ -105,11 +107,37 @@ inherited ViewProducts: TViewProducts
       Action = actFullScreen
       Category = 0
     end
+    object dxBarSubItem2: TdxBarSubItem
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 1
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbrbtnAdd'
+        end>
+    end
+    object dxBarButton5: TdxBarButton
+      Action = actAddComponentGroup
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
-    object actAdd: TAction [6]
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
-      Hint = #1044#1086#1073#1072#1074#1080#1090#1100
+    object actAddComponentGroup: TAction [6]
+      Caption = #1043#1088#1091#1087#1087#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1075#1088#1091#1087#1087#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
+      ImageIndex = 1
+      OnExecute = actAddComponentGroupExecute
+    end
+    object actAdd: TAction [7]
+      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
       ImageIndex = 1
       OnExecute = actAddExecute
     end
@@ -135,5 +163,14 @@ inherited ViewProducts: TViewProducts
     object N2: TMenuItem
       Action = actPasteComponents
     end
+  end
+  inherited cxGridPopupMenu: TcxGridPopupMenu
+    PopupMenus = <
+      item
+        GridView = cxGridDBBandedTableView2
+        HitTypes = [gvhtNone, gvhtCell]
+        Index = 0
+        PopupMenu = pmGrid
+      end>
   end
 end

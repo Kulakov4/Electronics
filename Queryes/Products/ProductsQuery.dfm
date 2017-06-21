@@ -82,7 +82,7 @@ inherited QueryProducts: TQueryProducts
       '       p.DescriptionId,'
       '       p.Value,'
       '       p.IDProducer,'
-      '       sp.ComponentGroup,'
+      '       sp.IDComponentGroup,'
       '       sp.StorehouseId,'
       '       sp.Amount,'
       '       sp.Price,'
@@ -108,7 +108,8 @@ inherited QueryProducts: TQueryProducts
       'from StorehouseProducts sp'
       'join Products2 p on sp.ProductId = p.id'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
-      'where sp.StorehouseId = :vStorehouseId')
+      'where sp.StorehouseId = :vStorehouseId'
+      'order by sp.IDComponentGroup')
     ParamData = <
       item
         Name = 'VSTOREHOUSEID'

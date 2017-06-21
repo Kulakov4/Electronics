@@ -203,17 +203,12 @@ procedure TfrmMain.actAddStorehouseExecute(Sender: TObject);
 var
   Value: string;
 begin
-  DM.StoreHouseGroup.qStoreHouseList.TryPost;
+  DM.ProductGroup.qStoreHouseList.TryPost;
 
   Value := InputBox(sDatabase, sPleaseWrite, '');
   if Value <> '' then
   begin
-    DM.StoreHouseGroup.qStoreHouseList.FDQuery.DisableControls;
-    try
-      DM.StoreHouseGroup.qStoreHouseList.LocateOrAppend(Value);
-    finally
-      DM.StoreHouseGroup.qStoreHouseList.FDQuery.EnableControls;
-    end;
+    DM.ProductGroup.qStoreHouseList.LocateOrAppend(Value);
     clStorehouseListTitle.ApplyBestFit();
   end;
 end;
@@ -240,12 +235,12 @@ end;
 
 procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
 begin
-  DM.StoreHouseGroup.qStoreHouseList.TryPost;
-  if DM.StoreHouseGroup.qStoreHouseList.FDQuery.RecordCount > 0 then
+  DM.ProductGroup.qStoreHouseList.TryPost;
+  if DM.ProductGroup.qStoreHouseList.FDQuery.RecordCount > 0 then
   begin
     if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
     begin
-      DM.StoreHouseGroup.qStoreHouseList.FDQuery.Delete;
+      DM.ProductGroup.qStoreHouseList.FDQuery.Delete;
     end;
   end;
 end;
@@ -379,14 +374,14 @@ var
 begin
   if tvStorehouseList.Controller.SelectedRecordCount > 0 then
   begin
-    DM.StoreHouseGroup.qStoreHouseList.TryPost;
+    DM.ProductGroup.qStoreHouseList.TryPost;
     Value := InputBox(sDatabase, sPleaseWrite,
-      DM.StoreHouseGroup.qStoreHouseList.Title.AsString);
+      DM.ProductGroup.qStoreHouseList.Title.AsString);
     if (Value <> '') then
     begin
-      DM.StoreHouseGroup.qStoreHouseList.TryEdit;
-      DM.StoreHouseGroup.qStoreHouseList.Title.AsString := Value;
-      DM.StoreHouseGroup.qStoreHouseList.TryPost;
+      DM.ProductGroup.qStoreHouseList.TryEdit;
+      DM.ProductGroup.qStoreHouseList.Title.AsString := Value;
+      DM.ProductGroup.qStoreHouseList.TryPost;
       clStorehouseListTitle.ApplyBestFit();
     end;
   end;
@@ -588,7 +583,7 @@ begin
   l := Sender as TList<String>;
   Assert(l.Count > 0);
 
-  DM.qProductsSearch.Search(l);
+  DM.ProductSearchGroup.qProductsSearch.Search(l);
 
   // Переключаемся на вкладку склады
   cxpcLeft.ActivePage := cxtsStorehouses;
@@ -670,9 +665,9 @@ begin
         DoOnComponentLocate);
 
       // Подписываемся чтобы искать компонент в параметрической таблице
-      TNotifyEventWrap.Create(DM.StoreHouseGroup.qProducts.OnLocate,
+      TNotifyEventWrap.Create(DM.ProductGroup.qProducts.OnLocate,
         DoOnProductLocate);
-      TNotifyEventWrap.Create(DM.qProductsSearch.OnLocate, DoOnProductLocate);
+      TNotifyEventWrap.Create(DM.ProductSearchGroup.qProductsSearch.OnLocate, DoOnProductLocate);
 
       // Привязываем представления к данным
       ComponentsFrame.ViewComponents.ComponentsGroup := DM.ComponentsGroup;
@@ -698,15 +693,15 @@ begin
 
       // Привязываем список складов к данным
       tvStorehouseList.DataController.DataSource :=
-        DM.StoreHouseGroup.qStoreHouseList.DataSource;
+        DM.ProductGroup.qStoreHouseList.DataSource;
       clStorehouseListTitle.ApplyBestFit();
       // Привязываем информацию о складе к данным
       ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
-        DM.StoreHouseGroup.qStoreHouseList;
+        DM.ProductGroup.qStoreHouseList;
       // Привязываем текущий склад к данным
-      ProductsFrame.ViewProducts.QueryProducts := DM.StoreHouseGroup.qProducts;
+      ProductsFrame.ViewProducts.ProductGroup := DM.ProductGroup;
       // Привязываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch.QueryProductsSearch := DM.qProductsSearch;
+      ProductsFrame.ViewProductsSearch.ProductSearchGroup := DM.ProductSearchGroup;
 
       // ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;

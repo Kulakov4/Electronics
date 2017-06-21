@@ -28,7 +28,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox;
+  cxDBLookupComboBox, ProductSearchGroupUnit;
 
 type
   TViewProductsSearch = class(TViewProductsBase)
@@ -53,25 +53,25 @@ type
       : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
     procedure clValuePropertiesChange(Sender: TObject);
-    procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
-      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
-      Shift: TShiftState);
+    procedure cxGridDBBandedTableView2EditKeyDown(Sender: TcxCustomGridTableView;
+        AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word; Shift:
+        TShiftState);
   private
     procedure DoOnBeginUpdate(Sender: TObject);
     procedure DoOnEndUpdate(Sender: TObject);
-    function GetQueryProductsSearch: TQueryProductsSearch;
+    function GetProductSearchGroup: TProductSearchGroup;
     procedure Search(ALike: Boolean);
     // TODO: FEmptyAmount
     // constFEmptyAmount = 0;
-    procedure SetQueryProductsSearch(const Value: TQueryProductsSearch);
+    procedure SetProductSearchGroup(const Value: TProductSearchGroup);
     { Private declarations }
   protected
     procedure MyInitializeComboBoxColumn; override;
   public
     procedure FocusValueColumn;
     procedure UpdateView; override;
-    property QueryProductsSearch: TQueryProductsSearch
-      read GetQueryProductsSearch write SetQueryProductsSearch;
+    property ProductSearchGroup: TProductSearchGroup read GetProductSearchGroup
+        write SetProductSearchGroup;
     { Public declarations }
   end;
 
@@ -88,7 +88,7 @@ begin
   begin
     cxGridDBBandedTableView.BeginUpdate();
     try
-      QueryProductsSearch.ClearSearchResult;
+      ProductSearchGroup.qProductsSearch.ClearSearchResult;
       UpdateView;
     finally
       cxGridDBBandedTableView.EndUpdate;
@@ -101,7 +101,8 @@ procedure TViewProductsSearch.actPasteFromBufferExecute(Sender: TObject);
 begin
   MainView.BeginUpdate();
   try
-    QueryProductsSearch.AppendRows(QueryProductsSearch.Value.FieldName,
+    ProductSearchGroup.qProductsSearch.AppendRows(
+      ProductSearchGroup.qProductsSearch.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
   finally
@@ -131,8 +132,23 @@ begin
   if Sender is TcxAutoHeightInplaceEdit then
     S := (Sender as TcxAutoHeightInplaceEdit).Text;
 
-  actClear.Enabled := QueryProductsSearch.IsClearEnabled or not S.IsEmpty;
-  actSearch.Enabled := QueryProductsSearch.IsSearchEnabled or not S.IsEmpty;
+  actClear.Enabled := ProductSearchGroup.qProductsSearch.IsClearEnabled or not S.IsEmpty;
+  actSearch.Enabled := ProductSearchGroup.qProductsSearch.IsSearchEnabled or not S.IsEmpty;
+end;
+
+procedure TViewProductsSearch.cxGridDBBandedTableView2EditKeyDown(Sender:
+    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; AEdit:
+    TcxCustomEdit; var Key: Word; Shift: TShiftState);
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  inherited;
+  AColumn := AItem as TcxGridDBBandedColumn;
+  if (Key = 13) and
+    (AColumn.DataBinding.FieldName = clValue2.DataBinding.FieldName) then
+  begin
+    Search(True);
+  end;
 end;
 
 procedure TViewProductsSearch.cxGridDBBandedTableViewDataControllerCompare
@@ -180,21 +196,6 @@ begin
 
 end;
 
-procedure TViewProductsSearch.cxGridDBBandedTableViewEditKeyDown
-  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
-  AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
-var
-  AColumn: TcxGridDBBandedColumn;
-begin
-  inherited;
-  AColumn := AItem as TcxGridDBBandedColumn;
-  if (Key = 13) and
-    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
-  begin
-    Search(True);
-  end;
-end;
-
 procedure TViewProductsSearch.DoOnBeginUpdate(Sender: TObject);
 begin
   cxGridDBBandedTableView.BeginUpdate();
@@ -209,21 +210,21 @@ end;
 
 procedure TViewProductsSearch.FocusValueColumn;
 begin
-  FocusColumnEditor(0,  QueryProductsSearch.Value.FieldName);
+  FocusColumnEditor(0,  ProductSearchGroup.qProductsSearch.Value.FieldName);
 end;
 
-function TViewProductsSearch.GetQueryProductsSearch: TQueryProductsSearch;
+function TViewProductsSearch.GetProductSearchGroup: TProductSearchGroup;
 begin
-  Result := QueryProductsBase as TQueryProductsSearch;
+  Result := ProductBaseGroup as TProductSearchGroup;
 end;
 
 procedure TViewProductsSearch.MyInitializeComboBoxColumn;
 begin
   inherited;
   // Инициализируем колонку с выпадающи списком складов
-  InitializeLookupColumn(clStorehouseID,
-    QueryProductsSearch.QueryStoreHouseList.DataSource, lsEditFixedList,
-    QueryProductsSearch.QueryStoreHouseList.Abbreviation.FieldName);
+  InitializeLookupColumn(clStorehouseID2,
+    ProductSearchGroup.qProductsSearch.qStoreHouseList.DataSource, lsEditFixedList,
+    ProductSearchGroup.qProductsSearch.qStoreHouseList.Abbreviation.FieldName);
 end;
 
 procedure TViewProductsSearch.Search(ALike: Boolean);
@@ -231,7 +232,7 @@ begin
   cxGridDBBandedTableView.BeginUpdate(lsimPending);
   try
     CheckAndSaveChanges;
-    QueryProductsSearch.DoSearch(ALike);
+    ProductSearchGroup.qProductsSearch.DoSearch(ALike);
     UpdateView;
   finally
     cxGridDBBandedTableView.EndUpdate;
@@ -240,15 +241,15 @@ begin
   FocusValueColumn;
 end;
 
-procedure TViewProductsSearch.SetQueryProductsSearch
-  (const Value: TQueryProductsSearch);
+procedure TViewProductsSearch.SetProductSearchGroup(const Value:
+    TProductSearchGroup);
 begin
-  QueryProductsBase := Value;
+  ProductBaseGroup := Value;
 
-  if QueryProductsSearch <> nil then
+  if ProductBaseGroup <> nil then
   begin
-    TNotifyEventWrap.Create(QueryProductsSearch.OnBeginUpdate, DoOnBeginUpdate, FEventList);
-    TNotifyEventWrap.Create(QueryProductsSearch.OnBeginUpdate, DoOnEndUpdate, FEventList);
+    TNotifyEventWrap.Create(ProductSearchGroup.qProductsSearch.OnBeginUpdate, DoOnBeginUpdate, FEventList);
+    TNotifyEventWrap.Create(ProductSearchGroup.qProductsSearch.OnEndUpdate, DoOnEndUpdate, FEventList);
   end;
 end;
 
@@ -257,28 +258,28 @@ var
   Ok: Boolean;
 begin
   inherited;
-  Ok := (QueryProductsBase <> nil) and (QueryProductsBase.FDQuery.Active);
+  Ok := (ProductSearchGroup <> nil) and (ProductSearchGroup.qProductsBase.FDQuery.Active);
 
-  actClear.Enabled := QueryProductsSearch.IsClearEnabled;
+  actClear.Enabled := ProductSearchGroup.qProductsSearch.IsClearEnabled;
 
-  actSearch.Enabled := QueryProductsSearch.IsSearchEnabled;
+  actSearch.Enabled := ProductSearchGroup.qProductsSearch.IsSearchEnabled;
 
-  actCommit.Enabled := Ok and QueryProductsBase.HaveAnyChanges and
-    (QueryProductsSearch.Mode = RecordsMode);
+  actCommit.Enabled := Ok and ProductSearchGroup.HaveAnyChanges and
+    (ProductSearchGroup.qProductsSearch.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actPasteFromBuffer.Enabled := QueryProductsSearch.Mode = SearchMode;
+  actPasteFromBuffer.Enabled := ProductSearchGroup.qProductsSearch.Mode = SearchMode;
 
   cxGridDBBandedTableView.OptionsData.Appending :=
-    QueryProductsSearch.Mode = SearchMode;
+    ProductSearchGroup.qProductsSearch.Mode = SearchMode;
 
   cxGridDBBandedTableView.OptionsData.Inserting :=
-    QueryProductsSearch.Mode = SearchMode;
+    ProductSearchGroup.qProductsSearch.Mode = SearchMode;
 
   actExportToExcelDocument.Enabled := OK and
     (MainView.DataController.RecordCount > 0) and
-    (QueryProductsSearch.Mode = RecordsMode);
+    (ProductSearchGroup.qProductsSearch.Mode = RecordsMode);
 end;
 
 end.

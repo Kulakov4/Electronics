@@ -77,7 +77,7 @@ begin
   while not AExcelTable.Eof do
   begin
     // 1) Ищем такого производителя в справочнике производителей
-    QueryProducers.LocateOrAppend(AExcelTable.Producer.AsString);
+    qProducers.LocateOrAppend(AExcelTable.Producer.AsString);
 
     // Добавляем товар на склад
     FDQuery.Append;
@@ -89,7 +89,7 @@ begin
         AField.Value := AExcelField.Value;
     end;
     // Дополнительно заполняем
-    IDProducer.AsInteger := QueryProducers.PK.Value;
+    IDProducer.AsInteger := qProducers.PK.Value;
     FDQuery.Post;
 
     AExcelTable.Next;
@@ -110,13 +110,13 @@ begin
   for I := 0 to AValues.Count - 1 do
   begin
     // Ищем такого производителя
-    if not QueryProducers.Locate(AProducers[I]) then
+    if not qProducers.Locate(AProducers[I]) then
       raise Exception.CreateFmt('Производитель "%s" не найден в справочнике',
         [AProducers[I]]);
 
     TryAppend;
     Value.AsString := AValues[i];
-    IDProducer.AsInteger := QueryProducers.PK.Value;
+    IDProducer.AsInteger := qProducers.PK.Value;
     TryPost;
   end;
 end;

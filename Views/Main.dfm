@@ -138,10 +138,6 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -573,9 +569,13 @@ object frmMain: TfrmMain
           end
           inherited tsStorehouseProducts: TcxTabSheet
             inherited ViewProducts: TViewProducts
+              Width = 918
+              Height = 474
               inherited cxGrid: TcxGrid
-                inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-                  inherited clDatasheet: TcxGridDBBandedColumn
+                Width = 918
+                Height = 427
+                inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
+                  inherited clDatasheet2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProducts.actOpenDatasheet
@@ -587,7 +587,7 @@ object frmMain: TfrmMain
                         Kind = bkEllipsis
                       end>
                   end
-                  inherited clDiagram: TcxGridDBBandedColumn
+                  inherited clDiagram2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProducts.actOpenDiagram
@@ -599,7 +599,7 @@ object frmMain: TfrmMain
                         Kind = bkEllipsis
                       end>
                   end
-                  inherited clDrawing: TcxGridDBBandedColumn
+                  inherited clDrawing2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProducts.actOpenDrawing
@@ -611,7 +611,7 @@ object frmMain: TfrmMain
                         Kind = bkEllipsis
                       end>
                   end
-                  inherited clImage: TcxGridDBBandedColumn
+                  inherited clImage2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProducts.actOpenImage
@@ -624,6 +624,10 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
+              end
+              inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -646,8 +650,8 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch: TViewProductsSearch
               inherited cxGrid: TcxGrid
-                inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-                  inherited clDatasheet: TcxGridDBBandedColumn
+                inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
+                  inherited clDatasheet2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProductsSearch.actOpenDatasheet
@@ -659,7 +663,7 @@ object frmMain: TfrmMain
                         Kind = bkEllipsis
                       end>
                   end
-                  inherited clDiagram: TcxGridDBBandedColumn
+                  inherited clDiagram2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProductsSearch.actOpenDiagram
@@ -671,7 +675,7 @@ object frmMain: TfrmMain
                         Kind = bkEllipsis
                       end>
                   end
-                  inherited clDrawing: TcxGridDBBandedColumn
+                  inherited clDrawing2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProductsSearch.actOpenDrawing
@@ -683,7 +687,7 @@ object frmMain: TfrmMain
                         Kind = bkEllipsis
                       end>
                   end
-                  inherited clImage: TcxGridDBBandedColumn
+                  inherited clImage2: TcxGridDBBandedColumn
                     Properties.Buttons = <
                       item
                         Action = ProductsFrame.ViewProductsSearch.actOpenImage

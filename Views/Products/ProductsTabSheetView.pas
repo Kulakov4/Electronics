@@ -75,7 +75,7 @@ begin
   S := m[0];
 
   // Ищем склад с таким сокращением
-  qStoreHouseList := ViewProducts.QueryProducts.Master as TQueryStoreHouseList;
+  qStoreHouseList := ViewProducts.ProductGroup.qProducts.Master as TQueryStoreHouseList;
 
   // Переходим на нужный склад
   if qStoreHouseList.LocateByAbbreviation(S) then

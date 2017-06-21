@@ -70,7 +70,7 @@ resourcestring
 
   sTreeRootNodeName = 'Структура';
 const
-  DBVersion = 29;
+  DBVersion = 30;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
 
 implementation

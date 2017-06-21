@@ -33,17 +33,17 @@ type
     qProducts: TfrmApplyQuery;
   private
     FOnLocate: TNotifyEventsEx;
-    FQueryProducers: TQueryProducers;
+    FqProducers: TQueryProducers;
     FQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     FQuerySearchFamilyByID: TQuerySearchFamilyByID;
     FQuerySearchProduct: TQuerySearchProduct;
     FQuerySearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
     procedure DoAfterOpen(Sender: TObject);
-    function GetComponentGroup: TField;
     function GetDescriptionID: TField;
+    function GetIDComponentGroup: TField;
     function GetIDProducer: TField;
     function GetProductID: TField;
-    function GetQueryProducers: TQueryProducers;
+    function GetqProducers: TQueryProducers;
     function GetQuerySearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetQuerySearchFamilyByID: TQuerySearchFamilyByID;
     function GetQuerySearchProduct: TQuerySearchProduct;
@@ -73,12 +73,12 @@ type
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
-    property ComponentGroup: TField read GetComponentGroup;
     property DescriptionID: TField read GetDescriptionID;
     property ExportFileName: string read GetExportFileName;
+    property IDComponentGroup: TField read GetIDComponentGroup;
     property IDProducer: TField read GetIDProducer;
     property ProductID: TField read GetProductID;
-    property QueryProducers: TQueryProducers read GetQueryProducers;
+    property qProducers: TQueryProducers read GetqProducers;
     property StorehouseId: TField read GetStorehouseId;
     property Value: TField read GetValue;
     property OnLocate: TNotifyEventsEx read FOnLocate;
@@ -164,11 +164,11 @@ begin
   if AIDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := QueryProducers.LocateByPK(AIDProducer.AsInteger);
+    OK := qProducers.LocateByPK(AIDProducer.AsInteger);
     Assert(OK);
 
     rc := QuerySearchDaughterComponent.Search(AValue.AsString,
-      QueryProducers.Name.AsString);
+      qProducers.Name.AsString);
   end
   else
   begin
@@ -177,10 +177,10 @@ begin
     if rc > 0 then
     begin
       // Ищем в справочнике такого производителя
-      QueryProducers.LocateOrAppend
+      qProducers.LocateOrAppend
         (QuerySearchDaughterComponent.Producer.AsString);
       // Заполняем производителя
-      AIDProducer.AsInteger := QueryProducers.PK.Value;
+      AIDProducer.AsInteger := qProducers.PK.Value;
     end;
   end;
 
@@ -328,29 +328,14 @@ begin
   SetFieldsReadOnly(False);
 end;
 
-// TODO: GetComponentFamily
-// function TQueryProductsBase.GetComponentFamily: String;
-// var
-// ComponentNameParts: TComponentNameParts;
-// begin
-// Assert(not Value.AsString.IsEmpty);
-// Result := Value.AsString;
-//
-/// / Разделяем имя компонента на части
-// ComponentNameParts := SplitComponentName(Value.AsString);
-//
-// Result := IfThen(ComponentNameParts.Number = 0, ComponentNameParts.Name,
-// Format('%s%d', [ComponentNameParts.Name, ComponentNameParts.Number]))
-// end;
-
-function TQueryProductsBase.GetComponentGroup: TField;
-begin
-  Result := Field('ComponentGroup');
-end;
-
 function TQueryProductsBase.GetDescriptionID: TField;
 begin
   Result := Field('DescriptionID');
+end;
+
+function TQueryProductsBase.GetIDComponentGroup: TField;
+begin
+  Result := Field('IDComponentGroup');
 end;
 
 function TQueryProductsBase.GetIDProducer: TField;
@@ -363,15 +348,15 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQueryProductsBase.GetQueryProducers: TQueryProducers;
+function TQueryProductsBase.GetqProducers: TQueryProducers;
 begin
-  if FQueryProducers = nil then
+  if FqProducers = nil then
   begin
-    FQueryProducers := TQueryProducers.Create(Self);
-    FQueryProducers.TryOpen;
+    FqProducers := TQueryProducers.Create(Self);
+    FqProducers.TryOpen;
   end;
 
-  Result := FQueryProducers;
+  Result := FqProducers;
 end;
 
 function TQueryProductsBase.GetQuerySearchDaughterComponent
@@ -444,11 +429,11 @@ begin
   if IDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := QueryProducers.LocateByPK(IDProducer.AsInteger);
+    OK := qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
     rc := QuerySearchDaughterComponent.Search(Value.AsString,
-      QueryProducers.Name.AsString);
+      qProducers.Name.AsString);
   end;
   if rc > 0 then
   begin

@@ -159,7 +159,6 @@ inherited ViewComponentsBase: TViewComponentsBase
       end
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
-      OptionsData.DeletingConfirmation = False
       Bands = <
         item
           FixedKind = fkLeft

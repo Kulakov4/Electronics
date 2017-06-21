@@ -188,13 +188,16 @@ end;
 
 procedure TQueryBase.ApplyUpdates;
 begin
-  if not FDQuery.CachedUpdates then
-    raise Exception.Create('Не включен режим кэширования записей на клиенте');
-
   TryPost;
-
-  FDQuery.ApplyUpdates();
-  FDQuery.CommitUpdates;
+  if FDQuery.CachedUpdates then
+  begin
+    FDQuery.ApplyUpdates();
+    FDQuery.CommitUpdates;
+  end
+  else
+  begin
+    FDQuery.Connection.Commit;
+  end;
 end;
 
 procedure TQueryBase.AssignFrom(AFDQuery: TFDQuery);
@@ -233,7 +236,15 @@ procedure TQueryBase.CancelUpdates;
 begin
   // отменяем все сделанные изменения на стороне клиента
   TryCancel;
-  FDQuery.CancelUpdates;
+  if FDQuery.CachedUpdates then
+  begin
+    FDQuery.CancelUpdates;
+  end
+  else
+  begin
+    FDQuery.Connection.Rollback;
+    RefreshQuery;
+  end;
 end;
 
 procedure TQueryBase.CascadeDelete(const AIDMaster: Variant; const
