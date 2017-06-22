@@ -1,9 +1,15 @@
 inherited ViewProductsBase2: TViewProductsBase2
+  Width = 641
+  Height = 410
+  ExplicitWidth = 641
+  ExplicitHeight = 410
   inherited cxDBTreeList: TcxDBTreeList
+    Width = 641
+    Height = 382
     Bands = <
       item
       end>
-    DataController.ParentField = 'IDParent'
+    DataController.ParentField = 'IDComponentGroup'
     DataController.KeyField = 'ID'
     OptionsView.CategorizedColumn = clValue
     OptionsView.PaintStyle = tlpsCategorized
@@ -12,8 +18,8 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnIsGroupNode = cxDBTreeListIsGroupNode
     ExplicitLeft = 0
     ExplicitTop = 28
-    ExplicitWidth = 320
-    ExplicitHeight = 212
+    ExplicitWidth = 641
+    ExplicitHeight = 382
     object clID: TcxDBTreeListColumn
       DataBinding.FieldName = 'ID'
       Position.ColIndex = 0
@@ -32,6 +38,8 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.GroupFooterSummaryItems = <>
     end
     object clIDProducer: TcxDBTreeListColumn
+      PropertiesClassName = 'TcxLookupComboBoxProperties'
+      Properties.ListColumns = <>
       Caption.Text = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
       DataBinding.FieldName = 'IDProducer'
       Position.ColIndex = 2
@@ -43,6 +51,14 @@ inherited ViewProductsBase2: TViewProductsBase2
     object clIsGroup: TcxDBTreeListColumn
       DataBinding.FieldName = 'IsGroup'
       Position.ColIndex = 3
+      Position.RowIndex = 0
+      Position.BandIndex = 0
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clIDComponentGroup: TcxDBTreeListColumn
+      DataBinding.FieldName = 'IDComponentGroup'
+      Position.ColIndex = 4
       Position.RowIndex = 0
       Position.BandIndex = 0
       Summary.FooterSummaryItems = <>
@@ -61,6 +77,10 @@ inherited ViewProductsBase2: TViewProductsBase2
         item
           Visible = True
           ItemName = 'dxBarSubItem1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -87,6 +107,11 @@ inherited ViewProductsBase2: TViewProductsBase2
     object dxBarButton2: TdxBarButton
       Action = actAddComponent
       Category = 0
+    end
+    object dxBarButton3: TdxBarButton
+      Action = actDelete
+      Category = 0
+      PaintStyle = psCaptionGlyph
     end
   end
   inherited ActionList: TActionList
@@ -124,6 +149,13 @@ inherited ViewProductsBase2: TViewProductsBase2
     object actAddComponent: TAction
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090
       ImageIndex = 1
+      OnExecute = actAddComponentExecute
+    end
+    object actDelete: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      Hint = #1059#1076#1072#1083#1080#1090#1100
+      ImageIndex = 2
+      OnExecute = actDeleteExecute
     end
   end
 end

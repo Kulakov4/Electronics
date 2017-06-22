@@ -701,11 +701,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchStorehouseProductByID.pas">
-            <Form>QuerySearchStorehouseProductByID</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\QueryGroupUnit.pas">
             <Form>QueryGroup</Form>
             <FormType>dfm</FormType>
@@ -878,6 +873,11 @@
         </DCCReference>
         <DCCReference Include="Queryes\Search\SearchComponentGroup.pas">
             <Form>QuerySearchComponentGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchStorehouseProduct.pas">
+            <Form>QuerySearchStorehouseProduct</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>

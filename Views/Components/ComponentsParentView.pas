@@ -37,7 +37,6 @@ const
 
 type
   TViewComponentsParent = class(TfrmGrid)
-    cxGridLevel2: TcxGridLevel;
     cxGridDBBandedTableView2: TcxGridDBBandedTableView;
     actDeleteFromAllCategories: TAction;
     actAddFamily: TAction;
@@ -61,6 +60,7 @@ type
     clID2: TcxGridDBBandedColumn;
     clValue2: TcxGridDBBandedColumn;
     actRollback: TAction;
+    cxGridLevel2: TcxGridLevel;
     procedure actAddFamilyExecute(Sender: TObject);
     procedure actDeleteFromAllCategoriesExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);

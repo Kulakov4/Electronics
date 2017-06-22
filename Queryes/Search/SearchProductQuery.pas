@@ -16,9 +16,10 @@ type
     function GetIDProducer: TField;
     { Private declarations }
   public
-    function Search(const AValue: string; const AIDProducer: Integer)
-      : Integer; overload;
-    function Search(const AValue: string): Integer; overload;
+    function SearchByID(AID: Integer): Integer;
+    function SearchByValue(const AValue: string; const AIDProducer: Integer):
+        Integer; overload;
+    function SearchByValue(const AValue: string): Integer; overload;
     property IDProducer: TField read GetIDProducer;
     { Public declarations }
   end;
@@ -27,34 +28,50 @@ implementation
 
 {$R *.dfm}
 
+uses StrHelper;
+
 function TQuerySearchProduct.GetIDProducer: TField;
 begin
   Result := Field('IDProducer');
 end;
 
-function TQuerySearchProduct.Search(const AValue: string;
-  const AIDProducer: Integer): Integer;
+function TQuerySearchProduct.SearchByID(AID: Integer): Integer;
+begin
+  Assert(AID > 0);
+
+  // ћен€ем в запросе условие
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where ID = :ID', 'where');
+  SetParamType('ID');
+
+  // »щем
+  Result := Search(['ID'], [AID]);
+end;
+
+function TQuerySearchProduct.SearchByValue(const AValue: string; const
+    AIDProducer: Integer): Integer;
 begin
   Assert(not AValue.IsEmpty);
   Assert(AIDProducer > 0);
 
-  Result := Search(AValue);
-  if Result > 0 then
-  begin
-    // ‘ильтруем по производителю
-    FDQuery.Filter := Format('IDProducer=%d', [AIDProducer]);
-    FDQuery.Filtered := True;
-    Result := FDQuery.RecordCount;
-  end;
+  // ћен€ем в запросе условие
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+  'where (Value = :Value) and (IDProducer=:IDProducer)', 'where');
+  SetParamType('Value', ptInput, ftWideString);
+  SetParamType('IDProducer');
+
+  // »щем
+  Result := Search(['Value', 'IDProducer'], [AValue, AIDProducer]);
 end;
 
-function TQuerySearchProduct.Search(const AValue: string): Integer;
+function TQuerySearchProduct.SearchByValue(const AValue: string): Integer;
 begin
   Assert(not AValue.IsEmpty);
 
-  FDQuery.Filtered := False;
-  FDQuery.Filter := '';
+  // ћен€ем в запросе условие
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where Value = :Value', 'where');
+  SetParamType('Value', ptInput, ftWideString);
 
+  // »щем
   Result := Search(['Value'], [AValue]);
 end;
 

@@ -24,7 +24,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
-  cxMaskEdit;
+  cxMaskEdit, cxDBLookupComboBox;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -41,8 +41,13 @@ type
     actAddComponent: TAction;
     dxBarSubItem1: TdxBarSubItem;
     dxBarButton2: TdxBarButton;
+    actDelete: TAction;
+    dxBarButton3: TdxBarButton;
+    clIDComponentGroup: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
+    procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
+    procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actOpenInParametricTableExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -51,7 +56,7 @@ type
     procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
       AColumn: TcxTreeListColumn);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
-        APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+      APrevFocusedNode, AFocusedNode: TcxTreeListNode);
   private
     FProductBaseGroup: TProductBaseGroup;
     procedure DoAfterLoad(Sender: TObject);
@@ -67,14 +72,11 @@ type
     { Public declarations }
   end;
 
-var
-  ViewProductsBase2: TViewProductsBase2;
-
 implementation
 
 {$R *.dfm}
 
-uses DialogUnit, RepositoryDataModule, NotifyEvents;
+uses DialogUnit, RepositoryDataModule, NotifyEvents, cxDropDownEdit;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
 begin
@@ -86,7 +88,31 @@ begin
 
   // Переводим колонку в режим редактирования
   clValue.Editing := True;
-  // cxDBTreeList.VisibleColumns[clValue.VisibleIndex].Editing := True;
+end;
+
+procedure TViewProductsBase2.actAddComponentExecute(Sender: TObject);
+var
+  AID: Integer;
+begin
+  inherited;
+
+  cxDBTreeList.Post;
+
+  if cxDBTreeList.FocusedNode.IsGroupNode then
+    AID := FocusedNodeValue(clID)
+  else
+  begin
+    Assert(cxDBTreeList.FocusedNode.Parent <> nil);
+    AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
+  end;
+
+  ProductBaseGroup.qProductsBase.AddProduct(AID);
+
+  cxDBTreeList.ApplyBestFit;
+  cxDBTreeList.SetFocus;
+
+  // Переводим колонку в режим редактирования
+  clValue.Editing := True;
 end;
 
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
@@ -94,6 +120,28 @@ begin
   inherited;
   FProductBaseGroup.ApplyUpdates;
   UpdateView;
+end;
+
+procedure TViewProductsBase2.actDeleteExecute(Sender: TObject);
+var
+  S: string;
+begin
+  inherited;
+  if cxDBTreeList.FocusedNode = nil then
+    Exit;
+
+  if cxDBTreeList.FocusedNode.IsGroupNode then
+    S := 'Удалить группу компонентов с текущего склада?'
+  else
+    S := 'Удалить компонент?';
+
+  if not(TDialog.Create.DeleteRecordsDialog(S)) then
+    Exit;
+
+  ProductBaseGroup.qProductsBase.DeleteNode
+    (cxDBTreeList.FocusedNode.Values[clID.ItemIndex]);
+  // Это почему-то не работает
+  // cxDBTreeList.DataController.DeleteFocused;
 end;
 
 procedure TViewProductsBase2.actExportToExcelDocumentExecute(Sender: TObject);
@@ -175,12 +223,15 @@ procedure TViewProductsBase2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
   AColumn: TcxTreeListColumn);
 begin
   inherited;
-  Sender.Post;
+  // Если закончили редактирование группы
+  if IsFocusedNodeGroup then
+    Sender.Post;
+
   UpdateView;
 end;
 
-procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged(Sender:
-    TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
+  (Sender: TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
   inherited;
   UpdateView;
@@ -209,7 +260,8 @@ var
 begin
   Result := False;
   ANode := cxDBTreeList.FocusedNode;
-  if ANode = nil then Exit;
+  if ANode = nil then
+    Exit;
 
   V := ANode.Values[clIsGroup.ItemIndex];
   Result := not VarIsNull(V) and (V = 1);
@@ -232,6 +284,10 @@ begin
   TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterLoad,
     DoAfterLoad);
 
+  InitializeLookupColumn(clIDProducer,
+    FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
+    FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
+
   UpdateView;
 end;
 
@@ -245,13 +301,16 @@ begin
   actCommit.Enabled := Ok and ProductBaseGroup.qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
   actExportToExcelDocument.Enabled := Ok and
-    (ProductBaseGroup.qProductsBase.FDQuery.RecordCount > 0);
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
   actOpenInParametricTable.Enabled := Ok and
-    (cxDBTreeList.DataController.RecordCount > 0);
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
   actAddCategory.Enabled := Ok;
 
-  actAddComponent.Enabled := OK and IsFocusedNodeGroup;
+  actAddComponent.Enabled := Ok and (cxDBTreeList.FocusedNode <> nil);
+
+  actDelete.Enabled := Ok and (cxDBTreeList.FocusedNode <> nil) and
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 end;
 
 end.

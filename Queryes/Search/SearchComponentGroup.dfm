@@ -8,11 +8,6 @@ inherited QuerySearchComponentGroup: TQuerySearchComponentGroup
     SQL.Strings = (
       'select *'
       'from ComponentGroups'
-      'where upper(ComponentGroup) = upper(:ComponentGroup)')
-    ParamData = <
-      item
-        Name = 'COMPONENTGROUP'
-        ParamType = ptInput
-      end>
+      'where 0=0')
   end
 end

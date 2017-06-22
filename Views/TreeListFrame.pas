@@ -23,7 +23,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxInplaceContainer, cxTLData, cxDBTL, dxSkinsdxBarPainter,
-  cxClasses, dxBar, System.Actions, Vcl.ActnList;
+  cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
+  Data.DB, cxDropDownEdit, cxDBLookupComboBox;
 
 type
   TfrmTreeList = class(TFrame)
@@ -33,7 +34,14 @@ type
     ActionList: TActionList;
   private
     { Private declarations }
+  protected
+    procedure InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
+        ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
+    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn; ADataSource:
+        TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
+        AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
   public
+    function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn): Variant;
     procedure UpdateView; virtual;
     { Public declarations }
   end;
@@ -41,6 +49,60 @@ type
 implementation
 
 {$R *.dfm}
+
+function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn:
+    TcxDBTreeListColumn): Variant;
+var
+  ANode: TcxTreeListNode;
+begin
+  Assert(AcxDBTreeListColumn <> nil);
+  ANode := cxDBTreeList.FocusedNode;
+  Assert(ANode <> nil);
+  Result := ANode.Values[AcxDBTreeListColumn.ItemIndex];
+end;
+
+procedure TfrmTreeList.InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
+    ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
+var
+  AcxComboBoxProperties: TcxComboBoxProperties;
+begin
+  Assert(AColumn <> nil);
+
+  AColumn.PropertiesClass := TcxComboBoxProperties;
+  AcxComboBoxProperties := AColumn.Properties as TcxComboBoxProperties;
+  AcxComboBoxProperties.DropDownListStyle := ADropDownListStyle;
+
+  // «аполн€ем выпадающий список значени€ми из запроса
+  AcxComboBoxProperties.Items.Clear;
+  AField.DataSet.First;
+  while not AField.DataSet.Eof do
+  begin
+    AcxComboBoxProperties.Items.Add(AField.AsString);
+    AField.DataSet.Next;
+  end;
+end;
+
+procedure TfrmTreeList.InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
+    ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+    const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
+var
+  AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
+begin
+  Assert(AColumn <> nil);
+  Assert(ADataSource <> nil);
+  Assert(not AListFieldNames.IsEmpty);
+  Assert(not AKeyFieldNames.IsEmpty);
+
+  Assert(AColumn <> nil);
+
+  AColumn.PropertiesClass := TcxLookupComboBoxProperties;
+  AcxLookupComboBoxProperties :=
+    AColumn.Properties as TcxLookupComboBoxProperties;
+  AcxLookupComboBoxProperties.ListSource := ADataSource;
+  AcxLookupComboBoxProperties.ListFieldNames := AListFieldNames;
+  AcxLookupComboBoxProperties.KeyFieldNames := AKeyFieldNames;
+  AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
+end;
 
 procedure TfrmTreeList.UpdateView;
 begin

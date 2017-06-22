@@ -8,13 +8,6 @@ inherited QuerySearchProduct: TQuerySearchProduct
     SQL.Strings = (
       'select *'
       'from Products2'
-      'where Value = :Value')
-    ParamData = <
-      item
-        Name = 'VALUE'
-        DataType = ftString
-        ParamType = ptInput
-        Value = Null
-      end>
+      'where 0=0')
   end
 end

@@ -13,7 +13,7 @@ uses
   SearchProductParameterValuesQuery, SearchFamilyByID,
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchDaughterComponentQuery, System.Generics.Collections,
-  SearchStorehouseProductByID, ProducersQuery, NotifyEvents,
+  SearchStorehouseProduct, ProducersQuery, NotifyEvents,
   SearchComponentGroup;
 
 type
@@ -30,8 +30,6 @@ type
   end;
 
   TQueryProductsBase = class(TQueryWithDataSource)
-    qStoreHouseProducts: TfrmApplyQuery;
-    qProducts: TfrmApplyQuery;
   private
     FOnLocate: TNotifyEventsEx;
     FqProducers: TQueryProducers;
@@ -39,10 +37,10 @@ type
     FqSearchDaughterComponent: TQuerySearchDaughterComponent;
     FqSearchFamilyByID: TQuerySearchFamilyByID;
     FqSearchProduct: TQuerySearchProduct;
-    FqSearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
+    FqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
     procedure DoAfterOpen(Sender: TObject);
     function GetDescriptionID: TField;
-    function GetIDParent: TField;
+    function GetIDComponentGroup: TField;
     function GetIDProducer: TField;
     function GetIsGroup: TField;
     function GetProductID: TField;
@@ -51,7 +49,7 @@ type
     function GetqSearchDaughterComponent: TQuerySearchDaughterComponent;
     function GetqSearchFamilyByID: TQuerySearchFamilyByID;
     function GetqSearchProduct: TQuerySearchProduct;
-    function GetqSearchStorehouseProductByID: TQuerySearchStorehouseProductByID;
+    function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
     function GetStorehouseId: TField;
     function GetValue: TField;
     // TODO: SplitComponentName
@@ -69,19 +67,22 @@ type
     property qSearchFamilyByID: TQuerySearchFamilyByID
       read GetqSearchFamilyByID;
     property qSearchProduct: TQuerySearchProduct read GetqSearchProduct;
-    property qSearchStorehouseProductByID: TQuerySearchStorehouseProductByID
-      read GetqSearchStorehouseProductByID;
+    property qSearchStorehouseProduct: TQuerySearchStorehouseProduct
+      read GetqSearchStorehouseProduct;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddCategory;
+    procedure AddProduct(AIDComponentGroup: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    procedure DeleteNode(AID: Integer);
+    procedure DeleteNotUsedProducts(AProductIDS: TList<Integer>);
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
     property DescriptionID: TField read GetDescriptionID;
     property ExportFileName: string read GetExportFileName;
-    property IDParent: TField read GetIDParent;
+    property IDComponentGroup: TField read GetIDComponentGroup;
     property IDProducer: TField read GetIDProducer;
     property IsGroup: TField read GetIsGroup;
     property ProductID: TField read GetProductID;
@@ -133,22 +134,67 @@ begin
   IsGroup.AsInteger := 1;
 end;
 
+procedure TQueryProductsBase.AddProduct(AIDComponentGroup: Integer);
+begin
+  Assert(AIDComponentGroup > 0);
+  TryAppend;
+  Value.AsString := 'Новая запись';
+  IsGroup.AsInteger := 0;
+  IDComponentGroup.AsInteger := AIDComponentGroup;
+end;
+
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
 var
-  AProductID: TField;
+  AProductIDS: TList<Integer>;
 begin
-  Assert(PK.Value > 0);
+  Assert(ASender = FDQuery);
 
-  AProductID := ASender.FieldByName(ProductID.FieldName);
+  // Список кодов продуктов которые мы удалили с текущего склада
+  AProductIDS := TList<Integer>.Create;
+  try
 
-  // Удаляем продукт со склада. Сам продукт не удаляем.
-  qStoreHouseProducts.DeleteRecord(PK.Value);
+    // Если это группа
+    if IsGroup.AsInteger = 1 then
+    begin
+      Assert(PK.Value > 0);
+      // Ищем такую группу
+      if qSearchComponentGroup.SearchByID(PK.Value) = 0 then
+        Exit;
 
-  // Если подобных продуктов на складе больше нет
-  if qSearchStorehouseProductByID.Search(AProductID.AsInteger) = 0 then
-  begin
-    // Удаляем продукт
-    qProducts.DeleteRecord(AProductID.AsInteger);
+      // Группу удалять не надо. Надо удалить с текущего склада все компоненты этой группы
+      // Ищем компоненты на текущем складе, которые принадлежат этой группе
+      if qSearchStorehouseProduct.SearchByGroupID(StorehouseId.AsInteger,
+        PK.Value) = 0 then
+        Exit;
+
+      // Удаляем с текущего склада все найденные компоненты относящиеся к группе
+      while qSearchStorehouseProduct.FDQuery.RecordCount > 0 do
+      begin
+        // Запоминаем, что этот продукт мы удалили со склада
+        if AProductIDS.IndexOf(qSearchStorehouseProduct.ProductID.AsInteger) < 0 then
+          AProductIDS.Add(qSearchStorehouseProduct.ProductID.AsInteger);
+
+        qSearchStorehouseProduct.FDQuery.Delete;
+      end;
+
+      DeleteNotUsedProducts(AProductIDS);
+    end
+    else
+    begin
+      Assert(PK.Value < 0);
+      if qSearchStorehouseProduct.SearchByID(-PK.Value) = 0 then
+        Exit;
+
+      AProductIDS.Add(ProductID.AsInteger);
+
+      // Удаляем продукт со склада. Сам продукт не удаляем.
+      qSearchStorehouseProduct.FDQuery.Delete;
+
+      // Удаляем неиспользованные продукты
+      DeleteNotUsedProducts(AProductIDS);
+    end;
+  finally
+    FreeAndNil(AProductIDS);
   end;
 
   inherited;
@@ -172,7 +218,7 @@ begin
   if IsGroup.AsInteger = 1 then
   begin
     // Ищем такую группу компонентов в справочнике
-    rc := qSearchComponentGroup.Search(Value.AsString);
+    rc := qSearchComponentGroup.SearchByValue(Value.AsString);
     if rc = 0 then
       qSearchComponentGroup.Append(Value.AsString);
 
@@ -240,7 +286,7 @@ begin
     if IDProducer.AsInteger = 0 then
     begin
       // Ищем такой компонент с таким именем на складе
-      rc := qSearchProduct.Search(Value.AsString);
+      rc := qSearchProduct.SearchByValue(Value.AsString);
       if rc > 0 then
         // Заполняем производителя
         IDProducer.AsInteger := qSearchProduct.IDProducer.AsInteger
@@ -250,17 +296,17 @@ begin
     else
     begin
       // Если производитель задан
-      rc := qSearchProduct.Search(Value.AsString, IDProducer.AsInteger);
+      rc := qSearchProduct.SearchByValue(Value.AsString, IDProducer.AsInteger);
     end;
 
     // Если такого продукта ещё нет
     if rc = 0 then
     begin
       // Добавляем в базу сам продукт
-      qProducts.InsertRecord(ARH);
+      qSearchProduct.InsertRecord(ARH);
 
-      ARH.Field[ProductID.FieldName] := qProducts.PKValue;
-      ProductID.AsInteger := qProducts.PKValue;
+      ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
+      ProductID.AsInteger := qSearchProduct.PK.Value;
     end
     else
     begin
@@ -278,7 +324,7 @@ begin
 
         ARH.Field['ID'] := ARH.Field[ProductID.FieldName];
         // Обновляем продукт, если мы в нём что-то изменили
-        qProducts.UpdateRecord(ARH);
+        qSearchProduct.UpdateRecord(ARH);
       finally
         FreeAndNil(ARH2);
       end;
@@ -294,11 +340,13 @@ begin
     FreeAndNil(AFieldHolder);
 
     // Помещаем наш компонент на склад
-    qStoreHouseProducts.InsertRecord(ARH);
-    Assert(qStoreHouseProducts.PKValue > 0);
+    if not qSearchStorehouseProduct.FDQuery.Active then
+      qSearchStorehouseProduct.SearchByID(1);
 
-    // Первичный ключ у нас - идентификатор связки "Продукт-склад"
-    PK.Value := qStoreHouseProducts.PKValue;
+    qSearchStorehouseProduct.InsertRecord(ARH);
+
+    // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
+    PK.Value := -qSearchStorehouseProduct.PK.Value;
 
     // Заполняем код продукта
     ProductID.AsInteger := ARH.Field[ProductID.FieldName];
@@ -313,14 +361,37 @@ procedure TQueryProductsBase.ApplyUpdate(ASender: TDataSet);
 var
   ARH: TRecordHolder;
 begin
+  Assert(ASender = FDQuery);
+
   ARH := TRecordHolder.Create(ASender);
   try
-    // Обновляем информацию о компоненте на складе
-    qStoreHouseProducts.UpdateRecord(ARH);
+    if IsGroup.AsInteger = 1 then
+    begin
+      Assert(PK.Value > 0);
+      // Ищем такую группу
+      if qSearchComponentGroup.SearchByID(PK.Value) = 0 then
+        Exit;
 
-    // Обновляем информацию о самом компоненте
-    ARH.Field['ID'] := ARH.Field[ProductID.FieldName];
-    qProducts.UpdateRecord(ARH);
+      // Будем обновлять одно поле
+      ARH.Clear;
+      TFieldHolder.Create(ARH, qSearchComponentGroup.ComponentGroup.FieldName,
+        Value.AsString);
+
+      qSearchComponentGroup.UpdateRecord(ARH);
+
+    end
+    else
+    begin
+      Assert(PK.Value < 0);
+      // Ищем по идентификатору связки склад-продукт
+      qSearchStorehouseProduct.SearchByID(-PK.Value);
+      // Обновляем информацию о компоненте на складе
+      qSearchStorehouseProduct.UpdateRecord(ARH);
+
+      // Обновляем информацию о самом компоненте
+      qSearchProduct.SearchByID(ProductID.AsInteger);
+      qSearchProduct.UpdateRecord(ARH);
+    end;
   finally
     FreeAndNil(ARH);
   end;
@@ -342,6 +413,63 @@ begin
   RefreshQuery;
 end;
 
+procedure TQueryProductsBase.DeleteNode(AID: Integer);
+var
+  AClone: TFDMemTable;
+  OK: Boolean;
+begin
+//  FDQuery.DisableControls;
+  try
+    // Ищем запись которую надо удалить
+    OK := LocateByPK(AID);
+    Assert(OK);
+
+    // Если нужно удалить группу
+    if IsGroup.AsInteger = 1 then
+    begin
+      AClone := TFDMemTable.Create(Self);
+      try
+        AClone.CloneCursor(FDQuery);
+        AClone.Filter := Format('IDComponentGroup=%d', [PK.AsInteger]);
+        AClone.Filtered := True;
+
+        // Удаляем все компоненты группы
+        while AClone.RecordCount > 0 do
+          DeleteNode(AClone.FieldByName('ID').AsInteger);
+
+      finally
+        FreeAndNil(AClone);
+      end;
+
+        // Снова переходим на группу
+      OK := LocateByPK(AID);
+      Assert(OK);
+    end;
+    FDQuery.Delete;
+  finally
+//    FDQuery.EnableControls;
+  end;
+end;
+
+procedure TQueryProductsBase.DeleteNotUsedProducts(AProductIDS: TList<Integer>);
+var
+  AProductID: Integer;
+begin
+  Assert(AProductIDS <> nil);
+
+  for AProductID in AProductIDS do
+  begin
+    // Если подобных продуктов на складах больше нет
+    if qSearchStorehouseProduct.SearchByProductID(AProductID) = 0
+    then
+    begin
+      // Удаляем продукт
+      if qSearchProduct.SearchByID(AProductID) > 0 then
+        qSearchProduct.FDQuery.Delete;
+    end;
+  end;
+end;
+
 procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsRequired(False);
@@ -353,9 +481,9 @@ begin
   Result := Field('DescriptionID');
 end;
 
-function TQueryProductsBase.GetIDParent: TField;
+function TQueryProductsBase.GetIDComponentGroup: TField;
 begin
-  Result := Field('IDParent');
+  Result := Field('IDComponentGroup');
 end;
 
 function TQueryProductsBase.GetIDProducer: TField;
@@ -417,13 +545,12 @@ begin
   Result := FqSearchProduct;
 end;
 
-function TQueryProductsBase.GetqSearchStorehouseProductByID
-  : TQuerySearchStorehouseProductByID;
+function TQueryProductsBase.GetqSearchStorehouseProduct
+  : TQuerySearchStorehouseProduct;
 begin
-  if FqSearchStorehouseProductByID = nil then
-    FqSearchStorehouseProductByID :=
-      TQuerySearchStorehouseProductByID.Create(Self);
-  Result := FqSearchStorehouseProductByID;
+  if FqSearchStorehouseProduct = nil then
+    FqSearchStorehouseProduct := TQuerySearchStorehouseProduct.Create(Self);
+  Result := FqSearchStorehouseProduct;
 end;
 
 function TQueryProductsBase.GetStorehouseId: TField;

@@ -9,7 +9,8 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, System.Contnrs, System.Generics.Collections, ProgressInfo;
+  NotifyEvents, System.Contnrs, System.Generics.Collections, ProgressInfo,
+  DBRecordHolder;
 
 // WM_NEED_POST = WM_USER + 558;
 
@@ -66,6 +67,7 @@ type
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
     procedure IncUpdateRecCount;
+    function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     procedure Load(AIDParent: Integer); overload; virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
@@ -80,11 +82,14 @@ type
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
+    procedure SetParamType(const AParamName: String; AParamType: TParamType =
+        ptInput; ADataType: TFieldType = ftInteger);
     procedure TryEdit;
     procedure TryPost; virtual;
     procedure TryCancel;
     procedure TryAppend;
     procedure TryOpen;
+    function UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
     property BeforeLoad: TNotifyEventsEx read FBeforeLoad;
     property CashedRecordBalance: Integer read GetCashedRecordBalance;
@@ -534,6 +539,44 @@ begin
   end;
 end;
 
+function TQueryBase.InsertRecord(ARecordHolder: TRecordHolder): Integer;
+var
+  AFieldHolder: TFieldHolder;
+  F: TField;
+begin
+  Assert(ARecordHolder <> nil);
+
+  TryAppend;
+  try
+    for F in FDQuery.Fields do
+    begin
+      // Первичный ключ заполнять не будем
+      if F.FieldName.ToUpper = PKFieldName.ToUpper then
+        Continue;
+
+      // Ищем такое поле в коллекции вставляемых значений
+      AFieldHolder := ARecordHolder.Find(F.FieldName);
+
+      // Если нашли
+      if (AFieldHolder <> nil) and not VarIsNull(AFieldHolder.Value) then
+      begin
+        F.Value := AFieldHolder.Value;
+      end;
+
+    end;
+
+    TryPost;
+    // Первичный ключ должен получить значение
+    Assert(not PK.IsNull);
+
+    Result := PK.AsInteger;
+  except
+    TryCancel;
+    raise;
+  end;
+
+end;
+
 procedure TQueryBase.Load(AIDParent: Integer);
 begin
   Assert(DetailParameterName <> '');
@@ -663,9 +706,20 @@ begin
     AField.ReadOnly := AReadOnly;
 end;
 
+procedure TQueryBase.SetParamType(const AParamName: String; AParamType:
+    TParamType = ptInput; ADataType: TFieldType = ftInteger);
+var
+  AFDParam: TFDParam;
+begin
+  AFDParam := FDQuery.FindParam(AParamName);
+  Assert(AFDParam <> nil);
+  AFDParam.ParamType := AParamType;
+  AFDParam.DataType := ADataType;
+end;
+
 procedure TQueryBase.TryEdit;
 begin
-  Assert(FDQuery.Active);
+  Assert(FDQuery.Active and (FDQuery.RecordCount > 0));
 
   if not(FDQuery.State in [dsEdit, dsInsert]) then
     FDQuery.Edit;
@@ -699,6 +753,58 @@ procedure TQueryBase.TryOpen;
 begin
   if not FDQuery.Active then
     FDQuery.Open;
+end;
+
+function TQueryBase.UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
+var
+  AChangedFields: TDictionary<String, Variant>;
+  AFieldHolder: TFieldHolder;
+  AFieldName: string;
+  F: TField;
+begin
+  Assert(ARecordHolder <> nil);
+
+  // Создаём словарь тех полей что нужно будет обновить
+  AChangedFields := TDictionary<String, Variant>.Create;
+  try
+
+    for F in FDQuery.Fields do
+    begin
+      // Первичный ключ обновлять не будем
+      if F.FieldName.ToUpper = PKFieldName.ToUpper then
+        Continue;
+
+      // Ищем такое поле в коллекции обновляемых значений
+      AFieldHolder := ARecordHolder.Find(F.FieldName);
+
+      // Запоминаем в словаре какое поле нужно будет обновить
+      if (AFieldHolder <> nil) and
+        (F.Value <> AFieldHolder.Value) then
+        AChangedFields.Add(F.FieldName, AFieldHolder.Value);
+    end;
+
+    Result := AChangedFields.Count > 0;
+
+    // Если есть те поля, которые нужно обновлять
+    if Result then
+    begin
+      TryEdit;
+      try
+        // Цикл по всем изменившимся полям
+        for AFieldName in AChangedFields.Keys do
+        begin
+          Field(AFieldName).Value := AChangedFields[AFieldName];
+        end;
+        TryPost;
+      except
+        TryCancel;
+        raise;
+      end;
+    end;
+
+  finally
+    FreeAndNil(AChangedFields);
+  end;
 end;
 
 end.
