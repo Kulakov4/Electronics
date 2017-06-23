@@ -16,7 +16,9 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
     procedure ApplyInsertOrUpdate;
     procedure ApplyUpdate(ASender: TDataSet); override;
   public
@@ -38,7 +40,9 @@ begin
   DropUnusedBodies;
 end;
 
-procedure TQueryBodyTypesSimple.ApplyInsert(ASender: TDataSet);
+procedure TQueryBodyTypesSimple.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 

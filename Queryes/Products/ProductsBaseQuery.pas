@@ -57,7 +57,8 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetExportFileName: string; virtual; abstract;
     property qSearchComponentGroup: TQuerySearchComponentGroup
@@ -124,7 +125,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // По умолчанию мы не в режиме автоматических транзакций
-  AutoTransaction := False;
+  // AutoTransaction := False;
 end;
 
 procedure TQueryProductsBase.AddCategory;
@@ -171,7 +172,8 @@ begin
       while qSearchStorehouseProduct.FDQuery.RecordCount > 0 do
       begin
         // Запоминаем, что этот продукт мы удалили со склада
-        if AProductIDS.IndexOf(qSearchStorehouseProduct.ProductID.AsInteger) < 0 then
+        if AProductIDS.IndexOf(qSearchStorehouseProduct.ProductID.AsInteger) < 0
+        then
           AProductIDS.Add(qSearchStorehouseProduct.ProductID.AsInteger);
 
         qSearchStorehouseProduct.FDQuery.Delete;
@@ -200,7 +202,9 @@ begin
   inherited;
 end;
 
-procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet);
+procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AFieldHolder: TFieldHolder;
   ARH: TRecordHolder;
@@ -220,10 +224,14 @@ begin
     // Ищем такую группу компонентов в справочнике
     rc := qSearchComponentGroup.SearchByValue(Value.AsString);
     if rc = 0 then
+    begin
       qSearchComponentGroup.Append(Value.AsString);
+    end;
 
     // Заполняем первичный ключ
-    PK.Value := qSearchComponentGroup.PK.Value;
+    FetchFields([PK.FieldName], [qSearchComponentGroup.PK.Value], ARequest,
+      AAction, AOptions);
+    // PK.Value := qSearchComponentGroup.PK.Value;
     Exit;
   end;
 
@@ -246,7 +254,8 @@ begin
       // Ищем в справочнике такого производителя
       qProducers.LocateOrAppend(qSearchDaughterComponent.Producer.AsString);
       // Заполняем производителя
-      IDProducer.AsInteger := qProducers.PK.Value;
+      FetchFields([IDProducer.FieldName], [qProducers.PK.Value], ARequest,
+        AAction, AOptions);
     end;
   end;
 
@@ -268,18 +277,6 @@ begin
       finally
         FreeAndNil(ARHFamily)
       end;
-
-      {
-        // Заполняем файлы документации так, как заполнено у семейства
-        for ADocFieldInfo in FDocFieldInfos do
-        begin
-        ASender.FieldByName(ADocFieldInfo.FieldName).AsString :=
-        qSearchFamilyByID.Field(ADocFieldInfo.FieldName).AsString;
-        end;
-        // Заполняем ссылку на краткое описание
-        ADescriptionID.AsInteger :=
-        qSearchFamilyByID.DescriptionID.AsInteger;
-      }
     end;
 
     // Если производитель не задан
@@ -289,7 +286,9 @@ begin
       rc := qSearchProduct.SearchByValue(Value.AsString);
       if rc > 0 then
         // Заполняем производителя
-        IDProducer.AsInteger := qSearchProduct.IDProducer.AsInteger
+        FetchFields([IDProducer.FieldName], [qSearchProduct.IDProducer.Value],
+          ARequest, AAction, AOptions)
+        // IDProducer.AsInteger := qSearchProduct.IDProducer.AsInteger
       else
         raise Exception.Create('Необходимо задать производителя');
     end
@@ -304,18 +303,18 @@ begin
     begin
       // Добавляем в базу сам продукт
       qSearchProduct.InsertRecord(ARH);
+    end;
 
-      ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
-      ProductID.AsInteger := qSearchProduct.PK.Value;
-    end
-    else
+    ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
+    // Заполняем код продукта
+    FetchFields([ProductID.FieldName], [qSearchProduct.PK.Value], ARequest,
+      AAction, AOptions);
+    // ProductID.AsInteger := qSearchProduct.PK.Value;
+
+    // Если такой продукт уже есть
+    if rc > 0 then
     begin
-      // Если такой продукт уже есть
-      // Запоминаем найденный первичный ключ
-      ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
-      ProductID.AsInteger := qSearchProduct.PK.Value;
-
-      // Запоминаем поля семейства компонента
+      // Запоминаем поля найденного продукта
       ARH2 := TRecordHolder.Create(qSearchProduct.FDQuery);
       try
         // Все пустые поля заполняем значениями из найденного продукта
@@ -330,15 +329,6 @@ begin
       end;
     end;
 
-    // Код компонента не должен быть пустым
-    Assert(not VarIsNull(ARH.Field[ProductID.FieldName]));
-    // Код склада не должен быть пустым
-    Assert(not VarIsNull(ARH.Field[StorehouseId.FieldName]));
-
-    // Поле ID заполнять не будем
-    AFieldHolder := ARH.Find('ID');
-    FreeAndNil(AFieldHolder);
-
     // Помещаем наш компонент на склад
     if not qSearchStorehouseProduct.FDQuery.Active then
       qSearchStorehouseProduct.SearchByID(1);
@@ -346,10 +336,9 @@ begin
     qSearchStorehouseProduct.InsertRecord(ARH);
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
-    PK.Value := -qSearchStorehouseProduct.PK.Value;
-
-    // Заполняем код продукта
-    ProductID.AsInteger := ARH.Field[ProductID.FieldName];
+    FetchFields([PK.FieldName], [-qSearchStorehouseProduct.PK.Value], ARequest,
+      AAction, AOptions);
+    // PK.Value := -qSearchStorehouseProduct.PK.Value;
   finally
     FreeAndNil(ARH);
   end;
@@ -418,7 +407,7 @@ var
   AClone: TFDMemTable;
   OK: Boolean;
 begin
-//  FDQuery.DisableControls;
+  // FDQuery.DisableControls;
   try
     // Ищем запись которую надо удалить
     OK := LocateByPK(AID);
@@ -441,13 +430,13 @@ begin
         FreeAndNil(AClone);
       end;
 
-        // Снова переходим на группу
+      // Снова переходим на группу
       OK := LocateByPK(AID);
       Assert(OK);
     end;
     FDQuery.Delete;
   finally
-//    FDQuery.EnableControls;
+    // FDQuery.EnableControls;
   end;
 end;
 
@@ -460,8 +449,7 @@ begin
   for AProductID in AProductIDS do
   begin
     // Если подобных продуктов на складах больше нет
-    if qSearchStorehouseProduct.SearchByProductID(AProductID) = 0
-    then
+    if qSearchStorehouseProduct.SearchByProductID(AProductID) = 0 then
     begin
       // Удаляем продукт
       if qSearchProduct.SearchByID(AProductID) > 0 then

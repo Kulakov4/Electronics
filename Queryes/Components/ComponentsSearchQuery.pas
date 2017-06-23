@@ -16,7 +16,9 @@ type
   private
     { Private declarations }
   protected
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
   public
     procedure ClearSearchResult;
     procedure Search(const AParentIDList, ADetailIDList: string);
@@ -29,7 +31,9 @@ implementation
 
 uses NotifyEvents;
 
-procedure TQueryComponentsSearch.ApplyInsert(ASender: TDataSet);
+procedure TQueryComponentsSearch.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 begin
   // Не разрешаем добавление записи
 end;

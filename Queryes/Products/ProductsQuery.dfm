@@ -1,8 +1,8 @@
 inherited QueryProducts: TQueryProducts
-  Width = 264
-  Height = 153
-  ExplicitWidth = 264
-  ExplicitHeight = 153
+  Width = 139
+  Height = 77
+  ExplicitWidth = 139
+  ExplicitHeight = 77
   inherited Label1: TLabel
     Width = 58
     Caption = 'Products'

@@ -23,12 +23,14 @@ type
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
     FDetailParameterName: string;
+    FFDUpdateSQL: TFDUpdateSQL;
     FMaxUpdateRecCount: Integer;
     FUpdateRecCount: Integer;
     procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
     function GetCashedRecordBalance: Integer;
+    function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
     function GetPK: TField;
     { Private declarations }
@@ -36,7 +38,9 @@ type
     FEventList: TObjectList;
     FPKFieldName: String;
     procedure ApplyDelete(ASender: TDataSet); virtual;
-    procedure ApplyInsert(ASender: TDataSet); virtual;
+    procedure ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyUpdate(ASender: TDataSet); virtual;
     procedure DeleteSelfDetail(AIDMaster: Variant); virtual;
     // TODO: DoOnNeedPost
@@ -46,6 +50,7 @@ type
       AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
+    property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -63,6 +68,9 @@ type
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
     procedure DeleteList(var AList: TList<Variant>);
+    procedure FetchFields(const AFieldNames: Array of String; const AValues: Array
+        of Variant; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
     function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
@@ -184,7 +192,9 @@ procedure TQueryBase.ApplyDelete(ASender: TDataSet);
 begin
 end;
 
-procedure TQueryBase.ApplyInsert(ASender: TDataSet);
+procedure TQueryBase.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
 end;
 
@@ -395,7 +405,7 @@ begin
     // Операция добавления записи на клиенте
     if ARequest = arInsert then
     begin
-      ApplyInsert(ASender);
+      ApplyInsert(ASender, ARequest, AAction, AOptions);
     end;
 
     // Операция обновления записи на клиенте
@@ -420,6 +430,42 @@ procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
   AOptions: TFDUpdateRowOptions);
 begin
   AAction := eaApplied;
+end;
+
+procedure TQueryBase.FetchFields(const AFieldNames: Array of String; const
+    AValues: Array of Variant; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
+var
+  ASQL: string;
+  f: Double;
+  i: Integer;
+  S: string;
+  V: Variant;
+begin
+  Assert(Low(AFieldNames) = Low(AValues));
+  Assert(High(AFieldNames) = High(AValues));
+
+  ASQL := 'SELECT ';
+  for i := Low(AFieldNames) to High(AFieldNames) do
+  begin
+    V := AValues[i];
+    if VarIsStr(V) then
+      S := QuotedStr(V)
+    else
+      S := V;
+    S := S + ' ' + AFieldNames[i];
+
+    if i > Low(AFieldNames) then
+      ASQL := ASQL + ', ';
+    ASQL := ASQL + S;
+  end;
+
+  case ARequest of
+    arInsert:   FDUpdateSQL.InsertSQL.Text := ASQL;
+    arUpdate:   FDUpdateSQL.ModifySQL.Text := ASQL;
+  end;
+
+  FDUpdateSQL.Apply(ARequest, AAction, AOptions);
 end;
 
 function TQueryBase.Field(const AFieldName: String): TField;
@@ -478,6 +524,16 @@ begin
   else
     Result := IfThen(FDQuery.State in [dsInsert], 1, 0);
 
+end;
+
+function TQueryBase.GetFDUpdateSQL: TFDUpdateSQL;
+begin
+  if FFDUpdateSQL = nil then
+  begin
+    FFDUpdateSQL := TFDUpdateSQL.Create(Self);
+    FFDUpdateSQL.DataSet := FDQuery;
+  end;
+  Result := FFDUpdateSQL;
 end;
 
 function TQueryBase.GetFieldValues(AFieldName: string;

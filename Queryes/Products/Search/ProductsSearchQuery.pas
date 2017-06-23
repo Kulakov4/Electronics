@@ -36,7 +36,9 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
@@ -104,7 +106,9 @@ begin
     inherited;
 end;
 
-procedure TQueryProductsSearch.ApplyInsert(ASender: TDataSet);
+procedure TQueryProductsSearch.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 begin
   // Ничего не делаем
 end;

@@ -40,7 +40,9 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     function GetOrd: TField; override;
@@ -123,7 +125,9 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet);
+procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 var
   AID: TField;
   AIsCustomParameter: TField;

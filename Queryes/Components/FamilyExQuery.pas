@@ -18,7 +18,9 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -41,7 +43,9 @@ begin
   // ничего не делаем при удаении
 end;
 
-procedure TQueryFamilyEx.ApplyInsert(ASender: TDataSet);
+procedure TQueryFamilyEx.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 begin
   // Ничего не делаем при добавлении
 end;

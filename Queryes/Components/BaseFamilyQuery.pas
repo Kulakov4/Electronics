@@ -33,7 +33,9 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
     property QuerySearchCategoryByID: TQuerySearchCategoryByID
@@ -84,7 +86,9 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseFamily.ApplyInsert(ASender: TDataSet);
+procedure TQueryBaseFamily.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 var
   APK: TField;
   ARH: TRecordHolder;

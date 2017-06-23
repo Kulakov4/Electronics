@@ -40,7 +40,9 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet); override;
     procedure DoBeforeDelete(Sender: TObject);
     property InsertedClone: TFDMemTable read GetInsertedClone;
@@ -116,7 +118,9 @@ begin
   fdqDeleteSubParameters.ExecSQL;
 end;
 
-procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet);
+procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 var
   ACategoryID: TField;
   AID: TField;

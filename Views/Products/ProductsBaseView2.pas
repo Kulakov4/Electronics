@@ -44,6 +44,17 @@ type
     actDelete: TAction;
     dxBarButton3: TdxBarButton;
     clIDComponentGroup: TcxDBTreeListColumn;
+    clPackagePins: TcxDBTreeListColumn;
+    clAmount: TcxDBTreeListColumn;
+    clPackaging: TcxDBTreeListColumn;
+    clOriginCountry: TcxDBTreeListColumn;
+    clOriginCountryCode: TcxDBTreeListColumn;
+    clBatchNumber: TcxDBTreeListColumn;
+    clCustomsDeclarationNumber: TcxDBTreeListColumn;
+    clStorage: TcxDBTreeListColumn;
+    clStoragePlace: TcxDBTreeListColumn;
+    clSeller: TcxDBTreeListColumn;
+    clBarcode: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
