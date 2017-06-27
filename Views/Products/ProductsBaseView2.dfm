@@ -1,11 +1,11 @@
 inherited ViewProductsBase2: TViewProductsBase2
-  Width = 641
-  Height = 410
-  ExplicitWidth = 641
-  ExplicitHeight = 410
+  Width = 1092
+  Height = 598
+  ExplicitWidth = 1092
+  ExplicitHeight = 598
   inherited cxDBTreeList: TcxDBTreeList
-    Width = 641
-    Height = 382
+    Width = 1092
+    Height = 570
     Bands = <
       item
         FixedKind = tlbfLeft
@@ -13,11 +13,23 @@ inherited ViewProductsBase2: TViewProductsBase2
       item
       end
       item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1044#1072#1090#1072' '#1074#1099#1087#1091#1089#1082#1072
+      end
+      item
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1047#1072#1082#1091#1087#1086#1095#1085#1072#1103' '#1094#1077#1085#1072
+      end
+      item
+        Caption.AlignHorz = taCenter
         Caption.Text = #1057#1090#1088#1072#1085#1072' '#1087#1088#1086#1080#1089#1093#1086#1078#1076#1077#1085#1080#1103
       end
       item
       end
       item
+        Caption.AlignHorz = taCenter
         Caption.Text = #1052#1077#1089#1090#1086' '#1093#1088#1072#1085#1077#1085#1080#1103
       end
       item
@@ -30,10 +42,8 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnEdited = cxDBTreeListEdited
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
     OnIsGroupNode = cxDBTreeListIsGroupNode
-    ExplicitLeft = 0
-    ExplicitTop = 28
-    ExplicitWidth = 641
-    ExplicitHeight = 382
+    ExplicitWidth = 1092
+    ExplicitHeight = 570
     object clID: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'ID'
@@ -43,10 +53,28 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+    object clIsGroup: TcxDBTreeListColumn
+      Visible = False
+      DataBinding.FieldName = 'IsGroup'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 0
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clIDComponentGroup: TcxDBTreeListColumn
+      Visible = False
+      DataBinding.FieldName = 'IDComponentGroup'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 0
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
     object clValue: TcxDBTreeListColumn
       Caption.Text = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
       DataBinding.FieldName = 'Value'
-      Position.ColIndex = 1
+      Position.ColIndex = 3
       Position.RowIndex = 0
       Position.BandIndex = 0
       Summary.FooterSummaryItems = <>
@@ -57,25 +85,52 @@ inherited ViewProductsBase2: TViewProductsBase2
       Properties.ListColumns = <>
       Caption.Text = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
       DataBinding.FieldName = 'IDProducer'
-      Position.ColIndex = 2
+      Position.ColIndex = 4
       Position.RowIndex = 0
       Position.BandIndex = 0
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object clIsGroup: TcxDBTreeListColumn
-      Visible = False
-      DataBinding.FieldName = 'IsGroup'
+    object clDescription: TcxDBTreeListColumn
+      Caption.Text = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
+      DataBinding.FieldName = 'Description'
       Position.ColIndex = 0
       Position.RowIndex = 0
       Position.BandIndex = 1
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object clIDComponentGroup: TcxDBTreeListColumn
-      Visible = False
-      DataBinding.FieldName = 'IDComponentGroup'
+    object clDatasheet: TcxDBTreeListColumn
+      Caption.Text = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103
+      DataBinding.FieldName = 'Datasheet'
       Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clDiagram: TcxDBTreeListColumn
+      Caption.Text = #1057#1093#1077#1084#1072
+      DataBinding.FieldName = 'Diagram'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clDrawing: TcxDBTreeListColumn
+      Caption.Text = #1063#1077#1088#1090#1105#1078
+      DataBinding.FieldName = 'Drawing'
+      Position.ColIndex = 3
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clImage: TcxDBTreeListColumn
+      Caption.Text = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      DataBinding.FieldName = 'Image'
+      Position.ColIndex = 4
       Position.RowIndex = 0
       Position.BandIndex = 1
       Summary.FooterSummaryItems = <>
@@ -84,45 +139,87 @@ inherited ViewProductsBase2: TViewProductsBase2
     object clPackagePins: TcxDBTreeListColumn
       Caption.Text = #1050#1086#1088#1087#1091#1089
       DataBinding.FieldName = 'PackagePins'
-      Position.ColIndex = 2
+      Position.ColIndex = 5
       Position.RowIndex = 0
       Position.BandIndex = 1
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object clAmount: TcxDBTreeListColumn
-      Caption.Text = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
-      DataBinding.FieldName = 'Amount'
-      Position.ColIndex = 3
-      Position.RowIndex = 0
-      Position.BandIndex = 1
-      Summary.FooterSummaryItems = <>
-      Summary.GroupFooterSummaryItems = <>
-    end
-    object clPackaging: TcxDBTreeListColumn
-      Caption.Text = #1059#1087#1072#1082#1086#1074#1082#1072
-      DataBinding.FieldName = 'Packaging'
-      Position.ColIndex = 4
-      Position.RowIndex = 0
-      Position.BandIndex = 1
-      Summary.FooterSummaryItems = <>
-      Summary.GroupFooterSummaryItems = <>
-    end
-    object clOriginCountry: TcxDBTreeListColumn
-      Caption.Text = #1053#1072#1079#1074#1072#1085#1080#1077
-      DataBinding.FieldName = 'OriginCountry'
+    object clYYYY: TcxDBTreeListColumn
+      DataBinding.FieldName = 'YYYY'
       Position.ColIndex = 0
       Position.RowIndex = 0
       Position.BandIndex = 2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object clOriginCountryCode: TcxDBTreeListColumn
-      Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076
-      DataBinding.FieldName = 'OriginCountryCode'
+    object clMM: TcxDBTreeListColumn
+      DataBinding.FieldName = 'MM'
       Position.ColIndex = 1
       Position.RowIndex = 0
       Position.BandIndex = 2
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clWW: TcxDBTreeListColumn
+      DataBinding.FieldName = 'WW'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 2
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clAmount: TcxDBTreeListColumn
+      Caption.Text = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
+      DataBinding.FieldName = 'Amount'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 3
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clPackaging: TcxDBTreeListColumn
+      Caption.Text = #1059#1087#1072#1082#1086#1074#1082#1072
+      DataBinding.FieldName = 'Packaging'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 3
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clPriceR: TcxDBTreeListColumn
+      Caption.Text = #8381
+      DataBinding.FieldName = 'PriceR'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 4
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clPriceD: TcxDBTreeListColumn
+      Caption.Text = '$'
+      DataBinding.FieldName = 'PriceD'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 4
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clOriginCountryCode: TcxDBTreeListColumn
+      Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076
+      DataBinding.FieldName = 'OriginCountryCode'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 5
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clOriginCountry: TcxDBTreeListColumn
+      Caption.Text = #1053#1072#1079#1074#1072#1085#1080#1077
+      DataBinding.FieldName = 'OriginCountry'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 5
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -131,7 +228,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'BatchNumber'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 3
+      Position.BandIndex = 6
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -140,7 +237,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'CustomsDeclarationNumber'
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 3
+      Position.BandIndex = 6
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -149,7 +246,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'Storage'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 4
+      Position.BandIndex = 7
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -158,7 +255,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'StoragePlace'
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 4
+      Position.BandIndex = 7
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -167,16 +264,25 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'Seller'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 5
+      Position.BandIndex = 8
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clDocumentNumber: TcxDBTreeListColumn
+      Caption.Text = #8470' '#1076#1086#1082#1091#1084#1077#1085#1090#1072
+      DataBinding.FieldName = 'DocumentNumber'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 8
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
     object clBarcode: TcxDBTreeListColumn
       Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076' ('#1096#1090#1088#1080#1093'-'#1082#1086#1076')'
       DataBinding.FieldName = 'Barcode'
-      Position.ColIndex = 1
+      Position.ColIndex = 2
       Position.RowIndex = 0
-      Position.BandIndex = 5
+      Position.BandIndex = 8
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end

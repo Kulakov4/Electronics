@@ -40,10 +40,10 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     function GetOrd: TField; override;
     property QuerySearchMainParameter: TQuerySearchMainParameter
@@ -125,9 +125,9 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AID: TField;
   AIsCustomParameter: TField;
@@ -183,7 +183,9 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.ApplyUpdate(ASender: TDataSet);
+procedure TQueryMainParameters.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AID: TField;
   AIsCustomParameter: TField;

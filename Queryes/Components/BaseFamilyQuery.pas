@@ -33,10 +33,10 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
     property QuerySearchCategoryByID: TQuerySearchCategoryByID
       read GetQuerySearchCategoryByID;
@@ -86,9 +86,9 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseFamily.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBaseFamily.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   APK: TField;
   ARH: TRecordHolder;
@@ -154,7 +154,9 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseFamily.ApplyUpdate(ASender: TDataSet);
+procedure TQueryBaseFamily.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   // APackagePins: TField;
   APK: TField;

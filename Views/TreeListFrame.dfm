@@ -14,10 +14,7 @@ object frmTreeList: TfrmTreeList
     Navigator.Buttons.CustomButtons = <>
     RootValue = -1
     TabOrder = 0
-    ExplicitLeft = 40
-    ExplicitTop = 55
-    ExplicitWidth = 250
-    ExplicitHeight = 150
+    OnEdited = cxDBTreeListEdited
   end
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET

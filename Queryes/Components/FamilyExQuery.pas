@@ -18,10 +18,10 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
   public
     constructor Create(AOwner: TComponent); override;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
@@ -43,14 +43,16 @@ begin
   // ничего не делаем при удаении
 end;
 
-procedure TQueryFamilyEx.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryFamilyEx.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   // Ничего не делаем при добавлении
 end;
 
-procedure TQueryFamilyEx.ApplyUpdate(ASender: TDataSet);
+procedure TQueryFamilyEx.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   // Оповещаем что надо обработать обновление
   On_ApplyUpdate.CallEventHandlers(ASender);

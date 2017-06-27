@@ -64,7 +64,6 @@ begin
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 
 procedure TQueryProducts.AppendList(AExcelTable: TProductsExcelTable);
@@ -135,6 +134,11 @@ end;
 
 procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
 begin;
+  FDQuery.FieldDefs.Update;
+  FDQuery.FieldDefs.Add('PriceR', ftFloat);
+  FDQuery.FieldDefs.Add('PriceD', ftFloat);
+  CreateDefaultFields(False);
+  Field('PriceR').FieldKind := fkCalculated;
 end;
 
 function TQueryProducts.GetExportFileName: string;

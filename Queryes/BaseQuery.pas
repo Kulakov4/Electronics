@@ -38,10 +38,10 @@ type
     FEventList: TObjectList;
     FPKFieldName: String;
     procedure ApplyDelete(ASender: TDataSet); virtual;
-    procedure ApplyInsert(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions); virtual;
-    procedure ApplyUpdate(ASender: TDataSet); virtual;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure DeleteSelfDetail(AIDMaster: Variant); virtual;
     // TODO: DoOnNeedPost
     // procedure DoOnNeedPost(var Message: TMessage); message WM_NEED_POST;
@@ -68,9 +68,9 @@ type
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
     procedure DeleteList(var AList: TList<Variant>);
-    procedure FetchFields(const AFieldNames: Array of String; const AValues: Array
-        of Variant; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+    procedure FetchFields(const AFieldNames: Array of String;
+      const AValues: Array of Variant; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
     function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
@@ -90,8 +90,8 @@ type
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
-    procedure SetParamType(const AParamName: String; AParamType: TParamType =
-        ptInput; ADataType: TFieldType = ftInteger);
+    procedure SetParamType(const AParamName: String;
+      AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger);
     procedure TryEdit;
     procedure TryPost; virtual;
     procedure TryCancel;
@@ -192,13 +192,13 @@ procedure TQueryBase.ApplyDelete(ASender: TDataSet);
 begin
 end;
 
-procedure TQueryBase.ApplyInsert(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+procedure TQueryBase.ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
 end;
 
-procedure TQueryBase.ApplyUpdate(ASender: TDataSet);
+procedure TQueryBase.ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
 end;
 
@@ -411,7 +411,7 @@ begin
     // Операция обновления записи на клиенте
     if ARequest = arUpdate then
     begin
-      ApplyUpdate(ASender);
+      ApplyUpdate(ASender, ARequest, AAction, AOptions);
     end;
 
     AAction := eaApplied;
@@ -432,9 +432,9 @@ begin
   AAction := eaApplied;
 end;
 
-procedure TQueryBase.FetchFields(const AFieldNames: Array of String; const
-    AValues: Array of Variant; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+procedure TQueryBase.FetchFields(const AFieldNames: Array of String;
+  const AValues: Array of Variant; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   ASQL: string;
   f: Double;
@@ -461,8 +461,10 @@ begin
   end;
 
   case ARequest of
-    arInsert:   FDUpdateSQL.InsertSQL.Text := ASQL;
-    arUpdate:   FDUpdateSQL.ModifySQL.Text := ASQL;
+    arInsert:
+      FDUpdateSQL.InsertSQL.Text := ASQL;
+    arUpdate:
+      FDUpdateSQL.ModifySQL.Text := ASQL;
   end;
 
   FDUpdateSQL.Apply(ARequest, AAction, AOptions);
@@ -598,25 +600,25 @@ end;
 function TQueryBase.InsertRecord(ARecordHolder: TRecordHolder): Integer;
 var
   AFieldHolder: TFieldHolder;
-  F: TField;
+  f: TField;
 begin
   Assert(ARecordHolder <> nil);
 
   TryAppend;
   try
-    for F in FDQuery.Fields do
+    for f in FDQuery.Fields do
     begin
       // Первичный ключ заполнять не будем
-      if F.FieldName.ToUpper = PKFieldName.ToUpper then
+      if f.FieldName.ToUpper = PKFieldName.ToUpper then
         Continue;
 
       // Ищем такое поле в коллекции вставляемых значений
-      AFieldHolder := ARecordHolder.Find(F.FieldName);
+      AFieldHolder := ARecordHolder.Find(f.FieldName);
 
       // Если нашли
       if (AFieldHolder <> nil) and not VarIsNull(AFieldHolder.Value) then
       begin
-        F.Value := AFieldHolder.Value;
+        f.Value := AFieldHolder.Value;
       end;
 
     end;
@@ -762,8 +764,8 @@ begin
     AField.ReadOnly := AReadOnly;
 end;
 
-procedure TQueryBase.SetParamType(const AParamName: String; AParamType:
-    TParamType = ptInput; ADataType: TFieldType = ftInteger);
+procedure TQueryBase.SetParamType(const AParamName: String;
+  AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger);
 var
   AFDParam: TFDParam;
 begin
@@ -816,7 +818,7 @@ var
   AChangedFields: TDictionary<String, Variant>;
   AFieldHolder: TFieldHolder;
   AFieldName: string;
-  F: TField;
+  f: TField;
 begin
   Assert(ARecordHolder <> nil);
 
@@ -824,19 +826,18 @@ begin
   AChangedFields := TDictionary<String, Variant>.Create;
   try
 
-    for F in FDQuery.Fields do
+    for f in FDQuery.Fields do
     begin
       // Первичный ключ обновлять не будем
-      if F.FieldName.ToUpper = PKFieldName.ToUpper then
+      if f.FieldName.ToUpper = PKFieldName.ToUpper then
         Continue;
 
       // Ищем такое поле в коллекции обновляемых значений
-      AFieldHolder := ARecordHolder.Find(F.FieldName);
+      AFieldHolder := ARecordHolder.Find(f.FieldName);
 
       // Запоминаем в словаре какое поле нужно будет обновить
-      if (AFieldHolder <> nil) and
-        (F.Value <> AFieldHolder.Value) then
-        AChangedFields.Add(F.FieldName, AFieldHolder.Value);
+      if (AFieldHolder <> nil) and (f.Value <> AFieldHolder.Value) then
+        AChangedFields.Add(f.FieldName, AFieldHolder.Value);
     end;
 
     Result := AChangedFields.Count > 0;

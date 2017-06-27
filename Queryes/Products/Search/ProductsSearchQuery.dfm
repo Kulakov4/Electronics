@@ -1,4 +1,8 @@
 inherited QueryProductsSearch: TQueryProductsSearch
+  Width = 190
+  Height = 83
+  ExplicitWidth = 190
+  ExplicitHeight = 83
   inherited Label1: TLabel
     Width = 103
     Caption = 'ProductsSearch'
@@ -26,6 +30,7 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '       sp.Seller,'
       '       sp.StoragePlace,'
       '       sp.OriginCountryCode,'
+      '       sp.IDCurrency,'
       '       p.PackagePins,'
       '       p.Datasheet,'
       '       p.Diagram,'
@@ -37,7 +42,7 @@ inherited QueryProductsSearch: TQueryProductsSearch
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       '--where'
       'order by sp.IDComponentGroup')
-    Left = 17
-    Top = 88
+    Left = 145
+    Top = 25
   end
 end

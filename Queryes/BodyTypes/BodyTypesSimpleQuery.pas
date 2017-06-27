@@ -16,11 +16,11 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsertOrUpdate;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
   public
     { Public declarations }
   end;
@@ -40,9 +40,9 @@ begin
   DropUnusedBodies;
 end;
 
-procedure TQueryBodyTypesSimple.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBodyTypesSimple.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -74,7 +74,9 @@ begin
   IDBody.Value := QueryBodies.PK.Value;
 end;
 
-procedure TQueryBodyTypesSimple.ApplyUpdate(ASender: TDataSet);
+procedure TQueryBodyTypesSimple.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 

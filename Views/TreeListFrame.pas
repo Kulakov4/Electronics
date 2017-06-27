@@ -24,7 +24,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxInplaceContainer, cxTLData, cxDBTL, dxSkinsdxBarPainter,
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
-  Data.DB, cxDropDownEdit, cxDBLookupComboBox;
+  Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections;
 
 type
   TfrmTreeList = class(TFrame)
@@ -32,7 +32,10 @@ type
     dxBarManager: TdxBarManager;
     dxBarManagerBar1: TdxBar;
     ActionList: TActionList;
+    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
+        TcxTreeListColumn);
   private
+    FPostOnEnterFields: TList<String>;
     { Private declarations }
   protected
     procedure InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
@@ -41,14 +44,45 @@ type
         TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
         AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn): Variant;
     procedure UpdateView; virtual;
+    property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+constructor TfrmTreeList.Create(AOwner: TComponent);
+begin
+  inherited;
+  // Список полей при редактировании которых Enter - сохранение
+  FPostOnEnterFields := TList<String>.Create;
+end;
+
+destructor TfrmTreeList.Destroy;
+begin
+  FreeAndNil(FPostOnEnterFields);
+  inherited;
+end;
+
+procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
+    TcxTreeListColumn);
+begin
+  // Если закончили редактирование группы
+  if (Sender.FocusedNode <> nil) and (Sender.FocusedNode.IsGroupNode) then
+    Sender.Post
+  else
+  begin
+    if FPostOnEnterFields.IndexOf( (AColumn as TcxDBTreeListColumn).DataBinding.FieldName ) >= 0 then
+      Sender.Post
+  end;
+
+  UpdateView;
+end;
 
 function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn:
     TcxDBTreeListColumn): Variant;

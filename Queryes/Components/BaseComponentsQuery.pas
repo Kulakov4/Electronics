@@ -23,10 +23,10 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     property QuerySearchDaughterComponent2: TQuerySearchDaughterComponent2
       read GetQuerySearchDaughterComponent2;
   public
@@ -66,9 +66,9 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseComponents.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBaseComponents.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   ARH: TRecordHolder;
 begin
@@ -101,7 +101,9 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseComponents.ApplyUpdate(ASender: TDataSet);
+procedure TQueryBaseComponents.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   ARH: TRecordHolder;
 begin

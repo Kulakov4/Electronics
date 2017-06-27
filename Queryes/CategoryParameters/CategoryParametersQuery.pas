@@ -40,10 +40,10 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoBeforeDelete(Sender: TObject);
     property InsertedClone: TFDMemTable read GetInsertedClone;
     property QueryRecursiveParameters: TQueryRecursiveParameters
@@ -118,9 +118,9 @@ begin
   fdqDeleteSubParameters.ExecSQL;
 end;
 
-procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   ACategoryID: TField;
   AID: TField;
@@ -153,7 +153,9 @@ begin
   ASender.Post;
 end;
 
-procedure TQueryCategoryParameters.ApplyUpdate(ASender: TDataSet);
+procedure TQueryCategoryParameters.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   ACategoryID: TField;
   AIsAttribute: TField;

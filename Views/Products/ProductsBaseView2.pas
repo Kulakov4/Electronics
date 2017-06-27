@@ -35,26 +35,37 @@ type
     actAddCategory: TAction;
     dxBarButton1: TdxBarButton;
     clID: TcxDBTreeListColumn;
+    clIsGroup: TcxDBTreeListColumn;
+    clIDComponentGroup: TcxDBTreeListColumn;
     clValue: TcxDBTreeListColumn;
     clIDProducer: TcxDBTreeListColumn;
-    clIsGroup: TcxDBTreeListColumn;
-    actAddComponent: TAction;
-    dxBarSubItem1: TdxBarSubItem;
-    dxBarButton2: TdxBarButton;
-    actDelete: TAction;
-    dxBarButton3: TdxBarButton;
-    clIDComponentGroup: TcxDBTreeListColumn;
+    clDescription: TcxDBTreeListColumn;
+    clDatasheet: TcxDBTreeListColumn;
+    clDiagram: TcxDBTreeListColumn;
+    clDrawing: TcxDBTreeListColumn;
+    clImage: TcxDBTreeListColumn;
     clPackagePins: TcxDBTreeListColumn;
+    clYYYY: TcxDBTreeListColumn;
+    clMM: TcxDBTreeListColumn;
+    clWW: TcxDBTreeListColumn;
     clAmount: TcxDBTreeListColumn;
     clPackaging: TcxDBTreeListColumn;
-    clOriginCountry: TcxDBTreeListColumn;
+    clPriceR: TcxDBTreeListColumn;
+    clPriceD: TcxDBTreeListColumn;
     clOriginCountryCode: TcxDBTreeListColumn;
+    clOriginCountry: TcxDBTreeListColumn;
     clBatchNumber: TcxDBTreeListColumn;
     clCustomsDeclarationNumber: TcxDBTreeListColumn;
     clStorage: TcxDBTreeListColumn;
     clStoragePlace: TcxDBTreeListColumn;
     clSeller: TcxDBTreeListColumn;
+    clDocumentNumber: TcxDBTreeListColumn;
     clBarcode: TcxDBTreeListColumn;
+    actAddComponent: TAction;
+    dxBarSubItem1: TdxBarSubItem;
+    dxBarButton2: TdxBarButton;
+    actDelete: TAction;
+    dxBarButton3: TdxBarButton;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -64,8 +75,6 @@ type
     procedure actRollbackExecute(Sender: TObject);
     procedure cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var IsGroup: Boolean);
-    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
-      AColumn: TcxTreeListColumn);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
       APrevFocusedNode, AFocusedNode: TcxTreeListNode);
   private
@@ -75,6 +84,7 @@ type
     procedure SetProductBaseGroup(const Value: TProductBaseGroup);
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
     property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
@@ -88,6 +98,14 @@ implementation
 {$R *.dfm}
 
 uses DialogUnit, RepositoryDataModule, NotifyEvents, cxDropDownEdit;
+
+constructor TViewProductsBase2.Create(AOwner: TComponent);
+begin
+  inherited;
+  // Список полей при редактировании которых Enter - сохранение
+  PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
+  PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
+end;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
 begin
@@ -228,17 +246,6 @@ begin
         end;
     end;
   end;
-end;
-
-procedure TViewProductsBase2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
-  AColumn: TcxTreeListColumn);
-begin
-  inherited;
-  // Если закончили редактирование группы
-  if IsFocusedNodeGroup then
-    Sender.Post;
-
-  UpdateView;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged

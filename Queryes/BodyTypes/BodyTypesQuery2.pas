@@ -27,10 +27,11 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest; var
-        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsertOrUpdate;
-    procedure ApplyUpdate(ASender: TDataSet); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     procedure DoBeforeDelete(Sender: TObject);
   public
@@ -87,9 +88,9 @@ begin
 
 end;
 
-procedure TQueryBodyTypes2.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBodyTypes2.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -173,7 +174,9 @@ begin
 
 end;
 
-procedure TQueryBodyTypes2.ApplyUpdate(ASender: TDataSet);
+procedure TQueryBodyTypes2.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
