@@ -31,7 +31,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDBLookupComboBox, CustomErrorTable, FieldInfoUnit, ProductGroupUnit;
+  cxDBLookupComboBox, CustomErrorTable, FieldInfoUnit, ProductGroupUnit,
+  TreeListFrame, ProductsBaseView2, ProductsView2;
 
 type
   TViewProducts = class(TViewProductsBase)

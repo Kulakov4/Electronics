@@ -192,7 +192,8 @@ uses
   TreeListFrame in 'Views\TreeListFrame.pas' {frmTreeList: TFrame},
   ProductsBaseView2 in 'Views\Products\ProductsBaseView2.pas' {ViewProductsBase2: TFrame},
   SearchComponentGroup in 'Queryes\Search\SearchComponentGroup.pas' {QuerySearchComponentGroup: TFrame},
-  SearchStorehouseProduct in 'Queryes\Search\SearchStorehouseProduct.pas' {QuerySearchStorehouseProduct: TFrame};
+  SearchStorehouseProduct in 'Queryes\Search\SearchStorehouseProduct.pas' {QuerySearchStorehouseProduct: TFrame},
+  ProductsView2 in 'Views\Products\ProductsView2.pas' {ViewProducts2: TFrame};
 
 {$R *.res}
 

@@ -36,24 +36,72 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
-      inline ViewProductsBase2: TViewProductsBase2
+      inline ViewProducts2: TViewProducts2
         Left = 0
         Top = 0
         Width = 990
         Height = 579
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 990
-        ExplicitHeight = 579
+        ExplicitLeft = -102
+        ExplicitTop = -19
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 551
+          Height = 525
+          inherited clDatasheet: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProducts2.actOpenDatasheet
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProducts2.actLoadDatasheet
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clDiagram: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProducts2.actOpenDiagram
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProducts2.actLoadDiagram
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clDrawing: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProducts2.actOpenDrawing
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProducts2.actLoadDrawing
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clImage: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProducts2.actOpenImage
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProducts2.actLoadImage
+                Kind = bkEllipsis
+              end>
+          end
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
             0
             0
-            28
+            54
             0)
         end
       end
@@ -131,6 +179,222 @@ object ProductsFrame: TProductsFrame
           Width = 990
           ExplicitTop = 560
           ExplicitWidth = 990
+        end
+        inherited ViewProducts2: TViewProducts2
+          Width = 990
+          Height = 532
+          ExplicitLeft = 0
+          ExplicitTop = 28
+          ExplicitWidth = 990
+          ExplicitHeight = 532
+          inherited cxDBTreeList: TcxDBTreeList
+            Width = 990
+            Height = 478
+            ExplicitWidth = 990
+            ExplicitHeight = 478
+            inherited clID: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clIsGroup: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clIDComponentGroup: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clValue: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clIDProducer: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clDescription: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clDatasheet: TcxDBTreeListColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actOpenDatasheet
+                  Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actLoadDatasheet
+                  Kind = bkEllipsis
+                end>
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clDiagram: TcxDBTreeListColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actOpenDiagram
+                  Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actLoadDiagram
+                  Kind = bkEllipsis
+                end>
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clDrawing: TcxDBTreeListColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actOpenDrawing
+                  Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actLoadDrawing
+                  Kind = bkEllipsis
+                end>
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clImage: TcxDBTreeListColumn
+              Properties.Buttons = <
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actOpenImage
+                  Default = True
+                  Kind = bkGlyph
+                end
+                item
+                  Action = ViewProductsSearch.ViewProducts2.actLoadImage
+                  Kind = bkEllipsis
+                end>
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPackagePins: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clYYYY: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clMM: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clWW: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clAmount: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPackaging: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPriceR2: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPriceD2: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPriceR1: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPriceD1: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPriceR: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clPriceD: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clOriginCountryCode: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clOriginCountry: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clBatchNumber: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clCustomsDeclarationNumber: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clStorage: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clStoragePlace: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clSeller: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clDocumentNumber: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+            inherited clBarcode: TcxDBTreeListColumn
+              Position.ColIndex = -1
+              Position.RowIndex = -1
+              Position.BandIndex = -1
+            end
+          end
+          inherited dxBarManager: TdxBarManager
+            DockControlHeights = (
+              0
+              0
+              54
+              0)
+          end
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (

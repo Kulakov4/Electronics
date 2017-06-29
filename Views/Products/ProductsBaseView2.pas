@@ -24,7 +24,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
-  cxMaskEdit, cxDBLookupComboBox;
+  cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
+  cxCalc, DocFieldInfo, cxButtonEdit;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -33,7 +34,6 @@ type
     actExportToExcelDocument: TAction;
     actOpenInParametricTable: TAction;
     actAddCategory: TAction;
-    dxBarButton1: TdxBarButton;
     clID: TcxDBTreeListColumn;
     clIsGroup: TcxDBTreeListColumn;
     clIDComponentGroup: TcxDBTreeListColumn;
@@ -50,6 +50,10 @@ type
     clWW: TcxDBTreeListColumn;
     clAmount: TcxDBTreeListColumn;
     clPackaging: TcxDBTreeListColumn;
+    clPriceR2: TcxDBTreeListColumn;
+    clPriceD2: TcxDBTreeListColumn;
+    clPriceR1: TcxDBTreeListColumn;
+    clPriceD1: TcxDBTreeListColumn;
     clPriceR: TcxDBTreeListColumn;
     clPriceD: TcxDBTreeListColumn;
     clOriginCountryCode: TcxDBTreeListColumn;
@@ -62,27 +66,60 @@ type
     clDocumentNumber: TcxDBTreeListColumn;
     clBarcode: TcxDBTreeListColumn;
     actAddComponent: TAction;
-    dxBarSubItem1: TdxBarSubItem;
-    dxBarButton2: TdxBarButton;
     actDelete: TAction;
-    dxBarButton3: TdxBarButton;
+    dxBarManagerBar2: TdxBar;
+    dxbcRate1: TdxBarCombo;
+    dxbcRate2: TdxBarCombo;
+    cxbeiRate: TcxBarEditItem;
+    actOpenDatasheet: TAction;
+    actLoadDatasheet: TAction;
+    actOpenImage: TAction;
+    actLoadImage: TAction;
+    actOpenDiagram: TAction;
+    actLoadDiagram: TAction;
+    actOpenDrawing: TAction;
+    actLoadDrawing: TAction;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
+    procedure actLoadDatasheetExecute(Sender: TObject);
+    procedure actLoadDiagramExecute(Sender: TObject);
+    procedure actLoadDrawingExecute(Sender: TObject);
+    procedure actLoadImageExecute(Sender: TObject);
+    procedure actOpenDatasheetExecute(Sender: TObject);
+    procedure actOpenDiagramExecute(Sender: TObject);
+    procedure actOpenDrawingExecute(Sender: TObject);
+    procedure actOpenImageExecute(Sender: TObject);
     procedure actOpenInParametricTableExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
+    procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn; ANode:
+        TcxTreeListNode; var Value: string);
+    procedure cxbeiRateChange(Sender: TObject);
     procedure cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var IsGroup: Boolean);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
       APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+    procedure dxbcRate2Change(Sender: TObject);
+    procedure dxbcRate1Change(Sender: TObject);
+    procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
+      ARect: TRect; AState: TOwnerDrawState);
   private
     FProductBaseGroup: TProductBaseGroup;
     procedure DoAfterLoad(Sender: TObject);
     function GetIsFocusedNodeGroup: Boolean;
     procedure SetProductBaseGroup(const Value: TProductBaseGroup);
     { Private declarations }
+  protected
+    procedure BindRate(ARateField: TField; AdxBarCombo: TdxBarCombo);
+    procedure DoAfterScroll(Sender: TObject);
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo; const AErrorMessage,
+        AEmptyErrorMessage: string);
+    function PerсentToRate(APerсent: Double): Double;
+    function RateToPerсent(ARate: Double): Double;
+    procedure UpdateRate(const ARate: Double; RateField: TField);
+    procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
   public
     constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
@@ -97,7 +134,8 @@ implementation
 
 {$R *.dfm}
 
-uses DialogUnit, RepositoryDataModule, NotifyEvents, cxDropDownEdit;
+uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
+  SettingsController, Winapi.Shellapi;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
 begin
@@ -167,8 +205,8 @@ begin
   if not(TDialog.Create.DeleteRecordsDialog(S)) then
     Exit;
 
-  ProductBaseGroup.qProductsBase.DeleteNode
-    (cxDBTreeList.FocusedNode.Values[clID.ItemIndex]);
+  ProductBaseGroup.qProductsBase.DeleteNode(cxDBTreeList.FocusedNode.Values
+    [clID.ItemIndex]);
   // Это почему-то не работает
   // cxDBTreeList.DataController.DeleteFocused;
 end;
@@ -192,6 +230,58 @@ begin
     AView.Bands[0].FixedKind := fkNone;
     end);
   }
+end;
+
+procedure TViewProductsBase2.actLoadDatasheetExecute(Sender: TObject);
+begin
+  inherited;
+  UploadDoc(TDatasheetDoc.Create);
+end;
+
+procedure TViewProductsBase2.actLoadDiagramExecute(Sender: TObject);
+begin
+  inherited;
+  UploadDoc(TDiagramDoc.Create);
+end;
+
+procedure TViewProductsBase2.actLoadDrawingExecute(Sender: TObject);
+begin
+  inherited;
+  UploadDoc(TDrawingDoc.Create);
+end;
+
+procedure TViewProductsBase2.actLoadImageExecute(Sender: TObject);
+begin
+  inherited;
+  UploadDoc(TImageDoc.Create);
+end;
+
+procedure TViewProductsBase2.actOpenDatasheetExecute(Sender: TObject);
+begin
+  inherited;
+  OpenDoc(TDatasheetDoc.Create, 'Файл спецификации с именем %s не найден',
+    'не задана спецификация');
+end;
+
+procedure TViewProductsBase2.actOpenDiagramExecute(Sender: TObject);
+begin
+  inherited;
+  OpenDoc(TDiagramDoc.Create, 'Файл схемы с именем %s не найден',
+    'Не задана схема');
+end;
+
+procedure TViewProductsBase2.actOpenDrawingExecute(Sender: TObject);
+begin
+  inherited;
+  OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
+    'Не задан чертёж');
+end;
+
+procedure TViewProductsBase2.actOpenImageExecute(Sender: TObject);
+begin
+  inherited;
+  OpenDoc(TImageDoc.Create, 'Файл изображения с именем %s не найден',
+    'Не задано изображение');
 end;
 
 procedure TViewProductsBase2.actOpenInParametricTableExecute(Sender: TObject);
@@ -228,6 +318,24 @@ begin
   UpdateView;
 end;
 
+procedure TViewProductsBase2.BindRate(ARateField: TField; AdxBarCombo:
+    TdxBarCombo);
+var
+  r: Double;
+begin
+  r := RateToPerсent(ARateField.AsFloat);
+  if r = 0 then
+  begin
+    AdxBarCombo.Text := '';
+  end
+  else
+  begin
+    AdxBarCombo.Tag := 1;
+    AdxBarCombo.Text := Format('%8.2f', [r]);
+    AdxBarCombo.Tag := 0;
+  end;
+end;
+
 function TViewProductsBase2.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
@@ -245,6 +353,30 @@ begin
           actRollback.Execute;
         end;
     end;
+  end;
+end;
+
+procedure TViewProductsBase2.clDatasheetGetDisplayText(Sender:
+    TcxTreeListColumn; ANode: TcxTreeListNode; var Value: string);
+begin
+  inherited;
+  if not Value.IsEmpty then
+    Value := TPath.GetFileNameWithoutExtension(Value);
+end;
+
+procedure TViewProductsBase2.cxbeiRateChange(Sender: TObject);
+var
+  r: Double;
+  S: string;
+begin
+  inherited;
+  S := cxbeiRate.EditValue;
+  r := StrToFloatDef(S, 0);
+  if r <> 0 then
+  begin
+    // Обновлям курс доллара
+    FProductBaseGroup.qProductsBase.Rate := r;
+    FProductBaseGroup.qProductsBase.FDQuery.Resync([rmExact, rmCenter]);
   end;
 end;
 
@@ -271,6 +403,77 @@ begin
 
 end;
 
+procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
+begin
+  BindRate(FProductBaseGroup.qProductsBase.Rate1, dxbcRate1);
+  BindRate(FProductBaseGroup.qProductsBase.Rate2, dxbcRate2);
+end;
+
+procedure TViewProductsBase2.dxbcRate2Change(Sender: TObject);
+var
+  r: Double;
+begin
+  inherited;
+  if (Sender as TComponent).Tag = 1 then
+    Exit;
+
+  r := StrToFloatDef(dxbcRate2.Text, 0);
+  if r = 0 then
+    Exit;
+
+  UpdateRate(PerсentToRate(r), FProductBaseGroup.qProductsBase.Rate2);
+end;
+
+procedure TViewProductsBase2.dxbcRate1Change(Sender: TObject);
+var
+  r: Double;
+begin
+  inherited;
+  if (Sender as TComponent).Tag = 1 then
+    Exit;
+
+  r := StrToFloatDef(dxbcRate1.Text, 0);
+  if r = 0 then
+    Exit;
+
+  UpdateRate(PerсentToRate(r), FProductBaseGroup.qProductsBase.Rate1);
+end;
+
+const
+  clClickedColor = clRed;
+
+procedure TViewProductsBase2.dxbcRate1DrawItem(Sender: TdxBarCustomCombo;
+  AIndex: Integer; ARect: TRect; AState: TOwnerDrawState);
+var
+  S: string;
+begin
+  inherited;
+
+  if odSelected in AState then
+  begin
+    Brush.Color := clClickedColor;
+    Font.Color := clHighlightText;
+  end
+  else
+  begin
+    Brush.Color := clWindow;
+    Font.Color := clWindowText;
+  end;
+
+  Sender.Canvas.FillRect(ARect);
+  if odFocused in AState then
+    DrawFocusRect(Sender.Canvas.Handle, ARect);
+
+  if AIndex >= 0 then
+    S := Sender.Items[AIndex]
+  else
+    S := Sender.Text;
+  if S <> '' then
+    S := S + '%';
+
+  Sender.Canvas.TextOut(ARect.Left + 2, ARect.Top + 2, S);
+end;
+
 function TViewProductsBase2.GetIsFocusedNodeGroup: Boolean;
 var
   ANode: TcxTreeListNode;
@@ -283,6 +486,52 @@ begin
 
   V := ANode.Values[clIsGroup.ItemIndex];
   Result := not VarIsNull(V) and (V = 1);
+end;
+
+procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo; const
+    AErrorMessage, AEmptyErrorMessage: string);
+var
+  AFileName: string;
+begin
+  if FProductBaseGroup.qProductsBase.FDQuery.FieldByName
+    (ADocFieldInfo.FieldName).AsString <> '' then
+  begin
+    AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
+      ADocFieldInfo.Folder), FProductBaseGroup.qProductsBase.FDQuery.FieldByName
+      (ADocFieldInfo.FieldName).AsString);
+
+    if FileExists(AFileName) then
+      ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
+    else
+      TDialog.Create.ErrorMessageDialog(Format(AErrorMessage, [AFileName]));
+  end
+  else
+    TDialog.Create.ErrorMessageDialog(AEmptyErrorMessage);
+
+end;
+
+function TViewProductsBase2.PerсentToRate(APerсent: Double): Double;
+begin
+  Result := 1 + APerсent / 100
+end;
+
+function TViewProductsBase2.RateToPerсent(ARate: Double): Double;
+begin
+  if ARate <= 0 then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
+  if ARate > 1 then
+  begin
+    Result := (ARate - 1) * 100;
+  end
+  else
+  begin
+    Result := (1 - ARate) * -100
+  end;
+
 end;
 
 procedure TViewProductsBase2.SetProductBaseGroup(const Value
@@ -306,7 +555,34 @@ begin
     FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
     FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
 
+  TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterScroll,
+    DoAfterScroll);
+
   UpdateView;
+end;
+
+procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
+var
+  ANode: TcxDBTreeListNode;
+  i: Integer;
+  OK: Boolean;
+begin
+  FProductBaseGroup.qProductsBase.FDQuery.DisableControls;
+  try
+    for i := 0 to cxDBTreeList.SelectionCount - 1 do
+    begin
+      ANode := cxDBTreeList.Selections[i] as TcxDBTreeListNode;
+      if ANode.IsGroupNode then
+        Continue;
+      OK := FProductBaseGroup.qProductsBase.LocateByPK(ANode.Values[clID.ItemIndex]);
+      Assert(OK);
+      FProductBaseGroup.qProductsBase.TryEdit;
+      RateField.Value := ARate;
+      FProductBaseGroup.qProductsBase.TryPost;
+    end;
+  finally
+    FProductBaseGroup.qProductsBase.FDQuery.EnableControls;
+  end;
 end;
 
 procedure TViewProductsBase2.UpdateView;
@@ -329,6 +605,20 @@ begin
 
   actDelete.Enabled := Ok and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
+
+  cxbeiRate.EditValue := ProductBaseGroup.qProductsBase.Rate;
+end;
+
+procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);
+var
+  sourceFileName: string;
+begin
+  // Открываем диалог выбора файла для загрузки
+  sourceFileName := TDialog.Create.OpenPictureDialog(ADocFieldInfo.Folder);
+  if sourceFileName.IsEmpty then
+    Exit;
+
+  FProductBaseGroup.qProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
 end;
 
 end.

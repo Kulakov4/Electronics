@@ -23,6 +23,7 @@ type
     function GetIniFile: TIniFile;
     function GetParametricDataFolder: string;
     function GetLastFolderForExcelFile: string;
+    function GetRate: Double;
     procedure SetBodyTypesLandPatternFolder(const Value: string);
     procedure SetBodyTypesOutlineDrawingFolder(const Value: string);
     procedure SetBodyTypesImageFolder(const Value: string);
@@ -35,18 +36,19 @@ type
     procedure SetLastFolderForComponentsLoad(const Value: string);
     procedure SetParametricDataFolder(const Value: string);
     procedure SetLastFolderForExcelFile(const Value: string);
+    procedure SetRate(const Value: Double);
     // TODO: UpdatePath
     // function UpdatePath(const APath, ANewDBPath: string): string;
   protected
     property IniFile: TIniFile read GetIniFile;
   public
     constructor Create; virtual;
-    function GetValue(const ASection, AParameter: string;
-      const ADefault: string = ''): string;
+    function GetValue(const ASection, AParameter: string; const ADefault: string =
+        ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
       : string): string;
     class function NewInstance: TObject; override;
-    procedure SetValue(const ASection, AParameter, Value: string);
+    procedure SetValue(const ASection, AParameter: string; const Value: Variant);
     property BodyTypesLandPatternFolder: string
       read GetBodyTypesLandPatternFolder write SetBodyTypesLandPatternFolder;
     property BodyTypesOutlineDrawingFolder: string
@@ -71,11 +73,12 @@ type
       write SetParametricDataFolder;
     property LastFolderForExcelFile: string read GetLastFolderForExcelFile
       write SetLastFolderForExcelFile;
+    property Rate: Double read GetRate write SetRate;
   end;
 
 implementation
 
-uses ProjectConst, System.IOUtils;
+uses ProjectConst, System.IOUtils, System.Variants;
 
 constructor TSettings.Create;
 begin
@@ -157,8 +160,8 @@ begin
   Result := GetValue('Folder', 'ExcelFileLoadFolder', DataBasePath);
 end;
 
-function TSettings.GetValue(const ASection, AParameter: string;
-  const ADefault: string = ''): string;
+function TSettings.GetValue(const ASection, AParameter: string; const ADefault:
+    string = ''): string;
 begin
   Result := IniFile.ReadString(ASection, AParameter, ADefault);
   if Result = ADefault then
@@ -180,6 +183,11 @@ begin
   if TPath.IsRelativePath(Result) then
     Result := ADefValue; // ћен€ем его на значение по умолчанию
 
+end;
+
+function TSettings.GetRate: Double;
+begin
+  Result := StrToFloatDef( GetValue('Rate', 'Rate', FloatToStr(DefaultRate)), DefaultRate);
 end;
 
 class function TSettings.NewInstance: TObject;
@@ -274,35 +282,28 @@ begin
   end;
 end;
 
-procedure TSettings.SetValue(const ASection, AParameter, Value: string);
+procedure TSettings.SetRate(const Value: Double);
+begin
+  SetValue('Rate', 'Rate', Value);
+end;
+
+procedure TSettings.SetValue(const ASection, AParameter: string; const Value:
+    Variant);
 var
-  IniFile: TIniFile;
+  AIniFile: TIniFile;
 begin
   if FFileName.IsEmpty then
     Exit;
 
-  IniFile := TIniFile.Create(FFileName);
+  AIniFile := TIniFile.Create(FFileName);
   try
-    IniFile.WriteString(ASection, AParameter, Value);
+    if VarIsStr(Value) then
+      AIniFile.WriteString(ASection, AParameter, Value);
+    if VarIsFloat(Value) then
+      AIniFile.WriteFloat(ASection, AParameter, Value);
   finally
-    IniFile.Free;
+    AIniFile.Free;
   end;
 end;
-
-// TODO: UpdatePath
-// function TSettings.UpdatePath(const APath, ANewDBPath: string): string;
-// var
-// S: string;
-// begin
-// Result := APath;
-//
-// // ≈сли путь начинаетс€ с пути до базы данных
-// if APath.IndexOf(DataBasePath) = 0 then
-// begin
-// S := TPath.Combine(ANewDBPath, APath.Substring(DatabasePath.Length + 1));
-// if TDirectory.Exists(S) then
-// Result := s;
-// end;
-// end;
 
 end.

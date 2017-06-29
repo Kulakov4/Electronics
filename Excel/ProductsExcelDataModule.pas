@@ -9,13 +9,15 @@ uses
 type
   TProductsExcelTable = class(TCustomExcelTable)
   private
-    function GetDescription: TField;
+    function GetComponentGroup: TField;
     function GetProducer: TField;
     function GetValue: TField;
+  protected
+    procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
       reintroduce;
-    property Description: TField read GetDescription;
+    property ComponentGroup: TField read GetComponentGroup;
     property Producer: TField read GetProducer;
     property Value: TField read GetValue;
   end;
@@ -51,8 +53,7 @@ end;
 
 function TProductsExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
-  Assert(FFieldsInfo <> nil);
-  Result := TProductsExcelTable.Create(Self, FFieldsInfo);
+  Result := TProductsExcelTable.Create(Self, FFieldsInfo)
 end;
 
 function TProductsExcelDM.GetExcelTable: TProductsExcelTable;
@@ -66,13 +67,16 @@ var
   AFieldInfo: TFieldInfo;
 begin
   inherited Create(AOwner);
+
+  if AFieldsInfo = nil then Exit;
+
   for AFieldInfo in AFieldsInfo do
     FieldsInfo.Add(AFieldInfo);
 end;
 
-function TProductsExcelTable.GetDescription: TField;
+function TProductsExcelTable.GetComponentGroup: TField;
 begin
-  Result := FieldByName('Description');
+  Result := FieldByName('ComponentGroup');
 end;
 
 function TProductsExcelTable.GetProducer: TField;
@@ -83,6 +87,32 @@ end;
 function TProductsExcelTable.GetValue: TField;
 begin
   Result := FieldByName('Value');
+end;
+
+procedure TProductsExcelTable.SetFieldsInfo;
+begin
+  if FieldsInfo.Count > 0 then Exit;
+
+  FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', True, 'Группа компонентов не задана', True));
+  FieldsInfo.Add(TFieldInfo.Create('Value', True, 'Наименование не задано'));
+  FieldsInfo.Add(TFieldInfo.Create('Producer', True, 'Производитель не задан'));
+  FieldsInfo.Add(TFieldInfo.Create('PackagePins'));
+  FieldsInfo.Add(TFieldInfo.Create('YYYY'));
+  FieldsInfo.Add(TFieldInfo.Create('MM'));
+  FieldsInfo.Add(TFieldInfo.Create('WW'));
+  FieldsInfo.Add(TFieldInfo.Create('Amount'));
+  FieldsInfo.Add(TFieldInfo.Create('Packaging'));
+  FieldsInfo.Add(TFieldInfo.Create('PriceR'));
+  FieldsInfo.Add(TFieldInfo.Create('PriceD'));
+  FieldsInfo.Add(TFieldInfo.Create('OriginCountryCode'));
+  FieldsInfo.Add(TFieldInfo.Create('OriginCountry'));
+  FieldsInfo.Add(TFieldInfo.Create('BatchNumber'));
+  FieldsInfo.Add(TFieldInfo.Create('CustomsDeclarationNumber'));
+  FieldsInfo.Add(TFieldInfo.Create('Storage'));
+  FieldsInfo.Add(TFieldInfo.Create('StoragePlace'));
+  FieldsInfo.Add(TFieldInfo.Create('Seller'));
+  FieldsInfo.Add(TFieldInfo.Create('DocumentNumber'));
+  FieldsInfo.Add(TFieldInfo.Create('Barcode'));
 end;
 
 end.

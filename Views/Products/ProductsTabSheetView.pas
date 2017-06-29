@@ -24,7 +24,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, ProductsSearchView,
   GridFrame, ProductsBaseView, ProductsView, StoreHouseInfoView, cxPC,
   dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
-  TreeListFrame, ProductsBaseView2;
+  TreeListFrame, ProductsBaseView2, ProductsView2;
 
 type
   TProductsFrame = class(TFrame)
@@ -41,7 +41,7 @@ type
     dxBarSubItem2: TdxBarSubItem;
     actLoadFromExcelDocument: TAction;
     dxBarButton1: TdxBarButton;
-    ViewProductsBase2: TViewProductsBase2;
+    ViewProducts2: TViewProducts2;
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
   private
     { Private declarations }
@@ -67,14 +67,15 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
-  S := TPath.GetFileNameWithoutExtension(AFileName);
+//  Viewpr
+//  S := TPath.GetFileNameWithoutExtension(AFileName);
 
-  m := S.Split([' ']);
-  if Length(m) <= 1 then
-    TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
+//  m := S.Split([' ']);
+//  if Length(m) <= 1 then
+//    TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
 
   // Всё что до пробела - сокращённое название склада
-  S := m[0];
+//  S := m[0];
 
   // Ищем склад с таким сокращением
   // qStoreHouseList := ViewProductsBase2.ProductBaseGroup.qProducts.Master as TQueryStoreHouseList;

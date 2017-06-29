@@ -31,6 +31,8 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '       sp.StoragePlace,'
       '       sp.OriginCountryCode,'
       '       sp.IDCurrency,'
+      '       sp.RATE1,'
+      '       sp.RATE2,'
       '       p.PackagePins,'
       '       p.Datasheet,'
       '       p.Diagram,'

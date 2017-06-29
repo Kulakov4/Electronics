@@ -29,7 +29,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   cxDBLookupComboBox, cxLabel, SearchParameterValues, GridSort,
-  ProductBaseGroupUnit;
+  ProductBaseGroupUnit, TreeListFrame, ProductsBaseView2, ProductsView2;
 
 type
   TViewProductsBase = class(TfrmGrid)
@@ -72,6 +72,7 @@ type
     clSeller2: TcxGridDBBandedColumn;
     clProductID2: TcxGridDBBandedColumn;
     clComponentGroup: TcxGridDBBandedColumn;
+    ViewProducts2: TViewProducts2;
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);

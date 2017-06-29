@@ -561,7 +561,7 @@ end;
 
 procedure TfrmMain.cxpcLeftChange(Sender: TObject);
 begin
-  ProductsFrame.ViewProductsBase2.CheckAndSaveChanges;
+  ProductsFrame.ViewProducts2.CheckAndSaveChanges;
   ProductsFrame.ViewProductsSearch.CheckAndSaveChanges;
   ComponentsFrame.ViewComponents.CheckAndSaveChanges;
 end;
@@ -702,7 +702,7 @@ begin
       ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
         DM.ProductGroup.qStoreHouseList;
       // Привязываем текущий склад к данным
-      ProductsFrame.ViewProductsBase2.ProductBaseGroup := DM.ProductGroup;
+      ProductsFrame.ViewProducts2.ProductBaseGroup := DM.ProductGroup;
       // Привязываем поиск по складам к данным
       ProductsFrame.ViewProductsSearch.ProductSearchGroup :=
         DM.ProductSearchGroup;

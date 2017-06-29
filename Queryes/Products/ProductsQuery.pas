@@ -75,7 +75,13 @@ begin
   AExcelTable.CallOnProcessEvent;
   while not AExcelTable.Eof do
   begin
-    // 1) Ищем такого производителя в справочнике производителей
+    // 1) Ищем такую группу компонентов
+    if qSearchComponentGroup.SearchByValue(AExcelTable.ComponentGroup.AsString) = 0 then
+    begin
+      qSearchComponentGroup.Append(AExcelTable.ComponentGroup.AsString);
+    end;
+
+    // 2) Ищем такого производителя в справочнике производителей
     qProducers.LocateOrAppend(AExcelTable.Producer.AsString);
 
     // Добавляем товар на склад
@@ -89,6 +95,7 @@ begin
     end;
     // Дополнительно заполняем
     IDProducer.AsInteger := qProducers.PK.Value;
+    IDComponentGroup.AsInteger := qSearchComponentGroup.PK.Value;
     FDQuery.Post;
 
     AExcelTable.Next;

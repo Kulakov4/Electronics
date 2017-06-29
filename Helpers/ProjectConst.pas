@@ -73,6 +73,7 @@ resourcestring
 const
   DBVersion = 31;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
+  DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
 
 implementation
 

@@ -42,10 +42,14 @@ type
     FRate: Double;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    function GetDatasheet: TField;
     function GetDescriptionID: TField;
+    function GetDiagram: TField;
+    function GetDrawing: TField;
     function GetIDComponentGroup: TField;
     function GetIDCurrency: TField;
     function GetIDProducer: TField;
+    function GetImage: TField;
     function GetIsGroup: TField;
     function GetPrice: TField;
     function GetPriceD: TField;
@@ -61,6 +65,8 @@ type
     function GetqSearchFamilyByID: TQuerySearchFamilyByID;
     function GetqSearchProduct: TQuerySearchProduct;
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
+    function GetRate1: TField;
+    function GetRate2: TField;
     function GetStorehouseId: TField;
     function GetValue: TField;
     procedure SetRate(const Value: Double);
@@ -75,6 +81,8 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function GetExportFileName: string; virtual; abstract;
     function GetProcurementPrice: Variant;
+    procedure OnDatasheetGetText(Sender: TField; var Text: String; DisplayText:
+        Boolean);
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
     property qSearchDaughterComponent: TQuerySearchDaughterComponent
@@ -95,11 +103,16 @@ type
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
+    procedure TunePriceFields(const AFields: Array of TField);
+    property Datasheet: TField read GetDatasheet;
     property DescriptionID: TField read GetDescriptionID;
+    property Diagram: TField read GetDiagram;
+    property Drawing: TField read GetDrawing;
     property ExportFileName: string read GetExportFileName;
     property IDComponentGroup: TField read GetIDComponentGroup;
     property IDCurrency: TField read GetIDCurrency;
     property IDProducer: TField read GetIDProducer;
+    property Image: TField read GetImage;
     property IsGroup: TField read GetIsGroup;
     property Price: TField read GetPrice;
     property PriceD: TField read GetPriceD;
@@ -111,6 +124,8 @@ type
     property ProductID: TField read GetProductID;
     property qProducers: TQueryProducers read GetqProducers;
     property Rate: Double read FRate write SetRate;
+    property Rate1: TField read GetRate1;
+    property Rate2: TField read GetRate2;
     property StorehouseId: TField read GetStorehouseId;
     property Value: TField read GetValue;
     property OnLocate: TNotifyEventsEx read FOnLocate;
@@ -148,8 +163,8 @@ begin
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
-  // Текущий курс доллара по отношению к рублю
-  FRate := 61.5;
+  // Текущий курс доллара по отношению к рублю загружаем из хранилища настроек
+  FRate := TSettings.Create.Rate;
 
   // По умолчанию мы не в режиме автоматических транзакций
   // AutoTransaction := False;
@@ -504,6 +519,10 @@ procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsRequired(False);
   SetFieldsReadOnly(False);
+  Datasheet.OnGetText := OnDatasheetGetText;
+  Diagram.OnGetText := OnDatasheetGetText;
+  Drawing.OnGetText := OnDatasheetGetText;
+  Image.OnGetText := OnDatasheetGetText;
 end;
 
 procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
@@ -526,12 +545,7 @@ begin;
   FDQuery.FieldDefs.Add('PriceD2', ftFloat);
 
   CreateDefaultFields(False);
-  PriceD.FieldKind := fkInternalCalc;
-  PriceR.FieldKind := fkInternalCalc;
-  PriceD1.FieldKind := fkInternalCalc;
-  PriceR1.FieldKind := fkInternalCalc;
-  PriceD2.FieldKind := fkInternalCalc;
-  PriceR2.FieldKind := fkInternalCalc;
+  TunePriceFields([PriceD, PriceR, PriceD1, PriceR1, PriceD2, PriceR2]);
 end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
@@ -551,11 +565,33 @@ begin
     PriceD.Value := Price.Value;
   end;
 
+  // Розничная цена
+  PriceR1.Value := PriceR.Value * Rate1.Value;
+  PriceD1.Value := PriceD.Value * Rate1.Value;
+
+  // Оптовая цена
+  PriceR2.Value := PriceR.Value * Rate2.Value;
+  PriceD2.Value := PriceD.Value * Rate2.Value;
+end;
+
+function TQueryProductsBase.GetDatasheet: TField;
+begin
+  Result := Field('Datasheet');
 end;
 
 function TQueryProductsBase.GetDescriptionID: TField;
 begin
   Result := Field('DescriptionID');
+end;
+
+function TQueryProductsBase.GetDiagram: TField;
+begin
+  Result := Field('Diagram');
+end;
+
+function TQueryProductsBase.GetDrawing: TField;
+begin
+  Result := Field('Drawing');
 end;
 
 function TQueryProductsBase.GetIDComponentGroup: TField;
@@ -571,6 +607,11 @@ end;
 function TQueryProductsBase.GetIDProducer: TField;
 begin
   Result := Field('IDProducer');
+end;
+
+function TQueryProductsBase.GetImage: TField;
+begin
+  Result := Field('Image');
 end;
 
 function TQueryProductsBase.GetIsGroup: TField;
@@ -681,6 +722,16 @@ begin
   Result := FqSearchStorehouseProduct;
 end;
 
+function TQueryProductsBase.GetRate1: TField;
+begin
+  Result := Field('Rate1');
+end;
+
+function TQueryProductsBase.GetRate2: TField;
+begin
+  Result := Field('Rate2');
+end;
+
 function TQueryProductsBase.GetStorehouseId: TField;
 begin
   Result := Field('StorehouseId');
@@ -752,10 +803,33 @@ begin
   end;
 end;
 
+procedure TQueryProductsBase.OnDatasheetGetText(Sender: TField; var Text:
+    String; DisplayText: Boolean);
+begin
+  if not Sender.AsString.IsEmpty then
+    Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
+end;
+
 procedure TQueryProductsBase.SetRate(const Value: Double);
 begin
   if FRate <> Value then
+  begin
     FRate := Value;
+    TSettings.Create.Rate := FRate;
+  end;
+end;
+
+procedure TQueryProductsBase.TunePriceFields(const AFields: Array of TField);
+var
+  I: Integer;
+begin
+  Assert( High( AFields) > 0 );
+
+  for I := Low(AFields) to High(AFields) do
+  begin
+    AFields[i].FieldKind := fkInternalCalc;
+    (AFields[i] as TNumericField).DisplayFormat := '### ##0.00';
+  end;
 end;
 
 // TODO: SplitComponentName
