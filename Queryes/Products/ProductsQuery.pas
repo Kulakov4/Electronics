@@ -28,6 +28,7 @@ type
     function GetTotalCount: Integer;
     { Private declarations }
   protected
+    procedure DoBeforePost(Sender: TObject);
     function GetExportFileName: string; override;
     property QueryStoreHouseProductsCount: TQueryStoreHouseProductsCount
       read GetQueryStoreHouseProductsCount;
@@ -64,22 +65,32 @@ begin
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
 end;
 
 procedure TQueryProducts.AppendList(AExcelTable: TProductsExcelTable);
 var
   AExcelField: TField;
   AField: TField;
+  AIDComponentGroup: Integer;
+  V: Variant;
 begin
   AExcelTable.First;
   AExcelTable.CallOnProcessEvent;
   while not AExcelTable.Eof do
   begin
-    // 1) Ищем такую группу компонентов
-    if qSearchComponentGroup.SearchByValue(AExcelTable.ComponentGroup.AsString) = 0 then
+    // 1) Ищем такую группу компонентов на текущем складе
+    V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
+    if VarIsNull(V)  then
     begin
-      qSearchComponentGroup.Append(AExcelTable.ComponentGroup.AsString);
-    end;
+      FDQuery.Append;
+      IsGroup.AsInteger := 1; // Будем добавлять группу
+      Value.AsString := AExcelTable.ComponentGroup.AsString;
+      FDQuery.Post;
+      AIDComponentGroup := PK.Value;
+    end
+    else
+      AIDComponentGroup := V;
 
     // 2) Ищем такого производителя в справочнике производителей
     qProducers.LocateOrAppend(AExcelTable.Producer.AsString);
@@ -95,7 +106,25 @@ begin
     end;
     // Дополнительно заполняем
     IDProducer.AsInteger := qProducers.PK.Value;
-    IDComponentGroup.AsInteger := qSearchComponentGroup.PK.Value;
+    IDComponentGroup.AsInteger := AIDComponentGroup;
+    IsGroup.AsInteger := 0;
+
+    // Если цена задана в рублях
+    if not AExcelTable.PriceR.IsNull then
+    begin
+      // Тип валюты - рубли
+      IDCurrency.AsInteger := 1;
+      Price.Value := AExcelTable.PriceR.Value;
+    end;
+
+    // Если цена задана в долларах
+    if not AExcelTable.PriceD.IsNull then
+    begin
+      // Тип валюты - доллар
+      IDCurrency.AsInteger := 2;
+      Price.Value := AExcelTable.PriceD.Value;
+    end;
+
     FDQuery.Post;
 
     AExcelTable.Next;
@@ -146,6 +175,39 @@ begin;
   FDQuery.FieldDefs.Add('PriceD', ftFloat);
   CreateDefaultFields(False);
   Field('PriceR').FieldKind := fkCalculated;
+end;
+
+procedure TQueryProducts.DoBeforePost(Sender: TObject);
+begin
+  // Если не происходит вставка новой записи
+  if not (FDQuery.State in [dsInsert]) then
+    Exit;
+
+  Assert(not IsGroup.IsNull);
+
+  // Это группа, цену заполнять не надо
+  if IsGroup.AsInteger = 1 then
+    Exit;
+
+  if PriceR.IsNull and PriceD.IsNull then
+    raise Exception.Create('Не задана закупочная цена');
+
+  if (not PriceR.IsNull) and (not PriceD.IsNull) then
+    raise Exception.Create('Закупочная цена должна быть задана один раз');
+
+  // Если заполнена закупочная цена в рублях
+  if not PriceR.IsNull then
+  begin
+    Price.Value := PriceR.Value;
+    IDCurrency.AsInteger := 1;
+  end;
+
+  // Если заполнена закупочная цена в долларах
+  if not PriceD.IsNull then
+  begin
+    Price.Value := PriceD.Value;
+    IDCurrency.AsInteger := 2;
+  end;
 end;
 
 function TQueryProducts.GetExportFileName: string;

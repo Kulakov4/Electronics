@@ -43,11 +43,13 @@ object ProductsFrame: TProductsFrame
         Height = 579
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -102
-        ExplicitTop = -19
+        ExplicitWidth = 990
+        ExplicitHeight = 579
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
           Height = 525
+          ExplicitWidth = 990
+          ExplicitHeight = 525
           inherited clDatasheet: TcxDBTreeListColumn
             Properties.Buttons = <
               item
@@ -183,8 +185,6 @@ object ProductsFrame: TProductsFrame
         inherited ViewProducts2: TViewProducts2
           Width = 990
           Height = 532
-          ExplicitLeft = 0
-          ExplicitTop = 28
           ExplicitWidth = 990
           ExplicitHeight = 532
           inherited cxDBTreeList: TcxDBTreeList

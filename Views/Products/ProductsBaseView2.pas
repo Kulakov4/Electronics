@@ -94,8 +94,8 @@ type
     procedure actOpenImageExecute(Sender: TObject);
     procedure actOpenInParametricTableExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn; ANode:
-        TcxTreeListNode; var Value: string);
+    procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn;
+      ANode: TcxTreeListNode; var Value: string);
     procedure cxbeiRateChange(Sender: TObject);
     procedure cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var IsGroup: Boolean);
@@ -114,8 +114,9 @@ type
   protected
     procedure BindRate(ARateField: TField; AdxBarCombo: TdxBarCombo);
     procedure DoAfterScroll(Sender: TObject);
-    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo; const AErrorMessage,
-        AEmptyErrorMessage: string);
+    procedure InitializeColumns;
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
+      const AErrorMessage, AEmptyErrorMessage: string);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
     procedure UpdateRate(const ARate: Double; RateField: TField);
@@ -135,7 +136,8 @@ implementation
 {$R *.dfm}
 
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
-  SettingsController, Winapi.Shellapi;
+  SettingsController, Winapi.Shellapi, System.Generics.Collections,
+  System.StrUtils;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
 begin
@@ -143,6 +145,7 @@ begin
   // Список полей при редактировании которых Enter - сохранение
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
+  InitializeColumns;
 end;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
@@ -191,24 +194,45 @@ end;
 
 procedure TViewProductsBase2.actDeleteExecute(Sender: TObject);
 var
+  AID: Integer;
+  AIDS: TList<Integer>;
+  i: Integer;
   S: string;
 begin
   inherited;
-  if cxDBTreeList.FocusedNode = nil then
+  if cxDBTreeList.SelectionCount = 0 then
     Exit;
 
-  if cxDBTreeList.FocusedNode.IsGroupNode then
+  if cxDBTreeList.Selections[0].IsGroupNode then
     S := 'Удалить группу компонентов с текущего склада?'
   else
-    S := 'Удалить компонент?';
+    S := Format('Удалить %s?', [IfThen(cxDBTreeList.SelectionCount = 1, 'компонент', 'компоненты')]);
 
   if not(TDialog.Create.DeleteRecordsDialog(S)) then
     Exit;
 
-  ProductBaseGroup.qProductsBase.DeleteNode(cxDBTreeList.FocusedNode.Values
-    [clID.ItemIndex]);
-  // Это почему-то не работает
-  // cxDBTreeList.DataController.DeleteFocused;
+  AIDS := TList<Integer>.Create;
+  try
+    // Заполняем список идентификаторов узлов, которые будем удалять
+    for i := 0 to cxDBTreeList.SelectionCount - 1 do
+    begin
+      AIDS.Add(cxDBTreeList.Selections[i].Values[clID.ItemIndex]);
+    end;
+
+    cxDBTreeList.BeginUpdate;
+    try
+      for AID in AIDS do
+        ProductBaseGroup.qProductsBase.DeleteNode(AID);
+      // Это почему-то не работает
+      // cxDBTreeList.DataController.DeleteFocused;
+    finally
+      cxDBTreeList.EndUpdate;
+    end;
+
+  finally
+    FreeAndNil(AIDS);
+  end;
+
 end;
 
 procedure TViewProductsBase2.actExportToExcelDocumentExecute(Sender: TObject);
@@ -318,8 +342,8 @@ begin
   UpdateView;
 end;
 
-procedure TViewProductsBase2.BindRate(ARateField: TField; AdxBarCombo:
-    TdxBarCombo);
+procedure TViewProductsBase2.BindRate(ARateField: TField;
+  AdxBarCombo: TdxBarCombo);
 var
   r: Double;
 begin
@@ -356,8 +380,8 @@ begin
   end;
 end;
 
-procedure TViewProductsBase2.clDatasheetGetDisplayText(Sender:
-    TcxTreeListColumn; ANode: TcxTreeListNode; var Value: string);
+procedure TViewProductsBase2.clDatasheetGetDisplayText
+  (Sender: TcxTreeListColumn; ANode: TcxTreeListNode; var Value: string);
 begin
   inherited;
   if not Value.IsEmpty then
@@ -400,7 +424,8 @@ end;
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
 begin
   UpdateView;
-
+  cxDBTreeList.FullCollapse;
+  // cxDBTreeList.ApplyBestFit;
 end;
 
 procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
@@ -488,8 +513,18 @@ begin
   Result := not VarIsNull(V) and (V = 1);
 end;
 
-procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo; const
-    AErrorMessage, AEmptyErrorMessage: string);
+procedure TViewProductsBase2.InitializeColumns;
+var
+  i: Integer;
+begin
+  for i := 0 to cxDBTreeList.ColumnCount - 1 do
+  begin
+    cxDBTreeList.Columns[i].MinWidth := 100;
+  end;
+end;
+
+procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;
+  const AErrorMessage, AEmptyErrorMessage: string);
 var
   AFileName: string;
 begin
@@ -574,7 +609,8 @@ begin
       ANode := cxDBTreeList.Selections[i] as TcxDBTreeListNode;
       if ANode.IsGroupNode then
         Continue;
-      OK := FProductBaseGroup.qProductsBase.LocateByPK(ANode.Values[clID.ItemIndex]);
+      OK := FProductBaseGroup.qProductsBase.LocateByPK
+        (ANode.Values[clID.ItemIndex]);
       Assert(OK);
       FProductBaseGroup.qProductsBase.TryEdit;
       RateField.Value := ARate;
@@ -587,23 +623,23 @@ end;
 
 procedure TViewProductsBase2.UpdateView;
 var
-  Ok: Boolean;
+  OK: Boolean;
 begin
   inherited;
-  Ok := (ProductBaseGroup <> nil) and
+  OK := (ProductBaseGroup <> nil) and
     (ProductBaseGroup.qProductsBase.FDQuery.Active);
-  actCommit.Enabled := Ok and ProductBaseGroup.qProductsBase.HaveAnyChanges;
+  actCommit.Enabled := OK and ProductBaseGroup.qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
-  actExportToExcelDocument.Enabled := Ok and
+  actExportToExcelDocument.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
-  actOpenInParametricTable.Enabled := Ok and
+  actOpenInParametricTable.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
-  actAddCategory.Enabled := Ok;
+  actAddCategory.Enabled := OK;
 
-  actAddComponent.Enabled := Ok and (cxDBTreeList.FocusedNode <> nil);
+  actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil);
 
-  actDelete.Enabled := Ok and (cxDBTreeList.FocusedNode <> nil) and
+  actDelete.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
   cxbeiRate.EditValue := ProductBaseGroup.qProductsBase.Rate;

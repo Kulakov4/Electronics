@@ -10,6 +10,8 @@ type
   TProductsExcelTable = class(TCustomExcelTable)
   private
     function GetComponentGroup: TField;
+    function GetPriceR: TField;
+    function GetPriceD: TField;
     function GetProducer: TField;
     function GetValue: TField;
   protected
@@ -17,7 +19,10 @@ type
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
       reintroduce;
+    function CheckRecord: Boolean; override;
     property ComponentGroup: TField read GetComponentGroup;
+    property PriceR: TField read GetPriceR;
+    property PriceD: TField read GetPriceD;
     property Producer: TField read GetProducer;
     property Value: TField read GetValue;
   end;
@@ -68,15 +73,51 @@ var
 begin
   inherited Create(AOwner);
 
-  if AFieldsInfo = nil then Exit;
+  if AFieldsInfo = nil then
+    Exit;
 
   for AFieldInfo in AFieldsInfo do
     FieldsInfo.Add(AFieldInfo);
 end;
 
+function TProductsExcelTable.CheckRecord: Boolean;
+begin
+  Result := inherited;
+
+  if not Result then
+    Exit;
+
+  if (not PriceR.IsNull) and (StrToFloatDef(PriceR.AsString, -1) = -1) then
+    // Сигнализируем о неверном значении цены
+    Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
+      'Цена в рублях указана в неверном формате');
+
+  if (not PriceD.IsNull) and (StrToFloatDef(PriceD.AsString, -1) = -1) then
+    // Сигнализируем о неверном значении цены
+    Errors.AddError(ExcelRow.AsInteger, PriceD.Index + 1, 'Денежное значение',
+      'Цена в долларах указана в неверном формате');
+
+  if PriceR.IsNull and PriceD.IsNull then
+  begin
+    // Сигнализируем что цена не задана
+    Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
+      'Цена не указана');
+  end;
+end;
+
 function TProductsExcelTable.GetComponentGroup: TField;
 begin
   Result := FieldByName('ComponentGroup');
+end;
+
+function TProductsExcelTable.GetPriceR: TField;
+begin
+  Result := FieldByName('PriceR');
+end;
+
+function TProductsExcelTable.GetPriceD: TField;
+begin
+  Result := FieldByName('PriceD');
 end;
 
 function TProductsExcelTable.GetProducer: TField;
@@ -91,9 +132,11 @@ end;
 
 procedure TProductsExcelTable.SetFieldsInfo;
 begin
-  if FieldsInfo.Count > 0 then Exit;
+  if FieldsInfo.Count > 0 then
+    Exit;
 
-  FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', True, 'Группа компонентов не задана', True));
+  FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', True,
+    'Группа компонентов не задана', True));
   FieldsInfo.Add(TFieldInfo.Create('Value', True, 'Наименование не задано'));
   FieldsInfo.Add(TFieldInfo.Create('Producer', True, 'Производитель не задан'));
   FieldsInfo.Add(TFieldInfo.Create('PackagePins'));

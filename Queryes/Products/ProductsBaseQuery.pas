@@ -79,10 +79,12 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure DoBeforePost(Sender: TObject);
     function GetExportFileName: string; virtual; abstract;
     function GetProcurementPrice: Variant;
-    procedure OnDatasheetGetText(Sender: TField; var Text: String; DisplayText:
-        Boolean);
+    function LookupComponentGroup(const AComponentGroup: string): Variant;
+    procedure OnDatasheetGetText(Sender: TField; var Text: String;
+      DisplayText: Boolean);
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
     property qSearchDaughterComponent: TQuerySearchDaughterComponent
@@ -248,7 +250,7 @@ procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-  AFieldHolder: TFieldHolder;
+//  AFieldHolder: TFieldHolder;
   ARH: TRecordHolder;
   ARH2: TRecordHolder;
   ARHFamily: TRecordHolder;
@@ -259,6 +261,8 @@ begin
 
   if Value.AsString.Trim.IsEmpty then
     raise Exception.Create('Необходимо задать наименование');
+
+  Assert(not IsGroup.IsNull);
 
   // Если надо сохранить только группу
   if IsGroup.AsInteger = 1 then
@@ -428,8 +432,7 @@ begin
       begin
         ARH.Field[Price.FieldName] := V;
 
-        FetchFields([Price.FieldName], [V], ARequest, AAction,
-          AOptions);
+        FetchFields([Price.FieldName], [V], ARequest, AAction, AOptions);
       end;
       // Обновляем информацию о компоненте на складе
       qSearchStorehouseProduct.UpdateRecord(ARH);
@@ -548,17 +551,49 @@ begin;
   TunePriceFields([PriceD, PriceR, PriceD1, PriceR1, PriceD2, PriceR2]);
 end;
 
+procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
+begin
+  // Если не происходит вставка новой записи
+  if not (FDQuery.State in [dsInsert]) then
+    Exit;
+
+  if PriceR.IsNull and PriceD.IsNull then
+    raise Exception.Create('Не задана закупочная цена');
+
+  if (not PriceR.IsNull) and (not PriceD.IsNull) then
+    raise Exception.Create('Закупочная цена должна быть задана один раз');
+
+  // Если заполнена закупочная цена в рублях
+  if not PriceR.IsNull then
+  begin
+    Price.Value := PriceR.Value;
+    IDCurrency.AsInteger := 1;
+  end;
+
+  // Если заполнена закупочная цена в долларах
+  if not PriceD.IsNull then
+  begin
+    Price.Value := PriceD.Value;
+    IDCurrency.AsInteger := 2;
+  end;
+end;
+
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
 begin
   inherited;
+
+  // Exit;
+  if (IDCurrency.AsInteger = 0) or (Price.IsNull) then
+    Exit;
 
   if IDCurrency.AsInteger = 1 then
   begin
     // Если исходная цена была в рублях
     PriceR.Value := Price.Value;
     PriceD.Value := Price.Value / Rate;
-  end
-  else
+  end;
+
+  if IDCurrency.AsInteger = 2 then
   begin
     // Если исходная цена была в долларах
     PriceR.Value := Price.Value * Rate;
@@ -803,8 +838,22 @@ begin
   end;
 end;
 
-procedure TQueryProductsBase.OnDatasheetGetText(Sender: TField; var Text:
-    String; DisplayText: Boolean);
+function TQueryProductsBase.LookupComponentGroup(const AComponentGroup:
+    string): Variant;
+var
+  AKeyFields: string;
+  V: Variant;
+begin
+  AKeyFields := Format('%s;%s', [Value.FieldName, IsGroup.FieldName]);
+
+  V := FDQuery.LookupEx(AKeyFields, VarArrayOf([AComponentGroup, 1]),
+    PKFieldName, [lxoCaseInsensitive]);
+
+  Result := V;
+end;
+
+procedure TQueryProductsBase.OnDatasheetGetText(Sender: TField;
+  var Text: String; DisplayText: Boolean);
 begin
   if not Sender.AsString.IsEmpty then
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
@@ -823,12 +872,12 @@ procedure TQueryProductsBase.TunePriceFields(const AFields: Array of TField);
 var
   I: Integer;
 begin
-  Assert( High( AFields) > 0 );
+  Assert(High(AFields) > 0);
 
   for I := Low(AFields) to High(AFields) do
   begin
-    AFields[i].FieldKind := fkInternalCalc;
-    (AFields[i] as TNumericField).DisplayFormat := '### ##0.00';
+    AFields[I].FieldKind := fkInternalCalc;
+    (AFields[I] as TNumericField).DisplayFormat := '### ##0.00';
   end;
 end;
 

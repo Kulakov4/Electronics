@@ -3,7 +3,8 @@ unit ProductsView2;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ProductsBaseView2, cxGraphics,
   cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles,
   cxTL, cxMaskEdit, cxDBLookupComboBox, cxButtonEdit, cxTLdxBarBuiltInMenu,
@@ -42,7 +43,8 @@ type
     { Private declarations }
   public
     procedure LoadFromExcelDocument(const AFileName: String);
-    property ProductGroup: TProductGroup read GetProductGroup write SetProductGroup;
+    property ProductGroup: TProductGroup read GetProductGroup
+      write SetProductGroup;
     { Public declarations }
   end;
 
@@ -54,19 +56,20 @@ uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable;
 
 function TViewProducts2.GetProductGroup: TProductGroup;
 begin
-  Result :=  ProductBaseGroup as TProductGroup;
+  Result := ProductBaseGroup as TProductGroup;
 end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
 var
-  AFieldsInfo: TList<TFieldInfo>;
+  // AFieldsInfo: TList<TFieldInfo>;
   AfrmError: TfrmError;
   AProductsExcelDM: TProductsExcelDM;
   OK: Boolean;
 begin
   Assert(not AFileName.IsEmpty);
 
-  AFieldsInfo := TList<TFieldInfo>.Create();
+  // AFieldsInfo := TList<TFieldInfo>.Create();
+  cxDBTreeList.BeginUpdate;
   try
 
     AProductsExcelDM := TProductsExcelDM.Create(Self);
@@ -106,7 +109,9 @@ begin
       FreeAndNil(AProductsExcelDM);
     end;
   finally
-    FreeAndNil(AFieldsInfo);
+    cxDBTreeList.FullCollapse;
+    cxDBTreeList.EndUpdate;
+    // FreeAndNil(AFieldsInfo);
   end;
 
 end;

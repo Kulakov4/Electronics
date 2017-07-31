@@ -67,7 +67,7 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
-//  Viewpr
+  ViewProducts2.LoadFromExcelDocument(AFileName);
 //  S := TPath.GetFileNameWithoutExtension(AFileName);
 
 //  m := S.Split([' ']);

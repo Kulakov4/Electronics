@@ -95,6 +95,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       end>
     DataController.ParentField = 'IDComponentGroup'
     DataController.KeyField = 'ID'
+    OptionsSelection.MultiSelect = True
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
     OptionsView.PaintStyle = tlpsCategorized
@@ -159,6 +160,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Caption.AlignHorz = taCenter
       Caption.Text = ' '
       DataBinding.FieldName = 'Description'
+      Width = 100
       Position.ColIndex = 0
       Position.RowIndex = 0
       Position.BandIndex = 2
