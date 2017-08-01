@@ -106,6 +106,7 @@ type
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
     procedure TunePriceFields(const AFields: Array of TField);
+    procedure UpdateRate(AID: Integer; RateField: TField; ARate: Double);
     property Datasheet: TField read GetDatasheet;
     property DescriptionID: TField read GetDescriptionID;
     property Diagram: TField read GetDiagram;
@@ -250,7 +251,7 @@ procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-//  AFieldHolder: TFieldHolder;
+  // AFieldHolder: TFieldHolder;
   ARH: TRecordHolder;
   ARH2: TRecordHolder;
   ARHFamily: TRecordHolder;
@@ -554,7 +555,7 @@ end;
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
 begin
   // ≈сли не происходит вставка новой записи
-  if not (FDQuery.State in [dsInsert]) then
+  if not(FDQuery.State in [dsInsert]) then
     Exit;
 
   if PriceR.IsNull and PriceD.IsNull then
@@ -838,8 +839,8 @@ begin
   end;
 end;
 
-function TQueryProductsBase.LookupComponentGroup(const AComponentGroup:
-    string): Variant;
+function TQueryProductsBase.LookupComponentGroup(const AComponentGroup
+  : string): Variant;
 var
   AKeyFields: string;
   V: Variant;
@@ -879,6 +880,20 @@ begin
     AFields[I].FieldKind := fkInternalCalc;
     (AFields[I] as TNumericField).DisplayFormat := '### ##0.00';
   end;
+end;
+
+procedure TQueryProductsBase.UpdateRate(AID: Integer; RateField: TField; ARate:
+    Double);
+var
+  OK: Boolean;
+begin
+  Assert(AID <> 0);
+
+  OK := LocateByPK(AID);
+  Assert(OK);
+  TryEdit;
+  RateField.Value := ARate;
+  TryPost;
 end;
 
 // TODO: SplitComponentName

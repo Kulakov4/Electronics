@@ -206,7 +206,8 @@ begin
   if cxDBTreeList.Selections[0].IsGroupNode then
     S := 'Удалить группу компонентов с текущего склада?'
   else
-    S := Format('Удалить %s?', [IfThen(cxDBTreeList.SelectionCount = 1, 'компонент', 'компоненты')]);
+    S := Format('Удалить %s?', [IfThen(cxDBTreeList.SelectionCount = 1,
+      'компонент', 'компоненты')]);
 
   if not(TDialog.Create.DeleteRecordsDialog(S)) then
     Exit;
@@ -600,7 +601,6 @@ procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
 var
   ANode: TcxDBTreeListNode;
   i: Integer;
-  OK: Boolean;
 begin
   FProductBaseGroup.qProductsBase.FDQuery.DisableControls;
   try
@@ -609,12 +609,9 @@ begin
       ANode := cxDBTreeList.Selections[i] as TcxDBTreeListNode;
       if ANode.IsGroupNode then
         Continue;
-      OK := FProductBaseGroup.qProductsBase.LocateByPK
-        (ANode.Values[clID.ItemIndex]);
-      Assert(OK);
-      FProductBaseGroup.qProductsBase.TryEdit;
-      RateField.Value := ARate;
-      FProductBaseGroup.qProductsBase.TryPost;
+
+      FProductBaseGroup.qProductsBase.UpdateRate(ANode.Values[clID.ItemIndex],
+        RateField, ARate);
     end;
   finally
     FProductBaseGroup.qProductsBase.FDQuery.EnableControls;

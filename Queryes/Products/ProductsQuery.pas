@@ -189,6 +189,10 @@ begin
   if IsGroup.AsInteger = 1 then
     Exit;
 
+  // Если тип валюты задан - ничего не предпринимаем
+  if not IDCurrency.IsNull then
+    Exit;
+
   if PriceR.IsNull and PriceD.IsNull then
     raise Exception.Create('Не задана закупочная цена');
 

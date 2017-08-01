@@ -88,18 +88,25 @@ begin
     Exit;
 
   if (not PriceR.IsNull) and (StrToFloatDef(PriceR.AsString, -1) = -1) then
+  begin
     // Сигнализируем о неверном значении цены
+    MarkAsError(etError);
     Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
       'Цена в рублях указана в неверном формате');
+  end;
 
   if (not PriceD.IsNull) and (StrToFloatDef(PriceD.AsString, -1) = -1) then
+  begin
     // Сигнализируем о неверном значении цены
+    MarkAsError(etError);
     Errors.AddError(ExcelRow.AsInteger, PriceD.Index + 1, 'Денежное значение',
       'Цена в долларах указана в неверном формате');
+  end;
 
   if PriceR.IsNull and PriceD.IsNull then
   begin
     // Сигнализируем что цена не задана
+    MarkAsError(etError);
     Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
       'Цена не указана');
   end;
