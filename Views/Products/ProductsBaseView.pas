@@ -72,7 +72,6 @@ type
     clSeller2: TcxGridDBBandedColumn;
     clProductID2: TcxGridDBBandedColumn;
     clComponentGroup: TcxGridDBBandedColumn;
-    ViewProducts2: TViewProducts2;
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);

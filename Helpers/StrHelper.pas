@@ -39,7 +39,10 @@ begin
   i := S.IndexOf(AMark);
   Assert(i > 0);
   j := S.IndexOf(AEndChar, i);
-  Assert(j > 0);
+
+  // если конечного символа не нашли, то меняем до конца строки
+  if j < 0 then
+    j := S.Length;
 
   Result := S.Substring(0, i) + ANewValue + S.Substring(j);
 end;

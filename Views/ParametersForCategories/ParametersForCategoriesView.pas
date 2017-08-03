@@ -69,7 +69,7 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents;
+uses NotifyEvents, FireDAC.Stan.Param;
 
 procedure TViewParametersForCategories.clCheckBoxPropertiesChange
   (Sender: TObject);

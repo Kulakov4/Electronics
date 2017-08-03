@@ -19,7 +19,8 @@ type
     FAfterDataChange: TNotifyEventsEx;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    procedure DropUnuses;
+// TODO: DropUnuses
+//  procedure DropUnuses;
     function GetCnt: TField;
     function GetName: TField;
     function GetProducerTypeID: TField;
@@ -101,11 +102,12 @@ begin
     TParameterValues.ProducerParameterID;
 end;
 
-procedure TQueryProducers.DropUnuses;
-begin
-  // fdqDropUnused.ExecSQL;
-  // RefreshQuery;
-end;
+// TODO: DropUnuses
+//procedure TQueryProducers.DropUnuses;
+//begin
+//// fdqDropUnused.ExecSQL;
+//// RefreshQuery;
+//end;
 
 procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);

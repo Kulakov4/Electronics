@@ -4,7 +4,7 @@ inherited frmSubgroupListPopup: TfrmSubgroupListPopup
   ExplicitWidth = 411
   ExplicitHeight = 339
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   object cxGrid1: TcxGrid
     Left = 0
     Top = 28
@@ -17,8 +17,8 @@ inherited frmSubgroupListPopup: TfrmSubgroupListPopup
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
-      OptionsBehavior.ImmediateEditor = False
       OptionsBehavior.IncSearch = True
+      OptionsBehavior.ImmediateEditor = False
       OptionsView.ColumnAutoWidth = True
       OptionsView.GroupByBox = False
       object cxGrid1DBTableView1Id: TcxGridDBColumn

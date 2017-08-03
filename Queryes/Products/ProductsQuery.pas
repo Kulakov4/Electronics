@@ -20,7 +20,6 @@ type
     FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
-    procedure DoBeforeOpen(Sender: TObject);
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
     function GetQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
@@ -166,15 +165,6 @@ procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   // FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
-end;
-
-procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
-begin;
-  FDQuery.FieldDefs.Update;
-  FDQuery.FieldDefs.Add('PriceR', ftFloat);
-  FDQuery.FieldDefs.Add('PriceD', ftFloat);
-  CreateDefaultFields(False);
-  Field('PriceR').FieldKind := fkCalculated;
 end;
 
 procedure TQueryProducts.DoBeforePost(Sender: TObject);

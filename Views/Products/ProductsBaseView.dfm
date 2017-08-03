@@ -372,83 +372,14 @@ inherited ViewProductsBase: TViewProductsBase
       end
     end
   end
-  inline ViewProducts2: TViewProducts2 [2]
-    Left = 0
-    Top = 28
-    Width = 893
-    Height = 444
-    Align = alClient
-    TabOrder = 6
-    ExplicitLeft = -199
-    ExplicitTop = -107
-    inherited cxDBTreeList: TcxDBTreeList
-      Width = 893
-      Height = 390
-      inherited clDatasheet: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenDatasheet
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadDatasheet
-            Kind = bkEllipsis
-          end>
-      end
-      inherited clDiagram: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenDiagram
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadDiagram
-            Kind = bkEllipsis
-          end>
-      end
-      inherited clDrawing: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenDrawing
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadDrawing
-            Kind = bkEllipsis
-          end>
-      end
-      inherited clImage: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenImage
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadImage
-            Kind = bkEllipsis
-          end>
-      end
-    end
-    inherited dxBarManager: TdxBarManager
-      DockControlHeights = (
-        0
-        0
-        54
-        0)
-    end
-  end
-  inherited dxBarManager: TdxBarManager [3]
+  inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0
       0
       28
       0)
   end
-  inherited ActionList: TActionList [4]
+  inherited ActionList: TActionList
     object actOpenDatasheet: TAction
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
@@ -513,8 +444,6 @@ inherited ViewProductsBase: TViewProductsBase
       ImageIndex = 6
       OnExecute = actExportToExcelDocumentExecute
     end
-  end
-  inherited pmGrid: TPopupMenu [5]
   end
   inherited cxGridPopupMenu: TcxGridPopupMenu
     PopupMenus = <

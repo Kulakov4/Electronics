@@ -61,6 +61,8 @@ type
 
 implementation
 
+uses FireDAC.Stan.Param;
+
 {$R *.dfm}
 { TfrmComponentsMasterDetail }
 

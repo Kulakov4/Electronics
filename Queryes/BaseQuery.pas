@@ -437,7 +437,7 @@ procedure TQueryBase.FetchFields(const AFieldNames: Array of String;
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   ASQL: string;
-  f: Double;
+//  f: Double;
   i: Integer;
   S: string;
   V: Variant;

@@ -9,7 +9,8 @@ uses
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, Data.DB, FireDAC.Comp.Client, Vcl.ImgList,
-  Vcl.Controls, cxGraphics, cxStyles, System.ImageList, NotifyEvents;
+  Vcl.Controls, cxGraphics, cxStyles, System.ImageList, NotifyEvents,
+  FireDAC.VCLUI.Wait;
 
 type
   TDMRepository = class(TDataModule)

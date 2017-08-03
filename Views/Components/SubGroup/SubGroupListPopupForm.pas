@@ -98,7 +98,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, NotifyEvents, DialogUnit;
+uses RepositoryDataModule, NotifyEvents, DialogUnit, FireDAC.Stan.Param;
 
 constructor TfrmSubgroupListPopup.Create(AOwner: TComponent);
 begin

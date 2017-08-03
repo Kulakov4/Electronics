@@ -59,9 +59,9 @@ uses RepositoryDataModule, DialogUnit2, System.IOUtils, DialogUnit,
 procedure TProductsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
-  m: TArray<String>;
-  qStoreHouseList: TQueryStoreHouseList;
-  S: string;
+//  m: TArray<String>;
+//  qStoreHouseList: TQueryStoreHouseList;
+//  S: string;
 begin
   // Открываем диалог выбора excel файла из последнего места
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then

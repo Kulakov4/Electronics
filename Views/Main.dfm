@@ -50,10 +50,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -571,15 +567,13 @@ object frmMain: TfrmMain
             inherited ViewProducts2: TViewProducts2
               Width = 918
               Height = 474
-              ExplicitLeft = 0
-              ExplicitTop = 0
               ExplicitWidth = 918
               ExplicitHeight = 474
               inherited cxDBTreeList: TcxDBTreeList
                 Width = 918
                 Height = 420
-                ExplicitWidth = 990
-                ExplicitHeight = 525
+                ExplicitWidth = 918
+                ExplicitHeight = 420
                 inherited clDatasheet: TcxDBTreeListColumn
                   Properties.Buttons = <
                     item
@@ -640,7 +634,11 @@ object frmMain: TfrmMain
           end
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch: TViewProductsSearch
+              Width = 918
+              Height = 474
               inherited cxGrid: TcxGrid
+                Width = 918
+                Height = 427
                 inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
                   inherited clDatasheet2: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -692,64 +690,9 @@ object frmMain: TfrmMain
                   end
                 end
               end
-              inherited ViewProducts2: TViewProducts2
-                inherited cxDBTreeList: TcxDBTreeList
-                  inherited clDatasheet: TcxDBTreeListColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actOpenDatasheet
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actLoadDatasheet
-                        Kind = bkEllipsis
-                      end>
-                  end
-                  inherited clDiagram: TcxDBTreeListColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actOpenDiagram
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actLoadDiagram
-                        Kind = bkEllipsis
-                      end>
-                  end
-                  inherited clDrawing: TcxDBTreeListColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actOpenDrawing
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actLoadDrawing
-                        Kind = bkEllipsis
-                      end>
-                  end
-                  inherited clImage: TcxDBTreeListColumn
-                    Properties.Buttons = <
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actOpenImage
-                        Default = True
-                        Kind = bkGlyph
-                      end
-                      item
-                        Action = ProductsFrame.ViewProductsSearch.ViewProducts2.actLoadImage
-                        Kind = bkEllipsis
-                      end>
-                  end
-                end
-                inherited dxBarManager: TdxBarManager
-                  DockControlHeights = (
-                    0
-                    0
-                    54
-                    0)
-                end
+              inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
