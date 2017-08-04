@@ -395,30 +395,35 @@ procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
-  try
-    // Если произошло удаление
-    if ARequest = arDelete then
-    begin
-      ApplyDelete(ASender);
-    end;
+  if ARequest in [arDelete, arInsert, arUpdate] then
+  begin
+    try
+      // Если произошло удаление
+      if ARequest = arDelete then
+      begin
+        ApplyDelete(ASender);
+      end;
 
-    // Операция добавления записи на клиенте
-    if ARequest = arInsert then
-    begin
-      ApplyInsert(ASender, ARequest, AAction, AOptions);
-    end;
+      // Операция добавления записи на клиенте
+      if ARequest = arInsert then
+      begin
+        ApplyInsert(ASender, ARequest, AAction, AOptions);
+      end;
 
-    // Операция обновления записи на клиенте
-    if ARequest = arUpdate then
-    begin
-      ApplyUpdate(ASender, ARequest, AAction, AOptions);
-    end;
+      // Операция обновления записи на клиенте
+      if ARequest = arUpdate then
+      begin
+        ApplyUpdate(ASender, ARequest, AAction, AOptions);
+      end;
 
-    AAction := eaApplied;
-  except
-    AAction := eaFail;
-    raise;
-  end;
+      AAction := eaApplied;
+    except
+      AAction := eaFail;
+      raise;
+    end;
+  end
+  else
+    AAction := eaSkip;
 end;
 
 procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
@@ -437,7 +442,7 @@ procedure TQueryBase.FetchFields(const AFieldNames: Array of String;
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   ASQL: string;
-//  f: Double;
+  // f: Double;
   i: Integer;
   S: string;
   V: Variant;

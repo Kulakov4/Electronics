@@ -24,7 +24,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, ProductsSearchView,
   GridFrame, ProductsBaseView, ProductsView, StoreHouseInfoView, cxPC,
   dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
-  TreeListFrame, ProductsBaseView2, ProductsView2;
+  TreeListFrame, ProductsBaseView2, ProductsView2, ProductsSearchView2;
 
 type
   TProductsFrame = class(TFrame)
@@ -33,7 +33,6 @@ type
     ViewStorehouseInfo: TViewStorehouseInfo;
     tsStorehouseProducts: TcxTabSheet;
     tsStorehouseSearch: TcxTabSheet;
-    ViewProductsSearch: TViewProductsSearch;
     dxBarManager: TdxBarManager;
     dxBarManagerBar1: TdxBar;
     ActionList: TActionList;
@@ -42,6 +41,7 @@ type
     actLoadFromExcelDocument: TAction;
     dxBarButton1: TdxBarButton;
     ViewProducts2: TViewProducts2;
+    ViewProductsSearch2: TViewProductsSearch2;
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
   private
     { Private declarations }

@@ -532,7 +532,10 @@ end;
 procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
 begin;
   if FDQuery.FieldDefs.Count > 0 then
-    Exit;
+  begin
+    FDQuery.FieldDefs.Clear;
+    FDQuery.Fields.Clear;
+  end;
 
   FDQuery.FieldDefs.Update;
 

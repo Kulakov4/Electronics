@@ -11,7 +11,7 @@ object ProductsFrame: TProductsFrame
     Height = 607
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = tsStorehouseProducts
+    Properties.ActivePage = tsStorehouseSearch
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 603
     ClientRectLeft = 4
@@ -111,92 +111,73 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseSearch: TcxTabSheet
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 2
-      inline ViewProductsSearch: TViewProductsSearch
+      inline ViewProductsSearch2: TViewProductsSearch2
         Left = 0
         Top = 0
         Width = 990
         Height = 579
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 990
-        ExplicitHeight = 579
-        inherited cxGrid: TcxGrid
+        ExplicitLeft = -102
+        ExplicitTop = -19
+        inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 532
-          ExplicitWidth = 990
-          ExplicitHeight = 532
-          inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
-            inherited clDatasheet2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProductsSearch.actOpenDatasheet
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProductsSearch.actLoadDatasheet
-                  Kind = bkEllipsis
-                end>
-            end
-            inherited clDiagram2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProductsSearch.actOpenDiagram
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProductsSearch.actLoadDiagram
-                  Kind = bkEllipsis
-                end>
-            end
-            inherited clDrawing2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProductsSearch.actOpenDrawing
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProductsSearch.actLoadDrawing
-                  Kind = bkEllipsis
-                end>
-            end
-            inherited clImage2: TcxGridDBBandedColumn
-              Properties.Buttons = <
-                item
-                  Action = ViewProductsSearch.actOpenImage
-                  Default = True
-                  Kind = bkGlyph
-                end
-                item
-                  Action = ViewProductsSearch.actLoadImage
-                  Kind = bkEllipsis
-                end>
-            end
+          Height = 525
+          inherited clDatasheet: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProductsSearch2.actOpenDatasheet
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProductsSearch2.actLoadDatasheet
+                Kind = bkEllipsis
+              end>
           end
-        end
-        inherited StatusBar: TStatusBar
-          Top = 560
-          Width = 990
-          ExplicitTop = 560
-          ExplicitWidth = 990
+          inherited clDiagram: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProductsSearch2.actOpenDiagram
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProductsSearch2.actLoadDiagram
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clDrawing: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProductsSearch2.actOpenDrawing
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProductsSearch2.actLoadDrawing
+                Kind = bkEllipsis
+              end>
+          end
+          inherited clImage: TcxDBTreeListColumn
+            Properties.Buttons = <
+              item
+                Action = ViewProductsSearch2.actOpenImage
+                Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewProductsSearch2.actLoadImage
+                Kind = bkEllipsis
+              end>
+          end
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
             0
             0
-            28
+            54
             0)
-        end
-        inherited cxGridPopupMenu: TcxGridPopupMenu
-          PopupMenus = <
-            item
-              GridView = ViewProductsSearch.cxGridDBBandedTableView
-              HitTypes = [gvhtCell]
-              Index = 0
-              PopupMenu = ViewProductsSearch.pmGrid
-            end>
         end
       end
     end

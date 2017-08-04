@@ -193,7 +193,8 @@ uses
   ProductsBaseView2 in 'Views\Products\ProductsBaseView2.pas' {ViewProductsBase2: TFrame},
   SearchComponentGroup in 'Queryes\Search\SearchComponentGroup.pas' {QuerySearchComponentGroup: TFrame},
   SearchStorehouseProduct in 'Queryes\Search\SearchStorehouseProduct.pas' {QuerySearchStorehouseProduct: TFrame},
-  ProductsView2 in 'Views\Products\ProductsView2.pas' {ViewProducts2: TFrame};
+  ProductsView2 in 'Views\Products\ProductsView2.pas' {ViewProducts2: TFrame},
+  ProductsSearchView2 in 'Views\Products\ProductsSearchView2.pas' {ViewProductsSearch2: TFrame};
 
 {$R *.res}
 

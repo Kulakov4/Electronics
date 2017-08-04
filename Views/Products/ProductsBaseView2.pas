@@ -114,7 +114,7 @@ type
   protected
     procedure BindRate(ARateField: TField; AdxBarCombo: TdxBarCombo);
     procedure DoAfterScroll(Sender: TObject);
-    procedure InitializeColumns;
+    procedure InitializeColumns; override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
       const AErrorMessage, AEmptyErrorMessage: string);
     function PerсentToRate(APerсent: Double): Double;
@@ -145,7 +145,6 @@ begin
   // Список полей при редактировании которых Enter - сохранение
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
-  InitializeColumns;
 end;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
@@ -522,6 +521,12 @@ begin
   begin
     cxDBTreeList.Columns[i].MinWidth := 100;
   end;
+
+  Assert(FProductBaseGroup <> nil);
+
+  InitializeLookupColumn(clIDProducer,
+    FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
+    FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;
@@ -584,12 +589,10 @@ begin
   cxDBTreeList.DataController.DataSource :=
     FProductBaseGroup.qProductsBase.DataSource;
 
+  InitializeColumns;
+
   TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterLoad,
     DoAfterLoad);
-
-  InitializeLookupColumn(clIDProducer,
-    FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
-    FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
 
   TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterScroll,
     DoAfterScroll);

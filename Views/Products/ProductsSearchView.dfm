@@ -4,65 +4,6 @@ inherited ViewProductsSearch: TViewProductsSearch
       DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
     end
   end
-  inherited ViewProducts2: TViewProducts2
-    inherited cxDBTreeList: TcxDBTreeList
-      inherited clDatasheet: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenDatasheet
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadDatasheet
-            Kind = bkEllipsis
-          end>
-      end
-      inherited clDiagram: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenDiagram
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadDiagram
-            Kind = bkEllipsis
-          end>
-      end
-      inherited clDrawing: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenDrawing
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadDrawing
-            Kind = bkEllipsis
-          end>
-      end
-      inherited clImage: TcxDBTreeListColumn
-        Properties.Buttons = <
-          item
-            Action = ViewProducts2.actOpenImage
-            Default = True
-            Kind = bkGlyph
-          end
-          item
-            Action = ViewProducts2.actLoadImage
-            Kind = bkEllipsis
-          end>
-      end
-    end
-    inherited dxBarManager: TdxBarManager
-      DockControlHeights = (
-        0
-        0
-        54
-        0)
-    end
-  end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0

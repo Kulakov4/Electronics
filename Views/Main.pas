@@ -562,7 +562,7 @@ end;
 procedure TfrmMain.cxpcLeftChange(Sender: TObject);
 begin
   ProductsFrame.ViewProducts2.CheckAndSaveChanges;
-  ProductsFrame.ViewProductsSearch.CheckAndSaveChanges;
+  ProductsFrame.ViewProductsSearch2.CheckAndSaveChanges;
   ComponentsFrame.ViewComponents.CheckAndSaveChanges;
 end;
 
@@ -593,7 +593,7 @@ begin
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseSearch;
 
   BringToFront;
-  ProductsFrame.ViewProductsSearch.FocusValueColumn;
+  ProductsFrame.ViewProductsSearch2.FocusValueColumn;
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -702,10 +702,9 @@ begin
       ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
         DM.ProductGroup.qStoreHouseList;
       // Привязываем текущий склад к данным
-      ProductsFrame.ViewProducts2.ProductBaseGroup := DM.ProductGroup;
+      ProductsFrame.ViewProducts2.ProductGroup := DM.ProductGroup;
       // Привязываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch.ProductSearchGroup :=
-        DM.ProductSearchGroup;
+      ProductsFrame.ViewProductsSearch2.ProductSearchGroup := DM.ProductSearchGroup;
 
       // ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;

@@ -24,11 +24,13 @@ type
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
     FqStoreHouseList: TQueryStoreHouseList;
+    FX: Integer;
 
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;
     procedure DoAfterClose(Sender: TObject);
+    procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
@@ -73,7 +75,7 @@ begin
   // В режиме поиска - транзакции автоматом
   AutoTransaction := True;
 
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where p.ID = 0', '--where');
+  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where ID = 0', '--where');
 
   // Создаём два клона
   FGetModeClone := TFDMemTable.Create(Self);
@@ -81,6 +83,7 @@ begin
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
+  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);
   FOnEndUpdate := TNotifyEventsEx.Create(Self);
@@ -131,13 +134,21 @@ end;
 
 procedure TQueryProductsSearch.ClearSearchResult;
 begin
-  SetConditionSQL(fdqBase.SQL.Text, 'where p.ID = 0', '--where');
+  SetConditionSQL(fdqBase.SQL.Text, 'where ID = 0', '--where');
 end;
 
 procedure TQueryProductsSearch.DoAfterClose(Sender: TObject);
 begin
   FGetModeClone.Close;
   FClone.Close;
+end;
+
+
+procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
+begin
+  Inc(FX);
+  PK.Value := -FX;
+  IsGroup.AsInteger := 0;
 end;
 
 procedure TQueryProductsSearch.DoAfterOpen(Sender: TObject);
@@ -162,7 +173,7 @@ begin
   for I := FDQuery.RecordCount to FEmptyAmount - 1 do
   begin
     FDQuery.Append;
-    FDQuery.Fields[1].AsString := '';
+    Value.AsString := '';
     FDQuery.Post;
   end;
 
@@ -178,13 +189,15 @@ end;
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
 var
   AConditionSQL: string;
-  AMark: string;
+  AMark1: string;
+  AMark2: string;
   m: TArray<String>;
   s: string;
 begin
   TryPost;
 
-  AMark := '--join';
+  AMark1 := '--join1';
+  AMark2 := '--join2';
 
   // Формируем через запятую список из значений поля Value
   s := GetFieldValues('Value').Trim([',']);
@@ -200,24 +213,31 @@ begin
       AConditionSQL := AConditionSQL + Format('p.Value like %s',
         [QuotedStr(s + '%')]);
     end;
-    AConditionSQL := Format(' and (%s)', [AConditionSQL]);
-    SetConditionSQL(fdqBase.SQL.Text, AConditionSQL, AMark);
+
+    if not AConditionSQL.IsEmpty then
+      AConditionSQL := Format(' and (%s)', [AConditionSQL]);
   end
   else
   begin
     AConditionSQL :=
       ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
-    SetConditionSQL(fdqBase.SQL.Text, AConditionSQL, AMark,
-      procedure(Sender: TObject)
-      begin
-        with FDQuery.ParamByName('Value') do
-        begin
-          DataType := ftString;
-          ParamType := ptInput;
-          AsString := s;
-        end;
-      end);
   end;
+
+  FDQuery.Close;
+  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, AConditionSQL, AMark1);
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, AConditionSQL, AMark2);
+
+  if not ALike then
+  begin
+    with FDQuery.ParamByName('Value') do
+    begin
+       DataType := ftString;
+       ParamType := ptInput;
+       AsString := s;
+     end;
+  end;
+
+  FDQuery.Open;
 end;
 
 function TQueryProductsSearch.GetExportFileName: string;

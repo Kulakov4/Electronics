@@ -38,6 +38,7 @@ type
     FPostOnEnterFields: TList<String>;
     { Private declarations }
   protected
+    procedure InitializeColumns; virtual;
     procedure InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
         ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
     procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn; ADataSource:
@@ -93,6 +94,11 @@ begin
   ANode := cxDBTreeList.FocusedNode;
   Assert(ANode <> nil);
   Result := ANode.Values[AcxDBTreeListColumn.ItemIndex];
+end;
+
+procedure TfrmTreeList.InitializeColumns;
+begin
+
 end;
 
 procedure TfrmTreeList.InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;

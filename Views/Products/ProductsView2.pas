@@ -118,7 +118,8 @@ end;
 
 procedure TViewProducts2.SetProductGroup(const Value: TProductGroup);
 begin
-  ProductBaseGroup := Value;
+  if ProductBaseGroup <> Value then
+    ProductBaseGroup := Value;
 end;
 
 end.
