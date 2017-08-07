@@ -61,9 +61,7 @@ procedure TViewBodyTypesGrid.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  AFileName := 'Типы корпусов';
-  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-  if AFileName = '' then
+  if not TDialog.Create.SaveToExcelFile('Типы корпусов', AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView, AFileName);

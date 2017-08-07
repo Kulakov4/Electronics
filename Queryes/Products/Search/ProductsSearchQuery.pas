@@ -202,6 +202,10 @@ begin
   // ‘ормируем через зап€тую список из значений пол€ Value
   s := GetFieldValues('Value').Trim([',']);
 
+  // ≈сли поиск по пустой строке
+  if s = '' then
+    ALike := True;
+
   if ALike then
   begin
     AConditionSQL := '';

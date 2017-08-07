@@ -191,9 +191,7 @@ procedure TViewProducers.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  AFileName := 'Производители';
-  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-  if AFileName = '' then
+  if not TDialog.Create.SaveToExcelFile('Производители', AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName,

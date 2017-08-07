@@ -25,7 +25,7 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
-  cxCalc, DocFieldInfo, cxButtonEdit;
+  cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -79,6 +79,10 @@ type
     actLoadDiagram: TAction;
     actOpenDrawing: TAction;
     actLoadDrawing: TAction;
+    dxBarButton8: TdxBarButton;
+    cxStyleRepository1: TcxStyleRepository;
+    cxStyle1: TcxStyle;
+    cxNormalStyle: TcxStyle;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -97,6 +101,8 @@ type
     procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn;
       ANode: TcxTreeListNode; var Value: string);
     procedure cxbeiRateChange(Sender: TObject);
+    procedure cxDBTreeListBandHeaderClick(Sender: TcxCustomTreeList; ABand:
+        TcxTreeListBand);
     procedure cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var IsGroup: Boolean);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
@@ -105,6 +111,8 @@ type
     procedure dxbcRate1Change(Sender: TObject);
     procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
+    procedure cxDBTreeListStylesGetContentStyle(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn; ANode: TcxTreeListNode; var AStyle: TcxStyle);
   private
     FProductBaseGroup: TProductBaseGroup;
     procedure DoAfterLoad(Sender: TObject);
@@ -137,7 +145,7 @@ implementation
 
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi, System.Generics.Collections,
-  System.StrUtils;
+  System.StrUtils, GridSort, cxTLExportLink;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
 begin
@@ -145,6 +153,12 @@ begin
   // —писок полей при редактировании которых Enter - сохранение
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
+
+  // ѕрив€зываем событие
+  cxDBTreeList.Styles.OnGetContentStyle := cxDBTreeListStylesGetContentStyle;
+
+  GridSort.Add( TSortVariant.Create(clValue, [clValue]) );
+  GridSort.Add( TSortVariant.Create(clIDProducer, [clIDProducer, clValue]) );
 end;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
@@ -241,10 +255,10 @@ var
 begin
   inherited;
 
-  AFileName := ProductBaseGroup.qProductsBase.ExportFileName;
-  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-  if AFileName = '' then
+  if not TDialog.Create.SaveToExcelFile(ProductBaseGroup.qProductsBase.ExportFileName, AFileName) then
     Exit;
+
+  cxExportTLToExcel(AFileName, cxDBTreeList, true, true, true, 'xls');
 
   // “ут надо создать какое-то табличное представление
   {
@@ -404,6 +418,16 @@ begin
   end;
 end;
 
+procedure TViewProductsBase2.cxDBTreeListBandHeaderClick(Sender:
+    TcxCustomTreeList; ABand: TcxTreeListBand);
+begin
+  inherited;
+  if ABand.VisibleColumnCount = 0 then
+    Exit;
+
+  ApplySort( ABand.VisibleColumns[0] );
+end;
+
 procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
   (Sender: TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
@@ -419,6 +443,29 @@ begin
   inherited;
   V := ANode.Values[clIsGroup.ItemIndex];
   IsGroup := not VarIsNull(V) and (V = 1);
+end;
+
+procedure TViewProductsBase2.cxDBTreeListStylesGetContentStyle(
+  Sender: TcxCustomTreeList; AColumn: TcxTreeListColumn; ANode: TcxTreeListNode;
+  var AStyle: TcxStyle);
+begin
+  inherited;
+  Exit;
+  {
+  if (ANode = nil) or (AColumn = nil) then
+  begin
+    AStyle := cxNormalStyle;
+    Exit;
+  end;
+
+  if (cxDBTreeList.FocusedColumn = AColumn) then
+    AStyle := cxStyle1
+  else
+    AStyle := cxNormalStyle;
+
+//  if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.DataBinding.FieldName then
+//    AStyle := cxStyle1;
+}
 end;
 
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);

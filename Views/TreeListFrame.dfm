@@ -12,8 +12,18 @@ object frmTreeList: TfrmTreeList
     Align = alClient
     Bands = <>
     Navigator.Buttons.CustomButtons = <>
+    OptionsBehavior.CellHints = True
+    OptionsBehavior.HeaderHints = True
+    OptionsCustomizing.BandVertSizing = False
+    OptionsCustomizing.ColumnVertSizing = False
+    OptionsSelection.HideFocusRect = False
+    OptionsSelection.InvertSelect = False
+    OptionsSelection.MultiSelect = True
+    PopupMenu = PopupMenu
     RootValue = -1
+    Styles.OnGetBandHeaderStyle = cxDBTreeListStylesGetBandHeaderStyle
     TabOrder = 0
+    OnCustomDrawDataCell = cxDBTreeListCustomDrawDataCell
     OnEdited = cxDBTreeListEdited
   end
   object dxBarManager: TdxBarManager
@@ -59,5 +69,16 @@ object frmTreeList: TfrmTreeList
   object ActionList: TActionList
     Left = 168
     Top = 80
+    object actCopy: TAction
+      Caption = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
+      OnExecute = actCopyExecute
+    end
+  end
+  object PopupMenu: TPopupMenu
+    Left = 168
+    Top = 152
+    object N1: TMenuItem
+      Action = actCopy
+    end
   end
 end

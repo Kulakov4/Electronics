@@ -11,7 +11,7 @@ object ProductsFrame: TProductsFrame
     Height = 607
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = tsStorehouseSearch
+    Properties.ActivePage = tsStorehouseProducts
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 603
     ClientRectLeft = 4
@@ -106,6 +106,9 @@ object ProductsFrame: TProductsFrame
             54
             0)
         end
+        inherited cxStyleRepository1: TcxStyleRepository
+          PixelsPerInch = 96
+        end
       end
     end
     object tsStorehouseSearch: TcxTabSheet
@@ -118,11 +121,13 @@ object ProductsFrame: TProductsFrame
         Height = 579
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -102
-        ExplicitTop = -19
+        ExplicitWidth = 990
+        ExplicitHeight = 579
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
           Height = 525
+          ExplicitWidth = 990
+          ExplicitHeight = 525
           inherited clDatasheet: TcxDBTreeListColumn
             Properties.Buttons = <
               item
@@ -178,6 +183,9 @@ object ProductsFrame: TProductsFrame
             0
             54
             0)
+        end
+        inherited cxStyleRepository1: TcxStyleRepository
+          PixelsPerInch = 96
         end
       end
     end

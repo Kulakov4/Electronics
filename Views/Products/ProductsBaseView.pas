@@ -150,9 +150,7 @@ procedure TViewProductsBase.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  AFileName := ProductBaseGroup.qProductsBase.ExportFileName;
-  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-  if AFileName = '' then
+  if not TDialog.Create.SaveToExcelFile(ProductBaseGroup.qProductsBase.ExportFileName, AFileName) then
     Exit;
 
   ExportViewToExcel(MainView, AFileName,
@@ -160,6 +158,7 @@ begin
     begin
       AView.Bands[0].FixedKind := fkNone;
     end);
+
 
   {
     MainView.Bands[0].FixedKind := fkNone;

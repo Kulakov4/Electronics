@@ -71,7 +71,7 @@ type
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
-    FGridSort: TGridSotr;
+    FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
@@ -164,7 +164,7 @@ type
       read FDeleteMessages;
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
-    property GridSort: TGridSotr read FGridSort;
+    property GridSort: TGridSort read FGridSort;
     property MainView: TcxGridDBBandedTableView read GetMainView;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
@@ -188,7 +188,7 @@ begin
 
   // Список полей при редактировании которых Enter - сохранение
   FPostOnEnterFields := TList<String>.Create;
-  FGridSort := TGridSotr.Create;
+  FGridSort := TGridSort.Create;
 
   FDeleteMessages := TDictionary<TcxGridLevel, String>.Create;
 end;
@@ -274,7 +274,6 @@ begin
     // Применяем сортировку
     for S in ASortVariant.SortedFieldNames do
     begin
-      // Во вторую очередь по названию компонента
       Col := (Sender as TcxGridDBBandedTableView).GetColumnByFieldName(S);
       Assert(Col <> nil);
       Col.SortOrder := ASortOrder;

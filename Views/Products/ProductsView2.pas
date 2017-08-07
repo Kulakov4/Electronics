@@ -25,7 +25,7 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ErrorForm,
-  ProductsExcelDataModule, ProductGroupUnit;
+  ProductsExcelDataModule, ProductGroupUnit, Vcl.Menus;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -37,6 +37,8 @@ type
     dxBarButton5: TdxBarButton;
     dxBarButton6: TdxBarButton;
     dxBarButton7: TdxBarButton;
+    dxBarSubItem2: TdxBarSubItem;
+    dxBarButton9: TdxBarButton;
   private
     function GetProductGroup: TProductGroup;
     procedure SetProductGroup(const Value: TProductGroup);

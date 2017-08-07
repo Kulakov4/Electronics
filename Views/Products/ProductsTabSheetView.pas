@@ -24,7 +24,8 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, ProductsSearchView,
   GridFrame, ProductsBaseView, ProductsView, StoreHouseInfoView, cxPC,
   dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
-  TreeListFrame, ProductsBaseView2, ProductsView2, ProductsSearchView2;
+  TreeListFrame, ProductsBaseView2, ProductsView2, ProductsSearchView2, cxTL,
+  cxStyles;
 
 type
   TProductsFrame = class(TFrame)

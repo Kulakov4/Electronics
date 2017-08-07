@@ -561,8 +561,17 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
+            ExplicitTop = 27
+            ExplicitWidth = 918
+            ExplicitHeight = 474
             inherited ViewProducts2: TViewProducts2
+              Width = 918
+              Height = 474
+              ExplicitWidth = 918
+              ExplicitHeight = 474
               inherited cxDBTreeList: TcxDBTreeList
+                Width = 918
+                Height = 420
                 ExplicitWidth = 918
                 ExplicitHeight = 420
                 inherited clDatasheet: TcxDBTreeListColumn
@@ -621,20 +630,14 @@ object frmMain: TfrmMain
                   54
                   0)
               end
+              inherited cxStyleRepository1: TcxStyleRepository
+                PixelsPerInch = 96
+              end
             end
           end
           inherited tsStorehouseSearch: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 918
-            ExplicitHeight = 474
             inherited ViewProductsSearch2: TViewProductsSearch2
-              Width = 918
-              Height = 474
-              ExplicitWidth = 918
-              ExplicitHeight = 474
               inherited cxDBTreeList: TcxDBTreeList
-                Width = 918
-                Height = 420
                 inherited clDatasheet: TcxDBTreeListColumn
                   Properties.Buttons = <
                     item
@@ -690,6 +693,9 @@ object frmMain: TfrmMain
                   0
                   54
                   0)
+              end
+              inherited cxStyleRepository1: TcxStyleRepository
+                PixelsPerInch = 96
               end
             end
           end

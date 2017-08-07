@@ -35,7 +35,8 @@ type
     function OpenDialog(AOpenDialogClass: TOpenDialogClass;
       const AInitialDir: string): String;
     function OpenExcelFile(const AInitialDir: string): string;
-    function SaveToExcelFile(const ADefaultFileName: string): string;
+    function SaveToExcelFile(const ADefaultFileName: string; var ASelectedFileName:
+        string): Boolean;
     function SaveDataDialog: Integer;
   end;
 
@@ -254,22 +255,25 @@ end;
 // end;
 // end;
 
-function TDialog.SaveToExcelFile(const ADefaultFileName: string): string;
+function TDialog.SaveToExcelFile(const ADefaultFileName: string; var
+    ASelectedFileName: string): Boolean;
 var
-  saveDialog: TSaveTextFileDialog;
+  SaveDialog: TSaveTextFileDialog;
 begin
-  Result := '';
-  saveDialog := TSaveTextFileDialog.Create(nil);
+  Result := False;
+  SaveDialog := TSaveTextFileDialog.Create(nil);
   try
-    saveDialog.FileName := ADefaultFileName;
-    saveDialog.Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' +
+    SaveDialog.FileName := ADefaultFileName;
+    SaveDialog.Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' +
       'Все файлы (*.*)|*.*';
-    saveDialog.FilterIndex := 0;
-    saveDialog.Options := [ofFileMustExist];
-    if saveDialog.Execute(Application.ActiveFormHandle) then
-      Result := saveDialog.FileName
+    SaveDialog.FilterIndex := 0;
+    SaveDialog.Options := [ofFileMustExist];
+    Result := SaveDialog.Execute(Application.ActiveFormHandle);
+
+    if Result then
+      ASelectedFileName := SaveDialog.FileName
   finally
-    saveDialog.Free;
+    SaveDialog.Free;
   end;
 end;
 

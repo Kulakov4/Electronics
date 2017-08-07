@@ -257,13 +257,9 @@ begin
 
     cxGridDBBandedTableView2.DataController.DataSource := Q.DataSource;
     try
-
-      AFileName := 'Типы корпусов';
-      AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-      if AFileName = '' then
+      if not TDialog.Create.SaveToExcelFile('Типы корпусов', AFileName) then
         Exit;
 
-      // clIDBodyKind.Visible := True;
       ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
         procedure(AView: TcxGridDBBandedTableView)
         begin

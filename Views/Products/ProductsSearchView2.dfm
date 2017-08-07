@@ -158,20 +158,23 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     end
   end
   inherited ActionList: TActionList
-    object actPasteFromBuffer: TAction
+    object actPasteFromBuffer: TAction [15]
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072
       ImageIndex = 5
       OnExecute = actPasteFromBufferExecute
     end
-    object actClear: TAction
+    object actClear: TAction [16]
       Caption = #1054#1095#1080#1089#1090#1080#1090#1100
       ImageIndex = 10
       OnExecute = actClearExecute
     end
-    object actSearch: TAction
+    object actSearch: TAction [17]
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 9
       OnExecute = actSearchExecute
     end
+  end
+  inherited cxStyleRepository1: TcxStyleRepository
+    PixelsPerInch = 96
   end
 end

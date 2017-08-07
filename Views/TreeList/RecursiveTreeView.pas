@@ -56,9 +56,7 @@ var
   AFileName: String;
 begin
   inherited;
-  AFileName := 'Категории';
-  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
-  if AFileName = '' then
+  if not TDialog.Create.SaveToExcelFile('Категории', AFileName) then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);

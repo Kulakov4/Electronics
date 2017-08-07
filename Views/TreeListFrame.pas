@@ -24,7 +24,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxInplaceContainer, cxTLData, cxDBTL, dxSkinsdxBarPainter,
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
-  Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections;
+  Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections,
+  Vcl.Menus, GridSort, cxGridTableView;
 
 type
   TfrmTreeList = class(TFrame)
@@ -32,9 +33,18 @@ type
     dxBarManager: TdxBarManager;
     dxBarManagerBar1: TdxBar;
     ActionList: TActionList;
+    PopupMenu: TPopupMenu;
+    actCopy: TAction;
+    N1: TMenuItem;
+    procedure actCopyExecute(Sender: TObject);
+    procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList; ACanvas:
+        TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
     procedure cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
         TcxTreeListColumn);
+    procedure cxDBTreeListStylesGetBandHeaderStyle(Sender: TcxCustomTreeList;
+      ABand: TcxTreeListBand; var AStyle: TcxStyle);
   private
+    FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
     { Private declarations }
   protected
@@ -47,13 +57,19 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure ApplySort(AColumn: TcxTreeListColumn);
+    procedure ClearSort;
+    procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn): Variant;
     procedure UpdateView; virtual;
+    property GridSort: TGridSort read FGridSort;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     { Public declarations }
   end;
 
 implementation
+
+uses dxCore, RepositoryDataModule, Vcl.Clipbrd;
 
 {$R *.dfm}
 
@@ -62,12 +78,102 @@ begin
   inherited;
   // Список полей при редактировании которых Enter - сохранение
   FPostOnEnterFields := TList<String>.Create;
+
+  FGridSort := TGridSort.Create;
+  cxDBTreeList.Styles.OnGetBandHeaderStyle := cxDBTreeListStylesGetBandHeaderStyle;
 end;
 
 destructor TfrmTreeList.Destroy;
 begin
   FreeAndNil(FPostOnEnterFields);
+  FreeAndNil(FGridSort);
   inherited;
+end;
+
+procedure TfrmTreeList.actCopyExecute(Sender: TObject);
+var
+  I: Integer;
+  AText: string;
+begin
+//  cxDBTreeList.OptionsView.Headers := False;
+//  cxDBTreeList.CopySelectedToClipboard;
+//  cxDBTreeList.OptionsView.Headers := True;
+
+  AText := '';
+  for I := 0 to cxDBTreeList.SelectionCount - 1 do
+  begin
+    if I > 0 then
+      AText := AText + #13#10;
+    AText := AText +   cxDBTreeList.FocusedColumn.DisplayTexts[ cxDBTreeList.Selections[i] ];
+  end;
+  ClipBoard.AsText := AText
+end;
+
+procedure TfrmTreeList.ApplySort(AColumn: TcxTreeListColumn);
+var
+  ASortOrder: TdxSortOrder;
+  ASortVariant: TSortVariant;
+  Col: TcxDBTreeListColumn;
+  S: string;
+begin
+  inherited;
+
+  ASortVariant := FGridSort.GetSortVariant(AColumn as TcxDBTreeListColumn);
+
+  // Если при щелчке по этой колоке нет вариантов сортировки
+  if ASortVariant = nil then
+    Exit;
+
+  if (AColumn.SortOrder = soAscending) then
+    ASortOrder := soDescending
+  else
+    ASortOrder := soAscending;
+
+  cxDBTreeList.BeginUpdate;
+  try
+    // Очистили сортировку
+    ClearSort();
+
+    // Применяем сортировку
+    for S in ASortVariant.SortedFieldNames do
+    begin
+      Col := cxDBTreeList.GetColumnByFieldName(S);
+      Assert(Col <> nil);
+      Col.SortOrder := ASortOrder;
+    end;
+
+  finally
+    cxDBTreeList.EndUpdate;
+  end;
+end;
+
+procedure TfrmTreeList.ClearSort;
+var
+  i: Integer;
+begin
+  for i := 0 to cxDBTreeList.ColumnCount - 1 do
+    cxDBTreeList.Columns[i].SortOrder := soNone;
+end;
+
+procedure TfrmTreeList.cxDBTreeListCustomDrawDataCell(Sender:
+    TcxCustomTreeList; ACanvas: TcxCanvas; AViewInfo:
+    TcxTreeListEditCellViewInfo; var ADone: Boolean);
+begin
+  if AViewInfo.Selected then
+  begin
+    if (AViewInfo.Column = cxDBTreeList.FocusedColumn) then
+    begin
+      // Пишем белым по синему
+      ACanvas.Font.Color := clHighlightText;
+      ACanvas.FillRect(AViewInfo.BoundsRect, clHighlight);
+    end
+    else
+    begin
+      // Пишем чёрным по белому
+      ACanvas.Font.Color := clBlack;
+      ACanvas.FillRect(AViewInfo.BoundsRect, clWhite);
+    end;
+  end;
 end;
 
 procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
@@ -83,6 +189,25 @@ begin
   end;
 
   UpdateView;
+end;
+
+procedure TfrmTreeList.cxDBTreeListStylesGetBandHeaderStyle(
+  Sender: TcxCustomTreeList; ABand: TcxTreeListBand; var AStyle: TcxStyle);
+begin
+  DoOnGetHeaderStyle(ABand, AStyle);
+end;
+
+procedure TfrmTreeList.DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle:
+    TcxStyle);
+begin
+  if ABand = nil then
+    Exit;
+
+  if ABand.VisibleColumnCount = 0 then
+    Exit;
+
+  if ABand.VisibleColumns[0].SortIndex = 0 then
+    AStyle := DMRepository.cxHeaderStyle;
 end;
 
 function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn:

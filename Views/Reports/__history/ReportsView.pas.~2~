@@ -107,7 +107,9 @@ procedure TViewReports.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile(GetFileName, AFileName) then
+  AFileName := GetFileName;
+  AFileName := TDialog.Create.SaveToExcelFile(AFileName);
+  if AFileName = '' then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);

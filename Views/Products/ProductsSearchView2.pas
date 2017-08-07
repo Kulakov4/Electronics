@@ -24,7 +24,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
-  ProductSearchGroupUnit;
+  ProductSearchGroupUnit, Vcl.Menus;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)
@@ -51,6 +51,7 @@ type
     procedure InitializeColumns; override;
   public
     procedure FocusValueColumn;
+    procedure UpdateView; override;
     property ProductSearchGroup: TProductSearchGroup read GetProductSearchGroup
       write SetProductSearchGroup;
     { Public declarations }
@@ -104,6 +105,9 @@ procedure TViewProductsSearch2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
 begin
   if ProductSearchGroup.qProductsSearch.Mode = SearchMode then
   begin
+    if cxDBTreeList.LockUpdate > 0 then
+      Exit;
+
     // ≈сли закончили редактирование наименовани€
     if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.
       DataBinding.FieldName then
@@ -145,6 +149,7 @@ begin
   cxDBTreeList.BeginUpdate;
   try
     CheckAndSaveChanges;
+
     ProductSearchGroup.qProductsSearch.DoSearch(ALike);
     UpdateView;
   finally
@@ -163,6 +168,38 @@ procedure TViewProductsSearch2.SetProductSearchGroup
 begin
   if ProductBaseGroup <> Value then
     ProductBaseGroup := Value;
+end;
+
+procedure TViewProductsSearch2.UpdateView;
+var
+  Ok: Boolean;
+begin
+  inherited;
+  Ok := (ProductSearchGroup <> nil) and
+    (ProductSearchGroup.qProductsBase.FDQuery.Active);
+
+  actClear.Enabled := ProductSearchGroup.qProductsSearch.IsClearEnabled;
+
+  actSearch.Enabled := ProductSearchGroup.qProductsSearch.IsSearchEnabled;
+
+  actCommit.Enabled := Ok and ProductSearchGroup.HaveAnyChanges and
+    (ProductSearchGroup.qProductsSearch.Mode = RecordsMode);
+
+  actRollback.Enabled := actCommit.Enabled;
+
+  actPasteFromBuffer.Enabled := ProductSearchGroup.qProductsSearch.Mode =
+    SearchMode;
+
+
+//  cxGridDBBandedTableView.OptionsData.Appending :=
+//    ProductSearchGroup.qProductsSearch.Mode = SearchMode;
+
+//  cxGridDBBandedTableView.OptionsData.Inserting :=
+//    ProductSearchGroup.qProductsSearch.Mode = SearchMode;
+
+  actExportToExcelDocument.Enabled := Ok and
+    (cxDBTreeList.DataController.RecordCount > 0) and
+    (ProductSearchGroup.qProductsSearch.Mode = RecordsMode);
 end;
 
 end.

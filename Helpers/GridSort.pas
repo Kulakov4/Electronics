@@ -4,46 +4,60 @@ interface
 
 uses
   cxGridDBBandedTableView, System.Generics.Collections, System.SysUtils,
-  System.StrUtils, cxGridTableView;
+  System.StrUtils, cxGridTableView, cxDBTL;
 
 type
   TSortVariant = class(TObject)
   private
     FKeyFieldName: string;
     FSortedFieldNames: TList<String>;
+    procedure Init(AKeyFieldName: string);
   public
-    constructor Create(AColumn: TcxGridDBBandedColumn;
-      ASortedColumns: array of TcxGridDBBandedColumn);
+    constructor Create(AColumn: TcxGridDBBandedColumn; ASortedColumns: array of
+        TcxGridDBBandedColumn); overload;
+    constructor Create(AColumn: TcxDBTreeListColumn; ASortedColumns: array of
+        TcxDBTreeListColumn); overload;
     destructor Destroy; override;
     property KeyFieldName: string read FKeyFieldName;
     property SortedFieldNames: TList<String> read FSortedFieldNames;
   end;
 
-  TGridSotr = class(TObject)
+  TGridSort = class(TObject)
   private
     FSortDictionary: TDictionary<String, TSortVariant>;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Add(ASortVariant: TSortVariant);
-    function ContainsColumn(AColumn: TcxGridColumn): Boolean;
-    function GetSortVariant(AColumn: TcxGridColumn): TSortVariant;
+    function ContainsColumn(const AFieldName: string): Boolean;
+    function GetSortVariant(AColumn: TcxGridColumn): TSortVariant; overload;
+    function GetSortVariant(AColumn: TcxDBTreeListColumn): TSortVariant; overload;
   end;
 
 implementation
 
-constructor TSortVariant.Create(AColumn: TcxGridDBBandedColumn;
-  ASortedColumns: array of TcxGridDBBandedColumn);
+constructor TSortVariant.Create(AColumn: TcxGridDBBandedColumn; ASortedColumns:
+    array of TcxGridDBBandedColumn);
 var
   i: Integer;
 begin
   Assert(AColumn <> nil);
-  Assert(not AColumn.DataBinding.FieldName.IsEmpty);
+  Init(AColumn.DataBinding.FieldName);
+
   Assert(Length(ASortedColumns) > 0);
+  for i := Low(ASortedColumns) to High(ASortedColumns) do
+    FSortedFieldNames.Add(ASortedColumns[i].DataBinding.FieldName);
+end;
 
-  FKeyFieldName := AColumn.DataBinding.FieldName;
-  FSortedFieldNames := TList<String>.Create;
+constructor TSortVariant.Create(AColumn: TcxDBTreeListColumn; ASortedColumns:
+    array of TcxDBTreeListColumn);
+var
+  i: Integer;
+begin
+  Assert(AColumn <> nil);
+  Init(AColumn.DataBinding.FieldName);
 
+  Assert(Length(ASortedColumns) > 0);
   for i := Low(ASortedColumns) to High(ASortedColumns) do
     FSortedFieldNames.Add(ASortedColumns[i].DataBinding.FieldName);
 end;
@@ -54,12 +68,20 @@ begin
   inherited;
 end;
 
-constructor TGridSotr.Create;
+procedure TSortVariant.Init(AKeyFieldName: string);
+begin
+  Assert(not AKeyFieldName.IsEmpty);
+
+  FKeyFieldName := AKeyFieldName;
+  FSortedFieldNames := TList<String>.Create;
+end;
+
+constructor TGridSort.Create;
 begin
   FSortDictionary := TDictionary<String, TSortVariant>.Create;
 end;
 
-destructor TGridSotr.Destroy;
+destructor TGridSort.Destroy;
 var
   AKeyFieldName: string;
 begin
@@ -74,7 +96,7 @@ begin
   inherited;
 end;
 
-procedure TGridSotr.Add(ASortVariant: TSortVariant);
+procedure TGridSort.Add(ASortVariant: TSortVariant);
 begin
   Assert(FSortDictionary <> nil);
   Assert(ASortVariant <> nil);
@@ -82,19 +104,30 @@ begin
   FSortDictionary.Add(ASortVariant.KeyFieldName, ASortVariant);
 end;
 
-function TGridSotr.ContainsColumn(AColumn: TcxGridColumn): Boolean;
+function TGridSort.ContainsColumn(const AFieldName: string): Boolean;
 begin
-  Assert(AColumn <> nil);
-  Result := FSortDictionary.ContainsKey((AColumn as TcxGridDBBandedColumn)
-    .DataBinding.FieldName);
+  Assert(not AFieldName.IsEmpty);
+  Result := FSortDictionary.ContainsKey(AFieldName);
 end;
 
-function TGridSotr.GetSortVariant(AColumn: TcxGridColumn): TSortVariant;
+function TGridSort.GetSortVariant(AColumn: TcxGridColumn): TSortVariant;
+var
+  AFieldName: String;
 begin
   Result := nil;
-  if ContainsColumn(AColumn) then
-    Result := FSortDictionary[(AColumn as TcxGridDBBandedColumn)
-      .DataBinding.FieldName]
+  AFieldName := (AColumn as TcxGridDBBandedColumn).DataBinding.FieldName;
+  if ContainsColumn(AFieldName) then
+    Result := FSortDictionary[AFieldName];
+end;
+
+function TGridSort.GetSortVariant(AColumn: TcxDBTreeListColumn): TSortVariant;
+var
+  AFieldName: String;
+begin
+  Result := nil;
+  AFieldName := AColumn.DataBinding.FieldName;
+  if ContainsColumn(AFieldName) then
+    Result := FSortDictionary[AFieldName];
 end;
 
 end.
