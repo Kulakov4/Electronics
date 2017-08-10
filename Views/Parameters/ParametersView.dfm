@@ -291,7 +291,7 @@ inherited ViewParameters: TViewParameters
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrsbtmColumnsCustomization'
+          ItemName = 'dxbsColumns'
         end
         item
           Visible = True

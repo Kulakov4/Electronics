@@ -82,7 +82,7 @@ object frmGrid: TfrmGrid
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrsbtmColumnsCustomization'
+          ItemName = 'dxbsColumns'
         end>
       OneOnRow = True
       Row = 0
@@ -90,7 +90,7 @@ object frmGrid: TfrmGrid
       Visible = True
       WholeRow = False
     end
-    object dxbrsbtmColumnsCustomization: TdxBarSubItem
+    object dxbsColumns: TdxBarSubItem
       Caption = #1050#1086#1083#1086#1085#1082#1080
       Category = 0
       Visible = ivAlways

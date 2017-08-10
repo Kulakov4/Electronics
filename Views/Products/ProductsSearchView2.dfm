@@ -8,6 +8,10 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       end
       item
         Caption.AlignHorz = taCenter
+        Caption.Text = #1057#1082#1083#1072#1076
+      end
+      item
+        Caption.AlignHorz = taCenter
         Caption.Text = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
       end
       item
@@ -85,19 +89,94 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       item
         Caption.AlignHorz = taCenter
         Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076
-      end
-      item
-        Caption.Text = #1057#1082#1083#1072#1076
       end>
-    inherited clID: TcxDBTreeListColumn
-      Visible = True
+    inherited clIDProducer: TcxDBTreeListColumn
+      Position.BandIndex = 2
+    end
+    inherited clDescription: TcxDBTreeListColumn
+      Position.BandIndex = 3
+    end
+    inherited clDatasheet: TcxDBTreeListColumn
+      Position.BandIndex = 4
+    end
+    inherited clDiagram: TcxDBTreeListColumn
+      Position.BandIndex = 5
+    end
+    inherited clDrawing: TcxDBTreeListColumn
+      Position.BandIndex = 6
+    end
+    inherited clImage: TcxDBTreeListColumn
+      Position.BandIndex = 7
+    end
+    inherited clPackagePins: TcxDBTreeListColumn
+      Position.BandIndex = 8
+    end
+    inherited clYYYY: TcxDBTreeListColumn
+      Position.BandIndex = 9
+    end
+    inherited clMM: TcxDBTreeListColumn
+      Position.BandIndex = 9
+    end
+    inherited clWW: TcxDBTreeListColumn
+      Position.BandIndex = 9
+    end
+    inherited clAmount: TcxDBTreeListColumn
+      Position.BandIndex = 10
+    end
+    inherited clPackaging: TcxDBTreeListColumn
+      Position.BandIndex = 11
+    end
+    inherited clPriceR2: TcxDBTreeListColumn
+      Position.BandIndex = 12
+    end
+    inherited clPriceD2: TcxDBTreeListColumn
+      Position.BandIndex = 12
+    end
+    inherited clPriceR1: TcxDBTreeListColumn
+      Position.BandIndex = 13
+    end
+    inherited clPriceD1: TcxDBTreeListColumn
+      Position.BandIndex = 13
+    end
+    inherited clPriceR: TcxDBTreeListColumn
+      Position.BandIndex = 14
+    end
+    inherited clPriceD: TcxDBTreeListColumn
+      Position.BandIndex = 14
+    end
+    inherited clOriginCountryCode: TcxDBTreeListColumn
+      Position.BandIndex = 15
+    end
+    inherited clOriginCountry: TcxDBTreeListColumn
+      Position.BandIndex = 15
+    end
+    inherited clBatchNumber: TcxDBTreeListColumn
+      Position.BandIndex = 16
+    end
+    inherited clCustomsDeclarationNumber: TcxDBTreeListColumn
+      Position.BandIndex = 17
+    end
+    inherited clStorage: TcxDBTreeListColumn
+      Position.BandIndex = 18
+    end
+    inherited clStoragePlace: TcxDBTreeListColumn
+      Position.BandIndex = 18
+    end
+    inherited clSeller: TcxDBTreeListColumn
+      Position.BandIndex = 19
+    end
+    inherited clDocumentNumber: TcxDBTreeListColumn
+      Position.BandIndex = 20
+    end
+    inherited clBarcode: TcxDBTreeListColumn
+      Position.BandIndex = 21
     end
     object clStorehouseId: TcxDBTreeListColumn
       Caption.Text = ' '
       DataBinding.FieldName = 'StorehouseId'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 21
+      Position.BandIndex = 1
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -110,6 +189,10 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbsColumns'
+        end
         item
           Visible = True
           ItemName = 'dxBarButton3'
@@ -129,6 +212,14 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         item
           Visible = True
           ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarSubItem1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -155,6 +246,25 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarSubItem1: TdxBarSubItem
+      Caption = #1069#1082#1089#1087#1086#1088#1090
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 6
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton6'
+        end>
+    end
+    object dxBarButton6: TdxBarButton
+      Action = actExportToExcelDocument
+      Category = 0
+    end
+    object dxBarButton7: TdxBarButton
+      Action = actOpenInParametricTable
+      Category = 0
     end
   end
   inherited ActionList: TActionList

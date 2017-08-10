@@ -405,7 +405,7 @@ inherited ViewBodyTypes: TViewBodyTypes
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrsbtmColumnsCustomization'
+          ItemName = 'dxbsColumns'
         end
         item
           Visible = True
@@ -426,14 +426,6 @@ inherited ViewBodyTypes: TViewBodyTypes
         item
           Visible = True
           ItemName = 'dxbrbtnRollback'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton3'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton4'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -525,20 +517,6 @@ inherited ViewBodyTypes: TViewBodyTypes
       Action = actShowDuplicate
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxBarButton3: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-      OnClick = dxBarButton3Click
-    end
-    object dxBarButton4: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-      OnClick = dxBarButton4Click
     end
   end
   inherited ActionList: TActionList

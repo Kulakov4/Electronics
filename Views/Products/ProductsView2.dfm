@@ -9,6 +9,10 @@ inherited ViewProducts2: TViewProducts2
       ItemLinks = <
         item
           Visible = True
+          ItemName = 'dxbsColumns'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarSubItem1'
         end
         item
@@ -32,7 +36,7 @@ inherited ViewProducts2: TViewProducts2
           ItemName = 'dxBarButton6'
         end>
     end
-    object dxBarSubItem1: TdxBarSubItem [5]
+    object dxBarSubItem1: TdxBarSubItem [4]
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Category = 0
       Visible = ivAlways
@@ -48,34 +52,34 @@ inherited ViewProducts2: TViewProducts2
           ItemName = 'dxBarButton2'
         end>
     end
-    object dxBarButton1: TdxBarButton [6]
+    object dxBarButton1: TdxBarButton [5]
       Action = actAddCategory
       Category = 0
     end
-    object dxBarButton2: TdxBarButton [7]
+    object dxBarButton2: TdxBarButton [6]
       Action = actAddComponent
       Category = 0
     end
-    object dxBarButton3: TdxBarButton [8]
+    object dxBarButton3: TdxBarButton [7]
       Action = actDelete
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton4: TdxBarButton [9]
+    object dxBarButton4: TdxBarButton [8]
       Action = actCommit
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton5: TdxBarButton [10]
+    object dxBarButton5: TdxBarButton [9]
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton6: TdxBarButton [11]
+    object dxBarButton6: TdxBarButton [10]
       Action = actOpenInParametricTable
       Category = 0
     end
-    object dxBarButton7: TdxBarButton [12]
+    object dxBarButton7: TdxBarButton [11]
       Caption = 'New Button'
       Category = 0
       Hint = 'New Button'

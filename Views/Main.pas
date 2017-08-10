@@ -618,6 +618,7 @@ begin
   cxpcRight.Properties.HideTabs := True;
   cxpcLeft.ActivePage := cxtsComponents;
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
+  ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
 
   // Создаём модуль репозитория
   if DMRepository = nil then

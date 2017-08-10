@@ -37,6 +37,9 @@ type
     dxBarButton4: TdxBarButton;
     dxBarButton5: TdxBarButton;
     clStorehouseId: TcxDBTreeListColumn;
+    dxBarSubItem1: TdxBarSubItem;
+    dxBarButton6: TdxBarButton;
+    dxBarButton7: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);

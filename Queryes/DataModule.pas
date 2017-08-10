@@ -14,8 +14,8 @@ uses
   ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
   QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
   QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery,
-  CategoryParametersQuery,
-  ProducersGroupUnit, ProductGroupUnit, ProductSearchGroupUnit;
+  CategoryParametersQuery, ProducersGroupUnit, ProductGroupUnit,
+  ProductSearchGroupUnit, FireDAC.Phys.SQLiteWrapper, FireDAC.Phys.SQLiteCli;
 
 type
   TDM = class(TForm)
@@ -50,6 +50,8 @@ type
     { Private declarations }
   protected
     procedure DoAfterProducerCommit(Sender: TObject);
+    procedure DoUpdate(ADB: TSQLiteDatabase; AOper: Integer; const ADatabase,
+        ATable: String; ARowid: sqlite3_int64);
   public
     constructor Create(AOwner: TComponent); override;
     procedure CreateOrOpenDataBase;
@@ -244,6 +246,12 @@ begin
   qCategoryParameters.ApplyUpdates;
 end;
 
+procedure TDM.DoUpdate(ADB: TSQLiteDatabase; AOper: Integer; const ADatabase,
+    ATable: String; ARowid: sqlite3_int64);
+begin
+;  // TODO -cMM: TDM.DoUpdate default body inserted
+end;
+
 function TDM.HaveAnyChanges: Boolean;
 var
   I: Integer;
@@ -283,6 +291,7 @@ end;
 procedure TDM.OpenConnection;
 var
   AErrorMessage: string;
+  ASQLiteDatabase: TSQLiteDatabase;
   I: Integer;
 begin
   try
@@ -302,6 +311,10 @@ begin
 
   // Устанавливаем соединение с БД
   DMRepository.dbConnection.Open();
+
+  ASQLiteDatabase := TSQLiteDatabase(DMRepository.dbConnection.ConnectionIntf.CliObj);
+  ASQLiteDatabase.OnUpdate := DoUpdate;
+
 
   AErrorMessage := '';
   try

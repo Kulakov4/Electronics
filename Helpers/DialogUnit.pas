@@ -260,7 +260,7 @@ function TDialog.SaveToExcelFile(const ADefaultFileName: string; var
 var
   SaveDialog: TSaveTextFileDialog;
 begin
-  Result := False;
+//  Result := False;
   SaveDialog := TSaveTextFileDialog.Create(nil);
   try
     SaveDialog.FileName := ADefaultFileName;

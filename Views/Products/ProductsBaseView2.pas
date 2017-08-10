@@ -25,7 +25,7 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
-  cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus;
+  cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -79,10 +79,10 @@ type
     actLoadDiagram: TAction;
     actOpenDrawing: TAction;
     actLoadDrawing: TAction;
-    dxBarButton8: TdxBarButton;
     cxStyleRepository1: TcxStyleRepository;
     cxStyle1: TcxStyle;
     cxNormalStyle: TcxStyle;
+    clIDCurrency: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -101,12 +101,17 @@ type
     procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn;
       ANode: TcxTreeListNode; var Value: string);
     procedure cxbeiRateChange(Sender: TObject);
-    procedure cxDBTreeListBandHeaderClick(Sender: TcxCustomTreeList; ABand:
-        TcxTreeListBand);
+    procedure cxDBTreeListBandHeaderClick(Sender: TcxCustomTreeList;
+      ABand: TcxTreeListBand);
+    procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
+      ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
+      var ADone: Boolean);
     procedure cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var IsGroup: Boolean);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
       APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+    procedure cxDBTreeListInitEditValue(Sender, AItem: TObject;
+      AEdit: TcxCustomEdit; var AValue: Variant);
     procedure dxbcRate2Change(Sender: TObject);
     procedure dxbcRate1Change(Sender: TObject);
     procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
@@ -151,14 +156,14 @@ constructor TViewProductsBase2.Create(AOwner: TComponent);
 begin
   inherited;
   // Список полей при редактировании которых Enter - сохранение
-  PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
-  PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
+//  PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
+//  PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
 
   // Привязываем событие
   cxDBTreeList.Styles.OnGetContentStyle := cxDBTreeListStylesGetContentStyle;
 
-  GridSort.Add( TSortVariant.Create(clValue, [clValue]) );
-  GridSort.Add( TSortVariant.Create(clIDProducer, [clIDProducer, clValue]) );
+  GridSort.Add(TSortVariant.Create(clValue, [clValue]));
+  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
 end;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
@@ -255,10 +260,11 @@ var
 begin
   inherited;
 
-  if not TDialog.Create.SaveToExcelFile(ProductBaseGroup.qProductsBase.ExportFileName, AFileName) then
+  if not TDialog.Create.SaveToExcelFile
+    (ProductBaseGroup.qProductsBase.ExportFileName, AFileName) then
     Exit;
 
-  cxExportTLToExcel(AFileName, cxDBTreeList, true, true, true, 'xls');
+  cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
 
   // Тут надо создать какое-то табличное представление
   {
@@ -352,8 +358,13 @@ end;
 procedure TViewProductsBase2.actRollbackExecute(Sender: TObject);
 begin
   inherited;
-  ProductBaseGroup.CancelUpdates;
-  UpdateView;
+  cxDBTreeList.BeginUpdate;
+  try
+    ProductBaseGroup.CancelUpdates;
+    UpdateView;
+  finally
+    cxDBTreeList.EndUpdate;
+  end;
 end;
 
 procedure TViewProductsBase2.BindRate(ARateField: TField;
@@ -418,14 +429,42 @@ begin
   end;
 end;
 
-procedure TViewProductsBase2.cxDBTreeListBandHeaderClick(Sender:
-    TcxCustomTreeList; ABand: TcxTreeListBand);
+procedure TViewProductsBase2.cxDBTreeListBandHeaderClick
+  (Sender: TcxCustomTreeList; ABand: TcxTreeListBand);
 begin
   inherited;
   if ABand.VisibleColumnCount = 0 then
     Exit;
 
-  ApplySort( ABand.VisibleColumns[0] );
+  ApplySort(ABand.VisibleColumns[0]);
+end;
+
+procedure TViewProductsBase2.cxDBTreeListCustomDrawDataCell
+  (Sender: TcxCustomTreeList; ACanvas: TcxCanvas;
+  AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
+var
+  V: Variant;
+begin
+  inherited;
+
+  if (AViewInfo.Selected) and (AViewInfo.Column = cxDBTreeList.FocusedColumn)
+  then
+    Exit;
+
+  if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) then
+    Exit;
+
+  V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
+  if VarIsNull(V) then
+    Exit;
+
+  if ((V = 1) and (AViewInfo.Column = clPriceR)) or
+    ((V = 2) and (AViewInfo.Column = clPriceD)) then
+  begin
+    // Пишем чёрным по белому
+    ACanvas.Font.Color := clBlack;
+    ACanvas.FillRect(AViewInfo.BoundsRect, $00F5DEC9);
+  end;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
@@ -433,6 +472,32 @@ procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
 begin
   inherited;
   UpdateView;
+end;
+
+procedure TViewProductsBase2.cxDBTreeListInitEditValue(Sender, AItem: TObject;
+  AEdit: TcxCustomEdit; var AValue: Variant);
+var
+  AcxDBTreeListColumn: TcxDBTreeListColumn;
+  AcxMaskEdit: TcxMaskEdit;
+  // S: string;
+begin
+  inherited;
+
+  // В режиме вставки новой записи разрешаем редактирование цены
+  if ProductBaseGroup.qProductsBase.FDQuery.State = dsInsert then
+    Exit;
+
+  AcxDBTreeListColumn := AItem as TcxDBTreeListColumn;
+
+  if not AcxDBTreeListColumn.DataBinding.Field.FieldName.StartsWith('Price')
+  then
+    Exit;
+
+  if not(AEdit is TcxMaskEdit) then
+    Exit;
+
+  AcxMaskEdit := AEdit as TcxMaskEdit;
+  AcxMaskEdit.Properties.ReadOnly := True;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
@@ -445,27 +510,27 @@ begin
   IsGroup := not VarIsNull(V) and (V = 1);
 end;
 
-procedure TViewProductsBase2.cxDBTreeListStylesGetContentStyle(
-  Sender: TcxCustomTreeList; AColumn: TcxTreeListColumn; ANode: TcxTreeListNode;
-  var AStyle: TcxStyle);
+procedure TViewProductsBase2.cxDBTreeListStylesGetContentStyle
+  (Sender: TcxCustomTreeList; AColumn: TcxTreeListColumn;
+  ANode: TcxTreeListNode; var AStyle: TcxStyle);
 begin
   inherited;
   Exit;
   {
-  if (ANode = nil) or (AColumn = nil) then
-  begin
+    if (ANode = nil) or (AColumn = nil) then
+    begin
     AStyle := cxNormalStyle;
     Exit;
-  end;
+    end;
 
-  if (cxDBTreeList.FocusedColumn = AColumn) then
+    if (cxDBTreeList.FocusedColumn = AColumn) then
     AStyle := cxStyle1
-  else
+    else
     AStyle := cxNormalStyle;
 
-//  if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.DataBinding.FieldName then
-//    AStyle := cxStyle1;
-}
+    //  if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.DataBinding.FieldName then
+    //    AStyle := cxStyle1;
+  }
 end;
 
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
@@ -650,21 +715,24 @@ end;
 procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
 var
   ANode: TcxDBTreeListNode;
+  AUpdatedIDList: TList<Integer>;
   i: Integer;
 begin
+  AUpdatedIDList := TList<Integer>.Create;
   FProductBaseGroup.qProductsBase.FDQuery.DisableControls;
   try
     for i := 0 to cxDBTreeList.SelectionCount - 1 do
     begin
       ANode := cxDBTreeList.Selections[i] as TcxDBTreeListNode;
-      if ANode.IsGroupNode then
-        Continue;
+      // if ANode.IsGroupNode then
+      // Continue;
 
       FProductBaseGroup.qProductsBase.UpdateRate(ANode.Values[clID.ItemIndex],
-        RateField, ARate);
+        RateField, ARate, AUpdatedIDList);
     end;
   finally
     FProductBaseGroup.qProductsBase.FDQuery.EnableControls;
+    FreeAndNil(AUpdatedIDList);
   end;
 end;
 

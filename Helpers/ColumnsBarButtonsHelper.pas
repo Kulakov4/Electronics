@@ -4,16 +4,21 @@ interface
 
 uses
   System.Classes, Vcl.ActnList, dxBar, cxGridDBBandedTableView,
-  cxGridBandedTableView, System.Generics.Collections, cxVGridViewInfo, cxGrid;
+  cxGridBandedTableView, System.Generics.Collections, cxVGridViewInfo, cxGrid,
+  cxDBTL, cxTL;
 
 type
-  TCustomizeGridViewAction = class;
-  TCustomizeGridViewItemAction = class;
+  TGroupGVAction = class;
+  TGVAction = class;
+  TTLAction = class;
+  TTLBandAction = class;
+  TTLColumnAction = class;
+  TGroupTLAction = class;
 
-  TCustomizeGridViewActionClass = class of TCustomizeGridViewAction;
-  TCustomizeGridViewItemActionClass = class of TCustomizeGridViewItemAction;
+  TGroupTLActionClass = class of TGroupTLAction;
+  TGroupGVActionClass = class of TGroupGVAction;
 
-  TCustomizeGridViewItemAction = class(TAction)
+  TGVAction = class(TAction)
   private
   protected
     function GetGridView: TcxGridDBBandedTableView; virtual; abstract;
@@ -21,7 +26,7 @@ type
     property GridView: TcxGridDBBandedTableView read GetGridView;
   end;
 
-  TCustomizeBandAction = class(TCustomizeGridViewItemAction)
+  TGVBandAction = class(TGVAction)
     procedure actCustomizeBandExecute(Sender: TObject); virtual;
   private
     FBand: TcxGridBand;
@@ -32,7 +37,7 @@ type
     property Band: TcxGridBand read FBand write SetBand;
   end;
 
-  TCustomizeColumnAction = class(TCustomizeGridViewItemAction)
+  TGVColumnAction = class(TGVAction)
     procedure actCustomizeColumnExecute(Sender: TObject); virtual;
   private
     FColumn: TcxGridDBBandedColumn;
@@ -43,21 +48,20 @@ type
     property Column: TcxGridDBBandedColumn read FColumn write SetColumn;
   end;
 
-  TColumnsBarButtons = class(TComponent)
+  TGVColumnsBarButtons = class(TComponent)
   private
-    FCustomizeGridViewActionList: TList<TCustomizeGridViewAction>;
+    FGroupActions: TList<TGroupGVAction>;
     FcxGridDBBandedTableView: TcxGridDBBandedTableView;
     FdxBarSubitem: TdxBarSubItem;
   protected
-    function CreateCustomizeBandAction(ABand: TcxGridBand)
-      : TCustomizeBandAction; virtual;
-    function CreateCustomizeColumnAction(AColumn: TcxGridDBBandedColumn)
-      : TCustomizeColumnAction; virtual;
+    function CreateBandAction(ABand: TcxGridBand): TGVBandAction; virtual;
+    function CreateColumnAction(AColumn: TcxGridDBBandedColumn)
+      : TGVColumnAction; virtual;
     procedure CreateDxBarButton(AAction: TAction;
       ABarButtonStyle: TdxBarButtonStyle; ACloseSubMenuOnClick: Boolean);
-    function CreateGridViewAction(AActionClass: TCustomizeGridViewActionClass)
-      : TCustomizeGridViewAction;
-    procedure CreateGridViewActions; virtual;
+    function CreateGroupAction(AActionClass: TGroupGVActionClass)
+      : TGroupGVAction;
+    procedure CreateGroupActions; virtual;
     procedure ProcessGridView; virtual;
   public
     constructor Create(AOwner: TComponent; AdxBarSubitem: TdxBarSubItem;
@@ -66,16 +70,16 @@ type
     procedure AfterConstruction; override;
   end;
 
-  TCustomizeGridViewAction = class(TAction)
+  TGroupGVAction = class(TAction)
   private
-    FActions: TList<TCustomizeGridViewItemAction>;
+    FActions: TList<TGVAction>;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property Actions: TList<TCustomizeGridViewItemAction> read FActions;
+    property Actions: TList<TGVAction> read FActions;
   end;
 
-  THideAllAction = class(TCustomizeGridViewAction)
+  TGVHideAllAction = class(TGroupGVAction)
     procedure actHideAllExecute(Sender: TObject);
   private
     HideAll: Boolean;
@@ -83,43 +87,109 @@ type
     constructor Create(AOwner: TComponent); override;
   end;
 
-  TColumnsBarButtonsEx = class(TColumnsBarButtons)
+  TGVColumnsBarButtonsEx = class(TGVColumnsBarButtons)
   private
     FChildGridView: TcxGridDBBandedTableView;
   protected
-    function CreateCustomizeBandAction(ABand: TcxGridBand)
-      : TCustomizeBandAction; override;
-    function CreateCustomizeColumnAction(AColumn: TcxGridDBBandedColumn)
-      : TCustomizeColumnAction; override;
+    function CreateBandAction(ABand: TcxGridBand): TGVBandAction; override;
+    function CreateColumnAction(AColumn: TcxGridDBBandedColumn)
+      : TGVColumnAction; override;
   public
     constructor Create(AOwner: TComponent; AdxBarSubitem: TdxBarSubItem;
       AcxGridDBBandedTableView, AChildGridView: TcxGridDBBandedTableView);
       reintroduce;
   end;
 
-  TCustomizeColumnActionEx = class(TCustomizeColumnAction)
+  TGVColumnActionEx = class(TGVColumnAction)
     procedure actCustomizeColumnExecute(Sender: TObject); override;
   private
-    FChildAction: TCustomizeColumnAction;
-    property ChildAction: TCustomizeColumnAction read FChildAction
-      write FChildAction;
+    FChildAction: TGVColumnAction;
+    property ChildAction: TGVColumnAction read FChildAction write FChildAction;
   end;
 
-  TCustomizeBandActionEx = class(TCustomizeBandAction)
+  TGVBandActionEx = class(TGVBandAction)
     procedure actCustomizeBandExecute(Sender: TObject); override;
   private
-    FChildAction: TCustomizeBandAction;
-    property ChildAction: TCustomizeBandAction read FChildAction
-      write FChildAction;
+    FChildAction: TGVBandAction;
+    property ChildAction: TGVBandAction read FChildAction write FChildAction;
+  end;
+
+  TTLColumnsBarButtons = class(TComponent)
+  private
+    FcxDBTreeList: TcxDBTreeList;
+    FdxBarSubitem: TdxBarSubItem;
+    FGroupActions: TList<TGroupTLAction>;
+  protected
+    procedure CreateDxBarButton(AAction: TAction;
+      ABarButtonStyle: TdxBarButtonStyle; ACloseSubMenuOnClick: Boolean);
+    function CreateGroupAction(AActionClass: TGroupTLActionClass)
+      : TGroupTLAction;
+    procedure CreateGroupActions;
+    function CreateBandAction(Band: TcxTreeListBand): TTLBandAction;
+    function CreateColumnAction(AColumn: TcxTreeListColumn): TTLColumnAction;
+    procedure ProcessTreeList;
+  public
+    constructor Create(AOwner: TComponent; AdxBarSubitem: TdxBarSubItem;
+      AcxDBTreeList: TcxDBTreeList); reintroduce;
+    destructor Destroy; override;
+    procedure AfterConstruction; override;
+  end;
+
+  TTLAction = class(TAction)
+  private
+  protected
+    function GetDBTreeList: TcxDBTreeList; virtual; abstract;
+  public
+    property DBTreeList: TcxDBTreeList read GetDBTreeList;
+  end;
+
+  TTLBandAction = class(TTLAction)
+    procedure actHideBandExecute(Sender: TObject); virtual;
+  private
+    FcxTreeListBand: TcxTreeListBand;
+    procedure SetcxTreeListBand(const Value: TcxTreeListBand);
+  protected
+    function GetDBTreeList: TcxDBTreeList; override;
+  public
+    property cxTreeListBand: TcxTreeListBand read FcxTreeListBand
+      write SetcxTreeListBand;
+  end;
+
+  TTLColumnAction = class(TTLAction)
+    procedure actHideColumnExecute(Sender: TObject); virtual;
+  private
+    FColumn: TcxTreeListColumn;
+    procedure SetColumn(const Value: TcxTreeListColumn);
+  protected
+    function GetDBTreeList: TcxDBTreeList; override;
+  public
+    property Column: TcxTreeListColumn read FColumn write SetColumn;
+  end;
+
+  TGroupTLAction = class(TAction)
+  private
+    FActions: TList<TTLAction>;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property Actions: TList<TTLAction> read FActions;
+  end;
+
+  TTLHideAllAction = class(TGroupTLAction)
+    procedure actHideAllExecute(Sender: TObject);
+  private
+    HideAll: Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
 uses System.SysUtils, System.Generics.Defaults;
 
-{ TColumnsBarButtons }
+{ TGVColumnsBarButtons }
 
-constructor TColumnsBarButtons.Create(AOwner: TComponent;
+constructor TGVColumnsBarButtons.Create(AOwner: TComponent;
   AdxBarSubitem: TdxBarSubItem;
   AcxGridDBBandedTableView: TcxGridDBBandedTableView);
 begin
@@ -130,36 +200,36 @@ begin
 
   FdxBarSubitem := AdxBarSubitem;
   FcxGridDBBandedTableView := AcxGridDBBandedTableView;
-  FCustomizeGridViewActionList := TList<TCustomizeGridViewAction>.Create;
+  FGroupActions := TList<TGroupGVAction>.Create;
 end;
 
-destructor TColumnsBarButtons.Destroy;
+destructor TGVColumnsBarButtons.Destroy;
 begin
   inherited;
-  FreeAndNil(FCustomizeGridViewActionList);
+  FreeAndNil(FGroupActions);
 end;
 
-procedure TColumnsBarButtons.AfterConstruction;
+procedure TGVColumnsBarButtons.AfterConstruction;
 begin
   inherited;
   ProcessGridView;
 end;
 
-function TColumnsBarButtons.CreateCustomizeBandAction(ABand: TcxGridBand)
-  : TCustomizeBandAction;
+function TGVColumnsBarButtons.CreateBandAction(ABand: TcxGridBand)
+  : TGVBandAction;
 begin
-  Result := TCustomizeBandAction.Create(Self);
+  Result := TGVBandAction.Create(Self);
   Result.Band := ABand;
 end;
 
-function TColumnsBarButtons.CreateCustomizeColumnAction
-  (AColumn: TcxGridDBBandedColumn): TCustomizeColumnAction;
+function TGVColumnsBarButtons.CreateColumnAction(AColumn: TcxGridDBBandedColumn)
+  : TGVColumnAction;
 begin
-  Result := TCustomizeColumnAction.Create(Self);
+  Result := TGVColumnAction.Create(Self);
   Result.Column := AColumn;
 end;
 
-procedure TColumnsBarButtons.CreateDxBarButton(AAction: TAction;
+procedure TGVColumnsBarButtons.CreateDxBarButton(AAction: TAction;
   ABarButtonStyle: TdxBarButtonStyle; ACloseSubMenuOnClick: Boolean);
 var
   AdxBarButton: TdxBarButton;
@@ -174,32 +244,32 @@ begin
   AdxBarItemLink.Item := AdxBarButton;
 end;
 
-function TColumnsBarButtons.CreateGridViewAction(AActionClass
-  : TCustomizeGridViewActionClass): TCustomizeGridViewAction;
+function TGVColumnsBarButtons.CreateGroupAction(AActionClass
+  : TGroupGVActionClass): TGroupGVAction;
 begin
   // Добавляем действие для представления в целом
   Result := AActionClass.Create(Self);
   CreateDxBarButton(Result, bsDefault, True);
-  FCustomizeGridViewActionList.Add(Result);
+  FGroupActions.Add(Result);
 end;
 
-procedure TColumnsBarButtons.CreateGridViewActions;
+procedure TGVColumnsBarButtons.CreateGroupActions;
 begin
   // Добавляем действие "Спрятать все колонки"
-  CreateGridViewAction(THideAllAction);
+  CreateGroupAction(TGVHideAllAction);
 end;
 
-procedure TColumnsBarButtons.ProcessGridView;
+procedure TGVColumnsBarButtons.ProcessGridView;
 var
-  AAction: TCustomizeGridViewItemAction;
+  AAction: TGVAction;
   AColumn: TcxGridDBBandedColumn;
   i: Integer;
   ACaptions: TList<string>;
   AColumns: TList<TcxGridDBBandedColumn>;
-  ACustomizeGridViewAction: TCustomizeGridViewAction;
+  ACustomizeGridViewAction: TGroupGVAction;
 begin
   // Создаём действия для табличного представления в целом
-  CreateGridViewActions;
+  CreateGroupActions;
 
   ACaptions := TList<string>.Create;
   try
@@ -241,7 +311,7 @@ begin
               if ACaptions.IndexOf(AColumn.Caption) < 0 then
               begin
                 ACaptions.Add(AColumn.Caption);
-                AAction := CreateCustomizeColumnAction(AColumn);
+                AAction := CreateColumnAction(AColumn);
               end;
             end;
           end
@@ -252,13 +322,13 @@ begin
             if ACaptions.IndexOf(AColumn.Position.Band.Caption) < 0 then
             begin
               ACaptions.Add(AColumn.Position.Band.Caption);
-              AAction := CreateCustomizeBandAction(AColumn.Position.Band);
+              AAction := CreateBandAction(AColumn.Position.Band);
             end;
           end;
 
           if AAction <> nil then
           begin
-            for ACustomizeGridViewAction in FCustomizeGridViewActionList do
+            for ACustomizeGridViewAction in FGroupActions do
               ACustomizeGridViewAction.Actions.Add(AAction);
 
             CreateDxBarButton(AAction, bsChecked, False);
@@ -274,7 +344,7 @@ begin
 
 end;
 
-procedure TCustomizeBandAction.actCustomizeBandExecute(Sender: TObject);
+procedure TGVBandAction.actCustomizeBandExecute(Sender: TObject);
 begin
   Assert(FBand <> nil);
   Checked := not Checked;
@@ -284,12 +354,12 @@ begin
     FBand.ApplyBestFit();
 end;
 
-function TCustomizeBandAction.GetGridView: TcxGridDBBandedTableView;
+function TGVBandAction.GetGridView: TcxGridDBBandedTableView;
 begin
   Result := Band.GridView as TcxGridDBBandedTableView;
 end;
 
-procedure TCustomizeBandAction.SetBand(const Value: TcxGridBand);
+procedure TGVBandAction.SetBand(const Value: TcxGridBand);
 begin
   if FBand <> Value then
   begin
@@ -310,7 +380,7 @@ begin
   end;
 end;
 
-procedure TCustomizeColumnAction.actCustomizeColumnExecute(Sender: TObject);
+procedure TGVColumnAction.actCustomizeColumnExecute(Sender: TObject);
 var
   ABand: TcxGridBand;
   AnyVisible: Boolean;
@@ -339,12 +409,12 @@ begin
     FColumn.Position.Band.Visible := True;
 end;
 
-function TCustomizeColumnAction.GetGridView: TcxGridDBBandedTableView;
+function TGVColumnAction.GetGridView: TcxGridDBBandedTableView;
 begin
   Result := FColumn.GridView as TcxGridDBBandedTableView;
 end;
 
-procedure TCustomizeColumnAction.SetColumn(const Value: TcxGridDBBandedColumn);
+procedure TGVColumnAction.SetColumn(const Value: TcxGridDBBandedColumn);
 begin
   if FColumn <> Value then
   begin
@@ -364,7 +434,7 @@ begin
   end;
 end;
 
-constructor THideAllAction.Create(AOwner: TComponent);
+constructor TGVHideAllAction.Create(AOwner: TComponent);
 begin
   inherited;
   HideAll := False;
@@ -372,7 +442,7 @@ begin
   OnExecute := actHideAllExecute;
 end;
 
-procedure THideAllAction.actHideAllExecute(Sender: TObject);
+procedure TGVHideAllAction.actHideAllExecute(Sender: TObject);
 var
   AAction: TAction;
   AGridView: TcxGridDBBandedTableView;
@@ -403,7 +473,7 @@ begin
   end;
 end;
 
-procedure TCustomizeColumnActionEx.actCustomizeColumnExecute(Sender: TObject);
+procedure TGVColumnActionEx.actCustomizeColumnExecute(Sender: TObject);
 begin
   inherited;
 
@@ -411,9 +481,9 @@ begin
     FChildAction.Execute;
 end;
 
-{ TColumnsBarButtonsEx }
+{ TGVColumnsBarButtonsEx }
 
-constructor TColumnsBarButtonsEx.Create(AOwner: TComponent;
+constructor TGVColumnsBarButtonsEx.Create(AOwner: TComponent;
 AdxBarSubitem: TdxBarSubItem; AcxGridDBBandedTableView, AChildGridView
   : TcxGridDBBandedTableView);
 begin
@@ -421,39 +491,39 @@ begin
   FChildGridView := AChildGridView;
 end;
 
-function TColumnsBarButtonsEx.CreateCustomizeBandAction(ABand: TcxGridBand)
-  : TCustomizeBandAction;
+function TGVColumnsBarButtonsEx.CreateBandAction(ABand: TcxGridBand)
+  : TGVBandAction;
 var
-  AChildAction: TCustomizeBandAction;
+  AChildAction: TGVBandAction;
 begin
   Assert(FChildGridView <> nil);
 
-  Result := TCustomizeBandActionEx.Create(Self);
+  Result := TGVBandActionEx.Create(Self);
   Result.Band := ABand;
 
-  AChildAction := TCustomizeBandAction.Create(Self);
+  AChildAction := TGVBandAction.Create(Self);
   AChildAction.Band := FChildGridView.Bands[ABand.Index];
 
-  (Result as TCustomizeBandActionEx).ChildAction := AChildAction;
+  (Result as TGVBandActionEx).ChildAction := AChildAction;
 end;
 
-function TColumnsBarButtonsEx.CreateCustomizeColumnAction
-  (AColumn: TcxGridDBBandedColumn): TCustomizeColumnAction;
+function TGVColumnsBarButtonsEx.CreateColumnAction
+  (AColumn: TcxGridDBBandedColumn): TGVColumnAction;
 var
-  AChildAction: TCustomizeColumnAction;
+  AChildAction: TGVColumnAction;
 begin
   Assert(FChildGridView <> nil);
 
-  Result := TCustomizeColumnActionEx.Create(Self);
+  Result := TGVColumnActionEx.Create(Self);
   Result.Column := AColumn;
 
-  AChildAction := TCustomizeColumnAction.Create(Self);
+  AChildAction := TGVColumnAction.Create(Self);
   AChildAction.Column := FChildGridView.Columns[AColumn.Index];
 
-  (Result as TCustomizeColumnActionEx).ChildAction := AChildAction;
+  (Result as TGVColumnActionEx).ChildAction := AChildAction;
 end;
 
-procedure TCustomizeBandActionEx.actCustomizeBandExecute(Sender: TObject);
+procedure TGVBandActionEx.actCustomizeBandExecute(Sender: TObject);
 begin
   inherited;
 
@@ -461,16 +531,322 @@ begin
     FChildAction.Execute;
 end;
 
-constructor TCustomizeGridViewAction.Create(AOwner: TComponent);
+constructor TGroupGVAction.Create(AOwner: TComponent);
 begin
   inherited;
-  FActions := TList<TCustomizeGridViewItemAction>.Create;
+  FActions := TList<TGVAction>.Create;
 end;
 
-destructor TCustomizeGridViewAction.Destroy;
+destructor TGroupGVAction.Destroy;
 begin
   FreeAndNil(FActions);
   inherited;
+end;
+
+{ TTLColumnsBarButtons }
+
+constructor TTLColumnsBarButtons.Create(AOwner: TComponent;
+AdxBarSubitem: TdxBarSubItem; AcxDBTreeList: TcxDBTreeList);
+begin
+  inherited Create(AOwner);
+
+  Assert(AdxBarSubitem <> nil);
+  Assert(AcxDBTreeList <> nil);
+
+  FdxBarSubitem := AdxBarSubitem;
+  FcxDBTreeList := AcxDBTreeList;
+
+  // Действия над всем деревом
+  FGroupActions := TList<TGroupTLAction>.Create;
+end;
+
+destructor TTLColumnsBarButtons.Destroy;
+begin
+  inherited;
+  FreeAndNil(FGroupActions);
+end;
+
+procedure TTLColumnsBarButtons.AfterConstruction;
+begin
+  inherited;
+  ProcessTreeList;
+end;
+
+procedure TTLColumnsBarButtons.CreateDxBarButton(AAction: TAction;
+ABarButtonStyle: TdxBarButtonStyle; ACloseSubMenuOnClick: Boolean);
+var
+  AdxBarButton: TdxBarButton;
+  AdxBarItemLink: TdxBarItemLink;
+begin
+  AdxBarButton := TdxBarButton.Create(Self);
+  AdxBarButton.ButtonStyle := ABarButtonStyle;
+  AdxBarButton.CloseSubMenuOnClick := ACloseSubMenuOnClick;
+  AdxBarButton.Action := AAction;
+
+  AdxBarItemLink := FdxBarSubitem.ItemLinks.AddButton;
+  AdxBarItemLink.Item := AdxBarButton;
+end;
+
+function TTLColumnsBarButtons.CreateGroupAction(AActionClass
+  : TGroupTLActionClass): TGroupTLAction;
+begin
+  // Добавляем действие для представления в целом
+  Result := AActionClass.Create(Self);
+  CreateDxBarButton(Result, bsDefault, True);
+  FGroupActions.Add(Result);
+end;
+
+procedure TTLColumnsBarButtons.CreateGroupActions;
+begin
+  // Создаём действие "спрятать всё"
+  CreateGroupAction(TTLHideAllAction);
+end;
+
+function TTLColumnsBarButtons.CreateBandAction(Band: TcxTreeListBand)
+  : TTLBandAction;
+begin
+  Assert(Band <> nil);
+  Result := TTLBandAction.Create(Self);
+  Result.cxTreeListBand := Band;
+end;
+
+function TTLColumnsBarButtons.CreateColumnAction(AColumn: TcxTreeListColumn)
+  : TTLColumnAction;
+begin
+  Assert(AColumn <> nil);
+  Result := TTLColumnAction.Create(Self);
+  Result.Column := AColumn;
+end;
+
+procedure TTLColumnsBarButtons.ProcessTreeList;
+var
+  AAction: TTLAction;
+  ABaseTLAction: TGroupTLAction;
+  ACaptions: TList<String>;
+  AColumn: TcxTreeListColumn;
+  AColumns: TList<TcxTreeListColumn>;
+  i: Integer;
+begin
+  // Создаём действия для табличного представления в целом
+  CreateGroupActions;
+
+  ACaptions := TList<string>.Create;
+  try
+    // Список колонок TreeList
+    AColumns := TList<TcxTreeListColumn>.Create;
+    try
+      // Добавляем в список все колонки, которые есть у cxGrid
+      for i := 0 to FcxDBTreeList.ColumnCount - 1 do
+      begin
+        Assert(FcxDBTreeList.Columns[i].Position.Band <> nil);
+        AColumns.Add(FcxDBTreeList.Columns[i]);
+      end;
+      // Сортируем эти столбцы по позиции бэнда и по позиции внутри бэнда
+      AColumns.Sort(TComparer<TcxTreeListColumn>.Construct(
+        function(const L, R: TcxTreeListColumn): Integer
+        begin
+          Result := L.Position.Band.Position.ColIndex -
+            R.Position.Band.Position.ColIndex;
+          if Result = 0 then
+            Result := L.Position.ColIndex - R.Position.ColIndex;
+        end));
+
+      for AColumn in AColumns do
+      begin
+        Assert(AColumn.Position.Band <> nil);
+        if (AColumn.Options.Customizing) and
+          (AColumn.Position.Band.Options.Customizing) then
+        begin
+          AAction := nil;
+
+          // Если колонка относится к "пустому" бэнду
+          if (AColumn.Position.Band.Caption.Text = '') then
+          begin
+            // Если этот бэнд не зафиксирован
+            if AColumn.Position.Band.FixedKind = tlbfNone then
+            begin
+              // если такого заголовка ещё не было
+              if ACaptions.IndexOf(AColumn.Caption.Text) < 0 then
+              begin
+                ACaptions.Add(AColumn.Caption.Text);
+                AAction := CreateColumnAction(AColumn);
+              end;
+            end;
+          end
+          else
+          begin
+            // Если колонка относится к не пустому бэнду
+            if AColumn.Position.Band.FixedKind = tlbfNone then
+            begin
+              // если такого заголовка бэнда ещё не было
+              if ACaptions.IndexOf(AColumn.Position.Band.Caption.Text) < 0 then
+              begin
+                ACaptions.Add(AColumn.Position.Band.Caption.Text);
+                AAction := CreateBandAction(AColumn.Position.Band);
+              end;
+            end;
+          end;
+
+          if AAction <> nil then
+          begin
+            for ABaseTLAction in FGroupActions do
+              ABaseTLAction.Actions.Add(AAction);
+
+            CreateDxBarButton(AAction, bsChecked, False);
+          end;
+        end;
+      end;
+    finally
+      FreeAndNil(AColumns)
+    end;
+  finally
+    FreeAndNil(ACaptions);
+  end;
+
+end;
+
+procedure TTLBandAction.actHideBandExecute(Sender: TObject);
+begin
+  Assert(FcxTreeListBand <> nil);
+  Checked := not Checked;
+  FcxTreeListBand.Visible := Checked;
+
+  if FcxTreeListBand.Visible then
+    FcxTreeListBand.ApplyBestFit();
+end;
+
+function TTLBandAction.GetDBTreeList: TcxDBTreeList;
+begin
+  Assert(FcxTreeListBand <> nil);
+  Result := FcxTreeListBand.TreeList as TcxDBTreeList;
+end;
+
+procedure TTLBandAction.SetcxTreeListBand(const Value: TcxTreeListBand);
+begin
+  if FcxTreeListBand = Value then
+    Exit;
+
+  FcxTreeListBand := Value;
+  if FcxTreeListBand <> nil then
+  begin
+    Caption := FcxTreeListBand.Caption.Text;
+    Checked := FcxTreeListBand.Visible;
+    OnExecute := actHideBandExecute;
+  end
+  else
+  begin
+    Caption := '';
+    Checked := False;
+    OnExecute := nil;
+  end;
+
+end;
+
+procedure TTLColumnAction.actHideColumnExecute(Sender: TObject);
+var
+  ABand: TcxTreeListBand;
+  AnyVisible: Boolean;
+  i: Integer;
+begin
+  Assert(FColumn <> nil);
+  Checked := not Checked;
+  FColumn.Visible := Checked;
+
+  if not FColumn.Visible then
+  begin
+    AnyVisible := False;
+    ABand := FColumn.Position.Band;
+    for i := 0 to ABand.ColumnCount - 1 do
+    begin
+      AnyVisible := ABand.Columns[i].Visible;
+      if AnyVisible then
+        Break;
+    end;
+
+    // если все колонки в бэнде невидимые
+    if not AnyVisible then
+      ABand.Visible := False;
+  end
+  else
+    FColumn.Position.Band.Visible := True;
+
+end;
+
+function TTLColumnAction.GetDBTreeList: TcxDBTreeList;
+begin
+  Assert(FColumn <> nil);
+  Result := FColumn.TreeList as TcxDBTreeList;
+end;
+
+procedure TTLColumnAction.SetColumn(const Value: TcxTreeListColumn);
+begin
+  if FColumn = Value then
+    Exit;
+
+  FColumn := Value;
+  if FColumn <> nil then
+  begin
+    Caption := FColumn.Caption.Text;
+    Checked := FColumn.Visible;
+    OnExecute := actHideColumnExecute;
+  end
+  else
+  begin
+    Caption := '';
+    Checked := False;
+    OnExecute := nil;
+  end;
+end;
+
+constructor TGroupTLAction.Create(AOwner: TComponent);
+begin
+  inherited;
+  FActions := TList<TTLAction>.Create;
+end;
+
+destructor TGroupTLAction.Destroy;
+begin
+  FreeAndNil(FActions);
+  inherited;
+end;
+
+constructor TTLHideAllAction.Create(AOwner: TComponent);
+begin
+  inherited;
+  HideAll := False;
+  Caption := 'Спрятать все';
+  OnExecute := actHideAllExecute;
+end;
+
+procedure TTLHideAllAction.actHideAllExecute(Sender: TObject);
+var
+  AAction: TAction;
+  ATreeList: TcxDBTreeList;
+begin
+  if Actions.Count > 0 then
+  begin
+    HideAll := not HideAll;
+
+    if HideAll then
+      Caption := 'Показать все'
+    else
+      Caption := 'Спрятать все';
+
+    ATreeList := Actions[0].DBTreeList;
+    Assert(ATreeList <> nil);
+
+    ATreeList.BeginUpdate;
+    try
+      for AAction in Actions do
+      begin
+        if (HideAll and AAction.Checked) or (not HideAll and not AAction.Checked)
+        then
+          AAction.Execute;
+      end;
+    finally
+      ATreeList.EndUpdate;
+    end;
+  end;
 end;
 
 end.

@@ -70,7 +70,13 @@ type
     procedure DeleteList(var AList: TList<Variant>);
     procedure FetchFields(const AFieldNames: Array of String;
       const AValues: Array of Variant; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
+    procedure FetchFields(AFieldNames: TList<String>; AValues: TList<Variant>;
+      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+      AOptions: TFDUpdateRowOptions); overload;
+    procedure FetchNullValues(ASource: TFDQuery; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions;
+      MapFieldInfo: string = '');
     function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
@@ -113,7 +119,7 @@ type
 
 implementation
 
-uses System.Math, RepositoryDataModule, StrHelper;
+uses System.Math, RepositoryDataModule, StrHelper, MapFieldsUnit;
 
 {$R *.dfm}
 { TfrmDataModule }
@@ -442,7 +448,6 @@ procedure TQueryBase.FetchFields(const AFieldNames: Array of String;
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   ASQL: string;
-  // f: Double;
   i: Integer;
   S: string;
   V: Variant;
@@ -473,6 +478,92 @@ begin
   end;
 
   FDUpdateSQL.Apply(ARequest, AAction, AOptions);
+end;
+
+procedure TQueryBase.FetchFields(AFieldNames: TList<String>;
+  AValues: TList<Variant>; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+var
+  ASQL: string;
+  i: Integer;
+  S: string;
+  V: Variant;
+begin
+  Assert(AFieldNames.Count > 0);
+  Assert(AFieldNames.Count = AValues.Count);
+
+  ASQL := 'SELECT ';
+  for i := 0 to AFieldNames.Count - 1 do
+  begin
+    V := AValues[i];
+    if VarIsStr(V) then
+      S := QuotedStr(V)
+    else
+      S := V;
+    S := S + ' ' + AFieldNames[i];
+
+    if i > 0 then
+      ASQL := ASQL + ', ';
+    ASQL := ASQL + S;
+  end;
+
+  case ARequest of
+    arInsert:
+      FDUpdateSQL.InsertSQL.Text := ASQL;
+    arUpdate:
+      FDUpdateSQL.ModifySQL.Text := ASQL;
+  end;
+
+  FDUpdateSQL.Apply(ARequest, AAction, AOptions);
+end;
+
+procedure TQueryBase.FetchNullValues(ASource: TFDQuery;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions; MapFieldInfo: string = '');
+var
+  ASourceField: TField;
+  ADestinField: TField;
+  AFieldNames: TList<String>;
+  AFieldValues: TList<Variant>;
+  AMap: TFieldsMap;
+begin
+  Assert(ASource <> nil);
+  AFieldNames := nil;
+  AFieldValues := nil;
+  AMap := TFieldsMap.Create(MapFieldInfo);
+  try
+    for ASourceField in ASource.Fields do
+    begin
+      if ASourceField.IsNull then
+        continue;
+
+      // Ищем такое-же поле
+      ADestinField := FDQuery.FindField( AMap.Map( ASourceField.FieldName) );
+
+      if (ADestinField = nil) or (not ADestinField.IsNull) then
+        continue;
+
+      if AFieldNames = nil then
+      begin
+        AFieldNames := TList<String>.Create;
+        AFieldValues := TList<Variant>.Create;
+      end;
+
+      AFieldNames.Add(ADestinField.FieldName);
+      AFieldValues.Add(ASourceField.Value);
+    end;
+
+    if AFieldNames <> nil then
+    begin
+      // Выбираем значения полей
+      FetchFields(AFieldNames, AFieldValues, ARequest, AAction, AOptions);
+
+      FreeAndNil(AFieldNames);
+      FreeAndNil(AFieldValues);
+    end;
+  finally
+    FreeAndNil(AMap);
+  end;
 end;
 
 function TQueryBase.Field(const AFieldName: String): TField;
@@ -615,7 +706,7 @@ begin
     begin
       // Первичный ключ заполнять не будем
       if f.FieldName.ToUpper = PKFieldName.ToUpper then
-        Continue;
+        continue;
 
       // Ищем такое поле в коллекции вставляемых значений
       AFieldHolder := ARecordHolder.Find(f.FieldName);
@@ -784,7 +875,7 @@ procedure TQueryBase.TryEdit;
 begin
   Assert(FDQuery.Active and (FDQuery.RecordCount > 0));
 
-  if not(FDQuery.State in [dsEdit, dsInsert]) then
+  if not (FDQuery.State in [dsEdit, dsInsert]) then
     FDQuery.Edit;
 end;
 
@@ -835,7 +926,7 @@ begin
     begin
       // Первичный ключ обновлять не будем
       if f.FieldName.ToUpper = PKFieldName.ToUpper then
-        Continue;
+        continue;
 
       // Ищем такое поле в коллекции обновляемых значений
       AFieldHolder := ARecordHolder.Find(f.FieldName);

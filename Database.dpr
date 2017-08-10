@@ -32,7 +32,6 @@ uses
   PathSettingsForm in 'Views\PathSettingsForm.pas' {frmPathSettings},
   PopupForm in 'Views\PopupForm.pas' {frmPopupForm},
   GridFrame in 'Views\GridFrame.pas' {frmGrid: TFrame},
-  BodyTypesGridView in 'Views\BodyTypes\BodyTypesGridView.pas' {ViewBodyTypesGrid: TFrame},
   BodyTypesView in 'Views\BodyTypes\BodyTypesView.pas' {ViewBodyTypes: TFrame},
   BodyTypesForm in 'Views\BodyTypes\BodyTypesForm.pas' {frmBodyTypes},
   ReportQuery in 'Queryes\Report\ReportQuery.pas' {QueryReports: TFrame},
@@ -194,7 +193,8 @@ uses
   SearchComponentGroup in 'Queryes\Search\SearchComponentGroup.pas' {QuerySearchComponentGroup: TFrame},
   SearchStorehouseProduct in 'Queryes\Search\SearchStorehouseProduct.pas' {QuerySearchStorehouseProduct: TFrame},
   ProductsView2 in 'Views\Products\ProductsView2.pas' {ViewProducts2: TFrame},
-  ProductsSearchView2 in 'Views\Products\ProductsSearchView2.pas' {ViewProductsSearch2: TFrame};
+  ProductsSearchView2 in 'Views\Products\ProductsSearchView2.pas' {ViewProductsSearch2: TFrame},
+  MapFieldsUnit in 'Helpers\MapFieldsUnit.pas';
 
 {$R *.res}
 

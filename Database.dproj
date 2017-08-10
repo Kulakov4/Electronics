@@ -170,11 +170,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\BodyTypes\BodyTypesGridView.pas">
-            <Form>ViewBodyTypesGrid</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\BodyTypes\BodyTypesView.pas">
             <Form>ViewBodyTypes</Form>
             <FormType>dfm</FormType>
@@ -897,6 +892,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Helpers\MapFieldsUnit.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

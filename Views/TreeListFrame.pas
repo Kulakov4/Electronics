@@ -25,7 +25,7 @@ uses
   dxSkinXmas2008Blue, cxInplaceContainer, cxTLData, cxDBTL, dxSkinsdxBarPainter,
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
   Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections,
-  Vcl.Menus, GridSort, cxGridTableView;
+  Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper;
 
 type
   TfrmTreeList = class(TFrame)
@@ -36,11 +36,15 @@ type
     PopupMenu: TPopupMenu;
     actCopy: TAction;
     N1: TMenuItem;
+    dxbsColumns: TdxBarSubItem;
     procedure actCopyExecute(Sender: TObject);
-    procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList; ACanvas:
-        TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
-    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
-        TcxTreeListColumn);
+    procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
+      ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
+      var ADone: Boolean);
+    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn);
+    procedure cxDBTreeListMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure cxDBTreeListStylesGetBandHeaderStyle(Sender: TcxCustomTreeList;
       ABand: TcxTreeListBand; var AStyle: TcxStyle);
   private
@@ -48,19 +52,24 @@ type
     FPostOnEnterFields: TList<String>;
     { Private declarations }
   protected
+    FColumnsBarButtons: TTLColumnsBarButtons;
+    procedure CreateColumnsBarButtons; virtual;
     procedure InitializeColumns; virtual;
     procedure InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
-        ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
-    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn; ADataSource:
-        TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
-        AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
+      ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
+    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
+      ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+      const AListFieldNames: string;
+      const AKeyFieldNames: string = 'ID'); overload;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterConstruction; override;
     procedure ApplySort(AColumn: TcxTreeListColumn);
     procedure ClearSort;
     procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
-    function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn): Variant;
+    function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
+      : Variant;
     procedure UpdateView; virtual;
     property GridSort: TGridSort read FGridSort;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
@@ -69,7 +78,7 @@ type
 
 implementation
 
-uses dxCore, RepositoryDataModule, Vcl.Clipbrd;
+uses dxCore, RepositoryDataModule, Vcl.Clipbrd, System.Types;
 
 {$R *.dfm}
 
@@ -80,7 +89,8 @@ begin
   FPostOnEnterFields := TList<String>.Create;
 
   FGridSort := TGridSort.Create;
-  cxDBTreeList.Styles.OnGetBandHeaderStyle := cxDBTreeListStylesGetBandHeaderStyle;
+  cxDBTreeList.Styles.OnGetBandHeaderStyle :=
+    cxDBTreeListStylesGetBandHeaderStyle;
 end;
 
 destructor TfrmTreeList.Destroy;
@@ -95,18 +105,25 @@ var
   I: Integer;
   AText: string;
 begin
-//  cxDBTreeList.OptionsView.Headers := False;
-//  cxDBTreeList.CopySelectedToClipboard;
-//  cxDBTreeList.OptionsView.Headers := True;
+  // cxDBTreeList.OptionsView.Headers := False;
+  // cxDBTreeList.CopySelectedToClipboard;
+  // cxDBTreeList.OptionsView.Headers := True;
 
   AText := '';
   for I := 0 to cxDBTreeList.SelectionCount - 1 do
   begin
     if I > 0 then
       AText := AText + #13#10;
-    AText := AText +   cxDBTreeList.FocusedColumn.DisplayTexts[ cxDBTreeList.Selections[i] ];
+    AText := AText + cxDBTreeList.FocusedColumn.DisplayTexts
+      [cxDBTreeList.Selections[I]];
   end;
   ClipBoard.AsText := AText
+end;
+
+procedure TfrmTreeList.AfterConstruction;
+begin
+  inherited;
+  CreateColumnsBarButtons;
 end;
 
 procedure TfrmTreeList.ApplySort(AColumn: TcxTreeListColumn);
@@ -149,15 +166,22 @@ end;
 
 procedure TfrmTreeList.ClearSort;
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i := 0 to cxDBTreeList.ColumnCount - 1 do
-    cxDBTreeList.Columns[i].SortOrder := soNone;
+  for I := 0 to cxDBTreeList.ColumnCount - 1 do
+    cxDBTreeList.Columns[I].SortOrder := soNone;
 end;
 
-procedure TfrmTreeList.cxDBTreeListCustomDrawDataCell(Sender:
-    TcxCustomTreeList; ACanvas: TcxCanvas; AViewInfo:
-    TcxTreeListEditCellViewInfo; var ADone: Boolean);
+procedure TfrmTreeList.CreateColumnsBarButtons;
+begin
+  if (  cxDBTreeList.ColumnCount > 0) and (FColumnsBarButtons = nil) then
+    FColumnsBarButtons := TTLColumnsBarButtons.Create(Self,
+      dxbsColumns, cxDBTreeList);
+end;
+
+procedure TfrmTreeList.cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
+  ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
+  var ADone: Boolean);
 begin
   if AViewInfo.Selected then
   begin
@@ -176,29 +200,53 @@ begin
   end;
 end;
 
-procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
-    TcxTreeListColumn);
+procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList;
+  AColumn: TcxTreeListColumn);
 begin
   // Если закончили редактирование группы
   if (Sender.FocusedNode <> nil) and (Sender.FocusedNode.IsGroupNode) then
     Sender.Post
   else
   begin
-    if FPostOnEnterFields.IndexOf( (AColumn as TcxDBTreeListColumn).DataBinding.FieldName ) >= 0 then
+    if FPostOnEnterFields.IndexOf((AColumn as TcxDBTreeListColumn)
+      .DataBinding.FieldName) >= 0 then
       Sender.Post
   end;
 
   UpdateView;
 end;
 
-procedure TfrmTreeList.cxDBTreeListStylesGetBandHeaderStyle(
-  Sender: TcxCustomTreeList; ABand: TcxTreeListBand; var AStyle: TcxStyle);
+procedure TfrmTreeList.cxDBTreeListMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+var
+//  AColumn: TcxDBTreeListColumn;
+  ANode: TcxTreeListNode;
+begin
+  if not(ssLeft in Shift) then
+    Exit;
+  cxDBTreeList.HitTest.ReCalculate(Point(X, Y));
+
+  if not(cxDBTreeList.HitTest.HitAtNode and (cxDBTreeList.HitTest.HitColumn <>
+    nil)) then
+    Exit;
+
+  ANode := cxDBTreeList.HitTest.HitNode;
+//  AColumn := cxDBTreeList.HitTest.HitColumn as TcxDBTreeListColumn;
+
+  ANode.Selected := True;
+
+//  cxDBTreeList.se
+end;
+
+
+procedure TfrmTreeList.cxDBTreeListStylesGetBandHeaderStyle
+  (Sender: TcxCustomTreeList; ABand: TcxTreeListBand; var AStyle: TcxStyle);
 begin
   DoOnGetHeaderStyle(ABand, AStyle);
 end;
 
-procedure TfrmTreeList.DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle:
-    TcxStyle);
+procedure TfrmTreeList.DoOnGetHeaderStyle(ABand: TcxTreeListBand;
+  var AStyle: TcxStyle);
 begin
   if ABand = nil then
     Exit;
@@ -210,8 +258,8 @@ begin
     AStyle := DMRepository.cxHeaderStyle;
 end;
 
-function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn:
-    TcxDBTreeListColumn): Variant;
+function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn
+  : TcxDBTreeListColumn): Variant;
 var
   ANode: TcxTreeListNode;
 begin
@@ -227,7 +275,7 @@ begin
 end;
 
 procedure TfrmTreeList.InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
-    ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
+  ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
 var
   AcxComboBoxProperties: TcxComboBoxProperties;
 begin
@@ -248,8 +296,8 @@ begin
 end;
 
 procedure TfrmTreeList.InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
-    ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
-    const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
+  ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+  const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
 var
   AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
 begin

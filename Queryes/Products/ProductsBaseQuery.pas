@@ -79,7 +79,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure DoBeforePost(Sender: TObject);
+    function CreateClone(AIDComponentGroup: Integer): TFDMemTable;
     function GetExportFileName: string; virtual; abstract;
     function GetProcurementPrice: Variant;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
@@ -106,7 +106,8 @@ type
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
     procedure TunePriceFields(const AFields: Array of TField);
-    procedure UpdateRate(AID: Integer; RateField: TField; ARate: Double);
+    procedure UpdateRate(AID: Integer; RateField: TField; ARate: Double;
+      AUpdatedIDList: TList<Integer>);
     property Datasheet: TField read GetDatasheet;
     property DescriptionID: TField read GetDescriptionID;
     property Diagram: TField read GetDiagram;
@@ -170,7 +171,7 @@ begin
   FRate := TSettings.Create.Rate;
 
   // По умолчанию мы не в режиме автоматических транзакций
-  // AutoTransaction := False;
+  AutoTransaction := False;
 end;
 
 procedure TQueryProductsBase.AddCategory;
@@ -183,10 +184,12 @@ end;
 procedure TQueryProductsBase.AddProduct(AIDComponentGroup: Integer);
 begin
   Assert(AIDComponentGroup > 0);
+  FDQuery.DisableControls;
   TryAppend;
   Value.AsString := 'Новая запись';
   IsGroup.AsInteger := 0;
   IDComponentGroup.AsInteger := AIDComponentGroup;
+  FDQuery.EnableControls;
 end;
 
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
@@ -257,6 +260,7 @@ var
   ARHFamily: TRecordHolder;
   OK: Boolean;
   rc: Integer;
+  AFieldNames: String;
 begin
   Assert(ASender = FDQuery);
 
@@ -353,29 +357,23 @@ begin
     end;
 
     ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
+
     // Заполняем код продукта
     FetchFields([ProductID.FieldName], [qSearchProduct.PK.Value], ARequest,
       AAction, AOptions);
+
     // ProductID.AsInteger := qSearchProduct.PK.Value;
 
     // Если такой продукт уже есть
     if rc > 0 then
     begin
-      // Запоминаем поля найденного продукта
-      ARH2 := TRecordHolder.Create(qSearchProduct.FDQuery);
-      try
-        // Все пустые поля заполняем значениями из найденного продукта
-        ARH.UpdateNullValues(ARH2);
-        ARH.Put(ASender);
-
-        ARH.Field['ID'] := ARH.Field[ProductID.FieldName];
-        // Обновляем продукт, если мы в нём что-то изменили
-        qSearchProduct.UpdateRecord(ARH);
-      finally
-        FreeAndNil(ARH2);
-      end;
+      // Заполняем пустые поля значениями найденного компонента
+      FetchNullValues(qSearchProduct.FDQuery, ARequest, AAction, AOptions,
+        String.Format('%s->%s', [qSearchProduct.PK.FieldName,
+        ProductID.FieldName]));
     end;
 
+    // Готовимся вставить закупочную цену компонента
     if not VarIsNull(GetProcurementPrice) then
       ARH.Field[Price.FieldName] := GetProcurementPrice;
 
@@ -456,11 +454,33 @@ begin
 end;
 
 procedure TQueryProductsBase.CancelUpdates;
+var
+  V: Variant;
 begin
   // отменяем все сделанные изменения на стороне клиента
   TryCancel;
-  FDQuery.Connection.Rollback;
-  RefreshQuery;
+
+  V := PK.Value;
+  FDQuery.DisableControls;
+  try
+    FDQuery.Connection.Rollback;
+    RefreshQuery;
+    if not VarIsNull(V) then
+      LocateByPK(V);
+  finally
+    FDQuery.EnableControls;
+  end;
+
+end;
+
+function TQueryProductsBase.CreateClone(AIDComponentGroup: Integer)
+  : TFDMemTable;
+begin
+  Assert(AIDComponentGroup > 0);
+  Result := TFDMemTable.Create(Self);
+  Result.CloneCursor(FDQuery);
+  Result.Filter := Format('IDComponentGroup=%d', [AIDComponentGroup]);
+  Result.Filtered := True;
 end;
 
 procedure TQueryProductsBase.DeleteNode(AID: Integer);
@@ -477,12 +497,8 @@ begin
     // Если нужно удалить группу
     if IsGroup.AsInteger = 1 then
     begin
-      AClone := TFDMemTable.Create(Self);
+      AClone := CreateClone(PK.AsInteger);
       try
-        AClone.CloneCursor(FDQuery);
-        AClone.Filter := Format('IDComponentGroup=%d', [PK.AsInteger]);
-        AClone.Filtered := True;
-
         // Удаляем все компоненты группы
         while AClone.RecordCount > 0 do
           DeleteNode(AClone.FieldByName('ID').AsInteger);
@@ -523,6 +539,7 @@ procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsRequired(False);
   SetFieldsReadOnly(False);
+
   Datasheet.OnGetText := OnDatasheetGetText;
   Diagram.OnGetText := OnDatasheetGetText;
   Drawing.OnGetText := OnDatasheetGetText;
@@ -553,33 +570,6 @@ begin;
 
   CreateDefaultFields(False);
   TunePriceFields([PriceD, PriceR, PriceD1, PriceR1, PriceD2, PriceR2]);
-end;
-
-procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
-begin
-  // Если не происходит вставка новой записи
-  if not(FDQuery.State in [dsInsert]) then
-    Exit;
-
-  if PriceR.IsNull and PriceD.IsNull then
-    raise Exception.Create('Не задана закупочная цена');
-
-  if (not PriceR.IsNull) and (not PriceD.IsNull) then
-    raise Exception.Create('Закупочная цена должна быть задана один раз');
-
-  // Если заполнена закупочная цена в рублях
-  if not PriceR.IsNull then
-  begin
-    Price.Value := PriceR.Value;
-    IDCurrency.AsInteger := 1;
-  end;
-
-  // Если заполнена закупочная цена в долларах
-  if not PriceD.IsNull then
-  begin
-    Price.Value := PriceD.Value;
-    IDCurrency.AsInteger := 2;
-  end;
 end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
@@ -784,15 +774,18 @@ end;
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
+  ABrowseState: Boolean;
   S: String;
 begin
   if not AFileName.IsEmpty then
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
+    ABrowseState := FDQuery.State = dsBrowse;
     TryEdit;
     FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
-    TryPost;
+    if ABrowseState then
+      TryPost;
   end;
 end;
 
@@ -885,18 +878,45 @@ begin
   end;
 end;
 
-procedure TQueryProductsBase.UpdateRate(AID: Integer; RateField: TField; ARate:
-    Double);
+procedure TQueryProductsBase.UpdateRate(AID: Integer; RateField: TField;
+  ARate: Double; AUpdatedIDList: TList<Integer>);
 var
+  AClone: TFDMemTable;
   OK: Boolean;
 begin
   Assert(AID <> 0);
 
+  // Если запись с этим идентификатором уже обновляли
+  if AUpdatedIDList.IndexOf(AID) >= 0 then
+    Exit;
+
   OK := LocateByPK(AID);
   Assert(OK);
-  TryEdit;
-  RateField.Value := ARate;
-  TryPost;
+
+  // Если пытаемся применить коэффициент к группе
+  if IsGroup.AsInteger = 1 then
+  begin
+    AClone := CreateClone(PK.AsInteger);
+    try
+      AClone.First;
+      while not AClone.Eof do
+      begin
+        UpdateRate(AClone.FieldByName('ID').AsInteger, RateField, ARate,
+          AUpdatedIDList);
+        AClone.Next;
+      end;
+    finally
+      FreeAndNil(AClone);
+    end;
+
+  end
+  else
+  begin
+    TryEdit;
+    RateField.Value := ARate;
+    TryPost;
+    AUpdatedIDList.Add(AID);
+  end;
 end;
 
 // TODO: SplitComponentName

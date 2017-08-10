@@ -104,6 +104,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     Styles.OnGetBandHeaderStyle = nil
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
+    OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     ExplicitTop = 54
     ExplicitWidth = 1092
@@ -152,6 +153,8 @@ inherited ViewProductsBase2: TViewProductsBase2
       Position.ColIndex = 3
       Position.RowIndex = 0
       Position.BandIndex = 0
+      SortOrder = soAscending
+      SortIndex = 0
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -229,6 +232,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Position.BandIndex = 4
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
+      OnGetDisplayText = clDatasheetGetDisplayText
     end
     object clDrawing: TcxDBTreeListColumn
       PropertiesClassName = 'TcxButtonEditProperties'
@@ -253,6 +257,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Position.BandIndex = 5
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
+      OnGetDisplayText = clDatasheetGetDisplayText
     end
     object clImage: TcxDBTreeListColumn
       PropertiesClassName = 'TcxButtonEditProperties'
@@ -277,6 +282,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Position.BandIndex = 6
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
+      OnGetDisplayText = clDatasheetGetDisplayText
     end
     object clPackagePins: TcxDBTreeListColumn
       Caption.AlignHorz = taCenter
@@ -527,6 +533,15 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+    object clIDCurrency: TcxDBTreeListColumn
+      Visible = False
+      DataBinding.FieldName = 'IDCurrency'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
@@ -534,15 +549,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       0
       54
       0)
-    inherited dxBarManagerBar1: TdxBar
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxBarButton8'
-        end>
-    end
-    object dxBarManagerBar2: TdxBar
+    object dxBarManagerBar2: TdxBar [1]
       Caption = 'Price'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
@@ -650,12 +657,6 @@ inherited ViewProductsBase2: TViewProductsBase2
       OnChange = cxbeiRateChange
       ShowCaption = True
       PropertiesClassName = 'TcxCalcEditProperties'
-    end
-    object dxBarButton8: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
     end
   end
   inherited ActionList: TActionList

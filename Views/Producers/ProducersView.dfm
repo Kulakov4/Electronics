@@ -146,7 +146,7 @@ inherited ViewProducers: TViewProducers
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrsbtmColumnsCustomization'
+          ItemName = 'dxbsColumns'
         end
         item
           Visible = True

@@ -177,24 +177,23 @@ type
     { Public declarations }
   end;
 
-  TShowDefaults = class(TCustomizeGridViewAction)
+  TShowDefaults = class(TGroupGVAction)
   private
-    FDefaultActions: TList<TCustomizeGridViewItemAction>;
+    FDefaultActions: TList<TGVAction>;
   protected
     procedure actShowDefaultBandsExecute(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure MakeCurrentActionsAsDefault;
-    property DefaultActions: TList<TCustomizeGridViewItemAction>
-      read FDefaultActions;
+    property DefaultActions: TList<TGVAction> read FDefaultActions;
   end;
 
-  TColumnsBarButtonsEx2 = class(TColumnsBarButtonsEx)
+  TColumnsBarButtonsEx2 = class(TGVColumnsBarButtonsEx)
   private
     FShowDefaults: TShowDefaults;
   protected
-    procedure CreateGridViewActions; override;
+    procedure CreateGroupActions; override;
     procedure ProcessGridView; override;
   end;
 
@@ -841,7 +840,7 @@ end;
 procedure TViewParametricTable.DoAfterBandPosChange(var Message: TMessage);
 var
   ABands: TList<TcxGridBand>;
-  ACustomizeBandActionEx: TCustomizeBandActionEx;
+  AGVBandActionEx: TGVBandActionEx;
   AdxBarButton: TdxBarButton;
   AIDParameter: Integer;
   ANewOrder: Integer;
@@ -901,13 +900,12 @@ begin
         end;
 
         // Получаем кнопку
-        AdxBarButton := dxbrsbtmColumnsCustomization.ItemLinks[i + 2]
-          .Item as TdxBarButton;
+        AdxBarButton := dxbsColumns.ItemLinks[i + 2].Item as TdxBarButton;
         // С этой кнопкой должно быть связано дейсвие над бэндом
-        Assert(AdxBarButton.Action is TCustomizeBandActionEx);
-        ACustomizeBandActionEx := AdxBarButton.Action as TCustomizeBandActionEx;
+        Assert(AdxBarButton.Action is TGVBandActionEx);
+        AGVBandActionEx := AdxBarButton.Action as TGVBandActionEx;
         // Привязываем это действие к другому бэнду
-        ACustomizeBandActionEx.Band := ABands[i];
+        AGVBandActionEx.Band := ABands[i];
       end;
 
     finally
@@ -1000,7 +998,7 @@ begin
     cxGrid.EndUpdate;
   end;
   FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self,
-    dxbrsbtmColumnsCustomization, MainView, cxGridDBBandedTableView2);
+    dxbsColumns, MainView, cxGridDBBandedTableView2);
 
   PostMyApplyBestFitEvent;
 end;
@@ -1274,7 +1272,7 @@ end;
 procedure TViewParametricTable.UpdateColumnsCustomization;
 var
   ABI: TBandInfo;
-  ACustomizeBandActionEx: TCustomizeBandActionEx;
+  AGVBandActionEx: TGVBandActionEx;
   AdxBarButton: TdxBarButton;
   i: Integer;
 begin
@@ -1293,17 +1291,16 @@ begin
       continue;
 
     // Получаем кнопку
-    AdxBarButton := dxbrsbtmColumnsCustomization.ItemLinks[i]
-      .Item as TdxBarButton;
+    AdxBarButton := dxbsColumns.ItemLinks[i].Item as TdxBarButton;
 
     // С этой кнопкой должно быть связано дейсвие над бэндом
-    Assert(AdxBarButton.Action is TCustomizeBandActionEx);
-    ACustomizeBandActionEx := AdxBarButton.Action as TCustomizeBandActionEx;
+    Assert(AdxBarButton.Action is TGVBandActionEx);
+    AGVBandActionEx := AdxBarButton.Action as TGVBandActionEx;
 
     // Привязываем это действие к другому бэнду
-    ACustomizeBandActionEx.Band := ABI.Band;
+    AGVBandActionEx.Band := ABI.Band;
     Inc(i);
-    if i >= dxbrsbtmColumnsCustomization.ItemLinks.Count then
+    if i >= dxbsColumns.ItemLinks.Count then
       break;
   end;
 end;
@@ -1416,7 +1413,7 @@ begin
   inherited;
   Caption := 'Показать только активные';
   OnExecute := actShowDefaultBandsExecute;
-  FDefaultActions := TList<TCustomizeGridViewItemAction>.Create;
+  FDefaultActions := TList<TGVAction>.Create;
 end;
 
 destructor TShowDefaults.Destroy;
@@ -1427,7 +1424,7 @@ end;
 
 procedure TShowDefaults.actShowDefaultBandsExecute(Sender: TObject);
 var
-  AAction: TCustomizeGridViewItemAction;
+  AAction: TGVAction;
   AGridView: TcxGridDBBandedTableView;
   IsDefault: Boolean;
 begin
@@ -1458,7 +1455,7 @@ end;
 
 procedure TShowDefaults.MakeCurrentActionsAsDefault;
 var
-  AAction: TCustomizeGridViewItemAction;
+  AAction: TGVAction;
 begin
   Assert(FDefaultActions <> nil);
   for AAction in Actions do
@@ -1468,12 +1465,12 @@ begin
   end;
 end;
 
-procedure TColumnsBarButtonsEx2.CreateGridViewActions;
+procedure TColumnsBarButtonsEx2.CreateGroupActions;
 begin
   // Добавляем действие "Спрятать все колонки"
   inherited;
   // Добавляем действие "Показать бэнды по умолчанию"
-  FShowDefaults := CreateGridViewAction(TShowDefaults) as TShowDefaults;
+  FShowDefaults := CreateGroupAction(TShowDefaults) as TShowDefaults;
 end;
 
 procedure TColumnsBarButtonsEx2.ProcessGridView;

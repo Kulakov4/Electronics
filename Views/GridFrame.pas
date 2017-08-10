@@ -43,7 +43,7 @@ type
     cxGrid: TcxGrid;
     dxBarManager: TdxBarManager;
     dxbrMain: TdxBar;
-    dxbrsbtmColumnsCustomization: TdxBarSubItem;
+    dxbsColumns: TdxBarSubItem;
     cxGridDBBandedTableView: TcxGridDBBandedTableView;
     ActionList: TActionList;
     StatusBar: TStatusBar;
@@ -81,7 +81,7 @@ type
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
-    FColumnsBarButtons: TColumnsBarButtons;
+    FColumnsBarButtons: TGVColumnsBarButtons;
     FEventList: TObjectList;
     FUpdateCount: Cardinal;
     procedure AfterKeyOrMouseDown(var Message: TMessage);
@@ -356,8 +356,8 @@ end;
 procedure TfrmGrid.CreateColumnsBarButtons;
 begin
   if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons = nil) then
-    FColumnsBarButtons := TColumnsBarButtons.Create(Self,
-      dxbrsbtmColumnsCustomization, cxGridDBBandedTableView);
+    FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
+      dxbsColumns, cxGridDBBandedTableView);
 end;
 
 procedure TfrmGrid.CreateFilterForExport(AView,

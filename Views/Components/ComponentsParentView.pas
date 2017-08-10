@@ -550,8 +550,8 @@ end;
 
 procedure TViewComponentsParent.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TColumnsBarButtonsEx.Create(Self,
-    dxbrsbtmColumnsCustomization, MainView, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtonsEx.Create(Self,
+    dxbsColumns, MainView, cxGridDBBandedTableView2);
 end;
 
 procedure TViewComponentsParent.cxFieldValueWithExpandPropertiesButtonClick

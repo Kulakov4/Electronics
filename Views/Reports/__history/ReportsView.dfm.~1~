@@ -67,7 +67,7 @@ inherited ViewReports: TViewReports
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbsColumns'
+          ItemName = 'dxbrsbtmColumnsCustomization'
         end
         item
           Visible = True

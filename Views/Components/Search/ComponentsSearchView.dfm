@@ -9,7 +9,7 @@ inherited ViewComponentsSearch: TViewComponentsSearch
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrsbtmColumnsCustomization'
+          ItemName = 'dxbsColumns'
         end
         item
           Visible = True

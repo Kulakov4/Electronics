@@ -521,8 +521,8 @@ end;
 
 procedure TViewParameters.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TColumnsBarButtons.Create(Self,
-    dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
+    dxbsColumns, cxGridDBBandedTableView2);
 end;
 
 procedure TViewParameters.CreateFilterForExport(AView,

@@ -87,8 +87,6 @@ type
     clBodyData7: TcxGridDBBandedColumn;
     clBodyData8: TcxGridDBBandedColumn;
     clBodyData9: TcxGridDBBandedColumn;
-    dxBarButton3: TdxBarButton;
-    dxBarButton4: TdxBarButton;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -129,8 +127,6 @@ type
       var DragObject: TDragObject);
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
-    procedure dxBarButton3Click(Sender: TObject);
-    procedure dxBarButton4Click(Sender: TObject);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -492,8 +488,8 @@ end;
 
 procedure TViewBodyTypes.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TColumnsBarButtons.Create(Self,
-    dxbrsbtmColumnsCustomization, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
+    dxbsColumns, cxGridDBBandedTableView2);
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2ColumnHeaderClick
@@ -647,26 +643,6 @@ end;
 procedure TViewBodyTypes.DoAfterDataChange(Sender: TObject);
 begin
   UpdateView;
-end;
-
-procedure TViewBodyTypes.dxBarButton3Click(Sender: TObject);
-begin
-  inherited;
-  MainView.Controller.TopRowIndex := 10;
-end;
-
-procedure TViewBodyTypes.dxBarButton4Click(Sender: TObject);
-var
-  Cnt: Integer;
-  t: Integer;
-begin
-  inherited;
-  t := MainView.Controller.TopRowIndex;
-  Cnt := MainView.ViewInfo.RecordsViewInfo.VisibleCount;
-
-  dxBarButton4.Caption :=
-    Format('VisibleCount:%d - TopRowIndex:%d - FocusedRowIndex:%d',
-    [Cnt, t, MainView.Controller.FocusedRowIndex]);
 end;
 
 function TViewBodyTypes.GetFocusedTableView: TcxGridDBBandedTableView;

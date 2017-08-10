@@ -25,6 +25,7 @@ object frmTreeList: TfrmTreeList
     TabOrder = 0
     OnCustomDrawDataCell = cxDBTreeListCustomDrawDataCell
     OnEdited = cxDBTreeListEdited
+    OnMouseMove = cxDBTreeListMouseMove
   end
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET
@@ -58,12 +59,25 @@ object frmTreeList: TfrmTreeList
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
-      ItemLinks = <>
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbsColumns'
+        end>
       OneOnRow = True
       Row = 0
       UseOwnFont = False
       Visible = True
       WholeRow = False
+    end
+    object dxbsColumns: TdxBarSubItem
+      Caption = #1050#1086#1083#1086#1085#1082#1080
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 0
+      Images = DMRepository.cxImageList
+      ItemLinks = <>
     end
   end
   object ActionList: TActionList
