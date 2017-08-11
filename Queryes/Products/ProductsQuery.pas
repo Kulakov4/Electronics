@@ -80,7 +80,7 @@ begin
   begin
     // 1) Ищем такую группу компонентов на текущем складе
     V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
-    if VarIsNull(V)  then
+    if VarIsNull(V) then
     begin
       FDQuery.Append;
       IsGroup.AsInteger := 1; // Будем добавлять группу
@@ -170,38 +170,48 @@ end;
 procedure TQueryProducts.DoBeforePost(Sender: TObject);
 begin
   // Если не происходит вставка новой записи
-  if not (FDQuery.State in [dsInsert]) then
+  if not(FDQuery.State in [dsInsert]) then
     Exit;
 
   Assert(not IsGroup.IsNull);
 
-  // Это группа, цену заполнять не надо
-  if IsGroup.AsInteger = 1 then
-    Exit;
+  FEnableCalc := False;
+  try
 
-  // Если тип валюты задан - ничего не предпринимаем
-  if not IDCurrency.IsNull then
-    Exit;
+    // Это группа, цену заполнять не надо
+    if IsGroup.AsInteger = 1 then
+      Exit;
 
-  if PriceR.IsNull and PriceD.IsNull then
-    raise Exception.Create('Не задана закупочная цена');
+    // Если тип валюты задан - ничего не предпринимаем
+    if not IDCurrency.IsNull then
+      Exit;
 
-  if (not PriceR.IsNull) and (not PriceD.IsNull) then
-    raise Exception.Create('Закупочная цена должна быть задана один раз');
+    if PriceR.IsNull and PriceD.IsNull then
+      raise Exception.Create('Не задана закупочная цена');
 
-  // Если заполнена закупочная цена в рублях
-  if not PriceR.IsNull then
-  begin
-    Price.Value := PriceR.Value;
-    IDCurrency.AsInteger := 1;
+    if (not PriceR.IsNull) and (not PriceD.IsNull) then
+      raise Exception.Create('Закупочная цена должна быть задана один раз');
+
+    // Если заполнена закупочная цена в рублях
+    if not PriceR.IsNull then
+    begin
+      Price.Value := PriceR.Value;
+      IDCurrency.AsInteger := 1;
+    end;
+
+    // Если заполнена закупочная цена в долларах
+    if not PriceD.IsNull then
+    begin
+      Price.Value := PriceD.Value;
+      IDCurrency.AsInteger := 2;
+    end;
+
+  finally
+    FEnableCalc := True;
   end;
+  // Сами вызываем обновление вычисляемы полей
+  FDQueryCalcFields(FDQuery);
 
-  // Если заполнена закупочная цена в долларах
-  if not PriceD.IsNull then
-  begin
-    Price.Value := PriceD.Value;
-    IDCurrency.AsInteger := 2;
-  end;
 end;
 
 function TQueryProducts.GetExportFileName: string;

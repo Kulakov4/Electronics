@@ -74,6 +74,7 @@ type
     // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
+    FEnableCalc: Boolean;
     procedure ApplyDelete(ASender: TDataSet); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
@@ -172,6 +173,8 @@ begin
 
   // По умолчанию мы не в режиме автоматических транзакций
   AutoTransaction := False;
+
+  FEnableCalc := True;
 end;
 
 procedure TQueryProductsBase.AddCategory;
@@ -184,12 +187,12 @@ end;
 procedure TQueryProductsBase.AddProduct(AIDComponentGroup: Integer);
 begin
   Assert(AIDComponentGroup > 0);
-  FDQuery.DisableControls;
+//  FDQuery.DisableControls;
   TryAppend;
   Value.AsString := 'Новая запись';
   IsGroup.AsInteger := 0;
   IDComponentGroup.AsInteger := AIDComponentGroup;
-  FDQuery.EnableControls;
+//  FDQuery.EnableControls;
 end;
 
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
@@ -256,11 +259,10 @@ procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
 var
   // AFieldHolder: TFieldHolder;
   ARH: TRecordHolder;
-  ARH2: TRecordHolder;
+  //ARH2: TRecordHolder;
   ARHFamily: TRecordHolder;
   OK: Boolean;
   rc: Integer;
-  AFieldNames: String;
 begin
   Assert(ASender = FDQuery);
 
@@ -577,7 +579,7 @@ begin
   inherited;
 
   // Exit;
-  if (IDCurrency.AsInteger = 0) or (Price.IsNull) then
+  if (not FEnableCalc) or (IDCurrency.AsInteger = 0) or (Price.IsNull) then
     Exit;
 
   if IDCurrency.AsInteger = 1 then

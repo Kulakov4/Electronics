@@ -48,6 +48,7 @@ type
     procedure cxDBTreeListStylesGetBandHeaderStyle(Sender: TcxCustomTreeList;
       ABand: TcxTreeListBand; var AStyle: TcxStyle);
   private
+    FBlockEvents: Integer;
     FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
     { Private declarations }
@@ -61,13 +62,16 @@ type
       ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
       const AKeyFieldNames: string = 'ID'); overload;
+    function IsSyncToDataSet: Boolean; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
     procedure ApplySort(AColumn: TcxTreeListColumn);
+    procedure BeginBlockEvents;
     procedure ClearSort;
     procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
+    procedure EndBlockEvents;
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
       : Variant;
     procedure UpdateView; virtual;
@@ -164,6 +168,12 @@ begin
   end;
 end;
 
+procedure TfrmTreeList.BeginBlockEvents;
+begin
+  Assert(FBlockEvents >= 0);
+  Inc(FBlockEvents);
+end;
+
 procedure TfrmTreeList.ClearSort;
 var
   I: Integer;
@@ -174,15 +184,18 @@ end;
 
 procedure TfrmTreeList.CreateColumnsBarButtons;
 begin
-  if (  cxDBTreeList.ColumnCount > 0) and (FColumnsBarButtons = nil) then
-    FColumnsBarButtons := TTLColumnsBarButtons.Create(Self,
-      dxbsColumns, cxDBTreeList);
+  if (cxDBTreeList.ColumnCount > 0) and (FColumnsBarButtons = nil) then
+    FColumnsBarButtons := TTLColumnsBarButtons.Create(Self, dxbsColumns,
+      cxDBTreeList);
 end;
 
 procedure TfrmTreeList.cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
   ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
   var ADone: Boolean);
 begin
+  if FBlockEvents > 0 then
+    Exit;
+
   if AViewInfo.Selected then
   begin
     if (AViewInfo.Column = cxDBTreeList.FocusedColumn) then
@@ -198,11 +211,21 @@ begin
       ACanvas.FillRect(AViewInfo.BoundsRect, clWhite);
     end;
   end;
+  { }
 end;
 
 procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList;
   AColumn: TcxTreeListColumn);
 begin
+  if (FBlockEvents > 0) or
+    (not(cxDBTreeList.DataController.DataSet.State in [dsEdit, dsInsert])) then
+    Exit;
+
+
+  // Если в TreeList в фокуе одна запись а в датасете редактируется другая
+  if not IsSyncToDataSet then
+    Exit;
+
   // Если закончили редактирование группы
   if (Sender.FocusedNode <> nil) and (Sender.FocusedNode.IsGroupNode) then
     Sender.Post
@@ -214,14 +237,17 @@ begin
   end;
 
   UpdateView;
+  { }
 end;
 
 procedure TfrmTreeList.cxDBTreeListMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 var
-//  AColumn: TcxDBTreeListColumn;
   ANode: TcxTreeListNode;
 begin
+  if FBlockEvents > 0 then
+    Exit;
+
   if not(ssLeft in Shift) then
     Exit;
   cxDBTreeList.HitTest.ReCalculate(Point(X, Y));
@@ -231,13 +257,10 @@ begin
     Exit;
 
   ANode := cxDBTreeList.HitTest.HitNode;
-//  AColumn := cxDBTreeList.HitTest.HitColumn as TcxDBTreeListColumn;
 
   ANode.Selected := True;
-
-//  cxDBTreeList.se
+  { }
 end;
-
 
 procedure TfrmTreeList.cxDBTreeListStylesGetBandHeaderStyle
   (Sender: TcxCustomTreeList; ABand: TcxTreeListBand; var AStyle: TcxStyle);
@@ -256,6 +279,12 @@ begin
 
   if ABand.VisibleColumns[0].SortIndex = 0 then
     AStyle := DMRepository.cxHeaderStyle;
+end;
+
+procedure TfrmTreeList.EndBlockEvents;
+begin
+  Assert(FBlockEvents > 0);
+  Dec(FBlockEvents);
 end;
 
 function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn
@@ -315,6 +344,11 @@ begin
   AcxLookupComboBoxProperties.ListFieldNames := AListFieldNames;
   AcxLookupComboBoxProperties.KeyFieldNames := AKeyFieldNames;
   AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
+end;
+
+function TfrmTreeList.IsSyncToDataSet: Boolean;
+begin
+  Result := cxDBTreeList.FocusedNode <> nil;
 end;
 
 procedure TfrmTreeList.UpdateView;

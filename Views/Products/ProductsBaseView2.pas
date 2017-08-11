@@ -116,8 +116,6 @@ type
     procedure dxbcRate1Change(Sender: TObject);
     procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
-    procedure cxDBTreeListStylesGetContentStyle(Sender: TcxCustomTreeList;
-      AColumn: TcxTreeListColumn; ANode: TcxTreeListNode; var AStyle: TcxStyle);
   private
     FProductBaseGroup: TProductBaseGroup;
     procedure DoAfterLoad(Sender: TObject);
@@ -128,6 +126,7 @@ type
     procedure BindRate(ARateField: TField; AdxBarCombo: TdxBarCombo);
     procedure DoAfterScroll(Sender: TObject);
     procedure InitializeColumns; override;
+    function IsSyncToDataSet: Boolean; override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
       const AErrorMessage, AEmptyErrorMessage: string);
     function PerсentToRate(APerсent: Double): Double;
@@ -156,11 +155,8 @@ constructor TViewProductsBase2.Create(AOwner: TComponent);
 begin
   inherited;
   // Список полей при редактировании которых Enter - сохранение
-//  PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
-//  PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
-
-  // Привязываем событие
-  cxDBTreeList.Styles.OnGetContentStyle := cxDBTreeListStylesGetContentStyle;
+  PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
+  PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
@@ -184,23 +180,29 @@ var
 begin
   inherited;
 
-  cxDBTreeList.Post;
+  // BeginBlockEvents;
+  try
 
-  if cxDBTreeList.FocusedNode.IsGroupNode then
-    AID := FocusedNodeValue(clID)
-  else
-  begin
-    Assert(cxDBTreeList.FocusedNode.Parent <> nil);
-    AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
+    cxDBTreeList.Post;
+
+    if cxDBTreeList.FocusedNode.IsGroupNode then
+      AID := FocusedNodeValue(clID)
+    else
+    begin
+      Assert(cxDBTreeList.FocusedNode.Parent <> nil);
+      AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
+    end;
+
+    ProductBaseGroup.qProductsBase.AddProduct(AID);
+
+    cxDBTreeList.ApplyBestFit;
+    cxDBTreeList.SetFocus;
+
+    // Переводим колонку в режим редактирования
+    clValue.Editing := True;
+  finally
+    // EndBlockEvents;
   end;
-
-  ProductBaseGroup.qProductsBase.AddProduct(AID);
-
-  cxDBTreeList.ApplyBestFit;
-  cxDBTreeList.SetFocus;
-
-  // Переводим колонку в режим редактирования
-  clValue.Editing := True;
 end;
 
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
@@ -433,10 +435,12 @@ procedure TViewProductsBase2.cxDBTreeListBandHeaderClick
   (Sender: TcxCustomTreeList; ABand: TcxTreeListBand);
 begin
   inherited;
+
   if ABand.VisibleColumnCount = 0 then
     Exit;
 
   ApplySort(ABand.VisibleColumns[0]);
+  { }
 end;
 
 procedure TViewProductsBase2.cxDBTreeListCustomDrawDataCell
@@ -465,6 +469,7 @@ begin
     ACanvas.Font.Color := clBlack;
     ACanvas.FillRect(AViewInfo.BoundsRect, $00F5DEC9);
   end;
+  { }
 end;
 
 procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
@@ -472,6 +477,7 @@ procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
 begin
   inherited;
   UpdateView;
+  { }
 end;
 
 procedure TViewProductsBase2.cxDBTreeListInitEditValue(Sender, AItem: TObject;
@@ -482,7 +488,6 @@ var
   // S: string;
 begin
   inherited;
-
   // В режиме вставки новой записи разрешаем редактирование цены
   if ProductBaseGroup.qProductsBase.FDQuery.State = dsInsert then
     Exit;
@@ -498,6 +503,7 @@ begin
 
   AcxMaskEdit := AEdit as TcxMaskEdit;
   AcxMaskEdit.Properties.ReadOnly := True;
+  { }
 end;
 
 procedure TViewProductsBase2.cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
@@ -508,29 +514,7 @@ begin
   inherited;
   V := ANode.Values[clIsGroup.ItemIndex];
   IsGroup := not VarIsNull(V) and (V = 1);
-end;
-
-procedure TViewProductsBase2.cxDBTreeListStylesGetContentStyle
-  (Sender: TcxCustomTreeList; AColumn: TcxTreeListColumn;
-  ANode: TcxTreeListNode; var AStyle: TcxStyle);
-begin
-  inherited;
-  Exit;
-  {
-    if (ANode = nil) or (AColumn = nil) then
-    begin
-    AStyle := cxNormalStyle;
-    Exit;
-    end;
-
-    if (cxDBTreeList.FocusedColumn = AColumn) then
-    AStyle := cxStyle1
-    else
-    AStyle := cxNormalStyle;
-
-    //  if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.DataBinding.FieldName then
-    //    AStyle := cxStyle1;
-  }
+  { }
 end;
 
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
@@ -639,6 +623,28 @@ begin
   InitializeLookupColumn(clIDProducer,
     FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
     FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
+end;
+
+function TViewProductsBase2.IsSyncToDataSet: Boolean;
+var
+  S1: string;
+  S2: string;
+  V1: Variant;
+  V2: Variant;
+begin
+  Result := inherited and (ProductBaseGroup <> nil);
+  if not Result then
+    Exit;
+
+  V1 := cxDBTreeList.FocusedNode.Values[clValue.ItemIndex];
+  V2 := ProductBaseGroup.qProductsBase.Value.Value;
+
+  Result := VarIsNull(V1) and VarIsNull(V2);
+  if not Result then
+    Exit;
+  S1 := V1;
+  S2 := V2;
+  Result := S1 = S2;
 end;
 
 procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;

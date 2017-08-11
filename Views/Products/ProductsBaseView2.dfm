@@ -100,7 +100,6 @@ inherited ViewProductsBase2: TViewProductsBase2
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
     OptionsView.PaintStyle = tlpsCategorized
-    Styles.OnGetContentStyle = cxDBTreeListStylesGetContentStyle
     Styles.OnGetBandHeaderStyle = nil
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
