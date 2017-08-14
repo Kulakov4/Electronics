@@ -42,14 +42,11 @@ type
   private
     FCustomExcelTable: TCustomExcelTable;
     FOnProgress: TNotifyEventsEx;
-    FOnThreadTerminate: TNotifyEventsEx;
-    procedure DoOnThreadTerminate(Sender: TObject);
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     { Private declarations }
   protected
     FLastColIndex: Integer;
-    FThread: TThread;
     procedure CallOnProcessEvent(API: TProgressInfo);
     function CreateExcelTable: TCustomExcelTable; virtual;
     function GetExcelRange(AStartLine, AStartCol, AEndLine, AEndCol: Integer)
@@ -63,6 +60,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure LoadExcelFile(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
+    procedure LoadExcelFile2(const AFileName: string; ANotifyEventRef:
+        TNotifyEventRef = nil);
     function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
     procedure LoadExcelFileInThread(const AFileName: String);
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
@@ -71,7 +70,6 @@ type
       ANotifyEventRef: TNotifyEventRef); overload;
     property CustomExcelTable: TCustomExcelTable read FCustomExcelTable;
     property OnProgress: TNotifyEventsEx read FOnProgress;
-    property OnThreadTerminate: TNotifyEventsEx read FOnThreadTerminate;
     { Public declarations }
   end;
 
@@ -94,37 +92,19 @@ begin
   else
     FLastColIndex := 0;
 
-  FOnThreadTerminate := TNotifyEventsEx.Create(Self);
   FOnProgress := TNotifyEventsEx.Create(Self);
 
 end;
 
 procedure TExcelDM.CallOnProcessEvent(API: TProgressInfo);
 begin
-  // Если выполняется поток
-  if FThread <> nil then
-  begin
-    // Извещаем о событии в главном потоке
-    TThread.Synchronize(FThread,
-      procedure
-      begin
-        OnProgress.CallEventHandlers(API)
-      end);
-  end
-  else
-    OnProgress.CallEventHandlers(API)
+  OnProgress.CallEventHandlers(API)
 end;
 
 function TExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
   // Assert(False);
   Result := nil;
-end;
-
-procedure TExcelDM.DoOnThreadTerminate(Sender: TObject);
-begin
-  FOnThreadTerminate.CallEventHandlers(Self);
-  FThread := nil;
 end;
 
 function TExcelDM.GetCellsColor(ACell: OleVariant): TColor;
@@ -274,6 +254,51 @@ begin
 
   AEWS := AWorkbook.ActiveSheet as ExcelWorksheet;
   EWS.ConnectTo(AEWS);
+end;
+
+procedure TExcelDM.LoadExcelFile2(const AFileName: string; ANotifyEventRef:
+    TNotifyEventRef = nil);
+var
+  AEWS: ExcelWorksheet;
+  ARange: ExcelRange;
+  AStartLine: Integer;
+  lcid: Integer;
+  ne: TNotifyEventR;
+  rc: Integer;
+begin
+  ne := nil;
+  lcid := 0;
+  InternalLoadExcelFile(AFileName);
+
+  ARange := EWS.UsedRange[lcid];
+  Assert(ARange <> nil);
+  rc := ARange.Rows.Count;
+
+  // Делаем или не делаем смещение на заголовок
+  AStartLine := 1;
+  while (HaveHeader(AStartLine)) do
+    Inc(AStartLine);
+
+  // Получаем "Рабочий" диапазон
+  ARange := GetExcelRange(AStartLine, Indent + 1, rc, Indent + FLastColIndex);
+
+  // Обрабатываем диапазон если он не пустой
+  if ARange <> nil then
+  begin
+    // При необходимости подписываем кого-то на событие
+    if Assigned(ANotifyEventRef) then
+      ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
+    try
+      ProcessRange(ARange);
+    finally
+      // Отписываем кого-то от события
+      FreeAndNil(ne);
+    end;
+  end;
+
+  AEWS := nil;
+  EA.Quit;
+  EA.Disconnect;
 end;
 
 function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
