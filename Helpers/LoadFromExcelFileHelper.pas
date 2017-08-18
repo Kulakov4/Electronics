@@ -17,8 +17,9 @@ type
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
   public
-    procedure LoadAndProcess(const AFileName: string; AExcelDMClass: TExcelDMClass;
-        ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef);
+    procedure LoadAndProcess(const AFileName: string;
+      AExcelDMClass: TExcelDMClass;
+      ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef);
     class function NewInstance: TObject; override;
   end;
 
@@ -49,7 +50,15 @@ begin
       AfrmError.ErrorTable := e.ExcelTable.Errors;
       // Показываем ошибки
       OK := AfrmError.ShowModal = mrOk;
-      e.ExcelTable.ExcludeErrors(etError);
+      if OK then
+      begin
+        if AfrmError.ContinueType = ctSkip then
+          // Убираем записи с ошибками и предупреждениями
+          e.ExcelTable.ExcludeErrors(etWarring)
+        else
+          // Убираем записи с ошибками
+          e.ExcelTable.ExcludeErrors(etError);
+      end;
     finally
       FreeAndNil(AfrmError);
     end;
@@ -61,15 +70,14 @@ begin
   if OK then
   begin
     FfrmProgressBar.Show;
-    e.ExcelTable.Process(
-      FProcRef,
-    {
-      // Метод, обрабатывающий нашу таблицу
-      procedure
-      begin
+    e.ExcelTable.Process(FProcRef,
+      {
+        // Метод, обрабатывающий нашу таблицу
+        procedure
+        begin
         ProductGroup.qProducts.AppendList(e.ExcelTable as TProductsExcelTable);
-      end,
-}
+        end,
+      }
       // Обработчик события
       procedure(ASender: TObject)
       Var
@@ -77,7 +85,7 @@ begin
       begin
         API := ASender as TProgressInfo;
         // Запоминаем прогресс записи листа
-        FWriteProgress.PIList[e.SheetIndex-1].Assign(API);
+        FWriteProgress.PIList[e.SheetIndex - 1].Assign(API);
         // Обновляем общий прогресс записи
         FWriteProgress.UpdateTotalProgress;
         // Отображаем общий прогресс записи
@@ -92,9 +100,9 @@ begin
   FfrmProgressBar.UpdateReadStatistic(ASender as TProgressInfo);
 end;
 
-procedure TLoad.LoadAndProcess(const AFileName: string; AExcelDMClass:
-    TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass; AProcRef:
-    TProcRef);
+procedure TLoad.LoadAndProcess(const AFileName: string;
+AExcelDMClass: TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass;
+AProcRef: TProcRef);
 var
   AExcelDM: TExcelDM;
 begin

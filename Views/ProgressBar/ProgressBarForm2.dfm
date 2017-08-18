@@ -1,6 +1,6 @@
 inherited frmProgressBar2: TfrmProgressBar2
   BorderStyle = bsSingle
-  Caption = 'frmProgressBar2'
+  Caption = #1054#1073#1088#1072#1073#1086#1090#1082#1072' '#1076#1072#1085#1085#1099#1093
   ClientHeight = 153
   ClientWidth = 526
   FormStyle = fsStayOnTop

@@ -550,8 +550,8 @@ end;
 
 procedure TViewComponentsParent.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TGVColumnsBarButtonsEx.Create(Self,
-    dxbsColumns, MainView, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtonsEx.Create(Self, dxbsColumns,
+    MainView, cxGridDBBandedTableView2);
 end;
 
 procedure TViewComponentsParent.cxFieldValueWithExpandPropertiesButtonClick
@@ -833,15 +833,19 @@ procedure TViewComponentsParent.SyncScrollbarPositions;
 var
   AcxGridDBBandedTableView: TcxGridDBBandedTableView;
   AcxGridMasterDataRow: TcxGridMasterDataRow;
-  i, LeftPos: Integer;
+  i, ALeftPos: Integer;
   AView: TcxGridBandedTableView;
 begin
+  // Если находимся в состоянии BeginUpdate
+  if UpdateCount > 0 then
+    Exit;
+
   if FisCurrentlySyncing then
     Exit;
   try
     FisCurrentlySyncing := True;
     AView := MainView;
-    LeftPos := AView.Controller.LeftPos;
+    ALeftPos := AView.Controller.LeftPos;
 
     // cxGrid.BeginUpdate();
     try
@@ -853,7 +857,10 @@ begin
         begin
           AcxGridDBBandedTableView := AcxGridMasterDataRow.ActiveDetailGridView
             as TcxGridDBBandedTableView;
-          AcxGridDBBandedTableView.Controller.LeftPos := LeftPos;
+
+          if (AcxGridDBBandedTableView.Controller <> nil) and
+            (AcxGridDBBandedTableView.Controller.LeftPos <> ALeftPos) then
+            AcxGridDBBandedTableView.Controller.LeftPos := ALeftPos;
         end;
       end;
     finally

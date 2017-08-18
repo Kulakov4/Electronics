@@ -174,7 +174,7 @@ implementation
 Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
   CustomExcelTable, RepositoryDataModule, System.Generics.Collections,
   System.Math, SettingsController, System.IOUtils, ProjectConst,
-  System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit;
+  System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit, CustomErrorForm;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin

@@ -24,12 +24,10 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, System.Actions, Vcl.ActnList,
   cxControls, cxContainer, cxEdit, cxLabel, GridView,
-  CustomErrorTable, GridViewForm, CustomGridViewForm;
+  CustomErrorTable, GridViewForm, CustomGridViewForm, CustomErrorForm;
 
 type
-  TContinueType = (ctAll, ctSkip);
-
-  TfrmImportError = class(TfrmGridView)
+  TfrmImportError = class(TfrmCustomError)
     pmContinue: TPopupMenu;
     N1: TMenuItem;
     N2: TMenuItem;
@@ -40,16 +38,9 @@ type
     procedure actAllExecute(Sender: TObject);
     procedure actSkipExecute(Sender: TObject);
   private
-    FContinueType: TContinueType;
-    function GetErrorTable: TCustomErrorTable;
-    procedure SetErrorTable(const Value: TCustomErrorTable);
     { Private declarations }
   protected
-    procedure AssignDataSet; override;
   public
-    property ContinueType: TContinueType read FContinueType;
-    property ErrorTable: TCustomErrorTable read GetErrorTable
-      write SetErrorTable;
     { Public declarations }
   end;
 
@@ -70,31 +61,6 @@ begin
   inherited;
   FContinueType := ctSkip;
   ModalResult := mrOk;
-end;
-
-procedure TfrmImportError.AssignDataSet;
-begin
-  inherited;
-  if (DataSet <> nil) and (DataSet.Active) then
-    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d',
-      [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
-end;
-
-function TfrmImportError.GetErrorTable: TCustomErrorTable;
-begin
-  if DataSet <> nil then
-    Result := DataSet as TCustomErrorTable
-  else
-    Result := nil;
-end;
-
-procedure TfrmImportError.SetErrorTable(const Value: TCustomErrorTable);
-begin
-  if DataSet <> Value then
-  begin
-    DataSet := Value;
-  end;
-
 end;
 
 end.

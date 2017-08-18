@@ -122,7 +122,7 @@ implementation
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
   ProducersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
   SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
-  SearchParameterValues, cxDropDownEdit, DialogUnit2;
+  SearchParameterValues, cxDropDownEdit, DialogUnit2, CustomErrorForm;
 
 constructor TViewProducers.Create(AOwner: TComponent);
 begin

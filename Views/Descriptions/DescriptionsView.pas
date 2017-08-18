@@ -126,7 +126,8 @@ uses
   DescriptionsExcelDataModule, DialogUnit, ImportErrorForm, NotifyEvents,
   cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
   System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit,
-  cxGridDBDataDefinitions, cxVariants, RepositoryDataModule, GridSort;
+  cxGridDBDataDefinitions, cxVariants, RepositoryDataModule, GridSort,
+  CustomErrorForm;
 
 {$R *.dfm}
 

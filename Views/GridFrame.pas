@@ -75,6 +75,7 @@ type
     FPostOnEnterFields: TList<String>;
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
+    FUpdateCount: Cardinal;
     procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
       ARecordIndex: Integer; var AAllow: Boolean);
     function GetMainView: TcxGridDBBandedTableView;
@@ -83,7 +84,6 @@ type
   protected
     FColumnsBarButtons: TGVColumnsBarButtons;
     FEventList: TObjectList;
-    FUpdateCount: Cardinal;
     procedure AfterKeyOrMouseDown(var Message: TMessage);
       message WM_AfterKeyOrMouseDown;
     procedure CreateColumnsBarButtons; virtual;
@@ -169,6 +169,7 @@ type
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
       write SetStatusBarEmptyPanelIndex;
+    property UpdateCount: Cardinal read FUpdateCount;
     { Public declarations }
   end;
 

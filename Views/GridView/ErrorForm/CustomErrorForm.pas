@@ -24,6 +24,7 @@ uses
   GridView, CustomErrorTable;
 
 type
+  TContinueType = (ctAll, ctSkip);
   TCustomErrorFormClass = class of TfrmCustomError;
 
   TfrmCustomError = class(TfrmGridView)
@@ -32,8 +33,11 @@ type
     procedure SetErrorTable(const Value: TCustomErrorTable);
     { Private declarations }
   protected
+    FContinueType: TContinueType;
     procedure AssignDataSet; override;
   public
+    constructor Create(AOwner: TComponent); override;
+    property ContinueType: TContinueType read FContinueType;
     property ErrorTable: TCustomErrorTable read GetErrorTable write SetErrorTable;
     { Public declarations }
   end;
@@ -41,6 +45,12 @@ type
 implementation
 
 {$R *.dfm}
+
+constructor TfrmCustomError.Create(AOwner: TComponent);
+begin
+  inherited;
+  FContinueType := ctAll;
+end;
 
 procedure TfrmCustomError.AssignDataSet;
 begin

@@ -95,7 +95,7 @@ uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
   ImportProcessForm, ProjectConst, DocBindExcelDataModule, ErrorForm,
-  LoadFromExcelFileHelper;
+  LoadFromExcelFileHelper, CustomErrorForm;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -146,7 +146,7 @@ end;
 procedure TViewComponents.BeginUpdate;
 begin
   // Отписываемся от событий о смене кол-ва
-  if FUpdateCount = 0 then
+  if UpdateCount = 0 then
     FCountEvents.Clear;
 
   inherited;
@@ -187,7 +187,7 @@ end;
 procedure TViewComponents.EndUpdate;
 begin
   inherited;
-  if FUpdateCount = 0 then
+  if UpdateCount = 0 then
     CreateCountEvents;
 end;
 
@@ -198,69 +198,22 @@ end;
 
 procedure TViewComponents.LoadFromExcelDocument(const AFileName,
   AProducer: string);
-var
-  AComponentsExcelDM: TComponentsExcelDM;
-  AfrmImportError: TfrmImportError;
-  OK: Boolean;
 begin
   Assert(not AFileName.IsEmpty);
   Assert(not AProducer.IsEmpty);
 
-  AComponentsExcelDM := TComponentsExcelDM.Create(Self);
+  BeginUpdate;
   try
-    // Первый этап - загружаем данные из Excel файла
-    TfrmProgressBar.Process(AComponentsExcelDM,
-      procedure (ASender: TObject)
+    TLoad.Create.LoadAndProcess(AFileName, TComponentsExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
       begin
-        AComponentsExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка компонентов из Excel документа', sRows);
-
-    // Второй этап - отображаем окно с ошибками
-    OK := AComponentsExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-      AfrmImportError := TfrmImportError.Create(Self);
-      try
-        AfrmImportError.ErrorTable := AComponentsExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-        if OK then
-        begin
-          if AfrmImportError.ContinueType = ctSkip then
-          begin
-            // Убираем записи с ошибками и предупреждениями
-            AComponentsExcelDM.ExcelTable.ExcludeErrors(etWarring);
-          end
-          else
-          begin
-            // Убираем записи с ошибками
-            AComponentsExcelDM.ExcelTable.ExcludeErrors(etError);
-          end;
-        end;
-
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
-    end;
-
-    // Третий этап - сохраняем в базе данных
-    if OK then
-    begin
-      BeginUpdate;
-      try
-        TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
-          procedure (ASender: TObject)
-          begin
-            ComponentsGroup.InsertRecordList(AComponentsExcelDM.ExcelTable,
-              AProducer);
-          end, 'Сохранение компонентов в БД', sRecords);
-      finally
-        EndUpdate;
-      end;
-    end;
+        ComponentsGroup.InsertRecordList(ASender as TComponentsExcelTable,
+          AProducer);
+      end);
   finally
-    FreeAndNil(AComponentsExcelDM);
+    EndUpdate;
   end;
+
   UpdateView;
 end;
 
@@ -341,7 +294,7 @@ begin
 
     if BaseComponentsGroup <> nil then
     begin
-      if FUpdateCount = 0 then
+      if UpdateCount = 0 then
         CreateCountEvents;
     end;
   end;
@@ -349,7 +302,7 @@ end;
 
 procedure TViewComponents.UpdateSelectedCount;
 begin
-  if FUpdateCount = 0 then
+  if UpdateCount = 0 then
 
     StatusBar.Panels[2].Text :=
       Format('%d', [MainView.DataController.GetSelectedCount]);
