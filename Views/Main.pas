@@ -307,14 +307,14 @@ begin
     ATreeExcelDM := TTreeExcelDM.Create(Self);
     try
       TfrmProgressBar.Process(ATreeExcelDM,
-        procedure
+        procedure (ASender: TObject)
         begin
           ATreeExcelDM.LoadExcelFile(AFileName);
         end, 'Загрузка категорий из Excel документа', sRows);
 
       AQueryRecursiveTree.RefreshQuery;
       TfrmProgressBar.Process(ATreeExcelDM.ExcelTable,
-        procedure
+        procedure (ASender: TObject)
         begin
           AQueryRecursiveTree.LoadRecords(ATreeExcelDM.ExcelTable);
         end, 'Сохранение категорий в БД', sRecords);

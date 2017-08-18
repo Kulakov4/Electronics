@@ -25,7 +25,8 @@ uses
   dxSkinXmas2008Blue, cxInplaceContainer, cxTLData, cxDBTL, dxSkinsdxBarPainter,
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
   Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections,
-  Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper;
+  Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper, System.Contnrs,
+  Vcl.ComCtrls;
 
 type
   TfrmTreeList = class(TFrame)
@@ -37,6 +38,7 @@ type
     actCopy: TAction;
     N1: TMenuItem;
     dxbsColumns: TdxBarSubItem;
+    StatusBar: TStatusBar;
     procedure actCopyExecute(Sender: TObject);
     procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
       ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
@@ -47,14 +49,20 @@ type
       X, Y: Integer);
     procedure cxDBTreeListStylesGetBandHeaderStyle(Sender: TcxCustomTreeList;
       ABand: TcxTreeListBand; var AStyle: TcxStyle);
+    procedure StatusBarResize(Sender: TObject);
   private
     FBlockEvents: Integer;
     FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
+    FStatusBarEmptyPanelIndex: Integer;
+    procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
     FColumnsBarButtons: TTLColumnsBarButtons;
+    FEventList: TObjectList;
+    FUpdateCount: Cardinal;
     procedure CreateColumnsBarButtons; virtual;
+    procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InitializeColumns; virtual;
     procedure InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
       ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
@@ -69,20 +77,24 @@ type
     procedure AfterConstruction; override;
     procedure ApplySort(AColumn: TcxTreeListColumn);
     procedure BeginBlockEvents;
+    procedure BeginUpdate; virtual;
     procedure ClearSort;
     procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
     procedure EndBlockEvents;
+    procedure EndUpdate; virtual;
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
       : Variant;
     procedure UpdateView; virtual;
     property GridSort: TGridSort read FGridSort;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
+    property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex write
+        SetStatusBarEmptyPanelIndex;
     { Public declarations }
   end;
 
 implementation
 
-uses dxCore, RepositoryDataModule, Vcl.Clipbrd, System.Types;
+uses dxCore, RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math;
 
 {$R *.dfm}
 
@@ -91,6 +103,7 @@ begin
   inherited;
   // —писок полей при редактировании которых Enter - сохранение
   FPostOnEnterFields := TList<String>.Create;
+  FEventList := TObjectList.Create;
 
   FGridSort := TGridSort.Create;
   cxDBTreeList.Styles.OnGetBandHeaderStyle :=
@@ -101,6 +114,7 @@ destructor TfrmTreeList.Destroy;
 begin
   FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FGridSort);
+  FreeAndNil(FEventList);
   inherited;
 end;
 
@@ -172,6 +186,13 @@ procedure TfrmTreeList.BeginBlockEvents;
 begin
   Assert(FBlockEvents >= 0);
   Inc(FBlockEvents);
+end;
+
+procedure TfrmTreeList.BeginUpdate;
+begin
+  Inc(FUpdateCount);
+  if FUpdateCount = 1 then
+    cxDBTreeList.BeginUpdate();
 end;
 
 procedure TfrmTreeList.ClearSort;
@@ -281,10 +302,39 @@ begin
     AStyle := DMRepository.cxHeaderStyle;
 end;
 
+procedure TfrmTreeList.DoStatusBarResize(AEmptyPanelIndex: Integer);
+var
+  i: Integer;
+  X: Integer;
+begin
+  Assert(AEmptyPanelIndex >= 0);
+  Assert(AEmptyPanelIndex < StatusBar.Panels.Count);
+
+  X := StatusBar.ClientWidth;
+  for i := 0 to StatusBar.Panels.Count - 1 do
+  begin
+    if i <> AEmptyPanelIndex then
+    begin
+      Dec(X, StatusBar.Panels[i].Width);
+    end;
+  end;
+  X := IfThen(X >= 0, X, 0);
+  StatusBar.Panels[AEmptyPanelIndex].Width := X;
+end;
+
 procedure TfrmTreeList.EndBlockEvents;
 begin
   Assert(FBlockEvents > 0);
   Dec(FBlockEvents);
+end;
+
+procedure TfrmTreeList.EndUpdate;
+begin
+  Assert(FUpdateCount > 0);
+  Dec(FUpdateCount);
+  if FUpdateCount = 0 then
+    cxDBTreeList.EndUpdate;
+
 end;
 
 function TfrmTreeList.FocusedNodeValue(AcxDBTreeListColumn
@@ -349,6 +399,24 @@ end;
 function TfrmTreeList.IsSyncToDataSet: Boolean;
 begin
   Result := cxDBTreeList.FocusedNode <> nil;
+end;
+
+procedure TfrmTreeList.SetStatusBarEmptyPanelIndex(const Value: Integer);
+begin
+  if FStatusBarEmptyPanelIndex <> Value then
+  begin
+    if not(Value > 0) and (Value < StatusBar.Panels.Count) then
+      raise Exception.Create('Ќеверный индекс панели состо€ни€');
+
+    FStatusBarEmptyPanelIndex := Value;
+  end;
+end;
+
+procedure TfrmTreeList.StatusBarResize(Sender: TObject);
+begin
+  if (FStatusBarEmptyPanelIndex >= 0) and
+    (FStatusBarEmptyPanelIndex < StatusBar.Panels.Count) then
+    DoStatusBarResize(FStatusBarEmptyPanelIndex);
 end;
 
 procedure TfrmTreeList.UpdateView;

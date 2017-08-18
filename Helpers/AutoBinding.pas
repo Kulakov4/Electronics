@@ -232,7 +232,7 @@ begin
     ADocFilesTable.LoadDocFiles(ADocFieldInfos);
 
     TfrmProgressBar.Process(ADocFilesTable,
-      procedure
+      procedure (ASender: TObject)
       begin
         // Просим проанализировать, к каким компонентам можно привязать эти файлы
         APossibleLinkDocTables := AnalizeDocFiles(ADocFilesTable);
@@ -260,7 +260,7 @@ begin
       ATableWithProgress.Last;
 
       TfrmProgressBar.Process(ATableWithProgress,
-        procedure
+        procedure (ASender: TObject)
         begin
           // Просим привязать компоненты к файлам
           AErrorLinkedDocTable := LinkToDocFiles(APossibleLinkDocTables,

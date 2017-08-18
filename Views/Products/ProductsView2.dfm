@@ -1,4 +1,19 @@
 inherited ViewProducts2: TViewProducts2
+  inherited StatusBar: TStatusBar
+    Panels = <
+      item
+        Width = 100
+      end
+      item
+        Width = 100
+      end
+      item
+        Width = 100
+      end
+      item
+        Width = 100
+      end>
+  end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0

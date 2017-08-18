@@ -25,7 +25,8 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ErrorForm,
-  ProductsExcelDataModule, ProductGroupUnit, Vcl.Menus;
+  ProductsExcelDataModule, ProductGroupUnit, Vcl.Menus, Vcl.ComCtrls,
+  System.Contnrs, ProgressBarForm2, ExcelDataModule;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -40,9 +41,15 @@ type
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
   private
+    procedure DoBeforeLoad(ASender: TObject);
     function GetProductGroup: TProductGroup;
     procedure SetProductGroup(const Value: TProductGroup);
     { Private declarations }
+  protected
+    // TODO: SortList
+    // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
+    // : TList<TProductRecord>;
+    procedure UpdateProductCount; override;
   public
     procedure LoadFromExcelDocument(const AFileName: String);
     property ProductGroup: TProductGroup read GetProductGroup
@@ -54,7 +61,16 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable;
+uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
+  NotifyEvents, Data.DB, ProgressInfo, LoadFromExcelFileHelper;
+
+procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
+begin
+  UpdateView;
+  { при выборе другого склада проверить наличие изменений в старом складе }
+  if CheckAndSaveChanges = IDCANCEL then
+    raise EAbort.Create('Cancel scroll');
+end;
 
 function TViewProducts2.GetProductGroup: TProductGroup;
 begin
@@ -62,66 +78,45 @@ begin
 end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
-var
-  // AFieldsInfo: TList<TFieldInfo>;
-  AfrmError: TfrmError;
-  AProductsExcelDM: TProductsExcelDM;
-  OK: Boolean;
 begin
   Assert(not AFileName.IsEmpty);
 
-  // AFieldsInfo := TList<TFieldInfo>.Create();
-  cxDBTreeList.BeginUpdate;
+  BeginUpdate;
   try
-
-    AProductsExcelDM := TProductsExcelDM.Create(Self);
-    try
-      // Загружаем данные из Excel файла
-      TfrmProgressBar.Process(AProductsExcelDM,
-        procedure
-        begin
-          AProductsExcelDM.LoadExcelFile(AFileName);
-        end, 'Загрузка складских данных', sRows);
-
-      OK := AProductsExcelDM.ExcelTable.Errors.RecordCount = 0;
-      // Если в ходе загрузки данных произошли ошибки (производитель не найден)
-      if not OK then
-      begin
-        AfrmError := TfrmError.Create(Self);
-        try
-          AfrmError.ErrorTable := AProductsExcelDM.ExcelTable.Errors;
-          // Показываем ошибки
-          OK := AfrmError.ShowModal = mrOk;
-          AProductsExcelDM.ExcelTable.ExcludeErrors(etError);
-        finally
-          FreeAndNil(AfrmError);
-        end;
-      end;
-      if OK then
-      begin
-        // Сохраняем данные в БД
-        TfrmProgressBar.Process(AProductsExcelDM.ExcelTable,
-          procedure
-          begin
-            ProductGroup.qProducts.AppendList(AProductsExcelDM.ExcelTable);
-          end, 'Сохранение складских данных в БД', sRecords);
-      end;
-
-    finally
-      FreeAndNil(AProductsExcelDM);
-    end;
+    TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmError,
+    procedure (ASender: TObject)
+    begin
+      ProductGroup.qProducts.AppendList(ASender as TProductsExcelTable);
+    end
+    );
   finally
     cxDBTreeList.FullCollapse;
-    cxDBTreeList.EndUpdate;
-    // FreeAndNil(AFieldsInfo);
+    EndUpdate;
   end;
-
 end;
 
 procedure TViewProducts2.SetProductGroup(const Value: TProductGroup);
 begin
-  if ProductBaseGroup <> Value then
-    ProductBaseGroup := Value;
+  if ProductBaseGroup = Value then
+    Exit;
+
+  // Отписываемся от событий
+  FEventList.Clear;
+
+  ProductBaseGroup := Value;
+  if ProductBaseGroup <> nil then
+  begin
+    TNotifyEventWrap.Create(ProductGroup.qProducts.BeforeLoad, DoBeforeLoad,
+      FEventList);
+  end;
+end;
+
+procedure TViewProducts2.UpdateProductCount;
+begin
+  inherited;
+
+  // обновляем количество продуктов на всех складах
+  StatusBar.Panels[3].Text := Format('%d', [ProductGroup.qProducts.TotalCount]);
 end;
 
 end.

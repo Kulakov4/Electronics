@@ -32,6 +32,7 @@ type
   TQueryProductsBase = class(TQueryWithDataSource)
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
+    FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
     FqProducers: TQueryProducers;
     FqSearchComponentGroup: TQuerySearchComponentGroup;
@@ -119,6 +120,7 @@ type
     property IDProducer: TField read GetIDProducer;
     property Image: TField read GetImage;
     property IsGroup: TField read GetIsGroup;
+    property NotGroupClone: TFDMemTable read FNotGroupClone;
     property Price: TField read GetPrice;
     property PriceD: TField read GetPriceD;
     property PriceD1: TField read GetPriceD1;
@@ -175,6 +177,8 @@ begin
   AutoTransaction := False;
 
   FEnableCalc := True;
+
+  FNotGroupClone := AddClone('IsGroup=0');
 end;
 
 procedure TQueryProductsBase.AddCategory;

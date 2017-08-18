@@ -29,7 +29,10 @@ inherited ViewProducts: TViewProducts
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrsbtmColumnsCustomization'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbsColumns'
         end
         item
           Visible = True

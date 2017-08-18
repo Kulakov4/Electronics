@@ -300,7 +300,7 @@ begin
     // BodyTypesGroup.qBodyTypes2.FDQuery;
 
     TfrmProgressBar.Process(ABodyTypesExcelDM,
-      procedure
+      procedure (ASender: TObject)
       begin
         ABodyTypesExcelDM.LoadExcelFile(AFileName);
       end, 'Загрузка корпусных данных', sRows);
@@ -326,7 +326,7 @@ begin
       cxGrid.BeginUpdate;
       try
         TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable,
               AProducerID);

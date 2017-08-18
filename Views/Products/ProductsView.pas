@@ -524,7 +524,7 @@ begin
     try
       // Загружаем данные из Excel файла
       TfrmProgressBar.Process(AProductsExcelDM,
-        procedure
+        procedure (ASender: TObject)
         begin
           AProductsExcelDM.LoadExcelFile(AFileName);
         end, 'Загрузка складских данных', sRows);
@@ -547,7 +547,7 @@ begin
       begin
         // Сохраняем данные в БД
         TfrmProgressBar.Process(AProductsExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             ProductGroup.qProducts.AppendList(AProductsExcelDM.ExcelTable);
           end, 'Сохранение складских данных в БД', sRecords);

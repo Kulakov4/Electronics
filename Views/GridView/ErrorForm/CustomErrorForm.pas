@@ -1,11 +1,10 @@
-unit ErrorForm;
+unit CustomErrorForm;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridViewForm, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
   dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -21,21 +20,51 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, Data.DB, GridFrame,
-  Vcl.ExtCtrls, cxControls, cxContainer, cxEdit, cxLabel, GridView,
-  CustomErrorTable, GridViewForm, CustomGridViewForm, CustomErrorForm;
+  dxSkinXmas2008Blue, Vcl.ExtCtrls, Data.DB, Vcl.StdCtrls, cxButtons, GridFrame,
+  GridView, CustomErrorTable;
 
 type
-  TfrmError = class(TfrmCustomError)
+  TCustomErrorFormClass = class of TfrmCustomError;
+
+  TfrmCustomError = class(TfrmGridView)
   private
+    function GetErrorTable: TCustomErrorTable;
+    procedure SetErrorTable(const Value: TCustomErrorTable);
     { Private declarations }
   protected
+    procedure AssignDataSet; override;
   public
+    property ErrorTable: TCustomErrorTable read GetErrorTable write SetErrorTable;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+procedure TfrmCustomError.AssignDataSet;
+begin
+  inherited;
+  if (ErrorTable <> nil) and (ErrorTable.Active) then
+    lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d',
+      [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+end;
+
+function TfrmCustomError.GetErrorTable: TCustomErrorTable;
+begin
+  if DataSet <> nil then
+    Result := DataSet as TCustomErrorTable
+  else
+    Result := nil;
+end;
+
+procedure TfrmCustomError.SetErrorTable(const Value: TCustomErrorTable);
+begin
+  if DataSet <> Value then
+  begin
+    DataSet := Value;
+  end;
+
+end;
 
 end.

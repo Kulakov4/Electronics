@@ -389,7 +389,7 @@ begin
           try
             // ѕриступаем к сохранению в базе данных
             AComponentsExcelDM.ExcelTable.Process(
-              procedure
+              procedure (ASender: TObject)
               begin
                 InsertRecordList(AComponentsExcelDM.ExcelTable, AProducer)
               end,

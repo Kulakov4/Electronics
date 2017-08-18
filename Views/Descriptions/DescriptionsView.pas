@@ -233,7 +233,7 @@ begin
       DescriptionsGroup.qDescriptions.FDQuery;
 
     TfrmProgressBar.Process(ADescriptionsExcelDM,
-      procedure
+      procedure (ASender: TObject)
       begin
         ADescriptionsExcelDM.LoadExcelFile(AFileName);
       end, 'Загрузка кратких описаний из Excel документа', sRows);
@@ -270,7 +270,7 @@ begin
       cxGrid.BeginUpdate;
       try
         TfrmProgressBar.Process(ADescriptionsExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             DescriptionsGroup.InsertRecordList(ADescriptionsExcelDM.ExcelTable);
           end, 'Сохранение кратких описаний в БД', sRecords);

@@ -296,7 +296,7 @@ begin
     try
       // Загружаем данные из Excel файла
       TfrmProgressBar.Process(AParametricExcelDM,
-        procedure
+        procedure (ASender: TObject)
         begin
           AParametricExcelDM.LoadExcelFile(AFileName);
         end, 'Загрузка параметрических данных', sRows);
@@ -320,13 +320,13 @@ begin
       begin
         // Сохраняем данные в БД
         TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             TParameterValues.LoadParameters(AParametricExcelDM.ExcelTable);
           end, 'Добавление параметров в категорию', sParameters);
 
         TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             TParameterValues.LoadParameterValues
               (AParametricExcelDM.ExcelTable, False);

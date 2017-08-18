@@ -78,7 +78,7 @@ begin
   try
     // Первый этап - загружаем данные из Excel файла
     TfrmProgressBar.Process(ADocBindExcelDM,
-      procedure
+      procedure (ASender: TObject)
       begin
         ADocBindExcelDM.LoadExcelFile(AFileName);
       end, 'Загрузка данных о файлах документации из Excel документа', sRows);
@@ -103,7 +103,7 @@ begin
     if OK then
     begin
       TfrmProgressBar.Process(ADocBindExcelDM.ExcelTable,
-        procedure
+        procedure (ASender: TObject)
         begin
           DoBindDocs(ADocBindExcelDM.ExcelTable);
         end, 'Выполнение привязки к документации', sComponents);

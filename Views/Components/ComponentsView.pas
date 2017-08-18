@@ -94,7 +94,8 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst, DocBindExcelDataModule, ErrorForm;
+  ImportProcessForm, ProjectConst, DocBindExcelDataModule, ErrorForm,
+  LoadFromExcelFileHelper;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -209,7 +210,7 @@ begin
   try
     // Первый этап - загружаем данные из Excel файла
     TfrmProgressBar.Process(AComponentsExcelDM,
-      procedure
+      procedure (ASender: TObject)
       begin
         AComponentsExcelDM.LoadExcelFile(AFileName);
       end, 'Загрузка компонентов из Excel документа', sRows);
@@ -248,7 +249,7 @@ begin
       BeginUpdate;
       try
         TfrmProgressBar.Process(AComponentsExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             ComponentsGroup.InsertRecordList(AComponentsExcelDM.ExcelTable,
               AProducer);

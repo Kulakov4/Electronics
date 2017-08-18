@@ -8,7 +8,7 @@ object frmTreeList: TfrmTreeList
     Left = 0
     Top = 28
     Width = 320
-    Height = 212
+    Height = 193
     Align = alClient
     Bands = <>
     Navigator.Buttons.CustomButtons = <>
@@ -26,6 +26,18 @@ object frmTreeList: TfrmTreeList
     OnCustomDrawDataCell = cxDBTreeListCustomDrawDataCell
     OnEdited = cxDBTreeListEdited
     OnMouseMove = cxDBTreeListMouseMove
+    ExplicitHeight = 212
+  end
+  object StatusBar: TStatusBar
+    Left = 0
+    Top = 221
+    Width = 320
+    Height = 19
+    Panels = <>
+    OnResize = StatusBarResize
+    ExplicitLeft = 160
+    ExplicitTop = 112
+    ExplicitWidth = 0
   end
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET

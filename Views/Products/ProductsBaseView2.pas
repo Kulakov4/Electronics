@@ -25,7 +25,8 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
-  cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit;
+  cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit, Vcl.ComCtrls,
+  System.Contnrs;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -112,18 +113,26 @@ type
       APrevFocusedNode, AFocusedNode: TcxTreeListNode);
     procedure cxDBTreeListInitEditValue(Sender, AItem: TObject;
       AEdit: TcxCustomEdit; var AValue: Variant);
+    procedure cxDBTreeListSelectionChanged(Sender: TObject);
     procedure dxbcRate2Change(Sender: TObject);
     procedure dxbcRate1Change(Sender: TObject);
     procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
   private
+    FCountEvents: TObjectList;
     FProductBaseGroup: TProductBaseGroup;
+    procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterLoad(Sender: TObject);
+    procedure DoAfterOpen(Sender: TObject);
+    procedure DoAfterPost(Sender: TObject);
     function GetIsFocusedNodeGroup: Boolean;
     procedure SetProductBaseGroup(const Value: TProductBaseGroup);
+    procedure UpdateSelectedCount;
     { Private declarations }
   protected
+    FSelectedCountPanelIndex: Integer;
     procedure BindRate(ARateField: TField; AdxBarCombo: TdxBarCombo);
+    procedure CreateCountEvents;
     procedure DoAfterScroll(Sender: TObject);
     procedure InitializeColumns; override;
     function IsSyncToDataSet: Boolean; override;
@@ -131,11 +140,18 @@ type
       const AErrorMessage, AEmptyErrorMessage: string);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
+    // TODO: SortList
+    // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
+    // : TList<TProductRecord>;
+    procedure UpdateProductCount; virtual;
     procedure UpdateRate(const ARate: Double; RateField: TField);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
+    procedure EndUpdate; override;
     procedure UpdateView; override;
     property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
     property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup
@@ -158,8 +174,22 @@ begin
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
 
+  // Где отображать кол-во выделенных записей
+  FSelectedCountPanelIndex := 1;
+
+  // Какую панель растягивать
+  StatusBarEmptyPanelIndex := 2;
+
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
+
+  FCountEvents := TObjectList.Create;
+end;
+
+destructor TViewProductsBase2.Destroy;
+begin
+  inherited;
+  FreeAndNil(FCountEvents);
 end;
 
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
@@ -208,7 +238,7 @@ end;
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
 begin
   inherited;
-  FProductBaseGroup.ApplyUpdates;
+  FProductBaseGroup.qProductsBase.ApplyUpdates;
   UpdateView;
 end;
 
@@ -362,11 +392,21 @@ begin
   inherited;
   cxDBTreeList.BeginUpdate;
   try
-    ProductBaseGroup.CancelUpdates;
-    UpdateView;
+    ProductBaseGroup.qProductsBase.CancelUpdates;
+    cxDBTreeList.FullCollapse;
   finally
     cxDBTreeList.EndUpdate;
   end;
+  UpdateView;
+end;
+
+procedure TViewProductsBase2.BeginUpdate;
+begin
+  // Отписываемся от событий о смене кол-ва
+  if FUpdateCount = 0 then
+    FCountEvents.Clear;
+
+  inherited;
 end;
 
 procedure TViewProductsBase2.BindRate(ARateField: TField;
@@ -413,6 +453,25 @@ begin
   inherited;
   if not Value.IsEmpty then
     Value := TPath.GetFileNameWithoutExtension(Value);
+end;
+
+procedure TViewProductsBase2.CreateCountEvents;
+begin
+  // Подписываемся на события чтобы отслеживать кол-во
+  TNotifyEventWrap.Create(ProductBaseGroup.qProductsBase.AfterOpen, DoAfterOpen,
+    FCountEvents);
+
+  TNotifyEventWrap.Create(ProductBaseGroup.qProductsBase.AfterPost, DoAfterPost,
+    FCountEvents);
+
+  TNotifyEventWrap.Create(ProductBaseGroup.qProductsBase.AfterDelete, DoAfterDelete,
+    FCountEvents);
+
+  // Чтобы отслеживать надбавку
+  TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterScroll,
+    DoAfterScroll, FCountEvents);
+
+  UpdateProductCount;
 end;
 
 procedure TViewProductsBase2.cxbeiRateChange(Sender: TObject);
@@ -517,11 +576,33 @@ begin
   { }
 end;
 
+procedure TViewProductsBase2.cxDBTreeListSelectionChanged(Sender: TObject);
+begin
+  inherited;
+  UpdateSelectedCount;
+end;
+
+procedure TViewProductsBase2.DoAfterDelete(Sender: TObject);
+begin
+  UpdateProductCount;
+end;
+
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
 begin
   UpdateView;
   cxDBTreeList.FullCollapse;
   // cxDBTreeList.ApplyBestFit;
+end;
+
+procedure TViewProductsBase2.DoAfterOpen(Sender: TObject);
+begin
+  UpdateProductCount;
+  UpdateView;
+end;
+
+procedure TViewProductsBase2.DoAfterPost(Sender: TObject);
+begin
+  UpdateProductCount;
 end;
 
 procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
@@ -593,6 +674,13 @@ begin
     S := S + '%';
 
   Sender.Canvas.TextOut(ARect.Left + 2, ARect.Top + 2, S);
+end;
+
+procedure TViewProductsBase2.EndUpdate;
+begin
+  inherited;
+  if FUpdateCount = 0 then
+    CreateCountEvents;
 end;
 
 function TViewProductsBase2.GetIsFocusedNodeGroup: Boolean;
@@ -710,12 +798,19 @@ begin
   InitializeColumns;
 
   TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterLoad,
-    DoAfterLoad);
+    DoAfterLoad, FEventList);
 
-  TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterScroll,
-    DoAfterScroll);
+  // подписываемся на события о смене количества и надбавки
+  CreateCountEvents;
 
   UpdateView;
+end;
+
+procedure TViewProductsBase2.UpdateProductCount;
+begin
+  // На выбранном складе или в результате поиска без учёта групп
+  StatusBar.Panels[0].Text :=
+    Format('%d', [ ProductBaseGroup.qProductsBase.NotGroupClone.RecordCount]);
 end;
 
 procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
@@ -740,6 +835,12 @@ begin
     FProductBaseGroup.qProductsBase.FDQuery.EnableControls;
     FreeAndNil(AUpdatedIDList);
   end;
+end;
+
+procedure TViewProductsBase2.UpdateSelectedCount;
+begin
+  StatusBar.Panels[FSelectedCountPanelIndex].Text :=
+    Format('%d', [cxDBTreeList.SelectionCount]);
 end;
 
 procedure TViewProductsBase2.UpdateView;

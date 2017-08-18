@@ -16,21 +16,26 @@ uses
 type
   TQueryProducts = class(TQueryProductsBase)
   private
+    FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
-    FQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
+    FqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
+    FTotalCount: Integer;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
-    function GetQueryStoreHouseProductsCount: TQueryStoreHouseProductsCount;
+    function GetqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     function GetStoreHouseName: string;
     function GetTotalCount: Integer;
     { Private declarations }
   protected
+    procedure DoAfterDelete(Sender: TObject);
+    procedure DoAfterPost(Sender: TObject);
+    procedure DoBeforeDelete(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetExportFileName: string; override;
-    property QueryStoreHouseProductsCount: TQueryStoreHouseProductsCount
-      read GetQueryStoreHouseProductsCount;
+    property qStoreHouseProductsCount: TQueryStoreHouseProductsCount read
+        GetqStoreHouseProductsCount;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendList(AExcelTable: TProductsExcelTable);
@@ -61,10 +66,15 @@ uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
 constructor TQueryProducts.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FNeedUpdateCount := True;
+
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
+  TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
+  TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
 end;
 
 procedure TQueryProducts.AppendList(AExcelTable: TProductsExcelTable);
@@ -155,6 +165,17 @@ begin
   end;
 end;
 
+procedure TQueryProducts.DoAfterDelete(Sender: TObject);
+begin
+  // Если завершилось удаление записи о продукте и общее кол-во известно и не нуждается в обновлении
+  if FNeedDecTotalCount and (not FNeedUpdateCount) then
+  begin
+    FNeedDecTotalCount := False;
+    Assert(FTotalCount > 0);
+    Dec(FTotalCount);
+  end;
+end;
+
 procedure TQueryProducts.DoAfterInsert(Sender: TObject);
 begin
   // Заполняем код склада
@@ -163,8 +184,22 @@ end;
 
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
+  FNeedUpdateCount := True;
+  FNeedDecTotalCount := False;
   // FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
+end;
+
+procedure TQueryProducts.DoAfterPost(Sender: TObject);
+begin
+  // Если завершилось добавление записи и общее кол-во известно и не нуждается в обновлении
+  if (OldState = dsInsert) and (not FNeedUpdateCount) then
+    Inc(FTotalCount);
+end;
+
+procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
+begin
+  FNeedDecTotalCount := not IsGroup.IsNull and (IsGroup.AsInteger = 0);
 end;
 
 procedure TQueryProducts.DoBeforePost(Sender: TObject);
@@ -226,15 +261,15 @@ begin
   Assert(not Result.IsEmpty);
 end;
 
-function TQueryProducts.GetQueryStoreHouseProductsCount
-  : TQueryStoreHouseProductsCount;
+function TQueryProducts.GetqStoreHouseProductsCount:
+    TQueryStoreHouseProductsCount;
 begin
-  if FQueryStoreHouseProductsCount = nil then
+  if FqStoreHouseProductsCount = nil then
   begin
-    FQueryStoreHouseProductsCount := TQueryStoreHouseProductsCount.Create(Self);
-    FQueryStoreHouseProductsCount.FDQuery.Connection := FDQuery.Connection;
+    FqStoreHouseProductsCount := TQueryStoreHouseProductsCount.Create(Self);
+    FqStoreHouseProductsCount.FDQuery.Connection := FDQuery.Connection;
   end;
-  Result := FQueryStoreHouseProductsCount;
+  Result := FqStoreHouseProductsCount;
 end;
 
 function TQueryProducts.GetStoreHouseName: string;
@@ -248,13 +283,14 @@ end;
 
 function TQueryProducts.GetTotalCount: Integer;
 begin
-  if FNeedUpdateCount or not QueryStoreHouseProductsCount.FDQuery.Active then
+  if FNeedUpdateCount then
   begin
-    QueryStoreHouseProductsCount.FDQuery.Close;
-    QueryStoreHouseProductsCount.FDQuery.Open;
+    qStoreHouseProductsCount.FDQuery.Close;
+    qStoreHouseProductsCount.FDQuery.Open;
+    FTotalCount := qStoreHouseProductsCount.Count;
     FNeedUpdateCount := False;
   end;
-  Result := QueryStoreHouseProductsCount.Count + CashedRecordBalance;
+  Result := FTotalCount;
 end;
 
 // TODO: InsertRecordList

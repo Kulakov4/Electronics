@@ -753,7 +753,7 @@ begin
   cxGridDBBandedTableView.BeginUpdate();
   try
     TfrmProgressBar.Process(AList,
-      procedure
+      procedure (ASender: TObject)
       begin
         ParametersGroup.InsertList(AList);
       end, 'Обновление параметров в БД', sRecords);
@@ -775,7 +775,7 @@ begin
       ParametersGroup.qMainParameters.FDQuery;
 
     TfrmProgressBar.Process(AParametersExcelDM,
-      procedure
+      procedure (ASender: TObject)
       begin
         if not AFileName.IsEmpty then
           AParametersExcelDM.LoadExcelFile(AFileName)

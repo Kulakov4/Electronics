@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, System.Contnrs;
+  NotifyEvents, System.Contnrs, System.Generics.Collections;
 
 const
   WM_DS_BEFORE_SCROLL = WM_USER + 555;
@@ -48,12 +48,18 @@ type
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
+    FCloneEvents: TObjectList;
+    FClones: TObjectList<TFDMemTable>;
     FHaveAnyNotCommitedChanges: Boolean;
     FOldPKValue: Variant;
+    FOldState: TDataSetState;
     FResiveAfterPostMessage: Boolean;
     FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
     FUseAfterPostMessage: Boolean;
+    procedure CloneCursor(AClone: TFDMemTable);
+    procedure DoAfterClose(Sender: TObject);
+    procedure DoAfterOpen(Sender: TObject);
     procedure DoOnStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
     { Private declarations }
@@ -72,6 +78,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function AddClone(const AFilter: String): TFDMemTable;
+    procedure DropClone(AClone: TFDMemTable);
     property AfterClose: TNotifyEventsEx read FAfterClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
@@ -91,6 +99,7 @@ type
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property OldPKValue: Variant read FOldPKValue;
+    property OldState: TDataSetState read FOldState;
     property UseAfterPostMessage: Boolean read FUseAfterPostMessage
       write FUseAfterPostMessage;
     { Public declarations }
@@ -107,6 +116,8 @@ uses RepositoryDataModule;
 constructor TQueryBaseEvents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+
+  FOldState := dsInactive;
 
   // Создаём события
   FBeforeScroll := TNotifyEventsEx.Create(Self);
@@ -152,6 +163,52 @@ begin
   inherited;
 end;
 
+function TQueryBaseEvents.AddClone(const AFilter: String): TFDMemTable;
+begin
+  // Создаём список клонов
+  if FClones = nil then
+  begin
+    FClones := TObjectList<TFDMemTable>.Create;
+
+    // Список подписчиков
+    FCloneEvents := TObjectList.Create;
+
+    // Будем клонировать курсоры
+    TNotifyEventWrap.Create( AfterOpen, DoAfterOpen, FCloneEvents );
+    // Будем закрывать курсоры
+    TNotifyEventWrap.Create( AfterClose, DoAfterClose, FCloneEvents );
+  end;
+
+  Result := TFDMemTable.Create(Self);
+  Result.Filter := AFilter;
+
+  // Клонируем
+  if FDQuery.Active then
+    CloneCursor(Result);
+
+  FClones.Add(Result);
+end;
+
+procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
+var
+  AFilter: String;
+begin
+  Assert(not AClone.Filter.IsEmpty);
+  AFilter := AClone.Filter;
+  AClone.CloneCursor( FDQuery );
+  AClone.Filter := AFilter;
+  AClone.Filtered := True;
+end;
+
+procedure TQueryBaseEvents.DoAfterClose(Sender: TObject);
+var
+  AClone: TFDMemTable;
+begin
+  // Закрываем клоны
+  for AClone in FClones do
+    AClone.Close;
+end;
+
 procedure TQueryBaseEvents.DoAfterCommit(Sender: TObject);
 begin
   if FHaveAnyNotCommitedChanges then
@@ -160,6 +217,17 @@ begin
     FHaveAnyNotCommitedChanges := False;
     // Извещаем всех что наши изменения закоммичены
     FAfterCommit.CallEventHandlers(Self);
+  end;
+end;
+
+procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
+var
+  AClone: TFDMemTable;
+begin
+  // клонируем курсоры
+  for AClone in FClones do
+  begin
+    CloneCursor( AClone );
   end;
 end;
 
@@ -174,6 +242,23 @@ begin
   // начинаем транзакцию, если она ещё не началась
   if (not AutoTransaction) and (not FDQuery.Connection.InTransaction) then
     FDQuery.Connection.StartTransaction;
+end;
+
+procedure TQueryBaseEvents.DropClone(AClone: TFDMemTable);
+begin
+  Assert(AClone <> nil);
+  Assert(FClones <> nil);
+
+  FClones.Remove( AClone );
+
+  if FClones.Count = 0 then
+  begin
+    // Отписываемся
+    FreeAndNil(FCloneEvents);
+    // Разрушаем список
+    FreeAndNil(FClones);
+  end;
+
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterClose(DataSet: TDataSet);
@@ -276,6 +361,7 @@ end;
 procedure TQueryBaseEvents.FDQueryBeforePost(DataSet: TDataSet);
 begin
   inherited;
+  FOldState := FDQuery.State;
   FBeforePost.CallEventHandlers(Self);
 end;
 

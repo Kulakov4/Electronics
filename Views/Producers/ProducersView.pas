@@ -222,7 +222,7 @@ begin
       ProducersGroup.qProducers.FDQuery;
 
     TfrmProgressBar.Process(AProducersExcelDM,
-      procedure
+      procedure (ASender: TObject)
       begin
         AProducersExcelDM.LoadExcelFile(AFileName);
       end, 'Загрузка данных о производителе', sRows);
@@ -258,7 +258,7 @@ begin
       cxGrid.BeginUpdate;
       try
         TfrmProgressBar.Process(AProducersExcelDM.ExcelTable,
-          procedure
+          procedure (ASender: TObject)
           begin
             ProducersGroup.InsertRecordList(AProducersExcelDM.ExcelTable);
           end, 'Сохранение данных о производителях в БД', sRecords);

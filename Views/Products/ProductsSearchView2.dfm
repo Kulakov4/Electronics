@@ -181,6 +181,18 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       Summary.GroupFooterSummaryItems = <>
     end
   end
+  inherited StatusBar: TStatusBar
+    Panels = <
+      item
+        Width = 100
+      end
+      item
+        Width = 100
+      end
+      item
+        Width = 50
+      end>
+  end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0

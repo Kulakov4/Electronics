@@ -6,7 +6,7 @@ inherited ViewProductsBase2: TViewProductsBase2
   inherited cxDBTreeList: TcxDBTreeList
     Top = 54
     Width = 1092
-    Height = 544
+    Height = 525
     Bands = <
       item
         Caption.AlignHorz = taCenter
@@ -105,9 +105,10 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
+    OnSelectionChanged = cxDBTreeListSelectionChanged
     ExplicitTop = 54
     ExplicitWidth = 1092
-    ExplicitHeight = 544
+    ExplicitHeight = 525
     object clID: TcxDBTreeListColumn
       Visible = False
       Caption.AlignHorz = taCenter
@@ -541,6 +542,13 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+  end
+  inherited StatusBar: TStatusBar
+    Top = 579
+    Width = 1092
+    ExplicitLeft = 0
+    ExplicitTop = 579
+    ExplicitWidth = 1092
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

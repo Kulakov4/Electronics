@@ -20,7 +20,7 @@ type
     { Private declarations }
   public
     function Search(const AIDCategory: Integer): Integer; overload;
-    procedure UpdateComponentDescriptions;
+    procedure UpdateComponentDescriptions(ASender: TObject);
     property DescrID: TField read GetDescrID;
     property DescriptionID: TField read GetDescriptionID;
     { Public declarations }
@@ -63,7 +63,8 @@ begin
   Result := Search(['ProductCategoryId'], [AIDCategory]);
 end;
 
-procedure TQuerySearchDescriptions.UpdateComponentDescriptions;
+procedure TQuerySearchDescriptions.UpdateComponentDescriptions(ASender:
+    TObject);
 var
   i: Integer;
 begin

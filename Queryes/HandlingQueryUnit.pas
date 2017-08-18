@@ -64,7 +64,7 @@ begin
   ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
   try
     // Вызываем метод, обрабатывающий нашу таблицу
-    AProcRef;
+    AProcRef(Self);
   finally
     // Отписываем кого-то от события
     FreeAndNil(ne);

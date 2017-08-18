@@ -11,6 +11,22 @@ uses
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
+  TExcelDMClass = class of TExcelDM;
+
+  TTotalProgress = class(TObject)
+  private
+    FPIList: TObjectList<TProgressInfo>;
+    FTotalProgress: TProgressInfo;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Assign(ATotalProgress: TTotalProgress);
+    procedure Clear;
+    procedure UpdateTotalProgress;
+    property PIList: TObjectList<TProgressInfo> read FPIList;
+    property TotalProgress: TProgressInfo read FTotalProgress;
+  end;
+
   TStringTreeNode = class(TObject)
   private
     FChilds: TList<TStringTreeNode>;
@@ -41,7 +57,10 @@ type
     EWB: TExcelWorkbook;
   private
     FCustomExcelTable: TCustomExcelTable;
+    FAfterLoadSheet: TNotifyEventsEx;
+    FBeforeLoadSheet: TNotifyEventsEx;
     FOnProgress: TNotifyEventsEx;
+    FOnTotalProgress: TNotifyEventsEx;
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     { Private declarations }
@@ -58,19 +77,36 @@ type
     property Indent: Integer read GetIndent;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure ConnectToSheet(ASheetIndex: Integer = -1);
     procedure LoadExcelFile(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
-    procedure LoadExcelFile2(const AFileName: string; ANotifyEventRef:
-        TNotifyEventRef = nil);
+    procedure LoadExcelFile2(const AFileName: string);
     function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
-    procedure LoadExcelFileInThread(const AFileName: String);
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
       ANotifyEventRef: TNotifyEventRef); overload;
     property CustomExcelTable: TCustomExcelTable read FCustomExcelTable;
+    property AfterLoadSheet: TNotifyEventsEx read FAfterLoadSheet;
+    property BeforeLoadSheet: TNotifyEventsEx read FBeforeLoadSheet;
     property OnProgress: TNotifyEventsEx read FOnProgress;
+    property OnTotalProgress: TNotifyEventsEx read FOnTotalProgress;
     { Public declarations }
+  end;
+
+  TExcelDMEvent = class(TObject)
+  private
+    FExcelTable: TCustomExcelTable;
+    FSheetIndex: Integer;
+    FTerminate: Boolean;
+    FTotalProgress: TTotalProgress;
+  public
+    constructor Create(ASheetIndex: Integer; ATotalProgress: TTotalProgress;
+      AExcelTable: TCustomExcelTable);
+    property ExcelTable: TCustomExcelTable read FExcelTable;
+    property SheetIndex: Integer read FSheetIndex;
+    property Terminate: Boolean read FTerminate write FTerminate;
+    property TotalProgress: TTotalProgress read FTotalProgress;
   end;
 
 implementation
@@ -94,11 +130,28 @@ begin
 
   FOnProgress := TNotifyEventsEx.Create(Self);
 
+  FOnTotalProgress := TNotifyEventsEx.Create(Self);
+
+  FAfterLoadSheet := TNotifyEventsEx.Create(Self);
+
+  FBeforeLoadSheet := TNotifyEventsEx.Create(Self);
 end;
 
 procedure TExcelDM.CallOnProcessEvent(API: TProgressInfo);
 begin
   OnProgress.CallEventHandlers(API)
+end;
+
+procedure TExcelDM.ConnectToSheet(ASheetIndex: Integer = -1);
+var
+  AEWS: ExcelWorksheet;
+begin
+  if ASheetIndex = -1 then
+    AEWS := EWB.ActiveSheet as ExcelWorksheet
+  else
+    AEWS := EWB.Sheets.Item[ASheetIndex] as ExcelWorksheet;
+
+  EWS.ConnectTo(AEWS);
 end;
 
 function TExcelDM.CreateExcelTable: TCustomExcelTable;
@@ -192,7 +245,7 @@ begin
 end;
 
 procedure TExcelDM.LoadExcelFile(const AFileName: string;
-ANotifyEventRef: TNotifyEventRef = nil);
+  ANotifyEventRef: TNotifyEventRef = nil);
 var
   AEWS: ExcelWorksheet;
   ARange: ExcelRange;
@@ -204,6 +257,7 @@ begin
   ne := nil;
   lcid := 0;
   InternalLoadExcelFile(AFileName);
+  ConnectToSheet();
 
   ARange := EWS.UsedRange[lcid];
   Assert(ARange <> nil);
@@ -238,7 +292,6 @@ end;
 
 procedure TExcelDM.InternalLoadExcelFile(const AFileName: string);
 var
-  AEWS: ExcelWorksheet;
   AWorkbook: ExcelWorkbook;
 begin
   EA.Connect;
@@ -252,53 +305,126 @@ begin
   if AWorkbook.Sheets.Count = 0 then
     raise Exception.Create(sNoExcelSheets);
 
-  AEWS := AWorkbook.ActiveSheet as ExcelWorksheet;
-  EWS.ConnectTo(AEWS);
+  EWB.ConnectTo(AWorkbook);
+
+  // AEWS := AWorkbook.ActiveSheet as ExcelWorksheet;
+  // EWS.ConnectTo(AEWS);
 end;
 
-procedure TExcelDM.LoadExcelFile2(const AFileName: string; ANotifyEventRef:
-    TNotifyEventRef = nil);
+procedure TExcelDM.LoadExcelFile2(const AFileName: string);
 var
   AEWS: ExcelWorksheet;
+  API: TProgressInfo;
   ARange: ExcelRange;
   AStartLine: Integer;
+  ATotalProgress: TTotalProgress;
+  e: TExcelDMEvent;
+  I: Integer;
   lcid: Integer;
   ne: TNotifyEventR;
   rc: Integer;
 begin
-  ne := nil;
-  lcid := 0;
-  InternalLoadExcelFile(AFileName);
+  // Очищаем статистику
 
-  ARange := EWS.UsedRange[lcid];
-  Assert(ARange <> nil);
-  rc := ARange.Rows.Count;
+  ATotalProgress := TTotalProgress.Create;
+  try
+    ne := nil;
+    lcid := 0;
+    InternalLoadExcelFile(AFileName);
 
-  // Делаем или не делаем смещение на заголовок
-  AStartLine := 1;
-  while (HaveHeader(AStartLine)) do
-    Inc(AStartLine);
+    // Сначала соберём статистику по всем листам
+    for I := 1 to EWB.Sheets.Count do
+    begin
+      // Соединяемся с листом
+      ConnectToSheet(I);
 
-  // Получаем "Рабочий" диапазон
-  ARange := GetExcelRange(AStartLine, Indent + 1, rc, Indent + FLastColIndex);
+      ARange := EWS.UsedRange[lcid];
+      Assert(ARange <> nil);
+      rc := ARange.Rows.Count;
 
-  // Обрабатываем диапазон если он не пустой
-  if ARange <> nil then
-  begin
-    // При необходимости подписываем кого-то на событие
-    if Assigned(ANotifyEventRef) then
-      ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
+      // Делаем или не делаем смещение на заголовок
+      AStartLine := 1;
+      while (HaveHeader(AStartLine)) do
+        Inc(AStartLine);
+
+      API := TProgressInfo.Create;
+      API.TotalRecords := rc - AStartLine + 1;
+      ATotalProgress.PIList.Add(API)
+    end;
+
+    ne := TNotifyEventR.Create(OnProgress,
+      procedure(Sender: TObject)
+      Var
+        API: TProgressInfo;
+      begin
+        API := Sender as TProgressInfo;
+        Assert((i >= 1) and (i <= EWB.Sheets.Count));
+        // обновляем прогресс по i-му листу
+        ATotalProgress.PIList[i-1].Assign(API);
+        // Обновляем общий прогресс
+        ATotalProgress.UpdateTotalProgress;
+        // Извещаем всех, что общий прогресс изменился
+        FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
+      end);
     try
-      ProcessRange(ARange);
+      for I := 1 to EWB.Sheets.Count do
+      begin
+        // Соединяемся с листом
+        ConnectToSheet(i);
+
+        ARange := EWS.UsedRange[lcid];
+        Assert(ARange <> nil);
+        rc := ARange.Rows.Count;
+
+        // Делаем или не делаем смещение на заголовок
+        AStartLine := 1;
+        while (HaveHeader(AStartLine)) do
+          Inc(AStartLine);
+
+        // Получаем "Рабочий" диапазон
+        ARange := GetExcelRange(AStartLine, Indent + 1, rc,
+          Indent + FLastColIndex);
+
+        // Обрабатываем диапазон если он не пустой
+        if ARange <> nil then
+        begin
+          // Извещаем о том, что собираемся грузить лист
+          FBeforeLoadSheet.CallEventHandlers(Self);
+
+          ProcessRange(ARange);
+          // Извещаем о том, что один лист уже загрузили
+
+          e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+          try
+            // Извещаем всех о событии
+            FAfterLoadSheet.CallEventHandlers(e);
+            // Если следующие листы загружать не надо
+            if e.Terminate then
+              break;
+          finally
+            FreeAndNil(e);
+          end;
+        end
+        else
+        begin
+          ATotalProgress.PIList[I-1].Clear;
+          // Обновляем общий прогресс
+          ATotalProgress.UpdateTotalProgress;
+          // Извещаем всех, что общий прогресс изменился
+          FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
+        end;
+      end;
     finally
-      // Отписываем кого-то от события
+      // Отписываемся от события
       FreeAndNil(ne);
     end;
-  end;
 
-  AEWS := nil;
-  EA.Quit;
-  EA.Disconnect;
+    AEWS := nil;
+    EA.Quit;
+    EA.Disconnect;
+  finally
+    FreeAndNil(ATotalProgress);
+  end;
 end;
 
 function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
@@ -312,6 +438,7 @@ var
   AStringNode: TStringTreeNode;
 begin
   InternalLoadExcelFile(AFileName);
+  ConnectToSheet();
 
   // Создали дерево
   Result := TStringTreeNode.Create;
@@ -351,18 +478,6 @@ begin
   EA.Disconnect;
 end;
 
-procedure TExcelDM.LoadExcelFileInThread(const AFileName: String);
-begin
-  FThread := TThread.CreateAnonymousThread(
-    procedure
-    begin
-      CoInitialize(nil);
-      LoadExcelFile(AFileName);
-    end);
-  FThread.OnTerminate := DoOnThreadTerminate;
-  FThread.Start;
-end;
-
 procedure TExcelDM.ProcessRange(AExcelRange: ExcelRange);
 var
   AEmptyLines: Integer;
@@ -370,7 +485,7 @@ var
   Arr: Variant;
   dc: Integer;
   I: Integer;
-  PI: TProgressInfo;
+  API: TProgressInfo;
   R: Integer;
   RH: TRecordHolder;
   V: Variant;
@@ -394,10 +509,11 @@ begin
 
   // Assert(dc = 2);
 
-  PI := TProgressInfo.Create;
+  API := TProgressInfo.Create;
   try
-    PI.TotalRecords := VarArrayHighBound(Arr, 1) - VarArrayLowBound(Arr, 1) + 1;
-    CallOnProcessEvent(PI);
+    API.TotalRecords := VarArrayHighBound(Arr, 1) -
+      VarArrayLowBound(Arr, 1) + 1;
+    CallOnProcessEvent(API);
     RH := TRecordHolder.Create();
     try
       // Цикл по всем строкам диапазона
@@ -416,28 +532,28 @@ begin
 
           // Запоминаем текущие значения как значения по умолчанию
           RH.Attach(CustomExcelTable);
+          Inc(R);
         end
         else
         begin
           Inc(AEmptyLines);
           if AEmptyLines >= 5 then
           begin
-            PI.TotalRecords := PI.ProcessRecords;
-            CallOnProcessEvent(PI);
+            API.TotalRecords := API.ProcessRecords;
             break;
           end;
         end;
-        Inc(R);
-        PI.ProcessRecords := R;
+
+        API.ProcessRecords := R;
         if R mod 100 = 0 then
-          CallOnProcessEvent(PI);
+          CallOnProcessEvent(API);
       end;
     finally
       FreeAndNil(RH);
     end;
-    CallOnProcessEvent(PI);
+    CallOnProcessEvent(API);
   finally
-    FreeAndNil(PI);
+    FreeAndNil(API);
   end;
 end;
 
@@ -488,7 +604,7 @@ begin
   ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
   try
     // Вызываем метод, обрабатывающий нашу таблицу
-    AProcRef;
+    AProcRef(Self);
   finally
     // Отписываем кого-то от события
     FreeAndNil(ne);
@@ -532,6 +648,66 @@ begin
   Result.Parent := Self;
   Assert(Childs <> nil);
   Childs.Add(Result);
+end;
+
+constructor TTotalProgress.Create;
+begin
+  inherited;
+
+  FPIList := TObjectList<TProgressInfo>.Create;
+  FTotalProgress := TProgressInfo.Create;
+end;
+
+destructor TTotalProgress.Destroy;
+begin
+  FreeAndNil(FPIList);
+  FreeAndNil(FTotalProgress);
+  inherited;
+end;
+
+procedure TTotalProgress.Assign(ATotalProgress: TTotalProgress);
+var
+  ANewPI: TProgressInfo;
+  ASourcePI: TProgressInfo;
+begin
+  Clear;
+  for ASourcePI in ATotalProgress.PIList do
+  begin
+    ANewPI := TProgressInfo.Create;
+    ANewPI.Assign( ASourcePI );
+    FPIList.Add( ANewPI );
+  end;
+  UpdateTotalProgress;
+end;
+
+procedure TTotalProgress.Clear;
+begin
+  FPIList.Clear;
+  TotalProgress.Clear;
+end;
+
+procedure TTotalProgress.UpdateTotalProgress;
+var
+  API: TProgressInfo;
+begin
+  FTotalProgress.Clear;
+  for API in FPIList do
+  begin
+    FTotalProgress.ProcessRecords := FTotalProgress.ProcessRecords +
+      API.ProcessRecords;
+    FTotalProgress.TotalRecords := FTotalProgress.TotalRecords +
+      API.TotalRecords;
+  end;
+end;
+
+constructor TExcelDMEvent.Create(ASheetIndex: Integer;
+ATotalProgress: TTotalProgress; AExcelTable: TCustomExcelTable);
+begin
+  inherited Create;
+  FSheetIndex := ASheetIndex;
+  FTotalProgress := ATotalProgress;
+  FExcelTable := AExcelTable;
+  FTerminate := False;
 end;
 
 end.

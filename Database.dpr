@@ -194,7 +194,10 @@ uses
   SearchStorehouseProduct in 'Queryes\Search\SearchStorehouseProduct.pas' {QuerySearchStorehouseProduct: TFrame},
   ProductsView2 in 'Views\Products\ProductsView2.pas' {ViewProducts2: TFrame},
   ProductsSearchView2 in 'Views\Products\ProductsSearchView2.pas' {ViewProductsSearch2: TFrame},
-  MapFieldsUnit in 'Helpers\MapFieldsUnit.pas';
+  MapFieldsUnit in 'Helpers\MapFieldsUnit.pas',
+  ProgressBarForm2 in 'Views\ProgressBar\ProgressBarForm2.pas' {frmProgressBar2},
+  LoadFromExcelFileHelper in 'Helpers\LoadFromExcelFileHelper.pas',
+  CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError};
 
 {$R *.res}
 

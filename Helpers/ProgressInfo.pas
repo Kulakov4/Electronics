@@ -15,6 +15,7 @@ type
   public
     constructor Create;
     procedure Assign(AProgressInfo: TProgressInfo);
+    procedure Clear;
     property OnAssign: TNotifyEventsEx read FOnAssign;
     property Position: Double read GetPosition;
     property ProcessRecords: Cardinal read FProcessRecords
@@ -28,6 +29,7 @@ uses System.Math;
 
 constructor TProgressInfo.Create;
 begin
+  Clear;
   FOnAssign := TNotifyEventsEx.Create(Self);
 end;
 
@@ -37,6 +39,12 @@ begin
   TotalRecords := AProgressInfo.TotalRecords;
   ProcessRecords := AProgressInfo.ProcessRecords;
   FOnAssign.CallEventHandlers(Self);
+end;
+
+procedure TProgressInfo.Clear;
+begin
+  ProcessRecords := 0;
+  TotalRecords := 0;
 end;
 
 function TProgressInfo.GetPosition: Double;

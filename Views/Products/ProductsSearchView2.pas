@@ -24,7 +24,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
-  ProductSearchGroupUnit, Vcl.Menus;
+  ProductSearchGroupUnit, Vcl.Menus, Vcl.ComCtrls;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)
