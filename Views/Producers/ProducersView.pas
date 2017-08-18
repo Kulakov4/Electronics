@@ -122,7 +122,8 @@ implementation
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
   ProducersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
   SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
-  SearchParameterValues, cxDropDownEdit, DialogUnit2, CustomErrorForm;
+  SearchParameterValues, cxDropDownEdit, DialogUnit2, CustomErrorForm,
+  LoadFromExcelFileHelper;
 
 constructor TViewProducers.Create(AOwner: TComponent);
 begin
@@ -208,70 +209,28 @@ end;
 
 procedure TViewProducers.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
-  AProducersExcelDM: TProducersExcelDM;
   AFileName: string;
-  AfrmImportError: TfrmImportError;
-  OK: Boolean;
 begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
-  AProducersExcelDM := TProducersExcelDM.Create(Self);
+  BeginUpdate;
   try
-    AProducersExcelDM.ExcelTable.ProducersDataSet :=
-      ProducersGroup.qProducers.FDQuery;
-
-    TfrmProgressBar.Process(AProducersExcelDM,
-      procedure (ASender: TObject)
+    TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
       begin
-        AProducersExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка данных о производителе', sRows);
-
-    OK := AProducersExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-      AfrmImportError := TfrmImportError.Create(Self);
-      try
-        AfrmImportError.ErrorTable := AProducersExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-        if OK then
-        begin
-          if AfrmImportError.ContinueType = ctSkip then
-          begin
-            // Убираем записи с ошибками и предупреждениями
-            AProducersExcelDM.ExcelTable.ExcludeErrors(etWarring);
-          end
-          else
-          begin
-            // Убираем все записи с ошибками
-            AProducersExcelDM.ExcelTable.ExcludeErrors(etError);
-          end;
-        end;
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
-    end;
-
-    if OK then
-    begin
-      cxGrid.BeginUpdate;
-      try
-        TfrmProgressBar.Process(AProducersExcelDM.ExcelTable,
-          procedure (ASender: TObject)
-          begin
-            ProducersGroup.InsertRecordList(AProducersExcelDM.ExcelTable);
-          end, 'Сохранение данных о производителях в БД', sRecords);
-        MainView.ViewData.Collapse(True);
-      finally
-        cxGrid.EndUpdate;
-      end;
-    end;
+        ProducersGroup.InsertRecordList(ASender as TProducersExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TProducersExcelTable).ProducersDataSet :=
+          ProducersGroup.qProducers.FDQuery;
+      end);
   finally
-    FreeAndNil(AProducersExcelDM);
+    EndUpdate;
   end;
-  UpdateView;
 
+  UpdateView;
 end;
 
 procedure TViewProducers.actRollbackExecute(Sender: TObject);
@@ -364,8 +323,8 @@ end;
 
 procedure TViewProducers.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
-    dxbsColumns, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self, dxbsColumns,
+    cxGridDBBandedTableView2);
 end;
 
 procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown

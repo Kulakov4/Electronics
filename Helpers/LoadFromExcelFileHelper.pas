@@ -19,7 +19,8 @@ type
   public
     procedure LoadAndProcess(const AFileName: string;
       AExcelDMClass: TExcelDMClass;
-      ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef);
+      ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef;
+      AInitExcelDM: TProcRef = nil);
     class function NewInstance: TObject; override;
   end;
 
@@ -102,7 +103,7 @@ end;
 
 procedure TLoad.LoadAndProcess(const AFileName: string;
 AExcelDMClass: TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass;
-AProcRef: TProcRef);
+AProcRef: TProcRef; AInitExcelDM: TProcRef = nil);
 var
   AExcelDM: TExcelDM;
 begin
@@ -110,13 +111,22 @@ begin
   FCustomErrorFormClass := ACustomErrorFormClass;
   FfrmProgressBar := TfrmProgressBar2.Create(nil);
   FWriteProgress := TTotalProgress.Create;
+
   // Создаём модуль для работы с Excel нужного класса
   AExcelDM := AExcelDMClass.Create(nil);
   try
+    // Дополнительно инициализируем Excel модуль
+    if Assigned(AInitExcelDM) then
+      AInitExcelDM(AExcelDM.CustomExcelTable);
+
     TNotifyEventWrap.Create(AExcelDM.AfterLoadSheet, DoAfterLoadSheet);
     TNotifyEventWrap.Create(AExcelDM.OnTotalProgress, DoOnTotalReadProgress);
     FfrmProgressBar.Show;
-    AExcelDM.LoadExcelFile2(AFileName);
+
+    if not AFileName.IsEmpty then
+      AExcelDM.LoadExcelFile2(AFileName)
+    else
+      AExcelDM.LoadFromActiveSheet;
 
   finally
     FreeAndNil(FWriteProgress);

@@ -358,9 +358,9 @@ begin
         API: TProgressInfo;
       begin
         API := Sender as TProgressInfo;
-        Assert((i >= 1) and (i <= EWB.Sheets.Count));
+        Assert((I >= 1) and (I <= EWB.Sheets.Count));
         // обновляем прогресс по i-му листу
-        ATotalProgress.PIList[i-1].Assign(API);
+        ATotalProgress.PIList[I - 1].Assign(API);
         // Обновляем общий прогресс
         ATotalProgress.UpdateTotalProgress;
         // Извещаем всех, что общий прогресс изменился
@@ -370,7 +370,7 @@ begin
       for I := 1 to EWB.Sheets.Count do
       begin
         // Соединяемся с листом
-        ConnectToSheet(i);
+        ConnectToSheet(I);
 
         ARange := EWS.UsedRange[lcid];
         Assert(ARange <> nil);
@@ -407,7 +407,7 @@ begin
         end
         else
         begin
-          ATotalProgress.PIList[I-1].Clear;
+          ATotalProgress.PIList[I - 1].Clear;
           // Обновляем общий прогресс
           ATotalProgress.UpdateTotalProgress;
           // Извещаем всех, что общий прогресс изменился
@@ -492,6 +492,8 @@ var
 begin
   CustomExcelTable.Errors.EmptyDataSet;
   CustomExcelTable.EmptyDataSet;
+  CustomExcelTable.Filtered := False;
+  CustomExcelTable.Filter := '';
   AEmptyLines := 0; // Кол-во пустых строк в диапазоне
 
   // Копируем весь диапазон в массив
@@ -561,7 +563,10 @@ procedure TExcelDM.LoadFromActiveSheet;
 var
   ARange: ExcelRange;
   AStartLine: Integer;
+  ATotalProgress: TTotalProgress;
+  e: TExcelDMEvent;
   lcid: Integer;
+  ne: TNotifyEventR;
 begin
   lcid := 0;
   EA.ConnectKind := ckRunningInstance;
@@ -586,7 +591,39 @@ begin
     Indent + FLastColIndex);
 
   if ARange <> nil then
-    ProcessRange(ARange);
+  begin
+    ATotalProgress := TTotalProgress.Create;
+    ne := TNotifyEventR.Create(OnProgress,
+      procedure(Sender: TObject)
+      Var
+        API: TProgressInfo;
+      begin
+        API := Sender as TProgressInfo;
+        ATotalProgress.PIList[0].Assign(API);
+        ATotalProgress.UpdateTotalProgress;
+        FOnTotalProgress.CallEventHandlers(API);
+      end);
+    try
+      ATotalProgress.PIList.Add( TProgressInfo.Create );
+      // Извещаем о том, что собираемся грузить лист
+      FBeforeLoadSheet.CallEventHandlers(Self);
+
+      ProcessRange(ARange);
+      // Извещаем о том, что один лист уже загрузили
+
+      e := TExcelDMEvent.Create(0, ATotalProgress, CustomExcelTable);
+      try
+        // Извещаем всех о событии
+        FAfterLoadSheet.CallEventHandlers(e);
+      finally
+        FreeAndNil(e);
+      end;
+
+    finally
+      FreeAndNil(ne);
+      FreeAndNil(ATotalProgress);
+    end;
+  end;
 
   EWS.Disconnect;
   EWB.Disconnect;
@@ -674,8 +711,8 @@ begin
   for ASourcePI in ATotalProgress.PIList do
   begin
     ANewPI := TProgressInfo.Create;
-    ANewPI.Assign( ASourcePI );
-    FPIList.Add( ANewPI );
+    ANewPI.Assign(ASourcePI);
+    FPIList.Add(ANewPI);
   end;
   UpdateTotalProgress;
 end;

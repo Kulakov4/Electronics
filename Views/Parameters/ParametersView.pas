@@ -174,7 +174,8 @@ implementation
 Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
   CustomExcelTable, RepositoryDataModule, System.Generics.Collections,
   System.Math, SettingsController, System.IOUtils, ProjectConst,
-  System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit, CustomErrorForm;
+  System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit, CustomErrorForm,
+  LoadFromExcelFileHelper;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
@@ -521,8 +522,8 @@ end;
 
 procedure TViewParameters.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
-    dxbsColumns, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self, dxbsColumns,
+    cxGridDBBandedTableView2);
 end;
 
 procedure TViewParameters.CreateFilterForExport(AView,
@@ -753,7 +754,7 @@ begin
   cxGridDBBandedTableView.BeginUpdate();
   try
     TfrmProgressBar.Process(AList,
-      procedure (ASender: TObject)
+      procedure(ASender: TObject)
       begin
         ParametersGroup.InsertList(AList);
       end, 'Обновление параметров в БД', sRecords);
@@ -769,13 +770,31 @@ var
   AParametersExcelDM: TParametersExcelDM;
   OK: Boolean;
 begin
+
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TParametersExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        InsertParametersList(ASender as TParametersExcelTable)
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TParametersExcelTable).ParametersDataSet :=
+          ParametersGroup.qMainParameters.FDQuery;
+      end);
+  finally
+    EndUpdate;
+  end;
+  UpdateView;
+{
   AParametersExcelDM := TParametersExcelDM.Create(Self);
   try
     AParametersExcelDM.ExcelTable.ParametersDataSet :=
       ParametersGroup.qMainParameters.FDQuery;
 
     TfrmProgressBar.Process(AParametersExcelDM,
-      procedure (ASender: TObject)
+      procedure(ASender: TObject)
       begin
         if not AFileName.IsEmpty then
           AParametersExcelDM.LoadExcelFile(AFileName)
@@ -816,7 +835,7 @@ begin
   finally
     FreeAndNil(AParametersExcelDM);
   end;
-
+}
 end;
 
 procedure TViewParameters.MyApplyBestFit;
