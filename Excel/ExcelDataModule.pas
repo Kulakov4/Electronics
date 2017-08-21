@@ -547,7 +547,7 @@ begin
         end;
 
         API.ProcessRecords := R;
-        if R mod 100 = 0 then
+        if R mod OnReadProcessEventRecordCount = 0 then
           CallOnProcessEvent(API);
       end;
     finally
@@ -586,8 +586,16 @@ begin
   Assert(ARange <> nil);
 
   // если в первой строке выделенного диапазона заголовок
-  AStartLine := IfThen(HaveHeader(ARange.Row), ARange.Row + 1, ARange.Row);
-  ARange := GetExcelRange(AStartLine, Indent + 1, ARange.Rows.Count,
+  // Делаем или не делаем смещение на заголовок
+  AStartLine := ARange.Row;
+  while (HaveHeader(AStartLine)) do
+    Inc(AStartLine);
+
+
+  // AStartLine := IfThen(HaveHeader(ARange.Row), ARange.Row + 1, ARange.Row);
+
+  ARange := GetExcelRange(AStartLine, Indent + 1,
+    ARange.Row - 1 + ARange.Rows.Count - (AStartLine - ARange.Row),
     Indent + FLastColIndex);
 
   if ARange <> nil then
@@ -604,14 +612,14 @@ begin
         FOnTotalProgress.CallEventHandlers(API);
       end);
     try
-      ATotalProgress.PIList.Add( TProgressInfo.Create );
+      ATotalProgress.PIList.Add(TProgressInfo.Create);
       // Извещаем о том, что собираемся грузить лист
       FBeforeLoadSheet.CallEventHandlers(Self);
 
       ProcessRange(ARange);
       // Извещаем о том, что один лист уже загрузили
 
-      e := TExcelDMEvent.Create(0, ATotalProgress, CustomExcelTable);
+      e := TExcelDMEvent.Create(1, ATotalProgress, CustomExcelTable);
       try
         // Извещаем всех о событии
         FAfterLoadSheet.CallEventHandlers(e);

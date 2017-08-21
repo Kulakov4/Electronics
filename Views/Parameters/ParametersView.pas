@@ -765,12 +765,7 @@ begin
 end;
 
 procedure TViewParameters.LoadFromExcel(AFileName: string);
-var
-  AfrmImportError: TfrmImportError;
-  AParametersExcelDM: TParametersExcelDM;
-  OK: Boolean;
 begin
-
   BeginUpdate;
   try
     TLoad.Create.LoadAndProcess(AFileName, TParametersExcelDM, TfrmImportError,
@@ -787,55 +782,6 @@ begin
     EndUpdate;
   end;
   UpdateView;
-{
-  AParametersExcelDM := TParametersExcelDM.Create(Self);
-  try
-    AParametersExcelDM.ExcelTable.ParametersDataSet :=
-      ParametersGroup.qMainParameters.FDQuery;
-
-    TfrmProgressBar.Process(AParametersExcelDM,
-      procedure(ASender: TObject)
-      begin
-        if not AFileName.IsEmpty then
-          AParametersExcelDM.LoadExcelFile(AFileName)
-        else
-          AParametersExcelDM.LoadFromActiveSheet;
-      end, 'Загрузка параметров из Excel документа', sRows);
-
-    OK := AParametersExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-      AfrmImportError := TfrmImportError.Create(Self);
-      try
-        AfrmImportError.ErrorTable := AParametersExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-
-        // Если будем пропускать ошибки
-        if AfrmImportError.ContinueType = ctSkip then
-        begin
-          // исключаем предупреждения и ошибки
-          AParametersExcelDM.ExcelTable.ExcludeErrors(etWarring);
-        end
-        else
-        begin
-          // Исключаем только ошибки
-          AParametersExcelDM.ExcelTable.ExcludeErrors(etError);
-        end;
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
-    end;
-
-    if OK then
-    begin
-      InsertParametersList(AParametersExcelDM.ExcelTable);
-    end;
-
-  finally
-    FreeAndNil(AParametersExcelDM);
-  end;
-}
 end;
 
 procedure TViewParameters.MyApplyBestFit;

@@ -127,7 +127,7 @@ uses
   cxGridExportLink, CustomExcelTable, System.Math, SettingsController,
   System.IOUtils, ProjectConst, ProgressBarForm, cxDropDownEdit,
   cxGridDBDataDefinitions, cxVariants, RepositoryDataModule, GridSort,
-  CustomErrorForm;
+  CustomErrorForm, DialogUnit2, LoadFromExcelFileHelper;
 
 {$R *.dfm}
 
@@ -214,76 +214,28 @@ end;
 
 procedure TViewDescriptions.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
-  ADescriptionsExcelDM: TDescriptionsExcelDM;
   AFileName: string;
-  AfrmImportError: TfrmImportError;
-  OK: Boolean;
 begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+    Exit;
 
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForExcelFile := TPath.GetDirectoryName(AFileName);
-
-  ADescriptionsExcelDM := TDescriptionsExcelDM.Create(Self);
+  BeginUpdate;
   try
-    ADescriptionsExcelDM.ExcelTable.DescriptionsDataSet :=
-      DescriptionsGroup.qDescriptions.FDQuery;
-
-    TfrmProgressBar.Process(ADescriptionsExcelDM,
-      procedure (ASender: TObject)
+    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
       begin
-        ADescriptionsExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка кратких описаний из Excel документа', sRows);
 
-    OK := ADescriptionsExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-      AfrmImportError := TfrmImportError.Create(Self);
-      try
-        AfrmImportError.ErrorTable := ADescriptionsExcelDM.ExcelTable.Errors;
-        OK := AfrmImportError.ShowModal = mrOk;
-        if OK then
-        begin
-          if AfrmImportError.ContinueType = ctSkip then
-          begin
-            // Убираем записи с ошибками и предупреждениями
-            ADescriptionsExcelDM.ExcelTable.ExcludeErrors(etWarring);
-          end
-          else
-          begin
-            // Убираем записи с ошибками
-            ADescriptionsExcelDM.ExcelTable.ExcludeErrors(etError);
-
-          end;
-        end;
-      finally
-        FreeAndNil(AfrmImportError);
-      end;
-    end;
-
-    if OK then
-    begin
-      cxGrid.BeginUpdate;
-      try
-        TfrmProgressBar.Process(ADescriptionsExcelDM.ExcelTable,
-          procedure (ASender: TObject)
-          begin
-            DescriptionsGroup.InsertRecordList(ADescriptionsExcelDM.ExcelTable);
-          end, 'Сохранение кратких описаний в БД', sRecords);
-      finally
-        cxGrid.EndUpdate;
-      end;
-    end;
+      DescriptionsGroup.InsertRecordList(ASender as TDescriptionsExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
+          DescriptionsGroup.qDescriptions.FDQuery;
+      end);
   finally
-    FreeAndNil(ADescriptionsExcelDM);
+    EndUpdate;
   end;
   UpdateView;
-
 end;
 
 procedure TViewDescriptions.actRollbackExecute(Sender: TObject);

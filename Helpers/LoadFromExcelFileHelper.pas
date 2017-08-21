@@ -2,7 +2,8 @@ unit LoadFromExcelFileHelper;
 
 interface
 
-uses ExcelDataModule, ProgressBarForm2, CustomErrorForm, ProcRefUnit;
+uses ExcelDataModule, ProgressBarForm2, CustomErrorForm, ProcRefUnit,
+  ProgressInfo;
 
 type
   TLoad = class(TObject)
@@ -16,6 +17,7 @@ type
     FWriteProgress: TTotalProgress;
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
+    procedure TryUpdateWriteStatistic(API: TProgressInfo);
   public
     procedure LoadAndProcess(const AFileName: string;
       AExcelDMClass: TExcelDMClass;
@@ -27,7 +29,7 @@ type
 implementation
 
 uses System.Sysutils, NotifyEvents, VCL.Controls, CustomExcelTable,
-  ProgressInfo;
+  ProjectConst;
 
 procedure TLoad.DoAfterLoadSheet(ASender: TObject);
 var
@@ -89,8 +91,8 @@ begin
         FWriteProgress.PIList[e.SheetIndex - 1].Assign(API);
         // Обновляем общий прогресс записи
         FWriteProgress.UpdateTotalProgress;
-        // Отображаем общий прогресс записи
-        FfrmProgressBar.UpdateWriteStatistic(FWriteProgress.TotalProgress);
+
+        TryUpdateWriteStatistic(FWriteProgress.TotalProgress);
       end);
   end;
 end;
@@ -141,6 +143,14 @@ begin
     Instance := TLoad(inherited NewInstance);
 
   Result := Instance;
+end;
+
+procedure TLoad.TryUpdateWriteStatistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем общий прогресс записи
+    FfrmProgressBar.UpdateWriteStatistic(API);
 end;
 
 end.

@@ -189,7 +189,7 @@ uses
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit,
   RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit,
-  DialogUnit2;
+  DialogUnit2, LoadFromExcelFileHelper;
 
 {$R *.dfm}
 
@@ -291,19 +291,18 @@ var
   ATreeExcelDM: TTreeExcelDM;
   OK: Boolean;
 begin
-  // if (DM.qTreeList.FDQuery.RecordCount > 0) and not TDialog.Create.ClearTreeDialog
-  // then
-  // Exit;
-
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
-
-  if AFileName.IsEmpty then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
-  TSettings.Create.LastFolderForExcelFile := AFileName;
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   try
+
+    TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmError,
+      procedure(ASender: TObject)
+      begin
+        AQueryRecursiveTree.LoadRecords(ASender as TTreeExcelTable);
+      end);
+{
     ATreeExcelDM := TTreeExcelDM.Create(Self);
     try
       TfrmProgressBar.Process(ATreeExcelDM,
@@ -321,7 +320,7 @@ begin
     finally
       FreeAndNil(ATreeExcelDM);
     end;
-
+}
     // ѕолучаем добавленные категории
     AQueryRecursiveTree.HideNotAdded;
     // ≈сли есть категории, которые были добавлены

@@ -50,10 +50,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -138,10 +134,6 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -566,7 +558,7 @@ object frmMain: TfrmMain
                 Width = 918
                 Height = 401
                 ExplicitWidth = 918
-                ExplicitHeight = 420
+                ExplicitHeight = 401
                 inherited clDatasheet: TcxDBTreeListColumn
                   Properties.Buttons = <
                     item
@@ -619,8 +611,8 @@ object frmMain: TfrmMain
               inherited StatusBar: TStatusBar
                 Top = 455
                 Width = 918
-                ExplicitTop = 560
-                ExplicitWidth = 990
+                ExplicitTop = 455
+                ExplicitWidth = 918
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -637,8 +629,7 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch2: TViewProductsSearch2
               inherited cxDBTreeList: TcxDBTreeList
-                ExplicitWidth = 918
-                ExplicitHeight = 420
+                ExplicitHeight = 506
                 inherited clDatasheet: TcxDBTreeListColumn
                   Properties.Buttons = <
                     item

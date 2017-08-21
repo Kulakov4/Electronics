@@ -153,7 +153,7 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
   System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2,
-  BodyTypesSimpleQuery, ProducersForm, dxCore;
+  BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper;
 
 {$R *.dfm}
 
@@ -280,12 +280,12 @@ end;
 
 procedure TViewBodyTypes.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
-  ABodyTypesExcelDM: TBodyTypesExcelDM;
+//  ABodyTypesExcelDM: TBodyTypesExcelDM;
   AFileName: string;
-  AfrmError: TfrmError;
+//  AfrmError: TfrmError;
   AProducer: string;
   AProducerID: Integer;
-  OK: Boolean;
+//  OK: Boolean;
 begin
   // Выбираем производителя
   if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
@@ -294,52 +294,18 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;
 
-  ABodyTypesExcelDM := TBodyTypesExcelDM.Create(Self);
+  BeginUpdate;
   try
-    // ABodyTypesExcelDM.ExcelTable.BodyVariationsDataSet :=
-    // BodyTypesGroup.qBodyTypes2.FDQuery;
-
-    TfrmProgressBar.Process(ABodyTypesExcelDM,
-      procedure (ASender: TObject)
+    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmError,
+      procedure(ASender: TObject)
       begin
-        ABodyTypesExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка корпусных данных', sRows);
-
-    OK := ABodyTypesExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    // Если в ходе загрузки данных произошли ошибки (поле не заполнено)
-    if not OK then
-    begin
-      AfrmError := TfrmError.Create(Self);
-      try
-        AfrmError.ErrorTable := ABodyTypesExcelDM.ExcelTable.Errors;
-        // Показываем ошибки
-        OK := AfrmError.ShowModal = mrOk;
-        ABodyTypesExcelDM.ExcelTable.ExcludeErrors(etError);
-      finally
-        FreeAndNil(AfrmError);
-      end;
-    end;
-
-    if OK then
-    begin
-      cxGrid.BeginUpdate;
-      try
-        TfrmProgressBar.Process(ABodyTypesExcelDM.ExcelTable,
-          procedure (ASender: TObject)
-          begin
-            BodyTypesGroup.InsertRecordList(ABodyTypesExcelDM.ExcelTable,
-              AProducerID);
-          end, 'Сохранение корпусных данных в БД', sRecords);
-      finally
-        MainView.ViewData.Collapse(True);
-        cxGrid.EndUpdate;
-      end;
-    end;
+        BodyTypesGroup.InsertRecordList(ASender as TBodyTypesExcelTable,
+          AProducerID);
+      end);
   finally
-    FreeAndNil(ABodyTypesExcelDM);
+    MainView.ViewData.Collapse(True);
+    EndUpdate;
   end;
-
   UpdateView;
 end;
 
@@ -488,8 +454,8 @@ end;
 
 procedure TViewBodyTypes.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
-    dxbsColumns, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self, dxbsColumns,
+    cxGridDBBandedTableView2);
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2ColumnHeaderClick
