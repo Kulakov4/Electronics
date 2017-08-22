@@ -172,9 +172,11 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.GroupFooterSummaryItems = <>
     end
     object clDescription: TcxDBTreeListColumn
+      PropertiesClassName = 'TcxPopupEditProperties'
+      Properties.OnInitPopup = clDescriptionPropertiesInitPopup
       Caption.AlignHorz = taCenter
       Caption.Text = ' '
-      DataBinding.FieldName = 'Description'
+      DataBinding.FieldName = 'DescriptionComponentName'
       Options.VertSizing = False
       Options.Sorting = False
       Width = 100
@@ -546,7 +548,6 @@ inherited ViewProductsBase2: TViewProductsBase2
   inherited StatusBar: TStatusBar
     Top = 579
     Width = 1092
-    ExplicitLeft = 0
     ExplicitTop = 579
     ExplicitWidth = 1092
   end

@@ -23,6 +23,8 @@ type
     procedure DoAfterOpen(Sender: TObject);
     function GetDatasheet: TField;
     function GetDescription: TField;
+    function GetDescriptionComponentName: TField;
+    function GetDescriptionID: TField;
     function GetPackagePins: TField;
     function GetParentProductID: TField;
     function GetProducer: TField;
@@ -57,6 +59,8 @@ type
     procedure SetPackagePins(AIDComponent: Integer; APackagePins: string);
     property Datasheet: TField read GetDatasheet;
     property Description: TField read GetDescription;
+    property DescriptionComponentName: TField read GetDescriptionComponentName;
+    property DescriptionID: TField read GetDescriptionID;
     property PackagePins: TField read GetPackagePins;
     property ParentProductID: TField read GetParentProductID;
     property Producer: TField read GetProducer;
@@ -175,6 +179,16 @@ end;
 function TQueryCustomComponents.GetDescription: TField;
 begin
   Result := Field('Description');
+end;
+
+function TQueryCustomComponents.GetDescriptionComponentName: TField;
+begin
+  Result := Field('DescriptionComponentName');
+end;
+
+function TQueryCustomComponents.GetDescriptionID: TField;
+begin
+  Result := Field('DescriptionID');
 end;
 
 function TQueryCustomComponents.GetPackagePins: TField;

@@ -26,7 +26,7 @@ uses
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ErrorForm,
   ProductsExcelDataModule, ProductGroupUnit, Vcl.Menus, Vcl.ComCtrls,
-  System.Contnrs, ProgressBarForm2, ExcelDataModule;
+  System.Contnrs, ProgressBarForm2, ExcelDataModule, cxDropDownEdit;
 
 type
   TViewProducts2 = class(TViewProductsBase2)

@@ -17,7 +17,7 @@ type
 implementation
 
 uses AllFamilyQuery, System.SysUtils, ProgressBarForm, ErrorForm, ProjectConst,
-  System.UITypes, CustomExcelTable, System.IOUtils;
+  System.UITypes, CustomExcelTable, System.IOUtils, LoadFromExcelFileHelper;
 
 class procedure TBindDoc.DoBindDocs(ADocBindExcelTable: TDocBindExcelTable);
 var
@@ -74,6 +74,14 @@ var
 begin
   Assert(not AFileName.IsEmpty);
 
+    TLoad.Create.LoadAndProcess(AFileName, TDocBindExcelDM, TfrmError,
+      procedure(ASender: TObject)
+      begin
+        // Выполняем привязку
+        DoBindDocs(ASender as TDocBindExcelTable);
+      end);
+
+{
   ADocBindExcelDM := TDocBindExcelDM.Create(nil);
   try
     // Первый этап - загружаем данные из Excel файла
@@ -111,6 +119,7 @@ begin
   finally
     FreeAndNil(ADocBindExcelDM);
   end;
+}
 end;
 
 end.

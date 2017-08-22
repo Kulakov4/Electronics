@@ -30,6 +30,7 @@ type
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure Commit; virtual;
+    procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
     procedure TryPost;
@@ -115,6 +116,22 @@ end;
 procedure TQueryGroup.InitializeQuery(AQuery: TFDQuery);
 begin
   Assert(AQuery <> nil);
+end;
+
+procedure TQueryGroup.RefreshData;
+begin
+  Detail.FDQuery.DisableControls;
+  Main.FDQuery.DisableControls;
+  try
+    Detail.SaveBookmark;
+    Main.SaveBookmark;
+    ReOpen;
+    Main.RestoreBookmark;
+    Detail.RestoreBookmark;
+  finally
+    Main.FDQuery.EnableControls;
+    Detail.FDQuery.EnableControls;
+  end;
 end;
 
 procedure TQueryGroup.ReOpen;

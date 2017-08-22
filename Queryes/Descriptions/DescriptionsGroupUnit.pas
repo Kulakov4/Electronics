@@ -26,6 +26,7 @@ type
     procedure Commit; override;
     procedure InsertRecordList(ADescriptionsExcelTable
       : TDescriptionsExcelTable);
+    procedure LocateDescription(AIDDescription: Integer);
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
@@ -114,6 +115,21 @@ begin
   finally
     qDescriptions.FDQuery.EnableControls;
     qDescriptionTypes.FDQuery.EnableControls;
+  end;
+end;
+
+procedure TDescriptionsGroup.LocateDescription(AIDDescription: Integer);
+begin
+  Assert(AIDDescription > 0);
+
+  qDescriptions.FDQuery.DisableControls;
+  qDescriptionTypes.FDQuery.DisableControls;
+  try
+    qDescriptions.LocateByPK(AIDDescription);
+    qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.AsInteger );
+  finally
+    qDescriptionTypes.FDQuery.EnableControls;
+    qDescriptions.FDQuery.EnableControls;
   end;
 end;
 

@@ -111,6 +111,7 @@ type
       const AKeyFieldNames: string = 'ID'); overload;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
+    procedure InternalRefreshData; virtual;
     procedure MyDelete; virtual;
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
@@ -158,6 +159,7 @@ type
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
     procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
     procedure PutInTheCenterFocusedRecord; overload;
+    procedure RefreshData;
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
     property DeleteMessages: TDictionary<TcxGridLevel, String>
@@ -997,6 +999,11 @@ begin
   Assert(Result <> nil);
 end;
 
+procedure TfrmGrid.InternalRefreshData;
+begin
+  // TODO -cMM: TfrmGrid.InternalRefreshData default body inserted
+end;
+
 procedure TfrmGrid.InvertSortOrder(AColumn: TcxGridDBBandedColumn);
 begin
   Assert(AColumn <> nil);
@@ -1004,6 +1011,16 @@ begin
     AColumn.SortOrder := soDescending
   else
     AColumn.SortOrder := soAscending;
+end;
+
+procedure TfrmGrid.RefreshData;
+begin
+  BeginUpdate;
+  try
+    InternalRefreshData;
+  finally
+    EndUpdate;
+  end;
 end;
 
 function TfrmGrid.SameCol(AColumn1: TcxGridColumn;

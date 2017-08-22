@@ -40,7 +40,7 @@ type
     cxGrid1DBTableView1Id: TcxGridDBColumn;
     cxGrid1DBTableView1Value: TcxGridDBColumn;
     cxGrid1DBTableView1ParentId: TcxGridDBColumn;
-    cxGrid1DBTableView1ExternalId: TcxGridDBColumn;
+    clExternalID: TcxGridDBColumn;
     cxGrid1DBTableView1IsMain: TcxGridDBColumn;
     cxEditRepository: TcxEditRepository;
     cxEditRepositoryLabel: TcxEditRepositoryLabel;
@@ -296,14 +296,11 @@ begin
 end;
 
 procedure TfrmSubgroupListPopup.ShowPopupForm;
-var
-  AColumn: TcxGridDBColumn;
 begin
-  AColumn := cxGrid1DBTableView1.GetColumnByFieldName('ExternalID');
   // Site обеспечивает доступ к элементам размещённым на cxGrid
   cxGrid1DBTableView1.Site.SetFocus;
   // Показываем редактор для колонки
-  cxGrid1DBTableView1.Controller.EditingController.ShowEdit(AColumn);
+  cxGrid1DBTableView1.Controller.EditingController.ShowEdit(clExternalID);
 end;
 
 procedure TfrmSubgroupListPopup.UpdateReadOnly;

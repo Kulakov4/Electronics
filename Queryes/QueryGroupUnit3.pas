@@ -16,6 +16,7 @@ type
     destructor Destroy; override;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
+    procedure RefreshData;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
   end;
 
@@ -76,6 +77,32 @@ begin
     Result := Q.HaveAnyChanges;
     if Result then
       Exit;
+  end;
+end;
+
+procedure TQueryGroup3.RefreshData;
+var
+  AQuery: TQueryWithDataSource;
+begin
+  for AQuery in FQueries do
+    AQuery.FDQuery.DisableControls;
+  try
+
+    for AQuery in FQueries do
+      AQuery.SaveBookmark;
+
+    for AQuery in FQueries do
+      AQuery.FDQuery.Close;
+
+    for AQuery in FQueries do
+      AQuery.FDQuery.Open;
+
+    for AQuery in FQueries do
+      AQuery.RestoreBookmark
+
+  finally
+    for AQuery in FQueries do
+      AQuery.FDQuery.EnableControls;
   end;
 end;
 

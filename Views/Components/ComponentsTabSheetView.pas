@@ -134,10 +134,15 @@ begin
     else
       AIDCategory := -1;
     end;
-    if MR <> mrCancel then
-      TAutoBind.BindDescriptions(AIDCategory);
   finally
     FreeAndNil(frmAutoBindingDescriptions);
+  end;
+
+  if MR <> mrCancel then
+  begin
+    TAutoBind.BindComponentDescriptions(AIDCategory);
+    // Обновим данные в текущей категории
+    ViewComponents.RefreshData;
   end;
 
 end;
@@ -296,7 +301,7 @@ begin
     try
       // Загружаем данные из Excel файла
       TfrmProgressBar.Process(AParametricExcelDM,
-        procedure (ASender: TObject)
+        procedure(ASender: TObject)
         begin
           AParametricExcelDM.LoadExcelFile(AFileName);
         end, 'Загрузка параметрических данных', sRows);
@@ -320,13 +325,13 @@ begin
       begin
         // Сохраняем данные в БД
         TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure (ASender: TObject)
+          procedure(ASender: TObject)
           begin
             TParameterValues.LoadParameters(AParametricExcelDM.ExcelTable);
           end, 'Добавление параметров в категорию', sParameters);
 
         TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure (ASender: TObject)
+          procedure(ASender: TObject)
           begin
             TParameterValues.LoadParameterValues
               (AParametricExcelDM.ExcelTable, False);

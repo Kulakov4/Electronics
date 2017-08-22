@@ -43,6 +43,10 @@ type
     dxBarButton1: TdxBarButton;
     ViewProducts2: TViewProducts2;
     ViewProductsSearch2: TViewProductsSearch2;
+    dxBarSubItem3: TdxBarSubItem;
+    actBindDescriptions: TAction;
+    dxBarButton2: TdxBarButton;
+    procedure actBindDescriptionsExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
   private
     { Private declarations }
@@ -55,7 +59,14 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, DialogUnit2, System.IOUtils, DialogUnit,
-  StoreHouseListQuery;
+  StoreHouseListQuery, AutoBinding;
+
+procedure TProductsFrame.actBindDescriptionsExecute(Sender: TObject);
+begin
+  TAutoBind.BindProductDescriptions;
+  // Обновим данные в текущей категории
+  ViewProducts2.RefreshData;
+end;
 
 procedure TProductsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
 var

@@ -288,7 +288,7 @@ var
   AFileName: string;
   AfrmGridView: TfrmGridView;
   AQueryRecursiveTree: TQueryRecursiveTree;
-  ATreeExcelDM: TTreeExcelDM;
+//  ATreeExcelDM: TTreeExcelDM;
   OK: Boolean;
 begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then

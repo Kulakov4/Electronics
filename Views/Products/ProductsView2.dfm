@@ -1,4 +1,9 @@
 inherited ViewProducts2: TViewProducts2
+  inherited cxDBTreeList: TcxDBTreeList
+    inherited clDescription: TcxDBTreeListColumn
+      Properties.OnInitPopup = nil
+    end
+  end
   inherited StatusBar: TStatusBar
     Panels = <
       item

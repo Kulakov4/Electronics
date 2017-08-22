@@ -5,12 +5,14 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxDropDownEdit;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxDropDownEdit, NotifyEvents;
 
 type
   TfrmPopupForm = class(TForm)
+    procedure FormHide(Sender: TObject);
   private
     FCloseOnEscape: Boolean;
+    FOnHide: TNotifyEventsEx;
     function GetPopupWindow: TcxCustomEditPopupWindow;
     { Private declarations }
   protected
@@ -19,6 +21,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     property CloseOnEscape: Boolean read FCloseOnEscape write FCloseOnEscape;
+    property OnHide: TNotifyEventsEx read FOnHide;
     { Public declarations }
   end;
 
@@ -30,6 +33,8 @@ constructor TfrmPopupForm.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCloseOnEscape := True;
+
+  FOnHide := TNotifyEventsEx.Create(Self);
 end;
 
 procedure TfrmPopupForm.CMDialogKey(var Message: TCMDialogKey);
@@ -43,6 +48,11 @@ begin
     end;
 
   inherited;
+end;
+
+procedure TfrmPopupForm.FormHide(Sender: TObject);
+begin
+  FOnHide.CallEventHandlers(Self);
 end;
 
 function TfrmPopupForm.GetPopupWindow: TcxCustomEditPopupWindow;

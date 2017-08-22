@@ -63,6 +63,8 @@ type
     FOnTotalProgress: TNotifyEventsEx;
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
+    procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
+        TNotifyEventRef = nil);
     { Private declarations }
   protected
     FLastColIndex: Integer;
@@ -78,9 +80,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure ConnectToSheet(ASheetIndex: Integer = -1);
-    procedure LoadExcelFile(const AFileName: string;
-      ANotifyEventRef: TNotifyEventRef = nil);
-    procedure LoadExcelFile2(const AFileName: string);
+    procedure LoadExcelFile2(const AFileName: string; ANotifyEventRef:
+        TNotifyEventRef = nil);
     function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
@@ -244,8 +245,8 @@ begin
   end;
 end;
 
-procedure TExcelDM.LoadExcelFile(const AFileName: string;
-  ANotifyEventRef: TNotifyEventRef = nil);
+procedure TExcelDM.LoadExcelFile(const AFileName: string; ANotifyEventRef:
+    TNotifyEventRef = nil);
 var
   AEWS: ExcelWorksheet;
   ARange: ExcelRange;
@@ -311,13 +312,15 @@ begin
   // EWS.ConnectTo(AEWS);
 end;
 
-procedure TExcelDM.LoadExcelFile2(const AFileName: string);
+procedure TExcelDM.LoadExcelFile2(const AFileName: string; ANotifyEventRef:
+    TNotifyEventRef = nil);
 var
   AEWS: ExcelWorksheet;
   API: TProgressInfo;
   ARange: ExcelRange;
   AStartLine: Integer;
   ATotalProgress: TTotalProgress;
+  ATotalProgressNE: TNotifyEventR;
   e: TExcelDMEvent;
   I: Integer;
   lcid: Integer;
@@ -351,6 +354,12 @@ begin
       API.TotalRecords := rc - AStartLine + 1;
       ATotalProgress.PIList.Add(API)
     end;
+
+    // Подписываем кого-то на общий прогресс
+    ATotalProgressNE := nil;
+    if Assigned(ANotifyEventRef) then
+      ATotalProgressNE := TNotifyEventR.Create(OnTotalProgress, ANotifyEventRef);
+
 
     ne := TNotifyEventR.Create(OnProgress,
       procedure(Sender: TObject)
@@ -417,6 +426,9 @@ begin
     finally
       // Отписываемся от события
       FreeAndNil(ne);
+      // Отписываем кого-то от события
+      if Assigned(ATotalProgressNE) then
+        FreeAndNil(ATotalProgressNE);
     end;
 
     AEWS := nil;

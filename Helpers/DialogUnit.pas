@@ -20,6 +20,8 @@ type
     // function OpenFolderDialog(const AInitialDir: string): string;
   public
     function AddManufacturerDialog(const AValue: String): Boolean;
+    procedure AutoBindNotFoundDialog;
+    procedure AutoBindResultDialog(ACount: Integer);
     function ClearTreeDialog: Boolean;
     procedure BodyNotFoundDialog(const AValue: String);
     procedure MethodNotImplemended;
@@ -83,7 +85,20 @@ begin
     (PChar(Format('В справочнике производителей не найден производитель %s.' +
     #13#10 + #13#10 + 'Добавить "%s" в справочник?', [AValue, AValue])),
     'Добавление производителя', MB_YESNO + MB_ICONQUESTION) = IDYES;
+end;
 
+procedure TDialog.AutoBindNotFoundDialog;
+begin
+  Application.MessageBox
+    (PChar('В справочнике кратких описаний не найдено ни одной подходящей записи'),
+    'Результат автоматической привязки', MB_OK);
+end;
+
+procedure TDialog.AutoBindResultDialog(ACount: Integer);
+begin
+  Application.MessageBox
+    (PChar(Format('Привязано наименований: %d', [ACount])),
+    'Результат автоматической привязки', MB_OK);
 end;
 
 function TDialog.ClearTreeDialog: Boolean;

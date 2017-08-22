@@ -21,18 +21,39 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, cxTextEdit, cxMemo, cxDBEdit, CustomComponentsQuery;
+  dxSkinXmas2008Blue, cxTextEdit, cxMemo, cxDBEdit, CustomComponentsQuery,
+  dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
+  BaseQuery, QueryWithDataSourceUnit, Data.DB;
 
 type
   TfrmDescriptionPopup = class(TfrmPopupForm)
     cxdbmDescriptions: TcxDBMemo;
+    dxBarManager: TdxBarManager;
+    dxBarManagerBar1: TdxBar;
+    ActionList: TActionList;
+    actSelect: TAction;
+    dxBarButton1: TdxBarButton;
+    actClear: TAction;
+    dxBarButton2: TdxBarButton;
+    procedure actClearExecute(Sender: TObject);
+    procedure actSelectExecute(Sender: TObject);
+    procedure FormHide(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
-    FQueryCustomComponents: TQueryCustomComponents;
-    procedure SetQueryCustomComponents(const Value: TQueryCustomComponents);
+    FQuery: TQueryWithDataSource;
+    function GetDescription: TField;
+    function GetDescriptionComponentName: TField;
+    function GetDescriptionID: TField;
+    procedure SetQuery(const Value: TQueryWithDataSource);
     { Private declarations }
+  protected
+    procedure UpdateView;
   public
-    property QueryCustomComponents: TQueryCustomComponents
-      read FQueryCustomComponents write SetQueryCustomComponents;
+    constructor Create(AOwner: TComponent); override;
+    property Description: TField read GetDescription;
+    property DescriptionComponentName: TField read GetDescriptionComponentName;
+    property DescriptionID: TField read GetDescriptionID;
+    property Query: TQueryWithDataSource read FQuery write SetQuery;
     { Public declarations }
   end;
 
@@ -40,22 +61,108 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmDescriptionPopup.SetQueryCustomComponents
-  (const Value: TQueryCustomComponents);
-begin
-  if FQueryCustomComponents <> Value then
-  begin
-    FQueryCustomComponents := Value;
+uses DescriptionsForm, DataModule;
 
-    if FQueryCustomComponents <> nil then
-    begin
-      Assert(FQueryCustomComponents.FDQuery.Active);
-      cxdbmDescriptions.DataBinding.DataSource :=
-        FQueryCustomComponents.DataSource;
-      cxdbmDescriptions.DataBinding.DataField :=
-        FQueryCustomComponents.Description.FieldName;
-    end;
+constructor TfrmDescriptionPopup.Create(AOwner: TComponent);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmDescriptionPopup.actClearExecute(Sender: TObject);
+begin
+  inherited;
+  FQuery.TryEdit;
+  DescriptionComponentName.Value := NULL;
+  Description.Value := NULL;
+  DescriptionID.Value := NULL;
+  FQuery.TryPost;
+
+  UpdateView;
+end;
+
+procedure TfrmDescriptionPopup.actSelectExecute(Sender: TObject);
+var
+  AfrmDescriptions: TfrmDescriptions;
+begin
+  inherited;
+  DM.DescriptionsGroup.ReOpen;
+
+  if DescriptionID.AsInteger > 0 then
+  begin
+    // »щем нужное нам краткое описание
+    DM.DescriptionsGroup.LocateDescription(DescriptionID.AsInteger);
   end;
+
+  AfrmDescriptions := TfrmDescriptions.Create(Self);
+  try
+    AfrmDescriptions.ViewDescriptions.DescriptionsGroup := DM.DescriptionsGroup;
+    if AfrmDescriptions.ShowModal = mrOk then
+    begin
+      FQuery.TryEdit;
+      DescriptionComponentName.Value :=
+        DM.DescriptionsGroup.qDescriptions.ComponentName.Value;
+      Description.Value :=
+        DM.DescriptionsGroup.qDescriptions.Description.Value;
+      DescriptionID.Value :=
+        DM.DescriptionsGroup.qDescriptions.PK.Value;
+      FQuery.TryPost;
+    end;
+  finally
+    FreeAndNil(AfrmDescriptions);
+  end;
+  UpdateView;
+end;
+
+procedure TfrmDescriptionPopup.FormHide(Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
+procedure TfrmDescriptionPopup.FormShow(Sender: TObject);
+begin
+  inherited;
+  UpdateView;
+end;
+
+function TfrmDescriptionPopup.GetDescription: TField;
+begin
+  Result := FQuery.Field('Description');
+end;
+
+function TfrmDescriptionPopup.GetDescriptionComponentName: TField;
+begin
+  Result := FQuery.Field('DescriptionComponentName');
+end;
+
+function TfrmDescriptionPopup.GetDescriptionID: TField;
+begin
+  Result := FQuery.Field('DescriptionID');
+end;
+
+procedure TfrmDescriptionPopup.SetQuery(const Value: TQueryWithDataSource);
+begin
+  if FQuery = Value then Exit;
+
+  FQuery := Value;
+
+  if FQuery <> nil then
+  begin
+    Assert(FQuery.FDQuery.Active);
+    cxdbmDescriptions.DataBinding.DataSource :=
+      FQuery.DataSource;
+    cxdbmDescriptions.DataBinding.DataField :=
+      Description.FieldName;
+  end;
+
+  UpdateView;
+end;
+
+procedure TfrmDescriptionPopup.UpdateView;
+begin
+  actSelect.Enabled := (FQuery <> nil);
+  actClear.Enabled := (FQuery <> nil) and (not DescriptionID.IsNull);
 end;
 
 end.

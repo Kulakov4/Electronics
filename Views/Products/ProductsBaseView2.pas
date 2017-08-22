@@ -26,7 +26,7 @@ uses
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
   cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit, Vcl.ComCtrls,
-  System.Contnrs;
+  System.Contnrs, DescriptionPopupForm;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -118,13 +118,16 @@ type
     procedure dxbcRate1Change(Sender: TObject);
     procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
+    procedure clDescriptionPropertiesInitPopup(Sender: TObject);
   private
     FCountEvents: TObjectList;
+    FfrmDescriptionPopup: TfrmDescriptionPopup;
     FProductBaseGroup: TProductBaseGroup;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
+    procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetIsFocusedNodeGroup: Boolean;
     procedure SetProductBaseGroup(const Value: TProductBaseGroup);
     procedure UpdateSelectedCount;
@@ -135,6 +138,7 @@ type
     procedure CreateCountEvents;
     procedure DoAfterScroll(Sender: TObject);
     procedure InitializeColumns; override;
+    procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
       const AErrorMessage, AEmptyErrorMessage: string);
@@ -168,6 +172,8 @@ uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   System.StrUtils, GridSort, cxTLExportLink;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
+var
+  AcxPopupEditproperties: TcxPopupEditproperties;
 begin
   inherited;
   // Список полей при редактировании которых Enter - сохранение
@@ -184,6 +190,15 @@ begin
   GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
 
   FCountEvents := TObjectList.Create;
+
+  // Всплывающая форма с кратким описанием
+  FfrmDescriptionPopup := TfrmDescriptionPopup.Create(Self);
+  AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
+  AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
+  // Вручную задаём обработчик события
+  AcxPopupEditproperties.OnInitPopup := clDescriptionPropertiesInitPopup;
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide);
+
 end;
 
 destructor TViewProductsBase2.Destroy;
@@ -455,6 +470,14 @@ begin
     Value := TPath.GetFileNameWithoutExtension(Value);
 end;
 
+procedure TViewProductsBase2.clDescriptionPropertiesInitPopup(Sender: TObject);
+begin
+  inherited;
+  Assert(FfrmDescriptionPopup <> nil);
+  // Привязываем выпадающую форму к данным
+  FfrmDescriptionPopup.Query := ProductBaseGroup.qProductsBase;
+end;
+
 procedure TViewProductsBase2.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
@@ -611,6 +634,11 @@ begin
   BindRate(FProductBaseGroup.qProductsBase.Rate2, dxbcRate2);
 end;
 
+procedure TViewProductsBase2.DoOnDescriptionPopupHide(Sender: TObject);
+begin
+  UpdateView;
+end;
+
 procedure TViewProductsBase2.dxbcRate2Change(Sender: TObject);
 var
   r: Double;
@@ -711,6 +739,13 @@ begin
   InitializeLookupColumn(clIDProducer,
     FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
     FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
+end;
+
+procedure TViewProductsBase2.InternalRefreshData;
+begin
+  Assert(ProductBaseGroup <> nil);
+  ProductBaseGroup.RefreshData;
+  cxDBTreeList.FullCollapse;
 end;
 
 function TViewProductsBase2.IsSyncToDataSet: Boolean;

@@ -24,7 +24,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
-  ProductSearchGroupUnit, Vcl.Menus, Vcl.ComCtrls;
+  ProductSearchGroupUnit, Vcl.Menus, Vcl.ComCtrls, cxDropDownEdit;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)
@@ -62,7 +62,7 @@ type
 
 implementation
 
-uses ClipboardUnit, SearchInterfaceUnit, cxDropDownEdit;
+uses ClipboardUnit, SearchInterfaceUnit;
 
 {$R *.dfm}
 

@@ -12,6 +12,7 @@ object frmPopupForm: TfrmPopupForm
   Font.Style = []
   OldCreateOrder = False
   Scaled = False
+  OnHide = FormHide
   PixelsPerInch = 96
   TextHeight = 16
 end

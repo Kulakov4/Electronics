@@ -1,75 +1,49 @@
-unit SearchDescriptionsQuery;
+unit SearchProductDescriptionQuery;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, HandlingQueryUnit, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, ProgressInfo, HandlingQueryUnit;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
-  TQuerySearchDescriptions = class(THandlingQuery)
+  TQuerySearchProductDescription = class(THandlingQuery)
     FDUpdateSQL: TFDUpdateSQL;
-    fdqBase: TFDQuery;
   private
     function GetDescrID: TField;
     function GetDescriptionID: TField;
     { Private declarations }
   public
-    function Search(const AIDCategory: Integer): Integer; overload;
-    procedure SearchAll;
-    procedure UpdateComponentDescriptions(ASender: TObject);
+    procedure UpdateProductDescriptions(ASender: TObject);
     property DescrID: TField read GetDescrID;
     property DescriptionID: TField read GetDescriptionID;
     { Public declarations }
   end;
 
+var
+  QuerySearchProductDescription: TQuerySearchProductDescription;
+
 implementation
 
 {$R *.dfm}
 
-uses ProgressBarForm, StrHelper;
+uses RepositoryDataModule;
 
-function TQuerySearchDescriptions.GetDescrID: TField;
+function TQuerySearchProductDescription.GetDescrID: TField;
 begin
   Result := Field('DescrID');
 end;
 
-function TQuerySearchDescriptions.GetDescriptionID: TField;
+function TQuerySearchProductDescription.GetDescriptionID: TField;
 begin
   Result := Field('DescriptionID');
 end;
 
-function TQuerySearchDescriptions.Search(const AIDCategory: Integer): Integer;
-var
-  ASQL: string;
-begin
-  Assert(AIDCategory > 0);
-  ASQL := fdqBase.SQL.Text;
-  // Раскомментируем в запросе JOIN
-  ASQL := Replace(ASQL, '', '/* ProductCategory');
-  ASQL := Replace(ASQL, '', 'ProductCategory */');
-
-  // Формируемзапрос
-  FDQuery.SQL.Text := ASQL;
-
-  SetParamType('ProductCategoryId');
-  Result := Search(['ProductCategoryId'], [AIDCategory]);
-end;
-
-procedure TQuerySearchDescriptions.SearchAll;
-begin
-  // Копируем базовый запрос
-  FDQuery.SQL.Text := fdqBase.SQL.Text;
-  RefreshQuery;
-end;
-
-procedure TQuerySearchDescriptions.UpdateComponentDescriptions
-  (ASender: TObject);
+procedure TQuerySearchProductDescription.UpdateProductDescriptions(ASender:
+    TObject);
 var
   i: Integer;
 begin

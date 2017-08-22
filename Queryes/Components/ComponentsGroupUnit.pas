@@ -362,7 +362,7 @@ begin
         try
           try
             // Загружаем даные из Excel файла
-            AComponentsExcelDM.LoadExcelFile(AFullFileName,
+            AComponentsExcelDM.LoadExcelFile2(AFullFileName,
               procedure(ASender: TObject)
               Var
                 PI: TProgressInfo;

@@ -81,7 +81,9 @@ type
     class function MySplit(const S: String): MySplitRec; static;
   protected
   public
-    class procedure BindDescriptions(const AIDCategory: Integer); static;
+    class procedure BindComponentDescriptions(const AIDCategory
+      : Integer); static;
+    class procedure BindProductDescriptions; static;
     class procedure BindDocs(ADocFieldInfos: TList<TDocFieldInfo>;
       const AFDQuery: TFDQuery; const ANoRange, ACheckAbsentDocFiles
       : Boolean); static;
@@ -91,7 +93,7 @@ implementation
 
 uses cxGridDbBandedTableView, GridViewForm, ProgressBarForm, System.SysUtils,
   System.IOUtils, DialogUnit, StrHelper, System.Types, SearchDescriptionsQuery,
-  System.StrUtils, ProjectConst;
+  System.StrUtils, ProjectConst, SearchproductDescriptionQuery;
 
 class function TAutoBind.AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
   : TDictionary<Integer, TPossibleLinkDocTable>;
@@ -178,28 +180,60 @@ begin
   end;
 end;
 
-class procedure TAutoBind.BindDescriptions(const AIDCategory: Integer);
+class procedure TAutoBind.BindComponentDescriptions(const AIDCategory: Integer);
 var
-  AQuerySearchDescriptions: TQuerySearchDescriptions;
+  ABindQuery: TQuerySearchDescriptions;
 begin
   // Привязываем компоненты к кратким описаниям
-  AQuerySearchDescriptions := TQuerySearchDescriptions.Create(nil);
+  ABindQuery := TQuerySearchDescriptions.Create(nil);
   try
     // Если какя-то отдельная категория
     if AIDCategory > 0 then
-      AQuerySearchDescriptions.Search(AIDCategory)
+      ABindQuery.Search(AIDCategory)
     else
-      AQuerySearchDescriptions.FDQuery.Open;
+      ABindQuery.SearchAll;
 
     // Если найдены компоненты, которые можно привязать
-    if AQuerySearchDescriptions.FDQuery.RecordCount > 0 then
+    if ABindQuery.FDQuery.RecordCount > 0 then
     begin
-      TfrmProgressBar.Process(AQuerySearchDescriptions,
-        AQuerySearchDescriptions.UpdateComponentDescriptions,
+      TfrmProgressBar.Process(ABindQuery,
+        ABindQuery.UpdateComponentDescriptions,
         'Выполняем привязку кратких описаний', sComponents);
-    end;
+
+      TDialog.Create.AutoBindResultDialog(ABindQuery.FDQuery.RecordCount);
+    end
+    else
+      TDialog.Create.AutoBindNotFoundDialog;
+
   finally
-    FreeAndNil(AQuerySearchDescriptions);
+    FreeAndNil(ABindQuery);
+  end;
+
+end;
+
+class procedure TAutoBind.BindProductDescriptions;
+var
+  ABindQuery: TQuerySearchProductDescription;
+begin
+  // Привязываем компоненты к кратким описаниям
+  ABindQuery := TQuerySearchProductDescription.Create(nil);
+  try
+    ABindQuery.FDQuery.Open();
+
+    // Если найдены компоненты, которые можно привязать
+    if ABindQuery.FDQuery.RecordCount > 0 then
+    begin
+      TfrmProgressBar.Process(ABindQuery,
+        ABindQuery.UpdateProductDescriptions,
+        'Выполняем привязку кратких описаний', sComponents);
+
+      TDialog.Create.AutoBindResultDialog
+        (ABindQuery.FDQuery.RecordCount);
+    end
+    else
+      TDialog.Create.AutoBindNotFoundDialog;
+  finally
+    FreeAndNil(ABindQuery);
   end;
 
 end;
@@ -232,7 +266,7 @@ begin
     ADocFilesTable.LoadDocFiles(ADocFieldInfos);
 
     TfrmProgressBar.Process(ADocFilesTable,
-      procedure (ASender: TObject)
+      procedure(ASender: TObject)
       begin
         // Просим проанализировать, к каким компонентам можно привязать эти файлы
         APossibleLinkDocTables := AnalizeDocFiles(ADocFilesTable);
@@ -260,7 +294,7 @@ begin
       ATableWithProgress.Last;
 
       TfrmProgressBar.Process(ATableWithProgress,
-        procedure (ASender: TObject)
+        procedure(ASender: TObject)
         begin
           // Просим привязать компоненты к файлам
           AErrorLinkedDocTable := LinkToDocFiles(APossibleLinkDocTables,

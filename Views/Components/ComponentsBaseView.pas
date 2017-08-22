@@ -29,8 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  CustomComponentsQuery, SearchBodyType, SearchParameterValues,
-  cxTextEdit, cxBlobEdit, cxRichEdit, DescriptionPopupForm;
+  CustomComponentsQuery, SearchParameterValues, cxTextEdit, cxBlobEdit,
+  cxRichEdit, DescriptionPopupForm;
 
 type
   TViewComponentsBase = class(TViewComponentsParent)
@@ -86,28 +86,26 @@ type
   private
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FfrmSubgroupListPopup: TfrmSubgroupListPopup;
-    FQuerySearchBodyType: TQuerySearchBodyType;
-    FQuerySearchParameterValues: TQuerySearchParameterValues;
-    FQuerySubGroups: TfrmQuerySubGroups;
+    FqSearchParameterValues: TQuerySearchParameterValues;
+    FqSubGroups: TfrmQuerySubGroups;
     procedure DoAfterCommit(Sender: TObject);
+    procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetFocusedQuery: TQueryCustomComponents;
     function GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
-    function GetQuerySearchBodyType: TQuerySearchBodyType;
-    function GetQuerySearchParameterValues: TQuerySearchParameterValues;
-    function GetQuerySubGroups: TfrmQuerySubGroups;
+    function GetqSearchParameterValues: TQuerySearchParameterValues;
+    function GetqSubGroups: TfrmQuerySubGroups;
     procedure MyInitializeComboBoxColumn;
     { Private declarations }
   protected
     procedure DoOnMasterDetailChange; override;
+    procedure InternalRefreshData; override;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
     property frmSubgroupListPopup: TfrmSubgroupListPopup
       read GetfrmSubgroupListPopup;
-    property QuerySearchBodyType: TQuerySearchBodyType
-      read GetQuerySearchBodyType;
-    property QuerySearchParameterValues: TQuerySearchParameterValues
-      read GetQuerySearchParameterValues;
-    property QuerySubGroups: TfrmQuerySubGroups read GetQuerySubGroups;
+    property qSearchParameterValues: TQuerySearchParameterValues
+      read GetqSearchParameterValues;
+    property qSubGroups: TfrmQuerySubGroups read GetqSubGroups;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -136,6 +134,8 @@ begin
   FfrmDescriptionPopup := TfrmDescriptionPopup.Create(Self);
   AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
+
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide);
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
@@ -275,8 +275,7 @@ begin
   inherited;
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
-  FfrmDescriptionPopup.QueryCustomComponents :=
-    BaseComponentsGroup.QueryBaseFamily;
+  FfrmDescriptionPopup.Query := BaseComponentsGroup.QueryBaseFamily;
 end;
 
 procedure TViewComponentsBase.clManufacturerIdPropertiesNewLookupDisplayText
@@ -315,8 +314,8 @@ procedure TViewComponentsBase.cxerpiSubGroup_PropertiesCloseUp(Sender: TObject);
 var
   ParamValue: string;
 begin
-  Assert(QuerySubGroups.FDQuery.Active);
-  ParamValue := QuerySubGroups.GetFieldValues('ExternalID', ',').Trim([',']);
+  Assert(qSubGroups.FDQuery.Active);
+  ParamValue := qSubGroups.GetFieldValues('ExternalID', ',').Trim([',']);
 
   with BaseComponentsGroup.Main.FDQuery do
   begin
@@ -350,8 +349,8 @@ begin
   Assert(S.Length > 0);
   AMainExternalID := BaseComponentsGroup.QueryBaseFamily.CategoryExternalID;
 
-  QuerySubGroups.Load(AMainExternalID, Format(',%s,', [S]));
-  frmSubgroupListPopup.QuerySubGroups := QuerySubGroups;
+  qSubGroups.Load(AMainExternalID, Format(',%s,', [S]));
+  frmSubgroupListPopup.QuerySubGroups := qSubGroups;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewColumnHeaderClick
@@ -365,6 +364,11 @@ procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);
 begin
   // Инициализируем выпадающие столбцы
   MyInitializeComboBoxColumn;
+end;
+
+procedure TViewComponentsBase.DoOnDescriptionPopupHide(Sender: TObject);
+begin
+  UpdateView;
 end;
 
 procedure TViewComponentsBase.DoOnMasterDetailChange;
@@ -403,48 +407,47 @@ begin
   Result := FfrmSubgroupListPopup;
 end;
 
-function TViewComponentsBase.GetQuerySearchBodyType: TQuerySearchBodyType;
-begin
-  if FQuerySearchBodyType = nil then
-    FQuerySearchBodyType := TQuerySearchBodyType.Create(Self);
-
-  Result := FQuerySearchBodyType;
-end;
-
-function TViewComponentsBase.GetQuerySearchParameterValues
+function TViewComponentsBase.GetqSearchParameterValues
   : TQuerySearchParameterValues;
 begin
-  if FQuerySearchParameterValues = nil then
-    FQuerySearchParameterValues := TQuerySearchParameterValues.Create(Self);
+  if FqSearchParameterValues = nil then
+    FqSearchParameterValues := TQuerySearchParameterValues.Create(Self);
 
-  Result := FQuerySearchParameterValues;
+  Result := FqSearchParameterValues;
 end;
 
-function TViewComponentsBase.GetQuerySubGroups: TfrmQuerySubGroups;
+function TViewComponentsBase.GetqSubGroups: TfrmQuerySubGroups;
 begin
-  if FQuerySubGroups = nil then
+  if FqSubGroups = nil then
   begin
-    FQuerySubGroups := TfrmQuerySubGroups.Create(Self);
-    FQuerySubGroups.FDQuery.Connection :=
+    FqSubGroups := TfrmQuerySubGroups.Create(Self);
+    FqSubGroups.FDQuery.Connection :=
       BaseComponentsGroup.Main.FDQuery.Connection;
   end;
-  Result := FQuerySubGroups;
+  Result := FqSubGroups;
+end;
+
+procedure TViewComponentsBase.InternalRefreshData;
+begin
+  Assert(BaseComponentsGroup <> nil);
+  BaseComponentsGroup.RefreshData;
+  MainView.ViewData.Collapse(True);
 end;
 
 procedure TViewComponentsBase.MyInitializeComboBoxColumn;
 begin
   // Ищем возможные значения производителя для выпадающего списка
-  QuerySearchParameterValues.Search(TParameterValues.ProducerParameterID);
+  qSearchParameterValues.Search(TParameterValues.ProducerParameterID);
 
   // Инициализируем Combobox колонки
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditList, QuerySearchParameterValues.Value);
+    lsEditList, qSearchParameterValues.Value);
   {
     // Ищем возможные значения корпусов для выпадающего списка
-    QuerySearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
+    qSearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
 
     InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
-    lsEditList, QuerySearchParameterValues.Value);
+    lsEditList, qSearchParameterValues.Value);
   }
 end;
 

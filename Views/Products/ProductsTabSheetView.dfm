@@ -47,9 +47,9 @@ object ProductsFrame: TProductsFrame
         ExplicitHeight = 579
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 525
+          Height = 506
           ExplicitWidth = 990
-          ExplicitHeight = 525
+          ExplicitHeight = 506
           inherited clDatasheet: TcxDBTreeListColumn
             Properties.Buttons = <
               item
@@ -99,6 +99,12 @@ object ProductsFrame: TProductsFrame
               end>
           end
         end
+        inherited StatusBar: TStatusBar
+          Top = 560
+          Width = 990
+          ExplicitTop = 560
+          ExplicitWidth = 990
+        end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
             0
@@ -125,9 +131,9 @@ object ProductsFrame: TProductsFrame
         ExplicitHeight = 579
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 525
+          Height = 506
           ExplicitWidth = 990
-          ExplicitHeight = 525
+          ExplicitHeight = 506
           inherited clDatasheet: TcxDBTreeListColumn
             Properties.Buttons = <
               item
@@ -176,6 +182,12 @@ object ProductsFrame: TProductsFrame
                 Kind = bkEllipsis
               end>
           end
+        end
+        inherited StatusBar: TStatusBar
+          Top = 560
+          Width = 990
+          ExplicitTop = 560
+          ExplicitWidth = 990
         end
         inherited dxBarManager: TdxBarManager
           DockControlHeights = (
@@ -227,6 +239,10 @@ object ProductsFrame: TProductsFrame
         item
           Visible = True
           ItemName = 'dxBarSubItem1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarSubItem3'
         end>
       OneOnRow = True
       Row = 0
@@ -260,6 +276,21 @@ object ProductsFrame: TProductsFrame
       Action = actLoadFromExcelDocument
       Category = 0
     end
+    object dxBarSubItem3: TdxBarSubItem
+      Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 29
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton2'
+        end>
+    end
+    object dxBarButton2: TdxBarButton
+      Action = actBindDescriptions
+      Category = 0
+    end
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -270,6 +301,11 @@ object ProductsFrame: TProductsFrame
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1085#1072' '#1089#1082#1083#1072#1076' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 32
       OnExecute = actLoadFromExcelDocumentExecute
+    end
+    object actBindDescriptions: TAction
+      Caption = #1050' '#1082#1088#1072#1090#1082#1080#1084' '#1086#1087#1080#1089#1072#1085#1080#1103#1084
+      ImageIndex = 29
+      OnExecute = actBindDescriptionsExecute
     end
   end
 end

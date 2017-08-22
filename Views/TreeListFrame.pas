@@ -70,6 +70,7 @@ type
       ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
       const AKeyFieldNames: string = 'ID'); overload;
+    procedure InternalRefreshData; virtual;
     function IsSyncToDataSet: Boolean; virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -84,6 +85,7 @@ type
     procedure EndUpdate; virtual;
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
       : Variant;
+    procedure RefreshData;
     procedure UpdateView; virtual;
     property GridSort: TGridSort read FGridSort;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
@@ -396,9 +398,24 @@ begin
   AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
 end;
 
+procedure TfrmTreeList.InternalRefreshData;
+begin
+  // TODO -cMM: TfrmTreeList.InternalRefreshData default body inserted
+end;
+
 function TfrmTreeList.IsSyncToDataSet: Boolean;
 begin
   Result := cxDBTreeList.FocusedNode <> nil;
+end;
+
+procedure TfrmTreeList.RefreshData;
+begin
+  BeginUpdate;
+  try
+    InternalRefreshData;
+  finally
+    EndUpdate;
+  end;
 end;
 
 procedure TfrmTreeList.SetStatusBarEmptyPanelIndex(const Value: Integer);

@@ -126,7 +126,6 @@ uses
   SearchFamilyByValue in 'Queryes\Search\SearchFamilyByValue.pas' {QuerySearchFamilyByValue: TFrame},
   SearchComponentsByValues in 'Queryes\Search\SearchComponentsByValues.pas' {QuerySearchComponentsByValues: TFrame},
   BaseFamilyQuery in 'Queryes\Components\BaseFamilyQuery.pas' {QueryBaseFamily: TFrame},
-  SearchBodyType in 'Queryes\Search\SearchBodyType.pas' {QuerySearchBodyType: TFrame},
   StoreHouseGroupUnit in 'Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas' {StoreHouseGroup: TFrame},
   ProductsView in 'Views\Products\ProductsView.pas' {ViewProducts: TFrame},
   SearchCategoriesPathQuery in 'Queryes\Search\SearchCategoriesPathQuery.pas' {QuerySearchCategoriesPath: TFrame},
@@ -197,7 +196,8 @@ uses
   MapFieldsUnit in 'Helpers\MapFieldsUnit.pas',
   ProgressBarForm2 in 'Views\ProgressBar\ProgressBarForm2.pas' {frmProgressBar2},
   LoadFromExcelFileHelper in 'Helpers\LoadFromExcelFileHelper.pas',
-  CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError};
+  CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
+  SearchProductDescriptionQuery in 'Queryes\Search\SearchProductDescriptionQuery.pas' {QuerySearchProductDescription: TFrame};
 
 {$R *.res}
 

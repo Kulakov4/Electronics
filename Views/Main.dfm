@@ -50,6 +50,10 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -134,6 +138,10 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -173,7 +181,7 @@ object frmMain: TfrmMain
     Height = 564
     Align = alClient
     TabOrder = 6
-    Properties.ActivePage = cxtsRStorehouses
+    Properties.ActivePage = cxtsRComponents
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 560
     ClientRectLeft = 4
