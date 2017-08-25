@@ -113,7 +113,7 @@ uses NotifyEvents, System.Generics.Defaults, RepositoryDataModule,
   System.IOUtils, Winapi.ShellAPI, ClipboardUnit, System.Math, ProjectConst,
   DialogUnit, Vcl.Clipbrd, SettingsController, ExcelDataModule,
   ProductsExcelDataModule, ProgressBarForm, ErrorForm, CustomExcelTable,
-  GridViewForm, ProductsForm, dxCore;
+  GridViewForm, ProductsForm, dxCore, LoadFromExcelFileHelper;
 
 constructor TViewProducts.Create(AOwner: TComponent);
 begin
@@ -508,9 +508,9 @@ end;
 procedure TViewProducts.LoadFromExcelDocument(const AFileName: String);
 var
   AFieldsInfo: TList<TFieldInfo>;
-  AfrmError: TfrmError;
-  AProductsExcelDM: TProductsExcelDM;
-  OK: Boolean;
+//  AfrmError: TfrmError;
+//  AProductsExcelDM: TProductsExcelDM;
+//  OK: Boolean;
 begin
   Assert(not AFileName.IsEmpty);
 
@@ -520,11 +520,17 @@ begin
     if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
       Exit;
 
+    TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmError,
+      procedure (Sender: TObject)
+      begin
+        ProductGroup.qProducts.AppendList(Sender as TProductsExcelTable);
+      end);
+{
     AProductsExcelDM := TProductsExcelDM.Create(Self, AFieldsInfo);
     try
       // Загружаем данные из Excel файла
       TfrmProgressBar.Process(AProductsExcelDM,
-        procedure (ASender: TObject)
+        procedure(ASender: TObject)
         begin
           AProductsExcelDM.LoadExcelFile(AFileName);
         end, 'Загрузка складских данных', sRows);
@@ -547,7 +553,7 @@ begin
       begin
         // Сохраняем данные в БД
         TfrmProgressBar.Process(AProductsExcelDM.ExcelTable,
-          procedure (ASender: TObject)
+          procedure(ASender: TObject)
           begin
             ProductGroup.qProducts.AppendList(AProductsExcelDM.ExcelTable);
           end, 'Сохранение складских данных в БД', sRecords);
@@ -556,6 +562,7 @@ begin
     finally
       FreeAndNil(AProductsExcelDM);
     end;
+}
   finally
     FreeAndNil(AFieldsInfo);
   end;

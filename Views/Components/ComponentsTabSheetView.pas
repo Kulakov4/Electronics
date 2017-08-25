@@ -112,10 +112,9 @@ implementation
 uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
   System.IOUtils, TreeListQuery, ErrorForm, ParametricExcelDataModule,
   ProgressBarForm, ProjectConst, CustomExcelTable, ParameterValuesUnit,
-  ExcelDataModule, GridViewForm, SearchDaughterParameterQuery,
-  SearchMainParameterQuery, ReportQuery, ReportsForm, FireDAC.Comp.Client,
+  ExcelDataModule, GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client,
   AllFamilyQuery, AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm,
-  BindDocUnit;
+  BindDocUnit, SearchParameterQuery;
 
 procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);
 var
@@ -303,7 +302,7 @@ begin
       TfrmProgressBar.Process(AParametricExcelDM,
         procedure(ASender: TObject)
         begin
-          AParametricExcelDM.LoadExcelFile(AFileName);
+          AParametricExcelDM.LoadExcelFile2(AFileName);
         end, 'Загрузка параметрических данных', sRows);
 
       OK := AParametricExcelDM.ExcelTable.Errors.RecordCount = 0;
@@ -412,8 +411,8 @@ var
   AFieldName: string;
   AfrmGridView: TfrmGridView;
   AParametricErrorTable: TParametricErrorTable;
-  AQuerySearchDaughterParameter: TQuerySearchDaughterParameter;
-  AQuerySearchMainParameter: TQuerySearchMainParameter;
+  qSearchDaughterParameter: TQuerySearchParameter;
+  qSearchParameter: TQuerySearchParameter;
   ARootTreeNode: TStringTreeNode;
   AStringTreeNode: TStringTreeNode;
   AStringTreeNode2: TStringTreeNode;
@@ -443,9 +442,8 @@ begin
     try
       // Загружаем описания полей Excel файла
       ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
-      AQuerySearchMainParameter := TQuerySearchMainParameter.Create(Self);
-      AQuerySearchDaughterParameter :=
-        TQuerySearchDaughterParameter.Create(Self);
+      qSearchParameter := TQuerySearchParameter.Create(Self);
+      qSearchDaughterParameter := TQuerySearchParameter.Create(Self);
       try
         I := 0;
 
@@ -460,7 +458,7 @@ begin
             if not nf then
             begin
               // Нужно найти такой параметр
-              rc := AQuerySearchMainParameter.Search(AStringTreeNode.value);
+              rc := qSearchParameter.SearchMain(AStringTreeNode.value);
               if rc = 0 then
                 AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
                   'Параметр не найден');
@@ -476,9 +474,8 @@ begin
                 begin
                   for AStringTreeNode2 in AStringTreeNode.Childs do
                   begin
-                    rc := AQuerySearchDaughterParameter.Search
-                      (AStringTreeNode2.value,
-                      AQuerySearchMainParameter.PK.AsInteger);
+                    rc := qSearchDaughterParameter.SearchDaughter
+                      (AStringTreeNode2.value, qSearchParameter.PK.AsInteger);
                     if rc > 1 then
                     begin
                       AParametricErrorTable.AddErrorMessage
@@ -490,14 +487,13 @@ begin
                       // Если такого дочернего параметра мы не нашли
                       if rc = 0 then
                       begin
-                        AQuerySearchDaughterParameter.Append
-                          (AStringTreeNode2.value);
+                        qSearchDaughterParameter.AppendDaughter(AStringTreeNode2.value);
                       end;
                       // Запоминаем описание поля связанного с подпараметром
                       AFieldNames.Add
                         (TParametricExcelTable.GetFieldNameByIDParam
-                        (AQuerySearchDaughterParameter.PK.value,
-                        AQuerySearchMainParameter.PK.value))
+                        (qSearchDaughterParameter.PK.value,
+                        qSearchParameter.PK.value))
                     end;
                   end;
                 end
@@ -506,7 +502,7 @@ begin
                   // Если у нашего параметра нет дочерних параметров
                   // Запоминаем описание поля связанного с параметром
                   AFieldNames.Add(TParametricExcelTable.GetFieldNameByIDParam
-                    (AQuerySearchMainParameter.PK.value, 0));
+                    (qSearchParameter.PK.value, 0));
                 end;
               end
               else
@@ -531,8 +527,8 @@ begin
         end;
 
       finally
-        FreeAndNil(AQuerySearchMainParameter);
-        FreeAndNil(AQuerySearchDaughterParameter);
+        FreeAndNil(qSearchParameter);
+        FreeAndNil(qSearchDaughterParameter);
       end;
 
     finally

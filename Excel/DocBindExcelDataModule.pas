@@ -4,23 +4,23 @@ interface
 
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
-  CustomExcelTable, FieldInfoUnit, SearchComponentQuery, Data.DB;
+  CustomExcelTable, FieldInfoUnit, Data.DB, SearchComponentOrFamilyQuery;
 
 type
   TDocBindExcelTable = class(TCustomExcelTable)
   private
-    FQuerySearchComponent: TQuerySearchComponent;
+    FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetComponentName: TField;
     function GetDatasheet: TField;
     function GetDiagram: TField;
     function GetIDProduct: TField;
-    function GetQuerySearchComponent: TQuerySearchComponent;
+    function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
   protected
     function CheckComponent: Boolean;
     procedure CreateFieldDefs; override;
     procedure SetFieldsInfo; override;
-    property QuerySearchComponent: TQuerySearchComponent
-      read GetQuerySearchComponent;
+    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
+        GetqSearchComponentOrFamily;
   public
     function CheckRecord: Boolean; override;
     property ComponentName: TField read GetComponentName;
@@ -44,12 +44,12 @@ implementation
 
 function TDocBindExcelTable.CheckComponent: Boolean;
 begin
-  Result := QuerySearchComponent.Search(ComponentName.AsString) > 0;
+  Result := qSearchComponentOrFamily.SearchByValue(ComponentName.AsString) > 0;
   // Если нашли такое семейство или компонент
   if Result then
   begin
     Edit;
-    IDProduct.AsInteger := QuerySearchComponent.PK.Value;
+    IDProduct.AsInteger := qSearchComponentOrFamily.PK.Value;
     Post;
   end
   else
@@ -98,13 +98,14 @@ begin
   Result := FieldByName('IDProduct');
 end;
 
-function TDocBindExcelTable.GetQuerySearchComponent: TQuerySearchComponent;
+function TDocBindExcelTable.GetqSearchComponentOrFamily:
+    TQuerySearchComponentOrFamily;
 begin
-  if FQuerySearchComponent = nil then
+  if FqSearchComponentOrFamily = nil then
   begin
-    FQuerySearchComponent := TQuerySearchComponent.Create(Self);
+    FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
   end;
-  Result := FQuerySearchComponent;
+  Result := FqSearchComponentOrFamily;
 end;
 
 procedure TDocBindExcelTable.SetFieldsInfo;

@@ -86,6 +86,7 @@ type
     procedure Load(AIDParent: Integer); overload; virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
+    function LocateByField(const AFieldName, AValue: string): Boolean;
     procedure SetParameters(const AParamNames: array of string;
       const AParamValues: array of Variant);
     function LocateByPK(APKValue: Variant): Boolean;
@@ -763,6 +764,13 @@ begin
   finally
     FDQuery.EnableControls;
   end;
+end;
+
+function TQueryBase.LocateByField(const AFieldName, AValue: string): Boolean;
+begin
+  Assert(not AFieldName.IsEmpty);
+  Result := FDQuery.LocateEx(AFieldName, AValue,
+    [lxoCaseInsensitive, lxoPartialKey]);
 end;
 
 procedure TQueryBase.SetParameters(const AParamNames: array of string;

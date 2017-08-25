@@ -637,7 +637,6 @@ object frmMain: TfrmMain
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch2: TViewProductsSearch2
               inherited cxDBTreeList: TcxDBTreeList
-                ExplicitHeight = 506
                 inherited clDatasheet: TcxDBTreeListColumn
                   Properties.Buttons = <
                     item
@@ -686,10 +685,6 @@ object frmMain: TfrmMain
                       Kind = bkEllipsis
                     end>
                 end
-              end
-              inherited StatusBar: TStatusBar
-                ExplicitTop = 560
-                ExplicitWidth = 990
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

@@ -28,7 +28,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox,
-  DragHelper, HRTimer, ColumnsBarButtonsHelper;
+  DragHelper, HRTimer, ColumnsBarButtonsHelper, System.Generics.Collections;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
@@ -108,6 +108,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Locate(const AProducer: string);
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property ProducersGroup: TProducersGroup read FProducersGroup
@@ -440,6 +441,40 @@ begin
     FQuerySearchProducerTypes := TQuerySearchProducerTypes.Create(Self);
 
   Result := FQuerySearchProducerTypes;
+end;
+
+procedure TViewProducers.Locate(const AProducer: string);
+var
+  List: TList<String>;
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
+begin
+  BeginUpdate;
+  // Ищет производителя в гриде
+  List := ProducersGroup.Find(clName2.DataBinding.FieldName, AProducer);
+  try
+    // сначала ищем на первом уровне (по названию категории)
+    if (List.Count > 0) and
+      (MainView.DataController.Search.Locate(clProducerType.Index, List[0],
+      True)) then
+    begin
+      // Затем ищем на втором уровне (по наименованию производителя)
+      if List.Count > 1 then
+      begin
+        ARow := GetRow(0) as TcxGridMasterDataRow;
+        ARow.Expand(false);
+        AView := GetDBBandedTableView(1);
+        AView.Focused := True;
+        AView.DataController.Search.Locate(clName2.Index, List[1], True);
+        PutInTheCenterFocusedRecord(AView);
+      end
+      else
+        PutInTheCenterFocusedRecord(MainView);
+    end;
+  finally
+    FreeAndNil(List);
+    EndUpdate;
+  end;
 end;
 
 procedure TViewProducers.MyApplyBestFit;

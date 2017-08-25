@@ -87,16 +87,20 @@ var
 begin
   inherited;
   DM.DescriptionsGroup.ReOpen;
-
+{
   if DescriptionID.AsInteger > 0 then
   begin
     // »щем нужное нам краткое описание
     DM.DescriptionsGroup.LocateDescription(DescriptionID.AsInteger);
   end;
-
+}
   AfrmDescriptions := TfrmDescriptions.Create(Self);
   try
     AfrmDescriptions.ViewDescriptions.DescriptionsGroup := DM.DescriptionsGroup;
+
+    if not DescriptionComponentName.AsString.IsEmpty then
+      AfrmDescriptions.ViewDescriptions.Locate(DescriptionComponentName.AsString);
+
     if AfrmDescriptions.ShowModal = mrOk then
     begin
       FQuery.TryEdit;

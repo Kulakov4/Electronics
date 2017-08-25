@@ -63,8 +63,10 @@ type
     FOnTotalProgress: TNotifyEventsEx;
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
-    procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
-        TNotifyEventRef = nil);
+    function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
+    // TODO: LoadExcelFile
+    // procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
+    // TNotifyEventRef = nil);
     { Private declarations }
   protected
     FLastColIndex: Integer;
@@ -80,8 +82,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure ConnectToSheet(ASheetIndex: Integer = -1);
-    procedure LoadExcelFile2(const AFileName: string; ANotifyEventRef:
-        TNotifyEventRef = nil);
+    procedure LoadExcelFile2(const AFileName: string;
+      ANotifyEventRef: TNotifyEventRef = nil);
     function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
@@ -245,51 +247,52 @@ begin
   end;
 end;
 
-procedure TExcelDM.LoadExcelFile(const AFileName: string; ANotifyEventRef:
-    TNotifyEventRef = nil);
-var
-  AEWS: ExcelWorksheet;
-  ARange: ExcelRange;
-  AStartLine: Integer;
-  lcid: Integer;
-  ne: TNotifyEventR;
-  rc: Integer;
-begin
-  ne := nil;
-  lcid := 0;
-  InternalLoadExcelFile(AFileName);
-  ConnectToSheet();
-
-  ARange := EWS.UsedRange[lcid];
-  Assert(ARange <> nil);
-  rc := ARange.Rows.Count;
-
-  // Делаем или не делаем смещение на заголовок
-  AStartLine := 1;
-  while (HaveHeader(AStartLine)) do
-    Inc(AStartLine);
-
-  // Получаем "Рабочий" диапазон
-  ARange := GetExcelRange(AStartLine, Indent + 1, rc, Indent + FLastColIndex);
-
-  // Обрабатываем диапазон если он не пустой
-  if ARange <> nil then
-  begin
-    // При необходимости подписываем кого-то на событие
-    if Assigned(ANotifyEventRef) then
-      ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
-    try
-      ProcessRange(ARange);
-    finally
-      // Отписываем кого-то от события
-      FreeAndNil(ne);
-    end;
-  end;
-
-  AEWS := nil;
-  EA.Quit;
-  EA.Disconnect;
-end;
+// TODO: LoadExcelFile
+// procedure TExcelDM.LoadExcelFile(const AFileName: string; ANotifyEventRef:
+// TNotifyEventRef = nil);
+// var
+// AEWS: ExcelWorksheet;
+// ARange: ExcelRange;
+// AStartLine: Integer;
+// lcid: Integer;
+// ne: TNotifyEventR;
+// rc: Integer;
+// begin
+// ne := nil;
+// lcid := 0;
+// InternalLoadExcelFile(AFileName);
+// ConnectToSheet();
+//
+// ARange := EWS.UsedRange[lcid];
+// Assert(ARange <> nil);
+// rc := ARange.Rows.Count;
+//
+/// / Делаем или не делаем смещение на заголовок
+// AStartLine := 1;
+// while (HaveHeader(AStartLine)) do
+// Inc(AStartLine);
+//
+/// / Получаем "Рабочий" диапазон
+// ARange := GetExcelRange(AStartLine, Indent + 1, rc, Indent + FLastColIndex);
+//
+/// / Обрабатываем диапазон если он не пустой
+// if ARange <> nil then
+// begin
+// // При необходимости подписываем кого-то на событие
+// if Assigned(ANotifyEventRef) then
+// ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
+// try
+// ProcessRange(ARange);
+// finally
+// // Отписываем кого-то от события
+// FreeAndNil(ne);
+// end;
+// end;
+//
+// AEWS := nil;
+// EA.Quit;
+// EA.Disconnect;
+// end;
 
 procedure TExcelDM.InternalLoadExcelFile(const AFileName: string);
 var
@@ -312,8 +315,41 @@ begin
   // EWS.ConnectTo(AEWS);
 end;
 
-procedure TExcelDM.LoadExcelFile2(const AFileName: string; ANotifyEventRef:
-    TNotifyEventRef = nil);
+function TExcelDM.IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
+Var
+  Arr: Variant;
+  dc: Integer;
+  I: Integer;
+  j: Integer;
+  V: Variant;
+begin
+  Result := True;
+  Arr := AExcelRange.Value2;
+
+  dc := VarArrayDimCount(Arr);
+
+  // Если диапазон состоит из одного значения
+  if dc = 0 then
+  begin
+    Result := VarIsNull(Arr) or (Arr = Unassigned);
+    Exit;
+  end;
+
+  // Цикл по всем строкам диапазона
+  for I := VarArrayLowBound(Arr, 1) to VarArrayHighBound(Arr, 1) do
+  begin
+    for j := VarArrayLowBound(Arr, 2) to VarArrayHighBound(Arr, 2) do
+    begin
+      V := VarArrayGet(Arr, [I, j]);
+      Result := VarIsNull(V);
+      if not Result then
+        Exit;
+    end;
+  end;
+end;
+
+procedure TExcelDM.LoadExcelFile2(const AFileName: string;
+  ANotifyEventRef: TNotifyEventRef = nil);
 var
   AEWS: ExcelWorksheet;
   API: TProgressInfo;
@@ -343,23 +379,28 @@ begin
 
       ARange := EWS.UsedRange[lcid];
       Assert(ARange <> nil);
-      rc := ARange.Rows.Count;
-
-      // Делаем или не делаем смещение на заголовок
-      AStartLine := 1;
-      while (HaveHeader(AStartLine)) do
-        Inc(AStartLine);
 
       API := TProgressInfo.Create;
-      API.TotalRecords := rc - AStartLine + 1;
+
+      // Если этот лист не пустой
+      if not IsRangeEmpty(ARange) then
+      begin
+        rc := ARange.Rows.Count;
+        // Делаем или не делаем смещение на заголовок
+        AStartLine := 1;
+        while (HaveHeader(AStartLine)) do
+          Inc(AStartLine);
+
+        API.TotalRecords := rc - AStartLine + 1;
+      end;
       ATotalProgress.PIList.Add(API)
     end;
 
     // Подписываем кого-то на общий прогресс
     ATotalProgressNE := nil;
     if Assigned(ANotifyEventRef) then
-      ATotalProgressNE := TNotifyEventR.Create(OnTotalProgress, ANotifyEventRef);
-
+      ATotalProgressNE := TNotifyEventR.Create(OnTotalProgress,
+        ANotifyEventRef);
 
     ne := TNotifyEventR.Create(OnProgress,
       procedure(Sender: TObject)
@@ -373,11 +414,24 @@ begin
         // Обновляем общий прогресс
         ATotalProgress.UpdateTotalProgress;
         // Извещаем всех, что общий прогресс изменился
-        FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
+
+        // Извещаем о том, что один лист уже загрузили
+        e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+        try
+          // Извещаем всех о событии
+          FOnTotalProgress.CallEventHandlers(e);
+        finally
+          FreeAndNil(e);
+        end;
+        // FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
       end);
     try
       for I := 1 to EWB.Sheets.Count do
       begin
+        // Если этот лист был пустым
+        if ATotalProgress.PIList[I - 1].TotalRecords = 0 then
+          Continue;
+
         // Соединяемся с листом
         ConnectToSheet(I);
 
@@ -398,11 +452,20 @@ begin
         if ARange <> nil then
         begin
           // Извещаем о том, что собираемся грузить лист
-          FBeforeLoadSheet.CallEventHandlers(Self);
+          e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+          try
+            // Извещаем всех о событии
+            FBeforeLoadSheet.CallEventHandlers(e);
+            // Если следующие листы загружать не надо
+            if e.Terminate then
+              break;
+          finally
+            FreeAndNil(e);
+          end;
 
           ProcessRange(ARange);
-          // Извещаем о том, что один лист уже загрузили
 
+          // Извещаем о том, что один лист уже загрузили
           e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
           try
             // Извещаем всех о событии
@@ -657,8 +720,8 @@ var
 begin
   Assert(Assigned(AProcRef));
 
-  // Подписываем кого-то на событие о прогрессе загрузки данных
-  ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
+  // Подписываем кого-то на событие о общем прогрессе загрузки данных
+  ne := TNotifyEventR.Create(OnTotalProgress, ANotifyEventRef);
   try
     // Вызываем метод, обрабатывающий нашу таблицу
     AProcRef(Self);

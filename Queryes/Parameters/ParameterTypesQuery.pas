@@ -31,7 +31,6 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
-    function Locate(AValue: string): Boolean;
     property ParameterType: TField read GetParameterType;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     property TableNameFilter: string read FTableNameFilter
@@ -76,14 +75,8 @@ end;
 
 procedure TQueryParameterTypes.LocateOrAppend(AValue: string);
 begin
-  if not FDQuery.LocateEx(ParameterType.FieldName, AValue, []) then
+  if not FDQuery.LocateEx(ParameterType.FieldName, AValue, [lxoCaseInsensitive]) then
     AddNewValue(AValue);
-end;
-
-function TQueryParameterTypes.Locate(AValue: string): Boolean;
-begin
-  Result := FDQuery.LocateEx(ParameterType.FieldName, AValue,
-    [lxoPartialKey, lxoCaseInsensitive]);
 end;
 
 procedure TQueryParameterTypes.SetShowDuplicate(const Value: Boolean);
@@ -97,8 +90,8 @@ begin
     ASQL := fdqBase.SQL.Text;
     if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
-      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
+      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
     end;
 
     FDQuery.Close;

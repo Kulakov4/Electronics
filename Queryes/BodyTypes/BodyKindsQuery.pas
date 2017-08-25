@@ -81,8 +81,8 @@ begin
     ASQL := fdqBase.SQL.Text;
     if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
-      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
+      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
     end;
 
     FDQuery.Close;

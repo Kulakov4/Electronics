@@ -145,11 +145,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyTypesGridQuery.pas">
-            <Form>QueryBodyTypesGrid</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\RootForm.pas">
             <Form>frmRoot</Form>
             <FormType>dfm</FormType>
@@ -236,21 +231,6 @@
         </DCCReference>
         <DCCReference Include="Queryes\TreeList\TreeListQuery.pas">
             <Form>QueryTreeList</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchComponentQuery.pas">
-            <Form>QuerySearchComponent</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchFamilyByValue2.pas">
-            <Form>QuerySearchFamilyByValue2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchCategoryByExternalID.pas">
-            <Form>QuerySearchCategoryByExternalID</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -354,11 +334,6 @@
         </DCCReference>
         <DCCReference Include="Excel\ComponentsExcelDataModule.pas">
             <Form>ComponentsExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\ComponentBodyTypesExcelDataModule.pas">
-            <Form>ComponentBodyTypesExcelDM</Form>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
@@ -532,16 +507,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchCategoryBySubGroup.pas">
-            <Form>QuerySearchCategoryBySubGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchComponentCategoryQuery2.pas">
-            <Form>QuerySearchComponentCategory2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
             <Form>frmCustomGridView</Form>
             <FormType>dfm</FormType>
@@ -563,33 +528,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchCategoryByID.pas">
-            <Form>QuerySearchCategoryByID</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchDaughterComponentQuery2.pas">
-            <Form>QuerySearchDaughterComponent2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchMainParameterQuery.pas">
-            <Form>QuerySearchMainParameter</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchDaughterParameterQuery.pas">
-            <Form>QuerySearchDaughterParameter</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchFamilyByValue.pas">
-            <Form>QuerySearchFamilyByValue</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchComponentsByValues.pas">
-            <Form>QuerySearchComponentsByValues</Form>
+        <DCCReference Include="Queryes\Search\SearchParameterQuery.pas">
+            <Form>QuerySearchParameter</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -629,11 +569,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\TableWithProgress.pas"/>
-        <DCCReference Include="Queryes\Search\SearchSubCategoriesQuery.pas">
-            <Form>QuerySearchSubCategories</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Search\SearchParametersForCategoryQuery.pas">
             <Form>QuerySearchParametersForCategory</Form>
             <FormType>dfm</FormType>
@@ -673,23 +608,13 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\AutoBinding.pas"/>
-        <DCCReference Include="Queryes\Search\SearchComponentsByValuesLike.pas">
-            <Form>QuerySearchComponentsByValuesLike</Form>
+        <DCCReference Include="Queryes\Search\SearchComponentOrFamilyQuery.pas">
+            <Form>QuerySearchComponentOrFamily</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\AbstractSearchByValues.pas">
-            <Form>QueryAbstractSearchByValues</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchDaughterComponentQuery.pas">
-            <Form>QuerySearchDaughterComponent</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchFamilyByID.pas">
-            <Form>QuerySearchFamilyByID</Form>
+        <DCCReference Include="Queryes\Search\SearchFamily.pas">
+            <Form>QuerySearchFamily</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -900,6 +825,11 @@
         </DCCReference>
         <DCCReference Include="Queryes\Search\SearchProductDescriptionQuery.pas">
             <Form>QuerySearchProductDescription</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchCategoryQuery.pas">
+            <Form>QuerySearchCategory</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>

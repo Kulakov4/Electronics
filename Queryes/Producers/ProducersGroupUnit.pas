@@ -8,7 +8,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   ProducersQuery, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
   QueryWithDataSourceUnit, ProducerTypesQuery, ProducersExcelDataModule,
-  OrderQuery;
+  OrderQuery, System.Generics.Collections;
 
 type
   TProducersGroup = class(TQueryGroup)
@@ -20,6 +20,7 @@ type
     procedure DoAfterDelete(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
+    function Find(const AFieldName, S: string): TList<String>;
     procedure InsertRecordList(AProducersExcelTable: TProducersExcelTable);
     { Public declarations }
   end;
@@ -46,6 +47,32 @@ begin
   // Каскадно удаляем производителей
   qProducers.CascadeDelete(qProducerTypes.OldPKValue,
     qProducers.ProducerTypeID.FieldName, True);
+end;
+
+function TProducersGroup.Find(const AFieldName, S: string): TList<String>;
+var
+  OK: Boolean;
+begin
+  Assert(not AFieldName.IsEmpty);
+  Result := TList<String>.Create();
+
+  // Пытаемся искать среди производителей по какому-то полю
+  if qProducers.LocateByField(AFieldName, S) then
+  begin
+    OK := qProducerTypes.LocateByPK(qProducers.ProducerTypeID.Value);
+    Assert(OK);
+    // запоминаем что надо искать на первом уровне
+    Result.Add(qProducerTypes.ProducerType.AsString);
+    // запоминаем что надо искать на втором уровне
+    Result.Add(S);
+  end
+  else
+    // Пытаемся искать среди типов параметров
+    if qProducerTypes.LocateByField(qProducerTypes.ProducerType.FieldName, S) then
+    begin
+      Result.Add(S);
+    end;
+
 end;
 
 procedure TProducersGroup.InsertRecordList(AProducersExcelTable

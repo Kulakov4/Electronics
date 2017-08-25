@@ -33,7 +33,11 @@ inherited QueryBodies: TQueryBodies
         'VALUES (:NEW_BODY0, :NEW_BODY1, :NEW_BODY2, :NEW_BODY3, :NEW_BOD' +
         'Y4, '
       '  :NEW_BODY5, :NEW_IDBODYKIND);'
-      'SELECT ID'
+      'SELECT ID, '
+      
+        '  Body0 || ifnull(Body1, '#39#39') || ifnull(Body2, '#39#39') || ifnull(Body' +
+        '3, '#39#39') || ifnull(Body4, '#39#39') || ifnull(Body5, '#39#39') Body, '
+      '  BODY0, BODY1, BODY2, BODY3, BODY4, BODY5, IDBODYKIND'
       'FROM BODIES'
       'WHERE ID = LAST_INSERT_AUTOGEN()')
     ModifySQL.Strings = (

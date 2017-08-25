@@ -7,7 +7,7 @@ uses
   System.Generics.Collections, FireDAC.Comp.Client, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
-  CustomExcelTable, SearchFamilyByValue2, SearchCategoryByExternalID;
+  CustomExcelTable, SearchCategoryQuery, SearchFamily;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -16,8 +16,8 @@ type
   private
     FBadSubGroup: TList<String>;
     FGoodSubGroup: TList<String>;
-    FQuerySearchFamilyByValue2: TQuerySearchFamilyByValue2;
-    FQuerySearchCategoryByExternalID: TQuerySearchCategoryByExternalID;
+    FQuerySearchFamily: TQuerySearchFamily;
+    FqSearchCategory: TQuerySearchCategory;
     function GetIDFamily: TField;
     function GetFamilyName: TField;
     function GetSubGroup: TField;
@@ -85,6 +85,8 @@ var
 begin
   CustomExcelTable.Errors.EmptyDataSet;
   CustomExcelTable.EmptyDataSet;
+  CustomExcelTable.Filtered := False;
+  CustomExcelTable.Filter := '';
   AEmptyLines := 0;
   I := 0;
 
@@ -175,23 +177,22 @@ end;
 constructor TComponentsExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FQuerySearchCategoryByExternalID :=
-    TQuerySearchCategoryByExternalID.Create(Self);
-  FQuerySearchFamilyByValue2 := TQuerySearchFamilyByValue2.Create(Self);
+  FqSearchCategory := TQuerySearchCategory.Create(Self);
+  FQuerySearchFamily := TQuerySearchFamily.Create(Self);
   FGoodSubGroup := TList<String>.Create;
   FBadSubGroup := TList<String>.Create;
 end;
 
 function TComponentsExcelTable.CheckComponent: Boolean;
 begin
-  Result := FQuerySearchFamilyByValue2.Search(FamilyName.AsString) = 0;
+  Result := FQuerySearchFamily.SearchByValueSimple(FamilyName.AsString) = 0;
 
   // Если нашли такой компонент
   if not Result then
   begin
     // Запоминаем код родительского компонента
     Edit;
-    IDFamily.Value := FQuerySearchFamilyByValue2.PK.Value;
+    IDFamily.Value := FQuerySearchFamily.PK.Value;
     Post;
 
     MarkAsError(etWarring);
@@ -199,7 +200,7 @@ begin
     Errors.AddWarring(ExcelRow.AsInteger, FamilyName.Index + 1,
       FamilyName.AsString,
       Format('Компонент с таким именем уже занесён в БД в категорию %s',
-      [FQuerySearchFamilyByValue2.SubGroup.AsString]));
+      [FQuerySearchFamily.SubGroup.AsString]));
   end;
 end;
 
@@ -237,16 +238,7 @@ begin
       if (not IsGood) and (not IsBad) then
       begin
         // Ищем категорию компонента по внешнему идентификатору
-        {
-          DM.fdqFindProductCategory.Close;
-          DM.fdqFindProductCategory.ParamByName('vExternalId').AsString := s;
-          DM.fdqFindProductCategory.Open;
-
-          Assert(DM.fdqFindProductCategory.RecordCount <= 1);
-
-          IsGood := DM.fdqFindProductCategory.RecordCount = 1;
-        }
-        IsGood := FQuerySearchCategoryByExternalID.Search(s) = 1;
+        IsGood := FqSearchCategory.SearchByExternalID(s) = 1;
         if IsGood then
         begin
           FGoodSubGroup.Add(s);

@@ -67,10 +67,10 @@ begin
 end;
 
 class procedure TBindDoc.LoadDocBindsFromExcelDocument(const AFileName: string);
-var
-  ADocBindExcelDM: TDocBindExcelDM;
-  AfrmError: TfrmError;
-  OK: Boolean;
+//var
+//  ADocBindExcelDM: TDocBindExcelDM;
+//  AfrmError: TfrmError;
+//  OK: Boolean;
 begin
   Assert(not AFileName.IsEmpty);
 

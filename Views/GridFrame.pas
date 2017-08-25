@@ -359,8 +359,8 @@ end;
 procedure TfrmGrid.CreateColumnsBarButtons;
 begin
   if (cxGridDBBandedTableView.ItemCount > 0) and (FColumnsBarButtons = nil) then
-    FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
-      dxbsColumns, cxGridDBBandedTableView);
+    FColumnsBarButtons := TGVColumnsBarButtons.Create(Self, dxbsColumns,
+      cxGridDBBandedTableView);
 end;
 
 procedure TfrmGrid.CreateFilterForExport(AView,
@@ -575,14 +575,20 @@ end;
 
 procedure TfrmGrid.PutInTheCenterFocusedRecord(AView: TcxGridDBBandedTableView);
 var
+  ATopRecordIndex: Integer;
   Cnt: Integer;
 begin
   Assert(AView <> nil);
   if AView.Controller.FocusedRecordIndex >= 0 then
   begin
     Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
-    AView.Controller.TopRecordIndex := AView.Controller.FocusedRecordIndex -
+
+    // Похоже представление невидимо
+    if Cnt = 0 then Exit;
+
+    ATopRecordIndex := AView.Controller.FocusedRecordIndex -
       Round((Cnt + 1) / 2);
+    AView.Controller.TopRecordIndex := ATopRecordIndex;
   end;
 end;
 

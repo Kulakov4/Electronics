@@ -255,7 +255,7 @@ begin
     for AFileName in AFileNames do
     begin
       S := TPath.GetFileNameWithoutExtension(AFileName);
-      AutomaticLoadErrorTable.LocateOrAppendData(S, '', '', '');
+      AutomaticLoadErrorTable.LocateOrAppendData(S, NULL, '', '', '');
     end;
     AutomaticLoadErrorTable.First;
 

@@ -10,26 +10,21 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, ApplyQueryFrame, Vcl.StdCtrls,
-  SearchComponentCategoryQuery, SearchComponentCategoryQuery2,
-  SearchComponentQuery, SearchFamilyByValue, SearchProductParameterValuesQuery,
-  SearchCategoryBySubGroup, SearchCategoryByID;
+  SearchComponentCategoryQuery, SearchProductParameterValuesQuery,
+  SearchCategoryQuery, SearchFamily;
 
 type
   TQueryBaseFamily = class(TQueryCustomComponents)
   private
-    FQuerySearchCategoryByID: TQuerySearchCategoryByID;
-    FQuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup;
-    FQuerySearchFamilyByValue: TQuerySearchFamilyByValue;
+    FqSearchCategory: TQuerySearchCategory;
+    FqSearchFamily: TQuerySearchFamily;
     FQuerySearchComponentCategory: TQuerySearchComponentCategory;
-    FQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
     procedure DoBeforeOpen(Sender: TObject);
     function GetExternalID: TField;
     function GetCategoryExternalID: string;
-    function GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
-    function GetQuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup;
-    function GetQuerySearchFamilyByValue: TQuerySearchFamilyByValue;
+    function GetqSearchCategory: TQuerySearchCategory;
+    function GetqSearchFamily: TQuerySearchFamily;
     function GetQuerySearchComponentCategory: TQuerySearchComponentCategory;
-    function GetQuerySearchComponentCategory2: TQuerySearchComponentCategory2;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -38,16 +33,10 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
-    property QuerySearchCategoryByID: TQuerySearchCategoryByID
-      read GetQuerySearchCategoryByID;
-    property QuerySearchCategoryBySubGroup: TQuerySearchCategoryBySubGroup
-      read GetQuerySearchCategoryBySubGroup;
-    property QuerySearchFamilyByValue: TQuerySearchFamilyByValue
-      read GetQuerySearchFamilyByValue;
+    property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
+    property qSearchFamily: TQuerySearchFamily read GetqSearchFamily;
     property QuerySearchComponentCategory: TQuerySearchComponentCategory
       read GetQuerySearchComponentCategory;
-    property QuerySearchComponentCategory2: TQuerySearchComponentCategory2
-      read GetQuerySearchComponentCategory2;
   public
     constructor Create(AOwner: TComponent); override;
     property ExternalID: TField read GetExternalID;
@@ -99,8 +88,8 @@ begin
   AValue := ASender.FieldByName(Value.FieldName);
   ASubGroup := ASender.FieldByName(SubGroup.FieldName);
 
-  // Если такого компонента ещё нет
-  if QuerySearchFamilyByValue.Search(AValue.AsString) = 0 then
+  // Если такого семейства ещё нет
+  if qSearchFamily.SearchByValue(AValue.AsString) = 0 then
   begin
     ARH := TRecordHolder.Create(ASender);
     try
@@ -119,10 +108,10 @@ begin
   begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
-    APK.Value := QuerySearchFamilyByValue.PK.Value;
+    APK.Value := qSearchFamily.PK.Value;
 
     // Заполняем пустые поля значениями с сервера
-    ARH := TDBRecord.Fill(ASender, QuerySearchFamilyByValue.FDQuery,
+    ARH := TDBRecord.Fill(ASender, qSearchFamily.FDQuery,
       PKFieldName);
     try
       // Если есть поля, которые нужно обновить
@@ -135,7 +124,7 @@ begin
         if ARH.Find(SubGroup.FieldName) <> nil then
         begin
           ASubGroup.AsString := CombineSubgroup(ASubGroup.AsString,
-            QuerySearchFamilyByValue.SubGroup.AsString)
+            qSearchFamily.SubGroup.AsString)
         end;
 
         // Обрабатываем значения параметров
@@ -231,36 +220,25 @@ begin
 
   Assert(not DetailParameterName.IsEmpty);
 
-  rc := QuerySearchCategoryByID.Search(FDQuery.ParamByName(DetailParameterName)
-    .AsInteger);
+  rc := qSearchCategory.SearchByID(FDQuery.ParamByName(DetailParameterName).AsInteger);
   Assert(rc = 1);
-  Result := QuerySearchCategoryByID.ExternalID.AsString;
+  Result := qSearchCategory.ExternalID.AsString;
 end;
 
-function TQueryBaseFamily.GetQuerySearchCategoryByID: TQuerySearchCategoryByID;
+function TQueryBaseFamily.GetqSearchCategory: TQuerySearchCategory;
 begin
-  if FQuerySearchCategoryByID = nil then
-    FQuerySearchCategoryByID := TQuerySearchCategoryByID.Create(Self);
-  Result := FQuerySearchCategoryByID;
+  if FqSearchCategory = nil then
+    FqSearchCategory := TQuerySearchCategory.Create(Self);
+
+  Result := FqSearchCategory;
 end;
 
-function TQueryBaseFamily.GetQuerySearchCategoryBySubGroup
-  : TQuerySearchCategoryBySubGroup;
+function TQueryBaseFamily.GetqSearchFamily: TQuerySearchFamily;
 begin
-  if FQuerySearchCategoryBySubGroup = nil then
-    FQuerySearchCategoryBySubGroup :=
-      TQuerySearchCategoryBySubGroup.Create(Self);
+  if FqSearchFamily = nil then
+    FqSearchFamily := TQuerySearchFamily.Create(Self);
 
-  Result := FQuerySearchCategoryBySubGroup;
-end;
-
-function TQueryBaseFamily.GetQuerySearchFamilyByValue
-  : TQuerySearchFamilyByValue;
-begin
-  if FQuerySearchFamilyByValue = nil then
-    FQuerySearchFamilyByValue := TQuerySearchFamilyByValue.Create(Self);
-
-  Result := FQuerySearchFamilyByValue;
+  Result := FqSearchFamily;
 end;
 
 function TQueryBaseFamily.GetQuerySearchComponentCategory
@@ -272,37 +250,27 @@ begin
   Result := FQuerySearchComponentCategory;
 end;
 
-function TQueryBaseFamily.GetQuerySearchComponentCategory2
-  : TQuerySearchComponentCategory2;
-begin
-  if FQuerySearchComponentCategory2 = nil then
-    FQuerySearchComponentCategory2 :=
-      TQuerySearchComponentCategory2.Create(Self);
-
-  Result := FQuerySearchComponentCategory2;
-end;
-
 procedure TQueryBaseFamily.UpdateCategory(AIDComponent: Integer;
   const ASubGroup: String);
 var
   rc: Integer;
 begin
   // Сначала удалим компонент из "лишних" категорий
-  QuerySearchComponentCategory2.SearchAndDelete(AIDComponent, ASubGroup);
+  QuerySearchComponentCategory.SearchAndDelete(AIDComponent, ASubGroup);
 
   if not ASubGroup.IsEmpty then
   begin
     // Потом добавим компонент в нужные нам категории
-    rc := QuerySearchCategoryBySubGroup.Search(ASubGroup);
+    rc := qSearchCategory.SearchBySubgroup(ASubGroup);
     Assert(rc > 0);
-    QuerySearchCategoryBySubGroup.FDQuery.First;
-    while not QuerySearchCategoryBySubGroup.FDQuery.Eof do
+    qSearchCategory.FDQuery.First;
+    while not qSearchCategory.FDQuery.Eof do
     begin
       // Если компонент не находится в этой категории то добавляем его в эту категорию
       QuerySearchComponentCategory.LocateOrAddValue(AIDComponent,
-        QuerySearchCategoryBySubGroup.PK.Value);
+        qSearchCategory.PK.Value);
 
-      QuerySearchCategoryBySubGroup.FDQuery.Next;
+      qSearchCategory.FDQuery.Next;
     end;
   end;
 end;

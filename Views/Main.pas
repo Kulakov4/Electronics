@@ -177,19 +177,16 @@ implementation
 
 uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
-  ParametersForm, SettingsController, BodyTypesGridQuery, ReportsForm,
-  ReportQuery, ParametricExcelDataModule,
-  ComponentBodyTypesExcelDataModule, ParametricTableForm, BodyTypesForm,
-  ProjectConst, PathSettingsForm, ImportErrorForm, ErrorForm,
-  cxGridDBBandedTableView, System.IOUtils, SearchMainParameterQuery,
-  ImportProcessForm, SearchDaughterParameterQuery, ProgressInfo,
-  ProgressBarForm, Vcl.FileCtrl, SearchDescriptionsQuery,
-  SearchSubCategoriesQuery, SearchComponentCategoryQuery2, TableWithProgress,
-  GridViewForm, TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
+  ParametersForm, SettingsController, ReportsForm, ReportQuery,
+  ParametricExcelDataModule, ParametricTableForm, BodyTypesForm, ProjectConst,
+  PathSettingsForm, ImportErrorForm, ErrorForm, cxGridDBBandedTableView,
+  System.IOUtils, ImportProcessForm, ProgressInfo, ProgressBarForm,
+  Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm,
+  TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
-  SearchFamilyByID, ProductsBaseQuery, DescriptionsGroupUnit,
-  RecursiveTreeView, RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit,
-  DialogUnit2, LoadFromExcelFileHelper;
+  ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
+  RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
+  LoadFromExcelFileHelper, SearchCategoryQuery;
 
 {$R *.dfm}
 
@@ -288,7 +285,7 @@ var
   AFileName: string;
   AfrmGridView: TfrmGridView;
   AQueryRecursiveTree: TQueryRecursiveTree;
-//  ATreeExcelDM: TTreeExcelDM;
+  // ATreeExcelDM: TTreeExcelDM;
   OK: Boolean;
 begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
@@ -296,31 +293,13 @@ begin
 
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   try
-
+    AQueryRecursiveTree.RefreshQuery;
     TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmError,
       procedure(ASender: TObject)
       begin
         AQueryRecursiveTree.LoadRecords(ASender as TTreeExcelTable);
       end);
-{
-    ATreeExcelDM := TTreeExcelDM.Create(Self);
-    try
-      TfrmProgressBar.Process(ATreeExcelDM,
-        procedure (ASender: TObject)
-        begin
-          ATreeExcelDM.LoadExcelFile(AFileName);
-        end, 'Загрузка категорий из Excel документа', sRows);
 
-      AQueryRecursiveTree.RefreshQuery;
-      TfrmProgressBar.Process(ATreeExcelDM.ExcelTable,
-        procedure (ASender: TObject)
-        begin
-          AQueryRecursiveTree.LoadRecords(ATreeExcelDM.ExcelTable);
-        end, 'Сохранение категорий в БД', sRecords);
-    finally
-      FreeAndNil(ATreeExcelDM);
-    end;
-}
     // Получаем добавленные категории
     AQueryRecursiveTree.HideNotAdded;
     // Если есть категории, которые были добавлены
@@ -704,7 +683,8 @@ begin
       // Привязываем текущий склад к данным
       ProductsFrame.ViewProducts2.ProductGroup := DM.ProductGroup;
       // Привязываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch2.ProductSearchGroup := DM.ProductSearchGroup;
+      ProductsFrame.ViewProductsSearch2.ProductSearchGroup :=
+        DM.ProductSearchGroup;
 
       // ViewStoreHouse.StoreHouseGroup := DM.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM.qProductsSearch;

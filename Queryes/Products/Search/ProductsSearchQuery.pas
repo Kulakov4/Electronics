@@ -10,8 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
-  SearchComponentsByValues, StoreHouseListQuery, NotifyEvents,
-  System.Generics.Collections;
+  StoreHouseListQuery, NotifyEvents, System.Generics.Collections;
 
 type
   TQueryProductsSearch = class(TQueryProductsBase)
@@ -65,8 +64,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.Math, RepositoryDataModule, AbstractSearchByValues,
-  System.StrUtils, StrHelper;
+uses System.Math, RepositoryDataModule, System.StrUtils, StrHelper;
 
 constructor TQueryProductsSearch.Create(AOwner: TComponent);
 begin

@@ -23,6 +23,7 @@ type
     function GetIniFile: TIniFile;
     function GetParametricDataFolder: string;
     function GetLastFolderForExcelFile: string;
+    function GetProducer: String;
     function GetRate: Double;
     procedure SetBodyTypesLandPatternFolder(const Value: string);
     procedure SetBodyTypesOutlineDrawingFolder(const Value: string);
@@ -36,6 +37,7 @@ type
     procedure SetLastFolderForComponentsLoad(const Value: string);
     procedure SetParametricDataFolder(const Value: string);
     procedure SetLastFolderForExcelFile(const Value: string);
+    procedure SetProducer(const Value: String);
     procedure SetRate(const Value: Double);
     // TODO: UpdatePath
     // function UpdatePath(const APath, ANewDBPath: string): string;
@@ -73,6 +75,7 @@ type
       write SetParametricDataFolder;
     property LastFolderForExcelFile: string read GetLastFolderForExcelFile
       write SetLastFolderForExcelFile;
+    property Producer: String read GetProducer write SetProducer;
     property Rate: Double read GetRate write SetRate;
   end;
 
@@ -185,6 +188,11 @@ begin
 
 end;
 
+function TSettings.GetProducer: String;
+begin
+  Result := GetValue('Producer', 'Producer', '');
+end;
+
 function TSettings.GetRate: Double;
 begin
   Result := StrToFloatDef( GetValue('Rate', 'Rate', FloatToStr(DefaultRate)), DefaultRate);
@@ -279,6 +287,14 @@ begin
   if LastFolderForExcelFile <> Value then
   begin
     SetValue('Folder', 'ExcelFileLoadFolder', Value);
+  end;
+end;
+
+procedure TSettings.SetProducer(const Value: String);
+begin
+  if Producer <> Value then
+  begin
+    SetValue('Producer', 'Producer', Value);
   end;
 end;
 

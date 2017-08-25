@@ -29,7 +29,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, HRTimer,
-  DragHelper, dxCore;
+  DragHelper, dxCore, System.Generics.Collections;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 11;
@@ -114,6 +114,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Locate(const AComponentName: string);
     procedure UpdateView; override;
     property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup
       write SetDescriptionsGroup;
@@ -547,6 +548,40 @@ begin
     Result := GetDBBandedTableView(1);
     if (Result <> nil) and (not Result.Focused) then
       Result := nil;
+  end;
+end;
+
+procedure TViewDescriptions.Locate(const AComponentName: string);
+var
+  List: TList<String>;
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
+begin
+  BeginUpdate;
+  // Ищет производителя в гриде
+  List := DescriptionsGroup.Find(clComponentName.DataBinding.FieldName, AComponentName);
+  try
+    // сначала ищем на первом уровне (по названию категории)
+    if (List.Count > 0) and
+      (MainView.DataController.Search.Locate(clComponentType.Index, List[0],
+      True)) then
+    begin
+      // Затем ищем на втором уровне (по наименованию компонента)
+      if List.Count > 1 then
+      begin
+        ARow := GetRow(0) as TcxGridMasterDataRow;
+        ARow.Expand(false);
+        AView := GetDBBandedTableView(1);
+        AView.Focused := True;
+        AView.DataController.Search.Locate(clComponentName.Index, List[1], True);
+        PutInTheCenterFocusedRecord(AView);
+      end
+      else
+        PutInTheCenterFocusedRecord(MainView);
+    end;
+  finally
+    FreeAndNil(List);
+    EndUpdate;
   end;
 end;
 

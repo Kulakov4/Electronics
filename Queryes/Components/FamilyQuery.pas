@@ -10,8 +10,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, Sequence, RepositoryDataModule,
   System.Generics.Collections, ExcelDataModule, SearchComponentCategoryQuery,
-  SearchComponentCategoryQuery2, CustomComponentsQuery, ApplyQueryFrame,
-  SearchComponentQuery, SearchCategoryByID, BaseFamilyQuery;
+  CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery;
 
 type
   TQueryFamily = class(TQueryBaseFamily)

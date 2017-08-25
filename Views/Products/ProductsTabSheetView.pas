@@ -75,6 +75,12 @@ var
 //  qStoreHouseList: TQueryStoreHouseList;
 //  S: string;
 begin
+  if ViewProducts2.ProductGroup.qStoreHouseList.FDQuery.RecordCount = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog('Нет информации о текущем складе.'#13#10'Действие отменено');
+    Exit;
+  end;
+
   // Открываем диалог выбора excel файла из последнего места
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
     Exit;

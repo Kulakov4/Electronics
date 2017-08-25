@@ -10,11 +10,11 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, DocFieldInfo, StoreHouseListQuery,
-  SearchProductParameterValuesQuery, SearchFamilyByID,
-  SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
-  SearchDaughterComponentQuery, System.Generics.Collections,
+  SearchProductParameterValuesQuery, SearchProductQuery,
+  QueryWithDataSourceUnit, CustomComponentsQuery,
+  SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents,
-  SearchComponentGroup;
+  SearchComponentGroup, SearchFamily;
 
 type
   TComponentNameParts = record
@@ -36,8 +36,8 @@ type
     FOnLocate: TNotifyEventsEx;
     FqProducers: TQueryProducers;
     FqSearchComponentGroup: TQuerySearchComponentGroup;
-    FqSearchDaughterComponent: TQuerySearchDaughterComponent;
-    FqSearchFamilyByID: TQuerySearchFamilyByID;
+    FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
+    FqSearchFamily: TQuerySearchFamily;
     FqSearchProduct: TQuerySearchProduct;
     FqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
     FRate: Double;
@@ -62,8 +62,8 @@ type
     function GetProductID: TField;
     function GetqProducers: TQueryProducers;
     function GetqSearchComponentGroup: TQuerySearchComponentGroup;
-    function GetqSearchDaughterComponent: TQuerySearchDaughterComponent;
-    function GetqSearchFamilyByID: TQuerySearchFamilyByID;
+    function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
+    function GetqSearchFamily: TQuerySearchFamily;
     function GetqSearchProduct: TQuerySearchProduct;
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
     function GetRate1: TField;
@@ -89,10 +89,9 @@ type
       DisplayText: Boolean);
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
-    property qSearchDaughterComponent: TQuerySearchDaughterComponent
-      read GetqSearchDaughterComponent;
-    property qSearchFamilyByID: TQuerySearchFamilyByID
-      read GetqSearchFamilyByID;
+    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
+      read GetqSearchComponentOrFamily;
+    property qSearchFamily: TQuerySearchFamily read GetqSearchFamily;
     property qSearchProduct: TQuerySearchProduct read GetqSearchProduct;
     property qSearchStorehouseProduct: TQuerySearchStorehouseProduct
       read GetqSearchStorehouseProduct;
@@ -191,12 +190,12 @@ end;
 procedure TQueryProductsBase.AddProduct(AIDComponentGroup: Integer);
 begin
   Assert(AIDComponentGroup > 0);
-//  FDQuery.DisableControls;
+  // FDQuery.DisableControls;
   TryAppend;
   Value.AsString := 'Новая запись';
   IsGroup.AsInteger := 0;
   IDComponentGroup.AsInteger := AIDComponentGroup;
-//  FDQuery.EnableControls;
+  // FDQuery.EnableControls;
 end;
 
 procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
@@ -263,7 +262,7 @@ procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
 var
   // AFieldHolder: TFieldHolder;
   ARH: TRecordHolder;
-  //ARH2: TRecordHolder;
+  // ARH2: TRecordHolder;
   ARHFamily: TRecordHolder;
   OK: Boolean;
   rc: Integer;
@@ -299,17 +298,17 @@ begin
     OK := qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
-    rc := qSearchDaughterComponent.Search(Value.AsString,
+    rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
       qProducers.Name.AsString);
   end
   else
   begin
     // Ищем в теоретической базе просто по наименованию
-    rc := qSearchDaughterComponent.Search(Value.AsString);
+    rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString);
     if rc > 0 then
     begin
       // Ищем в справочнике такого производителя
-      qProducers.LocateOrAppend(qSearchDaughterComponent.Producer.AsString);
+      qProducers.LocateOrAppend(qSearchComponentOrFamily.Producer.AsString);
       // Заполняем производителя
       FetchFields([IDProducer.FieldName], [qProducers.PK.Value], ARequest,
         AAction, AOptions);
@@ -322,11 +321,11 @@ begin
     if rc > 0 then
     begin
       // Ищем соответствующее семейство компонентов
-      rc := qSearchFamilyByID.Search
-        (qSearchDaughterComponent.ParentProductID.AsInteger);
+      rc := qSearchFamily.SearchByID
+        (qSearchComponentOrFamily.ParentProductID.AsInteger);
       Assert(rc = 1);
 
-      ARHFamily := TRecordHolder.Create(qSearchFamilyByID.FDQuery);
+      ARHFamily := TRecordHolder.Create(qSearchFamily.FDQuery);
       try
         // Обновляем пустые значения
         ARH.UpdateNullValues(ARHFamily);
@@ -726,19 +725,20 @@ begin
   Result := FqSearchComponentGroup;
 end;
 
-function TQueryProductsBase.GetqSearchDaughterComponent
-  : TQuerySearchDaughterComponent;
+function TQueryProductsBase.GetqSearchComponentOrFamily
+  : TQuerySearchComponentOrFamily;
 begin
-  if FqSearchDaughterComponent = nil then
-    FqSearchDaughterComponent := TQuerySearchDaughterComponent.Create(Self);
-  Result := FqSearchDaughterComponent;
+  if FqSearchComponentOrFamily = nil then
+    FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
+
+  Result := FqSearchComponentOrFamily;
 end;
 
-function TQueryProductsBase.GetqSearchFamilyByID: TQuerySearchFamilyByID;
+function TQueryProductsBase.GetqSearchFamily: TQuerySearchFamily;
 begin
-  if FqSearchFamilyByID = nil then
-    FqSearchFamilyByID := TQuerySearchFamilyByID.Create(Self);
-  Result := FqSearchFamilyByID;
+  if FqSearchFamily = nil then
+    FqSearchFamily := TQuerySearchFamily.Create(Self);
+  Result := FqSearchFamily;
 end;
 
 function TQueryProductsBase.GetqSearchProduct: TQuerySearchProduct;
@@ -811,27 +811,27 @@ begin
     OK := qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
-    rc := qSearchDaughterComponent.Search(Value.AsString,
+    rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
       qProducers.Name.AsString);
   end;
   if rc > 0 then
   begin
     // Ищем соответствующее семейство компонентов
-    rc := qSearchFamilyByID.Search
-      (qSearchDaughterComponent.ParentProductID.AsInteger);
+    rc := qSearchFamily.SearchByID
+      (qSearchComponentOrFamily.ParentProductID.AsInteger);
 
   end;
   Result := rc > 0;
 
   if Result then
   begin
-    m := qSearchFamilyByID.CategoryIDList.AsString.Split([',']);
+    m := qSearchFamily.CategoryIDList.AsString.Split([',']);
     Assert(Length(m) > 0);
 
     AIDCategory := String.ToInteger(m[0]);
 
-    LR := TLocateObject.Create(AIDCategory, qSearchFamilyByID.Value.AsString,
-      qSearchDaughterComponent.Value.AsString);
+    LR := TLocateObject.Create(AIDCategory, qSearchFamily.Value.AsString,
+      qSearchComponentOrFamily.Value.AsString);
     try
       OnLocate.CallEventHandlers(LR);
     finally

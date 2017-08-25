@@ -1,10 +1,10 @@
-inherited QuerySearchMainParameter: TQuerySearchMainParameter
+inherited QuerySearchParameter: TQuerySearchParameter
   Width = 149
   ExplicitWidth = 149
   inherited Label1: TLabel
-    Width = 144
-    Caption = 'SearchMainParameter'
-    ExplicitWidth = 144
+    Width = 114
+    Caption = 'SearchParameter'
+    ExplicitWidth = 114
   end
   inherited FDQuery: TFDQuery
     AfterOpen = FDQueryAfterOpen
@@ -12,15 +12,7 @@ inherited QuerySearchMainParameter: TQuerySearchMainParameter
     SQL.Strings = (
       'select *'
       'from Parameters'
-      'where upper(TableName) = upper(:TableName)'
-      'and ParentParameter is null')
-    ParamData = <
-      item
-        Name = 'TABLENAME'
-        DataType = ftString
-        ParamType = ptInput
-        Value = Null
-      end>
+      'where 0=0')
   end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (

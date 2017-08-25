@@ -4,26 +4,26 @@ interface
 
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
-  CustomExcelTable, Data.DB, SearchComponentQuery, System.Generics.Collections,
-  FieldInfoUnit;
+  CustomExcelTable, Data.DB, System.Generics.Collections,
+  FieldInfoUnit, SearchComponentOrFamilyQuery;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
   TParametricExcelTable = class(TCustomExcelTable)
   private
-    FQuerySearchComponent: TQuerySearchComponent;
+    FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetComponentName: TField;
     // TODO: GetIDBodyType
     // function GetIDBodyType: TField;
     function GetIDComponent: TField;
     function GetIDParentComponent: TField;
-    function GetQuerySearchComponent: TQuerySearchComponent;
+    function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
   protected
     function CheckComponent: Boolean;
     procedure CreateFieldDefs; override;
-    property QuerySearchComponent: TQuerySearchComponent
-      read GetQuerySearchComponent;
+    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
+        GetqSearchComponentOrFamily;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>);
       reintroduce;
@@ -74,15 +74,15 @@ end;
 
 function TParametricExcelTable.CheckComponent: Boolean;
 begin
-  Result := QuerySearchComponent.Search(ComponentName.AsString) > 0;
+  Result := qSearchComponentOrFamily.SearchByValue(ComponentName.AsString) > 0;
 
   Edit;
 
   if Result then
   begin
-    IDComponent.AsInteger := QuerySearchComponent.PK.AsInteger;
+    IDComponent.AsInteger := qSearchComponentOrFamily.PK.AsInteger;
     IDParentComponent.AsInteger :=
-      QuerySearchComponent.ParentProductID.AsInteger;
+      qSearchComponentOrFamily.ParentProductID.AsInteger;
   end
   else
   begin
@@ -165,12 +165,13 @@ begin
   Result := FieldByName('IDParentComponent');
 end;
 
-function TParametricExcelTable.GetQuerySearchComponent: TQuerySearchComponent;
+function TParametricExcelTable.GetqSearchComponentOrFamily:
+    TQuerySearchComponentOrFamily;
 begin
-  if FQuerySearchComponent = nil then
-    FQuerySearchComponent := TQuerySearchComponent.Create(Self);
+  if FqSearchComponentOrFamily = nil then
+    FqSearchComponentOrFamily := GetqSearchComponentOrFamily.Create(Self);
 
-  Result := FQuerySearchComponent;
+  Result := FqSearchComponentOrFamily;
 end;
 
 constructor TParametricExcelDM.Create(AOwner: TComponent;

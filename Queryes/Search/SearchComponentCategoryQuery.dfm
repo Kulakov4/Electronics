@@ -4,24 +4,13 @@ inherited QuerySearchComponentCategory: TQuerySearchComponentCategory
     Caption = 'SearchComponentCategory'
     ExplicitWidth = 178
   end
-  inherited FDQuery: TFDQuery
+  object fdqBase: TFDQuery
     SQL.Strings = (
-      'select *'
-      'from productproductcategories'
-      'where ProductID = :ProductID'
-      'and ProductCategoryID = :ProductCategoryID')
-    ParamData = <
-      item
-        Name = 'PRODUCTID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = 0
-      end
-      item
-        Name = 'PRODUCTCATEGORYID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = 0
-      end>
+      'select ppc.*'
+      'from productproductcategories ppc'
+      '--join'
+      'where 0=0')
+    Left = 80
+    Top = 25
   end
 end

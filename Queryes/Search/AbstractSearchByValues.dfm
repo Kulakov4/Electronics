@@ -1,2 +1,0 @@
-inherited QueryAbstractSearchByValues: TQueryAbstractSearchByValues
-end

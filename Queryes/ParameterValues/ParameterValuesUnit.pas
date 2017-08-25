@@ -3,8 +3,7 @@ unit ParameterValuesUnit;
 interface
 
 uses
-  ParametricExcelDataModule, System.Generics.Collections,
-  SearchMainParameterQuery;
+  ParametricExcelDataModule, System.Generics.Collections, SearchParameterQuery;
 
 type
   TParameterValues = class(TObject)
@@ -17,7 +16,7 @@ type
     FProducerParameterID: Integer;
     FImageParameterID: Integer;
     FDescriptionParameterID: Integer;
-    FQuerySearchMainParameter: TQuerySearchMainParameter;
+    FqSearchParameter: TQuerySearchParameter;
     class function GetPackagePinsParameterID: Integer; static;
     class function GetDatasheetParameterID: Integer; static;
     class function GetDiagramParameterID: Integer; static;
@@ -25,10 +24,8 @@ type
     class function GetProducerParameterID: Integer; static;
     class function GetImageParameterID: Integer; static;
     class function GetDescriptionParameterID: Integer; static;
-    class function GetQuerySearchMainParameter
-      : TQuerySearchMainParameter; static;
-    class property QuerySearchMainParameter: TQuerySearchMainParameter
-      read GetQuerySearchMainParameter;
+    class function GetqSearchParameter: TQuerySearchParameter; static;
+    class property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
     class procedure LoadParameters(AExcelTable: TParametricExcelTable); static;
     class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
@@ -49,7 +46,7 @@ implementation
 uses
   System.SysUtils, ParametersForProductQuery, ParametersValueQuery,
   ProgressInfo, System.Classes, FieldInfoUnit, System.Math,
-  ProjectConst, SearchComponentCategoryQuery2, SearchParametersForCategoryQuery,
+  ProjectConst, SearchParametersForCategoryQuery,
   MaxCategoryParameterOrderQuery, IDTempTableQuery;
 
 class function TParameterValues.GetPackagePinsParameterID: Integer;
@@ -58,8 +55,8 @@ begin
   if FPackagePinsParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sPackagePinsParamTableName, True);
-    FPackagePinsParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sPackagePinsParamTableName, True);
+    FPackagePinsParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FPackagePinsParameterID;
@@ -71,8 +68,8 @@ begin
   if FDatasheetParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sDatasheetParamTableName, True);
-    FDatasheetParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sDatasheetParamTableName, True);
+    FDatasheetParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FDatasheetParameterID;
@@ -84,8 +81,8 @@ begin
   if FDiagramParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sDiagramParamTableName, True);
-    FDiagramParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sDiagramParamTableName, True);
+    FDiagramParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FDiagramParameterID;
@@ -97,8 +94,8 @@ begin
   if FDrawingParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sDrawingParamTableName, True);
-    FDrawingParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sDrawingParamTableName, True);
+    FDrawingParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FDrawingParameterID;
@@ -110,8 +107,8 @@ begin
   if FProducerParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sProducerParamTableName, True);
-    FProducerParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sProducerParamTableName, True);
+    FProducerParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FProducerParameterID;
@@ -123,8 +120,8 @@ begin
   if FImageParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sImageParamTableName, True);
-    FImageParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sImageParamTableName, True);
+    FImageParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FImageParameterID;
@@ -136,20 +133,19 @@ begin
   if FDescriptionParameterID = 0 then
   begin
     // »щем параметр либо добавл€ем его
-    QuerySearchMainParameter.SearchOrAppend(sDescriptionParamTableName, True);
-    FDescriptionParameterID := QuerySearchMainParameter.PK.AsInteger;
+    qSearchParameter.SearchMainOrAppend(sDescriptionParamTableName, True);
+    FDescriptionParameterID := qSearchParameter.PK.AsInteger;
   end;
 
   Result := FDescriptionParameterID;
 end;
 
-class function TParameterValues.GetQuerySearchMainParameter
-  : TQuerySearchMainParameter;
+class function TParameterValues.GetqSearchParameter: TQuerySearchParameter;
 begin
-  if FQuerySearchMainParameter = nil then
-    FQuerySearchMainParameter := TQuerySearchMainParameter.Create(nil);
+  if FqSearchParameter = nil then
+    FqSearchParameter := TQuerySearchParameter.Create(nil);
 
-  Result := FQuerySearchMainParameter;
+  Result := FqSearchParameter;
 end;
 
 class procedure TParameterValues.LoadParameters(AExcelTable

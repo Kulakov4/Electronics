@@ -49,10 +49,11 @@ var
   ASQL: string;
 begin
   Assert(AIDCategory > 0);
+
   ASQL := fdqBase.SQL.Text;
   // Раскомментируем в запросе JOIN
-  ASQL := Replace(ASQL, '', '/* ProductCategory');
-  ASQL := Replace(ASQL, '', 'ProductCategory */');
+  ASQL := ASQL.Replace('/* ProductCategory', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('/* ProductCategory */', '', [rfReplaceAll]);
 
   // Формируемзапрос
   FDQuery.SQL.Text := ASQL;

@@ -98,9 +98,12 @@ begin
 end;
 
 procedure TLoad.DoOnTotalReadProgress(ASender: TObject);
+var
+  e: TExcelDMEvent;
 begin
   Assert(FfrmProgressBar <> nil);
-  FfrmProgressBar.UpdateReadStatistic(ASender as TProgressInfo);
+  e := ASender as TExcelDMEvent;
+  FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
 end;
 
 procedure TLoad.LoadAndProcess(const AFileName: string;

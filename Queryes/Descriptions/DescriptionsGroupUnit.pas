@@ -8,7 +8,8 @@ uses
   Vcl.ExtCtrls, DescriptionTypesQuery, DescriptionsQuery,
   FireDAC.Comp.Client, FireDAC.Stan.Intf, ProducersQuery, NotifyEvents,
   DescriptionsExcelDataModule, QueryWithDataSourceUnit, BaseQuery,
-  BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit, OrderQuery;
+  BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit, OrderQuery,
+  System.Generics.Collections;
 
 type
   TDescriptionsGroup = class(TQueryGroup)
@@ -24,6 +25,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
+    function Find(const AFieldName, S: string): TList<String>;
     procedure InsertRecordList(ADescriptionsExcelTable
       : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
@@ -74,6 +76,32 @@ begin
   // Каскадно удаляем производителей
   qDescriptions.CascadeDelete(qDescriptionTypes.OldPKValue,
     qDescriptions.IDComponentType.FieldName, True);
+end;
+
+function TDescriptionsGroup.Find(const AFieldName, S: string): TList<String>;
+var
+  OK: Boolean;
+begin
+  Assert(not AFieldName.IsEmpty);
+  Result := TList<String>.Create();
+
+  // Пытаемся искать среди кратких описаний по какому-то полю
+  if qDescriptions.LocateByField(AFieldName, S) then
+  begin
+    OK := qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.Value);
+    Assert(OK);
+    // запоминаем что надо искать на первом уровне
+    Result.Add(qDescriptionTypes.ComponentType.AsString);
+    // запоминаем что надо искать на втором уровне
+    Result.Add(S);
+  end
+  else
+    // Пытаемся искать среди типов кратких описаний
+    if qDescriptionTypes.LocateByField(qDescriptionTypes.ComponentType.FieldName, S) then
+    begin
+      Result.Add(S);
+    end;
+
 end;
 
 procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable

@@ -9,17 +9,17 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, CustomComponentsQuery, ApplyQueryFrame,
-  SearchDaughterComponentQuery2;
+  SearchComponentOrFamilyQuery;
 
 type
   TQueryBaseComponents = class(TQueryCustomComponents)
   private
     FClone: TFDMemTable;
-    FQuerySearchDaughterComponent2: TQuerySearchDaughterComponent2;
+    FqSearchComponent: TQuerySearchComponentOrFamily;
     procedure DoAfterClose(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    function GetQuerySearchDaughterComponent2: TQuerySearchDaughterComponent2;
+    function GetqSearchComponent: TQuerySearchComponentOrFamily;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -27,8 +27,8 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    property QuerySearchDaughterComponent2: TQuerySearchDaughterComponent2
-      read GetQuerySearchDaughterComponent2;
+    property qSearchComponent: TQuerySearchComponentOrFamily read
+        GetqSearchComponent;
   public
     constructor Create(AOwner: TComponent); override;
     function Exists(AMasterID: Integer): Boolean;
@@ -72,9 +72,8 @@ procedure TQueryBaseComponents.ApplyInsert(ASender: TDataSet;
 var
   ARH: TRecordHolder;
 begin
-
   // Если такого компонента ещё нет
-  if QuerySearchDaughterComponent2.Search
+  if qSearchComponent.SearchComponen
     (ASender.FieldByName(ParentProductID.FieldName).AsInteger,
     ASender.FieldByName(Value.FieldName).AsString) = 0 then
   begin
@@ -92,8 +91,7 @@ begin
   begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
-    ASender.FieldByName(PKFieldName).Value :=
-      QuerySearchDaughterComponent2.PK.Value;
+    ASender.FieldByName(PKFieldName).Value := qSearchComponent.PK.Value;
   end;
 
   Assert(ASender.FieldByName(PKFieldName).AsInteger > 0);
@@ -172,13 +170,12 @@ begin
     Result := False;
 end;
 
-function TQueryBaseComponents.GetQuerySearchDaughterComponent2
-  : TQuerySearchDaughterComponent2;
+function TQueryBaseComponents.GetqSearchComponent:
+    TQuerySearchComponentOrFamily;
 begin
-  if FQuerySearchDaughterComponent2 = nil then
-    FQuerySearchDaughterComponent2 :=
-      TQuerySearchDaughterComponent2.Create(Self);
-  Result := FQuerySearchDaughterComponent2;
+  if FqSearchComponent = nil then
+    FqSearchComponent := TQuerySearchComponentOrFamily.Create(Self);
+  Result := FqSearchComponent;
 end;
 
 end.

@@ -104,7 +104,7 @@ begin
   Result := TList<String>.Create();
 
   // ѕытаемс€ искать среди параметров по какому-то полю
-  if qMainParameters.Locate(AFieldName, S) then
+  if qMainParameters.LocateByField(AFieldName, S) then
   begin
     OK := qParameterTypes.LocateByPK(qMainParameters.IDParameterType.Value);
     Assert(OK);
@@ -115,11 +115,10 @@ begin
   end
   else
     // ѕытаемс€ искать среди типов параметров
-    if qParameterTypes.Locate(S) then
+    if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S) then
     begin
       Result.Add(S);
     end;
-
 end;
 
 procedure TParametersGroup.InsertList(AParametersExcelTable

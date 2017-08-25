@@ -48,7 +48,7 @@ implementation
 
 {$R *.dfm}
 
-uses ProducersQuery, DialogUnit, ProducersGroupUnit;
+uses ProducersQuery, DialogUnit, ProducersGroupUnit, SettingsController;
 
 procedure TfrmProducers.ApplyUpdates;
 begin
@@ -74,6 +74,7 @@ class function TfrmProducers.TakeProducer(var AProducerID: Integer;
   var AProducerName: String): Boolean;
 var
   AfrmProducers: TfrmProducers;
+  ALastProducer: string;
   AProducersGroup: TProducersGroup;
 begin
   Result := False;
@@ -87,6 +88,12 @@ begin
       AfrmProducers.btnOk.ModalResult := mrOk;
 
       AfrmProducers.ViewProducers.ProducersGroup := AProducersGroup;
+
+      // Ищем ранее использованного производтеля
+      ALastProducer := TSettings.Create.Producer;
+      if not ALastProducer.IsEmpty then
+        AfrmProducers.ViewProducers.Locate(ALastProducer);
+
       if AfrmProducers.ShowModal <> mrOk then
         Exit;
     finally
@@ -102,6 +109,9 @@ begin
 
     AProducerID := AProducersGroup.qProducers.PK.AsInteger;
     AProducerName := AProducersGroup.qProducers.Name.AsString;
+
+    // Сохраняем в настройках выбранного производителя
+    TSettings.Create.Producer := AProducerName;
 
     Result := True;
   finally

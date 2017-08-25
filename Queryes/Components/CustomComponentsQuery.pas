@@ -9,9 +9,8 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
-  SearchComponentCategoryQuery, SearchComponentCategoryQuery2,
-  SearchProductParameterValuesQuery, System.Generics.Collections,
-  QueryWithDataSourceUnit;
+  SearchComponentCategoryQuery, SearchProductParameterValuesQuery,
+  System.Generics.Collections, QueryWithDataSourceUnit;
 
 type
   TQueryCustomComponents = class(TQueryWithDataSource)
@@ -83,8 +82,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, SearchMainParameterQuery, ProjectConst,
-  ParameterValuesUnit, StrHelper;
+uses RepositoryDataModule, ProjectConst, ParameterValuesUnit, StrHelper;
 
 constructor TQueryCustomComponents.Create(AOwner: TComponent);
 begin

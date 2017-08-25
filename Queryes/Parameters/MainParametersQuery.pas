@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, DragHelper, System.Generics.Collections,
-  NotifyEvents, QueryWithDataSourceUnit, SearchMainParameterQuery,
+  NotifyEvents, QueryWithDataSourceUnit, SearchParameterQuery,
   ApplyQueryFrame, OrderQuery;
 
 const
@@ -22,7 +22,7 @@ type
     fdqDeleteFromCategoryParams: TFDQuery;
   private
     FProductCategoryIDValue: Integer;
-    FQuerySearchMainParameter: TQuerySearchMainParameter;
+    FqSearchParameter: TQuerySearchParameter;
     FShowDuplicate: Boolean;
     FTableNameFilter: string;
     procedure DoAfterInsert(Sender: TObject);
@@ -32,7 +32,7 @@ type
     function GetChecked: TField;
     function GetIDParameterType: TField;
     function GetIsCustomParameter: TField;
-    function GetQuerySearchMainParameter: TQuerySearchMainParameter;
+    function GetqSearchParameter: TQuerySearchParameter;
     function GetTableName: TField;
     function GetValue: TField;
     procedure SetShowDuplicate(const Value: Boolean);
@@ -46,12 +46,10 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     function GetOrd: TField; override;
-    property QuerySearchMainParameter: TQuerySearchMainParameter
-      read GetQuerySearchMainParameter;
+    property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
     constructor Create(AOwner: TComponent); override;
     function GetCheckedPKValues: string;
-    function Locate(const AFieldName, AValue: string): Boolean;
     function Lookup(AValue: string): Integer;
     property Checked: TField read GetChecked;
     property IDParameterType: TField read GetIDParameterType;
@@ -147,14 +145,14 @@ begin
   RH := TRecordHolder.Create(ASender);
   try
     // Ищем параметр "по умолчанию" с таким-же табличным именем
-    i := QuerySearchMainParameter.Search(ATableName.AsString, True);
+    i := qSearchParameter.SearchMain(ATableName.AsString, True);
     // Если нашли и с другим кодом
-    if (i > 0) and (AID.AsInteger <> QuerySearchMainParameter.PK.AsInteger) then
+    if (i > 0) and (AID.AsInteger <> qSearchParameter.PK.AsInteger) then
     begin
       // Копируем поля в буфер кроме IsCustomParameter
       RH.Attach(ASender, IsCustomParameter.FieldName);
 
-      RH2 := TRecordHolder.Create(QuerySearchMainParameter.FDQuery);
+      RH2 := TRecordHolder.Create(qSearchParameter.FDQuery);
       try
         // Заполняем пустые поля
         RH.UpdateNullValues(RH2);
@@ -162,7 +160,7 @@ begin
         FreeAndNil(RH2);
       end;
       // Заполняем идентификатор той записи, которую будем редактировать
-      RH.Field[AID.FieldName] := QuerySearchMainParameter.PK.Value;
+      RH.Field[AID.FieldName] := qSearchParameter.PK.Value;
       // Обновляем имеющуюся запись в БД
       ParametersApplyQuery.UpdateRecord(RH);
       // Обновляем вставленную запись на клиенте
@@ -205,9 +203,9 @@ begin
   RH := TRecordHolder.Create();
   try
     // Ищем параметр "по умолчанию" с таким-же табличным именем
-    i := QuerySearchMainParameter.Search(ATableName.AsString, True);
+    i := qSearchParameter.SearchMain(ATableName.AsString, True);
     // Если нашли и с другим кодом
-    if (i > 0) and (AID.AsInteger <> QuerySearchMainParameter.PK.AsInteger) then
+    if (i > 0) and (AID.AsInteger <> qSearchParameter.PK.AsInteger) then
     begin
       // Будем копировать из изменившейся записи в имеющуюся
       // Копируем поля в буфер
@@ -215,17 +213,17 @@ begin
         IsCustomParameter.FieldName]));
       if RH.Count > 0 then
       begin
-        QuerySearchMainParameter.TryEdit;
+        qSearchParameter.TryEdit;
         // Меняем поля
-        RH.Put(QuerySearchMainParameter.FDQuery);
-        QuerySearchMainParameter.TryPost;
+        RH.Put(qSearchParameter.FDQuery);
+        qSearchParameter.TryPost;
       end;
 
       // Удаляем ту запись, которую только-что редактировали на клиенте
       ParametersApplyQuery.DeleteRecord(AID.AsInteger);
 
       // Меняем идентификатор той записи, что сейчас на клиенте
-      AID.Value := QuerySearchMainParameter.PK.Value;
+      AID.Value := qSearchParameter.PK.Value;
       // Помечаем, что мы имеем дело с параметром "по умолчанию"
       AIsCustomParameter.AsBoolean := True;
       // Заплатка.
@@ -333,15 +331,14 @@ begin
   Result := Field('Order');
 end;
 
-function TQueryMainParameters.GetQuerySearchMainParameter
-  : TQuerySearchMainParameter;
+function TQueryMainParameters.GetqSearchParameter: TQuerySearchParameter;
 begin
-  if FQuerySearchMainParameter = nil then
+  if FqSearchParameter = nil then
   begin
-    FQuerySearchMainParameter := TQuerySearchMainParameter.Create(Self);
+    FqSearchParameter := TQuerySearchParameter.Create(Self);
   end;
 
-  Result := FQuerySearchMainParameter;
+  Result := FqSearchParameter;
 end;
 
 function TQueryMainParameters.GetTableName: TField;
@@ -352,13 +349,6 @@ end;
 function TQueryMainParameters.GetValue: TField;
 begin
   Result := Field('Value');
-end;
-
-function TQueryMainParameters.Locate(const AFieldName, AValue: string): Boolean;
-begin
-  Assert(not AFieldName.IsEmpty);
-  Result := FDQuery.LocateEx(AFieldName, AValue,
-    [lxoCaseInsensitive, lxoPartialKey]);
 end;
 
 function TQueryMainParameters.Lookup(AValue: string): Integer;
@@ -384,8 +374,8 @@ begin
     ASQL := fdqBase.SQL.Text;
     if FShowDuplicate then
     begin
-      ASQL := Replace(ASQL, '', '/* ShowDuplicate');
-      ASQL := Replace(ASQL, '', 'ShowDuplicate */');
+      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
     end;
 
     FDQuery.Close;
