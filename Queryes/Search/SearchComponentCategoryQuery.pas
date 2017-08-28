@@ -82,7 +82,7 @@ begin
   Assert(AIDCategory > 0);
 
   ACondition := 'ppc.ProductID = :ProductID and ppc.ProductCategoryID = :ProductCategoryID';
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
+  FDQuery.SQL.Text := fdqBase.SQL.Text.Replace('0=0', ACondition);
   SetParamType('ProductID');
   SetParamType('ProductCategoryID');
 

@@ -113,8 +113,8 @@ begin
   Assert(AOrder >= 0);
 
   // Формируем SQL запрос с участием временной таблицы
-  FDQuery.SQL.Text := Replace(fdqSelect.SQL.Text, ATempTableName,
-    '--temp_table_name');
+  FDQuery.SQL.Text := fdqSelect.SQL.Text.Replace('--temp_table_name',
+    ATempTableName);
 
   // Копируем параметры
   FDQuery.Params.Assign(fdqSelect.Params);

@@ -53,7 +53,7 @@ begin
   ASQL := fdqBase.SQL.Text;
   // Раскомментируем в запросе JOIN
   ASQL := ASQL.Replace('/* ProductCategory', '', [rfReplaceAll]);
-  ASQL := ASQL.Replace('/* ProductCategory */', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ProductCategory */', '', [rfReplaceAll]);
 
   // Формируемзапрос
   FDQuery.SQL.Text := ASQL;
