@@ -53,6 +53,7 @@ begin
   FDQuery.Append;
   Value.AsString := AValue;
   ParentParameter.AsInteger := AParentParameter;
+  IsCustomParameter.AsBoolean := False;
   FDQuery.Post;
 end;
 

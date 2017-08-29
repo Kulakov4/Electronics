@@ -183,7 +183,8 @@ uses
   LoadFromExcelFileHelper in 'Helpers\LoadFromExcelFileHelper.pas',
   CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
   SearchProductDescriptionQuery in 'Queryes\Search\SearchProductDescriptionQuery.pas' {QuerySearchProductDescription: TFrame},
-  SearchCategoryQuery in 'Queryes\Search\SearchCategoryQuery.pas' {QuerySearchCategory: TFrame};
+  SearchCategoryQuery in 'Queryes\Search\SearchCategoryQuery.pas' {QuerySearchCategory: TFrame},
+  ProgressBarForm3 in 'Views\ProgressBar\ProgressBarForm3.pas' {frmProgressBar3};
 
 {$R *.res}
 

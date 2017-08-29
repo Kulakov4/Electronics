@@ -69,13 +69,13 @@ begin
   S := S.Replace('/* Producer', '', [rfReplaceAll]);
   S := S.Replace('Producer */', '', [rfReplaceAll]);
   S := Replace(S, 'pv.Value = :Producer', '1=1');
-  SetParamType('ProducerParameterID');
-  SetParamType('Producer', ptInput, ftString);
-
   // Меняем условие
   ACondition := 'upper(p.Value) = upper(:Value)';
+
   FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
   SetParamType('Value', ptInput, ftString);
+  SetParamType('ProducerParameterID');
+  SetParamType('Producer', ptInput, ftString);
 
   // Ищем
   Result := Search(['Value', 'ProducerParameterID', 'Producer'],
@@ -94,11 +94,11 @@ begin
   S := fdqBase.SQL.Text;
   S := S.Replace('/* Producer', '', [rfReplaceAll]);
   S := S.Replace('Producer */', '', [rfReplaceAll]);
-  SetParamType('ProducerParameterID');
-
   // Меняем условие
   ACondition := 'upper(p.Value) = upper(:Value)';
   FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
+
+  SetParamType('ProducerParameterID');
   SetParamType('Value', ptInput, ftString);
 
   // Ищем

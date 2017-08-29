@@ -664,7 +664,11 @@ inherited ViewProductsBase2: TViewProductsBase2
       Visible = ivAlways
       OnChange = cxbeiRateChange
       ShowCaption = True
-      PropertiesClassName = 'TcxCalcEditProperties'
+      PropertiesClassName = 'TcxMaskEditProperties'
+      Properties.BeepOnError = True
+      Properties.MaskKind = emkRegExpr
+      Properties.EditMask = '(\d+\,?\d?\d?)'
+      Properties.ValidateOnEnter = False
     end
   end
   inherited ActionList: TActionList

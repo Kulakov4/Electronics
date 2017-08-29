@@ -28,7 +28,8 @@ uses
   ComponentsView, cxGridLevel, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxClasses, cxGridCustomView, cxGrid, cxPC,
   dxSkinsdxBarPainter, dxBar, System.Actions, Vcl.ActnList, FieldInfoUnit,
-  System.Generics.Collections, CustomErrorTable;
+  System.Generics.Collections, CustomErrorTable, ExcelDataModule,
+  ProgressBarForm3, ProgressInfo;
 
 type
   TComponentsFrame = class(TFrame)
@@ -84,8 +85,14 @@ type
     procedure cxtsCategoryParametersShow(Sender: TObject);
     procedure cxtsComponentsSearchShow(Sender: TObject);
   private
+    FfrmProgressBar: TfrmProgressBar3;
+    FWriteProgress: TTotalProgress;
+    procedure DoAfterLoadSheet(ASender: TObject);
+    procedure DoOnTotalReadProgress(ASender: TObject);
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TList<TFieldInfo>): Boolean;
+    procedure TryUpdateWrite0Statistic(API: TProgressInfo);
+    procedure TryUpdateWriteStatistic(API: TProgressInfo);
     { Private declarations }
   public
     { Public declarations }
@@ -112,9 +119,9 @@ implementation
 uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
   System.IOUtils, TreeListQuery, ErrorForm, ParametricExcelDataModule,
   ProgressBarForm, ProjectConst, CustomExcelTable, ParameterValuesUnit,
-  ExcelDataModule, GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client,
-  AllFamilyQuery, AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm,
-  BindDocUnit, SearchParameterQuery;
+  GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client, AllFamilyQuery,
+  AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm, BindDocUnit,
+  SearchParameterQuery, NotifyEvents, CustomErrorForm;
 
 procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);
 var
@@ -297,48 +304,19 @@ begin
       Exit;
 
     AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo);
+    FWriteProgress := TTotalProgress.Create;
+    FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try
-      // Загружаем данные из Excel файла
-      TfrmProgressBar.Process(AParametricExcelDM,
-        procedure(ASender: TObject)
-        begin
-          AParametricExcelDM.LoadExcelFile2(AFileName);
-        end, 'Загрузка параметрических данных', sRows);
+      TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
+        DoAfterLoadSheet);
+      TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
+        DoOnTotalReadProgress);
 
-      OK := AParametricExcelDM.ExcelTable.Errors.RecordCount = 0;
-      // Если в ходе загрузки данных произошли ошибки (компонент не найден)
-      if not OK then
-      begin
-        AfrmError := TfrmError.Create(Self);
-        try
-          AfrmError.ErrorTable := AParametricExcelDM.ExcelTable.Errors;
-          // Показываем ошибки
-          OK := AfrmError.ShowModal = mrOk;
-          AParametricExcelDM.ExcelTable.ExcludeErrors(etError);
-        finally
-          FreeAndNil(AfrmError);
-        end;
-      end;
-
-      if OK then
-      begin
-        // Сохраняем данные в БД
-        TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure(ASender: TObject)
-          begin
-            TParameterValues.LoadParameters(AParametricExcelDM.ExcelTable);
-          end, 'Добавление параметров в категорию', sParameters);
-
-        TfrmProgressBar.Process(AParametricExcelDM.ExcelTable,
-          procedure(ASender: TObject)
-          begin
-            TParameterValues.LoadParameterValues
-              (AParametricExcelDM.ExcelTable, False);
-          end, 'Сохранение параметрических данных в БД', sRecords);
-      end;
-
+      AParametricExcelDM.LoadExcelFile2(AFileName);
     finally
       FreeAndNil(AParametricExcelDM);
+      FreeAndNil(FWriteProgress);
+      FreeAndNil(FfrmProgressBar);
     end;
   finally
     FreeAndNil(AFieldsInfo);
@@ -370,7 +348,7 @@ begin
 end;
 
 procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
-NewPage: TcxTabSheet; var AllowChange: Boolean);
+  NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
   // если переходим на вкладку "Параметрическая таблица"
   if (cxpcComponents.ActivePage <> cxtsParametricTable) and
@@ -402,6 +380,104 @@ end;
 procedure TComponentsFrame.cxtsComponentsSearchShow(Sender: TObject);
 begin
   ViewComponentsSearch.ApplyBestFitEx;
+end;
+
+procedure TComponentsFrame.DoAfterLoadSheet(ASender: TObject);
+var
+  AfrmError: TfrmCustomError;
+  e: TExcelDMEvent;
+  OK: Boolean;
+begin
+  e := ASender as TExcelDMEvent;
+
+  // Надо обновить прогресс записи
+  if FWriteProgress.PIList.Count = 0 then
+    FWriteProgress.Assign(e.TotalProgress);
+
+  OK := e.ExcelTable.Errors.RecordCount = 0;
+  // Если в ходе загрузки данных произошли ошибки (компонент не найден)
+  if not OK then
+  begin
+    FfrmProgressBar.Hide;
+    AfrmError := TfrmError.Create(nil);
+    try
+      AfrmError.ErrorTable := e.ExcelTable.Errors;
+      // Показываем ошибки
+      OK := AfrmError.ShowModal = mrOk;
+      if OK then
+      begin
+        if AfrmError.ContinueType = ctSkip then
+          // Убираем записи с ошибками и предупреждениями
+          e.ExcelTable.ExcludeErrors(etWarring)
+        else
+          // Убираем записи с ошибками
+          e.ExcelTable.ExcludeErrors(etError);
+      end;
+    finally
+      FreeAndNil(AfrmError);
+    end;
+  end;
+
+  // Надо ли останавливать загрузку остальных листов
+  e.Terminate := not OK;
+
+  if not OK then
+    Exit;
+
+  FfrmProgressBar.Show;
+
+  // Перед записью первого листа создадим все необходимые параметры
+  if e.SheetIndex = 1 then
+  begin
+
+    // 1 Добавляем параметры в категорию
+    e.ExcelTable.Process(
+      procedure(ASender: TObject)
+      begin
+        TParameterValues.LoadParameters(e.ExcelTable as TParametricExcelTable);
+      end,
+
+    // Обработчик события
+      procedure(ASender: TObject)
+      Var
+        API: TProgressInfo;
+      begin
+        API := ASender as TProgressInfo;
+        TryUpdateWrite0Statistic(API);
+      end);
+  end;
+
+  // 2 Сохраняем значения параметров
+  e.ExcelTable.Process(
+    procedure(ASender: TObject)
+    begin
+      TParameterValues.LoadParameterValues
+        (e.ExcelTable as TParametricExcelTable, False);
+    end,
+
+  // Обработчик события
+    procedure(ASender: TObject)
+    Var
+      API: TProgressInfo;
+    begin
+      API := ASender as TProgressInfo;
+      // Запоминаем прогресс записи листа
+      FWriteProgress.PIList[e.SheetIndex - 1].Assign(API);
+      // Обновляем общий прогресс записи
+      FWriteProgress.UpdateTotalProgress;
+
+      TryUpdateWriteStatistic(FWriteProgress.TotalProgress);
+    end);
+
+end;
+
+procedure TComponentsFrame.DoOnTotalReadProgress(ASender: TObject);
+var
+  e: TExcelDMEvent;
+begin
+  Assert(FfrmProgressBar <> nil);
+  e := ASender as TExcelDMEvent;
+  FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
 end;
 
 function TComponentsFrame.LoadExcelFileHeader(var AFileName: String;
@@ -442,8 +518,8 @@ begin
     try
       // Загружаем описания полей Excel файла
       ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
-      qSearchParameter := TQuerySearchParameter.Create(Self);
-      qSearchDaughterParameter := TQuerySearchParameter.Create(Self);
+      qSearchParameter := TQuerySearchParameter.Create(nil);
+      qSearchDaughterParameter := TQuerySearchParameter.Create(nil);
       try
         I := 0;
 
@@ -487,7 +563,8 @@ begin
                       // Если такого дочернего параметра мы не нашли
                       if rc = 0 then
                       begin
-                        qSearchDaughterParameter.AppendDaughter(AStringTreeNode2.value);
+                        qSearchDaughterParameter.AppendDaughter
+                          (AStringTreeNode2.value);
                       end;
                       // Запоминаем описание поля связанного с подпараметром
                       AFieldNames.Add
@@ -560,6 +637,22 @@ begin
     FreeAndNil(AParametricErrorTable)
   end;
   Result := OK;
+end;
+
+procedure TComponentsFrame.TryUpdateWrite0Statistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем общий прогресс записи
+    FfrmProgressBar.UpdateWriteStatistic0(API);
+end;
+
+procedure TComponentsFrame.TryUpdateWriteStatistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем общий прогресс записи
+    FfrmProgressBar.UpdateWriteStatistic(API);
 end;
 
 constructor TParametricErrorTable.Create(AOwner: TComponent);

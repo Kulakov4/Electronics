@@ -513,7 +513,7 @@ var
   AStringNode: TStringTreeNode;
 begin
   InternalLoadExcelFile(AFileName);
-  ConnectToSheet();
+  ConnectToSheet(1);
 
   // Создали дерево
   Result := TStringTreeNode.Create;

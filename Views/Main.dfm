@@ -50,10 +50,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -298,7 +294,26 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsCategoryParameters: TcxTabSheet
+            ExplicitTop = 27
+            ExplicitWidth = 918
+            ExplicitHeight = 474
             inherited ViewCategoryParameters: TViewCategoryParameters
+              Width = 918
+              Height = 474
+              ExplicitWidth = 918
+              ExplicitHeight = 474
+              inherited cxGrid: TcxGrid
+                Width = 918
+                Height = 427
+                ExplicitWidth = 918
+                ExplicitHeight = 427
+              end
+              inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
+                ExplicitTop = 455
+                ExplicitWidth = 918
+              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0

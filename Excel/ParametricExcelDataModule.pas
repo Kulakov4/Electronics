@@ -169,7 +169,7 @@ function TParametricExcelTable.GetqSearchComponentOrFamily:
     TQuerySearchComponentOrFamily;
 begin
   if FqSearchComponentOrFamily = nil then
-    FqSearchComponentOrFamily := GetqSearchComponentOrFamily.Create(Self);
+    FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
 
   Result := FqSearchComponentOrFamily;
 end;

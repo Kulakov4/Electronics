@@ -55,7 +55,7 @@ begin
   ASQL := ASQL.Replace('/* ProductCategory', '', [rfReplaceAll]);
   ASQL := ASQL.Replace('ProductCategory */', '', [rfReplaceAll]);
 
-  // Формируемзапрос
+  // Формируем запрос
   FDQuery.SQL.Text := ASQL;
 
   SetParamType('ProductCategoryId');
