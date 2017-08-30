@@ -312,6 +312,7 @@ begin
       TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
         DoOnTotalReadProgress);
 
+      FfrmProgressBar.Show;
       AParametricExcelDM.LoadExcelFile2(AFileName);
     finally
       FreeAndNil(AParametricExcelDM);
@@ -497,9 +498,14 @@ var
   OK: Boolean;
   rc: Integer;
   AFieldNames: TList<String>;
+  FamilyNameCoumn: string;
+
 begin
   Result := False;
   Assert(AFieldsInfo <> nil);
+
+  // Варианты того как может называться колонка с наименованием компонентов
+  FamilyNameCoumn := ';PART;PART NUMBER;';
 
   AFileName := TDialog.Create.OpenExcelFile
     (TSettings.Create.ParametricDataFolder);
@@ -529,8 +535,8 @@ begin
           for AStringTreeNode in ARootTreeNode.Childs do
           begin
             AFieldNames.Clear;
-            nf := AStringTreeNode.value.ToUpper = 'Part'.ToUpper;
 
+            nf := FamilyNameCoumn.IndexOf(';'+AStringTreeNode.value.ToUpper+';') >= 0;
             if not nf then
             begin
               // Нужно найти такой параметр
