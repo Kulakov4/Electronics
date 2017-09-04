@@ -591,7 +591,6 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var
   OK: Boolean;
 begin
-//  Application.MessageBox('2', 'Отладка');
   cxpcRight.Properties.HideTabs := True;
   cxpcLeft.ActivePage := cxtsComponents;
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
@@ -600,12 +599,10 @@ begin
   // Создаём модуль репозитория
   if DMRepository = nil then
     DMRepository := TDMRepository.Create(Self);
-  Application.MessageBox('3', 'Отладка');
   Assert(not DMRepository.dbConnection.Connected);
   Assert(DM2 = nil);
   // Сами создаём модуль данных
   DM2 := TDM2.Create(Self);
-  Application.MessageBox('20', 'Отладка');
 
   Assert(not DMRepository.dbConnection.Connected);
 
@@ -618,7 +615,6 @@ begin
 
   // Проверяем что путь до базы данных корректный
   OK := CheckDataBasePath;
-  Application.MessageBox('21', 'Отладка');
   if OK then
   begin
     // Пока ещё соединение с БД должно быть закрыто
