@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{2F2257B6-8C50-4F46-B327-F2B276EFFB56}</ProjectGuid>
+        <ProjectGuid>{116F3FC0-D0F6-41C4-9392-C45257300375}</ProjectGuid>
         <ProjectVersion>18.2</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <MainSource>Database.dpr</MainSource>
@@ -39,33 +39,38 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <SanitizedProjectName>Database</SanitizedProjectName>
-        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
-        <DCC_ExeOutput>C:\Public\Database\</DCC_ExeOutput>
+        <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_E>false</DCC_E>
         <DCC_N>false</DCC_N>
         <DCC_S>false</DCC_S>
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
+        <DCC_UsePackage>RESTBackendComponents;CloudService;soaprtl;soapmidas;RESTComponents;emsclientfiredac;FireDACIBDriver;emsclient;FireDACCommon;soapserver;FireDACCommonDriver;inet;FireDAC;FireDACSqliteDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+        <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
+        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
+        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+        <SanitizedProjectName>Database</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_UsePackage>DBXSqliteDriver;dxPSPrVwRibbonRS25;dxRibbonCustomizationFormRS25;DBXDb2Driver;dxSkinOffice2007PinkRS25;dxSkinMcSkinRS25;vclactnband;vclFireDAC;cxExportRS25;dxHttpIndyRequestRS25;tethering;dxPScxCommonRS25;FireDACADSDriver;cxPivotGridOLAPRS25;FireDACMSSQLDriver;cxSchedulerGridRS25;vcltouch;dxSkinDarkRoomRS25;dxSkinDarkSideRS25;vcldb;Intraweb;svn;dxGaugeControlRS25;cxLibraryRS25;dxSkinOffice2007SilverRS25;dxSkinscxSchedulerPainterRS25;dxSkinBlackRS25;vclib;dxSkinOffice2007BlueRS25;dxSkinOffice2007BlackRS25;FireDACDBXDriver;dxSkinVS2010RS25;vclx;dxSkinFoggyRS25;dxSpreadSheetConditionalFormattingDialogsRS25;dxSkinSevenRS25;dxSkinSpringTimeRS25;dxTileControlRS25;dxMapControlRS25;dxPDFViewerRS25;dxDockingRS25;VCLRESTComponents;dxSkinsdxNavBarPainterRS25;cxPageControlRS25;dxSkinLilianRS25;dxPSLnksRS25;dxWizardControlRS25;dxRichEditControlRS25;vclie;fs25;bindengine;dxFireDACServerModeRS25;FireDACMySQLDriver;dxSkinOffice2013LightGrayRS25;dxSkinMetropolisRS25;DataSnapClient;dxSkinOffice2016DarkRS25;bindcompdbx;dxSkinBlueprintRS25;dxSkinStardustRS25;DBXSybaseASEDriver;IndyIPServer;dxPSdxLCLnkRS25;IndySystem;dxSkinOffice2007GreenRS25;dsnapcon;dxLayoutControlRS25;dxPSRichEditControlLnkRS25;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;fsADO25;dxdbtrRS25;dxPScxTLLnkRS25;emshosting;dxSpreadSheetRS25;dxSkinVisualStudio2013LightRS25;RtmRxDB320;frxADO25;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxGridRS25;dxSkinTheAsphaltWorldRS25;DbxCommonDriver;dxPScxSchedulerLnkRS25;dxorgcRS25;office2010rt;dxSkinHighContrastRS25;xmlrtl;DataSnapNativeClient;fmxobj;frx25;dxPScxGridLnkRS25;rtl;DbxClientDriver;DBXSybaseASADriver;dxPSCoreRS25;dxmdsRS25;fsDB25;dxSkinOffice2016ColorfulRS25;appanalytics;IndyIPClient;bindcompvcl;dxSkinscxPCPainterRS25;dxThemeRS25;TeeUI;VclSmp;FireDACODBCDriver;DataSnapIndy10ServerTransport;DataSnapProviderClient;frxIBX25;FireDACMongoDBDriver;cxVerticalGridRS25;dxtrmdRS25;dxADOServerModeRS25;dxSkinPumpkinRS25;DataSnapServerMidas;frxcs25;dxCoreRS25;cxSchedulerTreeBrowserRS25;DBXInterBaseDriver;dxSkinValentineRS25;DclRxDB320;dxPSTeeChartRS25;DataSnapFireDAC;svnui;dxSkinOffice2010BlueRS25;dxSkinMoneyTwinsRS25;frxe25;dxSkinSilverRS25;DBXMSSQLDriver;dxPSdxFCLnkRS25;DatasnapConnectorsFreePascal;dxSkinOffice2013WhiteRS25;bindcompfmx;DBXOracleDriver;fsIBX25;inetdb;dxOfficeCoreRS25;FmxTeeUI;emsedge;fmx;fmxdae;frxDB25;dxTabbedMDIRS25;dxBarDBNavRS25;dxSkinBlueRS25;dxPScxPivotGridLnkRS25;frxTee25;dxSkinDevExpressDarkStyleRS25;dbexpress;IndyCore;dxFlowChartRS25;dxSkinsdxDLPainterRS25;dsnap;DataSnapCommon;fsTee25;dxBarRS25;dxPSDBTeeChartRS25;dxSkinLiquidSkyRS25;dxdborRS25;DataSnapConnectors;dxPScxExtCommonRS25;cxPivotGridRS25;dxPSdxSpreadSheetLnkRS25;dxNavBarRS25;cxSchedulerRibbonStyleEventEditorRS25;dxSkinCoffeeRS25;FireDACOracleDriver;DBXMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;dxSkinOffice2010SilverRS25;cxTreeListRS25;dxSkinsdxBarPainterRS25;IndyIPCommon;dxSkinLondonLiquidSkyRS25;vcl;dxPScxVGridLnkRS25;dxBarExtItemsRS25;dxSkinsCoreRS25;dxComnRS25;FireDACDb2Driver;dxSkinWhiteprintRS25;dxPSdxDBTVLnkRS25;dxSkinVisualStudio2013BlueRS25;dxSkinGlassOceansRS25;dxSkinMetropolisDarkRS25;dxSkinOffice2013DarkGrayRS25;dxSkinSharpPlusRS25;TeeDB;dxSkinCaramelRS25;dxServerModeRS25;dxPScxPCProdRS25;FireDACPgDriver;ibmonitor;FireDACASADriver;cxEditorsRS25;dxSkiniMaginaryRS25;ibxpress;Tee;DataSnapServer;ibxbindings;dxPsPrVwAdvRS25;vclwinx;FireDACDSDriver;dxSkinSevenClassicRS25;cxDataRS25;cxTreeListdxBarPopupMenuRS25;CustomIPTransport;vcldsnap;dxPSdxOCLnkRS25;dxSkinSharpRS25;bindcomp;tb2kdsgn_d320;DBXInformixDriver;cxPivotGridChartRS25;cxSchedulerRS25;dxBarExtDBItemsRS25;frxDBX25;dxSkinOffice2010BlackRS25;dxSkinVisualStudio2013DarkRS25;dxDBXServerModeRS25;dxSkinDevExpressStyleRS25;dxGDIPlusRS25;dxPSdxGaugeControlLnkRS25;dxSkinsdxRibbonPainterRS25;dbxcds;adortl;dxPSdxDBOCLnkRS25;dxRibbonRS25;dsnapxml;dxSpellCheckerRS25;dbrtl;inetdbxpress;IndyProtocols;dxSkinSummer2008RS25;dxPSdxMapControlLnkRS25;dxSkinXmas2008BlueRS25;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <DCC_UsePackage>dxBarRS22;dxSkinsdxRibbonPainterRS22;dxSkinOffice2010BlackRS22;dxRibbonCustomizationFormRS22;FireDACPgDriver;dxGaugeControlRS22;office2010rt;dxPScxVGridLnkRS22;DBXInterBaseDriver;DataSnapServer;DataSnapCommon;dxWizardControlRS22;DbxCommonDriver;vclimg;fs22;dbxcds;dxServerModeRS22;DatasnapConnectorsFreePascal;frxcs22;appanalytics;dxHttpIndyRequestRS22;vcldb;fsDB22;dxSkinDarkRoomRS22;dxSkinSilverRS22;dxGDIPlusRS22;CustomIPTransport;dxSkinOffice2010SilverRS22;tb2kdsgn_d21;dsnap;IndyIPServer;IndyCore;dxSkinSummer2008RS22;CloudService;dxSkinLondonLiquidSkyRS22;FmxTeeUI;FireDACIBDriver;dxPScxPivotGridLnkRS22;dxComnRS22;cxPivotGridChartRS22;dsnapxml;dxPScxPCProdRS22;dxSpellCheckerRS22;FireDACDb2Driver;dxPScxGridLnkRS22;dxSkinVS2010RS22;dxorgcRS22;dxBarExtItemsRS22;dxRibbonRS22;dxSkinVisualStudio2013DarkRS22;dxSkinsdxBarPainterRS22;dxPSdxGaugeControlLnkRS22;dxCoreRS22;cxVerticalGridRS22;frx22;bindcompfmx;dxSkinStardustRS22;dxSkinSevenClassicRS22;dxSkinsCoreRS22;dxSpreadSheetRS22;FireDACODBCDriver;RESTBackendComponents;cxSchedulerRS22;dbrtl;dxSkinDevExpressStyleRS22;FireDACCommon;bindcomp;inetdb;cxExportRS22;dxPSDBTeeChartRS22;dxSkinOffice2007BlackRS22;dxSkinXmas2008BlueRS22;dxSkinCoffeeRS22;DBXOdbcDriver;dxSkinscxSchedulerPainterRS22;ibmonitor;vclFireDAC;xmlrtl;ibxpress;dxSkinOffice2013WhiteRS22;dxPSdxDBOCLnkRS22;cxDataRS22;FireDACCommonDriver;soaprtl;bindengine;vclactnband;FMXTee;dxSkinVisualStudio2013LightRS22;bindcompvcl;dxBarExtDBItemsRS22;dxSkinOffice2010BlueRS22;vclie;dxPSdxDBTVLnkRS22;cxPageControlRS22;dxPsPrVwAdvRS22;FireDACMSSQLDriver;DBXInformixDriver;dxSkinFoggyRS22;Intraweb;dxSkinPumpkinRS22;cxEditorsRS22;dxPScxExtCommonRS22;DataSnapServerMidas;dxSkinVisualStudio2013BlueRS22;dsnapcon;DBXFirebirdDriver;dxPSPrVwRibbonRS22;inet;dxMapControlRS22;dxSkinSharpRS22;dxmdsRS22;FireDACMySQLDriver;soapmidas;vclx;dxSkinOffice2007GreenRS22;dxSkinMetropolisDarkRS22;DBXSybaseASADriver;dxDockingRS22;RESTComponents;dxTabbedMDIRS22;dxdborRS22;dxSkinMoneyTwinsRS22;dbexpress;dxPScxTLLnkRS22;IndyIPClient;dxSkinOffice2016DarkRS22;frxADO22;dxSkinSpringTimeRS22;FireDACTDataDriver;FireDACSqliteDriver;FireDACDSDriver;frxTee22;DBXSqliteDriver;dxSkinHighContrastRS22;dxSkinOffice2007SilverRS22;fmx;dxSkinOffice2007PinkRS22;dxLayoutControlRS22;IndySystem;dxPSdxFCLnkRS22;TeeDB;tethering;cxSchedulerGridRS22;dxSkinMcSkinRS22;vclib;DataSnapClient;dxSkinsdxNavBarPainterRS22;fsIBX22;dxNavBarRS22;DataSnapProviderClient;DBXSybaseASEDriver;frxe22;DUnitXRuntime;dxSkinGlassOceansRS22;dxSkinBlueprintRS22;dxSkinLilianRS22;dxSkinBlueRS22;vcldsnap;dxBarDBNavRS22;dxSkiniMaginaryRS22;dxPSCoreRS22;dxSkinLiquidSkyRS22;dxPSRichEditControlLnkRS22;fmxFireDAC;DBXDb2Driver;dxSkinOffice2007BlueRS22;dxSkinCaramelRS22;DBXOracleDriver;cxGridRS22;vclribbon;fmxase;vcl;DBXMSSQLDriver;IndyIPCommon;CodeSiteExpressPkg;dxThemeRS22;DataSnapFireDAC;FireDACDBXDriver;cxPivotGridRS22;dxtrmdRS22;soapserver;dxSkinscxPCPainterRS22;dxPScxSchedulerLnkRS22;DclRxDB290;inetdbxpress;FireDACInfxDriver;dxFireDACServerModeRS22;adortl;cxLibraryRS22;dxPSdxSpreadSheetLnkRS22;frxDBX22;dxPSdxLCLnkRS22;FireDACASADriver;dxSkinOffice2013DarkGrayRS22;dxPScxCommonRS22;emsclientfiredac;rtl;DbxClientDriver;dxSkinOffice2013LightGrayRS22;Tee;dxFlowChartRS22;dxDBXServerModeRS22;dxPSLnksRS22;dxRichEditControlRS22;dxSkinSharpPlusRS22;dxSkinDarkSideRS22;frxIBX22;DataSnapNativeClient;svnui;cxTreeListdxBarPopupMenuRS22;dxSkinsdxDLPainterRS22;dxSkinDevExpressDarkStyleRS22;dxSkinMetropolisRS22;IndyProtocols;DBXMySQLDriver;dxSkinValentineRS22;dxPSdxOCLnkRS22;fsTee22;bindcompdbx;TeeUI;dxSkinOffice2016ColorfulRS22;cxTreeListRS22;dxSkinTheAsphaltWorldRS22;fsADO22;frxDB22;FireDACADSDriver;vcltouch;dxADOServerModeRS22;RtmRxDB290;emsclient;dxdbtrRS22;VclSmp;FireDAC;VCLRESTComponents;cxSchedulerRibbonStyleEventEditorRS22;dxTileControlRS22;dxSkinSevenRS22;DataSnapConnectors;dxSkinBlackRS22;fmxobj;dxSkinWhiteprintRS22;dxPSTeeChartRS22;cxPivotGridOLAPRS22;svn;cxSchedulerTreeBrowserRS22;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>dxBarRS22;dxSkinsdxRibbonPainterRS22;dxSkinOffice2010BlackRS22;dxRibbonCustomizationFormRS22;FireDACPgDriver;dxGaugeControlRS22;office2010rt;dxPScxVGridLnkRS22;DBXInterBaseDriver;DataSnapServer;DataSnapCommon;dxWizardControlRS22;DbxCommonDriver;vclimg;dbxcds;dxServerModeRS22;DatasnapConnectorsFreePascal;appanalytics;dxHttpIndyRequestRS22;vcldb;dxSkinDarkRoomRS22;dxSkinSilverRS22;dxGDIPlusRS22;CustomIPTransport;dxSkinOffice2010SilverRS22;dsnap;IndyIPServer;IndyCore;dxSkinSummer2008RS22;CloudService;dxSkinLondonLiquidSkyRS22;FmxTeeUI;FireDACIBDriver;dxPScxPivotGridLnkRS22;dxComnRS22;cxPivotGridChartRS22;dsnapxml;dxPScxPCProdRS22;dxSpellCheckerRS22;FireDACDb2Driver;dxPScxGridLnkRS22;dxSkinVS2010RS22;dxorgcRS22;dxBarExtItemsRS22;dxRibbonRS22;dxSkinVisualStudio2013DarkRS22;dxSkinsdxBarPainterRS22;dxPSdxGaugeControlLnkRS22;dxCoreRS22;cxVerticalGridRS22;bindcompfmx;dxSkinStardustRS22;dxSkinSevenClassicRS22;dxSkinsCoreRS22;dxSpreadSheetRS22;FireDACODBCDriver;RESTBackendComponents;cxSchedulerRS22;dbrtl;dxSkinDevExpressStyleRS22;FireDACCommon;bindcomp;inetdb;cxExportRS22;dxPSDBTeeChartRS22;dxSkinOffice2007BlackRS22;dxSkinXmas2008BlueRS22;dxSkinCoffeeRS22;DBXOdbcDriver;dxSkinscxSchedulerPainterRS22;ibmonitor;vclFireDAC;xmlrtl;ibxpress;dxSkinOffice2013WhiteRS22;dxPSdxDBOCLnkRS22;cxDataRS22;FireDACCommonDriver;soaprtl;bindengine;vclactnband;FMXTee;dxSkinVisualStudio2013LightRS22;bindcompvcl;dxBarExtDBItemsRS22;dxSkinOffice2010BlueRS22;vclie;dxPSdxDBTVLnkRS22;cxPageControlRS22;dxPsPrVwAdvRS22;FireDACMSSQLDriver;DBXInformixDriver;dxSkinFoggyRS22;Intraweb;dxSkinPumpkinRS22;cxEditorsRS22;dxPScxExtCommonRS22;DataSnapServerMidas;dxSkinVisualStudio2013BlueRS22;dsnapcon;DBXFirebirdDriver;dxPSPrVwRibbonRS22;inet;dxMapControlRS22;dxSkinSharpRS22;dxmdsRS22;FireDACMySQLDriver;soapmidas;vclx;dxSkinOffice2007GreenRS22;dxSkinMetropolisDarkRS22;DBXSybaseASADriver;dxDockingRS22;RESTComponents;dxTabbedMDIRS22;dxdborRS22;dxSkinMoneyTwinsRS22;dbexpress;dxPScxTLLnkRS22;IndyIPClient;dxSkinOffice2016DarkRS22;dxSkinSpringTimeRS22;FireDACTDataDriver;FireDACSqliteDriver;FireDACDSDriver;DBXSqliteDriver;dxSkinHighContrastRS22;dxSkinOffice2007SilverRS22;fmx;dxSkinOffice2007PinkRS22;dxLayoutControlRS22;IndySystem;dxPSdxFCLnkRS22;TeeDB;tethering;cxSchedulerGridRS22;dxSkinMcSkinRS22;vclib;DataSnapClient;dxSkinsdxNavBarPainterRS22;dxNavBarRS22;DataSnapProviderClient;DBXSybaseASEDriver;dxSkinGlassOceansRS22;dxSkinBlueprintRS22;dxSkinLilianRS22;dxSkinBlueRS22;vcldsnap;dxBarDBNavRS22;dxSkiniMaginaryRS22;dxPSCoreRS22;dxSkinLiquidSkyRS22;dxPSRichEditControlLnkRS22;fmxFireDAC;DBXDb2Driver;dxSkinOffice2007BlueRS22;dxSkinCaramelRS22;DBXOracleDriver;cxGridRS22;vclribbon;fmxase;vcl;DBXMSSQLDriver;IndyIPCommon;dxThemeRS22;DataSnapFireDAC;FireDACDBXDriver;cxPivotGridRS22;dxtrmdRS22;soapserver;dxSkinscxPCPainterRS22;dxPScxSchedulerLnkRS22;inetdbxpress;FireDACInfxDriver;dxFireDACServerModeRS22;adortl;cxLibraryRS22;dxPSdxSpreadSheetLnkRS22;dxPSdxLCLnkRS22;FireDACASADriver;dxSkinOffice2013DarkGrayRS22;dxPScxCommonRS22;emsclientfiredac;rtl;DbxClientDriver;dxSkinOffice2013LightGrayRS22;Tee;dxFlowChartRS22;dxDBXServerModeRS22;dxPSLnksRS22;dxRichEditControlRS22;dxSkinSharpPlusRS22;dxSkinDarkSideRS22;DataSnapNativeClient;cxTreeListdxBarPopupMenuRS22;dxSkinsdxDLPainterRS22;dxSkinDevExpressDarkStyleRS22;dxSkinMetropolisRS22;IndyProtocols;DBXMySQLDriver;dxSkinValentineRS22;dxPSdxOCLnkRS22;bindcompdbx;TeeUI;dxSkinOffice2016ColorfulRS22;cxTreeListRS22;dxSkinTheAsphaltWorldRS22;FireDACADSDriver;vcltouch;dxADOServerModeRS22;emsclient;dxdbtrRS22;VclSmp;FireDAC;VCLRESTComponents;cxSchedulerRibbonStyleEventEditorRS22;dxTileControlRS22;dxSkinSevenRS22;DataSnapConnectors;dxSkinBlackRS22;fmxobj;dxSkinWhiteprintRS22;dxPSTeeChartRS22;cxPivotGridOLAPRS22;cxSchedulerTreeBrowserRS22;FireDACOracleDriver;fmxdae;FireDACMSAccDriver;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
-        <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+        <DCC_UsePackage>DBXSqliteDriver;dxPSPrVwRibbonRS25;dxRibbonCustomizationFormRS25;DBXDb2Driver;dxSkinOffice2007PinkRS25;dxSkinMcSkinRS25;vclactnband;vclFireDAC;cxExportRS25;dxHttpIndyRequestRS25;tethering;dxPScxCommonRS25;FireDACADSDriver;cxPivotGridOLAPRS25;FireDACMSSQLDriver;cxSchedulerGridRS25;vcltouch;dxSkinDarkRoomRS25;dxSkinDarkSideRS25;vcldb;Intraweb;dxGaugeControlRS25;cxLibraryRS25;dxSkinOffice2007SilverRS25;dxSkinscxSchedulerPainterRS25;dxSkinBlackRS25;vclib;dxSkinOffice2007BlueRS25;dxSkinOffice2007BlackRS25;FireDACDBXDriver;dxSkinVS2010RS25;vclx;dxSkinFoggyRS25;dxSpreadSheetConditionalFormattingDialogsRS25;dxSkinSevenRS25;dxSkinSpringTimeRS25;dxTileControlRS25;dxMapControlRS25;dxPDFViewerRS25;dxDockingRS25;VCLRESTComponents;dxSkinsdxNavBarPainterRS25;cxPageControlRS25;dxSkinLilianRS25;dxPSLnksRS25;dxWizardControlRS25;dxRichEditControlRS25;vclie;bindengine;dxFireDACServerModeRS25;FireDACMySQLDriver;dxSkinOffice2013LightGrayRS25;dxSkinMetropolisRS25;DataSnapClient;dxSkinOffice2016DarkRS25;bindcompdbx;dxSkinBlueprintRS25;dxSkinStardustRS25;DBXSybaseASEDriver;IndyIPServer;dxPSdxLCLnkRS25;IndySystem;dxSkinOffice2007GreenRS25;dsnapcon;dxLayoutControlRS25;dxPSRichEditControlLnkRS25;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;dxdbtrRS25;dxPScxTLLnkRS25;emshosting;dxSpreadSheetRS25;dxSkinVisualStudio2013LightRS25;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxGridRS25;dxSkinTheAsphaltWorldRS25;DbxCommonDriver;dxPScxSchedulerLnkRS25;dxorgcRS25;office2010rt;dxSkinHighContrastRS25;xmlrtl;DataSnapNativeClient;fmxobj;dxPScxGridLnkRS25;rtl;DbxClientDriver;DBXSybaseASADriver;dxPSCoreRS25;dxmdsRS25;dxSkinOffice2016ColorfulRS25;appanalytics;IndyIPClient;bindcompvcl;dxSkinscxPCPainterRS25;dxThemeRS25;TeeUI;VclSmp;FireDACODBCDriver;DataSnapIndy10ServerTransport;DataSnapProviderClient;FireDACMongoDBDriver;cxVerticalGridRS25;dxtrmdRS25;dxADOServerModeRS25;dxSkinPumpkinRS25;DataSnapServerMidas;dxCoreRS25;cxSchedulerTreeBrowserRS25;DBXInterBaseDriver;dxSkinValentineRS25;dxPSTeeChartRS25;DataSnapFireDAC;dxSkinOffice2010BlueRS25;dxSkinMoneyTwinsRS25;dxSkinSilverRS25;DBXMSSQLDriver;dxPSdxFCLnkRS25;DatasnapConnectorsFreePascal;dxSkinOffice2013WhiteRS25;bindcompfmx;DBXOracleDriver;inetdb;dxOfficeCoreRS25;FmxTeeUI;emsedge;fmx;fmxdae;dxTabbedMDIRS25;dxBarDBNavRS25;dxSkinBlueRS25;dxPScxPivotGridLnkRS25;dxSkinDevExpressDarkStyleRS25;dbexpress;IndyCore;dxFlowChartRS25;dxSkinsdxDLPainterRS25;dsnap;DataSnapCommon;dxBarRS25;dxPSDBTeeChartRS25;dxSkinLiquidSkyRS25;dxdborRS25;DataSnapConnectors;dxPScxExtCommonRS25;cxPivotGridRS25;dxPSdxSpreadSheetLnkRS25;dxNavBarRS25;cxSchedulerRibbonStyleEventEditorRS25;dxSkinCoffeeRS25;FireDACOracleDriver;DBXMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;dxSkinOffice2010SilverRS25;cxTreeListRS25;dxSkinsdxBarPainterRS25;IndyIPCommon;dxSkinLondonLiquidSkyRS25;vcl;dxPScxVGridLnkRS25;dxBarExtItemsRS25;dxSkinsCoreRS25;dxComnRS25;FireDACDb2Driver;dxSkinWhiteprintRS25;dxPSdxDBTVLnkRS25;dxSkinVisualStudio2013BlueRS25;dxSkinGlassOceansRS25;dxSkinMetropolisDarkRS25;dxSkinOffice2013DarkGrayRS25;dxSkinSharpPlusRS25;TeeDB;dxSkinCaramelRS25;dxServerModeRS25;dxPScxPCProdRS25;FireDACPgDriver;ibmonitor;FireDACASADriver;cxEditorsRS25;dxSkiniMaginaryRS25;ibxpress;Tee;DataSnapServer;ibxbindings;dxPsPrVwAdvRS25;vclwinx;FireDACDSDriver;dxSkinSevenClassicRS25;cxDataRS25;cxTreeListdxBarPopupMenuRS25;CustomIPTransport;vcldsnap;dxPSdxOCLnkRS25;dxSkinSharpRS25;bindcomp;DBXInformixDriver;cxPivotGridChartRS25;cxSchedulerRS25;dxBarExtDBItemsRS25;dxSkinOffice2010BlackRS25;dxSkinVisualStudio2013DarkRS25;dxDBXServerModeRS25;dxSkinDevExpressStyleRS25;dxGDIPlusRS25;dxPSdxGaugeControlLnkRS25;dxSkinsdxRibbonPainterRS25;dbxcds;adortl;dxPSdxDBOCLnkRS25;dxRibbonRS25;dsnapxml;dxSpellCheckerRS25;dbrtl;inetdbxpress;IndyProtocols;dxSkinSummer2008RS25;dxPSdxMapControlLnkRS25;dxSkinXmas2008BlueRS25;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -76,12 +81,12 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <DCC_ExeOutput>C:\Public\ElectronicDB\</DCC_ExeOutput>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
-        <BT_BuildType>Debug</BT_BuildType>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_ExeOutput>C:\Public\ElectronicDB\</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -89,18 +94,21 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <AppEnableHighDPI>true</AppEnableHighDPI>
+    </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Helpers\DBRecordHolder.pas"/>
-        <DCCReference Include="Helpers\DialogUnit.pas"/>
-        <DCCReference Include="Helpers\StrHelper.pas"/>
         <DCCReference Include="Helpers\ProjectConst.pas"/>
+        <DCCReference Include="Helpers\DialogUnit.pas"/>
+        <DCCReference Include="Helpers\SettingsController.pas"/>
+        <DCCReference Include="Helpers\StrHelper.pas"/>
         <DCCReference Include="Helpers\ClipboardUnit.pas"/>
         <DCCReference Include="Helpers\ColumnsBarButtonsHelper.pas"/>
-        <DCCReference Include="Helpers\SettingsController.pas"/>
-        <DCCReference Include="Helpers\DocFieldInfo.pas"/>
         <DCCReference Include="Helpers\DragHelper.pas"/>
         <DCCReference Include="Helpers\FormsHelper.pas"/>
         <DCCReference Include="Helpers\GridExtension.pas"/>
@@ -111,8 +119,33 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="Helpers\NotifyEvents.pas"/>
+        <DCCReference Include="Helpers\MapFieldsUnit.pas"/>
         <DCCReference Include="Queryes\BaseQuery.pas">
             <Form>QueryBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BaseEventsQuery.pas">
+            <Form>QueryBaseEvents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryWithMasterUnit.pas">
+            <Form>QueryWithMaster</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\QueryWithDataSourceUnit.pas">
+            <Form>QueryWithDataSource</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\ProgressInfo.pas"/>
+        <DCCReference Include="Helpers\ProcRefUnit.pas"/>
+        <DCCReference Include="Helpers\TableWithProgress.pas"/>
+        <DCCReference Include="Queryes\HandlingQueryUnit.pas">
+            <Form>HandlingQuery</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -130,592 +163,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyKindsQuery.pas">
-            <Form>QueryBodyKinds</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\ApplyQuery\ApplyQueryFrame.pas">
             <Form>frmApplyQuery</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyTypesQuery2.pas">
-            <Form>QueryBodyTypes2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\RootForm.pas">
-            <Form>frmRoot</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\DictonaryForm.pas">
-            <Form>frmDictonary</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\PathSettingsForm.pas">
-            <Form>frmPathSettings</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\PopupForm.pas">
-            <Form>frmPopupForm</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridFrame.pas">
-            <Form>frmGrid</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\BodyTypes\BodyTypesView.pas">
-            <Form>ViewBodyTypes</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\BodyTypes\BodyTypesForm.pas">
-            <Form>frmBodyTypes</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Report\ReportQuery.pas">
-            <Form>QueryReports</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Reports\ReportsView.pas">
-            <Form>ViewReports</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Reports\ReportsForm.pas">
-            <Form>frmReports</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Excel\ProducersExcelDataModule.pas">
-            <Form>ProducersExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Producers\ProducersQuery.pas">
-            <Form>QueryProducers</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Producers\ProducersView.pas">
-            <Form>ViewProducers</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Producers\ProducersForm.pas">
-            <Form>frmProducers</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\ChildCategories\ChildCategoriesQuery.pas">
-            <Form>QueryChildCategories</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Parameters\ParameterTypesQuery.pas">
-            <Form>QueryParameterTypes</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\TreeList\TreeListQuery.pas">
-            <Form>QueryTreeList</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Parameters\SubParametersQuery.pas">
-            <Form>QuerySubParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Parameters\MainParametersQuery.pas">
-            <Form>QueryMainParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\ParametersExcelDataModule.pas">
-            <Form>ParametersExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Parameters\ParametersGroupUnit.pas">
-            <Form>ParametersGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Parameters\ParametersView.pas">
-            <Form>ViewParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Parameters\ParametersForm.pas">
-            <Form>frmParameters</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Descriptions\DescriptionTypesQuery.pas">
-            <Form>QueryDescriptionTypes</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Descriptions\DescriptionsQuery.pas">
-            <Form>QueryDescriptions</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\DescriptionsExcelDataModule.pas">
-            <Form>DescriptionsExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Descriptions\DescriptionsView.pas">
-            <Form>ViewDescriptions</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Descriptions\DescriptionsForm.pas">
-            <Form>frmDescriptions</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\FamilyQuery.pas">
-            <Form>QueryFamily</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\FamilyExQuery.pas">
-            <Form>QueryFamilyEx</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\BaseComponentsQuery.pas">
-            <Form>QueryBaseComponents</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsQuery.pas">
-            <Form>QueryComponents</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsExQuery.pas">
-            <Form>QueryComponentsEx</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\BaseComponentsGroupUnit.pas">
-            <Form>BaseComponentsGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\Count\BaseComponentsCountQuery.pas">
-            <Form>QueryBaseComponentsCount</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\Count\ComponentsCountQuery.pas">
-            <Form>QueryComponentsCount</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\Count\EmptyFamilyCountQuery.pas">
-            <Form>QueryEmptyFamilyCount</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\ComponentsExcelDataModule.pas">
-            <Form>ComponentsExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsGroupUnit.pas">
-            <Form>ComponentsGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\SearchInterfaceUnit.pas"/>
-        <DCCReference Include="Queryes\Components\ComponentsSearchQuery.pas">
-            <Form>QueryComponentsSearch</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ComponentsSearchGroupUnit.pas">
-            <Form>ComponentsSearchGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\SubGroups\SubGroupsQuery.pas">
-            <Form>frmQuerySubGroups</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Components\SubGroup\CategoriesTreePopupForm.pas">
-            <Form>frmCategoriesTreePopup</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\Components\SubGroup\SubGroupListPopupForm.pas">
-            <Form>frmSubgroupListPopup</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\Components\ComponentsParentView.pas">
-            <Form>ViewComponentsParent</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Components\ComponentsBaseView.pas">
-            <Form>ViewComponentsBase</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\ParametricExcelDataModule.pas">
-            <Form>ParametricExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\ProgressInfo.pas"/>
-        <DCCReference Include="Views\ProgressBar\ProgressBarForm.pas">
-            <Form>frmProgressBar</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ParametricTable\ParametersForCategoryQuery.pas">
-            <Form>QueryParametersForCategory</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ParametricTable\ProductParametersQuery.pas">
-            <Form>QueryProductParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ParametricTable\ComponentsExGroupUnit.pas">
-            <Form>ComponentsExGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Components\ParametricTable\ParametricTableView.pas">
-            <Form>ViewParametricTable</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Components\ParametricTable\ParametricTableForm.pas">
-            <Form>frmParametricTable</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\ParameterValues\ParametersForProductQuery.pas">
-            <Form>QueryParametersForProduct</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\ParameterValues\ParametersValueQuery.pas">
-            <Form>QueryParametersValue</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\ParameterValues\ParameterValuesUnit.pas"/>
-        <DCCReference Include="Views\Components\ComponentsView.pas">
-            <Form>ViewComponents</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\FamilySearchQuery.pas">
-            <Form>QueryFamilySearch</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Products\ProductsBaseQuery.pas">
-            <Form>QueryProductsBase</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Products\Count\StoreHouseProductsCountQuery.pas">
-            <Form>QueryStoreHouseProductsCount</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Products\ProductsQuery.pas">
-            <Form>QueryProducts</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Products\Search\ProductsSearchQuery.pas">
-            <Form>QueryProductsSearch</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseListQuery.pas">
-            <Form>QueryStoreHouseList</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsBaseView.pas">
-            <Form>ViewProductsBase</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsSearchView.pas">
-            <Form>ViewProductsSearch</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\StoreHouse\StoreHouseInfoView.pas">
-            <Form>ViewStorehouseInfo</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Components\Search\ComponentsSearchView.pas">
-            <Form>ViewComponentsSearch</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\ModCheckDatabase.pas"/>
-        <DCCReference Include="Views\Main.pas">
-            <Form>frmMain</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Helpers\NotifyEvents.pas"/>
-        <DCCReference Include="Helpers\Sequence.pas"/>
-        <DCCReference Include="Queryes\Components\AllFamilyQuery.pas">
-            <Form>QueryAllFamily</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\GridView.pas">
-            <Form>ViewGrid</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchComponentCategoryQuery.pas">
-            <Form>QuerySearchComponentCategory</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
-            <Form>frmCustomGridView</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
-            <Form>frmImportError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\ErrorForm.pas">
-            <Form>frmError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ImportProcessForm.pas">
-            <Form>frmImportProcess</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\CustomComponentsQuery.pas">
-            <Form>QueryCustomComponents</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchParameterQuery.pas">
-            <Form>QuerySearchParameter</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\BaseFamilyQuery.pas">
-            <Form>QueryBaseFamily</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas">
-            <Form>StoreHouseGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsView.pas">
-            <Form>ViewProducts</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchCategoriesPathQuery.pas">
-            <Form>QuerySearchCategoriesPath</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchDescriptionsQuery.pas">
-            <Form>QuerySearchDescriptions</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchParameterValues.pas">
-            <Form>QuerySearchParameterValues</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchProductParameterValuesQuery.pas">
-            <Form>QuerySearchProductParameterValues</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\TableWithProgress.pas"/>
-        <DCCReference Include="Queryes\Search\SearchParametersForCategoryQuery.pas">
-            <Form>QuerySearchParametersForCategory</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\QueryWithDataSourceUnit.pas">
-            <Form>QueryWithDataSource</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\BaseEventsQuery.pas">
-            <Form>QueryBaseEvents</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\QueryWithMasterUnit.pas">
-            <Form>QueryWithMaster</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\HandlingQueryUnit.pas">
-            <Form>HandlingQuery</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\ProcRefUnit.pas"/>
-        <DCCReference Include="Views\GridView\GridViewForm.pas">
-            <Form>frmGridView</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\AutoBinding\AutoBindingDocForm.pas">
-            <Form>frmAutoBindingDoc</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\AutoBinding\AutoBindingDescriptionForm.pas">
-            <Form>frmAutoBindingDescriptions</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Helpers\AutoBinding.pas"/>
-        <DCCReference Include="Queryes\Search\SearchComponentOrFamilyQuery.pas">
-            <Form>QuerySearchComponentOrFamily</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchFamily.pas">
-            <Form>QuerySearchFamily</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchProductQuery.pas">
-            <Form>QuerySearchProduct</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\QueryGroupUnit.pas">
-            <Form>QueryGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\ProductsExcelDataModule.pas">
-            <Form>ProductsExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\DialogUnit2.pas"/>
-        <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
-            <Form>QuerySearchProducerTypes</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsForm.pas">
-            <Form>frmProducts</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Descriptions\DescriptionsGroupUnit.pas">
-            <Form>DescriptionsGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Version\VersionQuery.pas">
-            <Form>QueryVersion</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\TreeList\RecursiveTreeQuery.pas">
-            <Form>QueryRecursiveTree</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\TreeList\RecursiveTreeView.pas">
-            <Form>ViewRecursiveTree</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\TreeExcelDataModule.pas">
-            <Form>TreeExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\DeleteLostFamily.pas">
-            <Form>QueryDeleteLostFamily</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersQuery.pas">
-            <Form>QueryCategoryParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\CategoryParameters\CategoryParametersView.pas">
-            <Form>ViewCategoryParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Parameters\ParameterPosQuery.pas">
-            <Form>QueryParameterPos</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas">
-            <Form>QueryMaxCategoryParameterOrder</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Sequence\SequenceQuery.pas">
-            <Form>QuerySequence</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\IDTempTable\IDTempTableQuery.pas">
-            <Form>QueryIDTempTable</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Producers\ProducersGroupUnit.pas">
-            <Form>ProducersGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Producers\ProducerTypesQuery.pas">
-            <Form>QueryProducerTypes</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Excel\DocBindExcelDataModule.pas">
-            <Form>DocBindExcelDM</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\BindDocUnit.pas"/>
-        <DCCReference Include="Views\Components\ComponentsTabSheetView.pas">
-            <Form>ComponentsFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsTabSheetView.pas">
-            <Form>ProductsFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\OrderQuery.pas">
-            <Form>QueryOrder</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyTypesGroupUnit.pas">
-            <Form>BodyTypesGroup</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -744,62 +193,40 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\Components\Descriptions\DescriptionPopupForm.pas">
-            <Form>frmDescriptionPopup</Form>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesQuery2.pas">
+            <Form>QueryBodyTypes2</Form>
             <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Helpers\GridSort.pas"/>
+        <DCCReference Include="Queryes\QueryGroupUnit.pas">
+            <Form>QueryGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Queryes\QueryGroupUnit3.pas"/>
-        <DCCReference Include="Queryes\Products\ProductBaseGroupUnit.pas"/>
-        <DCCReference Include="Queryes\Products\ProductGroupUnit.pas"/>
-        <DCCReference Include="Queryes\Products\ProductSearchGroupUnit.pas"/>
-        <DCCReference Include="Queryes\Products\ComponentGroupsQuery.pas">
-            <Form>QueryComponentGroups</Form>
+        <DCCReference Include="Queryes\OrderQuery.pas">
+            <Form>QueryOrder</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\TreeListFrame.pas">
-            <Form>frmTreeList</Form>
+        <DCCReference Include="Queryes\BodyTypes\BodyKindsQuery.pas">
+            <Form>QueryBodyKinds</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\Products\ProductsBaseView2.pas">
-            <Form>ViewProductsBase2</Form>
+        <DCCReference Include="Queryes\Producers\ProducerTypesQuery.pas">
+            <Form>QueryProducerTypes</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchComponentGroup.pas">
-            <Form>QuerySearchComponentGroup</Form>
+        <DCCReference Include="Excel\ProducersExcelDataModule.pas">
+            <Form>ProducersExcelDM</Form>
             <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchStorehouseProduct.pas">
-            <Form>QuerySearchStorehouseProduct</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsView2.pas">
-            <Form>ViewProducts2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsSearchView2.pas">
-            <Form>ViewProductsSearch2</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Helpers\MapFieldsUnit.pas"/>
-        <DCCReference Include="Views\ProgressBar\ProgressBarForm2.pas">
-            <Form>frmProgressBar2</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Helpers\LoadFromExcelFileHelper.pas"/>
-        <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
-            <Form>frmCustomError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchProductDescriptionQuery.pas">
-            <Form>QuerySearchProductDescription</Form>
+        <DCCReference Include="Helpers\DefaultParameters.pas"/>
+        <DCCReference Include="Queryes\Search\SearchCategoriesPathQuery.pas">
+            <Form>QuerySearchCategoriesPath</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -808,18 +235,571 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\ProgressBar\ProgressBarForm3.pas">
-            <Form>frmProgressBar3</Form>
+        <DCCReference Include="Queryes\Search\SearchComponentCategoryQuery.pas">
+            <Form>QuerySearchComponentCategory</Form>
             <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\DataModule2.pas">
-            <Form>DM2</Form>
+        <DCCReference Include="Queryes\Search\SearchComponentGroup.pas">
+            <Form>QuerySearchComponentGroup</Form>
             <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchComponentOrFamilyQuery.pas">
+            <Form>QuerySearchComponentOrFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchDescriptionsQuery.pas">
+            <Form>QuerySearchDescriptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchFamily.pas">
+            <Form>QuerySearchFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParameterQuery.pas">
+            <Form>QuerySearchParameter</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParametersForCategoryQuery.pas">
+            <Form>QuerySearchParametersForCategory</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParameterValues.pas">
+            <Form>QuerySearchParameterValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
+            <Form>QuerySearchProducerTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProductDescriptionQuery.pas">
+            <Form>QuerySearchProductDescription</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProductParameterValuesQuery.pas">
+            <Form>QuerySearchProductParameterValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProductQuery.pas">
+            <Form>QuerySearchProduct</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchStorehouseProduct.pas">
+            <Form>QuerySearchStorehouseProduct</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Producers\ProducersQuery.pas">
+            <Form>QueryProducers</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Producers\ProducersGroupUnit.pas">
+            <Form>ProducersGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyTypesGroupUnit.pas">
+            <Form>BodyTypesGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ChildCategories\ChildCategoriesQuery.pas">
+            <Form>QueryChildCategories</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Descriptions\DescriptionTypesQuery.pas">
+            <Form>QueryDescriptionTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Descriptions\DescriptionsQuery.pas">
+            <Form>QueryDescriptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\DescriptionsExcelDataModule.pas">
+            <Form>DescriptionsExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Descriptions\DescriptionsGroupUnit.pas">
+            <Form>DescriptionsGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Sequence\SequenceQuery.pas">
+            <Form>QuerySequence</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\TreeExcelDataModule.pas">
+            <Form>TreeExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\TreeList\TreeListQuery.pas">
+            <Form>QueryTreeList</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Version\VersionQuery.pas">
+            <Form>QueryVersion</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Report\ReportQuery.pas">
+            <Form>QueryReports</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\ParameterTypesQuery.pas">
+            <Form>QueryParameterTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\ParameterPosQuery.pas">
+            <Form>QueryParameterPos</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\MainParametersQuery.pas">
+            <Form>QueryMainParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\SubParametersQuery.pas">
+            <Form>QuerySubParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ParametersExcelDataModule.pas">
+            <Form>ParametersExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\ParametersGroupUnit.pas">
+            <Form>ParametersGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ParametricExcelDataModule.pas">
+            <Form>ParametricExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParameterValues\ParametersForProductQuery.pas">
+            <Form>QueryParametersForProduct</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParameterValues\ParametersValueQuery.pas">
+            <Form>QueryParametersValue</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\IDTempTable\IDTempTableQuery.pas">
+            <Form>QueryIDTempTable</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\ParameterValues\ParameterValuesUnit.pas"/>
+        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersQuery.pas">
+            <Form>QueryCategoryParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas">
+            <Form>QueryMaxCategoryParameterOrder</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Queryes\CategoryParameters\RecursiveParametersQuery.pas">
             <Form>QueryRecursiveParameters</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\CustomComponentsQuery.pas">
+            <Form>QueryCustomComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\BaseFamilyQuery.pas">
+            <Form>QueryBaseFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\Count\BaseComponentsCountQuery.pas">
+            <Form>QueryBaseComponentsCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\Count\ComponentsCountQuery.pas">
+            <Form>QueryComponentsCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\Count\EmptyFamilyCountQuery.pas">
+            <Form>QueryEmptyFamilyCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\SubGroups\SubGroupsQuery.pas">
+            <Form>frmQuerySubGroups</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\AllFamilyQuery.pas">
+            <Form>QueryAllFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsQuery.pas">
+            <Form>QueryComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsExQuery.pas">
+            <Form>QueryComponentsEx</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilyQuery.pas">
+            <Form>QueryFamily</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\FamilyExQuery.pas">
+            <Form>QueryFamilyEx</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\SearchInterfaceUnit.pas"/>
+        <DCCReference Include="Queryes\Components\FamilySearchQuery.pas">
+            <Form>QueryFamilySearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsSearchQuery.pas">
+            <Form>QueryComponentsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\DocFieldInfo.pas"/>
+        <DCCReference Include="Queryes\Components\BaseComponentsQuery.pas">
+            <Form>QueryBaseComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\BaseComponentsGroupUnit.pas">
+            <Form>BaseComponentsGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsSearchGroupUnit.pas">
+            <Form>ComponentsSearchGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ComponentsExcelDataModule.pas">
+            <Form>ComponentsExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ComponentsGroupUnit.pas">
+            <Form>ComponentsGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ParametricTable\ParametersForCategoryQuery.pas">
+            <Form>QueryParametersForCategory</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ParametricTable\ProductParametersQuery.pas">
+            <Form>QueryProductParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Components\ParametricTable\ComponentsExGroupUnit.pas">
+            <Form>ComponentsExGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductsBaseQuery.pas">
+            <Form>QueryProductsBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\Count\StoreHouseProductsCountQuery.pas">
+            <Form>QueryStoreHouseProductsCount</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseListQuery.pas">
+            <Form>QueryStoreHouseList</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\ProductsExcelDataModule.pas">
+            <Form>ProductsExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductsQuery.pas">
+            <Form>QueryProducts</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas">
+            <Form>StoreHouseGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductBaseGroupUnit.pas"/>
+        <DCCReference Include="Queryes\Products\ProductGroupUnit.pas"/>
+        <DCCReference Include="Queryes\Products\Search\ProductsSearchQuery.pas">
+            <Form>QueryProductsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductSearchGroupUnit.pas"/>
+        <DCCReference Include="Views\RootForm.pas">
+            <Form>frmRoot</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\DictonaryForm.pas">
+            <Form>frmDictonary</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\PathSettingsForm.pas">
+            <Form>frmPathSettings</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\PopupForm.pas">
+            <Form>frmPopupForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\GridSort.pas"/>
+        <DCCReference Include="Views\GridFrame.pas">
+            <Form>frmGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\TreeListFrame.pas">
+            <Form>frmTreeList</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\ModCheckDatabase.pas"/>
+        <DCCReference Include="Queryes\DataModule2.pas">
+            <Form>DM2</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\AutoBinding\AutoBindingDocForm.pas">
+            <Form>frmAutoBindingDoc</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\AutoBinding\AutoBindingDescriptionForm.pas">
+            <Form>frmAutoBindingDescriptions</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\GridView.pas">
+            <Form>ViewGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
+            <Form>frmCustomGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ImportProcessForm.pas">
+            <Form>frmImportProcess</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\GridViewForm.pas">
+            <Form>frmGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
+            <Form>frmCustomError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\ErrorForm.pas">
+            <Form>frmError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
+            <Form>frmImportError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\DialogUnit2.pas"/>
+        <DCCReference Include="Views\ProgressBar\ProgressBarForm.pas">
+            <Form>frmProgressBar</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\ProgressBar\ProgressBarForm2.pas">
+            <Form>frmProgressBar2</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\ProgressBar\ProgressBarForm3.pas">
+            <Form>frmProgressBar3</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\LoadFromExcelFileHelper.pas"/>
+        <DCCReference Include="Views\Producers\ProducersView.pas">
+            <Form>ViewProducers</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Producers\ProducersForm.pas">
+            <Form>frmProducers</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesView.pas">
+            <Form>ViewBodyTypes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\BodyTypes\BodyTypesForm.pas">
+            <Form>frmBodyTypes</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\ParametersView.pas">
+            <Form>ViewParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\ParametersForm.pas">
+            <Form>frmParameters</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\CategoryParameters\CategoryParametersView.pas">
+            <Form>ViewCategoryParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Descriptions\DescriptionsView.pas">
+            <Form>ViewDescriptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Descriptions\DescriptionsForm.pas">
+            <Form>frmDescriptions</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Reports\ReportsView.pas">
+            <Form>ViewReports</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Reports\ReportsForm.pas">
+            <Form>frmReports</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\StoreHouse\StoreHouseInfoView.pas">
+            <Form>ViewStorehouseInfo</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\SubGroup\CategoriesTreePopupForm.pas">
+            <Form>frmCategoriesTreePopup</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Components\SubGroup\SubGroupListPopupForm.pas">
+            <Form>frmSubgroupListPopup</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ComponentsParentView.pas">
+            <Form>ViewComponentsParent</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\Descriptions\DescriptionPopupForm.pas">
+            <Form>frmDescriptionPopup</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ComponentsBaseView.pas">
+            <Form>ViewComponentsBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\DocBindExcelDataModule.pas">
+            <Form>DocBindExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ComponentsView.pas">
+            <Form>ViewComponents</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\Search\ComponentsSearchView.pas">
+            <Form>ViewComponentsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableView.pas">
+            <Form>ViewParametricTable</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableForm.pas">
+            <Form>frmParametricTable</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\AutoBinding.pas"/>
+        <DCCReference Include="Helpers\BindDocUnit.pas"/>
+        <DCCReference Include="Views\Components\ComponentsTabSheetView.pas">
+            <Form>ComponentsFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsBaseView2.pas">
+            <Form>ViewProductsBase2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsSearchView2.pas">
+            <Form>ViewProductsSearch2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsView2.pas">
+            <Form>ViewProducts2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsTabSheetView.pas">
+            <Form>ProductsFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\TreeList\RecursiveTreeQuery.pas">
+            <Form>QueryRecursiveTree</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\TreeList\RecursiveTreeView.pas">
+            <Form>ViewRecursiveTree</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Main.pas">
+            <Form>frmMain</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -847,13 +827,12 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="C:\Public\ElectronicDB\Database.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\Database.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Database.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Public\ElectronicDB\Database.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>
@@ -1261,11 +1240,11 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
@@ -1274,7 +1253,6 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
-            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

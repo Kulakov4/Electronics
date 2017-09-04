@@ -37,7 +37,7 @@ implementation
 
 {$R *.dfm}
 
-uses ParameterValuesUnit, StrHelper;
+uses DefaultParameters, StrHelper;
 
 function TQuerySearchFamily.GetCategoryIDList: TField;
 begin
@@ -96,10 +96,10 @@ begin
 
   Result := Search(['ID', 'ProducerParameterID', 'PackagePinsParameterID',
     'DatasheetParameterID', 'DiagramParameterID', 'DrawingParameterID',
-    'ImageParameterID'], [AIDComponent, TParameterValues.ProducerParameterID,
-    TParameterValues.PackagePinsParameterID,
-    TParameterValues.DatasheetParameterID, TParameterValues.DiagramParameterID,
-    TParameterValues.DrawingParameterID, TParameterValues.ImageParameterID]);
+    'ImageParameterID'], [AIDComponent, TDefaultParameters.ProducerParameterID,
+    TDefaultParameters.PackagePinsParameterID,
+    TDefaultParameters.DatasheetParameterID, TDefaultParameters.DiagramParameterID,
+    TDefaultParameters.DrawingParameterID, TDefaultParameters.ImageParameterID]);
 end;
 
 function TQuerySearchFamily.SearchByValue(const AValue: string): Integer;
@@ -125,10 +125,10 @@ begin
 
   Result := Search(['Value', 'ProducerParameterID', 'PackagePinsParameterID',
     'DatasheetParameterID', 'DiagramParameterID', 'DrawingParameterID',
-    'ImageParameterID'], [AValue, TParameterValues.ProducerParameterID,
-    TParameterValues.PackagePinsParameterID,
-    TParameterValues.DatasheetParameterID, TParameterValues.DiagramParameterID,
-    TParameterValues.DrawingParameterID, TParameterValues.ImageParameterID]);
+    'ImageParameterID'], [AValue, TDefaultParameters.ProducerParameterID,
+    TDefaultParameters.PackagePinsParameterID,
+    TDefaultParameters.DatasheetParameterID, TDefaultParameters.DiagramParameterID,
+    TDefaultParameters.DrawingParameterID, TDefaultParameters.ImageParameterID]);
 end;
 
 function TQuerySearchFamily.SearchByValueSimple(const AValue: string): Integer;

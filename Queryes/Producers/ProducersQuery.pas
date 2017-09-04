@@ -45,7 +45,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, ParameterValuesUnit;
+uses RepositoryDataModule, DefaultParameters;
 
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
@@ -99,7 +99,7 @@ procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
   FDQuery.ParamByName('ProducerParameterID').AsInteger :=
-    TParameterValues.ProducerParameterID;
+    TDefaultParameters.ProducerParameterID;
 end;
 
 // TODO: DropUnuses

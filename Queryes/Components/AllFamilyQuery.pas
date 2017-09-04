@@ -27,7 +27,7 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, ParameterValuesUnit;
+uses NotifyEvents, DefaultParameters;
 
 constructor TQueryAllFamily.Create(AOwner: TComponent);
 begin
@@ -45,7 +45,7 @@ begin
   inherited;
 
   // Поля Description (описание) в нашем запросе нет
-  ParameterFields.Remove(TParameterValues.DescriptionParameterID);
+  ParameterFields.Remove(TDefaultParameters.DescriptionParameterID);
 end;
 
 end.

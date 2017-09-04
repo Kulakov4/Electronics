@@ -3,7 +3,7 @@ unit ProductBaseGroupUnit;
 interface
 
 uses
-  QueryGroupUnit3, ProductsBaseQuery, System.Classes, ComponentGroupsQuery;
+  QueryGroupUnit3, ProductsBaseQuery, System.Classes;
 
 type
   TProductBaseGroup = class(TQueryGroup3)
@@ -21,8 +21,6 @@ implementation
 constructor TProductBaseGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  // FqComponentGroups := TQueryComponentGroups.Create(Self);
-  // FQueries.Add(FqComponentGroups);
   FqProductsBase := CreateProductQuery;
   FQueries.Add(FqProductsBase);
 end;

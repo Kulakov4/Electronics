@@ -36,8 +36,7 @@ uses
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
-  ProductsSearchView, ProductsBaseView, ProductsView, StoreHouseInfoView,
-  ComponentsTabSheetView, ProductsTabSheetView;
+  StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView;
 
 type
   TfrmMain = class(TfrmRoot)

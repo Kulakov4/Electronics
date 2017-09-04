@@ -46,7 +46,7 @@ type
 
 implementation
 
-uses DBRecordHolder, System.Generics.Collections, ParameterValuesUnit,
+uses DBRecordHolder, System.Generics.Collections, DefaultParameters,
   NotifyEvents;
 
 {$R *.dfm}
@@ -182,22 +182,22 @@ procedure TQueryBaseFamily.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
   FDQuery.ParamByName('ProducerParameterID').AsInteger :=
-    TParameterValues.ProducerParameterID;
+    TDefaultParameters.ProducerParameterID;
 
   FDQuery.ParamByName('PackagePinsParameterID').AsInteger :=
-    TParameterValues.PackagePinsParameterID;
+    TDefaultParameters.PackagePinsParameterID;
 
   FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
-    TParameterValues.DatasheetParameterID;
+    TDefaultParameters.DatasheetParameterID;
 
   FDQuery.ParamByName('DiagramParameterID').AsInteger :=
-    TParameterValues.DiagramParameterID;
+    TDefaultParameters.DiagramParameterID;
 
   FDQuery.ParamByName('DrawingParameterID').AsInteger :=
-    TParameterValues.DrawingParameterID;
+    TDefaultParameters.DrawingParameterID;
 
   FDQuery.ParamByName('ImageParameterID').AsInteger :=
-    TParameterValues.ImageParameterID;
+    TDefaultParameters.ImageParameterID;
 
 end;
 

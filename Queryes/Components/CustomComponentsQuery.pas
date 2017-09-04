@@ -82,7 +82,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, ProjectConst, ParameterValuesUnit, StrHelper;
+uses RepositoryDataModule, ProjectConst, DefaultParameters, StrHelper;
 
 constructor TQueryCustomComponents.Create(AOwner: TComponent);
 begin
@@ -271,25 +271,25 @@ begin
     Exit;
 
   // Поле Producer (производитель)
-  FParameterFields.Add(TParameterValues.ProducerParameterID, 'Producer');
+  FParameterFields.Add(TDefaultParameters.ProducerParameterID, 'Producer');
 
   // Поле Package/Pins (Корпус/Кол-во выводов)
-  // FParameterFields.Add(TParameterValues.PackagePinsParameterID, 'PackagePins');
+  // FParameterFields.Add(TDefaultParameters.PackagePinsParameterID, 'PackagePins');
 
   // Поле Datasheet (техническая спецификация)
-  FParameterFields.Add(TParameterValues.DatasheetParameterID, 'Datasheet');
+  FParameterFields.Add(TDefaultParameters.DatasheetParameterID, 'Datasheet');
 
   // Поле Diagram (структурная схема)
-  FParameterFields.Add(TParameterValues.DiagramParameterID, 'Diagram');
+  FParameterFields.Add(TDefaultParameters.DiagramParameterID, 'Diagram');
 
   // Поле Drawing (чертёж)
-  FParameterFields.Add(TParameterValues.DrawingParameterID, 'Drawing');
+  FParameterFields.Add(TDefaultParameters.DrawingParameterID, 'Drawing');
 
   // Поле Image (изображение)
-  FParameterFields.Add(TParameterValues.ImageParameterID, 'Image');
+  FParameterFields.Add(TDefaultParameters.ImageParameterID, 'Image');
 
   // Поле Description (описание)
-  FParameterFields.Add(TParameterValues.DescriptionParameterID,
+  FParameterFields.Add(TDefaultParameters.DescriptionParameterID,
     'DescriptionComponentName');
 end;
 
@@ -473,7 +473,7 @@ begin
               VarArr[i] := L[i];
 
             ProcessParamValue(AIDComponent.AsInteger, nil, VarArr,
-              TParameterValues.PackagePinsParameterID);
+              TDefaultParameters.PackagePinsParameterID);
 
           finally
             VarClear(VarArr);
@@ -481,7 +481,7 @@ begin
         end
         else
           ProcessParamValue(AIDComponent.AsInteger, nil, '',
-            TParameterValues.PackagePinsParameterID);
+            TDefaultParameters.PackagePinsParameterID);
 
         APackagePins.Value := L.DelimitedText;
       finally
@@ -490,33 +490,33 @@ begin
     end
     else
       ProcessParamValue(AIDComponent.AsInteger, nil, '',
-        TParameterValues.PackagePinsParameterID);
+        TDefaultParameters.PackagePinsParameterID);
   end;
 
   // Обрабатываем производителя
   ProcessParamValue(AIDComponent.AsInteger, AIDProducer, AProducer.AsString,
-    TParameterValues.ProducerParameterID);
+    TDefaultParameters.ProducerParameterID);
 
   {
     // Обрабатываем корпус
     ProcessParamValue(AIDComponent.AsInteger, AIDPackagePins,
-    APackagePins.AsString, TParameterValues.PackagePinsParameterID);
+    APackagePins.AsString, TDefaultParameters.PackagePinsParameterID);
   }
   // Обрабатываем спецификацию
   ProcessParamValue(AIDComponent.AsInteger, AIDDatasheet, ADatasheet.AsString,
-    TParameterValues.DatasheetParameterID);
+    TDefaultParameters.DatasheetParameterID);
 
   // Обрабатываем структурную схему
   ProcessParamValue(AIDComponent.AsInteger, AIDDiagram, ADiagram.AsString,
-    TParameterValues.DiagramParameterID);
+    TDefaultParameters.DiagramParameterID);
 
   // Обрабатываем чертёж
   ProcessParamValue(AIDComponent.AsInteger, AIDDrawing, ADrawing.AsString,
-    TParameterValues.DrawingParameterID);
+    TDefaultParameters.DrawingParameterID);
 
   // Обрабатываем изображение
   ProcessParamValue(AIDComponent.AsInteger, AIDImage, AImage.AsString,
-    TParameterValues.ImageParameterID);
+    TDefaultParameters.ImageParameterID);
 end;
 
 end.

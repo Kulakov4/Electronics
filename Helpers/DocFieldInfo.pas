@@ -36,34 +36,34 @@ type
 
 implementation
 
-uses SettingsController, ParameterValuesUnit;
+uses SettingsController, DefaultParameters;
 
 constructor TDrawingDoc.Create;
 begin
   FFieldName := 'Drawing';
   FFolder := TSettings.Create.ComponentsDrawingFolder;
-  FIDParameter := TParameterValues.DrawingParameterID;
+  FIDParameter := TDefaultParameters.DrawingParameterID;
 end;
 
 constructor TImageDoc.Create;
 begin
   FFieldName := 'Image';
   FFolder := TSettings.Create.ComponentsImageFolder;
-  FIDParameter := TParameterValues.ImageParameterID;
+  FIDParameter := TDefaultParameters.ImageParameterID;
 end;
 
 constructor TDiagramDoc.Create;
 begin
   FFieldName := 'Diagram';
   FFolder := TSettings.Create.ComponentsDiagramFolder;
-  FIDParameter := TParameterValues.DiagramParameterID;
+  FIDParameter := TDefaultParameters.DiagramParameterID;
 end;
 
 constructor TDatasheetDoc.Create;
 begin
   FFieldName := 'Datasheet';
   FFolder := TSettings.Create.ComponentsDatasheetFolder;
-  FIDParameter := TParameterValues.DatasheetParameterID;
+  FIDParameter := TDefaultParameters.DatasheetParameterID;
 end;
 
 end.

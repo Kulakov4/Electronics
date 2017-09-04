@@ -119,7 +119,7 @@ implementation
 uses GridExtension, dxCore, System.Math, System.StrUtils, cxDataUtils,
   System.IOUtils, Winapi.ShellAPI, RepositoryDataModule, System.UITypes,
   ColumnsBarButtonsHelper, DialogUnit, Vcl.Clipbrd, PathSettingsForm,
-  ClipboardUnit, ParameterValuesUnit, ProducersQuery, cxGridDBDataDefinitions,
+  ClipboardUnit, DefaultParameters, ProducersQuery, cxGridDBDataDefinitions,
   GridSort;
 
 constructor TViewComponentsBase.Create(AOwner: TComponent);
@@ -437,14 +437,14 @@ end;
 procedure TViewComponentsBase.MyInitializeComboBoxColumn;
 begin
   // Ищем возможные значения производителя для выпадающего списка
-  qSearchParameterValues.Search(TParameterValues.ProducerParameterID);
+  qSearchParameterValues.Search(TDefaultParameters.ProducerParameterID);
 
   // Инициализируем Combobox колонки
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
     lsEditList, qSearchParameterValues.Value);
   {
     // Ищем возможные значения корпусов для выпадающего списка
-    qSearchParameterValues.Search(TParameterValues.PackagePinsParameterID);
+    qSearchParameterValues.Search(TDefaultParameters.PackagePinsParameterID);
 
     InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
     lsEditList, qSearchParameterValues.Value);

@@ -38,7 +38,7 @@ implementation
 
 {$R *.dfm}
 
-uses StrHelper, System.Strutils, ParameterValuesUnit;
+uses StrHelper, System.Strutils, DefaultParameters;
 
 function TQuerySearchComponentOrFamily.GetParentProductID: TField;
 begin
@@ -79,7 +79,7 @@ begin
 
   // »щем
   Result := Search(['Value', 'ProducerParameterID', 'Producer'],
-    [AComponentName, TParameterValues.ProducerParameterID, AProducer]);
+    [AComponentName, TDefaultParameters.ProducerParameterID, AProducer]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchComponentWithProducer(const
@@ -103,7 +103,7 @@ begin
 
   // »щем
   Result := Search(['Value', 'ProducerParameterID'],
-    [AComponentName, TParameterValues.ProducerParameterID]);
+    [AComponentName, TDefaultParameters.ProducerParameterID]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchByValueLike(const AComponentNames:

@@ -21,11 +21,10 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, ProductsSearchView,
-  GridFrame, ProductsBaseView, ProductsView, StoreHouseInfoView, cxPC,
-  dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
-  TreeListFrame, ProductsBaseView2, ProductsView2, ProductsSearchView2, cxTL,
-  cxStyles;
+  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, GridFrame,
+  StoreHouseInfoView, cxPC, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
+  cxClasses, dxBar, TreeListFrame, ProductsBaseView2, ProductsView2,
+  ProductsSearchView2, cxTL, cxStyles;
 
 type
   TProductsFrame = class(TFrame)

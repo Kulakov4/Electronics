@@ -52,7 +52,6 @@ object DM2: TDM2
           Control = DescriptionsGroup.qProducers
           Row = 0
         end>
-      ExplicitTop = 1
     end
   end
   inline BodyTypesGroup: TBodyTypesGroup
@@ -80,9 +79,6 @@ object DM2: TDM2
           Control = BodyTypesGroup.qProducers
           Row = 0
         end>
-      inherited qBodyTypes2: TQueryBodyTypes2
-        ExplicitTop = 2
-      end
     end
   end
   inline ProducersGroup: TProducersGroup
@@ -206,11 +202,14 @@ object DM2: TDM2
           Control = ComponentsGroup.qComponents
           Row = 0
         end>
+      ExplicitHeight = 124
       inherited qFamily: TQueryFamily
         Height = 122
+        ExplicitHeight = 122
       end
       inherited qComponents: TQueryComponents
         Height = 122
+        ExplicitHeight = 122
       end
     end
   end
