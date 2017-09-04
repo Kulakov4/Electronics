@@ -61,7 +61,7 @@ implementation
 
 {$R *.dfm}
 
-uses DescriptionsForm, DataModule;
+uses DescriptionsForm, DataModule2;
 
 constructor TfrmDescriptionPopup.Create(AOwner: TComponent);
 begin
@@ -86,7 +86,7 @@ var
   AfrmDescriptions: TfrmDescriptions;
 begin
   inherited;
-  DM.DescriptionsGroup.ReOpen;
+  DM2.DescriptionsGroup.ReOpen;
 {
   if DescriptionID.AsInteger > 0 then
   begin
@@ -96,7 +96,7 @@ begin
 }
   AfrmDescriptions := TfrmDescriptions.Create(Self);
   try
-    AfrmDescriptions.ViewDescriptions.DescriptionsGroup := DM.DescriptionsGroup;
+    AfrmDescriptions.ViewDescriptions.DescriptionsGroup := DM2.DescriptionsGroup;
 
     if not DescriptionComponentName.AsString.IsEmpty then
       AfrmDescriptions.ViewDescriptions.Locate(DescriptionComponentName.AsString);
@@ -105,11 +105,11 @@ begin
     begin
       FQuery.TryEdit;
       DescriptionComponentName.Value :=
-        DM.DescriptionsGroup.qDescriptions.ComponentName.Value;
+        DM2.DescriptionsGroup.qDescriptions.ComponentName.Value;
       Description.Value :=
-        DM.DescriptionsGroup.qDescriptions.Description.Value;
+        DM2.DescriptionsGroup.qDescriptions.Description.Value;
       DescriptionID.Value :=
-        DM.DescriptionsGroup.qDescriptions.PK.Value;
+        DM2.DescriptionsGroup.qDescriptions.PK.Value;
       FQuery.TryPost;
     end;
   finally

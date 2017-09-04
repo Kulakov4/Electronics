@@ -1,37 +1,32 @@
-unit DataModule;
+unit DataModule2;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.UI.Intf, FireDAC.VCLUI.Wait, FireDAC.Stan.Intf, FireDAC.Comp.UI,
-  TreeListQuery, ChildCategoriesQuery, BodyTypesGroupUnit,
-  DescriptionsGroupUnit, ProducersQuery, ParametersGroupUnit,
-  ComponentsExGroupUnit, System.Contnrs, System.Generics.Collections,
-  ComponentsGroupUnit, ComponentsSearchGroupUnit,
-  ParametersForCategoriesGroupUnit, StoreHouseGroupUnit, ProductsBaseQuery,
-  ProductsSearchQuery, StoreHouseListQuery, CustomComponentsQuery, BaseQuery,
-  QueryWithDataSourceUnit, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, BaseComponentsGroupUnit, VersionQuery,
-  CategoryParametersQuery, ProducersGroupUnit, ProductGroupUnit,
-  ProductSearchGroupUnit, FireDAC.Phys.SQLiteWrapper, FireDAC.Phys.SQLiteCli;
+  RepositoryDataModule, System.Contnrs, ProductGroupUnit,
+  ProductSearchGroupUnit, System.Generics.Collections, BaseQuery, QueryGroupUnit,
+  ModCheckDatabase, SettingsController, VersionQuery, ProjectConst,
+  BaseEventsQuery, QueryWithMasterUnit, QueryWithDataSourceUnit, TreeListQuery,
+  DescriptionsGroupUnit, BodyTypesGroupUnit, ProducersGroupUnit,
+  ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
+  ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
+  ChildCategoriesQuery;
 
 type
-  TDM = class(TForm)
-    FDGUIxWaitCursor1: TFDGUIxWaitCursor;
-    qTreeList: TQueryTreeList;
-    qChildCategories: TQueryChildCategories;
-    ComponentsSearchGroup: TComponentsSearchGroup;
-    ParametersForCategoriesGroup: TParametersForCategoriesGroup;
-    ComponentsGroup: TComponentsGroup;
-    ComponentsExGroup: TComponentsExGroup;
-    ParametersGroup: TParametersGroup;
-    DescriptionsGroup: TDescriptionsGroup;
+  TDM2 = class(TForm)
     qVersion: TQueryVersion;
-    qCategoryParameters: TQueryCategoryParameters;
-    ProducersGroup: TProducersGroup;
+    qTreeList: TQueryTreeList;
+    DescriptionsGroup: TDescriptionsGroup;
     BodyTypesGroup: TBodyTypesGroup;
+    ProducersGroup: TProducersGroup;
+    ParametersGroup: TParametersGroup;
+    ComponentsExGroup: TComponentsExGroup;
+    ComponentsGroup: TComponentsGroup;
+    ComponentsSearchGroup: TComponentsSearchGroup;
+    qCategoryParameters: TQueryCategoryParameters;
+    qChildCategories: TQueryChildCategories;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -42,18 +37,15 @@ type
     // FTempThread: TTempThread;
     procedure CloseConnection;
     procedure DoAfterParametersCommit(Sender: TObject);
-    procedure DoAfterParamForCategoriesPost(Sender: TObject);
+    procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
-  protected
-    procedure DoAfterProducerCommit(Sender: TObject);
-    procedure DoUpdate(ADB: TSQLiteDatabase; AOper: Integer; const ADatabase,
-        ATable: String; ARowid: sqlite3_int64);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure CreateOrOpenDataBase;
     function HaveAnyChanges: Boolean;
     procedure SaveAll;
@@ -63,33 +55,38 @@ type
   end;
 
 var
-  DM: TDM;
+  DM2: TDM2;
 
 implementation
 
 {$R *.dfm}
 
-uses SettingsController, System.IOUtils, RepositoryDataModule, NotifyEvents,
-  ModCheckDatabase, ProjectConst, DragHelper;
+uses System.IOUtils, NotifyEvents, DragHelper;
 
-constructor TDM.Create(AOwner: TComponent);
+constructor TDM2.Create(AOwner: TComponent);
 begin
+  Application.MessageBox('4', 'Отладка');
+  Assert(DMRepository <> nil);
   Assert(not DMRepository.dbConnection.Connected);
-  inherited Create(AOwner);
+  Application.MessageBox('5', 'Отладка');
+  inherited;
+  Application.MessageBox('6', 'Отладка');
   Assert(not DMRepository.dbConnection.Connected);
-  // FRecommendedReplacement := TRecommendedReplacementThread.Create(Self);
-  // FTempThread := TTempThread.Create(Self);
 
   FEventList := TObjectList.Create;
+  Application.MessageBox('7', 'Отладка');
 
   // Группа запросов - содержимое склада
   FProductGroup := TProductGroup.Create(Self);
-
+  Application.MessageBox('8', 'Отладка');
   // Группа запросов - поиск по складам
   FProductSearchGroup := TProductSearchGroup.Create(Self);
+  Application.MessageBox('9', 'Отладка');
 
-  // Заполняем список датасетов в том порядке, в котором их надо открывать
+  // СОздаём список наборов данных, кторые будем открывать
   FDataSetList := TList<TQueryBase>.Create;
+
+  Application.MessageBox('10', 'Отладка');
   with FDataSetList do
   begin
     Add(qTreeList);
@@ -106,20 +103,16 @@ begin
     // Поиск среди компонентов (главное)
     Add(ComponentsSearchGroup.qComponentsSearch);
     // Поиск среди компонентов (подчинённое)
-
-    // вкладка параметры - главное
-    Add(ParametersForCategoriesGroup.qParameterTypes);
-    // вкладка параметры - подчинённое
-    Add(ParametersForCategoriesGroup.qParametersDetail);
     // вкладка параметры - список параметров
     Add(qCategoryParameters);
   end;
-
+  Application.MessageBox('11', 'Отладка');
   // Для компонентов указываем откуда брать производителя и корпус
   ComponentsGroup.Producers := ProducersGroup.qProducers;
   ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
+  Application.MessageBox('12', 'Отладка');
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
 
@@ -127,24 +120,23 @@ begin
   ComponentsGroup.qComponents.Master := qTreeList;
   ComponentsGroup.qFamily.Master := qTreeList;
 
+  Application.MessageBox('13', 'Отладка');
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  ParametersForCategoriesGroup.qParametersDetail.Master := qTreeList;
+  Application.MessageBox('14', 'Отладка');
   qCategoryParameters.Master := qTreeList;
-  // qCategoryParameters.Master := qTreeList;
 
-  TNotifyEventWrap.Create(ParametersForCategoriesGroup.qParametersDetail.
-    AfterPost, DoAfterParamForCategoriesPost, FEventList);
+  Application.MessageBox('15', 'Отладка');
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
   FQueryGroups.Add(ComponentsGroup);
   FQueryGroups.Add(ComponentsExGroup);
   FQueryGroups.Add(ComponentsSearchGroup);
-  // FQueryGroups.Add(StoreHouseGroup);
-  FQueryGroups.Add(ParametersForCategoriesGroup);
+
+  Application.MessageBox('16', 'Отладка');
 
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
@@ -161,10 +153,20 @@ begin
   // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
   TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
     DoOnParamOrderChange, FEventList);
+
+  Application.MessageBox('17', 'Отладка');
+end;
+
+destructor TDM2.Destroy;
+begin
+  FreeAndNil(FEventList);
+  FreeAndNil(FDataSetList);
+  FreeAndNil(FQueryGroups);
+  inherited;
 end;
 
 { закрытие датасетов }
-procedure TDM.CloseConnection;
+procedure TDM2.CloseConnection;
 var
   I: Integer;
 begin
@@ -175,7 +177,7 @@ begin
   DMRepository.dbConnection.Close;
 end;
 
-procedure TDM.CreateOrOpenDataBase;
+procedure TDM2.CreateOrOpenDataBase;
 var
   ADatabaseFileName: string;
   AEmptyDatabaseFileName: string;
@@ -209,19 +211,13 @@ begin
   OpenConnection();
 end;
 
-procedure TDM.DoAfterParametersCommit(Sender: TObject);
+procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
-  // Применили изменения в параметрах - надо обновить параметры для категории
-  ParametersForCategoriesGroup.qParameterTypes.RefreshQuery;
+// Применили изменения в параметрах - надо обновить параметры для категории
+  qCategoryParameters.RefreshQuery;
 end;
 
-procedure TDM.DoAfterParamForCategoriesPost(Sender: TObject);
-begin
-  // Произошли изменения в параметрах для категории
-  ComponentsExGroup.UpdateData;
-end;
-
-procedure TDM.DoAfterProducerCommit(Sender: TObject);
+procedure TDM2.DoAfterProducerCommit(Sender: TObject);
 begin
   // Произощёл коммит в справочнике производителей
 
@@ -230,14 +226,14 @@ begin
   FProductGroup.qProducts.qProducers.RefreshQuery;
 end;
 
-procedure TDM.DoAfterStoreHousePost(Sender: TObject);
+procedure TDM2.DoAfterStoreHousePost(Sender: TObject);
 begin
   // Произошло сохранение скалада
   // Обновляем выпадающий список складов
   FProductSearchGroup.qProductsSearch.qStoreHouseList.RefreshQuery;
 end;
 
-procedure TDM.DoOnParamOrderChange(Sender: TObject);
+procedure TDM2.DoOnParamOrderChange(Sender: TObject);
 var
   L: TList<TRecOrder>;
 begin
@@ -246,13 +242,7 @@ begin
   qCategoryParameters.ApplyUpdates;
 end;
 
-procedure TDM.DoUpdate(ADB: TSQLiteDatabase; AOper: Integer; const ADatabase,
-    ATable: String; ARowid: sqlite3_int64);
-begin
-;  // TODO -cMM: TDM.DoUpdate default body inserted
-end;
-
-function TDM.HaveAnyChanges: Boolean;
+function TDM2.HaveAnyChanges: Boolean;
 var
   I: Integer;
 begin
@@ -278,7 +268,7 @@ begin
 end;
 
 { Заполнение БД необходимыми полями }
-procedure TDM.InitDataSetValues;
+procedure TDM2.InitDataSetValues;
 begin
   // Добавляем корень дерева
   qTreeList.AddRoot;
@@ -288,10 +278,9 @@ begin
 end;
 
 { открытие датасетов }
-procedure TDM.OpenConnection;
+procedure TDM2.OpenConnection;
 var
   AErrorMessage: string;
-  ASQLiteDatabase: TSQLiteDatabase;
   I: Integer;
 begin
   try
@@ -311,10 +300,6 @@ begin
 
   // Устанавливаем соединение с БД
   DMRepository.dbConnection.Open();
-
-  ASQLiteDatabase := TSQLiteDatabase(DMRepository.dbConnection.ConnectionIntf.CliObj);
-  ASQLiteDatabase.OnUpdate := DoUpdate;
-
 
   AErrorMessage := '';
   try
@@ -347,19 +332,14 @@ begin
 end;
 
 { сохранить всё }
-procedure TDM.SaveAll;
+procedure TDM2.SaveAll;
 var
   I: Integer;
 begin
   // Сохраняем изменения сделанные в категориях компонентов
   for I := 0 to FDataSetList.Count - 1 do
     FDataSetList[I].TryPost;
-  {
-    for I := 0 to FQuerysGroups.Count - 1 do
-    begin
-    FQuerysGroups[I].ApplyUpdates;
-    end;
-  }
+
   // Если работали в рамках транзакции, то сохраняем
   if FDataSetList[0].FDQuery.Connection.InTransaction then
     FDataSetList[0].FDQuery.Connection.Commit;

@@ -42,9 +42,6 @@ uses
   ProducersForm in 'Views\Producers\ProducersForm.pas' {frmProducers},
   ChildCategoriesQuery in 'Queryes\ChildCategories\ChildCategoriesQuery.pas' {QueryChildCategories: TFrame},
   ParameterTypesQuery in 'Queryes\Parameters\ParameterTypesQuery.pas' {QueryParameterTypes: TFrame},
-  ParametersForCategories in 'Queryes\ParametersForCategories\ParametersForCategories.pas',
-  ParametersDetailQuery in 'Queryes\ParametersForCategories\ParametersDetailQuery.pas' {QueryParametersDetail: TFrame},
-  ParametersForCategoriesGroupUnit in 'Queryes\ParametersForCategories\ParametersForCategoriesGroupUnit.pas' {ParametersForCategoriesGroup: TFrame},
   TreeListQuery in 'Queryes\TreeList\TreeListQuery.pas' {QueryTreeList: TFrame},
   SubParametersQuery in 'Queryes\Parameters\SubParametersQuery.pas' {QuerySubParameters: TFrame},
   MainParametersQuery in 'Queryes\Parameters\MainParametersQuery.pas' {QueryMainParameters: TFrame},
@@ -96,11 +93,9 @@ uses
   StoreHouseListQuery in 'Queryes\Products\StoreHouse\StoreHouseListQuery.pas' {QueryStoreHouseList: TFrame},
   ProductsBaseView in 'Views\Products\ProductsBaseView.pas' {ViewProductsBase: TFrame},
   ProductsSearchView in 'Views\Products\ProductsSearchView.pas' {ViewProductsSearch: TFrame},
-  ParametersForCategoriesView in 'Views\ParametersForCategories\ParametersForCategoriesView.pas' {ViewParametersForCategories: TFrame},
   StoreHouseInfoView in 'Views\StoreHouse\StoreHouseInfoView.pas' {ViewStorehouseInfo: TFrame},
   ComponentsSearchView in 'Views\Components\Search\ComponentsSearchView.pas' {ViewComponentsSearch: TFrame},
   ModCheckDatabase in 'Helpers\ModCheckDatabase.pas',
-  DataModule in 'Queryes\DataModule.pas' {DM},
   Main in 'Views\Main.pas' {frmMain},
   NotifyEvents in 'Helpers\NotifyEvents.pas',
   Sequence in 'Helpers\Sequence.pas',
@@ -148,7 +143,6 @@ uses
   CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParameters: TFrame},
   CategoryParametersView in 'Views\CategoryParameters\CategoryParametersView.pas' {ViewCategoryParameters: TFrame},
   ParameterPosQuery in 'Queryes\Parameters\ParameterPosQuery.pas' {QueryParameterPos: TFrame},
-  RecursiveParametersQuery in 'Queryes\ParametersForCategories\RecursiveParametersQuery.pas' {QueryRecursiveParameters: TFrame},
   MaxCategoryParameterOrderQuery in 'Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas' {QueryMaxCategoryParameterOrder: TFrame},
   SequenceQuery in 'Queryes\Sequence\SequenceQuery.pas' {QuerySequence: TFrame},
   IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame},
@@ -184,7 +178,9 @@ uses
   CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
   SearchProductDescriptionQuery in 'Queryes\Search\SearchProductDescriptionQuery.pas' {QuerySearchProductDescription: TFrame},
   SearchCategoryQuery in 'Queryes\Search\SearchCategoryQuery.pas' {QuerySearchCategory: TFrame},
-  ProgressBarForm3 in 'Views\ProgressBar\ProgressBarForm3.pas' {frmProgressBar3};
+  ProgressBarForm3 in 'Views\ProgressBar\ProgressBarForm3.pas' {frmProgressBar3},
+  DataModule2 in 'Queryes\DataModule2.pas' {DM2},
+  RecursiveParametersQuery in 'Queryes\CategoryParameters\RecursiveParametersQuery.pas' {QueryRecursiveParameters: TFrame};
 
 {$R *.res}
 

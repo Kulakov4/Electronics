@@ -294,9 +294,9 @@ procedure TComponentsFrame.actLoadParametricTableExecute(Sender: TObject);
 var
   AFieldsInfo: TList<TFieldInfo>;
   AFileName: string;
-  AfrmError: TfrmError;
+//  AfrmError: TfrmError;
   AParametricExcelDM: TParametricExcelDM;
-  OK: Boolean;
+//  OK: Boolean;
 begin
   AFieldsInfo := TList<TFieldInfo>.Create();
   try

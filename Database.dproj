@@ -218,17 +218,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\ParametersForCategories\ParametersForCategories.pas"/>
-        <DCCReference Include="Queryes\ParametersForCategories\ParametersDetailQuery.pas">
-            <Form>QueryParametersDetail</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\ParametersForCategories\ParametersForCategoriesGroupUnit.pas">
-            <Form>ParametersForCategoriesGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\TreeList\TreeListQuery.pas">
             <Form>QueryTreeList</Form>
             <FormType>dfm</FormType>
@@ -466,11 +455,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\ParametersForCategories\ParametersForCategoriesView.pas">
-            <Form>ViewParametersForCategories</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\StoreHouse\StoreHouseInfoView.pas">
             <Form>ViewStorehouseInfo</Form>
             <FormType>dfm</FormType>
@@ -482,10 +466,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\ModCheckDatabase.pas"/>
-        <DCCReference Include="Queryes\DataModule.pas">
-            <Form>DM</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Views\Main.pas">
             <Form>frmMain</Form>
             <FormType>dfm</FormType>
@@ -688,11 +668,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\ParametersForCategories\RecursiveParametersQuery.pas">
-            <Form>QueryRecursiveParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas">
             <Form>QueryMaxCategoryParameterOrder</Form>
             <FormType>dfm</FormType>
@@ -836,6 +811,15 @@
         <DCCReference Include="Views\ProgressBar\ProgressBarForm3.pas">
             <Form>frmProgressBar3</Form>
             <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\DataModule2.pas">
+            <Form>DM2</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\CategoryParameters\RecursiveParametersQuery.pas">
+            <Form>QueryRecursiveParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
