@@ -29,7 +29,7 @@ uses
   cxGridDBTableView, cxClasses, cxGridCustomView, cxGrid, cxPC,
   dxSkinsdxBarPainter, dxBar, System.Actions, Vcl.ActnList, FieldInfoUnit,
   System.Generics.Collections, CustomErrorTable, ExcelDataModule,
-  ProgressBarForm3, ProgressInfo;
+  ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx;
 
 type
   TComponentsFrame = class(TFrame)
@@ -67,18 +67,21 @@ type
     dxBarButton5: TdxBarButton;
     actAutoBindingDescriptions: TAction;
     dxBarButton6: TdxBarButton;
-    actLoadDocFromExcelDocument: TAction;
-    dxBarButton7: TdxBarButton;
     ViewComponents: TViewComponents;
     ViewComponentsSearch: TViewComponentsSearch;
     ViewParametricTable: TViewParametricTable;
+    ApplicationEvents: TApplicationEvents;
+    actLoadParametricData: TAction;
+    dxBarSubItem5: TdxBarSubItem;
+    dxBarButton8: TdxBarButton;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
-    procedure actLoadDocFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
+    procedure actLoadParametricDataExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
     procedure actReportExecute(Sender: TObject);
+    procedure ApplicationEventsHint(Sender: TObject);
     procedure cxpcComponentsPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure cxtsCategoryComponentsShow(Sender: TObject);
@@ -86,15 +89,19 @@ type
     procedure cxtsComponentsSearchShow(Sender: TObject);
   private
     FfrmProgressBar: TfrmProgressBar3;
+    FHintWindowEx: THintWindowEx;
     FWriteProgress: TTotalProgress;
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
+    procedure LoadDocFromExcelDocument;
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TList<TFieldInfo>): Boolean;
+    procedure LoadParametricData(AFamily: Boolean);
     procedure TryUpdateWrite0Statistic(API: TProgressInfo);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     { Public declarations }
   end;
 
@@ -122,6 +129,12 @@ uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
   GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client, AllFamilyQuery,
   AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm, BindDocUnit,
   SearchParameterQuery, NotifyEvents, CustomErrorForm;
+
+constructor TComponentsFrame.Create(AOwner: TComponent);
+begin
+  inherited;
+  FHintWindowEx := THintWindowEx.Create(Self);
+end;
 
 procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);
 var
@@ -173,8 +186,11 @@ begin
           AFDQuery := AQueryAllFamily.FDQuery;
         end;
       mrOk:
-        AFDQuery := ViewComponents.ComponentsGroup.qFamily.FDQuery
+        AFDQuery := ViewComponents.ComponentsGroup.qFamily.FDQuery;
+      mrNo:
+        LoadDocFromExcelDocument;
     end;
+
     if AFDQuery <> nil then
     begin
       TAutoBind.BindDocs(frmAutoBindingDoc.Docs, AFDQuery,
@@ -193,23 +209,6 @@ begin
     if AQueryAllFamily <> nil then
       FreeAndNil(AQueryAllFamily);
   end;
-end;
-
-procedure TComponentsFrame.actLoadDocFromExcelDocumentExecute(Sender: TObject);
-var
-  AFileName: string;
-begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForComponentsLoad);
-
-  if AFileName.IsEmpty then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.LastFolderForComponentsLoad :=
-    TPath.GetDirectoryName(AFileName);
-
-  TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
 end;
 
 procedure TComponentsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -290,39 +289,16 @@ begin
   ViewComponents.LoadFromExcelFolder(AFolderName, AProducer);
 end;
 
-procedure TComponentsFrame.actLoadParametricTableExecute(Sender: TObject);
-var
-  AFieldsInfo: TList<TFieldInfo>;
-  AFileName: string;
-//  AfrmError: TfrmError;
-  AParametricExcelDM: TParametricExcelDM;
-//  OK: Boolean;
+procedure TComponentsFrame.actLoadParametricDataExecute(Sender: TObject);
 begin
-  AFieldsInfo := TList<TFieldInfo>.Create();
-  try
-    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
-      Exit;
+  // будем загружать параметрические данные для компонентов (не семейств)
+  LoadParametricData(False);
+end;
 
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo);
-    FWriteProgress := TTotalProgress.Create;
-    FfrmProgressBar := TfrmProgressBar3.Create(Self);
-    try
-      TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
-        DoAfterLoadSheet);
-      TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
-        DoOnTotalReadProgress);
-
-      FfrmProgressBar.Show;
-      AParametricExcelDM.LoadExcelFile2(AFileName);
-    finally
-      FreeAndNil(AParametricExcelDM);
-      FreeAndNil(FWriteProgress);
-      FreeAndNil(FfrmProgressBar);
-    end;
-  finally
-    FreeAndNil(AFieldsInfo);
-  end;
-
+procedure TComponentsFrame.actLoadParametricTableExecute(Sender: TObject);
+begin
+  // будем загружать параметрические данные для семейств компонентов
+  LoadParametricData(True);
 end;
 
 procedure TComponentsFrame.actReportExecute(Sender: TObject);
@@ -346,6 +322,12 @@ begin
     FreeAndNil(frmReports);
   end;
 
+end;
+
+procedure TComponentsFrame.ApplicationEventsHint(Sender: TObject);
+begin
+  if (not Application.Hint.IsEmpty ) then
+    FHintWindowEx.DoActivateHint(Application.Hint);
 end;
 
 procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
@@ -438,7 +420,7 @@ begin
         TParameterValues.LoadParameters(e.ExcelTable as TParametricExcelTable);
       end,
 
-    // Обработчик события
+      // Обработчик события
       procedure(ASender: TObject)
       Var
         API: TProgressInfo;
@@ -479,6 +461,23 @@ begin
   Assert(FfrmProgressBar <> nil);
   e := ASender as TExcelDMEvent;
   FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
+end;
+
+procedure TComponentsFrame.LoadDocFromExcelDocument;
+var
+  AFileName: string;
+begin
+  AFileName := TDialog.Create.OpenExcelFile
+    (TSettings.Create.LastFolderForComponentsLoad);
+
+  if AFileName.IsEmpty then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForComponentsLoad :=
+    TPath.GetDirectoryName(AFileName);
+
+  TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
 end;
 
 function TComponentsFrame.LoadExcelFileHeader(var AFileName: String;
@@ -645,6 +644,39 @@ begin
   Result := OK;
 end;
 
+procedure TComponentsFrame.LoadParametricData(AFamily: Boolean);
+var
+  AFieldsInfo: TList<TFieldInfo>;
+  AFileName: string;
+  AParametricExcelDM: TParametricExcelDM;
+begin
+  AFieldsInfo := TList<TFieldInfo>.Create();
+  try
+    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
+      Exit;
+
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, AFamily);
+    FWriteProgress := TTotalProgress.Create;
+    FfrmProgressBar := TfrmProgressBar3.Create(Self);
+    try
+      TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
+        DoAfterLoadSheet);
+      TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
+        DoOnTotalReadProgress);
+
+      FfrmProgressBar.Show;
+      AParametricExcelDM.LoadExcelFile2(AFileName);
+    finally
+      FreeAndNil(AParametricExcelDM);
+      FreeAndNil(FWriteProgress);
+      FreeAndNil(FfrmProgressBar);
+    end;
+  finally
+    FreeAndNil(AFieldsInfo);
+  end;
+
+end;
+
 procedure TComponentsFrame.TryUpdateWrite0Statistic(API: TProgressInfo);
 begin
   if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
@@ -664,9 +696,9 @@ end;
 constructor TParametricErrorTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('ParameterName', ftString, 100);
-  FieldDefs.Add('Error', ftString, 50);
-  FieldDefs.Add('Description', ftString, 150);
+  FieldDefs.Add('ParameterName', ftWideString, 100);
+  FieldDefs.Add('Error', ftWideString, 50);
+  FieldDefs.Add('Description', ftWideString, 150);
   CreateDataSet;
 
   Open;

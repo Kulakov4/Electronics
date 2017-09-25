@@ -50,7 +50,7 @@ begin
   Assert(not AExternalID.IsEmpty);
   ACondition := 'where pc.ExternalId = :ExternalId';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('ExternalId', ptInput, ftString);
+  SetParamType('ExternalId', ptInput, ftWideString);
 
   Result := Search(['ExternalId'], [AExternalID]);
 end;
@@ -65,7 +65,7 @@ begin
   ACondition :=
     'where instr('',''||:SubGroup||'','', '',''||ExternalID||'','') > 0';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('SubGroup', ptInput, ftString);
+  SetParamType('SubGroup', ptInput, ftWideString);
 
   Result := Search(['SubGroup'], [ASubgroup]);
 end;

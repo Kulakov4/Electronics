@@ -94,7 +94,7 @@ begin
   // Меняем условие
   ACondition := 'where upper(Value) = upper(:Value) and ParentParameter = :ParentParameter';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('Value', ptInput, ftString);
+  SetParamType('Value', ptInput, ftWideString);
   SetParamType('ParentParameter');
 
   // Ищем
@@ -111,7 +111,7 @@ begin
   // Меняем условие
   ACondition := 'where upper(TableName) = upper(:TableName) and ParentParameter is null and IsCustomParameter=:IsCustomParameter';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('TableName', ptInput, ftString);
+  SetParamType('TableName', ptInput, ftWideString);
   SetParamType('IsCustomParameter');
 
   // Ищем
@@ -128,7 +128,7 @@ begin
   // Меняем условие
   ACondition := 'where upper(TableName) = upper(:TableName) and ParentParameter is null';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('TableName', ptInput, ftString);
+  SetParamType('TableName', ptInput, ftWideString);
 
   // Ищем
   Result := Search(['TableName'], [ATableName]);

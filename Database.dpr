@@ -174,7 +174,8 @@ uses
   ProductsTabSheetView in 'Views\Products\ProductsTabSheetView.pas' {ProductsFrame: TFrame},
   RecursiveTreeQuery in 'Queryes\TreeList\RecursiveTreeQuery.pas' {QueryRecursiveTree: TFrame},
   RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
-  Main in 'Views\Main.pas' {frmMain};
+  Main in 'Views\Main.pas' {frmMain},
+  HintWindowEx in 'Helpers\HintWindowEx.pas';
 
 {$R *.res}
 

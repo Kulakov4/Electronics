@@ -364,7 +364,6 @@ var
   rc: Integer;
 begin
   // Очищаем статистику
-
   ATotalProgress := TTotalProgress.Create;
   try
     ne := nil;
@@ -741,7 +740,7 @@ end;
 
 procedure THeaderInfoTable.CreateFieldDefs;
 begin
-  FieldDefs.Add('ColumnName', ftString, 200);
+  FieldDefs.Add('ColumnName', ftWideString, 200);
 end;
 
 function THeaderInfoTable.GetColumnName: TField;

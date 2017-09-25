@@ -180,7 +180,7 @@ begin
           AFieldType := ftInteger;
         2: // строка
           begin
-            AFieldType := ftString;
+            AFieldType := ftWideString;
             ASize := 200;
           end;
         // дробное число
@@ -193,7 +193,7 @@ begin
         5:
           AFieldType := ftDateTime;
       else
-        AFieldType := ftString;
+        AFieldType := ftWideString;
         ASize := 200;
       end;
 

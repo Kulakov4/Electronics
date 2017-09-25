@@ -23,9 +23,9 @@ begin
   inherited;
   FieldDefs.Add('Row', ftInteger);
   FieldDefs.Add('Col', ftInteger);
-  FieldDefs.Add('Error', ftString, 20);
-  FieldDefs.Add('ErrorValue', ftString, 30);
-  FieldDefs.Add('Description', ftString, 100);
+  FieldDefs.Add('Error', ftWideString, 20);
+  FieldDefs.Add('ErrorValue', ftWideString, 30);
+  FieldDefs.Add('Description', ftWideString, 100);
   CreateDataSet;
 
   Open;

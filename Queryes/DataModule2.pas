@@ -65,28 +65,28 @@ uses System.IOUtils, NotifyEvents, DragHelper;
 
 constructor TDM2.Create(AOwner: TComponent);
 begin
-  Application.MessageBox('4', 'Отладка');
+  //Application.MessageBox('1', 'Отладка');
   Assert(DMRepository <> nil);
   Assert(not DMRepository.dbConnection.Connected);
-  Application.MessageBox('5', 'Отладка');
+  //Application.MessageBox('2', 'Отладка');
   inherited;
-  Application.MessageBox('6', 'Отладка');
+  //Application.MessageBox('3', 'Отладка');
   Assert(not DMRepository.dbConnection.Connected);
 
   FEventList := TObjectList.Create;
-  Application.MessageBox('7', 'Отладка');
+  //Application.MessageBox('4', 'Отладка');
 
   // Группа запросов - содержимое склада
   FProductGroup := TProductGroup.Create(Self);
-  Application.MessageBox('8', 'Отладка');
+  //Application.MessageBox('5', 'Отладка');
   // Группа запросов - поиск по складам
   FProductSearchGroup := TProductSearchGroup.Create(Self);
-  Application.MessageBox('9', 'Отладка');
+  //Application.MessageBox('6', 'Отладка');
 
   // СОздаём список наборов данных, кторые будем открывать
   FDataSetList := TList<TQueryBase>.Create;
 
-  Application.MessageBox('10', 'Отладка');
+  //Application.MessageBox('7', 'Отладка');
   with FDataSetList do
   begin
     Add(qTreeList);
@@ -106,13 +106,13 @@ begin
     // вкладка параметры - список параметров
     Add(qCategoryParameters);
   end;
-  Application.MessageBox('11', 'Отладка');
+  //Application.MessageBox('8', 'Отладка');
   // Для компонентов указываем откуда брать производителя и корпус
   ComponentsGroup.Producers := ProducersGroup.qProducers;
   ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
-  Application.MessageBox('12', 'Отладка');
+  //Application.MessageBox('9', 'Отладка');
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
 
@@ -120,15 +120,15 @@ begin
   ComponentsGroup.qComponents.Master := qTreeList;
   ComponentsGroup.qFamily.Master := qTreeList;
 
-  Application.MessageBox('13', 'Отладка');
+  //Application.MessageBox('10', 'Отладка');
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  Application.MessageBox('14', 'Отладка');
+  //Application.MessageBox('11', 'Отладка');
   qCategoryParameters.Master := qTreeList;
 
-  Application.MessageBox('15', 'Отладка');
+  //Application.MessageBox('12', 'Отладка');
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
@@ -136,7 +136,7 @@ begin
   FQueryGroups.Add(ComponentsExGroup);
   FQueryGroups.Add(ComponentsSearchGroup);
 
-  Application.MessageBox('16', 'Отладка');
+  //Application.MessageBox('13', 'Отладка');
 
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
@@ -154,7 +154,7 @@ begin
   TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
     DoOnParamOrderChange, FEventList);
 
-  Application.MessageBox('17', 'Отладка');
+  //Application.MessageBox('14', 'Отладка');
 end;
 
 destructor TDM2.Destroy;

@@ -233,7 +233,7 @@ begin
   begin
     with FDQuery.ParamByName('Value') do
     begin
-       DataType := ftString;
+       DataType := ftWideString;
        ParamType := ptInput;
        AsString := s;
      end;

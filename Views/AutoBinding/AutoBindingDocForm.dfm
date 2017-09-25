@@ -2,7 +2,7 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
   Left = 0
   Top = 0
   BorderStyle = bsDialog
-  Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072' '#1082' '#1092#1072#1081#1083#1072#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
+  Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1086#1077' '#1087#1088#1080#1082#1088#1077#1087#1083#1077#1085#1080#1077' '#1092#1072#1081#1083#1086#1074' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
   ClientHeight = 391
   ClientWidth = 501
   Color = clBtnFace
@@ -23,7 +23,7 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
     Left = 8
     Top = 8
     Anchors = [akLeft, akTop, akRight]
-    Caption = ' '#1055#1088#1080#1074#1103#1079#1072#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1082' '#1092#1072#1081#1083#1072#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080' '
+    Caption = #1055#1088#1080#1082#1088#1077#1087#1080#1090#1100' '#1082' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1072#1084' '#1092#1072#1081#1083#1099' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
     TabOrder = 0
     Height = 121
     Width = 485
@@ -64,13 +64,12 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
     Anchors = [akLeft, akTop, akRight]
     Caption = #1045#1089#1083#1080' '#1086#1076#1085#1086#1084#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1091' '#1087#1086#1076#1073#1080#1088#1072#1077#1090#1089#1103' '#1085#1077#1089#1082#1086#1083#1100#1082#1086' '#1092#1072#1081#1083#1086#1074' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
     TabOrder = 1
-    ExplicitWidth = 474
     object cxrbNoRange: TcxRadioButton
       Left = 20
       Top = 32
       Width = 309
       Height = 17
-      Caption = #1057#1095#1080#1090#1072#1090#1100' '#1101#1090#1086' '#1086#1096#1080#1073#1082#1086#1081' '#1080' '#1085#1077' '#1074#1099#1087#1086#1083#1085#1103#1090#1100' '#1087#1088#1080#1074#1103#1079#1082#1091
+      Caption = #1057#1095#1080#1090#1072#1090#1100' '#1101#1090#1086' '#1086#1096#1080#1073#1082#1086#1081' '#1080' '#1085#1080#1095#1077#1075#1086' '#1085#1077' '#1087#1088#1080#1082#1088#1077#1087#1083#1103#1090#1100
       Checked = True
       TabOrder = 0
       TabStop = True
@@ -95,7 +94,6 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
     ModalResult = 12
     TabOrder = 2
     WordWrap = True
-    ExplicitTop = 274
   end
   object cxbtnCategoryDB: TcxButton
     Left = 174
@@ -107,7 +105,6 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
     ModalResult = 1
     TabOrder = 3
     WordWrap = True
-    ExplicitTop = 265
   end
   object cxbtnCancel: TcxButton
     Left = 340
@@ -116,11 +113,10 @@ object frmAutoBindingDoc: TfrmAutoBindingDoc
     Height = 40
     Anchors = [akLeft, akBottom]
     Cancel = True
-    Caption = #1054#1090#1084#1077#1085#1072
-    ModalResult = 2
+    Caption = #1048#1079' Excel-'#1092#1072#1081#1083#1072
+    ModalResult = 7
     TabOrder = 4
     WordWrap = True
-    ExplicitTop = 265
   end
   object cxGroupBox2: TcxGroupBox
     Left = 8

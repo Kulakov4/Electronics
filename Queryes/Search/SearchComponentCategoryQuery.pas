@@ -108,7 +108,7 @@ begin
   FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
 
   SetParamType('ProductID');
-  SetParamType('SubGroup', ptInput, ftString);
+  SetParamType('SubGroup', ptInput, ftWideString);
 
   Result := Search(['ProductID', 'SubGroup'], [AIDComponent, ASubGroup]);
 end;

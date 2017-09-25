@@ -508,11 +508,11 @@ constructor TAutomaticLoadErrorTable.Create(AOwner: TComponent);
 begin
   inherited;
 
-  FieldDefs.Add('FileName', ftString, 100);
+  FieldDefs.Add('FileName', ftWideString, 100);
   FieldDefs.Add('SheetIndex', ftInteger);
-  FieldDefs.Add('CategoryName', ftString, 100);
-  FieldDefs.Add('Description', ftString, 100);
-  FieldDefs.Add('Error', ftString, 20);
+  FieldDefs.Add('CategoryName', ftWideString, 100);
+  FieldDefs.Add('Description', ftWideString, 100);
+  FieldDefs.Add('Error', ftWideString, 20);
   IndexDefs.Add('idxOrd', 'FileName;SheetIndex', []);
 
   CreateDataSet;

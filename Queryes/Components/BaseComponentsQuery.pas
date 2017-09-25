@@ -73,7 +73,7 @@ var
   ARH: TRecordHolder;
 begin
   // Если такого компонента ещё нет
-  if qSearchComponent.SearchComponen
+  if qSearchComponent.SearchComponent
     (ASender.FieldByName(ParentProductID.FieldName).AsInteger,
     ASender.FieldByName(Value.FieldName).AsString) = 0 then
   begin

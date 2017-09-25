@@ -313,7 +313,7 @@ begin
       try
         with AfrmGridView do
         begin
-          Caption := 'Ошибки привязки компонентов к файлам документации';
+          Caption := 'Ошибки автоматического прикрепления файлов документации';
           DataSet := AErrorLinkedDocTable;
           // Показываем что мы собираемся привязывать
           ShowModal;
@@ -613,10 +613,10 @@ end;
 constructor TAbsentDocTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('Folder', ftString, 100);
-  FieldDefs.Add('ComponentName', ftString, 100);
-  // FieldDefs.Add('Error', ftString, 50);
-  FieldDefs.Add('Description', ftString, 150);
+  FieldDefs.Add('Folder', ftWideString, 100);
+  FieldDefs.Add('ComponentName', ftWideString, 100);
+  // FieldDefs.Add('Error', ftWideString, 50);
+  FieldDefs.Add('Description', ftWideString, 150);
   CreateDataSet;
 
   Open;
@@ -658,8 +658,8 @@ end;
 constructor TDocFilesTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('FileName', ftString, 1000);
-  FieldDefs.Add('RootFolder', ftString, 500);
+  FieldDefs.Add('FileName', ftWideString, 1000);
+  FieldDefs.Add('RootFolder', ftWideString, 500);
   FieldDefs.Add('IDParameter', ftInteger);
 
   CreateDataSet;
@@ -733,9 +733,9 @@ end;
 constructor TPossibleLinkDocTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('FileName', ftString, 1000);
-  FieldDefs.Add('RootFolder', ftString, 500);
-  FieldDefs.Add('ComponentName', ftString, 200);
+  FieldDefs.Add('FileName', ftWideString, 1000);
+  FieldDefs.Add('RootFolder', ftWideString, 500);
+  FieldDefs.Add('ComponentName', ftWideString, 200);
   FieldDefs.Add('Range', ftInteger);
   IndexDefs.Add('idxOrder', 'ComponentName;Range', []);
 
@@ -770,9 +770,9 @@ end;
 constructor TErrorLinkedDocTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('ComponentName', ftString, 200);
-  FieldDefs.Add('Folder', ftString, 500);
-  FieldDefs.Add('ErrorMessage', ftString, 1000);
+  FieldDefs.Add('ComponentName', ftWideString, 200);
+  FieldDefs.Add('Folder', ftWideString, 500);
+  FieldDefs.Add('ErrorMessage', ftWideString, 1000);
   CreateDataSet;
 
   Open;

@@ -3,6 +3,8 @@ object ProductsFrame: TProductsFrame
   Top = 0
   Width = 998
   Height = 635
+  ParentShowHint = False
+  ShowHint = True
   TabOrder = 0
   object cxpcStorehouse: TcxPageControl
     Left = 0

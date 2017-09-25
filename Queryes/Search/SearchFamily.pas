@@ -115,7 +115,7 @@ begin
   S := S.Replace('ParametersValues */', '', [rfReplaceAll]);
 
   FDQuery.SQL.Text := S;
-  SetParamType('Value', ptInput, ftString);
+  SetParamType('Value', ptInput, ftWideString);
   SetParamType('ProducerParameterID');
   SetParamType('PackagePinsParameterID');
   SetParamType('DatasheetParameterID');
@@ -141,7 +141,7 @@ begin
   S := Replace( fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0' );
 
   FDQuery.SQL.Text := S;
-  SetParamType('Value', ptInput, ftString);
+  SetParamType('Value', ptInput, ftWideString);
 
   Result := Search(['Value'], [AValue]);
 end;

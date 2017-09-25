@@ -90,7 +90,7 @@ begin
   vIntegers := TList<Integer>.Create;
   try
     AQuery.Connection := FDQuery.Connection;
-    AQuery.Params.CreateParam(ftString, 'vPartOfExternalId', ptInput);
+    AQuery.Params.CreateParam(ftWideString, 'vPartOfExternalId', ptInput);
     AQuery.ParamByName('vPartOfExternalId').AsString := vLevelStr + '%';
     AQuery.SQL.Add
       ('select * from ProductCategories where externalId like :vPartOfExternalId');
@@ -129,7 +129,7 @@ begin
     AQuery.Connection := FDQuery.Connection;
     AQuery.Params.CreateParam(ftInteger, 'vId', ptInput);
     AQuery.ParamByName('vId').AsInteger := ParentId;
-    AQuery.Params.CreateParam(ftString, 'vValue', ptInput);
+    AQuery.Params.CreateParam(ftWideString, 'vValue', ptInput);
     AQuery.ParamByName('vValue').AsString := value;
     AQuery.SQL.Add
       ('select * from ProductCategories where ParentId = :vId and value LIKE :vValue');
