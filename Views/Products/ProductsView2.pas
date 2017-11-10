@@ -25,7 +25,7 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ErrorForm,
-  ProductsExcelDataModule, ProductGroupUnit, Vcl.Menus, Vcl.ComCtrls,
+  ProductsExcelDataModule, ProductGroupUnit2, Vcl.Menus, Vcl.ComCtrls,
   System.Contnrs, ProgressBarForm2, ExcelDataModule, cxDropDownEdit;
 
 type

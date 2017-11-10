@@ -1,0 +1,2 @@
+inherited ProductBaseGroup: TProductBaseGroup
+end

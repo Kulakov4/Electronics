@@ -39,7 +39,6 @@ uses
   BodyTypesSimpleQuery in 'Queryes\BodyTypes\BodyTypesSimpleQuery.pas' {QueryBodyTypesSimple: TFrame},
   BodyTypesQuery2 in 'Queryes\BodyTypes\BodyTypesQuery2.pas' {QueryBodyTypes2: TFrame},
   QueryGroupUnit in 'Queryes\QueryGroupUnit.pas' {QueryGroup: TFrame},
-  QueryGroupUnit3 in 'Queryes\QueryGroupUnit3.pas',
   OrderQuery in 'Queryes\OrderQuery.pas' {QueryOrder: TFrame},
   BodyKindsQuery in 'Queryes\BodyTypes\BodyKindsQuery.pas' {QueryBodyKinds: TFrame},
   ProducerTypesQuery in 'Queryes\Producers\ProducerTypesQuery.pas' {QueryProducerTypes: TFrame},
@@ -116,10 +115,7 @@ uses
   ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule},
   ProductsQuery in 'Queryes\Products\ProductsQuery.pas' {QueryProducts: TFrame},
   StoreHouseGroupUnit in 'Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas' {StoreHouseGroup: TFrame},
-  ProductBaseGroupUnit in 'Queryes\Products\ProductBaseGroupUnit.pas',
-  ProductGroupUnit in 'Queryes\Products\ProductGroupUnit.pas',
   ProductsSearchQuery in 'Queryes\Products\Search\ProductsSearchQuery.pas' {QueryProductsSearch: TFrame},
-  ProductSearchGroupUnit in 'Queryes\Products\ProductSearchGroupUnit.pas',
   RootForm in 'Views\RootForm.pas' {frmRoot},
   DictonaryForm in 'Views\DictonaryForm.pas' {frmDictonary},
   PathSettingsForm in 'Views\PathSettingsForm.pas' {frmPathSettings},
@@ -175,7 +171,10 @@ uses
   RecursiveTreeQuery in 'Queryes\TreeList\RecursiveTreeQuery.pas' {QueryRecursiveTree: TFrame},
   RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
   Main in 'Views\Main.pas' {frmMain},
-  HintWindowEx in 'Helpers\HintWindowEx.pas';
+  HintWindowEx in 'Helpers\HintWindowEx.pas',
+  ProductBaseGroupUnit2 in 'Queryes\Products\ProductBaseGroupUnit2.pas' {ProductBaseGroup: TFrame},
+  ProductSearchGroupUnit2 in 'Queryes\Products\ProductSearchGroupUnit2.pas' {ProductSearchGroup: TFrame},
+  ProductGroupUnit2 in 'Queryes\Products\ProductGroupUnit2.pas' {ProductGroup: TFrame};
 
 {$R *.res}
 

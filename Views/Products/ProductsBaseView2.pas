@@ -23,7 +23,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
-  cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit,
+  cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit2,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
   cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit, Vcl.ComCtrls,
   System.Contnrs, DescriptionPopupForm;
@@ -158,8 +158,8 @@ type
     procedure EndUpdate; override;
     procedure UpdateView; override;
     property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
-    property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup
-      write SetProductBaseGroup;
+    property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup write
+        SetProductBaseGroup;
     { Public declarations }
   end;
 
@@ -816,8 +816,8 @@ begin
 
 end;
 
-procedure TViewProductsBase2.SetProductBaseGroup(const Value
-  : TProductBaseGroup);
+procedure TViewProductsBase2.SetProductBaseGroup(const Value:
+    TProductBaseGroup);
 begin
   if FProductBaseGroup = Value then
     Exit;

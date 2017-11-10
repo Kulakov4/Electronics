@@ -259,4 +259,43 @@ object DM2: TDM2
     ExplicitLeft = 571
     ExplicitHeight = 77
   end
+  inline ProductGroup: TProductGroup
+    Left = 544
+    Top = 432
+    Width = 410
+    Height = 86
+    TabOrder = 11
+    ExplicitLeft = 544
+    ExplicitTop = 432
+    inherited GridPanel1: TGridPanel
+      ControlCollection = <
+        item
+          Column = 0
+          Control = ProductGroup.qStoreHouseList
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = ProductGroup.qProducts
+          Row = 0
+        end>
+    end
+  end
+  inline ProductSearchGroup: TProductSearchGroup
+    Left = 744
+    Top = 8
+    Width = 202
+    Height = 90
+    TabOrder = 12
+    ExplicitLeft = 744
+    ExplicitTop = 8
+    inherited GridPanel1: TGridPanel
+      ControlCollection = <
+        item
+          Column = 0
+          Control = ProductSearchGroup.qProductsSearch
+          Row = 0
+        end>
+    end
+  end
 end

@@ -203,7 +203,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\QueryGroupUnit3.pas"/>
         <DCCReference Include="Queryes\OrderQuery.pas">
             <Form>QueryOrder</Form>
             <FormType>dfm</FormType>
@@ -568,14 +567,11 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Products\ProductBaseGroupUnit.pas"/>
-        <DCCReference Include="Queryes\Products\ProductGroupUnit.pas"/>
         <DCCReference Include="Queryes\Products\Search\ProductsSearchQuery.pas">
             <Form>QueryProductsSearch</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Products\ProductSearchGroupUnit.pas"/>
         <DCCReference Include="Views\RootForm.pas">
             <Form>frmRoot</Form>
             <FormType>dfm</FormType>
@@ -802,6 +798,21 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\HintWindowEx.pas"/>
+        <DCCReference Include="Queryes\Products\ProductBaseGroupUnit2.pas">
+            <Form>ProductBaseGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductSearchGroupUnit2.pas">
+            <Form>ProductSearchGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductGroupUnit2.pas">
+            <Form>ProductGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -17,6 +17,7 @@ type
     FMain: TQueryWithDataSource;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
+    function GetHaveAnyChanges: Boolean;
     procedure SetDetail(const Value: TQueryWithDataSource);
     procedure SetMain(const Value: TQueryWithDataSource);
     { Private declarations }
@@ -36,6 +37,7 @@ type
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
     property Detail: TQueryWithDataSource read FDetail write SetDetail;
+    property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property Main: TQueryWithDataSource read FMain write SetMain;
     { Public declarations }
   end;
@@ -110,6 +112,17 @@ function TQueryGroup.GetConnection: TFDCustomConnection;
 begin
   Assert(Main <> nil);
   Result := Main.FDQuery.Connection;
+end;
+
+function TQueryGroup.GetHaveAnyChanges: Boolean;
+begin
+  Result := False;
+
+  if Main <> nil then
+    Result := Main.HaveAnyChanges;
+
+  if (Detail <> nil) and (not Result) then
+    Result := Detail.HaveAnyChanges;
 end;
 
 procedure TQueryGroup.InitializeQuery(AQuery: TFDQuery);

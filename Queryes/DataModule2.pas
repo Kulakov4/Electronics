@@ -5,14 +5,14 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  RepositoryDataModule, System.Contnrs, ProductGroupUnit,
-  ProductSearchGroupUnit, System.Generics.Collections, BaseQuery, QueryGroupUnit,
-  ModCheckDatabase, SettingsController, VersionQuery, ProjectConst,
-  BaseEventsQuery, QueryWithMasterUnit, QueryWithDataSourceUnit, TreeListQuery,
-  DescriptionsGroupUnit, BodyTypesGroupUnit, ProducersGroupUnit,
+  RepositoryDataModule, System.Contnrs, System.Generics.Collections,
+  BaseQuery, QueryGroupUnit, ModCheckDatabase, SettingsController, VersionQuery,
+  ProjectConst, BaseEventsQuery, QueryWithMasterUnit, QueryWithDataSourceUnit,
+  TreeListQuery, DescriptionsGroupUnit, BodyTypesGroupUnit, ProducersGroupUnit,
   ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
   ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
-  ChildCategoriesQuery;
+  ChildCategoriesQuery, ProductBaseGroupUnit2, ProductGroupUnit2,
+  ProductSearchGroupUnit2;
 
 type
   TDM2 = class(TForm)
@@ -27,11 +27,11 @@ type
     ComponentsSearchGroup: TComponentsSearchGroup;
     qCategoryParameters: TQueryCategoryParameters;
     qChildCategories: TQueryChildCategories;
+    ProductGroup: TProductGroup;
+    ProductSearchGroup: TProductSearchGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
-    FProductGroup: TProductGroup;
-    FProductSearchGroup: TProductSearchGroup;
     FQueryGroups: TList<TQueryGroup>;
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
@@ -49,8 +49,6 @@ type
     procedure CreateOrOpenDataBase;
     function HaveAnyChanges: Boolean;
     procedure SaveAll;
-    property ProductGroup: TProductGroup read FProductGroup;
-    property ProductSearchGroup: TProductSearchGroup read FProductSearchGroup;
     { Public declarations }
   end;
 
@@ -65,28 +63,16 @@ uses System.IOUtils, NotifyEvents, DragHelper;
 
 constructor TDM2.Create(AOwner: TComponent);
 begin
-  //Application.MessageBox('1', 'Отладка');
   Assert(DMRepository <> nil);
   Assert(not DMRepository.dbConnection.Connected);
-  //Application.MessageBox('2', 'Отладка');
   inherited;
-  //Application.MessageBox('3', 'Отладка');
   Assert(not DMRepository.dbConnection.Connected);
 
   FEventList := TObjectList.Create;
-  //Application.MessageBox('4', 'Отладка');
-
-  // Группа запросов - содержимое склада
-  FProductGroup := TProductGroup.Create(Self);
-  //Application.MessageBox('5', 'Отладка');
-  // Группа запросов - поиск по складам
-  FProductSearchGroup := TProductSearchGroup.Create(Self);
-  //Application.MessageBox('6', 'Отладка');
 
   // СОздаём список наборов данных, кторые будем открывать
   FDataSetList := TList<TQueryBase>.Create;
 
-  //Application.MessageBox('7', 'Отладка');
   with FDataSetList do
   begin
     Add(qTreeList);
@@ -94,10 +80,10 @@ begin
     Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
     Add(ProducersGroup.qProducerTypes); // Типы производителей
     Add(ProducersGroup.qProducers); // Производители
-    Add(FProductSearchGroup.qProductsSearch);
+    Add(ProductSearchGroup.qProductsSearch);
     // Поиск на складе и редактирование найденного
     // Add(FProductGroup.qComponentGroups); // группы компонентов на складе
-    Add(FProductGroup.qStoreHouseList); // Склады - главное
+    Add(ProductGroup.qStoreHouseList); // Склады - главное
     // Add(FProductGroup.qProducts); // Содержимое текущего склада
     Add(ComponentsSearchGroup.qFamilySearch);
     // Поиск среди компонентов (главное)
@@ -106,13 +92,12 @@ begin
     // вкладка параметры - список параметров
     Add(qCategoryParameters);
   end;
-  //Application.MessageBox('8', 'Отладка');
   // Для компонентов указываем откуда брать производителя и корпус
   ComponentsGroup.Producers := ProducersGroup.qProducers;
   ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
-  //Application.MessageBox('9', 'Отладка');
+
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
 
@@ -120,23 +105,17 @@ begin
   ComponentsGroup.qComponents.Master := qTreeList;
   ComponentsGroup.qFamily.Master := qTreeList;
 
-  //Application.MessageBox('10', 'Отладка');
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  //Application.MessageBox('11', 'Отладка');
   qCategoryParameters.Master := qTreeList;
-
-  //Application.MessageBox('12', 'Отладка');
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
   FQueryGroups.Add(ComponentsGroup);
   FQueryGroups.Add(ComponentsExGroup);
   FQueryGroups.Add(ComponentsSearchGroup);
-
-  //Application.MessageBox('13', 'Отладка');
 
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
@@ -147,14 +126,12 @@ begin
     DoAfterProducerCommit, FEventList);
 
   // Чтобы выпадающий список складов обновлялся вместе со списком складов
-  TNotifyEventWrap.Create(FProductGroup.qStoreHouseList.AfterPost,
+  TNotifyEventWrap.Create(ProductGroup.qStoreHouseList.AfterPost,
     DoAfterStoreHousePost, FEventList);
 
   // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
   TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
     DoOnParamOrderChange, FEventList);
-
-  //Application.MessageBox('14', 'Отладка');
 end;
 
 destructor TDM2.Destroy;
@@ -222,15 +199,15 @@ begin
   // Произощёл коммит в справочнике производителей
 
   // Просим обновить данные о производителях в других местах
-  FProductSearchGroup.qProductsSearch.qProducers.RefreshQuery;
-  FProductGroup.qProducts.qProducers.RefreshQuery;
+  ProductSearchGroup.qProductsSearch.qProducers.RefreshQuery;
+  ProductGroup.qProducts.qProducers.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterStoreHousePost(Sender: TObject);
 begin
   // Произошло сохранение скалада
   // Обновляем выпадающий список складов
-  FProductSearchGroup.qProductsSearch.qStoreHouseList.RefreshQuery;
+  ProductSearchGroup.qProductsSearch.qStoreHouseList.RefreshQuery;
 end;
 
 procedure TDM2.DoOnParamOrderChange(Sender: TObject);
