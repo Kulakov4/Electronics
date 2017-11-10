@@ -190,6 +190,7 @@ uses
 
 constructor TfrmMain.Create(AOwner: TComponent);
 begin
+  Application.HintHidePause := 10000;
   inherited Create(AOwner);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
 end;

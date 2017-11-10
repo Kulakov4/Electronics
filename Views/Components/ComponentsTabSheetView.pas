@@ -326,8 +326,8 @@ end;
 
 procedure TComponentsFrame.ApplicationEventsHint(Sender: TObject);
 begin
-  if (not Application.Hint.IsEmpty ) then
-    FHintWindowEx.DoActivateHint(Application.Hint);
+//  if (not Application.Hint.IsEmpty ) then
+    FHintWindowEx.DoActivateHint(Application.Hint)
 end;
 
 procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
