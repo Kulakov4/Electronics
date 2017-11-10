@@ -4,3 +4,5 @@
 *.stat
 *.identcache
 *.dproj.local
+*.dsk
+*.~dsk
