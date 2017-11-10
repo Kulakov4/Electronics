@@ -11,8 +11,8 @@ uses
   TreeListQuery, DescriptionsGroupUnit, BodyTypesGroupUnit, ProducersGroupUnit,
   ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
   ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
-  ChildCategoriesQuery, ProductBaseGroupUnit2, ProductGroupUnit2,
-  ProductSearchGroupUnit2;
+  ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
+  StoreHouseListQuery, ProductsSearchQuery;
 
 type
   TDM2 = class(TForm)
@@ -27,8 +27,9 @@ type
     ComponentsSearchGroup: TComponentsSearchGroup;
     qCategoryParameters: TQueryCategoryParameters;
     qChildCategories: TQueryChildCategories;
-    ProductGroup: TProductGroup;
-    ProductSearchGroup: TProductSearchGroup;
+    qProducts: TQueryProducts;
+    qStoreHouseList: TQueryStoreHouseList;
+    qProductsSearch: TQueryProductsSearch;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -80,10 +81,10 @@ begin
     Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
     Add(ProducersGroup.qProducerTypes); // Типы производителей
     Add(ProducersGroup.qProducers); // Производители
-    Add(ProductSearchGroup.qProductsSearch);
+    Add(qProductsSearch);
     // Поиск на складе и редактирование найденного
     // Add(FProductGroup.qComponentGroups); // группы компонентов на складе
-    Add(ProductGroup.qStoreHouseList); // Склады - главное
+    Add(qStoreHouseList); // Склады - главное
     // Add(FProductGroup.qProducts); // Содержимое текущего склада
     Add(ComponentsSearchGroup.qFamilySearch);
     // Поиск среди компонентов (главное)
@@ -97,9 +98,9 @@ begin
   ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
-
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
+  qProducts.Master := qStoreHouseList;
 
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
   ComponentsGroup.qComponents.Master := qTreeList;
@@ -126,8 +127,8 @@ begin
     DoAfterProducerCommit, FEventList);
 
   // Чтобы выпадающий список складов обновлялся вместе со списком складов
-  TNotifyEventWrap.Create(ProductGroup.qStoreHouseList.AfterPost,
-    DoAfterStoreHousePost, FEventList);
+  TNotifyEventWrap.Create(qStoreHouseList.AfterPost, DoAfterStoreHousePost,
+    FEventList);
 
   // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
   TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
@@ -190,7 +191,7 @@ end;
 
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
-// Применили изменения в параметрах - надо обновить параметры для категории
+  // Применили изменения в параметрах - надо обновить параметры для категории
   qCategoryParameters.RefreshQuery;
 end;
 
@@ -199,15 +200,15 @@ begin
   // Произощёл коммит в справочнике производителей
 
   // Просим обновить данные о производителях в других местах
-  ProductSearchGroup.qProductsSearch.qProducers.RefreshQuery;
-  ProductGroup.qProducts.qProducers.RefreshQuery;
+  qProductsSearch.qProducers.RefreshQuery;
+  qProducts.qProducers.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterStoreHousePost(Sender: TObject);
 begin
   // Произошло сохранение скалада
   // Обновляем выпадающий список складов
-  ProductSearchGroup.qProductsSearch.qStoreHouseList.RefreshQuery;
+  qProductsSearch.qStoreHouseList.RefreshQuery;
 end;
 
 procedure TDM2.DoOnParamOrderChange(Sender: TObject);

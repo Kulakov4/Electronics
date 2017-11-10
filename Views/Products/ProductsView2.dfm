@@ -54,6 +54,10 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxBarButton6'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end>
     end
     object dxBarSubItem1: TdxBarSubItem [4]
@@ -119,6 +123,13 @@ inherited ViewProducts2: TViewProducts2
     object dxBarButton9: TdxBarButton
       Action = actExportToExcelDocument
       Category = 0
+    end
+    object dxBarButton8: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton8Click
     end
   end
   inherited cxStyleRepository1: TcxStyleRepository

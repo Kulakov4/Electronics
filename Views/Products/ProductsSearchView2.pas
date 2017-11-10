@@ -24,7 +24,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
-  ProductSearchGroupUnit2, Vcl.Menus, Vcl.ComCtrls, cxDropDownEdit;
+  Vcl.Menus, Vcl.ComCtrls, cxDropDownEdit,
+  ProductsSearchQuery;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)
@@ -46,17 +47,17 @@ type
     procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
       AColumn: TcxTreeListColumn);
   private
-    function GetProductSearchGroup: TProductSearchGroup;
+    function GetqProductsSearch: TQueryProductsSearch;
     procedure Search(ALike: Boolean);
-    procedure SetProductSearchGroup(const Value: TProductSearchGroup);
+    procedure SetqProductsSearch(const Value: TQueryProductsSearch);
     { Private declarations }
   protected
     procedure InitializeColumns; override;
   public
     procedure FocusValueColumn;
     procedure UpdateView; override;
-    property ProductSearchGroup: TProductSearchGroup read GetProductSearchGroup
-      write SetProductSearchGroup;
+    property qProductsSearch: TQueryProductsSearch read GetqProductsSearch write
+        SetqProductsSearch;
     { Public declarations }
   end;
 
@@ -73,7 +74,7 @@ begin
   begin
     cxDBTreeList.BeginUpdate;
     try
-      ProductSearchGroup.qProductsSearch.ClearSearchResult;
+      qProductsSearch.ClearSearchResult;
       UpdateView;
     finally
       cxDBTreeList.EndUpdate;
@@ -87,8 +88,8 @@ begin
   inherited;
   cxDBTreeList.BeginUpdate;
   try
-    ProductSearchGroup.qProductsSearch.AppendRows
-      (ProductSearchGroup.qProductsSearch.Value.FieldName,
+    qProductsSearch.AppendRows
+      (qProductsSearch.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
 
@@ -106,7 +107,7 @@ end;
 procedure TViewProductsSearch2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
   AColumn: TcxTreeListColumn);
 begin
-  if ProductSearchGroup.qProductsSearch.Mode = SearchMode then
+  if qProductsSearch.Mode = SearchMode then
   begin
     if cxDBTreeList.LockUpdate > 0 then
       Exit;
@@ -131,20 +132,20 @@ begin
   clValue.Editing := True;
 end;
 
-function TViewProductsSearch2.GetProductSearchGroup: TProductSearchGroup;
+function TViewProductsSearch2.GetqProductsSearch: TQueryProductsSearch;
 begin
-  Result := ProductBaseGroup as TProductSearchGroup;
+  Result := qProductsBase as TQueryProductsSearch;
 end;
 
 procedure TViewProductsSearch2.InitializeColumns;
 begin
   inherited;
 
-  Assert(ProductSearchGroup <> nil);
+  Assert(qProductsSearch <> nil);
 
   InitializeLookupColumn(clStorehouseId,
-    ProductSearchGroup.qProductsSearch.qStoreHouseList.DataSource, lsEditFixedList,
-    ProductSearchGroup.qProductsSearch.qStoreHouseList.Abbreviation.FieldName);
+    qProductsSearch.qStoreHouseList.DataSource, lsEditFixedList,
+    qProductsSearch.qStoreHouseList.Abbreviation.FieldName);
 end;
 
 procedure TViewProductsSearch2.Search(ALike: Boolean);
@@ -153,7 +154,7 @@ begin
   try
     CheckAndSaveChanges;
 
-    ProductSearchGroup.qProductsSearch.DoSearch(ALike);
+    qProductsSearch.DoSearch(ALike);
     UpdateView;
   finally
     cxDBTreeList.EndUpdate;
@@ -166,11 +167,11 @@ begin
   clValue.Editing := True;
 end;
 
-procedure TViewProductsSearch2.SetProductSearchGroup
-  (const Value: TProductSearchGroup);
+procedure TViewProductsSearch2.SetqProductsSearch(const Value:
+    TQueryProductsSearch);
 begin
-  if ProductBaseGroup <> Value then
-    ProductBaseGroup := Value;
+  if qProductsBase <> Value then
+    qProductsBase := Value;
 end;
 
 procedure TViewProductsSearch2.UpdateView;
@@ -178,31 +179,31 @@ var
   Ok: Boolean;
 begin
   inherited;
-  Ok := (ProductSearchGroup <> nil) and
-    (ProductSearchGroup.qProductsBase.FDQuery.Active);
+  Ok := (qProductsSearch <> nil) and
+    (qProductsSearch.FDQuery.Active);
 
-  actClear.Enabled := ProductSearchGroup.qProductsSearch.IsClearEnabled;
+  actClear.Enabled := qProductsSearch.IsClearEnabled;
 
-  actSearch.Enabled := ProductSearchGroup.qProductsSearch.IsSearchEnabled;
+  actSearch.Enabled := qProductsSearch.IsSearchEnabled;
 
-  actCommit.Enabled := Ok and ProductSearchGroup.HaveAnyChanges and
-    (ProductSearchGroup.qProductsSearch.Mode = RecordsMode);
+  actCommit.Enabled := Ok and qProductsSearch.HaveAnyChanges and
+    (qProductsSearch.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actPasteFromBuffer.Enabled := ProductSearchGroup.qProductsSearch.Mode =
+  actPasteFromBuffer.Enabled := qProductsSearch.Mode =
     SearchMode;
 
 
 //  cxGridDBBandedTableView.OptionsData.Appending :=
-//    ProductSearchGroup.qProductsSearch.Mode = SearchMode;
+//    qProductsSearch.qProductsSearch.Mode = SearchMode;
 
 //  cxGridDBBandedTableView.OptionsData.Inserting :=
-//    ProductSearchGroup.qProductsSearch.Mode = SearchMode;
+//    qProductsSearch.qProductsSearch.Mode = SearchMode;
 
   actExportToExcelDocument.Enabled := Ok and
     (cxDBTreeList.DataController.RecordCount > 0) and
-    (ProductSearchGroup.qProductsSearch.Mode = RecordsMode);
+    (qProductsSearch.Mode = RecordsMode);
 end;
 
 end.

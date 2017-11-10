@@ -558,8 +558,6 @@ object frmMain: TfrmMain
           ClientRectTop = 27
           inherited tsStorehouseInfo: TcxTabSheet
             inherited ViewStorehouseInfo: TViewStorehouseInfo
-              Width = 918
-              Height = 474
               inherited lblTitle: TcxLabel
                 ExplicitWidth = 90
                 ExplicitHeight = 20
@@ -667,11 +665,9 @@ object frmMain: TfrmMain
           end
           inherited tsStorehouseSearch: TcxTabSheet
             inherited ViewProductsSearch2: TViewProductsSearch2
-              Width = 918
-              Height = 474
               inherited cxDBTreeList: TcxDBTreeList
-                Width = 918
-                Height = 401
+                ExplicitWidth = 918
+                ExplicitHeight = 401
                 inherited clDatasheet: TcxDBTreeListColumn
                   Properties.Buttons = <
                     item
@@ -722,8 +718,8 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
-                Top = 455
-                Width = 918
+                ExplicitTop = 455
+                ExplicitWidth = 918
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (

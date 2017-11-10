@@ -74,7 +74,7 @@ var
 //  qStoreHouseList: TQueryStoreHouseList;
 //  S: string;
 begin
-  if ViewProducts2.ProductGroup.qStoreHouseList.FDQuery.RecordCount = 0 then
+  if ViewProducts2.qProducts.Master.FDQuery.RecordCount = 0 then
   begin
     TDialog.Create.ErrorMessageDialog('Нет информации о текущем складе.'#13#10'Действие отменено');
     Exit;

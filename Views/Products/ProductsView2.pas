@@ -25,8 +25,9 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ErrorForm,
-  ProductsExcelDataModule, ProductGroupUnit2, Vcl.Menus, Vcl.ComCtrls,
-  System.Contnrs, ProgressBarForm2, ExcelDataModule, cxDropDownEdit;
+  ProductsExcelDataModule, Vcl.Menus, Vcl.ComCtrls,
+  System.Contnrs, ProgressBarForm2, ExcelDataModule, cxDropDownEdit,
+  ProductsQuery;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -40,10 +41,12 @@ type
     dxBarButton7: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
+    dxBarButton8: TdxBarButton;
+    procedure dxBarButton8Click(Sender: TObject);
   private
     procedure DoBeforeLoad(ASender: TObject);
-    function GetProductGroup: TProductGroup;
-    procedure SetProductGroup(const Value: TProductGroup);
+    function GetqProducts: TQueryProducts;
+    procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
   protected
     // TODO: SortList
@@ -52,8 +55,7 @@ type
     procedure UpdateProductCount; override;
   public
     procedure LoadFromExcelDocument(const AFileName: String);
-    property ProductGroup: TProductGroup read GetProductGroup
-      write SetProductGroup;
+    property qProducts: TQueryProducts read GetqProducts write SetqProducts;
     { Public declarations }
   end;
 
@@ -72,9 +74,15 @@ begin
     raise EAbort.Create('Cancel scroll');
 end;
 
-function TViewProducts2.GetProductGroup: TProductGroup;
+procedure TViewProducts2.dxBarButton8Click(Sender: TObject);
 begin
-  Result := ProductBaseGroup as TProductGroup;
+  inherited;
+  UpdateView;
+end;
+
+function TViewProducts2.GetqProducts: TQueryProducts;
+begin
+  Result := qProductsBase as TQueryProducts;
 end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
@@ -86,7 +94,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmError,
     procedure (ASender: TObject)
     begin
-      ProductGroup.qProducts.AppendList(ASender as TProductsExcelTable);
+      qProducts.AppendList(ASender as TProductsExcelTable);
     end
     );
   finally
@@ -95,19 +103,18 @@ begin
   end;
 end;
 
-procedure TViewProducts2.SetProductGroup(const Value: TProductGroup);
+procedure TViewProducts2.SetqProducts(const Value: TQueryProducts);
 begin
-  if ProductBaseGroup = Value then
+  if qProductsBase = Value then
     Exit;
 
   // Отписываемся от событий
   FEventList.Clear;
 
-  ProductBaseGroup := Value;
-  if ProductBaseGroup <> nil then
+  qProductsBase := Value;
+  if qProductsBase <> nil then
   begin
-    TNotifyEventWrap.Create(ProductGroup.qProducts.BeforeLoad, DoBeforeLoad,
-      FEventList);
+    TNotifyEventWrap.Create(qProducts.BeforeLoad, DoBeforeLoad, FEventList);
   end;
 end;
 
@@ -116,7 +123,7 @@ begin
   inherited;
 
   // обновляем количество продуктов на всех складах
-  StatusBar.Panels[3].Text := Format('%d', [ProductGroup.qProducts.TotalCount]);
+  StatusBar.Panels[3].Text := Format('%d', [qProducts.TotalCount]);
 end;
 
 end.

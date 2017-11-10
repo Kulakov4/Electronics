@@ -171,10 +171,7 @@ uses
   RecursiveTreeQuery in 'Queryes\TreeList\RecursiveTreeQuery.pas' {QueryRecursiveTree: TFrame},
   RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
   Main in 'Views\Main.pas' {frmMain},
-  HintWindowEx in 'Helpers\HintWindowEx.pas',
-  ProductBaseGroupUnit2 in 'Queryes\Products\ProductBaseGroupUnit2.pas' {ProductBaseGroup: TFrame},
-  ProductSearchGroupUnit2 in 'Queryes\Products\ProductSearchGroupUnit2.pas' {ProductSearchGroup: TFrame},
-  ProductGroupUnit2 in 'Queryes\Products\ProductGroupUnit2.pas' {ProductGroup: TFrame};
+  HintWindowEx in 'Helpers\HintWindowEx.pas';
 
 {$R *.res}
 

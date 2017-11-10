@@ -23,10 +23,10 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
-  cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL, ProductBaseGroupUnit2,
+  cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
   cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit, Vcl.ComCtrls,
-  System.Contnrs, DescriptionPopupForm;
+  System.Contnrs, DescriptionPopupForm, ProductsBaseQuery;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -122,14 +122,14 @@ type
   private
     FCountEvents: TObjectList;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
-    FProductBaseGroup: TProductBaseGroup;
+    FqProductsBase: TQueryProductsBase;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetIsFocusedNodeGroup: Boolean;
-    procedure SetProductBaseGroup(const Value: TProductBaseGroup);
+    procedure SetqProductsBase(const Value: TQueryProductsBase);
     procedure UpdateSelectedCount;
     { Private declarations }
   protected
@@ -158,8 +158,8 @@ type
     procedure EndUpdate; override;
     procedure UpdateView; override;
     property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
-    property ProductBaseGroup: TProductBaseGroup read FProductBaseGroup write
-        SetProductBaseGroup;
+    property qProductsBase: TQueryProductsBase read FqProductsBase write
+        SetqProductsBase;
     { Public declarations }
   end;
 
@@ -210,7 +210,7 @@ end;
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
 begin
   inherited;
-  ProductBaseGroup.qProductsBase.AddCategory;
+  qProductsBase.AddCategory;
 
   cxDBTreeList.ApplyBestFit;
   cxDBTreeList.SetFocus;
@@ -238,7 +238,7 @@ begin
       AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
     end;
 
-    ProductBaseGroup.qProductsBase.AddProduct(AID);
+    qProductsBase.AddProduct(AID);
 
     cxDBTreeList.ApplyBestFit;
     cxDBTreeList.SetFocus;
@@ -253,7 +253,7 @@ end;
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
 begin
   inherited;
-  FProductBaseGroup.qProductsBase.ApplyUpdates;
+  FqProductsBase.ApplyUpdates;
   UpdateView;
 end;
 
@@ -288,7 +288,7 @@ begin
     cxDBTreeList.BeginUpdate;
     try
       for AID in AIDS do
-        ProductBaseGroup.qProductsBase.DeleteNode(AID);
+        qProductsBase.DeleteNode(AID);
       // Это почему-то не работает
       // cxDBTreeList.DataController.DeleteFocused;
     finally
@@ -308,7 +308,7 @@ begin
   inherited;
 
   if not TDialog.Create.SaveToExcelFile
-    (ProductBaseGroup.qProductsBase.ExportFileName, AFileName) then
+    (qProductsBase.ExportFileName, AFileName) then
     Exit;
 
   cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
@@ -378,25 +378,25 @@ end;
 procedure TViewProductsBase2.actOpenInParametricTableExecute(Sender: TObject);
 begin
   inherited;
-  Assert(ProductBaseGroup.qProductsBase.FDQuery.RecordCount > 0);
+  Assert(qProductsBase.FDQuery.RecordCount > 0);
 
-  if ProductBaseGroup.qProductsBase.Value.AsString.Trim.IsEmpty then
+  if qProductsBase.Value.AsString.Trim.IsEmpty then
   begin
     TDialog.Create.ErrorMessageDialog('Не задано наименование');
     Exit;
   end;
 
-  if ProductBaseGroup.qProductsBase.IDProducer.AsInteger = 0 then
+  if qProductsBase.IDProducer.AsInteger = 0 then
   begin
     TDialog.Create.ErrorMessageDialog('Не задан производитель');
     Exit;
   end;
 
-  if not ProductBaseGroup.qProductsBase.LocateInComponents then
+  if not qProductsBase.LocateInComponents then
   begin
     TDialog.Create.ErrorMessageDialog
       (Format('Компонент %s не найден в теоретической базе',
-      [ProductBaseGroup.qProductsBase.Value.AsString]));
+      [qProductsBase.Value.AsString]));
     Exit;
   end;
 
@@ -407,7 +407,7 @@ begin
   inherited;
   cxDBTreeList.BeginUpdate;
   try
-    ProductBaseGroup.qProductsBase.CancelUpdates;
+    qProductsBase.CancelUpdates;
     cxDBTreeList.FullCollapse;
   finally
     cxDBTreeList.EndUpdate;
@@ -445,10 +445,10 @@ end;
 function TViewProductsBase2.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if ProductBaseGroup = nil then
+  if qProductsBase = nil then
     Exit;
 
-  if ProductBaseGroup.HaveAnyChanges then
+  if qProductsBase.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -475,23 +475,23 @@ begin
   inherited;
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
-  FfrmDescriptionPopup.Query := ProductBaseGroup.qProductsBase;
+  FfrmDescriptionPopup.Query := qProductsBase;
 end;
 
 procedure TViewProductsBase2.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(ProductBaseGroup.qProductsBase.AfterOpen, DoAfterOpen,
+  TNotifyEventWrap.Create(qProductsBase.AfterOpen, DoAfterOpen,
     FCountEvents);
 
-  TNotifyEventWrap.Create(ProductBaseGroup.qProductsBase.AfterPost, DoAfterPost,
+  TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost,
     FCountEvents);
 
-  TNotifyEventWrap.Create(ProductBaseGroup.qProductsBase.AfterDelete, DoAfterDelete,
+  TNotifyEventWrap.Create(qProductsBase.AfterDelete, DoAfterDelete,
     FCountEvents);
 
   // Чтобы отслеживать надбавку
-  TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterScroll,
+  TNotifyEventWrap.Create(FqProductsBase.AfterScroll,
     DoAfterScroll, FCountEvents);
 
   UpdateProductCount;
@@ -508,8 +508,8 @@ begin
   if r <> 0 then
   begin
     // Обновлям курс доллара
-    FProductBaseGroup.qProductsBase.Rate := r;
-    FProductBaseGroup.qProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+    FqProductsBase.Rate := r;
+    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
   end;
 end;
 
@@ -571,7 +571,7 @@ var
 begin
   inherited;
   // В режиме вставки новой записи разрешаем редактирование цены
-  if ProductBaseGroup.qProductsBase.FDQuery.State = dsInsert then
+  if qProductsBase.FDQuery.State = dsInsert then
     Exit;
 
   AcxDBTreeListColumn := AItem as TcxDBTreeListColumn;
@@ -630,8 +630,8 @@ end;
 
 procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
 begin
-  BindRate(FProductBaseGroup.qProductsBase.Rate1, dxbcRate1);
-  BindRate(FProductBaseGroup.qProductsBase.Rate2, dxbcRate2);
+  BindRate(FqProductsBase.Rate1, dxbcRate1);
+  BindRate(FqProductsBase.Rate2, dxbcRate2);
 end;
 
 procedure TViewProductsBase2.DoOnDescriptionPopupHide(Sender: TObject);
@@ -651,7 +651,7 @@ begin
   if r = 0 then
     Exit;
 
-  UpdateRate(PerсentToRate(r), FProductBaseGroup.qProductsBase.Rate2);
+  UpdateRate(PerсentToRate(r), FqProductsBase.Rate2);
 end;
 
 procedure TViewProductsBase2.dxbcRate1Change(Sender: TObject);
@@ -666,7 +666,7 @@ begin
   if r = 0 then
     Exit;
 
-  UpdateRate(PerсentToRate(r), FProductBaseGroup.qProductsBase.Rate1);
+  UpdateRate(PerсentToRate(r), FqProductsBase.Rate1);
 end;
 
 const
@@ -734,17 +734,17 @@ begin
     cxDBTreeList.Columns[i].MinWidth := 100;
   end;
 
-  Assert(FProductBaseGroup <> nil);
+  Assert(FqProductsBase <> nil);
 
   InitializeLookupColumn(clIDProducer,
-    FProductBaseGroup.qProductsBase.qProducers.DataSource, lsEditFixedList,
-    FProductBaseGroup.qProductsBase.qProducers.Name.FieldName);
+    FqProductsBase.qProducers.DataSource, lsEditFixedList,
+    FqProductsBase.qProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase2.InternalRefreshData;
 begin
-  Assert(ProductBaseGroup <> nil);
-  ProductBaseGroup.RefreshData;
+  Assert(qProductsBase <> nil);
+  qProductsBase.RefreshQuery;
   cxDBTreeList.FullCollapse;
 end;
 
@@ -755,12 +755,12 @@ var
   V1: Variant;
   V2: Variant;
 begin
-  Result := inherited and (ProductBaseGroup <> nil);
+  Result := inherited and (qProductsBase <> nil);
   if not Result then
     Exit;
 
   V1 := cxDBTreeList.FocusedNode.Values[clValue.ItemIndex];
-  V2 := ProductBaseGroup.qProductsBase.Value.Value;
+  V2 := qProductsBase.Value.Value;
 
   Result := VarIsNull(V1) and VarIsNull(V2);
   if not Result then
@@ -775,11 +775,11 @@ procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;
 var
   AFileName: string;
 begin
-  if FProductBaseGroup.qProductsBase.FDQuery.FieldByName
+  if FqProductsBase.FDQuery.FieldByName
     (ADocFieldInfo.FieldName).AsString <> '' then
   begin
     AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
-      ADocFieldInfo.Folder), FProductBaseGroup.qProductsBase.FDQuery.FieldByName
+      ADocFieldInfo.Folder), FqProductsBase.FDQuery.FieldByName
       (ADocFieldInfo.FieldName).AsString);
 
     if FileExists(AFileName) then
@@ -816,23 +816,22 @@ begin
 
 end;
 
-procedure TViewProductsBase2.SetProductBaseGroup(const Value:
-    TProductBaseGroup);
+procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
 begin
-  if FProductBaseGroup = Value then
+  if FqProductsBase = Value then
     Exit;
 
-  FProductBaseGroup := Value;
+  FqProductsBase := Value;
 
-  if FProductBaseGroup = nil then
+  if FqProductsBase = nil then
     Exit;
 
   cxDBTreeList.DataController.DataSource :=
-    FProductBaseGroup.qProductsBase.DataSource;
+    FqProductsBase.DataSource;
 
   InitializeColumns;
 
-  TNotifyEventWrap.Create(FProductBaseGroup.qProductsBase.AfterLoad,
+  TNotifyEventWrap.Create(FqProductsBase.AfterLoad,
     DoAfterLoad, FEventList);
 
   // подписываемся на события о смене количества и надбавки
@@ -845,7 +844,7 @@ procedure TViewProductsBase2.UpdateProductCount;
 begin
   // На выбранном складе или в результате поиска без учёта групп
   StatusBar.Panels[0].Text :=
-    Format('%d', [ ProductBaseGroup.qProductsBase.NotGroupClone.RecordCount]);
+    Format('%d', [ qProductsBase.NotGroupClone.RecordCount]);
 end;
 
 procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
@@ -855,7 +854,7 @@ var
   i: Integer;
 begin
   AUpdatedIDList := TList<Integer>.Create;
-  FProductBaseGroup.qProductsBase.FDQuery.DisableControls;
+  FqProductsBase.FDQuery.DisableControls;
   try
     for i := 0 to cxDBTreeList.SelectionCount - 1 do
     begin
@@ -863,11 +862,11 @@ begin
       // if ANode.IsGroupNode then
       // Continue;
 
-      FProductBaseGroup.qProductsBase.UpdateRate(ANode.Values[clID.ItemIndex],
+      FqProductsBase.UpdateRate(ANode.Values[clID.ItemIndex],
         RateField, ARate, AUpdatedIDList);
     end;
   finally
-    FProductBaseGroup.qProductsBase.FDQuery.EnableControls;
+    FqProductsBase.FDQuery.EnableControls;
     FreeAndNil(AUpdatedIDList);
   end;
 end;
@@ -883,9 +882,10 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (ProductBaseGroup <> nil) and
-    (ProductBaseGroup.qProductsBase.FDQuery.Active);
-  actCommit.Enabled := OK and ProductBaseGroup.qProductsBase.HaveAnyChanges;
+  OK := (qProductsBase <> nil) and
+    (qProductsBase.FDQuery.Active);
+
+  actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
   actExportToExcelDocument.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
@@ -899,7 +899,7 @@ begin
   actDelete.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
-  cxbeiRate.EditValue := ProductBaseGroup.qProductsBase.Rate;
+  cxbeiRate.EditValue := qProductsBase.Rate;
 end;
 
 procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);
@@ -911,7 +911,7 @@ begin
   if sourceFileName.IsEmpty then
     Exit;
 
-  FProductBaseGroup.qProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
+  FqProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
 end;
 
 end.
