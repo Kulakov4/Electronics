@@ -41,9 +41,6 @@ type
     { Public declarations }
   end;
 
-var
-  ViewGrid: TViewGrid;
-
 implementation
 
 uses DialogUnit;
