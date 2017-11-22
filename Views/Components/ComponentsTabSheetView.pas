@@ -29,7 +29,7 @@ uses
   cxGridDBTableView, cxClasses, cxGridCustomView, cxGrid, cxPC,
   dxSkinsdxBarPainter, dxBar, System.Actions, Vcl.ActnList, FieldInfoUnit,
   System.Generics.Collections, CustomErrorTable, ExcelDataModule,
-  ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx;
+  ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls;
 
 type
   TComponentsFrame = class(TFrame)
@@ -324,10 +324,15 @@ begin
 
 end;
 
+//var
+//  HECount: Integer = 0;
+
 procedure TComponentsFrame.ApplicationEventsHint(Sender: TObject);
 begin
-//  if (not Application.Hint.IsEmpty ) then
-    FHintWindowEx.DoActivateHint(Application.Hint)
+//  Inc(HECount);
+//  Button1.Caption := Format('%d %s', [HECount, Application.Hint.Substring(0,10)]);
+  // if (not Application.Hint.IsEmpty ) then
+  FHintWindowEx.DoActivateHint(Application.Hint)
 end;
 
 procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
@@ -420,7 +425,7 @@ begin
         TParameterValues.LoadParameters(e.ExcelTable as TParametricExcelTable);
       end,
 
-      // Обработчик события
+    // Обработчик события
       procedure(ASender: TObject)
       Var
         API: TProgressInfo;
@@ -535,7 +540,8 @@ begin
           begin
             AFieldNames.Clear;
 
-            nf := FamilyNameCoumn.IndexOf(';'+AStringTreeNode.value.ToUpper+';') >= 0;
+            nf := FamilyNameCoumn.IndexOf(';' + AStringTreeNode.value.ToUpper +
+              ';') >= 0;
             if not nf then
             begin
               // Нужно найти такой параметр

@@ -4,7 +4,7 @@ object ComponentsFrame: TComponentsFrame
   Width = 878
   Height = 508
   ParentShowHint = False
-  ShowHint = True
+  ShowHint = False
   TabOrder = 0
   object cxpcComponents: TcxPageControl
     Left = 0
@@ -13,7 +13,7 @@ object ComponentsFrame: TComponentsFrame
     Height = 480
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = cxtsCategoryComponents
+    Properties.ActivePage = cxtsCategory
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcComponentsPageChanging
     ClientRectBottom = 476
@@ -93,6 +93,7 @@ object ComponentsFrame: TComponentsFrame
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
+          ExplicitTop = 22
           ExplicitWidth = 870
           ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -157,6 +158,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
+          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -206,6 +208,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
+          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -302,6 +305,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
+          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -415,6 +419,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
+          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -455,6 +460,7 @@ object ComponentsFrame: TComponentsFrame
     Categories.Visibles = (
       True)
     PopupMenuLinks = <>
+    ShowHint = False
     UseSystemFont = True
     Left = 340
     Top = 120

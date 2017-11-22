@@ -49,7 +49,12 @@ begin
   HideTime(self);
 
   if (AHint.IsEmpty) then
+  begin
+    // Отменяем показ предыдущего хинта
+    FShowTimer.OnTimer := nil;
+    FHideTimer.OnTimer := nil;
     Exit;
+  end;
 
   FHint := AHint;
 
@@ -73,7 +78,10 @@ begin
   FShowTimer.OnTimer := nil;
 
   if FHint.IsEmpty then
+  begin
+    FHideTimer.OnTimer := nil;
     Exit;
+  end;
 
   // position and resize
   wdth := Canvas.TextWidth(FHint);
