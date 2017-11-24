@@ -73,6 +73,7 @@ type
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
+    FSortSL: TStringList;
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
     FUpdateCount: Cardinal;
@@ -115,6 +116,7 @@ type
     procedure MyDelete; virtual;
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
+    property SortSL: TStringList read FSortSL;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -194,10 +196,12 @@ begin
   FGridSort := TGridSort.Create;
 
   FDeleteMessages := TDictionary<TcxGridLevel, String>.Create;
+  FSortSL := TStringList.Create;
 end;
 
 destructor TfrmGrid.Destroy;
 begin
+  FreeAndNil(FSortSL);
   FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FEventList);
   FreeAndNil(FGridSort);

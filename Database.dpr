@@ -171,7 +171,10 @@ uses
   RecursiveTreeQuery in 'Queryes\TreeList\RecursiveTreeQuery.pas' {QueryRecursiveTree: TFrame},
   RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
   Main in 'Views\Main.pas' {frmMain},
-  HintWindowEx in 'Helpers\HintWindowEx.pas';
+  HintWindowEx in 'Helpers\HintWindowEx.pas',
+  Sort.ListView in 'Helpers\NaturalSort\Sort.ListView.pas',
+  Sort.StringCompare in 'Helpers\NaturalSort\Sort.StringCompare.pas',
+  Sort.StringList in 'Helpers\NaturalSort\Sort.StringList.pas';
 
 {$R *.res}
 

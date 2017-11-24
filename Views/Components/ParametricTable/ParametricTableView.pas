@@ -32,7 +32,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
-  System.Generics.Defaults;
+  System.Generics.Defaults, Sort.StringList;
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
@@ -443,16 +443,16 @@ var
   AKind: TcxFilterValueItemKind;
   ANewDisplayText: string;
   AValue: Variant;
-  AValues: TList<String>;
+//  AValues: TList<String>;
   m: TArray<String>;
   S: string;
 begin
   inherited;
   Assert(not FMark.IsEmpty);
 
-  AValues := TList<String>.Create;
-  try
-
+//  AValues := TList<String>.Create;
+//  try
+    SortSL.Clear;
     for i := 0 to AValueList.Count - 1 do
     begin
       AKind := AValueList.Items[i].Kind;
@@ -469,9 +469,9 @@ begin
             ANewDisplayText := S.Trim;
             if not ANewDisplayText.IsEmpty then
             begin
-              if AValues.IndexOf(ANewDisplayText) = -1 then
+              if SortSL.IndexOf(ANewDisplayText) = -1 then
               begin
-                AValues.Add(ANewDisplayText);
+                SortSL.Add(ANewDisplayText);
               end;
             end;
           end;
@@ -486,17 +486,20 @@ begin
     // AValueList.Add(fviUserEx, null, '(Все)', True);
 
     // Сортируем варианты фильтров
-    AValues.Sort;
+    // Сортируем
+    TStringListSort.Sort( SortSL, False, True );
 
-    for S in AValues do
+    //    AValues.Sort;
+
+    for S in SortSL do
     begin
       AValueList.Add(fviUserEx, Format('%%%s%s%s%%', [Mark, S, Mark]),
         S, False);
     end;
 
-  finally
-    FreeAndNil(AValues);
-  end;
+//  finally
+//    FreeAndNil(AValues);
+//  end;
 
 end;
 
