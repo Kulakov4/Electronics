@@ -17,6 +17,9 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       '    , ifnull(p.ValueT, pp.ValueT) Hint'
       '    , p.ParentParameter'
       '    , p.FieldType'
+      
+        '    , ifnull(p.IDParameterKind, pp.IDParameterKind) IDParameterK' +
+        'ind'
       'from CategoryParams cp'
       
         'join Parameters p on cp.ParameterId = p.id  and not exists (sele' +
@@ -28,6 +31,7 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       
         'WHERE cp.ProductCategoryId = :ProductCategoryId and cp.IsEnabled' +
         ' = 1 '
+      'and 0=0'
       'order by cp.PosID, ord, cp.id')
     ParamData = <
       item

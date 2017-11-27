@@ -99,6 +99,7 @@ type
     cxStyleRepository: TcxStyleRepository;
     cxStyleBegin: TcxStyle;
     cxStyleEnd: TcxStyle;
+    dxBarButton3: TdxBarButton;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
@@ -217,7 +218,8 @@ implementation
 uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
-  SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math;
+  SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math,
+  AnalogForm, AnalogQueryes;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -348,7 +350,8 @@ begin
 end;
 
 procedure TViewParametricTable.actNearAnalogExecute(Sender: TObject);
-var
+{
+  var
   AColumn: TcxGridDBBandedColumn;
   AFilterList: TcxFilterCriteriaItemList;
   F: TList<TList<TFilterItem>>;
@@ -362,43 +365,67 @@ var
   L: TList<TFilterItem>;
   ms: string;
   S: string;
+}
+var
+  AfrmAnalog: TfrmAnalog;
+  AnalogGroup: TAnalogGroup;
+  AProductCategoryID: Integer;
 begin
-  AView := FocusedTableView;
+  AnalogGroup := TAnalogGroup.Create(Self);
+  try
 
-  if AView.ViewData.RecordCount = 0 then
+    AProductCategoryID := ComponentsExGroup.qFamilyEx.ParentValue;
+
+    // Загружаем значения параметров для текущей категории
+    AnalogGroup.Load(AProductCategoryID);
+
+    AfrmAnalog := TfrmAnalog.Create(Self);
+    try
+      AfrmAnalog.ViewAnalog.AnalogGroup := AnalogGroup;
+      AfrmAnalog.ShowModal;
+    finally
+      FreeAndNil(AfrmAnalog);
+    end;
+  finally
+    FreeAndNil(AnalogGroup);
+  end;
+  {
+    AView := FocusedTableView;
+
+    if AView.ViewData.RecordCount = 0 then
     Exit;
 
-  R := AView.Controller.FocusedRecord;
-  Assert(R <> nil);
+    R := AView.Controller.FocusedRecord;
+    Assert(R <> nil);
 
-  F := TList < TList < TFilterItem >>.Create;
-  try
+    F := TList < TList < TFilterItem >>.Create;
+    try
 
     for i := 0 to AView.ColumnCount - 1 do
     begin
-      AColumn := AView.Columns[i];
-      if (AColumn.Visible) and (AColumn.Position.Band <> nil) and
-        (FBandsInfo.Search(AColumn.Position.Band) <> nil) then
-      begin
-        AValue := VarToStrDef(R.Values[AColumn.Index], '').Trim;
-        if not AValue.IsEmpty then
-        begin
-          L := TList<TFilterItem>.Create;
-          F.Add(L);
-          // Разбиваем значение на отдельные строки
-          m := AValue.Split([#13]);
-          for ms in m do
-          begin
+    AColumn := AView.Columns[i];
+    if (AColumn.Visible) and (AColumn.Position.Band <> nil) and
+    (FBandsInfo.Search(AColumn.Position.Band) <> nil) then
+    begin
+    AValue := VarToStrDef(R.Values[AColumn.Index], '').Trim;
+    if not AValue.IsEmpty then
+    begin
+    L := TList<TFilterItem>.Create;
+    F.Add(L);
+    // Разбиваем значение на отдельные строки
+    m := AValue.Split([#13]);
+    for ms in m do
+    begin
 
-            S := ms.Trim;
-            if not S.IsEmpty then
-            begin
-              S := '%' + S + '%';
-              L.Add(TFilterItem.Create(AColumn, foLike, S));
-            end;
-          end;
-        end;
-      end;
+    S := ms.Trim;
+    if not S.IsEmpty then
+    begin
+    S := '%' + S + '%';
+    L.Add(TFilterItem.Create(AColumn, foLike, S));
+    end;
+    end;
+    end;
+    end;
     end;
 
     FLockDetailFilterChange := True;
@@ -408,31 +435,31 @@ begin
 
     for L in F do
     begin
-      // Если будем добавлять несколько условий на один столбец
-      if L.Count > 1 then
-      begin
-        AFilterList := root.AddItemList(fboOr);
-      end
-      else
-        AFilterList := root;
+    // Если будем добавлять несколько условий на один столбец
+    if L.Count > 1 then
+    begin
+    AFilterList := root.AddItemList(fboOr);
+    end
+    else
+    AFilterList := root;
 
-      for fi in L do
-      begin
-        AFilterList.AddItem(fi.Column, fi.FilterOperatorKind, fi.Value,
-          fi.Value);
-        fi.Free;
-      end;
+    for fi in L do
+    begin
+    AFilterList.AddItem(fi.Column, fi.FilterOperatorKind, fi.Value,
+    fi.Value);
+    fi.Free;
+    end;
 
-      L.Free;
+    L.Free;
     end;
     AView.DataController.Filter.Active := True;
     CreateDetailFilter;
 
     FLockDetailFilterChange := False;
-  finally
+    finally
     FreeAndNil(F);
-  end;
-
+    end;
+  }
 end;
 
 procedure TViewParametricTable.DoOnGetFilterValues
@@ -443,63 +470,62 @@ var
   AKind: TcxFilterValueItemKind;
   ANewDisplayText: string;
   AValue: Variant;
-//  AValues: TList<String>;
+  // AValues: TList<String>;
   m: TArray<String>;
   S: string;
 begin
   inherited;
   Assert(not FMark.IsEmpty);
 
-//  AValues := TList<String>.Create;
-//  try
-    SortSL.Clear;
-    for i := 0 to AValueList.Count - 1 do
+  // AValues := TList<String>.Create;
+  // try
+  SortSL.Clear;
+  for i := 0 to AValueList.Count - 1 do
+  begin
+    AKind := AValueList.Items[i].Kind;
+    if AKind <> fviCustom then
     begin
-      AKind := AValueList.Items[i].Kind;
-      if AKind <> fviCustom then
-      begin
-        ADisplayText := AValueList.Items[i].DisplayText;
-        AValue := AValueList.Items[i].Value;
+      ADisplayText := AValueList.Items[i].DisplayText;
+      AValue := AValueList.Items[i].Value;
 
-        if AKind = fviValue then
+      if AKind = fviValue then
+      begin
+        m := ADisplayText.Split([#13]);
+        for S in m do
         begin
-          m := ADisplayText.Split([#13]);
-          for S in m do
+          ANewDisplayText := S.Trim;
+          if not ANewDisplayText.IsEmpty then
           begin
-            ANewDisplayText := S.Trim;
-            if not ANewDisplayText.IsEmpty then
+            if SortSL.IndexOf(ANewDisplayText) = -1 then
             begin
-              if SortSL.IndexOf(ANewDisplayText) = -1 then
-              begin
-                SortSL.Add(ANewDisplayText);
-              end;
+              SortSL.Add(ANewDisplayText);
             end;
           end;
-        end
-      end;
+        end;
+      end
     end;
+  end;
 
-    AValueList.Clear;
-    AValueList.Add(fviAll, null, '(Все)', True);
-    // AValueList.Add(fviBlanks, null, '(Пустые)', True);
-    // AValueList.Add(fviNonBlanks, null, '(Не пустые)', True);
-    // AValueList.Add(fviUserEx, null, '(Все)', True);
+  AValueList.Clear;
+  AValueList.Add(fviAll, null, '(Все)', True);
+  // AValueList.Add(fviBlanks, null, '(Пустые)', True);
+  // AValueList.Add(fviNonBlanks, null, '(Не пустые)', True);
+  // AValueList.Add(fviUserEx, null, '(Все)', True);
 
-    // Сортируем варианты фильтров
-    // Сортируем
-    TStringListSort.Sort( SortSL, False, True );
+  // Сортируем варианты фильтров
+  // Сортируем
+  TStringListSort.Sort(SortSL, False, True);
 
-    //    AValues.Sort;
+  // AValues.Sort;
 
-    for S in SortSL do
-    begin
-      AValueList.Add(fviUserEx, Format('%%%s%s%s%%', [Mark, S, Mark]),
-        S, False);
-    end;
+  for S in SortSL do
+  begin
+    AValueList.Add(fviUserEx, Format('%%%s%s%s%%', [Mark, S, Mark]), S, False);
+  end;
 
-//  finally
-//    FreeAndNil(AValues);
-//  end;
+  // finally
+  // FreeAndNil(AValues);
+  // end;
 
 end;
 
@@ -1000,8 +1026,8 @@ begin
   finally
     cxGrid.EndUpdate;
   end;
-  FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self,
-    dxbsColumns, MainView, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self, dxbsColumns,
+    MainView, cxGridDBBandedTableView2);
 
   PostMyApplyBestFitEvent;
 end;

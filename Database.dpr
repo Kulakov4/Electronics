@@ -174,7 +174,13 @@ uses
   HintWindowEx in 'Helpers\HintWindowEx.pas',
   Sort.ListView in 'Helpers\NaturalSort\Sort.ListView.pas',
   Sort.StringCompare in 'Helpers\NaturalSort\Sort.StringCompare.pas',
-  Sort.StringList in 'Helpers\NaturalSort\Sort.StringList.pas';
+  Sort.StringList in 'Helpers\NaturalSort\Sort.StringList.pas',
+  AnalogForm in 'Views\Analog\AnalogForm.pas' {frmAnalog},
+  AnalogView in 'Views\Analog\AnalogView.pas' {ViewAnalog: TFrame},
+  AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas' {AnalogGroup: TFrame},
+  UniqueParameterValuesQuery in 'Queryes\Analog\UniqueParameterValuesQuery.pas' {QueryUniqueParameterValues: TFrame},
+  GridViewEx in 'Views\GridViewEx.pas' {ViewGridEx: TFrame},
+  AnalogView2 in 'Views\Analog\AnalogView2.pas' {ViewAnalogGrid: TFrame};
 
 {$R *.res}
 

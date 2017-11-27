@@ -239,6 +239,10 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxbbFullAnalog'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
         end>
     end
     object dxbbFullAnalog: TdxBarButton
@@ -261,6 +265,10 @@ inherited ViewParametricTable: TViewParametricTable
       Action = actLocateInStorehouse
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton3: TdxBarButton
+      Action = actNearAnalog
+      Category = 0
     end
   end
   inherited ActionList: TActionList
