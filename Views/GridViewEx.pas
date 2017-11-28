@@ -37,6 +37,7 @@ type
     { Private declarations }
   protected
     procedure AssignDataSet; virtual;
+    procedure InitColumns; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateStatusBar;
@@ -61,10 +62,16 @@ begin
   DataSource.DataSet := FDataSet;
   // Подключаем представление к данным
   MainView.DataController.DataSource := DataSource;
-  MainView.DataController.CreateAllItems(True);
+  InitColumns;
   MyCreateColumnsBarButtons;
+
   ApplyBestFitEx;
   UpdateStatusBar;
+end;
+
+procedure TViewGridEx.InitColumns;
+begin
+  MainView.DataController.CreateAllItems(True);
 end;
 
 procedure TViewGridEx.SetDataSet(const Value: TDataSet);

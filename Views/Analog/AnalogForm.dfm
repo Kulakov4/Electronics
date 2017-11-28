@@ -14,19 +14,41 @@ inherited frmAnalog: TfrmAnalog
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 0
-    inline ViewAnalog: TViewAnalog
+    inline ViewAnalogGrid: TViewAnalogGrid3
       Left = 0
       Top = 0
       Width = 745
       Height = 297
       Align = alClient
       TabOrder = 0
-      ExplicitTop = -101
-      inherited cxPageControl: TcxPageControl
+      ExplicitLeft = -148
+      ExplicitTop = -194
+      inherited cxGrid: TcxGrid
         Width = 745
-        Height = 297
-        ClientRectBottom = 293
-        ClientRectRight = 741
+        Height = 250
+      end
+      inherited StatusBar: TStatusBar
+        Top = 278
+        Width = 745
+      end
+      inherited dxBarManager: TdxBarManager
+        DockControlHeights = (
+          0
+          0
+          28
+          0)
+      end
+      inherited cxGridPopupMenu: TcxGridPopupMenu
+        PopupMenus = <
+          item
+            GridView = ViewAnalogGrid.cxGridDBBandedTableView
+            HitTypes = [gvhtNone, gvhtCell]
+            Index = 0
+            PopupMenu = ViewAnalogGrid.pmGrid
+          end>
+      end
+      inherited cxImageList1: TcxImageList
+        FormatVersion = 1
       end
     end
   end

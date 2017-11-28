@@ -43,8 +43,6 @@ uses System.StrUtils;
 
 procedure TViewAnalog.SetAnalogGroup(const Value: TAnalogGroup);
 var
-  ACaption: string;
-  AcxTabSheet: TcxTabSheet;
   APanel: TPanel;
   AParamValues: TParamValues;
   AViewGridEx: TViewGridEx;

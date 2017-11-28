@@ -180,7 +180,8 @@ uses
   AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas' {AnalogGroup: TFrame},
   UniqueParameterValuesQuery in 'Queryes\Analog\UniqueParameterValuesQuery.pas' {QueryUniqueParameterValues: TFrame},
   GridViewEx in 'Views\GridViewEx.pas' {ViewGridEx: TFrame},
-  AnalogView2 in 'Views\Analog\AnalogView2.pas' {ViewAnalogGrid: TFrame};
+  AnalogGridView3 in 'Views\Analog\AnalogGridView3.pas' {ViewAnalogGrid3: TFrame},
+  BandsInfo in 'Views\BandsInfo.pas';
 
 {$R *.res}
 

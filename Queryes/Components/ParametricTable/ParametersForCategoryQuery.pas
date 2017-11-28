@@ -126,7 +126,7 @@ begin
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'and ifnull(p.IDParameterKind, pp.IDParameterKind) <> 1', 'and 0=0');
 
   // »щем
-  Search(['ProductCategoryID'], [AProductCategoryID]);
+  Result := Search(['ProductCategoryID'], [AProductCategoryID]);
 end;
 
 end.

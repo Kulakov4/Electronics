@@ -8,7 +8,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   ParametersForCategoryQuery, TableWithProgress, Data.DB,
   System.Generics.Collections, UniqueParameterValuesQuery, Sort.StringList,
-  System.StrUtils;
+  System.StrUtils, FireDAC.Comp.Client, DBRecordHolder;
 
 type
   TParameterValuesTable = class(TTableWithProgress)
@@ -37,14 +37,22 @@ type
 
   TAnalogGroup = class(TQueryGroup)
   private
+    FAllParameterFields: TDictionary<Integer, String>;
+    FFDMemTable: TFDMemTable;
     FParamValuesList: TList<TParamValues>;
     FqParametersForCategory: TQueryParametersForCategory;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
+  const
+    FFieldPrefix: string = 'Field';
+    function GetFieldName(AIDParameter: Integer): String;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Load(AProductCategoryID: Integer);
+    procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
+    property AllParameterFields: TDictionary<Integer, String> read
+        FAllParameterFields;
+    property FDMemTable: TFDMemTable read FFDMemTable;
     property ParamValuesList: TList<TParamValues> read FParamValuesList;
     property qParametersForCategory: TQueryParametersForCategory
       read FqParametersForCategory;
@@ -63,28 +71,54 @@ begin
   FqParametersForCategory := TQueryParametersForCategory.Create(Self);
   FqUniqueParameterValues := TQueryUniqueParameterValues.Create(Self);
   FParamValuesList := TList<TParamValues>.Create;
+  FFDMemTable := TFDMemTable.Create(Self);
+  FAllParameterFields := TDictionary<Integer,String>.Create;
 end;
 
 destructor TAnalogGroup.Destroy;
 begin
+  FreeAndNil(FAllParameterFields);
   FreeAndNil(FParamValuesList);
   inherited;
 end;
 
-procedure TAnalogGroup.Load(AProductCategoryID: Integer);
+function TAnalogGroup.GetFieldName(AIDParameter: Integer): String;
+begin
+  Result := Format('%s%d', [FFieldPrefix, AIDParameter]);
+end;
+
+procedure TAnalogGroup.Load(AProductCategoryID: Integer; ARecHolder:
+    TRecordHolder);
 var
   ACaption: String;
+  AFieldName: string;
   AParamValues: TParamValues;
   ASortList: TStringList;
+  F: TField;
   I: Integer;
 begin
+  Assert(ARecHolder <> nil);
+
   ASortList := TStringList.Create;
   try
+    FFDMemTable.Close;
 
     // Ищем параметры используемые для поиска аналога
     FqParametersForCategory.SearchByParameterKind(AProductCategoryID);
     while not FqParametersForCategory.FDQuery.Eof do
     begin
+      // Имя поля в таблице поределяющей выбранные значения для поиска аналога
+      AFieldName := GetFieldName
+        (FqParametersForCategory.ParameterID.AsInteger);
+      // Добавляем очередное поле
+      FFDMemTable.FieldDefs.Add(AFieldName, ftString, 200);
+      FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
+        AFieldName);
+
+
+
+
+
       ACaption := IfThen(qParametersForCategory.ParentCaption.AsString <> '',
         Format('%s (%s)', [qParametersForCategory.ParentCaption.AsString,
         FqParametersForCategory.Caption.AsString]),
@@ -114,6 +148,21 @@ begin
       ParamValuesList.Add(AParamValues);
       FqParametersForCategory.FDQuery.Next;
     end;
+    // Создаём набор данныых в памятиж
+    FDMemTable.CreateDataSet;
+
+    // Добавляем в него одну запись
+    FDMemTable.Append;
+    for I := 0 to ARecHolder.Count - 1 do
+    begin
+      F := FDMemTable.FindField(ARecHolder.Items[i].FieldName);
+      if F = nil then
+        Continue;
+
+      F.Value := ARecHolder.Items[i].Value;
+    end;
+
+    FDMemTable.Post;
   finally
     FreeAndNil(ASortList);
   end;
@@ -144,7 +193,7 @@ constructor TParamValues.Create(APosID, AOrder: Integer;
   const ACaption: String);
 begin
   FPosID := APosID;
-  AOrder := AOrder;
+  FOrd := AOrder;
   Assert(not ACaption.IsEmpty);
   FCaption := ACaption;
   FTable := TParameterValuesTable.Create(nil);
