@@ -3,7 +3,8 @@ unit AnalogGridView3;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridViewEx, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -27,22 +28,36 @@ uses
   cxGridLevel, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, AnalogQueryes,
   System.Generics.Collections, StrHelper, ParametersForCategoryQuery,
-  BandsInfo;
+  BandsInfo, cxMemo, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls;
+
+const
+  WM_AFTER_INIT_EDIT = WM_USER + 1;
 
 type
   TViewAnalogGrid3 = class(TViewGridEx)
+    cxEditorButton: TcxButton;
+    EditorTimer: TTimer;
+    actShowPopup: TAction;
+    procedure cxGridDBBandedTableViewInitEdit(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
+    procedure EditorTimerTimer(Sender: TObject);
   private
     FAnalogGroup: TAnalogGroup;
     FBandsInfo: TBandsInfo;
     FColumns: TList<TcxGridDBBandedColumn>;
-    procedure CreateColumn(AView: TcxGridDBBandedTableView; AIDParameter: Integer;
-        const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
-        const AHint: string; ACategoryParamID, AOrder, APosID: Integer);
+    FcxMemo: TcxMemo;
+    procedure CreateColumn(AView: TcxGridDBBandedTableView;
+      AIDParameter: Integer; const ABandCaption, AColumnCaption,
+      AFieldName: String; AVisible: Boolean; const AHint: string;
+      ACategoryParamID, AOrder, APosID: Integer);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure SetAnalogGroup(const Value: TAnalogGroup);
     { Private declarations }
   protected
+    procedure AfterInitEdit(var Message: TMessage); message WM_AFTER_INIT_EDIT;
+    procedure DoAfterInitMemo;
+    function IsMemoEditorHide: Boolean;
     procedure InitColumns; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -60,6 +75,8 @@ begin
   inherited;
   FColumns := TList<TcxGridDBBandedColumn>.Create;
   FBandsInfo := TBandsInfo.Create;
+  FcxMemo := nil;
+  cxEditorButton.Parent := cxGrid;
 end;
 
 destructor TViewAnalogGrid3.Destroy;
@@ -69,10 +86,16 @@ begin
   inherited;
 end;
 
+procedure TViewAnalogGrid3.AfterInitEdit(var Message: TMessage);
+begin
+  inherited;
+  DoAfterInitMemo;
+end;
+
 procedure TViewAnalogGrid3.CreateColumn(AView: TcxGridDBBandedTableView;
-    AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName:
-    String; AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder,
-    APosID: Integer);
+  AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName: String;
+  AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder,
+  APosID: Integer);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -125,23 +148,37 @@ begin
     AColumn.AlternateCaption := AHint;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители
-//    AColumn.OnGetDataText := DoOnGetDataText;
+    // AColumn.OnGetDataText := DoOnGetDataText;
 
-//    if AView = MainView then
-//    begin
-//      AColumn.PropertiesClass := TcxMemoProperties;
-//      (AColumn.Properties as TcxMemoProperties).WordWrap := False;
-//      (AColumn.Properties as TcxMemoProperties).OnEditValueChanged :=
-//        DoOnEditValueChanged;
-//      AColumn.OnUserFilteringEx := DoOnUserFilteringEx;
-//      AColumn.OnGetFilterValues := DoOnGetFilterValues;
-//    end
-//    else
-//    begin
-//      AColumn.PropertiesClass := TcxTextEditProperties;
-//    end;
+    // if AView = MainView then
+    // begin
+    AColumn.PropertiesClass := TcxMemoProperties;
+    (AColumn.Properties as TcxMemoProperties).WordWrap := False;
+    (AColumn.Properties as TcxMemoProperties).ReadOnly := True;
+    // (AColumn.Properties as TcxMemoProperties).OnEditValueChanged :=
+    // DoOnEditValueChanged;
+    // AColumn.OnUserFilteringEx := DoOnUserFilteringEx;
+    // AColumn.OnGetFilterValues := DoOnGetFilterValues;
+    // end
+    // else
+    // begin
+    // AColumn.PropertiesClass := TcxTextEditProperties;
+    // end;
     FColumns.Add(AColumn);
   end
+end;
+
+procedure TViewAnalogGrid3.cxGridDBBandedTableViewInitEdit
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit);
+begin
+  inherited;
+
+  if not(AEdit is TcxMemo) then
+    Exit;
+
+  FcxMemo := AEdit as TcxMemo;
+  PostMessage(Handle, WM_AFTER_INIT_EDIT, 0, 0);
 end;
 
 procedure TViewAnalogGrid3.DeleteBands;
@@ -162,6 +199,41 @@ begin
 
   FColumns.Clear;
 
+end;
+
+procedure TViewAnalogGrid3.DoAfterInitMemo;
+begin
+  if FcxMemo = nil then
+    Exit;
+
+  if FcxMemo.Parent <> nil then
+  begin
+    cxEditorButton.Left := FcxMemo.Left + FcxMemo.Width -
+      cxEditorButton.Width + 1;
+    cxEditorButton.Top := FcxMemo.Top + 1;
+    cxEditorButton.Height := FcxMemo.Height;
+    cxEditorButton.Visible := True;
+    EditorTimer.Enabled := True;
+  end
+  else
+  begin
+    cxEditorButton.Visible := False;
+  end;
+
+  // UpdateSimpleText;
+end;
+
+procedure TViewAnalogGrid3.EditorTimerTimer(Sender: TObject);
+begin
+  inherited;
+  if IsMemoEditorHide then
+    EditorTimer.Enabled := False;
+end;
+
+function TViewAnalogGrid3.IsMemoEditorHide: Boolean;
+begin
+  Result := (FcxMemo <> nil) and (FcxMemo.Parent = nil) and (not cxEditorButton.Focused);
+  cxEditorButton.Visible := not Result;
 end;
 
 procedure TViewAnalogGrid3.InitColumns;
@@ -224,9 +296,9 @@ begin
         AVisible, AHint, ACategoryParamID, AOrder, APosID);
 
       // Создаём колонку в дочернем представлении
-//      CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-//        AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID,
-//        AOrder, APosID);
+      // CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
+      // AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID,
+      // AOrder, APosID);
 
       qParametersForCategory.FDQuery.Next;
     end;
@@ -239,8 +311,8 @@ begin
   finally
     cxGrid.EndUpdate;
   end;
-//  FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self, dxbsColumns,
-//    MainView, cxGridDBBandedTableView2);
+  // FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self, dxbsColumns,
+  // MainView, cxGridDBBandedTableView2);
 
   PostMyApplyBestFitEvent;
 
