@@ -24,6 +24,7 @@ inherited ViewGridEx: TViewGridEx
     end
   end
   object DataSource: TDataSource
+    OnUpdateData = DataSourceUpdateData
     Left = 64
     Top = 104
   end
@@ -216,5 +217,11 @@ inherited ViewGridEx: TViewGridEx
           00006C1F1D92AE0000E9AD0000E8AB0000E7AB0000E7AB0000E7AB0000E7AF00
           00EA690A07D20000000000000000000000000000000000000000}
       end>
+  end
+  object UpdateDataTimer: TTimer
+    Enabled = False
+    OnTimer = UpdateDataTimerTimer
+    Left = 152
+    Top = 104
   end
 end

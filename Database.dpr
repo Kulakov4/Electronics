@@ -128,12 +128,7 @@ uses
   AutoBindingDocForm in 'Views\AutoBinding\AutoBindingDocForm.pas' {frmAutoBindingDoc},
   AutoBindingDescriptionForm in 'Views\AutoBinding\AutoBindingDescriptionForm.pas' {frmAutoBindingDescriptions},
   GridView in 'Views\GridView\GridView.pas' {ViewGrid: TFrame},
-  CustomGridViewForm in 'Views\GridView\CustomGridViewForm.pas' {frmCustomGridView},
   ImportProcessForm in 'Views\GridView\ImportProcessForm.pas' {frmImportProcess},
-  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
-  CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
-  ErrorForm in 'Views\GridView\ErrorForm\ErrorForm.pas' {frmError},
-  ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
   DialogUnit2 in 'Helpers\DialogUnit2.pas',
   ProgressBarForm in 'Views\ProgressBar\ProgressBarForm.pas' {frmProgressBar},
   ProgressBarForm2 in 'Views\ProgressBar\ProgressBarForm2.pas' {frmProgressBar2},
@@ -176,12 +171,16 @@ uses
   Sort.StringCompare in 'Helpers\NaturalSort\Sort.StringCompare.pas',
   Sort.StringList in 'Helpers\NaturalSort\Sort.StringList.pas',
   AnalogForm in 'Views\Analog\AnalogForm.pas' {frmAnalog},
-  AnalogView in 'Views\Analog\AnalogView.pas' {ViewAnalog: TFrame},
   AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas' {AnalogGroup: TFrame},
   UniqueParameterValuesQuery in 'Queryes\Analog\UniqueParameterValuesQuery.pas' {QueryUniqueParameterValues: TFrame},
   GridViewEx in 'Views\GridViewEx.pas' {ViewGridEx: TFrame},
-  AnalogGridView3 in 'Views\Analog\AnalogGridView3.pas' {ViewAnalogGrid3: TFrame},
-  BandsInfo in 'Views\BandsInfo.pas';
+  AnalogGridView in 'Views\Analog\AnalogGridView.pas' {ViewAnalogGrid: TFrame},
+  BandsInfo in 'Views\BandsInfo.pas',
+  CustomGridViewForm in 'Views\GridView\CustomGridViewForm.pas' {frmCustomGridView},
+  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
+  CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
+  ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
+  AutoSizeGridViewForm in 'Views\GridView\AutoSizeGridViewForm.pas' {frmGridViewAutoSize};
 
 {$R *.res}
 

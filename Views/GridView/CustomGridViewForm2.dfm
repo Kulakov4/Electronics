@@ -1,5 +1,7 @@
-inherited frmCustomGridView: TfrmCustomGridView
-  Caption = 'frmCustomGridView'
+inherited frmCustomGridView2: TfrmCustomGridView2
+  Caption = 'frmCustomGridView2'
+  ExplicitWidth = 320
+  ExplicitHeight = 240
   PixelsPerInch = 96
   TextHeight = 16
   object pnlMain: TPanel

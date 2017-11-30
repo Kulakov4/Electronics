@@ -3,13 +3,11 @@ unit ImportErrorForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, GridFrame,
-  Vcl.ExtCtrls, cxGraphics, cxLookAndFeels,
-  cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
-  dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
-  dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CustomErrorForm, cxGraphics,
+  cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack,
+  dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
+  dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
   dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
   dxSkinMetropolisDark, dxSkinMoneyTwins, dxSkinOffice2007Black,
@@ -22,24 +20,23 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, System.Actions, Vcl.ActnList,
-  cxControls, cxContainer, cxEdit, cxLabel, GridView,
-  CustomErrorTable, GridViewForm, CustomGridViewForm, CustomErrorForm;
+  dxSkinXmas2008Blue, cxControls, cxContainer, cxEdit, cxLabel, Vcl.StdCtrls,
+  cxButtons, GridFrame, GridView, GridViewEx, Vcl.ExtCtrls, System.Actions,
+  Vcl.ActnList;
 
 type
   TfrmImportError = class(TfrmCustomError)
+    cxButton2: TcxButton;
     pmContinue: TPopupMenu;
     N1: TMenuItem;
     N2: TMenuItem;
-    ActionList1: TActionList;
+    ErrorActionList: TActionList;
     actAll: TAction;
     actSkip: TAction;
-    cxbtnCancel: TcxButton;
     procedure actAllExecute(Sender: TObject);
     procedure actSkipExecute(Sender: TObject);
   private
     { Private declarations }
-  protected
   public
     { Public declarations }
   end;
@@ -50,15 +47,12 @@ implementation
 
 procedure TfrmImportError.actAllExecute(Sender: TObject);
 begin
-  inherited;
   FContinueType := ctAll;
   ModalResult := mrOk;
-
 end;
 
 procedure TfrmImportError.actSkipExecute(Sender: TObject);
 begin
-  inherited;
   FContinueType := ctSkip;
   ModalResult := mrOk;
 end;

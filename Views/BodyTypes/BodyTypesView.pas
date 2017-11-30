@@ -29,7 +29,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
-  Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort;
+  Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort, CustomErrorForm;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -152,7 +152,7 @@ implementation
 uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
-  System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2,
+  System.Math, System.IOUtils, ProgressBarForm, DialogUnit2,
   BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper;
 
 {$R *.dfm}
@@ -296,7 +296,7 @@ begin
 
   BeginUpdate;
   try
-    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmError,
+    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
         BodyTypesGroup.InsertRecordList(ASender as TBodyTypesExcelTable,

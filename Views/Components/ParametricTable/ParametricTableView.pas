@@ -176,7 +176,7 @@ uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
   SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math,
-  AnalogForm, AnalogQueryes;
+  AnalogForm, AnalogQueryes, AnalogGridView;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin

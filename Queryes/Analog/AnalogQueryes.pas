@@ -23,23 +23,26 @@ type
   TParamValues = class(TObject)
   private
     FCaption: String;
-    FOrd: Integer;
-    FPosID: Integer;
+    FParameterID: Integer;
     FTable: TParameterValuesTable;
   public
-    constructor Create(APosID, AOrder: Integer; const ACaption: String);
+    constructor Create(const ACaption: String; AParameterID: Integer);
     destructor Destroy; override;
     property Caption: String read FCaption;
-    property Ord: Integer read FOrd;
-    property PosID: Integer read FPosID;
+    property ParameterID: Integer read FParameterID;
     property Table: TParameterValuesTable read FTable;
+  end;
+
+  TParamValuesList = class(TList<TParamValues>)
+  public
+    function FindByParameterID(AParameterID: Integer): TParamValues;
   end;
 
   TAnalogGroup = class(TQueryGroup)
   private
     FAllParameterFields: TDictionary<Integer, String>;
     FFDMemTable: TFDMemTable;
-    FParamValuesList: TList<TParamValues>;
+    FParamValuesList: TParamValuesList;
     FqParametersForCategory: TQueryParametersForCategory;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
   const
@@ -49,11 +52,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function GetParamIDByFieldName(const AFieldName: String): Integer;
     procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
     property AllParameterFields: TDictionary<Integer, String> read
         FAllParameterFields;
     property FDMemTable: TFDMemTable read FFDMemTable;
-    property ParamValuesList: TList<TParamValues> read FParamValuesList;
+    property ParamValuesList: TParamValuesList read FParamValuesList;
     property qParametersForCategory: TQueryParametersForCategory
       read FqParametersForCategory;
     property qUniqueParameterValues: TQueryUniqueParameterValues
@@ -70,7 +74,7 @@ begin
   inherited;
   FqParametersForCategory := TQueryParametersForCategory.Create(Self);
   FqUniqueParameterValues := TQueryUniqueParameterValues.Create(Self);
-  FParamValuesList := TList<TParamValues>.Create;
+  FParamValuesList := TParamValuesList.Create;
   FFDMemTable := TFDMemTable.Create(Self);
   FAllParameterFields := TDictionary<Integer,String>.Create;
 end;
@@ -85,6 +89,16 @@ end;
 function TAnalogGroup.GetFieldName(AIDParameter: Integer): String;
 begin
   Result := Format('%s%d', [FFieldPrefix, AIDParameter]);
+end;
+
+function TAnalogGroup.GetParamIDByFieldName(const AFieldName: String): Integer;
+var
+  i: Integer;
+begin
+  Assert(not AFieldName.IsEmpty);
+  i := AFieldName.IndexOf( FFieldPrefix );
+  Assert(i = 0);
+  Result := AFieldName.Substring(FFieldPrefix.Length).ToInteger();
 end;
 
 procedure TAnalogGroup.Load(AProductCategoryID: Integer; ARecHolder:
@@ -126,8 +140,7 @@ begin
 
       // Создаём список значений параметра
       AParamValues := TParamValues.Create
-        (FqParametersForCategory.PosID.AsInteger,
-        FqParametersForCategory.Ord.AsInteger, ACaption);
+        (ACaption, FqParametersForCategory.ParameterID.AsInteger);
 
       // Выбираем значения из БД
       FqUniqueParameterValues.SearchEx(AProductCategoryID,
@@ -189,12 +202,12 @@ begin
   Result := FieldByName('Value');
 end;
 
-constructor TParamValues.Create(APosID, AOrder: Integer;
-  const ACaption: String);
+constructor TParamValues.Create(const ACaption: String; AParameterID: Integer);
 begin
-  FPosID := APosID;
-  FOrd := AOrder;
   Assert(not ACaption.IsEmpty);
+  Assert(AParameterID > 0);
+
+  FParameterID := AParameterID;
   FCaption := ACaption;
   FTable := TParameterValuesTable.Create(nil);
 end;
@@ -203,6 +216,18 @@ destructor TParamValues.Destroy;
 begin
   FreeAndNil(FTable);
   inherited;
+end;
+
+function TParamValuesList.FindByParameterID(AParameterID: Integer):
+    TParamValues;
+begin
+  for Result in Self do
+  begin
+    if Result.ParameterID = AParameterID then
+      Exit;
+  end;
+
+  Result := nil;
 end;
 
 end.

@@ -124,7 +124,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
-  System.IOUtils, TreeListQuery, ErrorForm, ParametricExcelDataModule,
+  System.IOUtils, TreeListQuery, ParametricExcelDataModule,
   ProgressBarForm, ProjectConst, CustomExcelTable, ParameterValuesUnit,
   GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client, AllFamilyQuery,
   AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm, BindDocUnit,
@@ -387,9 +387,9 @@ begin
   if not OK then
   begin
     FfrmProgressBar.Hide;
-    AfrmError := TfrmError.Create(nil);
+    AfrmError := TfrmCustomError.Create(nil);
     try
-      AfrmError.ErrorTable := e.ExcelTable.Errors;
+      AfrmError.ViewGridEx.DataSet := e.ExcelTable.Errors;
       // Показываем ошибки
       OK := AfrmError.ShowModal = mrOk;
       if OK then
@@ -636,7 +636,7 @@ begin
       AfrmGridView := TfrmGridView.Create(Self);
       try
         AfrmGridView.Caption := 'Ошибки среди параметров';
-        AfrmGridView.DataSet := AParametricErrorTable;
+        AfrmGridView.ViewGridEx.DataSet := AParametricErrorTable;
         // Показываем что мы собираемся привязывать
         OK := AfrmGridView.ShowModal = mrOk;
       finally

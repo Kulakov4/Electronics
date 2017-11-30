@@ -3,7 +3,8 @@ unit GridViewEx;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridView, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -25,24 +26,38 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, System.ImageList, Vcl.ImgList;
+  cxGridDBBandedTableView, cxGrid, System.ImageList, Vcl.ImgList, Vcl.ExtCtrls,
+  NotifyEvents;
+
+const
+  WM_ON_UPDATE_DATA = WM_USER + 125;
 
 type
   TViewGridEx = class(TViewGrid)
     DataSource: TDataSource;
     cxImageList1: TcxImageList;
+    UpdateDataTimer: TTimer;
+    procedure DataSourceUpdateData(Sender: TObject);
+    procedure UpdateDataTimerTimer(Sender: TObject);
   private
+    FApplyBestFitOnUpdateData: Boolean;
     FDataSet: TDataSet;
+    FOnAssignDataSet: TNotifyEventsEx;
+    FOnUpdateDataPost: Boolean;
     procedure SetDataSet(const Value: TDataSet);
     { Private declarations }
   protected
     procedure AssignDataSet; virtual;
+    procedure DoOnUpdateData(var Message: TMessage); message WM_ON_UPDATE_DATA;
     procedure InitColumns; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateStatusBar;
     procedure UpdateView; override;
+    property ApplyBestFitOnUpdateData: Boolean read FApplyBestFitOnUpdateData
+      write FApplyBestFitOnUpdateData;
     property DataSet: TDataSet read FDataSet write SetDataSet;
+    property OnAssignDataSet: TNotifyEventsEx read FOnAssignDataSet;
     { Public declarations }
   end;
 
@@ -53,6 +68,7 @@ implementation
 constructor TViewGridEx.Create(AOwner: TComponent);
 begin
   inherited;
+  FOnAssignDataSet := TNotifyEventsEx.Create(Self);
   UpdateView;
 end;
 
@@ -69,6 +85,23 @@ begin
   UpdateStatusBar;
 end;
 
+procedure TViewGridEx.DataSourceUpdateData(Sender: TObject);
+begin
+  inherited;
+  if (not FApplyBestFitOnUpdateData) or FOnUpdateDataPost then
+    Exit;
+
+  UpdateDataTimer.Enabled := True;
+  FOnUpdateDataPost := True;
+end;
+
+procedure TViewGridEx.DoOnUpdateData(var Message: TMessage);
+begin
+  inherited;
+  ApplyBestFitEx;
+  FOnUpdateDataPost := False;
+end;
+
 procedure TViewGridEx.InitColumns;
 begin
   MainView.DataController.CreateAllItems(True);
@@ -76,25 +109,33 @@ end;
 
 procedure TViewGridEx.SetDataSet(const Value: TDataSet);
 begin
-  if FDataSet <> Value then
-  begin
-    FDataSet := Value;
-    if FDataSet <> nil then
-    begin
-      AssignDataSet;
-    end
-    else
-    begin
-      DataSource.DataSet := nil;
-    end;
-  end;
+  if FDataSet = Value then
+    Exit;
 
+  FDataSet := Value;
+  if FDataSet <> nil then
+  begin
+    AssignDataSet;
+  end
+  else
+  begin
+    DataSource.DataSet := nil;
+  end;
+  FOnAssignDataSet.CallEventHandlers(Self);
+end;
+
+procedure TViewGridEx.UpdateDataTimerTimer(Sender: TObject);
+begin
+  inherited;
+  UpdateDataTimer.Enabled := False;
+  PostMessage(Handle, WM_ON_UPDATE_DATA, 0, 0);
 end;
 
 procedure TViewGridEx.UpdateStatusBar;
 begin
   if (DataSet <> nil) and (DataSet.Active) then
-    StatusBar.Panels[0].Text := Format('Всего записей: %d', [DataSet.RecordCount]);
+    StatusBar.Panels[0].Text := Format('Всего записей: %d',
+      [DataSet.RecordCount]);
 end;
 
 procedure TViewGridEx.UpdateView;

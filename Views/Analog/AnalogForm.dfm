@@ -14,7 +14,7 @@ inherited frmAnalog: TfrmAnalog
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 0
-    inline ViewAnalogGrid: TViewAnalogGrid3
+    inline ViewAnalogGrid: TViewAnalogGrid
       Left = 0
       Top = 0
       Width = 745

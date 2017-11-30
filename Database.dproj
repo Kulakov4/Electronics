@@ -617,28 +617,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
-            <Form>frmCustomGridView</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Views\GridView\ImportProcessForm.pas">
             <Form>frmImportProcess</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\GridViewForm.pas">
-            <Form>frmGridView</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
-            <Form>frmCustomError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\ErrorForm.pas">
-            <Form>frmError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
-            <Form>frmImportError</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\DialogUnit2.pas"/>
@@ -805,11 +785,6 @@
             <Form>frmAnalog</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Views\Analog\AnalogView.pas">
-            <Form>ViewAnalog</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Analog\AnalogQueryes.pas">
             <Form>AnalogGroup</Form>
             <FormType>dfm</FormType>
@@ -825,12 +800,32 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\Analog\AnalogGridView3.pas">
-            <Form>ViewAnalogGrid3</Form>
+        <DCCReference Include="Views\Analog\AnalogGridView.pas">
+            <Form>ViewAnalogGrid</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\BandsInfo.pas"/>
+        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
+            <Form>frmCustomGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\GridViewForm.pas">
+            <Form>frmGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
+            <Form>frmCustomError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
+            <Form>frmImportError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\AutoSizeGridViewForm.pas">
+            <Form>frmGridViewAutoSize</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

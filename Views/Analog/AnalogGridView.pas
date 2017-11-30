@@ -1,4 +1,4 @@
-unit AnalogGridView3;
+unit AnalogGridView;
 
 interface
 
@@ -28,16 +28,23 @@ uses
   cxGridLevel, cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, AnalogQueryes,
   System.Generics.Collections, StrHelper, ParametersForCategoryQuery,
-  BandsInfo, cxMemo, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls;
+  BandsInfo, cxMemo, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls, dxCalloutPopup,
+  GridFrame, GridView;
 
 const
   WM_AFTER_INIT_EDIT = WM_USER + 1;
 
 type
-  TViewAnalogGrid3 = class(TViewGridEx)
+  TViewAnalogGrid = class(TViewGridEx)
     cxEditorButton: TcxButton;
     EditorTimer: TTimer;
     actShowPopup: TAction;
+    dxCalloutPopup1: TdxCalloutPopup;
+    Button1: TButton;
+    PopupPanel: TPanel;
+    PopupViewGridEx: TViewGridEx;
+    procedure actShowPopupExecute(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
     procedure cxGridDBBandedTableViewInitEdit(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
     procedure EditorTimerTimer(Sender: TObject);
@@ -45,6 +52,7 @@ type
     FAnalogGroup: TAnalogGroup;
     FBandsInfo: TBandsInfo;
     FColumns: TList<TcxGridDBBandedColumn>;
+    FcxGridDBBandedColumn: TcxGridDBBandedColumn;
     FcxMemo: TcxMemo;
     procedure CreateColumn(AView: TcxGridDBBandedTableView;
       AIDParameter: Integer; const ABandCaption, AColumnCaption,
@@ -68,31 +76,90 @@ type
 
 implementation
 
+uses
+  AutoSizeGridViewForm, System.Types;
+
 {$R *.dfm}
 
-constructor TViewAnalogGrid3.Create(AOwner: TComponent);
+constructor TViewAnalogGrid.Create(AOwner: TComponent);
 begin
   inherited;
   FColumns := TList<TcxGridDBBandedColumn>.Create;
   FBandsInfo := TBandsInfo.Create;
   FcxMemo := nil;
+  FcxGridDBBandedColumn := nil;
   cxEditorButton.Parent := cxGrid;
+  cxEditorButton.Visible := False;
+  actShowPopup.Caption := #$2219#$2219#$2219;
 end;
 
-destructor TViewAnalogGrid3.Destroy;
+destructor TViewAnalogGrid.Destroy;
 begin
   FreeAndNil(FBandsInfo);
   FreeAndNil(FColumns);
   inherited;
 end;
 
-procedure TViewAnalogGrid3.AfterInitEdit(var Message: TMessage);
+procedure TViewAnalogGrid.actShowPopupExecute(Sender: TObject);
+var
+  AfrmGridViewAutoSize: TfrmGridViewAutoSize;
+  AParameterID: Integer;
+  AParamValues: TParamValues;
+  p: TPoint;
+  R: TRect;
+begin
+  inherited;
+
+  Assert(FcxGridDBBandedColumn <> nil);
+
+  // ѕолучаем идентификатор параметра, св€занного с редактируемой колонкой
+  AParameterID := AnalogGroup.GetParamIDByFieldName
+    (FcxGridDBBandedColumn.DataBinding.FieldName);
+
+  AParamValues := AnalogGroup.ParamValuesList.FindByParameterID(AParameterID);
+  Assert(AParamValues <> nil);
+
+//  PopupViewGridEx.DataSet := AParamValues.Table;
+  PopupPanel.Width := FcxGridDBBandedColumn.GridView.ViewInfo.HeaderViewInfo.Items[FcxGridDBBandedColumn.VisibleIndex].Width;
+  dxCalloutPopup1.PopupControl := PopupPanel;
+  UpdateDataTimer.Enabled := False;
+  dxCalloutPopup1.Popup(cxEditorButton);
+
+{
+  AfrmGridViewAutoSize := TfrmGridViewAutoSize.Create(Self);
+  try
+    AfrmGridViewAutoSize.Caption := AParamValues.Caption;
+    AfrmGridViewAutoSize.ViewGridEx.DataSet := AParamValues.Table;
+    AfrmGridViewAutoSize.Constraints.MinWidth :=
+    ;
+
+
+    R := FcxMemo.GetVisibleBounds;
+    p := cxEditorButton.Parent.ClientToScreen( Point( FcxMemo.Left, FcxMemo.Top + R.BottomRight.Y ) );
+    AfrmGridViewAutoSize.Left := p.X;
+    AfrmGridViewAutoSize.Top := p.Y;
+    AfrmGridViewAutoSize.ShowModal;
+
+  finally
+    FreeAndNil(AfrmGridViewAutoSize);
+  end;
+}
+end;
+
+procedure TViewAnalogGrid.AfterInitEdit(var Message: TMessage);
 begin
   inherited;
   DoAfterInitMemo;
 end;
 
-procedure TViewAnalogGrid3.CreateColumn(AView: TcxGridDBBandedTableView;
+procedure TViewAnalogGrid.Button1Click(Sender: TObject);
+begin
+  inherited;
+  dxCalloutPopup1.PopupControl := PopupPanel;
+  dxCalloutPopup1.Popup(Button1);
+end;
+
+procedure TViewAnalogGrid.CreateColumn(AView: TcxGridDBBandedTableView;
   AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName: String;
   AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder,
   APosID: Integer);
@@ -168,7 +235,7 @@ begin
   end
 end;
 
-procedure TViewAnalogGrid3.cxGridDBBandedTableViewInitEdit
+procedure TViewAnalogGrid.cxGridDBBandedTableViewInitEdit
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit);
 begin
@@ -177,11 +244,13 @@ begin
   if not(AEdit is TcxMemo) then
     Exit;
 
+  FcxGridDBBandedColumn := AItem as TcxGridDBBandedColumn;
+
   FcxMemo := AEdit as TcxMemo;
   PostMessage(Handle, WM_AFTER_INIT_EDIT, 0, 0);
 end;
 
-procedure TViewAnalogGrid3.DeleteBands;
+procedure TViewAnalogGrid.DeleteBands;
 begin
   // Ѕэнды, которые не существуют "по умолчанию" удал€ем
   FBandsInfo.FreeNotDefaultBands;
@@ -190,7 +259,7 @@ begin
   FBandsInfo.HideDefaultBands;
 end;
 
-procedure TViewAnalogGrid3.DeleteColumns;
+procedure TViewAnalogGrid.DeleteColumns;
 var
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
 begin
@@ -201,7 +270,7 @@ begin
 
 end;
 
-procedure TViewAnalogGrid3.DoAfterInitMemo;
+procedure TViewAnalogGrid.DoAfterInitMemo;
 begin
   if FcxMemo = nil then
     Exit;
@@ -223,20 +292,22 @@ begin
   // UpdateSimpleText;
 end;
 
-procedure TViewAnalogGrid3.EditorTimerTimer(Sender: TObject);
+procedure TViewAnalogGrid.EditorTimerTimer(Sender: TObject);
 begin
   inherited;
   if IsMemoEditorHide then
     EditorTimer.Enabled := False;
 end;
 
-function TViewAnalogGrid3.IsMemoEditorHide: Boolean;
+function TViewAnalogGrid.IsMemoEditorHide: Boolean;
 begin
-  Result := (FcxMemo <> nil) and (FcxMemo.Parent = nil) and (not cxEditorButton.Focused);
+  // спр€тан ли текстовый редактор
+  Result := (FcxMemo = nil) or ((FcxMemo <> nil) and (FcxMemo.Parent = nil) and
+    (not cxEditorButton.Focused));
   cxEditorButton.Visible := not Result;
 end;
 
-procedure TViewAnalogGrid3.InitColumns;
+procedure TViewAnalogGrid.InitColumns;
 var
   ABandCaption: string;
   ABandInfo: TBandInfo;
@@ -318,7 +389,7 @@ begin
 
 end;
 
-procedure TViewAnalogGrid3.SetAnalogGroup(const Value: TAnalogGroup);
+procedure TViewAnalogGrid.SetAnalogGroup(const Value: TAnalogGroup);
 begin
   if FAnalogGroup = Value then
     Exit;

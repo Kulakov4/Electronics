@@ -177,14 +177,14 @@ uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
   ParametersForm, SettingsController, ReportsForm, ReportQuery,
   ParametricExcelDataModule, ParametricTableForm, BodyTypesForm, ProjectConst,
-  PathSettingsForm, ImportErrorForm, ErrorForm, cxGridDBBandedTableView,
+  PathSettingsForm, ImportErrorForm, cxGridDBBandedTableView,
   System.IOUtils, ImportProcessForm, ProgressInfo, ProgressBarForm,
   Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm,
   TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
-  LoadFromExcelFileHelper, SearchCategoryQuery;
+  LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm;
 
 {$R *.dfm}
 
@@ -284,7 +284,6 @@ var
   AFileName: string;
   AfrmGridView: TfrmGridView;
   AQueryRecursiveTree: TQueryRecursiveTree;
-  // ATreeExcelDM: TTreeExcelDM;
   OK: Boolean;
 begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
@@ -293,7 +292,7 @@ begin
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   try
     AQueryRecursiveTree.RefreshQuery;
-    TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmError,
+    TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
         AQueryRecursiveTree.LoadRecords(ASender as TTreeExcelTable);
@@ -307,7 +306,7 @@ begin
       AfrmGridView := TfrmGridView.Create(Self);
       try
         AfrmGridView.Caption := 'Добавленные категории';
-        AfrmGridView.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
         AfrmGridView.ShowModal;
       finally
         FreeAndNil(AfrmGridView);
@@ -322,7 +321,7 @@ begin
       try
         AfrmGridView.Caption := 'Удаление категорий';
         AfrmGridView.cxbtnOK.Caption := 'Удалить';
-        AfrmGridView.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
         OK := AfrmGridView.ShowModal = mrOk;
       finally
         FreeAndNil(AfrmGridView);

@@ -1,4 +1,4 @@
-unit CustomGridViewForm;
+unit CustomGridViewForm2;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   GridView, GridViewEx;
 
 type
-  TfrmCustomGridView = class(TfrmRoot)
+  TfrmCustomGridView2 = class(TfrmRoot)
     pnlMain: TPanel;
     ViewGridEx: TViewGridEx;
   private

@@ -94,8 +94,7 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst, ErrorForm, LoadFromExcelFileHelper,
-  CustomErrorForm;
+  ImportProcessForm, ProjectConst, CustomErrorForm, LoadFromExcelFileHelper;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -264,7 +263,7 @@ begin
 
     frmImportProcess := TfrmImportProcess.Create(Self);
     frmImportProcess.Caption := 'Загрузка компонентов';
-    frmImportProcess.DataSet := AutomaticLoadErrorTable;
+    frmImportProcess.ViewGridEx.DataSet := AutomaticLoadErrorTable;
     // Показываем отчёт
     frmImportProcess.Show;
 

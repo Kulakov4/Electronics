@@ -16,8 +16,9 @@ type
 
 implementation
 
-uses AllFamilyQuery, System.SysUtils, ProgressBarForm, ErrorForm, ProjectConst,
-  System.UITypes, CustomExcelTable, System.IOUtils, LoadFromExcelFileHelper;
+uses AllFamilyQuery, System.SysUtils, ProgressBarForm, ProjectConst,
+  System.UITypes, CustomExcelTable, System.IOUtils, LoadFromExcelFileHelper,
+  CustomErrorForm;
 
 class procedure TBindDoc.DoBindDocs(ADocBindExcelTable: TDocBindExcelTable);
 var
@@ -74,7 +75,7 @@ class procedure TBindDoc.LoadDocBindsFromExcelDocument(const AFileName: string);
 begin
   Assert(not AFileName.IsEmpty);
 
-    TLoad.Create.LoadAndProcess(AFileName, TDocBindExcelDM, TfrmError,
+    TLoad.Create.LoadAndProcess(AFileName, TDocBindExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
         // Выполняем привязку

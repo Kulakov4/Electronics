@@ -314,7 +314,7 @@ begin
         with AfrmGridView do
         begin
           Caption := 'Ошибки автоматического прикрепления файлов документации';
-          DataSet := AErrorLinkedDocTable;
+          ViewGridEx.DataSet := AErrorLinkedDocTable;
           // Показываем что мы собираемся привязывать
           ShowModal;
         end;
@@ -350,9 +350,9 @@ begin
         try
           AfrmGridView.Caption :=
             'Компоненты для которых отсутствует документация';
-          AfrmGridView.DataSet := AAbsentDocTable;
+          AfrmGridView.ViewGridEx.DataSet := AAbsentDocTable;
           AcxGridDBBandedColumn :=
-            AfrmGridView.ViewGrid.MainView.GetColumnByFieldName
+            AfrmGridView.ViewGridEx.MainView.GetColumnByFieldName
             (AAbsentDocTable.Folder.FieldName);
           Assert(AcxGridDBBandedColumn <> nil);
           AcxGridDBBandedColumn.GroupIndex := 0;
