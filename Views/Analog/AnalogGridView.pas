@@ -29,7 +29,7 @@ uses
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, AnalogQueryes,
   System.Generics.Collections, StrHelper, ParametersForCategoryQuery,
   BandsInfo, cxMemo, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls, dxCalloutPopup,
-  GridFrame, GridView;
+  GridFrame, GridView, System.Math, cxCheckBox, cxLabel;
 
 const
   WM_AFTER_INIT_EDIT = WM_USER + 1;
@@ -40,13 +40,12 @@ type
     EditorTimer: TTimer;
     actShowPopup: TAction;
     dxCalloutPopup1: TdxCalloutPopup;
-    Button1: TButton;
     PopupPanel: TPanel;
     PopupViewGridEx: TViewGridEx;
     procedure actShowPopupExecute(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure cxGridDBBandedTableViewInitEdit(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
+    procedure dxCalloutPopup1Hide(Sender: TObject);
     procedure EditorTimerTimer(Sender: TObject);
   private
     FAnalogGroup: TAnalogGroup;
@@ -102,6 +101,7 @@ end;
 
 procedure TViewAnalogGrid.actShowPopupExecute(Sender: TObject);
 var
+  AColumn: TcxGridDBBandedColumn;
   AfrmGridViewAutoSize: TfrmGridViewAutoSize;
   AParameterID: Integer;
   AParamValues: TParamValues;
@@ -119,15 +119,40 @@ begin
   AParamValues := AnalogGroup.ParamValuesList.FindByParameterID(AParameterID);
   Assert(AParamValues <> nil);
 
-//  PopupViewGridEx.DataSet := AParamValues.Table;
-  PopupPanel.Width := FcxGridDBBandedColumn.GridView.ViewInfo.HeaderViewInfo.Items[FcxGridDBBandedColumn.VisibleIndex].Width;
-  dxCalloutPopup1.PopupControl := PopupPanel;
-  UpdateDataTimer.Enabled := False;
-  dxCalloutPopup1.Popup(cxEditorButton);
+  PopupViewGridEx.DataSet := AParamValues.Table;
+  AColumn := PopupViewGridEx.MainView.GetColumnByFieldName
+    (AParamValues.Table.Checked.FieldName);
+  Assert(AColumn <> nil);
+  AColumn.PropertiesClass := TcxCheckBoxProperties;
+  (AColumn.Properties as TcxCheckBoxProperties).ValueChecked := 1;
+  (AColumn.Properties as TcxCheckBoxProperties).ValueUnchecked := 0;
+  (AColumn.Properties as TcxCheckBoxProperties).ImmediatePost := True;
 
-{
-  AfrmGridViewAutoSize := TfrmGridViewAutoSize.Create(Self);
-  try
+  AColumn := PopupViewGridEx.MainView.GetColumnByFieldName
+    (AParamValues.Table.Value.FieldName);
+  Assert(AColumn <> nil);
+  AColumn.PropertiesClass := TcxLabelProperties;
+
+
+  PopupPanel.Width :=
+    Max(PopupViewGridEx.MainView.ViewInfo.HeaderViewInfo.Width + 20,
+    FcxGridDBBandedColumn.GridView.ViewInfo.HeaderViewInfo.Items
+    [FcxGridDBBandedColumn.VisibleIndex].Width);
+
+  // dxCalloutPopup1.PopupControl := PopupPanel;
+  UpdateDataTimer.Enabled := False;
+
+  R := FcxMemo.BoundsRect;
+
+  R.Left := 5 + R.Left;
+  // R.Right := cxEditorButton.Left + R.Right;
+  // R.Top := cxEditorButton.Top + R.Top;
+  // R.Bottom := cxEditorButton.Top + R.Bottom;
+  dxCalloutPopup1.Popup(cxEditorButton.Parent, R);
+
+  {
+    AfrmGridViewAutoSize := TfrmGridViewAutoSize.Create(Self);
+    try
     AfrmGridViewAutoSize.Caption := AParamValues.Caption;
     AfrmGridViewAutoSize.ViewGridEx.DataSet := AParamValues.Table;
     AfrmGridViewAutoSize.Constraints.MinWidth :=
@@ -140,23 +165,16 @@ begin
     AfrmGridViewAutoSize.Top := p.Y;
     AfrmGridViewAutoSize.ShowModal;
 
-  finally
+    finally
     FreeAndNil(AfrmGridViewAutoSize);
-  end;
-}
+    end;
+  }
 end;
 
 procedure TViewAnalogGrid.AfterInitEdit(var Message: TMessage);
 begin
   inherited;
   DoAfterInitMemo;
-end;
-
-procedure TViewAnalogGrid.Button1Click(Sender: TObject);
-begin
-  inherited;
-  dxCalloutPopup1.PopupControl := PopupPanel;
-  dxCalloutPopup1.Popup(Button1);
 end;
 
 procedure TViewAnalogGrid.CreateColumn(AView: TcxGridDBBandedTableView;
@@ -290,6 +308,28 @@ begin
   end;
 
   // UpdateSimpleText;
+end;
+
+procedure TViewAnalogGrid.dxCalloutPopup1Hide(Sender: TObject);
+var
+  AParameterID: Integer;
+  AParamValues: TParamValues;
+  AValues: string;
+begin
+  inherited;
+
+  // ѕолучаем идентификатор параметра, св€занного с редактируемой колонкой
+  AParameterID := AnalogGroup.GetParamIDByFieldName
+    (FcxGridDBBandedColumn.DataBinding.FieldName);
+
+  AParamValues := AnalogGroup.ParamValuesList.FindByParameterID(AParameterID);
+  Assert(AParamValues <> nil);
+
+  AValues :=  AParamValues.Table.GetCheckedValues;
+
+  AnalogGroup.FDMemTable.Edit;
+  AnalogGroup.FDMemTable.FieldByName( FcxGridDBBandedColumn.DataBinding.FieldName ).Value := AValues;
+  AnalogGroup.FDMemTable.Post;
 end;
 
 procedure TViewAnalogGrid.EditorTimerTimer(Sender: TObject);

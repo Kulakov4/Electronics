@@ -13,10 +13,17 @@ uses
 type
   TParameterValuesTable = class(TTableWithProgress)
   private
+    function GetChecked: TField;
+    function GetID: TField;
     function GetValue: TField;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRec(const AID: Integer; const AValue: string);
+    procedure CheckRecord;
+    procedure CheckRecords(const AValues: string);
+    function GetCheckedValues: String;
+    property Checked: TField read GetChecked;
+    property ID: TField read GetID;
     property Value: TField read GetValue;
   end;
 
@@ -45,6 +52,7 @@ type
     FParamValuesList: TParamValuesList;
     FqParametersForCategory: TQueryParametersForCategory;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
+
   const
     FFieldPrefix: string = 'Field';
     function GetFieldName(AIDParameter: Integer): String;
@@ -54,8 +62,8 @@ type
     destructor Destroy; override;
     function GetParamIDByFieldName(const AFieldName: String): Integer;
     procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
-    property AllParameterFields: TDictionary<Integer, String> read
-        FAllParameterFields;
+    property AllParameterFields: TDictionary<Integer, String>
+      read FAllParameterFields;
     property FDMemTable: TFDMemTable read FFDMemTable;
     property ParamValuesList: TParamValuesList read FParamValuesList;
     property qParametersForCategory: TQueryParametersForCategory
@@ -76,7 +84,7 @@ begin
   FqUniqueParameterValues := TQueryUniqueParameterValues.Create(Self);
   FParamValuesList := TParamValuesList.Create;
   FFDMemTable := TFDMemTable.Create(Self);
-  FAllParameterFields := TDictionary<Integer,String>.Create;
+  FAllParameterFields := TDictionary<Integer, String>.Create;
 end;
 
 destructor TAnalogGroup.Destroy;
@@ -96,20 +104,21 @@ var
   i: Integer;
 begin
   Assert(not AFieldName.IsEmpty);
-  i := AFieldName.IndexOf( FFieldPrefix );
+  i := AFieldName.IndexOf(FFieldPrefix);
   Assert(i = 0);
   Result := AFieldName.Substring(FFieldPrefix.Length).ToInteger();
 end;
 
-procedure TAnalogGroup.Load(AProductCategoryID: Integer; ARecHolder:
-    TRecordHolder);
+procedure TAnalogGroup.Load(AProductCategoryID: Integer;
+  ARecHolder: TRecordHolder);
 var
   ACaption: String;
   AFieldName: string;
+  AParameterID: Integer;
   AParamValues: TParamValues;
   ASortList: TStringList;
   F: TField;
-  I: Integer;
+  i: Integer;
 begin
   Assert(ARecHolder <> nil);
 
@@ -122,16 +131,11 @@ begin
     while not FqParametersForCategory.FDQuery.Eof do
     begin
       // Имя поля в таблице поределяющей выбранные значения для поиска аналога
-      AFieldName := GetFieldName
-        (FqParametersForCategory.ParameterID.AsInteger);
+      AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
       // Добавляем очередное поле
       FFDMemTable.FieldDefs.Add(AFieldName, ftString, 200);
       FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
         AFieldName);
-
-
-
-
 
       ACaption := IfThen(qParametersForCategory.ParentCaption.AsString <> '',
         Format('%s (%s)', [qParametersForCategory.ParentCaption.AsString,
@@ -139,8 +143,8 @@ begin
         qParametersForCategory.Caption.AsString);
 
       // Создаём список значений параметра
-      AParamValues := TParamValues.Create
-        (ACaption, FqParametersForCategory.ParameterID.AsInteger);
+      AParamValues := TParamValues.Create(ACaption,
+        FqParametersForCategory.ParameterID.AsInteger);
 
       // Выбираем значения из БД
       FqUniqueParameterValues.SearchEx(AProductCategoryID,
@@ -153,9 +157,9 @@ begin
       end;
       // Сортируем
       TStringListSort.Sort(ASortList, False, True);
-      for I := 0 to ASortList.Count - 1 do
+      for i := 0 to ASortList.Count - 1 do
       begin
-        AParamValues.Table.AppendRec(I, ASortList[I]);
+        AParamValues.Table.AppendRec(i, ASortList[i]);
       end;
 
       ParamValuesList.Add(AParamValues);
@@ -166,13 +170,16 @@ begin
 
     // Добавляем в него одну запись
     FDMemTable.Append;
-    for I := 0 to ARecHolder.Count - 1 do
+    for i := 0 to ARecHolder.Count - 1 do
     begin
       F := FDMemTable.FindField(ARecHolder.Items[i].FieldName);
       if F = nil then
         Continue;
 
       F.Value := ARecHolder.Items[i].Value;
+      AParameterID := GetParamIDByFieldName(F.FieldName);
+      AParamValues := ParamValuesList.FindByParameterID(AParameterID);
+      AParamValues.Table.CheckRecords(F.Value);
     end;
 
     FDMemTable.Post;
@@ -185,16 +192,91 @@ constructor TParameterValuesTable.Create(AOwner: TComponent);
 begin
   inherited;
   FieldDefs.Add('ID', ftInteger, 0, True);
-  FieldDefs.Add('Value', ftWideString, 100, True);
+  FieldDefs.Add('Checked', ftInteger, 0, True);
+  FieldDefs.Add('Value', ftWideString, 200, True);
 
   CreateDataSet;
+  ID.Visible := False;
 end;
 
 procedure TParameterValuesTable.AppendRec(const AID: Integer;
   const AValue: string);
 begin
   Assert(not AValue.IsEmpty);
-  AppendRecord([AID, AValue]);
+
+  Append;
+  ID.AsInteger := AID;
+  Checked.AsInteger := 0;
+  Value.AsString := AValue;
+  Post;
+end;
+
+procedure TParameterValuesTable.CheckRecord;
+begin
+  Edit;
+  Checked.AsInteger := 1;
+  Post;
+end;
+
+procedure TParameterValuesTable.CheckRecords(const AValues: string);
+var
+  i: Integer;
+  m: TArray<String>;
+  OK: Boolean;
+  S: string;
+begin
+  DisableControls;
+  try
+    m := AValues.Split([#13, #10]);
+    for i := Low(m) to High(m) do
+    begin
+      S := m[i].Trim([#13, #10, ' ']);
+      if S.IsEmpty then
+        Continue;
+
+      OK := LocateEx(Value.FieldName, S, []);
+      Assert(OK);
+      CheckRecord;
+    end;
+  finally
+    EnableControls;
+  end;
+end;
+
+function TParameterValuesTable.GetChecked: TField;
+begin
+  Result := FieldByName('Checked');
+end;
+
+function TParameterValuesTable.GetCheckedValues: String;
+var
+  AClone: TFDMemTable;
+begin
+  if State in [dsEdit, dsInsert] then
+    Post;
+
+  AClone := TFDMemTable.Create(Self);
+  try
+    AClone.CloneCursor(Self);
+    AClone.Filter := Format('%s=1', [Checked.FieldName]);
+    AClone.Filtered := True;
+    AClone.First;
+    Result := '';
+    while not AClone.Eof do
+    begin
+      Result := Format('%s'#13#10'%s',
+        [Result, AClone.FieldByName(Value.FieldName).AsString]);
+      AClone.Next;
+    end;
+    Result := Result.Trim([#13, #10]);
+  finally
+    FreeAndNil(AClone);
+  end;
+end;
+
+function TParameterValuesTable.GetID: TField;
+begin
+  Result := FieldByName('ID');
 end;
 
 function TParameterValuesTable.GetValue: TField;
@@ -218,8 +300,8 @@ begin
   inherited;
 end;
 
-function TParamValuesList.FindByParameterID(AParameterID: Integer):
-    TParamValues;
+function TParamValuesList.FindByParameterID(AParameterID: Integer)
+  : TParamValues;
 begin
   for Result in Self do
   begin

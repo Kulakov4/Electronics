@@ -328,6 +328,11 @@ var
   AnalogGroup: TAnalogGroup;
   AProductCategoryID: Integer;
   ARecHolder: TRecordHolder;
+  AValue: string;
+  i: Integer;
+  j: Integer;
+  m: TArray<String>;
+  S: string;
 begin
   AnalogGroup := TAnalogGroup.Create(Self);
   try
@@ -337,6 +342,25 @@ begin
     // Получаем значения текущей записи о семействе
     ARecHolder := TRecordHolder.Create(ComponentsExGroup.qFamilyEx.FDQuery);
     try
+      for i := 0 to ARecHolder.Count - 1 do
+      begin
+        if VarIsNull(ARecHolder[i].Value) then
+          Continue;
+
+        AValue := '';
+        m := VarToStr(ARecHolder[i].Value).Split([#13, #10]);
+        for j := Low(m) to High(m) do
+        begin
+          S := m[j].Trim([Mark.Chars[0], #13, #10]);
+          if S.IsEmpty then
+            Continue;
+
+          AValue := Format('%s'#13#10'%s', [AValue, S]);
+        end;
+        AValue := AValue.Trim([#13, #10]);
+
+        ARecHolder[i].Value := AValue;
+      end;
 
       // Загружаем значения параметров для текущей категории
       AnalogGroup.Load(AProductCategoryID, ARecHolder);
@@ -1282,7 +1306,7 @@ begin
   for ABI in FBandsInfo do
   begin
     if ABI.Band.GridView <> MainView then
-      continue;
+      Continue;
 
     // Получаем кнопку
     AdxBarButton := dxbsColumns.ItemLinks[i].Item as TdxBarButton;

@@ -19,39 +19,34 @@ inherited ViewAnalogGrid: TViewAnalogGrid
     Action = actShowPopup
     TabOrder = 6
   end
-  object Button1: TButton [3]
-    Left = 144
-    Top = 68
-    Width = 75
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 7
-    OnClick = Button1Click
-  end
-  object PopupPanel: TPanel [4]
-    Left = 67
-    Top = 168
-    Width = 233
+  object PopupPanel: TPanel [3]
+    Left = 15
+    Top = 186
+    Width = 430
     Height = 272
     Caption = 'PopupPanel'
-    TabOrder = 8
+    TabOrder = 7
     Visible = False
     inline PopupViewGridEx: TViewGridEx
       Left = 1
       Top = 1
-      Width = 231
+      Width = 428
       Height = 270
       Align = alClient
       ExplicitLeft = -660
       ExplicitTop = -219
       inherited cxGrid: TcxGrid
         Top = 0
-        Width = 231
+        Width = 428
         Height = 251
+        inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+          OptionsData.Editing = True
+          OptionsView.Header = False
+        end
       end
       inherited StatusBar: TStatusBar
         Top = 251
-        Width = 231
+        Width = 428
         Visible = False
       end
       inherited dxBarManager: TdxBarManager
@@ -97,13 +92,18 @@ inherited ViewAnalogGrid: TViewAnalogGrid
   object EditorTimer: TTimer
     Interval = 300
     OnTimer = EditorTimerTimer
-    Left = 216
-    Top = 280
+    Left = 24
+    Top = 48
   end
   object dxCalloutPopup1: TdxCalloutPopup
     AnimationOptions.FadeEffect = False
     AnimationOptions.MoveEffect = False
-    Left = 392
+    LookAndFeel.Kind = lfOffice11
+    LookAndFeel.NativeStyle = False
+    PopupControl = PopupPanel
+    Rounded = True
+    OnHide = dxCalloutPopup1Hide
+    Left = 472
     Top = 344
   end
 end
