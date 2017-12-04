@@ -33,12 +33,17 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       Width = 428
       Height = 270
       Align = alClient
-      ExplicitLeft = -660
-      ExplicitTop = -219
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 428
+      ExplicitHeight = 270
       inherited cxGrid: TcxGrid
         Top = 0
         Width = 428
         Height = 251
+        ExplicitTop = 0
+        ExplicitWidth = 428
+        ExplicitHeight = 251
         inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
           OptionsData.Editing = True
           OptionsView.Header = False
@@ -48,6 +53,8 @@ inherited ViewAnalogGrid: TViewAnalogGrid
         Top = 251
         Width = 428
         Visible = False
+        ExplicitTop = 251
+        ExplicitWidth = 428
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (

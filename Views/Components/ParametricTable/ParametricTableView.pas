@@ -37,6 +37,7 @@ uses
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
   WM_ON_BAND_POS_CHANGE = WM_USER + 62;
+  WM_ON_FILTER = WM_USER + 63;
 
 type
   TViewParametricTable = class(TViewComponentsBase)
@@ -86,6 +87,7 @@ type
     FBandInfo: TBandInfo;
     FBandsInfo: TBandsInfo;
     FColumns: TList<TcxGridDBBandedColumn>;
+    FFilterValues: Variant;
     FLockDetailFilterChange: Boolean;
     FMark: string;
     procedure CreateColumn(AView: TcxGridDBBandedTableView;
@@ -110,6 +112,7 @@ type
     procedure UpdateColumnsCustomization;
     { Private declarations }
   protected
+    procedure ApplyFilter(AFilterValues: Variant);
     procedure CreateColumnsBarButtons; override;
     procedure CreateDetailFilter;
     procedure DoAfterBandPosChange(var Message: TMessage);
@@ -120,6 +123,7 @@ type
     procedure DoOnMasterDetailChange; override;
     procedure OnEditValueChangeProcess(var Message: TMessage);
       message WM_ON_EDIT_VALUE_CHANGE;
+    procedure OnFilterMessage(var Message: TMessage); message WM_ON_FILTER;
     procedure UpdateDetailColumnsWidth2;
     procedure UpdateFiltersAction;
   public
@@ -176,7 +180,7 @@ uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
   SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math,
-  AnalogForm, AnalogQueryes, AnalogGridView;
+  AnalogForm, AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -307,22 +311,6 @@ begin
 end;
 
 procedure TViewParametricTable.actNearAnalogExecute(Sender: TObject);
-{
-  var
-  AColumn: TcxGridDBBandedColumn;
-  AFilterList: TcxFilterCriteriaItemList;
-  F: TList<TList<TFilterItem>>;
-  fi: TFilterItem;
-  i: Integer;
-  m: TArray<String>;
-  R: TcxCustomGridRecord;
-  root: TcxFilterCriteriaItemList;
-  AValue: string;
-  AView: TcxGridDBBandedTableView;
-  L: TList<TFilterItem>;
-  ms: string;
-  S: string;
-}
 var
   AfrmAnalog: TfrmAnalog;
   AnalogGroup: TAnalogGroup;
@@ -332,6 +320,8 @@ var
   i: Integer;
   j: Integer;
   m: TArray<String>;
+  OK: Boolean;
+  q: TqSearchProductByParamValues;
   S: string;
 begin
   AnalogGroup := TAnalogGroup.Create(Self);
@@ -368,87 +358,54 @@ begin
       AfrmAnalog := TfrmAnalog.Create(Self);
       try
         AfrmAnalog.ViewAnalogGrid.AnalogGroup := AnalogGroup;
-        AfrmAnalog.ShowModal;
+        OK := AfrmAnalog.ShowModal = mrOk;
       finally
         FreeAndNil(AfrmAnalog);
       end;
     finally
       FreeAndNil(ARecHolder);
     end;
+
+    if OK then
+    begin
+      q := AnalogGroup.ApplyFilter;
+      try
+        // Создаём вариантный массив
+        FFilterValues := VarArrayCreate([0, q.FDQuery.RecordCount - 1],
+          varInteger);
+        // Надо наложить фильтр
+        for i := 1 to q.FDQuery.RecordCount do
+        begin
+          q.FDQuery.RecNo := i;
+          FFilterValues[i - 1] := q.ProductId.AsInteger;
+        end;
+
+        PostMessage(Handle, WM_ON_FILTER, 0, 0);
+      finally
+        FreeAndNil(q);
+      end;
+    end;
+
   finally
     FreeAndNil(AnalogGroup);
   end;
-  {
-    AView := FocusedTableView;
+end;
 
-    if AView.ViewData.RecordCount = 0 then
-    Exit;
+procedure TViewParametricTable.ApplyFilter(AFilterValues: Variant);
+var
+  AColumn: TcxGridDBBandedColumn;
+  FilterRoot: TcxFilterCriteriaItemList;
+begin
+  Assert(not VarIsNull(AFilterValues));
 
-    R := AView.Controller.FocusedRecord;
-    Assert(R <> nil);
+  // Накладываем фильтр на семейства
+  FilterRoot := MainView.DataController.Filter.root;
+  FilterRoot.Clear;
 
-    F := TList < TList < TFilterItem >>.Create;
-    try
+  AColumn := MainView.GetColumnByFieldName(clID.DataBinding.FieldName);
 
-    for i := 0 to AView.ColumnCount - 1 do
-    begin
-    AColumn := AView.Columns[i];
-    if (AColumn.Visible) and (AColumn.Position.Band <> nil) and
-    (FBandsInfo.Search(AColumn.Position.Band) <> nil) then
-    begin
-    AValue := VarToStrDef(R.Values[AColumn.Index], '').Trim;
-    if not AValue.IsEmpty then
-    begin
-    L := TList<TFilterItem>.Create;
-    F.Add(L);
-    // Разбиваем значение на отдельные строки
-    m := AValue.Split([#13]);
-    for ms in m do
-    begin
-
-    S := ms.Trim;
-    if not S.IsEmpty then
-    begin
-    S := '%' + S + '%';
-    L.Add(TFilterItem.Create(AColumn, foLike, S));
-    end;
-    end;
-    end;
-    end;
-    end;
-
-    FLockDetailFilterChange := True;
-    root := AView.DataController.Filter.root;
-    root.Clear;
-    root.BoolOperatorKind := fboAnd;
-
-    for L in F do
-    begin
-    // Если будем добавлять несколько условий на один столбец
-    if L.Count > 1 then
-    begin
-    AFilterList := root.AddItemList(fboOr);
-    end
-    else
-    AFilterList := root;
-
-    for fi in L do
-    begin
-    AFilterList.AddItem(fi.Column, fi.FilterOperatorKind, fi.Value,
-    fi.Value);
-    fi.Free;
-    end;
-
-    L.Free;
-    end;
-    AView.DataController.Filter.Active := True;
-    CreateDetailFilter;
-
-    FLockDetailFilterChange := False;
-    finally
-    FreeAndNil(F);
-    end;
-  }
+  FilterRoot.AddItem(AColumn, foInList, AFilterValues, 'Ближайший аналог');
+  MainView.DataController.Filter.Active := True;
 end;
 
 procedure TViewParametricTable.DoOnGetFilterValues
@@ -1195,6 +1152,13 @@ begin
   inherited;
   ComponentsExGroup.TryPost;
   UpdateView;
+end;
+
+procedure TViewParametricTable.OnFilterMessage(var Message: TMessage);
+begin
+  inherited;
+
+  ApplyFilter(FFilterValues)
 end;
 
 procedure TViewParametricTable.SetComponentsExGroup

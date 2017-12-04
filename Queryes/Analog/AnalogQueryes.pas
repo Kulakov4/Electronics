@@ -8,7 +8,8 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   ParametersForCategoryQuery, TableWithProgress, Data.DB,
   System.Generics.Collections, UniqueParameterValuesQuery, Sort.StringList,
-  System.StrUtils, FireDAC.Comp.Client, DBRecordHolder;
+  System.StrUtils, FireDAC.Comp.Client, DBRecordHolder, StrHelper,
+  SearchProductByParamValuesQuery;
 
 type
   TParameterValuesTable = class(TTableWithProgress)
@@ -21,7 +22,8 @@ type
     procedure AppendRec(const AID: Integer; const AValue: string);
     procedure CheckRecord;
     procedure CheckRecords(const AValues: string);
-    function GetCheckedValues: String;
+    function GetCheckedValues(const ADelimiter: string;
+      const AQuote: Char): String;
     property Checked: TField read GetChecked;
     property ID: TField read GetID;
     property Value: TField read GetValue;
@@ -50,6 +52,7 @@ type
     FAllParameterFields: TDictionary<Integer, String>;
     FFDMemTable: TFDMemTable;
     FParamValuesList: TParamValuesList;
+    FProductCategoryID: Integer;
     FqParametersForCategory: TQueryParametersForCategory;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
 
@@ -60,6 +63,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function ApplyFilter: TqSearchProductByParamValues;
     function GetParamIDByFieldName(const AFieldName: String): Integer;
     procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
     property AllParameterFields: TDictionary<Integer, String>
@@ -94,6 +98,31 @@ begin
   inherited;
 end;
 
+function TAnalogGroup.ApplyFilter: TqSearchProductByParamValues;
+var
+  AParamValues: TParamValues;
+  ASQL: string;
+  S: string;
+begin
+  ASQL := '';
+
+  Result := TqSearchProductByParamValues.Create(nil);
+
+  // Цикл по всем отфильтрованным значениям параметров
+  for AParamValues in ParamValuesList do
+  begin
+    S := Result.GetSQL(AParamValues.ParameterID,
+      AParamValues.Table.GetCheckedValues(',', ''''));
+
+    if not ASQL.IsEmpty then
+      ASQL := ASQL + #13#10'intersect'#13#10;
+    ASQL := ASQL + S;
+  end;
+
+  Result.FDQuery.SQL.Text := ASQL;
+  Result.SearchEx(FProductCategoryID);
+end;
+
 function TAnalogGroup.GetFieldName(AIDParameter: Integer): String;
 begin
   Result := Format('%s%d', [FFieldPrefix, AIDParameter]);
@@ -121,6 +150,7 @@ var
   i: Integer;
 begin
   Assert(ARecHolder <> nil);
+  FProductCategoryID := AProductCategoryID;
 
   ASortList := TStringList.Create;
   try
@@ -248,12 +278,18 @@ begin
   Result := FieldByName('Checked');
 end;
 
-function TParameterValuesTable.GetCheckedValues: String;
+function TParameterValuesTable.GetCheckedValues(const ADelimiter: string;
+  const AQuote: Char): String;
 var
   AClone: TFDMemTable;
+  AQuoteStr: string;
 begin
+  Assert(not ADelimiter.IsEmpty);
+
   if State in [dsEdit, dsInsert] then
     Post;
+
+  AQuoteStr := IfThen(AQuote = #0, '', AQuote);
 
   AClone := TFDMemTable.Create(Self);
   try
@@ -264,11 +300,14 @@ begin
     Result := '';
     while not AClone.Eof do
     begin
-      Result := Format('%s'#13#10'%s',
-        [Result, AClone.FieldByName(Value.FieldName).AsString]);
+      if not Result.IsEmpty then
+        Result := Result + ADelimiter;
+
+      Result := Format('%s%s%s%s', [Result, AQuoteStr,
+        AClone.FieldByName(Value.FieldName).AsString, AQuoteStr]);
+
       AClone.Next;
     end;
-    Result := Result.Trim([#13, #10]);
   finally
     FreeAndNil(AClone);
   end;

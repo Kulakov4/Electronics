@@ -180,7 +180,8 @@ uses
   GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
   CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
   ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
-  AutoSizeGridViewForm in 'Views\GridView\AutoSizeGridViewForm.pas' {frmGridViewAutoSize};
+  AutoSizeGridViewForm in 'Views\GridView\AutoSizeGridViewForm.pas' {frmGridViewAutoSize},
+  SearchProductByParamValuesQuery in 'Queryes\Search\SearchProductByParamValuesQuery.pas' {qSearchProductByParamValues: TFrame};
 
 {$R *.res}
 

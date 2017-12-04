@@ -102,10 +102,8 @@ end;
 procedure TViewAnalogGrid.actShowPopupExecute(Sender: TObject);
 var
   AColumn: TcxGridDBBandedColumn;
-  AfrmGridViewAutoSize: TfrmGridViewAutoSize;
   AParameterID: Integer;
   AParamValues: TParamValues;
-  p: TPoint;
   R: TRect;
 begin
   inherited;
@@ -325,7 +323,7 @@ begin
   AParamValues := AnalogGroup.ParamValuesList.FindByParameterID(AParameterID);
   Assert(AParamValues <> nil);
 
-  AValues :=  AParamValues.Table.GetCheckedValues;
+  AValues :=  AParamValues.Table.GetCheckedValues(#13#10, #0);
 
   AnalogGroup.FDMemTable.Edit;
   AnalogGroup.FDMemTable.FieldByName( FcxGridDBBandedColumn.DataBinding.FieldName ).Value := AValues;

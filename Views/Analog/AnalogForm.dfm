@@ -16,8 +16,6 @@ inherited frmAnalog: TfrmAnalog
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitWidth = 745
-    ExplicitHeight = 297
     inline ViewAnalogGrid: TViewAnalogGrid
       Left = 0
       Top = 0
@@ -25,35 +23,22 @@ inherited frmAnalog: TfrmAnalog
       Height = 249
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 745
-      ExplicitHeight = 297
+      ExplicitWidth = 790
+      ExplicitHeight = 249
       inherited cxGrid: TcxGrid
         Width = 790
         Height = 202
-        ExplicitWidth = 745
-        ExplicitHeight = 250
+        ExplicitWidth = 790
+        ExplicitHeight = 202
       end
       inherited StatusBar: TStatusBar
         Top = 230
         Width = 790
-        ExplicitTop = 278
-        ExplicitWidth = 745
+        ExplicitTop = 230
+        ExplicitWidth = 790
       end
       inherited PopupPanel: TPanel
         inherited PopupViewGridEx: TViewGridEx
-          ExplicitLeft = 1
-          ExplicitTop = 1
-          ExplicitWidth = 428
-          ExplicitHeight = 270
-          inherited cxGrid: TcxGrid
-            ExplicitTop = 0
-            ExplicitWidth = 428
-            ExplicitHeight = 251
-          end
-          inherited StatusBar: TStatusBar
-            ExplicitTop = 251
-            ExplicitWidth = 428
-          end
           inherited dxBarManager: TdxBarManager
             DockControlHeights = (
               0
@@ -104,8 +89,7 @@ inherited frmAnalog: TfrmAnalog
     Anchors = [akRight, akBottom]
     Caption = 'OK'
     Default = True
+    ModalResult = 1
     TabOrder = 1
-    ExplicitLeft = 720
-    ExplicitTop = 345
   end
 end
