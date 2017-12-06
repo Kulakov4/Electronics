@@ -16,6 +16,7 @@ type
   private
     FOnLocate: TNotifyEventsEx;
     FOn_ApplyUpdate: TNotifyEventsEx;
+    function GetAnalog: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -26,6 +27,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure LocateInStorehouse;
+    property Analog: TField read GetAnalog;
     property OnLocate: TNotifyEventsEx read FOnLocate;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
@@ -60,6 +62,11 @@ procedure TQueryComponentsEx.ApplyUpdate(ASender: TDataSet;
 begin
   // Оповещаем что надо обработать обновление
   On_ApplyUpdate.CallEventHandlers(ASender);
+end;
+
+function TQueryComponentsEx.GetAnalog: TField;
+begin
+  Result := Field('Analog');
 end;
 
 procedure TQueryComponentsEx.LocateInStorehouse;

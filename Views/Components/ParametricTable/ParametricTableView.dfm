@@ -110,6 +110,15 @@ inherited ViewParametricTable: TViewParametricTable
         Position.BandIndex = 0
         Position.ColIndex = 3
       end
+      object clAnalog: TcxGridDBBandedColumn
+        Caption = #1040#1085#1072#1083#1086#1075
+        DataBinding.FieldName = 'Analog'
+        Visible = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
+      end
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -192,6 +201,15 @@ inherited ViewParametricTable: TViewParametricTable
       inherited clParentProductId2: TcxGridDBBandedColumn
         Position.BandIndex = 0
         Position.ColIndex = 2
+      end
+      object clAnalog2: TcxGridDBBandedColumn
+        Caption = #1040#1085#1072#1083#1086#1075
+        DataBinding.FieldName = 'Analog'
+        Visible = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
       end
     end
   end

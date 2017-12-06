@@ -55,6 +55,7 @@ type
     FProductCategoryID: Integer;
     FqParametersForCategory: TQueryParametersForCategory;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
+    FTempTableName: String;
 
   const
     FFieldPrefix: string = 'Field';
@@ -63,7 +64,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ApplyFilter: TqSearchProductByParamValues;
+    procedure ApplyFilter;
     function GetParamIDByFieldName(const AFieldName: String): Integer;
     procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
     property AllParameterFields: TDictionary<Integer, String>
@@ -74,6 +75,7 @@ type
       read FqParametersForCategory;
     property qUniqueParameterValues: TQueryUniqueParameterValues
       read FqUniqueParameterValues;
+    property TempTableName: String read FTempTableName;
     { Public declarations }
   end;
 
@@ -89,6 +91,7 @@ begin
   FParamValuesList := TParamValuesList.Create;
   FFDMemTable := TFDMemTable.Create(Self);
   FAllParameterFields := TDictionary<Integer, String>.Create;
+  FTempTableName := 'search_analog_temp_table';
 end;
 
 destructor TAnalogGroup.Destroy;
@@ -98,20 +101,21 @@ begin
   inherited;
 end;
 
-function TAnalogGroup.ApplyFilter: TqSearchProductByParamValues;
+procedure TAnalogGroup.ApplyFilter;
 var
   AParamValues: TParamValues;
   ASQL: string;
+  Q: TqSearchProductByParamValues;
   S: string;
 begin
   ASQL := '';
 
-  Result := TqSearchProductByParamValues.Create(nil);
+  Q := TqSearchProductByParamValues.Create(nil);
 
   // Цикл по всем отфильтрованным значениям параметров
   for AParamValues in ParamValuesList do
   begin
-    S := Result.GetSQL(AParamValues.ParameterID,
+    S := Q.GetSQL(AParamValues.ParameterID,
       AParamValues.Table.GetCheckedValues(',', ''''));
 
     if not ASQL.IsEmpty then
@@ -119,8 +123,33 @@ begin
     ASQL := ASQL + S;
   end;
 
-  Result.FDQuery.SQL.Text := ASQL;
-  Result.SearchEx(FProductCategoryID);
+  Assert(not FTempTableName.IsEmpty);
+
+  // Сначала пытаемся удалить все записи
+  Q.FDQuery.Connection.ExecSQL(Format('DELETE FROM %s', [FTempTableName]));
+  Q.FDQuery.Connection.Commit;
+
+  Q.FDQuery.SQL.Text := Format('INSERT INTO %s '#13#10'%s',
+    [FTempTableName, ASQL]);
+
+  // Q.FDQuery.SQL.SaveToFile('C:\public\sql.sql');
+
+  Q.Execute(FProductCategoryID);
+  Q.FDQuery.Connection.Commit;
+
+  // Заполняем таблицу аналогов семейств
+  Q.FDQuery.Connection.ExecSQL('DELETE FROM FamilyAnalog');
+  Q.FDQuery.Connection.ExecSQL
+    (Format('INSERT INTO FamilyAnalog SELECT DISTINCT FamilyID FROM %s',
+    [FTempTableName]));
+  Q.FDQuery.Connection.Commit;
+
+  // Заполняем таблицу аналогов компонент
+  Q.FDQuery.Connection.ExecSQL('DELETE FROM ProductsAnalog');
+  Q.FDQuery.Connection.ExecSQL
+    (Format('INSERT INTO ProductsAnalog SELECT DISTINCT ProductID FROM %s',
+    [FTempTableName]));
+  Q.FDQuery.Connection.Commit;
 end;
 
 function TAnalogGroup.GetFieldName(AIDParameter: Integer): String;

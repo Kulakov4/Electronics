@@ -16,7 +16,7 @@ type
     { Private declarations }
   public
     function GetSQL(AParameterID: Integer; const AParamValues: String): String;
-    function SearchEx(AProductCategoryId: Integer): Integer;
+    function Execute(AProductCategoryId: Integer): Integer;
     property ProductId: TField read GetProductId;
     { Public declarations }
   end;
@@ -37,14 +37,16 @@ begin
   Assert(not AParamValues.IsEmpty);
 
   Result := Replace(FDQuery.SQL.Text, AParameterID.ToString, '(0)');
-  Result := Replace(Result, Format('(%s)', [AParamValues]), '(1)');
+  Result := Replace(Result, AParameterID.ToString, '(1)');
+  Result := Replace(Result, Format('(%s)', [AParamValues]), '(2)');
 end;
 
-function TqSearchProductByParamValues.SearchEx(AProductCategoryId: Integer):
+function TqSearchProductByParamValues.Execute(AProductCategoryId: Integer):
     Integer;
 begin
   Assert(AProductCategoryId > 0);
-  Result := Search(['ProductCategoryId'], [AProductCategoryId])
+  FDQuery.ParamByName('ProductCategoryId').Value := AProductCategoryId;
+  FDQuery.ExecSQL;
 end;
 
 end.
