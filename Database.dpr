@@ -181,7 +181,9 @@ uses
   CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
   ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
   AutoSizeGridViewForm in 'Views\GridView\AutoSizeGridViewForm.pas' {frmGridViewAutoSize},
-  SearchProductByParamValuesQuery in 'Queryes\Search\SearchProductByParamValuesQuery.pas' {qSearchProductByParamValues: TFrame};
+  SearchProductByParamValuesQuery in 'Queryes\Search\SearchProductByParamValuesQuery.pas' {qSearchProductByParamValues: TFrame},
+  ParameterKindEnum in 'Helpers\ParameterKindEnum.pas',
+  PopupAnalogGridView in 'Views\Analog\PopupAnalogGridView.pas' {ViewGridPopupAnalog: TFrame};
 
 {$R *.res}
 

@@ -59,12 +59,12 @@ type
 
   const
     FFieldPrefix: string = 'Field';
-    function GetFieldName(AIDParameter: Integer): String;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ApplyFilter;
+    function GetFieldName(AIDParameter: Integer): String;
     function GetParamIDByFieldName(const AFieldName: String): Integer;
     procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
     property AllParameterFields: TDictionary<Integer, String>
@@ -103,6 +103,7 @@ end;
 
 procedure TAnalogGroup.ApplyFilter;
 var
+  ACheckedValues: String;
   AParamValues: TParamValues;
   ASQL: string;
   Q: TqSearchProductByParamValues;
@@ -115,6 +116,11 @@ begin
   // Цикл по всем отфильтрованным значениям параметров
   for AParamValues in ParamValuesList do
   begin
+    ACheckedValues := AParamValues.Table.GetCheckedValues(',', '''');
+    // Если по этому параметру не надо фильтровать
+    if ACheckedValues.IsEmpty then
+      Continue;
+
     S := Q.GetSQL(AParamValues.ParameterID,
       AParamValues.Table.GetCheckedValues(',', ''''));
 
@@ -132,7 +138,7 @@ begin
   Q.FDQuery.SQL.Text := Format('INSERT INTO %s '#13#10'%s',
     [FTempTableName, ASQL]);
 
-  // Q.FDQuery.SQL.SaveToFile('C:\public\sql.sql');
+  Q.FDQuery.SQL.SaveToFile('C:\public\sql.sql');
 
   Q.Execute(FProductCategoryID);
   Q.FDQuery.Connection.Commit;

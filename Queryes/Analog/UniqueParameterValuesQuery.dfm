@@ -6,11 +6,13 @@ inherited QueryUniqueParameterValues: TQueryUniqueParameterValues
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select distinct Value'
+      'select distinct pv.ParameterId, pv.Value'
       'from ParameterValues pv'
+      'join Products p on pv.ProductId = p.ID'
       
-        'join ProductProductCategories ppc on ppc.ProductId = pv.ProductI' +
-        'd and ppc.ProductCategoryId = :ProductCategoryId'
+        'join ProductProductCategories ppc on  ifnull(p.ParentProductId, ' +
+        'p.id) = ppc.ProductId and ppc.ProductCategoryId = :ProductCatego' +
+        'ryId'
       'where ParameterId = :ParameterID')
     ParamData = <
       item

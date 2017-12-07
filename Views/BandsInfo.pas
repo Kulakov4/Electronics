@@ -3,7 +3,8 @@ unit BandsInfo;
 interface
 
 uses
-  cxGridBandedTableView, System.Generics.Collections, System.Generics.Defaults;
+  cxGridBandedTableView, System.Generics.Collections, System.Generics.Defaults,
+  ParameterKindEnum;
 
 type
   TBandInfo = class(TObject)
@@ -15,17 +16,18 @@ type
     FOrder: Integer;
     FParameterID: Integer;
     FColIndex: Integer;
+    FIDParameterKind: Integer;
     FPos: Integer;
   public
     constructor Create(ABand: TcxGridBand; AParameterID: Integer);
     property Band: TcxGridBand read FBand write FBand;
-    property CategoryParamID: Integer read FCategoryParamID
-      write FCategoryParamID;
+    property CategoryParamID: Integer read FCategoryParamID write FCategoryParamID;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property DefaultVisible: Boolean read FDefaultVisible write FDefaultVisible;
     property Order: Integer read FOrder write FOrder;
     property ParameterID: Integer read FParameterID write FParameterID;
     property ColIndex: Integer read FColIndex write FColIndex;
+    property IDParameterKind: Integer read FIDParameterKind write FIDParameterKind;
     property Pos: Integer read FPos write FPos;
   end;
 

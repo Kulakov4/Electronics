@@ -38,7 +38,7 @@ inherited frmAnalog: TfrmAnalog
         ExplicitWidth = 790
       end
       inherited PopupPanel: TPanel
-        inherited PopupViewGridEx: TViewGridEx
+        inherited ViewGridPopupAnalog: TViewGridPopupAnalog
           inherited dxBarManager: TdxBarManager
             DockControlHeights = (
               0
@@ -49,10 +49,10 @@ inherited frmAnalog: TfrmAnalog
           inherited cxGridPopupMenu: TcxGridPopupMenu
             PopupMenus = <
               item
-                GridView = ViewAnalogGrid.PopupViewGridEx.cxGridDBBandedTableView
+                GridView = ViewAnalogGrid.ViewGridPopupAnalog.cxGridDBBandedTableView
                 HitTypes = [gvhtNone, gvhtCell]
                 Index = 0
-                PopupMenu = ViewAnalogGrid.PopupViewGridEx.pmGrid
+                PopupMenu = ViewAnalogGrid.ViewGridPopupAnalog.pmGrid
               end>
           end
           inherited cxImageList1: TcxImageList

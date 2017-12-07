@@ -33,7 +33,7 @@ uses
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
   System.Generics.Defaults, Sort.StringList, BandsInfo, DBRecordHolder,
-  BaseQuery;
+  BaseQuery, ParameterKindEnum;
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
@@ -94,7 +94,7 @@ type
     procedure CreateColumn(AView: TcxGridDBBandedTableView;
       AIDParameter: Integer; const ABandCaption, AColumnCaption,
       AFieldName: String; AVisible: Boolean; const AHint: string;
-      ACategoryParamID, AOrder, APosID: Integer);
+      ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID: Integer);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure DoAfterLoad(Sender: TObject);
@@ -313,46 +313,114 @@ end;
 
 procedure TViewParametricTable.actNearAnalogExecute(Sender: TObject);
 var
-  AFilterValues: Variant;
-  AFilterValues2: Variant;
+  ABand: TcxGridBand;
+  ABI: TBandInfo;
+  AColumn: TcxGridDBBandedColumn;
   AfrmAnalog: TfrmAnalog;
+  AIDParameter: Integer;
   AnalogGroup: TAnalogGroup;
   AProductCategoryID: Integer;
   ARecHolder: TRecordHolder;
   AValue: string;
+  AView: TcxGridDBBandedTableView;
   i: Integer;
   j: Integer;
   m: TArray<String>;
   OK: Boolean;
-  q: TQueryBase;
+  P: Integer;
   S: string;
+  V: Variant;
 begin
   AnalogGroup := TAnalogGroup.Create(Self);
   try
 
     AProductCategoryID := ComponentsExGroup.qFamilyEx.ParentValue;
 
-    // Получаем значения текущей записи о семействе
-    ARecHolder := TRecordHolder.Create(ComponentsExGroup.qFamilyEx.FDQuery);
+    ARecHolder := TRecordHolder.Create();
     try
-      for i := 0 to ARecHolder.Count - 1 do
+      if MainView.Focused then
+        AView := MainView
+      else
+        AView := GridView(cxGridLevel2);
+
+      // Assert(AView.Focused);
+
+      // Цикл по всем бэндам сфокусированного табличного представления
+      for i := 0 to AView.Bands.Count - 1 do
       begin
-        if VarIsNull(ARecHolder[i].Value) then
+        ABand := AView.Bands[i];
+
+        if not ABand.Visible then
           Continue;
 
-        AValue := '';
-        m := VarToStr(ARecHolder[i].Value).Split([#13, #10]);
-        for j := Low(m) to High(m) do
+        // Получаем информацию о бэнде
+        ABI := FBandsInfo.Search(ABand);
+
+        // Этот бэнд не является бэндом-параметром
+        if ABI = nil then
+          Continue;
+
+        Assert(ABI <> nil);
+        Assert(ABI.IDParameterKind <> 0);
+
+        if ABI.IDParameterKind = Integer(Неиспользуется) then
+          Continue;
+
+        // Каждый бэнд-параметр может иметь несколько колонок-подпараметров
+        Assert(ABand.ColumnCount >= 1);
+        for P := 0 to ABand.ColumnCount - 1 do
         begin
-          S := m[j].Trim([Mark.Chars[0], #13, #10]);
-          if S.IsEmpty then
-            Continue;
+          AColumn := ABand.Columns[P] as TcxGridDBBandedColumn;
+          AIDParameter := AColumn.Tag;
+          Assert(AIDParameter > 0);
 
-          AValue := Format('%s'#13#10'%s', [AValue, S]);
+          // Получаем значение очередной колонки сфокусированной записи
+          V := FocusedTableView.Controller.FocusedRecord.Values[AColumn.Index];
+
+          if VarIsNull(V) then
+          begin
+            // Пустое значение у семейства - не используем при поиске аналога
+            if FocusedTableView = MainView then
+              Continue;
+
+            Assert(FocusedTableView.Level = cxGridLevel2);
+            // Пустое значение у компонента - берем значение из семейства
+            // Ищем бэнд у семейства
+            ABI := FBandsInfo.Search(MainView, ABI.ParameterID);
+            Assert(ABI <> nil);
+            ABand := ABI.Band;
+            Assert(ABand.ColumnCount >= P);
+            // Берём такую-же колонку
+            AColumn := ABand.Columns[P] as TcxGridDBBandedColumn;
+            // Это должен-быть тот-же самый параметр
+            Assert(AIDParameter = AColumn.Tag);
+
+            // Получаем значение очередной колонки у семейства
+            V := MainView.Controller.FocusedRecord.Values[AColumn.Index];
+
+            // Пустое значение у семейства - не используем при поиске аналога
+            if VarIsNull(V) then
+              Continue;
+          end;
+
+          // Избавляемся от маркеров в значении
+          AValue := '';
+          m := VarToStr(V).Split([#13, #10]);
+          for j := Low(m) to High(m) do
+          begin
+            S := m[j].Trim([Mark.Chars[0], #13, #10]);
+            if S.IsEmpty then
+              Continue;
+
+            AValue := Format('%s'#13#10'%s', [AValue, S]);
+          end;
+          AValue := AValue.Trim([#13, #10]);
+
+          // Добавляем значение поля в коллекции
+          TFieldHolder.Create(ARecHolder,
+            AnalogGroup.GetFieldName(AIDParameter), AValue);
         end;
-        AValue := AValue.Trim([#13, #10]);
 
-        ARecHolder[i].Value := AValue;
       end;
 
       // Загружаем значения параметров для текущей категории
@@ -373,7 +441,7 @@ begin
     begin
       AnalogGroup.ApplyFilter;
       ComponentsExGroup.ReOpen;
-//      RefreshData; // Перечитываем данные о найденных аналогов из бд
+      // RefreshData; // Перечитываем данные о найденных аналогов из бд
       ApplyFilter;
       UpdateView;
       {
@@ -564,8 +632,8 @@ end;
 
 procedure TViewParametricTable.CreateColumn(AView: TcxGridDBBandedTableView;
   AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName: String;
-  AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder,
-  APosID: Integer);
+  AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder, APosID,
+  AIDParameterKind, AColumnID: Integer);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -596,6 +664,7 @@ begin
   begin
     ABandInfo.CategoryParamID := ACategoryParamID;
     ABandInfo.DefaultVisible := AVisible;
+    ABandInfo.IDParameterKind := AIDParameterKind;
     ABand.Visible := AVisible;
     ABand.VisibleForCustomization := True;
     ABand.Caption := DeleteDouble(ABandCaption, ' ');
@@ -616,6 +685,7 @@ begin
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.AlternateCaption := AHint;
+    AColumn.Tag := AColumnID;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители
     AColumn.OnGetDataText := DoOnGetDataText;
@@ -945,8 +1015,10 @@ var
   ACategoryParamID: Integer;
   AHint: String;
   AColumnCaption: string;
+  AColumnID: Integer;
   AFieldName: String;
   AIDBand: Integer;
+  AIDParameterKind: Integer;
   AOrder: Integer;
   APosID: Integer;
   qParametersForCategory: TQueryParametersForCategory;
@@ -977,11 +1049,15 @@ begin
       Assert(not qParametersForCategory.Ord.IsNull);
       AOrder := qParametersForCategory.Ord.AsInteger;
       APosID := qParametersForCategory.PosID.AsInteger;
+      // Как искать аналог для этого параметра
+      AIDParameterKind := qParametersForCategory.IDParameterKind.AsInteger;
+      // Идентификатор параметра или подпараметра
+      AColumnID := qParametersForCategory.ParameterID.AsInteger;
 
       // Если это родительский параметр
       if qParametersForCategory.ParentParameter.IsNull then
       begin
-        AIDBand := qParametersForCategory.ParameterID.AsInteger;
+        AIDBand := AColumnID;
         ABandCaption := ACaption;
         AColumnCaption := ' ';
       end
@@ -994,12 +1070,13 @@ begin
 
       // Создаём колонку в главном представлении
       CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, AHint, ACategoryParamID, AOrder, APosID);
+        AVisible, AHint, ACategoryParamID, AOrder, APosID, AIDParameterKind,
+        AColumnID);
 
       // Создаём колонку в дочернем представлении
       CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-        AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID,
-        AOrder, APosID);
+        AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID, AOrder,
+        APosID, AIDParameterKind, AColumnID);
 
       qParametersForCategory.FDQuery.Next;
     end;
@@ -1152,6 +1229,7 @@ begin
   Assert(AView <> nil);
   Assert(AQueryCustomComponents <> nil);
 
+  // Цикл по всем полям запроса, которые являются параметрами
   for AIDParameter in AQueryCustomComponents.ParameterFields.Keys do
   begin
     // Получаем поле, SQL запроса которое является параметром

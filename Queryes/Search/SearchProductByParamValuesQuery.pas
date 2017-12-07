@@ -16,7 +16,7 @@ type
     { Private declarations }
   public
     function GetSQL(AParameterID: Integer; const AParamValues: String): String;
-    function Execute(AProductCategoryId: Integer): Integer;
+    procedure Execute(AProductCategoryId: Integer);
     property ProductId: TField read GetProductId;
     { Public declarations }
   end;
@@ -41,8 +41,7 @@ begin
   Result := Replace(Result, Format('(%s)', [AParamValues]), '(2)');
 end;
 
-function TqSearchProductByParamValues.Execute(AProductCategoryId: Integer):
-    Integer;
+procedure TqSearchProductByParamValues.Execute(AProductCategoryId: Integer);
 begin
   Assert(AProductCategoryId > 0);
   FDQuery.ParamByName('ProductCategoryId').Value := AProductCategoryId;
