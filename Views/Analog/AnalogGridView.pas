@@ -30,7 +30,7 @@ uses
   System.Generics.Collections, StrHelper, ParametersForCategoryQuery,
   BandsInfo, cxMemo, Vcl.StdCtrls, cxButtons, Vcl.ExtCtrls, dxCalloutPopup,
   GridFrame, GridView, System.Math, cxCheckBox, cxLabel, ParameterKindEnum,
-  PopupAnalogGridView;
+  PopupAnalogGridView, RepositoryDataModule;
 
 const
   WM_AFTER_INIT_EDIT = WM_USER + 1;
@@ -45,7 +45,17 @@ type
     ViewGridPopupAnalog: TViewGridPopupAnalog;
     actClear: TAction;
     N2: TMenuItem;
+    actFullAnalog: TAction;
+    dxBarButton2: TdxBarButton;
+    actNearAnalog: TAction;
+    dxBarButton3: TdxBarButton;
+    actSave: TAction;
+    dxBarButton4: TdxBarButton;
+    dxBarButton5: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
+    procedure actFullAnalogExecute(Sender: TObject);
+    procedure actNearAnalogExecute(Sender: TObject);
+    procedure actSaveExecute(Sender: TObject);
     procedure actShowPopupExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewInitEdit(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
@@ -104,14 +114,42 @@ begin
 end;
 
 procedure TViewAnalogGrid.actClearExecute(Sender: TObject);
+var
+  AColumn: TcxGridDBBandedColumn;
+  AParameterID: Integer;
+  i: Integer;
 begin
   inherited;
   if (MainView.Controller.FocusedRow = nil) or
-    (MainView.Controller.FocusedColumn = nil) then
+    (MainView.Controller.FocusedColumn = nil) or
+    (MainView.Controller.SelectedColumnCount = 0) then
     Exit;
 
-  MainView.Controller.FocusedRow.Values[MainView.Controller.FocusedColumn.
-    Index] := NULL;
+
+  for i := 0 to MainView.Controller.SelectedColumnCount - 1 do
+  begin
+    AColumn := MainView.Controller.SelectedColumns[i] as TcxGridDBBandedColumn;
+    AParameterID := AnalogGroup.GetParamIDByFieldName( AColumn.DataBinding.FieldName );
+    AnalogGroup.Clear(AParameterID);
+  end;
+end;
+
+procedure TViewAnalogGrid.actFullAnalogExecute(Sender: TObject);
+begin
+  inherited;
+  AnalogGroup.CheckDefault;
+end;
+
+procedure TViewAnalogGrid.actNearAnalogExecute(Sender: TObject);
+begin
+  inherited;
+  AnalogGroup.CheckNear;
+end;
+
+procedure TViewAnalogGrid.actSaveExecute(Sender: TObject);
+begin
+  inherited;
+  AnalogGroup.SetAsDefaultValues;
 end;
 
 procedure TViewAnalogGrid.actShowPopupExecute(Sender: TObject);
@@ -325,8 +363,6 @@ end;
 procedure TViewAnalogGrid.dxCalloutPopup1Hide(Sender: TObject);
 var
   AParameterID: Integer;
-  AParamValues: TParamValues;
-  AValues: string;
 begin
   inherited;
 
@@ -334,15 +370,7 @@ begin
   AParameterID := AnalogGroup.GetParamIDByFieldName
     (FcxGridDBBandedColumn.DataBinding.FieldName);
 
-  AParamValues := AnalogGroup.ParamValuesList.FindByParameterID(AParameterID);
-  Assert(AParamValues <> nil);
-
-  AValues := AParamValues.Table.GetCheckedValues(#13#10, #0);
-
-  AnalogGroup.FDMemTable.Edit;
-  AnalogGroup.FDMemTable.FieldByName
-    (FcxGridDBBandedColumn.DataBinding.FieldName).Value := AValues;
-  AnalogGroup.FDMemTable.Post;
+  AnalogGroup.UpdateParameterValues(AParameterID);
 end;
 
 procedure TViewAnalogGrid.EditorTimerTimer(Sender: TObject);

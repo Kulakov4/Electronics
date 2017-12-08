@@ -183,7 +183,8 @@ uses
   AutoSizeGridViewForm in 'Views\GridView\AutoSizeGridViewForm.pas' {frmGridViewAutoSize},
   SearchProductByParamValuesQuery in 'Queryes\Search\SearchProductByParamValuesQuery.pas' {qSearchProductByParamValues: TFrame},
   ParameterKindEnum in 'Helpers\ParameterKindEnum.pas',
-  PopupAnalogGridView in 'Views\Analog\PopupAnalogGridView.pas' {ViewGridPopupAnalog: TFrame};
+  PopupAnalogGridView in 'Views\Analog\PopupAnalogGridView.pas' {ViewGridPopupAnalog: TFrame},
+  ParameterKindsQuery in 'Queryes\Parameters\ParameterKindsQuery.pas' {QueryParameterKinds: TFrame};
 
 {$R *.res}
 

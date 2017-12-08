@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
-  QueryWithMasterUnit, QueryGroupUnit, OrderQuery;
+  QueryWithMasterUnit, QueryGroupUnit, OrderQuery, ParameterKindsQuery;
 
 type
   TParametersGroup = class(TQueryGroup)
@@ -21,8 +21,10 @@ type
   private
     FAfterDataChange: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
+    FqParameterKinds: TQueryParameterKinds;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
+    function GetqParameterKinds: TQueryParameterKinds;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -34,6 +36,7 @@ type
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
+    property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
     { Public declarations }
   end;
 
@@ -119,6 +122,17 @@ begin
     begin
       Result.Add(S);
     end;
+end;
+
+function TParametersGroup.GetqParameterKinds: TQueryParameterKinds;
+begin
+  if FqParameterKinds = nil then
+  begin
+    FqParameterKinds := TQueryParameterKinds.Create(Self);
+    FqParameterKinds.FDQuery.Open;
+    FqParameterKinds.ParameterKind.DisplayLabel := 'Вид параметра';
+  end;
+  Result := FqParameterKinds;
 end;
 
 procedure TParametersGroup.InsertList(AParametersExcelTable

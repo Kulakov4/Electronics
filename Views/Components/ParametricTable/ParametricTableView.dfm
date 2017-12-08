@@ -231,7 +231,7 @@ inherited ViewParametricTable: TViewParametricTable
         end
         item
           Visible = True
-          ItemName = 'dxbrsbtmAnalogSearch'
+          ItemName = 'dxBarButton4'
         end
         item
           Visible = True
@@ -246,22 +246,6 @@ inherited ViewParametricTable: TViewParametricTable
       Action = actCommit
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxbrsbtmAnalogSearch: TdxBarSubItem
-      Caption = #1055#1086#1080#1089#1082' '#1072#1085#1072#1083#1086#1075#1072
-      Category = 0
-      Visible = ivAlways
-      ImageIndex = 9
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxbbFullAnalog'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton3'
-        end>
     end
     object dxbbFullAnalog: TdxBarButton
       Action = actFullAnalog
@@ -285,8 +269,13 @@ inherited ViewParametricTable: TViewParametricTable
       PaintStyle = psCaptionGlyph
     end
     object dxBarButton3: TdxBarButton
-      Action = actNearAnalog
+      Action = actAnalog
       Category = 0
+    end
+    object dxBarButton4: TdxBarButton
+      Action = actAnalog
+      Category = 0
+      PaintStyle = psCaptionGlyph
     end
   end
   inherited ActionList: TActionList
@@ -305,10 +294,10 @@ inherited ViewParametricTable: TViewParametricTable
       ImageIndex = 10
       OnExecute = actClearFiltersExecute
     end
-    object actNearAnalog: TAction
-      Caption = #1041#1083#1080#1079#1082#1080#1081' '#1072#1085#1072#1083#1086#1075
+    object actAnalog: TAction
+      Caption = #1055#1086#1080#1089#1082' '#1072#1085#1072#1083#1086#1075#1072
       ImageIndex = 9
-      OnExecute = actNearAnalogExecute
+      OnExecute = actAnalogExecute
     end
     object actLocateInStorehouse: TAction
       Caption = #1055#1086#1080#1089#1082' '#1087#1086' '#1089#1082#1083#1072#1076#1072#1084

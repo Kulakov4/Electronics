@@ -85,6 +85,7 @@ type
     actFilterByTableName: TAction;
     dxBarButton2: TdxBarButton;
     clChecked: TcxGridDBBandedColumn;
+    clIDParameterKind: TcxGridDBBandedColumn;
     procedure actAddMainParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);
@@ -180,6 +181,9 @@ Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
   inherited;
+  clCodeLetters.Caption := clCodeLetters.Caption.Replace(' ', #13#10);
+  clMeasuringUnit.Caption := clMeasuringUnit.Caption.Replace(' ', #13#10);
+
   FExpandedRecordIndex := -1;
 
   FParameterTypesDI := TDragAndDropInfo.Create(clID, clOrd);
@@ -661,10 +665,19 @@ end;
 
 procedure TViewParameters.cxGridDBBandedTableViewDataControllerDetailExpanded
   (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+var
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
 begin
   inherited;
   FExpandedRecordIndex := ARecordIndex;
-  MyApplyBestFit;
+
+  if ARecordIndex < 0 then
+    Exit;
+
+  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
+    as TcxGridMasterDataRow;
+  (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
+    .ApplyBestFit();
 end;
 
 procedure TViewParameters.
@@ -864,6 +877,10 @@ begin
       InitializeLookupColumn(clIDParameterType,
         FParametersGroup.qParameterTypes.DataSource, lsEditList,
         FParametersGroup.qParameterTypes.ParameterType.FieldName);
+
+      InitializeLookupColumn(clIDParameterKind,
+        FParametersGroup.qParameterKinds.DataSource, lsEditFixedList,
+        FParametersGroup.qParameterKinds.ParameterKind.FieldName);
 
       TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
         FEventList);

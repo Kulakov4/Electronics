@@ -43,11 +43,10 @@ type
   TViewParametricTable = class(TViewComponentsBase)
     actAutoWidth: TAction;
     dxbrbtnApplyUpdates: TdxBarButton;
-    dxbrsbtmAnalogSearch: TdxBarSubItem;
     dxbbFullAnalog: TdxBarButton;
     actFullAnalog: TAction;
     actClearFilters: TAction;
-    actNearAnalog: TAction;
+    actAnalog: TAction;
     dxBarButton2: TdxBarButton;
     dxbbClearFilters: TdxBarButton;
     Timer: TTimer;
@@ -60,11 +59,12 @@ type
     dxBarButton3: TdxBarButton;
     clAnalog: TcxGridDBBandedColumn;
     clAnalog2: TcxGridDBBandedColumn;
+    dxBarButton4: TdxBarButton;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
     procedure actLocateInStorehouseExecute(Sender: TObject);
-    procedure actNearAnalogExecute(Sender: TObject);
+    procedure actAnalogExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
     procedure cxGridDBBandedTableViewInitEditValue
@@ -311,7 +311,7 @@ begin
   ComponentsExGroup.qComponentsEx.LocateInStorehouse;
 end;
 
-procedure TViewParametricTable.actNearAnalogExecute(Sender: TObject);
+procedure TViewParametricTable.actAnalogExecute(Sender: TObject);
 var
   ABand: TcxGridBand;
   ABI: TBandInfo;
@@ -331,6 +331,8 @@ var
   S: string;
   V: Variant;
 begin
+  ComponentsExGroup.TryPost;
+
   AnalogGroup := TAnalogGroup.Create(Self);
   try
 

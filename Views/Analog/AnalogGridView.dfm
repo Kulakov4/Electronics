@@ -11,6 +11,9 @@ inherited ViewAnalogGrid: TViewAnalogGrid
         end>
     end
   end
+  inherited StatusBar: TStatusBar
+    Visible = False
+  end
   object cxEditorButton: TcxButton [2]
     Left = 280
     Top = 68
@@ -33,17 +36,24 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       Height = 270
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = -195
-      ExplicitTop = -219
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 696
+      ExplicitHeight = 270
       inherited cxGrid: TcxGrid
         Top = 0
         Width = 696
         Height = 251
+        ExplicitTop = 0
+        ExplicitWidth = 696
+        ExplicitHeight = 251
       end
       inherited StatusBar: TStatusBar
         Top = 251
         Width = 696
         Visible = False
+        ExplicitTop = 251
+        ExplicitWidth = 696
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -77,6 +87,60 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       0
       28
       0)
+    inherited dxbrMain: TdxBar
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbsColumns'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton4'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
+        end>
+    end
+    inherited dxbsColumns: TdxBarSubItem
+      Visible = ivNever
+    end
+    inherited dxBarButton1: TdxBarButton
+      Visible = ivNever
+    end
+    object dxBarButton2: TdxBarButton
+      Action = actFullAnalog
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton3: TdxBarButton
+      Action = actNearAnalog
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton4: TdxBarButton
+      Action = actSave
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton5: TdxBarButton
+      Action = actClear
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     Left = 104
@@ -89,6 +153,21 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       Caption = #1054#1095#1080#1089#1090#1080#1090#1100
       ImageIndex = 10
       OnExecute = actClearExecute
+    end
+    object actFullAnalog: TAction
+      Caption = #1055#1086#1083#1085#1099#1081' '#1072#1085#1072#1083#1086#1075
+      ImageIndex = 9
+      OnExecute = actFullAnalogExecute
+    end
+    object actNearAnalog: TAction
+      Caption = #1041#1083#1080#1078#1072#1081#1096#1080#1081' '#1072#1085#1072#1083#1086#1075
+      ImageIndex = 9
+      OnExecute = actNearAnalogExecute
+    end
+    object actSave: TAction
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+      ImageIndex = 3
+      OnExecute = actSaveExecute
     end
   end
   inherited pmGrid: TPopupMenu
