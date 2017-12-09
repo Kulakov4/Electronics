@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, RecursiveParametersQuery,
-  System.Generics.Collections, DragHelper, DBRecordHolder, Sequence,
+  System.Generics.Collections, DragHelper, DBRecordHolder{, Sequence},
   MaxCategoryParameterOrderQuery;
 
 type

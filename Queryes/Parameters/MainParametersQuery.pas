@@ -30,6 +30,7 @@ type
     procedure DoBeforeOpen(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
     function GetChecked: TField;
+    function GetIDParameterKind: TField;
     function GetIDParameterType: TField;
     function GetIsCustomParameter: TField;
     function GetqSearchParameter: TQuerySearchParameter;
@@ -52,6 +53,7 @@ type
     function GetCheckedPKValues: string;
     function Lookup(AValue: string): Integer;
     property Checked: TField read GetChecked;
+    property IDParameterKind: TField read GetIDParameterKind;
     property IDParameterType: TField read GetIDParameterType;
     property IsCustomParameter: TField read GetIsCustomParameter;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue
@@ -314,6 +316,11 @@ begin
   finally
     FreeAndNil(AClone);
   end;
+end;
+
+function TQueryMainParameters.GetIDParameterKind: TField;
+begin
+  Result := Field('IDParameterKind');
 end;
 
 function TQueryMainParameters.GetIDParameterType: TField;

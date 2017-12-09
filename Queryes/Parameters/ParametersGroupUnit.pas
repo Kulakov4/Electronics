@@ -44,7 +44,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule;
+uses RepositoryDataModule, ParameterKindEnum;
 
 constructor TParametersGroup.Create(AOwner: TComponent);
 begin
@@ -118,7 +118,8 @@ begin
   end
   else
     // Пытаемся искать среди типов параметров
-    if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S) then
+    if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S)
+    then
     begin
       Result.Add(S);
     end;
@@ -139,10 +140,15 @@ procedure TParametersGroup.InsertList(AParametersExcelTable
   : TParametersExcelTable);
 var
   AField: TField;
+  AParameterKindID: Integer;
   AParameterType: string;
   I: Integer;
+  OK: Boolean;
 begin
   TryPost;
+  if qParameterKinds.FDQuery.RecordCount = 0 then
+    raise Exception.Create('Справочник видов параметров не заполнен');
+
 
   AParametersExcelTable.DisableControls;
   qParameterTypes.FDQuery.DisableControls;
@@ -154,6 +160,13 @@ begin
     begin
       AParameterType := AParametersExcelTable.ParameterType.AsString;
       qParameterTypes.LocateOrAppend(AParameterType);
+      AParameterKindID := AParametersExcelTable.ParameterKindID.AsInteger;
+      // Ищем такой вид параметра в справочнике
+      OK := qParameterKinds.LocateByPK(AParameterKindID);
+      if not OK then
+      begin
+        AParameterKindID := Integer(Неиспользуется);
+      end;
 
       qMainParameters.FDQuery.Append;
       try
@@ -169,11 +182,14 @@ begin
 
         qMainParameters.IDParameterType.AsInteger :=
           qParameterTypes.PK.AsInteger;
+        qMainParameters.IDParameterKind.AsInteger := AParameterKindID;
+
         qMainParameters.FDQuery.Post;
       except
         qMainParameters.FDQuery.Cancel;
         raise;
       end;
+
       AParametersExcelTable.Next;
       AParametersExcelTable.CallOnProcessEvent;
     end;

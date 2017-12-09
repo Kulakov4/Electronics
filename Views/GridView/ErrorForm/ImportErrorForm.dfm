@@ -25,11 +25,14 @@ inherited frmImportError: TfrmImportError
       end
     end
   end
-  inherited cxButton1: TcxButton
+  inherited cxbtnOK: TcxButton
     Left = 226
     DropDownMenu = pmContinue
     Kind = cxbkDropDownButton
     ExplicitLeft = 226
+  end
+  inherited lblStatus: TcxLabel
+    Anchors = [akLeft, akBottom]
   end
   object cxButton2: TcxButton
     Left = 402

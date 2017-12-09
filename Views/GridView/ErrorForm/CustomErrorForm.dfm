@@ -3,6 +3,7 @@ inherited frmCustomError: TfrmCustomError
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlMain: TPanel
+    Anchors = [akLeft, akTop, akRight, akBottom]
     inherited ViewGridEx: TViewGridEx
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -28,5 +29,6 @@ inherited frmCustomError: TfrmCustomError
   object lblStatus: TcxLabel
     Left = 8
     Top = 308
+    Anchors = [akLeft, akBottom]
   end
 end
