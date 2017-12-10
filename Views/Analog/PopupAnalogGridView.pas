@@ -29,9 +29,6 @@ uses
 
 type
   TViewGridPopupAnalog = class(TViewGridEx)
-    actClear: TAction;
-    N2: TMenuItem;
-    procedure actClearExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -41,11 +38,5 @@ type
 implementation
 
 {$R *.dfm}
-
-procedure TViewGridPopupAnalog.actClearExecute(Sender: TObject);
-begin
-  inherited;
-  beep;
-end;
 
 end.

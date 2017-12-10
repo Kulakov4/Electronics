@@ -109,6 +109,7 @@ inherited ViewParameters: TViewParameters
         DataBinding.FieldName = 'Checked'
         PropertiesClassName = 'TcxCheckBoxProperties'
         Properties.Alignment = taCenter
+        Properties.ImmediatePost = True
         Properties.ValueChecked = '1'
         Properties.ValueUnchecked = '0'
         BestFitMaxWidth = 20

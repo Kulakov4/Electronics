@@ -7,14 +7,16 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   ParametersForCategoryQuery, TableWithProgress, Data.DB,
-  System.Generics.Collections, UniqueParameterValuesQuery, Sort.StringList,
-  System.StrUtils, FireDAC.Comp.Client, DBRecordHolder, StrHelper,
+  System.Generics.Collections, UniqueParameterValuesQuery, System.StrUtils,
+  FireDAC.Comp.Client, DBRecordHolder, StrHelper,
   SearchProductByParamValuesQuery, System.Math;
 
 type
   TParameterValuesTable = class(TTableWithProgress)
   private
     FDefaultCheckedValues: string;
+    procedure CheckNearNumerical;
+    procedure CheckNearSubStr;
     function GetChecked: TField;
     function GetID: TField;
     function GetValue: TField;
@@ -22,7 +24,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AppendRec(const AID: Integer; const AValue: string);
     procedure CheckDefault;
-    procedure CheckNear;
+    procedure CheckNear(AParameterKindID: Integer);
     procedure CheckRecord(const AChecked: Boolean);
     procedure CheckRecords(const AValues: string);
     function GetCheckedValues(const ADelimiter: string;
@@ -40,12 +42,16 @@ type
   private
     FCaption: String;
     FParameterID: Integer;
+    FParameterKindID: Integer;
     FTable: TParameterValuesTable;
   public
-    constructor Create(const ACaption: String; AParameterID: Integer);
+    constructor Create(const ACaption: String;
+      AParameterID, AParameterKindID: Integer);
     destructor Destroy; override;
     property Caption: String read FCaption;
     property ParameterID: Integer read FParameterID;
+    property ParameterKindID: Integer read FParameterKindID
+      write FParameterKindID;
     property Table: TParameterValuesTable read FTable;
   end;
 
@@ -94,6 +100,8 @@ type
 implementation
 
 {$R *.dfm}
+
+uses ParameterKindEnum, NaturalSort;
 
 constructor TAnalogGroup.Create(AOwner: TComponent);
 begin
@@ -191,7 +199,7 @@ begin
   // Цикл по всем значениям параметров
   for AParamValues in ParamValuesList do
   begin
-    AParamValues.Table.CheckNear;
+    AParamValues.Table.CheckNear(AParamValues.ParameterKindID);
     UpdateParameterValues(AParamValues.ParameterID);
   end;
 end;
@@ -235,14 +243,14 @@ var
   AFieldName: string;
   AParameterID: Integer;
   AParamValues: TParamValues;
-  ASortList: TStringList;
+  ASortList: TList<String>;
   F: TField;
   i: Integer;
 begin
   Assert(ARecHolder <> nil);
   FProductCategoryID := AProductCategoryID;
 
-  ASortList := TStringList.Create;
+  ASortList := TList<String>.Create;
   try
     FFDMemTable.Close;
 
@@ -264,7 +272,8 @@ begin
 
       // Создаём список значений параметра
       AParamValues := TParamValues.Create(ACaption,
-        FqParametersForCategory.ParameterID.AsInteger);
+        FqParametersForCategory.ParameterID.AsInteger,
+        FqParametersForCategory.IDParameterKind.AsInteger);
 
       // Выбираем значения из БД
       FqUniqueParameterValues.SearchEx(AProductCategoryID,
@@ -276,7 +285,8 @@ begin
         FqUniqueParameterValues.FDQuery.Next;
       end;
       // Сортируем
-      TStringListSort.Sort(ASortList, False, True);
+      ASortList.Sort(TNaturalStringComparer.Create);
+
       for i := 0 to ASortList.Count - 1 do
       begin
         AParamValues.Table.AppendRec(i, ASortList[i]);
@@ -367,7 +377,24 @@ begin
   CheckRecords(FDefaultCheckedValues);
 end;
 
-procedure TParameterValuesTable.CheckNear;
+procedure TParameterValuesTable.CheckNear(AParameterKindID: Integer);
+begin
+  Assert(AParameterKindID > Integer(Неиспользуется));
+  Assert(AParameterKindID <= Integer(Строковый_частичный));
+
+  case AParameterKindID of
+    Integer(Числовой):
+      CheckNearNumerical;
+    Integer(Строковый_точный):
+      ; // нет ближайшего аналога
+    Integer(Строковый_частичный):
+      CheckNearSubStr;
+  else
+    Assert(False);
+  end;
+end;
+
+procedure TParameterValuesTable.CheckNearNumerical;
 var
   AID: Integer;
   i: Integer;
@@ -413,6 +440,47 @@ begin
   finally
     EnableControls;
   end;
+
+end;
+
+procedure TParameterValuesTable.CheckNearSubStr;
+var
+  I: Integer;
+  m: TArray<string>;
+  S: string;
+  V: string;
+begin
+  if FDefaultCheckedValues.IsEmpty then
+    Exit;
+
+  m := FDefaultCheckedValues.Split([#13]);
+
+  // Выделяет галочками строки содержащие выбранные
+  DisableControls;
+  try
+    CheckDefault;
+    First;
+    while not Eof do
+    begin
+      if Checked.AsInteger = 0 then
+      begin
+        // Цикл по всем подстрокам
+        for I := Low(m) to High(m) do
+        begin
+          S := m[i].Trim([#10, ' ']).ToUpperInvariant;
+          V := Value.AsString.ToUpperInvariant;
+          // Нашли подстроку
+          if V.IndexOf(S) >= 0 then
+            CheckRecord(True);
+        end;
+      end;
+      Next;
+    end;
+
+  finally
+    EnableControls;
+  end;
+
 end;
 
 procedure TParameterValuesTable.CheckRecord(const AChecked: Boolean);
@@ -519,13 +587,17 @@ begin
   end;
 end;
 
-constructor TParamValues.Create(const ACaption: String; AParameterID: Integer);
+constructor TParamValues.Create(const ACaption: String;
+  AParameterID, AParameterKindID: Integer);
 begin
   Assert(not ACaption.IsEmpty);
   Assert(AParameterID > 0);
+  Assert(AParameterKindID >= Integer(Неиспользуется));
+  Assert(AParameterKindID <= Integer(Строковый_частичный));
 
   FParameterID := AParameterID;
   FCaption := ACaption;
+  FParameterKindID := AParameterKindID;
   FTable := TParameterValuesTable.Create(nil);
 end;
 

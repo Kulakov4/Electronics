@@ -32,7 +32,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
-  System.Generics.Defaults, Sort.StringList, BandsInfo, DBRecordHolder,
+  System.Generics.Defaults, BandsInfo, DBRecordHolder,
   BaseQuery, ParameterKindEnum;
 
 const
@@ -180,7 +180,8 @@ uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
   SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math,
-  AnalogForm, AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery;
+  AnalogForm, AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery,
+  NaturalSort;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -363,7 +364,8 @@ begin
           Continue;
 
         Assert(ABI <> nil);
-        Assert(ABI.IDParameterKind <> 0);
+        Assert(ABI.IDParameterKind >= Integer(Неиспользуется));
+        Assert(ABI.IDParameterKind <= Integer(Строковый_частичный));
 
         if ABI.IDParameterKind = Integer(Неиспользуется) then
           Continue;
@@ -569,10 +571,7 @@ begin
   // AValueList.Add(fviUserEx, null, '(Все)', True);
 
   // Сортируем варианты фильтров
-  // Сортируем
-  TStringListSort.Sort(SortSL, False, True);
-
-  // AValues.Sort;
+  SortSL.Sort(TNaturalStringComparer.Create);
 
   for S in SortSL do
   begin
@@ -1501,6 +1500,9 @@ begin
     (FocusedTableView.Level = cxGridLevel2) and
     (FocusedTableView.DataController.RecordCount > 0);
   // and (GridView(cxGridLevel2).DataController.RecordCount > 0);
+
+  // Поиск аналога только если всё сохранено
+  actAnalog.Enabled := OK and not actCommit.Enabled;
 end;
 
 constructor TShowDefaults.Create(AOwner: TComponent);

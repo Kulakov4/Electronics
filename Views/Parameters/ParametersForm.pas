@@ -48,7 +48,7 @@ implementation
 
 procedure TfrmParameters.ApplyUpdates;
 begin
-  ViewParameters.actCommit.Execute;
+  ViewParameters.CommitOrPost;
 end;
 
 procedure TfrmParameters.CancelUpdates;

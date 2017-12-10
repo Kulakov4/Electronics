@@ -82,7 +82,8 @@ type
       ADelimiter: String = ','): String;
     procedure IncUpdateRecCount;
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
-    procedure Load(AIDParent: Integer); overload; virtual;
+    procedure Load(AIDParent: Integer; AForcibly: Boolean = False); overload;
+        virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
     function LocateByField(const AFieldName, AValue: string): Boolean;
@@ -734,13 +735,13 @@ begin
 
 end;
 
-procedure TQueryBase.Load(AIDParent: Integer);
+procedure TQueryBase.Load(AIDParent: Integer; AForcibly: Boolean = False);
 begin
   Assert(DetailParameterName <> '');
 
   // Если есть необходимость в загрузке данных
   if (not FDQuery.Active) or (FDQuery.Params.ParamByName(DetailParameterName)
-    .AsInteger <> AIDParent) then
+    .AsInteger <> AIDParent) or AForcibly then
   begin
     FBeforeLoad.CallEventHandlers(FDQuery);
 

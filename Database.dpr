@@ -167,9 +167,6 @@ uses
   RecursiveTreeView in 'Views\TreeList\RecursiveTreeView.pas' {ViewRecursiveTree: TFrame},
   Main in 'Views\Main.pas' {frmMain},
   HintWindowEx in 'Helpers\HintWindowEx.pas',
-  Sort.ListView in 'Helpers\NaturalSort\Sort.ListView.pas',
-  Sort.StringCompare in 'Helpers\NaturalSort\Sort.StringCompare.pas',
-  Sort.StringList in 'Helpers\NaturalSort\Sort.StringList.pas',
   AnalogForm in 'Views\Analog\AnalogForm.pas' {frmAnalog},
   AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas' {AnalogGroup: TFrame},
   UniqueParameterValuesQuery in 'Queryes\Analog\UniqueParameterValuesQuery.pas' {QueryUniqueParameterValues: TFrame},
@@ -184,7 +181,8 @@ uses
   SearchProductByParamValuesQuery in 'Queryes\Search\SearchProductByParamValuesQuery.pas' {qSearchProductByParamValues: TFrame},
   ParameterKindEnum in 'Helpers\ParameterKindEnum.pas',
   PopupAnalogGridView in 'Views\Analog\PopupAnalogGridView.pas' {ViewGridPopupAnalog: TFrame},
-  ParameterKindsQuery in 'Queryes\Parameters\ParameterKindsQuery.pas' {QueryParameterKinds: TFrame};
+  ParameterKindsQuery in 'Queryes\Parameters\ParameterKindsQuery.pas' {QueryParameterKinds: TFrame},
+  NaturalSort in 'Helpers\NaturalSort\NaturalSort.pas';
 
 {$R *.res}
 

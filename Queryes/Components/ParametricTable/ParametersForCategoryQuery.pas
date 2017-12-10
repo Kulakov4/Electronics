@@ -49,7 +49,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, StrHelper;
+uses RepositoryDataModule, StrHelper, ParameterKindEnum;
 
 constructor TQueryParametersForCategory.Create(AOwner: TComponent);
 begin
@@ -117,13 +117,15 @@ begin
   Result := Field('PosID');
 end;
 
-function TQueryParametersForCategory.SearchByParameterKind(AProductCategoryID:
-    Integer): Integer;
+function TQueryParametersForCategory.SearchByParameterKind(AProductCategoryID
+  : Integer): Integer;
 begin
   Assert(AProductCategoryID > 0);
 
   // Добавляем в запрос условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'and ifnull(p.IDParameterKind, pp.IDParameterKind) <> 1', 'and 0=0');
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+    Format('and (ifnull(p.IDParameterKind, pp.IDParameterKind) <> %d)',
+    [Integer(Неиспользуется)]), 'and 0=0');
 
   // Ищем
   Result := Search(['ProductCategoryID'], [AProductCategoryID]);

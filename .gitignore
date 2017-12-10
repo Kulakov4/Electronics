@@ -7,3 +7,5 @@
 *.dsk
 *.~dsk
 /__recovery/
+/ModelSupport_Database/
+/ModelSupport_Project1/

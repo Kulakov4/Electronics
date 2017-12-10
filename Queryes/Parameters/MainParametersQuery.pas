@@ -28,7 +28,6 @@ type
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    procedure DoOnDataChange(Sender: TObject);
     function GetChecked: TField;
     function GetIDParameterKind: TField;
     function GetIDParameterType: TField;
@@ -85,8 +84,6 @@ begin
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
-
-  TNotifyEventWrap.Create(OnDataChange, DoOnDataChange, FEventList);
 
   AutoTransaction := False;
 end;
@@ -266,9 +263,7 @@ begin
   Value.DisplayLabel := 'Наименование';
   Value.Required := True;
 
-  // Checked.FieldKind := fkInternalCalc;
   Checked.ReadOnly := False;
-
 end;
 
 procedure TQueryMainParameters.DoBeforeOpen(Sender: TObject);
@@ -284,11 +279,6 @@ begin
     CreateDefaultFields(False);
     Checked.FieldKind := fkInternalCalc;
   end;
-end;
-
-procedure TQueryMainParameters.DoOnDataChange(Sender: TObject);
-begin
-  // TryCommit;
 end;
 
 function TQueryMainParameters.GetChecked: TField;

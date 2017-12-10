@@ -278,6 +278,8 @@ begin
     // Создаём колонку для этого бэнда
     AColumn := AView.CreateColumn;
     AColumn.Position.BandIndex := ABand.Index;
+    AColumn.Options.Filtering := False; // Отключаем фильтры
+    AColumn.Options.Sorting := False; // Отключаем сортировку
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.AlternateCaption := AHint;

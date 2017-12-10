@@ -12,18 +12,6 @@ inherited ViewGridPopupAnalog: TViewGridPopupAnalog
       28
       0)
   end
-  inherited ActionList: TActionList
-    object actClear: TAction
-      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
-      ImageIndex = 10
-      OnExecute = actClearExecute
-    end
-  end
-  inherited pmGrid: TPopupMenu
-    object N2: TMenuItem
-      Action = actClear
-    end
-  end
   inherited cxImageList1: TcxImageList
     FormatVersion = 1
     ImageInfo = <

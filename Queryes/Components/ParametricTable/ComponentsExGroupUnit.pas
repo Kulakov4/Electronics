@@ -332,8 +332,8 @@ begin
   // Во время загрузки ничего сохранять не будем
   FApplyUpdateEvents.Clear;
 
-  // Загружаем значения параметров из БД
-  FQueryProductParameters.Load(qFamilyEx.ParentValue);
+  // Загружаем значения параметров из БД принудительно
+  FQueryProductParameters.Load(qFamilyEx.ParentValue, True);
 
   qFamilyEx.FDQuery.DisableControls;
   qComponentsEx.FDQuery.DisableControls;
@@ -341,6 +341,7 @@ begin
     FQueryProductParameters.FDQuery.First;
     while not FQueryProductParameters.FDQuery.Eof do
     begin
+
       if FQueryProductParameters.ParentProductID.IsNull then
         qryComponents := qFamilyEx
       else

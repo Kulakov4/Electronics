@@ -160,6 +160,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure CommitOrPost;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
@@ -522,6 +523,14 @@ procedure TViewParameters.clIDParameterTypePropertiesNewLookupDisplayText
 begin
   inherited;
   FNewValue := AText;
+end;
+
+procedure TViewParameters.CommitOrPost;
+begin
+  if CheckedMode then           // В этом случае транзакция не начата
+    ParametersGroup.TryPost
+  else
+    actCommit.Execute;          // завершаем транзакцию
 end;
 
 procedure TViewParameters.CreateColumnsBarButtons;
