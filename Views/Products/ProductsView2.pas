@@ -40,8 +40,6 @@ type
     dxBarButton7: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
-    dxBarButton8: TdxBarButton;
-    procedure dxBarButton8Click(Sender: TObject);
   private
     procedure DoBeforeLoad(ASender: TObject);
     function GetqProducts: TQueryProducts;
@@ -72,12 +70,6 @@ begin
   { при выборе другого склада проверить наличие изменений в старом складе }
   if CheckAndSaveChanges = IDCANCEL then
     raise EAbort.Create('Cancel scroll');
-end;
-
-procedure TViewProducts2.dxBarButton8Click(Sender: TObject);
-begin
-  inherited;
-  UpdateView;
 end;
 
 function TViewProducts2.GetqProducts: TQueryProducts;

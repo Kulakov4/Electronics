@@ -134,6 +134,7 @@ constructor TComponentsFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FHintWindowEx := THintWindowEx.Create(Self);
+  ViewParametricTable.ShowHint := False;
 end;
 
 procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);

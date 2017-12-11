@@ -1,5 +1,5 @@
 inherited frmAnalog: TfrmAnalog
-  Caption = #1055#1086#1080#1089#1082' '#1073#1083#1080#1079#1082#1086#1075#1086' '#1072#1085#1072#1083#1086#1075#1072
+  Caption = #1055#1086#1080#1089#1082' '#1072#1085#1072#1083#1086#1075#1072
   ClientHeight = 316
   ClientWidth = 788
   Constraints.MinHeight = 300

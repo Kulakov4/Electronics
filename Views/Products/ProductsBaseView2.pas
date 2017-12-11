@@ -158,8 +158,8 @@ type
     procedure EndUpdate; override;
     procedure UpdateView; override;
     property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
-    property qProductsBase: TQueryProductsBase read FqProductsBase write
-        SetqProductsBase;
+    property qProductsBase: TQueryProductsBase read FqProductsBase
+      write SetqProductsBase;
     { Public declarations }
   end;
 
@@ -197,7 +197,8 @@ begin
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
   // Вручную задаём обработчик события
   AcxPopupEditproperties.OnInitPopup := clDescriptionPropertiesInitPopup;
-  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide);
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
+    DoOnDescriptionPopupHide);
 
 end;
 
@@ -307,8 +308,8 @@ var
 begin
   inherited;
 
-  if not TDialog.Create.SaveToExcelFile
-    (qProductsBase.ExportFileName, AFileName) then
+  if not TDialog.Create.SaveToExcelFile(qProductsBase.ExportFileName, AFileName)
+  then
     Exit;
 
   cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
@@ -481,18 +482,16 @@ end;
 procedure TViewProductsBase2.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(qProductsBase.AfterOpen, DoAfterOpen,
-    FCountEvents);
+  TNotifyEventWrap.Create(qProductsBase.AfterOpen, DoAfterOpen, FCountEvents);
 
-  TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost,
-    FCountEvents);
+  TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost, FCountEvents);
 
   TNotifyEventWrap.Create(qProductsBase.AfterDelete, DoAfterDelete,
     FCountEvents);
 
   // Чтобы отслеживать надбавку
-  TNotifyEventWrap.Create(FqProductsBase.AfterScroll,
-    DoAfterScroll, FCountEvents);
+  TNotifyEventWrap.Create(FqProductsBase.AfterScroll, DoAfterScroll,
+    FCountEvents);
 
   UpdateProductCount;
 end;
@@ -736,9 +735,8 @@ begin
 
   Assert(FqProductsBase <> nil);
 
-  InitializeLookupColumn(clIDProducer,
-    FqProductsBase.qProducers.DataSource, lsEditFixedList,
-    FqProductsBase.qProducers.Name.FieldName);
+  InitializeLookupColumn(clIDProducer, FqProductsBase.qProducers.DataSource,
+    lsEditFixedList, FqProductsBase.qProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase2.InternalRefreshData;
@@ -775,8 +773,8 @@ procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;
 var
   AFileName: string;
 begin
-  if FqProductsBase.FDQuery.FieldByName
-    (ADocFieldInfo.FieldName).AsString <> '' then
+  if FqProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
+  then
   begin
     AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
       ADocFieldInfo.Folder), FqProductsBase.FDQuery.FieldByName
@@ -826,13 +824,11 @@ begin
   if FqProductsBase = nil then
     Exit;
 
-  cxDBTreeList.DataController.DataSource :=
-    FqProductsBase.DataSource;
+  cxDBTreeList.DataController.DataSource := FqProductsBase.DataSource;
 
   InitializeColumns;
 
-  TNotifyEventWrap.Create(FqProductsBase.AfterLoad,
-    DoAfterLoad, FEventList);
+  TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
 
   // подписываемся на события о смене количества и надбавки
   CreateCountEvents;
@@ -844,7 +840,7 @@ procedure TViewProductsBase2.UpdateProductCount;
 begin
   // На выбранном складе или в результате поиска без учёта групп
   StatusBar.Panels[0].Text :=
-    Format('%d', [ qProductsBase.NotGroupClone.RecordCount]);
+    Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
 end;
 
 procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
@@ -862,8 +858,8 @@ begin
       // if ANode.IsGroupNode then
       // Continue;
 
-      FqProductsBase.UpdateRate(ANode.Values[clID.ItemIndex],
-        RateField, ARate, AUpdatedIDList);
+      FqProductsBase.UpdateRate(ANode.Values[clID.ItemIndex], RateField, ARate,
+        AUpdatedIDList);
     end;
   finally
     FqProductsBase.FDQuery.EnableControls;
@@ -882,8 +878,9 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (qProductsBase <> nil) and
-    (qProductsBase.FDQuery.Active);
+  OK := (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
+    (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active)
+    and (qProductsBase.Master.FDQuery.RecordCount > 0);
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;

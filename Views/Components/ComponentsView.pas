@@ -264,6 +264,7 @@ begin
     frmImportProcess := TfrmImportProcess.Create(Self);
     frmImportProcess.Caption := 'Загрузка компонентов';
     frmImportProcess.ViewGridEx.DataSet := AutomaticLoadErrorTable;
+    frmImportProcess.ViewGridEx.ApplyBestFitOnUpdateData := True;
     // Показываем отчёт
     frmImportProcess.Show;
 

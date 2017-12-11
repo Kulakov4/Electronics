@@ -160,7 +160,7 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       OnExecute = actFullAnalogExecute
     end
     object actNearAnalog: TAction
-      Caption = #1041#1083#1080#1078#1072#1081#1096#1080#1081' '#1072#1085#1072#1083#1086#1075
+      Caption = #1041#1083#1080#1079#1082#1080#1081' '#1072#1085#1072#1083#1086#1075
       ImageIndex = 9
       OnExecute = actNearAnalogExecute
     end

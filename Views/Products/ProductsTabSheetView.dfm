@@ -279,7 +279,7 @@ object ProductsFrame: TProductsFrame
       Category = 0
     end
     object dxBarSubItem3: TdxBarSubItem
-      Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1072#1103' '#1087#1088#1080#1074#1103#1079#1082#1072
+      Caption = #1055#1088#1080#1082#1088#1077#1087#1080#1090#1100
       Category = 0
       Visible = ivAlways
       ImageIndex = 29
@@ -305,7 +305,7 @@ object ProductsFrame: TProductsFrame
       OnExecute = actLoadFromExcelDocumentExecute
     end
     object actBindDescriptions: TAction
-      Caption = #1050' '#1082#1088#1072#1090#1082#1080#1084' '#1086#1087#1080#1089#1072#1085#1080#1103#1084
+      Caption = #1050#1088#1072#1090#1082#1080#1077' '#1086#1087#1080#1089#1072#1085#1080#1103
       ImageIndex = 29
       OnExecute = actBindDescriptionsExecute
     end
