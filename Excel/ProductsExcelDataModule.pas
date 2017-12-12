@@ -81,26 +81,54 @@ begin
 end;
 
 function TProductsExcelTable.CheckRecord: Boolean;
+var
+  S: string;
 begin
   Result := inherited;
 
   if not Result then
     Exit;
 
-  if (not PriceR.IsNull) and (StrToFloatDef(PriceR.AsString, -1) = -1) then
+  if (not PriceR.IsNull) then
   begin
-    // Сигнализируем о неверном значении цены
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
-      'Цена в рублях указана в неверном формате');
+    S := PriceR.AsString.Replace('.', FormatSettings.DecimalSeparator);
+    if StrToFloatDef(S, -1) = -1 then
+    begin
+      // Сигнализируем о неверном значении цены
+      MarkAsError(etError);
+      Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
+        'Цена в рублях указана в неверном формате');
+    end
+    else
+    begin
+      if S <> PriceR.AsString then
+      begin
+        Edit;
+        PriceR.AsString := S;
+        Post;
+      end;
+    end;
   end;
 
-  if (not PriceD.IsNull) and (StrToFloatDef(PriceD.AsString, -1) = -1) then
+  if (not PriceD.IsNull) then
   begin
-    // Сигнализируем о неверном значении цены
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, PriceD.Index + 1, 'Денежное значение',
-      'Цена в долларах указана в неверном формате');
+    S := PriceD.AsString.Replace('.', FormatSettings.DecimalSeparator);
+    if StrToFloatDef(S, -1) = -1 then
+    begin
+      // Сигнализируем о неверном значении цены
+      MarkAsError(etError);
+      Errors.AddError(ExcelRow.AsInteger, PriceD.Index + 1, 'Денежное значение',
+        'Цена в долларах указана в неверном формате');
+    end
+    else
+    begin
+      if S <> PriceD.AsString then
+      begin
+        Edit;
+        PriceD.AsString := S;
+        Post;
+      end;
+    end;
   end;
 
   if PriceR.IsNull and PriceD.IsNull then

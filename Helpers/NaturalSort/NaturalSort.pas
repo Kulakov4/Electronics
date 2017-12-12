@@ -22,7 +22,6 @@ type
 
 function TNaturalStringComparer.Compare(const Left, Right: String): Integer;
 Var
-  FS: TFormatSettings;
   s: string;
   s1: String;
   s2: string;
@@ -40,17 +39,15 @@ begin
   s1 := Left;
   s2 := Right;
 
-  FS := TFormatSettings.Create;
-
   // Меняем точку на правильный разделитель целой и дробной части
-  s := s1.Replace('.', FS.DecimalSeparator);
+  s := s1.Replace('.', FormatSettings.DecimalSeparator);
 
   // Возможно мы имеем дело с числами
   x1 := StrToFloatDef(s, MaxInt);
   if x1 <> MaxInt then
   begin
     // Меняем точку на правильный разделитель целой и дробной части
-    s := s2.Replace('.', FS.DecimalSeparator);
+    s := s2.Replace('.', FormatSettings.DecimalSeparator);
     x2 := StrToFloatDef(s, MaxInt);
     if x2 <> MaxInt then
     begin

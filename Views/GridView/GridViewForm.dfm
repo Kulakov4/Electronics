@@ -1,36 +1,36 @@
 inherited frmGridView: TfrmGridView
   Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090
-  ClientHeight = 343
-  ClientWidth = 573
-  ExplicitWidth = 589
-  ExplicitHeight = 382
+  ClientHeight = 429
+  ClientWidth = 619
+  ExplicitWidth = 635
+  ExplicitHeight = 468
   DesignSize = (
-    573
-    343)
+    619
+    429)
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlMain: TPanel
-    Width = 573
-    Height = 289
+    Width = 618
+    Height = 371
     Align = alNone
-    ExplicitWidth = 573
-    ExplicitHeight = 289
+    ExplicitWidth = 618
+    ExplicitHeight = 371
     inherited ViewGridEx: TViewGridEx
-      Width = 573
-      Height = 289
-      ExplicitWidth = 573
-      ExplicitHeight = 289
+      Width = 618
+      Height = 371
+      ExplicitWidth = 618
+      ExplicitHeight = 371
       inherited cxGrid: TcxGrid
-        Width = 573
-        Height = 242
-        ExplicitWidth = 573
-        ExplicitHeight = 242
+        Width = 618
+        Height = 324
+        ExplicitWidth = 618
+        ExplicitHeight = 324
       end
       inherited StatusBar: TStatusBar
-        Top = 270
-        Width = 573
-        ExplicitTop = 270
-        ExplicitWidth = 573
+        Top = 352
+        Width = 618
+        ExplicitTop = 352
+        ExplicitWidth = 618
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -57,8 +57,8 @@ inherited frmGridView: TfrmGridView
     end
   end
   object cxbtnOK: TcxButton
-    Left = 402
-    Top = 302
+    Left = 448
+    Top = 388
     Width = 163
     Height = 33
     Anchors = [akRight, akBottom]

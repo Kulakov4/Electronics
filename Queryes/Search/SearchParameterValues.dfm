@@ -9,6 +9,12 @@ inherited QuerySearchParameterValues: TQuerySearchParameterValues
       'select distinct Value'
       'from ParameterValues pv '
       'where pv.ParameterId = :ParameterId'
+      ''
+      'union'
+      ''
+      'select Name Value'
+      'from Producers'
+      ''
       'order by Value')
     ParamData = <
       item

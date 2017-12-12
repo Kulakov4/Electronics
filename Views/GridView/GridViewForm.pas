@@ -29,11 +29,18 @@ type
   private
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+constructor TfrmGridView.Create(AOwner: TComponent);
+begin
+  inherited;
+  pnlMain.Anchors := [akLeft, akTop, akRight, akBottom];
+end;
 
 end.

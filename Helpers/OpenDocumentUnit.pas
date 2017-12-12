@@ -22,6 +22,8 @@ class procedure TDocument.GetFileNames(const AFileName, AFileExts: string;
   L: TList<String>);
 var
   AExt: String;
+  D: string;
+  F: string;
   m: TArray<String>;
   S: string;
 begin
@@ -35,7 +37,12 @@ begin
   begin
     S := AExt.Trim;
     if not S.IsEmpty then
-      L.Add(Format('%s.%s', [TPath.GetFileNameWithoutExtension(AFileName), S]));
+    begin
+      D := TPath.GetDirectoryName(AFileName);
+      F := TPath.GetFileNameWithoutExtension(AFileName);
+
+      L.Add(Format('%s.%s', [TPath.Combine(D, F) , S]));
+    end;
   end;
 end;
 

@@ -1,5 +1,6 @@
 inherited ViewProducts2: TViewProducts2
   inherited cxDBTreeList: TcxDBTreeList
+    OptionsView.GridLines = tlglBoth
     inherited clDescription: TcxDBTreeListColumn
       Properties.OnInitPopup = nil
     end

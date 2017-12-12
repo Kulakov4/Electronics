@@ -40,13 +40,21 @@ begin
       if qAllFamily.FDQuery.RecordCount = 1 then
       begin
         qAllFamily.TryEdit;
-        // Файл документации должен лежать в папке с именем производителя
-        qAllFamily.Datasheet.AsString :=
-          TPath.Combine(qAllFamily.Producer.AsString,
-          ADocBindExcelTable.Datasheet.AsString);
-        qAllFamily.Diagram.AsString :=
-          TPath.Combine(qAllFamily.Producer.AsString,
-          ADocBindExcelTable.Diagram.AsString);
+        // Если спецификация задана
+        if not ADocBindExcelTable.Datasheet.AsString.IsEmpty then
+        begin
+          // Файл документации должен лежать в папке с именем производителя
+          qAllFamily.Datasheet.AsString :=
+            TPath.Combine(qAllFamily.Producer.AsString,
+            ADocBindExcelTable.Datasheet.AsString);
+        end;
+        // Если функциональная диаграмма задана
+        if not ADocBindExcelTable.Diagram.AsString.IsEmpty then
+        begin
+          qAllFamily.Diagram.AsString :=
+            TPath.Combine(qAllFamily.Producer.AsString,
+            ADocBindExcelTable.Diagram.AsString);
+        end;
         qAllFamily.TryPost;
         Inc(i);
         // Уже много записей обновили в рамках одной транзакции
@@ -68,59 +76,59 @@ begin
 end;
 
 class procedure TBindDoc.LoadDocBindsFromExcelDocument(const AFileName: string);
-//var
-//  ADocBindExcelDM: TDocBindExcelDM;
-//  AfrmError: TfrmError;
-//  OK: Boolean;
+// var
+// ADocBindExcelDM: TDocBindExcelDM;
+// AfrmError: TfrmError;
+// OK: Boolean;
 begin
   Assert(not AFileName.IsEmpty);
 
-    TLoad.Create.LoadAndProcess(AFileName, TDocBindExcelDM, TfrmCustomError,
-      procedure(ASender: TObject)
-      begin
-        // Выполняем привязку
-        DoBindDocs(ASender as TDocBindExcelTable);
-      end);
+  TLoad.Create.LoadAndProcess(AFileName, TDocBindExcelDM, TfrmCustomError,
+    procedure(ASender: TObject)
+    begin
+      // Выполняем привязку
+      DoBindDocs(ASender as TDocBindExcelTable);
+    end);
 
-{
-  ADocBindExcelDM := TDocBindExcelDM.Create(nil);
-  try
+  {
+    ADocBindExcelDM := TDocBindExcelDM.Create(nil);
+    try
     // Первый этап - загружаем данные из Excel файла
     TfrmProgressBar.Process(ADocBindExcelDM,
-      procedure (ASender: TObject)
-      begin
-        ADocBindExcelDM.LoadExcelFile(AFileName);
-      end, 'Загрузка данных о файлах документации из Excel документа', sRows);
+    procedure (ASender: TObject)
+    begin
+    ADocBindExcelDM.LoadExcelFile(AFileName);
+    end, 'Загрузка данных о файлах документации из Excel документа', sRows);
 
     // Второй этап - отображаем окно с ошибками
     OK := ADocBindExcelDM.ExcelTable.Errors.RecordCount = 0;
 
     if not OK then
     begin
-      AfrmError := TfrmError.Create(nil);
-      try
-        AfrmError.ErrorTable := ADocBindExcelDM.ExcelTable.Errors;
-        // Показываем ошибки (семейство не найдено)
-        OK := AfrmError.ShowModal = mrOk;
-        ADocBindExcelDM.ExcelTable.ExcludeErrors(etError);
-      finally
-        FreeAndNil(AfrmError);
-      end;
+    AfrmError := TfrmError.Create(nil);
+    try
+    AfrmError.ErrorTable := ADocBindExcelDM.ExcelTable.Errors;
+    // Показываем ошибки (семейство не найдено)
+    OK := AfrmError.ShowModal = mrOk;
+    ADocBindExcelDM.ExcelTable.ExcludeErrors(etError);
+    finally
+    FreeAndNil(AfrmError);
+    end;
     end;
 
     // Третий этап - сохраняем в базе данных
     if OK then
     begin
-      TfrmProgressBar.Process(ADocBindExcelDM.ExcelTable,
-        procedure (ASender: TObject)
-        begin
-          DoBindDocs(ADocBindExcelDM.ExcelTable);
-        end, 'Выполнение привязки к документации', sComponents);
+    TfrmProgressBar.Process(ADocBindExcelDM.ExcelTable,
+    procedure (ASender: TObject)
+    begin
+    DoBindDocs(ADocBindExcelDM.ExcelTable);
+    end, 'Выполнение привязки к документации', sComponents);
     end;
-  finally
+    finally
     FreeAndNil(ADocBindExcelDM);
-  end;
-}
+    end;
+  }
 end;
 
 end.
