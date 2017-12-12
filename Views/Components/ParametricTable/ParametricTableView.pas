@@ -1247,6 +1247,7 @@ begin
     FBandsInfo.Add(ABandInfo);
     AColumn.Position.Band.Visible := False;
     AColumn.Position.Band.VisibleForCustomization := False;
+    AColumn.Tag := AIDParameter;
   end;
 end;
 

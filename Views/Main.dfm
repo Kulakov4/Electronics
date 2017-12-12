@@ -51,6 +51,10 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -135,6 +139,10 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -217,6 +225,10 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsCategoryComponents: TcxTabSheet
+            ExplicitLeft = 4
+            ExplicitTop = 24
+            ExplicitWidth = 870
+            ExplicitHeight = 452
             inherited ViewComponents: TViewComponents
               inherited cxGrid: TcxGrid
                 ExplicitWidth = 918
@@ -301,6 +313,10 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsCategoryParameters: TcxTabSheet
+            ExplicitLeft = 4
+            ExplicitTop = 24
+            ExplicitWidth = 870
+            ExplicitHeight = 452
             inherited ViewCategoryParameters: TViewCategoryParameters
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -324,6 +340,10 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsComponentsSearch: TcxTabSheet
+            ExplicitLeft = 4
+            ExplicitTop = 24
+            ExplicitWidth = 870
+            ExplicitHeight = 452
             inherited ViewComponentsSearch: TViewComponentsSearch
               inherited cxGrid: TcxGrid
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -403,6 +423,10 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsParametricTable: TcxTabSheet
+            ExplicitLeft = 4
+            ExplicitTop = 24
+            ExplicitWidth = 870
+            ExplicitHeight = 452
             inherited ViewParametricTable: TViewParametricTable
               inherited cxGrid: TcxGrid
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView

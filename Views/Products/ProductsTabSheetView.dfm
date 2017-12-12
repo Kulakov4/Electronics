@@ -108,6 +108,7 @@ object ProductsFrame: TProductsFrame
           ExplicitWidth = 990
         end
         inherited dxBarManager: TdxBarManager
+          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -217,6 +218,7 @@ object ProductsFrame: TProductsFrame
     Categories.Visibles = (
       True)
     PopupMenuLinks = <>
+    ShowHint = False
     UseSystemFont = True
     Left = 64
     Top = 280

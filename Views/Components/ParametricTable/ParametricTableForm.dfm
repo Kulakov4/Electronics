@@ -15,7 +15,7 @@ inherited frmParametricTable: TfrmParametricTable
     Height = 538
     Align = alClient
     ParentShowHint = False
-    ShowHint = True
+    ShowHint = False
     TabOrder = 0
     ExplicitWidth = 852
     ExplicitHeight = 538
