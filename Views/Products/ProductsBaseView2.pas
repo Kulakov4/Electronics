@@ -140,8 +140,7 @@ type
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
-    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
-      const AErrorMessage, AEmptyErrorMessage: string);
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
     // TODO: SortList
@@ -351,29 +350,25 @@ end;
 procedure TViewProductsBase2.actOpenDatasheetExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDatasheetDoc.Create, 'Файл спецификации с именем %s не найден',
-    'не задана спецификация');
+  OpenDoc(TDatasheetDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDiagramExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDiagramDoc.Create, 'Файл схемы с именем %s не найден',
-    'Не задана схема');
+  OpenDoc(TDiagramDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDrawingExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
-    'Не задан чертёж');
+  OpenDoc(TDrawingDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenImageExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TImageDoc.Create, 'Файл изображения с именем %s не найден',
-    'Не задано изображение');
+  OpenDoc(TImageDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenInParametricTableExecute(Sender: TObject);
@@ -768,8 +763,7 @@ begin
   Result := S1 = S2;
 end;
 
-procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;
-  const AErrorMessage, AEmptyErrorMessage: string);
+procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 var
   AFileName: string;
 begin
@@ -783,10 +777,10 @@ begin
     if FileExists(AFileName) then
       ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
     else
-      TDialog.Create.ErrorMessageDialog(Format(AErrorMessage, [AFileName]));
+      TDialog.Create.ErrorMessageDialog(Format(ADocFieldInfo.ErrorMessage, [AFileName]));
   end
   else
-    TDialog.Create.ErrorMessageDialog(AEmptyErrorMessage);
+    TDialog.Create.ErrorMessageDialog(ADocFieldInfo.EmptyErrorMessage);
 
 end;
 

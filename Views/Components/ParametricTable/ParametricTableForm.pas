@@ -13,18 +13,24 @@ uses
 type
   TfrmParametricTable = class(TfrmRoot)
     ViewParametricTable: TViewParametricTable;
+    procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDeactivate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
     FBeforeClose: TNotifyEventsEx;
     FCategoryPath: string;
+    FOnActivate: TNotifyEventsEx;
+    FOnDeactivate: TNotifyEventsEx;
     procedure UpdateCaption;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property CategoryPath: string read FCategoryPath write FCategoryPath;
+    property OnDeactivate: TNotifyEventsEx read FOnDeactivate;
+    property OnActivate: TNotifyEventsEx read FOnActivate;
     { Public declarations }
   end;
 
@@ -41,6 +47,14 @@ constructor TfrmParametricTable.Create(AOwner: TComponent);
 begin
   inherited;
   FBeforeClose := TNotifyEventsEx.Create(Self);
+  FOnActivate := TNotifyEventsEx.Create(Self);
+  FOnDeactivate := TNotifyEventsEx.Create(Self);
+end;
+
+procedure TfrmParametricTable.FormActivate(Sender: TObject);
+begin
+  inherited;
+  FOnActivate.CallEventHandlers(Self);
 end;
 
 procedure TfrmParametricTable.FormClose(Sender: TObject;
@@ -50,6 +64,12 @@ begin
   FBeforeClose.CallEventHandlers(Self);
   Action := caFree;
   frmParametricTable := nil;
+end;
+
+procedure TfrmParametricTable.FormDeactivate(Sender: TObject);
+begin
+  inherited;
+  FOnDeactivate.CallEventHandlers(Self);
 end;
 
 procedure TfrmParametricTable.FormResize(Sender: TObject);

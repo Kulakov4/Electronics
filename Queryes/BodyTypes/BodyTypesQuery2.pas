@@ -10,7 +10,8 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, BodyTypesExcelDataModule, QueryWithDataSourceUnit,
-  BodiesQuery, BodyDataQuery, BodyVariationsQuery, BodyTypesBaseQuery;
+  BodiesQuery, BodyDataQuery, BodyVariationsQuery, BodyTypesBaseQuery,
+  DocFieldInfo, System.IOUtils;
 
 const
   WM_arInsert = WM_USER + 139;
@@ -38,6 +39,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
+    procedure LoadDocFile(const AFileName: String; ADocFieldInfo: TDocFieldInfo);
     procedure LocateOrAppend(AIDBodyKind: Integer;
       const ABody, ABodyData: String; AIDProducer: Integer;
       const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
@@ -340,6 +342,21 @@ begin
     FInChange := False;
     end;
   }
+end;
+
+procedure TQueryBodyTypes2.LoadDocFile(const AFileName: String; ADocFieldInfo:
+    TDocFieldInfo);
+var
+  S: string;
+begin
+  if not AFileName.IsEmpty then
+  begin
+    // В БД храним имя файла без расширения и всё
+    S := TPath.GetFileNameWithoutExtension(AFileName);
+    TryEdit;
+    Field(ADocFieldInfo.FieldName).AsString := S;
+    TryPost;
+  end;
 end;
 
 procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer;

@@ -132,8 +132,7 @@ type
     procedure OnApplyBestFit(var Message: TMessage); message WM_OnApplyBestFit;
     procedure OnDetailExpandedProcess(var Message: TMessage);
       message WM_ON_DETAIL_EXPANDED;
-    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
-      const AErrorMessage, AEmptyErrorMessage: string);
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UpdateDetailColumnsWidth;
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property QuerySubGroups: TfrmQuerySubGroups read GetQuerySubGroups;
@@ -279,26 +278,22 @@ end;
 
 procedure TViewComponentsParent.actOpenDrawingExecute(Sender: TObject);
 begin
-  OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
-    'Не задан чертёж');
+  OpenDoc(TDrawingDoc.Create);
 end;
 
 procedure TViewComponentsParent.actOpenImageExecute(Sender: TObject);
 begin
-  OpenDoc(TImageDoc.Create, 'Файл изображения с именем %s не найден',
-    'Не задано изображение');
+  OpenDoc(TImageDoc.Create);
 end;
 
 procedure TViewComponentsParent.actOpenDiagramExecute(Sender: TObject);
 begin
-  OpenDoc(TDiagramDoc.Create, 'Файл схемы с именем %s не найден',
-    'Не задана схема');
+  OpenDoc(TDiagramDoc.Create );
 end;
 
 procedure TViewComponentsParent.actOpenDatasheetExecute(Sender: TObject);
 begin
-  OpenDoc(TDatasheetDoc.Create, 'Файл спецификации с именем %s не найден',
-    'не задана спецификация');
+  OpenDoc(TDatasheetDoc.Create );
 end;
 
 procedure TViewComponentsParent.AfterConstruction;
@@ -807,12 +802,12 @@ begin
   FOnDetailExpandedReceive := True;
 end;
 
-procedure TViewComponentsParent.OpenDoc(ADocFieldInfo: TDocFieldInfo;
-const AErrorMessage, AEmptyErrorMessage: string);
+procedure TViewComponentsParent.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 begin
   TDocument.Open(Handle, ADocFieldInfo.Folder,
     BaseComponentsGroup.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
-    .AsString, AErrorMessage, AEmptyErrorMessage, sBodyTypesFilesExt);
+    .AsString, ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
+    sBodyTypesFilesExt);
 end;
 
 procedure TViewComponentsParent.SetBaseComponentsGroup

@@ -1002,10 +1002,9 @@ begin
     FreeAndNil(ABands);
   end;
 
-  // Помечаем, что запрос надо будет обновить, даже если мастер не изменится
+  // Обновляем запрос, если есть клиенты
   if IsEdit then
-    ComponentsExGroup.NeedRefresh := True;
-
+    ComponentsExGroup.TryRefresh;
 end;
 
 procedure TViewParametricTable.DoAfterLoad(Sender: TObject);

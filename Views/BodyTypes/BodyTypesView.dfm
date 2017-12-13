@@ -71,6 +71,7 @@ inherited ViewBodyTypes: TViewBodyTypes
           Column = clBody
         end>
       DataController.Summary.SummaryGroups = <>
+      DataController.OnCompare = cxGridDBBandedTableView2DataControllerCompare
       OptionsBehavior.CellHints = True
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
@@ -130,8 +131,13 @@ inherited ViewBodyTypes: TViewBodyTypes
           item
             Action = actOpenOutlineDrawing
             Default = True
+            Kind = bkGlyph
+          end
+          item
+            Action = actLoadOutlineDrawing
             Kind = bkEllipsis
           end>
+        Properties.Images = DMRepository.cxImageList
         OnGetDataText = clOutlineDrawingGetDataText
         Options.Sorting = False
         Options.VertSizing = False
@@ -147,8 +153,13 @@ inherited ViewBodyTypes: TViewBodyTypes
           item
             Action = actOpenLandPattern
             Default = True
+            Kind = bkGlyph
+          end
+          item
+            Action = actLoadLandPattern
             Kind = bkEllipsis
           end>
+        Properties.Images = DMRepository.cxImageList
         OnGetDataText = clOutlineDrawingGetDataText
         Options.Sorting = False
         Options.VertSizing = False
@@ -173,8 +184,13 @@ inherited ViewBodyTypes: TViewBodyTypes
           item
             Action = actOpenImage
             Default = True
+            Kind = bkGlyph
+          end
+          item
+            Action = actLoadImage
             Kind = bkEllipsis
           end>
+        Properties.Images = DMRepository.cxImageList
         OnGetDataText = clOutlineDrawingGetDataText
         Options.Sorting = False
         Options.VertSizing = False
@@ -210,166 +226,6 @@ inherited ViewBodyTypes: TViewBodyTypes
         Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 10
-        Position.RowIndex = 0
-      end
-      object clBody0: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Body0'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 11
-        Position.RowIndex = 0
-      end
-      object clBody1: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Body1'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 12
-        Position.RowIndex = 0
-      end
-      object clBody2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Body2'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 13
-        Position.RowIndex = 0
-      end
-      object clBody3: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Body3'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 14
-        Position.RowIndex = 0
-      end
-      object clBody4: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Body4'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 15
-        Position.RowIndex = 0
-      end
-      object clBody5: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Body5'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 16
-        Position.RowIndex = 0
-      end
-      object clBodyData0: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData0'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 17
-        Position.RowIndex = 0
-      end
-      object clBodyData1: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData1'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 18
-        Position.RowIndex = 0
-      end
-      object clBodyData2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData2'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 19
-        Position.RowIndex = 0
-      end
-      object clBodyData3: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData3'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 20
-        Position.RowIndex = 0
-      end
-      object clBodyData4: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData4'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 21
-        Position.RowIndex = 0
-      end
-      object clBodyData5: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData5'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 22
-        Position.RowIndex = 0
-      end
-      object clBodyData6: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData6'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 23
-        Position.RowIndex = 0
-      end
-      object clBodyData7: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData7'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 24
-        Position.RowIndex = 0
-      end
-      object clBodyData8: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData8'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 25
-        Position.RowIndex = 0
-      end
-      object clBodyData9: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'BodyData9'
-        Visible = False
-        Options.Sorting = False
-        Options.VertSizing = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 26
         Position.RowIndex = 0
       end
     end
@@ -559,22 +415,43 @@ inherited ViewBodyTypes: TViewBodyTypes
     object actOpenOutlineDrawing: TAction
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
+      ImageIndex = 17
       OnExecute = actOpenOutlineDrawingExecute
     end
     object actOpenLandPattern: TAction
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
+      ImageIndex = 16
       OnExecute = actOpenLandPatternExecute
     end
     object actOpenImage: TAction
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      ImageIndex = 8
       OnExecute = actOpenImageExecute
     end
     object actShowDuplicate: TAction
       Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1091#1073#1083#1080#1082#1072#1090#1099
       ImageIndex = 9
       OnExecute = actShowDuplicateExecute
+    end
+    object actLoadOutlineDrawing: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1082#1086#1088#1087#1091#1089#1072
+      ImageIndex = 17
+      OnExecute = actLoadOutlineDrawingExecute
+    end
+    object actLoadLandPattern: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080
+      ImageIndex = 16
+      OnExecute = actLoadLandPatternExecute
+    end
+    object actLoadImage: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      ImageIndex = 8
+      OnExecute = actLoadImageExecute
     end
   end
 end

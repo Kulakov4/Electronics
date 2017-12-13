@@ -20,7 +20,6 @@ type
     qSubParameters: TQuerySubParameters;
   private
     FAfterDataChange: TNotifyEventsEx;
-    FAfterCommit: TNotifyEventsEx;
     FqParameterKinds: TQueryParameterKinds;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
@@ -35,7 +34,6 @@ type
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
-    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
     { Public declarations }
   end;
@@ -53,7 +51,6 @@ begin
   Main := qParameterTypes;
   Detail := qMainParameters;
 
-  FAfterCommit := TNotifyEventsEx.Create(Self);
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoAfterPostOrDelete);
@@ -84,7 +81,7 @@ begin
 
   Connection.Commit;
 
-  FAfterCommit.CallEventHandlers(Self);
+  AfterCommit.CallEventHandlers(Self);
 end;
 
 procedure TParametersGroup.DoAfterPostOrDelete(Sender: TObject);

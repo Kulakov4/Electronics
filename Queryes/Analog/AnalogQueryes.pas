@@ -240,20 +240,21 @@ procedure TAnalogGroup.Load(AProductCategoryID: Integer;
   ARecHolder: TRecordHolder);
 var
   ACaption: String;
+  AFieldList: TList<String>;
   AFieldName: string;
   AParameterID: Integer;
   AParamValues: TParamValues;
   ASortList: TList<String>;
   F: TField;
   i: Integer;
+  S: string;
 begin
   Assert(ARecHolder <> nil);
   FProductCategoryID := AProductCategoryID;
 
+  AFieldList := TList<String>.Create;
   ASortList := TList<String>.Create;
   try
-    FFDMemTable.Close;
-
     // Ищем параметры используемые для поиска аналога
     FqParametersForCategory.SearchByParameterKind(AProductCategoryID);
     while not FqParametersForCategory.FDQuery.Eof do
@@ -261,7 +262,7 @@ begin
       // Имя поля в таблице поределяющей выбранные значения для поиска аналога
       AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
       // Добавляем очередное поле
-      FFDMemTable.FieldDefs.Add(AFieldName, ftString, 200);
+      AFieldList.Add(AFieldName);
       FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
         AFieldName);
 
@@ -295,7 +296,15 @@ begin
       ParamValuesList.Add(AParamValues);
       FqParametersForCategory.FDQuery.Next;
     end;
-    // Создаём набор данныых в памятиж
+
+    FFDMemTable.Close;
+    FFDMemTable.FieldDefs.Clear;
+    FFDMemTable.Name := 'asdsad';
+    // Создаём набор данныых в памяти
+    for S in AFieldList do
+    begin
+      FFDMemTable.FieldDefs.Add(S, ftString, 200);
+    end;
     FDMemTable.CreateDataSet;
 
     // Добавляем в него одну запись
@@ -318,6 +327,7 @@ begin
     FDMemTable.Post;
   finally
     FreeAndNil(ASortList);
+    FreeAndNil(AFieldList);
   end;
 end;
 
@@ -445,7 +455,7 @@ end;
 
 procedure TParameterValuesTable.CheckNearSubStr;
 var
-  I: Integer;
+  i: Integer;
   m: TArray<string>;
   S: string;
   V: string;
@@ -465,7 +475,7 @@ begin
       if Checked.AsInteger = 0 then
       begin
         // Цикл по всем подстрокам
-        for I := Low(m) to High(m) do
+        for i := Low(m) to High(m) do
         begin
           S := m[i].Trim([#10, ' ']).ToUpperInvariant;
           V := Value.AsString.ToUpperInvariant;

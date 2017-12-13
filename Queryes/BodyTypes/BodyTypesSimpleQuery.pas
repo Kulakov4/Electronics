@@ -65,10 +65,13 @@ begin
 
   IDS.Value := AID;
 
+  Body.Value := QueryBodies.Body.Value;
+  BodyData.Value := QueryBodyData.BodyData.Value;
+
   // Заполняем части наименования
-  SetMySplitDataValues(QueryBodies.FDQuery, 'BODY');
+//  SetMySplitDataValues(QueryBodies.FDQuery, 'BODY');
   // Заполняем части корпусных данных
-  SetMySplitDataValues(QueryBodyData.FDQuery, 'BODYDATA');
+//  SetMySplitDataValues(QueryBodyData.FDQuery, 'BODYDATA');
 
   IDBodyData.Value := QueryBodyData.PK.Value;
   IDBody.Value := QueryBodies.PK.Value;

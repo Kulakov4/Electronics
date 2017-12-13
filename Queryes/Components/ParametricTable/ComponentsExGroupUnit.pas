@@ -25,7 +25,6 @@ type
     FClientCount: Integer;
     FMark: string;
     FAllParameterFields: TDictionary<Integer, String>;
-    FNeedRefresh: Boolean;
     FOnParamOrderChange: TNotifyEventsEx;
     FQueryParametersForCategory: TQueryParametersForCategory;
     FQueryProductParameters: TQueryProductParameters;
@@ -46,11 +45,11 @@ type
     procedure AddClient;
     procedure DecClient;
     function GetIDParameter(const AFieldName: String): Integer;
+    procedure TryRefresh;
     procedure UpdateData;
     property Mark: string read FMark;
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
-    property NeedRefresh: Boolean read FNeedRefresh write FNeedRefresh;
     property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
     property QueryParametersForCategory: TQueryParametersForCategory
       read FQueryParametersForCategory;
@@ -123,18 +122,6 @@ begin
     qComponentsEx.Lock := True;
     qFamilyEx.Lock := True;
   end;
-
-  // Если запрос нужно обновить
-  if FNeedRefresh then
-  begin
-    // Тогда обновляем запрос если но не заблокирован
-    // Если заблокирован то запрос обновится когда разблокируется
-    qComponentsEx.TryRefresh;
-    qFamilyEx.TryRefresh;
-
-    FNeedRefresh := False;
-  end;
-
 end;
 
 procedure TComponentsExGroup.DoAfterOpen(Sender: TObject);
@@ -392,6 +379,13 @@ begin
   TNotifyEventWrap.Create(qComponentsEx.On_ApplyUpdate, DoOnApplyUpdate);
   // Завершаем транзакцию
   Connection.Commit;
+end;
+
+procedure TComponentsExGroup.TryRefresh;
+begin
+  // Обновляем если они не заблокированы
+  qComponentsEx.TryRefresh;
+  qFamilyEx.TryRefresh;
 end;
 
 procedure TComponentsExGroup.UpdateData;

@@ -56,6 +56,10 @@ type
     dxbbParametricTable: TdxBarButton;
     dxbbSettings: TdxBarButton;
     dxBarButton3: TdxBarButton;
+    actRefresh: TAction;
+    dxBarManagerBar1: TdxBar;
+    dxBarButton1: TdxBarButton;
+    procedure actRefreshExecute(Sender: TObject);
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
@@ -112,6 +116,12 @@ destructor TViewComponents.Destroy;
 begin
   FreeAndNil(FCountEvents);
   inherited;
+end;
+
+procedure TViewComponents.actRefreshExecute(Sender: TObject);
+begin
+  inherited;
+  RefreshData;
 end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);

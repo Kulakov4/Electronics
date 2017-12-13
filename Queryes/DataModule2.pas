@@ -37,6 +37,7 @@ type
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
+    procedure DoAfterComponentsCommit(Sender: TObject);
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
@@ -121,6 +122,10 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
+  TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
+    FEventList);
+
+
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
   TNotifyEventWrap.Create(ProducersGroup.qProducers.AfterCommit,
@@ -187,6 +192,13 @@ begin
 
   // Открываем новое соединение с БД
   OpenConnection();
+end;
+
+procedure TDM2.DoAfterComponentsCommit(Sender: TObject);
+begin
+  // Произошли изменения в таблице компонентов
+  // Будем обновлять параметрическую таблицу
+  ComponentsExGroup.TryRefresh;
 end;
 
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);

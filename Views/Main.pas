@@ -151,6 +151,8 @@ type
     FOnProductCategoriesChange: TNotifyEventWrap;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
+    procedure DoBeforeParametricTableActivate(Sender: TObject);
+    procedure DoBeforeParametricTableDeactivate(Sender: TObject);
     procedure DoBeforeParametricTableFormClose(Sender: TObject);
     procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
@@ -787,15 +789,18 @@ begin
     frmParametricTable.CategoryPath := ACategoryPath;
 
     // Подписываемся на событие перед закрытием окна
-    TNotifyEventWrap.Create(frmParametricTable.BeforeClose,
-      DoBeforeParametricTableFormClose, FEventList);
+    TNotifyEventWrap.Create(frmParametricTable.OnActivate,
+      DoBeforeParametricTableActivate, FEventList);
+
+    TNotifyEventWrap.Create(frmParametricTable.OnDeactivate,
+      DoBeforeParametricTableDeactivate, FEventList);
 
     // Привязываем данные к представлению
     frmParametricTable.ViewParametricTable.ComponentsExGroup :=
       DM2.ComponentsExGroup;
 
     // предупреждаем, что нам потребуются данные этого запроса
-    DM2.ComponentsExGroup.AddClient;
+//    DM2.ComponentsExGroup.AddClient;
   end;
 
   frmParametricTable.Show;
@@ -927,6 +932,16 @@ procedure TfrmMain.cxtsStorehousesShow(Sender: TObject);
 begin
   // Справа активизируем вкладку "Склады"
   cxpcRight.ActivePage := cxtsRStorehouses;
+end;
+
+procedure TfrmMain.DoBeforeParametricTableActivate(Sender: TObject);
+begin
+  DM2.ComponentsExGroup.AddClient;
+end;
+
+procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);
+begin
+  DM2.ComponentsExGroup.DecClient;
 end;
 
 procedure TfrmMain.UpdateCaption;

@@ -6,12 +6,13 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
-  FireDAC.Comp.Client, QueryWithDataSourceUnit, System.Contnrs;
+  FireDAC.Comp.Client, QueryWithDataSourceUnit, System.Contnrs, NotifyEvents;
 
 type
   TQueryGroup = class(TFrame)
     GridPanel1: TGridPanel;
   private
+    FAfterCommit: TNotifyEventsEx;
     FDetail: TQueryWithDataSource;
     FEventList: TObjectList;
     FMain: TQueryWithDataSource;
@@ -34,6 +35,7 @@ type
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
     procedure TryPost;
+    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
     property Detail: TQueryWithDataSource read FDetail write SetDetail;
@@ -50,6 +52,7 @@ constructor TQueryGroup.Create(AOwner: TComponent);
 begin
   inherited;
   FEventList := TObjectList.Create;
+  FAfterCommit := TNotifyEventsEx.Create(Self);
 end;
 
 destructor TQueryGroup.Destroy;
@@ -99,6 +102,8 @@ begin
 
   if Connection.InTransaction then
     Connection.Commit;
+
+  FAfterCommit.CallEventHandlers(Self);
 end;
 
 function TQueryGroup.GetChangeCount: Integer;

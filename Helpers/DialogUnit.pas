@@ -97,8 +97,8 @@ end;
 procedure TDialog.AutoBindResultDialog(ACount: Integer);
 begin
   Application.MessageBox
-    (PChar(Format('Привязано наименований: %d', [ACount])),
-    'Результат автоматической привязки', MB_OK);
+    (PChar(Format('Прикреплено описаний: %d', [ACount])),
+    'Результат автоматического прикрепления', MB_OK);
 end;
 
 function TDialog.ClearTreeDialog: Boolean;
