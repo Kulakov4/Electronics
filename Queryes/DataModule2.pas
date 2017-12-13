@@ -37,6 +37,7 @@ type
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
+    procedure DoOnCategoryParametersApplyUpdates(Sender: TObject);
     procedure DoAfterComponentsCommit(Sender: TObject);
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterProducerCommit(Sender: TObject);
@@ -122,6 +123,9 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
+  TNotifyEventWrap.Create(qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
+    FEventList);
+
   TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
     FEventList);
 
@@ -192,6 +196,13 @@ begin
 
   // Открываем новое соединение с БД
   OpenConnection();
+end;
+
+procedure TDM2.DoOnCategoryParametersApplyUpdates(Sender: TObject);
+begin
+  // Произошли изменения в таблице параметров для категорий
+  // Будем обновлять параметрическую таблицу
+  ComponentsExGroup.TryRefresh;
 end;
 
 procedure TDM2.DoAfterComponentsCommit(Sender: TObject);

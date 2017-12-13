@@ -12,9 +12,6 @@ uses
   NotifyEvents, QueryWithDataSourceUnit, SearchParameterQuery,
   ApplyQueryFrame, OrderQuery;
 
-const
-  WM_arInsert = WM_USER + 139;
-
 type
   TQueryMainParameters = class(TQueryOrder)
     fdqBase: TFDQuery;
@@ -44,7 +41,6 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     function GetOrd: TField; override;
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
@@ -126,27 +122,23 @@ procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-  AID: TField;
-  AIsCustomParameter: TField;
-  ATableName: TField;
+  AID: Integer;
   i: Integer;
   RH: TRecordHolder;
   RH2: TRecordHolder;
 begin
-  AID := ASender.FieldByName(PKFieldName);
-  ATableName := ASender.FieldByName(TableName.FieldName);
-  AIsCustomParameter := ASender.FieldByName(IsCustomParameter.FieldName);
+  Assert(ASender = FDQuery);
 
   // Если не заполнили табличное имя, то табличное имя = наименование
-  if ATableName.AsString.IsEmpty then
-    ATableName.AsString := Value.AsString;
+  if TableName.AsString.IsEmpty then
+    TableName.AsString := Value.AsString;
 
   RH := TRecordHolder.Create(ASender);
   try
     // Ищем параметр "по умолчанию" с таким-же табличным именем
-    i := qSearchParameter.SearchMain(ATableName.AsString, True);
+    i := qSearchParameter.SearchMain(TableName.AsString, True);
     // Если нашли и с другим кодом
-    if (i > 0) and (AID.AsInteger <> qSearchParameter.PK.AsInteger) then
+    if (i > 0) and (PK.AsInteger <> qSearchParameter.PK.AsInteger) then
     begin
       // Копируем поля в буфер кроме IsCustomParameter
       RH.Attach(ASender, IsCustomParameter.FieldName);
@@ -159,22 +151,21 @@ begin
         FreeAndNil(RH2);
       end;
       // Заполняем идентификатор той записи, которую будем редактировать
-      RH.Field[AID.FieldName] := qSearchParameter.PK.Value;
+      RH.Field[PK.FieldName] := qSearchParameter.PK.Value;
       // Обновляем имеющуюся запись в БД
       ParametersApplyQuery.UpdateRecord(RH);
       // Обновляем вставленную запись на клиенте
       RH.Put(ASender);
-      AIsCustomParameter.AsBoolean := True;
+      IsCustomParameter.AsBoolean := True;
     end
     else
     begin
       // Копируем поля в буфер
       RH.Attach(ASender);
       // Вставляем запись на сервере и обновляем ID на клиенте
-      AID.AsInteger := ParametersApplyQuery.InsertRecord(RH);
+      AID := ParametersApplyQuery.InsertRecord(RH);
+      FetchFields([PK.FieldName], [AID], ARequest, AAction, AOptions);
     end;
-    // Заплатка.
-    // PostMessage(Handle, WM_arInsert, AID.AsInteger, 0);
   finally
     FreeAndNil(RH);
   end;
@@ -184,27 +175,22 @@ procedure TQueryMainParameters.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-  AID: TField;
-  AIsCustomParameter: TField;
-  ATableName: TField;
   i: Integer;
   RH: TRecordHolder;
 begin
-  AID := ASender.FieldByName(PKFieldName);
-  ATableName := ASender.FieldByName(TableName.FieldName);
-  AIsCustomParameter := ASender.FieldByName(IsCustomParameter.FieldName);
+  Assert(ASender = FDQuery);
 
-  Assert(AID.AsInteger > 0);
+  Assert(PK.AsInteger > 0);
 
-  if ATableName.AsString.IsEmpty then
+  if TableName.AsString.IsEmpty then
     raise EAbort.Create('Табличное имя не должно быть пустым');
 
   RH := TRecordHolder.Create();
   try
     // Ищем параметр "по умолчанию" с таким-же табличным именем
-    i := qSearchParameter.SearchMain(ATableName.AsString, True);
+    i := qSearchParameter.SearchMain(TableName.AsString, True);
     // Если нашли и с другим кодом
-    if (i > 0) and (AID.AsInteger <> qSearchParameter.PK.AsInteger) then
+    if (i > 0) and (PK.AsInteger <> qSearchParameter.PK.AsInteger) then
     begin
       // Будем копировать из изменившейся записи в имеющуюся
       // Копируем поля в буфер
@@ -219,15 +205,13 @@ begin
       end;
 
       // Удаляем ту запись, которую только-что редактировали на клиенте
-      ParametersApplyQuery.DeleteRecord(AID.AsInteger);
+      ParametersApplyQuery.DeleteRecord(PK.AsInteger);
 
       // Меняем идентификатор той записи, что сейчас на клиенте
-      AID.Value := qSearchParameter.PK.Value;
+      FetchFields([PK.FieldName], [qSearchParameter.PK.Value], ARequest, AAction, AOptions);
+      //AID.Value := qSearchParameter.PK.Value;
       // Помечаем, что мы имеем дело с параметром "по умолчанию"
-      AIsCustomParameter.AsBoolean := True;
-      // Заплатка.
-      // PostMessage(Handle, WM_arInsert, AID.AsInteger, 0);
-
+      IsCustomParameter.AsBoolean := True;
     end
     else
     begin
@@ -243,19 +227,6 @@ end;
 procedure TQueryMainParameters.DoAfterInsert(Sender: TObject);
 begin
   FDQuery.FieldByName('IsCustomParameter').AsBoolean := False;
-end;
-
-procedure TQueryMainParameters.DoAfterInsertMessage(var Message: TMessage);
-var
-  AID: Integer;
-begin
-  AID := Message.WParam;
-
-  if LocateByPK(AID) then
-  begin
-    FDQuery.Edit;
-    FDQuery.Post;
-  end;
 end;
 
 procedure TQueryMainParameters.DoAfterOpen(Sender: TObject);

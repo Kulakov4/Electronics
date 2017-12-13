@@ -63,6 +63,7 @@ begin
   AID := QueryBodyVariations.PK.Value;
   Assert(AID > 0);
 
+  //FetchFields([IDS.FieldName], [AID], ARequest, AAction, AOptions);
   IDS.Value := AID;
 
   Body.Value := QueryBodies.Body.Value;

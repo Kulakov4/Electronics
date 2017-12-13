@@ -457,6 +457,8 @@ begin
       InitializeLookupColumn(clPosID, QueryParameterPos.DataSource, lsFixedList,
         QueryParameterPos.Pos.FieldName);
 
+//      (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
+
       TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad,
         FEventList);
       ApplyBestFitEx;

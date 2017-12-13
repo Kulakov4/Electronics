@@ -106,6 +106,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clIsAttribute: TcxGridDBBandedColumn
         Caption = #1040#1082#1090#1080#1074#1085#1099#1081
         DataBinding.FieldName = 'IsAttribute'
+        PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.ImmediatePost = True
         Options.VertSizing = False
         Position.BandIndex = 0
         Position.ColIndex = 7
