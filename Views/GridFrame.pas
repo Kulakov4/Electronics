@@ -70,6 +70,7 @@ type
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
+    FApplyBestFitPosted: Boolean;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
@@ -80,6 +81,7 @@ type
     procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
       ARecordIndex: Integer; var AAllow: Boolean);
     function GetMainView: TcxGridDBBandedTableView;
+    function GetParentForm: TForm;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
@@ -170,6 +172,7 @@ type
       read GetFocusedTableView;
     property GridSort: TGridSort read FGridSort;
     property MainView: TcxGridDBBandedTableView read GetMainView;
+    property ParentForm: TForm read GetParentForm;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
       write SetStatusBarEmptyPanelIndex;
@@ -491,8 +494,12 @@ end;
 procedure TfrmGrid.DoOnMyApplyBestFit(var Message: TMessage);
 begin
   inherited;
+  Assert(FApplyBestFitPosted);
+
   MyApplyBestFit;
-  // MainView.EndBestFitUpdate;
+
+  MainView.EndBestFitUpdate;
+  FApplyBestFitPosted := False;
 end;
 
 procedure TfrmGrid.EndUpdate;
@@ -552,10 +559,13 @@ begin
     AView.Focused := True;
 
     AColumn := AView.GetColumnByFieldName(AFieldName);
-    // Site обеспечивает доступ к элементам размещённым на cxGrid
-    AView.Site.SetFocus;
     // Показываем редактор для колонки
-    AView.Controller.EditingController.ShowEdit(AColumn);
+    if (ParentForm <> nil) and (ParentForm.Visible) then
+    begin
+      // Site обеспечивает доступ к элементам размещённым на cxGrid
+      AView.Site.SetFocus;
+      AView.Controller.EditingController.ShowEdit(AColumn);
+    end;
   except
     ; // Ошибки подавляем. Нельзя передать фокус невидимому окну
   end;
@@ -588,7 +598,8 @@ begin
     Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
 
     // Похоже представление невидимо
-    if Cnt = 0 then Exit;
+    if Cnt = 0 then
+      Exit;
 
     ATopRecordIndex := AView.Controller.FocusedRecordIndex -
       Round((Cnt + 1) / 2);
@@ -741,9 +752,12 @@ begin
       AColumn := AView.GetColumnByFieldName(AFocusedColumnFieldName);
       // Site обеспечивает доступ к элементам размещённым на cxGrid
       try
-        AView.Site.SetFocus;
-        // Показываем редактор для колонки
-        AView.Controller.EditingController.ShowEdit(AColumn);
+        if (ParentForm <> nil) and (ParentForm.Visible) then
+        begin
+          AView.Site.SetFocus;
+          // Показываем редактор для колонки
+          AView.Controller.EditingController.ShowEdit(AColumn);
+        end;
       except
         ; // Иногда возникает ошибка
       end;
@@ -759,7 +773,12 @@ end;
 
 procedure TfrmGrid.PostMyApplyBestFitEvent;
 begin
-  // MainView.BeginBestFitUpdate;
+  // Уже послали такое сообщение
+  if FApplyBestFitPosted then
+    Exit;
+
+  FApplyBestFitPosted := True;
+  MainView.BeginBestFitUpdate;
   PostMessage(Handle, WM_MY_APPLY_BEST_FIT, 0, 0);
 end;
 
@@ -997,6 +1016,22 @@ begin
 
   end;
 
+end;
+
+function TfrmGrid.GetParentForm: TForm;
+var
+  AWinControl: TWinControl;
+begin
+  Result := nil;
+
+  AWinControl := Parent;
+  while (AWinControl <> nil) and (not(AWinControl is TForm)) do
+  begin
+    AWinControl := AWinControl.Parent;
+  end;
+
+  if AWinControl <> nil then
+    Result := AWinControl as TForm;
 end;
 
 function TfrmGrid.GetSameColumn(AView: TcxGridTableView; AColumn: TcxGridColumn)

@@ -36,6 +36,7 @@ type
     procedure actOkExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
+    FCloseAction: TCloseAction;
     { Private declarations }
   protected
     procedure ApplyUpdates; virtual; abstract;
@@ -43,6 +44,8 @@ type
     procedure ClearFormVariable; virtual; abstract;
     function HaveAnyChanges: Boolean; virtual; abstract;
   public
+    constructor Create(AOwner: TComponent); override;
+    property CloseAction: TCloseAction read FCloseAction write FCloseAction;
     { Public declarations }
   end;
 
@@ -51,6 +54,12 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, DialogUnit;
+
+constructor TfrmDictonary.Create(AOwner: TComponent);
+begin
+  inherited;
+  FCloseAction := caFree;
+end;
 
 procedure TfrmDictonary.actCancelExecute(Sender: TObject);
 begin
@@ -84,7 +93,7 @@ begin
 
   if Action <> caNone then
   begin
-    Action := caFree;
+    Action := FCloseAction;
     ClearFormVariable;
   end;
 end;

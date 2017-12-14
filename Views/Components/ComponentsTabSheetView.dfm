@@ -198,7 +198,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 433
         end
         inherited StatusBar: TStatusBar
           Top = 433
@@ -245,7 +245,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 433
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -346,7 +346,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 433
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True

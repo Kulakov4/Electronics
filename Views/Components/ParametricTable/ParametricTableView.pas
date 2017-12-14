@@ -60,11 +60,14 @@ type
     clAnalog: TcxGridDBBandedColumn;
     clAnalog2: TcxGridDBBandedColumn;
     dxBarButton4: TdxBarButton;
+    actRefresh: TAction;
+    dxBarButton5: TdxBarButton;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
     procedure actLocateInStorehouseExecute(Sender: TObject);
     procedure actAnalogExecute(Sender: TObject);
+    procedure actRefreshExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
     procedure cxGridDBBandedTableViewInitEditValue
@@ -493,6 +496,12 @@ begin
   finally
     FreeAndNil(AnalogGroup);
   end;
+end;
+
+procedure TViewParametricTable.actRefreshExecute(Sender: TObject);
+begin
+  inherited;
+  RefreshData;
 end;
 
 procedure TViewParametricTable.ApplyFilter;
@@ -1046,6 +1055,14 @@ begin
       ACaption := qParametersForCategory.Caption.AsString;
       AHint := qParametersForCategory.Hint.AsString;
       ACategoryParamID := qParametersForCategory.IDCategory.AsInteger;
+
+      // Вот тут странная ошибка может произойти - пустой порядок
+      if qParametersForCategory.Ord.IsNull then
+      begin
+        qParametersForCategory.FDQuery.Next;
+        Continue;
+      end;
+
       Assert(not qParametersForCategory.Ord.IsNull);
       AOrder := qParametersForCategory.Ord.AsInteger;
       APosID := qParametersForCategory.PosID.AsInteger;
@@ -1085,14 +1102,13 @@ begin
     for ABandInfo in FBandsInfo do
       ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
 
-    MainView.ViewData.Collapse(True);
   finally
+    MainView.ViewData.Collapse(True);
     cxGrid.EndUpdate;
+    PostMyApplyBestFitEvent;
+    FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self, dxbsColumns,
+      MainView, cxGridDBBandedTableView2);
   end;
-  FColumnsBarButtons := TColumnsBarButtonsEx2.Create(Self, dxbsColumns,
-    MainView, cxGridDBBandedTableView2);
-
-  PostMyApplyBestFitEvent;
 end;
 
 var
@@ -1254,16 +1270,16 @@ procedure TViewParametricTable.MyApplyBestFit;
 var
   i: Integer;
 begin
-  MainView.BeginBestFitUpdate;
-  try
-    for i := 0 to MainView.Bands.Count - 1 do
-    begin
-      MainView.Bands[i].ApplyBestFit(True);
-    end;
-    UpdateDetailColumnsWidth;
-  finally
-    MainView.EndBestFitUpdate;
+  // MainView.BeginBestFitUpdate;
+  // try
+  for i := 0 to MainView.Bands.Count - 1 do
+  begin
+    MainView.Bands[i].ApplyBestFit(True);
   end;
+  UpdateDetailColumnsWidth;
+  // finally
+  // MainView.EndBestFitUpdate;
+  // end;
 end;
 
 procedure TViewParametricTable.OnEditValueChangeProcess(var Message: TMessage);

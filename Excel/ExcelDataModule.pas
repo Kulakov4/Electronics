@@ -510,6 +510,12 @@ var
   AColor2: TColor;
   ARow: Integer;
   AStringNode: TStringTreeNode;
+{
+  c: Integer;
+  cc: Integer;
+  r: Integer;
+  rc: Integer;
+}
 begin
   InternalLoadExcelFile(AFileName);
   ConnectToSheet(1);
@@ -523,8 +529,17 @@ begin
   while True do
   begin
     ACell := EWS.Cells.Item[ARow, ACol];
+{
+    if ACell.MergeCells then
+    begin
+      r := ACell.MergeArea.Row;
+      c := ACell.MergeArea.Column;
+      rc := ACell.MergeArea.Rows.Count;
+      cc := ACell.MergeArea.Columns.Count;
+    end;
+}
     AColor := GetCellsColor(ACell);
-    if AColor = clWhite then
+    if (AColor = clWhite) and (not ACell.MergeCells) then
       break
     else
     begin

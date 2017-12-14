@@ -840,6 +840,16 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\NaturalSort\NaturalSort.pas"/>
+        <DCCReference Include="Queryes\Components\ParametricTable\ParametricErrorTable.pas"/>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableErrorView.pas">
+            <Form>ViewParametricTableError</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableErrorForm.pas">
+            <Form>frmParametricTableError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -1292,6 +1302,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

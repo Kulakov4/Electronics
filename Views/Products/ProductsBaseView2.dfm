@@ -99,7 +99,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     LookAndFeel.NativeStyle = False
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
+    OptionsView.GridLines = tlglBoth
     OptionsView.PaintStyle = tlpsCategorized
+    OptionsView.TreeLineStyle = tllsNone
     Styles.OnGetBandHeaderStyle = nil
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged

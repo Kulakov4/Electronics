@@ -182,7 +182,10 @@ uses
   ParameterKindEnum in 'Helpers\ParameterKindEnum.pas',
   PopupAnalogGridView in 'Views\Analog\PopupAnalogGridView.pas' {ViewGridPopupAnalog: TFrame},
   ParameterKindsQuery in 'Queryes\Parameters\ParameterKindsQuery.pas' {QueryParameterKinds: TFrame},
-  NaturalSort in 'Helpers\NaturalSort\NaturalSort.pas';
+  NaturalSort in 'Helpers\NaturalSort\NaturalSort.pas',
+  ParametricErrorTable in 'Queryes\Components\ParametricTable\ParametricErrorTable.pas',
+  ParametricTableErrorView in 'Views\Components\ParametricTable\ParametricTableErrorView.pas' {ViewParametricTableError: TFrame},
+  ParametricTableErrorForm in 'Views\Components\ParametricTable\ParametricTableErrorForm.pas' {frmParametricTableError};
 
 {$R *.res}
 

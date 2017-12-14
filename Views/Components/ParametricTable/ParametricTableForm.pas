@@ -23,12 +23,13 @@ type
     FCategoryPath: string;
     FOnActivate: TNotifyEventsEx;
     FOnDeactivate: TNotifyEventsEx;
+    procedure SetCategoryPath(const Value: string);
     procedure UpdateCaption;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
-    property CategoryPath: string read FCategoryPath write FCategoryPath;
+    property CategoryPath: string read FCategoryPath write SetCategoryPath;
     property OnDeactivate: TNotifyEventsEx read FOnDeactivate;
     property OnActivate: TNotifyEventsEx read FOnActivate;
     { Public declarations }
@@ -81,6 +82,15 @@ end;
 procedure TfrmParametricTable.FormShow(Sender: TObject);
 begin
   inherited;
+  UpdateCaption;
+end;
+
+procedure TfrmParametricTable.SetCategoryPath(const Value: string);
+begin
+  if CategoryPath = Value then
+    Exit;
+
+  FCategoryPath := Value;
   UpdateCaption;
 end;
 

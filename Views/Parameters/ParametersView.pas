@@ -162,6 +162,7 @@ type
     destructor Destroy; override;
     procedure CommitOrPost;
     procedure MyApplyBestFit; override;
+    procedure Search(const AName: string);
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
     property ParametersGroup: TParametersGroup read FParametersGroup
@@ -387,43 +388,11 @@ end;
 
 procedure TViewParameters.actSearchExecute(Sender: TObject);
 var
-  AColumn: TcxGridDBBandedColumn;
-  ARow: TcxGridMasterDataRow;
-  AView: TcxGridDBBandedTableView;
-  List: TList<String>;
   S: string;
 begin
-  S := cxbeiSearch.CurEditValue;
+  //S := cxbeiSearch.CurEditValue;
   S := cxbeiSearch.EditValue;
-
-  // Будем искать по табличному имени (либо по названию категории)
-  AColumn := clTableName;
-
-  List := ParametersGroup.Find(AColumn.DataBinding.FieldName, S);
-  try
-    // сначала ищем на первом уровне (по названию категории)
-    if (List.Count > 0) and
-      (MainView.DataController.Search.Locate(clParameterType.Index, List[0],
-      True)) then
-    begin
-      // Затем ищем на втором уровне (по табличному имени)
-      if List.Count > 1 then
-      begin
-        ARow := GetRow(0) as TcxGridMasterDataRow;
-        ARow.Expand(False);
-        AView := GetDBBandedTableView(1);
-        AView.Focused := True;
-        AView.DataController.Search.Locate(AColumn.Index, List[1], True);
-        PutInTheCenterFocusedRecord(AView);
-      end
-      else
-        PutInTheCenterFocusedRecord(MainView);
-    end;
-  finally
-    FreeAndNil(List);
-  end;
-
-  UpdateView;
+  Search(S);
 end;
 
 procedure TViewParameters.actShowDuplicateExecute(Sender: TObject);
@@ -850,6 +819,47 @@ begin
     // изменяем минимальные размеры всех колонок
     UpdateColumnsMinWidth(AView);
   end;
+end;
+
+procedure TViewParameters.Search(const AName: string);
+var
+  AColumn: TcxGridDBBandedColumn;
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
+  List: TList<String>;
+  S: string;
+begin
+  Assert(not AName.IsEmpty);
+  S := AName;
+
+  // Будем искать по табличному имени (либо по названию категории)
+  AColumn := clTableName;
+
+  List := ParametersGroup.Find(AColumn.DataBinding.FieldName, S);
+  try
+    // сначала ищем на первом уровне (по названию категории)
+    if (List.Count > 0) and
+      (MainView.DataController.Search.Locate(clParameterType.Index, List[0],
+      True)) then
+    begin
+      // Затем ищем на втором уровне (по табличному имени)
+      if List.Count > 1 then
+      begin
+        ARow := GetRow(0) as TcxGridMasterDataRow;
+        ARow.Expand(False);
+        AView := GetDBBandedTableView(1);
+        AView.Focused := True;
+        AView.DataController.Search.Locate(AColumn.Index, List[1], True);
+        PutInTheCenterFocusedRecord(AView);
+      end
+      else
+        PutInTheCenterFocusedRecord(MainView);
+    end;
+  finally
+    FreeAndNil(List);
+  end;
+
+  UpdateView;
 end;
 
 procedure TViewParameters.SetCheckedMode(const Value: Boolean);

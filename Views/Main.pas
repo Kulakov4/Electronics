@@ -676,8 +676,7 @@ begin
       // ѕрив€зываем текущий склад к данным
       ProductsFrame.ViewProducts2.qProducts := DM2.qProducts;
       // ѕрив€зываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch2.qProductsSearch :=
-        DM2.qProductsSearch;
+      ProductsFrame.ViewProductsSearch2.qProductsSearch := DM2.qProductsSearch;
 
       // ViewStoreHouse.StoreHouseGroup := DM2.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM2.qProductsSearch;
@@ -771,7 +770,7 @@ var
 begin
   if frmParametricTable = nil then
   begin
-
+{
     // Ќам надо узнать, есть-ли у текущей категории подкатегории
     rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
     // ≈сли у нашей категории есть подкатегории
@@ -783,10 +782,9 @@ begin
       ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
         (DM2.qTreeList.PK.Value, 2, '-');
     end;
-
+}
     // —оздаЄм окно с параметрической таблицей
     frmParametricTable := TfrmParametricTable.Create(Self);
-    frmParametricTable.CategoryPath := ACategoryPath;
 
     // ѕодписываемс€ на событие перед закрытием окна
     TNotifyEventWrap.Create(frmParametricTable.OnActivate,
@@ -800,7 +798,7 @@ begin
       DM2.ComponentsExGroup;
 
     // предупреждаем, что нам потребуютс€ данные этого запроса
-//    DM2.ComponentsExGroup.AddClient;
+    // DM2.ComponentsExGroup.AddClient;
   end;
 
   frmParametricTable.Show;
@@ -935,8 +933,24 @@ begin
 end;
 
 procedure TfrmMain.DoBeforeParametricTableActivate(Sender: TObject);
+var
+  ACategoryPath: string;
+  rc: Integer;
 begin
   DM2.ComponentsExGroup.AddClient;
+
+  // Ќам надо узнать, есть-ли у текущей категории подкатегории
+  rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
+  // ≈сли у нашей категории есть подкатегории
+  if rc > 0 then
+    ACategoryPath := DM2.qTreeList.Value.AsString
+  else
+  begin
+    // ≈сли в цепочке категорий мы последнее звено
+    ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
+      (DM2.qTreeList.PK.Value, 2, '-');
+  end;
+  frmParametricTable.CategoryPath := ACategoryPath;
 end;
 
 procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);

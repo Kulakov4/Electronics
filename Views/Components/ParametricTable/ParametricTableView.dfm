@@ -240,6 +240,10 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
         end>
     end
     object dxbrbtnApplyUpdates: TdxBarButton
@@ -277,6 +281,11 @@ inherited ViewParametricTable: TViewParametricTable
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton5: TdxBarButton
+      Action = actRefresh
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     object actAutoWidth: TAction
@@ -304,6 +313,11 @@ inherited ViewParametricTable: TViewParametricTable
       Hint = #1055#1086#1080#1089#1082' '#1087#1086' '#1089#1082#1083#1072#1076#1072#1084
       ImageIndex = 36
       OnExecute = actLocateInStorehouseExecute
+    end
+    object actRefresh: TAction
+      Caption = #1054#1073#1085#1086#1074#1080#1090#1100
+      ImageIndex = 4
+      OnExecute = actRefreshExecute
     end
   end
   object Timer: TTimer

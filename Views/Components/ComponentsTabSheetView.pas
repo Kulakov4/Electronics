@@ -29,7 +29,8 @@ uses
   cxGridDBTableView, cxClasses, cxGridCustomView, cxGrid, cxPC,
   dxSkinsdxBarPainter, dxBar, System.Actions, Vcl.ActnList, FieldInfoUnit,
   System.Generics.Collections, CustomErrorTable, ExcelDataModule,
-  ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls;
+  ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls,
+  DataModule2, ParametricErrorTable, ParametricTableErrorForm;
 
 type
   TComponentsFrame = class(TFrame)
@@ -103,20 +104,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     { Public declarations }
-  end;
-
-type
-  TParametricErrorTable = class(TCustomErrorTable)
-  private
-    function GetDescription: TField;
-    function GetError: TField;
-    function GetParameterName: TField;
-  public
-    constructor Create(AOwner: TComponent); override;
-    procedure AddErrorMessage(const AParameterName: string; AMessage: string);
-    property Description: TField read GetDescription;
-    property Error: TField read GetError;
-    property ParameterName: TField read GetParameterName;
   end;
 
 implementation
@@ -325,13 +312,13 @@ begin
 
 end;
 
-//var
-//  HECount: Integer = 0;
+// var
+// HECount: Integer = 0;
 
 procedure TComponentsFrame.ApplicationEventsHint(Sender: TObject);
 begin
-//  Inc(HECount);
-//  Button1.Caption := Format('%d %s', [HECount, Application.Hint.Substring(0,10)]);
+  // Inc(HECount);
+  // Button1.Caption := Format('%d %s', [HECount, Application.Hint.Substring(0,10)]);
   // if (not Application.Hint.IsEmpty ) then
   FHintWindowEx.DoActivateHint(Application.Hint)
 end;
@@ -491,7 +478,7 @@ AFieldsInfo: TList<TFieldInfo>): Boolean;
 var
   AExcelDM: TExcelDM;
   AFieldName: string;
-  AfrmGridView: TfrmGridView;
+  //AfrmGridView: TfrmGridView;
   AParametricErrorTable: TParametricErrorTable;
   qSearchDaughterParameter: TQuerySearchParameter;
   qSearchParameter: TQuerySearchParameter;
@@ -503,6 +490,7 @@ var
   OK: Boolean;
   rc: Integer;
   AFieldNames: TList<String>;
+  AfrmParametricTableError: TfrmParametricTableError;
   FamilyNameCoumn: string;
 
 begin
@@ -549,10 +537,14 @@ begin
               rc := qSearchParameter.SearchMain(AStringTreeNode.value);
               if rc = 0 then
                 AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  'Параметр не найден');
+                  'Параметр не найден', Format('NotFoundParam_%d', [I]), petNotFound);
+
               if rc > 1 then
+              begin
                 AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  Format('Параметр найден %d раз', [rc]));
+                  Format('Параметр найден %d раз', [rc]),
+                  Format('NotFoundParam_%d', [I]), petDuplicate);
+              end;
 
               // Если нашли ровно один параметр в справочнике
               if rc = 1 then
@@ -568,7 +560,8 @@ begin
                     begin
                       AParametricErrorTable.AddErrorMessage
                         (AStringTreeNode2.value,
-                        Format('Подпараметр найден %d раз', [rc]));
+                        Format('Подпараметр найден %d раз', [rc]),
+                        Format('NotFoundParam_%d', [I]), petDaughterDuplicate);
                     end
                     else
                     begin
@@ -634,14 +627,14 @@ begin
     OK := AParametricErrorTable.RecordCount = 0;
     if not OK then
     begin
-      AfrmGridView := TfrmGridView.Create(Self);
+      AfrmParametricTableError := TfrmParametricTableError.Create(Self);
       try
-        AfrmGridView.Caption := 'Ошибки среди параметров';
-        AfrmGridView.ViewGridEx.DataSet := AParametricErrorTable;
+        //AfrmGridView.Caption := 'Ошибки среди параметров';
+        AfrmParametricTableError.ViewParametricTableError.DataSet := AParametricErrorTable;
         // Показываем что мы собираемся привязывать
-        OK := AfrmGridView.ShowModal = mrOk;
+        OK := AfrmParametricTableError.ShowModal = mrOk;
       finally
-        FreeAndNil(AfrmGridView);
+        FreeAndNil(AfrmParametricTableError);
       end;
 
     end;
@@ -673,6 +666,11 @@ begin
 
       FfrmProgressBar.Show;
       AParametricExcelDM.LoadExcelFile2(AFileName);
+
+      // Обновляем параметры для текущей категории
+      DM2.qCategoryParameters.RefreshQuery;
+      // Пытаемся обновить параметрическую таблицу
+      DM2.ComponentsExGroup.TryRefresh;
     finally
       FreeAndNil(AParametricExcelDM);
       FreeAndNil(FWriteProgress);
@@ -698,50 +696,6 @@ begin
     (API.ProcessRecords = API.TotalRecords) then
     // Отображаем общий прогресс записи
     FfrmProgressBar.UpdateWriteStatistic(API);
-end;
-
-constructor TParametricErrorTable.Create(AOwner: TComponent);
-begin
-  inherited;
-  FieldDefs.Add('ParameterName', ftWideString, 100);
-  FieldDefs.Add('Error', ftWideString, 50);
-  FieldDefs.Add('Description', ftWideString, 150);
-  CreateDataSet;
-
-  Open;
-
-  ParameterName.DisplayLabel := 'Параметр';
-  Description.DisplayLabel := 'Описание';
-  Error.DisplayLabel := 'Вид ошибки';
-end;
-
-function TParametricErrorTable.GetDescription: TField;
-begin
-  Result := FieldByName('Description');
-end;
-
-function TParametricErrorTable.GetError: TField;
-begin
-  Result := FieldByName('Error');
-end;
-
-function TParametricErrorTable.GetParameterName: TField;
-begin
-  Result := FieldByName('ParameterName');
-end;
-
-procedure TParametricErrorTable.AddErrorMessage(const AParameterName: string;
-AMessage: string);
-begin
-  Assert(Active);
-
-  if not(State in [dsEdit, dsInsert]) then
-    Append;
-
-  ParameterName.AsString := AParameterName;
-  Error.AsString := ErrorMessage;
-  Description.AsString := AMessage;
-  Post;
 end;
 
 end.
