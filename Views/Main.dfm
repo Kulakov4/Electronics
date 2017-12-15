@@ -225,10 +225,6 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsCategoryComponents: TcxTabSheet
-            ExplicitLeft = 4
-            ExplicitTop = 24
-            ExplicitWidth = 870
-            ExplicitHeight = 452
             inherited ViewComponents: TViewComponents
               inherited cxGrid: TcxGrid
                 ExplicitWidth = 918
@@ -313,10 +309,6 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsCategoryParameters: TcxTabSheet
-            ExplicitLeft = 4
-            ExplicitTop = 24
-            ExplicitWidth = 870
-            ExplicitHeight = 452
             inherited ViewCategoryParameters: TViewCategoryParameters
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -340,10 +332,6 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsComponentsSearch: TcxTabSheet
-            ExplicitLeft = 4
-            ExplicitTop = 24
-            ExplicitWidth = 870
-            ExplicitHeight = 452
             inherited ViewComponentsSearch: TViewComponentsSearch
               inherited cxGrid: TcxGrid
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -423,10 +411,6 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsParametricTable: TcxTabSheet
-            ExplicitLeft = 4
-            ExplicitTop = 24
-            ExplicitWidth = 870
-            ExplicitHeight = 452
             inherited ViewParametricTable: TViewParametricTable
               inherited cxGrid: TcxGrid
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView

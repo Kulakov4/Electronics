@@ -84,10 +84,13 @@ begin
   AClone := TFDMemTable.Create(Self);
   AClone2 := TFDMemTable.Create(Self);
   try
+    // Важно!!! Клоны должны быть отсортированы так же как строки на экране
     AClone.CloneCursor(FDQuery);
+    AClone.IndexFieldNames := Ord.FieldName;
     AClone.First;
 
     AClone2.CloneCursor(FDQuery);
+    AClone2.IndexFieldNames := Ord.FieldName;
     AClone2.First;
 
     // Если был перенос вверх
@@ -121,6 +124,11 @@ begin
         Assert(OK);
         // Находим смещение
         ANewRecNo := AClone2.RecNo + Sign * Length(AStartDrag.Keys);
+
+        if not ((ANewRecNo >= 1) and (ANewRecNo <= AClone2.RecordCount)) then
+          beep;
+
+
         Assert((ANewRecNo >= 1) and (ANewRecNo <= AClone2.RecordCount));
         AClone2.RecNo := ANewRecNo;
         // Пока уходим в отрицательную сторону

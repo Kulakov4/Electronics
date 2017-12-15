@@ -786,7 +786,7 @@ begin
     // ƒобавл€ем к каталогу название производител€
     S := TPath.Combine(ADocFieldInfo.Folder, AProducer);
     // ѕолучаем папку в которой лежит ранее заданный файл документации
-    S := TPath.GetDirectoryName(S);
+    //S := TPath.GetDirectoryName(S);
     // если такого пути уже не существует
     if not TDirectory.Exists(S) then
       S := ADocFieldInfo.Folder;

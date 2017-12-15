@@ -2,9 +2,6 @@ inherited ViewComponents: TViewComponents
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
-      inherited clID: TcxGridDBBandedColumn
-        Visible = True
-      end
     end
   end
   inherited StatusBar: TStatusBar

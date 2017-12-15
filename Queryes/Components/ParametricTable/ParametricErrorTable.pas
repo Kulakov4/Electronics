@@ -3,7 +3,7 @@ unit ParametricErrorTable;
 interface
 
 uses
-  CustomErrorTable, Data.DB, System.Classes, System.SysUtils;
+  CustomErrorTable, Data.DB, System.Classes, System.SysUtils, ExcelDataModule;
 
 type
   TParametricErrorType = (petDuplicate, petNotFound, petDaughterDuplicate);
@@ -13,18 +13,19 @@ type
     function GetDescription: TField;
     function GetError: TField;
     function GetErrorType: TField;
-    function GetFieldName: TField;
+    function GetStringTreeNodeID: TField;
     function GetParameterID: TField;
     function GetParameterName: TField;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AddErrorMessage(const AParameterName, AMessage, AFieldName: string;
-        const AErrorType: TParametricErrorType);
+    procedure AddErrorMessage(const AParameterName, AMessage: string; const
+        AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
+    procedure FilterFixed;
     procedure Fix(AParameterID: Integer);
     property Description: TField read GetDescription;
     property Error: TField read GetError;
     property ErrorType: TField read GetErrorType;
-    property FieldName: TField read GetFieldName;
+    property StringTreeNodeID: TField read GetStringTreeNodeID;
     property ParameterID: TField read GetParameterID;
     property ParameterName: TField read GetParameterName;
   end;
@@ -37,7 +38,7 @@ begin
   FieldDefs.Add('ParameterName', ftWideString, 100);
   FieldDefs.Add('Error', ftWideString, 50);
   FieldDefs.Add('Description', ftWideString, 150);
-  FieldDefs.Add('FieldName', ftWideString, 50);
+  FieldDefs.Add('StringTreeNodeID', ftInteger, 0);
   FieldDefs.Add('ErrorType', ftInteger, 0);
   FieldDefs.Add('ParameterID', ftInteger, 0);
   CreateDataSet;
@@ -47,7 +48,7 @@ begin
   ParameterName.DisplayLabel := 'Параметр';
   Description.DisplayLabel := 'Описание';
   Error.DisplayLabel := 'Вид ошибки';
-  FieldName.Visible := False;
+  StringTreeNodeID.Visible := False;
   ErrorType.Visible := False;
   ParameterID.Visible := False;
 end;
@@ -67,11 +68,11 @@ begin
   Result := FieldByName('ParameterName');
 end;
 
-procedure TParametricErrorTable.AddErrorMessage(const AParameterName, AMessage,
-    AFieldName: string; const AErrorType: TParametricErrorType);
+procedure TParametricErrorTable.AddErrorMessage(const AParameterName, AMessage:
+    string; const AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
 begin
   Assert(Active);
-  Assert(not AFieldName.IsEmpty);
+  Assert(AStringTreeNodeID > 0);
 
   if not(State in [dsEdit, dsInsert]) then
     Append;
@@ -79,9 +80,15 @@ begin
   ParameterName.AsString := AParameterName;
   Error.AsString := ErrorMessage;
   Description.AsString := AMessage;
-  FieldName.AsString := AFieldName;
+  StringTreeNodeID.AsInteger := AStringTreeNodeID;
   ErrorType.AsInteger := Integer(AErrorType);
   Post;
+end;
+
+procedure TParametricErrorTable.FilterFixed;
+begin
+  Filter := Format('%s is not null', [ParameterID.FieldName]);
+  Filtered := True;
 end;
 
 procedure TParametricErrorTable.Fix(AParameterID: Integer);
@@ -99,9 +106,9 @@ begin
   Result := FieldByName('ErrorType');
 end;
 
-function TParametricErrorTable.GetFieldName: TField;
+function TParametricErrorTable.GetStringTreeNodeID: TField;
 begin
-  Result := FieldByName('FieldName');
+  Result := FieldByName('StringTreeNodeID');
 end;
 
 function TParametricErrorTable.GetParameterID: TField;

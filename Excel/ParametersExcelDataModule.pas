@@ -7,7 +7,7 @@ uses
   System.Generics.Collections, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  CustomExcelTable;
+  CustomExcelTable, ParameterKindsQuery;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -16,10 +16,13 @@ type
   private
     FDMemTable: TFDMemTable;
     FParametersDataSet: TFDDataSet;
+    FqParameterKinds: TQueryParameterKinds;
     function GetParameterKindID: TField;
     function GetParameterType: TField;
+    function GetqParameterKinds: TQueryParameterKinds;
     function GetValue: TField;
     procedure SetParametersDataSet(const Value: TFDDataSet);
+    property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
   protected
     function CheckParameter: Boolean;
     procedure Clone;
@@ -132,6 +135,10 @@ begin
   AParameterKindID := StrToIntDef(ParameterKindID.AsString, -100);
   if AParameterKindID = -100 then
   begin
+    // Ищем в справочнике видов параметров
+    if not qParameterKinds.LocateByField
+      (qParameterKinds.ParameterKind.FieldName, ParameterKindID.AsString) then
+    begin
       // Запоминаем, что в этой строке предупреждение
       MarkAsError(etError);
 
@@ -139,6 +146,7 @@ begin
         ParameterKindID.AsString,
         Format('Код вида параметра должен быть целым числом от %d до %d',
         [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+    end;
   end
   else
   begin
@@ -190,6 +198,16 @@ end;
 function TParametersExcelTable.GetParameterType: TField;
 begin
   Result := FieldByName('ParameterType');
+end;
+
+function TParametersExcelTable.GetqParameterKinds: TQueryParameterKinds;
+begin
+  if FqParameterKinds = nil then
+  begin
+    FqParameterKinds := TQueryParameterKinds.Create(Self);
+    FqParameterKinds.FDQuery.Open;
+  end;
+  Result := FqParameterKinds;
 end;
 
 function TParametersExcelTable.GetValue: TField;

@@ -146,7 +146,6 @@ begin
   if qParameterKinds.FDQuery.RecordCount = 0 then
     raise Exception.Create('Справочник видов параметров не заполнен');
 
-
   AParametersExcelTable.DisableControls;
   qParameterTypes.FDQuery.DisableControls;
   qMainParameters.FDQuery.DisableControls;
@@ -157,12 +156,25 @@ begin
     begin
       AParameterType := AParametersExcelTable.ParameterType.AsString;
       qParameterTypes.LocateOrAppend(AParameterType);
-      AParameterKindID := AParametersExcelTable.ParameterKindID.AsInteger;
-      // Ищем такой вид параметра в справочнике
-      OK := qParameterKinds.LocateByPK(AParameterKindID);
-      if not OK then
+
+      AParameterKindID :=
+        StrToIntDef(AParametersExcelTable.ParameterKindID.AsString, -1);
+      // Если вид параметра не числовой
+      if AParameterKindID = -1 then
       begin
-        AParameterKindID := Integer(Неиспользуется);
+        // Если нашли такой вид параметра в справочнике
+        if qParameterKinds.LocateByField
+          (qParameterKinds.ParameterKind.FieldName,
+          AParametersExcelTable.ParameterKindID.AsString) then
+          AParameterKindID := qParameterKinds.PK.AsInteger
+        else
+          AParameterKindID := Integer(Неиспользуется);
+      end
+      else
+      begin
+        // Ищем такой вид параметра в справочнике
+        if not qParameterKinds.LocateByPK(AParameterKindID) then
+          AParameterKindID := Integer(Неиспользуется);
       end;
 
       qMainParameters.FDQuery.Append;

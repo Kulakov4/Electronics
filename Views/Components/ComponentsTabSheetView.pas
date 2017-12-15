@@ -33,6 +33,11 @@ uses
   DataModule2, ParametricErrorTable, ParametricTableErrorForm;
 
 type
+  TFieldsInfo = class(TList<TFieldInfo>)
+  public
+    function Find(const AFieldName: string): TFieldInfo;
+  end;
+
   TComponentsFrame = class(TFrame)
     cxpcComponents: TcxPageControl;
     cxtsCategory: TcxTabSheet;
@@ -94,9 +99,10 @@ type
     FWriteProgress: TTotalProgress;
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
+    function GetNFFieldName(AStringTreeNodeID: Integer): string;
     procedure LoadDocFromExcelDocument;
     function LoadExcelFileHeader(var AFileName: String;
-      AFieldsInfo: TList<TFieldInfo>): Boolean;
+      AFieldsInfo: TFieldsInfo): Boolean;
     procedure LoadParametricData(AFamily: Boolean);
     procedure TryUpdateWrite0Statistic(API: TProgressInfo);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
@@ -456,6 +462,12 @@ begin
   FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
 end;
 
+function TComponentsFrame.GetNFFieldName(AStringTreeNodeID: Integer): string;
+begin
+  Assert(AStringTreeNodeID > 0);
+  Result := Format('NotFoundParam_%d', [AStringTreeNodeID]);
+end;
+
 procedure TComponentsFrame.LoadDocFromExcelDocument;
 var
   AFileName: string;
@@ -474,11 +486,12 @@ begin
 end;
 
 function TComponentsFrame.LoadExcelFileHeader(var AFileName: String;
-AFieldsInfo: TList<TFieldInfo>): Boolean;
+AFieldsInfo: TFieldsInfo): Boolean;
 var
   AExcelDM: TExcelDM;
+  AFieldInfo: TFieldInfo;
   AFieldName: string;
-  //AfrmGridView: TfrmGridView;
+  // AfrmGridView: TfrmGridView;
   AParametricErrorTable: TParametricErrorTable;
   qSearchDaughterParameter: TQuerySearchParameter;
   qSearchParameter: TQuerySearchParameter;
@@ -492,6 +505,7 @@ var
   AFieldNames: TList<String>;
   AfrmParametricTableError: TfrmParametricTableError;
   FamilyNameCoumn: string;
+  prc: Integer;
 
 begin
   Result := False;
@@ -520,8 +534,6 @@ begin
       qSearchParameter := TQuerySearchParameter.Create(nil);
       qSearchDaughterParameter := TQuerySearchParameter.Create(nil);
       try
-        I := 0;
-
         AFieldNames := TList<String>.Create;
         try
           // Цикл по всем заголовкам таблицы
@@ -529,75 +541,83 @@ begin
           begin
             AFieldNames.Clear;
 
-            nf := FamilyNameCoumn.IndexOf(';' + AStringTreeNode.value.ToUpper +
-              ';') >= 0;
-            if not nf then
+            // Если это первый столбец НАИМЕНОВАНИЕ
+            if FamilyNameCoumn.IndexOf(';' + AStringTreeNode.value.ToUpper +
+              ';') >= 0 then
             begin
-              // Нужно найти такой параметр
-              rc := qSearchParameter.SearchMain(AStringTreeNode.value);
-              if rc = 0 then
-                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  'Параметр не найден', Format('NotFoundParam_%d', [I]), petNotFound);
-
-              if rc > 1 then
-              begin
-                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  Format('Параметр найден %d раз', [rc]),
-                  Format('NotFoundParam_%d', [I]), petDuplicate);
-              end;
-
-              // Если нашли ровно один параметр в справочнике
-              if rc = 1 then
-              begin
-
-                if AStringTreeNode.Childs.Count > 0 then
-                begin
-                  for AStringTreeNode2 in AStringTreeNode.Childs do
-                  begin
-                    rc := qSearchDaughterParameter.SearchDaughter
-                      (AStringTreeNode2.value, qSearchParameter.PK.AsInteger);
-                    if rc > 1 then
-                    begin
-                      AParametricErrorTable.AddErrorMessage
-                        (AStringTreeNode2.value,
-                        Format('Подпараметр найден %d раз', [rc]),
-                        Format('NotFoundParam_%d', [I]), petDaughterDuplicate);
-                    end
-                    else
-                    begin
-                      // Если такого дочернего параметра мы не нашли
-                      if rc = 0 then
-                      begin
-                        qSearchDaughterParameter.AppendDaughter
-                          (AStringTreeNode2.value);
-                      end;
-                      // Запоминаем описание поля связанного с подпараметром
-                      AFieldNames.Add
-                        (TParametricExcelTable.GetFieldNameByIDParam
-                        (qSearchDaughterParameter.PK.value,
-                        qSearchParameter.PK.value))
-                    end;
-                  end;
-                end
-                else
-                begin
-                  // Если у нашего параметра нет дочерних параметров
-                  // Запоминаем описание поля связанного с параметром
-                  AFieldNames.Add(TParametricExcelTable.GetFieldNameByIDParam
-                    (qSearchParameter.PK.value, 0));
-                end;
-              end
-              else
-              begin
-                nf := True;
-              end;
+              Assert(AStringTreeNode.Childs.Count = 0);
+              AFieldsInfo.Add
+                (TFieldInfo.Create(GetNFFieldName(AStringTreeNode.ID)));
+              Continue;
             end;
 
-            if nf then
+            // Нужно найти такой параметр
+            prc := qSearchParameter.SearchMain(AStringTreeNode.value);
+            case prc of
+              0:
+                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+                  'Параметр не найден', petNotFound, AStringTreeNode.ID);
+              1:
+                ; // Нашли один раз - это хорошо
+            else
+              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+                Format('Параметр найден %d раз', [prc]), petDuplicate,
+                AStringTreeNode.ID);
+            end;
+
+            // Цикл по всем подпараметрам
+            if AStringTreeNode.Childs.Count > 0 then
             begin
-              // Создаём описание поля не связанного с параметром
-              AFieldNames.Add(Format('NotFoundParam_%d', [I]));
-              Inc(I);
+              for AStringTreeNode2 in AStringTreeNode.Childs do
+              begin
+                // если главный параметр был найден
+                if prc = 1 then
+                begin
+                  rc := qSearchDaughterParameter.SearchDaughter
+                    (AStringTreeNode2.value, qSearchParameter.PK.AsInteger);
+                  if rc > 1 then
+                  begin
+                    AParametricErrorTable.AddErrorMessage
+                      (AStringTreeNode2.value,
+                      Format('Подпараметр найден %d раз', [rc]),
+                      petDaughterDuplicate, AStringTreeNode2.ID);
+
+                    AFieldName := GetNFFieldName(AStringTreeNode2.ID);
+                  end
+                  else
+                  begin
+                    // Если такого дочернего параметра мы не нашли
+                    if rc = 0 then
+                    begin
+                      qSearchDaughterParameter.AppendDaughter
+                        (AStringTreeNode2.value);
+                    end;
+                    // Запоминаем описание поля связанного с подпараметром
+                    AFieldName := TParametricExcelTable.GetFieldNameByIDParam
+                      (qSearchDaughterParameter.PK.value,
+                      qSearchParameter.PK.value);
+                  end;
+                end
+                else // главный параметр был не найден или дублируется
+                begin
+                  AFieldName := GetNFFieldName(AStringTreeNode2.ID);
+                end;
+                AFieldNames.Add(AFieldName);
+              end;
+            end
+            else
+            begin
+              // Если у нашего параметра нет дочерних параметров
+              // Запоминаем описание поля связанного с параметром
+
+              // Если параметр был найден
+              if prc = 1 then
+                AFieldName := TParametricExcelTable.GetFieldNameByIDParam
+                  (qSearchParameter.PK.value, 0)
+              else
+                AFieldName := GetNFFieldName(AStringTreeNode.ID);
+
+              AFieldNames.Add(AFieldName);
             end;
 
             // Для всех найденных полей создаём их описания
@@ -629,14 +649,74 @@ begin
     begin
       AfrmParametricTableError := TfrmParametricTableError.Create(Self);
       try
-        //AfrmGridView.Caption := 'Ошибки среди параметров';
-        AfrmParametricTableError.ViewParametricTableError.DataSet := AParametricErrorTable;
+        // AfrmGridView.Caption := 'Ошибки среди параметров';
+        AfrmParametricTableError.ViewParametricTableError.DataSet :=
+          AParametricErrorTable;
         // Показываем что мы собираемся привязывать
         OK := AfrmParametricTableError.ShowModal = mrOk;
       finally
         FreeAndNil(AfrmParametricTableError);
       end;
 
+      if OK then
+      begin
+        // Оставляем только то, что исправили
+        AParametricErrorTable.FilterFixed;
+        AParametricErrorTable.First;
+        while not AParametricErrorTable.Eof do
+        begin
+          Assert(AParametricErrorTable.ParameterID.AsInteger > 0);
+
+          // Ищем тот узел в дереве, который вызыал ошибку
+          AStringTreeNode := ARootTreeNode.FindByID
+            (AParametricErrorTable.StringTreeNodeID.AsInteger);
+          Assert(AStringTreeNode <> nil);
+
+          // если есть подпараметры
+          if AStringTreeNode.Childs.Count > 0 then
+          begin
+            // Цикл по всем подпараметрам изначально ненайденного параметра
+            for AStringTreeNode2 in AStringTreeNode.Childs do
+            begin
+              // Ищем такой подпараметр в справочнике параметров
+              rc := qSearchDaughterParameter.SearchDaughter
+                (AStringTreeNode2.value,
+                AParametricErrorTable.ParameterID.AsInteger);
+
+              // Если такого дочернего параметра мы не нашли
+              if rc = 0 then
+              begin
+                qSearchDaughterParameter.AppendDaughter(AStringTreeNode2.value);
+              end;
+
+              // Запоминаем описание поля связанного с подпараметром
+              AFieldName := TParametricExcelTable.GetFieldNameByIDParam
+                (qSearchDaughterParameter.PK.value,
+                AParametricErrorTable.ParameterID.AsInteger);
+
+              // Ищем описание этого поля
+              AFieldInfo := AFieldsInfo.Find
+                (GetNFFieldName(AStringTreeNode2.ID));
+              Assert(AFieldInfo <> nil);
+              // Изменяем имя поля
+              AFieldInfo.FieldName := AFieldName;
+            end;
+          end
+          else
+          begin
+            AFieldName := TParametricExcelTable.GetFieldNameByIDParam
+              (AParametricErrorTable.ParameterID.AsInteger, 0);
+
+            // Ищем описание этого поля
+            AFieldInfo := AFieldsInfo.Find(GetNFFieldName(AStringTreeNode.ID));
+            Assert(AFieldInfo <> nil);
+            // Изменяем имя поля
+            AFieldInfo.FieldName := AFieldName;
+
+          end;
+          AParametricErrorTable.Next;
+        end;
+      end;
     end;
   finally
     FreeAndNil(AParametricErrorTable)
@@ -646,11 +726,11 @@ end;
 
 procedure TComponentsFrame.LoadParametricData(AFamily: Boolean);
 var
-  AFieldsInfo: TList<TFieldInfo>;
+  AFieldsInfo: TFieldsInfo;
   AFileName: string;
   AParametricExcelDM: TParametricExcelDM;
 begin
-  AFieldsInfo := TList<TFieldInfo>.Create();
+  AFieldsInfo := TFieldsInfo.Create();
   try
     if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
       Exit;
@@ -696,6 +776,18 @@ begin
     (API.ProcessRecords = API.TotalRecords) then
     // Отображаем общий прогресс записи
     FfrmProgressBar.UpdateWriteStatistic(API);
+end;
+
+function TFieldsInfo.Find(const AFieldName: string): TFieldInfo;
+begin
+  Assert(not AFieldName.IsEmpty);
+
+  for Result in Self do
+  begin
+    if Result.FieldName = AFieldName then
+      Exit;
+  end;
+  Result := nil;
 end;
 
 end.

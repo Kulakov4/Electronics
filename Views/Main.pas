@@ -764,9 +764,6 @@ begin
 end;
 
 procedure TfrmMain.ShowParametricTable;
-var
-  ACategoryPath: string;
-  rc: Integer;
 begin
   if frmParametricTable = nil then
   begin
