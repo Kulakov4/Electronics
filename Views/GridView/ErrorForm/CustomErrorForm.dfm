@@ -28,7 +28,7 @@ inherited frmCustomError: TfrmCustomError
   end
   object lblStatus: TcxLabel
     Left = 8
-    Top = 308
+    Top = 394
     Anchors = [akLeft, akBottom]
   end
 end

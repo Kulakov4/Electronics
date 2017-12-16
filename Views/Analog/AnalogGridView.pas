@@ -396,7 +396,7 @@ var
   ABandInfo: TBandInfo;
   ACaption: String;
   ACategoryParamID: Integer;
-  AHint: String;
+  ABandHint: String;
   AColumnCaption: string;
   AFieldName: String;
   AIDBand: Integer;
@@ -425,7 +425,7 @@ begin
         [qParametersForCategory.ParameterID.AsInteger];
       AVisible := qParametersForCategory.IsAttribute.AsBoolean;
       ACaption := qParametersForCategory.Caption.AsString;
-      AHint := qParametersForCategory.Hint.AsString;
+      ABandHint := qParametersForCategory.BandHint.AsString;
       ACategoryParamID := qParametersForCategory.IDCategory.AsInteger;
       Assert(not qParametersForCategory.Ord.IsNull);
       AOrder := qParametersForCategory.Ord.AsInteger;
@@ -447,11 +447,11 @@ begin
 
       // Создаём колонку в главном представлении
       CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, AHint, ACategoryParamID, AOrder, APosID);
+        AVisible, ABandHint, ACategoryParamID, AOrder, APosID);
 
       // Создаём колонку в дочернем представлении
       // CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-      // AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID,
+      // AColumnCaption, AFieldName, AVisible, ABandHint, ACategoryParamID,
       // AOrder, APosID);
 
       qParametersForCategory.FDQuery.Next;

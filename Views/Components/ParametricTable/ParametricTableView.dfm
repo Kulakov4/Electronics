@@ -319,18 +319,21 @@ inherited ViewParametricTable: TViewParametricTable
       ImageIndex = 4
       OnExecute = actRefreshExecute
     end
+    object actClearSelected: TAction
+      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
+      ImageIndex = 10
+      OnExecute = actClearSelectedExecute
+    end
   end
-  object Timer: TTimer
+  inherited pmGrid: TPopupMenu
+    object N6: TMenuItem
+      Action = actClearSelected
+    end
+  end
+  object BandTimer: TTimer
     Enabled = False
     Interval = 500
-    OnTimer = TimerTimer
-    Left = 256
-    Top = 120
-  end
-  object Timer2: TTimer
-    Enabled = False
-    Interval = 500
-    OnTimer = Timer2Timer
+    OnTimer = BandTimerTimer
     Left = 56
     Top = 152
   end

@@ -230,17 +230,19 @@ end;
 
 procedure TViewComponentsParent.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
+  // Мы просто завершаем транзакцию
+
+//  cxGrid.BeginUpdate();
+//  try
     BaseComponentsGroup.Commit;
     // Почему-то при сохранении раскрываются детали
-    MainView.ViewData.Collapse(True);
+//    MainView.ViewData.Collapse(True);
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
-  finally
-    cxGrid.EndUpdate;
-  end;
-  PutInTheCenterFocusedRecord(MainView);
+//    FocusSelectedRecord(MainView);
+//  finally
+//    cxGrid.EndUpdate;
+//  end;
+//  PutInTheCenterFocusedRecord(MainView);
   UpdateView;
 end;
 

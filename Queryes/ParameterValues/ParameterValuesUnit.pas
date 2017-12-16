@@ -152,8 +152,8 @@ begin
 
             AIDComponents.Clear;
             AIDComponents.Add(AExcelTable.IDComponent.AsInteger);
-            if AExcelTable.IDParentComponent.AsInteger > 0 then
-              AIDComponents.Add(AExcelTable.IDParentComponent.AsInteger);
+//            if AExcelTable.IDParentComponent.AsInteger > 0 then
+//              AIDComponents.Add(AExcelTable.IDParentComponent.AsInteger);
 
             // Цикл по дочернему и родительскому компоненту
             for AIDComponent in AIDComponents do

@@ -36,7 +36,8 @@ uses
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
-  StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView;
+  StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
+  Vcl.AppEvnts, HintWindowEx;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -103,6 +104,7 @@ type
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
+    ApplicationEvents: TApplicationEvents;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
@@ -121,6 +123,7 @@ type
     procedure actShowDescriptionsExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
+    procedure ApplicationEventsHint(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure dbtlCategoriesDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -148,12 +151,12 @@ type
   private
     FCategoryPath: string;
     FEventList: TObjectList;
+    FHintWindowEx: THintWindowEx;
     FOnProductCategoriesChange: TNotifyEventWrap;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
     procedure DoBeforeParametricTableActivate(Sender: TObject);
     procedure DoBeforeParametricTableDeactivate(Sender: TObject);
-    procedure DoBeforeParametricTableFormClose(Sender: TObject);
     procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
@@ -194,6 +197,7 @@ constructor TfrmMain.Create(AOwner: TComponent);
 begin
   Application.HintHidePause := 10000;
   inherited Create(AOwner);
+  FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
 end;
 
@@ -495,6 +499,11 @@ begin
 
 end;
 
+procedure TfrmMain.ApplicationEventsHint(Sender: TObject);
+begin
+  FHintWindowEx.DoActivateHint(Application.Hint)
+end;
+
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   // Отписываемся от всех событий
@@ -542,16 +551,6 @@ begin
   ProductsFrame.ViewProducts2.CheckAndSaveChanges;
   ProductsFrame.ViewProductsSearch2.CheckAndSaveChanges;
   ComponentsFrame.ViewComponents.CheckAndSaveChanges;
-end;
-
-procedure TfrmMain.DoBeforeParametricTableFormClose(Sender: TObject);
-begin
-  // отвязываем данные к представлению
-  frmParametricTable.ViewParametricTable.ComponentsExGroup := nil;
-
-  // предупреждаем, что нам больше не требуются данные этого запроса
-  DM2.ComponentsExGroup.DecClient;
-  frmParametricTable := nil;
 end;
 
 procedure TfrmMain.DoOnComponentLocate(Sender: TObject);

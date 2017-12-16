@@ -64,6 +64,8 @@ type
     procedure CascadeDelete(const AIDMaster: Variant;
       const ADetailKeyFieldName: String;
       AFromClientOnly: Boolean = False); virtual;
+    procedure ClearFields(AFieldList: TList<String>; AProductIDList:
+        TList<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -305,6 +307,34 @@ begin
 
   // Формируем фильтр и удаляем
   // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
+end;
+
+procedure TQueryBase.ClearFields(AFieldList: TList<String>; AProductIDList:
+    TList<Integer>);
+var
+  AFieldName: String;
+  AID: Integer;
+begin
+  Assert(AFieldList <> nil);
+  Assert(AFieldList.Count > 0);
+  Assert(AProductIDList <> nil);
+  Assert(AProductIDList.Count > 0);
+
+  FDQuery.DisableControls;
+  try
+      SaveBookmark;
+      for AID in AProductIDList do
+      begin
+        if not LocateByPK(AID) then Continue;
+        TryEdit;
+        for AFieldName in AFieldList do
+          Field(AFieldName).Value := NULL;
+        TryPost;
+      end;
+      RestoreBookmark;
+  finally
+    FDQuery.EnableControls;
+  end;
 end;
 
 procedure TQueryBase.ClearUpdateRecCount;

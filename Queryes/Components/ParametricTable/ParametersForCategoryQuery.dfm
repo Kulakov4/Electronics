@@ -14,7 +14,10 @@ inherited QueryParametersForCategory: TQueryParametersForCategory
       '    , ifnull(p.TableName, p.Value) Caption'
       '    , ifnull(pp.TableName, pp.Value) ParentCaption  '
       '    , ifnull(pcp.id, cp.id) IDCategory'
-      '    , ifnull(p.ValueT, pp.ValueT) Hint'
+      '    , ifnull(pp.ValueT, p.ValueT) BandHint'
+      
+        '    , case when pp.ValueT is null then '#39#39' else p.ValueT end Colu' +
+        'mnHint'
       '    , p.ParentParameter'
       '    , p.FieldType'
       

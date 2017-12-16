@@ -20,7 +20,8 @@ type
     function GetIsAttribute: TField;
     function GetParentParameter: TField;
     function GetCaption: TField;
-    function GetHint: TField;
+    function GetBandHint: TField;
+    function GetColumnHint: TField;
     function GetIDCategory: TField;
     function GetIDParameterKind: TField;
     function GetOrd: TField;
@@ -36,7 +37,8 @@ type
     property IsAttribute: TField read GetIsAttribute;
     property ParentParameter: TField read GetParentParameter;
     property Caption: TField read GetCaption;
-    property Hint: TField read GetHint;
+    property BandHint: TField read GetBandHint;
+    property ColumnHint: TField read GetColumnHint;
     property IDCategory: TField read GetIDCategory;
     property IDParameterKind: TField read GetIDParameterKind;
     property Ord: TField read GetOrd;
@@ -87,9 +89,14 @@ begin
   Result := Field('Caption');
 end;
 
-function TQueryParametersForCategory.GetHint: TField;
+function TQueryParametersForCategory.GetBandHint: TField;
 begin
-  Result := Field('Hint');
+  Result := Field('BandHint');
+end;
+
+function TQueryParametersForCategory.GetColumnHint: TField;
+begin
+  Result := Field('ColumnHint');
 end;
 
 function TQueryParametersForCategory.GetIDCategory: TField;

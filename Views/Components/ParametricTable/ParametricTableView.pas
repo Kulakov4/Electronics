@@ -33,7 +33,7 @@ uses
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
   System.Generics.Defaults, BandsInfo, DBRecordHolder,
-  BaseQuery, ParameterKindEnum;
+  BaseQuery, ParameterKindEnum, Vcl.Clipbrd;
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
@@ -49,8 +49,7 @@ type
     actAnalog: TAction;
     dxBarButton2: TdxBarButton;
     dxbbClearFilters: TdxBarButton;
-    Timer: TTimer;
-    Timer2: TTimer;
+    BandTimer: TTimer;
     dxBarButton1: TdxBarButton;
     actLocateInStorehouse: TAction;
     cxStyleRepository: TcxStyleRepository;
@@ -62,11 +61,14 @@ type
     dxBarButton4: TdxBarButton;
     actRefresh: TAction;
     dxBarButton5: TdxBarButton;
+    actClearSelected: TAction;
+    N6: TMenuItem;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
     procedure actLocateInStorehouseExecute(Sender: TObject);
     procedure actAnalogExecute(Sender: TObject);
+    procedure actClearSelectedExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
@@ -78,8 +80,7 @@ type
     procedure cxGridDBBandedTableViewMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
     procedure dxBarButton2Click(Sender: TObject);
-    procedure Timer2Timer(Sender: TObject);
-    procedure TimerTimer(Sender: TObject);
+    procedure BandTimerTimer(Sender: TObject);
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
@@ -96,8 +97,9 @@ type
     FMark: string;
     procedure CreateColumn(AView: TcxGridDBBandedTableView;
       AIDParameter: Integer; const ABandCaption, AColumnCaption,
-      AFieldName: String; AVisible: Boolean; const AHint: string;
-      ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID: Integer);
+      AFieldName: String; AVisible: Boolean; const ABandHint: string;
+      ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID: Integer;
+      const AColumnHint: String);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure DoAfterLoad(Sender: TObject);
@@ -127,6 +129,7 @@ type
     procedure DoOnMasterDetailChange; override;
     procedure OnEditValueChangeProcess(var Message: TMessage);
       message WM_ON_EDIT_VALUE_CHANGE;
+    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
     procedure UpdateDetailColumnsWidth2;
     procedure UpdateFiltersAction;
   public
@@ -498,6 +501,68 @@ begin
   end;
 end;
 
+procedure TViewParametricTable.actClearSelectedExecute(Sender: TObject);
+var
+  AColumn: TcxGridDBBandedColumn;
+  AFieldList: TList<String>;
+  AFieldName: String;
+  AProductID: Integer;
+  AProductIDList: TList<Integer>;
+  AView: TcxGridDBBandedTableView;
+  i: Integer;
+  j: Integer;
+  qParametersForCategory: TQueryParametersForCategory;
+  V: Variant;
+begin
+  inherited;
+  AView := FocusedTableView;
+
+  AFieldList := TList<String>.Create;
+  try
+    qParametersForCategory := ComponentsExGroup.qParametersForCategory;
+    qParametersForCategory.FDQuery.First;
+    while not qParametersForCategory.FDQuery.Eof do
+    begin
+      // Имя поля получаем из словаря всех имён полей параметров
+      AFieldName := ComponentsExGroup.AllParameterFields
+        [qParametersForCategory.ParameterID.AsInteger];
+
+      AColumn := AView.GetColumnByFieldName(AFieldName);
+
+      if AColumn.Selected then
+        AFieldList.Add(AFieldName);
+
+      qParametersForCategory.FDQuery.Next;
+    end;
+
+    AProductIDList := TList<Integer>.Create;
+    try
+      // Цикл по всем выделенным строкам
+      for j := 0 to AView.Controller.SelectedRowCount - 1 do
+      begin
+        V := AView.Controller.SelectedRows[j].Values[clID.Index];
+        Assert(not VarIsNull(V));
+
+        AProductID := V;
+        AProductIDList.Add(AProductID);
+      end;
+
+      BeginUpdate;
+      try
+        FocusedQuery.ClearFields(AFieldList, AProductIDList);
+      finally
+        EndUpdate;
+      end;
+
+    finally
+      FreeAndNil(AProductIDList);
+    end;
+  finally
+    FreeAndNil(AFieldList);
+  end;
+  UpdateView;
+end;
+
 procedure TViewParametricTable.actRefreshExecute(Sender: TObject);
 begin
   inherited;
@@ -642,8 +707,8 @@ end;
 
 procedure TViewParametricTable.CreateColumn(AView: TcxGridDBBandedTableView;
   AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName: String;
-  AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder, APosID,
-  AIDParameterKind, AColumnID: Integer);
+  AVisible: Boolean; const ABandHint: string; ACategoryParamID, AOrder, APosID,
+  AIDParameterKind, AColumnID: Integer; const AColumnHint: String);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -678,7 +743,7 @@ begin
     ABand.Visible := AVisible;
     ABand.VisibleForCustomization := True;
     ABand.Caption := DeleteDouble(ABandCaption, ' ');
-    ABand.AlternateCaption := AHint;
+    ABand.AlternateCaption := ABandHint;
     if ABandInfo.DefaultCreated then
       ABand.Position.ColIndex := 1000; // Помещаем бэнд в конец
     // Какой порядок имеет параметр в БД
@@ -694,7 +759,7 @@ begin
     AColumn.Position.BandIndex := ABand.Index;
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
-    AColumn.AlternateCaption := AHint;
+    AColumn.AlternateCaption := AColumnHint;
     AColumn.Tag := AColumnID;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители
@@ -746,7 +811,7 @@ begin
   L := FBandsInfo.GetChangedColIndex(ABand.GridView);
   try
     // Если переместили в другую группу или предыдущий запрос ещё не обработан
-    if (L.HaveDifferentPos) or (Timer2.Enabled) then
+    if (L.HaveDifferentPos) or (BandTimer.Enabled) then
     begin
       // Возвращаем колонки на место
       for ABI in L do
@@ -766,7 +831,7 @@ begin
 
   // Сообщаем что изменение бэндов нужно будет дополнительно обработать
   FBandInfo := ABandInfo;
-  Timer2.Enabled := True;
+  BandTimer.Enabled := True;
 end;
 
 
@@ -848,32 +913,22 @@ end;
 procedure TViewParametricTable.cxGridDBBandedTableViewMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 Var
-  P: TPoint;
   H: TcxCustomGridHitTest;
-  // S: String;
 begin
   inherited;
 
   cxGrid.Hint := '';
   H := MainView.GetHitTest(X, Y);
 
-  // S := H.ClassName;
-
-  // dxbbClearFilters.Caption := S;
-
+  // Показываем всплывающие подсказки
   if H is TcxGridBandHeaderHitTest then
   begin
     cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
-    // обнуляем время на таймере
-    Timer.Enabled := False;
-    Timer.Enabled := True;
   end
-  else
+  else if H is TcxGridColumnHeaderHitTest then
   begin
-    GetCursorPos(P);
-    Application.ActivateHint(P);
-  end;
-
+    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
+  end
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetContentStyle
@@ -1019,10 +1074,11 @@ end;
 procedure TViewParametricTable.DoAfterLoad(Sender: TObject);
 var
   ABandCaption: string;
+  ABandHint: string;
   ABandInfo: TBandInfo;
   ACaption: String;
   ACategoryParamID: Integer;
-  AHint: String;
+  AColumnHint: String;
   AColumnCaption: string;
   AColumnID: Integer;
   AFieldName: String;
@@ -1035,7 +1091,7 @@ var
 begin
   FreeAndNil(FColumnsBarButtons);
 
-  qParametersForCategory := ComponentsExGroup.QueryParametersForCategory;
+  qParametersForCategory := ComponentsExGroup.qParametersForCategory;
 
   cxGrid.BeginUpdate();
   try
@@ -1053,7 +1109,8 @@ begin
         [qParametersForCategory.ParameterID.AsInteger];
       AVisible := qParametersForCategory.IsAttribute.AsBoolean;
       ACaption := qParametersForCategory.Caption.AsString;
-      AHint := qParametersForCategory.Hint.AsString;
+      ABandHint := qParametersForCategory.BandHint.AsString;
+      AColumnHint := qParametersForCategory.ColumnHint.AsString;
       ACategoryParamID := qParametersForCategory.IDCategory.AsInteger;
 
       // Вот тут странная ошибка может произойти - пустой порядок
@@ -1087,13 +1144,13 @@ begin
 
       // Создаём колонку в главном представлении
       CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, AHint, ACategoryParamID, AOrder, APosID, AIDParameterKind,
-        AColumnID);
+        AVisible, ABandHint, ACategoryParamID, AOrder, APosID, AIDParameterKind,
+        AColumnID, AColumnHint);
 
       // Создаём колонку в дочернем представлении
       CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-        AColumnCaption, AFieldName, AVisible, AHint, ACategoryParamID, AOrder,
-        APosID, AIDParameterKind, AColumnID);
+        AColumnCaption, AFieldName, AVisible, ABandHint, ACategoryParamID,
+        AOrder, APosID, AIDParameterKind, AColumnID, AColumnHint);
 
       qParametersForCategory.FDQuery.Next;
     end;
@@ -1295,7 +1352,7 @@ begin
   BaseComponentsGroup := Value;
 end;
 
-procedure TViewParametricTable.Timer2Timer(Sender: TObject);
+procedure TViewParametricTable.BandTimerTimer(Sender: TObject);
 var
   ABandInfo: TBandInfo;
   AOrder: Integer;
@@ -1305,21 +1362,14 @@ var
   X: Integer;
   AReverse: Integer;
 begin
-  Timer2.Enabled := False;
-  // PostMessage(Handle, WM_ON_BAND_POS_CHANGE, 0, 0);
+  BandTimer.Enabled := False;
 
   Assert(FBandInfo <> nil);
   Assert(FBandInfo.ColIndex <> FBandInfo.Band.Position.ColIndex);
-  {
-    // Надо найти, какой бэнд был на этой позиции до переноса
-    ABandInfo := FBandsInfo.SearchByPos(FBandInfo.Band.GridView,
-    FBandInfo.Band.Position.ColIndex);
-    Assert(ABandInfo <> nil);
-    Assert(ABandInfo <> FBandInfo);
-  }
+
   BIList := FBandsInfo.GetChangedColIndex(MainView);
   try
-    // Как минимум 2 бэнда должны дыли поменять свою позицию
+    // Как минимум 2 бэнда должны были поменять свою позицию
     Assert(BIList.Count >= 2);
 
     // Куда произошло перемещение: влево или вправо?
@@ -1370,13 +1420,18 @@ begin
   UpdateColumnsCustomization;
 end;
 
-procedure TViewParametricTable.TimerTimer(Sender: TObject);
-var
-  P: TPoint;
+procedure TViewParametricTable.OnGridPopupMenuPopup(AColumn:
+    TcxGridDBBandedColumn);
+Var
+  AColumnIsValue: Boolean;
 begin
-  Timer.Enabled := False;
-  GetCursorPos(P);
-  Application.ActivateHint(P);
+  inherited;
+
+  AColumnIsValue := (AColumn <> nil) and
+    (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
+
+  actClearSelected.Visible := (AColumn <> nil) and not (AColumnIsValue);
+  actClearSelected.Enabled := actClearSelected.Visible;
 end;
 
 procedure TViewParametricTable.UpdateColumnsCustomization;

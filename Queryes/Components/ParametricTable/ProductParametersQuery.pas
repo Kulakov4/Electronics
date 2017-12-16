@@ -20,6 +20,7 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    procedure ApplyFilter(AProductID, AParameterID: Integer);
     property ParameterID: TField read GetParameterID;
     property ParentProductID: TField read GetParentProductID;
     property ProductID: TField read GetProductID;
@@ -35,6 +36,17 @@ constructor TQueryProductParameters.Create(AOwner: TComponent);
 begin
   inherited;
   DetailParameterName := 'ProductCategoryId';
+end;
+
+procedure TQueryProductParameters.ApplyFilter(AProductID, AParameterID:
+    Integer);
+begin
+  Assert(AProductID > 0);
+  Assert(AParameterID > 0);
+
+  FDQuery.Filter := Format('(%s=%d) and (%s=%d)',
+    [ProductID.FieldName, AProductID, ParameterID.FieldName, AParameterID]);
+  FDQuery.Filtered := True;
 end;
 
 function TQueryProductParameters.GetParameterID: TField;

@@ -773,7 +773,7 @@ end;
 constructor TStringTreeNode.Create;
 begin
   inherited;
-  FChilds := TList<TStringTreeNode>.Create;
+  FChilds := TObjectList<TStringTreeNode>.Create;
   FID := FMaxlID;
 end;
 

@@ -140,7 +140,6 @@ var
   AParameterKindID: Integer;
   AParameterType: string;
   I: Integer;
-  OK: Boolean;
 begin
   TryPost;
   if qParameterKinds.FDQuery.RecordCount = 0 then
