@@ -217,8 +217,8 @@ begin
   if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
     Exit;
 
-  if not TDialog.Create.OpenDialog(TExcelFilesOpenDialog,
-    TSettings.Create.LastFolderForComponentsLoad, Handle, AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
     Exit; // отказались от выбора файла
 
   // Сохраняем эту папку в настройках
@@ -270,8 +270,8 @@ begin
   if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
     Exit;
 
-  if not TDialog.Create.OpenDialog(TExcelFilesFolderOpenDialog,
-    TSettings.Create.LastFolderForComponentsLoad, Handle, AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFilesFolderOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
     Exit;
 
   AFolderName := TPath.GetDirectoryName(AFileName);
@@ -465,8 +465,8 @@ procedure TComponentsFrame.LoadDocFromExcelDocument;
 var
   AFileName: string;
 begin
-  if not TDialog.Create.OpenDialog(TExcelFilesOpenDialog,
-    TSettings.Create.LastFolderForComponentsLoad, Handle, AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
     Exit; // отказались от выбора файла
 
   // Сохраняем эту папку в настройках
@@ -505,8 +505,8 @@ begin
   // Варианты того как может называться колонка с наименованием компонентов
   FamilyNameCoumn := ';PART;PART NUMBER;';
 
-  if not TDialog.Create.OpenDialog(TExcelFilesOpenDialog,
-    TSettings.Create.ParametricDataFolder, Handle, AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.ParametricDataFolder, '', AFileName) then
     Exit; // отказались от выбора файла
 
   // Сохраняем эту папку в настройках

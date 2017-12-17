@@ -1027,9 +1027,9 @@ begin
     S := ADocFieldInfo.Folder;
 
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog(S);
-  if sourceFileName.IsEmpty then
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', sourceFileName) then
     Exit;
+
   BaseComponentsGroup.LoadDocFile(sourceFileName, ADocFieldInfo);
   ApplyBestFitEx;
 end;

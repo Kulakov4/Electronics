@@ -33,7 +33,7 @@ uses
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
   System.Generics.Defaults, BandsInfo, DBRecordHolder,
-  BaseQuery, ParameterKindEnum, Vcl.Clipbrd;
+  BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons;
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
@@ -81,6 +81,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure dxBarButton2Click(Sender: TObject);
     procedure BandTimerTimer(Sender: TObject);
+    procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
+        AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
@@ -1417,6 +1419,13 @@ begin
 
   // Обновляем порядок бэндов в выпадающем списке
   UpdateColumnsCustomization;
+end;
+
+procedure TViewParametricTable.cxGridDBBandedTableViewColumnHeaderClick(Sender:
+    TcxGridTableView; AColumn: TcxGridColumn);
+begin
+  ;
+  inherited;
 end;
 
 procedure TViewParametricTable.OnGridPopupMenuPopup(AColumn:

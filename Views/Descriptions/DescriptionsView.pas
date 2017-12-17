@@ -208,7 +208,7 @@ procedure TViewDescriptions.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile('Краткие описания', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Краткие описания', AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);

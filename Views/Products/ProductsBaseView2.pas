@@ -308,8 +308,8 @@ var
 begin
   inherited;
 
-  if not TDialog.Create.SaveToExcelFile(qProductsBase.ExportFileName, AFileName)
-  then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+    qProductsBase.ExportFileName, AFileName) then
     Exit;
 
   cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
@@ -778,7 +778,8 @@ begin
     if FileExists(AFileName) then
       ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
     else
-      TDialog.Create.ErrorMessageDialog(Format(ADocFieldInfo.ErrorMessage, [AFileName]));
+      TDialog.Create.ErrorMessageDialog(Format(ADocFieldInfo.ErrorMessage,
+        [AFileName]));
   end
   else
     TDialog.Create.ErrorMessageDialog(ADocFieldInfo.EmptyErrorMessage);
@@ -874,8 +875,8 @@ var
 begin
   inherited;
   OK := (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
-    (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active)
-    and (qProductsBase.Master.FDQuery.RecordCount > 0);
+    (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
+    (qProductsBase.Master.FDQuery.RecordCount > 0);
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
@@ -899,8 +900,8 @@ var
   sourceFileName: string;
 begin
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog(ADocFieldInfo.Folder);
-  if sourceFileName.IsEmpty then
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, ADocFieldInfo.Folder,
+    '', sourceFileName) then
     Exit;
 
   FqProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);

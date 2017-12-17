@@ -6,7 +6,6 @@ inherited ViewParametricTable: TViewParametricTable
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
-      DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnMoving = False

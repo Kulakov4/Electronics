@@ -300,7 +300,7 @@ procedure TViewParameters.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile('Параметры', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Параметры', AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);

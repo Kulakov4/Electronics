@@ -51,7 +51,7 @@ procedure TViewGrid.actExportToExcelExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile('Ошибки', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Ошибки', AFileName) then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);

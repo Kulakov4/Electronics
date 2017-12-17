@@ -172,19 +172,19 @@ end;
 procedure TViewProducers.actCommitExecute(Sender: TObject);
 begin
   // Мы просто завершаем транзакцию
-//  cxGrid.BeginUpdate();
-//  try
-    // Сохраняем изменения и завершаем транзакцию
-    ProducersGroup.Commit;
+  // cxGrid.BeginUpdate();
+  // try
+  // Сохраняем изменения и завершаем транзакцию
+  ProducersGroup.Commit;
 
-    // Переносим фокус на первую выделенную запись
-//    FocusSelectedRecord;
-//  finally
-//    cxGrid.EndUpdate;
-//  end;
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord;
+  // finally
+  // cxGrid.EndUpdate;
+  // end;
 
   // Помещаем фокус в центр грида
-//  PutInTheCenterFocusedRecord;
+  // PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;
@@ -194,7 +194,8 @@ procedure TViewProducers.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile('Производители', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Производители',
+    AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName,

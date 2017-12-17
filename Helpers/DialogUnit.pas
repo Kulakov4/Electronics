@@ -2,7 +2,7 @@ unit DialogUnit;
 
 interface
 
-uses Vcl.Dialogs, System.Classes, Winapi.Windows, System.IOUtils;
+uses Vcl.Dialogs, System.Classes, Winapi.Windows, System.IOUtils, Vcl.ExtDlgs;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -49,26 +49,33 @@ type
     function DeleteRecordsDialog(const AText: string): Boolean;
     procedure ErrorMessageDialog(const AErrorMessage: String);
     class function NewInstance: TObject; override;
-    function OpenPictureDialog(const AInitialDir: string): string;
     function CreateFolderDialog(const AValue: String): Integer;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
-    function OpenDialog(AOpenDialogClass: TOpenDialogClass;
-      const AInitialDir: string; AParentHWND: HWND;
+    function ShowDialog(AOpenDialogClass: TOpenDialogClass;
+      const AInitialDir, AInitialFileName: string;
       var AFileName: String): Boolean;
-    function SaveToExcelFile(const ADefaultFileName: string;
-      var ASelectedFileName: string): Boolean;
     function SaveDataDialog: Integer;
   end;
 
-  TExcelFilesOpenDialog = class(TOpenDialog)
+  TExcelFileOpenDialog = class(TOpenDialog)
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+  TExcelFileSaveDialog = class(TSaveDialog)
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+  TMyOpenPictureDialog = class(TOpenPictureDialog)
   public
     constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
-uses Vcl.ExtDlgs, Vcl.Forms, System.SysUtils, Winapi.ShlObj,
+uses Vcl.Forms, System.SysUtils, Winapi.ShlObj,
   Winapi.Messages, ProjectConst;
 
 function TDialog.AddManufacturerDialog(const AValue: String): Boolean;
@@ -146,32 +153,6 @@ begin
   Result := Instance;
 end;
 
-function TDialog.OpenPictureDialog(const AInitialDir: string): string;
-var
-  AOpenPictureDialog: TOpenPictureDialog;
-begin
-  Result := '';
-  AOpenPictureDialog := TOpenPictureDialog.Create(nil);
-  try
-    AOpenPictureDialog.Filter :=
-      'Изображения и pdf файлы (*.jpg,*.jpeg,*.gif,*.png,*.pdf)|*.jpg;*.jpeg;*.gif;*.png;*.pdf|'
-      + 'Изображения (*.jpg,*.jpeg,*.gif,*.png,*.tif)|*.jpg;*.jpeg;*.gif;*.png;*.tif|'
-      + 'Документы (*.pdf, *.doc, *.hmtl)|*.pdf;*.doc;*.hmtl|' +
-      'Все файлы (*.*)|*.*';
-    AOpenPictureDialog.FilterIndex := 0;
-
-    if not AInitialDir.IsEmpty then
-      AOpenPictureDialog.InitialDir := AInitialDir;
-
-    AOpenPictureDialog.Options := [ofFileMustExist];
-    if AOpenPictureDialog.Execute() then
-      Result := AOpenPictureDialog.FileName;
-  finally
-    AOpenPictureDialog.Free;
-  end;
-
-end;
-
 procedure TDialog.DirectoryNotExistDialog(const AValue: String);
 begin
   Application.MessageBox(PChar(Format('Директория %s не существует', [AValue])),
@@ -190,44 +171,27 @@ begin
     PChar(sError), MB_OK + MB_ICONSTOP);
 end;
 
-function TDialog.OpenDialog(AOpenDialogClass: TOpenDialogClass;
-  const AInitialDir: string; AParentHWND: HWND; var AFileName: String): Boolean;
+function TDialog.ShowDialog(AOpenDialogClass: TOpenDialogClass;
+  const AInitialDir, AInitialFileName: string; var AFileName: String): Boolean;
 var
   fod: TOpenDialog;
 begin
   AFileName := '';
   fod := AOpenDialogClass.Create(nil);
   try
-    fod.InitialDir := AInitialDir;
-    Result := fod.Execute(AParentHWND);
+    if not AInitialFileName.IsEmpty then
+      fod.FileName := AInitialFileName;
+
+    if not AInitialDir.IsEmpty then
+      fod.InitialDir := AInitialDir;
+
+    Result := fod.Execute(Application.ActiveFormHandle);
     if Result then
     begin
       AFileName := fod.FileName;
     end;
   finally
     FreeAndNil(fod);
-  end;
-end;
-
-function TDialog.SaveToExcelFile(const ADefaultFileName: string;
-  var ASelectedFileName: string): Boolean;
-var
-  SaveDialog: TSaveTextFileDialog;
-begin
-  // Result := False;
-  SaveDialog := TSaveTextFileDialog.Create(nil);
-  try
-    SaveDialog.FileName := ADefaultFileName;
-    SaveDialog.Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' +
-      'Все файлы (*.*)|*.*';
-    SaveDialog.FilterIndex := 0;
-    SaveDialog.Options := [ofFileMustExist];
-    Result := SaveDialog.Execute(Application.ActiveFormHandle);
-
-    if Result then
-      ASelectedFileName := SaveDialog.FileName
-  finally
-    SaveDialog.Free;
   end;
 end;
 
@@ -297,11 +261,32 @@ begin
   end;
 end;
 
-{ TExcelFilesOpenDialog }
-constructor TExcelFilesOpenDialog.Create(AOwner: TComponent);
+{ TExcelFileOpenDialog }
+constructor TExcelFileOpenDialog.Create(AOwner: TComponent);
 begin
   inherited;
   Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' + 'Все файлы (*.*)|*.*';
+  FilterIndex := 0;
+  Options := [ofFileMustExist];
+end;
+
+{ TExcelFileSaveDialog }
+constructor TExcelFileSaveDialog.Create(AOwner: TComponent);
+begin
+  inherited;
+  Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' + 'Все файлы (*.*)|*.*';
+  FilterIndex := 0;
+  Options := [ofFileMustExist];
+end;
+
+{ TMyOpenPictureDialog }
+constructor TMyOpenPictureDialog.Create(AOwner: TComponent);
+begin
+  inherited;
+  Filter := 'Изображения и pdf файлы (*.jpg,*.jpeg,*.gif,*.png,*.pdf)|*.jpg;*.jpeg;*.gif;*.png;*.pdf|'
+    + 'Изображения (*.jpg,*.jpeg,*.gif,*.png,*.tif)|*.jpg;*.jpeg;*.gif;*.png;*.tif|'
+    + 'Документы (*.pdf, *.doc, *.hmtl)|*.pdf;*.doc;*.hmtl|' +
+    'Все файлы (*.*)|*.*';
   FilterIndex := 0;
   Options := [ofFileMustExist];
 end;

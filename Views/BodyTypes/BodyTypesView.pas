@@ -216,21 +216,21 @@ procedure TViewBodyTypes.actCommitExecute(Sender: TObject);
 begin
   // Мы просто завершаем транзакцию
   cxGrid.BeginUpdate();
-//  try
-    // Сохраняем изменения и завершаем транзакцию
-    BodyTypesGroup.Commit;
+  // try
+  // Сохраняем изменения и завершаем транзакцию
+  BodyTypesGroup.Commit;
 
-    // Начинаем новую транзакцию
-    // BodyTypesGroup.Connection.StartTransaction;
+  // Начинаем новую транзакцию
+  // BodyTypesGroup.Connection.StartTransaction;
 
-    // Переносим фокус на первую выделенную запись
-//    FocusSelectedRecord(MainView);
-//  finally
-//    cxGrid.EndUpdate;
-//  end;
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord(MainView);
+  // finally
+  // cxGrid.EndUpdate;
+  // end;
 
   // Помещаем фокус в центр грида
-//  PutInTheCenterFocusedRecord(MainView);
+  // PutInTheCenterFocusedRecord(MainView);
 
   // Обновляем представление
   UpdateView;
@@ -243,12 +243,12 @@ var
 begin
   Q := TQueryBodyTypesSimple.Create(Self);
   try
-
     Q.RefreshQuery;
 
     cxGridDBBandedTableView2.DataController.DataSource := Q.DataSource;
     try
-      if not TDialog.Create.SaveToExcelFile('Типы корпусов', AFileName) then
+      if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+        'Типы корпусов', AFileName) then
         Exit;
 
       ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
@@ -664,7 +664,8 @@ end;
 
 function TViewBodyTypes.GetProducerDisplayText: string;
 begin
-  Result := GetDBBandedTableView(1).Controller.FocusedRecord.DisplayTexts[clIDProducer.Index];
+  Result := GetDBBandedTableView(1).Controller.FocusedRecord.DisplayTexts
+    [clIDProducer.Index];
 end;
 
 procedure TViewBodyTypes.OpenDoc(ADocFieldInfo: TDocFieldInfo);
@@ -787,7 +788,7 @@ begin
     // Добавляем к каталогу название производителя
     S := TPath.Combine(ADocFieldInfo.Folder, AProducer);
     // Получаем папку в которой лежит ранее заданный файл документации
-    //S := TPath.GetDirectoryName(S);
+    // S := TPath.GetDirectoryName(S);
     // если такого пути уже не существует
     if not TDirectory.Exists(S) then
       S := ADocFieldInfo.Folder;
@@ -796,8 +797,8 @@ begin
     S := ADocFieldInfo.Folder;
 
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog(S);
-  if sourceFileName.IsEmpty then
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', sourceFileName)
+  then
     Exit;
 
   BodyTypesGroup.qBodyTypes2.LoadDocFile(sourceFileName, ADocFieldInfo);
