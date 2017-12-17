@@ -74,8 +74,6 @@ type
       const AText: TCaption);
     procedure clIDComponentTypePropertiesEditValueChanged(Sender: TObject);
     procedure clIDComponentTypePropertiesCloseUp(Sender: TObject);
-    procedure clIDManufacturerPropertiesNewLookupDisplayText(Sender: TObject;
-      const AText: TCaption);
     procedure cxGridDBBandedTableView2ColumnHeaderClick
       (Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableView2CustomDrawColumnHeader
@@ -363,13 +361,6 @@ begin
   // b := False;
 end;
 
-procedure TViewDescriptions.clIDManufacturerPropertiesNewLookupDisplayText
-  (Sender: TObject; const AText: TCaption);
-begin
-  inherited;
-  FDescriptionsGroup.qProducers.AddNewValue(AText);
-end;
-
 procedure TViewDescriptions.CreateColumnsBarButtons;
 begin
   FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
@@ -594,9 +585,6 @@ begin
   if FDescriptionsGroup <> nil then
   begin
     // привязываем представление к данным
-    // DBGrid1.DataSource := FDescriptionsGroup.qDescriptionTypes.
-    // DataSource;
-
     cxGridDBBandedTableView.DataController.DataSource :=
       FDescriptionsGroup.qDescriptionTypes.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
@@ -607,8 +595,8 @@ begin
       FDescriptionsGroup.qDescriptionTypes.ComponentType.FieldName);
 
     InitializeLookupColumn(clIDProducer,
-      FDescriptionsGroup.qProducers.DataSource, lsEditList,
-      FDescriptionsGroup.qProducers.Name.FieldName);
+      FDescriptionsGroup.ProducersGroup.qProducers.DataSource, lsFixedList,
+      FDescriptionsGroup.ProducersGroup.qProducers.Name.FieldName);
 
     TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,
       DoAfterDataChange, FEventList);

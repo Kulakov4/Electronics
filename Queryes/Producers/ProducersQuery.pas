@@ -8,8 +8,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ProducersExcelDataModule,
-  QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit;
 
 type
   TQueryProducers = class(TQueryWithDataSource)
@@ -29,11 +28,10 @@ type
     procedure DoAfterOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AddNewValue(const AValue: string);
+    procedure AddNewValue(const AValue: string; AProducerTypeID: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     function Locate(AValue: string): Boolean;
-    procedure LocateOrAppend(AValue: string);
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property Cnt: TField read GetCnt;
     property Name: TField read GetName;
@@ -45,7 +43,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, DefaultParameters;
+uses RepositoryDataModule, DefaultParameters, ProducerTypesQuery;
 
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
@@ -61,9 +59,13 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryProducers.AddNewValue(const AValue: string);
+procedure TQueryProducers.AddNewValue(const AValue: string; AProducerTypeID:
+    Integer);
 begin
+  Assert(AProducerTypeID > 0);
+
   FDQuery.Append;
+  ProducerTypeID.AsInteger := AProducerTypeID;
   Name.AsString := AValue;
   FDQuery.Post;
 end;
@@ -136,16 +138,6 @@ end;
 function TQueryProducers.Locate(AValue: string): Boolean;
 begin
   Result := FDQuery.LocateEx(Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
-end;
-
-procedure TQueryProducers.LocateOrAppend(AValue: string);
-var
-  OK: Boolean;
-begin
-  OK := Locate(AValue);
-
-  if not OK then
-    AddNewValue(AValue);
 end;
 
 end.

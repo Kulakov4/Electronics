@@ -22,6 +22,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure InsertRecordList(AProducersExcelTable: TProducersExcelTable);
+    procedure LocateOrAppend(AValue: string; const AProducerType: String);
     { Public declarations }
   end;
 
@@ -119,6 +120,20 @@ begin
     qProducers.FDQuery.EnableControls;
     qProducerTypes.FDQuery.EnableControls;
   end;
+end;
+
+procedure TProducersGroup.LocateOrAppend(AValue: string; const AProducerType:
+    String);
+var
+  OK: Boolean;
+begin
+  OK := qProducers.Locate(AValue);
+
+  if OK then
+    Exit;
+
+  qProducerTypes.LocateOrAppend(AProducerType);
+  qProducers.AddNewValue(AValue, qProducerTypes.PK.AsInteger);
 end;
 
 end.

@@ -17,7 +17,7 @@ type
     FDMemTable: TFDMemTable;
     function GetComponentName: TField;
     function GetComponentType: TField;
-    function GetManufacturer: TField;
+    function GetProducer: TField;
     procedure SetDescriptionsDataSet(const Value: TFDDataSet);
   protected
     function CheckDescription: Boolean;
@@ -30,7 +30,7 @@ type
     property ComponentType: TField read GetComponentType;
     property DescriptionsDataSet: TFDDataSet read FDescriptionsDataSet
       write SetDescriptionsDataSet;
-    property Manufacturer: TField read GetManufacturer;
+    property Producer: TField read GetProducer;
   end;
 
   TDescriptionsExcelDM = class(TExcelDM)
@@ -111,9 +111,9 @@ begin
   Result := FieldByName('ComponentType');
 end;
 
-function TDescriptionsExcelTable.GetManufacturer: TField;
+function TDescriptionsExcelTable.GetProducer: TField;
 begin
-  Result := FieldByName('Manufacturer');
+  Result := FieldByName('Producer');
 end;
 
 procedure TDescriptionsExcelTable.SetDescriptionsDataSet
@@ -133,7 +133,7 @@ procedure TDescriptionsExcelTable.SetFieldsInfo;
 begin
   FieldsInfo.Add(TFieldInfo.Create('ComponentName', True,
     'Наименование компонента не должно быть пустым'));
-  FieldsInfo.Add(TFieldInfo.Create('Manufacturer', True,
+  FieldsInfo.Add(TFieldInfo.Create('Producer', True,
     'Наименование производителя не должно быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('Description', True,
     'Описание компонента не должно быть пустым', False, 3000));

@@ -13,7 +13,7 @@ uses
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents,
-  SearchComponentGroup, SearchFamily;
+  SearchComponentGroup, SearchFamily, ProducersGroupUnit;
 
 type
   TComponentNameParts = record
@@ -33,7 +33,7 @@ type
   private
     FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
-    FqProducers: TQueryProducers;
+    FProducersGroup: TProducersGroup;
     FqSearchComponentGroup: TQuerySearchComponentGroup;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     FqSearchFamily: TQuerySearchFamily;
@@ -59,7 +59,7 @@ type
     function GetPriceR1: TField;
     function GetPriceR2: TField;
     function GetProductID: TField;
-    function GetqProducers: TQueryProducers;
+    function GetProducersGroup: TProducersGroup;
     function GetqSearchComponentGroup: TQuerySearchComponentGroup;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetqSearchFamily: TQuerySearchFamily;
@@ -127,7 +127,7 @@ type
     property PriceR1: TField read GetPriceR1;
     property PriceR2: TField read GetPriceR2;
     property ProductID: TField read GetProductID;
-    property qProducers: TQueryProducers read GetqProducers;
+    property ProducersGroup: TProducersGroup read GetProducersGroup;
     property Rate: Double read FRate write SetRate;
     property Rate1: TField read GetRate1;
     property Rate2: TField read GetRate2;
@@ -294,11 +294,11 @@ begin
   if IDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := qProducers.LocateByPK(IDProducer.AsInteger);
+    OK := ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
     rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
-      qProducers.Name.AsString);
+      ProducersGroup.qProducers.Name.AsString);
   end
   else
   begin
@@ -307,10 +307,12 @@ begin
     if rc > 0 then
     begin
       // Ищем в справочнике такого производителя
-      qProducers.LocateOrAppend(qSearchComponentOrFamily.Producer.AsString);
+      OK := ProducersGroup.qProducers.Locate
+        (qSearchComponentOrFamily.Producer.AsString);
+      Assert(OK);
       // Заполняем производителя
-      FetchFields([IDProducer.FieldName], [qProducers.PK.Value], ARequest,
-        AAction, AOptions);
+      FetchFields([IDProducer.FieldName], [ProducersGroup.qProducers.PK.Value],
+        ARequest, AAction, AOptions);
     end;
   end;
 
@@ -703,15 +705,15 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQueryProductsBase.GetqProducers: TQueryProducers;
+function TQueryProductsBase.GetProducersGroup: TProducersGroup;
 begin
-  if FqProducers = nil then
+  if FProducersGroup = nil then
   begin
-    FqProducers := TQueryProducers.Create(Self);
-    FqProducers.TryOpen;
+    FProducersGroup := TProducersGroup.Create(Self);
+    FProducersGroup.ReOpen;
   end;
 
-  Result := FqProducers;
+  Result := FProducersGroup;
 end;
 
 function TQueryProductsBase.GetqSearchComponentGroup
@@ -807,11 +809,11 @@ begin
   if IDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := qProducers.LocateByPK(IDProducer.AsInteger);
+    OK := ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
     rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
-      qProducers.Name.AsString);
+      ProducersGroup.qProducers.Name.AsString);
   end;
   if rc > 0 then
   begin

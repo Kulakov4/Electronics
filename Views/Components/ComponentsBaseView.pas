@@ -74,8 +74,6 @@ type
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure cxerpiSubGroup_PropertiesCloseUp(Sender: TObject);
     procedure cxerpiSubGroup_PropertiesInitPopup(Sender: TObject);
-    procedure clManufacturerIdPropertiesNewLookupDisplayText(Sender: TObject;
-      const AText: TCaption);
     procedure clBodyIdPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
@@ -276,20 +274,6 @@ begin
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
   FfrmDescriptionPopup.Query := BaseComponentsGroup.QueryBaseFamily;
-end;
-
-procedure TViewComponentsBase.clManufacturerIdPropertiesNewLookupDisplayText
-  (Sender: TObject; const AText: TCaption);
-begin
-  inherited;
-  if AText <> '' then
-  begin
-    if (not BaseComponentsGroup.Producers.Locate(AText)) and
-      (TDialog.Create.AddManufacturerDialog(AText)) then
-    begin
-      BaseComponentsGroup.Producers.AddNewValue(AText);
-    end;
-  end;
 end;
 
 procedure TViewComponentsBase.clSubGroup2GetProperties

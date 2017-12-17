@@ -18,7 +18,6 @@ type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    DescriptionsGroup: TDescriptionsGroup;
     BodyTypesGroup: TBodyTypesGroup;
     ProducersGroup: TProducersGroup;
     ParametersGroup: TParametersGroup;
@@ -30,6 +29,7 @@ type
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
+    DescriptionsGroup: TDescriptionsGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -223,8 +223,8 @@ begin
   // Произощёл коммит в справочнике производителей
 
   // Просим обновить данные о производителях в других местах
-  qProductsSearch.qProducers.RefreshQuery;
-  qProducts.qProducers.RefreshQuery;
+  qProductsSearch.ProducersGroup.ReOpen;
+  qProducts.ProducersGroup.ReOpen;
 end;
 
 procedure TDM2.DoAfterStoreHousePost(Sender: TObject);

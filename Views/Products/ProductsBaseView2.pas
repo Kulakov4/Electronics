@@ -731,8 +731,9 @@ begin
 
   Assert(FqProductsBase <> nil);
 
-  InitializeLookupColumn(clIDProducer, FqProductsBase.qProducers.DataSource,
-    lsEditFixedList, FqProductsBase.qProducers.Name.FieldName);
+  InitializeLookupColumn(clIDProducer,
+    FqProductsBase.ProducersGroup.qProducers.DataSource, lsEditFixedList,
+    FqProductsBase.ProducersGroup.qProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase2.InternalRefreshData;

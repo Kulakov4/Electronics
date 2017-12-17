@@ -101,8 +101,8 @@ begin
     else
       AIDComponentGroup := V;
 
-    // 2) Ищем такого производителя в справочнике производителей
-    qProducers.LocateOrAppend(AExcelTable.Producer.AsString);
+    // 2) Ищем или добавляем такого производителя в справочнике производителей
+    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
 
     // Добавляем товар на склад
     FDQuery.Append;
@@ -114,7 +114,7 @@ begin
         AField.Value := AExcelField.Value;
     end;
     // Дополнительно заполняем
-    IDProducer.AsInteger := qProducers.PK.Value;
+    IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
     IDComponentGroup.AsInteger := AIDComponentGroup;
     IsGroup.AsInteger := 0;
 
@@ -154,13 +154,13 @@ begin
   for I := 0 to AValues.Count - 1 do
   begin
     // Ищем такого производителя
-    if not qProducers.Locate(AProducers[I]) then
+    if not ProducersGroup.qProducers.Locate(AProducers[I]) then
       raise Exception.CreateFmt('Производитель "%s" не найден в справочнике',
         [AProducers[I]]);
 
     TryAppend;
     Value.AsString := AValues[I];
-    IDProducer.AsInteger := qProducers.PK.Value;
+    IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
     TryPost;
   end;
 end;
