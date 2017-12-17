@@ -214,8 +214,9 @@ end;
 
 procedure TViewBodyTypes.actCommitExecute(Sender: TObject);
 begin
+  // Мы просто завершаем транзакцию
   cxGrid.BeginUpdate();
-  try
+//  try
     // Сохраняем изменения и завершаем транзакцию
     BodyTypesGroup.Commit;
 
@@ -223,13 +224,13 @@ begin
     // BodyTypesGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
-  finally
-    cxGrid.EndUpdate;
-  end;
+//    FocusSelectedRecord(MainView);
+//  finally
+//    cxGrid.EndUpdate;
+//  end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+//  PutInTheCenterFocusedRecord(MainView);
 
   // Обновляем представление
   UpdateView;
@@ -285,7 +286,7 @@ begin
   if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
     Exit;
 
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   BeginUpdate;

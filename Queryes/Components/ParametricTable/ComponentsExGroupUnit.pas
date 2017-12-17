@@ -148,8 +148,7 @@ begin
   AFDQuery.FieldDefs.Update;
 
   // В списке параметров могли произойти изменения (порядок, видимость)
-  qParametersForCategory.FDQuery.Close;
-  qParametersForCategory.Load(AData.ParentValue);
+  qParametersForCategory.Load(AData.ParentValue, True); // принудительно
 
   qParametersForCategory.FDQuery.First;
   while not FqParametersForCategory.FDQuery.Eof do
@@ -223,8 +222,8 @@ var
   m: TArray<String>;
   S: string;
   ADataSet: TFDQuery;
-  ANewValue: String;
-  AOldValue: String;
+  //ANewValue: String;
+  //AOldValue: String;
 begin
   AQueryCustomComponents := Sender as TQueryCustomComponents;
   ADataSet := AQueryCustomComponents.FDQuery;
@@ -238,13 +237,10 @@ begin
       [FqParametersForCategory.ParameterID.AsInteger];
     AField := ADataSet.FieldByName(AFieldName);
 
-    if AFieldName = 'Field661' then
-      beep;
-    
 
     // AField.OldValue <> AField.Value почему-то не работает
-    AOldValue := VarToStrDef(AQueryCustomComponents.RecordHolder.Field[AFieldName], '');
-    ANewValue := VarToStrDef(AField.Value, '');
+    //AOldValue := VarToStrDef(AQueryCustomComponents.RecordHolder.Field[AFieldName], '');
+    //ANewValue := VarToStrDef(AField.Value, '');
     
     if AQueryCustomComponents.RecordHolder.Field[AFieldName] <> AField.Value then
     begin
@@ -378,6 +374,8 @@ begin
       FqProductParameters.FDQuery.Next;
     end;
   finally
+    qFamilyEx.FDQuery.First;
+    qComponentsEx.FDQuery.First;
     qComponentsEx.FDQuery.EnableControls;
     qFamilyEx.FDQuery.EnableControls;
   end;

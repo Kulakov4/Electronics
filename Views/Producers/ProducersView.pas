@@ -171,19 +171,20 @@ end;
 
 procedure TViewProducers.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
+  // Мы просто завершаем транзакцию
+//  cxGrid.BeginUpdate();
+//  try
     // Сохраняем изменения и завершаем транзакцию
     ProducersGroup.Commit;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord;
-  finally
-    cxGrid.EndUpdate;
-  end;
+//    FocusSelectedRecord;
+//  finally
+//    cxGrid.EndUpdate;
+//  end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord;
+//  PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;
@@ -212,7 +213,7 @@ procedure TViewProducers.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   BeginUpdate;

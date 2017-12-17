@@ -292,7 +292,7 @@ var
   AQueryRecursiveTree: TQueryRecursiveTree;
   OK: Boolean;
 begin
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);

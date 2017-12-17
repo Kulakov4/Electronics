@@ -38,6 +38,10 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       inline ViewProducts2: TViewProducts2
         Left = 0
         Top = 0

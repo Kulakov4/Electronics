@@ -178,7 +178,7 @@ Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
   CustomExcelTable, RepositoryDataModule, System.Generics.Collections,
   System.Math, SettingsController, System.IOUtils, ProjectConst,
   System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit, CustomErrorForm,
-  LoadFromExcelFileHelper;
+  LoadFromExcelFileHelper, DialogUnit2;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
@@ -275,21 +275,22 @@ end;
 
 procedure TViewParameters.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
+  // Мы просто завершаем транзакцию
+//  cxGrid.BeginUpdate();
+//  try
     // СОхраняем все сделанные изменения
     FParametersGroup.Commit;
 
     // FParametersGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord();
-  finally
-    cxGrid.EndUpdate;
-  end;
+//    FocusSelectedRecord();
+//  finally
+//    cxGrid.EndUpdate;
+//  end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord();
+//  PutInTheCenterFocusedRecord();
 
   // Обновляем представление
   UpdateView;
@@ -346,16 +347,8 @@ procedure TViewParameters.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
-  if not AFileName.IsEmpty then
-  begin
-    // Сохраняем эту папку в настройках
-    TSettings.Create.LastFolderForExcelFile :=
-      TPath.GetDirectoryName(AFileName);
-
+  if TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     LoadFromExcel(AFileName);
-  end;
 end;
 
 procedure TViewParameters.actLoadFromExcelSheetExecute(Sender: TObject);

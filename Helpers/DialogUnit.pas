@@ -2,7 +2,7 @@ unit DialogUnit;
 
 interface
 
-uses Vcl.Dialogs, System.Classes;
+uses Vcl.Dialogs, System.Classes, Winapi.Windows, System.IOUtils;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -10,14 +10,33 @@ type
   TFileOpenDialogClass = class of TFileOpenDialog;
   TOpenDialogClass = class of TOpenDialog;
 
+  TOpenFolderDialog = class(TOpenDialog)
+  private
+    procedure DoOnShow(Sender: TObject);
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+  TExcelFilesFolderOpenDialog = class(TOpenFolderDialog)
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+type
+  TDatabaselFilesFolderOpenDialog = class(TOpenFolderDialog)
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+type
+  TPDFFilesFolderOpenDialog = class(TOpenFolderDialog)
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
   TDialog = class(TObject)
   private
     class var Instance: TDialog;
-    // TODO: OpenFolderDialog
-    /// / TODO: OpenFileDialog
-    /// /  function OpenFileDialog(AFileOpenDialogClass: TFileOpenDialogClass; const
-    /// /      AInitialDir: string): string;
-    // function OpenFolderDialog(const AInitialDir: string): string;
   public
     function AddManufacturerDialog(const AValue: String): Boolean;
     procedure AutoBindNotFoundDialog;
@@ -35,48 +54,21 @@ type
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
     function OpenDialog(AOpenDialogClass: TOpenDialogClass;
-      const AInitialDir: string): String;
-    function OpenExcelFile(const AInitialDir: string): string;
-    function SaveToExcelFile(const ADefaultFileName: string; var ASelectedFileName:
-        string): Boolean;
+      const AInitialDir: string; AParentHWND: HWND;
+      var AFileName: String): Boolean;
+    function SaveToExcelFile(const ADefaultFileName: string;
+      var ASelectedFileName: string): Boolean;
     function SaveDataDialog: Integer;
   end;
 
-  TExcelFilesFolderOpenDialog = class(TOpenDialog)
-  private
-    procedure DoOnShow(Sender: TObject);
-  strict protected
-  protected
-    procedure DoShow; override;
-  public
-    constructor Create(AOwner: TComponent); override;
-  end;
-
-type
-  TDatabaselFilesFolderOpenDialog = class(TOpenDialog)
-  private
-    procedure DoOnShow(Sender: TObject);
-  strict protected
-  protected
-    procedure DoShow; override;
-  public
-    constructor Create(AOwner: TComponent); override;
-  end;
-
-type
-  TPDFFilesFolderOpenDialog = class(TOpenDialog)
-  private
-    procedure DoOnShow(Sender: TObject);
-  strict protected
-  protected
-    procedure DoShow; override;
+  TExcelFilesOpenDialog = class(TOpenDialog)
   public
     constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
-uses Vcl.ExtDlgs, Vcl.Forms, Winapi.Windows, System.SysUtils, Winapi.ShlObj,
+uses Vcl.ExtDlgs, Vcl.Forms, System.SysUtils, Winapi.ShlObj,
   Winapi.Messages, ProjectConst;
 
 function TDialog.AddManufacturerDialog(const AValue: String): Boolean;
@@ -96,8 +88,7 @@ end;
 
 procedure TDialog.AutoBindResultDialog(ACount: Integer);
 begin
-  Application.MessageBox
-    (PChar(Format('Прикреплено описаний: %d', [ACount])),
+  Application.MessageBox(PChar(Format('Прикреплено описаний: %d', [ACount])),
     'Результат автоматического прикрепления', MB_OK);
 end;
 
@@ -155,25 +146,6 @@ begin
   Result := Instance;
 end;
 
-function TDialog.OpenExcelFile(const AInitialDir: string): string;
-var
-  OpenDialog: TOpenTextFileDialog;
-begin
-  Result := '';
-  OpenDialog := TOpenTextFileDialog.Create(nil);
-  try
-    OpenDialog.InitialDir := AInitialDir;
-    OpenDialog.Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' +
-      'Все файлы (*.*)|*.*';
-    OpenDialog.FilterIndex := 0;
-    OpenDialog.Options := [ofFileMustExist];
-    if OpenDialog.Execute(Application.ActiveFormHandle) then
-      Result := OpenDialog.FileName;
-  finally
-    OpenDialog.Free;
-  end;
-end;
-
 function TDialog.OpenPictureDialog(const AInitialDir: string): string;
 var
   AOpenPictureDialog: TOpenPictureDialog;
@@ -219,63 +191,30 @@ begin
 end;
 
 function TDialog.OpenDialog(AOpenDialogClass: TOpenDialogClass;
-  const AInitialDir: string): String;
+  const AInitialDir: string; AParentHWND: HWND; var AFileName: String): Boolean;
 var
   fod: TOpenDialog;
 begin
-  Result := '';
+  AFileName := '';
   fod := AOpenDialogClass.Create(nil);
   try
     fod.InitialDir := AInitialDir;
-    if fod.Execute then
-      Result := ExtractFilePath(fod.FileName); // убирает кусок с именем файла
+    Result := fod.Execute(AParentHWND);
+    if Result then
+    begin
+      AFileName := fod.FileName;
+    end;
   finally
     FreeAndNil(fod);
   end;
 end;
 
-// TODO: OpenFolderDialog
-// function TDialog.OpenFolderDialog(const AInitialDir: string): string;
-// var
-// fod: TFileOpenDialog;
-// begin
-// Result := '';
-//
-// fod := TFileOpenDialog.Create(nil);
-// try
-// fod.Options := [fdoPickFolders];
-// fod.DefaultFolder := AInitialDir;
-// if fod.Execute then
-// Result := fod.FileName;
-// finally
-// FreeAndNil(fod);
-// end;
-// end;
-
-// TODO: OpenFileDialog
-// function TDialog.OpenFileDialog(AFileOpenDialogClass: TFileOpenDialogClass;
-// const AInitialDir: string): string;
-// var
-// fod: TFileOpenDialog;
-// begin
-// Result := '';
-//
-// fod := AFileOpenDialogClass.Create(nil);
-// try
-// fod.DefaultFolder := AInitialDir;
-// if fod.Execute then
-// Result := fod.FileName;
-// finally
-// FreeAndNil(fod);
-// end;
-// end;
-
-function TDialog.SaveToExcelFile(const ADefaultFileName: string; var
-    ASelectedFileName: string): Boolean;
+function TDialog.SaveToExcelFile(const ADefaultFileName: string;
+  var ASelectedFileName: string): Boolean;
 var
   SaveDialog: TSaveTextFileDialog;
 begin
-//  Result := False;
+  // Result := False;
   SaveDialog := TSaveTextFileDialog.Create(nil);
   try
     SaveDialog.FileName := ADefaultFileName;
@@ -303,70 +242,6 @@ constructor TExcelFilesFolderOpenDialog.Create(AOwner: TComponent);
 begin
   inherited;
   Self.FileName := '*.xls;*.xlsx';
-  // указывая имя файла как маску заставляем фильтровать по нему
-  Options := Options + [ofNoValidate];
-  OnShow := DoOnShow;
-end;
-
-procedure TExcelFilesFolderOpenDialog.DoOnShow(Sender: TObject);
-const
-  // Названия констант по ссылке в MSDN, значения в Dlgs.h и WinUser.h
-  stc3: Integer = $442; // Лэйбл к имени текущего файла
-  cmb13: Integer = $47C; // Комбобокс с именем текущего файла
-  edt1: Integer = $480; // Поле ввода с именем текущего файла
-
-  stc2: Integer = $441; // Лэйбл к комбобоксу
-  cmb1: Integer = $470; // Комбобокс со списком фильтров
-var
-  fod: TOpenDialog;
-  H: THandle;
-begin
-  fod := Sender as TOpenDialog;
-  if Assigned(fod) then
-  begin
-    H := GetParent(fod.Handle);
-
-    // убрать первую строку надпись имя файла, эдит ввода и комбобокс
-    SendMessage(H, WM_USER + 100 + 5, stc3, 0);
-    SendMessage(H, WM_USER + 100 + 5, cmb13, 0);
-    SendMessage(H, WM_USER + 100 + 5, edt1, 0);
-
-    // убрать вторую строку - фильтр
-    SendMessage(H, WM_USER + 100 + 5, cmb1, 0);
-    SendMessage(H, WM_USER + 100 + 5, stc2, 0);
-  end;
-end;
-
-procedure TExcelFilesFolderOpenDialog.DoShow;
-const
-  // Названия констант по ссылке в MSDN, значения в Dlgs.h и WinUser.h
-  stc3: Integer = $442; // Лэйбл к имени текущего файла
-  cmb13: Integer = $47C; // Комбобокс с именем текущего файла
-  edt1: Integer = $480; // Поле ввода с именем текущего файла
-
-  stc2: Integer = $441; // Лэйбл к комбобоксу
-  cmb1: Integer = $470; // Комбобокс со списком фильтров
-  { var
-    fod: TOpenDialog;
-    H: THandle;
-  }
-begin
-
-  { MSDN по кастомизации диалогов ОС https://msdn.microsoft.com/en-us/library/ms646960(VS.85).aspx#_win32_Open_and_Save_As_Dialog_Box_Customization }
-  { скрытие контролов msdn.microsoft.com/en-us/library/ms646853%28VS.85%29.aspx }
-  {
-    H := GetParent(Handle);
-
-    // убрать первую строку надпись имя файла, эдит ввода и комбобокс
-    SendMessage(H, WM_USER + 100 + 5, stc3, 0);
-    SendMessage(H, WM_USER + 100 + 5, cmb13, 0);
-    SendMessage(H, WM_USER + 100 + 5, edt1, 0);
-
-    // убрать вторую строку - фильтр
-    SendMessage(H, WM_USER + 100 + 5, cmb1, 0);
-    SendMessage(H, WM_USER + 100 + 5, stc2, 0);
-  }
-  inherited;
 end;
 
 { TDatabaselFilesFolderOpenDialog }
@@ -374,70 +249,6 @@ constructor TDatabaselFilesFolderOpenDialog.Create(AOwner: TComponent);
 begin
   inherited;
   Self.FileName := '*.db';
-  // указывая имя файла как маску заставляем фильтровать по нему
-  Options := Options + [ofNoValidate];
-  OnShow := DoOnShow;
-end;
-
-procedure TDatabaselFilesFolderOpenDialog.DoOnShow(Sender: TObject);
-const
-  // Названия констант по ссылке в MSDN, значения в Dlgs.h и WinUser.h
-  stc3: Integer = $442; // Лэйбл к имени текущего файла
-  cmb13: Integer = $47C; // Комбобокс с именем текущего файла
-  edt1: Integer = $480; // Поле ввода с именем текущего файла
-
-  stc2: Integer = $441; // Лэйбл к комбобоксу
-  cmb1: Integer = $470; // Комбобокс со списком фильтров
-var
-  fod: TOpenDialog;
-  H: THandle;
-begin
-  fod := Sender as TOpenDialog;
-  if Assigned(fod) then
-  begin
-    H := GetParent(fod.Handle);
-
-    // убрать первую строку надпись имя файла, эдит ввода и комбобокс
-    SendMessage(H, WM_USER + 100 + 5, stc3, 0);
-    SendMessage(H, WM_USER + 100 + 5, cmb13, 0);
-    SendMessage(H, WM_USER + 100 + 5, edt1, 0);
-
-    // убрать вторую строку - фильтр
-    SendMessage(H, WM_USER + 100 + 5, cmb1, 0);
-    SendMessage(H, WM_USER + 100 + 5, stc2, 0);
-  end;
-end;
-
-procedure TDatabaselFilesFolderOpenDialog.DoShow;
-const
-  // Названия констант по ссылке в MSDN, значения в Dlgs.h и WinUser.h
-  stc3: Integer = $442; // Лэйбл к имени текущего файла
-  cmb13: Integer = $47C; // Комбобокс с именем текущего файла
-  edt1: Integer = $480; // Поле ввода с именем текущего файла
-
-  stc2: Integer = $441; // Лэйбл к комбобоксу
-  cmb1: Integer = $470; // Комбобокс со списком фильтров
-  { var
-    fod: TOpenDialog;
-    H: THandle;
-  }
-begin
-
-  { MSDN по кастомизации диалогов ОС https://msdn.microsoft.com/en-us/library/ms646960(VS.85).aspx#_win32_Open_and_Save_As_Dialog_Box_Customization }
-  { скрытие контролов msdn.microsoft.com/en-us/library/ms646853%28VS.85%29.aspx }
-  {
-    H := GetParent(Handle);
-
-    // убрать первую строку надпись имя файла, эдит ввода и комбобокс
-    SendMessage(H, WM_USER + 100 + 5, stc3, 0);
-    SendMessage(H, WM_USER + 100 + 5, cmb13, 0);
-    SendMessage(H, WM_USER + 100 + 5, edt1, 0);
-
-    // убрать вторую строку - фильтр
-    SendMessage(H, WM_USER + 100 + 5, cmb1, 0);
-    SendMessage(H, WM_USER + 100 + 5, stc2, 0);
-  }
-  inherited;
 end;
 
 { TPDFFilesFolderOpenDialog }
@@ -445,12 +256,19 @@ constructor TPDFFilesFolderOpenDialog.Create(AOwner: TComponent);
 begin
   inherited;
   Self.FileName := '*.pdf;*.gif;*.jpg;*.png;*.bmp';
+end;
+
+{ TOpenFolderDialog }
+constructor TOpenFolderDialog.Create(AOwner: TComponent);
+begin
+  inherited;
   // указывая имя файла как маску заставляем фильтровать по нему
   Options := Options + [ofNoValidate];
+  // Обработчик события OnShow
   OnShow := DoOnShow;
 end;
 
-procedure TPDFFilesFolderOpenDialog.DoOnShow(Sender: TObject);
+procedure TOpenFolderDialog.DoOnShow(Sender: TObject);
 const
   // Названия констант по ссылке в MSDN, значения в Dlgs.h и WinUser.h
   stc3: Integer = $442; // Лэйбл к имени текущего файла
@@ -479,36 +297,13 @@ begin
   end;
 end;
 
-procedure TPDFFilesFolderOpenDialog.DoShow;
-const
-  // Названия констант по ссылке в MSDN, значения в Dlgs.h и WinUser.h
-  stc3: Integer = $442; // Лэйбл к имени текущего файла
-  cmb13: Integer = $47C; // Комбобокс с именем текущего файла
-  edt1: Integer = $480; // Поле ввода с именем текущего файла
-
-  stc2: Integer = $441; // Лэйбл к комбобоксу
-  cmb1: Integer = $470; // Комбобокс со списком фильтров
-  { var
-    fod: TOpenDialog;
-    H: THandle;
-  }
+{ TExcelFilesOpenDialog }
+constructor TExcelFilesOpenDialog.Create(AOwner: TComponent);
 begin
-
-  { MSDN по кастомизации диалогов ОС https://msdn.microsoft.com/en-us/library/ms646960(VS.85).aspx#_win32_Open_and_Save_As_Dialog_Box_Customization }
-  { скрытие контролов msdn.microsoft.com/en-us/library/ms646853%28VS.85%29.aspx }
-  {
-    H := GetParent(Handle);
-
-    // убрать первую строку надпись имя файла, эдит ввода и комбобокс
-    SendMessage(H, WM_USER + 100 + 5, stc3, 0);
-    SendMessage(H, WM_USER + 100 + 5, cmb13, 0);
-    SendMessage(H, WM_USER + 100 + 5, edt1, 0);
-
-    // убрать вторую строку - фильтр
-    SendMessage(H, WM_USER + 100 + 5, cmb1, 0);
-    SendMessage(H, WM_USER + 100 + 5, stc2, 0);
-  }
   inherited;
+  Filter := 'Документы (*.xls, *.xlsx)|*.xls;*.xlsx|' + 'Все файлы (*.*)|*.*';
+  FilterIndex := 0;
+  Options := [ofFileMustExist];
 end;
 
 end.

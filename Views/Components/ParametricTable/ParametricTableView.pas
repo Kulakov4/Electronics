@@ -509,7 +509,6 @@ var
   AProductID: Integer;
   AProductIDList: TList<Integer>;
   AView: TcxGridDBBandedTableView;
-  i: Integer;
   j: Integer;
   qParametersForCategory: TQueryParametersForCategory;
   V: Variant;

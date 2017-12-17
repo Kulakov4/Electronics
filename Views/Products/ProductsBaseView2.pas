@@ -253,6 +253,7 @@ end;
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
 begin
   inherited;
+  // Мы просто завершаем транзакцию
   FqProductsBase.ApplyUpdates;
   UpdateView;
 end;
