@@ -93,15 +93,19 @@ end;
 procedure TBaseComponentsGroup.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
+  IsEdited: Boolean;
   S: string;
 begin
   if not AFileName.IsEmpty then
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    Main.TryEdit;
+    IsEdited := not Main.TryEdit;
     Main.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
-    Main.TryPost;
+
+    // Сохраняем только если запись уже была сохранена до редактирования
+    if not IsEdited then
+      Main.TryPost;
   end;
 end;
 

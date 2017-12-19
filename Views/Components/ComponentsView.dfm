@@ -1,10 +1,14 @@
 inherited ViewComponents: TViewComponents
+  Width = 960
+  ExplicitWidth = 960
   inherited cxGrid: TcxGrid
+    Width = 960
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
     end
   end
   inherited StatusBar: TStatusBar
+    Width = 960
     Panels = <
       item
         Width = 100
@@ -76,10 +80,6 @@ inherited ViewComponents: TViewComponents
         item
           Visible = True
           ItemName = 'dxbbSettings'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton2'
         end>
       OneOnRow = False
       Row = 0
@@ -208,13 +208,6 @@ inherited ViewComponents: TViewComponents
       Action = actRefresh
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxBarButton2: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-      OnClick = dxBarButton2Click
     end
   end
   inherited ActionList: TActionList

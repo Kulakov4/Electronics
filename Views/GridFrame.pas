@@ -78,8 +78,6 @@ type
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
     FUpdateCount: Cardinal;
-    procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
-      ARecordIndex: Integer; var AAllow: Boolean);
     function GetMainView: TcxGridDBBandedTableView;
     function GetParentForm: TForm;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
@@ -92,6 +90,8 @@ type
     procedure CreateColumnsBarButtons; virtual;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); virtual;
+    procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
+      ARecordIndex: Integer; var AAllow: Boolean);
     procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -127,8 +127,8 @@ type
     procedure ApplyBestFitFocusedBand; virtual;
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
-    procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer; x:
-        Integer = 0);
+    procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
+    procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
       AProcRef: TProcRef);
     procedure ClearSort(AView: TcxGridTableView);
@@ -145,7 +145,9 @@ type
     procedure EndUpdate; virtual;
     procedure ExportViewToExcel(AView: TcxGridDBBandedTableView;
       AFileName: string; AGridProcRef: TGridProcRef = nil);
-    procedure FocusColumnEditor(ALevel: Integer; AFieldName: string);
+    procedure FocusColumnEditor(ALevel: Integer; AFieldName: string); overload;
+    procedure FocusColumnEditor(AView: TcxGridDBBandedTableView;
+      AFieldName: string); overload;
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
     procedure FocusSelectedRecord; overload;
     procedure PutInTheCenterFocusedRecord
@@ -302,8 +304,45 @@ begin
 end;
 
 // Подбирает верхнюю запись так, чтобы нужная нам стала полностью видимой
-procedure TfrmGrid.ChooseTopRecord(AView: TcxGridTableView; ARecordIndex:
-    Integer; x: Integer = 0);
+procedure TfrmGrid.ChooseTopRecord(AView: TcxGridTableView;
+  ARecordIndex: Integer);
+var
+  ARowIndex: Integer;
+  Cnt: Integer;
+  i: Integer;
+  LastVisibleRecIndex: Integer;
+  t: Integer;
+begin
+  Assert(AView <> nil);
+  Assert(ARecordIndex >= 0);
+
+  // Получаем номер строки по номеру записи в БД
+  ARowIndex := AView.DataController.GetRowIndexByRecordIndex
+    (ARecordIndex, False);
+
+  t := AView.Controller.TopRecordIndex;
+  Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
+  LastVisibleRecIndex := t - 1 + Cnt;
+
+  i := 0;
+  // Пока текущая запись видна не полностью
+  while (i < 50) and (ARowIndex > t) and (ARowIndex > LastVisibleRecIndex) do
+  begin
+    // Сдвигаем вверх на одну запись
+    AView.Controller.TopRecordIndex := t + 1;
+
+    t := AView.Controller.TopRecordIndex;
+    Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
+    LastVisibleRecIndex := t - 1 + Cnt;
+
+    Inc(i); // Увеличиваем кол-во попыток
+  end;
+
+end;
+
+// Подбирает верхнюю запись так, чтобы нужная нам стала полностью видимой
+procedure TfrmGrid.ChooseTopRecord1(AView: TcxGridTableView;
+  ARecordIndex: Integer);
 var
   Cnt: Integer;
   i: Integer;
@@ -319,7 +358,8 @@ begin
 
   i := 0;
   // Пока текущая запись видна не полностью
-  while (i < 50) and (ARecordIndex > LastVisibleRecIndex - x) do
+  while (i < 50) and (ARecordIndex > t) and
+    (ARecordIndex >= LastVisibleRecIndex) do
   begin
     // Сдвигаем вверх на одну запись
     AView.Controller.TopRecordIndex := t + 1;
@@ -330,7 +370,6 @@ begin
 
     Inc(i); // Увеличиваем кол-во попыток
   end;
-
 end;
 
 procedure TfrmGrid.ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
@@ -552,24 +591,10 @@ end;
 
 procedure TfrmGrid.FocusColumnEditor(ALevel: Integer; AFieldName: string);
 var
-  AColumn: TcxGridDBBandedColumn;
   AView: TcxGridDBBandedTableView;
 begin
-  try
-    AView := GetDBBandedTableView(ALevel);
-    AView.Focused := True;
-
-    AColumn := AView.GetColumnByFieldName(AFieldName);
-    // Показываем редактор для колонки
-    if (ParentForm <> nil) and (ParentForm.Visible) then
-    begin
-      // Site обеспечивает доступ к элементам размещённым на cxGrid
-      AView.Site.SetFocus;
-      AView.Controller.EditingController.ShowEdit(AColumn);
-    end;
-  except
-    ; // Ошибки подавляем. Нельзя передать фокус невидимому окну
-  end;
+  AView := GetDBBandedTableView(ALevel);
+  FocusColumnEditor(AView, AFieldName);
 end;
 
 procedure TfrmGrid.FocusSelectedRecord(AView: TcxGridDBBandedTableView);
@@ -723,8 +748,6 @@ end;
 procedure TfrmGrid.LocateAndFocus(AMaster, ADetail: TQueryBase;
 ADetailID: Integer; const AMasterKeyFieldName, AFocusedColumnFieldName: string);
 var
-  AColumn: TcxGridDBBandedColumn;
-  // AcxGridMasterDataRow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
   Assert(AMaster <> nil);
@@ -746,21 +769,18 @@ begin
 
       // Получаем дочернее представление
       AView := GetDBBandedTableView(1);
-      // Фокусируем его
-      AView.Focused := True;
-      PutInTheCenterFocusedRecord(AView);
 
-      AColumn := AView.GetColumnByFieldName(AFocusedColumnFieldName);
-      // Site обеспечивает доступ к элементам размещённым на cxGrid
-      try
-        if (ParentForm <> nil) and (ParentForm.Visible) then
-        begin
-          AView.Site.SetFocus;
-          // Показываем редактор для колонки
-          AView.Controller.EditingController.ShowEdit(AColumn);
+      if (ParentForm <> nil) and (ParentForm.Visible) then
+      begin
+        try
+          // Фокусируем его
+          AView.Focused := True;
+          PutInTheCenterFocusedRecord(AView);
+
+          FocusColumnEditor(AView, AFocusedColumnFieldName);
+        except
+          ; // Иногда возникает ошибка
         end;
-      except
-        ; // Иногда возникает ошибка
       end;
     end;
   end;
@@ -1017,6 +1037,27 @@ begin
 
   end;
 
+end;
+
+procedure TfrmGrid.FocusColumnEditor(AView: TcxGridDBBandedTableView;
+AFieldName: string);
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  Assert(AView <> nil);
+
+  if (ParentForm = nil) or (not ParentForm.Visible) then
+    Exit;
+
+  AView.Focused := True;
+  AColumn := AView.GetColumnByFieldName(AFieldName);
+
+  // Site обеспечивает доступ к элементам размещённым на cxGrid
+  if AView.Site.Parent <> nil then
+    AView.Site.SetFocus;
+
+  // Показываем редактор для колонки
+  AView.Controller.EditingController.ShowEdit(AColumn);
 end;
 
 function TfrmGrid.GetParentForm: TForm;

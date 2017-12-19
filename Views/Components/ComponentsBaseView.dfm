@@ -283,6 +283,46 @@ inherited ViewComponentsBase: TViewComponentsBase
       ImageIndex = 5
       OnExecute = actPasteFamilyExecute
     end
+    object actOpenDatasheet: TAction
+      Caption = 'Dt'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
+      OnExecute = actOpenDatasheetExecute
+    end
+    object actLoadDatasheet: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
+      OnExecute = actLoadDatasheetExecute
+    end
+    object actOpenDiagram: TAction
+      Caption = 'Dm'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1093#1077#1084#1091
+      OnExecute = actOpenDiagramExecute
+    end
+    object actLoadDiagram: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+      OnExecute = actLoadDiagramExecute
+    end
+    object actOpenImage: TAction
+      Caption = 'Im'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      OnExecute = actOpenImageExecute
+    end
+    object actLoadImage: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
+      OnExecute = actLoadImageExecute
+    end
+    object actOpenDrawing: TAction
+      Caption = 'Dw'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078
+      OnExecute = actOpenDrawingExecute
+    end
+    object actLoadDrawing: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
+      OnExecute = actLoadDrawingExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N2: TMenuItem

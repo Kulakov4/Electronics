@@ -918,6 +918,7 @@ procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);
 var
   sourceFileName: string;
 begin
+  Application.Hint := '';
   // Открываем диалог выбора файла для загрузки
   if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, ADocFieldInfo.Folder,
     '', sourceFileName) then

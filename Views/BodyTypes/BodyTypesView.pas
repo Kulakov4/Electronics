@@ -215,7 +215,7 @@ end;
 procedure TViewBodyTypes.actCommitExecute(Sender: TObject);
 begin
   // Мы просто завершаем транзакцию
-  cxGrid.BeginUpdate();
+  //cxGrid.BeginUpdate();
   // try
   // Сохраняем изменения и завершаем транзакцию
   BodyTypesGroup.Commit;
@@ -672,6 +672,7 @@ procedure TViewBodyTypes.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 var
   AFolders: string;
 begin
+  Application.Hint := '';
   // Формируем папки, в которых мы будем искать наш файл
   AFolders := '';
   if not ProducerDisplayText.IsEmpty then
@@ -776,6 +777,7 @@ var
   S: String;
   sourceFileName: string;
 begin
+  Application.Hint := '';
   Assert(BodyTypesGroup <> nil);
   S := BodyTypesGroup.qBodyTypes2.Field(ADocFieldInfo.FieldName).AsString;
 

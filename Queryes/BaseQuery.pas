@@ -106,7 +106,7 @@ type
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure SetParamType(const AParamName: String;
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger);
-    procedure TryEdit;
+    function TryEdit: Boolean;
     procedure TryPost; virtual;
     procedure TryCancel;
     procedure TryAppend;
@@ -962,12 +962,16 @@ begin
   AFDParam.DataType := ADataType;
 end;
 
-procedure TQueryBase.TryEdit;
+function TQueryBase.TryEdit: Boolean;
 begin
   Assert(FDQuery.Active and (FDQuery.RecordCount > 0));
 
+  Result := False;
   if not (FDQuery.State in [dsEdit, dsInsert]) then
+  begin
     FDQuery.Edit;
+    Result := True;
+  end;
 end;
 
 procedure TQueryBase.TryPost;

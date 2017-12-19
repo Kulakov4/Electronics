@@ -18,7 +18,7 @@ inherited QueryProducers: TQueryProducers
       end>
     IndexName = 'idxOrder'
     SQL.Strings = (
-      'select '
+      'select'
       '    pr.*, ifnull(t.cnt, 0) + ifnull(t2.cnt, 0) Cnt'
       'from Producers pr'
       'left join'
@@ -47,7 +47,7 @@ inherited QueryProducers: TQueryProducers
       '        where p.ParentProductId = f.id'
       '    )'
       '    group by pv.Value'
-      ') t2 on pr.name = t.Value'
+      ') t2 on pr.name = t2.Value'
       'order by pr.ProducerTypeID, pr.Name')
     ParamData = <
       item
