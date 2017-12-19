@@ -496,13 +496,13 @@ end;
 procedure TViewComponentsParent.CollapseDetail;
 var
   ARow: TcxMyGridMasterDataRow;
-  AView: TcxGridDBBandedTableView;
+//  AView: TcxGridDBBandedTableView;
 begin
   ARow := MainView.Controller.FocusedRow as TcxMyGridMasterDataRow;
   // ARow := GetRow(0) as TcxMyGridMasterDataRow;
   Assert(ARow <> nil);
 
-  AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
+  // AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
   ARow.MyCollapse(False);
 end;
 
