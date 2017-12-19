@@ -15,8 +15,7 @@ type
     procedure FDQueryCntGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
   private
-    FAfterDataChange: TNotifyEventsEx;
-    procedure DoAfterPostOrDelete(Sender: TObject);
+    procedure DoBeforeScroll(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
 // TODO: DropUnuses
 //  procedure DropUnuses;
@@ -32,7 +31,6 @@ type
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     function Locate(AValue: string): Boolean;
-    property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property Cnt: TField read GetCnt;
     property Name: TField read GetName;
     property ProducerTypeID: TField read GetProducerTypeID;
@@ -49,12 +47,10 @@ constructor TQueryProducers.Create(AOwner: TComponent);
 begin
   inherited;
 
-  FAfterDataChange := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen);
-  TNotifyEventWrap.Create(AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(AfterDelete, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll);
 
   AutoTransaction := False;
 end;
@@ -92,9 +88,9 @@ begin
   Name.DisplayLabel := 'Производитель';
 end;
 
-procedure TQueryProducers.DoAfterPostOrDelete(Sender: TObject);
+procedure TQueryProducers.DoBeforeScroll(Sender: TObject);
 begin
-  FAfterDataChange.CallEventHandlers(Self);
+  ;
 end;
 
 procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
@@ -103,13 +99,6 @@ begin
   FDQuery.ParamByName('ProducerParameterID').AsInteger :=
     TDefaultParameters.ProducerParameterID;
 end;
-
-// TODO: DropUnuses
-//procedure TQueryProducers.DropUnuses;
-//begin
-//// fdqDropUnused.ExecSQL;
-//// RefreshQuery;
-//end;
 
 procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);

@@ -59,10 +59,12 @@ type
     actRefresh: TAction;
     dxBarManagerBar1: TdxBar;
     dxBarButton1: TdxBarButton;
+    dxBarButton2: TdxBarButton;
     procedure actRefreshExecute(Sender: TObject);
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
+    procedure dxBarButton2Click(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
@@ -150,6 +152,12 @@ begin
 
     UpdateTotalComponentCount;
   end;
+end;
+
+procedure TViewComponents.dxBarButton2Click(Sender: TObject);
+begin
+  inherited;
+  ChooseTopRecord(MainView, FRecordIndex, 1);
 end;
 
 procedure TViewComponents.BeginUpdate;

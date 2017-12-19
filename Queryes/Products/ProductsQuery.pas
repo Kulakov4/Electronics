@@ -34,8 +34,8 @@ type
     procedure DoBeforeDelete(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetExportFileName: string; override;
-    property qStoreHouseProductsCount: TQueryStoreHouseProductsCount read
-        GetqStoreHouseProductsCount;
+    property qStoreHouseProductsCount: TQueryStoreHouseProductsCount
+      read GetqStoreHouseProductsCount;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendList(AExcelTable: TProductsExcelTable);
@@ -84,60 +84,64 @@ var
   AIDComponentGroup: Integer;
   V: Variant;
 begin
-  AExcelTable.First;
-  AExcelTable.CallOnProcessEvent;
-  while not AExcelTable.Eof do
-  begin
-    // 1) Ищем такую группу компонентов на текущем складе
-    V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
-    if VarIsNull(V) then
-    begin
-      FDQuery.Append;
-      IsGroup.AsInteger := 1; // Будем добавлять группу
-      Value.AsString := AExcelTable.ComponentGroup.AsString;
-      FDQuery.Post;
-      AIDComponentGroup := PK.Value;
-    end
-    else
-      AIDComponentGroup := V;
-
-    // 2) Ищем или добавляем такого производителя в справочнике производителей
-    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
-
-    // Добавляем товар на склад
-    FDQuery.Append;
-    // Заполняем все поля записи о товаре на складе значаниями из Excel таблицы
-    for AExcelField in AExcelTable.Fields do
-    begin
-      AField := FDQuery.FindField(AExcelField.FieldName);
-      if AField <> nil then
-        AField.Value := AExcelField.Value;
-    end;
-    // Дополнительно заполняем
-    IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
-    IDComponentGroup.AsInteger := AIDComponentGroup;
-    IsGroup.AsInteger := 0;
-
-    // Если цена задана в рублях
-    if not AExcelTable.PriceR.IsNull then
-    begin
-      // Тип валюты - рубли
-      IDCurrency.AsInteger := 1;
-      Price.Value := AExcelTable.PriceR.Value;
-    end;
-
-    // Если цена задана в долларах
-    if not AExcelTable.PriceD.IsNull then
-    begin
-      // Тип валюты - доллар
-      IDCurrency.AsInteger := 2;
-      Price.Value := AExcelTable.PriceD.Value;
-    end;
-
-    FDQuery.Post;
-
-    AExcelTable.Next;
+  try
+    AExcelTable.First;
     AExcelTable.CallOnProcessEvent;
+    while not AExcelTable.Eof do
+    begin
+      // 1) Ищем такую группу компонентов на текущем складе
+      V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
+      if VarIsNull(V) then
+      begin
+        FDQuery.Append;
+        IsGroup.AsInteger := 1; // Будем добавлять группу
+        Value.AsString := AExcelTable.ComponentGroup.AsString;
+        FDQuery.Post;
+        AIDComponentGroup := PK.Value;
+      end
+      else
+        AIDComponentGroup := V;
+
+      // 2) Ищем или добавляем такого производителя в справочнике производителей
+      ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
+
+      // Добавляем товар на склад
+      FDQuery.Append;
+      // Заполняем все поля записи о товаре на складе значаниями из Excel таблицы
+      for AExcelField in AExcelTable.Fields do
+      begin
+        AField := FDQuery.FindField(AExcelField.FieldName);
+        if AField <> nil then
+          AField.Value := AExcelField.Value;
+      end;
+      // Дополнительно заполняем
+      IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
+      IDComponentGroup.AsInteger := AIDComponentGroup;
+      IsGroup.AsInteger := 0;
+
+      // Если цена задана в рублях
+      if not AExcelTable.PriceR.IsNull then
+      begin
+        // Тип валюты - рубли
+        IDCurrency.AsInteger := 1;
+        Price.Value := AExcelTable.PriceR.Value;
+      end;
+
+      // Если цена задана в долларах
+      if not AExcelTable.PriceD.IsNull then
+      begin
+        // Тип валюты - доллар
+        IDCurrency.AsInteger := 2;
+        Price.Value := AExcelTable.PriceD.Value;
+      end;
+
+      FDQuery.Post;
+
+      AExcelTable.Next;
+      AExcelTable.CallOnProcessEvent;
+    end;
+  finally
+    FNeedUpdateCount := True;
   end;
 end;
 
@@ -261,8 +265,8 @@ begin
   Assert(not Result.IsEmpty);
 end;
 
-function TQueryProducts.GetqStoreHouseProductsCount:
-    TQueryStoreHouseProductsCount;
+function TQueryProducts.GetqStoreHouseProductsCount
+  : TQueryStoreHouseProductsCount;
 begin
   if FqStoreHouseProductsCount = nil then
   begin

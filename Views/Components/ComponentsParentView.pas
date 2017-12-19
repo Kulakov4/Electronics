@@ -125,6 +125,7 @@ type
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
   protected
+    FRecordIndex: Integer;
     procedure CreateColumnsBarButtons; override;
     procedure DoOnMasterDetailChange; virtual;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
@@ -393,6 +394,8 @@ begin
     FOnDetailExpandedReceive := False;
     PostMessage(Handle, WM_ON_DETAIL_EXPANDED, 0, 0);
   end;
+  FRecordIndex := ARecordIndex;
+  ChooseTopRecord(MainView, FRecordIndex, 1);
 end;
 
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);

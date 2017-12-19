@@ -18,6 +18,7 @@ type
     FAfterApplyUpdates: TNotifyEventsEx;
     FFullDeleted: TList<Integer>;
     FProducers: TQueryProducers;
+    function GetProducers: TQueryProducers;
     function GetQueryBaseComponents: TQueryBaseComponents;
     function GetQueryBaseFamily: TQueryBaseFamily;
     { Private declarations }
@@ -35,7 +36,7 @@ type
     property QueryBaseComponents: TQueryBaseComponents
       read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
-    property Producers: TQueryProducers read FProducers write FProducers;
+    property Producers: TQueryProducers read GetProducers;
     { Public declarations }
   end;
 
@@ -65,6 +66,16 @@ procedure TBaseComponentsGroup.Commit;
 begin
   inherited;
   FFullDeleted.Clear;
+end;
+
+function TBaseComponentsGroup.GetProducers: TQueryProducers;
+begin
+  if FProducers = nil then
+  begin
+    FProducers := TQueryProducers.Create(Self);
+    FProducers.FDQuery.Open;
+  end;
+  Result := FProducers;
 end;
 
 function TBaseComponentsGroup.GetQueryBaseComponents: TQueryBaseComponents;

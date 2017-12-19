@@ -280,7 +280,6 @@ object DM2: TDM2
           Control = DescriptionsGroup.qDescriptions
           Row = 0
         end>
-      ExplicitTop = -1
     end
   end
 end

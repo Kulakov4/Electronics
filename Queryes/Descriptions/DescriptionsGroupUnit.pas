@@ -17,10 +17,10 @@ type
     qDescriptions: TQueryDescriptions;
   private
     FAfterDataChange: TNotifyEventsEx;
-    FProducersGroup: TProducersGroup;
+    FqProducers: TQueryProducers;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
-    function GetProducersGroup: TProducersGroup;
+    function GetqProducers: TQueryProducers;
     { Private declarations }
   protected
   public
@@ -33,7 +33,7 @@ type
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
-    property ProducersGroup: TProducersGroup read GetProducersGroup;
+    property qProducers: TQueryProducers read GetqProducers;
     { Public declarations }
   end;
 
@@ -106,12 +106,14 @@ begin
 
 end;
 
-function TDescriptionsGroup.GetProducersGroup: TProducersGroup;
+function TDescriptionsGroup.GetqProducers: TQueryProducers;
 begin
-  if FProducersGroup = nil then
-    FProducersGroup := TProducersGroup.Create(Self);
-
-  Result := FProducersGroup;
+  if FqProducers = nil then
+  begin
+    FqProducers := TQueryProducers.Create(Self);
+    FqProducers.FDQuery.Open;
+  end;
+  Result := FqProducers;
 end;
 
 procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable
@@ -131,8 +133,6 @@ begin
       qDescriptionTypes.LocateOrAppend
         (ADescriptionsExcelTable.ComponentType.AsString);
 
-      ProducersGroup.LocateOrAppend(ADescriptionsExcelTable.Producer.AsString, 'Краткие описания');
-
       qDescriptions.FDQuery.Append;
 
       for I := 0 to ADescriptionsExcelTable.FieldCount - 1 do
@@ -143,7 +143,7 @@ begin
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
       qDescriptions.IDComponentType.Value := qDescriptionTypes.PK.Value;
-      qDescriptions.IDProducer.Value := ProducersGroup.qProducers.PK.Value;
+      qDescriptions.IDProducer.Value := ADescriptionsExcelTable.IDProducer.Value;
       qDescriptions.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;
@@ -175,7 +175,7 @@ procedure TDescriptionsGroup.ReOpen;
 begin
   qDescriptionTypes.RefreshQuery;
   qDescriptions.RefreshQuery;
-  ProducersGroup.ReOpen;
+  qProducers.RefreshQuery;
 end;
 
 procedure TDescriptionsGroup.Rollback;

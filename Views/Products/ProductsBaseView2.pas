@@ -84,6 +84,7 @@ type
     cxStyle1: TcxStyle;
     cxNormalStyle: TcxStyle;
     clIDCurrency: TcxDBTreeListColumn;
+    clChecked: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -299,7 +300,7 @@ begin
   finally
     FreeAndNil(AIDS);
   end;
-
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.actExportToExcelDocumentExecute(Sender: TObject);
@@ -500,12 +501,13 @@ begin
   inherited;
   S := cxbeiRate.EditValue;
   r := StrToFloatDef(S, 0);
-  if r <> 0 then
-  begin
-    // Обновлям курс доллара
-    FqProductsBase.Rate := r;
+  if (r = 0) or (FqProductsBase.Rate = r) then
+    Exit;
+
+  // Обновлям курс доллара
+  FqProductsBase.Rate := r;
+  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0) then
     FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
-  end;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListBandHeaderClick
@@ -532,8 +534,24 @@ begin
   then
     Exit;
 
-  if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) then
+  if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) and
+    (AViewInfo.Column <> clValue) then
     Exit;
+
+  if AViewInfo.Column = clValue then
+  begin
+    V := AViewInfo.Node.Values[clChecked.ItemIndex];
+    if VarIsNull(V) then
+      Exit;
+
+    if V = 1 then
+    begin
+      // Пишем чёрным по белому
+      ACanvas.Font.Color := clBlack;
+      ACanvas.FillRect(AViewInfo.BoundsRect, $00F5DEC9);
+    end;
+    Exit;
+  end;
 
   V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
   if VarIsNull(V) then

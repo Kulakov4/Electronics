@@ -546,6 +546,16 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+    object clChecked: TcxDBTreeListColumn
+      Visible = False
+      Caption.Text = 'X'
+      DataBinding.FieldName = 'Checked'
+      Position.ColIndex = 4
+      Position.RowIndex = 0
+      Position.BandIndex = 0
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
   end
   inherited StatusBar: TStatusBar
     Top = 579

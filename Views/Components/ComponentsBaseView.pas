@@ -84,13 +84,11 @@ type
   private
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FfrmSubgroupListPopup: TfrmSubgroupListPopup;
-    FqSearchParameterValues: TQuerySearchParameterValues;
     FqSubGroups: TfrmQuerySubGroups;
     procedure DoAfterCommit(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetFocusedQuery: TQueryCustomComponents;
     function GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
-    function GetqSearchParameterValues: TQuerySearchParameterValues;
     function GetqSubGroups: TfrmQuerySubGroups;
     procedure MyInitializeComboBoxColumn;
     { Private declarations }
@@ -101,8 +99,6 @@ type
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
     property frmSubgroupListPopup: TfrmSubgroupListPopup
       read GetfrmSubgroupListPopup;
-    property qSearchParameterValues: TQuerySearchParameterValues
-      read GetqSearchParameterValues;
     property qSubGroups: TfrmQuerySubGroups read GetqSubGroups;
   public
     constructor Create(AOwner: TComponent); override;
@@ -137,7 +133,6 @@ begin
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
-
 end;
 
 destructor TViewComponentsBase.Destroy;
@@ -218,18 +213,31 @@ procedure TViewComponentsBase.actPasteProducerExecute(Sender: TObject);
 var
   AID: Integer;
   AIDList: TList<Integer>;
+  AProducer: string;
   m: TArray<String>;
 begin
   m := TClb.Create.GetRowsAsArray;
   if (Length(m) = 0) or (GetFocusedQuery = nil) then
     Exit;
 
+  AProducer := m[0].Trim;
+
+  Assert(BaseComponentsGroup.Producers <> nil);
+  Assert(BaseComponentsGroup.Producers.FDQuery.Active);
+
+  // Вставлять можно только то, что есть в справочнике
+  if not BaseComponentsGroup.Producers.Locate(AProducer) then
+  begin
+    TDialog.Create.ProducerNotFound(AProducer);
+    Exit;
+  end;
+
   AIDList := GetSelectedIDs;
   try
     BeginUpdate;
     try
       for AID in AIDList do
-        GetFocusedQuery.SetProducer(AID, m[0]);
+        GetFocusedQuery.SetProducer(AID, AProducer);
     finally
       EndUpdate;
     end;
@@ -391,15 +399,6 @@ begin
   Result := FfrmSubgroupListPopup;
 end;
 
-function TViewComponentsBase.GetqSearchParameterValues
-  : TQuerySearchParameterValues;
-begin
-  if FqSearchParameterValues = nil then
-    FqSearchParameterValues := TQuerySearchParameterValues.Create(Self);
-
-  Result := FqSearchParameterValues;
-end;
-
 function TViewComponentsBase.GetqSubGroups: TfrmQuerySubGroups;
 begin
   if FqSubGroups = nil then
@@ -420,19 +419,12 @@ end;
 
 procedure TViewComponentsBase.MyInitializeComboBoxColumn;
 begin
-  // Ищем возможные значения производителя для выпадающего списка
-  qSearchParameterValues.Search(TDefaultParameters.ProducerParameterID);
+  Assert( BaseComponentsGroup.Producers <> nil);
+  BaseComponentsGroup.Producers.TryOpen;
 
-  // Инициализируем Combobox колонки
+  // Производителя выбираем ТОЛЬКО из списка
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditList, qSearchParameterValues.Value);
-  {
-    // Ищем возможные значения корпусов для выпадающего списка
-    qSearchParameterValues.Search(TDefaultParameters.PackagePinsParameterID);
-
-    InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
-    lsEditList, qSearchParameterValues.Value);
-  }
+    lsEditFixedList, BaseComponentsGroup.Producers.Name);
 end;
 
 procedure TViewComponentsBase.OnGridPopupMenuPopup

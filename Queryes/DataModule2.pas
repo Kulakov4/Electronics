@@ -96,9 +96,9 @@ begin
     Add(qCategoryParameters);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
-  ComponentsGroup.Producers := ProducersGroup.qProducers;
-  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
-  ComponentsExGroup.Producers := ProducersGroup.qProducers;
+//  ComponentsGroup.Producers := ProducersGroup.qProducers;
+//  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
+//  ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
@@ -225,6 +225,11 @@ begin
   // Просим обновить данные о производителях в других местах
   qProductsSearch.ProducersGroup.ReOpen;
   qProducts.ProducersGroup.ReOpen;
+  DescriptionsGroup.qProducers.RefreshQuery;
+
+
+  ComponentsGroup.Producers.RefreshQuery;
+  ComponentsSearchGroup.Producers.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterStoreHousePost(Sender: TObject);

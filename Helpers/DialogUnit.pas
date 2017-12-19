@@ -52,6 +52,7 @@ type
     function CreateFolderDialog(const AValue: String): Integer;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
+    procedure ProducerNotFound(const AProducer: string);
     function ShowDialog(AOpenDialogClass: TOpenDialogClass;
       const AInitialDir, AInitialFileName: string;
       var AFileName: String): Boolean;
@@ -169,6 +170,13 @@ procedure TDialog.ExcelFilesNotFoundDialog;
 begin
   Application.MessageBox(PChar('Не найдено ни одного Excel файла'),
     PChar(sError), MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.ProducerNotFound(const AProducer: string);
+begin
+  Application.MessageBox
+    (PWideChar(Format('В справочнике производителей не найден производитель %s',
+    [AProducer])), PWideChar('Не найден производитель'), MB_OK + MB_ICONSTOP);
 end;
 
 function TDialog.ShowDialog(AOpenDialogClass: TOpenDialogClass;

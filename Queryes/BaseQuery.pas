@@ -76,6 +76,8 @@ type
     procedure FetchFields(AFieldNames: TList<String>; AValues: TList<Variant>;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
+    procedure FetchFields(ARecordHolder: TRecordHolder; ARequest: TFDUpdateRequest;
+        var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
     procedure FetchNullValues(ASource: TFDQuery; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions;
       MapFieldInfo: string = '');
@@ -535,6 +537,43 @@ begin
     else
       S := V;
     S := S + ' ' + AFieldNames[i];
+
+    if i > 0 then
+      ASQL := ASQL + ', ';
+    ASQL := ASQL + S;
+  end;
+
+  case ARequest of
+    arInsert:
+      FDUpdateSQL.InsertSQL.Text := ASQL;
+    arUpdate:
+      FDUpdateSQL.ModifySQL.Text := ASQL;
+  end;
+
+  FDUpdateSQL.Apply(ARequest, AAction, AOptions);
+end;
+
+procedure TQueryBase.FetchFields(ARecordHolder: TRecordHolder; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
+var
+  ASQL: string;
+  i: Integer;
+  S: string;
+  V: Variant;
+begin
+  ASQL := 'SELECT ';
+  for i := 0 to ARecordHolder.Count - 1 do
+  begin
+    V := ARecordHolder[i].Value;
+    if VarIsNull(V) then
+      Continue;
+
+    if VarIsStr(V) then
+      S := QuotedStr(V)
+    else
+      S := V;
+    S := S + ' ' + ARecordHolder[i].FieldName;
 
     if i > 0 then
       ASQL := ASQL + ', ';
