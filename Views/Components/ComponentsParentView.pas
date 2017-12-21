@@ -242,7 +242,7 @@ var
   AView: TcxGridDBBandedTableView;
   i: Integer;
 begin
-  inherited;
+
   // Чтобы убрать значки своравчивания/разворачивания слева от грида
   // Создаём новое представление своего типа
   AView := cxGrid.CreateView(TcxGridDBBandedTableViewWithoutExpand)
@@ -273,6 +273,7 @@ begin
   PostOnEnterFields.Add(clValue.DataBinding.FieldName);
   PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
 
+  inherited;
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerCompare

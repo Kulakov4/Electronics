@@ -37,7 +37,7 @@ uses
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
   StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
-  Vcl.AppEvnts, HintWindowEx;
+  Vcl.AppEvnts, HintWindowEx, ProtectUnit;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -696,6 +696,8 @@ begin
     end;
   end;
 
+  OK := OK and TProtect.Create.Check;
+
   if not OK then
   begin
     Application.ShowMainForm := False;
@@ -766,19 +768,19 @@ procedure TfrmMain.ShowParametricTable;
 begin
   if frmParametricTable = nil then
   begin
-{
-    // Ќам надо узнать, есть-ли у текущей категории подкатегории
-    rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
-    // ≈сли у нашей категории есть подкатегории
-    if rc > 0 then
+    {
+      // Ќам надо узнать, есть-ли у текущей категории подкатегории
+      rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
+      // ≈сли у нашей категории есть подкатегории
+      if rc > 0 then
       ACategoryPath := DM2.qTreeList.Value.AsString
-    else
-    begin
+      else
+      begin
       // ≈сли в цепочке категорий мы последнее звено
       ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-        (DM2.qTreeList.PK.Value, 2, '-');
-    end;
-}
+      (DM2.qTreeList.PK.Value, 2, '-');
+      end;
+    }
     // —оздаЄм окно с параметрической таблицей
     frmParametricTable := TfrmParametricTable.Create(Self);
 

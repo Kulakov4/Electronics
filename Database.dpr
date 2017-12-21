@@ -185,7 +185,8 @@ uses
   NaturalSort in 'Helpers\NaturalSort\NaturalSort.pas',
   ParametricErrorTable in 'Queryes\Components\ParametricTable\ParametricErrorTable.pas',
   ParametricTableErrorView in 'Views\Components\ParametricTable\ParametricTableErrorView.pas' {ViewParametricTableError: TFrame},
-  ParametricTableErrorForm in 'Views\Components\ParametricTable\ParametricTableErrorForm.pas' {frmParametricTableError};
+  ParametricTableErrorForm in 'Views\Components\ParametricTable\ParametricTableErrorForm.pas' {frmParametricTableError},
+  ProtectUnit in 'Helpers\ProtectUnit.pas';
 
 {$R *.res}
 

@@ -76,7 +76,7 @@ begin
   Assert(FProducersDataSet <> nil);
 
   // Ищем производителя
-  V := FProducersMemTable.LookupEx(Producer.FieldName, Producer.Value, 'ID');
+  V := FProducersMemTable.LookupEx('Name', Producer.Value, 'ID');
 
   Result := not VarIsNull(V);
 
