@@ -34,7 +34,7 @@ const
   d2: Integer = 0;
   KEYPATH: String = 'SOFTWARE\{A6B78162-D43E-4867-B931-A68BC7075C2E}';
   MYKEY: String = 'XPT_CE2.Interop.';
-  DemoDays: Integer = 2;
+  DemoDays: Integer = 30;
 
 function TProtect.DecodeDate(const Str: String;
   var ADate1, ADate2: TDateTime): Boolean;
@@ -109,8 +109,8 @@ begin
     if not Result then
       Exit;
 
-    x := MinutesBetween(ADate1, ANow);
-    // x := DaysBetween(ADate1, ANow);
+    //x := MinutesBetween(ADate1, ANow);
+    x := DaysBetween(ADate1, ANow);
 
     Result := x < DemoDays;
     if not Result then
