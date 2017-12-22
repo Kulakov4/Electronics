@@ -27,7 +27,7 @@ type
 implementation
 
 uses
-  System.Classes;
+  System.Classes, System.NetEncoding;
 
 const
   d1: Integer = 0;
@@ -157,7 +157,7 @@ var
   AKeyName: string;
   r: TRegistry;
 begin
-  Result := False;
+  //Result := False;
   r := TRegistry.Create(KEY_WRITE OR KEY_WOW64_64KEY);
   try
     r.RootKey := HKEY_CURRENT_USER;
