@@ -33,7 +33,10 @@ type
     FFieldPrefix: string = 'Field';
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    procedure DoOnApplyUpdate(Sender: TObject);
+    procedure ApplyUpdate(AQueryCustomComponents: TQueryCustomComponents; AFamily:
+        Boolean);
+    procedure DoOnApplyUpdateComponent(Sender: TObject);
+    procedure DoOnApplyUpdateFamily(Sender: TObject);
     function GetFieldName(AIDParameter: Integer): String;
     property qProductParameters: TQueryProductParameters
       read FqProductParameters;
@@ -211,9 +214,10 @@ begin
   end;
 end;
 
-procedure TComponentsExGroup.DoOnApplyUpdate(Sender: TObject);
+procedure TComponentsExGroup.ApplyUpdate(AQueryCustomComponents:
+    TQueryCustomComponents; AFamily: Boolean);
 var
-  AQueryCustomComponents: TQueryCustomComponents;
+//  AQueryCustomComponents: TQueryCustomComponents;
   AField: TField;
   AFieldName: String;
   AMark: Char;
@@ -221,12 +225,13 @@ var
   k: Integer;
   m: TArray<String>;
   S: string;
-  ADataSet: TFDQuery;
+//  ADataSet: TFDQuery;
   //ANewValue: String;
   //AOldValue: String;
 begin
-  AQueryCustomComponents := Sender as TQueryCustomComponents;
-  ADataSet := AQueryCustomComponents.FDQuery;
+//  AQueryCustomComponents := Sender as TQueryCustomComponents;
+
+//  ADataSet := AQueryCustomComponents.FDQuery;
   Assert(AQueryCustomComponents.RecordHolder <> nil);
 
   // Цикл по всем добавленным полям
@@ -235,7 +240,7 @@ begin
   begin
     AFieldName := AllParameterFields
       [FqParametersForCategory.ParameterID.AsInteger];
-    AField := ADataSet.FieldByName(AFieldName);
+    AField := AQueryCustomComponents.Field(AFieldName);
 
 
     // AField.OldValue <> AField.Value почему-то не работает
@@ -245,7 +250,7 @@ begin
     if AQueryCustomComponents.RecordHolder.Field[AFieldName] <> AField.Value then
     begin
       // Фильтруем значения параметров
-      FqProductParameters.ApplyFilter(ADataSet.FieldByName('ID').AsInteger,
+      FqProductParameters.ApplyFilter(AQueryCustomComponents.PK.AsInteger,
         FqParametersForCategory.ParameterID.AsInteger);
 
       FqProductParameters.FDQuery.First;
@@ -268,7 +273,7 @@ begin
             FqProductParameters.ParameterID.AsInteger :=
               FqParametersForCategory.ParameterID.AsInteger;
             FqProductParameters.ProductID.AsInteger :=
-              ADataSet.FieldByName('ID').AsInteger;
+              AQueryCustomComponents.PK.AsInteger;
           end;
 
           FqProductParameters.Value.AsString := AValue;
@@ -288,6 +293,16 @@ begin
     // Переходим к следующему параметру
     qParametersForCategory.FDQuery.Next;
   end;
+end;
+
+procedure TComponentsExGroup.DoOnApplyUpdateComponent(Sender: TObject);
+begin
+  ApplyUpdate(Sender as TQueryCustomComponents, False);
+end;
+
+procedure TComponentsExGroup.DoOnApplyUpdateFamily(Sender: TObject);
+begin
+  ApplyUpdate(Sender as TQueryCustomComponents, True);
 end;
 
 procedure TComponentsExGroup.OnFDQueryUpdateRecord(ASender: TDataSet;
@@ -381,9 +396,9 @@ begin
   end;
 
   // Подписываемся на событие, чтобы сохранить
-  TNotifyEventWrap.Create(qFamilyEx.On_ApplyUpdate, DoOnApplyUpdate,
+  TNotifyEventWrap.Create(qFamilyEx.On_ApplyUpdate, DoOnApplyUpdateFamily,
     FApplyUpdateEvents);
-  TNotifyEventWrap.Create(qComponentsEx.On_ApplyUpdate, DoOnApplyUpdate,
+  TNotifyEventWrap.Create(qComponentsEx.On_ApplyUpdate, DoOnApplyUpdateComponent,
     FApplyUpdateEvents);
 
   qFamilyEx.SaveValuesAfterEdit := True;

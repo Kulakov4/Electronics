@@ -696,7 +696,7 @@ begin
     end;
   end;
 
-  OK := OK and TProtect.Create.Check;
+//  OK := OK and TProtect.Create.Check;
 
   if not OK then
   begin
