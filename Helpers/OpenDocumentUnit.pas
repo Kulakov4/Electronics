@@ -10,7 +10,7 @@ type
     class procedure GetFileNames(const AFileName, AFileExts: string;
       L: TList<String>); static;
   public
-    class procedure Open(Handle: HWND; const AFolder, AFileName, AErrorMessage,
+    class procedure Open(Handle: HWND; const AFolders, AFileName, AErrorMessage,
       AEmptyErrorMessage: string; const AFileExts: string = ''); static;
   end;
 
@@ -22,6 +22,8 @@ class procedure TDocument.GetFileNames(const AFileName, AFileExts: string;
   L: TList<String>);
 var
   AExt: String;
+  D: string;
+  F: string;
   m: TArray<String>;
   S: string;
 begin
@@ -35,26 +37,44 @@ begin
   begin
     S := AExt.Trim;
     if not S.IsEmpty then
-      L.Add(Format('%s.%s', [TPath.GetFileNameWithoutExtension(AFileName), S]));
+    begin
+      D := TPath.GetDirectoryName(AFileName);
+      F := TPath.GetFileNameWithoutExtension(AFileName);
+
+      L.Add(Format('%s.%s', [TPath.Combine(D, F), S]));
+    end;
   end;
 end;
 
-class procedure TDocument.Open(Handle: HWND;
-  const AFolder, AFileName, AErrorMessage, AEmptyErrorMessage: string;
-  const AFileExts: string = '');
+class procedure TDocument.Open(Handle: HWND; const AFolders, AFileName,
+  AErrorMessage, AEmptyErrorMessage: string; const AFileExts: string = '');
 var
+  AFolder: string;
   AFullFileName: string;
   L: TList<String>;
+  m: TArray<String>;
   S: string;
 begin
-  if AFileName <> '' then
+  Assert(not AFolders.IsEmpty);
+
+  if AFileName.IsEmpty then
   begin
-    L := TList<String>.Create;
-    try
-      // Получаем все возможные имена файлов
-      GetFileNames(AFileName, AFileExts, L);
-      Assert(L.Count > 0);
-      for S in L do
+    TDialog.Create.ErrorMessageDialog(AEmptyErrorMessage);
+    Exit;
+  end;
+
+  // Получаем все возможные папки
+  m := AFolders.Split([';']);
+  Assert(Length(m) > 0);
+
+  L := TList<String>.Create;
+  try
+    // Получаем все возможные имена файлов
+    GetFileNames(AFileName, AFileExts, L);
+    Assert(L.Count > 0);
+    for S in L do
+    begin
+      for AFolder in m do
       begin
         // Получаем полное имя файла
         AFullFileName := TPath.Combine(AFolder, S);
@@ -65,14 +85,13 @@ begin
           Exit;
         end
       end;
-      TDialog.Create.ErrorMessageDialog(Format(AErrorMessage,
-        [TPath.Combine(AFolder, AFileName)]));
-    finally
-      FreeAndNil(L);
     end;
-  end
-  else
-    TDialog.Create.ErrorMessageDialog(AEmptyErrorMessage);
+    TDialog.Create.ErrorMessageDialog(Format(AErrorMessage,
+      [TPath.Combine(m[0], AFileName)]));
+  finally
+    FreeAndNil(L);
+  end;
+
 end;
 
 end.

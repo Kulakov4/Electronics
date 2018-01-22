@@ -10,8 +10,8 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, RecursiveParametersQuery,
-  System.Generics.Collections, DragHelper, DBRecordHolder, Sequence,
-  MaxCategoryParameterOrderQuery;
+  System.Generics.Collections, DragHelper, DBRecordHolder{, Sequence},
+  MaxCategoryParameterOrderQuery, NotifyEvents;
 
 type
   TQueryCategoryParameters = class(TQueryWithDataSource)
@@ -19,6 +19,7 @@ type
   private
     FInsertedClone: TFDMemTable;
     FMaxOrder: Integer;
+    FOn_ApplyUpdates: TNotifyEventsEx;
     FQueryRecursiveParameters: TQueryRecursiveParameters;
     FRefreshQry: TQueryCategoryParameters;
     procedure DoAfterClose(Sender: TObject);
@@ -62,6 +63,7 @@ type
     property ID: TField read GetID;
     property IsAttribute: TField read GetIsAttribute;
     property IsEnabled: TField read GetIsEnabled;
+    property On_ApplyUpdates: TNotifyEventsEx read FOn_ApplyUpdates;
     property Order: TField read GetOrder;
     property ParameterID: TField read GetParameterID;
     property PosID: TField read GetPosID;
@@ -73,7 +75,7 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, RepositoryDataModule;
+uses RepositoryDataModule;
 
 constructor TQueryCategoryParameters.Create(AOwner: TComponent);
 begin
@@ -89,6 +91,8 @@ begin
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete);
+
+  FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
 end;
 
 procedure TQueryCategoryParameters.AppendParameter(ARecordHolder: TRecordHolder;
@@ -121,36 +125,24 @@ end;
 procedure TQueryCategoryParameters.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
-var
-  ACategoryID: TField;
-  AID: TField;
-  AOrder: TField;
-  AParameterID: TField;
-  APosID: TField;
 begin
-  APosID := ASender.FieldByName(PosID.FieldName);
-  AOrder := ASender.FieldByName(Order.FieldName);
-  AParameterID := ASender.FieldByName(ParameterID.FieldName);
-  ACategoryID := ASender.FieldByName(CategoryID.FieldName);
-  AID := ASender.FieldByName(PKFieldName);
+  Assert(ASender = FDQuery);
 
   // Рекурсивно вставляем записи в БД
-  QueryRecursiveParameters.ExecInsertSQL(APosID.Value, AOrder.Value,
-    AParameterID.Value, ACategoryID.Value);
+  QueryRecursiveParameters.ExecInsertSQL(PosID.Value, Order.Value,
+    ParameterID.Value, CategoryID.Value);
 
   // Выбираем вставленную запись чтобы узнать её идентификатор
   RefreshQry.Load([DetailParameterName, 'ParameterID'],
-    [ACategoryID.Value, AParameterID.Value]);
+    [CategoryID.Value, ParameterID.Value]);
   // Должна быть выбрана только одна запись
   // Иначе - нарушено ограничение уникальности
   Assert(RefreshQry.FDQuery.RecordCount = 1);
   Assert(RefreshQry.PK.AsInteger > 0);
 
   // Заполняем первычный ключ у вставленной записи
-  // if ASender.State in [dsEdit, dsInsert] then
-  ASender.Edit;
-  AID.AsInteger := RefreshQry.PK.Value;
-  ASender.Post;
+  FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction, AOptions);
+  //AID.AsInteger := RefreshQry.PK.Value;
 end;
 
 procedure TQueryCategoryParameters.ApplyUpdate(ASender: TDataSet;
@@ -184,6 +176,7 @@ begin
   inherited;
   // Чтобы в следующий раз его вычислить
   FMaxOrder := 0;
+  FOn_ApplyUpdates.CallEventHandlers(Self);
 end;
 
 procedure TQueryCategoryParameters.CancelUpdates;

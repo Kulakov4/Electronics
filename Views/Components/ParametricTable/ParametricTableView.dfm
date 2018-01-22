@@ -6,7 +6,6 @@ inherited ViewParametricTable: TViewParametricTable
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
-      DataController.OnCompare = cxGridDBBandedTableViewDataControllerCompare
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnMoving = False
@@ -110,6 +109,15 @@ inherited ViewParametricTable: TViewParametricTable
         Position.BandIndex = 0
         Position.ColIndex = 3
       end
+      object clAnalog: TcxGridDBBandedColumn
+        Caption = #1040#1085#1072#1083#1086#1075
+        DataBinding.FieldName = 'Analog'
+        Visible = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
+      end
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -193,6 +201,15 @@ inherited ViewParametricTable: TViewParametricTable
         Position.BandIndex = 0
         Position.ColIndex = 2
       end
+      object clAnalog2: TcxGridDBBandedColumn
+        Caption = #1040#1085#1072#1083#1086#1075
+        DataBinding.FieldName = 'Analog'
+        Visible = False
+        VisibleForCustomization = False
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
+      end
     end
   end
   inherited dxBarManager: TdxBarManager
@@ -213,7 +230,7 @@ inherited ViewParametricTable: TViewParametricTable
         end
         item
           Visible = True
-          ItemName = 'dxbrsbtmAnalogSearch'
+          ItemName = 'dxBarButton4'
         end
         item
           Visible = True
@@ -222,24 +239,16 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
         end>
     end
     object dxbrbtnApplyUpdates: TdxBarButton
       Action = actCommit
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxbrsbtmAnalogSearch: TdxBarSubItem
-      Caption = #1055#1086#1080#1089#1082' '#1072#1085#1072#1083#1086#1075#1072
-      Category = 0
-      Visible = ivAlways
-      ImageIndex = 9
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxbbFullAnalog'
-        end>
     end
     object dxbbFullAnalog: TdxBarButton
       Action = actFullAnalog
@@ -262,6 +271,20 @@ inherited ViewParametricTable: TViewParametricTable
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton3: TdxBarButton
+      Action = actAnalog
+      Category = 0
+    end
+    object dxBarButton4: TdxBarButton
+      Action = actAnalog
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton5: TdxBarButton
+      Action = actRefresh
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     object actAutoWidth: TAction
@@ -279,10 +302,10 @@ inherited ViewParametricTable: TViewParametricTable
       ImageIndex = 10
       OnExecute = actClearFiltersExecute
     end
-    object actNearAnalog: TAction
-      Caption = #1041#1083#1080#1079#1082#1080#1081' '#1072#1085#1072#1083#1086#1075
+    object actAnalog: TAction
+      Caption = #1055#1086#1080#1089#1082' '#1072#1085#1072#1083#1086#1075#1072
       ImageIndex = 9
-      OnExecute = actNearAnalogExecute
+      OnExecute = actAnalogExecute
     end
     object actLocateInStorehouse: TAction
       Caption = #1055#1086#1080#1089#1082' '#1087#1086' '#1089#1082#1083#1072#1076#1072#1084
@@ -290,18 +313,26 @@ inherited ViewParametricTable: TViewParametricTable
       ImageIndex = 36
       OnExecute = actLocateInStorehouseExecute
     end
+    object actRefresh: TAction
+      Caption = #1054#1073#1085#1086#1074#1080#1090#1100
+      ImageIndex = 4
+      OnExecute = actRefreshExecute
+    end
+    object actClearSelected: TAction
+      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
+      ImageIndex = 10
+      OnExecute = actClearSelectedExecute
+    end
   end
-  object Timer: TTimer
+  inherited pmGrid: TPopupMenu
+    object N6: TMenuItem
+      Action = actClearSelected
+    end
+  end
+  object BandTimer: TTimer
     Enabled = False
     Interval = 500
-    OnTimer = TimerTimer
-    Left = 256
-    Top = 120
-  end
-  object Timer2: TTimer
-    Enabled = False
-    Interval = 500
-    OnTimer = Timer2Timer
+    OnTimer = BandTimerTimer
     Left = 56
     Top = 152
   end

@@ -14,14 +14,20 @@ type
   TDescriptionsExcelTable = class(TCustomExcelTable)
   private
     FDescriptionsDataSet: TFDDataSet;
-    FDMemTable: TFDMemTable;
+    FProducersDataSet: TFDDataSet;
+    FDescriptionsMemTable: TFDMemTable;
+    FProducersMemTable: TFDMemTable;
     function GetComponentName: TField;
     function GetComponentType: TField;
-    function GetManufacturer: TField;
+    function GetIDProducer: TField;
+    function GetProducer: TField;
     procedure SetDescriptionsDataSet(const Value: TFDDataSet);
+    procedure SetProducersDataSet(const Value: TFDDataSet);
   protected
     function CheckDescription: Boolean;
-    procedure Clone;
+    procedure CloneDescriptions;
+    procedure CloneProducers;
+    procedure CreateFieldDefs; override;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -30,7 +36,10 @@ type
     property ComponentType: TField read GetComponentType;
     property DescriptionsDataSet: TFDDataSet read FDescriptionsDataSet
       write SetDescriptionsDataSet;
-    property Manufacturer: TField read GetManufacturer;
+    property IDProducer: TField read GetIDProducer;
+    property ProducersDataSet: TFDDataSet read FProducersDataSet write
+        SetProducersDataSet;
+    property Producer: TField read GetProducer;
   end;
 
   TDescriptionsExcelDM = class(TExcelDM)
@@ -55,17 +64,42 @@ uses System.Math, System.Variants, FieldInfoUnit, ProgressInfo;
 constructor TDescriptionsExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FDMemTable := TFDMemTable.Create(Self);
+  FDescriptionsMemTable := TFDMemTable.Create(Self);
+  FProducersMemTable := TFDMemTable.Create(Self);
 end;
 
 function TDescriptionsExcelTable.CheckDescription: Boolean;
 var
   V: Variant;
 begin
-  // Ищем компонент с такм-же именем
-  V := FDMemTable.LookupEx(ComponentName.FieldName, ComponentName.Value, 'ID');
+  Assert(FDescriptionsDataSet <> nil);
+  Assert(FProducersDataSet <> nil);
 
-  Result := VarIsNull(V);
+  // Ищем производителя
+  V := FProducersMemTable.LookupEx('Name', Producer.Value, 'ID');
+
+  Result := not VarIsNull(V);
+
+  // Если нашли
+  if not Result then
+  begin
+    MarkAsError(etError);
+
+    Errors.AddError(ExcelRow.AsInteger, Producer.Index + 1,
+      Producer.AsString, 'Производитель с таким наименованием не найден в справочнике производителей');
+
+    Exit;
+  end;
+
+  // Запоминаем код производителя
+  Edit;
+  IDProducer.Value := V;
+  Post;
+
+  // Продолжаем проверку
+
+  // Ищем компонент с таким-же именем
+  V := FDescriptionsMemTable.LookupEx(ComponentName.FieldName, ComponentName.Value, 'ID');
 
   // Если нашли
   if not Result then
@@ -86,19 +120,41 @@ begin
   end;
 end;
 
-procedure TDescriptionsExcelTable.Clone;
+procedure TDescriptionsExcelTable.CloneDescriptions;
 var
   AFDIndex: TFDIndex;
 begin
   // Клонируем курсор
-  FDMemTable.CloneCursor(DescriptionsDataSet);
+  FDescriptionsMemTable.CloneCursor(DescriptionsDataSet);
 
   // Создаём индекс
-  AFDIndex := FDMemTable.Indexes.Add;
+  AFDIndex := FDescriptionsMemTable.Indexes.Add;
   AFDIndex.Fields := 'ComponentName';
   AFDIndex.Name := 'idxComponentName';
   AFDIndex.Active := True;
-  FDMemTable.IndexName := AFDIndex.Name;
+  FDescriptionsMemTable.IndexName := AFDIndex.Name;
+end;
+
+procedure TDescriptionsExcelTable.CloneProducers;
+var
+  AFDIndex: TFDIndex;
+begin
+  // Клонируем курсор
+  FProducersMemTable.CloneCursor(ProducersDataSet);
+
+  // Создаём индекс
+  AFDIndex := FProducersMemTable.Indexes.Add;
+  AFDIndex.Fields := 'Name';
+  AFDIndex.Name := 'idxName';
+  AFDIndex.Active := True;
+  FProducersMemTable.IndexName := AFDIndex.Name;
+end;
+
+procedure TDescriptionsExcelTable.CreateFieldDefs;
+begin
+  inherited;
+  // при проверке будем заполнять код производителя
+  FieldDefs.Add('IDProducer', ftInteger);
 end;
 
 function TDescriptionsExcelTable.GetComponentName: TField;
@@ -111,9 +167,14 @@ begin
   Result := FieldByName('ComponentType');
 end;
 
-function TDescriptionsExcelTable.GetManufacturer: TField;
+function TDescriptionsExcelTable.GetIDProducer: TField;
 begin
-  Result := FieldByName('Manufacturer');
+  Result := FieldByName('IDProducer');
+end;
+
+function TDescriptionsExcelTable.GetProducer: TField;
+begin
+  Result := FieldByName('Producer');
 end;
 
 procedure TDescriptionsExcelTable.SetDescriptionsDataSet
@@ -124,7 +185,19 @@ begin
     FDescriptionsDataSet := Value;
     if FDescriptionsDataSet <> nil then
     begin
-      Clone;
+      CloneDescriptions;
+    end;
+  end;
+end;
+
+procedure TDescriptionsExcelTable.SetProducersDataSet(const Value: TFDDataSet);
+begin
+  if FProducersDataSet <> Value then
+  begin
+    FProducersDataSet := Value;
+    if FProducersDataSet <> nil then
+    begin
+      CloneProducers;
     end;
   end;
 end;
@@ -133,7 +206,7 @@ procedure TDescriptionsExcelTable.SetFieldsInfo;
 begin
   FieldsInfo.Add(TFieldInfo.Create('ComponentName', True,
     'Наименование компонента не должно быть пустым'));
-  FieldsInfo.Add(TFieldInfo.Create('Manufacturer', True,
+  FieldsInfo.Add(TFieldInfo.Create('Producer', True,
     'Наименование производителя не должно быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('Description', True,
     'Описание компонента не должно быть пустым', False, 3000));

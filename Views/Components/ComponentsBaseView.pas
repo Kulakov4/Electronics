@@ -30,7 +30,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   CustomComponentsQuery, SearchParameterValues, cxTextEdit, cxBlobEdit,
-  cxRichEdit, DescriptionPopupForm;
+  cxRichEdit, DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit,
+  ProjectConst;
 
 type
   TViewComponentsBase = class(TViewComponentsParent)
@@ -63,6 +64,22 @@ type
     clPackagePins2: TcxGridDBBandedColumn;
     clDescription: TcxGridDBBandedColumn;
     clDescription2: TcxGridDBBandedColumn;
+    actOpenDatasheet: TAction;
+    actLoadDatasheet: TAction;
+    actOpenDiagram: TAction;
+    actLoadDiagram: TAction;
+    actOpenImage: TAction;
+    actLoadImage: TAction;
+    actOpenDrawing: TAction;
+    actLoadDrawing: TAction;
+    procedure actLoadDatasheetExecute(Sender: TObject);
+    procedure actLoadDiagramExecute(Sender: TObject);
+    procedure actLoadDrawingExecute(Sender: TObject);
+    procedure actLoadImageExecute(Sender: TObject);
+    procedure actOpenDatasheetExecute(Sender: TObject);
+    procedure actOpenDiagramExecute(Sender: TObject);
+    procedure actOpenDrawingExecute(Sender: TObject);
+    procedure actOpenImageExecute(Sender: TObject);
     procedure actPasteComponentsExecute(Sender: TObject);
     procedure actPastePackagePinsExecute(Sender: TObject);
     procedure actPasteFamilyExecute(Sender: TObject);
@@ -74,8 +91,6 @@ type
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure cxerpiSubGroup_PropertiesCloseUp(Sender: TObject);
     procedure cxerpiSubGroup_PropertiesInitPopup(Sender: TObject);
-    procedure clManufacturerIdPropertiesNewLookupDisplayText(Sender: TObject;
-      const AText: TCaption);
     procedure clBodyIdPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
     procedure clDatasheetGetDataText(Sender: TcxCustomGridTableItem;
@@ -86,13 +101,12 @@ type
   private
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FfrmSubgroupListPopup: TfrmSubgroupListPopup;
-    FqSearchParameterValues: TQuerySearchParameterValues;
     FqSubGroups: TfrmQuerySubGroups;
     procedure DoAfterCommit(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetFocusedQuery: TQueryCustomComponents;
     function GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
-    function GetqSearchParameterValues: TQuerySearchParameterValues;
+    function GetProducerDisplayText: string;
     function GetqSubGroups: TfrmQuerySubGroups;
     procedure MyInitializeComboBoxColumn;
     { Private declarations }
@@ -100,15 +114,16 @@ type
     procedure DoOnMasterDetailChange; override;
     procedure InternalRefreshData; override;
     procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
+    procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
     property frmSubgroupListPopup: TfrmSubgroupListPopup
       read GetfrmSubgroupListPopup;
-    property qSearchParameterValues: TQuerySearchParameterValues
-      read GetqSearchParameterValues;
     property qSubGroups: TfrmQuerySubGroups read GetqSubGroups;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    property ProducerDisplayText: string read GetProducerDisplayText;
     { Public declarations }
   end;
 
@@ -135,16 +150,56 @@ begin
   AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
 
-  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide);
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
+    DoOnDescriptionPopupHide);
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
-
 end;
 
 destructor TViewComponentsBase.Destroy;
 begin
   inherited;
+end;
+
+procedure TViewComponentsBase.actLoadDatasheetExecute(Sender: TObject);
+begin
+  UploadDoc(TDatasheetDoc.Create);
+end;
+
+procedure TViewComponentsBase.actLoadDiagramExecute(Sender: TObject);
+begin
+  UploadDoc(TDiagramDoc.Create);
+end;
+
+procedure TViewComponentsBase.actLoadDrawingExecute(Sender: TObject);
+begin
+  UploadDoc(TDrawingDoc.Create);
+end;
+
+procedure TViewComponentsBase.actLoadImageExecute(Sender: TObject);
+begin
+  UploadDoc(TImageDoc.Create);
+end;
+
+procedure TViewComponentsBase.actOpenDatasheetExecute(Sender: TObject);
+begin
+  OpenDoc(TDatasheetDoc.Create);
+end;
+
+procedure TViewComponentsBase.actOpenDiagramExecute(Sender: TObject);
+begin
+  OpenDoc(TDiagramDoc.Create);
+end;
+
+procedure TViewComponentsBase.actOpenDrawingExecute(Sender: TObject);
+begin
+  OpenDoc(TDrawingDoc.Create);
+end;
+
+procedure TViewComponentsBase.actOpenImageExecute(Sender: TObject);
+begin
+  OpenDoc(TImageDoc.Create);
 end;
 
 procedure TViewComponentsBase.actPasteComponentsExecute(Sender: TObject);
@@ -220,18 +275,31 @@ procedure TViewComponentsBase.actPasteProducerExecute(Sender: TObject);
 var
   AID: Integer;
   AIDList: TList<Integer>;
+  AProducer: string;
   m: TArray<String>;
 begin
   m := TClb.Create.GetRowsAsArray;
   if (Length(m) = 0) or (GetFocusedQuery = nil) then
     Exit;
 
+  AProducer := m[0].Trim;
+
+  Assert(BaseComponentsGroup.Producers <> nil);
+  Assert(BaseComponentsGroup.Producers.FDQuery.Active);
+
+  // Вставлять можно только то, что есть в справочнике
+  if not BaseComponentsGroup.Producers.Locate(AProducer) then
+  begin
+    TDialog.Create.ProducerNotFound(AProducer);
+    Exit;
+  end;
+
   AIDList := GetSelectedIDs;
   try
     BeginUpdate;
     try
       for AID in AIDList do
-        GetFocusedQuery.SetProducer(AID, m[0]);
+        GetFocusedQuery.SetProducer(AID, AProducer);
     finally
       EndUpdate;
     end;
@@ -276,20 +344,6 @@ begin
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
   FfrmDescriptionPopup.Query := BaseComponentsGroup.QueryBaseFamily;
-end;
-
-procedure TViewComponentsBase.clManufacturerIdPropertiesNewLookupDisplayText
-  (Sender: TObject; const AText: TCaption);
-begin
-  inherited;
-  if AText <> '' then
-  begin
-    if (not BaseComponentsGroup.Producers.Locate(AText)) and
-      (TDialog.Create.AddManufacturerDialog(AText)) then
-    begin
-      BaseComponentsGroup.Producers.AddNewValue(AText);
-    end;
-  end;
 end;
 
 procedure TViewComponentsBase.clSubGroup2GetProperties
@@ -407,13 +461,20 @@ begin
   Result := FfrmSubgroupListPopup;
 end;
 
-function TViewComponentsBase.GetqSearchParameterValues
-  : TQuerySearchParameterValues;
+function TViewComponentsBase.GetProducerDisplayText: string;
+var
+  AColumn: TcxGridDBBandedColumn;
+  AView: TcxGridDBBandedTableView;
 begin
-  if FqSearchParameterValues = nil then
-    FqSearchParameterValues := TQuerySearchParameterValues.Create(Self);
+  Result := '';
+  AView := FocusedTableView;
+  if AView = nil then
+    Exit;
 
-  Result := FqSearchParameterValues;
+  AColumn := AView.GetColumnByFieldName(FocusedQuery.Producer.FieldName);
+  Assert(AColumn <> nil);
+
+  Result := AView.Controller.FocusedRecord.DisplayTexts[AColumn.Index];
 end;
 
 function TViewComponentsBase.GetqSubGroups: TfrmQuerySubGroups;
@@ -436,19 +497,12 @@ end;
 
 procedure TViewComponentsBase.MyInitializeComboBoxColumn;
 begin
-  // Ищем возможные значения производителя для выпадающего списка
-  qSearchParameterValues.Search(TDefaultParameters.ProducerParameterID);
+  Assert(BaseComponentsGroup.Producers <> nil);
+  BaseComponentsGroup.Producers.TryOpen;
 
-  // Инициализируем Combobox колонки
+  // Производителя выбираем ТОЛЬКО из списка
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditList, qSearchParameterValues.Value);
-  {
-    // Ищем возможные значения корпусов для выпадающего списка
-    qSearchParameterValues.Search(TDefaultParameters.PackagePinsParameterID);
-
-    InitializeComboBoxColumn(MainView, clPackagePins.DataBinding.FieldName,
-    lsEditList, qSearchParameterValues.Value);
-  }
+    lsEditFixedList, BaseComponentsGroup.Producers.Name);
 end;
 
 procedure TViewComponentsBase.OnGridPopupMenuPopup
@@ -483,6 +537,51 @@ begin
   actCopyToClipboard.Visible := AColumn <> nil;
   actCopyToClipboard.Enabled := actCopyToClipboard.Visible
 
+end;
+
+procedure TViewComponentsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo);
+begin
+  Application.Hint := '';
+  TDocument.Open(Handle, ADocFieldInfo.Folder,
+    BaseComponentsGroup.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
+    .AsString, ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
+    sBodyTypesFilesExt);
+end;
+
+procedure TViewComponentsBase.UploadDoc(ADocFieldInfo: TDocFieldInfo);
+var
+  AProducer: string;
+  APath: String;
+  AFileName: string;
+begin
+  Application.Hint := '';
+  // Файл должен лежать в каталоге = производителю
+  AProducer := ProducerDisplayText;
+
+  APath := BaseComponentsGroup.QueryBaseFamily.Field
+    (ADocFieldInfo.FieldName).AsString;
+  // Если файл документации ранее был уже задан
+  if APath <> '' then
+  begin
+    // Получаем полный путь до файла
+    APath := TPath.Combine(ADocFieldInfo.Folder, APath);
+    // Получаем папку в которой лежит ранее заданный файл документации
+    APath := TPath.GetDirectoryName(APath);
+    // если такого пути уже не существует
+  end
+  else
+    APath := TPath.Combine(ADocFieldInfo.Folder, AProducer);
+
+  if not TDirectory.Exists(APath) then
+    APath := ADocFieldInfo.Folder;
+
+  // Открываем диалог выбора файла для загрузки
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, APath, '', AFileName)
+  then
+    Exit;
+
+  BaseComponentsGroup.LoadDocFile(AFileName, ADocFieldInfo);
+  ApplyBestFitEx;
 end;
 
 end.

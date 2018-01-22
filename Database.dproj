@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>Database.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -59,15 +59,17 @@
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>Database</SanitizedProjectName>
+        <VerInfo_Locale>1049</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;dxPSPrVwRibbonRS25;dxRibbonCustomizationFormRS25;DBXDb2Driver;dxSkinOffice2007PinkRS25;dxSkinMcSkinRS25;vclactnband;vclFireDAC;cxExportRS25;dxHttpIndyRequestRS25;tethering;dxPScxCommonRS25;FireDACADSDriver;cxPivotGridOLAPRS25;FireDACMSSQLDriver;cxSchedulerGridRS25;vcltouch;dxSkinDarkRoomRS25;dxSkinDarkSideRS25;vcldb;Intraweb;svn;dxGaugeControlRS25;cxLibraryRS25;dxSkinOffice2007SilverRS25;dxSkinscxSchedulerPainterRS25;dxSkinBlackRS25;vclib;dxSkinOffice2007BlueRS25;dxSkinOffice2007BlackRS25;FireDACDBXDriver;dxSkinVS2010RS25;vclx;dxSkinFoggyRS25;dxSpreadSheetConditionalFormattingDialogsRS25;dxSkinSevenRS25;dxSkinSpringTimeRS25;dxTileControlRS25;dxMapControlRS25;dxPDFViewerRS25;dxDockingRS25;VCLRESTComponents;dxSkinsdxNavBarPainterRS25;cxPageControlRS25;dxSkinLilianRS25;dxPSLnksRS25;dxWizardControlRS25;dxRichEditControlRS25;vclie;fs25;bindengine;dxFireDACServerModeRS25;FireDACMySQLDriver;dxSkinOffice2013LightGrayRS25;dxSkinMetropolisRS25;DataSnapClient;dxSkinOffice2016DarkRS25;bindcompdbx;dxSkinBlueprintRS25;dxSkinStardustRS25;DBXSybaseASEDriver;IndyIPServer;dxPSdxLCLnkRS25;IndySystem;dxSkinOffice2007GreenRS25;dsnapcon;dxLayoutControlRS25;dxPSRichEditControlLnkRS25;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;fsADO25;dxdbtrRS25;dxPScxTLLnkRS25;emshosting;dxSpreadSheetRS25;dxSkinVisualStudio2013LightRS25;RtmRxDB320;frxADO25;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxGridRS25;dxSkinTheAsphaltWorldRS25;DbxCommonDriver;dxPScxSchedulerLnkRS25;dxorgcRS25;office2010rt;dxSkinHighContrastRS25;xmlrtl;DataSnapNativeClient;fmxobj;frx25;dxPScxGridLnkRS25;rtl;DbxClientDriver;DBXSybaseASADriver;dxPSCoreRS25;dxmdsRS25;fsDB25;dxSkinOffice2016ColorfulRS25;appanalytics;IndyIPClient;bindcompvcl;dxSkinscxPCPainterRS25;dxThemeRS25;TeeUI;VclSmp;FireDACODBCDriver;DataSnapIndy10ServerTransport;DataSnapProviderClient;frxIBX25;FireDACMongoDBDriver;cxVerticalGridRS25;dxtrmdRS25;dxADOServerModeRS25;dxSkinPumpkinRS25;DataSnapServerMidas;frxcs25;dxCoreRS25;cxSchedulerTreeBrowserRS25;DBXInterBaseDriver;dxSkinValentineRS25;DclRxDB320;dxPSTeeChartRS25;DataSnapFireDAC;svnui;dxSkinOffice2010BlueRS25;dxSkinMoneyTwinsRS25;frxe25;dxSkinSilverRS25;DBXMSSQLDriver;dxPSdxFCLnkRS25;DatasnapConnectorsFreePascal;dxSkinOffice2013WhiteRS25;bindcompfmx;DBXOracleDriver;fsIBX25;inetdb;dxOfficeCoreRS25;FmxTeeUI;emsedge;fmx;fmxdae;frxDB25;dxTabbedMDIRS25;dxBarDBNavRS25;dxSkinBlueRS25;dxPScxPivotGridLnkRS25;frxTee25;dxSkinDevExpressDarkStyleRS25;dbexpress;IndyCore;dxFlowChartRS25;dxSkinsdxDLPainterRS25;dsnap;DataSnapCommon;fsTee25;dxBarRS25;dxPSDBTeeChartRS25;dxSkinLiquidSkyRS25;dxdborRS25;DataSnapConnectors;dxPScxExtCommonRS25;cxPivotGridRS25;dxPSdxSpreadSheetLnkRS25;dxNavBarRS25;cxSchedulerRibbonStyleEventEditorRS25;dxSkinCoffeeRS25;FireDACOracleDriver;DBXMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;dxSkinOffice2010SilverRS25;cxTreeListRS25;dxSkinsdxBarPainterRS25;IndyIPCommon;dxSkinLondonLiquidSkyRS25;vcl;dxPScxVGridLnkRS25;dxBarExtItemsRS25;dxSkinsCoreRS25;dxComnRS25;FireDACDb2Driver;dxSkinWhiteprintRS25;dxPSdxDBTVLnkRS25;dxSkinVisualStudio2013BlueRS25;dxSkinGlassOceansRS25;dxSkinMetropolisDarkRS25;dxSkinOffice2013DarkGrayRS25;dxSkinSharpPlusRS25;TeeDB;dxSkinCaramelRS25;dxServerModeRS25;dxPScxPCProdRS25;FireDACPgDriver;ibmonitor;FireDACASADriver;cxEditorsRS25;dxSkiniMaginaryRS25;ibxpress;Tee;DataSnapServer;ibxbindings;dxPsPrVwAdvRS25;vclwinx;FireDACDSDriver;dxSkinSevenClassicRS25;cxDataRS25;cxTreeListdxBarPopupMenuRS25;CustomIPTransport;vcldsnap;dxPSdxOCLnkRS25;dxSkinSharpRS25;bindcomp;tb2kdsgn_d320;DBXInformixDriver;cxPivotGridChartRS25;cxSchedulerRS25;dxBarExtDBItemsRS25;frxDBX25;dxSkinOffice2010BlackRS25;dxSkinVisualStudio2013DarkRS25;dxDBXServerModeRS25;dxSkinDevExpressStyleRS25;dxGDIPlusRS25;dxPSdxGaugeControlLnkRS25;dxSkinsdxRibbonPainterRS25;dbxcds;adortl;dxPSdxDBOCLnkRS25;dxRibbonRS25;dsnapxml;dxSpellCheckerRS25;dbrtl;inetdbxpress;IndyProtocols;dxSkinSummer2008RS25;dxPSdxMapControlLnkRS25;dxSkinXmas2008BlueRS25;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <DCC_ExeOutput>C:\Public\ElectronicDB\</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;dxPSPrVwRibbonRS25;dxRibbonCustomizationFormRS25;DBXDb2Driver;dxSkinOffice2007PinkRS25;dxSkinMcSkinRS25;vclactnband;vclFireDAC;cxExportRS25;dxHttpIndyRequestRS25;tethering;dxPScxCommonRS25;FireDACADSDriver;cxPivotGridOLAPRS25;FireDACMSSQLDriver;cxSchedulerGridRS25;vcltouch;dxSkinDarkRoomRS25;dxSkinDarkSideRS25;vcldb;Intraweb;dxGaugeControlRS25;cxLibraryRS25;dxSkinOffice2007SilverRS25;dxSkinscxSchedulerPainterRS25;dxSkinBlackRS25;vclib;dxSkinOffice2007BlueRS25;dxSkinOffice2007BlackRS25;FireDACDBXDriver;dxSkinVS2010RS25;vclx;dxSkinFoggyRS25;dxSpreadSheetConditionalFormattingDialogsRS25;dxSkinSevenRS25;dxSkinSpringTimeRS25;dxTileControlRS25;dxMapControlRS25;dxPDFViewerRS25;dxDockingRS25;VCLRESTComponents;dxSkinsdxNavBarPainterRS25;cxPageControlRS25;dxSkinLilianRS25;dxPSLnksRS25;dxWizardControlRS25;dxRichEditControlRS25;vclie;bindengine;dxFireDACServerModeRS25;FireDACMySQLDriver;dxSkinOffice2013LightGrayRS25;dxSkinMetropolisRS25;DataSnapClient;dxSkinOffice2016DarkRS25;bindcompdbx;dxSkinBlueprintRS25;dxSkinStardustRS25;DBXSybaseASEDriver;IndyIPServer;dxPSdxLCLnkRS25;IndySystem;dxSkinOffice2007GreenRS25;dsnapcon;dxLayoutControlRS25;dxPSRichEditControlLnkRS25;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;dxdbtrRS25;dxPScxTLLnkRS25;emshosting;dxSpreadSheetRS25;dxSkinVisualStudio2013LightRS25;DBXOdbcDriver;FireDACTDataDriver;FMXTee;cxGridRS25;dxSkinTheAsphaltWorldRS25;DbxCommonDriver;dxPScxSchedulerLnkRS25;dxorgcRS25;office2010rt;dxSkinHighContrastRS25;xmlrtl;DataSnapNativeClient;fmxobj;dxPScxGridLnkRS25;rtl;DbxClientDriver;DBXSybaseASADriver;dxPSCoreRS25;dxmdsRS25;dxSkinOffice2016ColorfulRS25;appanalytics;IndyIPClient;bindcompvcl;dxSkinscxPCPainterRS25;dxThemeRS25;TeeUI;VclSmp;FireDACODBCDriver;DataSnapIndy10ServerTransport;DataSnapProviderClient;FireDACMongoDBDriver;cxVerticalGridRS25;dxtrmdRS25;dxADOServerModeRS25;dxSkinPumpkinRS25;DataSnapServerMidas;dxCoreRS25;cxSchedulerTreeBrowserRS25;DBXInterBaseDriver;dxSkinValentineRS25;dxPSTeeChartRS25;DataSnapFireDAC;dxSkinOffice2010BlueRS25;dxSkinMoneyTwinsRS25;dxSkinSilverRS25;DBXMSSQLDriver;dxPSdxFCLnkRS25;DatasnapConnectorsFreePascal;dxSkinOffice2013WhiteRS25;bindcompfmx;DBXOracleDriver;inetdb;dxOfficeCoreRS25;FmxTeeUI;emsedge;fmx;fmxdae;dxTabbedMDIRS25;dxBarDBNavRS25;dxSkinBlueRS25;dxPScxPivotGridLnkRS25;dxSkinDevExpressDarkStyleRS25;dbexpress;IndyCore;dxFlowChartRS25;dxSkinsdxDLPainterRS25;dsnap;DataSnapCommon;dxBarRS25;dxPSDBTeeChartRS25;dxSkinLiquidSkyRS25;dxdborRS25;DataSnapConnectors;dxPScxExtCommonRS25;cxPivotGridRS25;dxPSdxSpreadSheetLnkRS25;dxNavBarRS25;cxSchedulerRibbonStyleEventEditorRS25;dxSkinCoffeeRS25;FireDACOracleDriver;DBXMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;dxSkinOffice2010SilverRS25;cxTreeListRS25;dxSkinsdxBarPainterRS25;IndyIPCommon;dxSkinLondonLiquidSkyRS25;vcl;dxPScxVGridLnkRS25;dxBarExtItemsRS25;dxSkinsCoreRS25;dxComnRS25;FireDACDb2Driver;dxSkinWhiteprintRS25;dxPSdxDBTVLnkRS25;dxSkinVisualStudio2013BlueRS25;dxSkinGlassOceansRS25;dxSkinMetropolisDarkRS25;dxSkinOffice2013DarkGrayRS25;dxSkinSharpPlusRS25;TeeDB;dxSkinCaramelRS25;dxServerModeRS25;dxPScxPCProdRS25;FireDACPgDriver;ibmonitor;FireDACASADriver;cxEditorsRS25;dxSkiniMaginaryRS25;ibxpress;Tee;DataSnapServer;ibxbindings;dxPsPrVwAdvRS25;vclwinx;FireDACDSDriver;dxSkinSevenClassicRS25;cxDataRS25;cxTreeListdxBarPopupMenuRS25;CustomIPTransport;vcldsnap;dxPSdxOCLnkRS25;dxSkinSharpRS25;bindcomp;DBXInformixDriver;cxPivotGridChartRS25;cxSchedulerRS25;dxBarExtDBItemsRS25;dxSkinOffice2010BlackRS25;dxSkinVisualStudio2013DarkRS25;dxDBXServerModeRS25;dxSkinDevExpressStyleRS25;dxGDIPlusRS25;dxPSdxGaugeControlLnkRS25;dxSkinsdxRibbonPainterRS25;dbxcds;adortl;dxPSdxDBOCLnkRS25;dxRibbonRS25;dsnapxml;dxSpellCheckerRS25;dbrtl;inetdbxpress;IndyProtocols;dxSkinSummer2008RS25;dxPSdxMapControlLnkRS25;dxSkinXmas2008BlueRS25;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
@@ -87,6 +89,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_ExeOutput>C:\Public\ElectronicDB\</DCC_ExeOutput>
+        <Icon_MainIcon>Database_Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -97,6 +100,9 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>Database_Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -617,28 +623,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
-            <Form>frmCustomGridView</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Views\GridView\ImportProcessForm.pas">
             <Form>frmImportProcess</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\GridViewForm.pas">
-            <Form>frmGridView</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
-            <Form>frmCustomError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\ErrorForm.pas">
-            <Form>frmError</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
-            <Form>frmImportError</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\DialogUnit2.pas"/>
@@ -798,6 +784,79 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\HintWindowEx.pas"/>
+        <DCCReference Include="Views\Analog\AnalogForm.pas">
+            <Form>frmAnalog</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Analog\AnalogQueryes.pas">
+            <Form>AnalogGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Analog\UniqueParameterValuesQuery.pas">
+            <Form>QueryUniqueParameterValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\GridViewEx.pas">
+            <Form>ViewGridEx</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Analog\AnalogGridView.pas">
+            <Form>ViewAnalogGrid</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\BandsInfo.pas"/>
+        <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
+            <Form>frmCustomGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\GridViewForm.pas">
+            <Form>frmGridView</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
+            <Form>frmCustomError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\ErrorForm\ImportErrorForm.pas">
+            <Form>frmImportError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\GridView\AutoSizeGridViewForm.pas">
+            <Form>frmGridViewAutoSize</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchProductByParamValuesQuery.pas">
+            <Form>qSearchProductByParamValues</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\ParameterKindEnum.pas"/>
+        <DCCReference Include="Views\Analog\PopupAnalogGridView.pas">
+            <Form>ViewGridPopupAnalog</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\ParameterKindsQuery.pas">
+            <Form>QueryParameterKinds</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\NaturalSort\NaturalSort.pas"/>
+        <DCCReference Include="Queryes\Components\ParametricTable\ParametricErrorTable.pas"/>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableErrorView.pas">
+            <Form>ViewParametricTableError</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\ParametricTableErrorForm.pas">
+            <Form>frmParametricTableError</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Helpers\ProtectUnit.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -1250,6 +1309,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

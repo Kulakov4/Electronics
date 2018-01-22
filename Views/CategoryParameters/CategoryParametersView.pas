@@ -321,12 +321,7 @@ begin
   V := ARecord.Values[clPosID.Index];
   if VarIsNull(V) then
     Exit;
-  {
-    S := AItem.ClassName;
 
-    if not(AItem is TcxGridDBBandedColumn) then
-    beep;
-  }
   APosID := V;
   case APosID of
     0:
@@ -461,6 +456,8 @@ begin
 
       InitializeLookupColumn(clPosID, QueryParameterPos.DataSource, lsFixedList,
         QueryParameterPos.Pos.FieldName);
+
+//      (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
 
       TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad,
         FEventList);

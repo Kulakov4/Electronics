@@ -9,17 +9,18 @@ uses
   FireDAC.Comp.Client, FireDAC.Stan.Intf, ProducersQuery, NotifyEvents,
   DescriptionsExcelDataModule, QueryWithDataSourceUnit, BaseQuery,
   BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit, OrderQuery,
-  System.Generics.Collections;
+  System.Generics.Collections, ProducersGroupUnit;
 
 type
   TDescriptionsGroup = class(TQueryGroup)
     qDescriptionTypes: TQueryDescriptionTypes;
     qDescriptions: TQueryDescriptions;
-    qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
+    FqProducers: TQueryProducers;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
+    function GetqProducers: TQueryProducers;
     { Private declarations }
   protected
   public
@@ -32,6 +33,7 @@ type
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
+    property qProducers: TQueryProducers read GetqProducers;
     { Public declarations }
   end;
 
@@ -104,6 +106,16 @@ begin
 
 end;
 
+function TDescriptionsGroup.GetqProducers: TQueryProducers;
+begin
+  if FqProducers = nil then
+  begin
+    FqProducers := TQueryProducers.Create(Self);
+    FqProducers.FDQuery.Open;
+  end;
+  Result := FqProducers;
+end;
+
 procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable
   : TDescriptionsExcelTable);
 var
@@ -121,8 +133,6 @@ begin
       qDescriptionTypes.LocateOrAppend
         (ADescriptionsExcelTable.ComponentType.AsString);
 
-      qProducers.LocateOrAppend(ADescriptionsExcelTable.Manufacturer.AsString);
-
       qDescriptions.FDQuery.Append;
 
       for I := 0 to ADescriptionsExcelTable.FieldCount - 1 do
@@ -133,7 +143,7 @@ begin
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
       qDescriptions.IDComponentType.Value := qDescriptionTypes.PK.Value;
-      qDescriptions.IDProducer.Value := qProducers.PK.Value;
+      qDescriptions.IDProducer.Value := ADescriptionsExcelTable.IDProducer.Value;
       qDescriptions.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;

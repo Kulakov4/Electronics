@@ -13,7 +13,7 @@ uses
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents,
-  SearchComponentGroup, SearchFamily;
+  SearchComponentGroup, SearchFamily, ProducersGroupUnit;
 
 type
   TComponentNameParts = record
@@ -33,7 +33,7 @@ type
   private
     FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
-    FqProducers: TQueryProducers;
+    FProducersGroup: TProducersGroup;
     FqSearchComponentGroup: TQuerySearchComponentGroup;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     FqSearchFamily: TQuerySearchFamily;
@@ -42,6 +42,8 @@ type
     FRate: Double;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    function GetAmount: TField;
+    function GetChecked: TField;
     function GetDatasheet: TField;
     function GetDescriptionID: TField;
     function GetDiagram: TField;
@@ -59,7 +61,7 @@ type
     function GetPriceR1: TField;
     function GetPriceR2: TField;
     function GetProductID: TField;
-    function GetqProducers: TQueryProducers;
+    function GetProducersGroup: TProducersGroup;
     function GetqSearchComponentGroup: TQuerySearchComponentGroup;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetqSearchFamily: TQuerySearchFamily;
@@ -108,6 +110,8 @@ type
     procedure TunePriceFields(const AFields: Array of TField);
     procedure UpdateRate(AID: Integer; RateField: TField; ARate: Double;
       AUpdatedIDList: TList<Integer>);
+    property Amount: TField read GetAmount;
+    property Checked: TField read GetChecked;
     property Datasheet: TField read GetDatasheet;
     property DescriptionID: TField read GetDescriptionID;
     property Diagram: TField read GetDiagram;
@@ -127,7 +131,7 @@ type
     property PriceR1: TField read GetPriceR1;
     property PriceR2: TField read GetPriceR2;
     property ProductID: TField read GetProductID;
-    property qProducers: TQueryProducers read GetqProducers;
+    property ProducersGroup: TProducersGroup read GetProducersGroup;
     property Rate: Double read FRate write SetRate;
     property Rate1: TField read GetRate1;
     property Rate2: TField read GetRate2;
@@ -259,10 +263,9 @@ procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-  // AFieldHolder: TFieldHolder;
   ARH: TRecordHolder;
-  // ARH2: TRecordHolder;
   ARHFamily: TRecordHolder;
+  ARHProducts: TRecordHolder;
   OK: Boolean;
   rc: Integer;
 begin
@@ -290,35 +293,51 @@ begin
     Exit;
   end;
 
-  // Если производитель задан
-  if IDProducer.AsInteger > 0 then
-  begin
-    // Ищем производителя по коду
-    OK := qProducers.LocateByPK(IDProducer.AsInteger);
-    Assert(OK);
+  // если это не группа, до закупочная цена должна быть указана
+  if PriceD.IsNull and PriceR.IsNull then
+    raise Exception.Create('Необходимо задать закупочную цену');
 
-    rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
-      qProducers.Name.AsString);
-  end
-  else
-  begin
-    // Ищем в теоретической базе просто по наименованию
-    rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString);
-    if rc > 0 then
-    begin
-      // Ищем в справочнике такого производителя
-      qProducers.LocateOrAppend(qSearchComponentOrFamily.Producer.AsString);
-      // Заполняем производителя
-      FetchFields([IDProducer.FieldName], [qProducers.PK.Value], ARequest,
-        AAction, AOptions);
-    end;
-  end;
+  if Amount.IsNull then
+    raise Exception.Create('Необходимо задать количество');
 
   ARH := TRecordHolder.Create(ASender);
   try
+
+    // Если производитель задан
+    if IDProducer.AsInteger > 0 then
+    begin
+      // Ищем производителя по коду
+      OK := ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger);
+      Assert(OK);
+
+      rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
+        ProducersGroup.qProducers.Name.AsString);
+    end
+    else
+    begin
+      // Ищем в теоретической базе просто по наименованию
+      rc := qSearchComponentOrFamily.SearchComponentWithProducer
+        (Value.AsString);
+      if rc > 0 then
+      begin
+        // Ищем в справочнике такого производителя
+        OK := ProducersGroup.qProducers.Locate
+          (qSearchComponentOrFamily.Producer.AsString);
+        Assert(OK);
+
+        // Запоминаем, какое будет значение у кода производителя
+        ARH.Field[IDProducer.FieldName] := ProducersGroup.qProducers.PK.Value;
+        // Заполняем производителя
+        // FetchFields([IDProducer.FieldName], [ProducersGroup.qProducers.PK.Value],
+        // ARequest, AAction, AOptions);
+      end;
+    end;
+
     // Если такой компонент найден в компонентой базе
     if rc > 0 then
     begin
+      // Запоминаем, что этот компонент есть в теоретической базе
+      ARH.Field[Checked.FieldName] := 1;
       // Ищем соответствующее семейство компонентов
       rc := qSearchFamily.SearchByID
         (qSearchComponentOrFamily.ParentProductID.AsInteger);
@@ -326,31 +345,34 @@ begin
 
       ARHFamily := TRecordHolder.Create(qSearchFamily.FDQuery);
       try
-        // Обновляем пустые значения
+        // Запоминаем чем заполнить пустые значения
         ARH.UpdateNullValues(ARHFamily);
-        ARH.Put(ASender);
+        // ARH.Put(ASender);
       finally
         FreeAndNil(ARHFamily)
       end;
     end;
 
     // Если производитель не задан
-    if IDProducer.AsInteger = 0 then
+    if VarIsNull(ARH.Field[IDProducer.FieldName]) or
+      (ARH.Field[IDProducer.FieldName] = 0) then
     begin
       // Ищем такой компонент с таким именем на складе
       rc := qSearchProduct.SearchByValue(Value.AsString);
       if rc > 0 then
-        // Заполняем производителя
-        FetchFields([IDProducer.FieldName], [qSearchProduct.IDProducer.Value],
-          ARequest, AAction, AOptions)
-        // IDProducer.AsInteger := qSearchProduct.IDProducer.AsInteger
+        // Запоминаем производителя
+        ARH.Field[IDProducer.FieldName] := qSearchProduct.IDProducer.Value
+        // FetchFields([IDProducer.FieldName], [qSearchProduct.IDProducer.Value],
+        // ARequest, AAction, AOptions)
       else
         raise Exception.Create('Необходимо задать производителя');
     end
     else
     begin
       // Если производитель задан
-      rc := qSearchProduct.SearchByValue(Value.AsString, IDProducer.AsInteger);
+      // Ищем такой продукт с тем же производителем
+      rc := qSearchProduct.SearchByValue(Value.AsString,
+        ARH.Field[IDProducer.FieldName]);
     end;
 
     // Если такого продукта ещё нет
@@ -360,21 +382,23 @@ begin
       qSearchProduct.InsertRecord(ARH);
     end;
 
+    // Запоминаем код продукта
     ARH.Field[ProductID.FieldName] := qSearchProduct.PK.Value;
-
     // Заполняем код продукта
-    FetchFields([ProductID.FieldName], [qSearchProduct.PK.Value], ARequest,
-      AAction, AOptions);
-
-    // ProductID.AsInteger := qSearchProduct.PK.Value;
+    // FetchFields([ProductID.FieldName], [qSearchProduct.PK.Value], ARequest,
+    // AAction, AOptions);
 
     // Если такой продукт уже есть
     if rc > 0 then
     begin
-      // Заполняем пустые поля значениями найденного компонента
-      FetchNullValues(qSearchProduct.FDQuery, ARequest, AAction, AOptions,
-        String.Format('%s->%s', [qSearchProduct.PK.FieldName,
-        ProductID.FieldName]));
+      ARHProducts := TRecordHolder.Create(qSearchProduct.FDQuery);
+      try
+        // Заполняем пустые поля из найденного продукта
+        ARH.UpdateNullValues(ARHProducts, String.Format('%s->%s',
+          [qSearchProduct.PK.FieldName, ProductID.FieldName]));
+      finally
+        FreeAndNil(ARHProducts);
+      end;
     end;
 
     // Готовимся вставить закупочную цену компонента
@@ -388,9 +412,12 @@ begin
     qSearchStorehouseProduct.InsertRecord(ARH);
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
-    FetchFields([PK.FieldName], [-qSearchStorehouseProduct.PK.Value], ARequest,
-      AAction, AOptions);
-    // PK.Value := -qSearchStorehouseProduct.PK.Value;
+    // Запоминаем первичный ключ
+    ARH.Field[PK.FieldName] := -qSearchStorehouseProduct.PK.Value;
+    // FetchFields([PK.FieldName], [-qSearchStorehouseProduct.PK.Value], ARequest,
+    // AAction, AOptions);
+
+    FetchFields(ARH, ARequest, AAction, AOptions);
   finally
     FreeAndNil(ARH);
   end;
@@ -607,6 +634,16 @@ begin
   PriceD2.Value := PriceD.Value * Rate2.Value;
 end;
 
+function TQueryProductsBase.GetAmount: TField;
+begin
+  Result := Field('Amount');
+end;
+
+function TQueryProductsBase.GetChecked: TField;
+begin
+  Result := Field('Checked');
+end;
+
 function TQueryProductsBase.GetDatasheet: TField;
 begin
   Result := Field('Datasheet');
@@ -703,15 +740,15 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQueryProductsBase.GetqProducers: TQueryProducers;
+function TQueryProductsBase.GetProducersGroup: TProducersGroup;
 begin
-  if FqProducers = nil then
+  if FProducersGroup = nil then
   begin
-    FqProducers := TQueryProducers.Create(Self);
-    FqProducers.TryOpen;
+    FProducersGroup := TProducersGroup.Create(Self);
+    FProducersGroup.ReOpen;
   end;
 
-  Result := FqProducers;
+  Result := FProducersGroup;
 end;
 
 function TQueryProductsBase.GetqSearchComponentGroup
@@ -807,11 +844,11 @@ begin
   if IDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := qProducers.LocateByPK(IDProducer.AsInteger);
+    OK := ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger);
     Assert(OK);
 
     rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
-      qProducers.Name.AsString);
+      ProducersGroup.qProducers.Name.AsString);
   end;
   if rc > 0 then
   begin

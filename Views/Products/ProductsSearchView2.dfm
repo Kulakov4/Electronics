@@ -90,6 +90,9 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         Caption.AlignHorz = taCenter
         Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076
       end>
+    inherited clID: TcxDBTreeListColumn
+      Caption.AlignHorz = taLeftJustify
+    end
     inherited clIDProducer: TcxDBTreeListColumn
       Position.BandIndex = 2
     end

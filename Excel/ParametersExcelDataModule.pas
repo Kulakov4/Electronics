@@ -7,7 +7,7 @@ uses
   System.Generics.Collections, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  CustomExcelTable;
+  CustomExcelTable, ParameterKindsQuery;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -16,9 +16,13 @@ type
   private
     FDMemTable: TFDMemTable;
     FParametersDataSet: TFDDataSet;
+    FqParameterKinds: TQueryParameterKinds;
+    function GetParameterKindID: TField;
     function GetParameterType: TField;
+    function GetqParameterKinds: TQueryParameterKinds;
     function GetValue: TField;
     procedure SetParametersDataSet(const Value: TFDDataSet);
+    property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
   protected
     function CheckParameter: Boolean;
     procedure Clone;
@@ -27,6 +31,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
+    property ParameterKindID: TField read GetParameterKindID;
     property ParametersDataSet: TFDDataSet read FParametersDataSet
       write SetParametersDataSet;
     property ParameterType: TField read GetParameterType;
@@ -53,7 +58,8 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, System.Math, StrHelper, FieldInfoUnit, ProgressInfo;
+uses System.Variants, System.Math, StrHelper, FieldInfoUnit, ProgressInfo,
+  ParameterKindEnum;
 
 function TParametersExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
@@ -107,6 +113,7 @@ end;
 
 function TParametersExcelTable.CheckParameter: Boolean;
 var
+  AParameterKindID: Integer;
   V: Variant;
 begin
   // Ищем параметр с таким-же именем
@@ -123,6 +130,40 @@ begin
     Errors.AddWarring(ExcelRow.AsInteger, Value.Index + 1, Value.AsString,
       'Параметр с таким наименованием уже существует');
   end;
+
+  // Проверяем, что в файле целое число
+  AParameterKindID := StrToIntDef(ParameterKindID.AsString, -100);
+  if AParameterKindID = -100 then
+  begin
+    // Ищем в справочнике видов параметров
+    if not qParameterKinds.LocateByField
+      (qParameterKinds.ParameterKind.FieldName, ParameterKindID.AsString) then
+    begin
+      // Запоминаем, что в этой строке предупреждение
+      MarkAsError(etError);
+
+      Errors.AddError(ExcelRow.AsInteger, ParameterKindID.Index + 1,
+        ParameterKindID.AsString,
+        Format('Код вида параметра должен быть целым числом от %d до %d',
+        [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+    end;
+  end
+  else
+  begin
+    if (ParameterKindID.AsInteger < Integer(Неиспользуется)) or
+      (ParameterKindID.AsInteger > Integer(Строковый_частичный)) then
+    begin
+      // Запоминаем, что в этой строке предупреждение
+      MarkAsError(etError);
+
+      Errors.AddError(ExcelRow.AsInteger, ParameterKindID.Index + 1,
+        ParameterKindID.AsString,
+        Format('Код вида параметра должен быть от %d до %d',
+        [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+
+    end;
+  end;
+
 end;
 
 function TParametersExcelTable.CheckRecord: Boolean;
@@ -149,9 +190,24 @@ begin
   FDMemTable.IndexName := AFDIndex.Name;
 end;
 
+function TParametersExcelTable.GetParameterKindID: TField;
+begin
+  Result := FieldByName('ParameterKindID');
+end;
+
 function TParametersExcelTable.GetParameterType: TField;
 begin
   Result := FieldByName('ParameterType');
+end;
+
+function TParametersExcelTable.GetqParameterKinds: TQueryParameterKinds;
+begin
+  if FqParameterKinds = nil then
+  begin
+    FqParameterKinds := TQueryParameterKinds.Create(Self);
+    FqParameterKinds.FDQuery.Open;
+  end;
+  Result := FqParameterKinds;
 end;
 
 function TParametersExcelTable.GetValue: TField;
@@ -180,7 +236,8 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('Definition'));
   FieldsInfo.Add(TFieldInfo.Create('ParameterType', True,
     'Тип параметра не должен быть пустым'));
-
+  FieldsInfo.Add(TFieldInfo.Create('ParameterKindID', True,
+    'Код вида параметра не должен быть пустым'));
 end;
 
 procedure TParametersExcelTable.SetParametersDataSet(const Value: TFDDataSet);

@@ -30,13 +30,20 @@ type
   TStringTreeNode = class(TObject)
   private
     FChilds: TList<TStringTreeNode>;
+    FID: Integer;
     FParent: TStringTreeNode;
     FValue: string;
+  protected
+  class var
+    FMaxlID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
     function AddChild(const AValue: String): TStringTreeNode;
+    procedure ClearMaxlID;
+    function FindByID(AID: Integer): TStringTreeNode;
     property Childs: TList<TStringTreeNode> read FChilds write FChilds;
+    property ID: Integer read FID;
     property Parent: TStringTreeNode read FParent write FParent;
     property Value: string read FValue write FValue;
   end;
@@ -510,6 +517,12 @@ var
   AColor2: TColor;
   ARow: Integer;
   AStringNode: TStringTreeNode;
+{
+  c: Integer;
+  cc: Integer;
+  r: Integer;
+  rc: Integer;
+}
 begin
   InternalLoadExcelFile(AFileName);
   ConnectToSheet(1);
@@ -523,8 +536,17 @@ begin
   while True do
   begin
     ACell := EWS.Cells.Item[ARow, ACol];
+{
+    if ACell.MergeCells then
+    begin
+      r := ACell.MergeArea.Row;
+      c := ACell.MergeArea.Column;
+      rc := ACell.MergeArea.Rows.Count;
+      cc := ACell.MergeArea.Columns.Count;
+    end;
+}
     AColor := GetCellsColor(ACell);
-    if AColor = clWhite then
+    if (AColor = clWhite) and (not ACell.MergeCells) then
       break
     else
     begin
@@ -751,7 +773,8 @@ end;
 constructor TStringTreeNode.Create;
 begin
   inherited;
-  FChilds := TList<TStringTreeNode>.Create;
+  FChilds := TObjectList<TStringTreeNode>.Create;
+  FID := FMaxlID;
 end;
 
 destructor TStringTreeNode.Destroy;
@@ -762,11 +785,41 @@ end;
 
 function TStringTreeNode.AddChild(const AValue: String): TStringTreeNode;
 begin
+  // Увеличиваем максимальный идентификатор
+  Inc(FMaxlID);
   Result := TStringTreeNode.Create;
   Result.Value := AValue;
   Result.Parent := Self;
   Assert(Childs <> nil);
   Childs.Add(Result);
+end;
+
+procedure TStringTreeNode.ClearMaxlID;
+begin
+  FMaxlID := 0;
+end;
+
+function TStringTreeNode.FindByID(AID: Integer): TStringTreeNode;
+var
+  AStringTreeNode: TStringTreeNode;
+begin
+  Assert(AID > 0);
+
+  Result := Self;
+
+  if FID = AID then
+    Exit;
+
+
+  for AStringTreeNode in Childs do
+  begin
+    // Просим свой дочерний узел поискать у себя
+    Result := AStringTreeNode.FindByID(AID);
+    if Result <> nil then
+      Exit;
+  end;
+
+  Result := nil;
 end;
 
 constructor TTotalProgress.Create;

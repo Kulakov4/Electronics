@@ -42,14 +42,6 @@ type
     actAddFamily: TAction;
     actAddComponent: TAction;
     actCommit: TAction;
-    actOpenDatasheet: TAction;
-    actLoadDatasheet: TAction;
-    actOpenImage: TAction;
-    actLoadImage: TAction;
-    actOpenDiagram: TAction;
-    actLoadDiagram: TAction;
-    actOpenDrawing: TAction;
-    actLoadDrawing: TAction;
     cxerComponents: TcxEditRepository;
     cxFieldValueWithExpand: TcxEditRepositoryButtonItem;
     cxFieldValueWithExpandRO: TcxEditRepositoryButtonItem;
@@ -66,14 +58,6 @@ type
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure actLoadDrawingExecute(Sender: TObject);
-    procedure actLoadImageExecute(Sender: TObject);
-    procedure actLoadDiagramExecute(Sender: TObject);
-    procedure actLoadDatasheetExecute(Sender: TObject);
-    procedure actOpenDrawingExecute(Sender: TObject);
-    procedure actOpenImageExecute(Sender: TObject);
-    procedure actOpenDiagramExecute(Sender: TObject);
-    procedure actOpenDatasheetExecute(Sender: TObject);
     procedure clValue2GetProperties(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure clValue2GetPropertiesForEdit(Sender: TcxCustomGridTableItem;
@@ -125,6 +109,8 @@ type
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
   protected
+    function ExpandDetail: TcxGridDBBandedTableView;
+    procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
     procedure DoOnMasterDetailChange; virtual;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
@@ -132,10 +118,7 @@ type
     procedure OnApplyBestFit(var Message: TMessage); message WM_OnApplyBestFit;
     procedure OnDetailExpandedProcess(var Message: TMessage);
       message WM_ON_DETAIL_EXPANDED;
-    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
-      const AErrorMessage, AEmptyErrorMessage: string);
     procedure UpdateDetailColumnsWidth;
-    procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property QuerySubGroups: TfrmQuerySubGroups read GetQuerySubGroups;
   public
     constructor Create(AOwner: TComponent); override;
@@ -168,7 +151,6 @@ end;
 
 procedure TViewComponentsParent.actAddFamilyExecute(Sender: TObject);
 var
-  AColumn: TcxGridDBBandedColumn;
   AView: TcxGridDBBandedTableView;
 begin
   AView := GetDBBandedTableView(0);
@@ -176,11 +158,7 @@ begin
 
   AView.DataController.Append;
 
-  AColumn := AView.GetColumnByFieldName('Value');
-  // Site обеспечивает доступ к элементам размещённым на cxGrid
-  AView.Site.SetFocus;
-  // Показываем редактор для колонки
-  AView.Controller.EditingController.ShowEdit(AColumn);
+  FocusColumnEditor(AView, clValue.DataBinding.FieldName);
 
   UpdateView;
 end;
@@ -198,50 +176,37 @@ end;
 
 procedure TViewComponentsParent.actAddComponentExecute(Sender: TObject);
 var
-  AColumn: TcxGridDBBandedColumn;
-  ARow: TcxMyGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем семейство компонентов
   BaseComponentsGroup.QueryBaseFamily.TryPost;
 
-  // начинаем транзакцию
-  // if not BaseComponentsGroup.Connection.InTransaction then
-  // BaseComponentsGroup.Connection.StartTransaction;
-
-  ARow := GetRow(0) as TcxMyGridMasterDataRow;
-  Assert(ARow <> nil);
-
-  AView := GetDBBandedTableView(1);
-
-  ARow.MyExpand(False);
-
-  AView.Focused := True;
+  // Разворачиваем представление 2-го уровня
+  AView := ExpandDetail;
 
   // Сначала добавляем запись, потом разворачиваем
   AView.DataController.Append;
 
-  AColumn := AView.GetColumnByFieldName('Value');
-  // Site обеспечивает доступ к элементам размещённым на cxGrid
-  AView.Site.SetFocus;
-  // Показываем редактор для колонки
-  AView.Controller.EditingController.ShowEdit(AColumn);
+  FocusColumnEditor(AView, clValue.DataBinding.FieldName);
+
   UpdateView;
 end;
 
 procedure TViewComponentsParent.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
-    BaseComponentsGroup.Commit;
-    // Почему-то при сохранении раскрываются детали
-    MainView.ViewData.Collapse(True);
-    // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
-  finally
-    cxGrid.EndUpdate;
-  end;
-  PutInTheCenterFocusedRecord(MainView);
+  // Мы просто завершаем транзакцию
+
+  // cxGrid.BeginUpdate();
+  // try
+  BaseComponentsGroup.Commit;
+  // Почему-то при сохранении раскрываются детали
+  // MainView.ViewData.CollapseDetail(True);
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord(MainView);
+  // finally
+  // cxGrid.EndUpdate;
+  // end;
+  // PutInTheCenterFocusedRecord(MainView);
   UpdateView;
 end;
 
@@ -257,48 +222,17 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponentsParent.actLoadDrawingExecute(Sender: TObject);
+function TViewComponentsParent.ExpandDetail: TcxGridDBBandedTableView;
+var
+  ARow: TcxMyGridMasterDataRow;
 begin
-  UploadDoc(TDrawingDoc.Create);
-end;
+  ARow := MainView.Controller.FocusedRow as TcxMyGridMasterDataRow;
+  Assert(ARow <> nil);
 
-procedure TViewComponentsParent.actLoadImageExecute(Sender: TObject);
-begin
-  UploadDoc(TImageDoc.Create);
-end;
+  Result := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
 
-procedure TViewComponentsParent.actLoadDiagramExecute(Sender: TObject);
-begin
-  UploadDoc(TDiagramDoc.Create);
-end;
-
-procedure TViewComponentsParent.actLoadDatasheetExecute(Sender: TObject);
-begin
-  UploadDoc(TDatasheetDoc.Create);
-end;
-
-procedure TViewComponentsParent.actOpenDrawingExecute(Sender: TObject);
-begin
-  OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
-    'Не задан чертёж');
-end;
-
-procedure TViewComponentsParent.actOpenImageExecute(Sender: TObject);
-begin
-  OpenDoc(TImageDoc.Create, 'Файл изображения с именем %s не найден',
-    'Не задано изображение');
-end;
-
-procedure TViewComponentsParent.actOpenDiagramExecute(Sender: TObject);
-begin
-  OpenDoc(TDiagramDoc.Create, 'Файл схемы с именем %s не найден',
-    'Не задана схема');
-end;
-
-procedure TViewComponentsParent.actOpenDatasheetExecute(Sender: TObject);
-begin
-  OpenDoc(TDatasheetDoc.Create, 'Файл спецификации с именем %s не найден',
-    'не задана спецификация');
+  ARow.MyExpand(False);
+  Result.Focused := True;
 end;
 
 procedure TViewComponentsParent.AfterConstruction;
@@ -308,7 +242,7 @@ var
   AView: TcxGridDBBandedTableView;
   i: Integer;
 begin
-  inherited;
+
   // Чтобы убрать значки своравчивания/разворачивания слева от грида
   // Создаём новое представление своего типа
   AView := cxGrid.CreateView(TcxGridDBBandedTableViewWithoutExpand)
@@ -339,6 +273,7 @@ begin
   PostOnEnterFields.Add(clValue.DataBinding.FieldName);
   PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
 
+  inherited;
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewDataControllerCompare
@@ -396,6 +331,8 @@ begin
     FOnDetailExpandedReceive := False;
     PostMessage(Handle, WM_ON_DETAIL_EXPANDED, 0, 0);
   end;
+
+  ChooseTopRecord(MainView, ARecordIndex);
 end;
 
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
@@ -479,19 +416,27 @@ procedure TViewComponentsParent.clValueGetProperties
   var AProperties: TcxCustomEditProperties);
 var
   AID: Integer;
+  // F: TField;
   HavDetails: Boolean;
   V: Variant;
 begin
   if ARecord = nil then
     Exit;
 
-  HavDetails := True;
+  HavDetails := False;
   V := ARecord.Values[0];
   if not VarIsNull(V) then
   begin
     AID := V;
+    // Почему-то иногда поле не найдено
+    // F := BaseComponentsGroup.QueryBaseComponents.FDQuery.FindField('ParentProductID');
 
-    HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
+    HavDetails := (BaseComponentsGroup.QueryBaseComponents.FDQuery.RecordCount >
+      0) and (BaseComponentsGroup.QueryBaseComponents.Exists(AID) or
+      (BaseComponentsGroup.QueryBaseComponents.ParentProductID.
+      AsInteger = AID));
+
+    // ((F <> nil) and (F.AsInteger = AID))
   end;
 
   if HavDetails then
@@ -519,12 +464,13 @@ begin
 
   AReadOnly := False;
   HavDetails := False;
-  V := ARecord.Values[0];
+
+  // Получаем значение первичного ключа
+  V := ARecord.Values[clID.Index];
   if not VarIsNull(V) then
   begin
-
     AID := V;
-
+    // Смотрим, есть ли у семейства компоненты
     HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
 
     // Только для чтения те записи, которые не модифицировались
@@ -546,6 +492,19 @@ begin
       AProperties := cxertiValue.Properties;
   end;
 
+end;
+
+procedure TViewComponentsParent.CollapseDetail;
+var
+  ARow: TcxMyGridMasterDataRow;
+//  AView: TcxGridDBBandedTableView;
+begin
+  ARow := MainView.Controller.FocusedRow as TcxMyGridMasterDataRow;
+  // ARow := GetRow(0) as TcxMyGridMasterDataRow;
+  Assert(ARow <> nil);
+
+  // AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
+  ARow.MyCollapse(False);
 end;
 
 procedure TViewComponentsParent.CreateColumnsBarButtons;
@@ -732,8 +691,10 @@ procedure TViewComponentsParent.MyDelete;
 var
   AController: TcxGridBandedTableController;
   AView: TcxGridDBBandedTableView;
+  fri: Integer;
   i: Integer;
   S: string;
+  t: Integer;
   X: Integer;
 begin
   AView := FocusedTableView;
@@ -768,24 +729,24 @@ begin
     end;
   end;
 
-  BeginUpdate;
-  try
-    ProcessWithCancelDetailExpanding(AView,
-      procedure()
-      begin
-        AController.DeleteSelection
-      end);
-  finally
-    EndUpdate
-  end;
+  t := MainView.Controller.TopRecordIndex;
+  fri := MainView.Controller.FocusedRowIndex;
 
-  // если удалили последнюю "дочернюю" запись
-  if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-  then
-  begin
-    // Сворачиваем дочернее представление
-    (AView.MasterGridRecord as TcxMyGridMasterDataRow).MyCollapse(False);
-  end;
+  ProcessWithCancelDetailExpanding(MainView,
+    procedure()
+    begin
+      AController.DeleteSelection;
+      // если удалили последнюю "дочернюю" запись
+      if (AView.DataController.RecordCount = 0) and
+        (AView.MasterGridRecord <> nil) then
+      begin
+        // Сворачиваем дочернее представление
+        (AView.MasterGridRecord as TcxMyGridMasterDataRow).MyCollapse(False);
+        MainView.Controller.TopRowIndex := t;
+        MainView.Controller.FocusedRowIndex := fri;
+      end;
+
+    end);
 
   UpdateView;
 end;
@@ -805,14 +766,6 @@ procedure TViewComponentsParent.OnDetailExpandedProcess(var Message: TMessage);
 begin
   SyncScrollbarPositions;
   FOnDetailExpandedReceive := True;
-end;
-
-procedure TViewComponentsParent.OpenDoc(ADocFieldInfo: TDocFieldInfo;
-const AErrorMessage, AEmptyErrorMessage: string);
-begin
-  TDocument.Open(Handle, ADocFieldInfo.Folder,
-    BaseComponentsGroup.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
-    .AsString, AErrorMessage, AEmptyErrorMessage, sBodyTypesFilesExt);
 end;
 
 procedure TViewComponentsParent.SetBaseComponentsGroup
@@ -1006,35 +959,6 @@ begin
 
   actCommit.Enabled := Ok and BaseComponentsGroup.Connection.InTransaction;
   actRollback.Enabled := actCommit.Enabled;
-end;
-
-procedure TViewComponentsParent.UploadDoc(ADocFieldInfo: TDocFieldInfo);
-var
-  S: String;
-  sourceFileName: string;
-begin
-  S := BaseComponentsGroup.QueryBaseFamily.Field
-    (ADocFieldInfo.FieldName).AsString;
-  // Если файл документации ранее был уже задан
-  if S <> '' then
-  begin
-    // Получаем полный путь до файла
-    S := TPath.Combine(ADocFieldInfo.Folder, S);
-    // Получаем папку в которой лежит ранее заданный файл документации
-    S := TPath.GetDirectoryName(S);
-    // если такого пути уже не существует
-    if not TDirectory.Exists(S) then
-      S := ADocFieldInfo.Folder;
-  end
-  else
-    S := ADocFieldInfo.Folder;
-
-  // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog(S);
-  if sourceFileName.IsEmpty then
-    Exit;
-  BaseComponentsGroup.LoadDocFile(sourceFileName, ADocFieldInfo);
-  ApplyBestFitEx;
 end;
 
 end.

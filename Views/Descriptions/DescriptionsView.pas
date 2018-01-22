@@ -74,8 +74,6 @@ type
       const AText: TCaption);
     procedure clIDComponentTypePropertiesEditValueChanged(Sender: TObject);
     procedure clIDComponentTypePropertiesCloseUp(Sender: TObject);
-    procedure clIDManufacturerPropertiesNewLookupDisplayText(Sender: TObject;
-      const AText: TCaption);
     procedure cxGridDBBandedTableView2ColumnHeaderClick
       (Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableView2CustomDrawColumnHeader
@@ -182,22 +180,23 @@ end;
 
 procedure TViewDescriptions.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
-    // Сохраняем изменения и завершаем транзакцию
-    DescriptionsGroup.Commit;
+  // Мы просто завершаем транзакцию
+  // cxGrid.BeginUpdate();
+  // try
+  // Сохраняем изменения и завершаем транзакцию
+  DescriptionsGroup.Commit;
 
-    // Начинаем новую транзакцию
-    // DescriptionsGroup.Connection.StartTransaction;
+  // Начинаем новую транзакцию
+  // DescriptionsGroup.Connection.StartTransaction;
 
-    // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord;
-  finally
-    cxGrid.EndUpdate;
-  end;
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord;
+  // finally
+  // cxGrid.EndUpdate;
+  // end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord;
+  // PutInTheCenterFocusedRecord;
 
   // Обновляем представление
   UpdateView;
@@ -207,7 +206,8 @@ procedure TViewDescriptions.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile('Краткие описания', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Краткие описания',
+    AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
@@ -217,21 +217,24 @@ procedure TViewDescriptions.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   BeginUpdate;
   try
-    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM, TfrmImportError,
+    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM,
+      TfrmImportError,
       procedure(ASender: TObject)
       begin
 
-      DescriptionsGroup.InsertRecordList(ASender as TDescriptionsExcelTable);
+        DescriptionsGroup.InsertRecordList(ASender as TDescriptionsExcelTable);
       end,
       procedure(ASender: TObject)
       begin
         (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
           DescriptionsGroup.qDescriptions.FDQuery;
+        (ASender as TDescriptionsExcelTable).ProducersDataSet :=
+          DescriptionsGroup.qProducers.FDQuery
       end);
   finally
     EndUpdate;
@@ -362,17 +365,10 @@ begin
   // b := False;
 end;
 
-procedure TViewDescriptions.clIDManufacturerPropertiesNewLookupDisplayText
-  (Sender: TObject; const AText: TCaption);
-begin
-  inherited;
-  FDescriptionsGroup.qProducers.AddNewValue(AText);
-end;
-
 procedure TViewDescriptions.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self,
-    dxbsColumns, cxGridDBBandedTableView2);
+  FColumnsBarButtons := TGVColumnsBarButtons.Create(Self, dxbsColumns,
+    cxGridDBBandedTableView2);
 end;
 
 procedure TViewDescriptions.CreateFilterForExport(AView,
@@ -559,7 +555,8 @@ var
 begin
   BeginUpdate;
   // Ищет производителя в гриде
-  List := DescriptionsGroup.Find(clComponentName.DataBinding.FieldName, AComponentName);
+  List := DescriptionsGroup.Find(clComponentName.DataBinding.FieldName,
+    AComponentName);
   try
     // сначала ищем на первом уровне (по названию категории)
     if (List.Count > 0) and
@@ -573,7 +570,8 @@ begin
         ARow.Expand(false);
         AView := GetDBBandedTableView(1);
         AView.Focused := True;
-        AView.DataController.Search.Locate(clComponentName.Index, List[1], True);
+        AView.DataController.Search.Locate(clComponentName.Index,
+          List[1], True);
         PutInTheCenterFocusedRecord(AView);
       end
       else
@@ -593,9 +591,6 @@ begin
   if FDescriptionsGroup <> nil then
   begin
     // привязываем представление к данным
-    // DBGrid1.DataSource := FDescriptionsGroup.qDescriptionTypes.
-    // DataSource;
-
     cxGridDBBandedTableView.DataController.DataSource :=
       FDescriptionsGroup.qDescriptionTypes.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
@@ -605,8 +600,9 @@ begin
       FDescriptionsGroup.qDescriptionTypes.DataSource, lsEditList,
       FDescriptionsGroup.qDescriptionTypes.ComponentType.FieldName);
 
+    // Производителя выбираем ТОЛЬКО из списка
     InitializeLookupColumn(clIDProducer,
-      FDescriptionsGroup.qProducers.DataSource, lsEditList,
+      FDescriptionsGroup.qProducers.DataSource, lsFixedList,
       FDescriptionsGroup.qProducers.Name.FieldName);
 
     TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,

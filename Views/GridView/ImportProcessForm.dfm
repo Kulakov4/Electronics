@@ -7,27 +7,27 @@ inherited frmImportProcess: TfrmImportProcess
   ExplicitHeight = 566
   PixelsPerInch = 96
   TextHeight = 16
-  inherited MainPanel: TPanel
+  inherited pnlMain: TPanel
     Width = 878
     Height = 473
     ExplicitWidth = 878
     ExplicitHeight = 473
-    inherited ViewGrid: TViewGrid
-      Width = 876
-      Height = 471
-      ExplicitWidth = 876
-      ExplicitHeight = 471
+    inherited ViewGridEx: TViewGridEx
+      Width = 878
+      Height = 473
+      ExplicitWidth = 878
+      ExplicitHeight = 473
       inherited cxGrid: TcxGrid
-        Width = 876
-        Height = 424
-        ExplicitWidth = 876
-        ExplicitHeight = 424
+        Width = 878
+        Height = 426
+        ExplicitWidth = 878
+        ExplicitHeight = 426
       end
       inherited StatusBar: TStatusBar
-        Top = 452
-        Width = 876
-        ExplicitTop = 452
-        ExplicitWidth = 876
+        Top = 454
+        Width = 878
+        ExplicitTop = 454
+        ExplicitWidth = 878
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -43,9 +43,12 @@ inherited frmImportProcess: TfrmImportProcess
             Index = 0
           end>
       end
+      inherited cxImageList1: TcxImageList
+        FormatVersion = 1
+      end
     end
   end
-  object Panel1: TPanel [1]
+  object Panel1: TPanel
     Left = 0
     Top = 473
     Width = 878

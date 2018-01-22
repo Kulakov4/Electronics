@@ -56,6 +56,10 @@ type
     dxbbParametricTable: TdxBarButton;
     dxbbSettings: TdxBarButton;
     dxBarButton3: TdxBarButton;
+    actRefresh: TAction;
+    dxBarManagerBar1: TdxBar;
+    dxBarButton1: TdxBarButton;
+    procedure actRefreshExecute(Sender: TObject);
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
@@ -94,8 +98,7 @@ implementation
 uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
   DialogUnit, Vcl.Clipbrd, SettingsController, Vcl.FileCtrl, System.IOUtils,
   System.Types, ProgressInfo, System.Math, ErrorTable, FireDAC.Comp.DataSet,
-  ImportProcessForm, ProjectConst, ErrorForm, LoadFromExcelFileHelper,
-  CustomErrorForm;
+  ImportProcessForm, ProjectConst, CustomErrorForm, LoadFromExcelFileHelper;
 
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
@@ -113,6 +116,12 @@ destructor TViewComponents.Destroy;
 begin
   FreeAndNil(FCountEvents);
   inherited;
+end;
+
+procedure TViewComponents.actRefreshExecute(Sender: TObject);
+begin
+  inherited;
+  RefreshData;
 end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);
@@ -264,7 +273,8 @@ begin
 
     frmImportProcess := TfrmImportProcess.Create(Self);
     frmImportProcess.Caption := 'Загрузка компонентов';
-    frmImportProcess.DataSet := AutomaticLoadErrorTable;
+    frmImportProcess.ViewGridEx.DataSet := AutomaticLoadErrorTable;
+    frmImportProcess.ViewGridEx.ApplyBestFitOnUpdateData := True;
     // Показываем отчёт
     frmImportProcess.Show;
 

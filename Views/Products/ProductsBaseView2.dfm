@@ -99,7 +99,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     LookAndFeel.NativeStyle = False
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
+    OptionsView.GridLines = tlglBoth
     OptionsView.PaintStyle = tlpsCategorized
+    OptionsView.TreeLineStyle = tllsNone
     Styles.OnGetBandHeaderStyle = nil
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
@@ -541,6 +543,16 @@ inherited ViewProductsBase2: TViewProductsBase2
       Position.ColIndex = 1
       Position.RowIndex = 0
       Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clChecked: TcxDBTreeListColumn
+      Visible = False
+      Caption.Text = 'X'
+      DataBinding.FieldName = 'Checked'
+      Position.ColIndex = 4
+      Position.RowIndex = 0
+      Position.BandIndex = 0
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end

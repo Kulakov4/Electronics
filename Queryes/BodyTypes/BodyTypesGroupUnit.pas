@@ -9,7 +9,7 @@ uses
   NotifyEvents, BodyTypesExcelDataModule, QueryWithDataSourceUnit,
   BaseQuery, BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit,
   ProducersQuery, OrderQuery, BodiesQuery, BodyTypesSimpleQuery,
-  BodyTypesBaseQuery;
+  BodyTypesBaseQuery, DocFieldInfo, System.IOUtils;
 
 type
   TBodyTypesGroup = class(TQueryGroup)

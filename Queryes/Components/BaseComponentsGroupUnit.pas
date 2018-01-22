@@ -18,6 +18,7 @@ type
     FAfterApplyUpdates: TNotifyEventsEx;
     FFullDeleted: TList<Integer>;
     FProducers: TQueryProducers;
+    function GetProducers: TQueryProducers;
     function GetQueryBaseComponents: TQueryBaseComponents;
     function GetQueryBaseFamily: TQueryBaseFamily;
     { Private declarations }
@@ -35,7 +36,7 @@ type
     property QueryBaseComponents: TQueryBaseComponents
       read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
-    property Producers: TQueryProducers read FProducers write FProducers;
+    property Producers: TQueryProducers read GetProducers;
     { Public declarations }
   end;
 
@@ -67,6 +68,16 @@ begin
   FFullDeleted.Clear;
 end;
 
+function TBaseComponentsGroup.GetProducers: TQueryProducers;
+begin
+  if FProducers = nil then
+  begin
+    FProducers := TQueryProducers.Create(Self);
+    FProducers.FDQuery.Open;
+  end;
+  Result := FProducers;
+end;
+
 function TBaseComponentsGroup.GetQueryBaseComponents: TQueryBaseComponents;
 begin
   Assert(Detail <> nil);
@@ -82,15 +93,19 @@ end;
 procedure TBaseComponentsGroup.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
+  IsEdited: Boolean;
   S: string;
 begin
   if not AFileName.IsEmpty then
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    Main.TryEdit;
+    IsEdited := not Main.TryEdit;
     Main.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
-    Main.TryPost;
+
+    // Сохраняем только если запись уже была сохранена до редактирования
+    if not IsEdited then
+      Main.TryPost;
   end;
 end;
 

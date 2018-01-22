@@ -85,6 +85,7 @@ type
     actFilterByTableName: TAction;
     dxBarButton2: TdxBarButton;
     clChecked: TcxGridDBBandedColumn;
+    clIDParameterKind: TcxGridDBBandedColumn;
     procedure actAddMainParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);
@@ -159,7 +160,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure CommitOrPost;
     procedure MyApplyBestFit; override;
+    procedure Search(const AName: string);
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
     property ParametersGroup: TParametersGroup read FParametersGroup
@@ -175,11 +178,14 @@ Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
   CustomExcelTable, RepositoryDataModule, System.Generics.Collections,
   System.Math, SettingsController, System.IOUtils, ProjectConst,
   System.StrUtils, BaseQuery, ProgressBarForm, cxDropDownEdit, CustomErrorForm,
-  LoadFromExcelFileHelper;
+  LoadFromExcelFileHelper, DialogUnit2;
 
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
   inherited;
+  clCodeLetters.Caption := clCodeLetters.Caption.Replace(' ', #13#10);
+  clMeasuringUnit.Caption := clMeasuringUnit.Caption.Replace(' ', #13#10);
+
   FExpandedRecordIndex := -1;
 
   FParameterTypesDI := TDragAndDropInfo.Create(clID, clOrd);
@@ -269,21 +275,22 @@ end;
 
 procedure TViewParameters.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
+  // Мы просто завершаем транзакцию
+//  cxGrid.BeginUpdate();
+//  try
     // СОхраняем все сделанные изменения
     FParametersGroup.Commit;
 
     // FParametersGroup.Connection.StartTransaction;
 
     // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord();
-  finally
-    cxGrid.EndUpdate;
-  end;
+//    FocusSelectedRecord();
+//  finally
+//    cxGrid.EndUpdate;
+//  end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord();
+//  PutInTheCenterFocusedRecord();
 
   // Обновляем представление
   UpdateView;
@@ -293,7 +300,7 @@ procedure TViewParameters.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.SaveToExcelFile('Параметры', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Параметры', AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
@@ -340,16 +347,8 @@ procedure TViewParameters.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  AFileName := TDialog.Create.OpenExcelFile
-    (TSettings.Create.LastFolderForExcelFile);
-  if not AFileName.IsEmpty then
-  begin
-    // Сохраняем эту папку в настройках
-    TSettings.Create.LastFolderForExcelFile :=
-      TPath.GetDirectoryName(AFileName);
-
+  if TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     LoadFromExcel(AFileName);
-  end;
 end;
 
 procedure TViewParameters.actLoadFromExcelSheetExecute(Sender: TObject);
@@ -382,43 +381,11 @@ end;
 
 procedure TViewParameters.actSearchExecute(Sender: TObject);
 var
-  AColumn: TcxGridDBBandedColumn;
-  ARow: TcxGridMasterDataRow;
-  AView: TcxGridDBBandedTableView;
-  List: TList<String>;
   S: string;
 begin
-  S := cxbeiSearch.CurEditValue;
+  //S := cxbeiSearch.CurEditValue;
   S := cxbeiSearch.EditValue;
-
-  // Будем искать по табличному имени (либо по названию категории)
-  AColumn := clTableName;
-
-  List := ParametersGroup.Find(AColumn.DataBinding.FieldName, S);
-  try
-    // сначала ищем на первом уровне (по названию категории)
-    if (List.Count > 0) and
-      (MainView.DataController.Search.Locate(clParameterType.Index, List[0],
-      True)) then
-    begin
-      // Затем ищем на втором уровне (по табличному имени)
-      if List.Count > 1 then
-      begin
-        ARow := GetRow(0) as TcxGridMasterDataRow;
-        ARow.Expand(False);
-        AView := GetDBBandedTableView(1);
-        AView.Focused := True;
-        AView.DataController.Search.Locate(AColumn.Index, List[1], True);
-        PutInTheCenterFocusedRecord(AView);
-      end
-      else
-        PutInTheCenterFocusedRecord(MainView);
-    end;
-  finally
-    FreeAndNil(List);
-  end;
-
-  UpdateView;
+  Search(S);
 end;
 
 procedure TViewParameters.actShowDuplicateExecute(Sender: TObject);
@@ -518,6 +485,14 @@ procedure TViewParameters.clIDParameterTypePropertiesNewLookupDisplayText
 begin
   inherited;
   FNewValue := AText;
+end;
+
+procedure TViewParameters.CommitOrPost;
+begin
+  if CheckedMode then           // В этом случае транзакция не начата
+    ParametersGroup.TryPost
+  else
+    actCommit.Execute;          // завершаем транзакцию
 end;
 
 procedure TViewParameters.CreateColumnsBarButtons;
@@ -661,10 +636,19 @@ end;
 
 procedure TViewParameters.cxGridDBBandedTableViewDataControllerDetailExpanded
   (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+var
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
 begin
   inherited;
   FExpandedRecordIndex := ARecordIndex;
-  MyApplyBestFit;
+
+  if ARecordIndex < 0 then
+    Exit;
+
+  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
+    as TcxGridMasterDataRow;
+  (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
+    .ApplyBestFit();
 end;
 
 procedure TViewParameters.
@@ -830,6 +814,47 @@ begin
   end;
 end;
 
+procedure TViewParameters.Search(const AName: string);
+var
+  AColumn: TcxGridDBBandedColumn;
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
+  List: TList<String>;
+  S: string;
+begin
+  Assert(not AName.IsEmpty);
+  S := AName;
+
+  // Будем искать по табличному имени (либо по названию категории)
+  AColumn := clTableName;
+
+  List := ParametersGroup.Find(AColumn.DataBinding.FieldName, S);
+  try
+    // сначала ищем на первом уровне (по названию категории)
+    if (List.Count > 0) and
+      (MainView.DataController.Search.Locate(clParameterType.Index, List[0],
+      True)) then
+    begin
+      // Затем ищем на втором уровне (по табличному имени)
+      if List.Count > 1 then
+      begin
+        ARow := GetRow(0) as TcxGridMasterDataRow;
+        ARow.Expand(False);
+        AView := GetDBBandedTableView(1);
+        AView.Focused := True;
+        AView.DataController.Search.Locate(AColumn.Index, List[1], True);
+        PutInTheCenterFocusedRecord(AView);
+      end
+      else
+        PutInTheCenterFocusedRecord(MainView);
+    end;
+  finally
+    FreeAndNil(List);
+  end;
+
+  UpdateView;
+end;
+
 procedure TViewParameters.SetCheckedMode(const Value: Boolean);
 begin
   if FCheckedMode = Value then
@@ -864,6 +889,10 @@ begin
       InitializeLookupColumn(clIDParameterType,
         FParametersGroup.qParameterTypes.DataSource, lsEditList,
         FParametersGroup.qParameterTypes.ParameterType.FieldName);
+
+      InitializeLookupColumn(clIDParameterKind,
+        FParametersGroup.qParameterKinds.DataSource, lsEditFixedList,
+        FParametersGroup.qParameterKinds.ParameterKind.FieldName);
 
       TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
         FEventList);

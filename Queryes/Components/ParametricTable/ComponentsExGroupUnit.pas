@@ -25,10 +25,9 @@ type
     FClientCount: Integer;
     FMark: string;
     FAllParameterFields: TDictionary<Integer, String>;
-    FNeedRefresh: Boolean;
     FOnParamOrderChange: TNotifyEventsEx;
-    FQueryParametersForCategory: TQueryParametersForCategory;
-    FQueryProductParameters: TQueryProductParameters;
+    FqParametersForCategory: TQueryParametersForCategory;
+    FqProductParameters: TQueryProductParameters;
 
   const
     FFieldPrefix: string = 'Field';
@@ -36,6 +35,8 @@ type
     procedure DoBeforeOpen(Sender: TObject);
     procedure DoOnApplyUpdate(Sender: TObject);
     function GetFieldName(AIDParameter: Integer): String;
+    property qProductParameters: TQueryProductParameters
+      read FqProductParameters;
     { Private declarations }
   protected
     // TODO: ClearUpdateCount
@@ -46,16 +47,14 @@ type
     procedure AddClient;
     procedure DecClient;
     function GetIDParameter(const AFieldName: String): Integer;
+    procedure TryRefresh;
     procedure UpdateData;
     property Mark: string read FMark;
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
-    property NeedRefresh: Boolean read FNeedRefresh write FNeedRefresh;
     property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
-    property QueryParametersForCategory: TQueryParametersForCategory
-      read FQueryParametersForCategory;
-    property QueryProductParameters: TQueryProductParameters
-      read FQueryProductParameters;
+    property qParametersForCategory: TQueryParametersForCategory
+      read FqParametersForCategory;
     { Public declarations }
   end;
 
@@ -76,8 +75,8 @@ begin
 
   FMark := '!';
 
-  FQueryParametersForCategory := TQueryParametersForCategory.Create(Self);
-  FQueryProductParameters := TQueryProductParameters.Create(Self);
+  FqParametersForCategory := TQueryParametersForCategory.Create(Self);
+  FqProductParameters := TQueryProductParameters.Create(Self);
 
   Main := qFamilyEx;
   Detail := qComponentsEx;
@@ -123,18 +122,6 @@ begin
     qComponentsEx.Lock := True;
     qFamilyEx.Lock := True;
   end;
-
-  // Если запрос нужно обновить
-  if FNeedRefresh then
-  begin
-    // Тогда обновляем запрос если но не заблокирован
-    // Если заблокирован то запрос обновится когда разблокируется
-    qComponentsEx.TryRefresh;
-    qFamilyEx.TryRefresh;
-
-    FNeedRefresh := False;
-  end;
-
 end;
 
 procedure TComponentsExGroup.DoAfterOpen(Sender: TObject);
@@ -161,20 +148,19 @@ begin
   AFDQuery.FieldDefs.Update;
 
   // В списке параметров могли произойти изменения (порядок, видимость)
-  QueryParametersForCategory.FDQuery.Close;
-  QueryParametersForCategory.Load(AData.ParentValue);
+  qParametersForCategory.Load(AData.ParentValue, True); // принудительно
 
-  QueryParametersForCategory.FDQuery.First;
-  while not FQueryParametersForCategory.FDQuery.Eof do
+  qParametersForCategory.FDQuery.First;
+  while not FqParametersForCategory.FDQuery.Eof do
   begin
     // Если для такого параметра в SQL запросе поля не существует
     if not AData.ParameterFields.ContainsKey
-      (FQueryParametersForCategory.ParameterID.AsInteger) then
+      (FqParametersForCategory.ParameterID.AsInteger) then
     begin
       ASize := 0;
       // AFieldType := ftInteger;
 
-      case QueryParametersForCategory.FieldType.AsInteger of
+      case qParametersForCategory.FieldType.AsInteger of
         // целое число
         1:
           AFieldType := ftInteger;
@@ -197,40 +183,37 @@ begin
         ASize := 200;
       end;
 
-      AFieldName := GetFieldName
-        (FQueryParametersForCategory.ParameterID.AsInteger);
+      AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
       // Добавляем очередное поле
       AFDQuery.FieldDefs.Add(AFieldName, AFieldType, ASize);
-      FAllParameterFields.Add(FQueryParametersForCategory.ParameterID.AsInteger,
+      FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
         AFieldName);
     end
     else
-      FAllParameterFields.Add(FQueryParametersForCategory.ParameterID.AsInteger,
-        AData.ParameterFields[FQueryParametersForCategory.ParameterID.
-        AsInteger]);
+      FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
+        AData.ParameterFields[FqParametersForCategory.ParameterID.AsInteger]);
 
-    FQueryParametersForCategory.FDQuery.Next;
+    FqParametersForCategory.FDQuery.Next;
   end;
 
   AData.CreateDefaultFields(False);
 
-  FQueryParametersForCategory.FDQuery.First;
-  while not FQueryParametersForCategory.FDQuery.Eof do
+  FqParametersForCategory.FDQuery.First;
+  while not FqParametersForCategory.FDQuery.Eof do
   begin
     if not AData.ParameterFields.ContainsKey
-      (FQueryParametersForCategory.ParameterID.AsInteger) then
+      (FqParametersForCategory.ParameterID.AsInteger) then
     begin
-      AFieldName := GetFieldName
-        (FQueryParametersForCategory.ParameterID.AsInteger);
+      AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
       AFDQuery.FieldByName(AFieldName).FieldKind := fkInternalCalc;
     end;
-    FQueryParametersForCategory.FDQuery.Next;
+    FqParametersForCategory.FDQuery.Next;
   end;
 end;
 
 procedure TComponentsExGroup.DoOnApplyUpdate(Sender: TObject);
 var
-  ADataSet: TDataSet;
+  AQueryCustomComponents: TQueryCustomComponents;
   AField: TField;
   AFieldName: String;
   AMark: Char;
@@ -238,26 +221,34 @@ var
   k: Integer;
   m: TArray<String>;
   S: string;
+  ADataSet: TFDQuery;
+  //ANewValue: String;
+  //AOldValue: String;
 begin
-  ADataSet := Sender as TDataSet;
+  AQueryCustomComponents := Sender as TQueryCustomComponents;
+  ADataSet := AQueryCustomComponents.FDQuery;
+  Assert(AQueryCustomComponents.RecordHolder <> nil);
 
   // Цикл по всем добавленным полям
-  QueryParametersForCategory.FDQuery.First;
-  while not QueryParametersForCategory.FDQuery.Eof do
+  qParametersForCategory.FDQuery.First;
+  while not qParametersForCategory.FDQuery.Eof do
   begin
     AFieldName := AllParameterFields
-      [FQueryParametersForCategory.ParameterID.AsInteger];
+      [FqParametersForCategory.ParameterID.AsInteger];
     AField := ADataSet.FieldByName(AFieldName);
 
-    if AField.OldValue <> AField.Value then
+
+    // AField.OldValue <> AField.Value почему-то не работает
+    //AOldValue := VarToStrDef(AQueryCustomComponents.RecordHolder.Field[AFieldName], '');
+    //ANewValue := VarToStrDef(AField.Value, '');
+    
+    if AQueryCustomComponents.RecordHolder.Field[AFieldName] <> AField.Value then
     begin
       // Фильтруем значения параметров
-      FQueryProductParameters.FDQuery.Filter :=
-        Format('(ProductID=%d) and (ParameterID=%d)',
-        [ADataSet.FieldByName('ID').AsInteger,
-        FQueryParametersForCategory.ParameterID.AsInteger]);
-      FQueryProductParameters.FDQuery.Filtered := True;
-      FQueryProductParameters.FDQuery.First;
+      FqProductParameters.ApplyFilter(ADataSet.FieldByName('ID').AsInteger,
+        FqParametersForCategory.ParameterID.AsInteger);
+
+      FqProductParameters.FDQuery.First;
 
       S := AField.AsString;
       m := S.Split([#13]);
@@ -269,33 +260,33 @@ begin
         if not AValue.IsEmpty then
         begin
           Inc(k);
-          if not(FQueryProductParameters.FDQuery.Eof) then
-            FQueryProductParameters.FDQuery.Edit
+          if not(FqProductParameters.FDQuery.Eof) then
+            FqProductParameters.FDQuery.Edit
           else
           begin
-            FQueryProductParameters.FDQuery.Append;
-            FQueryProductParameters.ParameterID.AsInteger :=
-              FQueryParametersForCategory.ParameterID.AsInteger;
-            FQueryProductParameters.ProductID.AsInteger :=
+            FqProductParameters.FDQuery.Append;
+            FqProductParameters.ParameterID.AsInteger :=
+              FqParametersForCategory.ParameterID.AsInteger;
+            FqProductParameters.ProductID.AsInteger :=
               ADataSet.FieldByName('ID').AsInteger;
           end;
 
-          FQueryProductParameters.Value.AsString := AValue;
-          FQueryProductParameters.TryPost;
-          FQueryProductParameters.FDQuery.Next;
+          FqProductParameters.Value.AsString := AValue;
+          FqProductParameters.TryPost;
+          FqProductParameters.FDQuery.Next;
         end;
       end;
 
       // Удаляем "лишние" значения
-      while FQueryProductParameters.FDQuery.RecordCount > k do
+      while FqProductParameters.FDQuery.RecordCount > k do
       begin
-        FQueryProductParameters.FDQuery.Last;
-        FQueryProductParameters.FDQuery.Delete;
+        FqProductParameters.FDQuery.Last;
+        FqProductParameters.FDQuery.Delete;
       end;
-      FQueryProductParameters.FDQuery.Filtered := False;
+      FqProductParameters.FDQuery.Filtered := False;
     end;
     // Переходим к следующему параметру
-    QueryParametersForCategory.FDQuery.Next;
+    qParametersForCategory.FDQuery.Next;
   end;
 end;
 
@@ -331,31 +322,33 @@ var
 begin
   // Во время загрузки ничего сохранять не будем
   FApplyUpdateEvents.Clear;
+  qFamilyEx.SaveValuesAfterEdit := False;
+  qComponentsEx.SaveValuesAfterEdit := False;
 
-  // Загружаем значения параметров из БД
-  FQueryProductParameters.Load(qFamilyEx.ParentValue);
+  // Загружаем значения параметров из БД принудительно
+  FqProductParameters.Load(qFamilyEx.ParentValue, True);
 
   qFamilyEx.FDQuery.DisableControls;
   qComponentsEx.FDQuery.DisableControls;
   try
-    FQueryProductParameters.FDQuery.First;
-    while not FQueryProductParameters.FDQuery.Eof do
+    FqProductParameters.FDQuery.First;
+    while not FqProductParameters.FDQuery.Eof do
     begin
-      if FQueryProductParameters.ParentProductID.IsNull then
+
+      if FqProductParameters.ParentProductID.IsNull then
         qryComponents := qFamilyEx
       else
         qryComponents := qComponentsEx;
 
-      OK := qryComponents.LocateByPK(FQueryProductParameters.ProductID.Value);
+      OK := qryComponents.LocateByPK(FqProductParameters.ProductID.Value);
       Assert(OK);
 
       // Если для такого параметра в SQL запросе поля не существует
       if not qryComponents.ParameterFields.ContainsKey
-        (FQueryParametersForCategory.ParameterID.AsInteger) then
+        (FqParametersForCategory.ParameterID.AsInteger) then
       begin
-        AFieldName := GetFieldName
-          (FQueryProductParameters.ParameterID.AsInteger);
-        S := FQueryProductParameters.Value.AsString.Trim;
+        AFieldName := GetFieldName(FqProductParameters.ParameterID.AsInteger);
+        S := FqProductParameters.Value.AsString.Trim;
         if not S.IsEmpty then
         begin
           // Возможно такого параметра у нашей категории уже нет
@@ -365,7 +358,7 @@ begin
           begin
             // Добавляем ограничители, чтобы потом можно было фильтровать
             ANewValue := Format('%s%s%s',
-              [FMark, FQueryProductParameters.Value.AsString.Trim, FMark]);
+              [FMark, FqProductParameters.Value.AsString.Trim, FMark]);
 
             AValue := AField.AsString.Trim;
             if AValue <> '' then
@@ -378,9 +371,11 @@ begin
           end;
         end;
       end;
-      FQueryProductParameters.FDQuery.Next;
+      FqProductParameters.FDQuery.Next;
     end;
   finally
+    qFamilyEx.FDQuery.First;
+    qComponentsEx.FDQuery.First;
     qComponentsEx.FDQuery.EnableControls;
     qFamilyEx.FDQuery.EnableControls;
   end;
@@ -388,17 +383,29 @@ begin
   // Подписываемся на событие, чтобы сохранить
   TNotifyEventWrap.Create(qFamilyEx.On_ApplyUpdate, DoOnApplyUpdate,
     FApplyUpdateEvents);
-  TNotifyEventWrap.Create(qComponentsEx.On_ApplyUpdate, DoOnApplyUpdate);
+  TNotifyEventWrap.Create(qComponentsEx.On_ApplyUpdate, DoOnApplyUpdate,
+    FApplyUpdateEvents);
+
+  qFamilyEx.SaveValuesAfterEdit := True;
+  qComponentsEx.SaveValuesAfterEdit := True;
+    
   // Завершаем транзакцию
   Connection.Commit;
 end;
 
+procedure TComponentsExGroup.TryRefresh;
+begin
+  // Обновляем если они не заблокированы
+  qComponentsEx.TryRefresh;
+  qFamilyEx.TryRefresh;
+end;
+
 procedure TComponentsExGroup.UpdateData;
 begin
-  QueryParametersForCategory.FDQuery.Params.ParamByName
-    (QueryParametersForCategory.DetailParameterName).AsInteger := 0;
-  QueryProductParameters.FDQuery.Params.ParamByName
-    (QueryProductParameters.DetailParameterName).AsInteger := 0;
+  qParametersForCategory.FDQuery.Params.ParamByName
+    (qParametersForCategory.DetailParameterName).AsInteger := 0;
+  qProductParameters.FDQuery.Params.ParamByName
+    (qProductParameters.DetailParameterName).AsInteger := 0;
   // Запросы нужно обновить, но мастер у них не изменился
   qComponentsEx.TryRefresh;
   qFamilyEx.TryRefresh;

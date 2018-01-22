@@ -1,32 +1,24 @@
 inherited frmImportError: TfrmImportError
   Caption = #1054#1096#1080#1073#1082#1080' '#1087#1088#1080' '#1079#1072#1075#1088#1091#1079#1082#1077
-  ClientHeight = 465
-  ClientWidth = 855
-  ExplicitWidth = 871
-  ExplicitHeight = 504
+  ClientHeight = 430
+  ClientWidth = 610
+  ExplicitWidth = 626
+  ExplicitHeight = 469
   PixelsPerInch = 96
   TextHeight = 16
-  inherited MainPanel: TPanel
-    Width = 855
-    Height = 397
-    ExplicitWidth = 855
-    ExplicitHeight = 397
-    inherited ViewGrid: TViewGrid
-      Width = 853
-      Height = 395
-      ExplicitWidth = 853
-      ExplicitHeight = 395
+  inherited pnlMain: TPanel
+    Width = 609
+    Height = 372
+    inherited ViewGridEx: TViewGridEx
+      Width = 609
+      Height = 372
       inherited cxGrid: TcxGrid
-        Width = 853
-        Height = 348
-        ExplicitWidth = 853
-        ExplicitHeight = 348
+        Width = 609
+        Height = 325
       end
       inherited StatusBar: TStatusBar
-        Top = 376
-        Width = 853
-        ExplicitTop = 376
-        ExplicitWidth = 853
+        Top = 353
+        Width = 609
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -35,42 +27,48 @@ inherited frmImportError: TfrmImportError
           28
           0)
       end
+      inherited cxGridPopupMenu: TcxGridPopupMenu
+        PopupMenus = <
+          item
+            GridView = ViewGridEx.cxGridDBBandedTableView
+            HitTypes = [gvhtNone, gvhtCell]
+            Index = 0
+            PopupMenu = ViewGridEx.pmGrid
+          end>
+      end
+      inherited cxImageList1: TcxImageList
+        FormatVersion = 1
+      end
     end
   end
-  inherited PanelBottom: TPanel
-    Top = 397
-    Width = 855
-    ExplicitTop = 397
-    ExplicitWidth = 855
-    DesignSize = (
-      855
-      68)
-    inherited lblStatus: TLabel
-      Top = 26
-      ExplicitTop = 26
-    end
-    inherited cxbtnOK: TcxButton
-      Left = 467
-      Action = actAll
-      DropDownMenu = pmContinue
-      Kind = cxbkDropDownButton
-      ExplicitLeft = 467
-    end
-    object cxbtnCancel: TcxButton
-      Left = 662
-      Top = 16
-      Width = 177
-      Height = 36
-      Anchors = [akRight, akBottom]
-      Cancel = True
-      Caption = #1054#1090#1084#1077#1085#1072
-      ModalResult = 2
-      TabOrder = 1
-    end
+  inherited cxbtnOK: TcxButton
+    Left = 270
+    Top = 387
+    DropDownMenu = pmContinue
+    Kind = cxbkDropDownButton
+    ExplicitLeft = 265
+    ExplicitTop = 381
+  end
+  inherited lblStatus: TcxLabel
+    Top = 391
+    ExplicitTop = 385
+  end
+  object cxButton2: TcxButton
+    Left = 439
+    Top = 387
+    Width = 163
+    Height = 33
+    Anchors = [akRight, akBottom]
+    Cancel = True
+    Caption = #1054#1090#1084#1077#1085#1072
+    ModalResult = 2
+    TabOrder = 3
+    ExplicitLeft = 434
+    ExplicitTop = 381
   end
   object pmContinue: TPopupMenu
-    Left = 123
-    Top = 187
+    Left = 131
+    Top = 35
     object N1: TMenuItem
       Action = actAll
       Default = True
@@ -79,9 +77,9 @@ inherited frmImportError: TfrmImportError
       Action = actSkip
     end
   end
-  object ActionList1: TActionList
-    Left = 123
-    Top = 67
+  object ErrorActionList: TActionList
+    Left = 43
+    Top = 35
     object actAll: TAction
       Caption = #1048#1084#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1089#1105
       OnExecute = actAllExecute

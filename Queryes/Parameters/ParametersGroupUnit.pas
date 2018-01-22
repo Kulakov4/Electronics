@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
-  QueryWithMasterUnit, QueryGroupUnit, OrderQuery;
+  QueryWithMasterUnit, QueryGroupUnit, OrderQuery, ParameterKindsQuery;
 
 type
   TParametersGroup = class(TQueryGroup)
@@ -20,9 +20,10 @@ type
     qSubParameters: TQuerySubParameters;
   private
     FAfterDataChange: TNotifyEventsEx;
-    FAfterCommit: TNotifyEventsEx;
+    FqParameterKinds: TQueryParameterKinds;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
+    function GetqParameterKinds: TQueryParameterKinds;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -33,7 +34,7 @@ type
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
-    property AfterCommit: TNotifyEventsEx read FAfterCommit;
+    property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
     { Public declarations }
   end;
 
@@ -41,7 +42,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule;
+uses RepositoryDataModule, ParameterKindEnum;
 
 constructor TParametersGroup.Create(AOwner: TComponent);
 begin
@@ -50,7 +51,6 @@ begin
   Main := qParameterTypes;
   Detail := qMainParameters;
 
-  FAfterCommit := TNotifyEventsEx.Create(Self);
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoAfterPostOrDelete);
@@ -81,7 +81,7 @@ begin
 
   Connection.Commit;
 
-  FAfterCommit.CallEventHandlers(Self);
+  AfterCommit.CallEventHandlers(Self);
 end;
 
 procedure TParametersGroup.DoAfterPostOrDelete(Sender: TObject);
@@ -115,20 +115,35 @@ begin
   end
   else
     // Пытаемся искать среди типов параметров
-    if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S) then
+    if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S)
+    then
     begin
       Result.Add(S);
     end;
+end;
+
+function TParametersGroup.GetqParameterKinds: TQueryParameterKinds;
+begin
+  if FqParameterKinds = nil then
+  begin
+    FqParameterKinds := TQueryParameterKinds.Create(Self);
+    FqParameterKinds.FDQuery.Open;
+    FqParameterKinds.ParameterKind.DisplayLabel := 'Вид параметра';
+  end;
+  Result := FqParameterKinds;
 end;
 
 procedure TParametersGroup.InsertList(AParametersExcelTable
   : TParametersExcelTable);
 var
   AField: TField;
+  AParameterKindID: Integer;
   AParameterType: string;
   I: Integer;
 begin
   TryPost;
+  if qParameterKinds.FDQuery.RecordCount = 0 then
+    raise Exception.Create('Справочник видов параметров не заполнен');
 
   AParametersExcelTable.DisableControls;
   qParameterTypes.FDQuery.DisableControls;
@@ -140,6 +155,26 @@ begin
     begin
       AParameterType := AParametersExcelTable.ParameterType.AsString;
       qParameterTypes.LocateOrAppend(AParameterType);
+
+      AParameterKindID :=
+        StrToIntDef(AParametersExcelTable.ParameterKindID.AsString, -1);
+      // Если вид параметра не числовой
+      if AParameterKindID = -1 then
+      begin
+        // Если нашли такой вид параметра в справочнике
+        if qParameterKinds.LocateByField
+          (qParameterKinds.ParameterKind.FieldName,
+          AParametersExcelTable.ParameterKindID.AsString) then
+          AParameterKindID := qParameterKinds.PK.AsInteger
+        else
+          AParameterKindID := Integer(Неиспользуется);
+      end
+      else
+      begin
+        // Ищем такой вид параметра в справочнике
+        if not qParameterKinds.LocateByPK(AParameterKindID) then
+          AParameterKindID := Integer(Неиспользуется);
+      end;
 
       qMainParameters.FDQuery.Append;
       try
@@ -155,11 +190,14 @@ begin
 
         qMainParameters.IDParameterType.AsInteger :=
           qParameterTypes.PK.AsInteger;
+        qMainParameters.IDParameterKind.AsInteger := AParameterKindID;
+
         qMainParameters.FDQuery.Post;
       except
         qMainParameters.FDQuery.Cancel;
         raise;
       end;
+
       AParametersExcelTable.Next;
       AParametersExcelTable.CallOnProcessEvent;
     end;

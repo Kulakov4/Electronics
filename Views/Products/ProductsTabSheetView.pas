@@ -81,7 +81,7 @@ begin
   end;
 
   // Открываем диалог выбора excel файла из последнего места
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   ViewProducts2.LoadFromExcelDocument(AFileName);

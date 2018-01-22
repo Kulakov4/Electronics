@@ -1,14 +1,14 @@
-unit ErrorForm;
+unit ParametricTableErrorForm;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxGraphics,
-  cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack,
-  dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
-  dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, Vcl.ExtCtrls, GridFrame,
+  GridView, GridViewEx, ParametricTableErrorView, cxGraphics, cxLookAndFeels,
+  cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
+  dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
+  dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
   dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
   dxSkinMetropolisDark, dxSkinMoneyTwins, dxSkinOffice2007Black,
@@ -21,15 +21,16 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, Data.DB, GridFrame,
-  Vcl.ExtCtrls, cxControls, cxContainer, cxEdit, cxLabel, GridView,
-  CustomErrorTable, GridViewForm, CustomGridViewForm, CustomErrorForm;
+  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons;
 
 type
-  TfrmError = class(TfrmCustomError)
+  TfrmParametricTableError = class(TfrmRoot)
+    pnlMain: TPanel;
+    ViewParametricTableError: TViewParametricTableError;
+    cxButtonNext: TcxButton;
+    cxButtonCancel: TcxButton;
   private
     { Private declarations }
-  protected
   public
     { Public declarations }
   end;

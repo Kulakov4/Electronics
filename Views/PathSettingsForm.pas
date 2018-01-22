@@ -273,9 +273,7 @@ begin
     ADir := TDirectory.GetParent(ADir);
 
   // מבחמנ
-  // AFileName := TDialog.Create.OpenFolderDialog(ADir);
-  AFileName := TDialog.Create.OpenDialog(AOpenDialogClass, ADir);
-  if AFileName <> '' then
+  if TDialog.Create.ShowDialog(AOpenDialogClass, ADir, '', AFileName) then
     ATextEdit.Text := TPath.GetDirectoryName(AFileName);
 end;
 

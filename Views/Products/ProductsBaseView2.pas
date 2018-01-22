@@ -84,6 +84,7 @@ type
     cxStyle1: TcxStyle;
     cxNormalStyle: TcxStyle;
     clIDCurrency: TcxDBTreeListColumn;
+    clChecked: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -140,8 +141,7 @@ type
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
-    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo;
-      const AErrorMessage, AEmptyErrorMessage: string);
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
     // TODO: SortList
@@ -158,8 +158,8 @@ type
     procedure EndUpdate; override;
     procedure UpdateView; override;
     property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
-    property qProductsBase: TQueryProductsBase read FqProductsBase write
-        SetqProductsBase;
+    property qProductsBase: TQueryProductsBase read FqProductsBase
+      write SetqProductsBase;
     { Public declarations }
   end;
 
@@ -197,7 +197,8 @@ begin
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
   // Вручную задаём обработчик события
   AcxPopupEditproperties.OnInitPopup := clDescriptionPropertiesInitPopup;
-  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide);
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
+    DoOnDescriptionPopupHide);
 
 end;
 
@@ -253,6 +254,7 @@ end;
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
 begin
   inherited;
+  // Мы просто завершаем транзакцию
   FqProductsBase.ApplyUpdates;
   UpdateView;
 end;
@@ -298,7 +300,7 @@ begin
   finally
     FreeAndNil(AIDS);
   end;
-
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.actExportToExcelDocumentExecute(Sender: TObject);
@@ -307,8 +309,8 @@ var
 begin
   inherited;
 
-  if not TDialog.Create.SaveToExcelFile
-    (qProductsBase.ExportFileName, AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+    qProductsBase.ExportFileName, AFileName) then
     Exit;
 
   cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
@@ -350,29 +352,25 @@ end;
 procedure TViewProductsBase2.actOpenDatasheetExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDatasheetDoc.Create, 'Файл спецификации с именем %s не найден',
-    'не задана спецификация');
+  OpenDoc(TDatasheetDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDiagramExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDiagramDoc.Create, 'Файл схемы с именем %s не найден',
-    'Не задана схема');
+  OpenDoc(TDiagramDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDrawingExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDrawingDoc.Create, 'Файл чертежа с именем %s не найден',
-    'Не задан чертёж');
+  OpenDoc(TDrawingDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenImageExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TImageDoc.Create, 'Файл изображения с именем %s не найден',
-    'Не задано изображение');
+  OpenDoc(TImageDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenInParametricTableExecute(Sender: TObject);
@@ -481,18 +479,16 @@ end;
 procedure TViewProductsBase2.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(qProductsBase.AfterOpen, DoAfterOpen,
-    FCountEvents);
+  TNotifyEventWrap.Create(qProductsBase.AfterOpen, DoAfterOpen, FCountEvents);
 
-  TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost,
-    FCountEvents);
+  TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost, FCountEvents);
 
   TNotifyEventWrap.Create(qProductsBase.AfterDelete, DoAfterDelete,
     FCountEvents);
 
   // Чтобы отслеживать надбавку
-  TNotifyEventWrap.Create(FqProductsBase.AfterScroll,
-    DoAfterScroll, FCountEvents);
+  TNotifyEventWrap.Create(FqProductsBase.AfterScroll, DoAfterScroll,
+    FCountEvents);
 
   UpdateProductCount;
 end;
@@ -505,12 +501,13 @@ begin
   inherited;
   S := cxbeiRate.EditValue;
   r := StrToFloatDef(S, 0);
-  if r <> 0 then
-  begin
-    // Обновлям курс доллара
-    FqProductsBase.Rate := r;
+  if (r = 0) or (FqProductsBase.Rate = r) then
+    Exit;
+
+  // Обновлям курс доллара
+  FqProductsBase.Rate := r;
+  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0) then
     FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
-  end;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListBandHeaderClick
@@ -537,8 +534,24 @@ begin
   then
     Exit;
 
-  if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) then
+  if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) and
+    (AViewInfo.Column <> clValue) then
     Exit;
+
+  if AViewInfo.Column = clValue then
+  begin
+    V := AViewInfo.Node.Values[clChecked.ItemIndex];
+    if VarIsNull(V) then
+      Exit;
+
+    if V = 1 then
+    begin
+      // Пишем чёрным по белому
+      ACanvas.Font.Color := clBlack;
+      ACanvas.FillRect(AViewInfo.BoundsRect, $00F5DEC9);
+    end;
+    Exit;
+  end;
 
   V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
   if VarIsNull(V) then
@@ -737,8 +750,8 @@ begin
   Assert(FqProductsBase <> nil);
 
   InitializeLookupColumn(clIDProducer,
-    FqProductsBase.qProducers.DataSource, lsEditFixedList,
-    FqProductsBase.qProducers.Name.FieldName);
+    FqProductsBase.ProducersGroup.qProducers.DataSource, lsEditFixedList,
+    FqProductsBase.ProducersGroup.qProducers.Name.FieldName);
 end;
 
 procedure TViewProductsBase2.InternalRefreshData;
@@ -770,13 +783,12 @@ begin
   Result := S1 = S2;
 end;
 
-procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo;
-  const AErrorMessage, AEmptyErrorMessage: string);
+procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 var
   AFileName: string;
 begin
-  if FqProductsBase.FDQuery.FieldByName
-    (ADocFieldInfo.FieldName).AsString <> '' then
+  if FqProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
+  then
   begin
     AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
       ADocFieldInfo.Folder), FqProductsBase.FDQuery.FieldByName
@@ -785,10 +797,11 @@ begin
     if FileExists(AFileName) then
       ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
     else
-      TDialog.Create.ErrorMessageDialog(Format(AErrorMessage, [AFileName]));
+      TDialog.Create.ErrorMessageDialog(Format(ADocFieldInfo.ErrorMessage,
+        [AFileName]));
   end
   else
-    TDialog.Create.ErrorMessageDialog(AEmptyErrorMessage);
+    TDialog.Create.ErrorMessageDialog(ADocFieldInfo.EmptyErrorMessage);
 
 end;
 
@@ -826,13 +839,11 @@ begin
   if FqProductsBase = nil then
     Exit;
 
-  cxDBTreeList.DataController.DataSource :=
-    FqProductsBase.DataSource;
+  cxDBTreeList.DataController.DataSource := FqProductsBase.DataSource;
 
   InitializeColumns;
 
-  TNotifyEventWrap.Create(FqProductsBase.AfterLoad,
-    DoAfterLoad, FEventList);
+  TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
 
   // подписываемся на события о смене количества и надбавки
   CreateCountEvents;
@@ -844,7 +855,7 @@ procedure TViewProductsBase2.UpdateProductCount;
 begin
   // На выбранном складе или в результате поиска без учёта групп
   StatusBar.Panels[0].Text :=
-    Format('%d', [ qProductsBase.NotGroupClone.RecordCount]);
+    Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
 end;
 
 procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
@@ -862,8 +873,8 @@ begin
       // if ANode.IsGroupNode then
       // Continue;
 
-      FqProductsBase.UpdateRate(ANode.Values[clID.ItemIndex],
-        RateField, ARate, AUpdatedIDList);
+      FqProductsBase.UpdateRate(ANode.Values[clID.ItemIndex], RateField, ARate,
+        AUpdatedIDList);
     end;
   finally
     FqProductsBase.FDQuery.EnableControls;
@@ -882,8 +893,9 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (qProductsBase <> nil) and
-    (qProductsBase.FDQuery.Active);
+  OK := (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
+    (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
+    (qProductsBase.Master.FDQuery.RecordCount > 0);
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
@@ -906,9 +918,10 @@ procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);
 var
   sourceFileName: string;
 begin
+  Application.Hint := '';
   // Открываем диалог выбора файла для загрузки
-  sourceFileName := TDialog.Create.OpenPictureDialog(ADocFieldInfo.Folder);
-  if sourceFileName.IsEmpty then
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, ADocFieldInfo.Folder,
+    '', sourceFileName) then
     Exit;
 
   FqProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);

@@ -53,8 +53,6 @@ procedure TQueryBodyData.LocateOrAppend(const ABodyData: string;
   AIDProducer, AIDBody: Integer);
 var
   AFieldNames: string;
-  AMatches: TList<TMySplit>;
-  I: Integer;
 begin
   Assert(not ABodyData.IsEmpty);
   Assert(AIDProducer > 0);
@@ -66,31 +64,11 @@ begin
   if not FDQuery.LocateEx(AFieldNames,
     VarArrayOf([AIDBody, ABodyData, AIDProducer]), [lxoCaseInsensitive]) then
   begin
-    AMatches := MySplit(ABodyData);
-    try
-      // Под шаблон подходит абсолютно любая строка
-      Assert(AMatches <> nil);
-
-      if (AMatches.Count > 5) then
-        raise Exception.CreateFmt
-          ('Слишком сложная комбинация чисел и строк в корпусных данных %s',
-          [ABodyData]);
-
-      TryAppend;
-      for I := 0 to AMatches.Count - 1 do
-      begin
-        Field(Format('BODYDATA%d', [I * 2])).Value := AMatches[I].S;
-        if not AMatches[I].X.IsEmpty then
-          Field(Format('BODYDATA%d', [I * 2 + 1])).Value := AMatches[I].X;
-      end;
-      IDBody.Value := AIDBody;
-      IDProducer.Value := AIDProducer;
-
-      TryPost;
-    finally
-      FreeAndNil(AMatches);
-    end;
-    Assert(BodyData.AsString.Length > 0);
+    TryAppend;
+    BodyData.Value := ABodyData;
+    IDBody.Value := AIDBody;
+    IDProducer.Value := AIDProducer;
+    TryPost;
   end;
 end;
 

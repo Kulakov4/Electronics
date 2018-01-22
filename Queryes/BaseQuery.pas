@@ -64,6 +64,8 @@ type
     procedure CascadeDelete(const AIDMaster: Variant;
       const ADetailKeyFieldName: String;
       AFromClientOnly: Boolean = False); virtual;
+    procedure ClearFields(AFieldList: TList<String>; AProductIDList:
+        TList<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -74,6 +76,8 @@ type
     procedure FetchFields(AFieldNames: TList<String>; AValues: TList<Variant>;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
+    procedure FetchFields(ARecordHolder: TRecordHolder; ARequest: TFDUpdateRequest;
+        var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
     procedure FetchNullValues(ASource: TFDQuery; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions;
       MapFieldInfo: string = '');
@@ -82,7 +86,8 @@ type
       ADelimiter: String = ','): String;
     procedure IncUpdateRecCount;
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
-    procedure Load(AIDParent: Integer); overload; virtual;
+    procedure Load(AIDParent: Integer; AForcibly: Boolean = False); overload;
+        virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
     function LocateByField(const AFieldName, AValue: string): Boolean;
@@ -101,7 +106,7 @@ type
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure SetParamType(const AParamName: String;
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger);
-    procedure TryEdit;
+    function TryEdit: Boolean;
     procedure TryPost; virtual;
     procedure TryCancel;
     procedure TryAppend;
@@ -306,6 +311,34 @@ begin
   // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
 end;
 
+procedure TQueryBase.ClearFields(AFieldList: TList<String>; AProductIDList:
+    TList<Integer>);
+var
+  AFieldName: String;
+  AID: Integer;
+begin
+  Assert(AFieldList <> nil);
+  Assert(AFieldList.Count > 0);
+  Assert(AProductIDList <> nil);
+  Assert(AProductIDList.Count > 0);
+
+  FDQuery.DisableControls;
+  try
+      SaveBookmark;
+      for AID in AProductIDList do
+      begin
+        if not LocateByPK(AID) then Continue;
+        TryEdit;
+        for AFieldName in AFieldList do
+          Field(AFieldName).Value := NULL;
+        TryPost;
+      end;
+      RestoreBookmark;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
 procedure TQueryBase.ClearUpdateRecCount;
 begin
   FUpdateRecCount := 0;
@@ -504,6 +537,43 @@ begin
     else
       S := V;
     S := S + ' ' + AFieldNames[i];
+
+    if i > 0 then
+      ASQL := ASQL + ', ';
+    ASQL := ASQL + S;
+  end;
+
+  case ARequest of
+    arInsert:
+      FDUpdateSQL.InsertSQL.Text := ASQL;
+    arUpdate:
+      FDUpdateSQL.ModifySQL.Text := ASQL;
+  end;
+
+  FDUpdateSQL.Apply(ARequest, AAction, AOptions);
+end;
+
+procedure TQueryBase.FetchFields(ARecordHolder: TRecordHolder; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
+var
+  ASQL: string;
+  i: Integer;
+  S: string;
+  V: Variant;
+begin
+  ASQL := 'SELECT ';
+  for i := 0 to ARecordHolder.Count - 1 do
+  begin
+    V := ARecordHolder[i].Value;
+    if VarIsNull(V) then
+      Continue;
+
+    if VarIsStr(V) then
+      S := QuotedStr(V)
+    else
+      S := V;
+    S := S + ' ' + ARecordHolder[i].FieldName;
 
     if i > 0 then
       ASQL := ASQL + ', ';
@@ -734,13 +804,13 @@ begin
 
 end;
 
-procedure TQueryBase.Load(AIDParent: Integer);
+procedure TQueryBase.Load(AIDParent: Integer; AForcibly: Boolean = False);
 begin
   Assert(DetailParameterName <> '');
 
   // Если есть необходимость в загрузке данных
   if (not FDQuery.Active) or (FDQuery.Params.ParamByName(DetailParameterName)
-    .AsInteger <> AIDParent) then
+    .AsInteger <> AIDParent) or AForcibly then
   begin
     FBeforeLoad.CallEventHandlers(FDQuery);
 
@@ -892,12 +962,16 @@ begin
   AFDParam.DataType := ADataType;
 end;
 
-procedure TQueryBase.TryEdit;
+function TQueryBase.TryEdit: Boolean;
 begin
   Assert(FDQuery.Active and (FDQuery.RecordCount > 0));
 
+  Result := False;
   if not (FDQuery.State in [dsEdit, dsInsert]) then
+  begin
     FDQuery.Edit;
+    Result := True;
+  end;
 end;
 
 procedure TQueryBase.TryPost;

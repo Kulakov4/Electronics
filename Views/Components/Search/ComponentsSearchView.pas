@@ -45,6 +45,8 @@ type
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
+    procedure clSubGroupGetProperties(Sender: TcxCustomGridTableItem;
+      ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure clValueGetProperties(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure cxFieldValueWithExpandPropertiesChange(Sender: TObject);
@@ -75,12 +77,13 @@ procedure TViewComponentsSearch.actClearExecute(Sender: TObject);
 begin
   if CheckAndSaveChanges <> IDCANCEL then
   begin
-    MainView.BeginUpdate();
+    // Почемуто BeginUpdate EndUpdate вызывает появление пустого дочернего уровня
+    // MainView.BeginUpdate();
     try
       ComponentsSearchGroup.ClearSearchResult;
       UpdateView;
     finally
-      MainView.EndUpdate;
+      // MainView.EndUpdate;
     end;
 
     FocusColumnEditor(0, 'Value');
@@ -104,6 +107,21 @@ end;
 procedure TViewComponentsSearch.actSearchExecute(Sender: TObject);
 begin
   Search(False);
+end;
+
+procedure TViewComponentsSearch.clSubGroupGetProperties
+  (Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
+  var AProperties: TcxCustomEditProperties);
+begin
+  // inherited;
+  if ARecord = nil then
+    Exit;
+
+  if (ComponentsSearchGroup <> nil) and
+    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) then
+    AProperties := cxerpiSubGroup.Properties
+  else
+    AProperties := cxerlSubGroup.Properties;
 end;
 
 procedure TViewComponentsSearch.clValueGetProperties
@@ -191,6 +209,9 @@ begin
 end;
 
 procedure TViewComponentsSearch.UpdateView;
+//var
+//  AColumn: TcxGridDBBandedColumn;
+//  AReadOnly: Boolean;
 begin
   actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
   actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled;
@@ -210,6 +231,13 @@ begin
     SearchMode;
   MainView.OptionsData.Inserting := ComponentsSearchGroup.qFamilySearch.Mode =
     SearchMode;
+
+//  AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
+
+//  AColumn := GetSameColumn(MainView, clDescription);
+
+//  (AColumn.Properties as TcxPopupEditProperties).ReadOnly := True;
+//  GetSameColumn(MainView, clDatasheet).Properties.ReadOnly := AReadOnly;
 end;
 
 end.

@@ -1,32 +1,36 @@
 inherited frmGridView: TfrmGridView
   Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090
-  ClientHeight = 478
-  ClientWidth = 875
-  ExplicitWidth = 891
-  ExplicitHeight = 517
+  ClientHeight = 429
+  ClientWidth = 619
+  ExplicitWidth = 635
+  ExplicitHeight = 468
+  DesignSize = (
+    619
+    429)
   PixelsPerInch = 96
   TextHeight = 16
-  inherited MainPanel: TPanel
-    Width = 875
-    Height = 410
-    ExplicitWidth = 875
-    ExplicitHeight = 410
-    inherited ViewGrid: TViewGrid
-      Width = 873
-      Height = 408
-      ExplicitWidth = 873
-      ExplicitHeight = 408
+  inherited pnlMain: TPanel
+    Width = 618
+    Height = 371
+    Align = alNone
+    ExplicitWidth = 618
+    ExplicitHeight = 371
+    inherited ViewGridEx: TViewGridEx
+      Width = 618
+      Height = 371
+      ExplicitWidth = 618
+      ExplicitHeight = 371
       inherited cxGrid: TcxGrid
-        Width = 873
-        Height = 361
-        ExplicitWidth = 873
-        ExplicitHeight = 361
+        Width = 618
+        Height = 324
+        ExplicitWidth = 618
+        ExplicitHeight = 324
       end
       inherited StatusBar: TStatusBar
-        Top = 389
-        Width = 873
-        ExplicitTop = 389
-        ExplicitWidth = 873
+        Top = 352
+        Width = 618
+        ExplicitTop = 352
+        ExplicitWidth = 618
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
@@ -38,38 +42,29 @@ inherited frmGridView: TfrmGridView
       inherited cxGridPopupMenu: TcxGridPopupMenu
         PopupMenus = <
           item
-            HitTypes = [gvhtCell]
+            GridView = ViewGridEx.cxGridDBBandedTableView
+            HitTypes = [gvhtNone, gvhtCell]
             Index = 0
+            PopupMenu = ViewGridEx.pmGrid
           end>
+      end
+      inherited DataSource: TDataSource
+        Left = 40
+      end
+      inherited cxImageList1: TcxImageList
+        FormatVersion = 1
       end
     end
   end
-  object PanelBottom: TPanel [1]
-    Left = 0
-    Top = 410
-    Width = 875
-    Height = 68
-    Align = alBottom
+  object cxbtnOK: TcxButton
+    Left = 448
+    Top = 388
+    Width = 163
+    Height = 33
+    Anchors = [akRight, akBottom]
+    Caption = '&OK'
+    Default = True
+    ModalResult = 1
     TabOrder = 1
-    DesignSize = (
-      875
-      68)
-    object lblStatus: TLabel
-      Left = 16
-      Top = 24
-      Width = 4
-      Height = 16
-    end
-    object cxbtnOK: TcxButton
-      Left = 680
-      Top = 16
-      Width = 177
-      Height = 36
-      Anchors = [akRight, akBottom]
-      Caption = '&OK'
-      Default = True
-      ModalResult = 1
-      TabOrder = 0
-    end
   end
 end

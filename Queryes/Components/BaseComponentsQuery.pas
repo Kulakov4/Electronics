@@ -27,8 +27,8 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    property qSearchComponent: TQuerySearchComponentOrFamily read
-        GetqSearchComponent;
+    property qSearchComponent: TQuerySearchComponentOrFamily
+      read GetqSearchComponent;
   public
     constructor Create(AOwner: TComponent); override;
     function Exists(AMasterID: Integer): Boolean;
@@ -72,10 +72,10 @@ procedure TQueryBaseComponents.ApplyInsert(ASender: TDataSet;
 var
   ARH: TRecordHolder;
 begin
+  Assert(ASender = FDQuery);
   // Если такого компонента ещё нет
-  if qSearchComponent.SearchComponent
-    (ASender.FieldByName(ParentProductID.FieldName).AsInteger,
-    ASender.FieldByName(Value.FieldName).AsString) = 0 then
+  if qSearchComponent.SearchComponent(ParentProductID.AsInteger,
+    Value.AsString) = 0 then
   begin
     ARH := TRecordHolder.Create(ASender);
     try
@@ -85,16 +85,20 @@ begin
     end;
 
     // Запоминаем сгенерированный первичный ключ
-    ASender.FieldByName(PKFieldName).AsInteger := qProducts.PKValue;
+    FetchFields([PK.FieldName], [qProducts.PKValue], ARequest, AAction,
+      AOptions);
+    // ASender.FieldByName(PKFieldName).AsInteger := qProducts.PKValue;
   end
   else
   begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
-    ASender.FieldByName(PKFieldName).Value := qSearchComponent.PK.Value;
+    FetchFields([PK.FieldName], [qSearchComponent.PK.Value], ARequest, AAction,
+      AOptions);
+    //ASender.FieldByName(PKFieldName).Value := qSearchComponent.PK.Value;
   end;
 
-  Assert(ASender.FieldByName(PKFieldName).AsInteger > 0);
+  Assert(PK.AsInteger > 0);
 
   inherited;
 end;
@@ -170,8 +174,8 @@ begin
     Result := False;
 end;
 
-function TQueryBaseComponents.GetqSearchComponent:
-    TQuerySearchComponentOrFamily;
+function TQueryBaseComponents.GetqSearchComponent
+  : TQuerySearchComponentOrFamily;
 begin
   if FqSearchComponent = nil then
     FqSearchComponent := TQuerySearchComponentOrFamily.Create(Self);

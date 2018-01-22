@@ -13,7 +13,6 @@ object frmMain: TfrmMain
   OldCreateOrder = False
   Position = poDesktopCenter
   Scaled = False
-  ShowHint = True
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -40,7 +39,7 @@ object frmMain: TfrmMain
     Height = 564
     Align = alLeft
     TabOrder = 1
-    Properties.ActivePage = cxtsComponents
+    Properties.ActivePage = cxtsStorehouses
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcLeftChange
     ClientRectBottom = 560
@@ -51,6 +50,10 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object dbtlCategories: TcxDBTreeList
         Left = 0
         Top = 0
@@ -151,6 +154,8 @@ object frmMain: TfrmMain
           DataController.Summary.SummaryGroups = <>
           OptionsCustomize.ColumnFiltering = False
           OptionsCustomize.ColumnGrouping = False
+          OptionsSelection.CellSelect = False
+          OptionsSelection.HideFocusRectOnExit = False
           OptionsView.CellAutoHeight = True
           OptionsView.ColumnAutoWidth = True
           OptionsView.GroupByBox = False
@@ -197,25 +202,26 @@ object frmMain: TfrmMain
         inherited cxpcComponents: TcxPageControl
           Width = 926
           Height = 505
+          Properties.ActivePage = ComponentsFrame.cxtsCategory
           ExplicitWidth = 926
           ExplicitHeight = 505
           ClientRectBottom = 501
           ClientRectRight = 922
           ClientRectTop = 27
-          inherited cxtsCategoryComponents: TcxTabSheet
+          inherited cxtsCategory: TcxTabSheet
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474
-            inherited ViewComponents: TViewComponents
+            inherited cxgrdFunctionalGroup: TcxGrid
               Width = 918
               Height = 474
               ExplicitWidth = 918
               ExplicitHeight = 474
+            end
+          end
+          inherited cxtsCategoryComponents: TcxTabSheet
+            inherited ViewComponents: TViewComponents
               inherited cxGrid: TcxGrid
-                Width = 918
-                Height = 427
-                ExplicitWidth = 918
-                ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clDatasheet: TcxGridDBBandedColumn
                     Properties.Buttons = <
@@ -266,12 +272,6 @@ object frmMain: TfrmMain
                       end>
                   end
                 end
-              end
-              inherited StatusBar: TStatusBar
-                Top = 455
-                Width = 918
-                ExplicitTop = 455
-                ExplicitWidth = 918
               end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
@@ -402,6 +402,8 @@ object frmMain: TfrmMain
           inherited cxtsParametricTable: TcxTabSheet
             inherited ViewParametricTable: TViewParametricTable
               inherited cxGrid: TcxGrid
+                ExplicitWidth = 918
+                ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   Styles.OnGetHeaderStyle = nil
                   inherited clProducer: TcxGridDBBandedColumn
@@ -467,6 +469,10 @@ object frmMain: TfrmMain
                   end
                 end
               end
+              inherited StatusBar: TStatusBar
+                ExplicitTop = 455
+                ExplicitWidth = 918
+              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
@@ -488,6 +494,9 @@ object frmMain: TfrmMain
                     Index = 1
                     PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
                   end>
+              end
+              inherited BandTimer: TTimer
+                OnTimer = nil
               end
               inherited cxStyleRepository: TcxStyleRepository
                 PixelsPerInch = 96
@@ -556,6 +565,7 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
+            ExplicitLeft = 4
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474
@@ -1017,5 +1027,10 @@ object frmMain: TfrmMain
     object N3: TMenuItem
       Action = actRenameStorehouse
     end
+  end
+  object ApplicationEvents: TApplicationEvents
+    OnHint = ApplicationEventsHint
+    Left = 45
+    Top = 303
   end
 end

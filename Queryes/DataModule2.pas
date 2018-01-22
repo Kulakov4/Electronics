@@ -18,7 +18,6 @@ type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    DescriptionsGroup: TDescriptionsGroup;
     BodyTypesGroup: TBodyTypesGroup;
     ProducersGroup: TProducersGroup;
     ParametersGroup: TParametersGroup;
@@ -30,6 +29,7 @@ type
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
+    DescriptionsGroup: TDescriptionsGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -37,6 +37,8 @@ type
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
+    procedure DoOnCategoryParametersApplyUpdates(Sender: TObject);
+    procedure DoAfterComponentsCommit(Sender: TObject);
     procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
@@ -94,9 +96,9 @@ begin
     Add(qCategoryParameters);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
-  ComponentsGroup.Producers := ProducersGroup.qProducers;
-  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
-  ComponentsExGroup.Producers := ProducersGroup.qProducers;
+//  ComponentsGroup.Producers := ProducersGroup.qProducers;
+//  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
+//  ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
@@ -120,6 +122,13 @@ begin
 
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
+
+  TNotifyEventWrap.Create(qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
+    FEventList);
+
+  TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
+    FEventList);
+
 
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
@@ -189,6 +198,20 @@ begin
   OpenConnection();
 end;
 
+procedure TDM2.DoOnCategoryParametersApplyUpdates(Sender: TObject);
+begin
+  // Произошли изменения в таблице параметров для категорий
+  // Будем обновлять параметрическую таблицу
+  ComponentsExGroup.TryRefresh;
+end;
+
+procedure TDM2.DoAfterComponentsCommit(Sender: TObject);
+begin
+  // Произошли изменения в таблице компонентов
+  // Будем обновлять параметрическую таблицу
+  ComponentsExGroup.TryRefresh;
+end;
+
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
@@ -200,8 +223,13 @@ begin
   // Произощёл коммит в справочнике производителей
 
   // Просим обновить данные о производителях в других местах
-  qProductsSearch.qProducers.RefreshQuery;
-  qProducts.qProducers.RefreshQuery;
+  qProductsSearch.ProducersGroup.ReOpen;
+  qProducts.ProducersGroup.ReOpen;
+  DescriptionsGroup.qProducers.RefreshQuery;
+
+
+  ComponentsGroup.Producers.RefreshQuery;
+  ComponentsSearchGroup.Producers.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterStoreHousePost(Sender: TObject);

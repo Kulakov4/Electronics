@@ -9,12 +9,13 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  ApplyQueryFrame, NotifyEvents;
+  ApplyQueryFrame, NotifyEvents, System.Generics.Collections, DBRecordHolder;
 
 type
   TQueryFamilyEx = class(TQueryFamily)
   private
     FOn_ApplyUpdate: TNotifyEventsEx;
+    function GetAnalog: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -24,6 +25,8 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property Analog: TField read GetAnalog;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
   end;
@@ -36,6 +39,14 @@ constructor TQueryFamilyEx.Create(AOwner: TComponent);
 begin
   inherited;
   FOn_ApplyUpdate := TNotifyEventsEx.Create(Self);
+
+  FRecordHolder := TRecordHolder.Create();
+end;
+
+destructor TQueryFamilyEx.Destroy;
+begin
+  FreeAndNil(FRecordHolder);
+  inherited;
 end;
 
 procedure TQueryFamilyEx.ApplyDelete(ASender: TDataSet);
@@ -55,7 +66,13 @@ procedure TQueryFamilyEx.ApplyUpdate(ASender: TDataSet;
   AOptions: TFDUpdateRowOptions);
 begin
   // Оповещаем что надо обработать обновление
-  On_ApplyUpdate.CallEventHandlers(ASender);
+  On_ApplyUpdate.CallEventHandlers(Self);
+end;
+
+
+function TQueryFamilyEx.GetAnalog: TField;
+begin
+  Result := Field('Analog');
 end;
 
 end.

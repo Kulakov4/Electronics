@@ -114,17 +114,9 @@ begin
 end;
 
 procedure TfrmSubgroupListPopup.actAddExecute(Sender: TObject);
-// var
-// AColumn: TcxGridDBColumn;
 begin
   cxGrid1DBTableView1.Focused := True;
   cxGrid1DBTableView1.DataController.Append;
-
-  // AColumn := cxGrid1DBTableView1.GetColumnByFieldName('Value');
-  // Site обеспечивает доступ к элементам размещённым на cxGrid
-  // cxGrid1DBTableView1.Site.SetFocus;
-  // Показываем редактор для колонки
-  // cxGrid1DBTableView1.Controller.EditingController.ShowEdit(AColumn);
 end;
 
 procedure TfrmSubgroupListPopup.actDeleteExecute(Sender: TObject);
@@ -298,7 +290,8 @@ end;
 procedure TfrmSubgroupListPopup.ShowPopupForm;
 begin
   // Site обеспечивает доступ к элементам размещённым на cxGrid
-  cxGrid1DBTableView1.Site.SetFocus;
+  if cxGrid1DBTableView1.Site.Parent <> nil then
+    cxGrid1DBTableView1.Site.SetFocus;
   // Показываем редактор для колонки
   cxGrid1DBTableView1.Controller.EditingController.ShowEdit(clExternalID);
 end;

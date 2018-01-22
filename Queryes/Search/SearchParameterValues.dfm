@@ -9,6 +9,7 @@ inherited QuerySearchParameterValues: TQuerySearchParameterValues
       'select distinct Value'
       'from ParameterValues pv '
       'where pv.ParameterId = :ParameterId'
+      ''
       'order by Value')
     ParamData = <
       item

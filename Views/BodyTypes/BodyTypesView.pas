@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
-  Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort;
+  Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort,
+  CustomErrorForm, NaturalSort, DocFieldInfo;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -71,27 +72,17 @@ type
     actShowDuplicate: TAction;
     dxBarButton2: TdxBarButton;
     dxBarManagerBar1: TdxBar;
-    clBody0: TcxGridDBBandedColumn;
-    clBody1: TcxGridDBBandedColumn;
-    clBody2: TcxGridDBBandedColumn;
-    clBody3: TcxGridDBBandedColumn;
-    clBody4: TcxGridDBBandedColumn;
-    clBody5: TcxGridDBBandedColumn;
-    clBodyData0: TcxGridDBBandedColumn;
-    clBodyData1: TcxGridDBBandedColumn;
-    clBodyData2: TcxGridDBBandedColumn;
-    clBodyData3: TcxGridDBBandedColumn;
-    clBodyData4: TcxGridDBBandedColumn;
-    clBodyData5: TcxGridDBBandedColumn;
-    clBodyData6: TcxGridDBBandedColumn;
-    clBodyData7: TcxGridDBBandedColumn;
-    clBodyData8: TcxGridDBBandedColumn;
-    clBodyData9: TcxGridDBBandedColumn;
+    actLoadOutlineDrawing: TAction;
+    actLoadLandPattern: TAction;
+    actLoadImage: TAction;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
+    procedure actLoadImageExecute(Sender: TObject);
+    procedure actLoadLandPatternExecute(Sender: TObject);
+    procedure actLoadOutlineDrawingExecute(Sender: TObject);
     procedure actOpenImageExecute(Sender: TObject);
     procedure actOpenLandPatternExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
@@ -127,23 +118,31 @@ type
       var DragObject: TDragObject);
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableView2DataControllerCompare(ADataController
+      : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
+      AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
     FHRTimer: THRTimer;
+    FNaturalStringComparer: TNaturalStringComparer;
     procedure DoAfterDataChange(Sender: TObject);
+    function GetProducerDisplayText: string;
     procedure SetBodyTypesGroup(const Value: TBodyTypesGroup);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
+    procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure UpdateView; override;
     property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup
       write SetBodyTypesGroup;
+    property ProducerDisplayText: string read GetProducerDisplayText;
     { Public declarations }
   end;
 
@@ -152,17 +151,17 @@ implementation
 uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
-  System.Math, System.IOUtils, ProgressBarForm, ErrorForm, DialogUnit2,
+  System.Math, System.IOUtils, ProgressBarForm, DialogUnit2,
   BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper;
 
 {$R *.dfm}
 
 constructor TViewBodyTypes.Create(AOwner: TComponent);
-// var
-// AGridSort: TDictionary<TcxGridDBBandedColumn, array of integer>;
 begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
+
+  FNaturalStringComparer := TNaturalStringComparer.Create;
 
   FDragAndDropInfo := TDragAndDropInfo.Create(clID, clOrd);
 
@@ -170,15 +169,10 @@ begin
   PostOnEnterFields.Add(clBody.DataBinding.FieldName);
   PostOnEnterFields.Add(clBodyData.DataBinding.FieldName);
 
-  GridSort.Add(TSortVariant.Create(clBody, [clBody0, clBody1, clBody2, clBody3,
-    clBody4, clBody5, clBody, clBodyData0, clBodyData1, clBodyData2,
-    clBodyData3, clBodyData4, clBodyData5, clBodyData6, clBodyData7,
-    clBodyData8, clBodyData9, clBodyData, clOutlineDrawing, clLandPattern]));
-  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clBody0,
-    clBody1, clBody2, clBody3, clBody4, clBody5, clBody, clBodyData0,
-    clBodyData1, clBodyData2, clBodyData3, clBodyData4, clBodyData5,
-    clBodyData6, clBodyData7, clBodyData8, clBodyData9, clBodyData,
+  GridSort.Add(TSortVariant.Create(clBody, [clBody, clBodyData,
     clOutlineDrawing, clLandPattern]));
+  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clBody,
+    clBodyData, clOutlineDrawing, clLandPattern]));
 
   DeleteMessages.Add(cxGridLevel, 'Удалить тип корпуса?');
   DeleteMessages.Add(cxGridLevel2, 'Удалить корпус?');
@@ -220,22 +214,23 @@ end;
 
 procedure TViewBodyTypes.actCommitExecute(Sender: TObject);
 begin
-  cxGrid.BeginUpdate();
-  try
-    // Сохраняем изменения и завершаем транзакцию
-    BodyTypesGroup.Commit;
+  // Мы просто завершаем транзакцию
+  //cxGrid.BeginUpdate();
+  // try
+  // Сохраняем изменения и завершаем транзакцию
+  BodyTypesGroup.Commit;
 
-    // Начинаем новую транзакцию
-    // BodyTypesGroup.Connection.StartTransaction;
+  // Начинаем новую транзакцию
+  // BodyTypesGroup.Connection.StartTransaction;
 
-    // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord(MainView);
-  finally
-    cxGrid.EndUpdate;
-  end;
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord(MainView);
+  // finally
+  // cxGrid.EndUpdate;
+  // end;
 
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord(MainView);
+  // PutInTheCenterFocusedRecord(MainView);
 
   // Обновляем представление
   UpdateView;
@@ -248,12 +243,12 @@ var
 begin
   Q := TQueryBodyTypesSimple.Create(Self);
   try
-
     Q.RefreshQuery;
 
     cxGridDBBandedTableView2.DataController.DataSource := Q.DataSource;
     try
-      if not TDialog.Create.SaveToExcelFile('Типы корпусов', AFileName) then
+      if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+        'Типы корпусов', AFileName) then
         Exit;
 
       ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
@@ -280,23 +275,23 @@ end;
 
 procedure TViewBodyTypes.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
-//  ABodyTypesExcelDM: TBodyTypesExcelDM;
+  // ABodyTypesExcelDM: TBodyTypesExcelDM;
   AFileName: string;
-//  AfrmError: TfrmError;
+  // AfrmError: TfrmError;
   AProducer: string;
   AProducerID: Integer;
-//  OK: Boolean;
+  // OK: Boolean;
 begin
   // Выбираем производителя
   if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
     Exit;
 
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   BeginUpdate;
   try
-    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmError,
+    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
         BodyTypesGroup.InsertRecordList(ASender as TBodyTypesExcelTable,
@@ -309,20 +304,33 @@ begin
   UpdateView;
 end;
 
+procedure TViewBodyTypes.actLoadImageExecute(Sender: TObject);
+begin
+  inherited;
+  UploadDoc(TBodyTypeImageDoc.Create);
+end;
+
+procedure TViewBodyTypes.actLoadLandPatternExecute(Sender: TObject);
+begin
+  inherited;
+  UploadDoc(TLandPattern.Create);
+end;
+
+procedure TViewBodyTypes.actLoadOutlineDrawingExecute(Sender: TObject);
+begin
+  UploadDoc(TOutlineDrawing.Create);
+end;
+
 procedure TViewBodyTypes.actOpenImageExecute(Sender: TObject);
 begin
   inherited;
-  TDocument.Open(Handle, TSettings.Create.BodyTypesImageFolder,
-    BodyTypesGroup.qBodyTypes2.Image.AsString, 'Файл %s не найден',
-    'Изображение не задано', sBodyTypesFilesExt);
+  OpenDoc(TBodyTypeImageDoc.Create);
 end;
 
 procedure TViewBodyTypes.actOpenLandPatternExecute(Sender: TObject);
 begin
   inherited;
-  TDocument.Open(Handle, TSettings.Create.BodyTypesLandPatternFolder,
-    BodyTypesGroup.qBodyTypes2.LandPattern.AsString, 'Файл %s не найден',
-    'Чертёж посадочной площадки не задан', sBodyTypesFilesExt);
+  OpenDoc(TLandPattern.Create);
 end;
 
 procedure TViewBodyTypes.actRollbackExecute(Sender: TObject);
@@ -357,9 +365,7 @@ end;
 procedure TViewBodyTypes.actOpenOutlineDrawingExecute(Sender: TObject);
 begin
   inherited;
-  TDocument.Open(Handle, TSettings.Create.BodyTypesOutlineDrawingFolder,
-    BodyTypesGroup.qBodyTypes2.OutlineDrawing.AsString, 'Файл %s не найден',
-    'Чертёж корпуса не задан', sBodyTypesFilesExt);
+  OpenDoc(TOutlineDrawing.Create);
 end;
 
 procedure TViewBodyTypes.actShowDuplicateExecute(Sender: TObject);
@@ -472,6 +478,38 @@ AViewInfo: TcxGridColumnHeaderViewInfo; var ADone: Boolean);
 begin
   inherited;
   DoOnCustomDrawColumnHeader(AViewInfo, ACanvas);
+end;
+
+procedure TViewBodyTypes.cxGridDBBandedTableView2DataControllerCompare
+  (ADataController: TcxCustomDataController; ARecordIndex1, ARecordIndex2,
+  AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
+var
+  S1: string;
+  S2: string;
+begin
+  inherited;
+  S1 := VarToWideStrDef(V1, '');
+  S2 := VarToWideStrDef(V2, '');
+
+  if (AItemIndex = clBody.Index) or (AItemIndex = clBodyData.Index) then
+  begin
+    if S1 = S2 then
+    begin
+      Compare := 0;
+      Exit;
+    end;
+
+    SortSL.Clear;
+    SortSL.Add(S1);
+    SortSL.Add(S2);
+    // Сортируем естественной сортировкой
+    SortSL.Sort(FNaturalStringComparer);
+
+    Compare := IfThen(SortSL[0] = S1, -1, 1);
+  end
+  else
+    Compare := S1.CompareTo(S2);
+
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
@@ -624,6 +662,30 @@ begin
   end;
 end;
 
+function TViewBodyTypes.GetProducerDisplayText: string;
+begin
+  Result := GetDBBandedTableView(1).Controller.FocusedRecord.DisplayTexts
+    [clIDProducer.Index];
+end;
+
+procedure TViewBodyTypes.OpenDoc(ADocFieldInfo: TDocFieldInfo);
+var
+  AFolders: string;
+begin
+  Application.Hint := '';
+  // Формируем папки, в которых мы будем искать наш файл
+  AFolders := '';
+  if not ProducerDisplayText.IsEmpty then
+    AFolders := TPath.Combine(ADocFieldInfo.Folder, ProducerDisplayText) + ';';
+
+  AFolders := AFolders + ADocFieldInfo.Folder;
+
+  TDocument.Open(Handle, AFolders,
+    BodyTypesGroup.qBodyTypes2.Field(ADocFieldInfo.FieldName).AsString,
+    ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
+    sBodyTypesFilesExt);
+end;
+
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);
 begin
   if FBodyTypesGroup <> Value then
@@ -707,6 +769,42 @@ begin
   else
     actShowDuplicate.Caption := 'Показать дубликаты';
 
+end;
+
+procedure TViewBodyTypes.UploadDoc(ADocFieldInfo: TDocFieldInfo);
+var
+  AProducer: string;
+  S: String;
+  sourceFileName: string;
+begin
+  Application.Hint := '';
+  Assert(BodyTypesGroup <> nil);
+  S := BodyTypesGroup.qBodyTypes2.Field(ADocFieldInfo.FieldName).AsString;
+
+  // Файл должен лежать в каталоге = производителю
+  AProducer := ProducerDisplayText;
+
+  // Если файл документации ранее был уже задан
+  if S <> '' then
+  begin
+    // Добавляем к каталогу название производителя
+    S := TPath.Combine(ADocFieldInfo.Folder, AProducer);
+    // Получаем папку в которой лежит ранее заданный файл документации
+    // S := TPath.GetDirectoryName(S);
+    // если такого пути уже не существует
+    if not TDirectory.Exists(S) then
+      S := ADocFieldInfo.Folder;
+  end
+  else
+    S := ADocFieldInfo.Folder;
+
+  // Открываем диалог выбора файла для загрузки
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', sourceFileName)
+  then
+    Exit;
+
+  BodyTypesGroup.qBodyTypes2.LoadDocFile(sourceFileName, ADocFieldInfo);
+  ApplyBestFitEx;
 end;
 
 end.

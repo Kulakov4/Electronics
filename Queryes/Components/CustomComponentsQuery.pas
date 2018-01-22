@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
   SearchComponentCategoryQuery, SearchProductParameterValuesQuery,
-  System.Generics.Collections, QueryWithDataSourceUnit;
+  System.Generics.Collections, QueryWithDataSourceUnit, DBRecordHolder;
 
 type
   TQueryCustomComponents = class(TQueryWithDataSource)
@@ -18,8 +18,10 @@ type
   private
     FParameterFields: TDictionary<Integer, String>;
     FQuerySearchProductParameterValues: TQuerySearchProductParameterValues;
+    FSaveValuesAfterEdit: Boolean;
     procedure DoAfterConnect(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
+    procedure DoAfterEdit(Sender: TObject);
     function GetDatasheet: TField;
     function GetDescription: TField;
     function GetDescriptionComponentName: TField;
@@ -41,6 +43,7 @@ type
     function GetValue: TField;
     { Private declarations }
   protected
+    FRecordHolder: TRecordHolder;
     procedure InitParameterFields; virtual;
     procedure ProcessParamValue(AIDComponent: Integer;
       AIDProductParameterValue: TField; const AValue: Variant;
@@ -73,6 +76,9 @@ type
     property IDProducer: TField read GetIDProducer;
     property ParameterFields: TDictionary<Integer, String>
       read FParameterFields;
+    property RecordHolder: TRecordHolder read FRecordHolder;
+    property SaveValuesAfterEdit: Boolean read FSaveValuesAfterEdit write
+        FSaveValuesAfterEdit;
     property SubGroup: TField read GetSubGroup;
     property Value: TField read GetValue;
     { Public declarations }
@@ -107,6 +113,9 @@ begin
 
   // Ѕудем сами обновл€ть запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
+
+  // ≈сли надо, будем запоминать значени€ перед сохранением
+  TNotifyEventWrap.Create(AfterEdit, DoAfterEdit, FEventList);
 end;
 
 destructor TQueryCustomComponents.Destroy;
@@ -167,6 +176,12 @@ begin
   end;
 
   SetFieldsRequired(false);
+end;
+
+procedure TQueryCustomComponents.DoAfterEdit(Sender: TObject);
+begin
+  if (FRecordHolder <> nil) and (FSaveValuesAfterEdit) then
+    FRecordHolder.Attach(FDQuery);
 end;
 
 function TQueryCustomComponents.GetDatasheet: TField;

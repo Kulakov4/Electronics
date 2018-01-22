@@ -20,22 +20,27 @@ type
     function GetIsAttribute: TField;
     function GetParentParameter: TField;
     function GetCaption: TField;
-    function GetHint: TField;
+    function GetBandHint: TField;
+    function GetColumnHint: TField;
     function GetIDCategory: TField;
+    function GetIDParameterKind: TField;
     function GetOrd: TField;
     function GetParameterID: TField;
     function GetPosID: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    function SearchByParameterKind(AProductCategoryID: Integer): Integer;
     property ParentCaption: TField read GetParentCaption;
     property FieldType: TField read GetFieldType;
     property ID: TField read GetID;
     property IsAttribute: TField read GetIsAttribute;
     property ParentParameter: TField read GetParentParameter;
     property Caption: TField read GetCaption;
-    property Hint: TField read GetHint;
+    property BandHint: TField read GetBandHint;
+    property ColumnHint: TField read GetColumnHint;
     property IDCategory: TField read GetIDCategory;
+    property IDParameterKind: TField read GetIDParameterKind;
     property Ord: TField read GetOrd;
     property ParameterID: TField read GetParameterID;
     property PosID: TField read GetPosID;
@@ -46,7 +51,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule;
+uses RepositoryDataModule, StrHelper, ParameterKindEnum;
 
 constructor TQueryParametersForCategory.Create(AOwner: TComponent);
 begin
@@ -84,14 +89,24 @@ begin
   Result := Field('Caption');
 end;
 
-function TQueryParametersForCategory.GetHint: TField;
+function TQueryParametersForCategory.GetBandHint: TField;
 begin
-  Result := Field('Hint');
+  Result := Field('BandHint');
+end;
+
+function TQueryParametersForCategory.GetColumnHint: TField;
+begin
+  Result := Field('ColumnHint');
 end;
 
 function TQueryParametersForCategory.GetIDCategory: TField;
 begin
   Result := Field('IDCategory');
+end;
+
+function TQueryParametersForCategory.GetIDParameterKind: TField;
+begin
+  Result := Field('IDParameterKind');
 end;
 
 function TQueryParametersForCategory.GetOrd: TField;
@@ -107,6 +122,20 @@ end;
 function TQueryParametersForCategory.GetPosID: TField;
 begin
   Result := Field('PosID');
+end;
+
+function TQueryParametersForCategory.SearchByParameterKind(AProductCategoryID
+  : Integer): Integer;
+begin
+  Assert(AProductCategoryID > 0);
+
+  // Добавляем в запрос условие
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+    Format('and (ifnull(p.IDParameterKind, pp.IDParameterKind) <> %d)',
+    [Integer(Неиспользуется)]), 'and 0=0');
+
+  // Ищем
+  Result := Search(['ProductCategoryID'], [AProductCategoryID]);
 end;
 
 end.

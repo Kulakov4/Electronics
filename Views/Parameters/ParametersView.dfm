@@ -78,10 +78,10 @@ inherited ViewParameters: TViewParameters
       OptionsSelection.CellMultiSelect = True
       OptionsSelection.InvertSelect = False
       OptionsView.CellAutoHeight = True
-      OptionsView.ColumnAutoWidth = True
       OptionsView.ExpandButtonsForEmptyDetails = False
       OptionsView.Footer = True
       OptionsView.GroupByBox = False
+      OptionsView.HeaderAutoHeight = True
       OptionsView.BandHeaders = False
       Bands = <
         item
@@ -109,6 +109,7 @@ inherited ViewParameters: TViewParameters
         DataBinding.FieldName = 'Checked'
         PropertiesClassName = 'TcxCheckBoxProperties'
         Properties.Alignment = taCenter
+        Properties.ImmediatePost = True
         Properties.ValueChecked = '1'
         Properties.ValueUnchecked = '0'
         BestFitMaxWidth = 20
@@ -128,6 +129,7 @@ inherited ViewParameters: TViewParameters
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'Value'
         PropertiesClassName = 'TcxTextEditProperties'
+        BestFitMaxWidth = 200
         MinWidth = 100
         Width = 313
         Position.BandIndex = 0
@@ -138,6 +140,7 @@ inherited ViewParameters: TViewParameters
         Caption = #1041#1091#1082#1074#1077#1085#1085#1086#1077' '#1086#1073#1086#1079#1085#1072#1095#1077#1085#1080#1077
         DataBinding.FieldName = 'CodeLetters'
         PropertiesClassName = 'TcxTextEditProperties'
+        BestFitMaxWidth = 200
         MinWidth = 60
         Width = 148
         Position.BandIndex = 0
@@ -148,6 +151,7 @@ inherited ViewParameters: TViewParameters
         Caption = #1045#1076#1080#1085#1080#1094#1072' '#1080#1079#1084#1077#1088#1077#1085#1080#1103
         DataBinding.FieldName = 'MeasuringUnit'
         PropertiesClassName = 'TcxTextEditProperties'
+        BestFitMaxWidth = 200
         MinWidth = 100
         Width = 122
         Position.BandIndex = 0
@@ -158,6 +162,7 @@ inherited ViewParameters: TViewParameters
         Caption = #1058#1072#1073#1083#1080#1095#1085#1086#1077' '#1085#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'TableName'
         PropertiesClassName = 'TcxTextEditProperties'
+        BestFitMaxWidth = 200
         MinWidth = 100
         Width = 168
         Position.BandIndex = 0
@@ -168,6 +173,7 @@ inherited ViewParameters: TViewParameters
         Caption = #1055#1077#1088#1077#1074#1086#1076
         DataBinding.FieldName = 'ValueT'
         PropertiesClassName = 'TcxTextEditProperties'
+        BestFitMaxWidth = 200
         MinWidth = 100
         Width = 514
         Position.BandIndex = 0
@@ -199,6 +205,17 @@ inherited ViewParameters: TViewParameters
         Width = 100
         Position.BandIndex = 0
         Position.ColIndex = 9
+        Position.RowIndex = 0
+      end
+      object clIDParameterKind: TcxGridDBBandedColumn
+        Caption = #1042#1080#1076' '#1087#1072#1088#1072#1084#1077#1090#1088#1072
+        DataBinding.FieldName = 'IDParameterKind'
+        PropertiesClassName = 'TcxLookupComboBoxProperties'
+        Properties.ImmediatePost = True
+        Properties.ListColumns = <>
+        MinWidth = 80
+        Position.BandIndex = 0
+        Position.ColIndex = 10
         Position.RowIndex = 0
       end
     end

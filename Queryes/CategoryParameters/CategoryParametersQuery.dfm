@@ -39,8 +39,8 @@ inherited QueryCategoryParameters: TQueryCategoryParameters
       '    where not exists '
       '    ('
       
-        '        select cp2.id from CategoryParams cp2 where cp2.Paramete' +
-        'rId = pp.id'
+        '        select cp2.id from CategoryParams cp2 where cp2.ProductC' +
+        'ategoryId = cp.ProductCategoryId and cp2.ParameterId = pp.id'
       '    )'
       ')')
     Left = 184

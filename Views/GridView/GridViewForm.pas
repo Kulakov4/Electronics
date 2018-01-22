@@ -3,12 +3,11 @@ unit GridViewForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CustomGridViewForm, Data.DB, GridFrame,
-  GridView, Vcl.ExtCtrls, cxGraphics, cxLookAndFeels, cxLookAndFeelPainters,
-  Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
-  dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, CustomGridViewForm, GridFrame,
+  GridView, GridViewEx, Vcl.ExtCtrls, cxGraphics, cxLookAndFeels,
+  cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
+  dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
   dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
   dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
   dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
@@ -26,14 +25,11 @@ uses
 
 type
   TfrmGridView = class(TfrmCustomGridView)
-    PanelBottom: TPanel;
     cxbtnOK: TcxButton;
-    lblStatus: TLabel;
   private
     { Private declarations }
-  protected
-    procedure AssignDataSet; override;
   public
+    constructor Create(AOwner: TComponent); override;
     { Public declarations }
   end;
 
@@ -41,11 +37,10 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmGridView.AssignDataSet;
+constructor TfrmGridView.Create(AOwner: TComponent);
 begin
   inherited;
-  if (DataSet <> nil) and (DataSet.Active) then
-    lblStatus.Caption := Format('Всего: %d записей', [DataSet.RecordCount]);
+  pnlMain.Anchors := [akLeft, akTop, akRight, akBottom];
 end;
 
 end.

@@ -50,7 +50,7 @@ begin
     FfrmProgressBar.Hide;
     AfrmError := FCustomErrorFormClass.Create(nil);
     try
-      AfrmError.ErrorTable := e.ExcelTable.Errors;
+      AfrmError.ViewGridEx.DataSet := e.ExcelTable.Errors;
       // Показываем ошибки
       OK := AfrmError.ShowModal = mrOk;
       if OK then

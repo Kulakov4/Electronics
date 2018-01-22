@@ -36,7 +36,8 @@ uses
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
-  StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView;
+  StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
+  Vcl.AppEvnts, HintWindowEx, ProtectUnit;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -103,6 +104,7 @@ type
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
+    ApplicationEvents: TApplicationEvents;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
@@ -121,6 +123,7 @@ type
     procedure actShowDescriptionsExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
+    procedure ApplicationEventsHint(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure dbtlCategoriesDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -148,10 +151,12 @@ type
   private
     FCategoryPath: string;
     FEventList: TObjectList;
+    FHintWindowEx: THintWindowEx;
     FOnProductCategoriesChange: TNotifyEventWrap;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
-    procedure DoBeforeParametricTableFormClose(Sender: TObject);
+    procedure DoBeforeParametricTableActivate(Sender: TObject);
+    procedure DoBeforeParametricTableDeactivate(Sender: TObject);
     procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
@@ -177,14 +182,14 @@ uses
   Winapi.ShellAPI, RepositoryDataModule, DialogUnit, DescriptionsForm,
   ParametersForm, SettingsController, ReportsForm, ReportQuery,
   ParametricExcelDataModule, ParametricTableForm, BodyTypesForm, ProjectConst,
-  PathSettingsForm, ImportErrorForm, ErrorForm, cxGridDBBandedTableView,
+  PathSettingsForm, ImportErrorForm, cxGridDBBandedTableView,
   System.IOUtils, ImportProcessForm, ProgressInfo, ProgressBarForm,
   Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm,
   TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
-  LoadFromExcelFileHelper, SearchCategoryQuery;
+  LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm;
 
 {$R *.dfm}
 
@@ -192,6 +197,7 @@ constructor TfrmMain.Create(AOwner: TComponent);
 begin
   Application.HintHidePause := 10000;
   inherited Create(AOwner);
+  FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
 end;
 
@@ -284,16 +290,15 @@ var
   AFileName: string;
   AfrmGridView: TfrmGridView;
   AQueryRecursiveTree: TQueryRecursiveTree;
-  // ATreeExcelDM: TTreeExcelDM;
   OK: Boolean;
 begin
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName) then
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   try
     AQueryRecursiveTree.RefreshQuery;
-    TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmError,
+    TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
         AQueryRecursiveTree.LoadRecords(ASender as TTreeExcelTable);
@@ -307,7 +312,7 @@ begin
       AfrmGridView := TfrmGridView.Create(Self);
       try
         AfrmGridView.Caption := 'ƒобавленные категории';
-        AfrmGridView.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
         AfrmGridView.ShowModal;
       finally
         FreeAndNil(AfrmGridView);
@@ -322,7 +327,7 @@ begin
       try
         AfrmGridView.Caption := '”даление категорий';
         AfrmGridView.cxbtnOK.Caption := '”далить';
-        AfrmGridView.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
         OK := AfrmGridView.ShowModal = mrOk;
       finally
         FreeAndNil(AfrmGridView);
@@ -494,6 +499,11 @@ begin
 
 end;
 
+procedure TfrmMain.ApplicationEventsHint(Sender: TObject);
+begin
+  FHintWindowEx.DoActivateHint(Application.Hint)
+end;
+
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   // ќтписываемс€ от всех событий
@@ -541,16 +551,6 @@ begin
   ProductsFrame.ViewProducts2.CheckAndSaveChanges;
   ProductsFrame.ViewProductsSearch2.CheckAndSaveChanges;
   ComponentsFrame.ViewComponents.CheckAndSaveChanges;
-end;
-
-procedure TfrmMain.DoBeforeParametricTableFormClose(Sender: TObject);
-begin
-  // отв€зываем данные к представлению
-  frmParametricTable.ViewParametricTable.ComponentsExGroup := nil;
-
-  // предупреждаем, что нам больше не требуютс€ данные этого запроса
-  DM2.ComponentsExGroup.DecClient;
-  frmParametricTable := nil;
 end;
 
 procedure TfrmMain.DoOnComponentLocate(Sender: TObject);
@@ -675,8 +675,7 @@ begin
       // ѕрив€зываем текущий склад к данным
       ProductsFrame.ViewProducts2.qProducts := DM2.qProducts;
       // ѕрив€зываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch2.qProductsSearch :=
-        DM2.qProductsSearch;
+      ProductsFrame.ViewProductsSearch2.qProductsSearch := DM2.qProductsSearch;
 
       // ViewStoreHouse.StoreHouseGroup := DM2.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM2.qProductsSearch;
@@ -696,6 +695,8 @@ begin
 
     end;
   end;
+
+  OK := OK and TProtect.Create.Check;
 
   if not OK then
   begin
@@ -764,39 +765,38 @@ begin
 end;
 
 procedure TfrmMain.ShowParametricTable;
-var
-  ACategoryPath: string;
-  rc: Integer;
 begin
   if frmParametricTable = nil then
   begin
-
-    // Ќам надо узнать, есть-ли у текущей категории подкатегории
-    rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
-    // ≈сли у нашей категории есть подкатегории
-    if rc > 0 then
+    {
+      // Ќам надо узнать, есть-ли у текущей категории подкатегории
+      rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
+      // ≈сли у нашей категории есть подкатегории
+      if rc > 0 then
       ACategoryPath := DM2.qTreeList.Value.AsString
-    else
-    begin
+      else
+      begin
       // ≈сли в цепочке категорий мы последнее звено
       ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-        (DM2.qTreeList.PK.Value, 2, '-');
-    end;
-
+      (DM2.qTreeList.PK.Value, 2, '-');
+      end;
+    }
     // —оздаЄм окно с параметрической таблицей
     frmParametricTable := TfrmParametricTable.Create(Self);
-    frmParametricTable.CategoryPath := ACategoryPath;
 
     // ѕодписываемс€ на событие перед закрытием окна
-    TNotifyEventWrap.Create(frmParametricTable.BeforeClose,
-      DoBeforeParametricTableFormClose, FEventList);
+    TNotifyEventWrap.Create(frmParametricTable.OnActivate,
+      DoBeforeParametricTableActivate, FEventList);
+
+    TNotifyEventWrap.Create(frmParametricTable.OnDeactivate,
+      DoBeforeParametricTableDeactivate, FEventList);
 
     // ѕрив€зываем данные к представлению
     frmParametricTable.ViewParametricTable.ComponentsExGroup :=
       DM2.ComponentsExGroup;
 
     // предупреждаем, что нам потребуютс€ данные этого запроса
-    DM2.ComponentsExGroup.AddClient;
+    // DM2.ComponentsExGroup.AddClient;
   end;
 
   frmParametricTable.Show;
@@ -928,6 +928,32 @@ procedure TfrmMain.cxtsStorehousesShow(Sender: TObject);
 begin
   // —права активизируем вкладку "—клады"
   cxpcRight.ActivePage := cxtsRStorehouses;
+end;
+
+procedure TfrmMain.DoBeforeParametricTableActivate(Sender: TObject);
+var
+  ACategoryPath: string;
+  rc: Integer;
+begin
+  DM2.ComponentsExGroup.AddClient;
+
+  // Ќам надо узнать, есть-ли у текущей категории подкатегории
+  rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
+  // ≈сли у нашей категории есть подкатегории
+  if rc > 0 then
+    ACategoryPath := DM2.qTreeList.Value.AsString
+  else
+  begin
+    // ≈сли в цепочке категорий мы последнее звено
+    ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
+      (DM2.qTreeList.PK.Value, 2, '-');
+  end;
+  frmParametricTable.CategoryPath := ACategoryPath;
+end;
+
+procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);
+begin
+  DM2.ComponentsExGroup.DecClient;
 end;
 
 procedure TfrmMain.UpdateCaption;

@@ -2,7 +2,7 @@ unit DBRecordHolder;
 
 interface
 
-uses Classes, SysUtils, Data.DB, System.Generics.Collections;
+uses Classes, SysUtils, Data.DB, System.Generics.Collections, MapFieldsUnit;
 
 type
   TRecordHolder = class;
@@ -40,7 +40,8 @@ type
     function Find(const FieldName: string): TFieldHolder;
     procedure Put(DataSet: TDataSet);
     procedure TryPut(DataSet: TDataSet);
-    procedure UpdateNullValues(ASource: TRecordHolder);
+    procedure UpdateNullValues(ASource: TRecordHolder;
+      MapFieldInfo: String = '');
     property Field[const FieldName: String]: Variant read GetField
       write SetField;
     property Items[Index: Integer]: TFieldHolder read GetItems
@@ -255,23 +256,32 @@ begin
   end;
 end;
 
-procedure TRecordHolder.UpdateNullValues(ASource: TRecordHolder);
+procedure TRecordHolder.UpdateNullValues(ASource: TRecordHolder;
+  MapFieldInfo: String = '');
 var
   AFieldHolder: TFieldHolder;
   i: Integer;
+  AMap: TFieldsMap;
 begin
-  // Обновляет пустые значения полей на значения из ASource
-  for i := 0 to Count - 1 do
-  begin
-    // Если NULL или пустая строка
-    if VarIsNull(Items[i].Value) or VarToStr(Items[i].Value).Trim.IsEmpty then
+  AMap := TFieldsMap.Create(MapFieldInfo);
+  try
+    // Обновляет пустые значения полей на значения из ASource
+    for i := 0 to Count - 1 do
     begin
-      AFieldHolder := ASource.Find(Items[i].FieldName);
-      // Нашли такое же поле не NULL и не пустая строка
-      if (AFieldHolder <> nil) and (not VarIsNull(AFieldHolder.Value)) and
-        (not VarToStr(AFieldHolder.Value).Trim.IsEmpty) then
-        Items[i].Value := AFieldHolder.Value;
+      // Если NULL или пустая строка
+      if VarIsNull(Items[i].Value) or VarToStr(Items[i].Value).Trim.IsEmpty then
+      begin
+        // Ищем такое же поле у нас с учётом карты сопостовления полей
+        AFieldHolder := ASource.Find( AMap.Map( Items[i].FieldName ) );
+
+        // Нашли такое же поле не NULL и не пустая строка
+        if (AFieldHolder <> nil) and (not VarIsNull(AFieldHolder.Value)) and
+          (not VarToStr(AFieldHolder.Value).Trim.IsEmpty) then
+          Items[i].Value := AFieldHolder.Value;
+      end;
     end;
+  finally
+    FreeAndNil(AMap);
   end;
 end;
 

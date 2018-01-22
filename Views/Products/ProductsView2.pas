@@ -24,10 +24,9 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
-  System.Generics.collections, FieldInfoUnit, ErrorForm,
-  ProductsExcelDataModule, Vcl.Menus, Vcl.ComCtrls,
-  System.Contnrs, ProgressBarForm2, ExcelDataModule, cxDropDownEdit,
-  ProductsQuery;
+  System.Generics.collections, FieldInfoUnit, ProductsExcelDataModule,
+  Vcl.Menus, Vcl.ComCtrls, System.Contnrs, ProgressBarForm2, ExcelDataModule,
+  cxDropDownEdit, ProductsQuery;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -41,8 +40,6 @@ type
     dxBarButton7: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
-    dxBarButton8: TdxBarButton;
-    procedure dxBarButton8Click(Sender: TObject);
   private
     procedure DoBeforeLoad(ASender: TObject);
     function GetqProducts: TQueryProducts;
@@ -64,7 +61,8 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
-  NotifyEvents, Data.DB, ProgressInfo, LoadFromExcelFileHelper;
+  NotifyEvents, Data.DB, ProgressInfo, LoadFromExcelFileHelper,
+  CustomErrorForm;
 
 procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
 begin
@@ -72,12 +70,6 @@ begin
   { при выборе другого склада проверить наличие изменений в старом складе }
   if CheckAndSaveChanges = IDCANCEL then
     raise EAbort.Create('Cancel scroll');
-end;
-
-procedure TViewProducts2.dxBarButton8Click(Sender: TObject);
-begin
-  inherited;
-  UpdateView;
 end;
 
 function TViewProducts2.GetqProducts: TQueryProducts;
@@ -91,7 +83,7 @@ begin
 
   BeginUpdate;
   try
-    TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmError,
+    TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmCustomError,
     procedure (ASender: TObject)
     begin
       qProducts.AppendList(ASender as TProductsExcelTable);

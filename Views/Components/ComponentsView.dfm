@@ -1,10 +1,14 @@
 inherited ViewComponents: TViewComponents
+  Width = 960
+  ExplicitWidth = 960
   inherited cxGrid: TcxGrid
+    Width = 960
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
     end
   end
   inherited StatusBar: TStatusBar
+    Width = 960
     Panels = <
       item
         Width = 100
@@ -49,6 +53,25 @@ inherited ViewComponents: TViewComponents
         item
           Visible = True
           ItemName = 'dxBarButton3'
+        end>
+      OneOnRow = False
+    end
+    object dxBarManagerBar1: TdxBar [1]
+      Caption = 'Second'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 448
+      DockedTop = 0
+      DockingStyle = dsTop
+      FloatLeft = 903
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end
         item
           Visible = True
@@ -58,6 +81,11 @@ inherited ViewComponents: TViewComponents
           Visible = True
           ItemName = 'dxbbSettings'
         end>
+      OneOnRow = False
+      Row = 0
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
     end
     object dxbrsbtmAdd: TdxBarSubItem
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
@@ -176,6 +204,11 @@ inherited ViewComponents: TViewComponents
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton1: TdxBarButton
+      Action = actRefresh
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     object actShowParametricTable: TAction [14]
@@ -183,6 +216,12 @@ inherited ViewComponents: TViewComponents
       Hint = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       ImageIndex = 11
       OnExecute = actShowParametricTableExecute
+    end
+    object actRefresh: TAction
+      Caption = #1054#1073#1085#1086#1074#1080#1090#1100
+      Hint = #1054#1073#1085#1086#1074#1080#1090#1100
+      ImageIndex = 4
+      OnExecute = actRefreshExecute
     end
   end
 end

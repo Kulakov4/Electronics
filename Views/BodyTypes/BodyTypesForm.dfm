@@ -13,15 +13,11 @@ inherited frmBodyTypes: TfrmBodyTypes
       Height = 427
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 1
-      ExplicitTop = 1
-      ExplicitWidth = 788
-      ExplicitHeight = 427
+      ExplicitLeft = -152
+      ExplicitTop = -171
       inherited cxGrid: TcxGrid
         Width = 788
-        Height = 380
-        ExplicitWidth = 788
-        ExplicitHeight = 380
+        Height = 352
         inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
           DataController.Summary.FooterSummaryItems = <
             item
@@ -40,6 +36,10 @@ inherited frmBodyTypes: TfrmBodyTypes
               item
                 Action = ViewBodyTypes.actOpenOutlineDrawing
                 Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewBodyTypes.actLoadOutlineDrawing
                 Kind = bkEllipsis
               end>
           end
@@ -48,6 +48,10 @@ inherited frmBodyTypes: TfrmBodyTypes
               item
                 Action = ViewBodyTypes.actOpenLandPattern
                 Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewBodyTypes.actLoadLandPattern
                 Kind = bkEllipsis
               end>
           end
@@ -56,6 +60,10 @@ inherited frmBodyTypes: TfrmBodyTypes
               item
                 Action = ViewBodyTypes.actOpenImage
                 Default = True
+                Kind = bkGlyph
+              end
+              item
+                Action = ViewBodyTypes.actLoadImage
                 Kind = bkEllipsis
               end>
           end
@@ -64,14 +72,12 @@ inherited frmBodyTypes: TfrmBodyTypes
       inherited StatusBar: TStatusBar
         Top = 408
         Width = 788
-        ExplicitTop = 408
-        ExplicitWidth = 788
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (
           0
           0
-          28
+          56
           0)
       end
       inherited cxGridPopupMenu: TcxGridPopupMenu

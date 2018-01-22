@@ -13,7 +13,7 @@ object ComponentsFrame: TComponentsFrame
     Height = 480
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = cxtsCategory
+    Properties.ActivePage = cxtsParametricTable
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcComponentsPageChanging
     ClientRectBottom = 476
@@ -93,7 +93,6 @@ object ComponentsFrame: TComponentsFrame
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
-          ExplicitTop = 22
           ExplicitWidth = 870
           ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -663,10 +662,5 @@ object ComponentsFrame: TComponentsFrame
       ImageIndex = 29
       OnExecute = actAutoBindingDescriptionsExecute
     end
-  end
-  object ApplicationEvents: TApplicationEvents
-    OnHint = ApplicationEventsHint
-    Left = 184
-    Top = 344
   end
 end

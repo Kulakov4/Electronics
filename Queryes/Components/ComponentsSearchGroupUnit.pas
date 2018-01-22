@@ -73,9 +73,14 @@ var
   sParent: string;
   sParent2: string;
 begin
+  qFamilySearch.TryPost;
   // ѕолучаем список значений по которым будем осуществл€ть поиск
   s := qFamilySearch.GetFieldValues(qFamilySearch.Value.FieldName)
     .Trim([',']).ToUpper;
+
+  if S.IsEmpty then
+    Exit;
+
 
   { необходимо получить все идентификаторы которые есть по значени€м. ƒалее, определить что это, обычна€ или родительска€ запись
     и запомнить эти идентификаторы }
