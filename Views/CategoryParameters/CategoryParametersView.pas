@@ -275,8 +275,8 @@ begin
   finally
     EndUpdate;
   end;
-  // PostMyApplyBestFitEvent;
-  ApplyBestFitEx;
+
+  MyApplyBestFit;
   UpdateView;
 end;
 
@@ -461,7 +461,7 @@ begin
 
       TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad,
         FEventList);
-      ApplyBestFitEx;
+      MyApplyBestFit;
       UpdateView;
     end;
   end;

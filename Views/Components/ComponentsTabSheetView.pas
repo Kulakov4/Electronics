@@ -349,12 +349,12 @@ end;
 
 procedure TComponentsFrame.cxtsCategoryParametersShow(Sender: TObject);
 begin
-  ViewCategoryParameters.ApplyBestFitEx;
+  ViewCategoryParameters.MyApplyBestFit;
 end;
 
 procedure TComponentsFrame.cxtsComponentsSearchShow(Sender: TObject);
 begin
-  ViewComponentsSearch.ApplyBestFitEx;
+  ViewComponentsSearch.MyApplyBestFit;
 end;
 
 procedure TComponentsFrame.DoAfterLoadSheet(ASender: TObject);

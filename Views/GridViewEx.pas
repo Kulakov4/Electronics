@@ -81,7 +81,7 @@ begin
   InitColumns;
   MyCreateColumnsBarButtons;
 
-  ApplyBestFitEx;
+  MyApplyBestFit;
   UpdateStatusBar;
 end;
 
@@ -98,7 +98,7 @@ end;
 procedure TViewGridEx.DoOnUpdateData(var Message: TMessage);
 begin
   inherited;
-  ApplyBestFitEx;
+  MyApplyBestFit;
   FOnUpdateDataPost := False;
 end;
 

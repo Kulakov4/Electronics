@@ -581,7 +581,7 @@ begin
     Exit;
 
   BaseComponentsGroup.LoadDocFile(AFileName, ADocFieldInfo);
-  ApplyBestFitEx;
+  MyApplyBestFit;
 end;
 
 end.

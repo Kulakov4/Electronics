@@ -124,7 +124,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
-    procedure ApplyBestFitEx; virtual;
     procedure ApplyBestFitFocusedBand; virtual;
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
@@ -242,11 +241,6 @@ end;
 procedure TfrmGrid.AfterKeyOrMouseDown(var Message: TMessage);
 begin
   UpdateView;
-end;
-
-procedure TfrmGrid.ApplyBestFitEx;
-begin
-  MainView.ApplyBestFit();
 end;
 
 procedure TfrmGrid.ApplyBestFitFocusedBand;

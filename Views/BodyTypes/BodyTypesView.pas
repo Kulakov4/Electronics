@@ -804,7 +804,7 @@ begin
     Exit;
 
   BodyTypesGroup.qBodyTypes2.LoadDocFile(sourceFileName, ADocFieldInfo);
-  ApplyBestFitEx;
+  MyApplyBestFit;
 end;
 
 end.
