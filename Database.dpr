@@ -186,7 +186,9 @@ uses
   ParametricErrorTable in 'Queryes\Components\ParametricTable\ParametricErrorTable.pas',
   ParametricTableErrorView in 'Views\Components\ParametricTable\ParametricTableErrorView.pas' {ViewParametricTableError: TFrame},
   ParametricTableErrorForm in 'Views\Components\ParametricTable\ParametricTableErrorForm.pas' {frmParametricTableError},
-  ProtectUnit in 'Helpers\ProtectUnit.pas';
+  ProtectUnit in 'Helpers\ProtectUnit.pas',
+  SearchFamilyParamValuesQuery in 'Queryes\Search\SearchFamilyParamValuesQuery.pas' {QueryFamilyParamValues: TFrame},
+  UpdateParamValueRec in 'Helpers\UpdateParamValueRec.pas';
 
 {$R *.res}
 

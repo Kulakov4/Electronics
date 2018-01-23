@@ -21,7 +21,8 @@ uses
   System.SysUtils, ParametersForProductQuery, ParametersValueQuery,
   ProgressInfo, System.Classes, FieldInfoUnit, System.Math,
   ProjectConst, SearchParametersForCategoryQuery,
-  MaxCategoryParameterOrderQuery, IDTempTableQuery;
+  MaxCategoryParameterOrderQuery, IDTempTableQuery, UpdateParamValueRec,
+  SearchFamilyParamValuesQuery;
 
 class procedure TParameterValues.LoadParameters(AExcelTable
   : TParametricExcelTable);
@@ -104,7 +105,10 @@ var
   AIDParentParameter: Integer;
   AQueryParametersForProduct: TQueryParametersForProduct;
   AQueryParametersValue: TQueryParametersValue;
+  AUpdParamList: TUpdParamList;
+  AUpdParam: TUpdParam;
   AValue: String;
+  Q: TQueryFamilyParamValues;
   S: string;
 begin
   if AExcelTable.RecordCount = 0 then
@@ -115,6 +119,8 @@ begin
 
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AQueryParametersValue := TQueryParametersValue.Create(nil);
+
+  AUpdParamList := TUpdParamList.Create;
   AIDComponents := TList<Integer>.Create;
   try
     AExcelTable.DisableControls;
@@ -152,8 +158,19 @@ begin
 
             AIDComponents.Clear;
             AIDComponents.Add(AExcelTable.IDComponent.AsInteger);
-//            if AExcelTable.IDParentComponent.AsInteger > 0 then
-//              AIDComponents.Add(AExcelTable.IDParentComponent.AsInteger);
+
+            // Если загружаем значение для компонента
+            if AExcelTable.IDParentComponent.AsInteger > 0 then
+            begin
+              if AUpdParamList.Search(AExcelTable.IDParentComponent.AsInteger,
+                AIDParameter) = -1 then
+              begin
+                AUpdParamList.Add
+                  (TUpdParam.Create(AExcelTable.IDParentComponent.AsInteger,
+                  AIDParameter));
+              end;
+            end;
+            // AIDComponents.Add(AExcelTable.IDParentComponent.AsInteger);
 
             // Цикл по дочернему и родительскому компоненту
             for AIDComponent in AIDComponents do
@@ -174,10 +191,30 @@ begin
     finally
       AExcelTable.EnableControls;
     end;
+
+    Q := TQueryFamilyParamValues.Create(nil);
+    try
+
+      for AUpdParam in AUpdParamList do
+      begin
+        // Если найдено единственное значение
+        if Q.SearchEx(AUpdParam.FamilyID, AUpdParam.ParameterID) = 1 then
+        begin
+          // Добавляем значение параметра для семейства
+          AQueryParametersValue.Load(AUpdParam.FamilyID, AUpdParam.ParameterID);
+          AQueryParametersValue.LocateOrAppend(Q.Value.AsString);
+        end;
+      end;
+
+    finally
+      FreeAndNil(Q);
+    end;
+
   finally
     FreeAndNil(AQueryParametersForProduct);
     FreeAndNil(AQueryParametersValue);
     FreeAndNil(AIDComponents);
+    FreeAndNil(AUpdParamList);
   end;
 end;
 
