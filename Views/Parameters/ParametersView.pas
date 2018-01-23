@@ -183,8 +183,9 @@ Uses NotifyEvents, DialogUnit, ImportErrorForm, ColumnsBarButtonsHelper,
 constructor TViewParameters.Create(AOwner: TComponent);
 begin
   inherited;
-  clCodeLetters.Caption := clCodeLetters.Caption.Replace(' ', #13#10);
-  clMeasuringUnit.Caption := clMeasuringUnit.Caption.Replace(' ', #13#10);
+  // clCodeLetters.Caption := clCodeLetters.Caption.Replace(' ', #13#10);
+  // clMeasuringUnit.Caption := clMeasuringUnit.Caption.Replace(' ', #13#10);
+  ApplyBestFitMultiLine := True;
 
   FExpandedRecordIndex := -1;
 
@@ -276,21 +277,21 @@ end;
 procedure TViewParameters.actCommitExecute(Sender: TObject);
 begin
   // Мы просто завершаем транзакцию
-//  cxGrid.BeginUpdate();
-//  try
-    // СОхраняем все сделанные изменения
-    FParametersGroup.Commit;
+  // cxGrid.BeginUpdate();
+  // try
+  // СОхраняем все сделанные изменения
+  FParametersGroup.Commit;
 
-    // FParametersGroup.Connection.StartTransaction;
+  // FParametersGroup.Connection.StartTransaction;
 
-    // Переносим фокус на первую выделенную запись
-//    FocusSelectedRecord();
-//  finally
-//    cxGrid.EndUpdate;
-//  end;
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord();
+  // finally
+  // cxGrid.EndUpdate;
+  // end;
 
   // Помещаем фокус в центр грида
-//  PutInTheCenterFocusedRecord();
+  // PutInTheCenterFocusedRecord();
 
   // Обновляем представление
   UpdateView;
@@ -300,7 +301,8 @@ procedure TViewParameters.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Параметры', AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Параметры',
+    AFileName) then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
@@ -383,7 +385,7 @@ procedure TViewParameters.actSearchExecute(Sender: TObject);
 var
   S: string;
 begin
-  //S := cxbeiSearch.CurEditValue;
+  // S := cxbeiSearch.CurEditValue;
   S := cxbeiSearch.EditValue;
   Search(S);
 end;
@@ -489,10 +491,10 @@ end;
 
 procedure TViewParameters.CommitOrPost;
 begin
-  if CheckedMode then           // В этом случае транзакция не начата
+  if CheckedMode then // В этом случае транзакция не начата
     ParametersGroup.TryPost
   else
-    actCommit.Execute;          // завершаем транзакцию
+    actCommit.Execute; // завершаем транзакцию
 end;
 
 procedure TViewParameters.CreateColumnsBarButtons;
@@ -638,6 +640,7 @@ procedure TViewParameters.cxGridDBBandedTableViewDataControllerDetailExpanded
   (ADataController: TcxCustomDataController; ARecordIndex: Integer);
 var
   AcxGridMasterDataRow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
 begin
   inherited;
   FExpandedRecordIndex := ARecordIndex;
@@ -647,8 +650,13 @@ begin
 
   AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
     as TcxGridMasterDataRow;
-  (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
-    .ApplyBestFit();
+
+  AView := AcxGridMasterDataRow.ActiveDetailGridView as
+    TcxGridDBBandedTableView;
+
+  // AView.ApplyBestFit();
+
+  MyApplyBestFitForView(AView);
 end;
 
 procedure TViewParameters.
@@ -802,13 +810,15 @@ begin
     // Спускаемся на уровень ниже
     AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
 
-    AView.BeginBestFitUpdate;
-    try
+    MyApplyBestFitForView(AView);
+    {
+      AView.BeginBestFitUpdate;
+      try
       AView.ApplyBestFit(nil, True, True);
-    finally
+      finally
       AView.EndBestFitUpdate;
-    end;
-
+      end;
+    }
     // изменяем минимальные размеры всех колонок
     UpdateColumnsMinWidth(AView);
   end;

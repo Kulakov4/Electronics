@@ -198,7 +198,7 @@ begin
   FColumns := TList<TcxGridDBBandedColumn>.Create;
   FBandsInfo := TBandsInfo.Create;
 
-  ApplyBestFitForColumn := True;
+  ApplyBestFitMultiLine := True;
 end;
 
 destructor TViewParametricTable.Destroy;

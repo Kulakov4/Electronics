@@ -70,7 +70,7 @@ type
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
-    FApplyBestFitForColumn: Boolean;
+    FApplyBestFitMultiLine: Boolean;
     FApplyBestFitPosted: Boolean;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
@@ -166,12 +166,13 @@ type
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
     procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
+    procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
     procedure RefreshData;
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
-    property ApplyBestFitForColumn: Boolean read FApplyBestFitForColumn write
-        FApplyBestFitForColumn;
+    property ApplyBestFitMultiLine: Boolean read FApplyBestFitMultiLine
+      write FApplyBestFitMultiLine;
     property DeleteMessages: TDictionary<TcxGridLevel, String>
       read FDeleteMessages;
     property FocusedTableView: TcxGridDBBandedTableView
@@ -791,33 +792,8 @@ begin
 end;
 
 procedure TfrmGrid.MyApplyBestFit;
-var
-  ABandCaption: string;
-  ACaption: String;
-  AColumn: TcxGridDBBandedColumn;
-  i: Integer;
 begin
-  if ApplyBestFitForColumn then
-  begin
-    for i := 0 to MainView.VisibleColumnCount - 1 do
-    begin
-      AColumn := MainView.VisibleColumns[i] as TcxGridDBBandedColumn;
-      ACaption := AColumn.Caption;
-
-      if AColumn.Position.Band <> nil then
-        ABandCaption := AColumn.Position.Band.Caption
-      else
-        ABandCaption := '';
-
-      AColumn.Caption :=
-        GetWords(Format('%s %s', [AColumn.Caption, ABandCaption]));
-
-      AColumn.ApplyBestFit();
-      AColumn.Caption := ACaption;
-    end;
-  end
-  else
-    MainView.ApplyBestFit(nil, True, True);
+  MyApplyBestFitForView(MainView);
 end;
 
 procedure TfrmGrid.PostMyApplyBestFitEvent;
@@ -1126,6 +1102,47 @@ begin
     AColumn.SortOrder := soDescending
   else
     AColumn.SortOrder := soAscending;
+end;
+
+procedure TfrmGrid.MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
+var
+  ABandCaption: string;
+  ACaption: String;
+  AColumn: TcxGridDBBandedColumn;
+  i: Integer;
+begin
+  Assert(AView <> nil);
+
+  if ApplyBestFitMultiLine then
+  begin
+    if not FApplyBestFitPosted then
+      AView.BeginBestFitUpdate;
+    try
+
+      for i := 0 to AView.VisibleColumnCount - 1 do
+      begin
+        AColumn := AView.VisibleColumns[i] as TcxGridDBBandedColumn;
+        ACaption := AColumn.Caption;
+
+        if AColumn.Position.Band <> nil then
+          ABandCaption := AColumn.Position.Band.Caption
+        else
+          ABandCaption := '';
+
+        AColumn.Caption :=
+          GetWords(Format('%s %s', [AColumn.Caption, ABandCaption]));
+
+        AColumn.ApplyBestFit();
+        AColumn.Caption := ACaption;
+      end;
+    finally
+      if not FApplyBestFitPosted then
+        AView.EndBestFitUpdate;
+    end;
+  end
+  else
+    AView.ApplyBestFit(nil, True, True);
+
 end;
 
 procedure TfrmGrid.RefreshData;
