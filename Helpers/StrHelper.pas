@@ -21,9 +21,32 @@ function Replace(const S: String; const ANewValue: String; const AMark: String;
 // Разбивает строку на строку и число
 function MySplit(const S: string): TList<TMySplit>;
 
+function GetWords(const S: String): String;
+
 implementation
 
 uses System.SysUtils, System.RegularExpressions;
+
+function GetWords(const S: String): String;
+var
+  m: TArray<String>;
+  S2: string;
+  S1: string;
+begin
+  Result := '';
+  S1 := S.Trim();
+
+  m := S1.Split([' ', '/', '-']);
+
+  for S1 in m do
+  begin
+    S2 := S1.Trim;
+    if S2.IsEmpty then
+      Continue;
+    Result := Format('%s'#13'%s', [Result, S2]);
+  end;
+  Result := Result.Trim([#13]);
+end;
 
 function Replace(const S: String; const ANewValue: String; const AMark: String;
   const AEndChar: Char): string;
@@ -97,7 +120,7 @@ function MySplit(const S: string): TList<TMySplit>;
 Var
   i: Integer;
 
-  M: TMatchCollection;
+  m: TMatchCollection;
   Pattern: string;
   RegEx: TRegEx;
 begin
@@ -110,18 +133,18 @@ begin
   // Проверяем, соответствует ли строка шаблону
   if RegEx.IsMatch(S) then
   begin
-    M := RegEx.Matches(S, Pattern); // получаем коллекцию совпадений
+    m := RegEx.Matches(S, Pattern); // получаем коллекцию совпадений
     // Должно быть минимум одно совпадение
-    Assert(M.Count >= 1);
+    Assert(m.Count >= 1);
 
     Result := TList<TMySplit>.Create;
-    for i := 0 to M.Count - 1 do
+    for i := 0 to m.Count - 1 do
     begin
       // Должно быть ровно 3 группы
-      Assert(M.Item[i].Groups.Count = 3);
+      Assert(m.Item[i].Groups.Count = 3);
       // В первую группу попадает всё совпадение
-      Result.Add(TMySplit.Create(M.Item[i].Groups[1].Value,
-        M.Item[i].Groups[2].Value));
+      Result.Add(TMySplit.Create(m.Item[i].Groups[1].Value,
+        m.Item[i].Groups[2].Value));
     end;
   end;
 end;

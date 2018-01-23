@@ -197,6 +197,8 @@ begin
 
   FColumns := TList<TcxGridDBBandedColumn>.Create;
   FBandsInfo := TBandsInfo.Create;
+
+  ApplyBestFitForColumn := True;
 end;
 
 destructor TViewParametricTable.Destroy;
@@ -1325,19 +1327,17 @@ begin
 end;
 
 procedure TViewParametricTable.MyApplyBestFit;
-var
-  i: Integer;
+//var
+//  i: Integer;
 begin
-  // MainView.BeginBestFitUpdate;
-  // try
+{
   for i := 0 to MainView.Bands.Count - 1 do
   begin
     MainView.Bands[i].ApplyBestFit(True);
   end;
+}
+  Inherited;
   UpdateDetailColumnsWidth;
-  // finally
-  // MainView.EndBestFitUpdate;
-  // end;
 end;
 
 procedure TViewParametricTable.OnEditValueChangeProcess(var Message: TMessage);

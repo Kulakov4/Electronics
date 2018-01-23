@@ -70,6 +70,7 @@ type
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
+    FApplyBestFitForColumn: Boolean;
     FApplyBestFitPosted: Boolean;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
@@ -169,6 +170,8 @@ type
     procedure RefreshData;
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
+    property ApplyBestFitForColumn: Boolean read FApplyBestFitForColumn write
+        FApplyBestFitForColumn;
     property DeleteMessages: TDictionary<TcxGridLevel, String>
       read FDeleteMessages;
     property FocusedTableView: TcxGridDBBandedTableView
@@ -188,7 +191,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink,
-  dxCore, DialogUnit;
+  dxCore, DialogUnit, StrHelper;
 
 constructor TfrmGrid.Create(AOwner: TComponent);
 begin
@@ -788,8 +791,33 @@ begin
 end;
 
 procedure TfrmGrid.MyApplyBestFit;
+var
+  ABandCaption: string;
+  ACaption: String;
+  AColumn: TcxGridDBBandedColumn;
+  i: Integer;
 begin
-  MainView.ApplyBestFit(nil, True, True);
+  if ApplyBestFitForColumn then
+  begin
+    for i := 0 to MainView.VisibleColumnCount - 1 do
+    begin
+      AColumn := MainView.VisibleColumns[i] as TcxGridDBBandedColumn;
+      ACaption := AColumn.Caption;
+
+      if AColumn.Position.Band <> nil then
+        ABandCaption := AColumn.Position.Band.Caption
+      else
+        ABandCaption := '';
+
+      AColumn.Caption :=
+        GetWords(Format('%s %s', [AColumn.Caption, ABandCaption]));
+
+      AColumn.ApplyBestFit();
+      AColumn.Caption := ACaption;
+    end;
+  end
+  else
+    MainView.ApplyBestFit(nil, True, True);
 end;
 
 procedure TfrmGrid.PostMyApplyBestFitEvent;
