@@ -796,9 +796,20 @@ begin
   if FApplyBestFitPosted then
     Exit;
 
+  if not Visible then
+    Exit;
+
+  if Handle <= 0 then
+    Exit;
+
   FApplyBestFitPosted := True;
-  MainView.BeginBestFitUpdate;
-  PostMessage(Handle, WM_MY_APPLY_BEST_FIT, 0, 0);
+  try
+    MainView.BeginBestFitUpdate;
+    PostMessage(Handle, WM_MY_APPLY_BEST_FIT, 0, 0);
+  except
+    FApplyBestFitPosted := False;
+    ; // Что-то случается с Handle
+  end;
 end;
 
 procedure TfrmGrid.UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);

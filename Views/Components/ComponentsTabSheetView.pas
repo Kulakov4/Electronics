@@ -344,7 +344,7 @@ end;
 
 procedure TComponentsFrame.cxtsCategoryComponentsShow(Sender: TObject);
 begin
-  ViewComponents.PostApplyBestFit;
+  ViewComponents.PostMyApplyBestFitEvent;
 end;
 
 procedure TComponentsFrame.cxtsCategoryParametersShow(Sender: TObject);

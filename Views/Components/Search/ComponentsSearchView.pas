@@ -101,7 +101,7 @@ begin
   finally
     MainView.EndUpdate;
   end;
-  PostApplyBestFit;
+  PostMyApplyBestFitEvent;
 end;
 
 procedure TViewComponentsSearch.actSearchExecute(Sender: TObject);
@@ -192,8 +192,8 @@ begin
   finally
     MainView.EndUpdate;
   end;
-  FocusColumnEditor(0, 'Value');
-  PostApplyBestFit;
+  FocusColumnEditor(0, clValue.DataBinding.FieldName);
+  PostMyApplyBestFitEvent;
 end;
 
 procedure TViewComponentsSearch.SetComponentsSearchGroup

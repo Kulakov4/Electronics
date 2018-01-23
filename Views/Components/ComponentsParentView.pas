@@ -32,7 +32,6 @@ uses
   System.Generics.Collections, BaseComponentsGroupUnit;
 
 const
-  WM_OnApplyBestFit = WM_USER + 56;
   WM_ON_DETAIL_EXPANDED = WM_USER + 57;
 
 type
@@ -115,7 +114,6 @@ type
     procedure DoOnMasterDetailChange; virtual;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure MyDelete; override;
-    procedure OnApplyBestFit(var Message: TMessage); message WM_OnApplyBestFit;
     procedure OnDetailExpandedProcess(var Message: TMessage);
       message WM_ON_DETAIL_EXPANDED;
     procedure UpdateDetailColumnsWidth;
@@ -124,9 +122,9 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AfterConstruction; override;
     procedure ApplyBestFitFocusedBand; override;
-    procedure PostApplyBestFit;
     function CheckAndSaveChanges: Integer;
     function GetSelectedIDs: TList<Integer>;
+    procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
       write SetBaseComponentsGroup;
@@ -338,7 +336,7 @@ end;
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
 begin
   FisCurrentlySyncing := False;
-  PostApplyBestFit;
+  PostMyApplyBestFitEvent;
   UpdateView;
 end;
 
@@ -346,16 +344,6 @@ procedure TViewComponentsParent.ApplyBestFitFocusedBand;
 begin
   inherited;
   UpdateDetailColumnsWidth;
-end;
-
-procedure TViewComponentsParent.PostApplyBestFit;
-begin
-  try
-    if Visible and (Handle > 0) then
-      PostMessage(Handle, WM_OnApplyBestFit, 0, 0);
-  except
-    ; // Что-то случается с Handle
-  end;
 end;
 
 function TViewComponentsParent.CheckAndSaveChanges: Integer;
@@ -687,6 +675,12 @@ begin
 
 end;
 
+procedure TViewComponentsParent.MyApplyBestFit;
+begin
+  inherited;
+  UpdateDetailColumnsWidth;
+end;
+
 procedure TViewComponentsParent.MyDelete;
 var
   AController: TcxGridBandedTableController;
@@ -749,17 +743,6 @@ begin
     end);
 
   UpdateView;
-end;
-
-procedure TViewComponentsParent.OnApplyBestFit(var Message: TMessage);
-begin
-  cxGrid.BeginUpdate();
-  try
-    MainView.ApplyBestFit();
-  finally
-    cxGrid.EndUpdate;
-  end;
-  UpdateDetailColumnsWidth;
 end;
 
 procedure TViewComponentsParent.OnDetailExpandedProcess(var Message: TMessage);
