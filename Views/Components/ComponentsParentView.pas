@@ -33,6 +33,7 @@ uses
 
 const
   WM_ON_DETAIL_EXPANDED = WM_USER + 57;
+  WM_UPDATE_DETAIL_COLUMNS_WIDTH = WM_USER + 58;
 
 type
   TViewComponentsParent = class(TfrmGrid)
@@ -99,10 +100,12 @@ type
     FDeleteFromAllCategories: Boolean;
     FEditingValue: Variant;
     FisCurrentlySyncing: Boolean;
-    FOnDetailExpandedReceive: Boolean;
+    FMessageUpdateDetailColumnsPosted: Boolean;
+    FOnDetailExpandedPosted: Boolean;
     FQuerySubGroups: TfrmQuerySubGroups;
     procedure AfterLoadData(Sender: TObject);
     function GetQuerySubGroups: TfrmQuerySubGroups;
+    procedure PostMessageUpdateDetailColumnsWidth;
     procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup);
     procedure SyncScrollbarPositions;
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
@@ -112,6 +115,8 @@ type
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
     procedure DoOnMasterDetailChange; virtual;
+    procedure DoOnUpdateColumnsWidth(var Message: TMessage);
+      message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure MyDelete; override;
     procedure OnDetailExpandedProcess(var Message: TMessage);
@@ -266,8 +271,6 @@ begin
 
   cxGridPopupMenu.PopupMenus[0].GridView := AView;
 
-  FOnDetailExpandedReceive := True;
-
   PostOnEnterFields.Add(clValue.DataBinding.FieldName);
   PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
 
@@ -323,14 +326,13 @@ procedure TViewComponentsParent.
   : TcxCustomDataController; ARecordIndex: Integer);
 begin
   inherited;
-  // Если предыдущее сообщение уже было обработано
-  if FOnDetailExpandedReceive then
-  begin
-    FOnDetailExpandedReceive := False;
-    PostMessage(Handle, WM_ON_DETAIL_EXPANDED, 0, 0);
-  end;
-
   ChooseTopRecord(MainView, ARecordIndex);
+
+  if FOnDetailExpandedPosted then
+    Exit;
+
+  FOnDetailExpandedPosted := True;
+  PostMessage(Handle, WM_ON_DETAIL_EXPANDED, 0, 0);
 end;
 
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
@@ -485,7 +487,7 @@ end;
 procedure TViewComponentsParent.CollapseDetail;
 var
   ARow: TcxMyGridMasterDataRow;
-//  AView: TcxGridDBBandedTableView;
+  // AView: TcxGridDBBandedTableView;
 begin
   ARow := MainView.Controller.FocusedRow as TcxMyGridMasterDataRow;
   // ARow := GetRow(0) as TcxMyGridMasterDataRow;
@@ -547,7 +549,8 @@ end;
 procedure TViewComponentsParent.cxGridDBBandedTableViewBandSizeChanged
   (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
 begin
-  UpdateDetailColumnsWidth;
+  PostMessageUpdateDetailColumnsWidth;
+  // UpdateDetailColumnsWidth;
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewCellClick
@@ -561,7 +564,8 @@ end;
 procedure TViewComponentsParent.cxGridDBBandedTableViewColumnSizeChanged
   (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin
-  UpdateDetailColumnsWidth;
+  PostMessageUpdateDetailColumnsWidth;
+  // UpdateDetailColumnsWidth;
 end;
 
 procedure TViewComponentsParent.cxGridDBBandedTableViewEditKeyDown
@@ -623,6 +627,12 @@ begin
   end;
   UpdateView;
   cxGridPopupMenu.PopupMenus.Items[0].GridView := MainView;
+end;
+
+procedure TViewComponentsParent.DoOnUpdateColumnsWidth(var Message: TMessage);
+begin
+  UpdateDetailColumnsWidth;
+  FMessageUpdateDetailColumnsPosted := False;
 end;
 
 function TViewComponentsParent.GetFocusedTableView: TcxGridDBBandedTableView;
@@ -748,7 +758,17 @@ end;
 procedure TViewComponentsParent.OnDetailExpandedProcess(var Message: TMessage);
 begin
   SyncScrollbarPositions;
-  FOnDetailExpandedReceive := True;
+  FOnDetailExpandedPosted := False;
+end;
+
+procedure TViewComponentsParent.PostMessageUpdateDetailColumnsWidth;
+begin
+  if FMessageUpdateDetailColumnsPosted then
+    Exit;
+
+  FMessageUpdateDetailColumnsPosted := True;
+  PostMessage(Handle, WM_UPDATE_DETAIL_COLUMNS_WIDTH, 0, 0)
+
 end;
 
 procedure TViewComponentsParent.SetBaseComponentsGroup
@@ -809,37 +829,40 @@ end;
 
 procedure TViewComponentsParent.UpdateDetailColumnsWidth;
 var
-  ABand: TcxGridBand;
+//  ABand: TcxGridBand;
   ADetailColumn: TcxGridDBBandedColumn;
   AMainColumn: TcxGridDBBandedColumn;
-  dx: Integer;
+//  dx: Integer;
   i: Integer;
-  RealBandWidth: Integer;
+//  RealBandWidth: Integer;
   RealColumnWidth: Integer;
 begin
   cxGrid.BeginUpdate();
   try
+    // Не будем изменять ширину бэндов.
+    // Достаточно того, чтобы родительский и дочерний бэнд имели ширину 0
+    // Тогда их ширина подстроится под ширину колонок
 
-    // Сначала выравниваем длину всех бэндов
-
-    for i := 0 to cxGridDBBandedTableView2.Bands.Count - 1 do
-    begin
+    {
+      // Сначала выравниваем длину всех бэндов
+      for i := 0 to cxGridDBBandedTableView2.Bands.Count - 1 do
+      begin
       ABand := MainView.Bands[i];
       if ABand.VisibleIndex >= 0 then
       begin
-        RealBandWidth := MainView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
-          [ABand.VisibleIndex].Width;
+      RealBandWidth := MainView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+      [ABand.VisibleIndex].Width;
 
-        if ABand.VisibleIndex = 0 then
-        begin
-          dx := ABand.Width - RealBandWidth;
-          Dec(RealBandWidth, MainView.ViewInfo.FirstItemAdditionalWidth - dx);
-        end;
-
-        cxGridDBBandedTableView2.Bands[i].Width := RealBandWidth;
+      if ABand.VisibleIndex = 0 then
+      begin
+      dx := ABand.Width - RealBandWidth;
+      Dec(RealBandWidth, MainView.ViewInfo.FirstItemAdditionalWidth - dx);
       end;
-    end;
 
+      cxGridDBBandedTableView2.Bands[i].Width := RealBandWidth;
+      end;
+      end;
+    }
     // Потом изменяем размеры всех дочерних колонок
     for i := 0 to cxGridDBBandedTableView2.ColumnCount - 1 do
     begin

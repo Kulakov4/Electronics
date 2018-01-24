@@ -474,11 +474,34 @@ begin
 end;
 
 procedure TGVColumnActionEx.actCustomizeColumnExecute(Sender: TObject);
+{
+var
+  ABand: TcxGridBand;
+  ABand2: TcxGridBand;
+  AWidth: Integer;
+}
 begin
   inherited;
 
-  if FChildAction <> nil then
-    FChildAction.Execute;
+  if FChildAction = nil then
+    Exit;
+
+  FChildAction.Execute;
+
+// Всё это не имеет смысла
+// Достаточно сделать ширину дочернего бэнда 0
+{
+  ABand := FColumn.Position.Band;
+  ABand2 := FChildAction.Column.Position.Band;
+
+  if (ABand = nil) or (ABand2 = nil) then
+    Exit;
+
+
+  // Пытаемся выровнять ширину бэндов, к которым относятся колонки
+  AWidth := FColumn.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex].Width;
+  ABand2.Width := AWidth;
+}
 end;
 
 { TGVColumnsBarButtonsEx }

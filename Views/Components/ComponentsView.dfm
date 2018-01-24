@@ -3,8 +3,14 @@ inherited ViewComponents: TViewComponents
   ExplicitWidth = 960
   inherited cxGrid: TcxGrid
     Width = 960
+    ExplicitWidth = 960
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
+    end
+    inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
+      inherited clSubGroup2: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'subgroup'
+      end
     end
   end
   inherited StatusBar: TStatusBar
@@ -25,6 +31,7 @@ inherited ViewComponents: TViewComponents
       item
         Width = 150
       end>
+    ExplicitWidth = 960
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
