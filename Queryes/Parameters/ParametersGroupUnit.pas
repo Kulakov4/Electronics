@@ -213,7 +213,9 @@ begin
   qSubParameters.FDQuery.Close;
   qMainParameters.FDQuery.Close;
   qParameterTypes.FDQuery.Close;
+  qParameterKinds.FDQuery.Close;
 
+  qParameterKinds.FDQuery.Open;
   qParameterTypes.FDQuery.Open;
   qMainParameters.FDQuery.Open;
   qSubParameters.FDQuery.Open;
