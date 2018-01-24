@@ -749,8 +749,9 @@ begin
     (((AView.Level = cxGridLevel) and (AView.DataController.RecordCount > 0)) or
     (AView.Level = cxGridLevel2));
 
+  // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := (BodyTypesGroup <> nil) and (AView <> nil) and
-    (AView.DataController.RecordCount > 0);
+    (AView.Controller.SelectedRowCount > 0);
 
   actLoadFromExcelDocument.Enabled := (BodyTypesGroup <> nil);
 

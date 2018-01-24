@@ -482,6 +482,7 @@ begin
   actApplyUpdates.Enabled := OK and QueryCategoryParameters.HaveAnyChanges;
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 
+  // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
 
   actAddToBegin.Enabled := OK and not FQueryCategoryParameters.HaveAnyChanges;

@@ -552,8 +552,9 @@ begin
     (MainView.DataController.RecordCount > 0);
   actAddType.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
+  // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (AView <> nil) and
-    (AView.DataController.RecordCount > 0);
+    (AView.Controller.SelectedRowCount > 0);;
 
   actCommit.Enabled := OK and (ProducersGroup.Connection.InTransaction);
 

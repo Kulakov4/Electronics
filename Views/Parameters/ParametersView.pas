@@ -957,8 +957,9 @@ begin
   actAddSubParameter.Enabled := OK and (AView <> nil) and
     (((AView.Level = cxGridLevel2)) or (AView.Level = cxGridLevel3));
 
+  // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (AView <> nil) and
-    (AView.DataController.RecordCount > 0);
+    (AView.Controller.SelectedRowCount > 0);
 
   actLoadFromExcelDocument.Enabled := OK;
 

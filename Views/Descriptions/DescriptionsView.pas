@@ -640,7 +640,8 @@ begin
     (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
     ((AView.Level = cxGridLevel) or (AView.Level = cxGridLevel2));
 
-  actDeleteEx.Enabled := OK and (AView.DataController.RecordCount > 0);
+  // Удалять разрешаем только если что-то выделено
+  actDeleteEx.Enabled := OK and (AView.Controller.SelectedRowCount > 0);
 
   actCommit.Enabled := OK and (DescriptionsGroup.Connection.InTransaction);
 

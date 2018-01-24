@@ -929,22 +929,23 @@ end;
 
 procedure TViewComponentsParent.UpdateView;
 var
-  AFocusedView: TcxGridDBBandedTableView;
+  AView: TcxGridDBBandedTableView;
   Ok: Boolean;
   S: string;
 begin
   Ok := BaseComponentsGroup <> nil;
-  AFocusedView := FocusedTableView;
+  AView := FocusedTableView;
 
   // Удалить из всех категорий можно только родительский компонент
-  actDeleteFromAllCategories.Enabled := Ok and (AFocusedView <> nil) and
-    (AFocusedView.Level = cxGridLevel);
+  actDeleteFromAllCategories.Enabled := Ok and (AView <> nil) and
+    (AView.Level = cxGridLevel) and (AView.Controller.SelectedRowCount > 0);
   actDeleteFromAllCategories.Visible := actDeleteFromAllCategories.Enabled;
 
-  actDeleteEx.Enabled := Ok and (AFocusedView <> nil) and
-    (AFocusedView.DataController.RowCount > 0);
+  // Удалять разрешаем только если что-то выделено
+  actDeleteEx.Enabled := Ok and (AView <> nil) and
+    (AView.Controller.SelectedRowCount > 0);
 
-  if Ok and (AFocusedView <> nil) and (AFocusedView.Level = cxGridLevel) then
+  if Ok and (AView <> nil) and (AView.Level = cxGridLevel) then
   begin
     if BaseComponentsGroup.Main.Master <> nil then
     begin
@@ -954,14 +955,14 @@ begin
     end;
   end;
 
-  if Ok and (AFocusedView <> nil) and (AFocusedView.Level = cxGridLevel2) then
+  if Ok and (AView <> nil) and (AView.Level = cxGridLevel2) then
   begin
     actDeleteEx.Caption := 'Удалить компонент из семейства';
   end;
 
-  actAddFamily.Enabled := Ok and (AFocusedView <> nil);
-  actAddComponent.Enabled := Ok and (AFocusedView <> nil);
-  // and (AFocusedView.Level = tlComponentsDetails);
+  actAddFamily.Enabled := Ok and (AView <> nil);
+  actAddComponent.Enabled := Ok and (AView <> nil);
+  // and (AView.Level = tlComponentsDetails);
 
   actCommit.Enabled := Ok and BaseComponentsGroup.Connection.InTransaction;
   actRollback.Enabled := actCommit.Enabled;
