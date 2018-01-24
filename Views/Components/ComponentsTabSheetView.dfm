@@ -358,7 +358,7 @@ object ComponentsFrame: TComponentsFrame
         Height = 452
         Align = alClient
         ParentShowHint = False
-        ShowHint = True
+        ShowHint = False
         TabOrder = 0
         ExplicitWidth = 870
         ExplicitHeight = 452

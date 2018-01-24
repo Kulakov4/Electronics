@@ -43,6 +43,7 @@ inherited frmParameters: TfrmParameters
         ExplicitWidth = 788
       end
       inherited dxBarManager: TdxBarManager
+        ShowHint = False
         DockControlHeights = (
           0
           0

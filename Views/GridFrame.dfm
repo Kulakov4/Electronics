@@ -59,6 +59,7 @@ object frmGrid: TfrmGrid
     Categories.Visibles = (
       True)
     PopupMenuLinks = <>
+    ShowHint = False
     UseSystemFont = True
     Left = 440
     Top = 120

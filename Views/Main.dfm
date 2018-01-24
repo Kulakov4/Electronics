@@ -530,7 +530,7 @@ object frmMain: TfrmMain
         Height = 533
         Align = alClient
         ParentShowHint = False
-        ShowHint = True
+        ShowHint = False
         TabOrder = 0
         ExplicitWidth = 926
         ExplicitHeight = 533
