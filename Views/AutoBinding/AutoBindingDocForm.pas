@@ -81,16 +81,16 @@ procedure TfrmAutoBindingDoc.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
   if cxcbDatasheet.Checked then
-    FDocs.Add(TDatasheetDoc.Create);
+    FDocs.Add(TComponentDatasheetDoc.Create);
 
   if cxcbDiagram.Checked then
-    FDocs.Add(TDiagramDoc.Create);
+    FDocs.Add(TComponentDiagramDoc.Create);
 
   if cxcbDrawing.Checked then
-    FDocs.Add(TDrawingDoc.Create);
+    FDocs.Add(TComponentDrawingDoc.Create);
 
   if cxcbImage.Checked then
-    FDocs.Add(TImageDoc.Create);
+    FDocs.Add(TComponentImageDoc.Create);
 end;
 
 end.

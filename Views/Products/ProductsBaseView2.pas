@@ -129,7 +129,6 @@ type
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
-    function GetIsFocusedNodeGroup: Boolean;
     procedure SetqProductsBase(const Value: TQueryProductsBase);
     procedure UpdateSelectedCount;
     { Private declarations }
@@ -156,8 +155,9 @@ type
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
+    function IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn; AValue: Variant):
+        Boolean;
     procedure UpdateView; override;
-    property IsFocusedNodeGroup: Boolean read GetIsFocusedNodeGroup;
     property qProductsBase: TQueryProductsBase read FqProductsBase
       write SetqProductsBase;
     { Public declarations }
@@ -169,7 +169,7 @@ implementation
 
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi, System.Generics.Collections,
-  System.StrUtils, GridSort, cxTLExportLink;
+  System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
 var
@@ -328,49 +328,66 @@ end;
 procedure TViewProductsBase2.actLoadDatasheetExecute(Sender: TObject);
 begin
   inherited;
-  UploadDoc(TDatasheetDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    UploadDoc(TComponentDatasheetDoc.Create)
+  else
+    UploadDoc(TWareHouseDatasheetDoc.Create);
 end;
 
 procedure TViewProductsBase2.actLoadDiagramExecute(Sender: TObject);
 begin
   inherited;
-  UploadDoc(TDiagramDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    UploadDoc(TComponentDiagramDoc.Create)
+  else
+    UploadDoc(TWareHouseDiagramDoc.Create);
 end;
 
 procedure TViewProductsBase2.actLoadDrawingExecute(Sender: TObject);
 begin
   inherited;
-  UploadDoc(TDrawingDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    UploadDoc(TComponentDrawingDoc.Create)
+  else
+    UploadDoc(TWareHouseDrawingDoc.Create);
 end;
 
 procedure TViewProductsBase2.actLoadImageExecute(Sender: TObject);
 begin
   inherited;
-  UploadDoc(TImageDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    UploadDoc(TComponentImageDoc.Create)
+  else
+    UploadDoc(TWareHouseImageDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDatasheetExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDatasheetDoc.Create);
+  OpenDoc(TWareHouseDatasheetDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDiagramExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDiagramDoc.Create);
+  OpenDoc(TWareHouseDiagramDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDrawingExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TDrawingDoc.Create);
+  OpenDoc(TWareHouseDrawingDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenImageExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TImageDoc.Create);
+
+  OpenDoc(TWareHouseImageDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenInParametricTableExecute(Sender: TObject);
@@ -506,7 +523,8 @@ begin
 
   // Обновлям курс доллара
   FqProductsBase.Rate := r;
-  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0) then
+  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0)
+  then
     FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
 end;
 
@@ -724,20 +742,6 @@ begin
     CreateCountEvents;
 end;
 
-function TViewProductsBase2.GetIsFocusedNodeGroup: Boolean;
-var
-  ANode: TcxTreeListNode;
-  V: Variant;
-begin
-  Result := False;
-  ANode := cxDBTreeList.FocusedNode;
-  if ANode = nil then
-    Exit;
-
-  V := ANode.Values[clIsGroup.ItemIndex];
-  Result := not VarIsNull(V) and (V = 1);
-end;
-
 procedure TViewProductsBase2.InitializeColumns;
 var
   i: Integer;
@@ -759,6 +763,24 @@ begin
   Assert(qProductsBase <> nil);
   qProductsBase.RefreshQuery;
   cxDBTreeList.FullCollapse;
+end;
+
+function TViewProductsBase2.IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn;
+    AValue: Variant): Boolean;
+var
+  ANode: TcxTreeListNode;
+  V: Variant;
+begin
+  Assert(AColumn <> nil);
+  Assert(not VarIsNull(AValue));
+
+  Result := False;
+  ANode := cxDBTreeList.FocusedNode;
+  if ANode = nil then
+    Exit;
+
+  V := ANode.Values[AColumn.ItemIndex];
+  Result := not VarIsNull(V) and (V = AValue);
 end;
 
 function TViewProductsBase2.IsSyncToDataSet: Boolean;
@@ -784,25 +806,12 @@ begin
 end;
 
 procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo);
-var
-  AFileName: string;
 begin
-  if FqProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString <> ''
-  then
-  begin
-    AFileName := TPath.Combine(TPath.Combine(TSettings.Create.DataBasePath,
-      ADocFieldInfo.Folder), FqProductsBase.FDQuery.FieldByName
-      (ADocFieldInfo.FieldName).AsString);
-
-    if FileExists(AFileName) then
-      ShellExecute(Handle, nil, PChar(AFileName), nil, nil, SW_SHOWNORMAL)
-    else
-      TDialog.Create.ErrorMessageDialog(Format(ADocFieldInfo.ErrorMessage,
-        [AFileName]));
-  end
-  else
-    TDialog.Create.ErrorMessageDialog(ADocFieldInfo.EmptyErrorMessage);
-
+  Application.Hint := '';
+  TDocument.Open(Handle, ADocFieldInfo.Folder,
+    FqProductsBase.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString,
+    ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
+    sBodyTypesFilesExt);
 end;
 
 function TViewProductsBase2.PerсentToRate(APerсent: Double): Double;

@@ -70,6 +70,23 @@ type
     cxteDataBasePath: TcxTextEdit;
     cxButton10: TcxButton;
     actBrowseDatabasePath: TAction;
+    cxtsWareHouse: TcxTabSheet;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    cxteWareHouseDataSheetFolder: TcxTextEdit;
+    cxteWareHouseDiagramFolder: TcxTextEdit;
+    cxteWareHouseDrawingFolder: TcxTextEdit;
+    cxteWareHouseImageFolder: TcxTextEdit;
+    cxButton11: TcxButton;
+    cxButton12: TcxButton;
+    cxButton13: TcxButton;
+    cxButton14: TcxButton;
+    actBrowseWareHouseDataSheetFolder: TAction;
+    actBrowseWareHouseImageFilder: TAction;
+    actBrowseWareHouseDrawingFolder: TAction;
+    actBrowseWareHouseSchemeFolder: TAction;
     procedure actBrowseComponentsDataSheetFolderExecute(Sender: TObject);
     procedure actBrowseComponentsDrawingFolderExecute(Sender: TObject);
     procedure actBrowseComponentsImageFolderExecute(Sender: TObject);
@@ -78,6 +95,10 @@ type
     procedure actBrowseImageFolderExecute(Sender: TObject);
     procedure actBrowseLandPatternFolderExecute(Sender: TObject);
     procedure actBrowseOutlineDrawingFolderExecute(Sender: TObject);
+    procedure actBrowseWareHouseDataSheetFolderExecute(Sender: TObject);
+    procedure actBrowseWareHouseDrawingFolderExecute(Sender: TObject);
+    procedure actBrowseWareHouseImageFilderExecute(Sender: TObject);
+    procedure actBrowseWareHouseSchemeFolderExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
@@ -112,6 +133,10 @@ begin
   FTextBoxes.Add(cxteComponentsImageFolder);
   FTextBoxes.Add(cxteComponentsDrawingFolder);
   FTextBoxes.Add(cxteComponentsDiagramFolder);
+  FTextBoxes.Add(cxteWareHouseDataSheetFolder);
+  FTextBoxes.Add(cxteWareHouseImageFolder);
+  FTextBoxes.Add(cxteWareHouseDrawingFolder);
+  FTextBoxes.Add(cxteWareHouseDiagramFolder);
 
   LoadFromSettings;
 end;
@@ -183,6 +208,33 @@ procedure TfrmPathSettings.actBrowseOutlineDrawingFolderExecute
   (Sender: TObject);
 begin
   InternalSelectDirectory(cxteBodyOutlineDrawingFolder,
+    TPDFFilesFolderOpenDialog);
+end;
+
+procedure TfrmPathSettings.actBrowseWareHouseDataSheetFolderExecute
+  (Sender: TObject);
+begin
+  InternalSelectDirectory(cxteWareHouseDataSheetFolder,
+    TPDFFilesFolderOpenDialog);
+end;
+
+procedure TfrmPathSettings.actBrowseWareHouseDrawingFolderExecute
+  (Sender: TObject);
+begin
+  InternalSelectDirectory(cxteWareHouseDrawingFolder,
+    TPDFFilesFolderOpenDialog);
+end;
+
+procedure TfrmPathSettings.actBrowseWareHouseImageFilderExecute
+  (Sender: TObject);
+begin
+  InternalSelectDirectory(cxteWareHouseImageFolder, TPDFFilesFolderOpenDialog);
+end;
+
+procedure TfrmPathSettings.actBrowseWareHouseSchemeFolderExecute
+  (Sender: TObject);
+begin
+  InternalSelectDirectory(cxteWareHouseDiagramFolder,
     TPDFFilesFolderOpenDialog);
 end;
 
@@ -296,6 +348,15 @@ begin
   cxteComponentsDrawingFolder.Text := TSettings.Create.ComponentsDrawingFolder;
 
   cxteComponentsDiagramFolder.Text := TSettings.Create.ComponentsDiagramFolder;
+
+  cxteWareHouseDataSheetFolder.Text :=
+    TSettings.Create.WareHouseDatasheetFolder;
+
+  cxteWareHouseImageFolder.Text := TSettings.Create.WareHouseImageFolder;
+
+  cxteWareHouseDrawingFolder.Text := TSettings.Create.WareHouseDrawingFolder;
+
+  cxteWareHouseDiagramFolder.Text := TSettings.Create.WareHouseDiagramFolder;
 end;
 
 procedure TfrmPathSettings.SaveToSettings;
@@ -317,6 +378,16 @@ begin
 
   TSettings.Create.ComponentsDatasheetFolder :=
     cxteComponentsDataSheetFolder.Text;
+
+  TSettings.Create.WareHouseDrawingFolder := cxteWareHouseDrawingFolder.Text;
+
+  TSettings.Create.WareHouseImageFolder := cxteWareHouseImageFolder.Text;
+
+  TSettings.Create.WareHouseDiagramFolder := cxteWareHouseDiagramFolder.Text;
+
+  TSettings.Create.WareHouseDatasheetFolder :=
+    cxteWareHouseDataSheetFolder.Text;
+
 end;
 
 function TfrmPathSettings.UpdatePath(const APath, AOldDBPath,

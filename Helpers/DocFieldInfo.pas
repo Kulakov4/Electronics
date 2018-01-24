@@ -3,7 +3,7 @@ unit DocFieldInfo;
 interface
 
 type
-  TDocFieldInfo = class
+  TDocFieldInfo = class abstract
   private
     FEmptyErrorMessage: String;
     FErrorMessage: string;
@@ -18,24 +18,24 @@ type
     property IDParameter: Integer read FIDParameter;
   end;
 
-  TDatasheetDoc = class(TDocFieldInfo)
+  TDatasheetDoc = class abstract(TDocFieldInfo)
   public
-    constructor Create;
+    constructor Create; virtual;
   end;
 
-  TDiagramDoc = class(TDocFieldInfo)
+  TDiagramDoc = class abstract(TDocFieldInfo)
   public
-    constructor Create;
+    constructor Create; virtual;
   end;
 
-  TDrawingDoc = class(TDocFieldInfo)
+  TDrawingDoc = class abstract(TDocFieldInfo)
   public
-    constructor Create;
+    constructor Create; virtual;
   end;
 
-  TImageDoc = class(TDocFieldInfo)
+  TImageDoc = class abstract(TDocFieldInfo)
   public
-    constructor Create;
+    constructor Create; virtual;
   end;
 
   TOutlineDrawing = class(TDocFieldInfo)
@@ -51,6 +51,46 @@ type
   TBodyTypeImageDoc = class(TDocFieldInfo)
   public
     constructor Create;
+  end;
+
+  TComponentDatasheetDoc = class(TDatasheetDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TWareHouseDatasheetDoc = class(TDatasheetDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TComponentDiagramDoc = class(TDiagramDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TWareHouseDiagramDoc = class(TDiagramDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TComponentDrawingDoc = class(TDrawingDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TWareHouseDrawingDoc = class(TDrawingDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TComponentImageDoc = class(TImageDoc)
+  public
+    constructor Create; override;
+  end;
+
+  TWareHouseImageDoc = class(TImageDoc)
+  public
+    constructor Create; override;
   end;
 
 implementation
@@ -79,17 +119,14 @@ end;
 constructor TDiagramDoc.Create;
 begin
   FFieldName := 'Diagram';
-  FFolder := TSettings.Create.ComponentsDiagramFolder;
   FIDParameter := TDefaultParameters.DiagramParameterID;
   FErrorMessage := 'Файл схемы с именем %s не найден';
   FEmptyErrorMessage := 'Не задана схема';
-
 end;
 
 constructor TDatasheetDoc.Create;
 begin
   FFieldName := 'Datasheet';
-  FFolder := TSettings.Create.ComponentsDatasheetFolder;
   FIDParameter := TDefaultParameters.DatasheetParameterID;
   FErrorMessage := 'Файл спецификации с именем %s не найден';
   FEmptyErrorMessage := 'Не задана спецификация';
@@ -120,6 +157,54 @@ begin
   FIDParameter := 0;
   FErrorMessage := 'Файл изображения %s не найден';
   FEmptyErrorMessage := 'Не задан файл изображения';
+end;
+
+constructor TComponentDatasheetDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.ComponentsDatasheetFolder;
+end;
+
+constructor TWareHouseDatasheetDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.WareHouseDatasheetFolder;
+end;
+
+constructor TComponentDiagramDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.ComponentsDiagramFolder;
+end;
+
+constructor TWareHouseDiagramDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.WareHouseDiagramFolder;
+end;
+
+constructor TComponentDrawingDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.ComponentsDrawingFolder;
+end;
+
+constructor TWareHouseDrawingDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.WareHouseDrawingFolder;
+end;
+
+constructor TComponentImageDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.ComponentsImageFolder;
+end;
+
+constructor TWareHouseImageDoc.Create;
+begin
+  inherited;
+  FFolder := TSettings.Create.WareHouseImageFolder;
 end;
 
 end.

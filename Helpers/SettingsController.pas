@@ -17,6 +17,10 @@ type
     function GetComponentsImageFolder: String;
     function GetComponentsDiagramFolder: String;
     function GetComponentsDatasheetFolder: String;
+    function GetWareHouseDiagramFolder: String;
+    function GetWareHouseDrawingFolder: String;
+    function GetWareHouseImageFolder: String;
+    function GetWareHouseDatasheetFolder: String;
     function GetDataBasePath: string;
     function GetDBMigrationFolder: string;
     function GetLastFolderForComponentsLoad: string;
@@ -32,6 +36,10 @@ type
     procedure SetComponentsImageFolder(const Value: String);
     procedure SetComponentsDiagramFolder(const Value: String);
     procedure SetComponentsDatasheetFolder(const Value: String);
+    procedure SetWareHouseDiagramFolder(const Value: String);
+    procedure SetWareHouseDrawingFolder(const Value: String);
+    procedure SetWareHouseImageFolder(const Value: String);
+    procedure SetWareHouseDatasheetFolder(const Value: String);
     procedure SetDataBasePath(const Value: string);
     procedure SetDBMigrationFolder(const Value: string);
     procedure SetLastFolderForComponentsLoad(const Value: string);
@@ -45,12 +53,13 @@ type
     property IniFile: TIniFile read GetIniFile;
   public
     constructor Create; virtual;
-    function GetValue(const ASection, AParameter: string; const ADefault: string =
-        ''): string;
+    function GetValue(const ASection, AParameter: string;
+      const ADefault: string = ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
       : string): string;
     class function NewInstance: TObject; override;
-    procedure SetValue(const ASection, AParameter: string; const Value: Variant);
+    procedure SetValue(const ASection, AParameter: string;
+      const Value: Variant);
     property BodyTypesLandPatternFolder: string
       read GetBodyTypesLandPatternFolder write SetBodyTypesLandPatternFolder;
     property BodyTypesOutlineDrawingFolder: string
@@ -66,6 +75,14 @@ type
       write SetComponentsDiagramFolder;
     property ComponentsDatasheetFolder: String read GetComponentsDatasheetFolder
       write SetComponentsDatasheetFolder;
+    property WareHouseDiagramFolder: String read GetWareHouseDiagramFolder
+      write SetWareHouseDiagramFolder;
+    property WareHouseDrawingFolder: String read GetWareHouseDrawingFolder
+      write SetWareHouseDrawingFolder;
+    property WareHouseImageFolder: String read GetWareHouseImageFolder
+      write SetWareHouseImageFolder;
+    property WareHouseDatasheetFolder: String read GetWareHouseDatasheetFolder
+      write SetWareHouseDatasheetFolder;
     property DataBasePath: string read GetDataBasePath write SetDataBasePath;
     property DBMigrationFolder: string read GetDBMigrationFolder
       write SetDBMigrationFolder;
@@ -125,6 +142,30 @@ begin
     sComponentsDatasheetFolder);
 end;
 
+function TSettings.GetWareHouseDiagramFolder: String;
+begin
+  Result := GetPath('WareHouse', 'DiagramFolder',
+    TPath.Combine(sWareHouseFolder, sComponentsDiagramFolder));
+end;
+
+function TSettings.GetWareHouseDrawingFolder: String;
+begin
+  Result := GetPath('WareHouse', 'DrawingFolder',
+    TPath.Combine(sWareHouseFolder, sComponentsDrawingFolder));
+end;
+
+function TSettings.GetWareHouseImageFolder: String;
+begin
+  Result := GetPath('WareHouse', 'ImageFolder', TPath.Combine(sWareHouseFolder,
+    sComponentsImageFolder));
+end;
+
+function TSettings.GetWareHouseDatasheetFolder: String;
+begin
+  Result := GetPath('WareHouse', 'DatasheetFolder',
+    TPath.Combine(sWareHouseFolder, sComponentsDatasheetFolder));
+end;
+
 function TSettings.GetDataBasePath: string;
 begin
   Result := GetValue('Db', 'databasePath');
@@ -163,8 +204,8 @@ begin
   Result := GetValue('Folder', 'ExcelFileLoadFolder', DataBasePath);
 end;
 
-function TSettings.GetValue(const ASection, AParameter: string; const ADefault:
-    string = ''): string;
+function TSettings.GetValue(const ASection, AParameter: string;
+  const ADefault: string = ''): string;
 begin
   Result := IniFile.ReadString(ASection, AParameter, ADefault);
   if Result = ADefault then
@@ -195,7 +236,8 @@ end;
 
 function TSettings.GetRate: Double;
 begin
-  Result := StrToFloatDef( GetValue('Rate', 'Rate', FloatToStr(DefaultRate)), DefaultRate);
+  Result := StrToFloatDef(GetValue('Rate', 'Rate', FloatToStr(DefaultRate)),
+    DefaultRate);
 end;
 
 class function TSettings.NewInstance: TObject;
@@ -239,6 +281,26 @@ end;
 procedure TSettings.SetComponentsDatasheetFolder(const Value: String);
 begin
   SetValue('Components', 'DatasheetFolder', Value);
+end;
+
+procedure TSettings.SetWareHouseDiagramFolder(const Value: String);
+begin
+  SetValue('WareHouse', 'DiagramFolder', Value);
+end;
+
+procedure TSettings.SetWareHouseDrawingFolder(const Value: String);
+begin
+  SetValue('WareHouse', 'DrawingFolder', Value);
+end;
+
+procedure TSettings.SetWareHouseImageFolder(const Value: String);
+begin
+  SetValue('WareHouse', 'ImageFolder', Value);
+end;
+
+procedure TSettings.SetWareHouseDatasheetFolder(const Value: String);
+begin
+  SetValue('WareHouse', 'DatasheetFolder', Value);
 end;
 
 procedure TSettings.SetDataBasePath(const Value: string);
@@ -303,8 +365,8 @@ begin
   SetValue('Rate', 'Rate', Value);
 end;
 
-procedure TSettings.SetValue(const ASection, AParameter: string; const Value:
-    Variant);
+procedure TSettings.SetValue(const ASection, AParameter: string;
+  const Value: Variant);
 var
   AIniFile: TIniFile;
 begin

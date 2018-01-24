@@ -9,6 +9,9 @@ resourcestring
 
   sOperatingTemperatureRange = 'Operating Temperature Range';
 
+  // Папка по умолчанию для хранения документации на складе
+  sWareHouseFolder = 'Склад';
+
   // Папка по умолчанию для хранения спецификаций компонентов
   sComponentsDatasheetFolder = 'Спецификация';
 

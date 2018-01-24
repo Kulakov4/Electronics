@@ -45,8 +45,10 @@ object frmPathSettings: TfrmPathSettings
     Height = 188
     Align = alTop
     TabOrder = 2
-    Properties.ActivePage = cxTabSheet1
+    Properties.ActivePage = cxtsWareHouse
     Properties.CustomButtons.Buttons = <>
+    ExplicitLeft = -48
+    ExplicitTop = 4
     ClientRectBottom = 184
     ClientRectLeft = 4
     ClientRectRight = 784
@@ -54,10 +56,6 @@ object frmPathSettings: TfrmPathSettings
     object cxTabSheet1: TcxTabSheet
       Caption = #1041#1072#1079#1072' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label8: TLabel
         Left = 3
         Top = 31
@@ -84,10 +82,6 @@ object frmPathSettings: TfrmPathSettings
     object cxtshComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label4: TLabel
         Left = 8
         Top = 31
@@ -173,13 +167,97 @@ object frmPathSettings: TfrmPathSettings
         TabOrder = 7
       end
     end
+    object cxtsWareHouse: TcxTabSheet
+      Caption = #1057#1082#1083#1072#1076
+      ImageIndex = 3
+      object Label9: TLabel
+        Left = 8
+        Top = 31
+        Width = 92
+        Height = 16
+        Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1080':'
+      end
+      object Label10: TLabel
+        Left = 8
+        Top = 64
+        Width = 43
+        Height = 16
+        Caption = #1057#1093#1077#1084#1099':'
+      end
+      object Label11: TLabel
+        Left = 8
+        Top = 97
+        Width = 57
+        Height = 16
+        Caption = #1063#1077#1088#1090#1077#1078#1080':'
+      end
+      object Label12: TLabel
+        Left = 8
+        Top = 127
+        Width = 85
+        Height = 16
+        Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103':'
+      end
+      object cxteWareHouseDataSheetFolder: TcxTextEdit
+        Left = 224
+        Top = 27
+        TabOrder = 0
+        Width = 457
+      end
+      object cxteWareHouseDiagramFolder: TcxTextEdit
+        Left = 224
+        Top = 60
+        TabOrder = 1
+        Width = 457
+      end
+      object cxteWareHouseDrawingFolder: TcxTextEdit
+        Left = 224
+        Top = 93
+        TabOrder = 2
+        Width = 457
+      end
+      object cxteWareHouseImageFolder: TcxTextEdit
+        Left = 224
+        Top = 123
+        TabOrder = 3
+        Width = 457
+      end
+      object cxButton11: TcxButton
+        Left = 696
+        Top = 27
+        Width = 75
+        Height = 25
+        Action = actBrowseWareHouseDataSheetFolder
+        TabOrder = 4
+      end
+      object cxButton12: TcxButton
+        Left = 696
+        Top = 60
+        Width = 75
+        Height = 25
+        Action = actBrowseWareHouseSchemeFolder
+        TabOrder = 5
+      end
+      object cxButton13: TcxButton
+        Left = 696
+        Top = 95
+        Width = 75
+        Height = 25
+        Action = actBrowseWareHouseDrawingFolder
+        TabOrder = 6
+      end
+      object cxButton14: TcxButton
+        Left = 696
+        Top = 124
+        Width = 75
+        Height = 25
+        Action = actBrowseWareHouseImageFilder
+        TabOrder = 7
+      end
+    end
     object cxtshBodyTypes: TcxTabSheet
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label1: TLabel
         Left = 8
         Top = 31
@@ -279,6 +357,22 @@ object frmPathSettings: TfrmPathSettings
     object actBrowseDatabasePath: TAction
       Caption = #1054#1073#1079#1086#1088
       OnExecute = actBrowseDatabasePathExecute
+    end
+    object actBrowseWareHouseDataSheetFolder: TAction
+      Caption = #1054#1073#1079#1086#1088
+      OnExecute = actBrowseWareHouseDataSheetFolderExecute
+    end
+    object actBrowseWareHouseImageFilder: TAction
+      Caption = #1054#1073#1079#1086#1088
+      OnExecute = actBrowseWareHouseImageFilderExecute
+    end
+    object actBrowseWareHouseDrawingFolder: TAction
+      Caption = #1054#1073#1079#1086#1088
+      OnExecute = actBrowseWareHouseDrawingFolderExecute
+    end
+    object actBrowseWareHouseSchemeFolder: TAction
+      Caption = #1054#1073#1079#1086#1088
+      OnExecute = actBrowseWareHouseSchemeFolderExecute
     end
   end
 end

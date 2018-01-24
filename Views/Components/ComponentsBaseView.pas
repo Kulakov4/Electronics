@@ -164,42 +164,42 @@ end;
 
 procedure TViewComponentsBase.actLoadDatasheetExecute(Sender: TObject);
 begin
-  UploadDoc(TDatasheetDoc.Create);
+  UploadDoc(TComponentDatasheetDoc.Create);
 end;
 
 procedure TViewComponentsBase.actLoadDiagramExecute(Sender: TObject);
 begin
-  UploadDoc(TDiagramDoc.Create);
+  UploadDoc(TComponentDiagramDoc.Create);
 end;
 
 procedure TViewComponentsBase.actLoadDrawingExecute(Sender: TObject);
 begin
-  UploadDoc(TDrawingDoc.Create);
+  UploadDoc(TComponentDrawingDoc.Create);
 end;
 
 procedure TViewComponentsBase.actLoadImageExecute(Sender: TObject);
 begin
-  UploadDoc(TImageDoc.Create);
+  UploadDoc(TComponentImageDoc.Create);
 end;
 
 procedure TViewComponentsBase.actOpenDatasheetExecute(Sender: TObject);
 begin
-  OpenDoc(TDatasheetDoc.Create);
+  OpenDoc(TComponentDatasheetDoc.Create);
 end;
 
 procedure TViewComponentsBase.actOpenDiagramExecute(Sender: TObject);
 begin
-  OpenDoc(TDiagramDoc.Create);
+  OpenDoc(TComponentDiagramDoc.Create);
 end;
 
 procedure TViewComponentsBase.actOpenDrawingExecute(Sender: TObject);
 begin
-  OpenDoc(TDrawingDoc.Create);
+  OpenDoc(TComponentDrawingDoc.Create);
 end;
 
 procedure TViewComponentsBase.actOpenImageExecute(Sender: TObject);
 begin
-  OpenDoc(TImageDoc.Create);
+  OpenDoc(TComponentImageDoc.Create);
 end;
 
 procedure TViewComponentsBase.actPasteComponentsExecute(Sender: TObject);
