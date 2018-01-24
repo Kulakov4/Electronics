@@ -59,6 +59,8 @@ type
     procedure actShowPopupExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewInitEdit(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
+    procedure cxGridDBBandedTableViewMouseMove(Sender: TObject; Shift: TShiftState;
+        X, Y: Integer);
     procedure dxCalloutPopup1Hide(Sender: TObject);
     procedure EditorTimerTimer(Sender: TObject);
   private
@@ -67,10 +69,10 @@ type
     FColumns: TList<TcxGridDBBandedColumn>;
     FcxGridDBBandedColumn: TcxGridDBBandedColumn;
     FcxMemo: TcxMemo;
-    procedure CreateColumn(AView: TcxGridDBBandedTableView;
-      AIDParameter: Integer; const ABandCaption, AColumnCaption,
-      AFieldName: String; AVisible: Boolean; const AHint: string;
-      ACategoryParamID, AOrder, APosID: Integer);
+    procedure CreateColumn(AView: TcxGridDBBandedTableView; AIDParameter: Integer;
+        const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
+        const ABandHint: string; ACategoryParamID, AOrder, APosID: Integer; const
+        AColumnHint: string);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure SetAnalogGroup(const Value: TAnalogGroup);
@@ -228,9 +230,9 @@ begin
 end;
 
 procedure TViewAnalogGrid.CreateColumn(AView: TcxGridDBBandedTableView;
-  AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName: String;
-  AVisible: Boolean; const AHint: string; ACategoryParamID, AOrder,
-  APosID: Integer);
+    AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName:
+    String; AVisible: Boolean; const ABandHint: string; ACategoryParamID,
+    AOrder, APosID: Integer; const AColumnHint: string);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -264,7 +266,7 @@ begin
     ABand.Visible := AVisible;
     ABand.VisibleForCustomization := True;
     ABand.Caption := DeleteDouble(ABandCaption, ' ');
-    ABand.AlternateCaption := AHint;
+    ABand.AlternateCaption := ABandHint;
     if ABandInfo.DefaultCreated then
       ABand.Position.ColIndex := 1000; // Помещаем бэнд в конец
     // Какой порядок имеет параметр в БД
@@ -282,7 +284,8 @@ begin
     AColumn.Options.Sorting := False; // Отключаем сортировку
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
-    AColumn.AlternateCaption := AHint;
+    AColumn.AlternateCaption := AColumnHint;
+    AColumn.AlternateCaption := ABandHint;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители
     // AColumn.OnGetDataText := DoOnGetDataText;
@@ -318,6 +321,28 @@ begin
 
   FcxMemo := AEdit as TcxMemo;
   PostMessage(Handle, WM_AFTER_INIT_EDIT, 0, 0);
+end;
+
+procedure TViewAnalogGrid.cxGridDBBandedTableViewMouseMove(Sender: TObject;
+    Shift: TShiftState; X, Y: Integer);
+var
+  H: TcxCustomGridHitTest;
+begin
+  inherited;
+
+  cxGrid.Hint := '';
+  H := MainView.GetHitTest(X, Y);
+
+  // Показываем всплывающие подсказки
+  if H is TcxGridBandHeaderHitTest then
+  begin
+    cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
+  end
+  else if H is TcxGridColumnHeaderHitTest then
+  begin
+    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
+  end
+
 end;
 
 procedure TViewAnalogGrid.DeleteBands;
@@ -398,6 +423,7 @@ var
   ACategoryParamID: Integer;
   ABandHint: String;
   AColumnCaption: string;
+  AColumnHint: string;
   AFieldName: String;
   AIDBand: Integer;
   AOrder: Integer;
@@ -430,6 +456,7 @@ begin
       Assert(not qParametersForCategory.Ord.IsNull);
       AOrder := qParametersForCategory.Ord.AsInteger;
       APosID := qParametersForCategory.PosID.AsInteger;
+      AColumnHint := qParametersForCategory.ColumnHint.AsString;
 
       // Если это родительский параметр
       if qParametersForCategory.ParentParameter.IsNull then
@@ -447,7 +474,7 @@ begin
 
       // Создаём колонку в главном представлении
       CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, ABandHint, ACategoryParamID, AOrder, APosID);
+        AVisible, ABandHint, ACategoryParamID, AOrder, APosID, AColumnHint);
 
       // Создаём колонку в дочернем представлении
       // CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,

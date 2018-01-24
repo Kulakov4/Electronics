@@ -1,6 +1,7 @@
 inherited ViewAnalogGrid: TViewAnalogGrid
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEdit = cxGridDBBandedTableViewInitEdit
       OptionsData.Editing = True
       OptionsView.CellAutoHeight = True
