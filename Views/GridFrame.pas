@@ -578,7 +578,8 @@ begin
     AGridProcRef(GridView);
 
   // Выставляем оптимальную ширину колонок
-  GridView.ApplyBestFit();
+  MyApplyBestFitForView(GridView);
+//  GridView.ApplyBestFit();
 
   // Экспортируем в Excel
   ExportGridToExcel(AFileName, Grid);
