@@ -284,6 +284,7 @@ begin
     AColumn.Options.Sorting := False; // Отключаем сортировку
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
+    AColumn.HeaderAlignmentHorz := taCenter;
     AColumn.AlternateCaption := AColumnHint;
     AColumn.AlternateCaption := ABandHint;
     AColumn.DataBinding.FieldName := AFieldName;
