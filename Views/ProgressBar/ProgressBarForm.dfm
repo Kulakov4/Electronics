@@ -15,7 +15,7 @@ object frmProgressBar: TfrmProgressBar
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
-  Position = poOwnerFormCenter
+  Position = poScreenCenter
   PrintScale = poNone
   Scaled = False
   PixelsPerInch = 96

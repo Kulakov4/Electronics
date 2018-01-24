@@ -4,7 +4,7 @@ inherited frmProgressBar3: TfrmProgressBar3
   ClientHeight = 226
   ClientWidth = 532
   FormStyle = fsStayOnTop
-  Position = poOwnerFormCenter
+  Position = poScreenCenter
   PrintScale = poNone
   ExplicitWidth = 538
   ExplicitHeight = 255
