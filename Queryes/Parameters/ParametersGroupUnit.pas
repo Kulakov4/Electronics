@@ -12,18 +12,18 @@ uses
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
   QueryWithMasterUnit, QueryGroupUnit, OrderQuery, ParameterKindsQuery,
-  SubParametersQuery2;
+  SubParametersQuery2, ParamSubParamsQuery;
 
 type
   TParametersGroup = class(TQueryGroup)
     qParameterTypes: TQueryParameterTypes;
     qMainParameters: TQueryMainParameters;
-    qSubParameters: TQuerySubParameters;
+    qParamSubParams: TQueryParamSubParams;
     qSubParameters2: TQuerySubParameters2;
   private
     FAfterDataChange: TNotifyEventsEx;
     FqParameterKinds: TQueryParameterKinds;
-    procedure DoAfterPostOrDelete(Sender: TObject);
+    procedure DoOnDataChange(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
     function GetqParameterKinds: TQueryParameterKinds;
     { Private declarations }
@@ -55,12 +55,19 @@ begin
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qParameterTypes.AfterDelete, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qMainParameters.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qMainParameters.AfterDelete, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qSubParameters.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qSubParameters.AfterDelete, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameterTypes.AfterDelete, DoOnDataChange);
+
+  TNotifyEventWrap.Create(qMainParameters.AfterPost, DoOnDataChange);
+  TNotifyEventWrap.Create(qMainParameters.AfterDelete, DoOnDataChange);
+
+  TNotifyEventWrap.Create(qParamSubParams.AfterPost, DoOnDataChange);
+  TNotifyEventWrap.Create(qParamSubParams.AfterDelete, DoOnDataChange);
+
+  TNotifyEventWrap.Create(qParameterTypes.AfterOpen, DoOnDataChange);
+  TNotifyEventWrap.Create(qMainParameters.AfterOpen, DoOnDataChange);
+  TNotifyEventWrap.Create(qParamSubParams.AfterOpen, DoOnDataChange);
+
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete);
@@ -79,15 +86,15 @@ begin
 
   qParameterTypes.TryPost;
   qMainParameters.TryPost;
-  qSubParameters.TryPost;
   qSubParameters2.TryPost;
+  qParamSubParams.TryPost;
 
   Connection.Commit;
 
   AfterCommit.CallEventHandlers(Self);
 end;
 
-procedure TParametersGroup.DoAfterPostOrDelete(Sender: TObject);
+procedure TParametersGroup.DoOnDataChange(Sender: TObject);
 begin
   FAfterDataChange.CallEventHandlers(Self);
 end;
@@ -214,7 +221,7 @@ end;
 procedure TParametersGroup.ReOpen;
 begin
   qSubParameters2.FDQuery.Close;
-  qSubParameters.FDQuery.Close;
+  qParamSubParams.FDQuery.Close;
   qMainParameters.FDQuery.Close;
   qParameterTypes.FDQuery.Close;
   qParameterKinds.FDQuery.Close;
@@ -222,8 +229,8 @@ begin
   qParameterKinds.FDQuery.Open;
   qParameterTypes.FDQuery.Open;
   qMainParameters.FDQuery.Open;
-  qSubParameters.FDQuery.Open;
   qSubParameters2.FDQuery.Open;
+  qParamSubParams.FDQuery.Open;
 end;
 
 procedure TParametersGroup.Rollback;
@@ -232,10 +239,10 @@ begin
   // Предполагается что мы работаем в транзакции
   Assert(Connection.InTransaction);
 
-  qSubParameters.TryCancel;
   qSubParameters2.TryCancel;
   qMainParameters.TryCancel;
   qParameterTypes.TryCancel;
+  qParamSubParams.TryCancel;
 
   Connection.Rollback;
 

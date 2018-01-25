@@ -222,7 +222,7 @@ inherited ViewParameters: TViewParameters
     object cxGridDBBandedTableView3: TcxGridDBBandedTableView [2]
       Navigator.Buttons.CustomButtons = <>
       OnEditKeyDown = cxGridDBBandedTableView3EditKeyDown
-      DataController.DetailKeyFieldNames = 'ParentParameter'
+      DataController.DetailKeyFieldNames = 'IDParameter'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
@@ -248,30 +248,28 @@ inherited ViewParameters: TViewParameters
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
-      object clParentParameter: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ParentParameter'
+      object clIdParameter: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IdParameter'
         Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
       end
-      object clValue3: TcxGridDBBandedColumn
+      object clIDSubParameter: TcxGridDBBandedColumn
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-        DataBinding.FieldName = 'Value'
-        PropertiesClassName = 'TcxTextEditProperties'
-        MinWidth = 100
-        Width = 313
+        DataBinding.FieldName = 'IDSubParameter'
+        PropertiesClassName = 'TcxLookupComboBoxProperties'
+        Properties.ImmediatePost = True
+        Properties.ListColumns = <>
+        Properties.OnCloseUp = clIDSubParameterPropertiesCloseUp
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
       end
-      object clValueT3: TcxGridDBBandedColumn
+      object clTranslation: TcxGridDBBandedColumn
         Caption = #1055#1077#1088#1077#1074#1086#1076
-        DataBinding.FieldName = 'ValueT'
-        PropertiesClassName = 'TcxTextEditProperties'
-        MinWidth = 100
-        Width = 514
+        DataBinding.FieldName = 'Translation'
         Position.BandIndex = 0
         Position.ColIndex = 3
         Position.RowIndex = 0

@@ -66,9 +66,7 @@ type
     cxGridLevel3: TcxGridLevel;
     cxGridDBBandedTableView3: TcxGridDBBandedTableView;
     clID3: TcxGridDBBandedColumn;
-    clParentParameter: TcxGridDBBandedColumn;
-    clValue3: TcxGridDBBandedColumn;
-    clValueT3: TcxGridDBBandedColumn;
+    clIdParameter: TcxGridDBBandedColumn;
     actAddSubParameter: TAction;
     dxbrbtnAddSubParameter: TdxBarButton;
     actCommit: TAction;
@@ -86,6 +84,8 @@ type
     dxBarButton2: TdxBarButton;
     clChecked: TcxGridDBBandedColumn;
     clIDParameterKind: TcxGridDBBandedColumn;
+    clIDSubParameter: TcxGridDBBandedColumn;
+    clTranslation: TcxGridDBBandedColumn;
     procedure actAddMainParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);
@@ -131,6 +131,7 @@ type
       X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
+    procedure clIDSubParameterPropertiesCloseUp(Sender: TObject);
   private
     FCheckedMode: Boolean;
     FParameterTypesDI: TDragAndDropInfo;
@@ -200,7 +201,7 @@ begin
   PostOnEnterFields.Add(clParameterType.DataBinding.FieldName);
   PostOnEnterFields.Add(clValue2.DataBinding.FieldName);
   PostOnEnterFields.Add(clIDParameterType.DataBinding.FieldName);
-  PostOnEnterFields.Add(clValue3.DataBinding.FieldName);
+  PostOnEnterFields.Add(clIDSubParameter.DataBinding.FieldName);
 
   DeleteMessages.Add(cxGridLevel, 'Удалить тип?');
   DeleteMessages.Add(cxGridLevel2, 'Удалить параметр?');
@@ -252,24 +253,13 @@ begin
   begin
     AView := GetDBBandedTableView(2);
     AView.DataController.Append;
-    {
-      FParametersGroup.qSubParameters.TryAppend;
-      FParametersGroup.qSubParameters.ParentParameter.AsInteger :=
-      FParametersGroup.qMainParameters.PKValue;
-    }
-    // Application.ProcessMessages;
 
-    // for I := 0 to FParametersGroup.qSubParameters.FDQuery.FieldCount - 1 do
-    // ro := FParametersGroup.qSubParameters.FDQuery.Fields[i].ReadOnly;
-
-    FParametersGroup.qSubParameters.Value.AsString := 'Новое наименование';
+//    FParametersGroup.qParamSubParams.Value.AsString := 'Новое наименование';
     ARow.Expand(False);
-    // AView := GetDBBandedTableView(2);
+
     AView.Controller.ClearSelection;
-    FParametersGroup.qSubParameters.TryEdit;
-    // FParametersGroup.qSubParameters.Value.AsString := '';
-    // AView.DataController.Append;
-    FocusColumnEditor(2, clValue3.DataBinding.FieldName);
+  //  FParametersGroup.qSubParameters.TryEdit;
+    FocusColumnEditor(2, clIDSubParameter.DataBinding.FieldName);
   end;
   UpdateView;
 end;
@@ -322,7 +312,7 @@ begin
   try
     ParametersGroup.qParameterTypes.TryPost;
     ParametersGroup.qMainParameters.TryPost;
-    ParametersGroup.qSubParameters.TryPost;
+    ParametersGroup.qSubParameters2.TryPost;
 
     // Фильтруем параметры по табличному имени
     ParametersGroup.qMainParameters.TableNameFilter := S;
@@ -404,7 +394,7 @@ begin
   try
     ParametersGroup.qParameterTypes.TryPost;
     ParametersGroup.qMainParameters.TryPost;
-    ParametersGroup.qSubParameters.TryPost;
+    ParametersGroup.qSubParameters2.TryPost;
     ParametersGroup.qParameterTypes.ShowDuplicate := d;
     ParametersGroup.qMainParameters.ShowDuplicate := d;
   finally
@@ -487,6 +477,12 @@ procedure TViewParameters.clIDParameterTypePropertiesNewLookupDisplayText
 begin
   inherited;
   FNewValue := AText;
+end;
+
+procedure TViewParameters.clIDSubParameterPropertiesCloseUp(Sender: TObject);
+begin
+  inherited;
+  FParametersGroup.qParamSubParams.TryPost;
 end;
 
 procedure TViewParameters.CommitOrPost;
@@ -895,7 +891,7 @@ begin
     cxGridDBBandedTableView2.DataController.DataSource :=
       FParametersGroup.qMainParameters.DataSource;
     cxGridDBBandedTableView3.DataController.DataSource :=
-      FParametersGroup.qSubParameters.DataSource;
+      FParametersGroup.qParamSubParams.DataSource;
 
     InitializeLookupColumn(clIDParameterType,
       FParametersGroup.qParameterTypes.DataSource, lsEditList,
@@ -905,14 +901,13 @@ begin
       FParametersGroup.qParameterKinds.DataSource, lsEditFixedList,
       FParametersGroup.qParameterKinds.ParameterKind.FieldName);
 
+    InitializeLookupColumn(clIDSubParameter,
+      FParametersGroup.qSubParameters2.DataSource, lsEditFixedList,
+      FParametersGroup.qSubParameters2.Name.FieldName);
+
+
     TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
       FEventList);
-    TNotifyEventWrap.Create(FParametersGroup.qParameterTypes.AfterOpen,
-      DoOnDataChange, FEventList);
-    TNotifyEventWrap.Create(FParametersGroup.qMainParameters.AfterOpen,
-      DoOnDataChange, FEventList);
-    TNotifyEventWrap.Create(FParametersGroup.qSubParameters.AfterOpen,
-      DoOnDataChange, FEventList);
 
     UpdateAutoTransaction;
   end;
@@ -924,7 +919,7 @@ procedure TViewParameters.UpdateAutoTransaction;
 begin
   ParametersGroup.qParameterTypes.AutoTransaction := FCheckedMode;
   ParametersGroup.qMainParameters.AutoTransaction := FCheckedMode;
-  ParametersGroup.qSubParameters.AutoTransaction := FCheckedMode;
+  ParametersGroup.qParamSubParams.AutoTransaction := FCheckedMode;
 end;
 
 procedure TViewParameters.UpdateTotalCount;
@@ -946,7 +941,7 @@ begin
   OK := (FParametersGroup <> nil) and
     (FParametersGroup.qParameterTypes.FDQuery.Active) and
     (FParametersGroup.qMainParameters.FDQuery.Active) and
-    (FParametersGroup.qSubParameters.FDQuery.Active);
+    (FParametersGroup.qParamSubParams.FDQuery.Active);
 
   actAddParameterType.Enabled := OK and (AView <> nil) and
     (AView.Level = cxGridLevel);

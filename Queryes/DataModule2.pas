@@ -20,7 +20,6 @@ type
     qTreeList: TQueryTreeList;
     BodyTypesGroup: TBodyTypesGroup;
     ProducersGroup: TProducersGroup;
-    ParametersGroup: TParametersGroup;
     ComponentsExGroup: TComponentsExGroup;
     ComponentsGroup: TComponentsGroup;
     ComponentsSearchGroup: TComponentsSearchGroup;
@@ -30,6 +29,7 @@ type
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
     DescriptionsGroup: TDescriptionsGroup;
+    ParametersGroup: TParametersGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
