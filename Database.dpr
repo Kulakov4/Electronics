@@ -188,7 +188,10 @@ uses
   ParametricTableErrorForm in 'Views\Components\ParametricTable\ParametricTableErrorForm.pas' {frmParametricTableError},
   ProtectUnit in 'Helpers\ProtectUnit.pas',
   SearchFamilyParamValuesQuery in 'Queryes\Search\SearchFamilyParamValuesQuery.pas' {QueryFamilyParamValues: TFrame},
-  UpdateParamValueRec in 'Helpers\UpdateParamValueRec.pas';
+  UpdateParamValueRec in 'Helpers\UpdateParamValueRec.pas',
+  SubParametersQuery2 in 'Queryes\Parameters\SubParametersQuery2.pas' {QuerySubParameters2: TFrame},
+  SubParametersView in 'Views\Parameters\SubParametersView.pas' {ViewSubParameters: TFrame},
+  SubParametersExcelDataModule in 'Excel\SubParametersExcelDataModule.pas' {SubParametersExcelDM: TDataModule};
 
 {$R *.res}
 

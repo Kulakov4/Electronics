@@ -114,7 +114,8 @@ begin
   for AFieldInfo in FFieldsInfo do
   begin
     Inc(ACol);
-    if (AFieldInfo.Required) and FieldByName(AFieldInfo.FieldName).IsNull then
+    if (AFieldInfo.Required) and (FieldByName(AFieldInfo.FieldName).IsNull or
+      FieldByName(AFieldInfo.FieldName).AsString.Trim.IsEmpty) then
     begin
       // Запоминаем, что в этой строке ошибка
       Edit;

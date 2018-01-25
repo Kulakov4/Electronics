@@ -863,6 +863,21 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\UpdateParamValueRec.pas"/>
+        <DCCReference Include="Queryes\Parameters\SubParametersQuery2.pas">
+            <Form>QuerySubParameters2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\SubParametersView.pas">
+            <Form>ViewSubParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\SubParametersExcelDataModule.pas">
+            <Form>SubParametersExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

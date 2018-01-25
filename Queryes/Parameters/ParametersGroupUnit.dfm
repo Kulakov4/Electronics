@@ -8,13 +8,16 @@ inherited ParametersGroup: TParametersGroup
     Height = 79
     ColumnCollection = <
       item
-        Value = 33.409822270157930000
+        Value = 24.999999182486210000
       end
       item
-        Value = 33.340982226327390000
+        Value = 24.999999813608130000
       end
       item
-        Value = 33.249195503514680000
+        Value = 25.000000739925210000
+      end
+      item
+        Value = 25.000000263980460000
       end>
     ControlCollection = <
       item
@@ -31,13 +34,18 @@ inherited ParametersGroup: TParametersGroup
         Column = 2
         Control = qSubParameters
         Row = 0
+      end
+      item
+        Column = 3
+        Control = qSubParameters2
+        Row = 0
       end>
     ExplicitWidth = 790
     ExplicitHeight = 79
     inline qParameterTypes: TQueryParameterTypes
       Left = 1
       Top = 1
-      Width = 263
+      Width = 196
       Height = 77
       Align = alClient
       TabOrder = 0
@@ -47,9 +55,9 @@ inherited ParametersGroup: TParametersGroup
       ExplicitHeight = 77
     end
     inline qMainParameters: TQueryMainParameters
-      Left = 264
+      Left = 197
       Top = 1
-      Width = 262
+      Width = 196
       Height = 77
       Align = alClient
       TabOrder = 1
@@ -59,15 +67,27 @@ inherited ParametersGroup: TParametersGroup
       ExplicitHeight = 77
     end
     inline qSubParameters: TQuerySubParameters
-      Left = 526
+      Left = 393
       Top = 1
-      Width = 263
+      Width = 197
       Height = 77
       Align = alClient
       TabOrder = 2
-      ExplicitLeft = 526
+      ExplicitLeft = 389
       ExplicitTop = 1
-      ExplicitWidth = 263
+      ExplicitWidth = 197
+      ExplicitHeight = 77
+    end
+    inline qSubParameters2: TQuerySubParameters2
+      Left = 590
+      Top = 1
+      Width = 199
+      Height = 77
+      Align = alClient
+      TabOrder = 3
+      ExplicitLeft = 596
+      ExplicitTop = 1
+      ExplicitWidth = 199
       ExplicitHeight = 77
     end
   end

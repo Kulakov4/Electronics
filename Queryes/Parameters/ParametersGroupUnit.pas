@@ -11,13 +11,15 @@ uses
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery,
-  QueryWithMasterUnit, QueryGroupUnit, OrderQuery, ParameterKindsQuery;
+  QueryWithMasterUnit, QueryGroupUnit, OrderQuery, ParameterKindsQuery,
+  SubParametersQuery2;
 
 type
   TParametersGroup = class(TQueryGroup)
     qParameterTypes: TQueryParameterTypes;
     qMainParameters: TQueryMainParameters;
     qSubParameters: TQuerySubParameters;
+    qSubParameters2: TQuerySubParameters2;
   private
     FAfterDataChange: TNotifyEventsEx;
     FqParameterKinds: TQueryParameterKinds;
@@ -78,6 +80,7 @@ begin
   qParameterTypes.TryPost;
   qMainParameters.TryPost;
   qSubParameters.TryPost;
+  qSubParameters2.TryPost;
 
   Connection.Commit;
 
@@ -210,6 +213,7 @@ end;
 
 procedure TParametersGroup.ReOpen;
 begin
+  qSubParameters2.FDQuery.Close;
   qSubParameters.FDQuery.Close;
   qMainParameters.FDQuery.Close;
   qParameterTypes.FDQuery.Close;
@@ -219,6 +223,7 @@ begin
   qParameterTypes.FDQuery.Open;
   qMainParameters.FDQuery.Open;
   qSubParameters.FDQuery.Open;
+  qSubParameters2.FDQuery.Open;
 end;
 
 procedure TParametersGroup.Rollback;
@@ -228,6 +233,7 @@ begin
   Assert(Connection.InTransaction);
 
   qSubParameters.TryCancel;
+  qSubParameters2.TryCancel;
   qMainParameters.TryCancel;
   qParameterTypes.TryCancel;
 

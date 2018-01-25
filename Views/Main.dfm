@@ -569,6 +569,7 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
+            ExplicitLeft = 4
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474

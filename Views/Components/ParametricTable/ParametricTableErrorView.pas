@@ -63,6 +63,7 @@ begin
   try
     AfrmParameters.CloseAction := caHide;
     AfrmParameters.ViewParameters.ParametersGroup := AParametersGroup;
+    AfrmParameters.ViewSubParameters.QuerySubParameters := AParametersGroup.qSubParameters2;
     if ParametricErrorTable.ErrorType.AsInteger = Integer(petDuplicate) then
     begin
       AfrmParameters.ViewParameters.Search(ParametricErrorTable.ParameterName.AsString);

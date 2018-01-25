@@ -493,6 +493,7 @@ begin
     DM2.ParametersGroup.ReOpen;
     frmParameters := TfrmParameters.Create(Self);
     frmParameters.ViewParameters.ParametersGroup := DM2.ParametersGroup;
+    frmParameters.ViewSubParameters.QuerySubParameters := DM2.ParametersGroup.qSubParameters2;
   end;
 
   frmParameters.Show;

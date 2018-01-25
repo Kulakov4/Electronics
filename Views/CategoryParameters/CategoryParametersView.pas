@@ -205,6 +205,7 @@ begin
       AfrmParameters := TfrmParameters.Create(Self);
       try
         AfrmParameters.ViewParameters.ParametersGroup := AParametersGroup;
+        AfrmParameters.ViewSubParameters.QuerySubParameters := AParametersGroup.qSubParameters2;
         AfrmParameters.ViewParameters.CheckedMode := True;
         AfrmParameters.ShowModal;
       finally

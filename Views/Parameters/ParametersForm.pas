@@ -23,11 +23,17 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue;
+  dxSkinXmas2008Blue, cxControls, dxSkinscxPCPainter, dxBarBuiltInMenu, cxPC,
+  SubParametersView;
 
 type
   TfrmParameters = class(TfrmDictonary)
+    cxPageControl: TcxPageControl;
+    cxtsParameters: TcxTabSheet;
+    cxtsSubParameters: TcxTabSheet;
     ViewParameters: TViewParameters;
+    ViewSubParameters: TViewSubParameters;
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -59,6 +65,12 @@ end;
 procedure TfrmParameters.ClearFormVariable;
 begin
   frmParameters := nil;
+end;
+
+procedure TfrmParameters.FormCreate(Sender: TObject);
+begin
+  inherited;
+  cxPageControl.ActivePage := cxtsParameters;
 end;
 
 function TfrmParameters.HaveAnyChanges: Boolean;

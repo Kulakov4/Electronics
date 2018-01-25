@@ -882,42 +882,42 @@ end;
 
 procedure TViewParameters.SetParametersGroup(const Value: TParametersGroup);
 begin
-  if FParametersGroup <> Value then
+  if FParametersGroup = Value then
+    Exit;
+
+  FParametersGroup := Value;
+  FEventList.Clear;
+
+  if FParametersGroup <> nil then
   begin
-    FParametersGroup := Value;
-    FEventList.Clear;
+    cxGridDBBandedTableView.DataController.DataSource :=
+      FParametersGroup.qParameterTypes.DataSource;
+    cxGridDBBandedTableView2.DataController.DataSource :=
+      FParametersGroup.qMainParameters.DataSource;
+    cxGridDBBandedTableView3.DataController.DataSource :=
+      FParametersGroup.qSubParameters.DataSource;
 
-    if FParametersGroup <> nil then
-    begin
-      cxGridDBBandedTableView.DataController.DataSource :=
-        FParametersGroup.qParameterTypes.DataSource;
-      cxGridDBBandedTableView2.DataController.DataSource :=
-        FParametersGroup.qMainParameters.DataSource;
-      cxGridDBBandedTableView3.DataController.DataSource :=
-        FParametersGroup.qSubParameters.DataSource;
+    InitializeLookupColumn(clIDParameterType,
+      FParametersGroup.qParameterTypes.DataSource, lsEditList,
+      FParametersGroup.qParameterTypes.ParameterType.FieldName);
 
-      InitializeLookupColumn(clIDParameterType,
-        FParametersGroup.qParameterTypes.DataSource, lsEditList,
-        FParametersGroup.qParameterTypes.ParameterType.FieldName);
+    InitializeLookupColumn(clIDParameterKind,
+      FParametersGroup.qParameterKinds.DataSource, lsEditFixedList,
+      FParametersGroup.qParameterKinds.ParameterKind.FieldName);
 
-      InitializeLookupColumn(clIDParameterKind,
-        FParametersGroup.qParameterKinds.DataSource, lsEditFixedList,
-        FParametersGroup.qParameterKinds.ParameterKind.FieldName);
+    TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
+      FEventList);
+    TNotifyEventWrap.Create(FParametersGroup.qParameterTypes.AfterOpen,
+      DoOnDataChange, FEventList);
+    TNotifyEventWrap.Create(FParametersGroup.qMainParameters.AfterOpen,
+      DoOnDataChange, FEventList);
+    TNotifyEventWrap.Create(FParametersGroup.qSubParameters.AfterOpen,
+      DoOnDataChange, FEventList);
 
-      TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
-        FEventList);
-      TNotifyEventWrap.Create(FParametersGroup.qParameterTypes.AfterOpen,
-        DoOnDataChange, FEventList);
-      TNotifyEventWrap.Create(FParametersGroup.qMainParameters.AfterOpen,
-        DoOnDataChange, FEventList);
-      TNotifyEventWrap.Create(FParametersGroup.qSubParameters.AfterOpen,
-        DoOnDataChange, FEventList);
-
-      UpdateAutoTransaction;
-    end;
-
-    UpdateView;
+    UpdateAutoTransaction;
   end;
+
+  UpdateView;
 end;
 
 procedure TViewParameters.UpdateAutoTransaction;
