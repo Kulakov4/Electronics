@@ -220,6 +220,8 @@ inherited ViewParameters: TViewParameters
       end
     end
     object cxGridDBBandedTableView3: TcxGridDBBandedTableView [2]
+      OnKeyDown = cxGridDBBandedTableView3KeyDown
+      OnMouseDown = cxGridDBBandedTableView3MouseDown
       Navigator.Buttons.CustomButtons = <>
       OnEditKeyDown = cxGridDBBandedTableView3EditKeyDown
       DataController.DetailKeyFieldNames = 'IDParameter'

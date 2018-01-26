@@ -73,6 +73,7 @@ object DMRepository: TDMRepository
       'StringFormat=Unicode'
       'LockingMode=Normal'
       'Database=C:\Public\ElectronicDB\database.db'
+      'MonitorBy=FlatFile'
       'DriverID=SQLite')
     LoginPrompt = False
     AfterConnect = dbConnectionAfterConnect
@@ -1580,5 +1581,10 @@ object DMRepository: TDMRepository
       AssignedValues = [svColor]
       Color = 16113353
     end
+  end
+  object FDMoniFlatFileClientLink1: TFDMoniFlatFileClientLink
+    FileName = 'C:\Public\trace1.txt'
+    Left = 96
+    Top = 88
   end
 end

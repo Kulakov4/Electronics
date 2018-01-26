@@ -1,6 +1,6 @@
 inherited QueryParamSubParams: TQueryParamSubParams
-  Width = 222
-  ExplicitWidth = 222
+  Width = 324
+  ExplicitWidth = 324
   inherited Label1: TLabel
     Width = 113
     Caption = 'ParamSubParams'
@@ -8,6 +8,10 @@ inherited QueryParamSubParams: TQueryParamSubParams
   end
   inherited FDQuery: TFDQuery
     IndexFieldNames = 'IdParameter'
+    UpdateOptions.AssignedValues = [uvRefreshMode]
+    UpdateOptions.RefreshMode = rmAll
+    UpdateOptions.UpdateTableName = 'ParamSubParams'
+    UpdateOptions.KeyFields = 'Id'
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select psp.*, sp.Name, sp.Translation'
@@ -34,8 +38,8 @@ inherited QueryParamSubParams: TQueryParamSubParams
     FetchRowSQL.Strings = (
       'select psp.*, sp.Name, sp.Translation'
       'from ParamSubParams psp'
-      'join SubParameters sp on psp.IdSubParameter = sp.Id'
-      'WHERE psp.ID = :ID')
+      'LEFT join SubParameters sp on psp.IdSubParameter = sp.Id'
+      'WHERE psp.ID = :NEW_ID')
     Left = 152
     Top = 24
   end

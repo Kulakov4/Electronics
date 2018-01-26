@@ -132,6 +132,14 @@ type
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
     procedure clIDSubParameterPropertiesCloseUp(Sender: TObject);
+    procedure cxGridDBBandedTableView3KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure cxGridDBBandedTableView3MouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure cxGridDBBandedTableViewMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     FCheckedMode: Boolean;
     FParameterTypesDI: TDragAndDropInfo;
@@ -245,6 +253,7 @@ procedure TViewParameters.actAddSubParameterExecute(Sender: TObject);
 var
   ARow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
+  rc: Integer;
 begin
   FParametersGroup.qMainParameters.TryPost;
 
@@ -252,13 +261,24 @@ begin
   if ARow <> nil then
   begin
     AView := GetDBBandedTableView(2);
-    AView.DataController.Append;
 
-//    FParametersGroup.qParamSubParams.Value.AsString := 'Новое наименование';
+    // Чтобы можно было раскрыть, надо чтобы была хотя-бы одна запись
+
+    FParametersGroup.qParamSubParams.IDSubParameter.Required := False;
+    // Тут контроллер сам заполнит IdParameter
+    AView.DataController.Append;
+    AView.DataController.Post;
+    FParametersGroup.qParamSubParams.IDSubParameter.Required := True;
+
+    // Во время ракрытия произойдёт неявный Post
+    // Поле IdSubParameter останется пустым!!
     ARow.Expand(False);
 
-    AView.Controller.ClearSelection;
-  //  FParametersGroup.qSubParameters.TryEdit;
+
+    AView.DataController.DeleteFocused;
+
+    AView.DataController.Append;
+
     FocusColumnEditor(2, clIDSubParameter.DataBinding.FieldName);
   end;
   UpdateView;
@@ -632,6 +652,20 @@ begin
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
+procedure TViewParameters.cxGridDBBandedTableView3KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TViewParameters.cxGridDBBandedTableView3MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
 procedure TViewParameters.cxGridDBBandedTableViewDataControllerDetailExpanded
   (ADataController: TcxCustomDataController; ARecordIndex: Integer);
 var
@@ -693,6 +727,20 @@ procedure TViewParameters.cxGridDBBandedTableViewDragOver(Sender,
   Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
+end;
+
+procedure TViewParameters.cxGridDBBandedTableViewKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TViewParameters.cxGridDBBandedTableViewMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
 procedure TViewParameters.cxGridDBBandedTableViewStartDrag(Sender: TObject;
@@ -904,7 +952,6 @@ begin
     InitializeLookupColumn(clIDSubParameter,
       FParametersGroup.qSubParameters2.DataSource, lsEditFixedList,
       FParametersGroup.qSubParameters2.Name.FieldName);
-
 
     TNotifyEventWrap.Create(FParametersGroup.AfterDataChange, DoOnDataChange,
       FEventList);
