@@ -18,12 +18,11 @@ type
   private
     { Private declarations }
   public
-    procedure ExecUpdateSQL(const AOldPosID, ANewPosID, AOldOrder,
-      ANewOrder: Integer; const AOldIsAttribute, ANewIsAttribute: Boolean;
-      const AParameterID, ACategoryID: Integer);
-    procedure ExecDeleteSQL(const AParameterID, ACategoryID: Integer);
-    procedure ExecInsertSQL(APosID, AOrder: Integer;
-      const AParameterID, ACategoryID: Integer);
+    procedure ExecUpdateSQL(const AOldPosID, ANewPosID, AOldOrder, ANewOrder,
+        AOldIsAttribute, ANewIsAttribute, AParamSubParamID, ACategoryID: Integer);
+    procedure ExecDeleteSQL(const AParamSubParamID, ACategoryID: Integer);
+    procedure ExecInsertSQL(APosID, AOrder: Integer; const AParamSubParamID,
+        ACategoryID: Integer);
     { Public declarations }
   end;
 
@@ -32,11 +31,11 @@ implementation
 {$R *.dfm}
 
 procedure TQueryRecursiveParameters.ExecUpdateSQL(const AOldPosID, ANewPosID,
-  AOldOrder, ANewOrder: Integer; const AOldIsAttribute, ANewIsAttribute
-  : Boolean; const AParameterID, ACategoryID: Integer);
+    AOldOrder, ANewOrder, AOldIsAttribute, ANewIsAttribute, AParamSubParamID,
+    ACategoryID: Integer);
 begin
   // Assert(ANewPosID <> AOldPosID);
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
   Assert(ACategoryID > 0);
 
   // Копируем запрос
@@ -45,17 +44,17 @@ begin
 
   // Устанавливаем параметры запроса
   SetParameters(['OLD_POSID', 'NEW_POSID', 'OLD_ORDER', 'NEW_ORDER',
-    'OLD_ISATTRIBUTE', 'NEW_ISATTRIBUTE', 'ParameterID', 'CATEGORYID'],
+    'OLD_ISATTRIBUTE', 'NEW_ISATTRIBUTE', 'ParamSubParamID', 'CATEGORYID'],
     [AOldPosID, ANewPosID, AOldOrder, ANewOrder, AOldIsAttribute,
-    ANewIsAttribute, AParameterID, ACategoryID]);
+    ANewIsAttribute, AParamSubParamID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;
 
-procedure TQueryRecursiveParameters.ExecDeleteSQL(const AParameterID,
-  ACategoryID: Integer);
+procedure TQueryRecursiveParameters.ExecDeleteSQL(const AParamSubParamID,
+    ACategoryID: Integer);
 begin
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
   Assert(ACategoryID > 0);
 
   // Копируем запрос
@@ -63,16 +62,16 @@ begin
   FDQuery.Params.Assign(FDQueryDelete.Params);
 
   // Устанавливаем параметры запроса
-  SetParameters(['ParameterID', 'CATEGORYID'], [AParameterID, ACategoryID]);
+  SetParameters(['ParamSubParamID', 'CATEGORYID'], [AParamSubParamID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;
 
 procedure TQueryRecursiveParameters.ExecInsertSQL(APosID, AOrder: Integer;
-  const AParameterID, ACategoryID: Integer);
+    const AParamSubParamID, ACategoryID: Integer);
 begin
   // Assert(ANewPosID <> AOldPosID);
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
   Assert(ACategoryID > 0);
 
   // Копируем запрос
@@ -80,8 +79,8 @@ begin
   FDQuery.Params.Assign(FDQueryInsert.Params);
 
   // Устанавливаем параметры запроса
-  SetParameters(['PosID', 'Order', 'ParameterID', 'CATEGORYID'],
-    [APosID, AOrder, AParameterID, ACategoryID]);
+  SetParameters(['PosID', 'Order', 'ParamSubParamID', 'CATEGORYID'],
+    [APosID, AOrder, AParamSubParamID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;

@@ -253,7 +253,6 @@ procedure TViewParameters.actAddSubParameterExecute(Sender: TObject);
 var
   ARow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
-  rc: Integer;
 begin
   FParametersGroup.qMainParameters.TryPost;
 

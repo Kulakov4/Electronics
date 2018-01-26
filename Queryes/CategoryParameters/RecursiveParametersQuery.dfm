@@ -8,41 +8,43 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
   end
   object FDQueryDelete: TFDQuery
     SQL.Strings = (
-      'DELETE FROM CATEGORYPARAMS'
+      'DELETE FROM CATEGORYPARAMS2'
       'WHERE ID in'
       '('
       
-        '    with recursive m(ID, ProductCategoryID, ParameterID, [Order]' +
+        '    with recursive m(ID, ProductCategoryID, ParamSubParamID, Ord' +
         ', IsEnabled, IsAttribute, PosID) '
       '    as '
       '    ('
       
-        '        select cp.ID, cp.ProductCategoryID, cp.ParameterID, cp.[' +
-        'Order], cp.IsEnabled, cp.IsAttribute, cp.PosID'
+        '        select cp.ID, cp.ProductCategoryID, cp.ParamSubParamID, ' +
+        'cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
       '            from ProductCategories pc'
       
-        '            join CategoryParams cp on cp.ProductCategoryId = pc.' +
-        'Id and cp.ParameterId = :PARAMETERID'
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :ParamSubParamId'
       '            where pc.id = :CATEGORYID'
       '            union all'
       
-        '            select cp.ID, cp.ProductCategoryID, cp.ParameterID, ' +
-        'cp.[Order], cp.IsEnabled, cp.IsAttribute, cp.PosID'
+        '            select cp.ID, cp.ProductCategoryID, cp.ParamSubParam' +
+        'ID, cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
       '            from ProductCategories pc'
       
-        '            join CategoryParams cp on cp.ProductCategoryId = pc.' +
-        'Id and cp.ParameterId = :PARAMETERID'
-      '            join m on pc.parentid = m.ProductCategoryID'
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :ParamSubParamId'
+      
+        '            join m on pc.parentid = m.ProductCategoryID         ' +
+        '   '
       '    ) '
       '    select '
       '        id'
       '    from m'
-      ')')
+      ')   ')
     Left = 88
     Top = 25
     ParamData = <
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
@@ -56,34 +58,36 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
   end
   object FDQueryUpdate: TFDQuery
     SQL.Strings = (
-      'UPDATE CATEGORYPARAMS'
+      'UPDATE CATEGORYPARAMS2'
       'SET POSID = :NEW_POSID,'
       '    [ORDER] = :NEW_ORDER,'
       '    ISATTRIBUTE = :NEW_ISATTRIBUTE'
       'WHERE ID in'
       '('
       
-        '    with recursive m(ID, ProductCategoryID, ParameterID, [Order]' +
+        '    with recursive m(ID, ProductCategoryID, ParamSubParamID, Ord' +
         ', IsEnabled, IsAttribute, PosID) '
       '    as '
       '    ('
       
-        '        select cp.ID, cp.ProductCategoryID, cp.ParameterID, cp.[' +
-        'Order], cp.IsEnabled, cp.IsAttribute, cp.PosID'
+        '        select cp.ID, cp.ProductCategoryID, cp.ParamSubParamID, ' +
+        'cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
       '            from ProductCategories pc'
       
-        '            join CategoryParams cp on cp.ProductCategoryId = pc.' +
-        'Id and cp.ParameterId = :PARAMETERID'
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :ParamSubParamId'
       '            where pc.id = :CATEGORYID'
       '            union all'
       
-        '            select cp.ID, cp.ProductCategoryID, cp.ParameterID, ' +
-        'cp.[Order], cp.IsEnabled, cp.IsAttribute, cp.PosID'
+        '            select cp.ID, cp.ProductCategoryID, cp.ParamSubParam' +
+        'ID, cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
       '            from ProductCategories pc'
       
-        '            join CategoryParams cp on cp.ProductCategoryId = pc.' +
-        'Id and cp.ParameterId = :PARAMETERID'
-      '            join m on pc.parentid = m.ProductCategoryID'
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :ParamSubParamId'
+      
+        '            join m on pc.parentid = m.ProductCategoryID         ' +
+        '   '
       '    ) '
       '    select '
       '        id'
@@ -109,12 +113,12 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       end
       item
         Name = 'NEW_ISATTRIBUTE'
-        DataType = ftBoolean
+        DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
@@ -139,7 +143,7 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       end
       item
         Name = 'OLD_ISATTRIBUTE'
-        DataType = ftBoolean
+        DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end>
@@ -147,27 +151,35 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
   object FDQueryInsert: TFDQuery
     SQL.Strings = (
       
-        'insert into CategoryParams(ProductCategoryID, ParameterID, [Orde' +
-        'r], IsEnabled, IsAttribute, PosID)'
+        'insert into CategoryParams2(ProductCategoryID, ParamSubParamID, ' +
+        'Ord, IsEnabled, IsAttribute, PosID)'
       ''
       ''
       
-        'with recursive m(ProductCategoryID, ParameterID, [Order], IsEnab' +
-        'led, IsAttribute, PosID) '
-      'as '
-      '('
+        '    with recursive m(ID, ProductCategoryID, ParamSubParamID, Ord' +
+        ', IsEnabled, IsAttribute, PosID) '
+      '    as '
+      '    ('
       
-        '    select pc.ID ProductCategoryID, :ParameterID, :Order, 1, 1, ' +
-        ':PosID'
-      '    from ProductCategories pc'
-      '    where pc.id = :CATEGORYID'
-      '    union all'
+        '        select cp.ID, cp.ProductCategoryID, cp.ParamSubParamID, ' +
+        'cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
+      '            from ProductCategories pc'
       
-        '    select pc.ID ProductCategoryID, :ParameterID, :Order, 1, 1, ' +
-        ':PosID'
-      '    from ProductCategories pc'
-      '    join m on pc.parentid = m.ProductCategoryID'
-      ') '
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :ParamSubParamId'
+      '            where pc.id = :CATEGORYID'
+      '            union all'
+      
+        '            select cp.ID, cp.ProductCategoryID, cp.ParamSubParam' +
+        'ID, cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
+      '            from ProductCategories pc'
+      
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :ParamSubParamId'
+      
+        '            join m on pc.parentid = m.ProductCategoryID         ' +
+        '   '
+      '    )'
       'select '
       '*'
       'from m')
@@ -175,22 +187,8 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
     Top = 25
     ParamData = <
       item
-        Name = 'PARAMETERID'
-        DataType = ftInteger
+        Name = 'PARAMSUBPARAMID'
         ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'ORDER'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'POSID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
       end
       item
         Name = 'CATEGORYID'
