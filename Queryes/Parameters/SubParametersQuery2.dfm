@@ -7,6 +7,7 @@ inherited QuerySubParameters2: TQuerySubParameters2
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from SubParameters')
+      'from SubParameters'
+      'where IsDefault = 0')
   end
 end

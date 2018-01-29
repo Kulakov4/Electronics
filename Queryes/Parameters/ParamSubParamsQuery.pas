@@ -14,16 +14,16 @@ type
   TQueryParamSubParams = class(TQueryWithDataSource)
     FDUpdateSQL: TFDUpdateSQL;
   private
+    procedure DoAfterOpen(Sender: TObject);
+    function GetChecked: TField;
     function GetIDSubParameter: TField;
     function GetName: TField;
     { Private declarations }
   protected
-    procedure DoAfterInsert(Sender: TObject);
-    procedure DoAfterPost(Sender: TObject);
-    procedure DoBeforeInsert(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
+    property Checked: TField read GetChecked;
     property IDSubParameter: TField read GetIDSubParameter;
     property Name: TField read GetName;
     { Public declarations }
@@ -38,28 +38,13 @@ uses RepositoryDataModule;
 constructor TQueryParamSubParams.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create( BeforeInsert, DoBeforeInsert, FEventList );
-  TNotifyEventWrap.Create( AfterInsert, DoAfterInsert, FEventList );
   TNotifyEventWrap.Create( BeforePost, DoBeforePost, FEventList );
-  TNotifyEventWrap.Create( AfterPost, DoAfterPost, FEventList );
+  TNotifyEventWrap.Create( AfterOpen, DoAfterOpen, FEventList );
 end;
 
-procedure TQueryParamSubParams.DoAfterInsert(Sender: TObject);
+procedure TQueryParamSubParams.DoAfterOpen(Sender: TObject);
 begin
-  // TODO -cMM: TQueryParamSubParams.DoAfterInsert default body inserted
-  ;
-end;
-
-procedure TQueryParamSubParams.DoAfterPost(Sender: TObject);
-begin
-  // TODO -cMM: TQueryParamSubParams.DoAfterPost default body inserted
-  ;
-end;
-
-procedure TQueryParamSubParams.DoBeforeInsert(Sender: TObject);
-begin
-  // TODO -cMM: TQueryParamSubParams.DoBeforeInsert default body inserted
-  ;
+  Checked.ReadOnly := False;
 end;
 
 procedure TQueryParamSubParams.DoBeforePost(Sender: TObject);
@@ -70,6 +55,11 @@ begin
   else
     // Всё сохраняем на сервере
     FDQuery.OnUpdateRecord := nil;
+end;
+
+function TQueryParamSubParams.GetChecked: TField;
+begin
+  Result := Field('Checked');
 end;
 
 function TQueryParamSubParams.GetIDSubParameter: TField;

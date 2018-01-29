@@ -3,7 +3,8 @@ unit CategoryParametersQuery2;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
@@ -36,12 +37,12 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest; var
-        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest; var
-        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    property QueryRecursiveParameters: TQueryRecursiveParameters read
-        GetQueryRecursiveParameters;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    property QueryRecursiveParameters: TQueryRecursiveParameters
+      read GetQueryRecursiveParameters;
     property RefreshQry: TQueryCategoryParameters2 read GetRefreshQry;
   public
     constructor Create(AOwner: TComponent); override;
@@ -63,7 +64,6 @@ type
     property On_ApplyUpdates: TNotifyEventsEx read FOn_ApplyUpdates;
     { Public declarations }
   end;
-
 
 implementation
 
@@ -90,8 +90,8 @@ begin
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
 end;
 
-procedure TQueryCategoryParameters2.AppendParameter(ARecordHolder:
-    TRecordHolder; APosID: Integer);
+procedure TQueryCategoryParameters2.AppendParameter(ARecordHolder
+  : TRecordHolder; APosID: Integer);
 begin
   Assert(ARecordHolder <> nil);
 
@@ -106,16 +106,16 @@ begin
   Assert(ASender = FDQuery);
 
   // Рекурсивно удаляем из категорий сам параметр
-  QueryRecursiveParameters.ExecDeleteSQL( ParamSubParamId.OldValue,
+  QueryRecursiveParameters.ExecDeleteSQL(ParamSubParamId.OldValue,
     CategoryID.OldValue);
 
   // Удаляем из категорий подпараметры удалённых параметров
-//  fdqDeleteSubParameters.ExecSQL;
+  // fdqDeleteSubParameters.ExecSQL;
 end;
 
-procedure TQueryCategoryParameters2.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryCategoryParameters2.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -133,13 +133,14 @@ begin
   Assert(RefreshQry.PK.AsInteger > 0);
 
   // Заполняем первычный ключ у вставленной записи
-  FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction, AOptions);
-  //AID.AsInteger := RefreshQry.PK.Value;
+  FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction,
+    AOptions);
+  // AID.AsInteger := RefreshQry.PK.Value;
 end;
 
-procedure TQueryCategoryParameters2.ApplyUpdate(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryCategoryParameters2.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -191,6 +192,7 @@ end;
 
 function TQueryCategoryParameters2.GetHaveInserted: Boolean;
 begin
+  FInsertedClone.FilterChanges := [rtInserted];
   Result := FDQuery.Active and (FInsertedClone.RecordCount > 0);
 end;
 
@@ -229,8 +231,8 @@ begin
   Result := Field('ProductCategoryID');
 end;
 
-function TQueryCategoryParameters2.GetQueryRecursiveParameters:
-    TQueryRecursiveParameters;
+function TQueryCategoryParameters2.GetQueryRecursiveParameters
+  : TQueryRecursiveParameters;
 begin
   if FQueryRecursiveParameters = nil then
     FQueryRecursiveParameters := TQueryRecursiveParameters.Create(Self);
@@ -243,8 +245,8 @@ begin
   begin
     FRefreshQry := TQueryCategoryParameters2.Create(Self);
     // Добавляем в текст SQL запроса условие с параметром
-    FRefreshQry.SetConditionSQL(FRefreshQry.FDQuery.SQL.Text,
-      ' and ParamSubParamId = :ParamSubParamID', '--and');
+    FRefreshQry.FDQuery.SQL.Text := FRefreshQry.FDQuery.SQL.Text.Replace
+      ('--and', ' and ParamSubParamId = :ParamSubParamID');
 
     FRefreshQry.SetParamType('ParamSubParamID');
   end;

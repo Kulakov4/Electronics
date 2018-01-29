@@ -86,6 +86,7 @@ type
     clIDParameterKind: TcxGridDBBandedColumn;
     clIDSubParameter: TcxGridDBBandedColumn;
     clTranslation: TcxGridDBBandedColumn;
+    clChecked3: TcxGridDBBandedColumn;
     procedure actAddMainParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);
@@ -916,6 +917,9 @@ begin
   FCheckedMode := Value;
   clChecked.Visible := FCheckedMode;
   clChecked.VisibleForCustomization := clOrder.Visible;
+
+  clChecked3.Visible := FCheckedMode;
+  clChecked3.VisibleForCustomization := clOrder.Visible;
 
   if ParametersGroup <> nil then
   begin

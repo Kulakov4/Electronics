@@ -14,10 +14,23 @@ inherited QueryParamSubParams: TQueryParamSubParams
     UpdateOptions.KeyFields = 'Id'
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
-      'select psp.*, sp.Name, sp.Translation'
+      
+        'select psp.*, sp.Name, sp.Translation, IFNULL(cp.id, 0) > 0 Chec' +
+        'ked'
       'from ParamSubParams psp'
       'join SubParameters sp on psp.IdSubParameter = sp.Id'
+      
+        'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
+        'ategoryId and cp.ParamSubParamID = psp.id '
+      'where sp.IsDefault = 0'
       'order by psp.IdParameter')
+    ParamData = <
+      item
+        Name = 'PRODUCTCATEGORYID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = 0
+      end>
   end
   object FDUpdateSQL: TFDUpdateSQL
     Connection = DMRepository.dbConnection

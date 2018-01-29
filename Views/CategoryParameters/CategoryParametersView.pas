@@ -64,6 +64,8 @@ type
     dxBarButton11: TdxBarButton;
     dxBarButton12: TdxBarButton;
     clIsAttribute: TcxGridDBBandedColumn;
+    clName: TcxGridDBBandedColumn;
+    clTranslation: TcxGridDBBandedColumn;
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
     procedure actAddToEndExecute(Sender: TObject);
@@ -189,6 +191,7 @@ var
   RH: TRecordHolder;
   S: string;
   SS: string;
+  SubS: string;
 begin
   inherited;
 
@@ -217,6 +220,11 @@ begin
       // Список выбранных параметров
       CheckedList := ',' + AParametersGroup.qMainParameters.
         GetCheckedIDParamSubParamValues.Trim([',']) + ',';
+
+      SubS := AParametersGroup.qParamSubParams.GetFieldValues(AParametersGroup.qParamSubParams.PKFieldName).Trim([',']);
+      if not SubS.IsEmpty then
+        CheckedList := CheckedList + SubS + ',';
+
       // Список подпараметров для категории
       SS := ',' + QueryCategoryParameters.GetFieldValues
         (QueryCategoryParameters.ParamSubParamId.FieldName).Trim([',']) + ',';

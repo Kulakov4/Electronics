@@ -43,7 +43,7 @@ begin
   FDQuery.Params.Assign(FDQueryUpdate.Params);
 
   // Устанавливаем параметры запроса
-  SetParameters(['OLD_POSID', 'NEW_POSID', 'OLD_ORDER', 'NEW_ORDER',
+  SetParameters(['OLD_POSID', 'NEW_POSID', 'OLD_ORD', 'NEW_ORD',
     'OLD_ISATTRIBUTE', 'NEW_ISATTRIBUTE', 'ParamSubParamID', 'CATEGORYID'],
     [AOldPosID, ANewPosID, AOldOrder, ANewOrder, AOldIsAttribute,
     ANewIsAttribute, AParamSubParamID, ACategoryID]);
@@ -79,7 +79,7 @@ begin
   FDQuery.Params.Assign(FDQueryInsert.Params);
 
   // Устанавливаем параметры запроса
-  SetParameters(['PosID', 'Order', 'ParamSubParamID', 'CATEGORYID'],
+  SetParameters(['PosID', 'Ord', 'ParamSubParamID', 'CATEGORYID'],
     [APosID, AOrder, AParamSubParamID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;

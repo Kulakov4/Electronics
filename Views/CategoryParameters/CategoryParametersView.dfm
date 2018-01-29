@@ -4,8 +4,21 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False
+      OptionsView.BandHeaders = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       Styles.OnGetHeaderStyle = nil
+      Bands = <
+        item
+          Visible = False
+        end
+        item
+          Caption = #1055#1072#1088#1072#1084#1077#1090#1088
+        end
+        item
+          Caption = #1055#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
+        end
+        item
+        end>
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
@@ -30,8 +43,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 0
-        Position.ColIndex = 1
+        Position.BandIndex = 1
+        Position.ColIndex = 0
         Position.RowIndex = 0
       end
       object clTableName: TcxGridDBBandedColumn
@@ -43,8 +56,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 0
-        Position.ColIndex = 2
+        Position.BandIndex = 1
+        Position.ColIndex = 1
         Position.RowIndex = 0
       end
       object clValueT: TcxGridDBBandedColumn
@@ -56,8 +69,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 0
-        Position.ColIndex = 3
+        Position.BandIndex = 1
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
       object clParameterType: TcxGridDBBandedColumn
@@ -69,8 +82,22 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 0
-        Position.ColIndex = 4
+        Position.BandIndex = 1
+        Position.ColIndex = 3
+        Position.RowIndex = 0
+      end
+      object clName: TcxGridDBBandedColumn
+        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
+        DataBinding.FieldName = 'Name'
+        Position.BandIndex = 2
+        Position.ColIndex = 0
+        Position.RowIndex = 0
+      end
+      object clTranslation: TcxGridDBBandedColumn
+        Caption = #1055#1077#1088#1077#1074#1086#1076
+        DataBinding.FieldName = 'Translation'
+        Position.BandIndex = 2
+        Position.ColIndex = 1
         Position.RowIndex = 0
       end
       object clPosID: TcxGridDBBandedColumn
@@ -83,12 +110,12 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.VertSizing = False
         SortIndex = 0
         SortOrder = soAscending
-        Position.BandIndex = 0
-        Position.ColIndex = 5
+        Position.BandIndex = 3
+        Position.ColIndex = 0
         Position.RowIndex = 0
       end
       object clOrder: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Order'
+        DataBinding.FieldName = 'Ord'
         Visible = False
         Options.Editing = False
         Options.IncSearch = False
@@ -99,8 +126,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         SortIndex = 1
         SortOrder = soAscending
         VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 6
+        Position.BandIndex = 3
+        Position.ColIndex = 1
         Position.RowIndex = 0
       end
       object clIsAttribute: TcxGridDBBandedColumn
@@ -108,9 +135,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         DataBinding.FieldName = 'IsAttribute'
         PropertiesClassName = 'TcxCheckBoxProperties'
         Properties.ImmediatePost = True
+        Properties.ValueChecked = '1'
+        Properties.ValueUnchecked = '0'
         Options.VertSizing = False
-        Position.BandIndex = 0
-        Position.ColIndex = 7
+        Position.BandIndex = 3
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
     end
