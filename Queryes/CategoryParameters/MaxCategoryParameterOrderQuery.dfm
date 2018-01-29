@@ -6,7 +6,7 @@ inherited QueryMaxCategoryParameterOrder: TQueryMaxCategoryParameterOrder
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select ifnull(max([Order]), 0) MaxOrder'
-      'from CategoryParams')
+      'select ifnull(max(Ord), 0) MaxOrder'
+      'from CategoryParams2')
   end
 end

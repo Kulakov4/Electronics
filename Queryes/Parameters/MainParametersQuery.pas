@@ -28,6 +28,7 @@ type
     function GetChecked: TField;
     function GetIDParameterKind: TField;
     function GetIDParameterType: TField;
+    function GetIDParamSubParam: TField;
     function GetIsCustomParameter: TField;
     function GetqSearchParameter: TQuerySearchParameter;
     function GetTableName: TField;
@@ -45,11 +46,12 @@ type
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
     constructor Create(AOwner: TComponent); override;
-    function GetCheckedPKValues: string;
+    function GetCheckedIDParamSubParamValues: string;
     function Lookup(AValue: string): Integer;
     property Checked: TField read GetChecked;
     property IDParameterKind: TField read GetIDParameterKind;
     property IDParameterType: TField read GetIDParameterType;
+    property IDParamSubParam: TField read GetIDParamSubParam;
     property IsCustomParameter: TField read GetIsCustomParameter;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue
       write FProductCategoryIDValue;
@@ -65,7 +67,8 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, DBRecordHolder, System.StrUtils, StrHelper;
+uses DBRecordHolder, System.StrUtils, StrHelper,
+  BaseQuery;
 
 constructor TQueryMainParameters.Create(AOwner: TComponent);
 begin
@@ -122,21 +125,28 @@ procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
+  AFetchList: TFetchFieldList;
   AID: Integer;
+  ATableName: string;
   i: Integer;
   RH: TRecordHolder;
   RH2: TRecordHolder;
 begin
   Assert(ASender = FDQuery);
 
-  // Если не заполнили табличное имя, то табличное имя = наименование
-  if TableName.AsString.IsEmpty then
-    TableName.AsString := Value.AsString;
-
+  AFetchList := TFetchFieldList.Create;
   RH := TRecordHolder.Create(ASender);
   try
+    ATableName := TableName.AsString;
+    // Если не заполнили табличное имя, то табличное имя = наименование
+    if ATableName.IsEmpty then
+    begin
+      AFetchList.Add(TableName.FieldName, Value.AsString);
+      ATableName := Value.AsString;
+    end;
+
     // Ищем параметр "по умолчанию" с таким-же табличным именем
-    i := qSearchParameter.SearchMain(TableName.AsString, True);
+    i := qSearchParameter.SearchMain(ATableName, True);
     // Если нашли и с другим кодом
     if (i > 0) and (PK.AsInteger <> qSearchParameter.PK.AsInteger) then
     begin
@@ -152,22 +162,30 @@ begin
       end;
       // Заполняем идентификатор той записи, которую будем редактировать
       RH.Field[PK.FieldName] := qSearchParameter.PK.Value;
+
       // Обновляем имеющуюся запись в БД
       ParametersApplyQuery.UpdateRecord(RH);
+
       // Обновляем вставленную запись на клиенте
-      RH.Put(ASender);
-      IsCustomParameter.AsBoolean := True;
+      AFetchList.Add(PK.FieldName, qSearchParameter.PK.Value);
+      AFetchList.Add(IsCustomParameter.FieldName, 1);
+      // RH.Put(FDQuery);
+      // IsCustomParameter.AsBoolean := True;
     end
     else
     begin
       // Копируем поля в буфер
-      RH.Attach(ASender);
+      RH.Attach(FDQuery);
       // Вставляем запись на сервере и обновляем ID на клиенте
       AID := ParametersApplyQuery.InsertRecord(RH);
-      FetchFields([PK.FieldName], [AID], ARequest, AAction, AOptions);
+      AFetchList.Add(PK.FieldName, AID);
     end;
+
+    // Производим обновление полей на стороне клиента
+    FetchFields(AFetchList, ARequest, AAction, AOptions);
   finally
     FreeAndNil(RH);
+    FreeAndNil(AFetchList);
   end;
 end;
 
@@ -208,8 +226,9 @@ begin
       ParametersApplyQuery.DeleteRecord(PK.AsInteger);
 
       // Меняем идентификатор той записи, что сейчас на клиенте
-      FetchFields([PK.FieldName], [qSearchParameter.PK.Value], ARequest, AAction, AOptions);
-      //AID.Value := qSearchParameter.PK.Value;
+      FetchFields([PK.FieldName], [qSearchParameter.PK.Value], ARequest,
+        AAction, AOptions);
+      // AID.Value := qSearchParameter.PK.Value;
       // Помечаем, что мы имеем дело с параметром "по умолчанию"
       IsCustomParameter.AsBoolean := True;
     end
@@ -257,25 +276,21 @@ begin
   Result := Field('Checked');
 end;
 
-function TQueryMainParameters.GetCheckedPKValues: string;
+function TQueryMainParameters.GetCheckedIDParamSubParamValues: string;
 var
   AClone: TFDMemTable;
 begin
   Result := '';
-  AClone := TFDMemTable.Create(Self);
+  AClone := AddClone(Format('%s = %d', [Checked.FieldName, 1]));
   try
-    AClone.CloneCursor(FDQuery);
-    // Фильтруем клона
-    AClone.Filter := Format('%s = %d', [Checked.FieldName, 1]);
-    AClone.Filtered := True;
     while not AClone.Eof do
     begin
       Result := Result + IfThen(Result.IsEmpty, '', ',');
-      Result := Result + AClone.FieldByName(PKFieldName).AsString;
+      Result := Result + AClone.FieldByName(IDParamSubParam.FieldName).AsString;
       AClone.Next;
     end;
   finally
-    FreeAndNil(AClone);
+    DropClone(AClone);
   end;
 end;
 
@@ -287,6 +302,11 @@ end;
 function TQueryMainParameters.GetIDParameterType: TField;
 begin
   Result := Field('IDParameterType');
+end;
+
+function TQueryMainParameters.GetIDParamSubParam: TField;
+begin
+  Result := Field('IDParamSubParam');
 end;
 
 function TQueryMainParameters.GetIsCustomParameter: TField;

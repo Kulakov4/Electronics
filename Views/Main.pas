@@ -661,7 +661,7 @@ begin
 
       // Параметры в виде списка
       ComponentsFrame.ViewCategoryParameters.QueryCategoryParameters :=
-        DM2.qCategoryParameters;
+        DM2.qCategoryParameters2;
 
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
         DM2.ComponentsExGroup;

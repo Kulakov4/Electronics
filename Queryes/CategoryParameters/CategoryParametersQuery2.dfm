@@ -5,6 +5,7 @@ inherited QueryCategoryParameters2: TQueryCategoryParameters2
     ExplicitWidth = 136
   end
   inherited FDQuery: TFDQuery
+    CachedUpdates = True
     SQL.Strings = (
       
         'select cp.*, p.Value, p.TableName, p.ValueT, pt.ParameterType, s' +

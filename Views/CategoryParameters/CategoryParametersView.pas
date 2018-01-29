@@ -27,7 +27,7 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, CategoryParametersQuery, ParameterPosQuery,
-  DragHelper, cxCheckBox;
+  DragHelper, cxCheckBox, CategoryParametersQuery2;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -80,14 +80,15 @@ type
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
   private
-    FQueryCategoryParameters: TQueryCategoryParameters;
+    FQueryCategoryParameters: TQueryCategoryParameters2;
     FQueryParameterPos: TQueryParameterPos;
     procedure Add(APosID: Integer);
     procedure DoAfterLoad(Sender: TObject);
     function GetQueryParameterPos: TQueryParameterPos;
     procedure Move(AUp: Boolean);
     procedure SetPos(APosID: Integer);
-    procedure SetQueryCategoryParameters(const Value: TQueryCategoryParameters);
+    procedure SetQueryCategoryParameters(const Value
+      : TQueryCategoryParameters2);
     { Private declarations }
   protected
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
@@ -95,7 +96,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
-    property QueryCategoryParameters: TQueryCategoryParameters
+    property QueryCategoryParameters: TQueryCategoryParameters2
       read FQueryCategoryParameters write SetQueryCategoryParameters;
     { Public declarations }
   end;
@@ -205,7 +206,8 @@ begin
       AfrmParameters := TfrmParameters.Create(Self);
       try
         AfrmParameters.ViewParameters.ParametersGroup := AParametersGroup;
-        AfrmParameters.ViewSubParameters.QuerySubParameters := AParametersGroup.qSubParameters2;
+        AfrmParameters.ViewSubParameters.QuerySubParameters :=
+          AParametersGroup.qSubParameters2;
         AfrmParameters.ViewParameters.CheckedMode := True;
         AfrmParameters.ShowModal;
       finally
@@ -213,11 +215,11 @@ begin
       end;
 
       // Список выбранных параметров
-      CheckedList := ',' + AParametersGroup.qMainParameters.GetCheckedPKValues.
-        Trim([',']) + ',';
-      // Список параметров для категории
+      CheckedList := ',' + AParametersGroup.qMainParameters.
+        GetCheckedIDParamSubParamValues.Trim([',']) + ',';
+      // Список подпараметров для категории
       SS := ',' + QueryCategoryParameters.GetFieldValues
-        (QueryCategoryParameters.ParameterID.FieldName).Trim([',']) + ',';
+        (QueryCategoryParameters.ParamSubParamId.FieldName).Trim([',']) + ',';
 
       m := SS.Trim([',']).Split([',']);
       // Цикл по параметрам для категории
@@ -226,7 +228,9 @@ begin
         // Если галочку с одного из параметров категории сняли
         if CheckedList.IndexOf(',' + S + ',') < 0 then
         begin
-          if QueryCategoryParameters.LocateByPK(S) then
+          // Ищем такой подпараметр в списке подпараметров категории
+          if QueryCategoryParameters.LocateByField
+            (QueryCategoryParameters.ParamSubParamId.FieldName, S) then
           begin
             QueryCategoryParameters.FDQuery.Delete;
           end;
@@ -234,32 +238,36 @@ begin
       end;
 
       m := CheckedList.Trim([',']).Split([',']);
-      // Цикл по параметрам для категории
+      // Цикл по отмеченным в справочнике подпараметрам
       for S in m do
       begin
         // Если галочку поставили
         if SS.IndexOf(',' + S + ',') < 0 then
         begin
-          if AParametersGroup.qMainParameters.LocateByPK(S) then
+          // Ищем подпараметр в справочнике параметров
+          if AParametersGroup.qMainParameters.LocateByField
+            (AParametersGroup.qMainParameters.IDParamSubParam.FieldName, S) then
           begin
             // Ищем такой тип параметра
             OK := AParametersGroup.qParameterTypes.LocateByPK
               (AParametersGroup.qMainParameters.IDParameterType.AsInteger);
             Assert(OK);
+
             RH := TRecordHolder.Create
               (AParametersGroup.qMainParameters.FDQuery);
             try
-              // Первичный ключ - это идентификатор параметра
+              // Первичный ключ - это идентификатор подпараметра параметра
               RH.Find(AParametersGroup.qMainParameters.PKFieldName).FieldName :=
-                QueryCategoryParameters.ParameterID.FieldName;
+                QueryCategoryParameters.ParamSubParamId.FieldName;
 
               // Порядок - надо вычислить как максимум
-              RH.Find(AParametersGroup.qMainParameters.Ord.FieldName).Value :=
-                QueryCategoryParameters.NextOrder;
+              TFieldHolder.Create(RH,
+                QueryCategoryParameters.Ord.FieldName,
+                QueryCategoryParameters.NextOrder);
 
               // Добавляем поле "Тип параметра"
               TFieldHolder.Create(RH,
-                AParametersGroup.qParameterTypes.ParameterType.FieldName,
+                QueryCategoryParameters.ParameterType.FieldName,
                 AParametersGroup.qParameterTypes.ParameterType.AsString);
 
               QueryCategoryParameters.AppendParameter(RH, APosID);
@@ -269,7 +277,6 @@ begin
           end;
         end;
       end;
-
     finally
       FreeAndNil(AParametersGroup);
     end;
@@ -442,7 +449,7 @@ begin
 end;
 
 procedure TViewCategoryParameters.SetQueryCategoryParameters
-  (const Value: TQueryCategoryParameters);
+  (const Value: TQueryCategoryParameters2);
 begin
   if FQueryCategoryParameters <> Value then
   begin
@@ -458,7 +465,7 @@ begin
       InitializeLookupColumn(clPosID, QueryParameterPos.DataSource, lsFixedList,
         QueryParameterPos.Pos.FieldName);
 
-//      (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
+      // (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
 
       TNotifyEventWrap.Create(FQueryCategoryParameters.AfterLoad, DoAfterLoad,
         FEventList);

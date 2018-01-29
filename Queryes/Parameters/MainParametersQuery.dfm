@@ -98,11 +98,20 @@ inherited QueryMainParameters: TQueryMainParameters
   object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'select p.*, IFNULL(cp.id, 0) > 0 Checked'
+      'select p.*, IFNULL(cp.id, 0) > 0 Checked, t.ID IDParamSubParam'
       'from Parameters p'
+      'LEFT JOIN '
+      '('
+      '    select psp.ID, psp.IdParameter'
+      '    from ParamSubParams psp'
       
-        'LEFT JOIN CategoryParams cp on cp.ProductCategoryId = :ProductCa' +
-        'tegoryId and cp.ParameterId = p.id'
+        '    join SubParameters sp on psp.IdSubParameter = sp.Id and sp.I' +
+        'sDefault = 1'
+      ') t on t.IdParameter = p.Id'
+      ''
+      
+        'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
+        'ategoryId and cp.ParamSubParamID = t.id '
       
         'where p.ParentParameter is null and p.IDParameterType is not nul' +
         'l'

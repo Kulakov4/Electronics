@@ -12,7 +12,7 @@ uses
   ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
   ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
-  StoreHouseListQuery, ProductsSearchQuery;
+  StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2;
 
 type
   TDM2 = class(TForm)
@@ -30,6 +30,7 @@ type
     qProductsSearch: TQueryProductsSearch;
     DescriptionsGroup: TDescriptionsGroup;
     ParametersGroup: TParametersGroup;
+    qCategoryParameters2: TQueryCategoryParameters2;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -93,7 +94,7 @@ begin
     Add(ComponentsSearchGroup.qComponentsSearch);
     // Поиск среди компонентов (подчинённое)
     // вкладка параметры - список параметров
-    Add(qCategoryParameters);
+    Add(qCategoryParameters2);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
 //  ComponentsGroup.Producers := ProducersGroup.qProducers;
@@ -112,7 +113,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  qCategoryParameters.Master := qTreeList;
+  qCategoryParameters2.Master := qTreeList;
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
@@ -123,7 +124,7 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
-  TNotifyEventWrap.Create(qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
+  TNotifyEventWrap.Create(qCategoryParameters2.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
     FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
@@ -215,7 +216,7 @@ end;
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
-  qCategoryParameters.RefreshQuery;
+  qCategoryParameters2.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterProducerCommit(Sender: TObject);
@@ -244,8 +245,8 @@ var
   L: TList<TRecOrder>;
 begin
   L := Sender as TList<TRecOrder>;
-  qCategoryParameters.Move(L);
-  qCategoryParameters.ApplyUpdates;
+  qCategoryParameters2.Move(L);
+  qCategoryParameters2.ApplyUpdates;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;

@@ -293,20 +293,16 @@ object DM2: TDM2
           Control = ParametersGroup.qSubParameters2
           Row = 0
         end>
-      inherited qParameterTypes: TQueryParameterTypes
-        ExplicitWidth = 197
-      end
-      inherited qMainParameters: TQueryMainParameters
-        ExplicitLeft = 198
-        ExplicitWidth = 197
-      end
-      inherited qParamSubParams: TQueryParamSubParams
-        ExplicitWidth = 196
-        ExplicitHeight = 77
-      end
-      inherited qSubParameters2: TQuerySubParameters2
-        ExplicitHeight = 77
-      end
     end
+  end
+  inline qCategoryParameters2: TQueryCategoryParameters2
+    Left = 400
+    Top = 256
+    Width = 167
+    Height = 80
+    TabOrder = 14
+    ExplicitLeft = 400
+    ExplicitTop = 256
+    ExplicitWidth = 167
   end
 end

@@ -8,7 +8,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, RecursiveParametersQuery;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, RecursiveParametersQuery,
+  DragHelper, System.Generics.Collections, DBRecordHolder;
 
 type
   TQueryCategoryParameters2 = class(TQueryWithDataSource)
@@ -26,6 +27,7 @@ type
     function GetIsAttribute: TField;
     function GetIsEnabled: TField;
     function GetOrd: TField;
+    function GetParameterType: TField;
     function GetParamSubParamId: TField;
     function GetPosID: TField;
     function GetProductCategoryID: TField;
@@ -43,13 +45,18 @@ type
     property RefreshQry: TQueryCategoryParameters2 read GetRefreshQry;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AppendParameter(ARecordHolder: TRecordHolder; APosID: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    procedure Move(AData: TList<TRecOrder>);
+    function NextOrder: Integer;
+    procedure SetPos(APosID: Integer);
     property CategoryID: TField read GetCategoryID;
     property HaveInserted: Boolean read GetHaveInserted;
     property IsAttribute: TField read GetIsAttribute;
     property IsEnabled: TField read GetIsEnabled;
     property Ord: TField read GetOrd;
+    property ParameterType: TField read GetParameterType;
     property ParamSubParamId: TField read GetParamSubParamId;
     property PosID: TField read GetPosID;
     property ProductCategoryID: TField read GetProductCategoryID;
@@ -59,6 +66,9 @@ type
 
 
 implementation
+
+uses
+  MaxCategoryParameterOrderQuery;
 
 {$R *.dfm}
 
@@ -70,7 +80,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Создаём клон
-  FInsertedClone := AddClone('');
+  FInsertedClone := AddClone('0=0');
   FInsertedClone.FilterChanges := [rtInserted];
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
@@ -78,6 +88,17 @@ begin
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
 
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
+end;
+
+procedure TQueryCategoryParameters2.AppendParameter(ARecordHolder:
+    TRecordHolder; APosID: Integer);
+begin
+  Assert(ARecordHolder <> nil);
+
+  TryAppend;
+  ARecordHolder.TryPut(FDQuery);
+  PosID.AsInteger := APosID;
+  TryPost;
 end;
 
 procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet);
@@ -188,6 +209,11 @@ begin
   Result := Field('Ord');
 end;
 
+function TQueryCategoryParameters2.GetParameterType: TField;
+begin
+  Result := Field('ParameterType');
+end;
+
 function TQueryCategoryParameters2.GetParamSubParamId: TField;
 begin
   Result := Field('ParamSubParamID');
@@ -224,6 +250,46 @@ begin
   end;
 
   Result := FRefreshQry;
+end;
+
+procedure TQueryCategoryParameters2.Move(AData: TList<TRecOrder>);
+var
+  ARecOrder: TRecOrder;
+  OK: Boolean;
+begin
+  FDQuery.DisableControls;
+  try
+    for ARecOrder in AData do
+    begin
+      // Переходим на нужную запись
+      OK := FDQuery.LocateEx(PKFieldName, ARecOrder.Key, []);
+      Assert(OK);
+      // Меняем порядок записи
+      TryEdit;
+      Ord.AsInteger := ARecOrder.Order;
+      TryPost;
+    end;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
+function TQueryCategoryParameters2.NextOrder: Integer;
+begin
+  if FMaxOrder = 0 then
+    FMaxOrder := TQueryMaxCategoryParameterOrder.Max_Order;
+  Inc(FMaxOrder);
+  Result := FMaxOrder;
+end;
+
+procedure TQueryCategoryParameters2.SetPos(APosID: Integer);
+begin
+  Assert(FDQuery.RecordCount > 0);
+  Assert((APosID >= 0) and (APosID <= 2));
+
+  TryEdit;
+  PosID.AsInteger := APosID;
+  TryPost;
 end;
 
 end.
