@@ -660,8 +660,8 @@ begin
         DM2.ComponentsSearchGroup;
 
       // Параметры в виде списка
-      ComponentsFrame.ViewCategoryParameters.QueryCategoryParameters :=
-        DM2.qCategoryParameters2;
+      ComponentsFrame.ViewCategoryParameters.CategoryParametersGroup :=
+        DM2.CategoryParametersGroup;
 
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
         DM2.ComponentsExGroup;

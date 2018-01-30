@@ -1,0 +1,2 @@
+inherited CategoryParametersGroup: TCategoryParametersGroup
+end

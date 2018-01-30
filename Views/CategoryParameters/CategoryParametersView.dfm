@@ -2,23 +2,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
+      DataController.DataSource = dsParameters
+      DataController.KeyFieldNames = 'ID'
+      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False
-      OptionsView.BandHeaders = True
+      OptionsView.ExpandButtonsForEmptyDetails = False
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       Styles.OnGetHeaderStyle = nil
-      Bands = <
-        item
-          Visible = False
-        end
-        item
-          Caption = #1055#1072#1088#1072#1084#1077#1090#1088
-        end
-        item
-          Caption = #1055#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
-        end
-        item
-        end>
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
@@ -43,8 +34,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 1
-        Position.ColIndex = 0
+        Position.BandIndex = 0
+        Position.ColIndex = 1
         Position.RowIndex = 0
       end
       object clTableName: TcxGridDBBandedColumn
@@ -56,8 +47,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 1
-        Position.ColIndex = 1
+        Position.BandIndex = 0
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
       object clValueT: TcxGridDBBandedColumn
@@ -69,8 +60,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 1
-        Position.ColIndex = 2
+        Position.BandIndex = 0
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
       object clParameterType: TcxGridDBBandedColumn
@@ -82,22 +73,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        Position.BandIndex = 1
-        Position.ColIndex = 3
-        Position.RowIndex = 0
-      end
-      object clName: TcxGridDBBandedColumn
-        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-        DataBinding.FieldName = 'Name'
-        Position.BandIndex = 2
-        Position.ColIndex = 0
-        Position.RowIndex = 0
-      end
-      object clTranslation: TcxGridDBBandedColumn
-        Caption = #1055#1077#1088#1077#1074#1086#1076
-        DataBinding.FieldName = 'Translation'
-        Position.BandIndex = 2
-        Position.ColIndex = 1
+        Position.BandIndex = 0
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
       object clPosID: TcxGridDBBandedColumn
@@ -110,8 +87,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.VertSizing = False
         SortIndex = 0
         SortOrder = soAscending
-        Position.BandIndex = 3
-        Position.ColIndex = 0
+        Position.BandIndex = 0
+        Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clOrder: TcxGridDBBandedColumn
@@ -126,8 +103,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         SortIndex = 1
         SortOrder = soAscending
         VisibleForCustomization = False
-        Position.BandIndex = 3
-        Position.ColIndex = 1
+        Position.BandIndex = 0
+        Position.ColIndex = 6
         Position.RowIndex = 0
       end
       object clIsAttribute: TcxGridDBBandedColumn
@@ -138,9 +115,75 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Properties.ValueChecked = '1'
         Properties.ValueUnchecked = '0'
         Options.VertSizing = False
-        Position.BandIndex = 3
+        Position.BandIndex = 0
+        Position.ColIndex = 7
+        Position.RowIndex = 0
+      end
+    end
+    object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
+      Navigator.Buttons.CustomButtons = <>
+      DataController.DataSource = dsSubParameters
+      DataController.DetailKeyFieldNames = 'IDCategoryParam'
+      DataController.KeyFieldNames = 'ID'
+      DataController.MasterKeyFieldNames = 'ID'
+      DataController.Summary.DefaultGroupSummaryItems = <>
+      DataController.Summary.FooterSummaryItems = <>
+      DataController.Summary.SummaryGroups = <>
+      OptionsView.GroupByBox = False
+      OptionsView.BandHeaders = False
+      Styles.OnGetContentStyle = cxGridDBBandedTableView2StylesGetContentStyle
+      Bands = <
+        item
+        end>
+      object clID2: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'ID'
+        Position.BandIndex = 0
+        Position.ColIndex = 0
+        Position.RowIndex = 0
+      end
+      object clIDCategoryParam: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDCategoryParam'
+        Position.BandIndex = 0
+        Position.ColIndex = 1
+        Position.RowIndex = 0
+      end
+      object clName: TcxGridDBBandedColumn
+        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
+        DataBinding.FieldName = 'Name'
+        Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
+      end
+      object clTranslation: TcxGridDBBandedColumn
+        Caption = #1055#1077#1088#1077#1074#1086#1076
+        DataBinding.FieldName = 'Translation'
+        Position.BandIndex = 0
+        Position.ColIndex = 3
+        Position.RowIndex = 0
+      end
+      object clIsAttribute2: TcxGridDBBandedColumn
+        Caption = #1040#1082#1090#1080#1074#1077#1085
+        DataBinding.FieldName = 'IsAttribute'
+        Position.BandIndex = 0
+        Position.ColIndex = 4
+        Position.RowIndex = 0
+      end
+      object clPosID2: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'PosID'
+        Position.BandIndex = 0
+        Position.ColIndex = 5
+        Position.RowIndex = 0
+      end
+      object clOrd2: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'Ord'
+        Position.BandIndex = 0
+        Position.ColIndex = 6
+        Position.RowIndex = 0
+      end
+    end
+    inherited cxGridLevel: TcxGridLevel
+      object cxGridLevel2: TcxGridLevel
+        GridView = cxGridDBBandedTableView2
       end
     end
   end
@@ -331,5 +374,13 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       AssignedValues = [svColor]
       Color = 13431295
     end
+  end
+  object dsParameters: TDataSource
+    Left = 248
+    Top = 312
+  end
+  object dsSubParameters: TDataSource
+    Left = 248
+    Top = 368
   end
 end

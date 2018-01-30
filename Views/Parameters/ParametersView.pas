@@ -684,8 +684,6 @@ begin
   AView := AcxGridMasterDataRow.ActiveDetailGridView as
     TcxGridDBBandedTableView;
 
-  // AView.ApplyBestFit();
-
   MyApplyBestFitForView(AView);
 end;
 

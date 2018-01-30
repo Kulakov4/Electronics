@@ -138,10 +138,6 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -206,7 +202,6 @@ object frmMain: TfrmMain
         inherited cxpcComponents: TcxPageControl
           Width = 926
           Height = 505
-          Properties.ActivePage = ComponentsFrame.cxtsCategory
           ExplicitWidth = 926
           ExplicitHeight = 505
           ClientRectBottom = 501
@@ -303,6 +298,16 @@ object frmMain: TfrmMain
           end
           inherited cxtsCategoryParameters: TcxTabSheet
             inherited ViewCategoryParameters: TViewCategoryParameters
+              Width = 918
+              Height = 474
+              inherited cxGrid: TcxGrid
+                Width = 918
+                Height = 427
+              end
+              inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
+              end
               inherited dxBarManager: TdxBarManager
                 DockControlHeights = (
                   0
@@ -569,7 +574,6 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
-            ExplicitLeft = 4
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474

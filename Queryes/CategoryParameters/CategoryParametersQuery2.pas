@@ -26,6 +26,7 @@ type
     function GetCategoryID: TField;
     function GetHaveInserted: Boolean;
     function GetIsAttribute: TField;
+    function GetIsDefault: TField;
     function GetIsEnabled: TField;
     function GetOrd: TField;
     function GetParameterType: TField;
@@ -55,6 +56,7 @@ type
     property CategoryID: TField read GetCategoryID;
     property HaveInserted: Boolean read GetHaveInserted;
     property IsAttribute: TField read GetIsAttribute;
+    property IsDefault: TField read GetIsDefault;
     property IsEnabled: TField read GetIsEnabled;
     property Ord: TField read GetOrd;
     property ParameterType: TField read GetParameterType;
@@ -199,6 +201,11 @@ end;
 function TQueryCategoryParameters2.GetIsAttribute: TField;
 begin
   Result := Field('IsAttribute');
+end;
+
+function TQueryCategoryParameters2.GetIsDefault: TField;
+begin
+  Result := Field('IsDefault');
 end;
 
 function TQueryCategoryParameters2.GetIsEnabled: TField;

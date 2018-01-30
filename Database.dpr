@@ -193,7 +193,8 @@ uses
   SubParametersView in 'Views\Parameters\SubParametersView.pas' {ViewSubParameters: TFrame},
   SubParametersExcelDataModule in 'Excel\SubParametersExcelDataModule.pas' {SubParametersExcelDM: TDataModule},
   ParamSubParamsQuery in 'Queryes\Parameters\ParamSubParamsQuery.pas' {QueryParamSubParams: TFrame},
-  CategoryParametersQuery2 in 'Queryes\CategoryParameters\CategoryParametersQuery2.pas' {QueryCategoryParameters2: TFrame};
+  CategoryParametersQuery2 in 'Queryes\CategoryParameters\CategoryParametersQuery2.pas' {QueryCategoryParameters2: TFrame},
+  CategoryParametersGroupUnit in 'Queryes\CategoryParameters\CategoryParametersGroupUnit.pas' {CategoryParametersGroup: TFrame};
 
 {$R *.res}
 

@@ -51,7 +51,6 @@ type
     glFunctionalGroup: TcxGridLevel;
     cxtsCategoryComponents: TcxTabSheet;
     cxtsCategoryParameters: TcxTabSheet;
-    ViewCategoryParameters: TViewCategoryParameters;
     cxtsComponentsSearch: TcxTabSheet;
     cxtsParametricTable: TcxTabSheet;
     dxBarManager: TdxBarManager;
@@ -79,6 +78,7 @@ type
     actLoadParametricData: TAction;
     dxBarSubItem5: TdxBarSubItem;
     dxBarButton8: TdxBarButton;
+    ViewCategoryParameters: TViewCategoryParameters;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);

@@ -295,14 +295,23 @@ object DM2: TDM2
         end>
     end
   end
-  inline qCategoryParameters2: TQueryCategoryParameters2
-    Left = 400
-    Top = 256
-    Width = 167
-    Height = 80
+  inline CategoryParametersGroup: TCategoryParametersGroup
+    Left = 328
+    Top = 261
+    Width = 338
+    Height = 60
     TabOrder = 14
-    ExplicitLeft = 400
-    ExplicitTop = 256
-    ExplicitWidth = 167
+    ExplicitLeft = 328
+    ExplicitTop = 261
+    ExplicitWidth = 338
+    ExplicitHeight = 60
+    inherited GridPanel1: TGridPanel
+      Width = 338
+      Height = 60
+      ExplicitLeft = -48
+      ExplicitTop = -32
+      ExplicitWidth = 338
+      ExplicitHeight = 60
+    end
   end
 end

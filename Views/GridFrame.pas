@@ -166,6 +166,7 @@ type
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
     procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
+    procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
     procedure RefreshData;
     function Value(AView: TcxGridDBBandedTableView;
@@ -530,13 +531,19 @@ begin
 end;
 
 procedure TfrmGrid.DoOnMyApplyBestFit(var Message: TMessage);
+var
+  AView: TcxGridDBBandedTableView;
 begin
   inherited;
+
+  AView := TcxGridDBBandedTableView(Message.WParam);
+  Assert(AView <> nil);
+
   Assert(FApplyBestFitPosted);
 
-  MyApplyBestFit;
+  MyApplyBestFitForView(AView);
 
-  MainView.EndBestFitUpdate;
+  AView.EndBestFitUpdate;
   FApplyBestFitPosted := False;
 end;
 
@@ -793,24 +800,7 @@ end;
 
 procedure TfrmGrid.PostMyApplyBestFitEvent;
 begin
-  // Уже послали такое сообщение
-  if FApplyBestFitPosted then
-    Exit;
-
-  if not Visible then
-    Exit;
-
-  if Handle <= 0 then
-    Exit;
-
-  FApplyBestFitPosted := True;
-  try
-    MainView.BeginBestFitUpdate;
-    PostMessage(Handle, WM_MY_APPLY_BEST_FIT, 0, 0);
-  except
-    FApplyBestFitPosted := False;
-    ; // Что-то случается с Handle
-  end;
+  PostMyApplyBestFitEventForView(MainView);
 end;
 
 procedure TfrmGrid.UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
@@ -1149,6 +1139,31 @@ begin
   else
     AView.ApplyBestFit(nil, True, True);
 
+end;
+
+procedure TfrmGrid.PostMyApplyBestFitEventForView(AView:
+    TcxGridDBBandedTableView);
+begin
+  Assert(AView <> nil);
+
+  // Уже послали такое сообщение
+  if FApplyBestFitPosted then
+    Exit;
+
+  if not Visible then
+    Exit;
+
+  if Handle <= 0 then
+    Exit;
+
+  FApplyBestFitPosted := True;
+  try
+    AView.BeginBestFitUpdate;
+    PostMessage(Handle, WM_MY_APPLY_BEST_FIT, NativeUInt(AView), 0);
+  except
+    FApplyBestFitPosted := False;
+    ; // Что-то случается с Handle
+  end;
 end;
 
 procedure TfrmGrid.RefreshData;

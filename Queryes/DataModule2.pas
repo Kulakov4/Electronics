@@ -12,7 +12,8 @@ uses
   ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
   ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
-  StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2;
+  StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2,
+  CategoryParametersGroupUnit;
 
 type
   TDM2 = class(TForm)
@@ -30,7 +31,7 @@ type
     qProductsSearch: TQueryProductsSearch;
     DescriptionsGroup: TDescriptionsGroup;
     ParametersGroup: TParametersGroup;
-    qCategoryParameters2: TQueryCategoryParameters2;
+    CategoryParametersGroup: TCategoryParametersGroup;
   private
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
@@ -94,7 +95,7 @@ begin
     Add(ComponentsSearchGroup.qComponentsSearch);
     // Поиск среди компонентов (подчинённое)
     // вкладка параметры - список параметров
-    Add(qCategoryParameters2);
+    Add(CategoryParametersGroup.qCategoryParameters2);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
 //  ComponentsGroup.Producers := ProducersGroup.qProducers;
@@ -113,7 +114,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  qCategoryParameters2.Master := qTreeList;
+  CategoryParametersGroup.qCategoryParameters2.Master := qTreeList;
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
@@ -124,7 +125,7 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
-  TNotifyEventWrap.Create(qCategoryParameters2.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
+  TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters2.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
     FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
@@ -216,7 +217,7 @@ end;
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
-  qCategoryParameters2.RefreshQuery;
+  CategoryParametersGroup.qCategoryParameters2.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterProducerCommit(Sender: TObject);
@@ -245,8 +246,8 @@ var
   L: TList<TRecOrder>;
 begin
   L := Sender as TList<TRecOrder>;
-  qCategoryParameters2.Move(L);
-  qCategoryParameters2.ApplyUpdates;
+  CategoryParametersGroup.qCategoryParameters2.Move(L);
+  CategoryParametersGroup.qCategoryParameters2.ApplyUpdates;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;
