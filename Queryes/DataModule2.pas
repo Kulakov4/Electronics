@@ -95,7 +95,7 @@ begin
     Add(ComponentsSearchGroup.qComponentsSearch);
     // Поиск среди компонентов (подчинённое)
     // вкладка параметры - список параметров
-    Add(CategoryParametersGroup.qCategoryParameters2);
+    Add(CategoryParametersGroup.qCategoryParameters);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
 //  ComponentsGroup.Producers := ProducersGroup.qProducers;
@@ -114,7 +114,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  CategoryParametersGroup.qCategoryParameters2.Master := qTreeList;
+  CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
@@ -125,7 +125,7 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
-  TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters2.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
+  TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
     FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
@@ -217,7 +217,7 @@ end;
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
-  CategoryParametersGroup.qCategoryParameters2.RefreshQuery;
+  CategoryParametersGroup.qCategoryParameters.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterProducerCommit(Sender: TObject);
@@ -246,8 +246,8 @@ var
   L: TList<TRecOrder>;
 begin
   L := Sender as TList<TRecOrder>;
-  CategoryParametersGroup.qCategoryParameters2.Move(L);
-  CategoryParametersGroup.qCategoryParameters2.ApplyUpdates;
+  CategoryParametersGroup.qCategoryParameters.Move(L);
+  CategoryParametersGroup.qCategoryParameters.ApplyUpdates;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;

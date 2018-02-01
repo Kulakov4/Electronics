@@ -28,7 +28,7 @@ type
     function GetChecked: TField;
     function GetIDParameterKind: TField;
     function GetIDParameterType: TField;
-    function GetIDParamSubParam: TField;
+    function GetParamSubParamID: TField;
     function GetIsCustomParameter: TField;
     function GetqSearchParameter: TQuerySearchParameter;
     function GetTableName: TField;
@@ -46,12 +46,12 @@ type
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
     constructor Create(AOwner: TComponent); override;
-    function GetCheckedIDParamSubParamValues: string;
+    function GetCheckedValues(const AFieldName: String): string;
     function Lookup(AValue: string): Integer;
     property Checked: TField read GetChecked;
     property IDParameterKind: TField read GetIDParameterKind;
     property IDParameterType: TField read GetIDParameterType;
-    property IDParamSubParam: TField read GetIDParamSubParam;
+    property ParamSubParamID: TField read GetParamSubParamID;
     property IsCustomParameter: TField read GetIsCustomParameter;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue
       write FProductCategoryIDValue;
@@ -276,17 +276,20 @@ begin
   Result := Field('Checked');
 end;
 
-function TQueryMainParameters.GetCheckedIDParamSubParamValues: string;
+function TQueryMainParameters.GetCheckedValues(const AFieldName : String):
+    string;
 var
   AClone: TFDMemTable;
 begin
+  Assert(not AFieldName.IsEmpty);
+
   Result := '';
   AClone := AddClone(Format('%s = %d', [Checked.FieldName, 1]));
   try
     while not AClone.Eof do
     begin
-      Result := Result + IfThen(Result.IsEmpty, '', ',');
-      Result := Result + AClone.FieldByName(IDParamSubParam.FieldName).AsString;
+      Result := Result + IfThen(Result.IsEmpty, '', ',') +
+        AClone.FieldByName(AFieldName).AsString;
       AClone.Next;
     end;
   finally
@@ -304,9 +307,9 @@ begin
   Result := Field('IDParameterType');
 end;
 
-function TQueryMainParameters.GetIDParamSubParam: TField;
+function TQueryMainParameters.GetParamSubParamID: TField;
 begin
-  Result := Field('IDParamSubParam');
+  Result := Field('ParamSubParamID');
 end;
 
 function TQueryMainParameters.GetIsCustomParameter: TField;

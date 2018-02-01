@@ -660,7 +660,7 @@ begin
         DM2.ComponentsSearchGroup;
 
       // Параметры в виде списка
-      ComponentsFrame.ViewCategoryParameters.CategoryParametersGroup :=
+      ComponentsFrame.ViewCategoryParameters.CatParamsGroup :=
         DM2.CategoryParametersGroup;
 
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=

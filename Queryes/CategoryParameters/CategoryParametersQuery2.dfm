@@ -8,8 +8,8 @@ inherited QueryCategoryParameters2: TQueryCategoryParameters2
     CachedUpdates = True
     SQL.Strings = (
       
-        'select cp.*, p.Value, p.TableName, p.ValueT, pt.ParameterType, s' +
-        'p.Name, sp.Translation, sp.IsDefault'
+        'select cp.*, psp.IdParameter, p.Value, p.TableName, p.ValueT, pt' +
+        '.ParameterType, sp.Name, sp.Translation, sp.IsDefault'
       'from CategoryParams2 cp'
       'join ParamSubParams psp on cp.ParamSubParamId = psp.id'
       'join Parameters p on psp.IdParameter = p.id'

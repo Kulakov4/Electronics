@@ -50,6 +50,9 @@ inherited ParametersGroup: TParametersGroup
       end>
     ExplicitWidth = 790
     ExplicitHeight = 79
+    DesignSize = (
+      790
+      79)
     inline qParameterTypes: TQueryParameterTypes
       Left = 1
       Top = 1
@@ -59,7 +62,7 @@ inherited ParametersGroup: TParametersGroup
       TabOrder = 0
       ExplicitLeft = 1
       ExplicitTop = 1
-      ExplicitWidth = 157
+      ExplicitWidth = 197
       ExplicitHeight = 77
     end
     inline qMainParameters: TQueryMainParameters
@@ -69,9 +72,9 @@ inherited ParametersGroup: TParametersGroup
       Height = 77
       Align = alClient
       TabOrder = 1
-      ExplicitLeft = 158
+      ExplicitLeft = 198
       ExplicitTop = 1
-      ExplicitWidth = 157
+      ExplicitWidth = 197
       ExplicitHeight = 77
     end
     inline qParamSubParams: TQueryParamSubParams
@@ -83,6 +86,8 @@ inherited ParametersGroup: TParametersGroup
       TabOrder = 2
       ExplicitLeft = 395
       ExplicitTop = 1
+      ExplicitWidth = 196
+      ExplicitHeight = 77
     end
     inline qSubParameters2: TQuerySubParameters2
       Left = 627
@@ -93,6 +98,7 @@ inherited ParametersGroup: TParametersGroup
       TabOrder = 3
       ExplicitLeft = 627
       ExplicitTop = 1
+      ExplicitHeight = 77
     end
   end
 end

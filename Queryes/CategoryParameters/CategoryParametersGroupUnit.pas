@@ -7,27 +7,36 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
   FireDAC.Comp.Client, Data.DB, CategoryParametersQuery2,
-  System.Generics.Collections;
+  System.Generics.Collections, NotifyEvents, DBRecordHolder,
+  SearchParameterSubParameterQuery;
 
 type
   TCategoryFDMemTable = class(TFDMemTable)
+  private
+    function GetID: TField;
   protected
     procedure DeleteTail(AFromRecNo: Integer);
   public
     procedure LoadRecFrom(ADataSet: TDataSet; AFieldList: TStrings);
+    procedure UpdatePK(APKDictionary: TDictionary<Integer, Integer>);
+    property ID: TField read GetID;
   end;
 
   TQryCategoryParameters = class(TCategoryFDMemTable)
   private
     function GetIsAttribute: TField;
     function GetOrd: TField;
-    function GetID: TField;
+    function GetIDParameter: TField;
+    function GetPosID: TField;
   protected
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AppendParameter(ARecordHolder: TRecordHolder);
+    function LocateByParameterID(AIDParameter: Integer): Boolean;
     property IsAttribute: TField read GetIsAttribute;
     property Ord: TField read GetOrd;
-    property ID: TField read GetID;
+    property IDParameter: TField read GetIDParameter;
+    property PosID: TField read GetPosID;
   end;
 
   TQryCategorySubParameters = class(TCategoryFDMemTable)
@@ -35,38 +44,54 @@ type
     function GetIDCategoryParam: TField;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure DeleteByIDCategoryParam(AIDCategoryParam: Integer);
     property IDCategoryParam: TField read GetIDCategoryParam;
   end;
 
   TCategoryParametersGroup = class(TQueryGroup)
   private
-    FqCategoryParameters: TQryCategoryParameters;
-    FqCategoryParameters2: TQueryCategoryParameters2;
-    FqCategorySubParameters: TQryCategorySubParameters;
+    FAfterUpdateData: TNotifyEventsEx;
+    FBeforeUpdateData: TNotifyEventsEx;
+    FFDQCategoryParameters: TQryCategoryParameters;
+    FqCategoryParameters: TQueryCategoryParameters2;
+    FFDQCategorySubParameters: TQryCategorySubParameters;
+    FqCatParams: TFDMemTable;
+    FqCatSubParams: TFDMemTable;
+    FqSearchParameterSubParameter: TQuerySearchParameterSubParameter;
     procedure DoAfterLoad(Sender: TObject);
+    function GetIsAllQuerysActive: Boolean;
+    function GetqSearchParameterSubParameter: TQuerySearchParameterSubParameter;
     { Private declarations }
   protected
-    procedure LoadData;
+    property qSearchParameterSubParameter: TQuerySearchParameterSubParameter
+      read GetqSearchParameterSubParameter;
   public
     constructor Create(AOwner: TComponent); override;
-    property qCategoryParameters: TQryCategoryParameters
+    procedure AppendParameter(ARecordHolder: TRecordHolder);
+    procedure AppendSubParameter(ARecordHolder: TRecordHolder);
+    procedure ApplyUpdates; override;
+    procedure CancelUpdates; override;
+    procedure DeleteParameters(APKValues: array of Variant);
+    procedure DeleteSubParameters(APKValues: array of Variant);
+    procedure DeleteParameter(AIDParameter: Integer);
+    procedure UpdateData;
+    property AfterUpdateData: TNotifyEventsEx read FAfterUpdateData;
+    property BeforeUpdateData: TNotifyEventsEx read FBeforeUpdateData;
+    property IsAllQuerysActive: Boolean read GetIsAllQuerysActive;
+    property qCategoryParameters: TQueryCategoryParameters2
       read FqCategoryParameters;
-    property qCategoryParameters2: TQueryCategoryParameters2
-      read FqCategoryParameters2;
-    property qCategorySubParameters: TQryCategorySubParameters
-      read FqCategorySubParameters;
+    property qCatParams: TFDMemTable read FqCatParams;
+    property qCatSubParams: TFDMemTable read FqCatSubParams;
     { Public declarations }
   end;
 
 implementation
 
-uses
-  NotifyEvents;
-
 constructor TQryCategoryParameters.Create(AOwner: TComponent);
 begin
   inherited;
   FieldDefs.Add('ID', ftInteger);
+  FieldDefs.Add('IDParameter', ftInteger);
   FieldDefs.Add('Value', ftWideString, 200);
   FieldDefs.Add('TableName', ftWideString, 200);
   FieldDefs.Add('ValueT', ftWideString, 200);
@@ -76,6 +101,15 @@ begin
   FieldDefs.Add('Ord', ftInteger);
 
   CreateDataSet;
+end;
+
+procedure TQryCategoryParameters.AppendParameter(ARecordHolder: TRecordHolder);
+begin
+  Assert(ARecordHolder <> nil);
+
+  Append;
+  ARecordHolder.TryPut(Self);
+  Post;
 end;
 
 function TQryCategoryParameters.GetIsAttribute: TField;
@@ -88,9 +122,21 @@ begin
   Result := FieldByName('Ord');
 end;
 
-function TQryCategoryParameters.GetID: TField;
+function TQryCategoryParameters.GetIDParameter: TField;
 begin
-  Result := FieldByName('ID');
+  Result := FieldByName('IDParameter');
+end;
+
+function TQryCategoryParameters.GetPosID: TField;
+begin
+  Result := FieldByName('PosID');
+end;
+
+function TQryCategoryParameters.LocateByParameterID(AIDParameter
+  : Integer): Boolean;
+begin
+  Assert(AIDParameter > 0);
+  Result := LocateEx(IDParameter.FieldName, AIDParameter);
 end;
 
 constructor TQryCategorySubParameters.Create(AOwner: TComponent);
@@ -107,6 +153,20 @@ begin
   CreateDataSet;
 end;
 
+procedure TQryCategorySubParameters.DeleteByIDCategoryParam(AIDCategoryParam
+  : Integer);
+begin
+  Assert(AIDCategoryParam > 0);
+
+  DisableControls;
+  try
+    while LocateEx(IDCategoryParam.FieldName, AIDCategoryParam) do
+      Delete;
+  finally
+    EnableControls;
+  end;
+end;
+
 function TQryCategorySubParameters.GetIDCategoryParam: TField;
 begin
   Result := FieldByName('IDCategoryParam');
@@ -115,67 +175,327 @@ end;
 constructor TCategoryParametersGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  FqCategoryParameters2 := TQueryCategoryParameters2.Create(Self);
-  FqCategoryParameters := TQryCategoryParameters.Create(Self);
-  FqCategorySubParameters := TQryCategorySubParameters.Create(Self);
+  FqCategoryParameters := TQueryCategoryParameters2.Create(Self);
+  FFDQCategoryParameters := TQryCategoryParameters.Create(Self);
+  FFDQCategorySubParameters := TQryCategorySubParameters.Create(Self);
 
-  TNotifyEventWrap.Create(FqCategoryParameters2.AfterLoad, DoAfterLoad);
+  // Создаём клон курсора
+  FqCatParams := TFDMemTable.Create(Self);
+  FqCatParams.CloneCursor(FFDQCategoryParameters);
+
+  FqCatSubParams := TFDMemTable.Create(Self);
+  FqCatSubParams.CloneCursor(FFDQCategorySubParameters);
+
+  TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad);
+
+  FBeforeUpdateData := TNotifyEventsEx.Create(Self);
+  FAfterUpdateData := TNotifyEventsEx.Create(Self);
+end;
+
+procedure TCategoryParametersGroup.AppendParameter(ARecordHolder:
+    TRecordHolder);
+var
+  ARH: TRecordHolder;
+begin
+  Assert(ARecordHolder <> nil);
+
+  // Сначала добавляем это в "плоский" запрос, чтобы он хоть как-то вычислил ID
+  // При сохранении в БД ID будет обновлён
+  FqCategoryParameters.AppendParameter(ARecordHolder);
+
+  ARH := TRecordHolder.Create(FqCategoryParameters.FDQuery);
+  try
+    // Затем добавим ту же запись в параметры
+    FFDQCategoryParameters.AppendParameter(ARH);
+  finally
+    FreeAndNil(ARH);
+  end;
+end;
+
+procedure TCategoryParametersGroup.AppendSubParameter(ARecordHolder:
+    TRecordHolder);
+begin
+  // Добавляем подпараметр в "плоский" набор
+  qCategoryParameters.AppendParameter(ARecordHolder);
+
+  FFDQCategorySubParameters.Append;
+  ARecordHolder.Put(FFDQCategorySubParameters);
+  FFDQCategorySubParameters.Post;
+end;
+
+procedure TCategoryParametersGroup.ApplyUpdates;
+begin
+  // Тут все сделанные изменения применятся рекурсивно ко всей БД
+  FqCategoryParameters.ApplyUpdates;
+
+  if FqCategoryParameters.PKDictionary.Count > 0 then
+  begin
+    // Тут надо обновить виртуальные идентификаторы на реальные
+    FFDQCategoryParameters.UpdatePK(FqCategoryParameters.PKDictionary);
+    FFDQCategorySubParameters.UpdatePK(FqCategoryParameters.PKDictionary);
+  end;
+end;
+
+procedure TCategoryParametersGroup.CancelUpdates;
+begin
+  // Тут все сделанные изменения отменяются
+  FqCategoryParameters.CancelUpdates;
+
+  UpdateData;
+end;
+
+procedure TCategoryParametersGroup.DeleteParameters
+  (APKValues: array of Variant);
+var
+  ADeletedID: TList<Integer>;
+  AID: Variant;
+  OK: Boolean;
+begin
+  ADeletedID := TList<Integer>.Create;
+  FFDQCategoryParameters.DisableControls;
+  try
+    for AID in APKValues do
+    begin
+      // Пока у параметра есть подпараметры
+      while FFDQCategorySubParameters.LocateEx
+        (FFDQCategorySubParameters.IDCategoryParam.FieldName, AID) do
+      begin
+        // Удаляем из "плоского" набора, если ещё не удалили
+        if (AID > 0) and
+          (ADeletedID.IndexOf(FFDQCategorySubParameters.ID.AsInteger) = -1) then
+        begin
+          OK := qCategoryParameters.LocateByPK
+            (FFDQCategorySubParameters.ID.AsInteger);
+          Assert(OK);
+          qCategoryParameters.FDQuery.Delete;
+        end;
+        // Удаляем из подпараметров
+        FFDQCategorySubParameters.Delete;
+      end;
+
+      // Удаляем из параметров
+      OK := FFDQCategoryParameters.LocateEx
+        (FFDQCategoryParameters.ID.FieldName, AID);
+      Assert(OK);
+      FFDQCategoryParameters.Delete;
+
+      // Удаляем из "плоского" набора, если ещё не удалили
+      if (AID > 0) and (ADeletedID.IndexOf(AID) = -1) then
+      begin
+        OK := qCategoryParameters.LocateByPK(AID);
+        Assert(OK);
+        qCategoryParameters.FDQuery.Delete;
+      end;
+    end;
+  finally
+    FFDQCategoryParameters.EnableControls;
+    FreeAndNil(ADeletedID);
+  end;
+end;
+
+procedure TCategoryParametersGroup.DeleteSubParameters
+  (APKValues: array of Variant);
+var
+  AID: Variant;
+  ARH: TRecordHolder;
+  AVIDList: TList<Integer>;
+  OK: Boolean;
+  rc: Integer;
+  V: Variant;
+  VID: Integer;
+begin
+  AVIDList := TList<Integer>.Create;
+  try
+    for AID in APKValues do
+    begin
+      // Если удаляем подпараметры
+      OK := FFDQCategorySubParameters.LocateEx
+        (FFDQCategorySubParameters.ID.FieldName, AID);
+      Assert(OK);
+
+      if AVIDList.IndexOf(FFDQCategorySubParameters.IDCategoryParam.
+        AsInteger) = -1 then
+        AVIDList.Add(FFDQCategorySubParameters.IDCategoryParam.AsInteger);
+
+      FFDQCategorySubParameters.Delete;
+
+      // Удаляем из плоского набора
+      OK := qCategoryParameters.LocateByPK(AID);
+      Assert(OK);
+      qCategoryParameters.FDQuery.Delete;
+    end;
+
+    // Возможно надо заменить виртуальные идентификаторы реальными
+    for VID in AVIDList do
+    begin
+      // Ишем, остались-ли у нашего параметра подпараметры
+      V := FFDQCategorySubParameters.LookupEx
+        (FFDQCategorySubParameters.IDCategoryParam.FieldName, VID,
+        FFDQCategorySubParameters.ID.FieldName);
+
+      // Если остались, то ничего менять не надо
+      if not VarIsNull(V) then
+        Continue;
+
+      // Ищем наш параметр, у которого не осталось подпараметров
+      OK := FFDQCategoryParameters.LocateEx
+        (FFDQCategoryParameters.ID.FieldName, VID);
+      Assert(OK);
+
+      // Выбираем информацию о том, какой подпараметр "по умолчанию" у нашего параметра
+      rc := qSearchParameterSubParameter.SearchByID
+        (FFDQCategoryParameters.IDParameter.AsInteger);
+      Assert(rc = 1);
+
+      // Добавляем в "плоский" набор новый параметр
+      ARH := TRecordHolder.Create(qSearchParameterSubParameter.FDQuery);
+      try
+        // ID меняем на IdParameter
+        ARH.Find(qSearchParameterSubParameter.PKFieldName).FieldName :=
+          qCategoryParameters.IDParameter.FieldName;
+
+        // Порядок подпараметра будет тем-же
+        TFieldHolder.Create(ARH, qCategoryParameters.Ord.FieldName,
+          FFDQCategoryParameters.Ord.Value);
+
+        // Позиция подпараметра будет той-же
+        TFieldHolder.Create(ARH, qCategoryParameters.PosID.FieldName,
+          FFDQCategoryParameters.PosID.Value);
+
+        qCategoryParameters.AppendParameter(ARH);
+      finally
+        FreeAndNil(ARH);
+      end;
+
+      // Меняем виртуальный ID на временный, который потом заменим на настоящий при сохранении в БД
+      FFDQCategoryParameters.Edit;
+      FFDQCategoryParameters.ID.Value := qCategoryParameters.PK.Value;
+      FFDQCategoryParameters.Post;
+    end;
+
+  finally
+    FreeAndNil(AVIDList);
+  end;
+end;
+
+// Полностью удаляет параметр вместе со всеми его подпараметрами
+procedure TCategoryParametersGroup.DeleteParameter(AIDParameter: Integer);
+begin
+  Assert(AIDParameter > 0);
+
+  FFDQCategoryParameters.DisableControls;
+  try
+    while FFDQCategoryParameters.LocateByParameterID(AIDParameter) do
+    begin
+      // Сначала надо удалить все подпарамеры
+      FFDQCategorySubParameters.DeleteByIDCategoryParam
+        (FFDQCategoryParameters.ID.AsInteger);
+      // Потом удаляем сам параметр
+      FFDQCategoryParameters.Delete;
+    end;
+  finally
+    FFDQCategoryParameters.EnableControls;
+  end;
+
+  // Удаляем из "плоского" запроса
+  FqCategoryParameters.FDQuery.DisableControls;
+  try
+    while FqCategoryParameters.LocateByField
+      (FqCategoryParameters.IDParameter.FieldName, AIDParameter) do
+      FqCategoryParameters.FDQuery.Delete;
+  finally
+    FqCategoryParameters.FDQuery.EnableControls;
+  end;
 end;
 
 procedure TCategoryParametersGroup.DoAfterLoad(Sender: TObject);
 begin
-  LoadData;
+  UpdateData;
 end;
 
-procedure TCategoryParametersGroup.LoadData;
+function TCategoryParametersGroup.GetIsAllQuerysActive: Boolean;
+begin
+  Result := qCategoryParameters.FDQuery.Active and
+    FFDQCategoryParameters.Active and FFDQCategorySubParameters.Active;
+end;
+
+function TCategoryParametersGroup.GetqSearchParameterSubParameter
+  : TQuerySearchParameterSubParameter;
+begin
+  if FqSearchParameterSubParameter = nil then
+    FqSearchParameterSubParameter :=
+      TQuerySearchParameterSubParameter.Create(Self);
+  Result := FqSearchParameterSubParameter;
+end;
+
+procedure TCategoryParametersGroup.UpdateData;
 var
   AFieldList: TStringList;
+  AID: Integer;
 begin
+  FBeforeUpdateData.CallEventHandlers(Self);
   AFieldList := TStringList.Create;
   try
-    qCategoryParameters.Fields.GetFieldNames(AFieldList);
+    FFDQCategorySubParameters.EmptyDataSet;
+    FFDQCategoryParameters.EmptyDataSet;
+
+    FFDQCategoryParameters.Fields.GetFieldNames(AFieldList);
     // Эти поля могут отличаться при группировке
-    AFieldList.Delete(AFieldList.IndexOf(qCategoryParameters.ID.FieldName));
+    AFieldList.Delete(AFieldList.IndexOf(FFDQCategoryParameters.ID.FieldName));
     AFieldList.Delete
-      (AFieldList.IndexOf(qCategoryParameters.IsAttribute.FieldName));
-    AFieldList.Delete(AFieldList.IndexOf(qCategoryParameters.Ord.FieldName));
+      (AFieldList.IndexOf(FFDQCategoryParameters.IsAttribute.FieldName));
+    AFieldList.Delete(AFieldList.IndexOf(FFDQCategoryParameters.Ord.FieldName));
     Assert(AFieldList.Count > 0);
 
-    qCategoryParameters2.FDQuery.DisableControls;
+    qCategoryParameters.FDQuery.DisableControls;
     try
-      qCategoryParameters2.FDQuery.First;
-      qCategoryParameters.First;
-      while not qCategoryParameters2.FDQuery.Eof do
+      qCategoryParameters.FDQuery.First;
+      FFDQCategoryParameters.First;
+      AID := -100000;
+      while not qCategoryParameters.FDQuery.Eof do
       begin
-        qCategoryParameters.LoadRecFrom(qCategoryParameters2.FDQuery,
+        FFDQCategoryParameters.LoadRecFrom(qCategoryParameters.FDQuery,
           AFieldList);
-        if qCategoryParameters.ID.IsNull then
+        if FFDQCategoryParameters.ID.IsNull then
         begin
-          qCategoryParameters.Edit;
-          qCategoryParameters.ID.AsInteger := qCategoryParameters2.PK.Value;
-          qCategoryParameters.IsAttribute.Value :=
-            qCategoryParameters2.IsAttribute.Value;
-          qCategoryParameters.Ord.Value := qCategoryParameters2.Ord.Value;
-          qCategoryParameters.Post;
+          FFDQCategoryParameters.Edit;
+          FFDQCategoryParameters.ID.AsInteger :=
+            qCategoryParameters.PK.AsInteger;
+          FFDQCategoryParameters.IsAttribute.Value :=
+            qCategoryParameters.IsAttribute.Value;
+          FFDQCategoryParameters.Ord.Value := qCategoryParameters.Ord.Value;
+          FFDQCategoryParameters.Post;
         end;
 
-        if qCategoryParameters2.IsDefault.AsInteger = 0 then
+        if qCategoryParameters.IsDefault.AsInteger = 0 then
         begin
-          qCategorySubParameters.LoadRecFrom(qCategoryParameters2.FDQuery, nil);
-          qCategorySubParameters.Edit;
-          qCategorySubParameters.IDCategoryParam.AsInteger :=
-            qCategoryParameters.ID.AsInteger;
-          qCategorySubParameters.Post;
+          FFDQCategorySubParameters.LoadRecFrom
+            (qCategoryParameters.FDQuery, nil);
+
+          // Меняем реальный ID на виртуальный
+          if FFDQCategoryParameters.ID.AsInteger > 0 then
+          begin
+            Dec(AID);
+            FFDQCategoryParameters.Edit;
+            FFDQCategoryParameters.ID.AsInteger := AID;
+            FFDQCategoryParameters.Post;
+          end;
+
+          FFDQCategorySubParameters.Edit;
+          FFDQCategorySubParameters.IDCategoryParam.AsInteger :=
+            FFDQCategoryParameters.ID.AsInteger;
+          FFDQCategorySubParameters.Post;
         end;
-        qCategoryParameters2.FDQuery.Next;
+        qCategoryParameters.FDQuery.Next;
       end;
-      qCategorySubParameters.DeleteTail(qCategorySubParameters.RecNo + 1);
-      qCategoryParameters.DeleteTail(qCategoryParameters.RecNo + 1);
+      // FFDQCategorySubParameters.DeleteTail(FFDQCategorySubParameters.RecNo + 1);
+      // FFDQCategoryParameters.DeleteTail(FFDQCategoryParameters.RecNo + 1);
     finally
-      qCategoryParameters2.FDQuery.EnableControls;
+      qCategoryParameters.FDQuery.EnableControls;
     end;
   finally
     FreeAndNil(AFieldList);
+    FAfterUpdateData.CallEventHandlers(Self);
   end;
 end;
 
@@ -198,6 +518,11 @@ begin
   end;
 end;
 
+function TCategoryFDMemTable.GetID: TField;
+begin
+  Result := FieldByName('ID');
+end;
+
 procedure TCategoryFDMemTable.LoadRecFrom(ADataSet: TDataSet;
   AFieldList: TStrings);
 var
@@ -206,7 +531,7 @@ var
   AUF: TDictionary<String, Variant>;
   F: TField;
   FF: TField;
-  NeedAppend: Boolean;
+  NeedEdit: Boolean;
 begin
   Assert(ADataSet <> nil);
   Assert(ADataSet.RecordCount > 0);
@@ -221,7 +546,7 @@ begin
 
   Assert(AFL.Count > 0);
 
-  NeedAppend := False;
+  NeedEdit := False;
 
   AUF := TDictionary<String, Variant>.Create;
   try
@@ -234,14 +559,14 @@ begin
       FF := FindField(F.FieldName);
       if (FF <> nil) then
       begin
-        NeedAppend := NeedAppend or (FF.Value <> F.Value);
+        NeedEdit := NeedEdit or (FF.Value <> F.Value);
 
         AUF.Add(FF.FieldName, F.Value);
       end;
     end;
 
     // Если есть отличающиеся заначения
-    if NeedAppend then
+    if NeedEdit then
     begin
       Append;
 
@@ -257,6 +582,32 @@ begin
     FreeAndNil(AUF);
     if AFieldList = nil then
       FreeAndNil(AFL);
+  end;
+end;
+
+procedure TCategoryFDMemTable.UpdatePK(APKDictionary
+  : TDictionary<Integer, Integer>);
+var
+  AClone: TFDMemTable;
+  AField: TField;
+  AID: Integer;
+begin
+  AClone := TFDMemTable.Create(Self);
+  try
+    AField := AClone.FieldByName(ID.FieldName);
+    AClone.CloneCursor(Self);
+
+    for AID in APKDictionary.Keys do
+    begin
+      if not AClone.LocateEx(ID.FieldName, AID) then
+        Continue;
+
+      AClone.Edit;
+      AField.AsInteger := APKDictionary[AField.AsInteger];
+      AClone.Post;
+    end;
+  finally
+    FreeAndNil(AClone);
   end;
 end;
 

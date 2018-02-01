@@ -294,6 +294,7 @@ inherited ViewParameters: TViewParameters
         GridView = cxGridDBBandedTableView2
         object cxGridLevel3: TcxGridLevel
           GridView = cxGridDBBandedTableView3
+          Visible = False
         end
       end
     end

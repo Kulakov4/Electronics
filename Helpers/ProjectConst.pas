@@ -40,6 +40,8 @@ resourcestring
 
   sDoYouWantToDeleteCategoryParameter =
     'Вы действительно хотите убрать выделенные параметры из текущей категории?';
+  sDoYouWantToDeleteCategorySubParameter =
+    'Вы действительно хотите удалить выделенные подпараметры?';
   sDoYouWantToDeleteFamily =
     'Вы действительно хотите удалить выделенные семейства компонентов из текущей категории?';
   sDoYouWantToDeleteFamilyFromAll =

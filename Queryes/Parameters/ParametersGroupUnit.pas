@@ -22,10 +22,12 @@ type
     qSubParameters2: TQuerySubParameters2;
   private
     FAfterDataChange: TNotifyEventsEx;
+    FProductCategoryIDValue: Integer;
     FqParameterKinds: TQueryParameterKinds;
     procedure DoOnDataChange(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
     function GetqParameterKinds: TQueryParameterKinds;
+    procedure SetProductCategoryIDValue(const Value: Integer);
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -35,7 +37,10 @@ type
     procedure InsertList(AParametersExcelTable: TParametersExcelTable);
     procedure ReOpen; override;
     procedure Rollback; override;
+    procedure TryPost; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
+    property ProductCategoryIDValue: Integer read FProductCategoryIDValue write
+        SetProductCategoryIDValue;
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
     { Public declarations }
   end;
@@ -247,6 +252,24 @@ begin
   Connection.Rollback;
 
   ReOpen;
+end;
+
+procedure TParametersGroup.SetProductCategoryIDValue(const Value: Integer);
+begin
+  if FProductCategoryIDValue = Value then
+    Exit;
+
+  FProductCategoryIDValue := Value;
+  qMainParameters.ProductCategoryIDValue := FProductCategoryIDValue;
+  qParamSubParams.ProductCategoryIDValue := FProductCategoryIDValue;
+end;
+
+procedure TParametersGroup.TryPost;
+begin
+  qSubParameters2.TryPost;
+  qParameterTypes.TryPost;
+  qMainParameters.TryPost;
+  qParamSubParams.TryPost;
 end;
 
 end.

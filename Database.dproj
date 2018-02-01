@@ -893,6 +893,16 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParamSubParamQuery.pas">
+            <Form>QuerySearchParamSubParam</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParameterSubParameterQuery.pas">
+            <Form>QuerySearchParameterSubParameter</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

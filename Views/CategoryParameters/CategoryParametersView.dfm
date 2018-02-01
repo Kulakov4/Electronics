@@ -8,19 +8,18 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False
       OptionsView.ExpandButtonsForEmptyDetails = False
+      OptionsView.HeaderAutoHeight = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       Styles.OnGetHeaderStyle = nil
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
-        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
-        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
@@ -121,6 +120,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
     end
     object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
+      OnKeyDown = cxGridDBBandedTableView2KeyDown
+      OnMouseDown = cxGridDBBandedTableView2MouseDown
       Navigator.Buttons.CustomButtons = <>
       DataController.DataSource = dsSubParameters
       DataController.DetailKeyFieldNames = 'IDCategoryParam'
@@ -129,7 +130,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
+      OptionsSelection.MultiSelect = True
+      OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.GroupByBox = False
+      OptionsView.HeaderAutoHeight = True
       OptionsView.BandHeaders = False
       Styles.OnGetContentStyle = cxGridDBBandedTableView2StylesGetContentStyle
       Bands = <
@@ -162,20 +167,28 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Position.RowIndex = 0
       end
       object clIsAttribute2: TcxGridDBBandedColumn
-        Caption = #1040#1082#1090#1080#1074#1077#1085
+        Caption = #1040#1082#1090#1080#1074#1085#1099#1081
         DataBinding.FieldName = 'IsAttribute'
+        PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.ValueChecked = '1'
+        Properties.ValueUnchecked = '0'
+        MinWidth = 50
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
       end
       object clPosID2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'PosID'
+        SortIndex = 0
+        SortOrder = soAscending
         Position.BandIndex = 0
         Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clOrd2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
+        SortIndex = 1
+        SortOrder = soAscending
         Position.BandIndex = 0
         Position.ColIndex = 6
         Position.RowIndex = 0
@@ -202,6 +215,10 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarSubItem1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton10'
         end
         item
           Visible = True
@@ -272,7 +289,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       PaintStyle = psCaptionGlyph
     end
     object dxBarSubItem1: TdxBarSubItem
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088
       Category = 0
       Visible = ivAlways
       ImageIndex = 1
@@ -301,6 +318,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     object dxBarButton12: TdxBarButton
       Action = actAddToEnd
       Category = 0
+    end
+    object dxBarButton10: TdxBarButton
+      Action = actAddSubParameter
+      Category = 0
+      PaintStyle = psCaptionGlyph
     end
   end
   inherited ActionList: TActionList
@@ -360,6 +382,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088' '#1074' '#1075#1088#1091#1087#1087#1091' '#1082#1086#1085#1077#1095#1085#1099#1093
       ImageIndex = 1
       OnExecute = actAddToEndExecute
+    end
+    object actAddSubParameter: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
+      ImageIndex = 1
+      OnExecute = actAddSubParameterExecute
     end
   end
   object cxStyleRepository: TcxStyleRepository

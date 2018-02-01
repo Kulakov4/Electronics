@@ -103,7 +103,8 @@ type
       overload; virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
-    function LocateByField(const AFieldName, AValue: string): Boolean;
+    function LocateByField(const AFieldName: string; const AValue: Variant):
+        Boolean;
     procedure SetParameters(const AParamNames: array of string;
       const AParamValues: array of Variant);
     function LocateByPK(APKValue: Variant): Boolean;
@@ -822,7 +823,8 @@ begin
   end;
 end;
 
-function TQueryBase.LocateByField(const AFieldName, AValue: string): Boolean;
+function TQueryBase.LocateByField(const AFieldName: string; const AValue:
+    Variant): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := FDQuery.LocateEx(AFieldName, AValue,

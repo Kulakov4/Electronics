@@ -27,7 +27,8 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, CategoryParametersQuery, ParameterPosQuery,
-  DragHelper, cxCheckBox, CategoryParametersQuery2, CategoryParametersGroupUnit;
+  DragHelper, cxCheckBox, CategoryParametersQuery2,
+  CategoryParametersGroupUnit, SearchParamSubParamQuery;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -75,6 +76,9 @@ type
     clIsAttribute2: TcxGridDBBandedColumn;
     clPosID2: TcxGridDBBandedColumn;
     clOrd2: TcxGridDBBandedColumn;
+    actAddSubParameter: TAction;
+    dxBarButton10: TdxBarButton;
+    procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
     procedure actAddToEndExecute(Sender: TObject);
@@ -85,6 +89,10 @@ type
     procedure actPosCenterExecute(Sender: TObject);
     procedure actPosEndExecute(Sender: TObject);
     procedure actUpExecute(Sender: TObject);
+    procedure cxGridDBBandedTableView2KeyDown(Sender: TObject; var Key: Word;
+        Shift: TShiftState);
+    procedure cxGridDBBandedTableView2MouseDown(Sender: TObject; Button:
+        TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
     procedure cxGridDBBandedTableViewStylesGetContentStyle
@@ -96,23 +104,28 @@ type
     procedure cxGridDBBandedTableViewDataControllerDetailExpanded
       (ADataController: TcxCustomDataController; ARecordIndex: Integer);
   private
-    FCategoryParametersGroup: TCategoryParametersGroup;
+    FCatParamsGroup: TCategoryParametersGroup;
+    FLoading: Boolean;
     FQueryParameterPos: TQueryParameterPos;
-    procedure Add(APosID: Integer);
-    procedure DoAfterLoad(Sender: TObject);
+    procedure AddParameter(APosID: Integer);
+    procedure DoAfterUpdateData(Sender: TObject);
     function GetQueryParameterPos: TQueryParameterPos;
     procedure Move(AUp: Boolean);
-    procedure SetCategoryParametersGroup(const Value: TCategoryParametersGroup);
+    procedure SetCatParamsGroup(const Value: TCategoryParametersGroup);
     procedure SetPos(APosID: Integer);
     { Private declarations }
   protected
+    procedure DoAfterLoad(Sender: TObject);
+    procedure DoBeforeUpdateData(Sender: TObject);
+    function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure MyDelete; override;
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
     procedure UpdateView; override;
-    property CategoryParametersGroup: TCategoryParametersGroup
-      read FCategoryParametersGroup write SetCategoryParametersGroup;
+    property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup
+      write SetCatParamsGroup;
     { Public declarations }
   end;
 
@@ -128,39 +141,45 @@ constructor TViewCategoryParameters.Create(AOwner: TComponent);
 begin
   inherited;
   DeleteMessages.Add(cxGridLevel, sDoYouWantToDeleteCategoryParameter);
-  // cxGridDBBandedTableView2.Styles.OnGetContentStyle := cxGridDBBandedTableView2StylesGetContentStyle;
+  DeleteMessages.Add(cxGridLevel2, sDoYouWantToDeleteCategorySubParameter);
+
   ApplyBestFitMultiLine := True;
+end;
+
+procedure TViewCategoryParameters.actAddSubParameterExecute(Sender: TObject);
+begin
+  inherited;
+  CatParamsGroup.AppendSubParameter(2);
 end;
 
 procedure TViewCategoryParameters.actAddToBeginExecute(Sender: TObject);
 begin
-  Add(0);
+  AddParameter(0);
 end;
 
 procedure TViewCategoryParameters.actAddToCenterExecute(Sender: TObject);
 begin
   inherited;
-  Add(1);
+  AddParameter(1);
 end;
 
 procedure TViewCategoryParameters.actAddToEndExecute(Sender: TObject);
 begin
   inherited;
-  Add(2);
+  AddParameter(2);
 end;
 
 procedure TViewCategoryParameters.actApplyUpdatesExecute(Sender: TObject);
 begin
   inherited;
-
-  // QueryCategoryParameters.ApplyUpdates;
+  CatParamsGroup.ApplyUpdates;
   UpdateView;
 end;
 
 procedure TViewCategoryParameters.actCancelUpdatesExecute(Sender: TObject);
 begin
   inherited;
-  // QueryCategoryParameters.CancelUpdates;
+  CatParamsGroup.CancelUpdates;
   UpdateView;
 end;
 
@@ -197,119 +216,108 @@ begin
   Move(True);
 end;
 
-procedure TViewCategoryParameters.Add(APosID: Integer);
+procedure TViewCategoryParameters.AddParameter(APosID: Integer);
 var
   AfrmParameters: TfrmParameters;
-  AParametersGroup: TParametersGroup;
+  AParamsGrp: TParametersGroup;
   m: TArray<String>;
   CheckedList: string;
   OK: Boolean;
   RH: TRecordHolder;
-  S: string;
+  AIDParam: string;
   SS: string;
-  SubS: string;
 begin
   inherited;
-
-  BeginUpdate;
+  // BeginUpdate;
+  // try
+  AParamsGrp := TParametersGroup.Create(Self);
   try
+    // Настраиваем на отображение галочек из нашей категории
+    AParamsGrp.ProductCategoryIDValue :=
+      CatParamsGroup.qCategoryParameters.ParentValue;
 
-    AParametersGroup := TParametersGroup.Create(Self);
+    AParamsGrp.ReOpen;
+
+    AfrmParameters := TfrmParameters.Create(Self);
     try
-      // Настраиваем на отображение галочек из нашей категории
-      AParametersGroup.qMainParameters.ProductCategoryIDValue :=
-        CategoryParametersGroup.qCategoryParameters2.ParentValue;
+      AfrmParameters.ViewParameters.ParametersGroup := AParamsGrp;
+      AfrmParameters.ViewSubParameters.QuerySubParameters :=
+        AParamsGrp.qSubParameters2;
+      AfrmParameters.ViewParameters.CheckedMode := True;
+      AfrmParameters.ShowModal;
+    finally
+      FreeAndNil(AfrmParameters);
+    end;
 
-      AParametersGroup.ReOpen;
+    // Список идентификаторов выбранных параметров
+    CheckedList := Format(',%s,',
+      [AParamsGrp.qMainParameters.GetCheckedValues
+      (AParamsGrp.qMainParameters.PKFieldName)]);
 
-      AfrmParameters := TfrmParameters.Create(Self);
-      try
-        AfrmParameters.ViewParameters.ParametersGroup := AParametersGroup;
-        AfrmParameters.ViewSubParameters.QuerySubParameters :=
-          AParametersGroup.qSubParameters2;
-        AfrmParameters.ViewParameters.CheckedMode := True;
-        AfrmParameters.ShowModal;
-      finally
-        FreeAndNil(AfrmParameters);
+    // Список идентификаторов параметров нашей категории
+    SS := Format(',%s,', [CatParamsGroup.qCategoryParameters.GetFieldValues
+      (CatParamsGroup.qCategoryParameters.IDParameter.FieldName)]);
+
+    m := SS.Trim([',']).Split([',']);
+    // Цикл по параметрам для категории
+    for AIDParam in m do
+    begin
+      // Если галочку с одного из параметров категории сняли
+      if CheckedList.IndexOf(',' + AIDParam + ',') < 0 then
+      begin
+        CatParamsGroup.DeleteParameter(AIDParam.ToInteger());
       end;
+    end;
 
-      // Список выбранных параметров
-      CheckedList := ',' + AParametersGroup.qMainParameters.
-        GetCheckedIDParamSubParamValues.Trim([',']) + ',';
-
-      SubS := AParametersGroup.qParamSubParams.GetFieldValues
-        (AParametersGroup.qParamSubParams.PKFieldName).Trim([',']);
-      if not SubS.IsEmpty then
-        CheckedList := CheckedList + SubS + ',';
-      (*
-        // Список подпараметров для категории
-        SS := ',' + QueryCategoryParameters.GetFieldValues
-        (QueryCategoryParameters.ParamSubParamId.FieldName).Trim([',']) + ',';
-
-        m := SS.Trim([',']).Split([',']);
-        // Цикл по параметрам для категории
-        for S in m do
-        begin
-        // Если галочку с одного из параметров категории сняли
-        if CheckedList.IndexOf(',' + S + ',') < 0 then
-        begin
-        // Ищем такой подпараметр в списке подпараметров категории
-        if QueryCategoryParameters.LocateByField
-        (QueryCategoryParameters.ParamSubParamId.FieldName, S) then
-        begin
-        QueryCategoryParameters.FDQuery.Delete;
-        end;
-        end;
-        end;
-
-        m := CheckedList.Trim([',']).Split([',']);
-        // Цикл по отмеченным в справочнике подпараметрам
-        for S in m do
-        begin
-        // Если галочку поставили
-        if SS.IndexOf(',' + S + ',') < 0 then
-        begin
-        // Ищем подпараметр в справочнике параметров
-        if AParametersGroup.qMainParameters.LocateByField
-        (AParametersGroup.qMainParameters.IDParamSubParam.FieldName, S) then
-        begin
-        // Ищем такой тип параметра
-        OK := AParametersGroup.qParameterTypes.LocateByPK
-        (AParametersGroup.qMainParameters.IDParameterType.AsInteger);
+    m := CheckedList.Trim([',']).Split([',']);
+    // Цикл по отмеченным в справочнике подпараметрам
+    for AIDParam in m do
+    begin
+      // Если галочку поставили
+      if SS.IndexOf(',' + AIDParam + ',') < 0 then
+      begin
+        // ищем этот параметр в справочнике параметров
+        OK := AParamsGrp.qMainParameters.LocateByPK(AIDParam);
         Assert(OK);
 
-        RH := TRecordHolder.Create
-        (AParametersGroup.qMainParameters.FDQuery);
+        // Ищем тип этого параметра в справочнике типов
+        OK := AParamsGrp.qParameterTypes.LocateByPK
+          (AParamsGrp.qMainParameters.IDParameterType.Value);
+        Assert(OK);
+
+        // Запоминаем найденную запись
+        RH := TRecordHolder.Create(AParamsGrp.qMainParameters.FDQuery);
         try
-        // Первичный ключ - это идентификатор подпараметра параметра
-        RH.Find(AParametersGroup.qMainParameters.PKFieldName).FieldName :=
-        QueryCategoryParameters.ParamSubParamId.FieldName;
+          // ID меняем на IdParameter
+          RH.Find(AParamsGrp.qMainParameters.PKFieldName).FieldName :=
+            CatParamsGroup.qCategoryParameters.IDParameter.FieldName;
 
-        // Порядок - надо вычислить как максимум
-        TFieldHolder.Create(RH, QueryCategoryParameters.Ord.FieldName,
-        QueryCategoryParameters.NextOrder);
+          // Порядок - надо вычислить как максимум
+          TFieldHolder.Create(RH,
+            CatParamsGroup.qCategoryParameters.Ord.FieldName,
+            CatParamsGroup.qCategoryParameters.NextOrder);
 
-        // Добавляем поле "Тип параметра"
-        TFieldHolder.Create(RH,
-        QueryCategoryParameters.ParameterType.FieldName,
-        AParametersGroup.qParameterTypes.ParameterType.AsString);
+          // Дополнительно добавим тип параметра
+          TFieldHolder.Create(RH,
+            AParamsGrp.qParameterTypes.ParameterType.FieldName,
+            AParamsGrp.qParameterTypes.ParameterType.Value);
 
-        QueryCategoryParameters.AppendParameter(RH, APosID);
+          // Добавляем параметр
+          CatParamsGroup.AppendParameter(RH, APosID);
         finally
-        FreeAndNil(RH);
+          FreeAndNil(RH);
         end;
-        end;
-        end;
-        end;
-      *)
-    finally
-      FreeAndNil(AParametersGroup);
+
+      end;
     end;
   finally
-    EndUpdate;
+    FreeAndNil(AParamsGrp);
   end;
+  // finally
+  // EndUpdate;
+  // end;
 
-  MyApplyBestFit;
+  // MyApplyBestFit;
   UpdateView;
 end;
 
@@ -332,6 +340,20 @@ begin
     end;
     end;
   }
+end;
+
+procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown(Sender:
+    TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+end;
+
+procedure TViewCategoryParameters.cxGridDBBandedTableView2MouseDown(Sender:
+    TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableView2StylesGetContentStyle
@@ -366,6 +388,9 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   inherited;
+  if FLoading then
+    Exit;
+
   if ARecordIndex < 0 then
     Exit;
 
@@ -375,10 +400,10 @@ begin
   AView := AcxGridMasterDataRow.ActiveDetailGridView as
     TcxGridDBBandedTableView;
 
-//  if AView.DataController.RecordCount > 0 then
-//    PostMyApplyBestFitEventForView(AView);
+  // if AView.DataController.RecordCount > 0 then
+  // PostMyApplyBestFitEventForView(AView);
 
-//   MyApplyBestFitForView(AView);
+  MyApplyBestFitForView(AView);
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableViewEditValueChanged
@@ -415,8 +440,40 @@ end;
 
 procedure TViewCategoryParameters.DoAfterLoad(Sender: TObject);
 begin
+  MainView.ViewData.Collapse(True);
+end;
+
+procedure TViewCategoryParameters.DoAfterUpdateData(Sender: TObject);
+begin
+  dsParameters.DataSet := FCatParamsGroup.qCatParams;
+  dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
+
+  // EndUpdate;
   UpdateView;
-//  MainView.ViewData.Collapse(True);
+  // MainView.ViewData.Collapse(True);
+  FLoading := False;
+end;
+
+procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
+begin
+  // Набор данных, отображаемый в гриде будет вручную загружаться
+  // BeginUpdate;
+  dsParameters.DataSet := nil;
+  dsSubParameters.DataSet := nil;
+  FLoading := True;
+end;
+
+function TViewCategoryParameters.GetFocusedTableView: TcxGridDBBandedTableView;
+begin
+  Result := inherited;
+
+  // Если не первый уровень в фокусе
+  if (Result = nil) then
+  begin
+    Result := GetDBBandedTableView(1);
+    if (Result <> nil) and (not Result.Focused) then
+      Result := nil;
+  end;
 end;
 
 function TViewCategoryParameters.GetQueryParameterPos: TQueryParameterPos;
@@ -505,34 +562,97 @@ begin
   end;
 end;
 
-procedure TViewCategoryParameters.SetCategoryParametersGroup
-  (const Value: TCategoryParametersGroup);
+procedure TViewCategoryParameters.MyDelete;
+var
+  APKValues: TList<Variant>;
+  AView: TcxGridDBBandedTableView;
+  S: string;
 begin
-  if FCategoryParametersGroup = Value then
+
+  Assert(DeleteMessages <> nil);
+
+  AView := FocusedTableView;
+  if AView = nil then
     Exit;
 
-  FCategoryParametersGroup := Value;
+  if not DeleteMessages.ContainsKey(AView.Level as TcxGridLevel) then
+    S := 'Удалить запись?'
+  else
+    S := DeleteMessages[AView.Level as TcxGridLevel];
+
+  if (TDialog.Create.DeleteRecordsDialog(S)) and
+    (AView.DataController.RecordCount > 0) then
+  begin
+    ProcessWithCancelDetailExpanding(AView.MasterGridView,
+      procedure()
+      Var
+        I: Integer;
+      begin
+        APKValues := TList<Variant>.Create;
+        try
+          // Получаем идентификаторы тех записей, которые надо удалить
+          for i := 0 to AView.Controller.SelectedRowCount - 1 do
+          begin
+            APKValues.Add(AView.Controller.SelectedRecords[i].Values
+              [clID.Index]);
+          end;
+          // Если удаляем параметр
+          if AView.Level = cxGridLevel then
+            CatParamsGroup.DeleteParameters(APKValues.ToArray);
+          if AView.Level = cxGridLevel2 then
+            CatParamsGroup.DeleteSubParameters(APKValues.ToArray);
+        finally
+          FreeAndNil(APKValues)
+        end;
+
+      end);
+{
+    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
+    then
+    begin
+      AView.MasterGridRecord.Collapse(False);
+    end;
+}
+  end;
+
+  UpdateView;
+
+end;
+
+procedure TViewCategoryParameters.SetCatParamsGroup
+  (const Value: TCategoryParametersGroup);
+begin
+  if FCatParamsGroup = Value then
+    Exit;
+
+  FCatParamsGroup := Value;
 
   // Отписываемся от старых подписчиков
   FEventList.Clear;
 
-  if FCategoryParametersGroup <> nil then
+  if FCatParamsGroup <> nil then
   begin
-    dsParameters.DataSet := FCategoryParametersGroup.qCategoryParameters;
-    dsSubParameters.DataSet := FCategoryParametersGroup.qCategorySubParameters;
+    dsParameters.DataSet := FCatParamsGroup.qCatParams;
+    dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
 
     InitializeLookupColumn(clPosID, QueryParameterPos.DataSource, lsFixedList,
       QueryParameterPos.Pos.FieldName);
 
     // (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
 
-    TNotifyEventWrap.Create(FCategoryParametersGroup.qCategoryParameters2.
-      AfterLoad, DoAfterLoad, FEventList);
+    TNotifyEventWrap.Create(FCatParamsGroup.BeforeUpdateData,
+      DoBeforeUpdateData, FEventList);
+
+    TNotifyEventWrap.Create(FCatParamsGroup.AfterUpdateData, DoAfterUpdateData,
+      FEventList);
+
+    TNotifyEventWrap.Create(FCatParamsGroup.qCategoryParameters.AfterLoad,
+      DoAfterLoad, FEventList);
 
     UpdateView;
     MainView.ViewData.Collapse(True);
     MyApplyBestFit
-//    PostMyApplyBestFitEvent;
+    // PostMyApplyBestFitEvent;
   end;
 end;
 
@@ -556,28 +676,31 @@ end;
 
 procedure TViewCategoryParameters.UpdateView;
 var
+  AView: TcxGridDBBandedTableView;
   OK: Boolean;
 begin
-  OK := (FCategoryParametersGroup <> nil) and
-    (FCategoryParametersGroup.qCategoryParameters.Active);
+  AView := FocusedTableView;
+
+  OK := (FCatParamsGroup <> nil) and FCatParamsGroup.IsAllQuerysActive;
 
   actPosBegin.Enabled := OK and (MainView.Controller.SelectedRowCount > 0) and
-    (FCategoryParametersGroup.qCategoryParameters.RecordCount > 0);
+    (MainView.DataController.RecordCount > 0);
   actPosCenter.Enabled := actPosBegin.Enabled;
   actPosEnd.Enabled := actPosBegin.Enabled;
 
-  actApplyUpdates.Enabled := OK { and QueryCategoryParameters.HaveAnyChanges };
+  actApplyUpdates.Enabled := OK and FCatParamsGroup.qCategoryParameters.
+    HaveAnyChanges;
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 
   // Удалять разрешаем только если что-то выделено
-  actDeleteEx.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
+  actDeleteEx.Enabled := OK and (AView <> nil) and (AView.Controller.SelectedRowCount > 0);
 
-  actAddToBegin.Enabled :=
-    OK { and not FQueryCategoryParameters.HaveAnyChanges };
+  actAddToBegin.Enabled := OK and not FCatParamsGroup.qCategoryParameters.
+    HaveAnyChanges;
   actAddToCenter.Enabled := actAddToBegin.Enabled;
   actAddToEnd.Enabled := actAddToBegin.Enabled;
 
-  actUp.Enabled := OK { and not FQueryCategoryParameters.HaveInserted };
+  actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted;
   actDown.Enabled := actUp.Enabled;
 end;
 

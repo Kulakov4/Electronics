@@ -1128,7 +1128,7 @@ begin
         AColumn.Caption :=
           GetWords(Format('%s %s', [AColumn.Caption, ABandCaption]));
 
-        AColumn.ApplyBestFit();
+        AColumn.ApplyBestFit(True);
         AColumn.Caption := ACaption;
       end;
     finally

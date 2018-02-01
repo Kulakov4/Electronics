@@ -18,6 +18,7 @@ type
     FInsertedClone: TFDMemTable;
     FMaxOrder: Integer;
     FOn_ApplyUpdates: TNotifyEventsEx;
+    FPKDictionary: TDictionary<Integer, Integer>;
     FQueryRecursiveParameters: TQueryRecursiveParameters;
     FRefreshQry: TQueryCategoryParameters2;
     procedure DoAfterInsert(Sender: TObject);
@@ -25,6 +26,7 @@ type
     procedure DoBeforePost(Sender: TObject);
     function GetCategoryID: TField;
     function GetHaveInserted: Boolean;
+    function GetIDParameter: TField;
     function GetIsAttribute: TField;
     function GetIsDefault: TField;
     function GetIsEnabled: TField;
@@ -47,7 +49,8 @@ type
     property RefreshQry: TQueryCategoryParameters2 read GetRefreshQry;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AppendParameter(ARecordHolder: TRecordHolder; APosID: Integer);
+    destructor Destroy; override;
+    procedure AppendParameter(ARecordHolder: TRecordHolder);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure Move(AData: TList<TRecOrder>);
@@ -55,12 +58,14 @@ type
     procedure SetPos(APosID: Integer);
     property CategoryID: TField read GetCategoryID;
     property HaveInserted: Boolean read GetHaveInserted;
+    property IDParameter: TField read GetIDParameter;
     property IsAttribute: TField read GetIsAttribute;
     property IsDefault: TField read GetIsDefault;
     property IsEnabled: TField read GetIsEnabled;
     property Ord: TField read GetOrd;
     property ParameterType: TField read GetParameterType;
     property ParamSubParamId: TField read GetParamSubParamId;
+    property PKDictionary: TDictionary<Integer, Integer> read FPKDictionary;
     property PosID: TField read GetPosID;
     property ProductCategoryID: TField read GetProductCategoryID;
     property On_ApplyUpdates: TNotifyEventsEx read FOn_ApplyUpdates;
@@ -89,17 +94,25 @@ begin
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
 
+  FPKDictionary := TDictionary<Integer, Integer>.Create;
+
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
 end;
 
-procedure TQueryCategoryParameters2.AppendParameter(ARecordHolder
-  : TRecordHolder; APosID: Integer);
+destructor TQueryCategoryParameters2.Destroy;
+begin
+  FreeAndNil(FPKDictionary);
+  inherited;
+end;
+
+procedure TQueryCategoryParameters2.AppendParameter(ARecordHolder:
+    TRecordHolder);
 begin
   Assert(ARecordHolder <> nil);
 
   TryAppend;
   ARecordHolder.TryPut(FDQuery);
-  PosID.AsInteger := APosID;
+//  PosID.AsInteger := APosID;
   TryPost;
 end;
 
@@ -134,6 +147,9 @@ begin
   Assert(RefreshQry.FDQuery.RecordCount = 1);
   Assert(RefreshQry.PK.AsInteger > 0);
 
+  // Запоминаем, какой был первичный ключ, и какой он стал
+  FPKDictionary.Add(PK.AsInteger, RefreshQry.PK.AsInteger);
+
   // Заполняем первычный ключ у вставленной записи
   FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction,
     AOptions);
@@ -158,6 +174,7 @@ end;
 
 procedure TQueryCategoryParameters2.ApplyUpdates;
 begin
+  FPKDictionary.Clear;
   inherited;
   // Чтобы в следующий раз его вычислить
   FMaxOrder := 0;
@@ -196,6 +213,11 @@ function TQueryCategoryParameters2.GetHaveInserted: Boolean;
 begin
   FInsertedClone.FilterChanges := [rtInserted];
   Result := FDQuery.Active and (FInsertedClone.RecordCount > 0);
+end;
+
+function TQueryCategoryParameters2.GetIDParameter: TField;
+begin
+  Result := Field('IdParameter');
 end;
 
 function TQueryCategoryParameters2.GetIsAttribute: TField;

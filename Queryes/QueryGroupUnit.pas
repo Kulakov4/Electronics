@@ -34,7 +34,7 @@ type
     procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
-    procedure TryPost;
+    procedure TryPost; virtual;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
