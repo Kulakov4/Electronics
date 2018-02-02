@@ -1,8 +1,8 @@
-inherited QuerySearchParameterSubParameter: TQuerySearchParameterSubParameter
+inherited QuerySearchParamDefSubParam: TQuerySearchParamDefSubParam
   inherited Label1: TLabel
-    Width = 207
-    Caption = 'SearchParameterSubParameter'
-    ExplicitWidth = 207
+    Width = 173
+    Caption = 'SearchParamDefSubParam'
+    ExplicitWidth = 173
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (

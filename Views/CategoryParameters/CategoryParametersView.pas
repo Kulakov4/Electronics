@@ -78,6 +78,7 @@ type
     clOrd2: TcxGridDBBandedColumn;
     actAddSubParameter: TAction;
     dxBarButton10: TdxBarButton;
+    clIDParameter: TcxGridDBBandedColumn;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -90,9 +91,9 @@ type
     procedure actPosEndExecute(Sender: TObject);
     procedure actUpExecute(Sender: TObject);
     procedure cxGridDBBandedTableView2KeyDown(Sender: TObject; var Key: Word;
-        Shift: TShiftState);
-    procedure cxGridDBBandedTableView2MouseDown(Sender: TObject; Button:
-        TMouseButton; Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState);
+    procedure cxGridDBBandedTableView2MouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
     procedure cxGridDBBandedTableViewStylesGetContentStyle
@@ -135,7 +136,8 @@ implementation
 
 uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math,
   DialogUnit, ProjectConst, ParametersForm, ParametersGroupUnit, DBRecordHolder,
-  MaxCategoryParameterOrderQuery;
+  MaxCategoryParameterOrderQuery, SubParametersForm, SubParametersQuery2,
+  ParamSubParamsQuery;
 
 constructor TViewCategoryParameters.Create(AOwner: TComponent);
 begin
@@ -147,9 +149,26 @@ begin
 end;
 
 procedure TViewCategoryParameters.actAddSubParameterExecute(Sender: TObject);
+var
+  AfrmSubParameters: TfrmSubParameters;
+  AID: Integer;
+  qSubParameters: TQuerySubParameters2;
 begin
   inherited;
-  CatParamsGroup.AppendSubParameter(2);
+  // Получаем идентификатор связки сатегория-параметр
+  AID := Value(MainView, clID, MainView.Controller.FocusedRowIndex);
+
+  qSubParameters := TQuerySubParameters2.Create(Self);
+  AfrmSubParameters := TfrmSubParameters.Create(nil);
+  try
+    qSubParameters.RefreshQuery;
+    AfrmSubParameters.ViewSubParameters.QuerySubParameters := qSubParameters;
+    if AfrmSubParameters.ShowModal = mrOK then
+      CatParamsGroup.AppendSubParameter(AID, qSubParameters.PK.AsInteger);
+  finally
+    FreeAndNil(AfrmSubParameters);
+    FreeAndNil(qSubParameters);
+  end;
 end;
 
 procedure TViewCategoryParameters.actAddToBeginExecute(Sender: TObject);
@@ -223,7 +242,6 @@ var
   m: TArray<String>;
   CheckedList: string;
   OK: Boolean;
-  RH: TRecordHolder;
   AIDParam: string;
   SS: string;
 begin
@@ -285,29 +303,15 @@ begin
           (AParamsGrp.qMainParameters.IDParameterType.Value);
         Assert(OK);
 
-        // Запоминаем найденную запись
-        RH := TRecordHolder.Create(AParamsGrp.qMainParameters.FDQuery);
-        try
-          // ID меняем на IdParameter
-          RH.Find(AParamsGrp.qMainParameters.PKFieldName).FieldName :=
-            CatParamsGroup.qCategoryParameters.IDParameter.FieldName;
-
-          // Порядок - надо вычислить как максимум
-          TFieldHolder.Create(RH,
-            CatParamsGroup.qCategoryParameters.Ord.FieldName,
-            CatParamsGroup.qCategoryParameters.NextOrder);
-
-          // Дополнительно добавим тип параметра
-          TFieldHolder.Create(RH,
-            AParamsGrp.qParameterTypes.ParameterType.FieldName,
-            AParamsGrp.qParameterTypes.ParameterType.Value);
-
-          // Добавляем параметр
-          CatParamsGroup.AppendParameter(RH, APosID);
-        finally
-          FreeAndNil(RH);
-        end;
-
+        // Добавляем параметр
+        CatParamsGroup.AppendParameter
+          (AParamsGrp.qMainParameters.ParamSubParamID.Value,
+          CatParamsGroup.qCategoryParameters.NextOrder, 1, APosID,
+          AParamsGrp.qMainParameters.PK.Value,
+          AParamsGrp.qMainParameters.Value.Value,
+          AParamsGrp.qMainParameters.TableName.Value,
+          AParamsGrp.qMainParameters.ValueT.Value,
+          AParamsGrp.qParameterTypes.ParameterType.Value, '', '', 1);
       end;
     end;
   finally
@@ -342,15 +346,15 @@ begin
   }
 end;
 
-procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown(Sender:
-    TObject; var Key: Word; Shift: TShiftState);
+procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown
+  (Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
 end;
 
-procedure TViewCategoryParameters.cxGridDBBandedTableView2MouseDown(Sender:
-    TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TViewCategoryParameters.cxGridDBBandedTableView2MouseDown
+  (Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
@@ -586,7 +590,7 @@ begin
     ProcessWithCancelDetailExpanding(AView.MasterGridView,
       procedure()
       Var
-        I: Integer;
+        i: Integer;
       begin
         APKValues := TList<Variant>.Create;
         try
@@ -606,13 +610,13 @@ begin
         end;
 
       end);
-{
-    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-    then
-    begin
+    {
+      if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
+      then
+      begin
       AView.MasterGridRecord.Collapse(False);
-    end;
-}
+      end;
+    }
   end;
 
   UpdateView;
@@ -693,7 +697,8 @@ begin
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 
   // Удалять разрешаем только если что-то выделено
-  actDeleteEx.Enabled := OK and (AView <> nil) and (AView.Controller.SelectedRowCount > 0);
+  actDeleteEx.Enabled := OK and (AView <> nil) and
+    (AView.Controller.SelectedRowCount > 0);
 
   actAddToBegin.Enabled := OK and not FCatParamsGroup.qCategoryParameters.
     HaveAnyChanges;

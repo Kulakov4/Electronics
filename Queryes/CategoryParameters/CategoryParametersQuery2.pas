@@ -30,6 +30,7 @@ type
     function GetIsAttribute: TField;
     function GetIsDefault: TField;
     function GetIsEnabled: TField;
+    function GetName: TField;
     function GetOrd: TField;
     function GetParameterType: TField;
     function GetParamSubParamId: TField;
@@ -37,6 +38,10 @@ type
     function GetProductCategoryID: TField;
     function GetQueryRecursiveParameters: TQueryRecursiveParameters;
     function GetRefreshQry: TQueryCategoryParameters2;
+    function GetTableName: TField;
+    function GetTranslation: TField;
+    function GetValue: TField;
+    function GetValueT: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet); override;
@@ -50,9 +55,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AppendParameter(ARecordHolder: TRecordHolder);
+    procedure FilterByPosition(APosID: Integer);
+    procedure AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID, AIDParameter: Integer; const
+    AValue, ATableName, AValueT, AParameterType, AName, ATranslation: String; AIsDefault: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    function Locate(AIDParameter, APosID, AOrder: Integer): Boolean;
     procedure Move(AData: TList<TRecOrder>);
     function NextOrder: Integer;
     procedure SetPos(APosID: Integer);
@@ -62,12 +70,17 @@ type
     property IsAttribute: TField read GetIsAttribute;
     property IsDefault: TField read GetIsDefault;
     property IsEnabled: TField read GetIsEnabled;
+    property Name: TField read GetName;
     property Ord: TField read GetOrd;
     property ParameterType: TField read GetParameterType;
     property ParamSubParamId: TField read GetParamSubParamId;
     property PKDictionary: TDictionary<Integer, Integer> read FPKDictionary;
     property PosID: TField read GetPosID;
     property ProductCategoryID: TField read GetProductCategoryID;
+    property TableName: TField read GetTableName;
+    property Translation: TField read GetTranslation;
+    property Value: TField read GetValue;
+    property ValueT: TField read GetValueT;
     property On_ApplyUpdates: TNotifyEventsEx read FOn_ApplyUpdates;
     { Public declarations }
   end;
@@ -105,14 +118,29 @@ begin
   inherited;
 end;
 
-procedure TQueryCategoryParameters2.AppendParameter(ARecordHolder:
-    TRecordHolder);
+procedure TQueryCategoryParameters2.FilterByPosition(APosID: Integer);
 begin
-  Assert(ARecordHolder <> nil);
+  Assert(APosID >= 0);
+  FDQuery.Filter := Format('%s=%d', [PosID.FieldName, APosID]);
+  FDQuery.Filtered := True;
+end;
 
+procedure TQueryCategoryParameters2.AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID, AIDParameter: Integer; const
+    AValue, ATableName, AValueT, AParameterType, AName, ATranslation: String; AIsDefault: Integer);
+begin
   TryAppend;
-  ARecordHolder.TryPut(FDQuery);
-//  PosID.AsInteger := APosID;
+  ParamSubParamId.Value := AParamSubParamId;
+  Ord.Value := AOrd;
+  IsAttribute.Value := AIsAttribute;
+  PosID.Value := APosID;
+  IdParameter.Value := AIDParameter;
+  Value.Value := AValue;
+  TableName.Value := ATableName;
+  ValueT.Value := AValueT;
+  ParameterType.Value := AParameterType;
+  Name.Value := AName;
+  Translation.Value := ATranslation;
+  IsDefault.Value := AIsDefault;
   TryPost;
 end;
 
@@ -235,6 +263,11 @@ begin
   Result := Field('IsEnabled');
 end;
 
+function TQueryCategoryParameters2.GetName: TField;
+begin
+  Result := Field('Name');
+end;
+
 function TQueryCategoryParameters2.GetOrd: TField;
 begin
   Result := Field('Ord');
@@ -281,6 +314,40 @@ begin
   end;
 
   Result := FRefreshQry;
+end;
+
+function TQueryCategoryParameters2.GetTableName: TField;
+begin
+  Result := Field('Tablename');
+end;
+
+function TQueryCategoryParameters2.GetTranslation: TField;
+begin
+  Result := Field('Translation');
+end;
+
+function TQueryCategoryParameters2.GetValue: TField;
+begin
+  Result := Field('Value');
+end;
+
+function TQueryCategoryParameters2.GetValueT: TField;
+begin
+  Result := Field('ValueT');
+end;
+
+function TQueryCategoryParameters2.Locate(AIDParameter, APosID, AOrder:
+    Integer): Boolean;
+var
+  AFieldNames: string;
+begin
+  Assert(AIDParameter > 0);
+  Assert(APosID > 0);
+  Assert(AOrder > 0);
+
+  AFieldNames := Format('%s;%s;%s', [IDParameter.FieldName, PosID.FieldName, Ord.FieldName]);
+
+  Result := FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDParameter, APosID, AOrder]));
 end;
 
 procedure TQueryCategoryParameters2.Move(AData: TList<TRecOrder>);

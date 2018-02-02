@@ -1,4 +1,4 @@
-unit SearchParamSubParamQuery;
+unit SearchParamDefSubParamQuery;
 
 interface
 
@@ -10,24 +10,23 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
-  TQuerySearchParamSubParam = class(TQueryBase)
+  TQuerySearchParamDefSubParam = class(TQueryBase)
   private
-    function GetIDParameter: TField;
     function GetIsDefault: TField;
     function GetName: TField;
     function GetParameterType: TField;
+    function GetParamSubParamID: TField;
     function GetTableName: TField;
     function GetTranslation: TField;
     function GetValue: TField;
     function GetValueT: TField;
     { Private declarations }
-  protected
   public
-    function SearchByID(const AParamSubParamID: Integer): Integer;
-    property IDParameter: TField read GetIDParameter;
+    function SearchByID(AParameterID: Integer): Integer;
     property IsDefault: TField read GetIsDefault;
     property Name: TField read GetName;
     property ParameterType: TField read GetParameterType;
+    property ParamSubParamID: TField read GetParamSubParamID;
     property TableName: TField read GetTableName;
     property Translation: TField read GetTranslation;
     property Value: TField read GetValue;
@@ -35,55 +34,58 @@ type
     { Public declarations }
   end;
 
+var
+  QuerySearchParamDefSubParam: TQuerySearchParamDefSubParam;
+
 implementation
 
 {$R *.dfm}
 
-function TQuerySearchParamSubParam.GetIDParameter: TField;
-begin
-  Result := Field('IDParameter');
-end;
-
-function TQuerySearchParamSubParam.GetIsDefault: TField;
+function TQuerySearchParamDefSubParam.GetIsDefault: TField;
 begin
   Result := Field('IsDefault');
 end;
 
-function TQuerySearchParamSubParam.GetName: TField;
+function TQuerySearchParamDefSubParam.GetName: TField;
 begin
   Result := Field('Name');
 end;
 
-function TQuerySearchParamSubParam.GetParameterType: TField;
+function TQuerySearchParamDefSubParam.GetParameterType: TField;
 begin
   Result := Field('ParameterType');
 end;
 
-function TQuerySearchParamSubParam.GetTableName: TField;
+function TQuerySearchParamDefSubParam.GetParamSubParamID: TField;
+begin
+  Result := Field('ParamSubParamID');
+end;
+
+function TQuerySearchParamDefSubParam.GetTableName: TField;
 begin
   Result := Field('TableName');
 end;
 
-function TQuerySearchParamSubParam.GetTranslation: TField;
+function TQuerySearchParamDefSubParam.GetTranslation: TField;
 begin
   Result := Field('Translation');
 end;
 
-function TQuerySearchParamSubParam.GetValue: TField;
+function TQuerySearchParamDefSubParam.GetValue: TField;
 begin
   Result := Field('Value');
 end;
 
-function TQuerySearchParamSubParam.GetValueT: TField;
+function TQuerySearchParamDefSubParam.GetValueT: TField;
 begin
   Result := Field('ValueT');
 end;
 
-function TQuerySearchParamSubParam.SearchByID(const AParamSubParamID: Integer):
+function TQuerySearchParamDefSubParam.SearchByID(AParameterID: Integer):
     Integer;
 begin
-  Assert(AParamSubParamID > 0);
-  Result := Search(['ID'], [AParamSubParamID]);
+  Assert(AParameterID > 0);
+  Result := Search(['ID'], [AParameterID]);
 end;
 
 end.

@@ -33,6 +33,7 @@ type
     function GetqSearchParameter: TQuerySearchParameter;
     function GetTableName: TField;
     function GetValue: TField;
+    function GetValueT: TField;
     procedure SetShowDuplicate(const Value: Boolean);
     procedure SetTableNameFilter(const Value: string);
     { Private declarations }
@@ -60,6 +61,7 @@ type
     property TableNameFilter: string read FTableNameFilter
       write SetTableNameFilter;
     property Value: TField read GetValue;
+    property ValueT: TField read GetValueT;
     { Public declarations }
   end;
 
@@ -340,6 +342,11 @@ end;
 function TQueryMainParameters.GetValue: TField;
 begin
   Result := Field('Value');
+end;
+
+function TQueryMainParameters.GetValueT: TField;
+begin
+  Result := Field('ValueT');
 end;
 
 function TQueryMainParameters.Lookup(AValue: string): Integer;

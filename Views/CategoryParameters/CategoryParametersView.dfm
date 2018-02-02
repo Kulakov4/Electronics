@@ -118,6 +118,12 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Position.ColIndex = 7
         Position.RowIndex = 0
       end
+      object clIDParameter: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDParameter'
+        Position.BandIndex = 0
+        Position.ColIndex = 8
+        Position.RowIndex = 0
+      end
     end
     object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
       OnKeyDown = cxGridDBBandedTableView2KeyDown

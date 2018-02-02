@@ -196,7 +196,8 @@ uses
   CategoryParametersQuery2 in 'Queryes\CategoryParameters\CategoryParametersQuery2.pas' {QueryCategoryParameters2: TFrame},
   CategoryParametersGroupUnit in 'Queryes\CategoryParameters\CategoryParametersGroupUnit.pas' {CategoryParametersGroup: TFrame},
   SearchParamSubParamQuery in 'Queryes\Search\SearchParamSubParamQuery.pas' {QuerySearchParamSubParam: TFrame},
-  SearchParameterSubParameterQuery in 'Queryes\Search\SearchParameterSubParameterQuery.pas' {QuerySearchParameterSubParameter: TFrame};
+  SearchParamDefSubParamQuery in 'Queryes\Search\SearchParamDefSubParamQuery.pas' {QuerySearchParamDefSubParam: TFrame},
+  SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters};
 
 {$R *.res}
 
