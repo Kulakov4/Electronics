@@ -27,7 +27,7 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, SubParametersQuery,
-  SubParametersExcelDataModule, SubParametersQuery2;
+  SubParametersExcelDataModule, SubParametersQuery2, cxCheckBox;
 
 type
   TViewSubParameters = class(TfrmGrid)
@@ -46,6 +46,7 @@ type
     dxBarButton5: TdxBarButton;
     actAdd: TAction;
     dxBarButton6: TdxBarButton;
+    clChecked: TcxGridDBBandedColumn;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);

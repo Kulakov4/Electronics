@@ -9,18 +9,29 @@ inherited ViewSubParameters: TViewSubParameters
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
+      object clChecked: TcxGridDBBandedColumn
+        Caption = 'X'
+        DataBinding.FieldName = 'Checked'
+        PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.ImmediatePost = True
+        Properties.ValueChecked = '1'
+        Properties.ValueUnchecked = '0'
+        Position.BandIndex = 0
+        Position.ColIndex = 1
+        Position.RowIndex = 0
+      end
       object clName: TcxGridDBBandedColumn
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'Name'
         Position.BandIndex = 0
-        Position.ColIndex = 1
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
       object clTranslation: TcxGridDBBandedColumn
         Caption = #1055#1077#1088#1077#1074#1086#1076
         DataBinding.FieldName = 'Translation'
         Position.BandIndex = 0
-        Position.ColIndex = 2
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
     end

@@ -150,8 +150,8 @@ begin
   Assert(ASubParamID > 0);
 
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    ' and psp.IdParameter = :IdParameter and idSubParameter = :idSubParameter',
-    '--');
+    'and 0=0 and psp.IdParameter = :IdParameter and idSubParameter = :idSubParameter',
+    'and 0=0');
   SetParamType('IdParameter');
   SetParamType('idSubParameter');
   Result := Search(['IdParameter', 'idSubParameter'], [AParamID, ASubParamID]);

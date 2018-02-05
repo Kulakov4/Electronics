@@ -19,7 +19,8 @@ type
     { Private declarations }
   public
     procedure ExecUpdateSQL(const AOldPosID, ANewPosID, AOldOrder, ANewOrder,
-        AOldIsAttribute, ANewIsAttribute, AParamSubParamID, ACategoryID: Integer);
+        AOldIsAttribute, ANewIsAttribute, AOldParamSubParamID, ANewParamSubParamID,
+        ACategoryID: Integer);
     procedure ExecDeleteSQL(const AParamSubParamID, ACategoryID: Integer);
     procedure ExecInsertSQL(APosID, AOrder: Integer; const AParamSubParamID,
         ACategoryID: Integer);
@@ -31,11 +32,11 @@ implementation
 {$R *.dfm}
 
 procedure TQueryRecursiveParameters.ExecUpdateSQL(const AOldPosID, ANewPosID,
-    AOldOrder, ANewOrder, AOldIsAttribute, ANewIsAttribute, AParamSubParamID,
-    ACategoryID: Integer);
+    AOldOrder, ANewOrder, AOldIsAttribute, ANewIsAttribute,
+    AOldParamSubParamID, ANewParamSubParamID, ACategoryID: Integer);
 begin
   // Assert(ANewPosID <> AOldPosID);
-  Assert(AParamSubParamID > 0);
+  Assert(ANewParamSubParamID > 0);
   Assert(ACategoryID > 0);
 
   // Копируем запрос
@@ -44,9 +45,10 @@ begin
 
   // Устанавливаем параметры запроса
   SetParameters(['OLD_POSID', 'NEW_POSID', 'OLD_ORD', 'NEW_ORD',
-    'OLD_ISATTRIBUTE', 'NEW_ISATTRIBUTE', 'ParamSubParamID', 'CATEGORYID'],
+    'OLD_ISATTRIBUTE', 'NEW_ISATTRIBUTE', 'OLD_PARAMSUBPARAMID',
+    'NEW_PARAMSUBPARAMID', 'CATEGORYID'],
     [AOldPosID, ANewPosID, AOldOrder, ANewOrder, AOldIsAttribute,
-    ANewIsAttribute, AParamSubParamID, ACategoryID]);
+    ANewIsAttribute, AOldParamSubParamID, ANewParamSubParamID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;

@@ -152,19 +152,35 @@ procedure TViewCategoryParameters.actAddSubParameterExecute(Sender: TObject);
 var
   AfrmSubParameters: TfrmSubParameters;
   AID: Integer;
+  AIDParameter: Integer;
+  AView: TcxGridDBBandedTableView;
   qSubParameters: TQuerySubParameters2;
+  S: String;
 begin
   inherited;
   // Получаем идентификатор связки сатегория-параметр
   AID := Value(MainView, clID, MainView.Controller.FocusedRowIndex);
+  AIDParameter := Value(MainView, clIDParameter, MainView.Controller.FocusedRowIndex);
 
   qSubParameters := TQuerySubParameters2.Create(Self);
   AfrmSubParameters := TfrmSubParameters.Create(nil);
   try
-    qSubParameters.RefreshQuery;
+    // Добавляем в SQL запрос поле с галочкой
+    qSubParameters.OpenWithChecked(AIDParameter, CatParamsGroup.qCategoryParameters.ParentValue);
+
     AfrmSubParameters.ViewSubParameters.QuerySubParameters := qSubParameters;
     if AfrmSubParameters.ShowModal = mrOK then
-      CatParamsGroup.AppendSubParameter(AID, qSubParameters.PK.AsInteger);
+    begin
+      // Получаем идентификаторы отмеченных галочками подпараметров
+      S := qSubParameters.GetCheckedValues(qSubParameters.PKFieldName);
+
+      cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
+      CatParamsGroup.AddOrDeleteSubParameters(AID, S);
+      AView := GetDBBandedTableView(1);
+      MyApplyBestFitForView(AView);
+      cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := True;
+      UpdateView;
+    end;
   finally
     FreeAndNil(AfrmSubParameters);
     FreeAndNil(qSubParameters);
@@ -308,6 +324,7 @@ begin
           (AParamsGrp.qMainParameters.ParamSubParamID.Value,
           CatParamsGroup.qCategoryParameters.NextOrder, 1, APosID,
           AParamsGrp.qMainParameters.PK.Value,
+          AParamsGrp.qMainParameters.IdSubParameter.Value,
           AParamsGrp.qMainParameters.Value.Value,
           AParamsGrp.qMainParameters.TableName.Value,
           AParamsGrp.qMainParameters.ValueT.Value,

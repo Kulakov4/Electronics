@@ -12,6 +12,7 @@ uses
 type
   TQuerySearchParamDefSubParam = class(TQueryBase)
   private
+    function GetIdSubParameter: TField;
     function GetIsDefault: TField;
     function GetName: TField;
     function GetParameterType: TField;
@@ -23,6 +24,7 @@ type
     { Private declarations }
   public
     function SearchByID(AParameterID: Integer): Integer;
+    property IdSubParameter: TField read GetIdSubParameter;
     property IsDefault: TField read GetIsDefault;
     property Name: TField read GetName;
     property ParameterType: TField read GetParameterType;
@@ -40,6 +42,11 @@ var
 implementation
 
 {$R *.dfm}
+
+function TQuerySearchParamDefSubParam.GetIdSubParameter: TField;
+begin
+  Result := Field('IdSubParameter');
+end;
 
 function TQuerySearchParamDefSubParam.GetIsDefault: TField;
 begin

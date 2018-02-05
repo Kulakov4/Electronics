@@ -7,14 +7,14 @@ inherited QuerySearchParamDefSubParam: TQuerySearchParamDefSubParam
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       
-        'select p.*, pt.ParameterType, t.ID ParamSubParamID, t.Name, t.Tr' +
-        'anslation, t.IsDefault'
+        'select p.*, pt.ParameterType, t.ID ParamSubParamID, t.IdSubParam' +
+        'eter, t.Name, t.Translation, t.IsDefault'
       'from Parameters p'
       'LEFT JOIN '
       '('
       
-        '    select psp.ID, psp.IdParameter, sp.Name, sp.Translation, sp.' +
-        'IsDefault'
+        '    select psp.ID, psp.IdParameter, psp.IdSubParameter, sp.Name,' +
+        ' sp.Translation, sp.IsDefault'
       '    from ParamSubParams psp'
       
         '    join SubParameters sp on psp.IdSubParameter = sp.Id and sp.I' +

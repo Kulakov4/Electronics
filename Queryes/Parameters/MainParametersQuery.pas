@@ -28,6 +28,7 @@ type
     function GetChecked: TField;
     function GetIDParameterKind: TField;
     function GetIDParameterType: TField;
+    function GetIdSubParameter: TField;
     function GetParamSubParamID: TField;
     function GetIsCustomParameter: TField;
     function GetqSearchParameter: TQuerySearchParameter;
@@ -52,6 +53,7 @@ type
     property Checked: TField read GetChecked;
     property IDParameterKind: TField read GetIDParameterKind;
     property IDParameterType: TField read GetIDParameterType;
+    property IdSubParameter: TField read GetIdSubParameter;
     property ParamSubParamID: TField read GetParamSubParamID;
     property IsCustomParameter: TField read GetIsCustomParameter;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue
@@ -307,6 +309,11 @@ end;
 function TQueryMainParameters.GetIDParameterType: TField;
 begin
   Result := Field('IDParameterType');
+end;
+
+function TQueryMainParameters.GetIdSubParameter: TField;
+begin
+  Result := Field('IdSubParameter');
 end;
 
 function TQueryMainParameters.GetParamSubParamID: TField;

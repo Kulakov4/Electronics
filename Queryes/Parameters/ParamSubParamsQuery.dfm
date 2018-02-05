@@ -22,8 +22,7 @@ inherited QueryParamSubParams: TQueryParamSubParams
       
         'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
         'ategoryId and cp.ParamSubParamID = psp.id '
-      'where sp.IsDefault = 0 '
-      '--and psp.IdParameter = :IdParameter'
+      'where sp.IsDefault = 0 and 0=0'
       'order by psp.IdParameter')
     ParamData = <
       item

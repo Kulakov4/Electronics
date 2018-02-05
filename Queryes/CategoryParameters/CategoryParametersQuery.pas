@@ -148,13 +148,16 @@ end;
 procedure TQueryCategoryParameters.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
+{
 var
   ACategoryID: TField;
   AIsAttribute: TField;
   AOrder: TField;
   AParameterID: TField;
   APosID: TField;
+}
 begin
+{
   APosID := ASender.FieldByName(PosID.FieldName);
   AOrder := ASender.FieldByName(Order.FieldName);
   AParameterID := ASender.FieldByName(ParameterID.FieldName);
@@ -169,6 +172,7 @@ begin
       AOrder.OldValue, AOrder.Value, AIsAttribute.OldValue, AIsAttribute.Value,
       AParameterID.AsInteger, ACategoryID.AsInteger);
   end;
+}
 end;
 
 procedure TQueryCategoryParameters.ApplyUpdates;

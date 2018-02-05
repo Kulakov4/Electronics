@@ -60,8 +60,9 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
     SQL.Strings = (
       'UPDATE CATEGORYPARAMS2'
       'SET POSID = :NEW_POSID,'
-      '    [ORD] = :NEW_ORD,'
-      '    ISATTRIBUTE = :NEW_ISATTRIBUTE'
+      '    ORD = :NEW_ORD,'
+      '    ISATTRIBUTE = :NEW_ISATTRIBUTE,'
+      '    PARAMSUBPARAMID = :NEW_PARAMSUBPARAMID'
       'WHERE ID in'
       '('
       
@@ -75,7 +76,7 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       '            from ProductCategories pc'
       
         '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
-        '.Id and cp.ParamSubParamId = :ParamSubParamId'
+        '.Id and cp.ParamSubParamId = :OLD_PARAMSUBPARAMID'
       '            where pc.id = :CATEGORYID'
       '            union all'
       
@@ -84,7 +85,7 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       '            from ProductCategories pc'
       
         '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
-        '.Id and cp.ParamSubParamId = :ParamSubParamId'
+        '.Id and cp.ParamSubParamId = :OLD_PARAMSUBPARAMID'
       
         '            join m on pc.parentid = m.ProductCategoryID         ' +
         '   '
@@ -94,8 +95,9 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
       '    from m'
       ')'
       'and POSID = :OLD_POSID'
-      'and [ORD] = :OLD_ORD'
-      'and ISATTRIBUTE = :OLD_ISATTRIBUTE')
+      'and ORD = :OLD_ORD'
+      'and ISATTRIBUTE = :OLD_ISATTRIBUTE'
+      'and PARAMSUBPARAMID = :OLD_PARAMSUBPARAMID')
     Left = 176
     Top = 25
     ParamData = <
@@ -118,7 +120,13 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
         Value = Null
       end
       item
-        Name = 'PARAMSUBPARAMID'
+        Name = 'NEW_PARAMSUBPARAMID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'OLD_PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

@@ -13,6 +13,7 @@ type
   TQuerySearchParamSubParam = class(TQueryBase)
   private
     function GetIDParameter: TField;
+    function GetIDSubParameter: TField;
     function GetIsDefault: TField;
     function GetName: TField;
     function GetParameterType: TField;
@@ -25,6 +26,7 @@ type
   public
     function SearchByID(const AParamSubParamID: Integer): Integer;
     property IDParameter: TField read GetIDParameter;
+    property IDSubParameter: TField read GetIDSubParameter;
     property IsDefault: TField read GetIsDefault;
     property Name: TField read GetName;
     property ParameterType: TField read GetParameterType;
@@ -42,6 +44,11 @@ implementation
 function TQuerySearchParamSubParam.GetIDParameter: TField;
 begin
   Result := Field('IDParameter');
+end;
+
+function TQuerySearchParamSubParam.GetIDSubParameter: TField;
+begin
+  Result := Field('IdSubParameter');
 end;
 
 function TQuerySearchParamSubParam.GetIsDefault: TField;
