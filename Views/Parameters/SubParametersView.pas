@@ -203,6 +203,8 @@ begin
   MainView.DataController.DataSource := FQuerySubParameters.DataSource;
   MainView.DataController.KeyFieldNames := FQuerySubParameters.PKFieldName;
 
+  MyApplyBestFit;
+
   UpdateView;
 end;
 

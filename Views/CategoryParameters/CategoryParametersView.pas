@@ -70,7 +70,7 @@ type
     cxGridLevel2: TcxGridLevel;
     cxGridDBBandedTableView2: TcxGridDBBandedTableView;
     clID2: TcxGridDBBandedColumn;
-    clIDCategoryParam: TcxGridDBBandedColumn;
+    clIDParent: TcxGridDBBandedColumn;
     clName: TcxGridDBBandedColumn;
     clTranslation: TcxGridDBBandedColumn;
     clIsAttribute2: TcxGridDBBandedColumn;

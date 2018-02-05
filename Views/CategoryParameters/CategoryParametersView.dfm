@@ -130,7 +130,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OnMouseDown = cxGridDBBandedTableView2MouseDown
       Navigator.Buttons.CustomButtons = <>
       DataController.DataSource = dsSubParameters
-      DataController.DetailKeyFieldNames = 'IDCategoryParam'
+      DataController.DetailKeyFieldNames = 'IDParent'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
@@ -152,8 +152,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
-      object clIDCategoryParam: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'IDCategoryParam'
+      object clIDParent: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IDParent'
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
