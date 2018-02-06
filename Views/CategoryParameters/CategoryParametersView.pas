@@ -534,10 +534,14 @@ var
   m: TList<Integer>;
   i: Integer;
   AOrder: Integer;
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
   L: TList<TRecOrder>;
+  IDList: TList<Integer>;
+  j: Integer;
 begin
   inherited;
-
+  IDList := TList<Integer>.Create;
   MainView.BeginSortingUpdate;
   try
     m := TList<Integer>.Create;
@@ -546,11 +550,25 @@ begin
       begin
         for i := 0 to MainView.Controller.SelectedRowCount - 1 do
         begin
+          ARow := MainView.Controller.SelectedRows[i] as TcxGridMasterDataRow;
+          if ARow.ActiveDetailGridViewExists then
+          begin
+            AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
+            for j := 0 to AView.ViewData.RowCount - 1 do
+            begin
+              IDList.Add( Value(AView, clID2, j) );
+            end;
+          end
+          else
+            IDList.Add( Value(MainView, clID, ARow.Index) );
+
           m.Add(MainView.Controller.SelectedRows[i].Index);
         end;
       end
       else
         m.Add(MainView.Controller.FocusedRow.Index);
+
+      CatParamsGroup.MoveParameters(IDList, AUp);
 
       m.Sort;
       // Убеждаемся что индексы в списке непрерывны
@@ -591,6 +609,7 @@ begin
           AOrder := Value(MainView, clOrder, i);
         end;
         L.Add(TRecOrder.Create(AID, AOrder));
+//        CatParamsGroup.MoveParameters(L);
         // QueryCategoryParameters.Move(L);
       finally
         FreeAndNil(L);
@@ -600,6 +619,7 @@ begin
     end;
   finally
     MainView.EndSortingUpdate;
+    FreeAndNil(IDList);
     UpdateView;
   end;
 end;

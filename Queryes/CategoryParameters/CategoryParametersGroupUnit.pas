@@ -124,6 +124,7 @@ type
     procedure DeleteSubParameters(APKValues: array of Variant);
     procedure UpdateData;
     procedure LoadData;
+    procedure MoveParameters(IDList: TList<Integer>; AUp: Boolean);
     property AfterUpdateData: TNotifyEventsEx read FAfterUpdateData;
     property BeforeUpdateData: TNotifyEventsEx read FBeforeUpdateData;
     property IsAllQuerysActive: Boolean read GetIsAllQuerysActive;
@@ -619,7 +620,7 @@ begin
     FFDQCategorySubParameters.UpdatePK(FqCategoryParameters.PKDictionary);
     qCatParams.UpdatePK(FqCategoryParameters.PKDictionary);
     qCatSubParams.UpdatePK(FqCategoryParameters.PKDictionary);
-//    UpdateData;
+    // UpdateData;
   end;
 end;
 
@@ -648,7 +649,8 @@ begin
         (FFDQCategorySubParameters.IDParent.FieldName, AID) do
       begin
         // Удаляем из "плоского" набора, если ещё не удалили
-        if (ADeletedID.IndexOf(FFDQCategorySubParameters.ID.AsInteger) = -1) then
+        if (ADeletedID.IndexOf(FFDQCategorySubParameters.ID.AsInteger) = -1)
+        then
         begin
           qCategoryParameters.LocateByPK
             (FFDQCategorySubParameters.ID.AsInteger, True);
@@ -906,6 +908,38 @@ begin
     FreeAndNil(AFieldList);
   end;
   UpdateData;
+end;
+
+procedure TCategoryParametersGroup.MoveParameters(IDList: TList<Integer>;
+  AUp: Boolean);
+var
+  AID: Integer;
+  L: TList<Integer>;
+begin
+  L := TList<Integer>.Create;
+  try
+    for AID in IDList do
+    begin
+      FFDQCategorySubParameters.FilterByIDParent(AID);
+      // Если у нашего параметра есть подпараметры
+      if FFDQCategorySubParameters.RecordCount > 0 then
+      begin
+        FFDQCategorySubParameters.First;
+        while not EOF do
+        begin
+          L.Add(FFDQCategorySubParameters.ID.AsInteger);
+          FFDQCategorySubParameters.Next;
+        end;
+      end
+      else
+      begin
+        L.Add(AID);
+      end;
+
+    end;
+  finally
+    FreeAndNil(L);
+  end;
 end;
 
 procedure TCategoryFDMemTable.AppendFrom(ASource: TCategoryFDMemTable);
