@@ -81,6 +81,9 @@ type
     clIDParameter: TcxGridDBBandedColumn;
     dxBarButton13: TdxBarButton;
     dxBarButton14: TdxBarButton;
+    dxBarManagerBar1: TdxBar;
+    dxBarButton15: TdxBarButton;
+    dxBarButton16: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -112,6 +115,8 @@ type
       ANewItemRecordFocusingChanged: Boolean);
     procedure dxBarButton13Click(Sender: TObject);
     procedure dxBarButton14Click(Sender: TObject);
+    procedure dxBarButton15Click(Sender: TObject);
+    procedure dxBarButton16Click(Sender: TObject);
   private
     FCatParamsGroup: TCategoryParametersGroup;
     FLoading: Boolean;
@@ -455,7 +460,7 @@ procedure TViewCategoryParameters.DoAfterUpdateData(Sender: TObject);
 begin
   // dsParameters.DataSet := FCatParamsGroup.qCatParams;
   // dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
-  EndUpdate;
+//  EndUpdate;
   UpdateView;
   // MainView.ViewData.Collapse(True);
   FLoading := False;
@@ -464,7 +469,7 @@ end;
 procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
 begin
   // Набор данных, отображаемый в гриде будет вручную загружаться
-  BeginUpdate;
+//  BeginUpdate;
   // dsParameters.DataSet := nil;
   // dsSubParameters.DataSet := nil;
   FLoading := True;
@@ -480,6 +485,18 @@ procedure TViewCategoryParameters.dxBarButton14Click(Sender: TObject);
 begin
   inherited;
   EnableCollapsingAndExpanding;
+end;
+
+procedure TViewCategoryParameters.dxBarButton15Click(Sender: TObject);
+begin
+  inherited;
+  BeginUpdate;
+end;
+
+procedure TViewCategoryParameters.dxBarButton16Click(Sender: TObject);
+begin
+  inherited;
+  EndUpdate;
 end;
 
 procedure TViewCategoryParameters.EndUpdate;

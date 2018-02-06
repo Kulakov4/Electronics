@@ -2,10 +2,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   Width = 1037
   ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
+    Top = 56
     Width = 1037
+    Height = 416
+    ExplicitWidth = 1037
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       OnFocusedRecordChanged = cxGridDBBandedTableViewFocusedRecordChanged
+      DataController.DataModeController.SyncMode = False
       DataController.DataSource = dsParameters
       DataController.KeyFieldNames = 'ID'
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
@@ -133,6 +137,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OnKeyDown = cxGridDBBandedTableView2KeyDown
       OnMouseDown = cxGridDBBandedTableView2MouseDown
       Navigator.Buttons.CustomButtons = <>
+      DataController.DataModeController.SyncMode = False
       DataController.DataSource = dsSubParameters
       DataController.DetailKeyFieldNames = 'IDParent'
       DataController.KeyFieldNames = 'ID'
@@ -212,12 +217,13 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   end
   inherited StatusBar: TStatusBar
     Width = 1037
+    ExplicitWidth = 1037
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0
       0
-      28
+      56
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -264,7 +270,20 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton7'
-        end
+        end>
+    end
+    object dxBarManagerBar1: TdxBar [1]
+      Caption = 'Custom 1'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 0
+      DockedTop = 28
+      DockingStyle = dsTop
+      FloatLeft = 1047
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      ItemLinks = <
         item
           Visible = True
           ItemName = 'dxBarButton13'
@@ -272,7 +291,20 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton14'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton15'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton16'
         end>
+      OneOnRow = True
+      Row = 1
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
     end
     object dxBarButton1: TdxBarButton
       Action = actPosBegin
@@ -346,18 +378,32 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       PaintStyle = psCaptionGlyph
     end
     object dxBarButton13: TdxBarButton
-      Caption = 'New Button'
+      Caption = 'Dis coll'
       Category = 0
-      Hint = 'New Button'
+      Hint = 'Dis coll'
       Visible = ivAlways
       OnClick = dxBarButton13Click
     end
     object dxBarButton14: TdxBarButton
-      Caption = 'New Button'
+      Caption = 'En coll'
       Category = 0
-      Hint = 'New Button'
+      Hint = 'En coll'
       Visible = ivAlways
       OnClick = dxBarButton14Click
+    end
+    object dxBarButton15: TdxBarButton
+      Caption = 'BU'
+      Category = 0
+      Hint = 'BU'
+      Visible = ivAlways
+      OnClick = dxBarButton15Click
+    end
+    object dxBarButton16: TdxBarButton
+      Caption = 'EU'
+      Category = 0
+      Hint = 'EU'
+      Visible = ivAlways
+      OnClick = dxBarButton16Click
     end
   end
   inherited ActionList: TActionList
