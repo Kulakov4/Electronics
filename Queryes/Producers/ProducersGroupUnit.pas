@@ -51,8 +51,6 @@ begin
 end;
 
 function TProducersGroup.Find(const AFieldName, S: string): TList<String>;
-var
-  OK: Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -60,8 +58,7 @@ begin
   // Пытаемся искать среди производителей по какому-то полю
   if qProducers.LocateByField(AFieldName, S) then
   begin
-    OK := qProducerTypes.LocateByPK(qProducers.ProducerTypeID.Value);
-    Assert(OK);
+    qProducerTypes.LocateByPK(qProducers.ProducerTypeID.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qProducerTypes.ProducerType.AsString);
     // запоминаем что надо искать на втором уровне

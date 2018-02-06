@@ -20,10 +20,12 @@ type
     function GetPosID: TField;
   protected
     procedure DeleteTail(AFromRecNo: Integer);
+    function LocateByField(const AFieldName: string; AValue: Variant;
+      TestResult: Boolean = False): Boolean;
   public
     function GetFieldValues(const AFieldName: string): String;
     procedure LoadRecFrom(ADataSet: TDataSet; AFieldList: TStrings);
-    function LocateByPK(Value: Integer): Boolean;
+    function LocateByPK(AValue: Integer; TestResult: Boolean = False): Boolean;
     procedure SetOrder(AOrder: Integer);
     procedure UpdatePK(APKDictionary: TDictionary<Integer, Integer>);
     property ID: TField read GetID;
@@ -62,8 +64,9 @@ type
     function GetTranslation: TField;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AppendR(AID, AIDParent, AParamSubParamId, AIDSubParameter: Integer;
-        const AName, ATranslation: String; AIsAttribute, APosID, AOrd: Integer);
+    procedure AppendR(AID, AIDParent, AParamSubParamId, AIDSubParameter
+      : Integer; const AName, ATranslation: String;
+      AIsAttribute, APosID, AOrd: Integer);
     procedure DeleteByIDParent(AIDCategoryParam: Integer);
     procedure FilterByIDParent(AIDCategoryParam: Integer);
     property IDParent: TField read GetIDParent;
@@ -207,8 +210,8 @@ begin
 end;
 
 procedure TQryCategorySubParameters.AppendR(AID, AIDParent, AParamSubParamId,
-    AIDSubParameter: Integer; const AName, ATranslation: String; AIsAttribute,
-    APosID, AOrd: Integer);
+  AIDSubParameter: Integer; const AName, ATranslation: String;
+  AIsAttribute, APosID, AOrd: Integer);
 begin
   Append;
   ID.Value := AID;
@@ -292,7 +295,6 @@ procedure TCategoryParametersGroup.AddOrDeleteSubParameters(AID: Integer;
   ASubParamIDList: string);
 var
   m: TArray<String>;
-  OK: Boolean;
   S: String;
   S2: string;
   S1: String;
@@ -300,7 +302,7 @@ begin
   // Нужно добавить или удалить подпараметры
 
   // Ищем связку категория-параметр
-  FFDQCategoryParameters.LocateByPK(AID);
+  FFDQCategoryParameters.LocateByPK(AID, True);
 
   // Отфильтровываем подпараметры
   FFDQCategorySubParameters.FilterByIDParent(AID);
@@ -327,9 +329,9 @@ begin
       // Если хотим удалить старый подпараметр
       if S2.IndexOf(Format(',%s,', [S])) = -1 then
       begin
-        OK := FFDQCategorySubParameters.LocateEx
-          (FFDQCategorySubParameters.IDSubParameter.FieldName, S, []);
-        Assert(OK);
+        FFDQCategorySubParameters.LocateByField
+          (FFDQCategorySubParameters.IDSubParameter.FieldName, S, True);
+
         DeleteSubParameters([FFDQCategorySubParameters.ID.Value]);
       end;
     end;
@@ -363,15 +365,14 @@ var
   AOrder: Integer;
   APosID: Integer;
   ID: Integer;
-  OK: Boolean;
   rc: Integer;
 begin
   // Assert(AID > 0);
   Assert(ASubParamID > 0);
 
   // Ищем связку категория-параметр
-  FFDQCategoryParameters.LocateByPK(AID);
-  qCategoryParameters.LocateByPK(AID);
+  FFDQCategoryParameters.LocateByPK(AID, True);
+  qCategoryParameters.LocateByPK(AID, True);
 
   // Нужно добавить подпараметр к параметру, если у него его ещё не было
   rc := qParamSubParams.SearchBySubParam
@@ -403,8 +404,7 @@ begin
     Assert(qCategoryParameters.FDQuery.RecordCount > 0);
 
     // Ищем первый подпараметр нашего параметра
-    OK := qCategoryParameters.Locate(AIDParameter, APosID, AOrder);
-    Assert(OK);
+    qCategoryParameters.Locate(AIDParameter, APosID, AOrder, True);
 
     // Ищем место, куда будем вставлять подпараметр
     while (not qCategoryParameters.FDQuery.Eof) and
@@ -435,15 +435,15 @@ begin
         // Если поменяли положения параметра "по умолчанию"
         if qCategoryParameters.IsDefault.AsInteger = 1 then
         begin
-          FFDQCategoryParameters.LocateByPK(qCategoryParameters.PK.Value);
+          FFDQCategoryParameters.LocateByPK(qCategoryParameters.PK.Value, True);
           FFDQCategoryParameters.SetOrder(ANewOrder);
         end
         else
         begin
           // Если поменяли положение у подпараметра
-          FFDQCategorySubParameters.LocateByPK(qCategoryParameters.PK.Value);
+          FFDQCategorySubParameters.LocateByPK(qCategoryParameters.PK.Value, True);
           FFDQCategoryParameters.LocateByPK
-            (FFDQCategorySubParameters.IDParent.AsInteger);
+            (FFDQCategorySubParameters.IDParent.AsInteger, True);
           if FFDQCategoryParameters.Ord.AsInteger = FFDQCategorySubParameters.
             Ord.AsInteger then
             FFDQCategoryParameters.SetOrder(ANewOrder);
@@ -476,8 +476,7 @@ begin
     // Это первый добавленный подпараметр
     // Надо заменить подпараметр по умолчанию на него
     // Ищем подпараметр "по умолчанию" нашего параметра
-    OK := qCategoryParameters.LocateByPK(AID);
-    Assert(OK);
+    qCategoryParameters.LocateByPK(AID, True);
     Assert(qCategoryParameters.IsDefault.AsInteger = 1);
 
     // Меняем подпараметр "по умолчанию" на выбранный
@@ -523,7 +522,6 @@ procedure TCategoryParametersGroup.DeleteParameters
 var
   ADeletedID: TList<Integer>;
   AID: Variant;
-  OK: Boolean;
 begin
   ADeletedID := TList<Integer>.Create;
   FFDQCategoryParameters.DisableControls;
@@ -538,9 +536,9 @@ begin
         if (AID > 0) and
           (ADeletedID.IndexOf(FFDQCategorySubParameters.ID.AsInteger) = -1) then
         begin
-          OK := qCategoryParameters.LocateByPK
-            (FFDQCategorySubParameters.ID.AsInteger);
-          Assert(OK);
+          qCategoryParameters.LocateByPK
+            (FFDQCategorySubParameters.ID.AsInteger, True);
+
           qCategoryParameters.FDQuery.Delete;
         end;
         // Удаляем из подпараметров
@@ -548,16 +546,13 @@ begin
       end;
 
       // Удаляем из параметров
-      OK := FFDQCategoryParameters.LocateEx
-        (FFDQCategoryParameters.ID.FieldName, AID);
-      Assert(OK);
+      FFDQCategoryParameters.LocateByPK(AID, True);
       FFDQCategoryParameters.Delete;
 
       // Удаляем из "плоского" набора, если ещё не удалили
       if (AID > 0) and (ADeletedID.IndexOf(AID) = -1) then
       begin
-        OK := qCategoryParameters.LocateByPK(AID);
-        Assert(OK);
+        qCategoryParameters.LocateByPK(AID, True);
         qCategoryParameters.FDQuery.Delete;
       end;
     end;
@@ -580,10 +575,7 @@ begin
     for AID in APKValues do
     begin
       // Если удаляем подпараметры
-      OK := FFDQCategorySubParameters.LocateEx
-        (FFDQCategorySubParameters.ID.FieldName, AID);
-      Assert(OK);
-
+      FFDQCategorySubParameters.LocateByPK(AID, True);
       FFDQCategorySubParameters.Delete;
 
       // Если этот подпараметр не первый в группе
@@ -591,8 +583,7 @@ begin
         (FFDQCategoryParameters.ID.FieldName, AID) then
       begin
         // Удаляем связь с ним
-        OK := qCategoryParameters.LocateByPK(AID);
-        Assert(OK);
+        qCategoryParameters.LocateByPK(AID, True);
         qCategoryParameters.FDQuery.Delete;
       end
       else
@@ -614,9 +605,9 @@ begin
         Assert(FFDQCategorySubParameters.ID.AsInteger <> AID);
 
         // Ищем подпараметр, ссылку на который будем удалять из БД
-        OK := qCategoryParameters.LocateByPK
-          (FFDQCategorySubParameters.ID.Value);
-        Assert(OK);
+        qCategoryParameters.LocateByPK
+          (FFDQCategorySubParameters.ID.Value, True);
+
         qCategoryParameters.FDQuery.Delete;
 
         FFDQCategorySubParameters.Edit;
@@ -624,8 +615,7 @@ begin
         FFDQCategorySubParameters.Post;
 
         // Ищем такой параметр, который будем связывать с другим подпараметром
-        OK := qCategoryParameters.LocateByPK(AID);
-        Assert(OK);
+        qCategoryParameters.LocateByPK(AID, True);
 
         qCategoryParameters.TryEdit;
         // Меняем ссулку на связанный с параметром подпараметр
@@ -641,8 +631,7 @@ begin
       end
       else
       begin
-        OK := qCategoryParameters.LocateByPK(AID);
-        Assert(OK);
+        qCategoryParameters.LocateByPK(AID, True);
 
         // Выбираем информацию о том, какой подпараметр "по умолчанию" у нашего параметра
         rc := qSearchParamDefSubParam.SearchByID
@@ -903,11 +892,22 @@ begin
   end;
 end;
 
-function TCategoryFDMemTable.LocateByPK(Value: Integer): Boolean;
+function TCategoryFDMemTable.LocateByField(const AFieldName: string;
+  AValue: Variant; TestResult: Boolean = False): Boolean;
 begin
-  Assert(Value <> 0);
-  Result := LocateEx(ID.FieldName, Value);
-  Assert(Result);
+  Assert(not AFieldName.IsEmpty);
+  Result := LocateEx(AFieldName, AValue);
+  if TestResult then
+    Assert(Result);
+end;
+
+function TCategoryFDMemTable.LocateByPK(AValue: Integer; TestResult: Boolean =
+    False): Boolean;
+begin
+  Assert(AValue <> 0);
+  Result := LocateEx(ID.FieldName, AValue);
+  if TestResult then
+    Assert(Result);
 end;
 
 procedure TCategoryFDMemTable.SetOrder(AOrder: Integer);

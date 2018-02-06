@@ -107,7 +107,7 @@ type
         Boolean;
     procedure SetParameters(const AParamNames: array of string;
       const AParamValues: array of Variant);
-    function LocateByPK(APKValue: Variant): Boolean;
+    function LocateByPK(APKValue: Variant; TestResult: Boolean = False): Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     procedure RestoreBookmark;
@@ -845,17 +845,17 @@ begin
   end;
 end;
 
-function TQueryBase.LocateByPK(APKValue: Variant): Boolean;
+function TQueryBase.LocateByPK(APKValue: Variant; TestResult: Boolean = False):
+    Boolean;
 begin
   Result := FDQuery.LocateEx(FPKFieldName, APKValue);
+  if TestResult then
+    Assert(Result);
 end;
 
 procedure TQueryBase.LocateByPKAndDelete(APKValue: Variant);
-var
-  OK: Boolean;
 begin
-  OK := LocateByPK(APKValue);
-  Assert(OK);
+  LocateByPK(APKValue, True);
   FDQuery.Delete;
 end;
 

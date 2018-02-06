@@ -393,14 +393,11 @@ end;
 
 procedure TQueryCustomComponents.SetProducer(AIDComponent: Integer;
   const AProducer: String);
-var
-  OK: Boolean;
 begin
   Assert(AIDComponent > 0);
 
   // »щем нужный компонент
-  OK := LocateByPK(AIDComponent);
-  Assert(OK);
+  LocateByPK(AIDComponent, True);
 
   // –едактируем его
   TryEdit;
@@ -410,14 +407,11 @@ end;
 
 procedure TQueryCustomComponents.SetPackagePins(AIDComponent: Integer;
   APackagePins: string);
-var
-  OK: Boolean;
 begin
   Assert(AIDComponent > 0);
 
   // »щем нужный компонент
-  OK := LocateByPK(AIDComponent);
-  Assert(OK);
+  LocateByPK(AIDComponent, True);
 
   // –едактируем его
   TryEdit;

@@ -24,7 +24,8 @@ type
     { Private declarations }
   protected
   public
-    function LocateByParameterID(AIDParameter: Integer): Boolean;
+    function LocateByParameterID(AIDParameter: Integer; TestResult: Boolean =
+        False): Boolean;
     function Search(AIDCategory: Integer): Integer; overload;
     function SearchAndProcess(AIDCategory: Integer): Integer;
     property ParameterID: TField read GetParameterID;
@@ -42,11 +43,13 @@ begin
   Result := Field('ParameterID');
 end;
 
-function TQuerySearchParametersForCategory.LocateByParameterID
-  (AIDParameter: Integer): Boolean;
+function TQuerySearchParametersForCategory.LocateByParameterID(AIDParameter:
+    Integer; TestResult: Boolean = False): Boolean;
 begin
   Assert(AIDParameter > 0);
   Result := FDQuery.LocateEx(ParameterID.FieldName, AIDParameter);
+  if TestResult then
+    Assert(Result);
 end;
 
 function TQuerySearchParametersForCategory.Search(AIDCategory: Integer)

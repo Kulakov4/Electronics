@@ -318,15 +318,13 @@ end;
 procedure TQueryCategoryParameters.Move(AData: TList<TRecOrder>);
 var
   ARecOrder: TRecOrder;
-  OK: Boolean;
 begin
   FDQuery.DisableControls;
   try
     for ARecOrder in AData do
     begin
       // Переходим на нужную запись
-      OK := FDQuery.LocateEx(ID.FieldName, ARecOrder.Key, []);
-      Assert(OK);
+      LocateByPK(ARecOrder.Key, True);
       // Меняем порядок записи
       TryEdit;
       Order.AsInteger := ARecOrder.Order;

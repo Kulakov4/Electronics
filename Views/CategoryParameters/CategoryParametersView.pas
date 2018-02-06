@@ -257,7 +257,6 @@ var
   AParamsGrp: TParametersGroup;
   m: TArray<String>;
   CheckedList: string;
-  OK: Boolean;
   AIDParam: string;
   SS: string;
 begin
@@ -311,13 +310,11 @@ begin
       if SS.IndexOf(',' + AIDParam + ',') < 0 then
       begin
         // ищем этот параметр в справочнике параметров
-        OK := AParamsGrp.qMainParameters.LocateByPK(AIDParam);
-        Assert(OK);
+        AParamsGrp.qMainParameters.LocateByPK(AIDParam, True);
 
         // Ищем тип этого параметра в справочнике типов
-        OK := AParamsGrp.qParameterTypes.LocateByPK
-          (AParamsGrp.qMainParameters.IDParameterType.Value);
-        Assert(OK);
+        AParamsGrp.qParameterTypes.LocateByPK
+          (AParamsGrp.qMainParameters.IDParameterType.Value, True);
 
         // Добавляем параметр
         CatParamsGroup.AppendParameter

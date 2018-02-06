@@ -30,7 +30,7 @@ type
     procedure AddNewValue(const AValue: string; AProducerTypeID: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
-    function Locate(AValue: string): Boolean;
+    function Locate(AValue: string; TestResult: Boolean = False): Boolean;
     property Cnt: TField read GetCnt;
     property Name: TField read GetName;
     property ProducerTypeID: TField read GetProducerTypeID;
@@ -124,9 +124,13 @@ begin
   Result := Field('ProducerTypeID');
 end;
 
-function TQueryProducers.Locate(AValue: string): Boolean;
+function TQueryProducers.Locate(AValue: string; TestResult: Boolean = False):
+    Boolean;
 begin
   Result := FDQuery.LocateEx(Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
+  if TestResult then
+    Assert(Result);
+
 end;
 
 end.

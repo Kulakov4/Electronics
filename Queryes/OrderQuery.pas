@@ -189,7 +189,6 @@ procedure TQueryOrder.UpdateOrder;
 var
   APKValue: Variant;
   I: Integer;
-  OK: Boolean;
 begin
   if FRecOrderList.Count = 0 then
   begin
@@ -203,8 +202,7 @@ begin
       // Теперь поменяем порядок
       for I := 0 to FRecOrderList.Count - 1 do
       begin
-        OK := FDQuery.Locate(PKFieldName, FRecOrderList[I].Key, []);
-        Assert(OK);
+        LocateByPK(FRecOrderList[I].Key, True);
 
         FDQuery.Edit;
         DoOnUpdateOrder(FRecOrderList[I]);

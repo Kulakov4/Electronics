@@ -112,8 +112,6 @@ begin
 end;
 
 function TParametersGroup.Find(const AFieldName, S: string): TList<String>;
-var
-  OK: Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -121,8 +119,7 @@ begin
   // Пытаемся искать среди параметров по какому-то полю
   if qMainParameters.LocateByField(AFieldName, S) then
   begin
-    OK := qParameterTypes.LocateByPK(qMainParameters.IDParameterType.Value);
-    Assert(OK);
+    qParameterTypes.LocateByPK(qMainParameters.IDParameterType.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qParameterTypes.ParameterType.AsString);
     // запоминаем что надо искать на втором уровне

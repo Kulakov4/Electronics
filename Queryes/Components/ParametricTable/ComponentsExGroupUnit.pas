@@ -309,7 +309,6 @@ var
   AFieldName: String;
   ANewValue: string;
   AValue: string;
-  OK: Boolean;
   S: string;
 begin
   // Во время загрузки из БД ничего в БД сохранять не будем
@@ -332,8 +331,7 @@ begin
       else
         qryComponents := qComponentsEx;
 
-      OK := qryComponents.LocateByPK(FqProductParameters.ProductID.Value);
-      Assert(OK);
+      qryComponents.LocateByPK(FqProductParameters.ProductID.Value, True);
 
       // Если для такого параметра в SQL запросе поля не существует
       if not qryComponents.ParameterFields.ContainsKey

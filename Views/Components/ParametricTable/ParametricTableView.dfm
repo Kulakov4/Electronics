@@ -1,6 +1,5 @@
 inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
-  ShowHint = False
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove

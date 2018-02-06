@@ -63,7 +63,8 @@ type
         Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
-    function Locate(AIDParameter, APosID, AOrder: Integer): Boolean;
+    function Locate(AIDParameter, APosID, AOrder: Integer; TestResult: Boolean =
+        False): Boolean;
     procedure Move(AData: TList<TRecOrder>);
     function NextOrder: Integer;
     procedure SetPos(APosID: Integer);
@@ -350,8 +351,8 @@ begin
   Result := Field('ValueT');
 end;
 
-function TQueryCategoryParameters2.Locate(AIDParameter, APosID,
-  AOrder: Integer): Boolean;
+function TQueryCategoryParameters2.Locate(AIDParameter, APosID, AOrder:
+    Integer; TestResult: Boolean = False): Boolean;
 var
   AFieldNames: string;
 begin
@@ -364,20 +365,21 @@ begin
 
   Result := FDQuery.LocateEx(AFieldNames,
     VarArrayOf([AIDParameter, APosID, AOrder]));
+
+  if TestResult then
+    Assert(Result);
 end;
 
 procedure TQueryCategoryParameters2.Move(AData: TList<TRecOrder>);
 var
   ARecOrder: TRecOrder;
-  OK: Boolean;
 begin
   FDQuery.DisableControls;
   try
     for ARecOrder in AData do
     begin
       // Переходим на нужную запись
-      OK := FDQuery.LocateEx(PKFieldName, ARecOrder.Key, []);
-      Assert(OK);
+      LocateByPK(ARecOrder.Key, True);
       // Меняем порядок записи
       TryEdit;
       Ord.AsInteger := ARecOrder.Order;

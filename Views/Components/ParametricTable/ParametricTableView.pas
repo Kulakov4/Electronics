@@ -1001,7 +1001,6 @@ var
   AQrySearchParamForCat: TQuerySearchParametersForCategory;
   i: Integer;
   IsEdit: Boolean;
-  OK: Boolean;
 begin
   // Список бэндов-параметров
   ABands := TList<TcxGridBand>.Create;
@@ -1038,8 +1037,7 @@ begin
         Assert(AIDParameter > 0);
 
         // Если найден параметр соответсвующий бэнду
-        OK := AQrySearchParamForCat.LocateByParameterID(AIDParameter);
-        Assert(OK);
+        AQrySearchParamForCat.LocateByParameterID(AIDParameter, True);
 
         if (AQrySearchParamForCat.FDQueryOrder.AsInteger <> ANewOrder) or
           (AQrySearchParamForCat.FDQueryIsAttribute.AsBoolean <>
