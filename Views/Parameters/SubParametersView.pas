@@ -53,16 +53,21 @@ type
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
   private
+    FCheckedMode: Boolean;
     FQuerySubParameters: TQuerySubParameters2;
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
+    procedure SetCheckedMode(const Value: Boolean);
     procedure SetQuerySubParameters(const Value: TQuerySubParameters2);
+    procedure UpdateAutoTransaction;
     procedure UpdateTotalCount;
     { Private declarations }
   protected
     procedure LoadFromExcel(AFileName: string);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure CommitOrPost;
     procedure UpdateView; override;
+    property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
     property QuerySubParameters: TQuerySubParameters2 read FQuerySubParameters
         write SetQuerySubParameters;
     { Public declarations }
@@ -90,6 +95,7 @@ begin
   ApplySort(MainView, clName);
 
   DeleteMessages.Add(cxGridLevel, 'Удалить подпараметр?');
+//  clChecked.Visible := FCheckedMode;
 end;
 
 procedure TViewSubParameters.actAddExecute(Sender: TObject);
@@ -153,6 +159,14 @@ begin
 
 end;
 
+procedure TViewSubParameters.CommitOrPost;
+begin
+  if CheckedMode then // В этом случае транзакция не начата
+    QuerySubParameters.TryPost
+  else
+    actCommit.Execute; // завершаем транзакцию
+end;
+
 procedure TViewSubParameters.LoadDataFromExcelTable
   (AExcelTable: TSubParametersExcelTable);
 begin
@@ -191,6 +205,21 @@ begin
   UpdateView;
 end;
 
+procedure TViewSubParameters.SetCheckedMode(const Value: Boolean);
+begin
+  if FCheckedMode = Value then
+    Exit;
+
+  FCheckedMode := Value;
+  clChecked.Visible := FCheckedMode;
+  clChecked.VisibleForCustomization := False;
+
+  if QuerySubParameters <> nil then
+  begin
+    UpdateAutoTransaction;
+  end;
+end;
+
 procedure TViewSubParameters.SetQuerySubParameters(const Value:
     TQuerySubParameters2);
 begin
@@ -200,12 +229,19 @@ begin
   FQuerySubParameters := Value;
   FEventList.Clear;
 
+  if FQuerySubParameters = nil then
+    Exit;
+
   MainView.DataController.DataSource := FQuerySubParameters.DataSource;
   MainView.DataController.KeyFieldNames := FQuerySubParameters.PKFieldName;
-
   MyApplyBestFit;
-
+  UpdateAutoTransaction;
   UpdateView;
+end;
+
+procedure TViewSubParameters.UpdateAutoTransaction;
+begin
+  QuerySubParameters.AutoTransaction := FCheckedMode;
 end;
 
 procedure TViewSubParameters.UpdateTotalCount;

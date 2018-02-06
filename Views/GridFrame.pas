@@ -72,6 +72,8 @@ type
   private
     FApplyBestFitMultiLine: Boolean;
     FApplyBestFitPosted: Boolean;
+    FcxDataDetailCollapsingEvent: TcxDataDetailExpandingEvent;
+    FcxDataDetailExpandingEvent: TcxDataDetailExpandingEvent;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
@@ -93,6 +95,8 @@ type
       ASource: TcxGridDBBandedTableView); virtual;
     procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
       ARecordIndex: Integer; var AAllow: Boolean);
+    procedure DoCancelFocusRecord(Sender: TcxCustomGridTableView; ARecord:
+        TcxCustomGridRecord; var AAllow: Boolean);
     procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -132,6 +136,7 @@ type
     procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
       AProcRef: TProcRef);
     procedure ClearSort(AView: TcxGridTableView);
+    procedure DisableCollapsingAndExpanding;
     procedure DoDragDrop(AcxGridSite: TcxGridSite;
       ADragAndDropInfo: TDragAndDropInfo; AQueryOrder: TQueryOrder;
       X, Y: Integer);
@@ -142,6 +147,7 @@ type
     procedure DoOnGetHeaderStyle(AColumn: TcxGridColumn; var AStyle: TcxStyle);
     procedure DoOnStartDrag(AcxGridSite: TcxGridSite;
       ADragAndDropInfo: TDragAndDropInfo);
+    procedure EnableCollapsingAndExpanding;
     procedure EndUpdate; virtual;
     procedure ExportViewToExcel(AView: TcxGridDBBandedTableView;
       AFileName: string; AGridProcRef: TGridProcRef = nil);
@@ -468,8 +474,24 @@ begin
   OnGridPopupMenuPopup(AColumn);
 end;
 
+procedure TfrmGrid.DisableCollapsingAndExpanding;
+begin
+  // «апрещаем сворачивать и разворачивать строки
+  FcxDataDetailCollapsingEvent := MainView.DataController.OnDetailCollapsing;
+  FcxDataDetailExpandingEvent := MainView.DataController.OnDetailExpanding;
+  MainView.DataController.OnDetailExpanding := DoCancelDetailExpanding;
+  MainView.DataController.OnDetailCollapsing := DoCancelDetailExpanding;
+//  MainView.OnCanFocusRecord := DoCancelFocusRecord;
+end;
+
 procedure TfrmGrid.DoCancelDetailExpanding(ADataController
   : TcxCustomDataController; ARecordIndex: Integer; var AAllow: Boolean);
+begin
+  AAllow := False;
+end;
+
+procedure TfrmGrid.DoCancelFocusRecord(Sender: TcxCustomGridTableView; ARecord:
+    TcxCustomGridRecord; var AAllow: Boolean);
 begin
   AAllow := False;
 end;
@@ -1037,6 +1059,14 @@ begin
 
   end;
 
+end;
+
+procedure TfrmGrid.EnableCollapsingAndExpanding;
+begin
+  // –азрешаем сворачивать и разворачивать строки
+  MainView.DataController.OnDetailCollapsing := FcxDataDetailCollapsingEvent;
+  MainView.DataController.OnDetailExpanding := FcxDataDetailExpandingEvent;
+//  MainView.OnCanFocusRecord := nil;
 end;
 
 procedure TfrmGrid.FocusColumnEditor(AView: TcxGridDBBandedTableView;

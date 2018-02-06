@@ -63,6 +63,7 @@ type
         Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    procedure FilterByIsDefault(AIsDefault: Integer);
     function Locate(AIDParameter, APosID, AOrder: Integer; TestResult: Boolean =
         False): Boolean;
     procedure Move(AData: TList<TRecOrder>);
@@ -240,6 +241,13 @@ end;
 procedure TQueryCategoryParameters2.DoBeforePost(Sender: TObject);
 begin
   ProductCategoryID.AsInteger := ParentValue;
+end;
+
+procedure TQueryCategoryParameters2.FilterByIsDefault(AIsDefault: Integer);
+begin
+  Assert(AIsDefault >= 0);
+  FDQuery.Filter := Format('%s=%d', [IsDefault.FieldName, AIsDefault]);
+  FDQuery.Filtered := True;
 end;
 
 function TQueryCategoryParameters2.GetCategoryID: TField;

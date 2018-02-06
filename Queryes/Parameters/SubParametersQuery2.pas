@@ -16,6 +16,7 @@ type
   TQuerySubParameters2 = class(TQueryWithDataSource)
   private
     procedure DoAfterInsert(Sender: TObject);
+    procedure DoBeforeCheckedOpen(Sender: TObject);
     function GetChecked: TField;
     function GetIsDefault: TField;
     function GetName: TField;
@@ -57,6 +58,18 @@ end;
 procedure TQuerySubParameters2.DoAfterCheckedOpen(Sender: TObject);
 begin
   Checked.ReadOnly := False;
+end;
+
+procedure TQuerySubParameters2.DoBeforeCheckedOpen(Sender: TObject);
+begin
+  if FDQuery.FieldCount = 0 then
+  begin
+    // Обновляем описания полей
+    FDQuery.FieldDefs.Update;
+    // Создаём поля по умолчанию
+    CreateDefaultFields(False);
+    Checked.FieldKind := fkInternalCalc;
+  end;
 end;
 
 function TQuerySubParameters2.GetChecked: TField;
@@ -147,6 +160,7 @@ begin
     '/* IFCHECKED */');
   SetParamType('IdParameter');
   SetParamType('ProductCategoryId');
+  TNotifyEventWrap.Create(BeforeOpen, DoBeforeCheckedOpen, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterCheckedOpen, FEventList);
   Load(['IdParameter', 'ProductCategoryId'], [AIDParameter, AProductCategoryId]);
 end;

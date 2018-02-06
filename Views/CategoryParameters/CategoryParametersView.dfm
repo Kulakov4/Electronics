@@ -1,7 +1,11 @@
 inherited ViewCategoryParameters: TViewCategoryParameters
+  Width = 1037
+  ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
+    Width = 1037
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
+      OnFocusedRecordChanged = cxGridDBBandedTableViewFocusedRecordChanged
       DataController.DataSource = dsParameters
       DataController.KeyFieldNames = 'ID'
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
@@ -206,6 +210,9 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
     end
   end
+  inherited StatusBar: TStatusBar
+    Width = 1037
+  end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0
@@ -257,6 +264,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton13'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton14'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -329,6 +344,20 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Action = actAddSubParameter
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton13: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton13Click
+    end
+    object dxBarButton14: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton14Click
     end
   end
   inherited ActionList: TActionList
