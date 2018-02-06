@@ -112,8 +112,8 @@ type
     procedure RefreshQuery; virtual;
     procedure RestoreBookmark;
     procedure SaveBookmark;
-    function Search(const AParamNames: array of string;
-      const AParamValues: array of Variant): Integer; overload;
+    function Search(const AParamNames: array of string; const AParamValues: array
+        of Variant; TestResult: Integer = -1): Integer; overload;
     procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
@@ -882,8 +882,8 @@ begin
   FBookmark := PK.Value;
 end;
 
-function TQueryBase.Search(const AParamNames: array of string;
-  const AParamValues: array of Variant): Integer;
+function TQueryBase.Search(const AParamNames: array of string; const
+    AParamValues: array of Variant; TestResult: Integer = -1): Integer;
 var
   i: Integer;
 begin
@@ -902,6 +902,8 @@ begin
     FDQuery.EnableControls;
   end;
   Result := FDQuery.RecordCount;
+  if TestResult >= 0 then
+    Assert(Result = TestResult);
 end;
 
 procedure TQueryBase.SetConditionSQL(const ABaseSQL, AConditionSQL,

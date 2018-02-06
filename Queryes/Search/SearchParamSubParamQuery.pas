@@ -24,7 +24,8 @@ type
     { Private declarations }
   protected
   public
-    function SearchByID(const AParamSubParamID: Integer): Integer;
+    function SearchByID(const AParamSubParamID: Integer; TestResult: Integer = -1):
+        Integer;
     property IDParameter: TField read GetIDParameter;
     property IDSubParameter: TField read GetIDSubParameter;
     property IsDefault: TField read GetIsDefault;
@@ -86,11 +87,11 @@ begin
   Result := Field('ValueT');
 end;
 
-function TQuerySearchParamSubParam.SearchByID(const AParamSubParamID: Integer):
-    Integer;
+function TQuerySearchParamSubParam.SearchByID(const AParamSubParamID: Integer;
+    TestResult: Integer = -1): Integer;
 begin
   Assert(AParamSubParamID > 0);
-  Result := Search(['ID'], [AParamSubParamID]);
+  Result := Search(['ID'], [AParamSubParamID], TestResult);
 end;
 
 end.

@@ -387,8 +387,7 @@ begin
   end;
 
   // Выбираем полную информацию о этом подпараметре
-  rc := qSearchParamSubParam.SearchByID(qParamSubParams.PK.Value);
-  Assert(rc = 1);
+  qSearchParamSubParam.SearchByID(qParamSubParams.PK.Value, 1);
 
   // Либо добавляем, либо обновляем
   // Если этот параметр уже имеет подпараметры
@@ -568,7 +567,6 @@ var
   AID: Variant;
   AIDList: TList<Integer>;
   OK: Boolean;
-  rc: Integer;
 begin
   AIDList := TList<Integer>.Create;
   try
@@ -634,9 +632,8 @@ begin
         qCategoryParameters.LocateByPK(AID, True);
 
         // Выбираем информацию о том, какой подпараметр "по умолчанию" у нашего параметра
-        rc := qSearchParamDefSubParam.SearchByID
-          (qCategoryParameters.IDParameter.AsInteger);
-        Assert(rc = 1);
+        qSearchParamDefSubParam.SearchByID
+          (qCategoryParameters.IDParameter.AsInteger, 1);
 
         qCategoryParameters.TryEdit;
         // Меняем ссылку на связанный с параметром подпараметр

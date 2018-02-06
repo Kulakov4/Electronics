@@ -22,7 +22,8 @@ type
     { Private declarations }
   protected
   public
-    function SearchByID(const AIDComponent: Integer): Integer; overload;
+    function SearchByID(const AIDComponent: Integer; TestResult: Integer = -1)
+      : Integer; overload;
     function SearchByValue(const AValue: string): Integer;
     function SearchByValueSimple(const AValue: string): Integer;
     property CategoryIDList: TField read GetCategoryIDList;
@@ -64,26 +65,27 @@ begin
   Result := Field('Value');
 end;
 
-function TQuerySearchFamily.SearchByID(const AIDComponent: Integer): Integer;
+function TQuerySearchFamily.SearchByID(const AIDComponent: Integer;
+  TestResult: Integer = -1): Integer;
 var
   S: String;
 begin
   Assert(AIDComponent > 0);
 
   // Добавляем условие
-  S := Replace( fdqBase.SQL.Text, 'p.ID = :ID', '0=0' );
+  S := Replace(fdqBase.SQL.Text, 'p.ID = :ID', '0=0');
 
   // Добавляем поле ComponentGroup
-  S := S.Replace('/* ComponentGroup', '', [rfReplaceAll] );
-  S := S.Replace('ComponentGroup */', '', [rfReplaceAll] );
+  S := S.Replace('/* ComponentGroup', '', [rfReplaceAll]);
+  S := S.Replace('ComponentGroup */', '', [rfReplaceAll]);
 
   // Добавляем значения параметров
-  S := S.Replace('/* ParametersValues', '', [rfReplaceAll] );
-  S := S.Replace('ParametersValues */', '', [rfReplaceAll] );
+  S := S.Replace('/* ParametersValues', '', [rfReplaceAll]);
+  S := S.Replace('ParametersValues */', '', [rfReplaceAll]);
 
   // Добавляем описание
-  S := S.Replace('/* Description', '', [rfReplaceAll] );
-  S := S.Replace('Description */', '', [rfReplaceAll] );
+  S := S.Replace('/* Description', '', [rfReplaceAll]);
+  S := S.Replace('Description */', '', [rfReplaceAll]);
 
   FDQuery.SQL.Text := S;
   SetParamType('ID');
@@ -98,8 +100,10 @@ begin
     'DatasheetParameterID', 'DiagramParameterID', 'DrawingParameterID',
     'ImageParameterID'], [AIDComponent, TDefaultParameters.ProducerParameterID,
     TDefaultParameters.PackagePinsParameterID,
-    TDefaultParameters.DatasheetParameterID, TDefaultParameters.DiagramParameterID,
-    TDefaultParameters.DrawingParameterID, TDefaultParameters.ImageParameterID]);
+    TDefaultParameters.DatasheetParameterID,
+    TDefaultParameters.DiagramParameterID,
+    TDefaultParameters.DrawingParameterID, TDefaultParameters.ImageParameterID],
+    TestResult);
 end;
 
 function TQuerySearchFamily.SearchByValue(const AValue: string): Integer;
@@ -109,7 +113,7 @@ begin
   Assert(not AValue.IsEmpty);
 
   // Добавляем условие
-  S := Replace( fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0' );
+  S := Replace(fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0');
   // Добавляем значения параметров
   S := S.Replace('/* ParametersValues', '', [rfReplaceAll]);
   S := S.Replace('ParametersValues */', '', [rfReplaceAll]);
@@ -127,8 +131,10 @@ begin
     'DatasheetParameterID', 'DiagramParameterID', 'DrawingParameterID',
     'ImageParameterID'], [AValue, TDefaultParameters.ProducerParameterID,
     TDefaultParameters.PackagePinsParameterID,
-    TDefaultParameters.DatasheetParameterID, TDefaultParameters.DiagramParameterID,
-    TDefaultParameters.DrawingParameterID, TDefaultParameters.ImageParameterID]);
+    TDefaultParameters.DatasheetParameterID,
+    TDefaultParameters.DiagramParameterID,
+    TDefaultParameters.DrawingParameterID,
+    TDefaultParameters.ImageParameterID]);
 end;
 
 function TQuerySearchFamily.SearchByValueSimple(const AValue: string): Integer;
@@ -138,7 +144,7 @@ begin
   Assert(not AValue.IsEmpty);
 
   // Добавляем условие
-  S := Replace( fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0' );
+  S := Replace(fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0');
 
   FDQuery.SQL.Text := S;
   SetParamType('Value', ptInput, ftWideString);

@@ -336,9 +336,8 @@ begin
       // Запоминаем, что этот компонент есть в теоретической базе
       ARH.Field[Checked.FieldName] := 1;
       // Ищем соответствующее семейство компонентов
-      rc := qSearchFamily.SearchByID
-        (qSearchComponentOrFamily.ParentProductID.AsInteger);
-      Assert(rc = 1);
+      qSearchFamily.SearchByID
+        (qSearchComponentOrFamily.ParentProductID.AsInteger, 1);
 
       ARHFamily := TRecordHolder.Create(qSearchFamily.FDQuery);
       try

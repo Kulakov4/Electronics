@@ -23,7 +23,7 @@ type
     function GetValueT: TField;
     { Private declarations }
   public
-    function SearchByID(AParameterID: Integer): Integer;
+    function SearchByID(AParameterID: Integer; TestResult: Integer = -1): Integer;
     property IdSubParameter: TField read GetIdSubParameter;
     property IsDefault: TField read GetIsDefault;
     property Name: TField read GetName;
@@ -88,11 +88,11 @@ begin
   Result := Field('ValueT');
 end;
 
-function TQuerySearchParamDefSubParam.SearchByID(AParameterID: Integer):
-    Integer;
+function TQuerySearchParamDefSubParam.SearchByID(AParameterID: Integer;
+    TestResult: Integer = -1): Integer;
 begin
   Assert(AParameterID > 0);
-  Result := Search(['ID'], [AParameterID]);
+  Result := Search(['ID'], [AParameterID], TestResult);
 end;
 
 end.

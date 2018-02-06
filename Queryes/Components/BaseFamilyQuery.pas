@@ -205,8 +205,6 @@ begin
 end;
 
 function TQueryBaseFamily.GetCategoryExternalID: string;
-var
-  rc: Integer;
 begin
   Assert(FDQuery.Active);
 
@@ -218,8 +216,7 @@ begin
 
   Assert(not DetailParameterName.IsEmpty);
 
-  rc := qSearchCategory.SearchByID(FDQuery.ParamByName(DetailParameterName).AsInteger);
-  Assert(rc = 1);
+  qSearchCategory.SearchByID(FDQuery.ParamByName(DetailParameterName).AsInteger, 1);
   Result := qSearchCategory.ExternalID.AsString;
 end;
 
