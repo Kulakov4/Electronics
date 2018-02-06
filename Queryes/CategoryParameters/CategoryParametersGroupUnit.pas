@@ -62,6 +62,7 @@ type
     function GetName: TField;
     function GetParamSubParamID: TField;
     function GetTranslation: TField;
+  protected
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendR(AID, AIDParent, AParamSubParamId, AIDSubParameter
@@ -69,6 +70,8 @@ type
       AIsAttribute, APosID, AOrd: Integer);
     procedure DeleteByIDParent(AIDCategoryParam: Integer);
     procedure FilterByIDParent(AIDCategoryParam: Integer);
+    function Locate(AIDParent, AIDSubParameter: Integer;
+      TestResult: Boolean = False): Boolean;
     property IDParent: TField read GetIDParent;
     property IDSubParameter: TField read GetIDSubParameter;
     property Name: TField read GetName;
@@ -142,6 +145,7 @@ begin
   FieldDefs.Add('Ord', ftInteger);
 
   CreateDataSet;
+  IndexFieldNames := Format('%s;%s', [PosID.FieldName, Ord.FieldName]);
 end;
 
 procedure TQryCategoryParameters.AppendR(AID, AIDParameter: Integer;
@@ -207,6 +211,8 @@ begin
   FieldDefs.Add('Ord', ftInteger);
 
   CreateDataSet;
+  IndexFieldNames := Format('%s;%s;%s', [IDParent.FieldName, PosID.FieldName,
+    Ord.FieldName]);
 end;
 
 procedure TQryCategorySubParameters.AppendR(AID, AIDParent, AParamSubParamId,
@@ -271,6 +277,21 @@ begin
   Result := FieldByName('Translation');
 end;
 
+function TQryCategorySubParameters.Locate(AIDParent, AIDSubParameter: Integer;
+  TestResult: Boolean = False): Boolean;
+var
+  AFieldNames: string;
+begin
+  Assert(AIDParent > 0);
+  Assert(AIDSubParameter > 0);
+
+  AFieldNames := Format('%s;%s', [IDParent.FieldName,
+    IDSubParameter.FieldName]);
+  Result := LocateEx(AFieldNames, VarArrayOf([AIDParent, AIDSubParameter]));
+  if TestResult then
+    Assert(Result);
+end;
+
 constructor TCategoryParametersGroup.Create(AOwner: TComponent);
 begin
   inherited;
@@ -311,32 +332,32 @@ begin
     S1 := Format(',%s,',
       [FFDQCategorySubParameters.GetFieldValues
       (FFDQCategorySubParameters.IDSubParameter.FieldName)]);
-
-    // Обработка добавленных галочек - подпараметров
-    m := ASubParamIDList.Split([',']);
-    for S in m do
-    begin
-      // Если хотим добавить новый подпараметр
-      if S1.IndexOf(Format(',%s,', [S])) = -1 then
-        AppendSubParameter(AID, S.ToInteger);
-    end;
-
-    // Обработка снятых галочек - подпараметров
-    S2 := Format(',%s,', [ASubParamIDList]);
-    m := S1.Trim([',']).Split([',']);
-    for S in m do
-    begin
-      // Если хотим удалить старый подпараметр
-      if S2.IndexOf(Format(',%s,', [S])) = -1 then
-      begin
-        FFDQCategorySubParameters.LocateByField
-          (FFDQCategorySubParameters.IDSubParameter.FieldName, S, True);
-
-        DeleteSubParameters([FFDQCategorySubParameters.ID.Value]);
-      end;
-    end;
   finally
     FFDQCategorySubParameters.Filtered := False;
+  end;
+
+  // Обработка добавленных галочек - подпараметров
+  m := ASubParamIDList.Split([',']);
+  for S in m do
+  begin
+    // Если хотим добавить новый подпараметр
+    if S1.IndexOf(Format(',%s,', [S])) = -1 then
+      AppendSubParameter(AID, S.ToInteger);
+  end;
+
+  // Обработка снятых галочек - подпараметров
+  S2 := Format(',%s,', [ASubParamIDList]);
+  m := S1.Trim([',']).Split([',']);
+  for S in m do
+  begin
+    // Если хотим удалить старый подпараметр
+    if S2.IndexOf(Format(',%s,', [S])) = -1 then
+    begin
+      // Ищем такой подпараметр
+      FFDQCategorySubParameters.Locate(AID, S.ToInteger, True);
+      // Удаляем такой подпараметр
+      DeleteSubParameters([FFDQCategorySubParameters.ID.Value]);
+    end;
   end;
 end;
 
@@ -367,7 +388,7 @@ var
   ID: Integer;
   rc: Integer;
 begin
-  // Assert(AID > 0);
+  Assert(AID <> 0);
   Assert(ASubParamID > 0);
 
   // Ищем связку категория-параметр
@@ -421,11 +442,14 @@ begin
       // Если вставлять нужно в середину какого-либо положения (в начале, в конце)
       // Нужно сместить всё что ниже вниз
       Assert(qCategoryParameters.IDParameter.AsInteger <> AIDParameter);
+      qCategoryParameters.FDQuery.Prior;
+      Assert(qCategoryParameters.IDParameter.AsInteger = AIDParameter);
       ID := qCategoryParameters.PK.Value;
       // Всё что ниже, будем перемещать вниз
       qCategoryParameters.FDQuery.Last;
       ANewOrder := qCategoryParameters.Ord.AsInteger + 1;
-      repeat
+      while qCategoryParameters.PK.Value <> ID do
+      begin
         AOrder := qCategoryParameters.Ord.AsInteger;
         qCategoryParameters.TryEdit;
         qCategoryParameters.Ord.AsInteger := ANewOrder;
@@ -438,18 +462,27 @@ begin
           FFDQCategoryParameters.SetOrder(ANewOrder);
         end
         else
-        begin
-          // Если поменяли положение у подпараметра
-          FFDQCategorySubParameters.LocateByPK(qCategoryParameters.PK.Value, True);
-          FFDQCategoryParameters.LocateByPK
-            (FFDQCategorySubParameters.IDParent.AsInteger, True);
-          if FFDQCategoryParameters.Ord.AsInteger = FFDQCategorySubParameters.
-            Ord.AsInteger then
-            FFDQCategoryParameters.SetOrder(ANewOrder);
+        begin // Если поменяли положение у подпараметра
+          FFDQCategorySubParameters.LocateByPK
+            (qCategoryParameters.PK.Value, True);
           FFDQCategorySubParameters.SetOrder(ANewOrder);
+          // Если подпараметр первый в группе
+          if FFDQCategorySubParameters.ID.AsInteger = FFDQCategorySubParameters.
+            IDParent.AsInteger then
+          begin
+            FFDQCategoryParameters.LocateByPK
+              (FFDQCategorySubParameters.IDParent.AsInteger, True);
+            try
+              FFDQCategoryParameters.SetOrder(ANewOrder);
+            except
+              ;
+            end;
+          end;
         end;
         ANewOrder := AOrder;
-      until (qCategoryParameters.PK.Value = ID);
+        // Смещаемся на одну запись назад
+        qCategoryParameters.FDQuery.Prior;
+      end;
     end;
 
     // Сбрасываем фильтр
@@ -898,8 +931,8 @@ begin
     Assert(Result);
 end;
 
-function TCategoryFDMemTable.LocateByPK(AValue: Integer; TestResult: Boolean =
-    False): Boolean;
+function TCategoryFDMemTable.LocateByPK(AValue: Integer;
+  TestResult: Boolean = False): Boolean;
 begin
   Assert(AValue <> 0);
   Result := LocateEx(ID.FieldName, AValue);

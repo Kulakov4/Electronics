@@ -160,13 +160,15 @@ begin
   inherited;
   // Получаем идентификатор связки сатегория-параметр
   AID := Value(MainView, clID, MainView.Controller.FocusedRowIndex);
-  AIDParameter := Value(MainView, clIDParameter, MainView.Controller.FocusedRowIndex);
+  AIDParameter := Value(MainView, clIDParameter,
+    MainView.Controller.FocusedRowIndex);
 
   qSubParameters := TQuerySubParameters2.Create(Self);
   AfrmSubParameters := TfrmSubParameters.Create(nil);
   try
     // Добавляем в SQL запрос поле с галочкой
-    qSubParameters.OpenWithChecked(AIDParameter, CatParamsGroup.qCategoryParameters.ParentValue);
+    qSubParameters.OpenWithChecked(AIDParameter,
+      CatParamsGroup.qCategoryParameters.ParentValue);
 
     AfrmSubParameters.ViewSubParameters.QuerySubParameters := qSubParameters;
     if AfrmSubParameters.ShowModal = mrOK then
@@ -174,12 +176,18 @@ begin
       // Получаем идентификаторы отмеченных галочками подпараметров
       S := qSubParameters.GetCheckedValues(qSubParameters.PKFieldName);
 
-      cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
-      CatParamsGroup.AddOrDeleteSubParameters(AID, S);
-      AView := GetDBBandedTableView(1);
-      MyApplyBestFitForView(AView);
-      cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := True;
-      UpdateView;
+      cxGrid.BeginUpdate();
+      try
+        cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
+        CatParamsGroup.AddOrDeleteSubParameters(AID, S);
+        AView := GetDBBandedTableView(1);
+      finally
+        cxGrid.EndUpdate;
+        // cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := True;
+        MyApplyBestFitForView(AView);
+        UpdateView;
+      end;
+
     end;
   finally
     FreeAndNil(AfrmSubParameters);

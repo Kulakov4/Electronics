@@ -6,6 +6,14 @@ inherited QueryCategoryParameters2: TQueryCategoryParameters2
   end
   inherited FDQuery: TFDQuery
     CachedUpdates = True
+    Indexes = <
+      item
+        Active = True
+        Selected = True
+        Name = 'idxOrd'
+        Fields = 'PosID;Ord'
+      end>
+    IndexName = 'idxOrd'
     SQL.Strings = (
       
         'select cp.*, psp.IdParameter, psp.IdSubParameter, p.Value, p.Tab' +
