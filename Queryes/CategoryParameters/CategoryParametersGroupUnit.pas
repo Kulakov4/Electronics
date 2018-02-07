@@ -9,7 +9,7 @@ uses
   FireDAC.Comp.Client, Data.DB, CategoryParametersQuery2,
   System.Generics.Collections, NotifyEvents, DBRecordHolder,
   SearchParamDefSubParamQuery, SearchParamSubParamQuery, DragHelper,
-  ParamSubParamsQuery;
+  ParamSubParamsQuery, System.Generics.Defaults, Trio;
 
 type
   TCategoryFDMemTable = class(TFDMemTable)
@@ -109,6 +109,10 @@ type
       AParameterType, AName, ATranslation: String; AIsDefault: Integer);
     procedure AppendSubParameter(AID, ASubParamID: Integer);
     procedure DeleteParameter(AIDParameter: Integer);
+    procedure Move(AArray: TArray<TPair<Integer, Integer>>; AUp: Boolean;
+      ACount: Integer);
+    procedure MoveSubParam(AArray: TArray<TCategoryParamsRec>; AUp: Boolean;
+      ACount: Integer);
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
     property qSearchParamDefSubParam: TQuerySearchParamDefSubParam
       read GetqSearchParamDefSubParam;
@@ -124,7 +128,10 @@ type
     procedure DeleteSubParameters(APKValues: array of Variant);
     procedure UpdateData;
     procedure LoadData;
-    procedure MoveParameters(IDList: TList<Integer>; AUp: Boolean);
+    procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer;
+      AUp: Boolean);
+    procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
+      AUp: Boolean);
     property AfterUpdateData: TNotifyEventsEx read FAfterUpdateData;
     property BeforeUpdateData: TNotifyEventsEx read FBeforeUpdateData;
     property IsAllQuerysActive: Boolean read GetIsAllQuerysActive;
@@ -138,7 +145,7 @@ type
 implementation
 
 uses
-  System.StrUtils;
+  System.StrUtils, System.Math;
 
 constructor TQryCategoryParameters.Create(AOwner: TComponent);
 begin
@@ -910,36 +917,209 @@ begin
   UpdateData;
 end;
 
+procedure TCategoryParametersGroup.Move(AArray: TArray<TPair<Integer, Integer>>;
+  AUp: Boolean; ACount: Integer);
+var
+  Coef: Integer;
+  AComparer: IComparer<TPair<Integer, Integer>>;
+  ATargetCount: Integer;
+  I: Integer;
+  J: Integer;
+  L: TList<TPair<Integer, Integer>>;
+begin
+  Assert(ACount > 0);
+  ATargetCount := Length(AArray) - ACount;
+  Assert(ATargetCount > 0);
+
+  Coef := IfThen(AUp, 1, -1);
+  // Сортируем по возрастанию или убыванию
+  AComparer := TComparer < TPair < Integer, Integer >>.Construct(
+    function(const Left, Right: TPair<Integer, Integer>): Integer
+    begin
+      Result := 0;
+      if Left.Value < Right.Value then
+        Result := -1 * Coef
+      else if Left.Value > Right.Value then
+        Result := Coef;
+    end);
+
+  TArray.Sort < TPair < Integer, Integer >> (AArray, AComparer);
+
+  // Готовимся к перестановке записей
+
+  L := TList < TPair < Integer, Integer >>.Create;
+  try
+    // 1) Меняем порядок на противоположный
+    for I := 0 to ATargetCount - 1 do
+      L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, -AArray[I].Value));
+    // 2) Сдвигаем записи вверх (вниз)
+    J := 0;
+    for I := ATargetCount to Length(AArray) - 1 do
+    begin
+      Assert(J < Length(AArray));
+      L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, AArray[J].Value));
+      Inc(J);
+    end;
+    // 3) сдвигаем записи на освободившееся место
+    for I := 0 to ATargetCount - 1 do
+    begin
+      Assert(J < Length(AArray));
+      L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, AArray[J].Value));
+      Inc(J);
+    end;
+    // Выполняем необходимые изменения в БД
+    qCategoryParameters.Move(L.ToArray);
+  finally
+    FreeAndNil(L);
+  end;
+
+  LoadData;
+end;
+
+procedure TCategoryParametersGroup.MoveSubParam
+  (AArray: TArray<TCategoryParamsRec>; AUp: Boolean; ACount: Integer);
+var
+  Coef: Integer;
+  AComparer: IComparer<TCategoryParamsRec>;
+  ATargetCount: Integer;
+  I: Integer;
+  J: Integer;
+  L: TList<TCategoryParamsRec>;
+begin
+  Assert(ACount > 0);
+  ATargetCount := Length(AArray) - ACount;
+  Assert(ATargetCount > 0);
+
+  Coef := IfThen(AUp, 1, -1);
+  // Сортируем по возрастанию или убыванию
+  AComparer := TComparer<TCategoryParamsRec>.Construct(
+    function(const Left, Right: TCategoryParamsRec): Integer
+    begin
+      Result := 0;
+      if Left.Order < Right.Order then
+        Result := -1 * Coef
+      else if Left.Order > Right.Order then
+        Result := Coef;
+    end);
+
+  TArray.Sort<TCategoryParamsRec>(AArray, AComparer);
+
+  // Готовимся к перестановке записей
+
+  L := TList<TCategoryParamsRec>.Create;
+  try
+    // 1) Сдвигаем записи вверх (вниз)
+    J := 0;
+    for I := ATargetCount to Length(AArray) - 1 do
+    begin
+      Assert(J < Length(AArray));
+      L.Add(TCategoryParamsRec.Create(AArray[I].ID, AArray[J].ParamSubParamID,
+        AArray[J].Order, AArray[J].IsAttribute, AArray[J].IDParameter,
+        AArray[J].IDSubParameter, AArray[J].Name, AArray[J].Translation,
+        AArray[J].IsDefault));
+      Inc(J);
+    end;
+    // 3) сдвигаем записи на освободившееся место
+    for I := 0 to ATargetCount - 1 do
+    begin
+      Assert(J < Length(AArray));
+      L.Add(TCategoryParamsRec.Create(AArray[I].ID, AArray[J].ParamSubParamID,
+        AArray[J].Order, AArray[J].IsAttribute, AArray[J].IDParameter,
+        AArray[J].IDSubParameter, AArray[J].Name, AArray[J].Translation,
+        AArray[J].IsDefault));
+      Inc(J);
+    end;
+    // Выполняем необходимые изменения в БД
+    qCategoryParameters.MoveSubParam(L.ToArray);
+  finally
+    FreeAndNil(L);
+  end;
+
+  LoadData;
+end;
+
 procedure TCategoryParametersGroup.MoveParameters(IDList: TList<Integer>;
-  AUp: Boolean);
+TargetID: Integer; AUp: Boolean);
 var
   AID: Integer;
-  L: TList<Integer>;
+  L: TDictionary<Integer, Integer>;
+  ACount: Integer;
 begin
-  L := TList<Integer>.Create;
+  Assert(IDList.Count > 0);
+  Assert(TargetID <> 0);
+  ACount := 0;
+
+  L := TDictionary<Integer, Integer>.Create;
   try
+    IDList.Add(TargetID);
     for AID in IDList do
     begin
+      if AID = TargetID then
+        ACount := L.Count; // Количество переносимых записей
+
       FFDQCategorySubParameters.FilterByIDParent(AID);
       // Если у нашего параметра есть подпараметры
       if FFDQCategorySubParameters.RecordCount > 0 then
       begin
         FFDQCategorySubParameters.First;
-        while not EOF do
+        while not FFDQCategorySubParameters.EOF do
         begin
-          L.Add(FFDQCategorySubParameters.ID.AsInteger);
+          L.Add(FFDQCategorySubParameters.ID.AsInteger,
+            FFDQCategorySubParameters.Ord.AsInteger);
           FFDQCategorySubParameters.Next;
         end;
       end
       else
       begin
-        L.Add(AID);
+        FFDQCategoryParameters.LocateByPK(AID, True);
+        L.Add(FFDQCategoryParameters.ID.AsInteger,
+          FFDQCategoryParameters.Ord.AsInteger);
       end;
-
     end;
+    FFDQCategorySubParameters.Filtered := False;
+
+    Move(L.ToArray, AUp, ACount);
   finally
     FreeAndNil(L);
   end;
+end;
+
+procedure TCategoryParametersGroup.MoveSubParameters(IDList: TList<Integer>;
+TargetID: Integer; AUp: Boolean);
+var
+  AID: Integer;
+  L: TList<TCategoryParamsRec>;
+  ACount: Integer;
+begin
+  Assert(IDList.Count > 0);
+  Assert(TargetID <> 0);
+  ACount := 0;
+
+  L := TList<TCategoryParamsRec>.Create;
+  try
+    IDList.Add(TargetID);
+    for AID in IDList do
+    begin
+      if AID = TargetID then
+        ACount := L.Count; // Количество переносимых записей
+
+      FFDQCategorySubParameters.LocateByPK(AID, True);
+      L.Add(TCategoryParamsRec.Create(FFDQCategorySubParameters.ID.AsInteger,
+        FFDQCategorySubParameters.ParamSubParamID.AsInteger,
+        FFDQCategorySubParameters.Ord.AsInteger,
+        FFDQCategorySubParameters.IsAttribute.AsInteger,
+        FFDQCategorySubParameters.IDParameter.AsInteger,
+        FFDQCategorySubParameters.IDSubParameter.AsInteger,
+        FFDQCategorySubParameters.Name.AsString,
+        FFDQCategorySubParameters.Translation.AsString, 0));
+    end;
+
+    MoveSubParam(L.ToArray, AUp, ACount);
+  finally
+    FreeAndNil(L);
+  end;
+
+  LoadData;
 end;
 
 procedure TCategoryFDMemTable.AppendFrom(ASource: TCategoryFDMemTable);
@@ -1005,7 +1185,7 @@ begin
 end;
 
 procedure TCategoryFDMemTable.LoadRecFrom(ADataSet: TDataSet;
-  AFieldList: TStrings);
+AFieldList: TStrings);
 var
   AFieldName: String;
   AFL: TStrings;
@@ -1067,7 +1247,7 @@ begin
 end;
 
 function TCategoryFDMemTable.LocateByField(const AFieldName: string;
-  AValue: Variant; TestResult: Boolean = False): Boolean;
+AValue: Variant; TestResult: Boolean = False): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := LocateEx(AFieldName, AValue);
@@ -1076,7 +1256,7 @@ begin
 end;
 
 function TCategoryFDMemTable.LocateByPK(AValue: Integer;
-  TestResult: Boolean = False): Boolean;
+TestResult: Boolean = False): Boolean;
 begin
   Assert(AValue <> 0);
   Result := LocateEx(ID.FieldName, AValue);

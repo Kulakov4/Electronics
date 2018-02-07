@@ -243,10 +243,10 @@ end;
 
 procedure TDM2.DoOnParamOrderChange(Sender: TObject);
 var
-  L: TList<TRecOrder>;
+  L: TList<TPair<Integer, Integer>>;
 begin
-  L := Sender as TList<TRecOrder>;
-  CategoryParametersGroup.qCategoryParameters.Move(L);
+  L := Sender as TList<TPair<Integer, Integer>>;
+  CategoryParametersGroup.qCategoryParameters.Move(L.ToArray);
   CategoryParametersGroup.qCategoryParameters.ApplyUpdates;
 end;
 

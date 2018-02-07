@@ -95,8 +95,8 @@ type
       ASource: TcxGridDBBandedTableView); virtual;
     procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
       ARecordIndex: Integer; var AAllow: Boolean);
-    procedure DoCancelFocusRecord(Sender: TcxCustomGridTableView; ARecord:
-        TcxCustomGridRecord; var AAllow: Boolean);
+    procedure DoCancelFocusRecord(Sender: TcxCustomGridTableView;
+      ARecord: TcxCustomGridRecord; var AAllow: Boolean);
     procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -163,6 +163,11 @@ type
       : TcxCustomGridRow;
     function GetSameColumn(AView: TcxGridTableView; AColumn: TcxGridColumn)
       : TcxGridDBBandedColumn;
+    function GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
+      AReverse: Boolean): TArray<Integer>;
+    function GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
+      AUp: Boolean; var AArray: TArray<Integer>;
+      var ATargetRowIndex: Integer): Boolean;
     procedure LocateAndFocus(AMaster, ADetail: TQueryBase; ADetailID: Integer;
       const AMasterKeyFieldName, AFocusedColumnFieldName: string);
     procedure MyApplyBestFit; virtual;
@@ -481,7 +486,7 @@ begin
   FcxDataDetailExpandingEvent := MainView.DataController.OnDetailExpanding;
   MainView.DataController.OnDetailExpanding := DoCancelDetailExpanding;
   MainView.DataController.OnDetailCollapsing := DoCancelDetailExpanding;
-//  MainView.OnCanFocusRecord := DoCancelFocusRecord;
+  // MainView.OnCanFocusRecord := DoCancelFocusRecord;
 end;
 
 procedure TfrmGrid.DoCancelDetailExpanding(ADataController
@@ -490,8 +495,8 @@ begin
   AAllow := False;
 end;
 
-procedure TfrmGrid.DoCancelFocusRecord(Sender: TcxCustomGridTableView; ARecord:
-    TcxCustomGridRecord; var AAllow: Boolean);
+procedure TfrmGrid.DoCancelFocusRecord(Sender: TcxCustomGridTableView;
+  ARecord: TcxCustomGridRecord; var AAllow: Boolean);
 begin
   AAllow := False;
 end;
@@ -608,7 +613,7 @@ begin
 
   // Выставляем оптимальную ширину колонок
   MyApplyBestFitForView(GridView);
-//  GridView.ApplyBestFit();
+  // GridView.ApplyBestFit();
 
   // Экспортируем в Excel
   ExportGridToExcel(AFileName, Grid);
@@ -1066,7 +1071,7 @@ begin
   // Разрешаем сворачивать и разворачивать строки
   MainView.DataController.OnDetailCollapsing := FcxDataDetailCollapsingEvent;
   MainView.DataController.OnDetailExpanding := FcxDataDetailExpandingEvent;
-//  MainView.OnCanFocusRecord := nil;
+  // MainView.OnCanFocusRecord := nil;
 end;
 
 procedure TfrmGrid.FocusColumnEditor(AView: TcxGridDBBandedTableView;
@@ -1114,6 +1119,58 @@ begin
   Result := (AView as TcxGridDBBandedTableView).GetColumnByFieldName
     ((AColumn as TcxGridDBBandedColumn).DataBinding.FieldName);
   Assert(Result <> nil);
+end;
+
+function TfrmGrid.GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
+AReverse: Boolean): TArray<Integer>;
+var
+  i: Integer;
+  m: TList<Integer>;
+begin
+  Result := nil;
+  Assert(AView <> nil);
+
+  m := TList<Integer>.Create;
+  try
+    if AView.Controller.SelectedRowCount > 0 then
+    begin
+      for i := 0 to AView.Controller.SelectedRowCount - 1 do
+      begin
+        m.Add(AView.Controller.SelectedRows[i].Index);
+      end;
+    end
+    else
+      m.Add(AView.Controller.FocusedRow.Index);
+
+    m.Sort;
+    // Убеждаемся что индексы в списке непрерывны
+    Assert(m.Last - m.First + 1 = m.Count);
+
+    if AReverse then
+      m.Reverse;
+
+    // Создаём массив на основе списка
+    Result := m.ToArray;
+  finally
+    FreeAndNil(m);
+  end;
+end;
+
+function TfrmGrid.GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
+AUp: Boolean; var AArray: TArray<Integer>;
+var ATargetRowIndex: Integer): Boolean;
+begin
+  AArray := GetSelectedRowIndexes(AView, not AUp);
+
+  // Индекс строки c которой будем меняться позицией
+  if AUp then
+    ATargetRowIndex := AArray[0] - 1
+  else
+    ATargetRowIndex := AArray[0] + 1;
+
+  // Условие, при котором перемещение записей возможно
+  Result := (ATargetRowIndex >= 0) and
+    (ATargetRowIndex < AView.ViewData.RowCount);
 end;
 
 procedure TfrmGrid.InternalRefreshData;
@@ -1171,8 +1228,8 @@ begin
 
 end;
 
-procedure TfrmGrid.PostMyApplyBestFitEventForView(AView:
-    TcxGridDBBandedTableView);
+procedure TfrmGrid.PostMyApplyBestFitEventForView
+  (AView: TcxGridDBBandedTableView);
 begin
   Assert(AView <> nil);
 

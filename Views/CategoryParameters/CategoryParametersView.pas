@@ -84,6 +84,8 @@ type
     dxBarManagerBar1: TdxBar;
     dxBarButton15: TdxBarButton;
     dxBarButton16: TdxBarButton;
+    dxBarButton17: TdxBarButton;
+    dxBarButton18: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -117,6 +119,8 @@ type
     procedure dxBarButton14Click(Sender: TObject);
     procedure dxBarButton15Click(Sender: TObject);
     procedure dxBarButton16Click(Sender: TObject);
+    procedure dxBarButton17Click(Sender: TObject);
+    procedure dxBarButton18Click(Sender: TObject);
   private
     FCatParamsGroup: TCategoryParametersGroup;
     FLoading: Boolean;
@@ -124,7 +128,8 @@ type
     procedure AddParameter(APosID: Integer);
     procedure DoAfterUpdateData(Sender: TObject);
     function GetQueryParameterPos: TQueryParameterPos;
-    procedure Move(AUp: Boolean);
+    procedure MoveParameter(AUp: Boolean);
+    procedure MoveSubParameter(AUp: Boolean);
     procedure SetCatParamsGroup(const Value: TCategoryParametersGroup);
     procedure SetPos(APosID: Integer);
     { Private declarations }
@@ -253,7 +258,10 @@ end;
 procedure TViewCategoryParameters.actDownExecute(Sender: TObject);
 begin
   inherited;
-  Move(False);
+  if FocusedTableView = MainView then
+    MoveParameter(False)
+  else
+    MoveSubParameter(False);
 end;
 
 procedure TViewCategoryParameters.actPosBeginExecute(Sender: TObject);
@@ -280,7 +288,10 @@ end;
 procedure TViewCategoryParameters.actUpExecute(Sender: TObject);
 begin
   inherited;
-  Move(True);
+  if FocusedTableView = MainView then
+    MoveParameter(True)
+  else
+    MoveSubParameter(True);
 end;
 
 procedure TViewCategoryParameters.AddParameter(APosID: Integer);
@@ -460,7 +471,7 @@ procedure TViewCategoryParameters.DoAfterUpdateData(Sender: TObject);
 begin
   // dsParameters.DataSet := FCatParamsGroup.qCatParams;
   // dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
-//  EndUpdate;
+  // EndUpdate;
   UpdateView;
   // MainView.ViewData.Collapse(True);
   FLoading := False;
@@ -469,7 +480,7 @@ end;
 procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
 begin
   // Ќабор данных, отображаемый в гриде будет вручную загружатьс€
-//  BeginUpdate;
+  // BeginUpdate;
   // dsParameters.DataSet := nil;
   // dsSubParameters.DataSet := nil;
   FLoading := True;
@@ -497,6 +508,18 @@ procedure TViewCategoryParameters.dxBarButton16Click(Sender: TObject);
 begin
   inherited;
   EndUpdate;
+end;
+
+procedure TViewCategoryParameters.dxBarButton17Click(Sender: TObject);
+begin
+  inherited;
+  MainView.BeginBestFitUpdate;
+end;
+
+procedure TViewCategoryParameters.dxBarButton18Click(Sender: TObject);
+begin
+  inherited;
+  MainView.EndBestFitUpdate;
 end;
 
 procedure TViewCategoryParameters.EndUpdate;
@@ -528,100 +551,79 @@ begin
   Result := FQueryParameterPos;
 end;
 
-procedure TViewCategoryParameters.Move(AUp: Boolean);
+procedure TViewCategoryParameters.MoveParameter(AUp: Boolean);
 var
-  AID: Integer;
-  m: TList<Integer>;
+  m: TArray<Integer>;
   i: Integer;
-  AOrder: Integer;
-  ARow: TcxGridMasterDataRow;
+  ARowIndex: Integer;
   AView: TcxGridDBBandedTableView;
-  L: TList<TRecOrder>;
   IDList: TList<Integer>;
-  j: Integer;
 begin
   inherited;
+  AView := FocusedTableView;
+  Assert(AView = MainView);
+
+  if not GetSelectedRowIndexesForMove(AView, AUp, m, i) then
+    Exit;
+
+  // ¬ этой точке уже пон€тно что изменение положени€ возможно!
   IDList := TList<Integer>.Create;
-  MainView.BeginSortingUpdate;
   try
-    m := TList<Integer>.Create;
-    try
-      if MainView.Controller.SelectedRowCount > 0 then
-      begin
-        for i := 0 to MainView.Controller.SelectedRowCount - 1 do
-        begin
-          ARow := MainView.Controller.SelectedRows[i] as TcxGridMasterDataRow;
-          if ARow.ActiveDetailGridViewExists then
-          begin
-            AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
-            for j := 0 to AView.ViewData.RowCount - 1 do
-            begin
-              IDList.Add( Value(AView, clID2, j) );
-            end;
-          end
-          else
-            IDList.Add( Value(MainView, clID, ARow.Index) );
-
-          m.Add(MainView.Controller.SelectedRows[i].Index);
-        end;
-      end
-      else
-        m.Add(MainView.Controller.FocusedRow.Index);
-
-      CatParamsGroup.MoveParameters(IDList, AUp);
-
-      m.Sort;
-      // ”беждаемс€ что индексы в списке непрерывны
-      Assert(m.Last - m.First + 1 = m.Count);
-
-      // »ндекс строки c которой будем мен€тьс€ позицией
-      if AUp then
-        i := m.First - 1
-      else
-      begin
-        m.Reverse;
-        i := m.First + 1;
-      end;
-
-      if (i < 0) or (i >= MainView.ViewData.RowCount) then
-        Exit;
-
-      AID := Value(MainView, clID, i);
-      AOrder := Value(MainView, clOrder, i);
-
-      // ≈сли положение перемещаемых записей и нового места разные
-      if Value(MainView, clPosID, i) <> Value(MainView, clPosID, m.First) then
-        Exit;
-
-      // ≈сли положение первой и последней перемещаемой записи разное
-      if Value(MainView, clPosID, m.First) <> Value(MainView, clPosID, m.Last)
-      then
-        Exit;
-
-      L := TList<TRecOrder>.Create;
-      try
-        // ћен€ем пор€док записи на противоположный
-        L.Add(TRecOrder.Create(AID, -AOrder));
-        // —мещаем остальные записи
-        for i in m do
-        begin
-          L.Add(TRecOrder.Create(Value(MainView, clID, i), AOrder));
-          AOrder := Value(MainView, clOrder, i);
-        end;
-        L.Add(TRecOrder.Create(AID, AOrder));
-//        CatParamsGroup.MoveParameters(L);
-        // QueryCategoryParameters.Move(L);
-      finally
-        FreeAndNil(L);
-      end;
-    finally
-      FreeAndNil(m);
+    for ARowIndex in m do
+    begin
+      IDList.Add(Value(AView, clID, ARowIndex));
     end;
+
+    AView.BeginSortingUpdate;
+    try
+      // ¬ызываем перемешение параметров
+      CatParamsGroup.MoveParameters(IDList, Value(AView, clID, i), AUp);
+    finally
+      AView.EndSortingUpdate;
+    end;
+
   finally
-    MainView.EndSortingUpdate;
     FreeAndNil(IDList);
-    UpdateView;
   end;
+end;
+
+procedure TViewCategoryParameters.MoveSubParameter(AUp: Boolean);
+var
+  m: TArray<Integer>;
+  i: Integer;
+  ARowIndex: Integer;
+  AView: TcxGridDBBandedTableView;
+  IDList: TList<Integer>;
+begin
+  inherited;
+  AView := FocusedTableView;
+  Assert(AView.Level = cxGridLevel2);
+  if not GetSelectedRowIndexesForMove(AView, AUp, m, i) then
+    Exit;
+
+  // ¬ этой точке уже пон€тно что изменение положени€ возможно!
+  IDList := TList<Integer>.Create;
+  try
+    for ARowIndex in m do
+    begin
+      IDList.Add(Value(AView, clID2, ARowIndex));
+    end;
+
+//    MainView.BeginBestFitUpdate;
+//    AView.BeginSortingUpdate;
+//    try
+      // ¬ызываем перемешение параметров
+      CatParamsGroup.MoveSubParameters(IDList, Value(AView, clID2, i), AUp);
+//    finally
+//      AView.EndSortingUpdate;
+//      MainView.EndSortingUpdate;
+//    end;
+
+  finally
+    FreeAndNil(IDList);
+  end;
+
+  UpdateView;
 end;
 
 procedure TViewCategoryParameters.MyDelete;

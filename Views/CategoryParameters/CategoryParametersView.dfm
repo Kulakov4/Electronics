@@ -5,7 +5,9 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     Top = 56
     Width = 1037
     Height = 416
+    ExplicitTop = 56
     ExplicitWidth = 1037
+    ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       OnFocusedRecordChanged = cxGridDBBandedTableViewFocusedRecordChanged
@@ -299,6 +301,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton16'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton17'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton18'
         end>
       OneOnRow = True
       Row = 1
@@ -404,6 +414,20 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Hint = 'EU'
       Visible = ivAlways
       OnClick = dxBarButton16Click
+    end
+    object dxBarButton17: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton17Click
+    end
+    object dxBarButton18: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton18Click
     end
   end
   inherited ActionList: TActionList

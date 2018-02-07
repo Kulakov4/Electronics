@@ -197,7 +197,8 @@ uses
   CategoryParametersGroupUnit in 'Queryes\CategoryParameters\CategoryParametersGroupUnit.pas' {CategoryParametersGroup: TFrame},
   SearchParamSubParamQuery in 'Queryes\Search\SearchParamSubParamQuery.pas' {QuerySearchParamSubParam: TFrame},
   SearchParamDefSubParamQuery in 'Queryes\Search\SearchParamDefSubParamQuery.pas' {QuerySearchParamDefSubParam: TFrame},
-  SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters};
+  SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters},
+  Trio in 'Helpers\Trio.pas';
 
 {$R *.res}
 

@@ -10,7 +10,8 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, RecursiveParametersQuery,
-  DragHelper, System.Generics.Collections, DBRecordHolder;
+  DragHelper, System.Generics.Collections, DBRecordHolder,
+  SearchParamSubParamQuery, Trio;
 
 type
   TQueryCategoryParameters2 = class(TQueryWithDataSource)
@@ -66,7 +67,8 @@ type
     procedure FilterByIsDefault(AIsDefault: Integer);
     function Locate(AIDParameter, APosID, AOrder: Integer; TestResult: Boolean =
         False): Boolean;
-    procedure Move(AData: TList<TRecOrder>);
+    procedure Move(AData: TArray<TPair<Integer, Integer>>);
+    procedure MoveSubParam(AData: TArray<TCategoryParamsRec>);
     function NextOrder: Integer;
     procedure SetPos(APosID: Integer);
     property CategoryID: TField read GetCategoryID;
@@ -378,19 +380,49 @@ begin
     Assert(Result);
 end;
 
-procedure TQueryCategoryParameters2.Move(AData: TList<TRecOrder>);
+procedure TQueryCategoryParameters2.Move(AData: TArray<TPair<Integer,
+    Integer>>);
 var
-  ARecOrder: TRecOrder;
+  APair: TPair<Integer, Integer>;
 begin
   FDQuery.DisableControls;
   try
-    for ARecOrder in AData do
+    for APair in AData do
     begin
       // Переходим на нужную запись
-      LocateByPK(ARecOrder.Key, True);
+      LocateByPK(APair.Key, True);
       // Меняем порядок записи
       TryEdit;
-      Ord.AsInteger := ARecOrder.Order;
+      Ord.AsInteger := APair.Value;
+      TryPost;
+    end;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
+procedure TQueryCategoryParameters2.MoveSubParam(AData:
+    TArray<TCategoryParamsRec>);
+var
+  ACatParamsRec: TCategoryParamsRec;
+begin
+  FDQuery.DisableControls;
+  try
+    for ACatParamsRec in AData do
+    begin
+      LocateByPK(ACatParamsRec.ID, True);
+
+      // Меняем подпараметр того-же параметра
+      Assert(IDParameter.AsInteger = ACatParamsRec.IDParameter);
+
+      TryEdit;
+      // Меняем связанную с записью ссылку на подпараметр
+      ParamSubParamId.AsInteger := ACatParamsRec.ParamSubParamID;
+      IsAttribute.AsInteger := ACatParamsRec.IsAttribute;
+      IdSubParameter.AsInteger := ACatParamsRec.IDSubParameter;
+      Name.Value := ACatParamsRec.Name;
+      Translation.Value := ACatParamsRec.Translation;
+      IsDefault.AsInteger := ACatParamsRec.IsDefault;
       TryPost;
     end;
   finally
