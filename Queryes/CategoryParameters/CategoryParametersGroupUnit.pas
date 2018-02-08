@@ -9,7 +9,7 @@ uses
   FireDAC.Comp.Client, Data.DB, CategoryParametersQuery2,
   System.Generics.Collections, NotifyEvents, DBRecordHolder,
   SearchParamDefSubParamQuery, SearchParamSubParamQuery, DragHelper,
-  ParamSubParamsQuery, System.Generics.Defaults, Trio;
+  ParamSubParamsQuery, System.Generics.Defaults, Trio, UpdateNegativeOrdQuery;
 
 type
   TCategoryFDMemTable = class(TFDMemTable)
@@ -40,6 +40,7 @@ type
   TQryCategoryParameters = class(TCategoryFDMemTable)
   private
     function GetIDParameter: TField;
+    function GetIsDefault: TField;
     function GetParameterType: TField;
     function GetTableName: TField;
     function GetValue: TField;
@@ -49,9 +50,10 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AppendR(AID, AIDParameter: Integer;
       const AValue, ATableName, AValueT, AParameterType: String;
-      AIsAttribute, APosID, AOrd: Integer);
+      AIsAttribute, AIsDefault, APosID, AOrd: Integer);
     function LocateByParameterID(AIDParameter: Integer): Boolean;
     property IDParameter: TField read GetIDParameter;
+    property IsDefault: TField read GetIsDefault;
     property ParameterType: TField read GetParameterType;
     property TableName: TField read GetTableName;
     property Value: TField read GetValue;
@@ -97,11 +99,13 @@ type
     FqParamSubParams: TQueryParamSubParams;
     FqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     FqSearchParamSubParam: TQuerySearchParamSubParam;
+    FqUpdNegativeOrd: TQueryUpdNegativeOrd;
     procedure DoAfterLoad(Sender: TObject);
     function GetIsAllQuerysActive: Boolean;
     function GetqParamSubParams: TQueryParamSubParams;
     function GetqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     function GetqSearchParamSubParam: TQuerySearchParamSubParam;
+    function GetqUpdNegativeOrd: TQueryUpdNegativeOrd;
     { Private declarations }
   protected
     procedure AppendParameter(AParamSubParamId, AOrd, AIsAttribute, APosID,
@@ -139,6 +143,7 @@ type
       read FqCategoryParameters;
     property qCatParams: TQryCategoryParameters read FqCatParams;
     property qCatSubParams: TQryCategorySubParameters read FqCatSubParams;
+    property qUpdNegativeOrd: TQueryUpdNegativeOrd read GetqUpdNegativeOrd;
     { Public declarations }
   end;
 
@@ -157,6 +162,7 @@ begin
   FieldDefs.Add('ValueT', ftWideString, 200);
   FieldDefs.Add('ParameterType', ftWideString, 30);
   FieldDefs.Add('IsAttribute', ftInteger);
+  FieldDefs.Add('IsDefault', ftInteger);
   FieldDefs.Add('PosID', ftInteger);
   FieldDefs.Add('Ord', ftInteger);
 
@@ -166,7 +172,7 @@ end;
 
 procedure TQryCategoryParameters.AppendR(AID, AIDParameter: Integer;
   const AValue, ATableName, AValueT, AParameterType: String;
-  AIsAttribute, APosID, AOrd: Integer);
+  AIsAttribute, AIsDefault, APosID, AOrd: Integer);
 begin
   Append;
   ID.Value := AID;
@@ -176,6 +182,7 @@ begin
   ValueT.Value := AValueT;
   ParameterType.Value := AParameterType;
   IsAttribute.Value := AIsAttribute;
+  IsDefault.Value := AIsDefault;
   PosID.Value := APosID;
   Ord.AsInteger := AOrd;
   Post;
@@ -184,6 +191,11 @@ end;
 function TQryCategoryParameters.GetIDParameter: TField;
 begin
   Result := FieldByName('IDParameter');
+end;
+
+function TQryCategoryParameters.GetIsDefault: TField;
+begin
+  Result := FieldByName('IsDefault');
 end;
 
 function TQryCategoryParameters.GetParameterType: TField;
@@ -460,7 +472,8 @@ begin
 
   // Затем добавим ту же запись в параметры
   FFDQCategoryParameters.AppendR(FqCategoryParameters.PK.Value, AIDParameter,
-    AValue, ATableName, AValueT, AParameterType, AIsAttribute, APosID, AOrd);
+    AValue, ATableName, AValueT, AParameterType, AIsAttribute, AIsDefault,
+    APosID, AOrd);
 end;
 
 procedure TCategoryParametersGroup.AppendSubParameter(AID,
@@ -619,6 +632,9 @@ procedure TCategoryParametersGroup.ApplyUpdates;
 begin
   // Тут все сделанные изменения применятся рекурсивно ко всей БД
   FqCategoryParameters.ApplyUpdates;
+
+  // Меняем отрицательный порядок на положительный!
+  qUpdNegativeOrd.FDQuery.ExecSQL;
 
   if FqCategoryParameters.PKDictionary.Count > 0 then
   begin
@@ -847,6 +863,13 @@ begin
   Result := FqSearchParamSubParam;
 end;
 
+function TCategoryParametersGroup.GetqUpdNegativeOrd: TQueryUpdNegativeOrd;
+begin
+  if FqUpdNegativeOrd = nil then
+    FqUpdNegativeOrd := TQueryUpdNegativeOrd.Create(Self);
+  Result := FqUpdNegativeOrd;
+end;
+
 procedure TCategoryParametersGroup.UpdateData;
 begin
   FBeforeUpdateData.CallEventHandlers(Self);
@@ -949,9 +972,11 @@ begin
 
   L := TList < TPair < Integer, Integer >>.Create;
   try
-    // 1) Меняем порядок на противоположный
-    for I := 0 to ATargetCount - 1 do
+    {
+      // 1) Меняем порядок на противоположный
+      for I := 0 to ATargetCount - 1 do
       L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, -AArray[I].Value));
+    }
     // 2) Сдвигаем записи вверх (вниз)
     J := 0;
     for I := ATargetCount to Length(AArray) - 1 do

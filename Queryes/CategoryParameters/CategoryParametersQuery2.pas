@@ -58,16 +58,16 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure FilterByPosition(APosID: Integer);
-    procedure AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID, AIDParameter,
-        AIDSubParameter: Integer; const AValue, ATableName, AValueT,
-        AParameterType, AName: String; const ATranslation: Variant; AIsDefault:
-        Integer);
+    procedure AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID,
+      AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
+      AParameterType, AName: String; const ATranslation: Variant;
+      AIsDefault: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure FilterByIsDefault(AIsDefault: Integer);
-    function Locate(AIDParameter, APosID, AOrder: Integer; TestResult: Boolean =
-        False): Boolean;
-    procedure Move(AData: TArray<TPair<Integer, Integer>>);
+    function Locate(AIDParameter, APosID, AOrder: Integer;
+      TestResult: Boolean = False): Boolean;
+    procedure Move(AData: TArray < TPair < Integer, Integer >> );
     procedure MoveSubParam(AData: TArray<TCategoryParamsRec>);
     function NextOrder: Integer;
     procedure SetPos(APosID: Integer);
@@ -134,9 +134,9 @@ begin
 end;
 
 procedure TQueryCategoryParameters2.AppendR(AParamSubParamId, AOrd,
-    AIsAttribute, APosID, AIDParameter, AIDSubParameter: Integer; const AValue,
-    ATableName, AValueT, AParameterType, AName: String; const ATranslation:
-    Variant; AIsDefault: Integer);
+  AIsAttribute, APosID, AIDParameter, AIDSubParameter: Integer;
+  const AValue, ATableName, AValueT, AParameterType, AName: String;
+  const ATranslation: Variant; AIsDefault: Integer);
 begin
   TryAppend;
   ParamSubParamId.Value := AParamSubParamId;
@@ -200,12 +200,23 @@ procedure TQueryCategoryParameters2.ApplyUpdate(ASender: TDataSet;
   AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
+  if ((PosID.OldValue <> PosID.Value) or (Ord.OldValue <> Ord.Value)) then
+  begin
+    // ќдновременно с изменением позиции или пор€дка ничего больше не должно мен€тьс€
+    Assert(IsAttribute.OldValue = IsAttribute.Value);
+    Assert(ParamSubParamId.OldValue = ParamSubParamId.Value);
 
-  // ≈сли изменилось положение параметра или его пор€док
-  if (PosID.OldValue <> PosID.Value) or (Ord.OldValue <> Ord.Value) or
-    (IsAttribute.OldValue <> IsAttribute.NewValue) or
+    QueryRecursiveParameters.ExecUpdateOrdSQL(PosID.OldValue, PosID.Value,
+      Ord.OldValue, Ord.Value, ParamSubParamId.AsInteger, CategoryID.AsInteger);
+  end;
+
+  // ≈сли изменилось что-то другое
+  if (IsAttribute.OldValue <> IsAttribute.Value) or
     (ParamSubParamId.OldValue <> ParamSubParamId.Value) then
   begin
+    Assert(PosID.OldValue = PosID.Value);
+    Assert(Ord.OldValue = Ord.Value);
+
     QueryRecursiveParameters.ExecUpdateSQL(PosID.OldValue, PosID.Value,
       Ord.OldValue, Ord.Value, IsAttribute.OldValue, IsAttribute.Value,
       ParamSubParamId.OldValue, ParamSubParamId.AsInteger,
@@ -361,8 +372,8 @@ begin
   Result := Field('ValueT');
 end;
 
-function TQueryCategoryParameters2.Locate(AIDParameter, APosID, AOrder:
-    Integer; TestResult: Boolean = False): Boolean;
+function TQueryCategoryParameters2.Locate(AIDParameter, APosID, AOrder: Integer;
+  TestResult: Boolean = False): Boolean;
 var
   AFieldNames: string;
 begin
@@ -380,8 +391,8 @@ begin
     Assert(Result);
 end;
 
-procedure TQueryCategoryParameters2.Move(AData: TArray<TPair<Integer,
-    Integer>>);
+procedure TQueryCategoryParameters2.Move(AData: TArray < TPair < Integer,
+  Integer >> );
 var
   APair: TPair<Integer, Integer>;
 begin
@@ -401,8 +412,8 @@ begin
   end;
 end;
 
-procedure TQueryCategoryParameters2.MoveSubParam(AData:
-    TArray<TCategoryParamsRec>);
+procedure TQueryCategoryParameters2.MoveSubParam
+  (AData: TArray<TCategoryParamsRec>);
 var
   ACatParamsRec: TCategoryParamsRec;
 begin
@@ -417,9 +428,9 @@ begin
 
       TryEdit;
       // ћен€ем св€занную с записью ссылку на подпараметр
-      ParamSubParamId.AsInteger := ACatParamsRec.ParamSubParamID;
+      ParamSubParamId.AsInteger := ACatParamsRec.ParamSubParamId;
       IsAttribute.AsInteger := ACatParamsRec.IsAttribute;
-      IdSubParameter.AsInteger := ACatParamsRec.IDSubParameter;
+      IdSubParameter.AsInteger := ACatParamsRec.IdSubParameter;
       Name.Value := ACatParamsRec.Name;
       Translation.Value := ACatParamsRec.Translation;
       IsDefault.AsInteger := ACatParamsRec.IsDefault;

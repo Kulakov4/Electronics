@@ -1,6 +1,6 @@
 inherited QueryRecursiveParameters: TQueryRecursiveParameters
-  Width = 316
-  ExplicitWidth = 316
+  Width = 623
+  ExplicitWidth = 623
   inherited Label1: TLabel
     Width = 140
     Caption = 'RecursiveParameters'
@@ -210,5 +210,91 @@ inherited QueryRecursiveParameters: TQueryRecursiveParameters
         ParamType = ptInput
         Value = Null
       end>
+  end
+  object FDQueryUpdateOrd: TFDQuery
+    SQL.Strings = (
+      'UPDATE CATEGORYPARAMS2'
+      'SET POSID = :NEW_POSID,'
+      '    ORD = :NEW_ORD'
+      'WHERE ID in'
+      '('
+      
+        '    with recursive m(ID, ProductCategoryID, ParamSubParamID, Ord' +
+        ', IsEnabled, IsAttribute, PosID) '
+      '    as '
+      '    ('
+      
+        '        select cp.ID, cp.ProductCategoryID, cp.ParamSubParamID, ' +
+        'cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
+      '            from ProductCategories pc'
+      
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :PARAMSUBPARAMID'
+      '            where pc.id = :CATEGORYID'
+      '            union all'
+      
+        '            select cp.ID, cp.ProductCategoryID, cp.ParamSubParam' +
+        'ID, cp.Ord, cp.IsEnabled, cp.IsAttribute, cp.PosID'
+      '            from ProductCategories pc'
+      
+        '            join CategoryParams2 cp on cp.ProductCategoryId = pc' +
+        '.Id and cp.ParamSubParamId = :PARAMSUBPARAMID'
+      
+        '            join m on pc.parentid = m.ProductCategoryID         ' +
+        '   '
+      '    ) '
+      '    select '
+      '        id'
+      '    from m'
+      ')'
+      'and POSID = :OLD_POSID'
+      'and ORD = :OLD_ORD')
+    Left = 368
+    Top = 25
+    ParamData = <
+      item
+        Name = 'NEW_POSID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'NEW_ORD'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'PARAMSUBPARAMID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'CATEGORYID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'OLD_POSID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'OLD_ORD'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
+  end
+  object FDQueryUpdateNegativeOrder: TFDQuery
+    SQL.Strings = (
+      'update CategoryParams2'
+      'set ord = -ord'
+      'where ord < 0')
+    Left = 512
+    Top = 25
   end
 end

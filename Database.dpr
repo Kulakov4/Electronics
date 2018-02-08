@@ -198,7 +198,8 @@ uses
   SearchParamSubParamQuery in 'Queryes\Search\SearchParamSubParamQuery.pas' {QuerySearchParamSubParam: TFrame},
   SearchParamDefSubParamQuery in 'Queryes\Search\SearchParamDefSubParamQuery.pas' {QuerySearchParamDefSubParam: TFrame},
   SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters},
-  Trio in 'Helpers\Trio.pas';
+  Trio in 'Helpers\Trio.pas',
+  UpdateNegativeOrdQuery in 'Queryes\CategoryParameters\UpdateNegativeOrdQuery.pas' {QueryUpdNegativeOrd: TFrame};
 
 {$R *.res}
 
