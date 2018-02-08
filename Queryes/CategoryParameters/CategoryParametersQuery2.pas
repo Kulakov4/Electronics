@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, RecursiveParametersQuery,
   DragHelper, System.Generics.Collections, DBRecordHolder,
-  SearchParamSubParamQuery, Trio;
+  SearchParamSubParamQuery, Trio, System.Generics.Defaults;
 
 type
   TQueryCategoryParameters2 = class(TQueryWithDataSource)
@@ -64,9 +64,14 @@ type
       AIsDefault: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    function CreateSubParamsClone: TFDMemTable;
     procedure FilterByIsDefault(AIsDefault: Integer);
+    function GetAllIDSubParamList: string;
+    procedure IncOrder(AStartOrder: Integer);
     function Locate(AIDParameter, APosID, AOrder: Integer;
-      TestResult: Boolean = False): Boolean;
+      TestResult: Boolean = False): Boolean; overload;
+    function Locate(AIDParameter, AIDSubParameter: Integer;
+      TestResult: Boolean = False): Boolean; overload;
     procedure Move(AData: TArray < TPair < Integer, Integer >> );
     procedure MoveSubParam(AData: TArray<TCategoryParamsRec>);
     function NextOrder: Integer;
@@ -96,7 +101,7 @@ type
 implementation
 
 uses
-  MaxCategoryParameterOrderQuery;
+  MaxCategoryParameterOrderQuery, System.StrUtils;
 
 {$R *.dfm}
 
@@ -239,6 +244,64 @@ begin
   FMaxOrder := 0;
 end;
 
+function TQueryCategoryParameters2.CreateSubParamsClone: TFDMemTable;
+var
+  AIDList: TList<Integer>;
+  AIDParameter: Integer;
+  AFilter: string;
+  AID: Integer;
+  S: string;
+begin
+  // Возвращает клон, содержащий либо сам параметр, либо его подпараметры
+  Assert(FDQuery.RecordCount > 0);
+
+  AIDParameter := IDParameter.AsInteger;
+
+  // Список идентификаторов, стоящих рядом и принадлежащих одному параметру
+  AIDList := TList<Integer>.Create;
+  try
+    FDQuery.DisableControls;
+    try
+      SaveBookmark;
+      // Сначала пытаемся двигаться вверх по набору данных
+      while (IDParameter.AsInteger = AIDParameter) and (not FDQuery.Bof) do
+        FDQuery.Prior;
+
+      if not FDQuery.Bof then
+      begin
+        Assert(IDParameter.AsInteger <> AIDParameter);
+        FDQuery.Next;
+      end;
+
+      Assert(IDParameter.AsInteger = AIDParameter);
+      // Теперь пытаемся двигаться вниз, по набору данных
+      while (IDParameter.AsInteger = AIDParameter) and (not FDQuery.Eof) do
+      begin
+        AIDList.Add(PK.AsInteger);
+        FDQuery.Next;
+      end;
+
+      // Возвращаемся на то же место
+      RestoreBookmark;
+    finally
+      FDQuery.EnableControls;
+    end;
+
+    Assert(AIDList.Count > 0);
+    S := '';
+    for AID in AIDList do
+    begin
+      S := S + IfThen(S.IsEmpty, '', ',') + AID.ToString;
+    end;
+  finally
+    FreeAndNil(AIDList);
+  end;
+
+  AFilter := Format('%s in (%s)', [PKFieldName, S]);
+  Result := AddClone(AFilter);
+
+end;
+
 procedure TQueryCategoryParameters2.DoAfterInsert(Sender: TObject);
 begin
   IsEnabled.AsInteger := 1;
@@ -261,6 +324,29 @@ begin
   Assert(AIsDefault >= 0);
   FDQuery.Filter := Format('%s=%d', [IsDefault.FieldName, AIsDefault]);
   FDQuery.Filtered := True;
+end;
+
+function TQueryCategoryParameters2.GetAllIDSubParamList: string;
+var
+  AClone: TFDMemTable;
+  AFilter: string;
+begin
+  Result := '';
+
+  AFilter := Format('%s = (%d)', [IDParameter.FieldName,
+    IDParameter.AsInteger]);
+  AClone := AddClone(AFilter);
+  try
+    Assert(AClone.RecordCount > 0);
+    while not AClone.Eof do
+    begin
+      Result := Result + IfThen(Result.IsEmpty, '', ',') +
+        AClone.FieldByName(IdSubParameter.FieldName).AsString;
+      AClone.Next;
+    end;
+  finally
+    DropClone(AClone);
+  end;
 end;
 
 function TQueryCategoryParameters2.GetCategoryID: TField;
@@ -372,8 +458,54 @@ begin
   Result := Field('ValueT');
 end;
 
+procedure TQueryCategoryParameters2.IncOrder(AStartOrder: Integer);
+var
+  A: TArray<TPair<Integer, Integer>>;
+  AClone: TFDMemTable;
+  D: TDictionary<Integer, Integer>;
+  AComparer: IComparer<TPair<Integer, Integer>>;
+  I: Integer;
+begin
+  D := TDictionary<Integer, Integer>.Create;
+  try
+    AClone := AddClone(Format('%s >= %d', [Ord.FieldName, AStartOrder]));
+    try
+      while not AClone.Eof do
+      begin
+        D.Add(AClone.FieldByName(PKFieldName).AsInteger,
+          AClone.FieldByName(Ord.FieldName).AsInteger);
+        AClone.Next;
+      end;
+    finally
+      DropClone(AClone);
+    end;
+    A := D.ToArray;
+  finally
+    FreeAndNil(D);
+  end;
+
+  // Правило для сравнения элементов массива
+  AComparer := TComparer < TPair < Integer, Integer >>.Construct(
+    function(const Left, Right: TPair<Integer, Integer>): Integer
+    begin
+      Result := -1 * TComparer<Integer>.Default.Compare(Left.Value,
+        Right.Value);
+    end);
+  // Сортируем массив по Ord в обратном порядке
+  TArray.Sort < TPair < Integer, Integer >> (A, AComparer);
+
+  // Увеличиваем на 1 Ord
+  for I := Low(A) to High(A) do
+    A[I].Value := A[I].Value + 1;
+
+  SaveBookmark;
+  // Просим произвести изменения в БД
+  Move(A);
+  RestoreBookmark;
+end;
+
 function TQueryCategoryParameters2.Locate(AIDParameter, APosID, AOrder: Integer;
-  TestResult: Boolean = False): Boolean;
+TestResult: Boolean = False): Boolean;
 var
   AFieldNames: string;
 begin
@@ -386,6 +518,24 @@ begin
 
   Result := FDQuery.LocateEx(AFieldNames,
     VarArrayOf([AIDParameter, APosID, AOrder]));
+
+  if TestResult then
+    Assert(Result);
+end;
+
+function TQueryCategoryParameters2.Locate(AIDParameter, AIDSubParameter
+  : Integer; TestResult: Boolean = False): Boolean;
+var
+  AFieldNames: string;
+begin
+  Assert(AIDParameter > 0);
+  Assert(AIDSubParameter >= 0);
+
+  AFieldNames := Format('%s;%s', [IDParameter.FieldName,
+    IdSubParameter.FieldName]);
+
+  Result := FDQuery.LocateEx(AFieldNames,
+    VarArrayOf([AIDParameter, AIDSubParameter]));
 
   if TestResult then
     Assert(Result);

@@ -13,7 +13,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OnFocusedRecordChanged = cxGridDBBandedTableViewFocusedRecordChanged
       DataController.DataModeController.SyncMode = False
       DataController.DataSource = dsParameters
-      DataController.KeyFieldNames = 'ID'
+      DataController.KeyFieldNames = 'VID'
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False
@@ -21,6 +21,12 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OptionsView.HeaderAutoHeight = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       Styles.OnGetHeaderStyle = nil
+      object clVID: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'VID'
+        Position.BandIndex = 0
+        Position.ColIndex = 0
+        Position.RowIndex = 0
+      end
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
@@ -31,7 +37,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Sorting = False
         Options.VertSizing = False
         Position.BandIndex = 0
-        Position.ColIndex = 0
+        Position.ColIndex = 1
         Position.RowIndex = 0
       end
       object clValue: TcxGridDBBandedColumn
@@ -44,7 +50,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Sorting = False
         Options.VertSizing = False
         Position.BandIndex = 0
-        Position.ColIndex = 1
+        Position.ColIndex = 2
         Position.RowIndex = 0
       end
       object clTableName: TcxGridDBBandedColumn
@@ -57,7 +63,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Sorting = False
         Options.VertSizing = False
         Position.BandIndex = 0
-        Position.ColIndex = 2
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
       object clValueT: TcxGridDBBandedColumn
@@ -70,7 +76,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Sorting = False
         Options.VertSizing = False
         Position.BandIndex = 0
-        Position.ColIndex = 3
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
       object clParameterType: TcxGridDBBandedColumn
@@ -83,7 +89,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Options.Sorting = False
         Options.VertSizing = False
         Position.BandIndex = 0
-        Position.ColIndex = 4
+        Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clPosID: TcxGridDBBandedColumn
@@ -97,7 +103,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         SortIndex = 0
         SortOrder = soAscending
         Position.BandIndex = 0
-        Position.ColIndex = 5
+        Position.ColIndex = 6
         Position.RowIndex = 0
       end
       object clOrder: TcxGridDBBandedColumn
@@ -113,7 +119,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         SortOrder = soAscending
         VisibleForCustomization = False
         Position.BandIndex = 0
-        Position.ColIndex = 6
+        Position.ColIndex = 7
         Position.RowIndex = 0
       end
       object clIsAttribute: TcxGridDBBandedColumn
@@ -125,13 +131,13 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Properties.ValueUnchecked = '0'
         Options.VertSizing = False
         Position.BandIndex = 0
-        Position.ColIndex = 7
+        Position.ColIndex = 8
         Position.RowIndex = 0
       end
       object clIDParameter: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDParameter'
         Position.BandIndex = 0
-        Position.ColIndex = 8
+        Position.ColIndex = 9
         Position.RowIndex = 0
       end
     end
@@ -143,7 +149,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       DataController.DataSource = dsSubParameters
       DataController.DetailKeyFieldNames = 'IDParent'
       DataController.KeyFieldNames = 'ID'
-      DataController.MasterKeyFieldNames = 'ID'
+      DataController.MasterKeyFieldNames = 'VID'
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>

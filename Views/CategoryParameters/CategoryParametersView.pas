@@ -86,6 +86,7 @@ type
     dxBarButton16: TdxBarButton;
     dxBarButton17: TdxBarButton;
     dxBarButton18: TdxBarButton;
+    clVID: TcxGridDBBandedColumn;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -242,9 +243,9 @@ end;
 procedure TViewCategoryParameters.actApplyUpdatesExecute(Sender: TObject);
 begin
   inherited;
-  DisableCollapsingAndExpanding;
+//  DisableCollapsingAndExpanding;
   CatParamsGroup.ApplyUpdates;
-  EnableCollapsingAndExpanding;
+//  EnableCollapsingAndExpanding;
   UpdateView;
 end;
 
@@ -628,6 +629,7 @@ end;
 
 procedure TViewCategoryParameters.MyDelete;
 var
+  AColumn: TcxGridDBBandedColumn;
   APKValues: TList<Variant>;
   AView: TcxGridDBBandedTableView;
   i: Integer;
@@ -658,7 +660,8 @@ begin
       // Получаем идентификаторы тех записей, которые надо удалить
       for i := 0 to AView.Controller.SelectedRowCount - 1 do
       begin
-        APKValues.Add(AView.Controller.SelectedRecords[i].Values[clID.Index]);
+        AColumn := AView.GetColumnByFieldName(clID.DataBinding.FieldName);
+        APKValues.Add(AView.Controller.SelectedRows[i].Values[AColumn.Index]);
       end;
       // Если удаляем параметр
       if AView.Level = cxGridLevel then
