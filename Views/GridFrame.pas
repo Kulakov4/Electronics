@@ -97,6 +97,7 @@ type
       ARecordIndex: Integer; var AAllow: Boolean);
     procedure DoCancelFocusRecord(Sender: TcxCustomGridTableView;
       ARecord: TcxCustomGridRecord; var AAllow: Boolean);
+    procedure DoDeleteFromView(AView: TcxGridDBBandedTableView); virtual;
     procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
@@ -165,6 +166,7 @@ type
       : TcxGridDBBandedColumn;
     function GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
       AReverse: Boolean): TArray<Integer>;
+    function GetSelectedIntValues(AColumn: TcxGridDBBandedColumn): TArray<Integer>;
     function GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
       AUp: Boolean; var AArray: TArray<Integer>;
       var ATargetRowIndex: Integer): Boolean;
@@ -321,7 +323,7 @@ var
   Cnt: Integer;
   i: Integer;
   LastVisibleRecIndex: Integer;
-  t: Integer;
+  T: Integer;
 begin
   Assert(AView <> nil);
   Assert(ARecordIndex >= 0);
@@ -330,20 +332,20 @@ begin
   ARowIndex := AView.DataController.GetRowIndexByRecordIndex
     (ARecordIndex, False);
 
-  t := AView.Controller.TopRecordIndex;
+  T := AView.Controller.TopRecordIndex;
   Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
-  LastVisibleRecIndex := t - 1 + Cnt;
+  LastVisibleRecIndex := T - 1 + Cnt;
 
   i := 0;
   // Пока текущая запись видна не полностью
-  while (i < 50) and (ARowIndex > t) and (ARowIndex > LastVisibleRecIndex) do
+  while (i < 50) and (ARowIndex > T) and (ARowIndex > LastVisibleRecIndex) do
   begin
     // Сдвигаем вверх на одну запись
-    AView.Controller.TopRecordIndex := t + 1;
+    AView.Controller.TopRecordIndex := T + 1;
 
-    t := AView.Controller.TopRecordIndex;
+    T := AView.Controller.TopRecordIndex;
     Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
-    LastVisibleRecIndex := t - 1 + Cnt;
+    LastVisibleRecIndex := T - 1 + Cnt;
 
     Inc(i); // Увеличиваем кол-во попыток
   end;
@@ -357,26 +359,26 @@ var
   Cnt: Integer;
   i: Integer;
   LastVisibleRecIndex: Integer;
-  t: Integer;
+  T: Integer;
 begin
   Assert(AView <> nil);
   Assert(ARecordIndex >= 0);
 
-  t := AView.Controller.TopRecordIndex;
+  T := AView.Controller.TopRecordIndex;
   Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
-  LastVisibleRecIndex := t - 1 + Cnt;
+  LastVisibleRecIndex := T - 1 + Cnt;
 
   i := 0;
   // Пока текущая запись видна не полностью
-  while (i < 50) and (ARecordIndex > t) and
+  while (i < 50) and (ARecordIndex > T) and
     (ARecordIndex >= LastVisibleRecIndex) do
   begin
     // Сдвигаем вверх на одну запись
-    AView.Controller.TopRecordIndex := t + 1;
+    AView.Controller.TopRecordIndex := T + 1;
 
-    t := AView.Controller.TopRecordIndex;
+    T := AView.Controller.TopRecordIndex;
     Cnt := AView.ViewInfo.RecordsViewInfo.VisibleCount;
-    LastVisibleRecIndex := t - 1 + Cnt;
+    LastVisibleRecIndex := T - 1 + Cnt;
 
     Inc(i); // Увеличиваем кол-во попыток
   end;
@@ -501,6 +503,25 @@ begin
   AAllow := False;
 end;
 
+procedure TfrmGrid.DoDeleteFromView(AView: TcxGridDBBandedTableView);
+begin
+  ProcessWithCancelDetailExpanding(AView.MasterGridView,
+    procedure()
+    begin
+      if AView.Controller.SelectedRowCount > 0 then
+        AView.DataController.DeleteSelection
+      else
+        AView.DataController.DeleteFocused;
+    end);
+
+  if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
+  then
+  begin
+    AView.MasterGridRecord.Collapse(False);
+  end;
+
+end;
+
 procedure TfrmGrid.MyDelete;
 var
   AView: TcxGridDBBandedTableView;
@@ -520,21 +541,7 @@ begin
   if (TDialog.Create.DeleteRecordsDialog(S)) and
     (AView.DataController.RecordCount > 0) then
   begin
-    ProcessWithCancelDetailExpanding(AView.MasterGridView,
-      procedure()
-      begin
-        if AView.Controller.SelectedRowCount > 0 then
-          AView.DataController.DeleteSelection
-        else
-          AView.DataController.DeleteFocused;
-      end);
-
-    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-    then
-    begin
-      AView.MasterGridRecord.Collapse(False);
-    end;
-
+    DoDeleteFromView(AView);
   end;
 
   UpdateView;
@@ -1153,6 +1160,28 @@ begin
     Result := m.ToArray;
   finally
     FreeAndNil(m);
+  end;
+end;
+
+function TfrmGrid.GetSelectedIntValues(AColumn: TcxGridDBBandedColumn):
+    TArray<Integer>;
+var
+  AView: TcxGridDBBandedTableView;
+  i: Integer;
+  L: TList<Integer>;
+begin
+  Assert(AColumn <> nil);
+  AView := AColumn.GridView as TcxGridDBBandedTableView;
+
+  L := TList<Integer>.Create;
+  try
+    for i := 0 to AView.Controller.SelectedRowCount - 1 do
+    begin
+      L.Add( AView.Controller.SelectedRows[i].Values[AColumn.Index] );
+    end;
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
   end;
 end;
 

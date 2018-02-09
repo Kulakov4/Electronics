@@ -87,7 +87,7 @@ begin
 
   // Устанавливаем параметры запроса
   SetParameters(['PosID', 'Ord', 'ParamSubParamID', 'CATEGORYID'],
-    [APosID, AOrder, AParamSubParamID, ACategoryID]);
+    [APosID, -AOrder, AParamSubParamID, ACategoryID]);
   // Выполняем запрос
   FDQuery.ExecSQL;
 end;

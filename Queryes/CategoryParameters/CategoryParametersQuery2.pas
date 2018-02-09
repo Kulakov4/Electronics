@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, RecursiveParametersQuery,
   DragHelper, System.Generics.Collections, DBRecordHolder,
-  SearchParamSubParamQuery, Trio, System.Generics.Defaults;
+  SearchParamSubParamQuery, System.Generics.Defaults;
 
 type
   TQueryCategoryParameters2 = class(TQueryWithDataSource)
@@ -72,10 +72,11 @@ type
       TestResult: Boolean = False): Boolean; overload;
     function Locate(AIDParameter, AIDSubParameter: Integer;
       TestResult: Boolean = False): Boolean; overload;
+    procedure LocateDefault(AIDParameter: Integer; TestResult: Boolean = False);
     procedure Move(AData: TArray < TPair < Integer, Integer >> );
-    procedure MoveSubParam(AData: TArray<TCategoryParamsRec>);
     function NextOrder: Integer;
-    procedure SetPos(APosID: Integer);
+    procedure SetPos(APosID: Integer); overload;
+    procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
     property CategoryID: TField read GetCategoryID;
     property HaveInserted: Boolean read GetHaveInserted;
     property IDParameter: TField read GetIDParameter;
@@ -250,12 +251,14 @@ var
   AIDParameter: Integer;
   AFilter: string;
   AID: Integer;
+  AIsDefault: Integer;
   S: string;
 begin
   // Возвращает клон, содержащий либо сам параметр, либо его подпараметры
   Assert(FDQuery.RecordCount > 0);
 
   AIDParameter := IDParameter.AsInteger;
+  AIsDefault := IsDefault.AsInteger;
 
   // Список идентификаторов, стоящих рядом и принадлежащих одному параметру
   AIDList := TList<Integer>.Create;
@@ -264,18 +267,23 @@ begin
     try
       SaveBookmark;
       // Сначала пытаемся двигаться вверх по набору данных
-      while (IDParameter.AsInteger = AIDParameter) and (not FDQuery.Bof) do
+      while (IDParameter.AsInteger = AIDParameter) and
+        (IsDefault.AsInteger = AIsDefault) and (not FDQuery.Bof) do
         FDQuery.Prior;
 
       if not FDQuery.Bof then
       begin
-        Assert(IDParameter.AsInteger <> AIDParameter);
+        Assert((IDParameter.AsInteger <> AIDParameter) or
+          (IsDefault.AsInteger <> AIsDefault));
+
         FDQuery.Next;
       end;
 
-      Assert(IDParameter.AsInteger = AIDParameter);
+      Assert((IDParameter.AsInteger = AIDParameter) and
+        (IsDefault.AsInteger = AIsDefault));
       // Теперь пытаемся двигаться вниз, по набору данных
-      while (IDParameter.AsInteger = AIDParameter) and (not FDQuery.Eof) do
+      while (IDParameter.AsInteger = AIDParameter) and
+        (IsDefault.AsInteger = AIsDefault) and (not FDQuery.Eof) do
       begin
         AIDList.Add(PK.AsInteger);
         FDQuery.Next;
@@ -333,11 +341,11 @@ var
 begin
   Result := '';
 
-  AFilter := Format('%s = (%d)', [IDParameter.FieldName,
-    IDParameter.AsInteger]);
+  // Все подпараметры, кроме подпараметра "по умолчанию"
+  AFilter := Format('%s = (%d) and %s = 0', [IDParameter.FieldName,
+    IDParameter.AsInteger, IsDefault.FieldName]);
   AClone := AddClone(AFilter);
   try
-    Assert(AClone.RecordCount > 0);
     while not AClone.Eof do
     begin
       Result := Result + IfThen(Result.IsEmpty, '', ',') +
@@ -541,6 +549,16 @@ begin
     Assert(Result);
 end;
 
+procedure TQueryCategoryParameters2.LocateDefault(AIDParameter: Integer;
+TestResult: Boolean = False);
+var
+  AFieldName: string;
+begin
+  Assert(AIDParameter > 0);
+  AFieldName := Format('%s;%s', [IDParameter.FieldName, IsDefault.FieldName]);
+  FDQuery.LocateEx(AFieldName, VarArrayOf([AIDParameter, 1]));
+end;
+
 procedure TQueryCategoryParameters2.Move(AData: TArray < TPair < Integer,
   Integer >> );
 var
@@ -555,35 +573,6 @@ begin
       // Меняем порядок записи
       TryEdit;
       Ord.AsInteger := APair.Value;
-      TryPost;
-    end;
-  finally
-    FDQuery.EnableControls;
-  end;
-end;
-
-procedure TQueryCategoryParameters2.MoveSubParam
-  (AData: TArray<TCategoryParamsRec>);
-var
-  ACatParamsRec: TCategoryParamsRec;
-begin
-  FDQuery.DisableControls;
-  try
-    for ACatParamsRec in AData do
-    begin
-      LocateByPK(ACatParamsRec.ID, True);
-
-      // Меняем подпараметр того-же параметра
-      Assert(IDParameter.AsInteger = ACatParamsRec.IDParameter);
-
-      TryEdit;
-      // Меняем связанную с записью ссылку на подпараметр
-      ParamSubParamId.AsInteger := ACatParamsRec.ParamSubParamId;
-      IsAttribute.AsInteger := ACatParamsRec.IsAttribute;
-      IdSubParameter.AsInteger := ACatParamsRec.IdSubParameter;
-      Name.Value := ACatParamsRec.Name;
-      Translation.Value := ACatParamsRec.Translation;
-      IsDefault.AsInteger := ACatParamsRec.IsDefault;
       TryPost;
     end;
   finally
@@ -607,6 +596,18 @@ begin
   TryEdit;
   PosID.AsInteger := APosID;
   TryPost;
+end;
+
+procedure TQueryCategoryParameters2.SetPos(AIDArray: TArray<Integer>; APosID:
+    Integer);
+var
+  AID: Integer;
+begin
+  for AID in AIDArray do
+  begin
+    LocateByPK(AID, True);
+    SetPos(APosID);
+  end;
 end;
 
 end.

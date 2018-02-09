@@ -3,7 +3,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
     Top = 56
-    Width = 1037
+    Width = 624
     Height = 416
     ExplicitTop = 56
     ExplicitWidth = 1037
@@ -226,6 +226,19 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   inherited StatusBar: TStatusBar
     Width = 1037
     ExplicitWidth = 1037
+  end
+  object DBGrid: TDBGrid [2]
+    Left = 624
+    Top = 56
+    Width = 413
+    Height = 416
+    Align = alRight
+    TabOrder = 6
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

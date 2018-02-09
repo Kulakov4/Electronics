@@ -28,7 +28,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, CategoryParametersQuery, ParameterPosQuery,
   DragHelper, cxCheckBox, CategoryParametersQuery2,
-  CategoryParametersGroupUnit, SearchParamSubParamQuery;
+  CategoryParametersGroupUnit, SearchParamSubParamQuery, Vcl.Grids, Vcl.DBGrids;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -87,6 +87,7 @@ type
     dxBarButton17: TdxBarButton;
     dxBarButton18: TdxBarButton;
     clVID: TcxGridDBBandedColumn;
+    DBGrid: TDBGrid;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -137,8 +138,8 @@ type
   protected
     procedure DoAfterLoad(Sender: TObject);
     procedure DoBeforeUpdateData(Sender: TObject);
+    procedure DoDeleteFromView(AView: TcxGridDBBandedTableView); override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
-    procedure MyDelete; override;
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
     constructor Create(AOwner: TComponent); override;
@@ -243,9 +244,9 @@ end;
 procedure TViewCategoryParameters.actApplyUpdatesExecute(Sender: TObject);
 begin
   inherited;
-//  DisableCollapsingAndExpanding;
+  // DisableCollapsingAndExpanding;
   CatParamsGroup.ApplyUpdates;
-//  EnableCollapsingAndExpanding;
+  // EnableCollapsingAndExpanding;
   UpdateView;
 end;
 
@@ -487,6 +488,35 @@ begin
   FLoading := True;
 end;
 
+procedure TViewCategoryParameters.DoDeleteFromView
+  (AView: TcxGridDBBandedTableView);
+var
+  AColumn: TcxGridDBBandedColumn;
+  APKValues: TList<Variant>;
+  i: Integer;
+begin
+  APKValues := TList<Variant>.Create;
+  try
+    AColumn := AView.GetColumnByFieldName(clID.DataBinding.FieldName);
+    Assert(AColumn <> nil);
+
+    // Получаем идентификаторы тех записей, которые надо удалить
+    for i := 0 to AView.Controller.SelectedRowCount - 1 do
+    begin
+      APKValues.Add(AView.Controller.SelectedRows[i].Values[AColumn.Index]);
+    end;
+
+    // Если удаляем параметр
+    if AView.Level = cxGridLevel then
+      CatParamsGroup.DeleteParameters(APKValues.ToArray);
+    if AView.Level = cxGridLevel2 then
+      CatParamsGroup.DeleteSubParameters(APKValues.ToArray);
+
+  finally
+    FreeAndNil(APKValues)
+  end;
+end;
+
 procedure TViewCategoryParameters.dxBarButton13Click(Sender: TObject);
 begin
   inherited;
@@ -567,6 +597,14 @@ begin
   if not GetSelectedRowIndexesForMove(AView, AUp, m, i) then
     Exit;
 
+  // Если место для перемещения в другой области
+  if Value(AView, clPosID, m[high(m)]) <> Value(AView, clPosID, i) then
+    Exit;
+
+  // Если перемещаем записи из разных областей
+  if Value(AView, clPosID, m[high(m)]) <> Value(AView, clPosID, m[0]) then
+    Exit;
+
   // В этой точке уже понятно что изменение положения возможно!
   IDList := TList<Integer>.Create;
   try
@@ -610,80 +648,23 @@ begin
       IDList.Add(Value(AView, clID2, ARowIndex));
     end;
 
-//    MainView.BeginBestFitUpdate;
-//    AView.BeginSortingUpdate;
-//    try
-      // Вызываем перемешение параметров
-      CatParamsGroup.MoveSubParameters(IDList, Value(AView, clID2, i), AUp);
-//    finally
-//      AView.EndSortingUpdate;
-//      MainView.EndSortingUpdate;
-//    end;
+    // MainView.BeginSortingUpdate;
+    // cxGridDBBandedTableView2.BeginSortingUpdate;
+    // AView.BeginSortingUpdate;
+    // try
+    // Вызываем перемешение параметров
+    CatParamsGroup.MoveSubParameters(IDList, Value(AView, clID2, i), AUp);
+    // finally
+    // AView.EndSortingUpdate;
+    // cxGridDBBandedTableView2.EndSortingUpdate;
+    // MainView.EndSortingUpdate;
+    // end;
 
   finally
     FreeAndNil(IDList);
   end;
 
   UpdateView;
-end;
-
-procedure TViewCategoryParameters.MyDelete;
-var
-  AColumn: TcxGridDBBandedColumn;
-  APKValues: TList<Variant>;
-  AView: TcxGridDBBandedTableView;
-  i: Integer;
-  S: string;
-begin
-
-  Assert(DeleteMessages <> nil);
-
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  if not DeleteMessages.ContainsKey(AView.Level as TcxGridLevel) then
-    S := 'Удалить запись?'
-  else
-    S := DeleteMessages[AView.Level as TcxGridLevel];
-
-  if (TDialog.Create.DeleteRecordsDialog(S)) and
-    (AView.DataController.RecordCount > 0) then
-  begin
-    // ProcessWithCancelDetailExpanding(AView.MasterGridView,
-    // procedure()
-    // Var
-    // i: Integer;
-    // begin
-    APKValues := TList<Variant>.Create;
-    try
-      // Получаем идентификаторы тех записей, которые надо удалить
-      for i := 0 to AView.Controller.SelectedRowCount - 1 do
-      begin
-        AColumn := AView.GetColumnByFieldName(clID.DataBinding.FieldName);
-        APKValues.Add(AView.Controller.SelectedRows[i].Values[AColumn.Index]);
-      end;
-      // Если удаляем параметр
-      if AView.Level = cxGridLevel then
-        CatParamsGroup.DeleteParameters(APKValues.ToArray);
-      if AView.Level = cxGridLevel2 then
-        CatParamsGroup.DeleteSubParameters(APKValues.ToArray);
-    finally
-      FreeAndNil(APKValues)
-    end;
-
-    // end);
-    {
-      if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
-      then
-      begin
-      AView.MasterGridRecord.Collapse(False);
-      end;
-    }
-  end;
-
-  UpdateView;
-
 end;
 
 procedure TViewCategoryParameters.SetCatParamsGroup
@@ -718,26 +699,29 @@ begin
 
     UpdateView;
     MainView.ViewData.Collapse(True);
-    MyApplyBestFit
+    MyApplyBestFit;
     // PostMyApplyBestFitEvent;
+
+    DBGrid.DataSource := CatParamsGroup.qCategoryParameters.DataSource;
   end;
 end;
 
 procedure TViewCategoryParameters.SetPos(APosID: Integer);
 var
+  AColumn: TcxGridDBBandedColumn;
+  AView: TcxGridDBBandedTableView;
   i: Integer;
 begin
-  MainView.BeginSortingUpdate;
-  try
-    for i := 0 to MainView.Controller.SelectedRowCount - 1 do
-    begin
-      // Фокусируем, чтобы курсор в БД встал на неё
-      MainView.Controller.SelectedRows[i].Focused := True;
-      // QueryCategoryParameters.SetPos(APosID);
-    end;
-  finally
-    MainView.EndSortingUpdate;
-  end;
+  AView := FocusedTableView;
+  Assert(AView <> nil);
+  AColumn := AView.GetColumnByFieldName(clID.DataBinding.FieldName);
+
+//  AView.BeginSortingUpdate;
+//  try
+    CatParamsGroup.SetPos(GetSelectedIntValues(AColumn), AView = MainView, APosID);
+//  finally
+//    AView.EndSortingUpdate;
+//  end;
   UpdateView;
 end;
 
@@ -750,8 +734,9 @@ begin
 
   OK := (FCatParamsGroup <> nil) and FCatParamsGroup.IsAllQuerysActive;
 
-  actPosBegin.Enabled := OK and (MainView.Controller.SelectedRowCount > 0) and
-    (MainView.DataController.RecordCount > 0);
+  actPosBegin.Enabled := OK and (AView <> nil) and
+    (AView.Controller.SelectedRowCount > 0) and
+    (AView.DataController.RecordCount > 0);
   actPosCenter.Enabled := actPosBegin.Enabled;
   actPosEnd.Enabled := actPosBegin.Enabled;
 
@@ -767,6 +752,10 @@ begin
     HaveAnyChanges;
   actAddToCenter.Enabled := actAddToBegin.Enabled;
   actAddToEnd.Enabled := actAddToBegin.Enabled;
+
+  actAddSubParameter.Enabled := OK and
+    (not FCatParamsGroup.qCategoryParameters.HaveAnyChanges) and
+    (MainView.DataController.RowCount > 0);
 
   actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted;
   actDown.Enabled := actUp.Enabled;
