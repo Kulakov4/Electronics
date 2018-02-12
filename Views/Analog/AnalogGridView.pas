@@ -261,7 +261,7 @@ begin
   // Инициализируем бэнд
   if NeedInitialize then
   begin
-    ABandInfo.CategoryParamID := ACategoryParamID;
+//    ABandInfo.CategoryParamID := ACategoryParamID;
     ABandInfo.DefaultVisible := AVisible;
     ABand.Visible := AVisible;
     ABand.VisibleForCustomization := True;

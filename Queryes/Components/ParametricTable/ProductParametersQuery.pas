@@ -13,15 +13,15 @@ uses
 type
   TQueryProductParameters = class(TQueryBase)
   private
-    function GetParameterID: TField;
+    function GetParamSubParamID: TField;
     function GetParentProductID: TField;
     function GetProductID: TField;
     function GetValue: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    procedure ApplyFilter(AProductID, AParameterID: Integer);
-    property ParameterID: TField read GetParameterID;
+    procedure ApplyFilter(AProductID: Integer; const AParamSubParamID: Integer);
+    property ParamSubParamID: TField read GetParamSubParamID;
     property ParentProductID: TField read GetParentProductID;
     property ProductID: TField read GetProductID;
     property Value: TField read GetValue;
@@ -38,20 +38,20 @@ begin
   DetailParameterName := 'ProductCategoryId';
 end;
 
-procedure TQueryProductParameters.ApplyFilter(AProductID, AParameterID:
-    Integer);
+procedure TQueryProductParameters.ApplyFilter(AProductID: Integer; const
+    AParamSubParamID: Integer);
 begin
   Assert(AProductID > 0);
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
 
   FDQuery.Filter := Format('(%s=%d) and (%s=%d)',
-    [ProductID.FieldName, AProductID, ParameterID.FieldName, AParameterID]);
+    [ProductID.FieldName, AProductID, ParamSubParamID.FieldName, AParamSubParamID]);
   FDQuery.Filtered := True;
 end;
 
-function TQueryProductParameters.GetParameterID: TField;
+function TQueryProductParameters.GetParamSubParamID: TField;
 begin
-  Result := Field('ParameterId');
+  Result := Field('ParamSubParamID');
 end;
 
 function TQueryProductParameters.GetParentProductID: TField;

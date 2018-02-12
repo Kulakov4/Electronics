@@ -17,8 +17,8 @@ inherited QueryCategoryParameters2: TQueryCategoryParameters2
     SQL.Strings = (
       
         'select cp.*, psp.IdParameter, psp.IdSubParameter, p.Value, p.Tab' +
-        'leName, p.ValueT, pt.ParameterType, sp.Name, sp.Translation, sp.' +
-        'IsDefault'
+        'leName, p.ValueT, p.IDParameterKind, pt.ParameterType, sp.Name, ' +
+        'sp.Translation, sp.IsDefault'
       'from CategoryParams2 cp'
       'join ParamSubParams psp on cp.ParamSubParamId = psp.id'
       'join Parameters p on psp.IdParameter = p.id'

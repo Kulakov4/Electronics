@@ -28,6 +28,7 @@ type
     function GetCategoryID: TField;
     function GetHaveInserted: Boolean;
     function GetIDParameter: TField;
+    function GetIDParameterKind: TField;
     function GetIdSubParameter: TField;
     function GetIsAttribute: TField;
     function GetIsDefault: TField;
@@ -80,6 +81,7 @@ type
     property CategoryID: TField read GetCategoryID;
     property HaveInserted: Boolean read GetHaveInserted;
     property IDParameter: TField read GetIDParameter;
+    property IDParameterKind: TField read GetIDParameterKind;
     property IdSubParameter: TField read GetIdSubParameter;
     property IsAttribute: TField read GetIsAttribute;
     property IsDefault: TField read GetIsDefault;
@@ -371,6 +373,11 @@ end;
 function TQueryCategoryParameters2.GetIDParameter: TField;
 begin
   Result := Field('IdParameter');
+end;
+
+function TQueryCategoryParameters2.GetIDParameterKind: TField;
+begin
+  Result := Field('IDParameterKind');
 end;
 
 function TQueryCategoryParameters2.GetIdSubParameter: TField;

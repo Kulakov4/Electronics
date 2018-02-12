@@ -9,10 +9,10 @@ inherited QueryProductParameters: TQueryProductParameters
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       
-        'select pv.Id, pv.ParameterId, pv.Value, pv.ProductId, p.ParentPr' +
-        'oductId'
+        'select pv.Id, pv.ParamSubParamID, pv.Value, pv.ProductId, p.Pare' +
+        'ntProductId'
       'from'
-      'ParameterValues pv'
+      'ParameterValues2 pv'
       'join Products p on pv.ProductId = p.Id'
       'where '
       'pv.ProductId in'
@@ -27,7 +27,7 @@ inherited QueryProductParameters: TQueryProductParameters
       '    from ProductProductCategories ppc'
       '    where ppc.ProductCategoryId = :ProductCategoryId'
       ')'
-      'order by pv.ProductID, pv.ParameterId, pv.ID')
+      'order by pv.ProductID, pv.ParamSubParamID, pv.ID')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'

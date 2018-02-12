@@ -710,7 +710,7 @@ procedure TViewCategoryParameters.SetPos(APosID: Integer);
 var
   AColumn: TcxGridDBBandedColumn;
   AView: TcxGridDBBandedTableView;
-  i: Integer;
+//  i: Integer;
 begin
   AView := FocusedTableView;
   Assert(AView <> nil);

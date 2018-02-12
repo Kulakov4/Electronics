@@ -33,7 +33,8 @@ uses
   ComponentsBaseView, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
   System.Generics.Defaults, BandsInfo, DBRecordHolder,
-  BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons;
+  BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
+  CategoryParametersQuery2;
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
@@ -82,7 +83,7 @@ type
     procedure dxBarButton2Click(Sender: TObject);
     procedure BandTimerTimer(Sender: TObject);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
-        AColumn: TcxGridColumn);
+      AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
@@ -189,7 +190,7 @@ uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
   ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
   SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math,
   AnalogForm, AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery,
-  NaturalSort;
+  NaturalSort, CategoryParametersGroupUnit, FireDAC.Comp.Client;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -514,7 +515,8 @@ var
   AProductIDList: TList<Integer>;
   AView: TcxGridDBBandedTableView;
   j: Integer;
-  qParametersForCategory: TQueryParametersForCategory;
+  // qParametersForCategory: TQueryParametersForCategory;
+  qCategoryParameters: TQueryCategoryParameters2;
   V: Variant;
 begin
   inherited;
@@ -522,22 +524,42 @@ begin
 
   AFieldList := TList<String>.Create;
   try
-    qParametersForCategory := ComponentsExGroup.qParametersForCategory;
-    qParametersForCategory.FDQuery.First;
-    while not qParametersForCategory.FDQuery.Eof do
+    qCategoryParameters := ComponentsExGroup.CatParamsGroup.qCategoryParameters;
+    qCategoryParameters.FDQuery.First;
+    while not qCategoryParameters.FDQuery.Eof do
     begin
+      qCategoryParameters.FDQuery.Next;
+
       // Имя поля получаем из словаря всех имён полей параметров
       AFieldName := ComponentsExGroup.AllParameterFields
-        [qParametersForCategory.ParameterID.AsInteger];
+        [qCategoryParameters.ParamSubParamId.AsInteger];
 
       AColumn := AView.GetColumnByFieldName(AFieldName);
 
       if AColumn.Selected then
         AFieldList.Add(AFieldName);
 
-      qParametersForCategory.FDQuery.Next;
+      qCategoryParameters.FDQuery.Next;
+
     end;
 
+    {
+      qParametersForCategory := ComponentsExGroup.qParametersForCategory;
+      qParametersForCategory.FDQuery.First;
+      while not qParametersForCategory.FDQuery.Eof do
+      begin
+      // Имя поля получаем из словаря всех имён полей параметров
+      AFieldName := ComponentsExGroup.AllParameterFields
+      [qParametersForCategory.ParameterID.AsInteger];
+
+      AColumn := AView.GetColumnByFieldName(AFieldName);
+
+      if AColumn.Selected then
+      AFieldList.Add(AFieldName);
+
+      qParametersForCategory.FDQuery.Next;
+      end;
+    }
     AProductIDList := TList<Integer>.Create;
     try
       // Цикл по всем выделенным строкам
@@ -1078,8 +1100,9 @@ var
   ABandCaption: string;
   ABandHint: string;
   ABandInfo: TBandInfo;
-  ACaption: String;
+  // ACaption: String;
   ACategoryParamID: Integer;
+  AClone: TFDMemTable;
   AColumnHint: String;
   AColumnCaption: string;
   AColumnID: Integer;
@@ -1087,13 +1110,19 @@ var
   AIDBand: Integer;
   AIDParameterKind: Integer;
   AOrder: Integer;
+  AParamSubParamId: Integer;
   APosID: Integer;
-  qParametersForCategory: TQueryParametersForCategory;
+  // qParametersForCategory: TQueryParametersForCategory;
+  qCategoryParameters: TQueryCategoryParameters2;
+  qCatParams: TQryCategoryParameters;
+  // qCatSubParams: TQryCategorySubParameters;
   AVisible: Boolean;
 begin
   FreeAndNil(FColumnsBarButtons);
 
-  qParametersForCategory := ComponentsExGroup.qParametersForCategory;
+  qCategoryParameters := ComponentsExGroup.CatParamsGroup.qCategoryParameters;
+
+  // qParametersForCategory := ComponentsExGroup.qParametersForCategory;
 
   cxGrid.BeginUpdate();
   try
@@ -1103,58 +1132,114 @@ begin
     DeleteBands;
 
     // qParametersForCategory.Load(ComponentsExGroup.qComponentsEx.ParentValue);
-    qParametersForCategory.FDQuery.First;
-    while not qParametersForCategory.FDQuery.Eof do
-    begin
-      // Имя поля получаем из словаря всех имён полей параметров
-      AFieldName := ComponentsExGroup.AllParameterFields
-        [qParametersForCategory.ParameterID.AsInteger];
-      AVisible := qParametersForCategory.IsAttribute.AsBoolean;
-      ACaption := qParametersForCategory.Caption.AsString;
-      ABandHint := qParametersForCategory.BandHint.AsString;
-      AColumnHint := qParametersForCategory.ColumnHint.AsString;
-      ACategoryParamID := qParametersForCategory.IDCategory.AsInteger;
 
-      // Вот тут странная ошибка может произойти - пустой порядок
-      if qParametersForCategory.Ord.IsNull then
-      begin
+    // qParametersForCategory.FDQuery.First;
+
+    ComponentsExGroup.CatParamsGroup.LoadData;
+    qCatParams := ComponentsExGroup.CatParamsGroup.qCatParams;
+
+    Assert(qCatParams.RecordCount > 0);
+    qCatParams.First;
+    // Цикл по бэндам (параметрам)
+    while not qCatParams.Eof do
+    begin
+      qCategoryParameters.LocateByPK(qCatParams.ID.AsInteger);
+      // Получаем все подпараметры текущего бэнда
+      AClone := qCategoryParameters.CreateSubParamsClone;
+      try
+        while not AClone.Eof do
+        begin
+          // Имя поля получаем из словаря всех имён полей параметров
+          AParamSubParamId := AClone.FieldByName
+            (qCategoryParameters.ParamSubParamId.FieldName).AsInteger;
+          AFieldName := ComponentsExGroup.AllParameterFields[AParamSubParamId];
+          AVisible := AClone.FieldByName
+            (qCategoryParameters.IsAttribute.FieldName).AsInteger = 1;
+          ABandCaption := AClone.FieldByName
+            (qCategoryParameters.Value.FieldName).AsString;
+          AColumnCaption := AClone.FieldByName
+            (qCategoryParameters.Name.FieldName).AsString;
+
+          // Иначе грид отображает имя поля
+          if AColumnCaption.IsEmpty then
+            AColumnCaption := ' ';
+
+          ABandHint := AClone.FieldByName
+            (qCategoryParameters.ValueT.FieldName).AsString;
+          AColumnHint := AClone.FieldByName
+            (qCategoryParameters.Translation.FieldName).AsString;
+          AOrder := AClone.FieldByName(qCategoryParameters.Ord.FieldName)
+            .AsInteger;
+          APosID := AClone.FieldByName(qCategoryParameters.PosID.FieldName)
+            .AsInteger;
+          ACategoryParamID := APosID;
+          // qParametersForCategory.IDCategory.AsInteger;
+          // Как искать аналог для этого параметра
+          AIDParameterKind := AClone.FieldByName
+            (qCategoryParameters.IDParameterKind.FieldName).AsInteger;
+          // Идентификатор бэнда
+          AIDBand := qCatParams.ID.AsInteger;
+          AColumnID := AParamSubParamId;
+
+          // Создаём колонку в главном представлении
+          CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption,
+            AFieldName, AVisible, ABandHint, ACategoryParamID, AOrder, APosID,
+            AIDParameterKind, AColumnID, AColumnHint);
+
+          // Создаём колонку в дочернем представлении
+          CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
+            AColumnCaption, AFieldName, AVisible, ABandHint, ACategoryParamID,
+            AOrder, APosID, AIDParameterKind, AColumnID, AColumnHint);
+
+          AClone.Next;
+        end;
+      finally
+        qCategoryParameters.DropClone(AClone);
+      end;
+      qCatParams.Next;
+      {
+        // Вот тут странная ошибка может произойти - пустой порядок
+        if qParametersForCategory.Ord.IsNull then
+        begin
         qParametersForCategory.FDQuery.Next;
         Continue;
-      end;
+        end;
 
-      Assert(not qParametersForCategory.Ord.IsNull);
-      AOrder := qParametersForCategory.Ord.AsInteger;
-      APosID := qParametersForCategory.PosID.AsInteger;
-      // Как искать аналог для этого параметра
-      AIDParameterKind := qParametersForCategory.IDParameterKind.AsInteger;
-      // Идентификатор параметра или подпараметра
-      AColumnID := qParametersForCategory.ParameterID.AsInteger;
+        Assert(not qParametersForCategory.Ord.IsNull);
 
-      // Если это родительский параметр
-      if qParametersForCategory.ParentParameter.IsNull then
-      begin
+        AOrder := qParametersForCategory.Ord.AsInteger;
+        APosID := qParametersForCategory.PosID.AsInteger;
+        // Как искать аналог для этого параметра
+        AIDParameterKind := qParametersForCategory.IDParameterKind.AsInteger;
+        // Идентификатор параметра или подпараметра
+        AColumnID := qParametersForCategory.ParameterID.AsInteger;
+
+        // Если это родительский параметр
+        if qParametersForCategory.ParentParameter.IsNull then
+        begin
         AIDBand := AColumnID;
         ABandCaption := ACaption;
         AColumnCaption := ' ';
-      end
-      else
-      begin
+        end
+        else
+        begin
         AIDBand := qParametersForCategory.ParentParameter.AsInteger;
         ABandCaption := qParametersForCategory.ParentCaption.AsString;
         AColumnCaption := ACaption;
-      end;
+        end;
 
-      // Создаём колонку в главном представлении
-      CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
+        // Создаём колонку в главном представлении
+        CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
         AVisible, ABandHint, ACategoryParamID, AOrder, APosID, AIDParameterKind,
         AColumnID, AColumnHint);
 
-      // Создаём колонку в дочернем представлении
-      CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
+        // Создаём колонку в дочернем представлении
+        CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
         AColumnCaption, AFieldName, AVisible, ABandHint, ACategoryParamID,
         AOrder, APosID, AIDParameterKind, AColumnID, AColumnHint);
 
-      qParametersForCategory.FDQuery.Next;
+        qParametersForCategory.FDQuery.Next;
+      }
     end;
 
     // запоминаем в какой позиции находится наш бэнд
@@ -1326,15 +1411,15 @@ begin
 end;
 
 procedure TViewParametricTable.MyApplyBestFit;
-//var
-//  i: Integer;
+// var
+// i: Integer;
 begin
-{
-  for i := 0 to MainView.Bands.Count - 1 do
-  begin
+  {
+    for i := 0 to MainView.Bands.Count - 1 do
+    begin
     MainView.Bands[i].ApplyBestFit(True);
-  end;
-}
+    end;
+  }
   Inherited;
   UpdateDetailColumnsWidth;
 end;
@@ -1420,15 +1505,14 @@ begin
   UpdateColumnsCustomization;
 end;
 
-procedure TViewParametricTable.cxGridDBBandedTableViewColumnHeaderClick(Sender:
-    TcxGridTableView; AColumn: TcxGridColumn);
-begin
-  ;
+procedure TViewParametricTable.cxGridDBBandedTableViewColumnHeaderClick
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+begin;
   inherited;
 end;
 
-procedure TViewParametricTable.OnGridPopupMenuPopup(AColumn:
-    TcxGridDBBandedColumn);
+procedure TViewParametricTable.OnGridPopupMenuPopup
+  (AColumn: TcxGridDBBandedColumn);
 Var
   AColumnIsValue: Boolean;
 begin
@@ -1437,7 +1521,7 @@ begin
   AColumnIsValue := (AColumn <> nil) and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName);
 
-  actClearSelected.Visible := (AColumn <> nil) and not (AColumnIsValue);
+  actClearSelected.Visible := (AColumn <> nil) and not(AColumnIsValue);
   actClearSelected.Enabled := actClearSelected.Visible;
 end;
 
