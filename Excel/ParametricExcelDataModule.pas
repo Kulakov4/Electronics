@@ -31,8 +31,8 @@ type
     function CheckRecord: Boolean; override;
     class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer):
         String; static;
-    function GetParamSubParamIDByFieldName(AFieldName: string; AParamSubParamID:
-        Integer): Boolean;
+    function GetParamSubParamIDByFieldName(AFieldName: string; out
+        AParamSubParamID: Integer): Boolean;
     property ComponentName: TField read GetComponentName;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
@@ -156,7 +156,7 @@ begin
 end;
 
 function TParametricExcelTable.GetParamSubParamIDByFieldName(AFieldName:
-    string; AParamSubParamID: Integer): Boolean;
+    string; out AParamSubParamID: Integer): Boolean;
 var
   m: TArray<String>;
 begin
@@ -174,7 +174,7 @@ begin
   end
   else
   begin
-    Assert(Length(m) = 2);
+    Assert(Length(m) = 1);
     AParamSubParamID := 0;
   end;
 end;

@@ -35,12 +35,12 @@ type
     FValue: string;
   protected
   class var
-    FMaxlID: Integer;
+    FMaxID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
     function AddChild(const AValue: String): TStringTreeNode;
-    procedure ClearMaxlID;
+    procedure ClearMaxID;
     function FindByID(AID: Integer): TStringTreeNode;
     property Childs: TList<TStringTreeNode> read FChilds write FChilds;
     property ID: Integer read FID;
@@ -774,7 +774,7 @@ constructor TStringTreeNode.Create;
 begin
   inherited;
   FChilds := TObjectList<TStringTreeNode>.Create;
-  FID := FMaxlID;
+  FID := FMaxID;
 end;
 
 destructor TStringTreeNode.Destroy;
@@ -786,7 +786,7 @@ end;
 function TStringTreeNode.AddChild(const AValue: String): TStringTreeNode;
 begin
   // Увеличиваем максимальный идентификатор
-  Inc(FMaxlID);
+  Inc(FMaxID);
   Result := TStringTreeNode.Create;
   Result.Value := AValue;
   Result.Parent := Self;
@@ -794,9 +794,9 @@ begin
   Childs.Add(Result);
 end;
 
-procedure TStringTreeNode.ClearMaxlID;
+procedure TStringTreeNode.ClearMaxID;
 begin
-  FMaxlID := 0;
+  FMaxID := 0;
 end;
 
 function TStringTreeNode.FindByID(AID: Integer): TStringTreeNode;

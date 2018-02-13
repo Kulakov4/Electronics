@@ -96,7 +96,6 @@ var
   AFieldInfo: TFieldInfo;
   AIDComponent: Integer;
   AParamSubParamID: Integer;
-  AIDParentParameter: Integer;
   AQueryParametersForProduct: TQueryParametersForProduct;
   AQueryParametersValue: TQueryParametersValue;
   AUpdParamSubParamList: TUpdParamSubParamList;

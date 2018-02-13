@@ -19,6 +19,7 @@ inherited QuerySubParameters2: TQuerySubParameters2
         'left join CategoryParams2 cp on cp.ParamSubParamId = psp.id and ' +
         'cp.ProductCategoryId = :ProductCategoryId'
       '/* ENDIF */'
-      'where sp.IsDefault = 0')
+      'where sp.IsDefault = 0'
+      'and 0=0')
   end
 end

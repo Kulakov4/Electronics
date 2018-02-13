@@ -29,6 +29,7 @@ type
     function GetCheckedValues(const AFieldName: String): string;
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
     procedure OpenWithChecked(AIDParameter, AProductCategoryId: Integer);
+    function Search(const AName: String): Integer; overload;
     property Checked: TField read GetChecked;
     property IsDefault: TField read GetIsDefault;
     property Name: TField read GetName;
@@ -39,7 +40,7 @@ type
 implementation
 
 uses
-  NotifyEvents;
+  NotifyEvents, StrHelper;
 
 {$R *.dfm}
 
@@ -77,8 +78,8 @@ begin
   Result := Field('Checked');
 end;
 
-function TQuerySubParameters2.GetCheckedValues(const AFieldName : String):
-    string;
+function TQuerySubParameters2.GetCheckedValues(const AFieldName
+  : String): string;
 var
   AClone: TFDMemTable;
 begin
@@ -162,7 +163,19 @@ begin
   SetParamType('ProductCategoryId');
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeCheckedOpen, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterCheckedOpen, FEventList);
-  Load(['IdParameter', 'ProductCategoryId'], [AIDParameter, AProductCategoryId]);
+  Load(['IdParameter', 'ProductCategoryId'],
+    [AIDParameter, AProductCategoryId]);
+end;
+
+function TQuerySubParameters2.Search(const AName: String): Integer;
+begin
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+    Format('and 0=0 and Upper(%s) = Upper(:Name)', [Name.FieldName,
+    QuotedStr(AName)]), 'and 0=0');
+
+  SetParamType('Name', ptInput, ftString);
+
+  Result := Search(['Name'], [AName]);
 end;
 
 end.
