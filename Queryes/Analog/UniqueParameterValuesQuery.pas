@@ -15,14 +15,11 @@ type
     function GetValue: TField;
     { Private declarations }
   public
-    function SearchEx(AProductCategoryID, AParameterId: Integer): Integer;
+    function SearchEx(AProductCategoryID, AParamSubParamID: Integer): Integer;
         reintroduce;
     property Value: TField read GetValue;
     { Public declarations }
   end;
-
-var
-  QueryUniqueParameterValues: TQueryUniqueParameterValues;
 
 implementation
 
@@ -33,14 +30,14 @@ begin
   Result := Field('Value');
 end;
 
-function TQueryUniqueParameterValues.SearchEx(AProductCategoryID, AParameterId:
-    Integer): Integer;
+function TQueryUniqueParameterValues.SearchEx(AProductCategoryID,
+    AParamSubParamID: Integer): Integer;
 begin
   Assert(AProductCategoryID > 0);
-  Assert(AParameterId > 0);
+  Assert(AParamSubParamID > 0);
 
-  Result := Search(['ProductCategoryId', 'ParameterId'],
-    [AProductCategoryID, AParameterId]);
+  Result := Search(['ProductCategoryId', 'ParamSubParamId'],
+    [AProductCategoryID, AParamSubParamID]);
 end;
 
 end.

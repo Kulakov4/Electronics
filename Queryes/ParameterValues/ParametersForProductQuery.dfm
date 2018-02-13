@@ -12,14 +12,14 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
   object fdqUpdate: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'update CategoryParams'
-      'set IsEnabled = 1, IsAttribute = 1, [Order] = :Order'
+      'update CategoryParams2'
+      'set IsEnabled = 1, IsAttribute = 1, Ord = :Ord'
       'where id = :id')
     Left = 136
     Top = 25
     ParamData = <
       item
-        Name = 'ORDER'
+        Name = 'ORD'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
@@ -35,9 +35,9 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
     Connection = DMRepository.dbConnection
     SQL.Strings = (
       
-        'insert into CategoryParams(ProductCategoryId, ParameterId, IsEna' +
-        'bled, IsAttribute, [Order])'
-      'values (:ProductCategoryId, :ParameterId, 1, 1, :Order)')
+        'insert into CategoryParams2(ProductCategoryId, ParamSubParamId, ' +
+        'IsEnabled, IsAttribute, Ord)'
+      'values (:ProductCategoryId, :ParamSubParamId, 1, 1, :Ord)')
     Left = 192
     Top = 25
     ParamData = <
@@ -48,13 +48,13 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
         Value = Null
       end
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'ORDER'
+        Name = 'ORD'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
@@ -69,13 +69,13 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
       'join ProductProductCategories ppc on ppc.ProductId = tt.id'
       'join ProductCategories pc on ppc.ProductCategoryId = pc.Id'
       
-        'left join CategoryParams cp on cp.ProductCategoryId = pc.Id and ' +
-        'cp.ParameterId = :ParameterID')
+        'left join CategoryParams2 cp on cp.ProductCategoryId = pc.Id and' +
+        ' cp.ParamSubParamID = :ParamSubParamID')
     Left = 72
     Top = 25
     ParamData = <
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

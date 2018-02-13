@@ -45,23 +45,23 @@ end;
 procedure TQueryReports.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
-  FDQuery.ParamByName('ProducerParameterID').AsInteger :=
-    TDefaultParameters.ProducerParameterID;
+  FDQuery.ParamByName('ProducerParamSubParamID').AsInteger :=
+    TDefaultParameters.ProducerParamSubParamID;
 
-  FDQuery.ParamByName('PackagePinsParameterID').AsInteger :=
-    TDefaultParameters.PackagePinsParameterID;
+  FDQuery.ParamByName('PackagePinsParamSubParamID').AsInteger :=
+    TDefaultParameters.PackagePinsParamSubParamID;
 
-  FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
-    TDefaultParameters.DatasheetParameterID;
+  FDQuery.ParamByName('DatasheetParamSubParamID').AsInteger :=
+    TDefaultParameters.DatasheetParamSubParamID;
 
-  FDQuery.ParamByName('DiagramParameterID').AsInteger :=
-    TDefaultParameters.DiagramParameterID;
+  FDQuery.ParamByName('DiagramParamSubParamID').AsInteger :=
+    TDefaultParameters.DiagramParamSubParamID;
 
-  FDQuery.ParamByName('DrawingParameterID').AsInteger :=
-    TDefaultParameters.DrawingParameterID;
+  FDQuery.ParamByName('DrawingParamSubParamID').AsInteger :=
+    TDefaultParameters.DrawingParamSubParamID;
 
-  FDQuery.ParamByName('ImageParameterID').AsInteger :=
-    TDefaultParameters.ImageParameterID;
+  FDQuery.ParamByName('ImageParamSubParamID').AsInteger :=
+    TDefaultParameters.ImageParamSubParamID;
 
 end;
 

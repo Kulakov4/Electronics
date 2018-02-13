@@ -275,11 +275,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchParameterValues.pas">
-            <Form>QuerySearchParameterValues</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
             <Form>QuerySearchProducerTypes</Form>
             <FormType>dfm</FormType>
@@ -525,11 +520,6 @@
         </DCCReference>
         <DCCReference Include="Queryes\Components\ComponentsGroupUnit.pas">
             <Form>ComponentsGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ParametricTable\ParametersForCategoryQuery.pas">
-            <Form>QueryParametersForCategory</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>

@@ -29,10 +29,10 @@ type
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>; AFamily:
         Boolean); reintroduce;
     function CheckRecord: Boolean; override;
-    class function GetFieldNameByIDParam(AIDParameter, AIDParentParameter
-      : Integer): String; static;
-    function GetIDParamByFieldName(AFieldName: string;
-      out AIDParameter, AIDParentParameter: Integer): Boolean;
+    class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer):
+        String; static;
+    function GetParamSubParamIDByFieldName(AFieldName: string; AParamSubParamID:
+        Integer): Boolean;
     property ComponentName: TField read GetComponentName;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
@@ -141,14 +141,13 @@ begin
   Result := FieldByName(FieldsInfo[0].FieldName);
 end;
 
-class function TParametricExcelTable.GetFieldNameByIDParam(AIDParameter,
-  AIDParentParameter: Integer): String;
+class function TParametricExcelTable.GetFieldNameByParamSubParamID(
+    AParamSubParamID: Integer): String;
 begin
-  Assert(AIDParameter > 0);
+  Assert(AParamSubParamID > 0);
   Assert(not FParamPrefix.IsEmpty);
 
-  Result := Format('%s_%d_%d', [FParamPrefix, AIDParameter,
-    AIDParentParameter]);
+  Result := Format('%s_%d', [FParamPrefix, AParamSubParamID]);
 end;
 
 function TParametricExcelTable.GetIDComponent: TField;
@@ -156,8 +155,8 @@ begin
   Result := FieldByName('IDComponent');
 end;
 
-function TParametricExcelTable.GetIDParamByFieldName(AFieldName: string;
-  out AIDParameter, AIDParentParameter: Integer): Boolean;
+function TParametricExcelTable.GetParamSubParamIDByFieldName(AFieldName:
+    string; AParamSubParamID: Integer): Boolean;
 var
   m: TArray<String>;
 begin
@@ -166,19 +165,17 @@ begin
 
   // Делим имя поля на части
   m := AFieldName.Split(['_']);
-  Result := Length(m) = 3;
+  Result := Length(m) = 2;
 
   if Result then
   begin
-    AIDParameter := m[1].ToInteger;
-    Assert(AIDParameter > 0);
-    AIDParentParameter := m[2].ToInteger;
+    AParamSubParamID := m[1].ToInteger;
+    Assert(AParamSubParamID > 0);
   end
   else
   begin
     Assert(Length(m) = 2);
-    AIDParameter := 0;
-    AIDParentParameter := 0;
+    AParamSubParamID := 0;
   end;
 end;
 

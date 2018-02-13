@@ -139,26 +139,8 @@ end;
 
 procedure TQueryBaseComponents.DoBeforeOpen(Sender: TObject);
 begin
-  // Заполняем код параметра "Производитель"
-  {
-    FDQuery.ParamByName('ProducerParameterID').AsInteger :=
-    TDefaultParameters.ProducerParameterID;
-  }
-  FDQuery.ParamByName('PackagePinsParameterID').AsInteger :=
-    TDefaultParameters.PackagePinsParameterID;
-  {
-    FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
-    TDefaultParameters.DatasheetParameterID;
-
-    FDQuery.ParamByName('DiagramParameterID').AsInteger :=
-    TDefaultParameters.DiagramParameterID;
-
-    FDQuery.ParamByName('DrawingParameterID').AsInteger :=
-    TDefaultParameters.DrawingParameterID;
-
-    FDQuery.ParamByName('ImageParameterID').AsInteger :=
-    TDefaultParameters.ImageParameterID;
-  }
+  FDQuery.ParamByName('PackagePinsParamSubParamID').AsInteger :=
+    TDefaultParameters.PackagePinsParamSubParamID;
 end;
 
 function TQueryBaseComponents.Exists(AMasterID: Integer): Boolean;

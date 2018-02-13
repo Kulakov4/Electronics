@@ -76,12 +76,12 @@ begin
 
   FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
   SetParamType('Value', ptInput, ftWideString);
-  SetParamType('ProducerParameterID');
+  SetParamType('ProducerParamSubParamID');
   SetParamType('Producer', ptInput, ftWideString);
 
   // »щем
-  Result := Search(['Value', 'ProducerParameterID', 'Producer'],
-    [AComponentName, TDefaultParameters.ProducerParameterID, AProducer]);
+  Result := Search(['Value', 'ProducerParamSubParamID', 'Producer'],
+    [AComponentName, TDefaultParameters.ProducerParamSubParamID, AProducer]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchComponentWithProducer
@@ -100,12 +100,12 @@ begin
   ACondition := 'upper(p.Value) = upper(:Value)';
   FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
 
-  SetParamType('ProducerParameterID');
+  SetParamType('ProducerParamSubParamID');
   SetParamType('Value', ptInput, ftWideString);
 
   // »щем
-  Result := Search(['Value', 'ProducerParameterID'],
-    [AComponentName, TDefaultParameters.ProducerParameterID]);
+  Result := Search(['Value', 'ProducerParamSubParamID'],
+    [AComponentName, TDefaultParameters.ProducerParamSubParamID]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchByValueLike(const AComponentNames

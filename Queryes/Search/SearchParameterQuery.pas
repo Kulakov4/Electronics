@@ -16,6 +16,7 @@ type
     procedure FDQueryAfterOpen(DataSet: TDataSet);
   private
     function GetIsCustomParameter: TField;
+    function GetParamSubParamID: TField;
     function GetParentParameter: TField;
     function GetTableName: TField;
     function GetValue: TField;
@@ -30,6 +31,7 @@ type
     procedure SearchMainOrAppend(const ATableName: String; AIsCustomParameter:
         Boolean = False);
     property IsCustomParameter: TField read GetIsCustomParameter;
+    property ParamSubParamID: TField read GetParamSubParamID;
     property ParentParameter: TField read GetParentParameter;
     property TableName: TField read GetTableName;
     property Value: TField read GetValue;
@@ -66,6 +68,11 @@ end;
 function TQuerySearchParameter.GetIsCustomParameter: TField;
 begin
   Result := Field('IsCustomParameter');
+end;
+
+function TQuerySearchParameter.GetParamSubParamID: TField;
+begin
+  Result := Field('ParamSubParamID');
 end;
 
 function TQuerySearchParameter.GetParentParameter: TField;

@@ -15,13 +15,13 @@ type
 
   TDocFilesTable = class(TTableWithProgress)
   private
-    function GetIDParameter: TField;
+    function GetIDParamSubParam: TField;
     function GetFileName: TField;
     function GetRootFolder: TField;
   public
     constructor Create(AOwner: TComponent); override;
     procedure LoadDocFiles(ADocFieldInfos: TList<TDocFieldInfo>);
-    property IDParameter: TField read GetIDParameter;
+    property IDParamSubParam: TField read GetIDParamSubParam;
     property FileName: TField read GetFileName;
     property RootFolder: TField read GetRootFolder;
   end;
@@ -98,17 +98,17 @@ uses cxGridDbBandedTableView, GridViewForm, ProgressBarForm, System.SysUtils,
 class function TAutoBind.AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
   : TDictionary<Integer, TPossibleLinkDocTable>;
 
-  procedure Append(AIDParameter: Integer; const AComponentName: String;
-    const ARange: cardinal);
+  procedure Append(AIDParamSubParam: Integer; const AComponentName: String; const
+      ARange: cardinal);
   begin
-    Assert(AIDParameter > 0);
+    Assert(AIDParamSubParam > 0);
     Assert(not AComponentName.IsEmpty);
 
     // Если такой таблицы в памяти ещё не существовало
-    if not Result.ContainsKey(AIDParameter) then
-      Result.Add(AIDParameter, TPossibleLinkDocTable.Create(nil));
+    if not Result.ContainsKey(AIDParamSubParam) then
+      Result.Add(AIDParamSubParam, TPossibleLinkDocTable.Create(nil));
 
-    with Result[AIDParameter] do
+    with Result[AIDParamSubParam] do
     begin
       Append;
       FileName.AsString := ADocFilesTable.FileName.AsString;
@@ -116,7 +116,6 @@ class function TAutoBind.AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
       ComponentName.AsString := AComponentName;
       Range.AsInteger := ARange;
       Post;
-
     end;
   end;
 
@@ -149,7 +148,7 @@ begin
     // Если файл документации предназначен для одного компонента
     if Length(d) = 1 then
     begin
-      Append(ADocFilesTable.IDParameter.AsInteger, d[0], 1);
+      Append(ADocFilesTable.IDParamSubParam.AsInteger, d[0], 1);
     end
     else
     begin
@@ -167,7 +166,7 @@ begin
         // Цикл по всем номерам компонентов, входящих в диапазон
         for i := R0.Number to R1.Number do
         begin
-          Append(ADocFilesTable.IDParameter.AsInteger,
+          Append(ADocFilesTable.IDParamSubParam.AsInteger,
             Format('%s%d', [R0.Name, i]), R1.Number - R0.Number);
           ADocFilesTable.CallOnProcessEvent;
         end;
@@ -246,7 +245,7 @@ var
   ADocFilesTable: TDocFilesTable;
   AfrmGridView: TfrmGridView;
   AErrorLinkedDocTable: TErrorLinkedDocTable;
-  AIDParameter: Integer;
+  AIDParamSubParam: Integer;
   APossibleLinkDocTables: TDictionary<Integer, TPossibleLinkDocTable>;
   ATableWithProgress: TTableWithProgress;
   OK: Boolean;
@@ -276,9 +275,9 @@ begin
   end;
 
   OK := False;
-  for AIDParameter in APossibleLinkDocTables.Keys do
+  for AIDParamSubParam in APossibleLinkDocTables.Keys do
   begin
-    OK := APossibleLinkDocTables[AIDParameter].RecordCount > 0;
+    OK := APossibleLinkDocTables[AIDParamSubParam].RecordCount > 0;
     if OK then
       break;
   end;
@@ -328,10 +327,10 @@ begin
     TDialog.Create.ComponentsDocFilesNotFound;
   end;
 
-  for AIDParameter in APossibleLinkDocTables.Keys do
+  for AIDParamSubParam in APossibleLinkDocTables.Keys do
   begin
     // Разрушаем таблицу в памяти
-    APossibleLinkDocTables[AIDParameter].Free;
+    APossibleLinkDocTables[AIDParamSubParam].Free;
   end;
   // Разрушаем сам словарь
   FreeAndNil(APossibleLinkDocTables);
@@ -477,7 +476,7 @@ const ANoRange: Boolean): TErrorLinkedDocTable;
 var
   ADocFieldInfo: TDocFieldInfo;
   APossibleLinkDocTable: TPossibleLinkDocTable;
-  ASQL: string;
+//  ASQL: string;
   i: Integer;
   OK: Boolean;
   Q: TQuerySearchProductParameterValues;
@@ -508,10 +507,10 @@ begin
           .AsString.IsEmpty) then
         begin
           // Если для этого параметра существует таблица с возможными файлами
-          if APossibleLinkDocTables.ContainsKey(ADocFieldInfo.IDParameter) then
+          if APossibleLinkDocTables.ContainsKey(ADocFieldInfo.IDParamSubParam) then
           begin
             APossibleLinkDocTable := APossibleLinkDocTables
-              [ADocFieldInfo.IDParameter];
+              [ADocFieldInfo.IDParamSubParam];
             // Ищем есть ли для этого компонента подходящие файлы подходящего типа
             APossibleLinkDocTable.Filter :=
               Format('%s = %s', [APossibleLinkDocTable.ComponentName.FieldName,
@@ -551,16 +550,20 @@ begin
                     (APossibleLinkDocTable.FileName.AsString,
                     APossibleLinkDocTable.RootFolder.AsString);
 
-                  if Q.Search(ADocFieldInfo.IDParameter,
+                  if Q.Search(ADocFieldInfo.IDParamSubParam,
                     AComponentsDataSet.FieldByName('ID').AsInteger) = 0 then
                   begin
-                    ASQL := 'INSERT INTO ParameterValues' +
-                      '(ParameterID, Value, ProductID) ' +
+                    // А ТАК МОЖНО????
+                    Q.AppendValue(S);
+                  {
+                    ASQL := 'INSERT INTO ParameterValues2' +
+                      '(ParamSubParamID, Value, ProductID) ' +
                       Format('Values (%d, ''%s'', %d)',
-                      [ADocFieldInfo.IDParameter, S,
+                      [ADocFieldInfo.IDParamSubParam, S,
                       AComponentsDataSet.FieldByName('ID').AsInteger]);
 
                     AConnection.ExecSQL(ASQL);
+                    }
                     Inc(i);
                   end;
 
@@ -660,16 +663,16 @@ begin
   inherited;
   FieldDefs.Add('FileName', ftWideString, 1000);
   FieldDefs.Add('RootFolder', ftWideString, 500);
-  FieldDefs.Add('IDParameter', ftInteger);
+  FieldDefs.Add('IDParamSubParam', ftInteger);
 
   CreateDataSet;
 
   Open;
 end;
 
-function TDocFilesTable.GetIDParameter: TField;
+function TDocFilesTable.GetIDParamSubParam: TField;
 begin
-  Result := FieldByName('IDParameter');
+  Result := FieldByName('IDParamSubParam');
 end;
 
 function TDocFilesTable.GetFileName: TField;
@@ -701,7 +704,7 @@ procedure TDocFilesTable.LoadDocFiles(ADocFieldInfos: TList<TDocFieldInfo>);
         Append;
         RootFolder.AsString := ADocFieldInfo.Folder;
         FileName.AsString := S;
-        IDParameter.AsInteger := ADocFieldInfo.IDParameter;
+        IDParamSubParam.AsInteger := ADocFieldInfo.IDParamSubParam;
         Post;
       end;
     end;

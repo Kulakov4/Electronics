@@ -99,10 +99,10 @@ type
     FLockDetailFilterChange: Boolean;
     FMark: string;
     procedure CreateColumn(AView: TcxGridDBBandedTableView;
-      AIDParameter: Integer; const ABandCaption, AColumnCaption,
-      AFieldName: String; AVisible: Boolean; const ABandHint: string;
-      ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID: Integer;
-      const AColumnHint: String);
+      AIDBand, AIDParameter: Integer; AIsDefault: Boolean;
+      const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
+      const ABandHint: string; ACategoryParamID, AOrder, APosID,
+      AIDParameterKind, AColumnID: Integer; const AColumnHint: String);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure DoAfterLoad(Sender: TObject);
@@ -185,12 +185,12 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, ParametersForCategoryQuery, System.StrUtils,
-  RepositoryDataModule, cxFilterConsts, cxGridDBDataDefinitions, StrHelper,
-  ParameterValuesUnit, ProjectConst, ParametersForProductQuery,
-  SearchParametersForCategoryQuery, GridExtension, DragHelper, System.Math,
-  AnalogForm, AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery,
-  NaturalSort, CategoryParametersGroupUnit, FireDAC.Comp.Client;
+uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
+  cxGridDBDataDefinitions, StrHelper, ParameterValuesUnit, ProjectConst,
+  ParametersForProductQuery, SearchParametersForCategoryQuery, GridExtension,
+  DragHelper, System.Math, AnalogForm, AnalogQueryes, AnalogGridView,
+  SearchProductByParamValuesQuery, NaturalSort, CategoryParametersGroupUnit,
+  FireDAC.Comp.Client;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -401,7 +401,7 @@ begin
             Assert(FocusedTableView.Level = cxGridLevel2);
             // Пустое значение у компонента - берем значение из семейства
             // Ищем бэнд у семейства
-            ABI := FBandsInfo.Search(MainView, ABI.ParameterID);
+            ABI := FBandsInfo.Search(MainView, ABI.BandID);
             Assert(ABI <> nil);
             ABand := ABI.Band;
             Assert(ABand.ColumnCount >= P);
@@ -731,9 +731,10 @@ begin
 end;
 
 procedure TViewParametricTable.CreateColumn(AView: TcxGridDBBandedTableView;
-  AIDParameter: Integer; const ABandCaption, AColumnCaption, AFieldName: String;
-  AVisible: Boolean; const ABandHint: string; ACategoryParamID, AOrder, APosID,
-  AIDParameterKind, AColumnID: Integer; const AColumnHint: String);
+  AIDBand, AIDParameter: Integer; AIsDefault: Boolean;
+  const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
+  const ABandHint: string; ACategoryParamID, AOrder, APosID, AIDParameterKind,
+  AColumnID: Integer; const AColumnHint: String);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -741,7 +742,7 @@ var
   NeedInitialize: Boolean;
 begin
   // Поиск среди ранее созданных бэндов
-  ABandInfo := FBandsInfo.Search(AView, AIDParameter);
+  ABandInfo := FBandsInfo.Search(AView, AIDBand, AIDParameter, AIsDefault);
 
   // Нужна ли инициализация бэнда
   NeedInitialize := (ABandInfo = nil) or
@@ -753,7 +754,7 @@ begin
     // Создаём новый бэнд
     ABand := AView.Bands.Add;
     // Добавляем его в описание
-    ABandInfo := TBandInfo.Create(ABand, AIDParameter);
+    ABandInfo := TBandInfo.Create(ABand, AIDBand);
     FBandsInfo.Add(ABandInfo);
   end;
   Assert(ABandInfo <> nil);
@@ -762,6 +763,10 @@ begin
   // Инициализируем бэнд
   if NeedInitialize then
   begin
+    ABandInfo.BandID := AIDBand; // Идентификатор бэнда
+    ABandInfo.IsDefault := AIsDefault;
+    // Связан ли он с подпараметром по умолчанию
+    ABandInfo.ParameterID := AIDParameter; // Параметр, с которым связан бэнд
     ABandInfo.CategoryParamID := ACategoryParamID;
     ABandInfo.DefaultVisible := AVisible;
     ABandInfo.IDParameterKind := AIDParameterKind;
@@ -783,7 +788,7 @@ begin
     AColumn := AView.CreateColumn;
     AColumn.Position.BandIndex := ABand.Index;
     AColumn.MinWidth := 40;
-    AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
+    // AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.HeaderAlignmentHorz := taCenter;
     AColumn.AlternateCaption := AColumnHint;
     AColumn.Tag := AColumnID;
@@ -850,7 +855,7 @@ begin
 
   // Ищем соответствующий дочерний бэнд
   ADaughterBandInfo := FBandsInfo.Search(GridView(cxGridLevel2),
-    ABandInfo.ParameterID);
+    ABandInfo.BandID);
   Assert(ADaughterBandInfo <> nil);
   // Меняем позицию дочернего бэнда
   ADaughterBandInfo.Band.Position.ColIndex := ABand.Position.ColIndex;
@@ -1108,22 +1113,23 @@ var
   AColumnID: Integer;
   AFieldName: String;
   AIDBand: Integer;
+  AIDParameter: Integer;
   AIDParameterKind: Integer;
+  AIsDefault: Boolean;
   AOrder: Integer;
   AParamSubParamId: Integer;
   APosID: Integer;
-  // qParametersForCategory: TQueryParametersForCategory;
   qCategoryParameters: TQueryCategoryParameters2;
   qCatParams: TQryCategoryParameters;
-  // qCatSubParams: TQryCategorySubParameters;
   AVisible: Boolean;
 begin
   FreeAndNil(FColumnsBarButtons);
 
+  ComponentsExGroup.CatParamsGroup.LoadData;
   qCategoryParameters := ComponentsExGroup.CatParamsGroup.qCategoryParameters;
-
-  // qParametersForCategory := ComponentsExGroup.qParametersForCategory;
-
+  qCatParams := ComponentsExGroup.CatParamsGroup.qCatParams;
+  Assert(qCatParams.RecordCount > 0);
+  qCatParams.First;
   cxGrid.BeginUpdate();
   try
     // Сначала удаляем ранее добавленные колонки
@@ -1131,15 +1137,6 @@ begin
     // Потом удаляем ранее добавленные бэнды
     DeleteBands;
 
-    // qParametersForCategory.Load(ComponentsExGroup.qComponentsEx.ParentValue);
-
-    // qParametersForCategory.FDQuery.First;
-
-    ComponentsExGroup.CatParamsGroup.LoadData;
-    qCatParams := ComponentsExGroup.CatParamsGroup.qCatParams;
-
-    Assert(qCatParams.RecordCount > 0);
-    qCatParams.First;
     // Цикл по бэндам (параметрам)
     while not qCatParams.Eof do
     begin
@@ -1179,17 +1176,23 @@ begin
             (qCategoryParameters.IDParameterKind.FieldName).AsInteger;
           // Идентификатор бэнда
           AIDBand := qCatParams.ID.AsInteger;
+          AIDParameter := AClone.FieldByName
+            (qCategoryParameters.IDParameter.FieldName).AsInteger;
+          AIsDefault := AClone.FieldByName
+            (qCategoryParameters.IsDefault.FieldName).AsInteger = 1;
           AColumnID := AParamSubParamId;
 
           // Создаём колонку в главном представлении
-          CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption,
-            AFieldName, AVisible, ABandHint, ACategoryParamID, AOrder, APosID,
-            AIDParameterKind, AColumnID, AColumnHint);
+          CreateColumn(MainView, AIDBand, AIDParameter, AIsDefault,
+            ABandCaption, AColumnCaption, AFieldName, AVisible, ABandHint,
+            ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID,
+            AColumnHint);
 
           // Создаём колонку в дочернем представлении
-          CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-            AColumnCaption, AFieldName, AVisible, ABandHint, ACategoryParamID,
-            AOrder, APosID, AIDParameterKind, AColumnID, AColumnHint);
+          CreateColumn(GridView(cxGridLevel2), AIDBand, AIDParameter,
+            AIsDefault, ABandCaption, AColumnCaption, AFieldName, AVisible,
+            ABandHint, ACategoryParamID, AOrder, APosID, AIDParameterKind,
+            AColumnID, AColumnHint);
 
           AClone.Next;
         end;
@@ -1197,49 +1200,6 @@ begin
         qCategoryParameters.DropClone(AClone);
       end;
       qCatParams.Next;
-      {
-        // Вот тут странная ошибка может произойти - пустой порядок
-        if qParametersForCategory.Ord.IsNull then
-        begin
-        qParametersForCategory.FDQuery.Next;
-        Continue;
-        end;
-
-        Assert(not qParametersForCategory.Ord.IsNull);
-
-        AOrder := qParametersForCategory.Ord.AsInteger;
-        APosID := qParametersForCategory.PosID.AsInteger;
-        // Как искать аналог для этого параметра
-        AIDParameterKind := qParametersForCategory.IDParameterKind.AsInteger;
-        // Идентификатор параметра или подпараметра
-        AColumnID := qParametersForCategory.ParameterID.AsInteger;
-
-        // Если это родительский параметр
-        if qParametersForCategory.ParentParameter.IsNull then
-        begin
-        AIDBand := AColumnID;
-        ABandCaption := ACaption;
-        AColumnCaption := ' ';
-        end
-        else
-        begin
-        AIDBand := qParametersForCategory.ParentParameter.AsInteger;
-        ABandCaption := qParametersForCategory.ParentCaption.AsString;
-        AColumnCaption := ACaption;
-        end;
-
-        // Создаём колонку в главном представлении
-        CreateColumn(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, ABandHint, ACategoryParamID, AOrder, APosID, AIDParameterKind,
-        AColumnID, AColumnHint);
-
-        // Создаём колонку в дочернем представлении
-        CreateColumn(GridView(cxGridLevel2), AIDBand, ABandCaption,
-        AColumnCaption, AFieldName, AVisible, ABandHint, ACategoryParamID,
-        AOrder, APosID, AIDParameterKind, AColumnID, AColumnHint);
-
-        qParametersForCategory.FDQuery.Next;
-      }
     end;
 
     // запоминаем в какой позиции находится наш бэнд
@@ -1399,8 +1359,9 @@ begin
     Assert(AColumn.Position.Band <> nil);
     Assert(AColumn.Position.Band.ColumnCount = 1);
 
+    // Надо найти виртуальный идентификатор бэнда
     // Помечаем, что бэнд этой колонки принадлежит параметру
-    ABandInfo := TBandInfo.Create(AColumn.Position.Band, AIDParameter);
+    ABandInfo := TBandInfo.Create(AColumn.Position.Band, AIDParameter, True);
     // Помечаем что бэнд этой колонки существует "по умолчанию"
     ABandInfo.DefaultCreated := True;
     FBandsInfo.Add(ABandInfo);

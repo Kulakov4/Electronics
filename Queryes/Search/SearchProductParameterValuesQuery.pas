@@ -15,16 +15,16 @@ type
   private
     function GetValue: TField;
     function GetProductID: TField;
-    function GetParameterID: TField;
+    function GetParamSubParamID: TField;
     { Private declarations }
   protected
   public
     procedure AppendValue(AValue: Variant);
     procedure EditValue(AValue: Variant);
-    function Search(AIDParameter, AIDProduct: Integer): Integer; overload;
+    function Search(AParamSubParamID, AIDProduct: Integer): Integer; overload;
     property Value: TField read GetValue;
     property ProductID: TField read GetProductID;
-    property ParameterID: TField read GetParameterID;
+    property ParamSubParamID: TField read GetParamSubParamID;
     { Public declarations }
   end;
 
@@ -35,9 +35,11 @@ implementation
 procedure TQuerySearchProductParameterValues.AppendValue(AValue: Variant);
 begin
   Assert(not VarIsNull(AValue));
+  Assert(FDQuery.ParamByName('ParamSubParamID').AsInteger > 0);
+  Assert(FDQuery.ParamByName('ProductID').AsInteger > 0);
 
   FDQuery.Append;
-  ParameterID.Value := FDQuery.ParamByName('ParameterId').Value;
+  ParamSubParamID.Value := FDQuery.ParamByName('ParamSubParamID').Value;
   ProductID.Value := FDQuery.ParamByName('ProductID').Value;
   Value.Value := AValue;
   FDQuery.Post;
@@ -71,18 +73,18 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQuerySearchProductParameterValues.GetParameterID: TField;
+function TQuerySearchProductParameterValues.GetParamSubParamID: TField;
 begin
-  Result := Field('ParameterID');
+  Result := Field('ParamSubParamID');
 end;
 
-function TQuerySearchProductParameterValues.Search(AIDParameter,
-  AIDProduct: Integer): Integer;
+function TQuerySearchProductParameterValues.Search(AParamSubParamID,
+    AIDProduct: Integer): Integer;
 begin
-  Assert(AIDParameter > 0);
+  Assert(AParamSubParamID > 0);
   Assert(AIDProduct > 0);
 
-  Result := Search(['ParameterId', 'ProductID'], [AIDParameter, AIDProduct]);
+  Result := Search(['ParamSubParamId', 'ProductID'], [AParamSubParamID, AIDProduct]);
 end;
 
 end.

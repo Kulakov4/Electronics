@@ -89,21 +89,22 @@ begin
 
   FDQuery.SQL.Text := S;
   SetParamType('ID');
-  SetParamType('ProducerParameterID');
-  SetParamType('PackagePinsParameterID');
-  SetParamType('DatasheetParameterID');
-  SetParamType('DiagramParameterID');
-  SetParamType('DrawingParameterID');
-  SetParamType('ImageParameterID');
+  SetParamType('ProducerParamSubParamID');
+  SetParamType('PackagePinsParamSubParamID');
+  SetParamType('DatasheetParamSubParamID');
+  SetParamType('DiagramParamSubParamID');
+  SetParamType('DrawingParamSubParamID');
+  SetParamType('ImageParamSubParamID');
 
-  Result := Search(['ID', 'ProducerParameterID', 'PackagePinsParameterID',
-    'DatasheetParameterID', 'DiagramParameterID', 'DrawingParameterID',
-    'ImageParameterID'], [AIDComponent, TDefaultParameters.ProducerParameterID,
-    TDefaultParameters.PackagePinsParameterID,
-    TDefaultParameters.DatasheetParameterID,
-    TDefaultParameters.DiagramParameterID,
-    TDefaultParameters.DrawingParameterID, TDefaultParameters.ImageParameterID],
-    TestResult);
+  Result := Search(['ID', 'ProducerParamSubParamID',
+    'PackagePinsParamSubParamID', 'DatasheetParamSubParamID',
+    'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParameterID'],
+    [AIDComponent, TDefaultParameters.ProducerParamSubParamID,
+    TDefaultParameters.PackagePinsParamSubParamID,
+    TDefaultParameters.DatasheetParamSubParamID,
+    TDefaultParameters.DiagramParamSubParamID,
+    TDefaultParameters.DrawingParamSubParamID,
+    TDefaultParameters.ImageParamSubParamID], TestResult);
 end;
 
 function TQuerySearchFamily.SearchByValue(const AValue: string): Integer;
@@ -120,21 +121,22 @@ begin
 
   FDQuery.SQL.Text := S;
   SetParamType('Value', ptInput, ftWideString);
-  SetParamType('ProducerParameterID');
-  SetParamType('PackagePinsParameterID');
-  SetParamType('DatasheetParameterID');
-  SetParamType('DiagramParameterID');
-  SetParamType('DrawingParameterID');
-  SetParamType('ImageParameterID');
+  SetParamType('ProducerParamSubParamID');
+  SetParamType('PackagePinsParamSubParamID');
+  SetParamType('DatasheetParamSubParamID');
+  SetParamType('DiagramParamSubParamID');
+  SetParamType('DrawingParamSubParamID');
+  SetParamType('ImageParamSubParamID');
 
-  Result := Search(['Value', 'ProducerParameterID', 'PackagePinsParameterID',
-    'DatasheetParameterID', 'DiagramParameterID', 'DrawingParameterID',
-    'ImageParameterID'], [AValue, TDefaultParameters.ProducerParameterID,
-    TDefaultParameters.PackagePinsParameterID,
-    TDefaultParameters.DatasheetParameterID,
-    TDefaultParameters.DiagramParameterID,
-    TDefaultParameters.DrawingParameterID,
-    TDefaultParameters.ImageParameterID]);
+  Result := Search(['Value', 'ProducerParamSubParamID',
+    'PackagePinsParamSubParamID', 'DatasheetParamSubParamID',
+    'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParamSubParamID'],
+    [AValue, TDefaultParameters.ProducerParamSubParamID,
+    TDefaultParameters.PackagePinsParamSubParamID,
+    TDefaultParameters.DatasheetParamSubParamID,
+    TDefaultParameters.DiagramParamSubParamID,
+    TDefaultParameters.DrawingParamSubParamID,
+    TDefaultParameters.ImageParamSubParamID]);
 end;
 
 function TQuerySearchFamily.SearchByValueSimple(const AValue: string): Integer;

@@ -10,8 +10,12 @@ inherited QuerySearchParameter: TQuerySearchParameter
     AfterOpen = FDQueryAfterOpen
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
-      'select *'
-      'from Parameters'
+      'select p.*, psp.id ParamSubParamID '
+      'from Parameters p'
+      'join ParamSubParams psp on psp.IdParameter = p.Id'
+      
+        'join SubParameters sp on psp.IdSubParameter = sp.id and sp.IsDef' +
+        'ault = 1'
       'where 0=0')
   end
   object FDUpdateSQL: TFDUpdateSQL

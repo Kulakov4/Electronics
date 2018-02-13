@@ -7,11 +7,13 @@ inherited QuerySearchProductParameterValues: TQuerySearchProductParameterValues
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from ParameterValues'
-      'where ParameterId = :ParameterID and ProductID = :ProductID')
+      'from ParameterValues2'
+      
+        'where ParamSubParamID = :ParamSubParamID and ProductID = :Produc' +
+        'tID')
     ParamData = <
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

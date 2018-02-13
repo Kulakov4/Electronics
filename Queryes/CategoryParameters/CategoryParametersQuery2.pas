@@ -76,6 +76,7 @@ type
     procedure LocateDefault(AIDParameter: Integer; TestResult: Boolean = False);
     procedure Move(AData: TArray < TPair < Integer, Integer >> );
     function NextOrder: Integer;
+    function SearchAnalog(AProductCategoryID: Integer): Integer;
     procedure SetPos(APosID: Integer); overload;
     procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
     property CategoryID: TField read GetCategoryID;
@@ -104,7 +105,7 @@ type
 implementation
 
 uses
-  MaxCategoryParameterOrderQuery, System.StrUtils;
+  MaxCategoryParameterOrderQuery, System.StrUtils, StrHelper, ParameterKindEnum;
 
 {$R *.dfm}
 
@@ -593,6 +594,20 @@ begin
     FMaxOrder := TQueryMaxCategoryParameterOrder.Max_Order;
   Inc(FMaxOrder);
   Result := FMaxOrder;
+end;
+
+function TQueryCategoryParameters2.SearchAnalog(AProductCategoryID: Integer):
+    Integer;
+begin
+  Assert(AProductCategoryID > 0);
+
+  // Добавляем в запрос условие
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+    Format('and (ifnull(p.IDParameterKind, pp.IDParameterKind) <> %d)',
+    [Integer(Неиспользуется)]), 'and 0=0');
+
+  // Ищем
+  Result := Search(['ProductCategoryID'], [AProductCategoryID]);
 end;
 
 procedure TQueryCategoryParameters2.SetPos(APosID: Integer);

@@ -24,13 +24,12 @@ uses
   MaxCategoryParameterOrderQuery, IDTempTableQuery, UpdateParamValueRec,
   SearchFamilyParamValuesQuery;
 
+// Добавляет параметры на вкладку параметры
 class procedure TParameterValues.LoadParameters(AExcelTable
   : TParametricExcelTable);
 var
   AFieldInfo: TFieldInfo;
-  AIDP: Integer;
-  AIDParameter: Integer;
-  AIDParentParameter: Integer;
+  AParamSubParamID: Integer;
   AOrder: Integer;
   ATempTable: TQueryIDTempTable;
   AParamOrders: TDictionary<Integer, Integer>;
@@ -61,31 +60,27 @@ begin
       API.ProcessRecords := i;
       AExcelTable.OnProgress.CallEventHandlers(API);
 
-      if not AExcelTable.GetIDParamByFieldName(AFieldInfo.FieldName,
-        AIDParameter, AIDParentParameter) then
+      // Если этому полю не соответствует связка параметра с подпараметром
+      if not AExcelTable.GetParamSubParamIDByFieldName(AFieldInfo.FieldName,
+        AParamSubParamID) then
         continue;
 
       // Берём либо сам параметр, либо родительский
-      AIDP := IfThen(AIDParentParameter > 0, AIDParentParameter, AIDParameter);
+      // AIDP := IfThen(AIDParentParameter > 0, AIDParentParameter, AParamSubParamID);
 
       // Если такой параметр уже добавляли
-      if AParamOrders.ContainsKey(AIDP) then
-        AOrder := AParamOrders[AIDP]
+      if AParamOrders.ContainsKey(AParamSubParamID) then
+        AOrder := AParamOrders[AParamSubParamID]
       else
       begin
-        Inc(AOrder); // Новый порядковый номер нашего параметра
-        AParamOrders.Add(AIDP, AOrder);
+        Inc(AOrder);
+        // Новый порядковый номер нашей связи между параметром и подпараметром
+        AParamOrders.Add(AParamSubParamID, AOrder);
       end;
 
-      // Добавляем этот параметр во все категории наших компонентов
+      // Добавляем эту связь между параметром и подпараметром во все категории наших компонентов
       AQueryParametersForProduct.LoadAndProcess(ATempTable.TableName,
-        AIDP, AOrder);
-
-      // Для дочернего параметра добавляем его тоже во все категории наших компонентов
-      if AIDParameter <> AIDP then
-        AQueryParametersForProduct.LoadAndProcess(ATempTable.TableName,
-          AIDParameter, 0);
-
+        AParamSubParamID, AOrder);
     end;
   finally
     FreeAndNil(ATempTable);
@@ -100,13 +95,12 @@ var
   a: TArray<String>;
   AFieldInfo: TFieldInfo;
   AIDComponent: Integer;
-  AIDComponents: TList<Integer>;
-  AIDParameter: Integer;
+  AParamSubParamID: Integer;
   AIDParentParameter: Integer;
   AQueryParametersForProduct: TQueryParametersForProduct;
   AQueryParametersValue: TQueryParametersValue;
-  AUpdParamList: TUpdParamList;
-  AUpdParam: TUpdParam;
+  AUpdParamSubParamList: TUpdParamSubParamList;
+  AUpdPSP: TUpdParamSubParam;
   AValue: String;
   Q: TQueryFamilyParamValues;
   S: string;
@@ -120,8 +114,7 @@ begin
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AQueryParametersValue := TQueryParametersValue.Create(nil);
 
-  AUpdParamList := TUpdParamList.Create;
-  AIDComponents := TList<Integer>.Create;
+  AUpdParamSubParamList := TUpdParamSubParamList.Create;
   try
     AExcelTable.DisableControls;
     try
@@ -136,8 +129,9 @@ begin
         begin
           AExcelTable.CallOnProcessEvent;
 
-          if not AExcelTable.GetIDParamByFieldName(AFieldInfo.FieldName,
-            AIDParameter, AIDParentParameter) then
+          // Если этому полю не соответствует связка параметра с подпараметром
+          if not AExcelTable.GetParamSubParamIDByFieldName(AFieldInfo.FieldName,
+            AParamSubParamID) then
             continue;
 
           AExcelTable.CallOnProcessEvent;
@@ -156,33 +150,28 @@ begin
             if AValue.IsEmpty then
               continue;
 
-            AIDComponents.Clear;
-            AIDComponents.Add(AExcelTable.IDComponent.AsInteger);
-
             // Если загружаем значение для компонента
             if AExcelTable.IDParentComponent.AsInteger > 0 then
             begin
-              if AUpdParamList.Search(AExcelTable.IDParentComponent.AsInteger,
-                AIDParameter) = -1 then
+              if AUpdParamSubParamList.Search
+                (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID) = -1
+              then
               begin
-                AUpdParamList.Add
-                  (TUpdParam.Create(AExcelTable.IDParentComponent.AsInteger,
-                  AIDParameter));
+                AUpdParamSubParamList.Add
+                  (TUpdParamSubParam.Create
+                  (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID));
               end;
             end;
-            // AIDComponents.Add(AExcelTable.IDParentComponent.AsInteger);
 
-            // Цикл по дочернему и родительскому компоненту
-            for AIDComponent in AIDComponents do
-            begin
-              AExcelTable.CallOnProcessEvent;
+            AIDComponent := AExcelTable.IDComponent.AsInteger;
 
-              // Добавляем значение в таблицу значений параметра
-              AQueryParametersValue.Load(AIDComponent, AIDParameter);
-              AExcelTable.CallOnProcessEvent;
-              AQueryParametersValue.LocateOrAppend(AValue);
-              AExcelTable.CallOnProcessEvent;
-            end;
+            // Ищем все значения для какой либо связки параметра с подпараметром
+            AQueryParametersValue.Load(AIDComponent, AParamSubParamID);
+            AExcelTable.CallOnProcessEvent;
+
+            // Добавляем значение в таблицу значений связки параметра с подпараметром
+            AQueryParametersValue.LocateOrAppend(AValue);
+            AExcelTable.CallOnProcessEvent;
           end;
         end;
         AExcelTable.Next;
@@ -192,20 +181,19 @@ begin
       AExcelTable.EnableControls;
     end;
 
+    // Единственное значение выносим я ячейку семейства
     Q := TQueryFamilyParamValues.Create(nil);
     try
-
-      for AUpdParam in AUpdParamList do
+      for AUpdPSP in AUpdParamSubParamList do
       begin
         // Если найдено единственное значение
-        if Q.SearchEx(AUpdParam.FamilyID, AUpdParam.ParameterID) = 1 then
+        if Q.SearchEx(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID) = 1 then
         begin
           // Добавляем значение параметра для семейства
-          AQueryParametersValue.Load(AUpdParam.FamilyID, AUpdParam.ParameterID);
+          AQueryParametersValue.Load(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
           AQueryParametersValue.LocateOrAppend(Q.Value.AsString);
         end;
       end;
-
     finally
       FreeAndNil(Q);
     end;
@@ -213,8 +201,7 @@ begin
   finally
     FreeAndNil(AQueryParametersForProduct);
     FreeAndNil(AQueryParametersValue);
-    FreeAndNil(AIDComponents);
-    FreeAndNil(AUpdParamList);
+    FreeAndNil(AUpdParamSubParamList);
   end;
 end;
 

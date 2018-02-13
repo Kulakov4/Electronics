@@ -37,23 +37,23 @@ inherited QuerySearchFamily: TQuerySearchFamily
       'JOIN ProductCategories pc ON pc.Id = ppc2.ProductCategoryId'
       '/* ParametersValues'
       
-        'left join ParameterValues pv on pv.ProductID = p.Id and pv.Param' +
-        'eterId = :ProducerParameterID'
+        'left join ParameterValues2 pv on pv.ProductID = p.Id and pv.Para' +
+        'mSubParamId = :ProducerParamSubParamID'
       
-        'left join ParameterValues pv2 on pv2.ProductID = p.Id and pv2.Pa' +
-        'rameterId = :PackagePinsParameterID'
+        'left join ParameterValues2 pv2 on pv2.ProductID = p.Id and pv2.P' +
+        'aramSubParamId = :PackagePinsParamSubParamID'
       
-        'left join ParameterValues pv3 on pv3.ProductID = p.Id and pv3.Pa' +
-        'rameterId = :DatasheetParameterID'
+        'left join ParameterValues2 pv3 on pv3.ProductID = p.Id and pv3.P' +
+        'aramSubParamId = :DatasheetParamSubParamID'
       
-        'left join ParameterValues pv4 on pv4.ProductID = p.Id and pv4.Pa' +
-        'rameterId = :DiagramParameterID'
+        'left join ParameterValues2 pv4 on pv4.ProductID = p.Id and pv4.P' +
+        'aramSubParamId = :DiagramParamSubParamID'
       
-        'left join ParameterValues pv5 on pv5.ProductID = p.Id and pv5.Pa' +
-        'rameterId = :DrawingParameterID'
+        'left join ParameterValues2 pv5 on pv5.ProductID = p.Id and pv5.P' +
+        'aramSubParamId = :DrawingParamSubParamID'
       
-        'left join ParameterValues pv6 on pv6.ProductID = p.Id and pv6.Pa' +
-        'rameterId = :ImageParameterID'
+        'left join ParameterValues2 pv6 on pv6.ProductID = p.Id and pv6.P' +
+        'aramSubParamId = :ImageParamSubParamID'
       'ParametersValues */'
       '/* Description'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'

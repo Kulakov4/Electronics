@@ -6,12 +6,11 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, FamilyExQuery,
-  ParametersForCategoryQuery, ProductParametersQuery, Data.DB,
-  FireDAC.Stan.Option, FireDAC.Comp.DataSet, CustomComponentsQuery,
-  System.Contnrs, System.Generics.Collections, QueryWithDataSourceUnit,
-  BaseQuery, BaseEventsQuery, QueryWithMasterUnit, FamilyQuery, BaseFamilyQuery,
-  BaseComponentsQuery, ComponentsQuery, ComponentsExQuery,
-  BaseComponentsGroupUnit, NotifyEvents, UpdateParamValueRec,
+  ProductParametersQuery, Data.DB, FireDAC.Stan.Option, FireDAC.Comp.DataSet,
+  CustomComponentsQuery, System.Contnrs, System.Generics.Collections,
+  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
+  FamilyQuery, BaseFamilyQuery, BaseComponentsQuery, ComponentsQuery,
+  ComponentsExQuery, BaseComponentsGroupUnit, NotifyEvents, UpdateParamValueRec,
   CategoryParametersGroupUnit;
 
 type
@@ -27,7 +26,6 @@ type
     FMark: string;
     FAllParameterFields: TDictionary<Integer, String>;
     FCatParamsGroup: TCategoryParametersGroup;
-    FFamilyIDList: TUpdParamList;
     FOnParamOrderChange: TNotifyEventsEx;
     FqProductParameters: TQueryProductParameters;
   const
@@ -38,7 +36,6 @@ type
       AFamily: Boolean);
     procedure DoOnApplyUpdateComponent(Sender: TObject);
     procedure DoOnApplyUpdateFamily(Sender: TObject);
-    function GetFamilyIDList: TUpdParamList;
     function GetFieldName(AIDParameter: Integer): String;
     function GetqProductParameters: TQueryProductParameters;
     procedure UpdateParameterValue(AComponentID: Integer; const AParamSubParamID:
@@ -51,7 +48,6 @@ type
   protected
     // TODO: ClearUpdateCount
     procedure LoadParameterValues;
-    property FamilyIDList: TUpdParamList read GetFamilyIDList;
     property qProductParameters: TQueryProductParameters read GetqProductParameters;
   public
     constructor Create(AOwner: TComponent); override;
@@ -60,7 +56,6 @@ type
     procedure DecClient;
     function GetIDParameter(const AFieldName: String): Integer;
     procedure TryRefresh;
-    procedure UpdateFamilyParameterValues;
     property Mark: string read FMark;
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
@@ -103,9 +98,6 @@ end;
 
 destructor TComponentsExGroup.Destroy;
 begin
-  if FFamilyIDList <> nil then
-    FreeAndNil(FFamilyIDList);
-
   FreeAndNil(FAllParameterFields);
   FreeAndNil(FApplyUpdateEvents);
   inherited;
@@ -322,14 +314,6 @@ begin
   ApplyUpdate(Sender as TQueryCustomComponents, True);
 end;
 
-function TComponentsExGroup.GetFamilyIDList: TUpdParamList;
-begin
-  if FFamilyIDList = nil then
-    FFamilyIDList := TUpdParamList.Create;
-
-  Result := FFamilyIDList;
-end;
-
 procedure TComponentsExGroup.OnFDQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
@@ -447,32 +431,6 @@ begin
   // ќбновл€ем если они не заблокированы
   qComponentsEx.TryRefresh;
   qFamilyEx.TryRefresh;
-end;
-
-procedure TComponentsExGroup.UpdateFamilyParameterValues;
-var
-  AUpdParam: TUpdParam;
-  Q: TQueryFamilyParamValues;
-begin
-  if (FFamilyIDList = nil) or (FamilyIDList.Count = 0) then
-    Exit;
-
-  Q := TQueryFamilyParamValues.Create(Self);
-  try
-
-    for AUpdParam in FFamilyIDList do
-    begin
-      // ≈сли найдено единственное значение
-      if Q.SearchEx(AUpdParam.FamilyID, AUpdParam.ParameterID) = 1 then
-      begin
-        UpdateParameterValue(AUpdParam.FamilyID, AUpdParam.ParameterID,
-          Q.Value.AsString)
-      end;
-    end;
-
-  finally
-    FreeAndNil(Q);
-  end;
 end;
 
 procedure TComponentsExGroup.UpdateParameterValue(AComponentID: Integer; const

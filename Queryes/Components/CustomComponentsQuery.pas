@@ -45,9 +45,8 @@ type
   protected
     FRecordHolder: TRecordHolder;
     procedure InitParameterFields; virtual;
-    procedure ProcessParamValue(AIDComponent: Integer;
-      AIDProductParameterValue: TField; const AValue: Variant;
-      AIDParameter: Integer);
+    procedure ProcessParamValue(AIDComponent: Integer; AIDProductParameterValue:
+        TField; const AValue: Variant; AParamSubParamID: Integer);
     procedure UpdateParamValue(const AProductIDFieldName: string;
       ASender: TDataSet);
     property QuerySearchProductParameterValues
@@ -286,40 +285,40 @@ begin
     Exit;
 
   // Поле Producer (производитель)
-  FParameterFields.Add(TDefaultParameters.ProducerParameterID, 'Producer');
+  FParameterFields.Add(TDefaultParameters.ProducerParamSubParamID, 'Producer');
 
   // Поле Package/Pins (Корпус/Кол-во выводов)
   // FParameterFields.Add(TDefaultParameters.PackagePinsParameterID, 'PackagePins');
 
   // Поле Datasheet (техническая спецификация)
-  FParameterFields.Add(TDefaultParameters.DatasheetParameterID, 'Datasheet');
+  FParameterFields.Add(TDefaultParameters.DatasheetParamSubParamID, 'Datasheet');
 
   // Поле Diagram (структурная схема)
-  FParameterFields.Add(TDefaultParameters.DiagramParameterID, 'Diagram');
+  FParameterFields.Add(TDefaultParameters.DiagramParamSubParamID, 'Diagram');
 
   // Поле Drawing (чертёж)
-  FParameterFields.Add(TDefaultParameters.DrawingParameterID, 'Drawing');
+  FParameterFields.Add(TDefaultParameters.DrawingParamSubParamID, 'Drawing');
 
   // Поле Image (изображение)
-  FParameterFields.Add(TDefaultParameters.ImageParameterID, 'Image');
+  FParameterFields.Add(TDefaultParameters.ImageParamSubParamID, 'Image');
 
   // Поле Description (описание)
-  FParameterFields.Add(TDefaultParameters.DescriptionParameterID,
+  FParameterFields.Add(TDefaultParameters.DescriptionParamSubParamID,
     'DescriptionComponentName');
 end;
 
 procedure TQueryCustomComponents.ProcessParamValue(AIDComponent: Integer;
-  AIDProductParameterValue: TField; const AValue: Variant;
-  AIDParameter: Integer);
+    AIDProductParameterValue: TField; const AValue: Variant; AParamSubParamID:
+    Integer);
 var
   i: Integer;
   k: Integer;
   rc: Integer;
 begin
-  Assert(AIDParameter > 0);
+  Assert(AParamSubParamID > 0);
 
   // Ищем значение производителя для нашего компонента
-  rc := QuerySearchProductParameterValues.Search(AIDParameter, AIDComponent);
+  rc := QuerySearchProductParameterValues.Search(AParamSubParamID, AIDComponent);
 
   // Если новое значение параметра пустое
   if VarIsStr(AValue) and VarToStr(AValue).IsEmpty then
@@ -439,6 +438,7 @@ var
   L: TStringList;
   VarArr: Variant;
 begin
+  Assert(ASender = FDQuery);
   Assert(not AProductIDFieldName.IsEmpty);
   Assert(ASender <> nil);
   AIDComponent := ASender.FieldByName(AProductIDFieldName);
@@ -482,7 +482,7 @@ begin
               VarArr[i] := L[i];
 
             ProcessParamValue(AIDComponent.AsInteger, nil, VarArr,
-              TDefaultParameters.PackagePinsParameterID);
+              TDefaultParameters.PackagePinsParamSubParamID);
 
           finally
             VarClear(VarArr);
@@ -490,7 +490,7 @@ begin
         end
         else
           ProcessParamValue(AIDComponent.AsInteger, nil, '',
-            TDefaultParameters.PackagePinsParameterID);
+            TDefaultParameters.PackagePinsParamSubParamID);
 
         APackagePins.Value := L.DelimitedText;
       finally
@@ -499,12 +499,12 @@ begin
     end
     else
       ProcessParamValue(AIDComponent.AsInteger, nil, '',
-        TDefaultParameters.PackagePinsParameterID);
+        TDefaultParameters.PackagePinsParamSubParamID);
   end;
 
   // Обрабатываем производителя
   ProcessParamValue(AIDComponent.AsInteger, AIDProducer, AProducer.AsString,
-    TDefaultParameters.ProducerParameterID);
+    TDefaultParameters.ProducerParamSubParamID);
 
   {
     // Обрабатываем корпус
@@ -513,19 +513,19 @@ begin
   }
   // Обрабатываем спецификацию
   ProcessParamValue(AIDComponent.AsInteger, AIDDatasheet, ADatasheet.AsString,
-    TDefaultParameters.DatasheetParameterID);
+    TDefaultParameters.DatasheetParamSubParamID);
 
   // Обрабатываем структурную схему
   ProcessParamValue(AIDComponent.AsInteger, AIDDiagram, ADiagram.AsString,
-    TDefaultParameters.DiagramParameterID);
+    TDefaultParameters.DiagramParamSubParamID);
 
   // Обрабатываем чертёж
   ProcessParamValue(AIDComponent.AsInteger, AIDDrawing, ADrawing.AsString,
-    TDefaultParameters.DrawingParameterID);
+    TDefaultParameters.DrawingParamSubParamID);
 
   // Обрабатываем изображение
   ProcessParamValue(AIDComponent.AsInteger, AIDImage, AImage.AsString,
-    TDefaultParameters.ImageParameterID);
+    TDefaultParameters.ImageParamSubParamID);
 end;
 
 end.

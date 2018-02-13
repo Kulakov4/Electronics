@@ -24,8 +24,8 @@ inherited QueryCategoryParameters2: TQueryCategoryParameters2
       'join Parameters p on psp.IdParameter = p.id'
       'join ParameterTypes pt on p.IDParameterType = pt.ID'
       'join SubParameters sp on psp.IdSubParameter = sp.Id'
-      'where ProductCategoryID = :ProductCategoryID'
-      '--and'
+      'where ProductCategoryID = :ProductCategoryID '
+      'and 0=0'
       'order by cp.PosID, cp.Ord')
     ParamData = <
       item

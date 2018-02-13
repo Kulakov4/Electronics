@@ -14,20 +14,28 @@ type
     FDefaultCreated: Boolean;
     FDefaultVisible: Boolean;
     FOrder: Integer;
-    FParameterID: Integer;
+    FBandID: Integer;
     FColIndex: Integer;
     FIDParameterKind: Integer;
+    FIsDefault: Boolean;
+    FParameterID: Integer;
     FPos: Integer;
   public
-    constructor Create(ABand: TcxGridBand; AParameterID: Integer);
+    constructor Create(ABand: TcxGridBand; ABandID: Integer); overload;
+    constructor Create(ABand: TcxGridBand; AParameterID: Integer;
+      AIsDefault: Boolean); overload;
     property Band: TcxGridBand read FBand write FBand;
-    property CategoryParamID: Integer read FCategoryParamID write FCategoryParamID;
+    property CategoryParamID: Integer read FCategoryParamID
+      write FCategoryParamID;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property DefaultVisible: Boolean read FDefaultVisible write FDefaultVisible;
     property Order: Integer read FOrder write FOrder;
-    property ParameterID: Integer read FParameterID write FParameterID;
+    property BandID: Integer read FBandID write FBandID;
     property ColIndex: Integer read FColIndex write FColIndex;
-    property IDParameterKind: Integer read FIDParameterKind write FIDParameterKind;
+    property IDParameterKind: Integer read FIDParameterKind
+      write FIDParameterKind;
+    property IsDefault: Boolean read FIsDefault write FIsDefault;
+    property ParameterID: Integer read FParameterID write FParameterID;
     property Pos: Integer read FPos write FPos;
   end;
 
@@ -40,9 +48,13 @@ type
     function GetBandsForView(AView: TcxGridBandedTableView): TBandsInfo;
     function HaveDifferentPos: Boolean;
     procedure HideDefaultBands;
-    function Search(AView: TcxGridBandedTableView; AParameterID: Integer)
-      : TBandInfo; overload;
+    function Search(AView: TcxGridBandedTableView;
+      AIDBand, AIDParameter: Integer; AIsDefault: Boolean): TBandInfo; overload;
     function Search(ABand: TcxGridBand): TBandInfo; overload;
+    function Search(AView: TcxGridBandedTableView; AIDParameter: Integer;
+      AIsDefault: Boolean): TBandInfo; overload;
+    function Search(AView: TcxGridBandedTableView; AIDBand: Integer)
+      : TBandInfo; overload;
     function SearchByColIndex(AView: TcxGridBandedTableView; AColIndex: Integer)
       : TBandInfo;
   end;
@@ -55,14 +67,27 @@ type
 
 implementation
 
-constructor TBandInfo.Create(ABand: TcxGridBand; AParameterID: Integer);
+constructor TBandInfo.Create(ABand: TcxGridBand; ABandID: Integer);
+begin
+  inherited Create;
+  Assert(ABand <> nil);
+  Assert(ABandID > 0);
+
+  FBand := ABand;
+  FBandID := ABandID;
+end;
+
+constructor TBandInfo.Create(ABand: TcxGridBand; AParameterID: Integer;
+  AIsDefault: Boolean);
 begin
   inherited Create;
   Assert(ABand <> nil);
   Assert(AParameterID > 0);
 
+  // Этот бэнд для подпараметра "по умолчанию" какого-либо параметра
   FBand := ABand;
   FParameterID := AParameterID;
+  FIsDefault := AIsDefault;
 end;
 
 procedure TBandsInfo.FreeNotDefaultBands;
@@ -137,23 +162,18 @@ begin
     end;
 end;
 
-function TBandsInfo.Search(AView: TcxGridBandedTableView; AParameterID: Integer)
-  : TBandInfo;
-var
-  ABandInfo: TBandInfo;
+function TBandsInfo.Search(AView: TcxGridBandedTableView;
+  AIDBand, AIDParameter: Integer; AIsDefault: Boolean): TBandInfo;
 begin
-  Assert(AParameterID > 0);
+  Assert(AIDBand > 0);
+  Assert(AIDParameter > 0);
   Assert(AView <> nil);
 
-  for ABandInfo in Self do
-  begin
-    Result := ABandInfo;
-
-    if (ABandInfo.ParameterID = AParameterID) and
-      (ABandInfo.Band.GridView = AView) then
-      Exit;
-  end;
-  Result := nil;
+  // Бэнд с подпараметром по умолчанию встречается только один раз
+  if AIsDefault then
+    Result := Search(AView, AIDParameter, AIsDefault)
+  else
+    Result := Search(AView, AIDBand);
 end;
 
 function TBandsInfo.Search(ABand: TcxGridBand): TBandInfo;
@@ -172,8 +192,46 @@ begin
   Result := nil;
 end;
 
+function TBandsInfo.Search(AView: TcxGridBandedTableView; AIDParameter: Integer;
+  AIsDefault: Boolean): TBandInfo;
+var
+  ABandInfo: TBandInfo;
+begin
+  Assert(AIDParameter > 0);
+  Assert(AView <> nil);
+
+  for ABandInfo in Self do
+  begin
+    Result := ABandInfo;
+
+    if (ABandInfo.Band.GridView = AView) and
+      (ABandInfo.ParameterID = AIDParameter) and
+      (ABandInfo.IsDefault = AIsDefault) then
+      Exit;
+  end;
+  Result := nil;
+end;
+
+function TBandsInfo.Search(AView: TcxGridBandedTableView; AIDBand: Integer)
+  : TBandInfo;
+var
+  ABandInfo: TBandInfo;
+begin
+  Assert(AIDBand > 0);
+  Assert(AView <> nil);
+
+  for ABandInfo in Self do
+  begin
+    Result := ABandInfo;
+
+    if (ABandInfo.Band.GridView = AView) and (ABandInfo.BandID = AIDBand) then
+      Exit;
+  end;
+  Result := nil;
+end;
+
 function TBandsInfo.SearchByColIndex(AView: TcxGridBandedTableView;
-AColIndex: Integer): TBandInfo;
+  AColIndex: Integer): TBandInfo;
 var
   ABandInfo: TBandInfo;
 begin

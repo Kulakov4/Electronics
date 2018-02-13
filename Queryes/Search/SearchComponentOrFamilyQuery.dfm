@@ -16,8 +16,8 @@ inherited QuerySearchComponentOrFamily: TQuerySearchComponentOrFamily
       '/* Producer  '
       '  join Products f on p.ParentProductId = f.id'
       
-        '  join ParameterValues pv on pv.ProductID = f.Id and pv.Paramete' +
-        'rId = :ProducerParameterID'
+        '  join ParameterValues2 pv on pv.ProductID = f.Id and pv.ParamSu' +
+        'bParamId = :ProducerParamSubParamID'
       '  and 1=1 --and pv.Value = :Producer  '
       'Producer */  '
       'where 0=0')
