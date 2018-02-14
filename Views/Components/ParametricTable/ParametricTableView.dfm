@@ -7,13 +7,13 @@ inherited ViewParametricTable: TViewParametricTable
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
-      OptionsCustomize.ColumnMoving = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
       OptionsView.BandHeaderEndEllipsis = True
       OptionsView.BandHeaderHeight = 40
       OptionsView.BandHeaders = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
+      OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
       Bands = <
         item
           FixedKind = fkLeft
@@ -322,11 +322,40 @@ inherited ViewParametricTable: TViewParametricTable
       ImageIndex = 10
       OnExecute = actClearSelectedExecute
     end
+    object actAddSubParameter: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
+      ImageIndex = 1
+    end
+    object actDropSubParameter: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
+      ImageIndex = 2
+    end
   end
   inherited pmGrid: TPopupMenu
     object N6: TMenuItem
       Action = actClearSelected
     end
+  end
+  inherited cxGridPopupMenu: TcxGridPopupMenu
+    PopupMenus = <
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
+        Index = 0
+        PopupMenu = pmGrid
+      end
+      item
+        GridView = cxGridDBBandedTableView2
+        HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
+        Index = 1
+        PopupMenu = pmGrid
+      end
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtColumnHeader, gvhtColumnHeaderFilterButton]
+        Index = 2
+        PopupMenu = pmHeaders
+      end>
   end
   object BandTimer: TTimer
     Enabled = False
@@ -346,6 +375,23 @@ inherited ViewParametricTable: TViewParametricTable
     object cxStyleEnd: TcxStyle
       AssignedValues = [svColor]
       Color = 13431295
+    end
+  end
+  object ColumnTimer: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = ColumnTimerTimer
+    Left = 128
+    Top = 152
+  end
+  object pmHeaders: TPopupMenu
+    Left = 440
+    Top = 248
+    object N7: TMenuItem
+      Action = actAddSubParameter
+    end
+    object N8: TMenuItem
+      Action = actDropSubParameter
     end
   end
 end

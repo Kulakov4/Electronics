@@ -65,6 +65,7 @@ type
 
   TColumnInfo = class(TObject)
   private
+    FColIndex: Integer;
     FColumn: TcxGridBandedColumn;
     FDefaultCreated: Boolean;
     FIDCategoryParam: Integer;
@@ -72,6 +73,7 @@ type
   public
     constructor Create(AColumn: TcxGridBandedColumn; AIDCategoryParam, AOrder:
         Integer; ADefaultCreated: Boolean); overload;
+    property ColIndex: Integer read FColIndex write FColIndex;
     property Column: TcxGridBandedColumn read FColumn write FColumn;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property IDCategoryParam: Integer read FIDCategoryParam write FIDCategoryParam;
@@ -81,6 +83,7 @@ type
   TColumnsInfo = class(TList<TColumnInfo>)
   public
     procedure FreeNotDefaultColumns;
+    function GetChangedColIndex(AView: TcxGridBandedTableView): TColumnsInfo;
     function Search(AColumn: TcxGridDBBandedColumn): TColumnInfo; overload;
     function Search(AView: TcxGridDBBandedTableView; AIDCategoryParam: Integer):
         TColumnInfo; overload;
@@ -287,6 +290,7 @@ begin
   FIDCategoryParam := AIDCategoryParam;
   FOrder := AOrder;
   FDefaultCreated := ADefaultCreated;
+  FColIndex := FColumn.Position.ColIndex;
 end;
 
 procedure TColumnsInfo.FreeNotDefaultColumns;
@@ -304,6 +308,21 @@ begin
     end;
   end;
 
+end;
+
+function TColumnsInfo.GetChangedColIndex(AView: TcxGridBandedTableView):
+    TColumnsInfo;
+var
+  ACI: TColumnInfo;
+begin
+  Assert(AView <> nil);
+  Result := TColumnsInfo.Create;
+  for ACI in Self do
+  begin
+    if (ACI.Column.GridView = AView) and
+      (ACI.ColIndex <> ACI.Column.Position.ColIndex) then
+      Result.Add(ACI);
+  end;
 end;
 
 function TColumnsInfo.Search(AColumn: TcxGridDBBandedColumn): TColumnInfo;

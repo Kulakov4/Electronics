@@ -64,6 +64,12 @@ type
     dxBarButton5: TdxBarButton;
     actClearSelected: TAction;
     N6: TMenuItem;
+    ColumnTimer: TTimer;
+    actAddSubParameter: TAction;
+    actDropSubParameter: TAction;
+    pmHeaders: TPopupMenu;
+    N7: TMenuItem;
+    N8: TMenuItem;
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
@@ -82,7 +88,10 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure dxBarButton2Click(Sender: TObject);
     procedure BandTimerTimer(Sender: TObject);
+    procedure ColumnTimerTimer(Sender: TObject);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
+      AColumn: TcxGridColumn);
+    procedure cxGridDBBandedTableViewColumnPosChanged(Sender: TcxGridTableView;
       AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableViewStylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
@@ -95,6 +104,7 @@ type
   private
     FBandInfo: TBandInfo;
     FBandsInfo: TBandsInfo;
+    FColumnInfo: TColumnInfo;
     FColumnsInfo: TColumnsInfo;
     FLockDetailFilterChange: Boolean;
     FMark: string;
@@ -118,6 +128,7 @@ type
     procedure InitializeDefaultCreatedBands(AView: TcxGridDBBandedTableView;
       AQueryCustomComponents: TQueryCustomComponents);
     procedure ProcessBandMove;
+    procedure ProcessColumnMove;
     procedure SetComponentsExGroup(const Value: TComponentsExGroup);
     procedure UpdateColumnsCustomization;
     { Private declarations }
@@ -772,6 +783,7 @@ begin
     ABandInfo.DefaultVisible := AVisible;
     ABandInfo.IDParameterKind := AIDParameterKind;
     ABand.Visible := AVisible;
+    ABand.Options.HoldOwnColumnsOnly := True;
     ABand.VisibleForCustomization := True;
     ABand.Caption := DeleteDouble(ABandCaption, ' ');
     ABand.AlternateCaption := ABandHint;
@@ -1277,6 +1289,7 @@ begin
       // Искусственно вызываем событие
       DoAfterLoad(nil);
     end;
+    cxGridPopupMenu.PopupMenus.Items[2].GridView := MainView;
   end
 end;
 
@@ -1407,10 +1420,58 @@ begin
   ProcessBandMove;
 end;
 
+procedure TViewParametricTable.ColumnTimerTimer(Sender: TObject);
+begin
+  inherited;
+  ColumnTimer.Enabled := False;
+  ProcessColumnMove;
+end;
+
 procedure TViewParametricTable.cxGridDBBandedTableViewColumnHeaderClick
   (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin;
   inherited;
+end;
+
+procedure TViewParametricTable.cxGridDBBandedTableViewColumnPosChanged
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+var
+  ACI: TColumnInfo;
+  ADaughterCI: TColumnInfo;
+  L: TColumnsInfo;
+begin
+  inherited;
+  // Ищем информацию о перемещаемой колонке
+  ACI := FColumnsInfo.Search(AColumn as TcxGridDBBandedColumn);
+  // Перемещать можно только бэнд-параметр
+  Assert(ACI <> nil);
+
+  // Получаем информацию о тех колонках, положение которых изменилось
+  L := FColumnsInfo.GetChangedColIndex(ACI.Column.GridView);
+  try
+    // Если предыдущий запрос ещё не обработан
+    if (BandTimer.Enabled) then
+    begin
+      // Возвращаем колонки на место
+      for ACI in L do
+        ACI.Column.Position.ColIndex := ACI.ColIndex;
+      Exit;
+    end;
+  finally
+    FreeAndNil(L);
+  end;
+
+  // Ищем соответствующую дочернюю колонку
+  ADaughterCI := FColumnsInfo.Search
+    (cxGridLevel2.GridView as TcxGridDBBandedTableView, ACI.IDCategoryParam);
+  Assert(ADaughterCI <> nil);
+  // Меняем позицию дочернего бэнда
+  ADaughterCI.Column.Position.ColIndex := (AColumn as TcxGridDBBandedColumn)
+    .Position.ColIndex;
+
+  // Сообщаем что изменение бэндов нужно будет дополнительно обработать
+  FColumnInfo := ACI;
+  ColumnTimer.Enabled := True;
 end;
 
 procedure TViewParametricTable.OnGridPopupMenuPopup
@@ -1496,6 +1557,68 @@ begin
 
   // Обновляем порядок бэндов в выпадающем списке
   UpdateColumnsCustomization;
+
+  // Извещаем кого-то о том, что мы обновили порядок
+  ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);
+end;
+
+// Обработка перемещения колонок
+procedure TViewParametricTable.ProcessColumnMove;
+var
+  A: TArray<TPair<Integer, Integer>>;
+  ACI: TColumnInfo;
+  ALeft: Boolean;
+  APair: TPair<Integer, Integer>;
+  CIList: TColumnsInfo;
+  L: TList<TPair<Integer, Integer>>;
+begin
+  // Убеждаемся, что перемещение действительно произошло
+  Assert(FColumnInfo <> nil);
+  Assert(FColumnInfo.ColIndex <> FColumnInfo.Column.Position.ColIndex);
+
+  // Куда произошло перемещение: влево или вправо?
+  ALeft := FColumnInfo.ColIndex > FColumnInfo.Column.Position.ColIndex;
+
+  CIList := FColumnsInfo.GetChangedColIndex(MainView);
+  try
+    // Как минимум 2 колонки должны были поменять свою позицию
+    Assert(CIList.Count >= 2);
+    // Список подпараметров, которые меняют свои позиции
+    L := TList < TPair < Integer, Integer >>.Create;
+    try
+      for ACI in CIList do
+      begin
+          // Запоминаем, какие записи в БД подлежат переносу на новое место
+          L.Add(TPair<Integer, Integer>.Create(ACI.IDCategoryParam, ACI.Order));
+      end;
+      // Готовим новые пары со смещёнными номерами
+      A := TMoveHelper.Move(L.ToArray, ALeft, 1);
+    finally
+      FreeAndNil(L);
+    end;
+  finally
+    FreeAndNil(CIList);
+  end;
+
+  // Просим сделать соответствующие изменения в БД
+  ComponentsExGroup.CatParamsGroup.qCategoryParameters.Move(A);
+  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+
+  // запоминаем в какой позиции находятся наши колонки
+  for ACI in FColumnsInfo do
+    ACI.ColIndex := ACI.Column.Position.ColIndex;
+
+  // Надо обновить порядок в БД для описания колонок
+  for APair in A do
+  begin
+    ACI := FColumnsInfo.Search(MainView, APair.Key);
+    Assert(ACI <> nil);
+    // Запоминаем, какой теперь порядок у этой колонки в БД
+    ACI.Order := APair.Value;
+  end;
+
+  // Обновляем порядок бэндов в выпадающем списке
+//  UpdateColumnsCustomization;
 
   // Извещаем кого-то о том, что мы обновили порядок
   ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);

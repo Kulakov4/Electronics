@@ -164,19 +164,6 @@ object ComponentsFrame: TComponentsFrame
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
-          PopupMenus = <
-            item
-              GridView = ViewComponents.cxGridDBBandedTableView
-              HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
-              Index = 0
-              PopupMenu = ViewComponents.pmGrid
-            end
-            item
-              GridView = ViewComponents.cxGridDBBandedTableView2
-              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
-              Index = 1
-              PopupMenu = ViewComponents.pmGrid
-            end>
         end
       end
     end
@@ -217,13 +204,6 @@ object ComponentsFrame: TComponentsFrame
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
-          PopupMenus = <
-            item
-              GridView = ViewCategoryParameters.cxGridDBBandedTableView
-              HitTypes = [gvhtCell]
-              Index = 0
-              PopupMenu = ViewCategoryParameters.pmGrid
-            end>
         end
         inherited cxStyleRepository: TcxStyleRepository
           PixelsPerInch = 96
@@ -313,19 +293,6 @@ object ComponentsFrame: TComponentsFrame
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
-          PopupMenus = <
-            item
-              GridView = ViewComponentsSearch.cxGridDBBandedTableView
-              HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
-              Index = 0
-              PopupMenu = ViewComponentsSearch.pmGrid
-            end
-            item
-              GridView = ViewComponentsSearch.cxGridDBBandedTableView2
-              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
-              Index = 1
-              PopupMenu = ViewComponentsSearch.pmGrid
-            end>
         end
       end
     end
@@ -422,19 +389,6 @@ object ComponentsFrame: TComponentsFrame
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
-          PopupMenus = <
-            item
-              GridView = ViewParametricTable.cxGridDBBandedTableView
-              HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
-              Index = 0
-              PopupMenu = ViewParametricTable.pmGrid
-            end
-            item
-              GridView = ViewParametricTable.cxGridDBBandedTableView2
-              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
-              Index = 1
-              PopupMenu = ViewParametricTable.pmGrid
-            end>
         end
         inherited cxStyleRepository: TcxStyleRepository
           PixelsPerInch = 96
