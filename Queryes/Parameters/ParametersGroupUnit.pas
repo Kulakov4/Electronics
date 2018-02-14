@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.ExtCtrls, ParameterTypesQuery, MainParametersQuery, SubParametersQuery,
+  Vcl.ExtCtrls, ParameterTypesQuery, ParametersQuery, SubParametersQuery,
   FireDAC.Comp.Client, FireDAC.Stan.Intf, NotifyEvents,
   ParametersExcelDataModule, System.Generics.Collections, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
@@ -16,14 +16,14 @@ uses
 
 type
   TParametersGroup = class(TQueryGroup)
-    qParameterTypes: TQueryParameterTypes;
-    qMainParameters: TQueryMainParameters;
-    qParamSubParams: TQueryParamSubParams;
-    qSubParameters2: TQuerySubParameters2;
   private
     FAfterDataChange: TNotifyEventsEx;
     FProductCategoryIDValue: Integer;
     FqParameterKinds: TQueryParameterKinds;
+    FqParameters: TQueryParameters;
+    FqParameterTypes: TQueryParameterTypes;
+    FqParamSubParams: TQueryParamSubParams;
+    FqSubParameters: TQuerySubParameters2;
     procedure DoOnDataChange(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
     function GetqParameterKinds: TQueryParameterKinds;
@@ -42,6 +42,10 @@ type
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue write
         SetProductCategoryIDValue;
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
+    property qParameters: TQueryParameters read FqParameters;
+    property qParameterTypes: TQueryParameterTypes read FqParameterTypes;
+    property qParamSubParams: TQueryParamSubParams read FqParamSubParams;
+    property qSubParameters: TQuerySubParameters2 read FqSubParameters;
     { Public declarations }
   end;
 
@@ -54,23 +58,31 @@ uses RepositoryDataModule, ParameterKindEnum;
 constructor TParametersGroup.Create(AOwner: TComponent);
 begin
   inherited;
+  // Типы параметров
+  FqParameterTypes := TQueryParameterTypes.Create(Self);
+  // Параметры
+  FqParameters := TQueryParameters.Create(Self);
+  // Связь с подпараметрами
+  FqParamSubParams := TQueryParamSubParams.Create(Self);
+  // Подпараметры
+  FqSubParameters := TQuerySubParameters2.Create(Self);
 
   Main := qParameterTypes;
-  Detail := qMainParameters;
+  Detail := qParameters;
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoOnDataChange);
   TNotifyEventWrap.Create(qParameterTypes.AfterDelete, DoOnDataChange);
 
-  TNotifyEventWrap.Create(qMainParameters.AfterPost, DoOnDataChange);
-  TNotifyEventWrap.Create(qMainParameters.AfterDelete, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameters.AfterPost, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameters.AfterDelete, DoOnDataChange);
 
   TNotifyEventWrap.Create(qParamSubParams.AfterPost, DoOnDataChange);
   TNotifyEventWrap.Create(qParamSubParams.AfterDelete, DoOnDataChange);
 
   TNotifyEventWrap.Create(qParameterTypes.AfterOpen, DoOnDataChange);
-  TNotifyEventWrap.Create(qMainParameters.AfterOpen, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameters.AfterOpen, DoOnDataChange);
   TNotifyEventWrap.Create(qParamSubParams.AfterOpen, DoOnDataChange);
 
 
@@ -90,8 +102,8 @@ begin
   Assert(Connection.InTransaction);
 
   qParameterTypes.TryPost;
-  qMainParameters.TryPost;
-  qSubParameters2.TryPost;
+  qParameters.TryPost;
+  qSubParameters.TryPost;
   qParamSubParams.TryPost;
 
   Connection.Commit;
@@ -107,8 +119,8 @@ end;
 procedure TParametersGroup.DoBeforeDelete(Sender: TObject);
 begin
   // Каскадно удаляем параметры
-  qMainParameters.CascadeDelete(qParameterTypes.PK.Value,
-    qMainParameters.IDParameterType.FieldName);
+  qParameters.CascadeDelete(qParameterTypes.PK.Value,
+    qParameters.IDParameterType.FieldName);
 end;
 
 function TParametersGroup.Find(const AFieldName, S: string): TList<String>;
@@ -117,9 +129,9 @@ begin
   Result := TList<String>.Create();
 
   // Пытаемся искать среди параметров по какому-то полю
-  if qMainParameters.LocateByField(AFieldName, S) then
+  if qParameters.LocateByField(AFieldName, S) then
   begin
-    qParameterTypes.LocateByPK(qMainParameters.IDParameterType.Value, True);
+    qParameterTypes.LocateByPK(qParameters.IDParameterType.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qParameterTypes.ParameterType.AsString);
     // запоминаем что надо искать на втором уровне
@@ -159,7 +171,7 @@ begin
 
   AParametersExcelTable.DisableControls;
   qParameterTypes.FDQuery.DisableControls;
-  qMainParameters.FDQuery.DisableControls;
+  qParameters.FDQuery.DisableControls;
   try
     AParametersExcelTable.First;
     AParametersExcelTable.CallOnProcessEvent;
@@ -188,11 +200,11 @@ begin
           AParameterKindID := Integer(Неиспользуется);
       end;
 
-      qMainParameters.FDQuery.Append;
+      qParameters.FDQuery.Append;
       try
         for I := 0 to AParametersExcelTable.FieldCount - 1 do
         begin
-          AField := qMainParameters.FDQuery.FindField
+          AField := qParameters.FDQuery.FindField
             (AParametersExcelTable.Fields[I].FieldName);
           if AField <> nil then
           begin
@@ -200,13 +212,13 @@ begin
           end;
         end;
 
-        qMainParameters.IDParameterType.AsInteger :=
+        qParameters.IDParameterType.AsInteger :=
           qParameterTypes.PK.AsInteger;
-        qMainParameters.IDParameterKind.AsInteger := AParameterKindID;
+        qParameters.IDParameterKind.AsInteger := AParameterKindID;
 
-        qMainParameters.FDQuery.Post;
+        qParameters.FDQuery.Post;
       except
-        qMainParameters.FDQuery.Cancel;
+        qParameters.FDQuery.Cancel;
         raise;
       end;
 
@@ -215,23 +227,23 @@ begin
     end;
   finally
     AParametersExcelTable.EnableControls;
-    qMainParameters.FDQuery.EnableControls;
+    qParameters.FDQuery.EnableControls;
     qParameterTypes.FDQuery.EnableControls;
   end;
 end;
 
 procedure TParametersGroup.ReOpen;
 begin
-  qSubParameters2.FDQuery.Close;
+  qSubParameters.FDQuery.Close;
   qParamSubParams.FDQuery.Close;
-  qMainParameters.FDQuery.Close;
+  qParameters.FDQuery.Close;
   qParameterTypes.FDQuery.Close;
   qParameterKinds.FDQuery.Close;
 
   qParameterKinds.FDQuery.Open;
   qParameterTypes.FDQuery.Open;
-  qMainParameters.FDQuery.Open;
-  qSubParameters2.FDQuery.Open;
+  qParameters.FDQuery.Open;
+  qSubParameters.FDQuery.Open;
   qParamSubParams.FDQuery.Open;
 end;
 
@@ -241,8 +253,8 @@ begin
   // Предполагается что мы работаем в транзакции
   Assert(Connection.InTransaction);
 
-  qSubParameters2.TryCancel;
-  qMainParameters.TryCancel;
+  qSubParameters.TryCancel;
+  qParameters.TryCancel;
   qParameterTypes.TryCancel;
   qParamSubParams.TryCancel;
 
@@ -257,15 +269,15 @@ begin
     Exit;
 
   FProductCategoryIDValue := Value;
-  qMainParameters.ProductCategoryIDValue := FProductCategoryIDValue;
+  qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
   qParamSubParams.ProductCategoryIDValue := FProductCategoryIDValue;
 end;
 
 procedure TParametersGroup.TryPost;
 begin
-  qSubParameters2.TryPost;
+  qSubParameters.TryPost;
   qParameterTypes.TryPost;
-  qMainParameters.TryPost;
+  qParameters.TryPost;
   qParamSubParams.TryPost;
 end;
 

@@ -1,4 +1,4 @@
-unit MainParametersQuery;
+unit ParametersQuery;
 
 interface
 
@@ -13,7 +13,7 @@ uses
   ApplyQueryFrame, OrderQuery;
 
 type
-  TQueryMainParameters = class(TQueryOrder)
+  TQueryParameters = class(TQueryOrder)
     fdqBase: TFDQuery;
     ParametersApplyQuery: TfrmApplyQuery;
     fdqDeleteFromCategoryParams: TFDQuery;
@@ -74,7 +74,7 @@ implementation
 uses DBRecordHolder, System.StrUtils, StrHelper,
   BaseQuery;
 
-constructor TQueryMainParameters.Create(AOwner: TComponent);
+constructor TQueryParameters.Create(AOwner: TComponent);
 begin
   inherited;
 
@@ -91,7 +91,7 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryMainParameters.ApplyDelete(ASender: TDataSet);
+procedure TQueryParameters.ApplyDelete(ASender: TDataSet);
 var
   AID: TField;
   AIsCustomParameter: TField;
@@ -125,7 +125,7 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.ApplyInsert(ASender: TDataSet;
+procedure TQueryParameters.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
@@ -193,7 +193,7 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.ApplyUpdate(ASender: TDataSet;
+procedure TQueryParameters.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
@@ -247,12 +247,12 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.DoAfterInsert(Sender: TObject);
+procedure TQueryParameters.DoAfterInsert(Sender: TObject);
 begin
   FDQuery.FieldByName('IsCustomParameter').AsBoolean := False;
 end;
 
-procedure TQueryMainParameters.DoAfterOpen(Sender: TObject);
+procedure TQueryParameters.DoAfterOpen(Sender: TObject);
 begin
   Value.DisplayLabel := 'Наименование';
   Value.Required := True;
@@ -260,7 +260,7 @@ begin
   Checked.ReadOnly := False;
 end;
 
-procedure TQueryMainParameters.DoBeforeOpen(Sender: TObject);
+procedure TQueryParameters.DoBeforeOpen(Sender: TObject);
 begin
   SetParameters(['TableName', 'ProductCategoryID'],
     [FTableNameFilter, FProductCategoryIDValue]);
@@ -275,12 +275,12 @@ begin
   end;
 end;
 
-function TQueryMainParameters.GetChecked: TField;
+function TQueryParameters.GetChecked: TField;
 begin
   Result := Field('Checked');
 end;
 
-function TQueryMainParameters.GetCheckedValues(const AFieldName : String):
+function TQueryParameters.GetCheckedValues(const AFieldName : String):
     string;
 var
   AClone: TFDMemTable;
@@ -301,37 +301,37 @@ begin
   end;
 end;
 
-function TQueryMainParameters.GetIDParameterKind: TField;
+function TQueryParameters.GetIDParameterKind: TField;
 begin
   Result := Field('IDParameterKind');
 end;
 
-function TQueryMainParameters.GetIDParameterType: TField;
+function TQueryParameters.GetIDParameterType: TField;
 begin
   Result := Field('IDParameterType');
 end;
 
-function TQueryMainParameters.GetIdSubParameter: TField;
+function TQueryParameters.GetIdSubParameter: TField;
 begin
   Result := Field('IdSubParameter');
 end;
 
-function TQueryMainParameters.GetParamSubParamID: TField;
+function TQueryParameters.GetParamSubParamID: TField;
 begin
   Result := Field('ParamSubParamID');
 end;
 
-function TQueryMainParameters.GetIsCustomParameter: TField;
+function TQueryParameters.GetIsCustomParameter: TField;
 begin
   Result := Field('IsCustomParameter');
 end;
 
-function TQueryMainParameters.GetOrd: TField;
+function TQueryParameters.GetOrd: TField;
 begin
   Result := Field('Order');
 end;
 
-function TQueryMainParameters.GetqSearchParameter: TQuerySearchParameter;
+function TQueryParameters.GetqSearchParameter: TQuerySearchParameter;
 begin
   if FqSearchParameter = nil then
   begin
@@ -341,22 +341,22 @@ begin
   Result := FqSearchParameter;
 end;
 
-function TQueryMainParameters.GetTableName: TField;
+function TQueryParameters.GetTableName: TField;
 begin
   Result := Field('TableName');
 end;
 
-function TQueryMainParameters.GetValue: TField;
+function TQueryParameters.GetValue: TField;
 begin
   Result := Field('Value');
 end;
 
-function TQueryMainParameters.GetValueT: TField;
+function TQueryParameters.GetValueT: TField;
 begin
   Result := Field('ValueT');
 end;
 
-function TQueryMainParameters.Lookup(AValue: string): Integer;
+function TQueryParameters.Lookup(AValue: string): Integer;
 var
   V: Variant;
 begin
@@ -368,7 +368,7 @@ begin
     Result := V;
 end;
 
-procedure TQueryMainParameters.SetShowDuplicate(const Value: Boolean);
+procedure TQueryParameters.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
@@ -389,7 +389,7 @@ begin
   end;
 end;
 
-procedure TQueryMainParameters.SetTableNameFilter(const Value: string);
+procedure TQueryParameters.SetTableNameFilter(const Value: string);
 begin
   if FTableNameFilter <> Value then
   begin

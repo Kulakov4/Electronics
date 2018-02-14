@@ -75,7 +75,7 @@ end;
 
 function TfrmParameters.HaveAnyChanges: Boolean;
 begin
-  Result := ViewParameters.ParametersGroup.Connection.InTransaction;
+  Result := ViewParameters.ParametersGrp.Connection.InTransaction;
 end;
 
 end.

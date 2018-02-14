@@ -118,8 +118,6 @@ type
       AParameterType, AName, ATranslation: String; AIsDefault: Integer);
     procedure AppendSubParameter(AID, ASubParamID: Integer);
     function GetVirtualID(AID: Integer; AUseDic: Boolean): Integer;
-    procedure Move(AArray: TArray<TPair<Integer, Integer>>; AUp: Boolean;
-      ACount: Integer);
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
     property qSearchParamDefSubParam: TQuerySearchParamDefSubParam
       read GetqSearchParamDefSubParam;
@@ -139,6 +137,7 @@ type
       AUp: Boolean);
     procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
       AUp: Boolean);
+    procedure RefreshData; override;
     procedure SetPos(AIDArray: TArray<Integer>; AWithSubParams: Boolean;
       APosID: Integer);
     property AfterUpdateData: TNotifyEventsEx read FAfterUpdateData;
@@ -155,7 +154,7 @@ type
 implementation
 
 uses
-  System.StrUtils, System.Math;
+  System.StrUtils, System.Math, MoveHelper;
 
 constructor TQryCategoryParameters.Create(AOwner: TComponent);
 begin
@@ -817,65 +816,6 @@ begin
   UpdateData;
 end;
 
-procedure TCategoryParametersGroup.Move(AArray: TArray<TPair<Integer, Integer>>;
-  AUp: Boolean; ACount: Integer);
-var
-  Coef: Integer;
-  AComparer: IComparer<TPair<Integer, Integer>>;
-  ATargetCount: Integer;
-  I: Integer;
-  J: Integer;
-  L: TList<TPair<Integer, Integer>>;
-begin
-  Assert(ACount > 0);
-  ATargetCount := Length(AArray) - ACount;
-  Assert(ATargetCount > 0);
-
-  Coef := IfThen(AUp, 1, -1);
-  // Сортируем по возрастанию или убыванию
-  AComparer := TComparer < TPair < Integer, Integer >>.Construct(
-    function(const Left, Right: TPair<Integer, Integer>): Integer
-    begin
-      Result := 0;
-      if Left.Value < Right.Value then
-        Result := -1 * Coef
-      else if Left.Value > Right.Value then
-        Result := Coef;
-    end);
-
-  TArray.Sort < TPair < Integer, Integer >> (AArray, AComparer);
-
-  // Готовимся к перестановке записей
-
-  L := TList < TPair < Integer, Integer >>.Create;
-  try
-    {
-      // 1) Меняем порядок на противоположный
-      for I := 0 to ATargetCount - 1 do
-      L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, -AArray[I].Value));
-    }
-    // 2) Сдвигаем записи вверх (вниз)
-    J := 0;
-    for I := ATargetCount to Length(AArray) - 1 do
-    begin
-      Assert(J < Length(AArray));
-      L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, AArray[J].Value));
-      Inc(J);
-    end;
-    // 3) сдвигаем записи на освободившееся место
-    for I := 0 to ATargetCount - 1 do
-    begin
-      Assert(J < Length(AArray));
-      L.Add(TPair<Integer, Integer>.Create(AArray[I].Key, AArray[J].Value));
-      Inc(J);
-    end;
-    // Выполняем необходимые изменения в БД
-    qCategoryParameters.Move(L.ToArray);
-  finally
-    FreeAndNil(L);
-  end;
-end;
-
 procedure TCategoryParametersGroup.MoveParameters(IDList: TList<Integer>;
 TargetID: Integer; AUp: Boolean);
 var
@@ -910,7 +850,7 @@ begin
       end;
     end;
 
-    Move(L.ToArray, AUp, ACount);
+    qCategoryParameters.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
   finally
     FreeAndNil(L);
   end;
@@ -948,7 +888,7 @@ begin
       // Идентификатор первого подпараметра
       AID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
       // Просим произвести перенос
-      Move(L.ToArray, AUp, ACount);
+      qCategoryParameters.Move( TMoveHelper.Move(L.ToArray, AUp, ACount) );
       ANewID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
     finally
       qCategoryParameters.DropClone(AClone);
@@ -966,6 +906,12 @@ begin
     FreeAndNil(L);
   end;
 
+  LoadData;
+end;
+
+procedure TCategoryParametersGroup.RefreshData;
+begin
+  qCategoryParameters.RefreshQuery;
   LoadData;
 end;
 

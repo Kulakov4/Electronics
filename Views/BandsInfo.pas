@@ -4,7 +4,7 @@ interface
 
 uses
   cxGridBandedTableView, System.Generics.Collections, System.Generics.Defaults,
-  ParameterKindEnum;
+  ParameterKindEnum, cxGridDBBandedTableView;
 
 type
   TBandInfo = class(TObject)
@@ -39,7 +39,6 @@ type
     property Pos: Integer read FPos write FPos;
   end;
 
-type
   TBandsInfo = class(TList<TBandInfo>)
   private
   public
@@ -59,10 +58,32 @@ type
       : TBandInfo;
   end;
 
-type
   TDescComparer = class(TComparer<TBandInfo>)
   public
     function Compare(const Left, Right: TBandInfo): Integer; override;
+  end;
+
+  TColumnInfo = class(TObject)
+  private
+    FColumn: TcxGridBandedColumn;
+    FDefaultCreated: Boolean;
+    FIDCategoryParam: Integer;
+    FOrder: Integer;
+  public
+    constructor Create(AColumn: TcxGridBandedColumn; AIDCategoryParam, AOrder:
+        Integer; ADefaultCreated: Boolean); overload;
+    property Column: TcxGridBandedColumn read FColumn write FColumn;
+    property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
+    property IDCategoryParam: Integer read FIDCategoryParam write FIDCategoryParam;
+    property Order: Integer read FOrder write FOrder;
+  end;
+
+  TColumnsInfo = class(TList<TColumnInfo>)
+  public
+    procedure FreeNotDefaultColumns;
+    function Search(AColumn: TcxGridDBBandedColumn): TColumnInfo; overload;
+    function Search(AView: TcxGridDBBandedTableView; AIDCategoryParam: Integer):
+        TColumnInfo; overload;
   end;
 
 implementation
@@ -253,6 +274,58 @@ function TDescComparer.Compare(const Left, Right: TBandInfo): Integer;
 begin
   // Сортировка в обратном порядке
   Result := -1 * (Left.ColIndex - Right.ColIndex);
+end;
+
+constructor TColumnInfo.Create(AColumn: TcxGridBandedColumn; AIDCategoryParam,
+    AOrder: Integer; ADefaultCreated: Boolean);
+begin
+  Assert(AColumn <> nil);
+  Assert(AIDCategoryParam > 0);
+  Assert(AOrder > 0);
+
+  FColumn := AColumn;
+  FIDCategoryParam := AIDCategoryParam;
+  FOrder := AOrder;
+  FDefaultCreated := ADefaultCreated;
+end;
+
+procedure TColumnsInfo.FreeNotDefaultColumns;
+var
+  i: Integer;
+begin
+  for i := Count - 1 downto 0 do
+  begin
+    if not Items[i].DefaultCreated then
+    begin
+      // разрушаем колонку
+      Items[i].Column.Free;
+      // Удаляем описание этой колонки
+      Delete(i);
+    end;
+  end;
+
+end;
+
+function TColumnsInfo.Search(AColumn: TcxGridDBBandedColumn): TColumnInfo;
+begin
+  Assert(AColumn <> nil);
+  for Result in Self do
+  begin
+    if Result.Column = AColumn then
+      Exit;
+  end;
+  Result := nil;
+end;
+
+function TColumnsInfo.Search(AView: TcxGridDBBandedTableView; AIDCategoryParam:
+    Integer): TColumnInfo;
+begin
+  for Result in Self do
+  begin
+    if ( Result.Column.GridView = AView ) and (Result.IDCategoryParam = AIDCategoryParam) then
+      Exit;
+  end;
+  Result := nil;
 end;
 
 end.

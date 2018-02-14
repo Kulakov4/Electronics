@@ -289,7 +289,7 @@ begin
     AColumn := AView.CreateColumn;
     AColumn.Position.BandIndex := ABand.Index;
     AColumn.MinWidth := 40;
-    // AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
+    AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.HeaderAlignmentHorz := taCenter;
     AColumn.AlternateCaption := AColumnHint;
     AColumn.Tag := AColumnID;

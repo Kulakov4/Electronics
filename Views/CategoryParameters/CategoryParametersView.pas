@@ -26,9 +26,9 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, CategoryParametersQuery, ParameterPosQuery,
-  DragHelper, cxCheckBox, CategoryParametersQuery2,
-  CategoryParametersGroupUnit, SearchParamSubParamQuery, Vcl.Grids, Vcl.DBGrids;
+  cxGridDBBandedTableView, cxGrid, ParameterPosQuery, DragHelper, cxCheckBox,
+  CategoryParametersQuery2, CategoryParametersGroupUnit,
+  SearchParamSubParamQuery, Vcl.Grids, Vcl.DBGrids;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -313,14 +313,14 @@ begin
     AParamsGrp.ReOpen;
     AfrmParameters := TfrmParameters.Create(Self);
     try
-      AfrmParameters.ViewParameters.ParametersGroup := AParamsGrp;
+      AfrmParameters.ViewParameters.ParametersGrp := AParamsGrp;
       AfrmParameters.ViewSubParameters.QuerySubParameters :=
-        AParamsGrp.qSubParameters2;
+        AParamsGrp.qSubParameters;
       AfrmParameters.ViewParameters.CheckedMode := True;
       if AfrmParameters.ShowModal = mrOK then
         AParamIDList := Format(',%s,',
-          [AParamsGrp.qMainParameters.GetCheckedValues
-          (AParamsGrp.qMainParameters.PKFieldName)]);
+          [AParamsGrp.qParameters.GetCheckedValues
+          (AParamsGrp.qParameters.PKFieldName)]);
     finally
       FreeAndNil(AfrmParameters);
     end;

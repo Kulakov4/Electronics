@@ -189,20 +189,12 @@ object DM2: TDM2
         end>
     end
   end
-  inline qCategoryParameters: TQueryCategoryParameters
-    Left = 290
-    Top = 0
-    Width = 277
-    Height = 80
-    TabOrder = 7
-    ExplicitLeft = 290
-  end
   inline qChildCategories: TQueryChildCategories
     Left = 571
     Top = 0
     Width = 125
     Height = 77
-    TabOrder = 8
+    TabOrder = 7
     ExplicitLeft = 571
     ExplicitHeight = 77
   end
@@ -211,7 +203,7 @@ object DM2: TDM2
     Top = 432
     Width = 139
     Height = 77
-    TabOrder = 9
+    TabOrder = 8
     ExplicitLeft = 560
     ExplicitTop = 432
   end
@@ -220,7 +212,7 @@ object DM2: TDM2
     Top = 512
     Width = 208
     Height = 86
-    TabOrder = 11
+    TabOrder = 10
     ExplicitLeft = 532
     ExplicitTop = 512
   end
@@ -229,7 +221,7 @@ object DM2: TDM2
     Top = 432
     Width = 190
     Height = 83
-    TabOrder = 10
+    TabOrder = 9
     ExplicitLeft = 733
     ExplicitTop = 432
   end
@@ -238,7 +230,7 @@ object DM2: TDM2
     Top = 82
     Width = 604
     Height = 81
-    TabOrder = 12
+    TabOrder = 11
     ExplicitLeft = 8
     ExplicitTop = 82
     inherited GridPanel1: TGridPanel
@@ -267,12 +259,10 @@ object DM2: TDM2
       ControlCollection = <
         item
           Column = 0
-          Control = ParametersGroup.qParameterTypes
           Row = 0
         end
         item
           Column = 1
-          Control = ParametersGroup.qMainParameters
           Row = 0
         end
         item
@@ -285,12 +275,10 @@ object DM2: TDM2
         end
         item
           Column = 2
-          Control = ParametersGroup.qParamSubParams
           Row = 0
         end
         item
           Column = 3
-          Control = ParametersGroup.qSubParameters2
           Row = 0
         end>
     end
@@ -300,7 +288,7 @@ object DM2: TDM2
     Top = 261
     Width = 338
     Height = 60
-    TabOrder = 14
+    TabOrder = 12
     ExplicitLeft = 328
     ExplicitTop = 261
     ExplicitWidth = 338
@@ -308,8 +296,6 @@ object DM2: TDM2
     inherited GridPanel1: TGridPanel
       Width = 338
       Height = 60
-      ExplicitLeft = -48
-      ExplicitTop = -32
       ExplicitWidth = 338
       ExplicitHeight = 60
     end

@@ -33,11 +33,13 @@ inherited frmParameters: TfrmParameters
           Height = 396
           Align = alClient
           TabOrder = 0
-          ExplicitLeft = -113
-          ExplicitTop = -95
+          ExplicitWidth = 780
+          ExplicitHeight = 396
           inherited cxGrid: TcxGrid
             Width = 780
             Height = 321
+            ExplicitWidth = 780
+            ExplicitHeight = 321
             inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
               DataController.Summary.FooterSummaryItems = <
                 item
@@ -56,6 +58,8 @@ inherited frmParameters: TfrmParameters
           inherited StatusBar: TStatusBar
             Top = 377
             Width = 780
+            ExplicitTop = 377
+            ExplicitWidth = 780
           end
           inherited dxBarManager: TdxBarManager
             DockControlHeights = (
@@ -85,15 +89,19 @@ inherited frmParameters: TfrmParameters
           Height = 396
           Align = alClient
           TabOrder = 0
-          ExplicitLeft = -113
-          ExplicitTop = -95
+          ExplicitWidth = 780
+          ExplicitHeight = 396
           inherited cxGrid: TcxGrid
             Width = 780
             Height = 349
+            ExplicitWidth = 780
+            ExplicitHeight = 349
           end
           inherited StatusBar: TStatusBar
             Top = 377
             Width = 780
+            ExplicitTop = 377
+            ExplicitWidth = 780
           end
           inherited dxBarManager: TdxBarManager
             DockControlHeights = (

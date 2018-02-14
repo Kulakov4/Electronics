@@ -1,12 +1,10 @@
-inherited QueryMainParameters: TQueryMainParameters
+inherited QueryParameters: TQueryParameters
   Width = 551
   Height = 86
   ExplicitWidth = 551
   ExplicitHeight = 86
   inherited Label1: TLabel
-    Width = 106
-    Caption = 'MainParameters'
-    ExplicitWidth = 106
+    Caption = 'Parameters'
   end
   inline ParametersApplyQuery: TfrmApplyQuery [1]
     Left = 192
@@ -150,7 +148,7 @@ inherited QueryMainParameters: TQueryMainParameters
   object fdqDeleteFromCategoryParams: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'delete from CategoryParams where ParameterID = :ParameterID')
+      'delete from CategoryParams2 where ParameterID = :ParameterID')
     Left = 400
     Top = 24
     ParamData = <

@@ -10,7 +10,7 @@ uses
   ProjectConst, BaseEventsQuery, QueryWithMasterUnit, QueryWithDataSourceUnit,
   TreeListQuery, DescriptionsGroupUnit, BodyTypesGroupUnit, ProducersGroupUnit,
   ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
-  ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
+  ComponentsGroupUnit, ComponentsSearchGroupUnit,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
   StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2,
   CategoryParametersGroupUnit;
@@ -24,7 +24,6 @@ type
     ComponentsExGroup: TComponentsExGroup;
     ComponentsGroup: TComponentsGroup;
     ComponentsSearchGroup: TComponentsSearchGroup;
-    qCategoryParameters: TQueryCategoryParameters;
     qChildCategories: TQueryChildCategories;
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
@@ -242,12 +241,8 @@ begin
 end;
 
 procedure TDM2.DoOnParamOrderChange(Sender: TObject);
-var
-  L: TList<TPair<Integer, Integer>>;
 begin
-  L := Sender as TList<TPair<Integer, Integer>>;
-  CategoryParametersGroup.qCategoryParameters.Move(L.ToArray);
-  CategoryParametersGroup.qCategoryParameters.ApplyUpdates;
+  CategoryParametersGroup.RefreshData;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;

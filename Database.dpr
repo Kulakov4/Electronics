@@ -73,7 +73,7 @@ uses
   ReportQuery in 'Queryes\Report\ReportQuery.pas' {QueryReports: TFrame},
   ParameterTypesQuery in 'Queryes\Parameters\ParameterTypesQuery.pas' {QueryParameterTypes: TFrame},
   ParameterPosQuery in 'Queryes\Parameters\ParameterPosQuery.pas' {QueryParameterPos: TFrame},
-  MainParametersQuery in 'Queryes\Parameters\MainParametersQuery.pas' {QueryMainParameters: TFrame},
+  ParametersQuery in 'Queryes\Parameters\ParametersQuery.pas' {QueryParameters: TFrame},
   SubParametersQuery in 'Queryes\Parameters\SubParametersQuery.pas' {QuerySubParameters: TFrame},
   ParametersExcelDataModule in 'Excel\ParametersExcelDataModule.pas' {ParametersExcelDM: TDataModule},
   ParametersGroupUnit in 'Queryes\Parameters\ParametersGroupUnit.pas' {ParametersGroup: TFrame},
@@ -82,7 +82,6 @@ uses
   ParametersValueQuery in 'Queryes\ParameterValues\ParametersValueQuery.pas' {QueryParametersValue: TFrame},
   IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame},
   ParameterValuesUnit in 'Queryes\ParameterValues\ParameterValuesUnit.pas',
-  CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParameters: TFrame},
   MaxCategoryParameterOrderQuery in 'Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas' {QueryMaxCategoryParameterOrder: TFrame},
   RecursiveParametersQuery in 'Queryes\CategoryParameters\RecursiveParametersQuery.pas' {QueryRecursiveParameters: TFrame},
   CustomComponentsQuery in 'Queryes\Components\CustomComponentsQuery.pas' {QueryCustomComponents: TFrame},
@@ -196,7 +195,8 @@ uses
   SearchParamSubParamQuery in 'Queryes\Search\SearchParamSubParamQuery.pas' {QuerySearchParamSubParam: TFrame},
   SearchParamDefSubParamQuery in 'Queryes\Search\SearchParamDefSubParamQuery.pas' {QuerySearchParamDefSubParam: TFrame},
   SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters},
-  UpdateNegativeOrdQuery in 'Queryes\CategoryParameters\UpdateNegativeOrdQuery.pas' {QueryUpdNegativeOrd: TFrame};
+  UpdateNegativeOrdQuery in 'Queryes\CategoryParameters\UpdateNegativeOrdQuery.pas' {QueryUpdNegativeOrd: TFrame},
+  MoveHelper in 'Helpers\MoveHelper.pas';
 
 {$R *.res}
 

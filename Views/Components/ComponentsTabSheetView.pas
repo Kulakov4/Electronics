@@ -76,11 +76,11 @@ type
     dxBarButton6: TdxBarButton;
     ViewComponents: TViewComponents;
     ViewComponentsSearch: TViewComponentsSearch;
-    ViewParametricTable: TViewParametricTable;
     actLoadParametricData: TAction;
     dxBarSubItem5: TdxBarSubItem;
     dxBarButton8: TdxBarButton;
     ViewCategoryParameters: TViewCategoryParameters;
+    ViewParametricTable: TViewParametricTable;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -833,7 +833,7 @@ begin
       AParametricExcelDM.LoadExcelFile2(AFileName);
 
       // Обновляем параметры для текущей категории
-      DM2.qCategoryParameters.RefreshQuery;
+      DM2.CategoryParametersGroup.RefreshData;
       // Пытаемся обновить параметрическую таблицу
       DM2.ComponentsExGroup.TryRefresh;
     finally

@@ -375,8 +375,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Parameters\MainParametersQuery.pas">
-            <Form>QueryMainParameters</Form>
+        <DCCReference Include="Queryes\Parameters\ParametersQuery.pas">
+            <Form>QueryParameters</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -416,11 +416,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Queryes\ParameterValues\ParameterValuesUnit.pas"/>
-        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersQuery.pas">
-            <Form>QueryCategoryParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas">
             <Form>QueryMaxCategoryParameterOrder</Form>
             <FormType>dfm</FormType>
@@ -902,6 +897,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Helpers\MoveHelper.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
