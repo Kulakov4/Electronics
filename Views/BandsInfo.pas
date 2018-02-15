@@ -20,10 +20,12 @@ type
     FIsDefault: Boolean;
     FParameterID: Integer;
     FPos: Integer;
+  protected
   public
     constructor Create(ABand: TcxGridBand; ABandID: Integer); overload;
-    constructor Create(ABand: TcxGridBand; AParameterID: Integer;
-      AIsDefault: Boolean); overload;
+    procedure FreeBand; virtual;
+    function HaveBand(OtherBand: TcxGridBand): Boolean; virtual;
+    procedure Hide; virtual;
     property Band: TcxGridBand read FBand write FBand;
     property CategoryParamID: Integer read FCategoryParamID
       write FCategoryParamID;
@@ -41,21 +43,20 @@ type
 
   TBandsInfo = class(TList<TBandInfo>)
   private
+  protected
   public
     procedure FreeNotDefaultBands;
-    function GetChangedColIndex(AView: TcxGridBandedTableView): TBandsInfo;
-    function GetBandsForView(AView: TcxGridBandedTableView): TBandsInfo;
+    function GetChangedColIndex: TBandsInfo;
     function HaveDifferentPos: Boolean;
     procedure HideDefaultBands;
-    function Search(AView: TcxGridBandedTableView;
-      AIDBand, AIDParameter: Integer; AIsDefault: Boolean): TBandInfo; overload;
-    function Search(ABand: TcxGridBand): TBandInfo; overload;
-    function Search(AView: TcxGridBandedTableView; AIDParameter: Integer;
-      AIsDefault: Boolean): TBandInfo; overload;
-    function Search(AView: TcxGridBandedTableView; AIDBand: Integer)
+    function Search(ABand: TcxGridBand; TestResult: Boolean = False)
       : TBandInfo; overload;
-    function SearchByColIndex(AView: TcxGridBandedTableView; AColIndex: Integer)
+    function SearchByColIndex(AColIndex: Integer; TestResult: Boolean = False):
+        TBandInfo;
+    function SearchByID(AIDBand: Integer; TestResult: Boolean = False)
       : TBandInfo;
+    function SearchByIDParameter(AIDParameter: Integer;
+      TestResult: Boolean = False): TBandInfo;
   end;
 
   TDescComparer = class(TComparer<TBandInfo>)
@@ -66,27 +67,60 @@ type
   TColumnInfo = class(TObject)
   private
     FColIndex: Integer;
-    FColumn: TcxGridBandedColumn;
+    FColumn: TcxGridDBBandedColumn;
     FDefaultCreated: Boolean;
     FIDCategoryParam: Integer;
+    FIsDefault: Boolean;
     FOrder: Integer;
   public
-    constructor Create(AColumn: TcxGridBandedColumn; AIDCategoryParam, AOrder:
-        Integer; ADefaultCreated: Boolean); overload;
+    constructor Create(AColumn: TcxGridDBBandedColumn; AIDCategoryParam, AOrder:
+        Integer; ADefaultCreated, AIsDefault: Boolean); overload;
+    procedure FreeColumn; virtual;
+    function HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean; virtual;
     property ColIndex: Integer read FColIndex write FColIndex;
-    property Column: TcxGridBandedColumn read FColumn write FColumn;
+    property Column: TcxGridDBBandedColumn read FColumn write FColumn;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
-    property IDCategoryParam: Integer read FIDCategoryParam write FIDCategoryParam;
+    property IDCategoryParam: Integer read FIDCategoryParam
+      write FIDCategoryParam;
+    property IsDefault: Boolean read FIsDefault write FIsDefault;
     property Order: Integer read FOrder write FOrder;
   end;
 
   TColumnsInfo = class(TList<TColumnInfo>)
+  protected
   public
     procedure FreeNotDefaultColumns;
-    function GetChangedColIndex(AView: TcxGridBandedTableView): TColumnsInfo;
-    function Search(AColumn: TcxGridDBBandedColumn): TColumnInfo; overload;
-    function Search(AView: TcxGridDBBandedTableView; AIDCategoryParam: Integer):
+    function GetChangedColIndex: TColumnsInfo;
+    function Search(AColumn: TcxGridDBBandedColumn; TestResult: Boolean = False)
+      : TColumnInfo; overload;
+    function Search(AIDCategoryParam: Integer; TestResult: Boolean = False):
         TColumnInfo; overload;
+  end;
+
+  TBandInfoEx = class(TBandInfo)
+  private
+    FBands: TArray<TcxGridBand>;
+  protected
+  public
+    constructor Create(ABands: TArray<TcxGridBand>; ABandID: Integer); reintroduce;
+        overload;
+    constructor CreateAsDefault(AIDParameter: Integer; ABands: TArray<TcxGridBand>);
+    procedure FreeBand; override;
+    function HaveBand(OtherBand: TcxGridBand): Boolean; override;
+    procedure Hide; override;
+    property Bands: TArray<TcxGridBand> read FBands write FBands;
+  end;
+
+  TColumnInfoEx = class(TColumnInfo)
+  private
+    FColumns: TArray<TcxGridDBBandedColumn>;
+  public
+    constructor Create(AColumns: TArray<TcxGridDBBandedColumn>; AIDCategoryParam,
+        AOrder: Integer; ADefaultCreated, AIsDefault: Boolean); reintroduce;
+        overload;
+    procedure FreeColumn; override;
+    function HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean; override;
+    property Columns: TArray<TcxGridDBBandedColumn> read FColumns write FColumns;
   end;
 
 implementation
@@ -101,60 +135,56 @@ begin
   FBandID := ABandID;
 end;
 
-constructor TBandInfo.Create(ABand: TcxGridBand; AParameterID: Integer;
-  AIsDefault: Boolean);
+procedure TBandInfo.FreeBand;
 begin
-  inherited Create;
-  Assert(ABand <> nil);
-  Assert(AParameterID > 0);
+  // разрушаем связанный с описанием бэнд
+  Band.Free;
+  Band := nil;
+end;
 
-  // Этот бэнд для подпараметра "по умолчанию" какого-либо параметра
-  FBand := ABand;
-  FParameterID := AParameterID;
-  FIsDefault := AIsDefault;
+function TBandInfo.HaveBand(OtherBand: TcxGridBand): Boolean;
+begin
+  Assert(OtherBand <> nil);
+  Result := FBand = OtherBand;
+end;
+
+procedure TBandInfo.Hide;
+begin
+  Band.Visible := False;
+  Band.VisibleForCustomization := False;
 end;
 
 procedure TBandsInfo.FreeNotDefaultBands;
 var
+  ABandInfo: TBandInfo;
   i: Integer;
 begin
   for i := Count - 1 downto 0 do
   begin
-    if not Items[i].DefaultCreated then
+    ABandInfo := Items[i];
+    if not ABandInfo.DefaultCreated then
     begin
       // разрушаем бэнд
-      Items[i].Band.Free;
-      // Удаляем описание этого бэнда
+      ABandInfo.FreeBand;
+
+      // Удаляем описание этого бэнда из списка
       Delete(i);
+
+      // Удаляем описание бэнда
+      ABandInfo.Free;
     end;
   end;
 
 end;
 
-function TBandsInfo.GetChangedColIndex(AView: TcxGridBandedTableView)
-  : TBandsInfo;
+function TBandsInfo.GetChangedColIndex: TBandsInfo;
 var
   ABandInfo: TBandInfo;
 begin
-  Assert(AView <> nil);
   Result := TBandsInfo.Create;
   for ABandInfo in Self do
   begin
-    if (ABandInfo.Band.GridView = AView) and
-      (ABandInfo.ColIndex <> ABandInfo.Band.Position.ColIndex) then
-      Result.Add(ABandInfo);
-  end;
-end;
-
-function TBandsInfo.GetBandsForView(AView: TcxGridBandedTableView): TBandsInfo;
-var
-  ABandInfo: TBandInfo;
-begin
-  Assert(AView <> nil);
-  Result := TBandsInfo.Create;
-  for ABandInfo in Self do
-  begin
-    if (ABandInfo.Band.GridView = AView) then
+    if ABandInfo.ColIndex <> ABandInfo.Band.Position.ColIndex then
       Result.Add(ABandInfo);
   end;
 end;
@@ -181,96 +211,69 @@ begin
   for ABandInfo in Self do
     if ABandInfo.DefaultCreated then
     begin
-      ABandInfo.Band.Visible := False;
-      ABandInfo.Band.VisibleForCustomization := False;
+      ABandInfo.Hide;
     end;
 end;
 
-function TBandsInfo.Search(AView: TcxGridBandedTableView;
-  AIDBand, AIDParameter: Integer; AIsDefault: Boolean): TBandInfo;
-begin
-  Assert(AIDBand > 0);
-  Assert(AIDParameter > 0);
-  Assert(AView <> nil);
-
-  // Бэнд с подпараметром по умолчанию встречается только один раз
-  if AIsDefault then
-    Result := Search(AView, AIDParameter, AIsDefault)
-  else
-    Result := Search(AView, AIDBand);
-end;
-
-function TBandsInfo.Search(ABand: TcxGridBand): TBandInfo;
-var
-  ABandInfo: TBandInfo;
+function TBandsInfo.Search(ABand: TcxGridBand; TestResult: Boolean = False)
+  : TBandInfo;
 begin
   Assert(ABand <> nil);
 
-  for ABandInfo in Self do
+  for Result in Self do
   begin
-    Result := ABandInfo;
-
-    if ABandInfo.Band = ABand then
+    if Result.HaveBand(ABand) then
       Exit;
   end;
   Result := nil;
+  if TestResult then
+    Assert(False);
 end;
 
-function TBandsInfo.Search(AView: TcxGridBandedTableView; AIDParameter: Integer;
-  AIsDefault: Boolean): TBandInfo;
-var
-  ABandInfo: TBandInfo;
-begin
-  Assert(AIDParameter > 0);
-  Assert(AView <> nil);
-
-  for ABandInfo in Self do
-  begin
-    Result := ABandInfo;
-
-    if (ABandInfo.Band.GridView = AView) and
-      (ABandInfo.ParameterID = AIDParameter) and
-      (ABandInfo.IsDefault = AIsDefault) then
-      Exit;
-  end;
-  Result := nil;
-end;
-
-function TBandsInfo.Search(AView: TcxGridBandedTableView; AIDBand: Integer)
-  : TBandInfo;
-var
-  ABandInfo: TBandInfo;
-begin
-  Assert(AIDBand > 0);
-  Assert(AView <> nil);
-
-  for ABandInfo in Self do
-  begin
-    Result := ABandInfo;
-
-    if (ABandInfo.Band.GridView = AView) and (ABandInfo.BandID = AIDBand) then
-      Exit;
-  end;
-  Result := nil;
-end;
-
-function TBandsInfo.SearchByColIndex(AView: TcxGridBandedTableView;
-  AColIndex: Integer): TBandInfo;
-var
-  ABandInfo: TBandInfo;
+function TBandsInfo.SearchByColIndex(AColIndex: Integer; TestResult: Boolean =
+    False): TBandInfo;
 begin
   Assert(AColIndex > 0);
-  Assert(AView <> nil);
 
-  for ABandInfo in Self do
+  for Result in Self do
   begin
-    Result := ABandInfo;
-
-    if (ABandInfo.ColIndex = AColIndex) and (ABandInfo.Band.GridView = AView)
-    then
+    if Result.ColIndex = AColIndex then
       Exit;
   end;
   Result := nil;
+  if TestResult then
+    Assert(False);
+end;
+
+function TBandsInfo.SearchByID(AIDBand: Integer; TestResult: Boolean = False)
+  : TBandInfo;
+begin
+  Assert(AIDBand > 0);
+
+  for Result in Self do
+  begin
+    if Result.BandID = AIDBand then
+      Exit;
+  end;
+  Result := nil;
+  if TestResult then
+    Assert(False);
+end;
+
+function TBandsInfo.SearchByIDParameter(AIDParameter: Integer;
+  TestResult: Boolean = False): TBandInfo;
+begin
+  Assert(AIDParameter > 0);
+
+  for Result in Self do
+  begin
+    if (Result.ParameterID = AIDParameter) and (Result.IsDefault = True) then
+      Exit;
+  end;
+  Result := nil;
+
+  if TestResult then
+    Assert(False);
 end;
 
 function TDescComparer.Compare(const Left, Right: TBandInfo): Integer;
@@ -279,8 +282,8 @@ begin
   Result := -1 * (Left.ColIndex - Right.ColIndex);
 end;
 
-constructor TColumnInfo.Create(AColumn: TcxGridBandedColumn; AIDCategoryParam,
-    AOrder: Integer; ADefaultCreated: Boolean);
+constructor TColumnInfo.Create(AColumn: TcxGridDBBandedColumn;
+    AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
 begin
   Assert(AColumn <> nil);
   Assert(AIDCategoryParam > 0);
@@ -291,6 +294,17 @@ begin
   FOrder := AOrder;
   FDefaultCreated := ADefaultCreated;
   FColIndex := FColumn.Position.ColIndex;
+  FIsDefault := AIsDefault;
+end;
+
+procedure TColumnInfo.FreeColumn;
+begin
+  FColumn.Free;
+end;
+
+function TColumnInfo.HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean;
+begin
+  Result := FColumn = OtherColumn;
 end;
 
 procedure TColumnsInfo.FreeNotDefaultColumns;
@@ -310,41 +324,146 @@ begin
 
 end;
 
-function TColumnsInfo.GetChangedColIndex(AView: TcxGridBandedTableView):
-    TColumnsInfo;
+function TColumnsInfo.GetChangedColIndex: TColumnsInfo;
 var
   ACI: TColumnInfo;
 begin
-  Assert(AView <> nil);
   Result := TColumnsInfo.Create;
   for ACI in Self do
   begin
-    if (ACI.Column.GridView = AView) and
-      (ACI.ColIndex <> ACI.Column.Position.ColIndex) then
+    if ACI.ColIndex <> ACI.Column.Position.ColIndex then
       Result.Add(ACI);
   end;
 end;
 
-function TColumnsInfo.Search(AColumn: TcxGridDBBandedColumn): TColumnInfo;
+function TColumnsInfo.Search(AColumn: TcxGridDBBandedColumn;
+  TestResult: Boolean = False): TColumnInfo;
 begin
   Assert(AColumn <> nil);
   for Result in Self do
   begin
-    if Result.Column = AColumn then
+    if Result.HaveColumn(AColumn) then
       Exit;
   end;
   Result := nil;
+
+  if TestResult then
+    Assert(False);
 end;
 
-function TColumnsInfo.Search(AView: TcxGridDBBandedTableView; AIDCategoryParam:
-    Integer): TColumnInfo;
+function TColumnsInfo.Search(AIDCategoryParam: Integer; TestResult: Boolean =
+    False): TColumnInfo;
 begin
   for Result in Self do
   begin
-    if ( Result.Column.GridView = AView ) and (Result.IDCategoryParam = AIDCategoryParam) then
+    if Result.IDCategoryParam = AIDCategoryParam then
       Exit;
   end;
   Result := nil;
+  if TestResult then
+    Assert(False);
+end;
+
+constructor TBandInfoEx.Create(ABands: TArray<TcxGridBand>; ABandID: Integer);
+begin
+  // В массиве должен быть хотя-бы один бэнд
+  Assert(Length(ABands) > 0);
+  inherited Create(ABands[0], ABandID);
+  // Все бэнды
+  FBands := ABands;
+end;
+
+constructor TBandInfoEx.CreateAsDefault(AIDParameter: Integer; ABands:
+    TArray<TcxGridBand>);
+begin
+  // В массиве должен быть хотя-бы один бэнд
+  Assert(Length(ABands) > 0);
+  Assert(AIDParameter > 0);
+
+  // Главный бэнд
+  FBand := ABands[0];
+  // Все бэнды
+  FBands := ABands;
+  IsDefault := True;
+  DefaultCreated := True;
+  FParameterID := AIDParameter;
+end;
+
+procedure TBandInfoEx.FreeBand;
+var
+  ABand: TcxGridBand;
+begin
+  // разрушаем связанные с описанием бэнды
+  for ABand in FBands do
+  begin
+    ABand.Free;
+  end;
+  // В массиве больше нет ссылок на бэнды
+  SetLength(FBands, 0);
+end;
+
+function TBandInfoEx.HaveBand(OtherBand: TcxGridBand): Boolean;
+var
+  ABand: TcxGridBand;
+begin
+  Assert(OtherBand <> nil);
+  Result := False;
+  for ABand in FBands do
+  begin
+    if ABand = OtherBand then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+procedure TBandInfoEx.Hide;
+var
+  ABand: TcxGridBand;
+begin
+  for ABand in FBands do
+  begin
+    ABand.Visible := False;
+    ABand.VisibleForCustomization := False;
+  end;
+end;
+
+constructor TColumnInfoEx.Create(AColumns: TArray<TcxGridDBBandedColumn>;
+    AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
+begin
+  // В массиве колонок должна быть хотя бы одна колонка
+  Assert(Length(AColumns) > 1);
+  Create(AColumns[0], AIDCategoryParam, AOrder, ADefaultCreated, AIsDefault);
+  FColumns := AColumns;
+end;
+
+procedure TColumnInfoEx.FreeColumn;
+var
+  AColumn: TcxGridBandedColumn;
+begin
+  for AColumn in FColumns do
+  begin
+    AColumn.Free;
+  end;
+  SetLength(FColumns, 0);
+end;
+
+function TColumnInfoEx.HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean;
+var
+  AColumn: TcxGridBandedColumn;
+begin
+  Result := False;
+
+  for AColumn in FColumns do
+  begin
+    if AColumn = OtherColumn then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+
 end;
 
 end.

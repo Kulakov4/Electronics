@@ -88,6 +88,7 @@ type
   protected
     FColumnsBarButtons: TGVColumnsBarButtons;
     FEventList: TObjectList;
+    FPopupMenuColumn: TcxGridDBBandedColumn;
     procedure AfterKeyOrMouseDown(var Message: TMessage);
       message WM_AfterKeyOrMouseDown;
     procedure CreateColumnsBarButtons; virtual;
@@ -118,10 +119,13 @@ type
       ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
       const AKeyFieldNames: string = 'ID'); overload;
-    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); virtual;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn); virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InternalRefreshData; virtual;
     procedure MyDelete; virtual;
+    procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn); virtual;
+    procedure ProcessGridPopupMenu(ASenderMenu: TComponent; AHitTest:
+        TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean); virtual;
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
     property SortSL: TList<String> read FSortSL;
@@ -155,6 +159,7 @@ type
     procedure FocusColumnEditor(ALevel: Integer; AFieldName: string); overload;
     procedure FocusColumnEditor(AView: TcxGridDBBandedTableView;
       AFieldName: string); overload;
+    procedure FocusFirstSelectedRow(AView: TcxGridDBBandedTableView);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
     procedure FocusSelectedRecord; overload;
     procedure PutInTheCenterFocusedRecord
@@ -462,23 +467,9 @@ end;
 
 procedure TfrmGrid.cxGridPopupMenuPopup(ASenderMenu: TComponent;
   AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
-var
-  AColumn: TcxGridDBBandedColumn;
-  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
 begin
   inherited;
-  AColumn := nil;
-
-  if (AHitTest is TcxGridRecordCellHitTest) then
-  begin
-    AcxGridRecordCellHitTest := (AHitTest as TcxGridRecordCellHitTest);
-    if AcxGridRecordCellHitTest.Item is TcxGridDBBandedColumn then
-    begin
-      AColumn := AcxGridRecordCellHitTest.Item as TcxGridDBBandedColumn;
-    end;
-  end;
-
-  OnGridPopupMenuPopup(AColumn);
+  ProcessGridPopupMenu(ASenderMenu, AHitTest, X, Y, AllowPopup);
 end;
 
 procedure TfrmGrid.DisableCollapsingAndExpanding;
@@ -892,7 +883,7 @@ begin
     ADropDownListStyle, AListFieldNames, AKeyFieldNames);
 end;
 
-procedure TfrmGrid.OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn);
+procedure TfrmGrid.OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn);
 begin
 end;
 
@@ -1102,6 +1093,14 @@ begin
   AView.Controller.EditingController.ShowEdit(AColumn);
 end;
 
+procedure TfrmGrid.FocusFirstSelectedRow(AView: TcxGridDBBandedTableView);
+begin
+  if AView.Controller.SelectedRowCount = 0 then
+    Exit;
+
+  AView.Controller.SelectedRows[0].Focused := True;
+end;
+
 function TfrmGrid.GetParentForm: TForm;
 var
   AWinControl: TWinControl;
@@ -1257,6 +1256,10 @@ begin
 
 end;
 
+procedure TfrmGrid.OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn);
+begin
+end;
+
 procedure TfrmGrid.PostMyApplyBestFitEventForView
   (AView: TcxGridDBBandedTableView);
 begin
@@ -1280,6 +1283,35 @@ begin
     FApplyBestFitPosted := False;
     ; // Что-то случается с Handle
   end;
+end;
+
+procedure TfrmGrid.ProcessGridPopupMenu(ASenderMenu: TComponent; AHitTest:
+    TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+var
+  AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
+  AcxGridColumnHeaderHitTest: TcxGridColumnHeaderHitTest;
+begin
+  inherited;
+
+  FPopupMenuColumn := nil;
+
+  if (AHitTest is TcxGridRecordCellHitTest) then
+  begin
+    AcxGridRecordCellHitTest := (AHitTest as TcxGridRecordCellHitTest);
+    if AcxGridRecordCellHitTest.Item is TcxGridDBBandedColumn then
+    begin
+      FPopupMenuColumn := AcxGridRecordCellHitTest.Item as TcxGridDBBandedColumn;
+      OnGridRecordCellPopupMenu(FPopupMenuColumn);
+    end;
+  end;
+
+  if (AHitTest is TcxGridColumnHeaderHitTest) then
+  begin
+    AcxGridColumnHeaderHitTest := (AHitTest as TcxGridColumnHeaderHitTest);
+    FPopupMenuColumn := AcxGridColumnHeaderHitTest.Column as TcxGridDBBandedColumn;
+    OnGridColumnHeaderPopupMenu(FPopupMenuColumn);
+  end;
+  Application.Hint := '';
 end;
 
 procedure TfrmGrid.RefreshData;

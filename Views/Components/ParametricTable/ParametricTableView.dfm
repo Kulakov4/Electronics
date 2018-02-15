@@ -325,10 +325,12 @@ inherited ViewParametricTable: TViewParametricTable
     object actAddSubParameter: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 1
+      OnExecute = actAddSubParameterExecute
     end
     object actDropSubParameter: TAction
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 2
+      OnExecute = actDropSubParameterExecute
     end
   end
   inherited pmGrid: TPopupMenu

@@ -172,44 +172,25 @@ end;
 
 procedure TViewCategoryParameters.actAddSubParameterExecute(Sender: TObject);
 var
-  AfrmSubParameters: TfrmSubParameters;
   AID: Integer;
   AIDParameter: Integer;
   ARow: TcxGridMasterDataRow;
   fri: Integer;
-  qSubParameters: TQuerySubParameters2;
   S: String;
 begin
   inherited;
   S := '';
-  fri := 0;
+
   // Получаем идентификатор связки сатегория-параметр
+  FocusFirstSelectedRow(MainView);
   AID := Value(MainView, clID, MainView.Controller.FocusedRowIndex);
   AIDParameter := Value(MainView, clIDParameter,
     MainView.Controller.FocusedRowIndex);
 
-  qSubParameters := TQuerySubParameters2.Create(Self);
-  AfrmSubParameters := TfrmSubParameters.Create(nil);
-  try
-    AfrmSubParameters.ViewSubParameters.CheckedMode := True;
-    // Добавляем в SQL запрос поле с галочкой
-    qSubParameters.OpenWithChecked(AIDParameter,
-      CatParamsGroup.qCategoryParameters.ParentValue);
-
-    AfrmSubParameters.ViewSubParameters.QuerySubParameters := qSubParameters;
-    if AfrmSubParameters.ShowModal = mrOK then
-    begin
-      fri := MainView.Controller.FocusedRowIndex;
-      // Получаем идентификаторы отмеченных галочками подпараметров
-      S := qSubParameters.GetCheckedValues(qSubParameters.PKFieldName);
-    end;
-  finally
-    FreeAndNil(AfrmSubParameters);
-    FreeAndNil(qSubParameters);
-  end;
-
-  if not S.IsEmpty then
+  // Получаем отмеченные галочками подпараметры
+  if TfrmSubParameters.GetCheckedID(AIDParameter, CatParamsGroup.qCategoryParameters.ParentValue, S) then
   begin
+    fri := MainView.Controller.FocusedRowIndex;
     cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
     CatParamsGroup.AddOrDeleteSubParameters(AID, S);
     // Возвращаемся к той записи, которая была сфокусирована
@@ -217,11 +198,8 @@ begin
 
     ARow := GetRow(0) as TcxGridMasterDataRow;
     ARow.Expand(True);
-    // MyApplyBestFitForView
-    // (ARow.ActiveDetailGridView as TcxGridDBBandedTableView);
   end;
   UpdateView;
-
 end;
 
 procedure TViewCategoryParameters.actAddToBeginExecute(Sender: TObject);
@@ -620,10 +598,10 @@ begin
     finally
       AView.EndSortingUpdate;
     end;
-
   finally
     FreeAndNil(IDList);
   end;
+  UpdateView;
 end;
 
 procedure TViewCategoryParameters.MoveSubParameter(AUp: Boolean);
@@ -731,6 +709,7 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
+  FocusFirstSelectedRow(AView);
 
   OK := (FCatParamsGroup <> nil) and FCatParamsGroup.IsAllQuerysActive;
 

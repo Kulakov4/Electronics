@@ -386,7 +386,7 @@ begin
   qCategoryParameters.LocateByPK(AID, True);
   AIDParameter := qCategoryParameters.IDParameter.AsInteger;
 
-  // Создаём клон, содержащий все подпараметры нашего параметра
+  // получаем все подпараметры нашего параметра
   // Они могут быть расположены в разных группах!!!
   S1 := Format(',%s,', [qCategoryParameters.GetAllIDSubParamList]);
 

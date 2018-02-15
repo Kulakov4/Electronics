@@ -243,7 +243,10 @@ var
   NeedInitialize: Boolean;
 begin
   // Поиск среди ранее созданных бэндов
-  ABandInfo := FBandsInfo.Search(AView, AIDBand, AIDParameter, AIsDefault);
+  if AIsDefault then
+    ABandInfo := FBandsInfo.SearchByIDParameter(AIDParameter)
+  else
+    ABandInfo := FBandsInfo.SearchByID(AIDBand);
 
   // Нужна ли инициализация бэнда
   NeedInitialize := (ABandInfo = nil) or

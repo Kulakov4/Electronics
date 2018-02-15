@@ -34,11 +34,16 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
+    class function GetCheckedID(AIDParameter, AProductCategoryID: Integer; out
+        ACheckedID: String): Boolean; static;
     { Public declarations }
   end;
 
 
 implementation
+
+uses
+  SubParametersQuery2;
 
 {$R *.dfm}
 
@@ -54,6 +59,32 @@ end;
 
 procedure TfrmSubParameters.ClearFormVariable;
 begin
+end;
+
+class function TfrmSubParameters.GetCheckedID(AIDParameter, AProductCategoryID:
+    Integer; out ACheckedID: String): Boolean;
+var
+  AfrmSubParameters: TfrmSubParameters;
+  qSubParameters: TQuerySubParameters2;
+begin
+  qSubParameters := TQuerySubParameters2.Create(nil);
+  AfrmSubParameters := TfrmSubParameters.Create(nil);
+  try
+    AfrmSubParameters.ViewSubParameters.CheckedMode := True;
+    // Добавляем в SQL запрос поле с галочкой
+    qSubParameters.OpenWithChecked(AIDParameter, AProductCategoryID);
+
+    AfrmSubParameters.ViewSubParameters.QuerySubParameters := qSubParameters;
+    Result := AfrmSubParameters.ShowModal = mrOK;
+    if Result then
+    begin
+      // Получаем идентификаторы отмеченных галочками подпараметров
+      ACheckedID := qSubParameters.GetCheckedValues(qSubParameters.PKFieldName);
+    end;
+  finally
+    FreeAndNil(AfrmSubParameters);
+    FreeAndNil(qSubParameters);
+  end;
 end;
 
 function TfrmSubParameters.HaveAnyChanges: Boolean;

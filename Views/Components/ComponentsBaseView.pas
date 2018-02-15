@@ -112,7 +112,7 @@ type
   protected
     procedure DoOnMasterDetailChange; override;
     procedure InternalRefreshData; override;
-    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn); override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
@@ -504,8 +504,8 @@ begin
     lsEditFixedList, BaseComponentsGroup.Producers.Name);
 end;
 
-procedure TViewComponentsBase.OnGridPopupMenuPopup
-  (AColumn: TcxGridDBBandedColumn);
+procedure TViewComponentsBase.OnGridRecordCellPopupMenu(AColumn:
+    TcxGridDBBandedColumn);
 Var
   AColumnIsValue: Boolean;
   IsText: Boolean;

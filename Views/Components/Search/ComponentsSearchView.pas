@@ -59,7 +59,7 @@ type
     procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup);
     { Private declarations }
   protected
-    procedure OnGridPopupMenuPopup(AColumn: TcxGridDbBandedColumn); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDbBandedColumn); override;
   public
     procedure UpdateView; override;
     property ComponentsSearchGroup: TComponentsSearchGroup
@@ -168,8 +168,8 @@ begin
   Result := BaseComponentsGroup as TComponentsSearchGroup;
 end;
 
-procedure TViewComponentsSearch.OnGridPopupMenuPopup
-  (AColumn: TcxGridDbBandedColumn);
+procedure TViewComponentsSearch.OnGridRecordCellPopupMenu(AColumn:
+    TcxGridDbBandedColumn);
 begin
   inherited;
 

@@ -446,7 +446,7 @@ begin
     FRefreshQry := TQueryCategoryParameters2.Create(Self);
     // ƒобавл€ем в текст SQL запроса условие с параметром
     FRefreshQry.FDQuery.SQL.Text := FRefreshQry.FDQuery.SQL.Text.Replace
-      ('--and', ' and ParamSubParamId = :ParamSubParamID');
+      ('and 0=0', 'and 0=0 and ParamSubParamId = :ParamSubParamID');
 
     FRefreshQry.SetParamType('ParamSubParamID');
   end;
