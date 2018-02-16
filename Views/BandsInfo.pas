@@ -10,15 +10,15 @@ type
   TBandInfo = class(TObject)
   private
     FBand: TcxGridBand;
-    FCategoryParamID: Integer;
     FDefaultCreated: Boolean;
     FDefaultVisible: Boolean;
     FOrder: Integer;
     FBandID: Integer;
     FColIndex: Integer;
+    FIDParameter: Integer;
     FIDParameterKind: Integer;
     FIsDefault: Boolean;
-    FParameterID: Integer;
+    FIDParamSubParam: Integer;
     FPos: Integer;
   protected
   public
@@ -27,17 +27,16 @@ type
     function HaveBand(OtherBand: TcxGridBand): Boolean; virtual;
     procedure Hide; virtual;
     property Band: TcxGridBand read FBand write FBand;
-    property CategoryParamID: Integer read FCategoryParamID
-      write FCategoryParamID;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property DefaultVisible: Boolean read FDefaultVisible write FDefaultVisible;
     property Order: Integer read FOrder write FOrder;
     property BandID: Integer read FBandID write FBandID;
     property ColIndex: Integer read FColIndex write FColIndex;
+    property IDParameter: Integer read FIDParameter write FIDParameter;
     property IDParameterKind: Integer read FIDParameterKind
       write FIDParameterKind;
     property IsDefault: Boolean read FIsDefault write FIsDefault;
-    property ParameterID: Integer read FParameterID write FParameterID;
+    property IDParamSubParam: Integer read FIDParamSubParam write FIDParamSubParam;
     property Pos: Integer read FPos write FPos;
   end;
 
@@ -55,8 +54,8 @@ type
         TBandInfo;
     function SearchByID(AIDBand: Integer; TestResult: Boolean = False)
       : TBandInfo;
-    function SearchByIDParameter(AIDParameter: Integer;
-      TestResult: Boolean = False): TBandInfo;
+    function SearchByIDParamSubParam(AIDParamSubParam: Integer; TestResult: Boolean
+        = False): TBandInfo;
   end;
 
   TDescComparer = class(TComparer<TBandInfo>)
@@ -104,7 +103,8 @@ type
   public
     constructor Create(ABands: TArray<TcxGridBand>; ABandID: Integer); reintroduce;
         overload;
-    constructor CreateAsDefault(AIDParameter: Integer; ABands: TArray<TcxGridBand>);
+    constructor CreateAsDefault(AIDParamSubParam: Integer; ABands:
+        TArray<TcxGridBand>);
     procedure FreeBand; override;
     function HaveBand(OtherBand: TcxGridBand): Boolean; override;
     procedure Hide; override;
@@ -260,14 +260,14 @@ begin
     Assert(False);
 end;
 
-function TBandsInfo.SearchByIDParameter(AIDParameter: Integer;
-  TestResult: Boolean = False): TBandInfo;
+function TBandsInfo.SearchByIDParamSubParam(AIDParamSubParam: Integer;
+    TestResult: Boolean = False): TBandInfo;
 begin
-  Assert(AIDParameter > 0);
+  Assert(AIDParamSubParam > 0);
 
   for Result in Self do
   begin
-    if (Result.ParameterID = AIDParameter) and (Result.IsDefault = True) then
+    if (Result.IDParamSubParam = AIDParamSubParam) and (Result.IsDefault = True) then
       Exit;
   end;
   Result := nil;
@@ -373,12 +373,12 @@ begin
   FBands := ABands;
 end;
 
-constructor TBandInfoEx.CreateAsDefault(AIDParameter: Integer; ABands:
+constructor TBandInfoEx.CreateAsDefault(AIDParamSubParam: Integer; ABands:
     TArray<TcxGridBand>);
 begin
   // В массиве должен быть хотя-бы один бэнд
   Assert(Length(ABands) > 0);
-  Assert(AIDParameter > 0);
+  Assert(AIDParamSubParam > 0);
 
   // Главный бэнд
   FBand := ABands[0];
@@ -386,7 +386,7 @@ begin
   FBands := ABands;
   IsDefault := True;
   DefaultCreated := True;
-  FParameterID := AIDParameter;
+  FIDParamSubParam := AIDParamSubParam;
 end;
 
 procedure TBandInfoEx.FreeBand;

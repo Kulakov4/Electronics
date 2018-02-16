@@ -14,9 +14,16 @@ uses
   SearchParamSubParamQuery, System.Generics.Defaults;
 
 type
+  TRecHolderList = class(TObjectList<TRecordHolder>)
+  public
+  end;
+
   TQueryCategoryParameters2 = class(TQueryWithDataSource)
   private
+    FDeletedSubParams: TRecHolderList;
+    FEditedSubParams: TRecHolderList;
     FInsertedClone: TFDMemTable;
+    FInsertedSubParams: TRecHolderList;
     FMaxOrder: Integer;
     FOn_ApplyUpdates: TNotifyEventsEx;
     FPKDictionary: TDictionary<Integer, Integer>;
@@ -65,6 +72,7 @@ type
       AIsDefault: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    procedure ClearSubParamsRecHolders;
     function CreateSubParamsClone: TFDMemTable;
     procedure FilterByIsDefault(AIsDefault: Integer);
     function GetAllIDSubParamList: string;
@@ -80,10 +88,13 @@ type
     procedure SetPos(APosID: Integer); overload;
     procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
     property CategoryID: TField read GetCategoryID;
+    property DeletedSubParams: TRecHolderList read FDeletedSubParams;
+    property EditedSubParams: TRecHolderList read FEditedSubParams;
     property HaveInserted: Boolean read GetHaveInserted;
     property IDParameter: TField read GetIDParameter;
     property IDParameterKind: TField read GetIDParameterKind;
     property IdSubParameter: TField read GetIdSubParameter;
+    property InsertedSubParams: TRecHolderList read FInsertedSubParams;
     property IsAttribute: TField read GetIsAttribute;
     property IsDefault: TField read GetIsDefault;
     property IsEnabled: TField read GetIsEnabled;
@@ -124,6 +135,10 @@ begin
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
 
+  FDeletedSubParams := TRecHolderList.Create;
+  FEditedSubParams := TRecHolderList.Create;
+  FInsertedSubParams := TRecHolderList.Create;
+
   FPKDictionary := TDictionary<Integer, Integer>.Create;
 
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
@@ -131,6 +146,9 @@ end;
 
 destructor TQueryCategoryParameters2.Destroy;
 begin
+  FreeAndNil(FEditedSubParams);
+  FreeAndNil(FDeletedSubParams);
+  FreeAndNil(FInsertedSubParams);
   FreeAndNil(FPKDictionary);
   inherited;
 end;
@@ -172,8 +190,8 @@ begin
   QueryRecursiveParameters.ExecDeleteSQL(ParamSubParamId.OldValue,
     CategoryID.OldValue);
 
-  // Удаляем из категорий подпараметры удалённых параметров
-  // fdqDeleteSubParameters.ExecSQL;
+  // Запоминаем, какаой подпараметр мы удалили
+  FDeletedSubParams.Add(TRecordHolder.Create(FDQuery));
 end;
 
 procedure TQueryCategoryParameters2.ApplyInsert(ASender: TDataSet;
@@ -201,12 +219,18 @@ begin
   // Заполняем первычный ключ у вставленной записи
   FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction,
     AOptions);
+
+  // Запоминаем, вставленную запись
+  FInsertedSubParams.Add( TRecordHolder.Create(FDQuery) );
+
   // AID.AsInteger := RefreshQry.PK.Value;
 end;
 
 procedure TQueryCategoryParameters2.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
+var
+  ARecHolder: TRecordHolder;
 begin
   Assert(ASender = FDQuery);
   if ((PosID.OldValue <> PosID.Value) or (Ord.OldValue <> Ord.Value)) then
@@ -231,6 +255,10 @@ begin
       ParamSubParamId.OldValue, ParamSubParamId.AsInteger,
       CategoryID.AsInteger);
   end;
+
+  ARecHolder := TRecordHolder.Create(FDQuery);
+  ARecHolder.Field[ ParamSubParamId.FieldName ] := ParamSubParamId.OldValue;
+  FEditedSubParams.Add(ARecHolder);
 end;
 
 procedure TQueryCategoryParameters2.ApplyUpdates;
@@ -246,6 +274,14 @@ procedure TQueryCategoryParameters2.CancelUpdates;
 begin
   inherited;
   FMaxOrder := 0;
+  ClearSubParamsRecHolders;
+end;
+
+procedure TQueryCategoryParameters2.ClearSubParamsRecHolders;
+begin
+  FInsertedSubParams.Clear;
+  FDeletedSubParams.Clear;
+  FEditedSubParams.Clear;
 end;
 
 function TQueryCategoryParameters2.CreateSubParamsClone: TFDMemTable;

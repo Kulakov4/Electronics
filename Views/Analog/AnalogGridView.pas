@@ -69,11 +69,11 @@ type
     FColumns: TList<TcxGridDBBandedColumn>;
     FcxGridDBBandedColumn: TcxGridDBBandedColumn;
     FcxMemo: TcxMemo;
-    procedure CreateColumn(AView: TcxGridDBBandedTableView; AIDBand, AIDParameter:
-        Integer; AIsDefault: Boolean; const ABandCaption, AColumnCaption,
-        AFieldName: String; AVisible: Boolean; const ABandHint: string;
-        ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID: Integer;
-        const AColumnHint: String);
+    procedure CreateColumn(AView: TcxGridDBBandedTableView;
+      AIDBand, AIDParamSubParam: Integer; AIsDefault: Boolean;
+      const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
+      const ABandHint: string; ACategoryParamID, AOrder, APosID,
+      AIDParameterKind, AColumnID: Integer; const AColumnHint: String);
     procedure DeleteBands;
     procedure DeleteColumns;
     procedure SetAnalogGroup(const Value: TAnalogGroup);
@@ -171,7 +171,8 @@ begin
   AParamSubParamID := AnalogGroup.GetParamSubParamIDByFieldName
     (FcxGridDBBandedColumn.DataBinding.FieldName);
 
-  AParamValues := AnalogGroup.ParamValuesList.FindByParamSubParamID(AParamSubParamID);
+  AParamValues := AnalogGroup.ParamValuesList.FindByParamSubParamID
+    (AParamSubParamID);
   Assert(AParamValues <> nil);
 
   ViewGridPopupAnalog.DataSet := AParamValues.Table;
@@ -232,10 +233,10 @@ begin
 end;
 
 procedure TViewAnalogGrid.CreateColumn(AView: TcxGridDBBandedTableView;
-    AIDBand, AIDParameter: Integer; AIsDefault: Boolean; const ABandCaption,
-    AColumnCaption, AFieldName: String; AVisible: Boolean; const ABandHint:
-    string; ACategoryParamID, AOrder, APosID, AIDParameterKind, AColumnID:
-    Integer; const AColumnHint: String);
+  AIDBand, AIDParamSubParam: Integer; AIsDefault: Boolean;
+  const ABandCaption, AColumnCaption, AFieldName: String; AVisible: Boolean;
+  const ABandHint: string; ACategoryParamID, AOrder, APosID, AIDParameterKind,
+  AColumnID: Integer; const AColumnHint: String);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -244,7 +245,7 @@ var
 begin
   // Поиск среди ранее созданных бэндов
   if AIsDefault then
-    ABandInfo := FBandsInfo.SearchByIDParameter(AIDParameter)
+    ABandInfo := FBandsInfo.SearchByIDParamSubParam(AIDParamSubParam)
   else
     ABandInfo := FBandsInfo.SearchByID(AIDBand);
 
@@ -270,8 +271,9 @@ begin
     ABandInfo.BandID := AIDBand; // Идентификатор бэнда
     ABandInfo.IsDefault := AIsDefault;
     // Связан ли он с подпараметром по умолчанию
-    ABandInfo.ParameterID := AIDParameter; // Параметр, с которым связан бэнд
-    ABandInfo.CategoryParamID := ACategoryParamID;
+    ABandInfo.IDParamSubParam := AIDParamSubParam;
+    // Параметр, с которым связан бэнд
+//    ABandInfo.CategoryParamID := ACategoryParamID;
     ABandInfo.DefaultVisible := AVisible;
     ABandInfo.IDParameterKind := AIDParameterKind;
     ABand.Visible := AVisible;
@@ -298,21 +300,21 @@ begin
     AColumn.Tag := AColumnID;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители
-//    AColumn.OnGetDataText := DoOnGetDataText;
+    // AColumn.OnGetDataText := DoOnGetDataText;
 
-//    if AView = MainView then
-//    begin
-      AColumn.PropertiesClass := TcxMemoProperties;
-      (AColumn.Properties as TcxMemoProperties).WordWrap := False;
-//      (AColumn.Properties as TcxMemoProperties).OnEditValueChanged :=
-//        DoOnEditValueChanged;
-//      AColumn.OnUserFilteringEx := DoOnUserFilteringEx;
-//      AColumn.OnGetFilterValues := DoOnGetFilterValues;
-//    end
-//    else
-//    begin
-//      AColumn.PropertiesClass := TcxTextEditProperties;
-//    end;
+    // if AView = MainView then
+    // begin
+    AColumn.PropertiesClass := TcxMemoProperties;
+    (AColumn.Properties as TcxMemoProperties).WordWrap := False;
+    // (AColumn.Properties as TcxMemoProperties).OnEditValueChanged :=
+    // DoOnEditValueChanged;
+    // AColumn.OnUserFilteringEx := DoOnUserFilteringEx;
+    // AColumn.OnGetFilterValues := DoOnGetFilterValues;
+    // end
+    // else
+    // begin
+    // AColumn.PropertiesClass := TcxTextEditProperties;
+    // end;
     FColumns.Add(AColumn);
   end
 end;
@@ -440,7 +442,7 @@ var
   AIDParameterKind: Integer;
   AIsDefault: Boolean;
   AOrder: Integer;
-  AParamSubParamId: Integer;
+  AParamSubParamID: Integer;
   APosID: Integer;
   AVisible: Boolean;
   qCategoryParameters: TQueryCategoryParameters2;
@@ -469,9 +471,9 @@ begin
         while not AClone.Eof do
         begin
           // Имя поля получаем из словаря всех имён полей параметров
-          AParamSubParamId := AClone.FieldByName
+          AParamSubParamID := AClone.FieldByName
             (qCategoryParameters.ParamSubParamId.FieldName).AsInteger;
-          AFieldName := AnalogGroup.AllParameterFields[AParamSubParamId];
+          AFieldName := AnalogGroup.AllParameterFields[AParamSubParamID];
           AVisible := AClone.FieldByName
             (qCategoryParameters.IsAttribute.FieldName).AsInteger = 1;
           ABandCaption := AClone.FieldByName
@@ -502,7 +504,7 @@ begin
             (qCategoryParameters.IDParameter.FieldName).AsInteger;
           AIsDefault := AClone.FieldByName
             (qCategoryParameters.IsDefault.FieldName).AsInteger = 1;
-          AColumnID := AParamSubParamId;
+          AColumnID := AParamSubParamID;
 
           // Создаём колонку в главном представлении
           CreateColumn(MainView, AIDBand, AIDParameter, AIsDefault,
@@ -518,13 +520,13 @@ begin
       qCatParams.Next;
     end;
 
-{
-    qCategoryParameters.FDQuery.First;
-    while not qCategoryParameters.FDQuery.Eof do
-    begin
+    {
+      qCategoryParameters.FDQuery.First;
+      while not qCategoryParameters.FDQuery.Eof do
+      begin
       // Имя поля получаем из словаря всех имён полей параметров
       AFieldName := AnalogGroup.AllParameterFields
-        [qCategoryParameters.ParameterID.AsInteger];
+      [qCategoryParameters.ParameterID.AsInteger];
       AVisible := qCategoryParameters.IsAttribute.AsBoolean;
       ACaption := qCategoryParameters.Caption.AsString;
       ABandHint := qCategoryParameters.BandHint.AsString;
@@ -537,25 +539,25 @@ begin
       // Если это родительский параметр
       if qCategoryParameters.ParentParameter.IsNull then
       begin
-        AIDBand := qCategoryParameters.ParameterID.AsInteger;
-        ABandCaption := ACaption;
-        AColumnCaption := ' ';
+      AIDBand := qCategoryParameters.ParameterID.AsInteger;
+      ABandCaption := ACaption;
+      AColumnCaption := ' ';
       end
       else
       begin
-        AIDBand := qCategoryParameters.ParentParameter.AsInteger;
-        ABandCaption := qCategoryParameters.ParentCaption.AsString;
-        AColumnCaption := ACaption;
+      AIDBand := qCategoryParameters.ParentParameter.AsInteger;
+      ABandCaption := qCategoryParameters.ParentCaption.AsString;
+      AColumnCaption := ACaption;
       end;
 
       // Создаём колонку в главном представлении
       CreateColumn2(MainView, AIDBand, ABandCaption, AColumnCaption, AFieldName,
-        AVisible, ABandHint, ACategoryParamID, AOrder, APosID, AColumnHint);
+      AVisible, ABandHint, ACategoryParamID, AOrder, APosID, AColumnHint);
 
 
       qCategoryParameters.FDQuery.Next;
-    end;
-}
+      end;
+    }
     // запоминаем в какой позиции находится наш бэнд
     for ABandInfo in FBandsInfo do
       ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
