@@ -112,7 +112,8 @@ type
   protected
     procedure DoOnMasterDetailChange; override;
     procedure InternalRefreshData; override;
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
+        AllowPopup: Boolean); override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
@@ -505,7 +506,7 @@ begin
 end;
 
 procedure TViewComponentsBase.OnGridRecordCellPopupMenu(AColumn:
-    TcxGridDBBandedColumn);
+    TcxGridDBBandedColumn; var AllowPopup: Boolean);
 Var
   AColumnIsValue: Boolean;
   IsText: Boolean;

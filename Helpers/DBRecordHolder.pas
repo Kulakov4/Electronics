@@ -130,7 +130,7 @@ Var
   S: string;
 begin
   Assert(DataSet <> nil);
-  if (not DataSet.Active) or DataSet.IsEmpty then
+  if (not DataSet.Active) { or DataSet.IsEmpty } then
     raise Exception.Create
       ('Ошибка при сохранении записи из набора данных. Набор данных не открыт или пуст');
 

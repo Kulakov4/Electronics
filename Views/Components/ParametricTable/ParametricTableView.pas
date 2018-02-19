@@ -70,6 +70,9 @@ type
     pmHeaders: TPopupMenu;
     N7: TMenuItem;
     N8: TMenuItem;
+    pmBands: TPopupMenu;
+    actDropParameter: TAction;
+    N9: TMenuItem;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -77,6 +80,7 @@ type
     procedure actLocateInStorehouseExecute(Sender: TObject);
     procedure actAnalogExecute(Sender: TObject);
     procedure actClearSelectedExecute(Sender: TObject);
+    procedure actDropParameterExecute(Sender: TObject);
     procedure actDropSubParameterExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
@@ -149,10 +153,12 @@ type
     procedure DropColumn(AIDCategoryParam: Integer);
     procedure OnEditValueChangeProcess(var Message: TMessage);
       message WM_ON_EDIT_VALUE_CHANGE;
-    procedure OnGridColumnHeaderPopupMenu
-      (AColumn: TcxGridDBBandedColumn); override;
-    procedure OnGridRecordCellPopupMenu
-      (AColumn: TcxGridDBBandedColumn); override;
+    procedure OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
+      var AllowPopup: Boolean); override;
+    procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); override;
     procedure UpdateDetailColumnsWidth2;
     procedure UpdateFiltersAction;
     property qCategoryParameters: TQueryCategoryParameters2
@@ -235,14 +241,18 @@ procedure TViewParametricTable.actAddSubParameterExecute(Sender: TObject);
 var
   ABI: TBandInfo;
   ACI: TColumnInfo;
+  AColumn: TcxGridDBBandedColumn;
   S: string;
 begin
   inherited;
-  ACI := FColumnsInfo.Search(FPopupMenuColumn, True);
+  AColumn := (FHitTest as TcxGridColumnHeaderHitTest)
+    .Column as TcxGridDBBandedColumn;
 
-  Assert(FPopupMenuColumn.Position.Band <> nil);
+  ACI := FColumnsInfo.Search(AColumn, True);
+
+  Assert(AColumn.Position.Band <> nil);
   // Получаем информацию о бэнде нашей колонки
-  ABI := FBandsInfo.Search(FPopupMenuColumn.Position.Band, True);
+  ABI := FBandsInfo.Search(AColumn.Position.Band, True);
 
   // Получаем отмеченные галочками подпараметры
   if not TfrmSubParameters.GetCheckedID(ABI.IDParameter,
@@ -644,18 +654,56 @@ begin
   UpdateView;
 end;
 
-procedure TViewParametricTable.actDropSubParameterExecute(Sender: TObject);
+procedure TViewParametricTable.actDropParameterExecute(Sender: TObject);
 var
+  ABand: TcxGridBand;
+  ABI: TBandInfo;
   ACI: TColumnInfo;
 begin
   inherited;
-  if FPopupMenuColumn = nil then
+  Assert(FHitTest <> nil);
+  Assert(FHitTest is TcxGridBandHeaderHitTest);
+
+  ABand := (FHitTest as TcxGridBandHeaderHitTest).Band;
+  Assert(ABand <> nil);
+
+  // Ищем информацию об этом бэнде
+  ABI := FBandsInfo.Search(ABand);
+
+  // Если это не бэнд-параметр
+  if ABI = nil then
     Exit;
+
+  Assert(ABand.ColumnCount > 0);
+  // Получаем информацию о первой колонке нашего бэнда
+  ACI := FColumnsInfo.Search(ABand.Columns[0] as TcxGridDBBandedColumn, True);
+
+  qCategoryParameters.ClearSubParamsRecHolders;
+
+  // Просим удалить все подпараметры этой группы
+  ComponentsExGroup.CatParamsGroup.DeleteParameters([ACI.IDCategoryParam]);
+  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+
+  ComponentsExGroup.UpdateFields;
+  UpdateColumns;
+
+  qCategoryParameters.ClearSubParamsRecHolders;
+  ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);
+end;
+
+procedure TViewParametricTable.actDropSubParameterExecute(Sender: TObject);
+var
+  ACI: TColumnInfo;
+  AColumn: TcxGridDBBandedColumn;
+begin
+  inherited;
+  AColumn := (FHitTest as TcxGridColumnHeaderHitTest)
+    .Column as TcxGridDBBandedColumn;
 
   qCategoryParameters.ClearSubParamsRecHolders;
 
   // Получаем информацию об этой колонке
-  ACI := FColumnsInfo.Search(FPopupMenuColumn, True);
+  ACI := FColumnsInfo.Search(AColumn, True);
   // Удаляем подпараметр, соответствующий колоке
   ComponentsExGroup.CatParamsGroup.DeleteSubParameters([ACI.IDCategoryParam]);
   ComponentsExGroup.CatParamsGroup.ApplyUpdates;
@@ -663,7 +711,7 @@ begin
   // Извещаем всех, что произошли изменения среди параметров категории
   ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);
 
-  Assert(FPopupMenuColumn.Position.Band <> nil);
+  Assert(AColumn.Position.Band <> nil);
 
   // Обновляем поля в запросе
   ComponentsExGroup.UpdateFields;
@@ -1102,7 +1150,11 @@ begin
 
   ComponentsExGroup.CatParamsGroup.LoadData;
   qCatParams := ComponentsExGroup.CatParamsGroup.qCatParams;
-  Assert(qCatParams.RecordCount > 0);
+
+  // Возможно у нас нет ни одного параметра
+  if qCatParams.RecordCount = 0 then
+    Exit;
+
   qCatParams.First;
   cxGrid.BeginUpdate();
   try
@@ -1189,6 +1241,7 @@ begin
       DoAfterLoad(nil);
     end;
     cxGridPopupMenu.PopupMenus.Items[2].GridView := MainView;
+    cxGridPopupMenu.PopupMenus.Items[3].GridView := MainView;
   end
 end;
 
@@ -1476,6 +1529,9 @@ begin
       begin
         for ABand in (ABandInfo as TBandInfoEx).Bands do
         begin
+          if ABand.ColumnCount <> 1 then
+            beep;
+
           // У бэнда "по умолчанию" всегда одна колонка
           Assert(ABand.ColumnCount = 1);
           AColumnList.Add(ABand.Columns[0] as TcxGridDBBandedColumn);
@@ -1485,7 +1541,7 @@ begin
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
         qCategoryParameters.PK.AsInteger, qCategoryParameters.Ord.AsInteger,
-        False, qCategoryParameters.IsDefault.AsInteger = 1));
+        ABandInfo.DefaultCreated, qCategoryParameters.IsDefault.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
     end;
@@ -1617,17 +1673,45 @@ end;
 
 procedure TViewParametricTable.DropColumn(AIDCategoryParam: Integer);
 var
+  ABand: TcxGridBand;
+  ABI: TBandInfo;
   ACI: TColumnInfo;
 begin
   Assert(AIDCategoryParam > 0);
 
   ACI := FColumnsInfo.Search(AIDCategoryParam, True);
 
-  // Удаляем информацию о этой колонке
-  FColumnsInfo.Remove(ACI);
-  // Удаляем саму колонку
-  ACI.FreeColumn;
-  ACI.Free;
+  ABand := ACI.Column.Position.Band;
+  Assert(ABand <> nil);
+
+  // Получаем информацию о бэнде
+  ABI := FBandsInfo.Search(ABand, True);
+
+  // Если это бэнд, который создан "по умолчанию"
+  if ABI.DefaultCreated then
+  begin
+    Assert(ABand.ColumnCount = 1);
+    // Просто прячем такой бэнд
+    ABI.Hide;
+  end
+  else
+  begin
+
+    // Удаляем информацию о этой колонке
+    FColumnsInfo.Remove(ACI);
+    // Удаляем саму колонку
+    ACI.FreeColumn;
+    ACI.Free;
+
+    // Возможно мы удалили последнюю колонку бэнда
+    if ABand.ColumnCount = 0 then
+    begin
+      // Удаляем сам бэнд
+      FBandsInfo.Remove(ABI);
+      ABI.FreeBand;
+      ABI.Free;
+    end;
+  end;
 end;
 
 procedure TViewParametricTable.UpdateColumn(AIDCategoryParam: Integer);
@@ -1654,11 +1738,36 @@ begin
   Result := ComponentsExGroup.CatParamsGroup.qCategoryParameters;
 end;
 
-procedure TViewParametricTable.OnGridColumnHeaderPopupMenu
-  (AColumn: TcxGridDBBandedColumn);
+procedure TViewParametricTable.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
+var AllowPopup: Boolean);
 var
+  ABI: TBandInfo;
+begin
+  Assert(ABand <> nil);
+  ABI := FBandsInfo.Search(ABand);
+
+  // Возможно бэнд не является бэндом-параметром
+  AllowPopup := ABI <> nil;
+  actDropParameter.Enabled := AllowPopup;
+end;
+
+procedure TViewParametricTable.OnGridColumnHeaderPopupMenu
+  (AColumn: TcxGridDBBandedColumn; var AllowPopup: Boolean);
+var
+  ABand: TcxGridBand;
+  ABI: TBandInfo;
   ACI: TColumnInfo;
 begin
+  ABand := AColumn.Position.Band;
+  Assert(ABand <> nil);
+  ABI := FBandsInfo.Search(ABand);
+
+  // Бэнды существующие "по умолчанию" всегда содержат одну колонку по "умолчанию"
+  AllowPopup := (ABI <> nil) and (not ABI.DefaultCreated);
+  if not AllowPopup then
+    Exit;
+
+
   ACI := FColumnsInfo.Search(AColumn, True);
 
   // Нельзя удалять колонку с подпараметром "по умолчанию"
@@ -1666,7 +1775,7 @@ begin
 end;
 
 procedure TViewParametricTable.OnGridRecordCellPopupMenu
-  (AColumn: TcxGridDBBandedColumn);
+  (AColumn: TcxGridDBBandedColumn; var AllowPopup: Boolean);
 Var
   AColumnIsValue: Boolean;
 begin
@@ -1844,7 +1953,7 @@ begin
     qCategoryParameters.LocateByPK(AIDCategoryParam, True);
     // Создаём колонку для бэнда
     CreateColumn([MainView, GridView(cxGridLevel2)], AIDBand,
-        qCategoryParameters);
+      qCategoryParameters);
   end;
 end;
 

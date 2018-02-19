@@ -332,6 +332,11 @@ inherited ViewParametricTable: TViewParametricTable
       ImageIndex = 2
       OnExecute = actDropSubParameterExecute
     end
+    object actDropParameter: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088
+      ImageIndex = 2
+      OnExecute = actDropParameterExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N6: TMenuItem
@@ -357,6 +362,12 @@ inherited ViewParametricTable: TViewParametricTable
         HitTypes = [gvhtColumnHeader, gvhtColumnHeaderFilterButton]
         Index = 2
         PopupMenu = pmHeaders
+      end
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtBandHeader]
+        Index = 3
+        PopupMenu = pmBands
       end>
   end
   object BandTimer: TTimer
@@ -394,6 +405,13 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object N8: TMenuItem
       Action = actDropSubParameter
+    end
+  end
+  object pmBands: TPopupMenu
+    Left = 440
+    Top = 312
+    object N9: TMenuItem
+      Action = actDropParameter
     end
   end
 end

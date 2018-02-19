@@ -484,25 +484,6 @@ object frmMain: TfrmMain
                   0)
               end
               inherited cxGridPopupMenu: TcxGridPopupMenu
-                PopupMenus = <
-                  item
-                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
-                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
-                    Index = 0
-                    PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
-                  end
-                  item
-                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView2
-                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
-                    Index = 1
-                    PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
-                  end
-                  item
-                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
-                    HitTypes = [gvhtColumnHeader, gvhtColumnHeaderFilterButton]
-                    Index = 2
-                    PopupMenu = ComponentsFrame.ViewParametricTable.pmHeaders
-                  end>
               end
               inherited cxStyleRepository: TcxStyleRepository
                 PixelsPerInch = 96

@@ -88,7 +88,7 @@ type
   protected
     FColumnsBarButtons: TGVColumnsBarButtons;
     FEventList: TObjectList;
-    FPopupMenuColumn: TcxGridDBBandedColumn;
+    FHitTest: TcxCustomGridHitTest;
     procedure AfterKeyOrMouseDown(var Message: TMessage);
       message WM_AfterKeyOrMouseDown;
     procedure CreateColumnsBarButtons; virtual;
@@ -119,13 +119,18 @@ type
       ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
       const AKeyFieldNames: string = 'ID'); overload;
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn); virtual;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
+        AllowPopup: Boolean); virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InternalRefreshData; virtual;
     procedure MyDelete; virtual;
-    procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn); virtual;
-    procedure ProcessGridPopupMenu(ASenderMenu: TComponent; AHitTest:
-        TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean); virtual;
+    procedure OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
+      var AllowPopup: Boolean); virtual;
+    procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn; var
+        AllowPopup: Boolean); virtual;
+    procedure ProcessGridPopupMenu(ASenderMenu: TComponent;
+      AHitTest: TcxCustomGridHitTest; X, Y: Integer;
+      var AllowPopup: Boolean); virtual;
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
     property SortSL: TList<String> read FSortSL;
@@ -171,7 +176,8 @@ type
       : TcxGridDBBandedColumn;
     function GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
       AReverse: Boolean): TArray<Integer>;
-    function GetSelectedIntValues(AColumn: TcxGridDBBandedColumn): TArray<Integer>;
+    function GetSelectedIntValues(AColumn: TcxGridDBBandedColumn)
+      : TArray<Integer>;
     function GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
       AUp: Boolean; var AArray: TArray<Integer>;
       var ATargetRowIndex: Integer): Boolean;
@@ -883,7 +889,8 @@ begin
     ADropDownListStyle, AListFieldNames, AKeyFieldNames);
 end;
 
-procedure TfrmGrid.OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn);
+procedure TfrmGrid.OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
+    var AllowPopup: Boolean);
 begin
 end;
 
@@ -1162,8 +1169,8 @@ begin
   end;
 end;
 
-function TfrmGrid.GetSelectedIntValues(AColumn: TcxGridDBBandedColumn):
-    TArray<Integer>;
+function TfrmGrid.GetSelectedIntValues(AColumn: TcxGridDBBandedColumn)
+  : TArray<Integer>;
 var
   AView: TcxGridDBBandedTableView;
   i: Integer;
@@ -1176,7 +1183,7 @@ begin
   try
     for i := 0 to AView.Controller.SelectedRowCount - 1 do
     begin
-      L.Add( AView.Controller.SelectedRows[i].Values[AColumn.Index] );
+      L.Add(AView.Controller.SelectedRows[i].Values[AColumn.Index]);
     end;
     Result := L.ToArray;
   finally
@@ -1256,7 +1263,13 @@ begin
 
 end;
 
-procedure TfrmGrid.OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn);
+procedure TfrmGrid.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
+var AllowPopup: Boolean);
+begin
+end;
+
+procedure TfrmGrid.OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
+    var AllowPopup: Boolean);
 begin
 end;
 
@@ -1285,32 +1298,42 @@ begin
   end;
 end;
 
-procedure TfrmGrid.ProcessGridPopupMenu(ASenderMenu: TComponent; AHitTest:
-    TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+procedure TfrmGrid.ProcessGridPopupMenu(ASenderMenu: TComponent;
+AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
 var
+  AcxGridBandHeaderHitTest: TcxGridBandHeaderHitTest;
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
   AcxGridColumnHeaderHitTest: TcxGridColumnHeaderHitTest;
+  // S: string;
 begin
   inherited;
 
-  FPopupMenuColumn := nil;
+  // Запоминаем информацию о щелчке
+  FHitTest := AHitTest;
 
   if (AHitTest is TcxGridRecordCellHitTest) then
   begin
     AcxGridRecordCellHitTest := (AHitTest as TcxGridRecordCellHitTest);
     if AcxGridRecordCellHitTest.Item is TcxGridDBBandedColumn then
     begin
-      FPopupMenuColumn := AcxGridRecordCellHitTest.Item as TcxGridDBBandedColumn;
-      OnGridRecordCellPopupMenu(FPopupMenuColumn);
+      OnGridRecordCellPopupMenu
+        (AcxGridRecordCellHitTest.Item as TcxGridDBBandedColumn, AllowPopup);
     end;
   end;
 
   if (AHitTest is TcxGridColumnHeaderHitTest) then
   begin
     AcxGridColumnHeaderHitTest := (AHitTest as TcxGridColumnHeaderHitTest);
-    FPopupMenuColumn := AcxGridColumnHeaderHitTest.Column as TcxGridDBBandedColumn;
-    OnGridColumnHeaderPopupMenu(FPopupMenuColumn);
+    OnGridColumnHeaderPopupMenu
+      (AcxGridColumnHeaderHitTest.Column as TcxGridDBBandedColumn, AllowPopup);
   end;
+
+  if (AHitTest is TcxGridBandHeaderHitTest) then
+  begin
+    AcxGridBandHeaderHitTest := (AHitTest as TcxGridBandHeaderHitTest);
+    OnGridBandHeaderPopupMenu(AcxGridBandHeaderHitTest.Band, AllowPopup);
+  end;
+
   Application.Hint := '';
 end;
 
