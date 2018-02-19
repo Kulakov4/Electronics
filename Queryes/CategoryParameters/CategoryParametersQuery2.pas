@@ -221,7 +221,7 @@ begin
     AOptions);
 
   // Запоминаем, вставленную запись
-  FInsertedSubParams.Add( TRecordHolder.Create(FDQuery) );
+  FInsertedSubParams.Add(TRecordHolder.Create(FDQuery));
 
   // AID.AsInteger := RefreshQry.PK.Value;
 end;
@@ -254,11 +254,11 @@ begin
       Ord.OldValue, Ord.Value, IsAttribute.OldValue, IsAttribute.Value,
       ParamSubParamId.OldValue, ParamSubParamId.AsInteger,
       CategoryID.AsInteger);
-  end;
 
-  ARecHolder := TRecordHolder.Create(FDQuery);
-  ARecHolder.Field[ ParamSubParamId.FieldName ] := ParamSubParamId.OldValue;
-  FEditedSubParams.Add(ARecHolder);
+    ARecHolder := TRecordHolder.Create(FDQuery);
+    ARecHolder.Field[ParamSubParamId.FieldName] := ParamSubParamId.OldValue;
+    FEditedSubParams.Add(ARecHolder);
+  end;
 end;
 
 procedure TQueryCategoryParameters2.ApplyUpdates;
@@ -632,8 +632,8 @@ begin
   Result := FMaxOrder;
 end;
 
-function TQueryCategoryParameters2.SearchAnalog(AProductCategoryID: Integer):
-    Integer;
+function TQueryCategoryParameters2.SearchAnalog(AProductCategoryID
+  : Integer): Integer;
 begin
   Assert(AProductCategoryID > 0);
 
@@ -656,8 +656,8 @@ begin
   TryPost;
 end;
 
-procedure TQueryCategoryParameters2.SetPos(AIDArray: TArray<Integer>; APosID:
-    Integer);
+procedure TQueryCategoryParameters2.SetPos(AIDArray: TArray<Integer>;
+APosID: Integer);
 var
   AID: Integer;
 begin

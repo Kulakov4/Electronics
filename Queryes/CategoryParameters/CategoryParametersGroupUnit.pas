@@ -131,6 +131,7 @@ type
     procedure CancelUpdates; override;
     procedure DeleteParameters(APKValues: array of Variant);
     procedure DeleteSubParameters(APKValues: array of Variant);
+    function GetVID(AID: Integer): Integer;
     procedure UpdateData;
     procedure LoadData;
     procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer;
@@ -743,6 +744,33 @@ begin
   Result := FqUpdNegativeOrd;
 end;
 
+function TCategoryParametersGroup.GetVID(AID: Integer): Integer;
+var
+  AClone: TFDMemTable;
+  AFirstID: Integer;
+begin
+  Assert(AID > 0);
+  // Хотябы одна группа должна существовать
+  Assert(qCatParams.RecordCount > 0);
+
+  // Если этот подпараметр первый в группе - его ID будет в словаре
+  if FIDDic.ContainsKey(AID) then
+  begin
+    Result := FIDDic[AID];
+    Exit;
+  end;
+
+  qCategoryParameters.LocateByPK(AID, True);
+  AClone := qCategoryParameters.CreateSubParamsClone;
+  try
+    AFirstID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
+    Assert(FIDDic.ContainsKey(AFirstID));
+    Result := FIDDic[AFirstID];
+  finally
+    qCategoryParameters.DropClone(AClone);
+  end;
+end;
+
 procedure TCategoryParametersGroup.UpdateData;
 begin
   FBeforeUpdateData.CallEventHandlers(Self);
@@ -817,7 +845,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup.MoveParameters(IDList: TList<Integer>;
-TargetID: Integer; AUp: Boolean);
+  TargetID: Integer; AUp: Boolean);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -858,7 +886,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup.MoveSubParameters(IDList: TList<Integer>;
-TargetID: Integer; AUp: Boolean);
+  TargetID: Integer; AUp: Boolean);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -888,7 +916,7 @@ begin
       // Идентификатор первого подпараметра
       AID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
       // Просим произвести перенос
-      qCategoryParameters.Move( TMoveHelper.Move(L.ToArray, AUp, ACount) );
+      qCategoryParameters.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
       ANewID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
     finally
       qCategoryParameters.DropClone(AClone);
@@ -916,7 +944,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup.SetPos(AIDArray: TArray<Integer>;
-AWithSubParams: Boolean; APosID: Integer);
+  AWithSubParams: Boolean; APosID: Integer);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -1017,7 +1045,7 @@ begin
 end;
 
 procedure TCategoryFDMemTable.LoadRecFrom(ADataSet: TDataSet;
-AFieldList: TStrings);
+  AFieldList: TStrings);
 var
   AFieldName: String;
   AFL: TStrings;
@@ -1079,7 +1107,7 @@ begin
 end;
 
 function TCategoryFDMemTable.LocateByField(const AFieldName: string;
-AValue: Variant; TestResult: Boolean = False): Boolean;
+  AValue: Variant; TestResult: Boolean = False): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := LocateEx(AFieldName, AValue);
@@ -1088,7 +1116,7 @@ begin
 end;
 
 function TCategoryFDMemTable.LocateByPK(AValue: Integer;
-TestResult: Boolean = False): Boolean;
+  TestResult: Boolean = False): Boolean;
 begin
   Assert(AValue <> 0);
   Result := LocateEx(ID.FieldName, AValue);

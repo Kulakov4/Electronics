@@ -130,7 +130,6 @@ end;
 
 procedure TComponentsExGroup.UpdateFields;
 var
-  AClone: TFDMemTable;
   AFieldName: string;
   AID: Integer;
   AParamSubParamID: Integer;
