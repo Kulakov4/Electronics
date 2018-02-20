@@ -7,6 +7,7 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
     ExplicitWidth = 147
   end
   inherited FDQuery: TFDQuery
+    AfterOpen = FDQueryAfterOpen
     OnUpdateRecord = FDQueryUpdateRecord
   end
   object fdqUpdate: TFDQuery
@@ -36,8 +37,8 @@ inherited QueryParametersForProduct: TQueryParametersForProduct
     SQL.Strings = (
       
         'insert into CategoryParams2(ProductCategoryId, ParamSubParamId, ' +
-        'IsEnabled, IsAttribute, Ord)'
-      'values (:ProductCategoryId, :ParamSubParamId, 1, 1, :Ord)')
+        'IsEnabled, IsAttribute, Ord, PosID)'
+      'values (:ProductCategoryId, :ParamSubParamId, 1, 1, :Ord, 1)')
     Left = 192
     Top = 25
     ParamData = <

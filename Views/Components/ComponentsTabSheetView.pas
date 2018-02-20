@@ -566,108 +566,63 @@ begin
   // Описания полей excel файла
   AParametricErrorTable := TParametricErrorTable.Create(Self);
   AExcelDM := TExcelDM.Create(Self);
+  AIDList := TList<Integer>.Create;
   // Загружаем описания полей Excel файла
   ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
   try
     ARootTreeNode.ClearMaxID;
-    AIDList := TList<Integer>.Create;
-    try
-      // Цикл по всем заголовкам таблицы
-      for AStringTreeNode in ARootTreeNode.Childs do
+
+    // Цикл по всем заголовкам таблицы
+    for AStringTreeNode in ARootTreeNode.Childs do
+    begin
+      // Если это первый столбец НАИМЕНОВАНИЕ
+      if FamilyNameCoumn.IndexOf(';' + AStringTreeNode.value.ToUpper + ';') >= 0
+      then
       begin
-        AIDList.Clear;
+        Assert(AStringTreeNode.Childs.Count = 0);
+        AIDList.Add(-AStringTreeNode.ID);
+        // AFieldsInfo.Add
+        // (TFieldInfo.Create(GetNFFieldName(AStringTreeNode.ID)));
+        Continue;
+      end;
 
-        // Если это первый столбец НАИМЕНОВАНИЕ
-        if FamilyNameCoumn.IndexOf(';' + AStringTreeNode.value.ToUpper + ';') >= 0
-        then
+      // Нужно найти такой параметр
+      prc := qSearchParameter.SearchMain(AStringTreeNode.value);
+      // Цикл по всем подпараметрам
+      if AStringTreeNode.Childs.Count > 0 then
+      begin
+        for AStringTreeNode2 in AStringTreeNode.Childs do
         begin
-          Assert(AStringTreeNode.Childs.Count = 0);
-          AIDList.Add(-AStringTreeNode.ID);
-          // AFieldsInfo.Add
-          // (TFieldInfo.Create(GetNFFieldName(AStringTreeNode.ID)));
-          Continue;
-        end;
-
-        // Нужно найти такой параметр
-        prc := qSearchParameter.SearchMain(AStringTreeNode.value);
-        // Цикл по всем подпараметрам
-        if AStringTreeNode.Childs.Count > 0 then
-        begin
-          for AStringTreeNode2 in AStringTreeNode.Childs do
-          begin
-            // если параметр был найден
-            if prc = 1 then
-            begin
-              // Ищем, есть ли подпараметр с таким именем
-              rc := qSubParameters.Search(AStringTreeNode2.value);
-              Assert(rc <= 1);
-              if rc = 1 then
-              begin
-                // Ищем, есть ли у нашего параметра такой подпараметр
-                rc := qParamSubParams.SearchBySubParam
-                  (qSearchParameter.PK.AsInteger, qSubParameters.PK.AsInteger);
-                // Если нужно связть параметр с подпараметром
-                if rc = 0 then
-                  qParamSubParams.AppendSubParameter
-                    (qSearchParameter.PK.AsInteger,
-                    qSubParameters.PK.AsInteger);
-
-                // Запоминаем описание поля связанного с подпараметром
-                AParamSubParamID := qParamSubParams.PK.AsInteger;
-              end
-              else
-              begin
-                AParametricErrorTable.AddErrorMessage(AStringTreeNode2.value,
-                  'Подпараметр не найден', petSubParamNotFound,
-                  AStringTreeNode2.ID);
-                AParamSubParamID := -AStringTreeNode2.ID;
-              end;
-            end
-            else // параметр был не найден или дублируется
-            begin
-              AParamSubParamID := -AStringTreeNode2.ID;
-            end;
-
-            // Проверяем, не встечался ли такой подпараметр ранее
-            if (AParamSubParamID > 0) and
-              (AIDList.IndexOf(AParamSubParamID) >= 0) then
-            begin
-              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                'Параметр встречается более одного раза', petNotUnique,
-                AStringTreeNode.ID);
-              AParamSubParamID := -AStringTreeNode.ID;
-            end;
-
-            AIDList.Add(AParamSubParamID);
-          end;
-        end
-        else
-        begin
-          // Если у нашего параметра нет подпараметров
-          // Если параметр был найден
+          // если параметр был найден
           if prc = 1 then
           begin
-            // Ищем подпараметр "по умолчанию" для параметра без подпараметров
-            qSearchParamDefSubParam.SearchByID
-              (qSearchParameter.PK.AsInteger, 1);
-            AParamSubParamID :=
-              qSearchParamDefSubParam.ParamSubParamID.AsInteger;
-          end
-          else
-          begin
-            case prc of
-              0:
-                AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                  'Параметр не найден', petNotFound, AStringTreeNode.ID);
-              1:
-                ; // Нашли один раз - это хорошо
-            else
-              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                Format('Параметр найден в справочнике параметров %d раз',
-                [prc]), petDuplicate, AStringTreeNode.ID);
-            end;
+            // Ищем, есть ли подпараметр с таким именем
+            rc := qSubParameters.Search(AStringTreeNode2.value);
+            Assert(rc <= 1);
+            if rc = 1 then
+            begin
+              // Ищем, есть ли у нашего параметра такой подпараметр
+              rc := qParamSubParams.SearchBySubParam
+                (qSearchParameter.PK.AsInteger, qSubParameters.PK.AsInteger);
+              // Если нужно связть параметр с подпараметром
+              if rc = 0 then
+                qParamSubParams.AppendSubParameter
+                  (qSearchParameter.PK.AsInteger, qSubParameters.PK.AsInteger);
 
-            AParamSubParamID := -AStringTreeNode.ID;
+              // Запоминаем описание поля связанного с подпараметром
+              AParamSubParamID := qParamSubParams.PK.AsInteger;
+            end
+            else
+            begin
+              AParametricErrorTable.AddErrorMessage(AStringTreeNode2.value,
+                'Подпараметр не найден', petSubParamNotFound,
+                AStringTreeNode2.ID);
+              AParamSubParamID := -AStringTreeNode2.ID;
+            end;
+          end
+          else // параметр был не найден или дублируется
+          begin
+            AParamSubParamID := -AStringTreeNode2.ID;
           end;
 
           // Проверяем, не встечался ли такой подпараметр ранее
@@ -682,22 +637,58 @@ begin
 
           AIDList.Add(AParamSubParamID);
         end;
-
-        // Для всех найденных полей создаём их описания
-        for AID in AIDList do
+      end
+      else
+      begin
+        // Если у нашего параметра нет подпараметров
+        // Если параметр был найден
+        if prc = 1 then
         begin
-          // Если этот столбец с ошибкой
-          if AID < 0 then
-            AFieldName := GetNFFieldName(-AID)
+          // Ищем подпараметр "по умолчанию" для параметра без подпараметров
+          qSearchParamDefSubParam.SearchByID(qSearchParameter.PK.AsInteger, 1);
+          AParamSubParamID := qSearchParamDefSubParam.ParamSubParamID.AsInteger;
+        end
+        else
+        begin
+          case prc of
+            0:
+              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+                'Параметр не найден', petNotFound, AStringTreeNode.ID);
+            1:
+              ; // Нашли один раз - это хорошо
           else
-            AFieldName :=
-              TParametricExcelTable.GetFieldNameByParamSubParamID(AID);
+            AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+              Format('Параметр найден в справочнике параметров %d раз', [prc]),
+              petDuplicate, AStringTreeNode.ID);
+          end;
 
-          AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
+          AParamSubParamID := -AStringTreeNode.ID;
         end;
+
+        // Проверяем, не встечался ли такой подпараметр ранее
+        if (AParamSubParamID > 0) and (AIDList.IndexOf(AParamSubParamID) >= 0)
+        then
+        begin
+          AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+            'Параметр встречается более одного раза', petNotUnique,
+            AStringTreeNode.ID);
+          AParamSubParamID := -AStringTreeNode.ID;
+        end;
+
+        AIDList.Add(AParamSubParamID);
       end;
-    finally
-      FreeAndNil(AIDList);
+    end;
+
+    // Для всех найденных полей создаём их описания
+    for AID in AIDList do
+    begin
+      // Если этот столбец с ошибкой
+      if AID < 0 then
+        AFieldName := GetNFFieldName(-AID)
+      else
+        AFieldName := TParametricExcelTable.GetFieldNameByParamSubParamID(AID);
+
+      AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
     end;
 
     if AFieldsInfo.Count = 0 then
@@ -802,6 +793,7 @@ begin
       end;
     end;
   finally
+    FreeAndNil(AIDList);
     FreeAndNil(AParametricErrorTable);
     FreeAndNil(ARootTreeNode);
     FreeAndNil(AExcelDM);

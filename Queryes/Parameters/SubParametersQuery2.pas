@@ -170,8 +170,8 @@ end;
 function TQuerySubParameters2.Search(const AName: String): Integer;
 begin
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    Format('and 0=0 and Upper(%s) = Upper(:Name)', [Name.FieldName,
-    QuotedStr(AName)]), 'and 0=0');
+    Format('and 0=0 and upper(Name) = upper(:Name)', [QuotedStr(AName)]),
+    'and 0=0');
 
   SetParamType('Name', ptInput, ftString);
 

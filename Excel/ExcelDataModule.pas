@@ -512,6 +512,7 @@ function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
 var
   ACell: OleVariant;
   ACell2: OleVariant;
+  ACellValue: string;
   ACol: Integer;
   AColor: TColor;
   AColor2: TColor;
@@ -550,21 +551,23 @@ begin
       break
     else
     begin
+      ACellValue := ACell.Value;
       // Если это новая ячейка, то создаём новый узел
-      if ACell.Value <> '' then
-        AStringNode := Result.AddChild(ACell.Value);
+      if ACellValue <> '' then
+        AStringNode := Result.AddChild(ACellValue);
 
       // Получаем ячейку под нашей
       ACell2 := EWS.Cells.Item[ARow + 1, ACol];
       // Получаем её цвет
       AColor2 := GetCellsColor(ACell2);
 
+      ACellValue := ACell2.Value;
       // если в заголовке указан подпараметр
-      if (AColor2 <> clWhite) and (ACell2.Value <> '') then
+      if (AColor2 <> clWhite) and (ACellValue <> '') then
       begin
         // Родительская ячейка должна быть заполнена
         Assert(AStringNode <> nil);
-        AStringNode.AddChild(ACell2.Value);
+        AStringNode.AddChild(ACellValue);
       end;
     end;
     Inc(ACol);

@@ -17,6 +17,7 @@ type
     fdqUpdate: TFDQuery;
     fdqInsert: TFDQuery;
     fdqSelect: TFDQuery;
+    procedure FDQueryAfterOpen(DataSet: TDataSet);
     procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
   private
@@ -44,6 +45,12 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, StrHelper;
+
+procedure TQueryParametersForProduct.FDQueryAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  SetFieldsRequired(False);
+end;
 
 procedure TQueryParametersForProduct.FDQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
