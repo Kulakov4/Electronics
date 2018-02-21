@@ -168,7 +168,7 @@ type
     destructor Destroy; override;
     procedure FilterByFamily(AFamily: string);
     procedure FilterByComponent(AComponent: string);
-    procedure MyApplyBestFit; override;
+    procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure UpdateView; override;
     property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup
       write SetComponentsExGroup;
@@ -1344,20 +1344,6 @@ begin
   end;
 end;
 
-procedure TViewParametricTable.MyApplyBestFit;
-// var
-// i: Integer;
-begin
-  {
-    for i := 0 to MainView.Bands.Count - 1 do
-    begin
-    MainView.Bands[i].ApplyBestFit(True);
-    end;
-  }
-  Inherited;
-  UpdateDetailColumnsWidth;
-end;
-
 procedure TViewParametricTable.OnEditValueChangeProcess(var Message: TMessage);
 begin
   inherited;
@@ -1529,9 +1515,6 @@ begin
       begin
         for ABand in (ABandInfo as TBandInfoEx).Bands do
         begin
-          if ABand.ColumnCount <> 1 then
-            beep;
-
           // У бэнда "по умолчанию" всегда одна колонка
           Assert(ABand.ColumnCount = 1);
           AColumnList.Add(ABand.Columns[0] as TcxGridDBBandedColumn);
@@ -1722,6 +1705,9 @@ begin
   ACI := FColumnsInfo.Search(AIDCategoryParam, True) as TColumnInfoEx;
   qCategoryParameters.LocateByPK(AIDCategoryParam, True);
 
+  // Обновляем признак того, что это подпараметр по умолчанию
+  ACI.IsDefault := qCategoryParameters.IsDefault.AsInteger = 1;
+
   for AColumn in ACI.Columns do
   begin
     AColumn.Caption := DeleteDouble(qCategoryParameters.Name.AsString, ' ');
@@ -1736,6 +1722,14 @@ end;
 function TViewParametricTable.GetqCategoryParameters: TQueryCategoryParameters2;
 begin
   Result := ComponentsExGroup.CatParamsGroup.qCategoryParameters;
+end;
+
+procedure TViewParametricTable.MyApplyBestFitForView(AView:
+    TcxGridDBBandedTableView);
+begin
+  inherited;
+  if AView = MainView then
+    UpdateDetailColumnsWidth;
 end;
 
 procedure TViewParametricTable.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;

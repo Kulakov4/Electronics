@@ -75,7 +75,8 @@ type
 
 implementation
 
-uses FireDAC.Stan.Param, SearchFamilyParamValuesQuery;
+uses FireDAC.Stan.Param, SearchFamilyParamValuesQuery,
+  UpdateParameterValuesParamSubParamQuery;
 
 {$R *.dfm}
 { TfrmComponentsMasterDetail }
@@ -133,6 +134,7 @@ var
   AFieldName: string;
   AID: Integer;
   AParamSubParamID: Integer;
+  AProductCategoryID: Integer;
   ARecHolder: TRecordHolder;
   OK: Boolean;
 begin
@@ -141,12 +143,18 @@ begin
   begin
     AParamSubParamID := ARecHolder.Field
       [qCategoryParameters.ParamSubParamId.FieldName];
+    AProductCategoryID := ARecHolder.Field
+      [qCategoryParameters.ProductCategoryID.FieldName];
     OK := FAllParameterFields.ContainsKey(AParamSubParamID);
     Assert(OK);
     AFieldName := FAllParameterFields[AParamSubParamID];
     FAllParameterFields.Remove(AParamSubParamID);
     // Добавляем поля в список свободных
     FFreeFields.Add(AFieldName);
+
+    // Удаляем данные удалённого параметра
+    TqUpdateParameterValuesParamSubParam.DoDelete(AParamSubParamID,
+      AProductCategoryID);
   end;
 
   // Обрабатываем изменённые подпараметры
@@ -165,6 +173,11 @@ begin
     FAllParameterFields.Remove(AParamSubParamID);
     FAllParameterFields.Add(qCategoryParameters.ParamSubParamId.AsInteger,
       AFieldName);
+
+    // Переносим данные с со старого подпараметра на новый
+    TqUpdateParameterValuesParamSubParam.DoUpdate
+      (qCategoryParameters.ParamSubParamId.AsInteger, AParamSubParamID,
+      qCategoryParameters.ProductCategoryID.AsInteger)
   end;
 
   // Обрабатываем добавленные подпараметры
@@ -403,33 +416,35 @@ begin
 
       AParamSubParamID := qProductParameters.ParamSubParamId.AsInteger;
 
-      // Если для такого параметра в SQL запросе поля не существует
-      if not qryComponents.ParameterFields.ContainsKey(AParamSubParamID) then
+      // Возможно значение подпараметра в БД есть, а сам подпараметр отвязали
+      // Или для такого параметра в SQL запросе поля СУЩЕСТВУЕТ
+      if (not(AllParameterFields.ContainsKey(AParamSubParamID))) or
+        (qryComponents.ParameterFields.ContainsKey(AParamSubParamID)) then
       begin
-        AFieldName := AllParameterFields[AParamSubParamID];
-        S := qProductParameters.Value.AsString.Trim;
-        if not S.IsEmpty then
-        begin
-          // Возможно такого параметра у нашей категории уже нет
-          AField := qryComponents.FDQuery.FindField(AFieldName);
-          // Если такой параметр у нашей категории есть
-          if AField <> nil then
-          begin
-            // Добавляем ограничители, чтобы потом можно было фильтровать
-            ANewValue := Format('%s%s%s',
-              [FMark, qProductParameters.Value.AsString.Trim, FMark]);
-
-            AValue := AField.AsString.Trim;
-            if AValue <> '' then
-              AValue := AValue + #13#10;
-            AValue := AValue + ANewValue;
-
-            qryComponents.TryEdit;
-            AField.AsString := AValue;
-            qryComponents.TryPost;
-          end;
-        end;
+        qProductParameters.FDQuery.Next;
+        Continue;
       end;
+
+      AFieldName := AllParameterFields[AParamSubParamID];
+      S := qProductParameters.Value.AsString.Trim;
+      if not S.IsEmpty then
+      begin
+        AField := qryComponents.FDQuery.FindField(AFieldName);
+        Assert(AField <> nil);
+        // Добавляем ограничители, чтобы потом можно было фильтровать
+        ANewValue := Format('%s%s%s',
+          [FMark, qProductParameters.Value.AsString.Trim, FMark]);
+
+        AValue := AField.AsString.Trim;
+        if AValue <> '' then
+          AValue := AValue + #13#10;
+        AValue := AValue + ANewValue;
+
+        qryComponents.TryEdit;
+        AField.AsString := AValue;
+        qryComponents.TryPost;
+      end;
+
       qProductParameters.FDQuery.Next;
     end;
   finally
@@ -490,8 +505,7 @@ begin
       else
       begin
         qProductParameters.FDQuery.Append;
-        qProductParameters.ParamSubParamId.AsInteger :=
-          qProductParameters.ParamSubParamId.AsInteger;
+        qProductParameters.ParamSubParamId.AsInteger := AParamSubParamID;
         qProductParameters.ProductID.AsInteger := AComponentID;
       end;
 

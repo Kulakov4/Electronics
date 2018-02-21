@@ -196,7 +196,8 @@ uses
   SearchParamDefSubParamQuery in 'Queryes\Search\SearchParamDefSubParamQuery.pas' {QuerySearchParamDefSubParam: TFrame},
   SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters},
   UpdateNegativeOrdQuery in 'Queryes\CategoryParameters\UpdateNegativeOrdQuery.pas' {QueryUpdNegativeOrd: TFrame},
-  MoveHelper in 'Helpers\MoveHelper.pas';
+  MoveHelper in 'Helpers\MoveHelper.pas',
+  UpdateParameterValuesParamSubParamQuery in 'Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas' {qUpdateParameterValuesParamSubParam: TFrame};
 
 {$R *.res}
 

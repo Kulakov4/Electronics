@@ -189,7 +189,7 @@ type
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
     procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
-    procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
+    procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); virtual;
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
     procedure RefreshData;

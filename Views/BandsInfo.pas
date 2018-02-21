@@ -36,7 +36,8 @@ type
     property IDParameterKind: Integer read FIDParameterKind
       write FIDParameterKind;
     property IsDefault: Boolean read FIsDefault write FIsDefault;
-    property IDParamSubParam: Integer read FIDParamSubParam write FIDParamSubParam;
+    property IDParamSubParam: Integer read FIDParamSubParam
+      write FIDParamSubParam;
     property Pos: Integer read FPos write FPos;
   end;
 
@@ -50,12 +51,12 @@ type
     procedure HideDefaultBands;
     function Search(ABand: TcxGridBand; TestResult: Boolean = False)
       : TBandInfo; overload;
-    function SearchByColIndex(AColIndex: Integer; TestResult: Boolean = False):
-        TBandInfo;
+    function SearchByColIndex(AColIndex: Integer; TestResult: Boolean = False)
+      : TBandInfo;
     function SearchByID(AIDBand: Integer; TestResult: Boolean = False)
       : TBandInfo;
-    function SearchByIDParamSubParam(AIDParamSubParam: Integer; TestResult: Boolean
-        = False): TBandInfo;
+    function SearchByIDParamSubParam(AIDParamSubParam: Integer;
+      TestResult: Boolean = False): TBandInfo;
   end;
 
   TDescComparer = class(TComparer<TBandInfo>)
@@ -72,8 +73,9 @@ type
     FIsDefault: Boolean;
     FOrder: Integer;
   public
-    constructor Create(AColumn: TcxGridDBBandedColumn; AIDCategoryParam, AOrder:
-        Integer; ADefaultCreated, AIsDefault: Boolean); overload;
+    constructor Create(AColumn: TcxGridDBBandedColumn;
+      AIDCategoryParam, AOrder: Integer;
+      ADefaultCreated, AIsDefault: Boolean); overload;
     procedure FreeColumn; virtual;
     function HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean; virtual;
     property ColIndex: Integer read FColIndex write FColIndex;
@@ -92,8 +94,8 @@ type
     function GetChangedColIndex: TColumnsInfo;
     function Search(AColumn: TcxGridDBBandedColumn; TestResult: Boolean = False)
       : TColumnInfo; overload;
-    function Search(AIDCategoryParam: Integer; TestResult: Boolean = False):
-        TColumnInfo; overload;
+    function Search(AIDCategoryParam: Integer; TestResult: Boolean = False)
+      : TColumnInfo; overload;
   end;
 
   TBandInfoEx = class(TBandInfo)
@@ -101,10 +103,10 @@ type
     FBands: TArray<TcxGridBand>;
   protected
   public
-    constructor Create(ABands: TArray<TcxGridBand>; ABandID: Integer); reintroduce;
-        overload;
-    constructor CreateAsDefault(AIDParamSubParam: Integer; ABands:
-        TArray<TcxGridBand>);
+    constructor Create(ABands: TArray<TcxGridBand>; ABandID: Integer);
+      reintroduce; overload;
+    constructor CreateAsDefault(AIDParamSubParam: Integer;
+      ABands: TArray<TcxGridBand>);
     procedure FreeBand; override;
     function HaveBand(OtherBand: TcxGridBand): Boolean; override;
     procedure Hide; override;
@@ -115,12 +117,13 @@ type
   private
     FColumns: TArray<TcxGridDBBandedColumn>;
   public
-    constructor Create(AColumns: TArray<TcxGridDBBandedColumn>; AIDCategoryParam,
-        AOrder: Integer; ADefaultCreated, AIsDefault: Boolean); reintroduce;
-        overload;
+    constructor Create(AColumns: TArray<TcxGridDBBandedColumn>;
+      AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
+      reintroduce; overload;
     procedure FreeColumn; override;
     function HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean; override;
-    property Columns: TArray<TcxGridDBBandedColumn> read FColumns write FColumns;
+    property Columns: TArray<TcxGridDBBandedColumn> read FColumns
+      write FColumns;
   end;
 
 implementation
@@ -162,17 +165,16 @@ begin
   for i := Count - 1 downto 0 do
   begin
     ABandInfo := Items[i];
-    if not ABandInfo.DefaultCreated then
-    begin
-      // разрушаем бэнд
-      ABandInfo.FreeBand;
+    if ABandInfo.DefaultCreated then
+      Continue;
 
-      // Удаляем описание этого бэнда из списка
-      Delete(i);
+    // Удаляем описание этого бэнда из списка
+    Remove(ABandInfo);
 
-      // Удаляем описание бэнда
-      ABandInfo.Free;
-    end;
+    // разрушаем бэнд
+    ABandInfo.FreeBand;
+    // Удаляем описание бэнда
+    ABandInfo.Free;
   end;
 
 end;
@@ -230,8 +232,8 @@ begin
     Assert(False);
 end;
 
-function TBandsInfo.SearchByColIndex(AColIndex: Integer; TestResult: Boolean =
-    False): TBandInfo;
+function TBandsInfo.SearchByColIndex(AColIndex: Integer;
+  TestResult: Boolean = False): TBandInfo;
 begin
   Assert(AColIndex > 0);
 
@@ -261,13 +263,14 @@ begin
 end;
 
 function TBandsInfo.SearchByIDParamSubParam(AIDParamSubParam: Integer;
-    TestResult: Boolean = False): TBandInfo;
+  TestResult: Boolean = False): TBandInfo;
 begin
   Assert(AIDParamSubParam > 0);
 
   for Result in Self do
   begin
-    if (Result.IDParamSubParam = AIDParamSubParam) and (Result.IsDefault = True) then
+    if (Result.IDParamSubParam = AIDParamSubParam) and (Result.IsDefault = True)
+    then
       Exit;
   end;
   Result := nil;
@@ -283,7 +286,7 @@ begin
 end;
 
 constructor TColumnInfo.Create(AColumn: TcxGridDBBandedColumn;
-    AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
+  AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
 begin
   Assert(AColumn <> nil);
   Assert(AIDCategoryParam > 0);
@@ -309,17 +312,21 @@ end;
 
 procedure TColumnsInfo.FreeNotDefaultColumns;
 var
+  ACI: TColumnInfo;
   i: Integer;
 begin
   for i := Count - 1 downto 0 do
   begin
-    if not Items[i].DefaultCreated then
-    begin
-      // разрушаем колонку
-      Items[i].Column.Free;
-      // Удаляем описание этой колонки
-      Delete(i);
-    end;
+    ACI := Items[i];
+    if ACI.DefaultCreated then
+      Continue;
+
+    // Удаляем описание этой колонки
+    Remove(ACI);
+
+    // разрушаем колонку
+    ACI.FreeColumn;
+    ACI.Free;
   end;
 
 end;
@@ -351,8 +358,8 @@ begin
     Assert(False);
 end;
 
-function TColumnsInfo.Search(AIDCategoryParam: Integer; TestResult: Boolean =
-    False): TColumnInfo;
+function TColumnsInfo.Search(AIDCategoryParam: Integer;
+  TestResult: Boolean = False): TColumnInfo;
 begin
   for Result in Self do
   begin
@@ -373,8 +380,8 @@ begin
   FBands := ABands;
 end;
 
-constructor TBandInfoEx.CreateAsDefault(AIDParamSubParam: Integer; ABands:
-    TArray<TcxGridBand>);
+constructor TBandInfoEx.CreateAsDefault(AIDParamSubParam: Integer;
+  ABands: TArray<TcxGridBand>);
 begin
   // В массиве должен быть хотя-бы один бэнд
   Assert(Length(ABands) > 0);
@@ -430,7 +437,7 @@ begin
 end;
 
 constructor TColumnInfoEx.Create(AColumns: TArray<TcxGridDBBandedColumn>;
-    AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
+  AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
 begin
   // В массиве колонок должна быть хотя бы одна колонка
   Assert(Length(AColumns) > 1);

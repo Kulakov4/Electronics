@@ -99,7 +99,7 @@ type
     FBaseComponentsGroup: TBaseComponentsGroup;
     FDeleteFromAllCategories: Boolean;
     FEditingValue: Variant;
-    FisCurrentlySyncing: Boolean;
+    FIsSyncScrollbars: Boolean;
     FMessageUpdateDetailColumnsPosted: Boolean;
     FOnDetailExpandedPosted: Boolean;
     FQuerySubGroups: TfrmQuerySubGroups;
@@ -337,7 +337,7 @@ end;
 
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
 begin
-  FisCurrentlySyncing := False;
+  FIsSyncScrollbars := False;
   PostMyApplyBestFitEvent;
   UpdateView;
 end;
@@ -619,8 +619,6 @@ begin
     // Подписываемся на события
     if FBaseComponentsGroup.Main.Master <> nil then
     begin
-      // TNotifyEventWrap.Create(FBaseComponentsGroup.Main.Master.BeforeScrollI,
-      // DoBeforeMasterScroll);
       TNotifyEventWrap.Create(FBaseComponentsGroup.Detail.AfterLoad,
         AfterLoadData, FEventList);
     end;
@@ -796,10 +794,10 @@ begin
   if UpdateCount > 0 then
     Exit;
 
-  if FisCurrentlySyncing then
+  if FIsSyncScrollbars then
     Exit;
   try
-    FisCurrentlySyncing := True;
+    FIsSyncScrollbars := True;
     AView := MainView;
     ALeftPos := AView.Controller.LeftPos;
 
@@ -823,21 +821,29 @@ begin
       // cxGrid.EndUpdate;
     end;
   finally
-    FisCurrentlySyncing := False;
+    FIsSyncScrollbars := False;
   end;
 end;
 
 procedure TViewComponentsParent.UpdateDetailColumnsWidth;
 var
-//  ABand: TcxGridBand;
+  // ABand: TcxGridBand;
   ADetailColumn: TcxGridDBBandedColumn;
   AMainColumn: TcxGridDBBandedColumn;
-//  dx: Integer;
+  // dx: Integer;
   i: Integer;
-//  RealBandWidth: Integer;
+  // RealBandWidth: Integer;
   RealColumnWidth: Integer;
 begin
+  if not (MainView.ColumnCount = cxGridDBBandedTableView2.ColumnCount) then
+    beep;
+
+
+  // Предпологаем, что количество главных и дочерних колонок одинаковое
+  Assert(MainView.ColumnCount = cxGridDBBandedTableView2.ColumnCount);
+
   cxGrid.BeginUpdate();
+  // cxGridDBBandedTableView2.BeginBestFitUpdate;
   try
     // Не будем изменять ширину бэндов.
     // Достаточно того, чтобы родительский и дочерний бэнд имели ширину 0
@@ -872,6 +878,9 @@ begin
       // ADetailColumn.Width := AMainColumn.Width;
       if AMainColumn.VisibleIndex >= 0 then
       begin
+        Assert(AMainColumn.VisibleIndex <
+          MainView.ViewInfo.HeaderViewInfo.Count);
+
         RealColumnWidth := MainView.ViewInfo.HeaderViewInfo.Items
           [AMainColumn.VisibleIndex].Width;
 
@@ -883,6 +892,7 @@ begin
     end;
 
   finally
+    // cxGridDBBandedTableView2.EndBestFitUpdate;
     cxGrid.EndUpdate;
   end;
 end;

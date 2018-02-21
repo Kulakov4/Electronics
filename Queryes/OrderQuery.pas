@@ -125,10 +125,6 @@ begin
         // Находим смещение
         ANewRecNo := AClone2.RecNo + Sign * Length(AStartDrag.Keys);
 
-        if not ((ANewRecNo >= 1) and (ANewRecNo <= AClone2.RecordCount)) then
-          beep;
-
-
         Assert((ANewRecNo >= 1) and (ANewRecNo <= AClone2.RecordCount));
         AClone2.RecNo := ANewRecNo;
         // Пока уходим в отрицательную сторону
