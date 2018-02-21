@@ -193,6 +193,7 @@ type
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
     procedure RefreshData;
+    procedure SetZeroBandWidth(AView: TcxGridDBBandedTableView);
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
     property ApplyBestFitMultiLine: Boolean read FApplyBestFitMultiLine
@@ -1233,13 +1234,16 @@ begin
 
   if ApplyBestFitMultiLine then
   begin
+    // Предполагается что подбор ширину колонок происходит с учётом возможности переноса слов в заголовке
+    Assert(AView.OptionsView.HeaderAutoHeight);
     if not FApplyBestFitPosted then
       AView.BeginBestFitUpdate;
     try
-
+      SetZeroBandWidth(AView);
       for i := 0 to AView.VisibleColumnCount - 1 do
       begin
         AColumn := AView.VisibleColumns[i] as TcxGridDBBandedColumn;
+
         ACaption := AColumn.Caption;
 
         if AColumn.Position.Band <> nil then
@@ -1364,6 +1368,17 @@ begin
 
     FStatusBarEmptyPanelIndex := Value;
   end;
+end;
+
+procedure TfrmGrid.SetZeroBandWidth(AView: TcxGridDBBandedTableView);
+var
+  i: Integer;
+begin
+  // Для бэндов ширину (Width) лучше оставить 0.
+  //Тогда его ширина будет соответствовать сумме ширин колонок.
+  // Если ширина бэнда не ноль, то он сам расширяет колонки
+  for i := 0 to AView.Bands.Count - 1 do
+    AView.Bands[i].Width := 0;
 end;
 
 procedure TfrmGrid.StatusBarResize(Sender: TObject);

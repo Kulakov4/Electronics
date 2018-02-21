@@ -1,16 +1,17 @@
 inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
   inherited cxGrid: TcxGrid
+    ExplicitTop = 22
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
+      OptionsBehavior.HintHidePause = 500
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
-      OptionsView.BandHeaderEndEllipsis = True
-      OptionsView.BandHeaderHeight = 40
+      OptionsView.HeaderAutoHeight = True
       OptionsView.BandHeaders = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
@@ -242,6 +243,14 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end>
     end
     object dxbrbtnApplyUpdates: TdxBarButton
@@ -283,6 +292,26 @@ inherited ViewParametricTable: TViewParametricTable
       Action = actRefresh
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton6: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+    end
+    object dxBarButton7: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton7Click
+    end
+    object dxBarButton8: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton8Click
     end
   end
   inherited ActionList: TActionList
@@ -336,6 +365,18 @@ inherited ViewParametricTable: TViewParametricTable
       Caption = #1059#1076#1072#1083#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 2
       OnExecute = actDropParameterExecute
+    end
+    object actBandWidth: TAction
+      Caption = #1064#1080#1088#1080#1085#1072' '#1073#1101#1085#1076#1072
+      OnExecute = actBandWidthExecute
+    end
+    object actColumnWidth: TAction
+      Caption = #1064#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1082#1080
+      OnExecute = actColumnWidthExecute
+    end
+    object actColumnApplyBestFit: TAction
+      Caption = #1051#1091#1095#1096#1072#1103' '#1096#1080#1088#1080#1085#1072
+      OnExecute = actColumnApplyBestFitExecute
     end
   end
   inherited pmGrid: TPopupMenu
@@ -406,12 +447,21 @@ inherited ViewParametricTable: TViewParametricTable
     object N8: TMenuItem
       Action = actDropSubParameter
     end
+    object N11: TMenuItem
+      Action = actColumnWidth
+    end
+    object ColumnApplyBestFit1: TMenuItem
+      Action = actColumnApplyBestFit
+    end
   end
   object pmBands: TPopupMenu
     Left = 440
     Top = 312
     object N9: TMenuItem
       Action = actDropParameter
+    end
+    object N10: TMenuItem
+      Action = actBandWidth
     end
   end
 end

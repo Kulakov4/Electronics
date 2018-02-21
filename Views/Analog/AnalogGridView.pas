@@ -296,7 +296,7 @@ begin
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.HeaderAlignmentHorz := taCenter;
-    AColumn.AlternateCaption := AColumnHint;
+    AColumn.HeaderHint := AColumnHint;
     AColumn.Tag := AColumnID;
     AColumn.DataBinding.FieldName := AFieldName;
     // ¬ режиме просмотра убираем ограничители
@@ -349,10 +349,12 @@ begin
   begin
     cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
   end
+  {
   else if H is TcxGridColumnHeaderHitTest then
   begin
-    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
+    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.HeaderHint;
   end
+  }
 
 end;
 

@@ -73,13 +73,25 @@ type
     pmBands: TPopupMenu;
     actDropParameter: TAction;
     N9: TMenuItem;
+    dxBarButton6: TdxBarButton;
+    actBandWidth: TAction;
+    N10: TMenuItem;
+    actColumnWidth: TAction;
+    N11: TMenuItem;
+    dxBarButton7: TdxBarButton;
+    dxBarButton8: TdxBarButton;
+    actColumnApplyBestFit: TAction;
+    ColumnApplyBestFit1: TMenuItem;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
     procedure actLocateInStorehouseExecute(Sender: TObject);
     procedure actAnalogExecute(Sender: TObject);
+    procedure actBandWidthExecute(Sender: TObject);
     procedure actClearSelectedExecute(Sender: TObject);
+    procedure actColumnApplyBestFitExecute(Sender: TObject);
+    procedure actColumnWidthExecute(Sender: TObject);
     procedure actDropParameterExecute(Sender: TObject);
     procedure actDropSubParameterExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
@@ -104,6 +116,8 @@ type
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure dxBarButton7Click(Sender: TObject);
+    procedure dxBarButton8Click(Sender: TObject);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -575,6 +589,22 @@ begin
   end;
 end;
 
+procedure TViewParametricTable.actBandWidthExecute(Sender: TObject);
+var
+  ABand: TcxGridBand;
+  S: string;
+begin
+  inherited;
+  Assert(FHitTest <> nil);
+  Assert(FHitTest is TcxGridBandHeaderHitTest);
+
+  ABand := (FHitTest as TcxGridBandHeaderHitTest).Band;
+  Assert(ABand <> nil);
+
+  S := Format('Width = %d', [ABand.Width]);
+  ShowMessage(S);
+end;
+
 procedure TViewParametricTable.actClearSelectedExecute(Sender: TObject);
 var
   AColumn: TcxGridDBBandedColumn;
@@ -652,6 +682,36 @@ begin
     FreeAndNil(AFieldList);
   end;
   UpdateView;
+end;
+
+procedure TViewParametricTable.actColumnApplyBestFitExecute(Sender: TObject);
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  inherited;
+  AColumn := (FHitTest as TcxGridColumnHeaderHitTest)
+    .Column as TcxGridDBBandedColumn;
+
+  AColumn.GridView.BeginBestFitUpdate;
+  AColumn.ApplyBestFit(True);
+  AColumn.GridView.EndBestFitUpdate;
+end;
+
+procedure TViewParametricTable.actColumnWidthExecute(Sender: TObject);
+var
+  AColumn: TcxGridDBBandedColumn;
+  S: string;
+  W: Integer;
+begin
+  inherited;
+  AColumn := (FHitTest as TcxGridColumnHeaderHitTest)
+    .Column as TcxGridDBBandedColumn;
+
+
+  W := AColumn.GridView.ViewInfo.HeaderViewInfo.Items[AColumn.VisibleIndex].Width;
+
+  S := Format('Width = %d, HeaderViewInfoWidth = %d', [AColumn.Width, W]);
+  ShowMessage(S);
 end;
 
 procedure TViewParametricTable.actDropParameterExecute(Sender: TObject);
@@ -863,6 +923,18 @@ begin
   UpdateDetailColumnsWidth2;
 end;
 
+procedure TViewParametricTable.dxBarButton7Click(Sender: TObject);
+begin
+  inherited;
+  MyApplyBestFit;
+end;
+
+procedure TViewParametricTable.dxBarButton8Click(Sender: TObject);
+begin
+  inherited;
+  MainView.ApplyBestFit(nil, True, True);
+end;
+
 procedure TViewParametricTable.CreateColumnsBarButtons;
 begin
   // FColumnsBarButtons := TColumnsBarButtonsEx.Create(Self,
@@ -1002,10 +1074,12 @@ begin
   begin
     cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
   end
+  {
   else if H is TcxGridColumnHeaderHitTest then
   begin
-    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
+    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.HeaderHint;
   end
+  }
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetContentStyle
@@ -1483,7 +1557,7 @@ begin
           if AColumn.Caption.IsEmpty then
             AColumn.Caption := ' ';
           AColumn.HeaderAlignmentHorz := taCenter;
-          AColumn.AlternateCaption :=
+          AColumn.HeaderHint :=
             DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
 
           // Такое поле должно быть в датасете
@@ -1714,7 +1788,7 @@ begin
     if AColumn.Caption.IsEmpty then
       AColumn.Caption := AColumn.Caption + ' ';
 
-    AColumn.AlternateCaption :=
+    AColumn.HeaderHint :=
       DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
   end;
 end;
