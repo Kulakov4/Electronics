@@ -82,13 +82,22 @@ type
     dxBarButton8: TdxBarButton;
     actColumnApplyBestFit: TAction;
     ColumnApplyBestFit1: TMenuItem;
+    actBandAutoHeight: TAction;
+    N12: TMenuItem;
+    actBandAutoWidth: TAction;
+    N13: TMenuItem;
+    actChangeBandWidth: TAction;
+    ChangeBandWidth1: TMenuItem;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
     procedure actFullAnalogExecute(Sender: TObject);
     procedure actLocateInStorehouseExecute(Sender: TObject);
     procedure actAnalogExecute(Sender: TObject);
+    procedure actBandAutoHeightExecute(Sender: TObject);
+    procedure actBandAutoWidthExecute(Sender: TObject);
     procedure actBandWidthExecute(Sender: TObject);
+    procedure actChangeBandWidthExecute(Sender: TObject);
     procedure actClearSelectedExecute(Sender: TObject);
     procedure actColumnApplyBestFitExecute(Sender: TObject);
     procedure actColumnWidthExecute(Sender: TObject);
@@ -232,7 +241,7 @@ uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   ParametersForProductQuery, SearchParametersForCategoryQuery, GridExtension,
   DragHelper, System.Math, AnalogForm, AnalogQueryes, AnalogGridView,
   SearchProductByParamValuesQuery, NaturalSort, CategoryParametersGroupUnit,
-  FireDAC.Comp.Client, MoveHelper, SubParametersForm;
+  FireDAC.Comp.Client, MoveHelper, SubParametersForm, System.Types;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -589,6 +598,32 @@ begin
   end;
 end;
 
+procedure TViewParametricTable.actBandAutoHeightExecute(Sender: TObject);
+var
+  ABand: TcxGridBand;
+begin
+  inherited;
+  Assert(FHitTest <> nil);
+  Assert(FHitTest is TcxGridBandHeaderHitTest);
+
+  ABand := (FHitTest as TcxGridBandHeaderHitTest).Band;
+
+  ABand.GridView.OptionsView.BandHeaderHeight := CalcBandHeight(ABand);
+end;
+
+procedure TViewParametricTable.actBandAutoWidthExecute(Sender: TObject);
+var
+  ABand: TcxGridBand;
+begin
+  inherited;
+  Assert(FHitTest <> nil);
+  Assert(FHitTest is TcxGridBandHeaderHitTest);
+
+  ABand := (FHitTest as TcxGridBandHeaderHitTest).Band;
+  // ABand.GridView.OptionsView.BandHeaderHeight := 100;
+  ABand.ApplyBestFit();
+end;
+
 procedure TViewParametricTable.actBandWidthExecute(Sender: TObject);
 var
   ABand: TcxGridBand;
@@ -603,6 +638,26 @@ begin
 
   S := Format('Width = %d', [ABand.Width]);
   ShowMessage(S);
+end;
+
+procedure TViewParametricTable.actChangeBandWidthExecute(Sender: TObject);
+var
+  ABand: TcxGridBand;
+  ABandWidth: Integer;
+begin
+  inherited;
+  Assert(FHitTest <> nil);
+  Assert(FHitTest is TcxGridBandHeaderHitTest);
+
+  ABand := (FHitTest as TcxGridBandHeaderHitTest).Band;
+
+  ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+    [ABand.VisibleIndex].Width;
+
+  ABand.Width := ABandWidth + 100;
+
+//  ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex]
+//    .Width := ABandWidth + 100;
 end;
 
 procedure TViewParametricTable.actClearSelectedExecute(Sender: TObject);
@@ -686,9 +741,12 @@ end;
 
 procedure TViewParametricTable.actColumnApplyBestFitExecute(Sender: TObject);
 var
+  // ABandCaption: String;
+  // ACaption: Integer;
   AColumn: TcxGridDBBandedColumn;
 begin
   inherited;
+
   AColumn := (FHitTest as TcxGridColumnHeaderHitTest)
     .Column as TcxGridDBBandedColumn;
 
@@ -700,6 +758,7 @@ end;
 procedure TViewParametricTable.actColumnWidthExecute(Sender: TObject);
 var
   AColumn: TcxGridDBBandedColumn;
+  H: Integer;
   S: string;
   W: Integer;
 begin
@@ -707,10 +766,14 @@ begin
   AColumn := (FHitTest as TcxGridColumnHeaderHitTest)
     .Column as TcxGridDBBandedColumn;
 
+  W := AColumn.GridView.ViewInfo.HeaderViewInfo.Items
+    [AColumn.VisibleIndex].Width;
 
-  W := AColumn.GridView.ViewInfo.HeaderViewInfo.Items[AColumn.VisibleIndex].Width;
+  H := AColumn.GridView.ViewInfo.HeaderViewInfo.Items
+    [AColumn.VisibleIndex].Height;
 
-  S := Format('Width = %d, HeaderViewInfoWidth = %d', [AColumn.Width, W]);
+  S := Format('Width = %d, HeaderViewInfoWidth = %d, HeaderViewInfoHeight = %d',
+    [AColumn.Width, W, H]);
   ShowMessage(S);
 end;
 
@@ -1075,10 +1138,10 @@ begin
     cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
   end
   {
-  else if H is TcxGridColumnHeaderHitTest then
-  begin
+    else if H is TcxGridColumnHeaderHitTest then
+    begin
     cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.HeaderHint;
-  end
+    end
   }
 end;
 
@@ -1103,7 +1166,7 @@ begin
     Exit;
   // Assert(ABI <> nil);
 
-  case ABI.Pos of
+  case ABI.pos of
     0:
       AStyle := cxStyleBegin;
     2:
@@ -1513,7 +1576,7 @@ begin
     ABandInfo.IDParameterKind := qCategoryParameters.IDParameterKind.AsInteger;
     // Какой порядок имеет параметр в БД
     ABandInfo.Order := qCategoryParameters.Ord.AsInteger;
-    ABandInfo.Pos := qCategoryParameters.PosID.AsInteger;
+    ABandInfo.pos := qCategoryParameters.PosID.AsInteger;
 
     // Инициализируем сами бэнды
     for ABand in (ABandInfo as TBandInfoEx).Bands do
@@ -1798,8 +1861,8 @@ begin
   Result := ComponentsExGroup.CatParamsGroup.qCategoryParameters;
 end;
 
-procedure TViewParametricTable.MyApplyBestFitForView(AView:
-    TcxGridDBBandedTableView);
+procedure TViewParametricTable.MyApplyBestFitForView
+  (AView: TcxGridDBBandedTableView);
 begin
   inherited;
   if AView = MainView then
@@ -1834,7 +1897,6 @@ begin
   AllowPopup := (ABI <> nil) and (not ABI.DefaultCreated);
   if not AllowPopup then
     Exit;
-
 
   ACI := FColumnsInfo.Search(AColumn, True);
 

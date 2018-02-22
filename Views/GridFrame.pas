@@ -119,15 +119,15 @@ type
       ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
       const AKeyFieldNames: string = 'ID'); overload;
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
-        AllowPopup: Boolean); virtual;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InternalRefreshData; virtual;
     procedure MyDelete; virtual;
     procedure OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
       var AllowPopup: Boolean); virtual;
-    procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn; var
-        AllowPopup: Boolean); virtual;
+    procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); virtual;
     procedure ProcessGridPopupMenu(ASenderMenu: TComponent;
       AHitTest: TcxCustomGridHitTest; X, Y: Integer;
       var AllowPopup: Boolean); virtual;
@@ -141,6 +141,7 @@ type
     procedure ApplyBestFitFocusedBand; virtual;
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
+    function CalcBandHeight(ABand: TcxGridBand): Integer;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
@@ -217,7 +218,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink,
-  dxCore, DialogUnit, StrHelper;
+  dxCore, DialogUnit, StrHelper, System.Types, TextRectHelper;
 
 constructor TfrmGrid.Create(AOwner: TComponent);
 begin
@@ -325,6 +326,28 @@ procedure TfrmGrid.BeginUpdate;
 begin
   Inc(FUpdateCount);
   cxGrid.BeginUpdate();
+end;
+
+function TfrmGrid.CalcBandHeight(ABand: TcxGridBand): Integer;
+var
+  ABandHeight: Integer;
+  ABandWidth: Integer;
+  Flags: Integer;
+  R: TRect;
+begin
+  Assert(ABand <> nil);
+
+  ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+    [ABand.VisibleIndex].Width;
+
+  // ABandWidth := IfThen(ABandWidth > AMinWidth, ABandWidth, AMinWidth);
+
+  ABandHeight := ABand.GridView.ViewInfo.Canvas.TextHeight(ABand.Caption);
+
+  R := TTextRect.Calc(ABand.GridView.ViewInfo.Canvas.Canvas, ABand.Caption,
+    Rect(0, 0, ABandWidth, ABandHeight));
+
+  Result := 22 + R.Height;
 end;
 
 // Подбирает верхнюю запись так, чтобы нужная нам стала полностью видимой
@@ -891,7 +914,7 @@ begin
 end;
 
 procedure TfrmGrid.OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
-    var AllowPopup: Boolean);
+var AllowPopup: Boolean);
 begin
 end;
 
@@ -1225,10 +1248,21 @@ end;
 
 procedure TfrmGrid.MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
 var
+  ABand: TcxGridBand;
   ABandCaption: string;
+  ABandHeight: Integer;
+  ABandRect: TRect;
+  ABandWidth: Integer;
+  ACanvas: TCanvas;
   ACaption: String;
   AColumn: TcxGridDBBandedColumn;
+  AColumnRect: TRect;
+  AColumnWisth: Integer;
+  AMaxBandHeight: Integer;
   i: Integer;
+  j: Integer;
+  X: Integer;
+  Y: Integer;
 begin
   Assert(AView <> nil);
 
@@ -1240,23 +1274,85 @@ begin
       AView.BeginBestFitUpdate;
     try
       SetZeroBandWidth(AView);
-      for i := 0 to AView.VisibleColumnCount - 1 do
+
+      AMaxBandHeight := 0;
+      ACanvas := AView.ViewInfo.Canvas.Canvas;
+      for i := 0 to AView.Bands.Count - 1 do
       begin
+        ABand := AView.Bands[i];
+        if not ABand.Visible then
+          Continue;
+
+        if ABand.Caption = 'Input Current Noise Density' then
+          beep;
+
+        // Предпологаем что дочерних бэндов нет!!!
+        Assert(ABand.ChildBandCount = 0);
+
+        for j := 0 to ABand.ColumnCount - 1 do
+        begin
+          AColumn := ABand.Columns[j] as TcxGridDBBandedColumn;
+          if not AColumn.Visible then
+            Continue;
+
+          ACaption := AColumn.Caption;
+
+          // В каждой строке по слову
+          AColumn.Caption := GetWords(AColumn.Caption);
+
+          X := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+            [ABand.VisibleIndex].Width;
+
+          AColumn.ApplyBestFit(True);
+
+          Y := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+            [ABand.VisibleIndex].Width;
+
+          // Возвращаем старый заголовок
+          AColumn.Caption := ACaption;
+        end;
+        // Вычисляем минимальную ширину бэнда
+        ABandRect := TTextRect.Calc(ACanvas, ABand.Caption);
+        // Получаем реальную ширину бэнда
+        ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+          [ABand.VisibleIndex].Width;
+
+        // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
+        if ABandWidth < (ABandRect.Width + 10) then
+        begin
+          ABand.Width := ABandRect.Width + 10;
+          ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.
+            Items[ABand.VisibleIndex].Width;
+          Assert(ABandWidth >= ABandRect.Width);
+        end;
+
+        // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
+        ABandHeight := CalcBandHeight(ABand);
+
+        AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
+          AMaxBandHeight);
+      end;
+      AView.OptionsView.BandHeaderHeight := AMaxBandHeight;
+
+      {
+        for i := 0 to AView.VisibleColumnCount - 1 do
+        begin
         AColumn := AView.VisibleColumns[i] as TcxGridDBBandedColumn;
 
         ACaption := AColumn.Caption;
 
         if AColumn.Position.Band <> nil then
-          ABandCaption := AColumn.Position.Band.Caption
+        ABandCaption := AColumn.Position.Band.Caption
         else
-          ABandCaption := '';
+        ABandCaption := '';
 
         AColumn.Caption :=
-          GetWords(Format('%s %s', [AColumn.Caption, ABandCaption]));
+        GetWords(Format('%s %s', [AColumn.Caption, ABandCaption]));
 
         AColumn.ApplyBestFit(True);
         AColumn.Caption := ACaption;
-      end;
+        end;
+      }
     finally
       if not FApplyBestFitPosted then
         AView.EndBestFitUpdate;
@@ -1273,7 +1369,7 @@ begin
 end;
 
 procedure TfrmGrid.OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
-    var AllowPopup: Boolean);
+var AllowPopup: Boolean);
 begin
 end;
 
@@ -1375,7 +1471,7 @@ var
   i: Integer;
 begin
   // Для бэндов ширину (Width) лучше оставить 0.
-  //Тогда его ширина будет соответствовать сумме ширин колонок.
+  // Тогда его ширина будет соответствовать сумме ширин колонок.
   // Если ширина бэнда не ноль, то он сам расширяет колонки
   for i := 0 to AView.Bands.Count - 1 do
     AView.Bands[i].Width := 0;

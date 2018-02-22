@@ -6,12 +6,13 @@ inherited ViewParametricTable: TViewParametricTable
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
-      OptionsBehavior.HintHidePause = 500
+      OptionsBehavior.HintHidePause = 2000
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
       OptionsView.HeaderAutoHeight = True
+      OptionsView.BandHeaderHeight = 100
       OptionsView.BandHeaders = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
@@ -378,6 +379,18 @@ inherited ViewParametricTable: TViewParametricTable
       Caption = #1051#1091#1095#1096#1072#1103' '#1096#1080#1088#1080#1085#1072
       OnExecute = actColumnApplyBestFitExecute
     end
+    object actBandAutoHeight: TAction
+      Caption = #1040#1074#1090#1086' '#1074#1099#1089#1086#1090#1072' '#1073#1101#1085#1076#1072
+      OnExecute = actBandAutoHeightExecute
+    end
+    object actBandAutoWidth: TAction
+      Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1086#1087#1090#1080#1084#1072#1083#1100#1085#1091#1102' '#1096#1080#1088#1080#1085#1091
+      OnExecute = actBandAutoWidthExecute
+    end
+    object actChangeBandWidth: TAction
+      Caption = 'Change Band Width'
+      OnExecute = actChangeBandWidthExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N6: TMenuItem
@@ -462,6 +475,15 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object N10: TMenuItem
       Action = actBandWidth
+    end
+    object N12: TMenuItem
+      Action = actBandAutoHeight
+    end
+    object N13: TMenuItem
+      Action = actBandAutoWidth
+    end
+    object ChangeBandWidth1: TMenuItem
+      Action = actChangeBandWidth
     end
   end
 end

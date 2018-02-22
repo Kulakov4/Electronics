@@ -197,7 +197,8 @@ uses
   SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters},
   UpdateNegativeOrdQuery in 'Queryes\CategoryParameters\UpdateNegativeOrdQuery.pas' {QueryUpdNegativeOrd: TFrame},
   MoveHelper in 'Helpers\MoveHelper.pas',
-  UpdateParameterValuesParamSubParamQuery in 'Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas' {qUpdateParameterValuesParamSubParam: TFrame};
+  UpdateParameterValuesParamSubParamQuery in 'Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas' {qUpdateParameterValuesParamSubParam: TFrame},
+  TextRectHelper in 'Helpers\TextRectHelper.pas';
 
 {$R *.res}
 
