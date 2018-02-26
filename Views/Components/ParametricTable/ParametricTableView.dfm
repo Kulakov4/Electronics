@@ -6,7 +6,9 @@ inherited ViewParametricTable: TViewParametricTable
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
       DataController.Filter.OnChanged = cxGridDBBandedTableViewDataControllerFilterChanged
       OptionsBehavior.HintHidePause = 2000
+      OptionsBehavior.ColumnHeaderHints = False
       OptionsBehavior.EditAutoHeight = eahRow
+      OptionsBehavior.BandHeaderHints = False
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.NestedBands = False
       OptionsView.CellAutoHeight = True
@@ -121,7 +123,9 @@ inherited ViewParametricTable: TViewParametricTable
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
+      OptionsBehavior.ColumnHeaderHints = False
       OptionsBehavior.EditAutoHeight = eahRow
+      OptionsBehavior.BandHeaderHints = False
       OptionsView.CellAutoHeight = True
       Bands = <
         item

@@ -241,7 +241,8 @@ uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   ParametersForProductQuery, SearchParametersForCategoryQuery, GridExtension,
   DragHelper, System.Math, AnalogForm, AnalogQueryes, AnalogGridView,
   SearchProductByParamValuesQuery, NaturalSort, CategoryParametersGroupUnit,
-  FireDAC.Comp.Client, MoveHelper, SubParametersForm, System.Types;
+  FireDAC.Comp.Client, MoveHelper, SubParametersForm, System.Types,
+  TextRectHelper;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -293,7 +294,7 @@ begin
 
   qCategoryParameters.ClearSubParamsRecHolders;
 
-  PostMyApplyBestFitEvent;
+  // PostMyApplyBestFitEvent;
 
   ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);
 end;
@@ -1134,12 +1135,12 @@ begin
   begin
     cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
   end
-  {
-    else if H is TcxGridColumnHeaderHitTest then
-    begin
-    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.HeaderHint;
-    end
-  }
+
+  else if H is TcxGridColumnHeaderHitTest then
+  begin
+    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
+  end
+
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewStylesGetContentStyle
@@ -1518,6 +1519,7 @@ var
   AParamSubParamId: Integer;
   AView: TcxGridDBBandedTableView;
   NeedInitialize: Boolean;
+  R: TRect;
 begin
   // Поиск среди ранее созданных бэндов
   // Ищем среди заранее созданных бэндов
@@ -1617,7 +1619,7 @@ begin
           if AColumn.Caption.IsEmpty then
             AColumn.Caption := ' ';
           AColumn.HeaderAlignmentHorz := taCenter;
-          AColumn.HeaderHint :=
+          AColumn.AlternateCaption :=
             DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
 
           // Такое поле должно быть в датасете
@@ -1626,6 +1628,12 @@ begin
 
           AColumn.DataBinding.FieldName := ComponentsExGroup.AllParameterFields
             [AParamSubParamId];
+
+
+
+          R := TTextRect.Calc(AColumn.GridView.ViewInfo.Canvas.Canvas, AColumn.Caption, AColumn.MinWidth);
+          AColumn.Width := R.Width + 10;
+
           // В режиме просмотра убираем ограничители
           AColumn.OnGetDataText := DoOnGetDataText;
 
@@ -1848,7 +1856,7 @@ begin
     if AColumn.Caption.IsEmpty then
       AColumn.Caption := AColumn.Caption + ' ';
 
-    AColumn.HeaderHint :=
+    AColumn.AlternateCaption :=
       DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
   end;
 end;
@@ -2072,15 +2080,20 @@ begin
     UpdateColumn(AIDCategoryParam);
   end;
 
-  // Добавляем колонки
-  for ARecHolder in qCategoryParameters.InsertedSubParams do
-  begin
-    AIDCategoryParam := ARecHolder.Field[qCategoryParameters.PKFieldName];
-    AIDBand := ComponentsExGroup.CatParamsGroup.GetVID(AIDCategoryParam);
-    qCategoryParameters.LocateByPK(AIDCategoryParam, True);
-    // Создаём колонку для бэнда
-    CreateColumn([MainView, GridView(cxGridLevel2)], AIDBand,
-      qCategoryParameters);
+  DisableCollapsingAndExpanding;
+  try
+    // Добавляем колонки
+    for ARecHolder in qCategoryParameters.InsertedSubParams do
+    begin
+      AIDCategoryParam := ARecHolder.Field[qCategoryParameters.PKFieldName];
+      AIDBand := ComponentsExGroup.CatParamsGroup.GetVID(AIDCategoryParam);
+      qCategoryParameters.LocateByPK(AIDCategoryParam, True);
+      // Создаём колонку для бэнда
+      CreateColumn([MainView, GridView(cxGridLevel2)], AIDBand,
+        qCategoryParameters);
+    end;
+  finally
+    EnableCollapsingAndExpanding;
   end;
 end;
 

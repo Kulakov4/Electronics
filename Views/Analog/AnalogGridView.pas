@@ -273,7 +273,7 @@ begin
     // Связан ли он с подпараметром по умолчанию
     ABandInfo.IDParamSubParam := AIDParamSubParam;
     // Параметр, с которым связан бэнд
-//    ABandInfo.CategoryParamID := ACategoryParamID;
+    // ABandInfo.CategoryParamID := ACategoryParamID;
     ABandInfo.DefaultVisible := AVisible;
     ABandInfo.IDParameterKind := AIDParameterKind;
     ABand.Visible := AVisible;
@@ -296,7 +296,7 @@ begin
     AColumn.MinWidth := 40;
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.HeaderAlignmentHorz := taCenter;
-    AColumn.HeaderHint := AColumnHint;
+    AColumn.AlternateCaption := AColumnHint;
     AColumn.Tag := AColumnID;
     AColumn.DataBinding.FieldName := AFieldName;
     // В режиме просмотра убираем ограничители
@@ -349,12 +349,10 @@ begin
   begin
     cxGrid.Hint := (H as TcxGridBandHeaderHitTest).Band.AlternateCaption;
   end
-  {
   else if H is TcxGridColumnHeaderHitTest then
   begin
-    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.HeaderHint;
+    cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
   end
-  }
 
 end;
 
