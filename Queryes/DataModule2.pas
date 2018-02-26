@@ -13,7 +13,7 @@ uses
   ComponentsGroupUnit, ComponentsSearchGroupUnit,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
   StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2,
-  CategoryParametersGroupUnit;
+  CategoryParametersGroupUnit, NotifyEvents;
 
 type
   TDM2 = class(TForm)
@@ -35,6 +35,7 @@ type
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
     FQueryGroups: TList<TQueryGroup>;
+    FTreeListAfterFirstOpen: TNotifyEventWrap;
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
@@ -47,6 +48,9 @@ type
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
+  protected
+    procedure DoAfterTreeListFirstOpen(Sender: TObject);
+    procedure DoBeforeTreeListClose(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -63,7 +67,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, NotifyEvents, DragHelper;
+uses System.IOUtils, DragHelper, Data.DB;
 
 constructor TDM2.Create(AOwner: TComponent);
 begin
@@ -100,6 +104,9 @@ begin
 //  ComponentsGroup.Producers := ProducersGroup.qProducers;
 //  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
 //  ComponentsExGroup.Producers := ProducersGroup.qProducers;
+
+  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.AfterOpen, DoAfterTreeListFirstOpen);
+  TNotifyEventWrap.Create(qTreeList.BeforeClose, DoBeforeTreeListClose, FEventList);
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
@@ -147,19 +154,27 @@ end;
 
 destructor TDM2.Destroy;
 begin
+  CloseConnection;
   FreeAndNil(FEventList);
   FreeAndNil(FDataSetList);
   FreeAndNil(FQueryGroups);
   inherited;
 end;
 
+
 { закрытие датасетов }
 procedure TDM2.CloseConnection;
 var
+  BC: TDataSetNotifyEvent;
   I: Integer;
 begin
+  // Это событие не срабатывает, потому что csDestroying in ComponentState
+  DoBeforeTreeListClose(qTreeList.FDQuery);
+
   for I := FDataSetList.Count - 1 downto 0 do
     FDataSetList[I].FDQuery.Close;
+
+  qTreeList.FDQuery.Close;
 
   // Закрываем соединение с БД
   DMRepository.dbConnection.Close;
@@ -238,6 +253,33 @@ begin
   // Произошло сохранение скалада
   // Обновляем выпадающий список складов
   qProductsSearch.qStoreHouseList.RefreshQuery;
+end;
+
+procedure TDM2.DoAfterTreeListFirstOpen(Sender: TObject);
+var
+  ACategoryID: Integer;
+begin
+  Assert(qTreeList.FDQuery.Active);
+
+
+  ACategoryID := TSettings.Create.CategoryID;
+  // Если в настройках не сохранилась последняя открытая категория
+  // Либо отключена загрузка последней категории
+  if (ACategoryID = 0) or (not TSettings.Create.LoadLastCategory) then
+    Exit;
+
+  // Пытаемся перейти на ту-же запись
+  qTreeList.LocateByPK(ACategoryID);
+end;
+
+procedure TDM2.DoBeforeTreeListClose(Sender: TObject);
+begin
+  Assert(qTreeList.FDQuery.Active);
+
+  if qTreeList.FDQuery.RecordCount = 0 then
+    Exit;
+
+  TSettings.Create.CategoryID := qTreeList.PK.AsInteger;
 end;
 
 procedure TDM2.DoOnParamOrderChange(Sender: TObject);
@@ -330,6 +372,11 @@ begin
   begin
     FDataSetList[I].FDQuery.Open;
   end;
+
+  // Отписываемся от события
+  Assert(FTreeListAfterFirstOpen <> nil);
+  FreeAndNil(FTreeListAfterFirstOpen);
+
 
   InitDataSetValues();
 end;

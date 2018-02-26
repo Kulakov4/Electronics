@@ -54,6 +54,8 @@ object frmPathSettings: TfrmPathSettings
     object cxTabSheet1: TcxTabSheet
       Caption = #1041#1072#1079#1072' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 2
+      ExplicitLeft = 3
+      ExplicitTop = 28
       object Label8: TLabel
         Left = 3
         Top = 31
@@ -76,14 +78,16 @@ object frmPathSettings: TfrmPathSettings
         Action = actBrowseDatabasePath
         TabOrder = 1
       end
+      object cbLoadLastCategory: TcxCheckBox
+        Left = 3
+        Top = 64
+        Caption = #1047#1072#1075#1088#1091#1078#1072#1090#1100' '#1087#1086#1089#1083#1077#1076#1085#1102#1102' '#1086#1090#1082#1088#1099#1090#1091#1102' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+        TabOrder = 2
+      end
     end
     object cxtshComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label4: TLabel
         Left = 8
         Top = 31
@@ -260,10 +264,6 @@ object frmPathSettings: TfrmPathSettings
     object cxtshBodyTypes: TcxTabSheet
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label1: TLabel
         Left = 8
         Top = 31

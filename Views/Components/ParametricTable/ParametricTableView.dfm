@@ -1,7 +1,6 @@
 inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
   inherited cxGrid: TcxGrid
-    ExplicitTop = 22
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue

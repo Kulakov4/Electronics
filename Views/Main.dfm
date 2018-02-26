@@ -484,6 +484,31 @@ object frmMain: TfrmMain
                   0)
               end
               inherited cxGridPopupMenu: TcxGridPopupMenu
+                PopupMenus = <
+                  item
+                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
+                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
+                    Index = 0
+                    PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
+                  end
+                  item
+                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView2
+                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
+                    Index = 1
+                    PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
+                  end
+                  item
+                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
+                    HitTypes = [gvhtColumnHeader, gvhtColumnHeaderFilterButton]
+                    Index = 2
+                    PopupMenu = ComponentsFrame.ViewParametricTable.pmHeaders
+                  end
+                  item
+                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
+                    HitTypes = [gvhtBandHeader]
+                    Index = 3
+                    PopupMenu = ComponentsFrame.ViewParametricTable.pmBands
+                  end>
               end
               inherited cxStyleRepository: TcxStyleRepository
                 PixelsPerInch = 96
@@ -552,6 +577,7 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
+            ExplicitLeft = 4
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474
