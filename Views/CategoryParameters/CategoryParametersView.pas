@@ -188,7 +188,8 @@ begin
     MainView.Controller.FocusedRowIndex);
 
   // Получаем отмеченные галочками подпараметры
-  if TfrmSubParameters.GetCheckedID(AIDParameter, CatParamsGroup.qCategoryParameters.ParentValue, S) then
+  if TfrmSubParameters.GetCheckedID(AIDParameter,
+    CatParamsGroup.qCategoryParameters.ParentValue, S) then
   begin
     fri := MainView.Controller.FocusedRowIndex;
     cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
@@ -469,30 +470,16 @@ end;
 procedure TViewCategoryParameters.DoDeleteFromView
   (AView: TcxGridDBBandedTableView);
 var
-  AColumn: TcxGridDBBandedColumn;
-  APKValues: TList<Variant>;
-  i: Integer;
+  APKValues: TArray<Integer>;
 begin
-  APKValues := TList<Variant>.Create;
-  try
-    AColumn := AView.GetColumnByFieldName(clID.DataBinding.FieldName);
-    Assert(AColumn <> nil);
+  Assert(clID.Index = clID2.Index);
+  APKValues := GetSelectedIntValues(AView, clID.Index);
 
-    // Получаем идентификаторы тех записей, которые надо удалить
-    for i := 0 to AView.Controller.SelectedRowCount - 1 do
-    begin
-      APKValues.Add(AView.Controller.SelectedRows[i].Values[AColumn.Index]);
-    end;
-
-    // Если удаляем параметр
-    if AView.Level = cxGridLevel then
-      CatParamsGroup.DeleteParameters(APKValues.ToArray);
-    if AView.Level = cxGridLevel2 then
-      CatParamsGroup.DeleteSubParameters(APKValues.ToArray);
-
-  finally
-    FreeAndNil(APKValues)
-  end;
+  // Если удаляем параметр
+  if AView.Level = cxGridLevel then
+    CatParamsGroup.DeleteParameters(APKValues);
+  if AView.Level = cxGridLevel2 then
+    CatParamsGroup.DeleteSubParameters(APKValues);
 end;
 
 procedure TViewCategoryParameters.dxBarButton13Click(Sender: TObject);
@@ -688,18 +675,19 @@ procedure TViewCategoryParameters.SetPos(APosID: Integer);
 var
   AColumn: TcxGridDBBandedColumn;
   AView: TcxGridDBBandedTableView;
-//  i: Integer;
+  // i: Integer;
 begin
   AView := FocusedTableView;
   Assert(AView <> nil);
   AColumn := AView.GetColumnByFieldName(clID.DataBinding.FieldName);
 
-//  AView.BeginSortingUpdate;
-//  try
-    CatParamsGroup.SetPos(GetSelectedIntValues(AColumn), AView = MainView, APosID);
-//  finally
-//    AView.EndSortingUpdate;
-//  end;
+  // AView.BeginSortingUpdate;
+  // try
+  CatParamsGroup.SetPos(GetSelectedIntValues(AColumn),
+    AView = MainView, APosID);
+  // finally
+  // AView.EndSortingUpdate;
+  // end;
   UpdateView;
 end;
 

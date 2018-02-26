@@ -130,8 +130,8 @@ type
     procedure AddOrDeleteParameters(AParamIDList: string; APosID: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
-    procedure DeleteParameters(APKValues: array of Variant);
-    procedure DeleteSubParameters(APKValues: array of Variant);
+    procedure DeleteParameters(APKValues: array of Integer);
+    procedure DeleteSubParameters(APKValues: array of Integer);
     function GetVID(AID: Integer): Integer;
     procedure UpdateData;
     procedure LoadData;
@@ -614,11 +614,11 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup.DeleteParameters
-  (APKValues: array of Variant);
+procedure TCategoryParametersGroup.DeleteParameters(APKValues: array of
+    Integer);
 var
   AClone: TFDMemTable;
-  AID: Variant;
+  AID: Integer;
 begin
   for AID in APKValues do
   begin
@@ -636,11 +636,11 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup.DeleteSubParameters
-  (APKValues: array of Variant);
+procedure TCategoryParametersGroup.DeleteSubParameters(APKValues: array of
+    Integer);
 var
   AClone: TFDMemTable;
-  AID: Variant;
+  AID: Integer;
   VID: Integer;
 begin
   for AID in APKValues do

@@ -128,7 +128,6 @@ type
     procedure AfterConstruction; override;
     procedure ApplyBestFitFocusedBand; override;
     function CheckAndSaveChanges: Integer;
-    function GetSelectedIDs: TList<Integer>;
     procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
@@ -655,32 +654,6 @@ begin
       BaseComponentsGroup.Main.FDQuery.Connection;
   end;
   Result := FQuerySubGroups;
-end;
-
-function TViewComponentsParent.GetSelectedIDs: TList<Integer>;
-var
-  AIDComponent: Integer;
-  AView: TcxGridDBBandedTableView;
-  i: Integer;
-  V: Variant;
-begin
-  Result := TList<Integer>.Create;
-  AView := FocusedTableView;
-  if AView = nil then
-    Exit;
-
-  for i := 0 to AView.Controller.SelectedRowCount - 1 do
-  begin
-    V := AView.Controller.SelectedRows[i].Values[clID.Index];
-
-    if VarIsNull(V) then
-      Continue;
-
-    AIDComponent := V;
-
-    Result.Add(AIDComponent);
-  end;
-
 end;
 
 procedure TViewComponentsParent.MyApplyBestFit;
