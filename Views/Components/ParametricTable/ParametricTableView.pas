@@ -655,9 +655,6 @@ begin
     [ABand.VisibleIndex].Width;
 
   ABand.Width := ABandWidth + 100;
-
-//  ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex]
-//    .Width := ABandWidth + 100;
 end;
 
 procedure TViewParametricTable.actClearSelectedExecute(Sender: TObject);

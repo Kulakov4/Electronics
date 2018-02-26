@@ -329,10 +329,11 @@ begin
 end;
 
 function TfrmGrid.CalcBandHeight(ABand: TcxGridBand): Integer;
+const
+  MAGIC = 10;
 var
   ABandHeight: Integer;
   ABandWidth: Integer;
-  Flags: Integer;
   R: TRect;
 begin
   Assert(ABand <> nil);
@@ -347,7 +348,7 @@ begin
   R := TTextRect.Calc(ABand.GridView.ViewInfo.Canvas.Canvas, ABand.Caption,
     Rect(0, 0, ABandWidth, ABandHeight));
 
-  Result := 22 + R.Height;
+  Result := MAGIC + R.Height;
 end;
 
 // Подбирает верхнюю запись так, чтобы нужная нам стала полностью видимой
@@ -1247,22 +1248,20 @@ begin
 end;
 
 procedure TfrmGrid.MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
+const
+  MAGIC = 10;
 var
   ABand: TcxGridBand;
-  ABandCaption: string;
+//  ABandCaption: string;
   ABandHeight: Integer;
   ABandRect: TRect;
   ABandWidth: Integer;
   ACanvas: TCanvas;
   ACaption: String;
   AColumn: TcxGridDBBandedColumn;
-  AColumnRect: TRect;
-  AColumnWisth: Integer;
   AMaxBandHeight: Integer;
   i: Integer;
   j: Integer;
-  X: Integer;
-  Y: Integer;
 begin
   Assert(AView <> nil);
 
@@ -1283,9 +1282,6 @@ begin
         if not ABand.Visible then
           Continue;
 
-        if ABand.Caption = 'Input Current Noise Density' then
-          beep;
-
         // Предпологаем что дочерних бэндов нет!!!
         Assert(ABand.ChildBandCount = 0);
 
@@ -1300,13 +1296,7 @@ begin
           // В каждой строке по слову
           AColumn.Caption := GetWords(AColumn.Caption);
 
-          X := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
-            [ABand.VisibleIndex].Width;
-
           AColumn.ApplyBestFit(True);
-
-          Y := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
-            [ABand.VisibleIndex].Width;
 
           // Возвращаем старый заголовок
           AColumn.Caption := ACaption;
@@ -1318,9 +1308,9 @@ begin
           [ABand.VisibleIndex].Width;
 
         // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
-        if ABandWidth < (ABandRect.Width + 10) then
+        if ABandWidth < (ABandRect.Width + MAGIC) then
         begin
-          ABand.Width := ABandRect.Width + 10;
+          ABand.Width := ABandRect.Width + MAGIC;
           ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.
             Items[ABand.VisibleIndex].Width;
           Assert(ABandWidth >= ABandRect.Width);

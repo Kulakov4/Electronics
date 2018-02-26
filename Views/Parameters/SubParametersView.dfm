@@ -2,6 +2,7 @@ inherited ViewSubParameters: TViewSubParameters
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OptionsView.ColumnAutoWidth = False
+      OptionsView.HeaderAutoHeight = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False

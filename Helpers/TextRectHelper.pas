@@ -28,7 +28,6 @@ var
   ASubStr: string;
   AWord: string;
   AWordWidth: Integer;
-  Flags: Integer;
 begin
 
   // 1) »щем слово с максимальной шириной
@@ -53,17 +52,10 @@ end;
 class function TTextRect.Calc(ACanvas: TCanvas; const S: String; ARect: TRect):
     TRect;
 var
-  ATextHeight: Integer;
-  AMaxWidth: Integer;
-  m: TArray<String>;
-  ASubStr: string;
-  AWord: string;
-  AWordWidth: Integer;
   Flags: Integer;
 begin
   // «дест произойдЄт копирование?
   Result := ARect;
-  Result.Left := Result.Left + 1;
 
   Flags := DT_CALCRECT or DT_WORDBREAK;
 
