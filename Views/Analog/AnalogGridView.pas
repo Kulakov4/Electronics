@@ -297,7 +297,6 @@ begin
     AColumn.Caption := DeleteDouble(AColumnCaption, ' ');
     AColumn.HeaderAlignmentHorz := taCenter;
     AColumn.AlternateCaption := AColumnHint;
-    AColumn.Tag := AColumnID;
     AColumn.DataBinding.FieldName := AFieldName;
     // ¬ режиме просмотра убираем ограничители
     // AColumn.OnGetDataText := DoOnGetDataText;

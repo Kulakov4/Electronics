@@ -38,7 +38,6 @@ uses
 
 const
   WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
-  WM_ON_BAND_POS_CHANGE = WM_USER + 62;
 
 type
   TViewParametricTable = class(TViewComponentsBase)
@@ -167,8 +166,6 @@ type
     procedure CreateColumnsBarButtons; override;
     procedure CreateColumnsForBand(AIDCategoryParam, AIDBand: Integer);
     procedure CreateDetailFilter;
-    procedure DoAfterBandPosChange(var Message: TMessage);
-      message WM_ON_BAND_POS_CHANGE;
     // TODO: CreateFilter
     // procedure CreateFilter(AColumn: TcxGridDBBandedColumn;
     // const AValue: string);
@@ -417,10 +414,12 @@ procedure TViewParametricTable.actAnalogExecute(Sender: TObject);
 var
   ABand: TcxGridBand;
   ABI: TBandInfo;
+  ACI: TColumnInfo;
+  ACI_EX: TColumnInfoEx;
   AColumn: TcxGridDBBandedColumn;
   AfrmAnalog: TfrmAnalog;
-  AIDParameter: Integer;
   AnalogGroup: TAnalogGroup;
+  AParamSubParamId: Integer;
   AProductCategoryID: Integer;
   ARecHolder: TRecordHolder;
   AValue: string;
@@ -439,16 +438,13 @@ begin
   try
 
     AProductCategoryID := ComponentsExGroup.qFamilyEx.ParentValue;
+    if MainView.Focused then
+      AView := MainView
+    else
+      AView := GridView(cxGridLevel2);
 
     ARecHolder := TRecordHolder.Create();
     try
-      if MainView.Focused then
-        AView := MainView
-      else
-        AView := GridView(cxGridLevel2);
-
-      // Assert(AView.Focused);
-
       // Цикл по всем бэндам сфокусированного табличного представления
       for i := 0 to AView.Bands.Count - 1 do
       begin
@@ -476,8 +472,10 @@ begin
         for P := 0 to ABand.ColumnCount - 1 do
         begin
           AColumn := ABand.Columns[P] as TcxGridDBBandedColumn;
-          AIDParameter := AColumn.Tag;
-          Assert(AIDParameter > 0);
+          // Ищем информацию о колонке
+          ACI := FColumnsInfo.Search(AColumn, True);
+          qCategoryParameters.LocateByPK(ACI.IDCategoryParam);
+          AParamSubParamId := qCategoryParameters.ParamSubParamId.AsInteger;
 
           // Получаем значение очередной колонки сфокусированной записи
           V := FocusedTableView.Controller.FocusedRecord.Values[AColumn.Index];
@@ -494,14 +492,12 @@ begin
 
             Assert(Length((ABI as TBandInfoEx).Bands) = 2);
             Assert((ABI as TBandInfoEx).Bands[1] = ABand);
-            // Бэнд семейства
-            ABand := (ABI as TBandInfoEx).Bands[0];
+            ACI_EX := ACI as TColumnInfoEx;
+            Assert(Length(ACI_EX.Columns) = 2);
+            Assert(ACI_EX.Columns[1] = AColumn);
 
-            Assert(ABand.ColumnCount >= P);
-            // Берём такую-же колонку
-            AColumn := ABand.Columns[P] as TcxGridDBBandedColumn;
-            // Это должен-быть тот-же самый параметр
-            Assert(AIDParameter = AColumn.Tag);
+            // Берём такую-же колонку но у семейства
+            AColumn := ACI_EX.Columns[0];
 
             // Получаем значение очередной колонки у семейства
             V := MainView.Controller.FocusedRecord.Values[AColumn.Index];
@@ -524,9 +520,12 @@ begin
           end;
           AValue := AValue.Trim([#13, #10]);
 
+          Assert(ComponentsExGroup.AllParameterFields.ContainsKey
+            (AParamSubParamId));
+
           // Добавляем значение поля в коллекции
-          TFieldHolder.Create(ARecHolder,
-            AnalogGroup.GetFieldName(AIDParameter), AValue);
+          TFieldHolder.Create(ARecHolder, ComponentsExGroup.AllParameterFields
+            [AParamSubParamId], AValue);
         end;
 
       end;
@@ -1159,88 +1158,6 @@ begin
   FColumnsInfo.Clear;
 end;
 
-procedure TViewParametricTable.DoAfterBandPosChange(var Message: TMessage);
-var
-  ABands: TList<TcxGridBand>;
-  AGVBandActionEx: TGVBandActionEx;
-  AdxBarButton: TdxBarButton;
-  AIDParameter: Integer;
-  ANewOrder: Integer;
-  AQrySearchParamForCat: TQuerySearchParametersForCategory;
-  i: Integer;
-  IsEdit: Boolean;
-begin
-  // Список бэндов-параметров
-  ABands := TList<TcxGridBand>.Create;
-  try
-
-    // Меняем порядок параметров в БД в соответствии с новым порядком бэндов
-    for i := 0 to MainView.Bands.Count - 1 do
-    begin
-      // Если бэнду соответсвует какой-то параметр категории
-      if MainView.Bands[i].VisibleForCustomization then
-      begin
-        ABands.Add(MainView.Bands[i]);
-      end;
-    end;
-
-    // Отсортируем эти бэнды в соответствии с их новым местоположением
-    ABands.Sort(TComparer<TcxGridBand>.Construct(
-      function(const L, R: TcxGridBand): Integer
-      begin
-        Result := L.Position.ColIndex - R.Position.ColIndex;
-      end));
-
-    AQrySearchParamForCat := TQuerySearchParametersForCategory.Create(Self);
-    try
-      // Ищем все параметры нашей категории
-      AQrySearchParamForCat.Search(ComponentsExGroup.qFamilyEx.ParentValue);
-
-      IsEdit := False;
-      // Цикл по всем бэндам-параметрам
-      for i := 0 to ABands.Count - 1 do
-      begin
-        ANewOrder := i + 1;
-        AIDParameter := ABands[i].Tag;
-        Assert(AIDParameter > 0);
-
-        // Если найден параметр соответсвующий бэнду
-        AQrySearchParamForCat.LocateByParameterID(AIDParameter, True);
-
-        if (AQrySearchParamForCat.FDQueryOrder.AsInteger <> ANewOrder) or
-          (AQrySearchParamForCat.FDQueryIsAttribute.AsBoolean <>
-          ABands[i].Visible) then
-        begin
-          AQrySearchParamForCat.FDQuery.Edit;
-          AQrySearchParamForCat.FDQueryOrder.AsInteger := ANewOrder;
-          AQrySearchParamForCat.FDQueryIsAttribute.AsBoolean :=
-            ABands[i].Visible;
-          AQrySearchParamForCat.FDQuery.Post;
-          IsEdit := True;
-        end;
-
-        // Получаем кнопку
-        AdxBarButton := dxbsColumns.ItemLinks[i + 2].Item as TdxBarButton;
-        // С этой кнопкой должно быть связано дейсвие над бэндом
-        Assert(AdxBarButton.Action is TGVBandActionEx);
-        AGVBandActionEx := AdxBarButton.Action as TGVBandActionEx;
-        // Привязываем это действие к другому бэнду
-        AGVBandActionEx.Band := ABands[i];
-      end;
-
-    finally
-      FreeAndNil(AQrySearchParamForCat);
-    end;
-
-  finally
-    FreeAndNil(ABands);
-  end;
-
-  // Обновляем запрос, если есть клиенты
-  if IsEdit then
-    ComponentsExGroup.TryRefresh;
-end;
-
 procedure TViewParametricTable.DoAfterLoad(Sender: TObject);
 var
   ABandInfo: TBandInfo;
@@ -1429,7 +1346,6 @@ begin
         Assert(AColumn.Position.Band.ColumnCount = 1);
         AColumn.Position.Band.Visible := False;
         AColumn.Position.Band.VisibleForCustomization := False;
-        AColumn.Tag := AIDParamSubParam;
 
         ABandList.Add(AColumn.Position.Band);
       end;
