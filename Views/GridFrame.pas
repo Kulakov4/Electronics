@@ -178,7 +178,9 @@ type
     function GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
       AReverse: Boolean): TArray<Integer>;
     function GetSelectedIntValues(AColumn: TcxGridDBBandedColumn)
-      : TArray<Integer>;
+      : TArray<Integer>; overload;
+    function GetSelectedIntValues(AView: TcxGridDBBandedTableView;
+      AColumnIndex: Integer): TArray<Integer>; overload;
     function GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
       AUp: Boolean; var AArray: TArray<Integer>;
       var ATargetRowIndex: Integer): Boolean;
@@ -1196,19 +1198,25 @@ end;
 
 function TfrmGrid.GetSelectedIntValues(AColumn: TcxGridDBBandedColumn)
   : TArray<Integer>;
+begin
+  Assert(AColumn <> nil);
+  Result := GetSelectedIntValues(AColumn.GridView as TcxGridDBBandedTableView,
+    AColumn.Index);
+end;
+
+function TfrmGrid.GetSelectedIntValues(AView: TcxGridDBBandedTableView;
+AColumnIndex: Integer): TArray<Integer>;
 var
-  AView: TcxGridDBBandedTableView;
   i: Integer;
   L: TList<Integer>;
 begin
-  Assert(AColumn <> nil);
-  AView := AColumn.GridView as TcxGridDBBandedTableView;
+  Assert(AView <> nil);
 
   L := TList<Integer>.Create;
   try
     for i := 0 to AView.Controller.SelectedRowCount - 1 do
     begin
-      L.Add(AView.Controller.SelectedRows[i].Values[AColumn.Index]);
+      L.Add(AView.Controller.SelectedRows[i].Values[AColumnIndex]);
     end;
     Result := L.ToArray;
   finally
@@ -1252,7 +1260,7 @@ const
   MAGIC = 10;
 var
   ABand: TcxGridBand;
-//  ABandCaption: string;
+  // ABandCaption: string;
   ABandHeight: Integer;
   ABandRect: TRect;
   ABandWidth: Integer;

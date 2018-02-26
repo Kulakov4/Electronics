@@ -663,11 +663,8 @@ var
   AColumn: TcxGridDBBandedColumn;
   AFieldList: TList<String>;
   AFieldName: String;
-  AProductID: Integer;
-  AProductIDList: TList<Integer>;
   AView: TcxGridDBBandedTableView;
-  j: Integer;
-  V: Variant;
+  m: TArray<Integer>;
 begin
   inherited;
   AView := FocusedTableView;
@@ -677,8 +674,6 @@ begin
     qCategoryParameters.FDQuery.First;
     while not qCategoryParameters.FDQuery.Eof do
     begin
-      qCategoryParameters.FDQuery.Next;
-
       // Имя поля получаем из словаря всех имён полей параметров
       AFieldName := ComponentsExGroup.AllParameterFields
         [qCategoryParameters.ParamSubParamId.AsInteger];
@@ -689,48 +684,18 @@ begin
         AFieldList.Add(AFieldName);
 
       qCategoryParameters.FDQuery.Next;
-
     end;
 
-    {
-      qParametersForCategory := ComponentsExGroup.qParametersForCategory;
-      qParametersForCategory.FDQuery.First;
-      while not qParametersForCategory.FDQuery.Eof do
-      begin
-      // Имя поля получаем из словаря всех имён полей параметров
-      AFieldName := ComponentsExGroup.AllParameterFields
-      [qParametersForCategory.ParameterID.AsInteger];
+    Assert(clID.Index = clID2.Index);
+    m := GetSelectedIntValues(AView, clID.Index);
 
-      AColumn := AView.GetColumnByFieldName(AFieldName);
-
-      if AColumn.Selected then
-      AFieldList.Add(AFieldName);
-
-      qParametersForCategory.FDQuery.Next;
-      end;
-    }
-    AProductIDList := TList<Integer>.Create;
+    BeginUpdate;
     try
-      // Цикл по всем выделенным строкам
-      for j := 0 to AView.Controller.SelectedRowCount - 1 do
-      begin
-        V := AView.Controller.SelectedRows[j].Values[clID.Index];
-        Assert(not VarIsNull(V));
-
-        AProductID := V;
-        AProductIDList.Add(AProductID);
-      end;
-
-      BeginUpdate;
-      try
-        FocusedQuery.ClearFields(AFieldList, AProductIDList);
-      finally
-        EndUpdate;
-      end;
-
+      FocusedQuery.ClearFields(AFieldList.ToArray, m);
     finally
-      FreeAndNil(AProductIDList);
+      EndUpdate;
     end;
+
   finally
     FreeAndNil(AFieldList);
   end;
@@ -1629,9 +1594,8 @@ begin
           AColumn.DataBinding.FieldName := ComponentsExGroup.AllParameterFields
             [AParamSubParamId];
 
-
-
-          R := TTextRect.Calc(AColumn.GridView.ViewInfo.Canvas.Canvas, AColumn.Caption, AColumn.MinWidth);
+          R := TTextRect.Calc(AColumn.GridView.ViewInfo.Canvas.Canvas,
+            AColumn.Caption, AColumn.MinWidth);
           AColumn.Width := R.Width + 10;
 
           // В режиме просмотра убираем ограничители

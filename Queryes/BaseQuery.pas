@@ -77,8 +77,8 @@ type
     procedure CascadeDelete(const AIDMaster: Variant;
       const ADetailKeyFieldName: String;
       AFromClientOnly: Boolean = False); virtual;
-    procedure ClearFields(AFieldList: TList<String>;
-      AProductIDList: TList<Integer>);
+    procedure ClearFields(AFieldList: TArray<String>; AProductIDList:
+        TArray<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -329,16 +329,14 @@ begin
   // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
 end;
 
-procedure TQueryBase.ClearFields(AFieldList: TList<String>;
-  AProductIDList: TList<Integer>);
+procedure TQueryBase.ClearFields(AFieldList: TArray<String>; AProductIDList:
+    TArray<Integer>);
 var
   AFieldName: String;
   AID: Integer;
 begin
-  Assert(AFieldList <> nil);
-  Assert(AFieldList.Count > 0);
-  Assert(AProductIDList <> nil);
-  Assert(AProductIDList.Count > 0);
+  Assert(Length(AFieldList) > 0);
+  Assert(Length(AProductIDList) > 0);
 
   FDQuery.DisableControls;
   try
