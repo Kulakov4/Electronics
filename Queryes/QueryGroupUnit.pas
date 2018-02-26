@@ -18,12 +18,12 @@ type
     FMain: TQueryWithDataSource;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
-    function GetHaveAnyChanges: Boolean;
     procedure SetDetail(const Value: TQueryWithDataSource);
     procedure SetMain(const Value: TQueryWithDataSource);
     { Private declarations }
   protected
     procedure CheckMasterAndDetail;
+    function GetHaveAnyChanges: Boolean; virtual;
     procedure InitializeQuery(AQuery: TFDQuery); virtual;
   public
     constructor Create(AOwner: TComponent); override;

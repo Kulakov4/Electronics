@@ -59,6 +59,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure DoOnUpdateRecordException(AException: Exception); override;
     property QueryRecursiveParameters: TQueryRecursiveParameters
       read GetQueryRecursiveParameters;
     property RefreshQry: TQueryCategoryParameters2 read GetRefreshQry;
@@ -116,7 +117,8 @@ type
 implementation
 
 uses
-  MaxCategoryParameterOrderQuery, System.StrUtils, StrHelper, ParameterKindEnum;
+  MaxCategoryParameterOrderQuery, System.StrUtils, StrHelper,
+  ParameterKindEnum, UpdateParameterValuesParamSubParamQuery;
 
 {$R *.dfm}
 
@@ -142,6 +144,9 @@ begin
   FPKDictionary := TDictionary<Integer, Integer>.Create;
 
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
+
+  // Будем сами начинать транзакцию!!!
+  AutoTransaction := False;
 end;
 
 destructor TQueryCategoryParameters2.Destroy;
@@ -185,13 +190,17 @@ end;
 procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet);
 begin
   Assert(ASender = FDQuery);
-
   // Рекурсивно удаляем из категорий сам параметр
   QueryRecursiveParameters.ExecDeleteSQL(ParamSubParamId.OldValue,
     CategoryID.OldValue);
 
   // Запоминаем, какаой подпараметр мы удалили
   FDeletedSubParams.Add(TRecordHolder.Create(FDQuery));
+
+  // Удаляем данные удалённого параметра
+  TqUpdateParameterValuesParamSubParam.DoDelete(ParamSubParamId.AsInteger,
+    ProductCategoryID.AsInteger);
+
 end;
 
 procedure TQueryCategoryParameters2.ApplyInsert(ASender: TDataSet;
@@ -219,11 +228,10 @@ begin
   // Заполняем первычный ключ у вставленной записи
   FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction,
     AOptions);
+  // AID.AsInteger := RefreshQry.PK.Value;
 
   // Запоминаем, вставленную запись
   FInsertedSubParams.Add(TRecordHolder.Create(FDQuery));
-
-  // AID.AsInteger := RefreshQry.PK.Value;
 end;
 
 procedure TQueryCategoryParameters2.ApplyUpdate(ASender: TDataSet;
@@ -233,6 +241,7 @@ var
   ARecHolder: TRecordHolder;
 begin
   Assert(ASender = FDQuery);
+
   if ((PosID.OldValue <> PosID.Value) or (Ord.OldValue <> Ord.Value)) then
   begin
     // Одновременно с изменением позиции или порядка ничего больше не должно меняться
@@ -258,6 +267,11 @@ begin
     ARecHolder := TRecordHolder.Create(FDQuery);
     ARecHolder.Field[ParamSubParamId.FieldName] := ParamSubParamId.OldValue;
     FEditedSubParams.Add(ARecHolder);
+
+    // Переносим данные с со старого подпараметра на новый
+    TqUpdateParameterValuesParamSubParam.DoUpdate(ParamSubParamId.AsInteger,
+      ParamSubParamId.OldValue, ProductCategoryID.AsInteger);
+
   end;
 end;
 
@@ -364,6 +378,24 @@ end;
 procedure TQueryCategoryParameters2.DoBeforePost(Sender: TObject);
 begin
   ProductCategoryID.AsInteger := ParentValue;
+end;
+
+procedure TQueryCategoryParameters2.DoOnUpdateRecordException
+  (AException: Exception);
+const
+  S = 'UNIQUE constraint failed: CategoryParams2.ProductCategoryId, CategoryParams2.ParamSubParamId';
+  ErrorMessage = 'Ошибка.'#13#10#13#10 +
+    'Недопускается появление двух одинаковых параметров.'#13#10#13#10 +
+    'Действие отменено';
+var
+  E: Exception;
+begin
+  if AException.Message.IndexOf(S) >= 0 then
+    E := Exception.Create(ErrorMessage)
+  else
+    E := AException;
+
+  raise E;
 end;
 
 procedure TQueryCategoryParameters2.FilterByIsDefault(AIsDefault: Integer);

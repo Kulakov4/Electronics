@@ -165,7 +165,6 @@ end;
 { закрытие датасетов }
 procedure TDM2.CloseConnection;
 var
-  BC: TDataSetNotifyEvent;
   I: Integer;
 begin
   // Это событие не срабатывает, потому что csDestroying in ComponentState

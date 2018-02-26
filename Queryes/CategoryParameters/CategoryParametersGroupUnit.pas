@@ -117,6 +117,7 @@ type
       AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
       AParameterType, AName, ATranslation: String; AIsDefault: Integer);
     procedure AppendSubParameter(AID, ASubParamID: Integer);
+    function GetHaveAnyChanges: Boolean; override;
     function GetVirtualID(AID: Integer; AUseDic: Boolean): Integer;
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
     property qSearchParamDefSubParam: TQuerySearchParamDefSubParam
@@ -565,8 +566,18 @@ var
   AKey: Integer;
   VID: Integer;
 begin
+
+  FqCategoryParameters.FDQuery.Connection.StartTransaction;
+
   // Тут все сделанные изменения применятся рекурсивно ко всей БД
   FqCategoryParameters.ApplyUpdates;
+
+  // Проверяем, успешно ли
+  if FqCategoryParameters.HaveAnyChanges then
+  begin
+    FqCategoryParameters.FDQuery.Connection.Rollback;
+    Exit;
+  end;
 
   // Меняем отрицательный порядок на положительный!
   qUpdNegativeOrd.FDQuery.ExecSQL;
@@ -591,8 +602,8 @@ begin
       FIDDic.Add(AID, VID);
       FIDDic.Remove(AKey);
     end;
-    // UpdateData;
   end;
+  FqCategoryParameters.FDQuery.Connection.Commit;
 end;
 
 procedure TCategoryParametersGroup.CancelUpdates;
@@ -685,6 +696,11 @@ begin
   FVID := 0;
   FIDDic.Clear;
   LoadData;
+end;
+
+function TCategoryParametersGroup.GetHaveAnyChanges: Boolean;
+begin
+  Result := qCategoryParameters.HaveAnyChanges;
 end;
 
 function TCategoryParametersGroup.GetIsAllQuerysActive: Boolean;

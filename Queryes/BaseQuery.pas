@@ -60,6 +60,7 @@ type
     procedure DoOnQueryUpdateRecord(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
+    procedure DoOnUpdateRecordException(AException: Exception); virtual;
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
@@ -103,17 +104,19 @@ type
       overload; virtual;
     procedure Load(const AParamNames: array of string;
       const AParamValues: array of Variant); overload;
-    function LocateByField(const AFieldName: string; const AValue: Variant):
-        Boolean;
+    function LocateByField(const AFieldName: string;
+      const AValue: Variant): Boolean;
     procedure SetParameters(const AParamNames: array of string;
       const AParamValues: array of Variant);
-    function LocateByPK(APKValue: Variant; TestResult: Boolean = False): Boolean;
+    function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
+      : Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     procedure RestoreBookmark;
     procedure SaveBookmark;
-    function Search(const AParamNames: array of string; const AParamValues: array
-        of Variant; TestResult: Integer = -1): Integer; overload;
+    function Search(const AParamNames: array of string;
+      const AParamValues: array of Variant; TestResult: Integer = -1)
+      : Integer; overload;
     procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
@@ -235,8 +238,9 @@ begin
   TryPost;
   if FDQuery.CachedUpdates then
   begin
-    FDQuery.ApplyUpdates();
-    FDQuery.CommitUpdates;
+    // Если все изменения прошли без ошибок
+    if FDQuery.ApplyUpdates() = 0 then
+      FDQuery.CommitUpdates;
   end
   else
   begin
@@ -475,12 +479,20 @@ begin
 
       AAction := eaApplied;
     except
-      AAction := eaFail;
-      raise;
+      on E: Exception do
+      begin
+        AAction := eaFail;
+        DoOnUpdateRecordException(E);
+      end;
     end;
   end
   else
     AAction := eaSkip;
+end;
+
+procedure TQueryBase.DoOnUpdateRecordException(AException: Exception);
+begin
+  raise AException;
 end;
 
 procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
@@ -823,8 +835,8 @@ begin
   end;
 end;
 
-function TQueryBase.LocateByField(const AFieldName: string; const AValue:
-    Variant): Boolean;
+function TQueryBase.LocateByField(const AFieldName: string;
+  const AValue: Variant): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := FDQuery.LocateEx(AFieldName, AValue,
@@ -845,8 +857,8 @@ begin
   end;
 end;
 
-function TQueryBase.LocateByPK(APKValue: Variant; TestResult: Boolean = False):
-    Boolean;
+function TQueryBase.LocateByPK(APKValue: Variant;
+  TestResult: Boolean = False): Boolean;
 begin
   Result := FDQuery.LocateEx(FPKFieldName, APKValue);
   if TestResult then
@@ -882,8 +894,8 @@ begin
   FBookmark := PK.Value;
 end;
 
-function TQueryBase.Search(const AParamNames: array of string; const
-    AParamValues: array of Variant; TestResult: Integer = -1): Integer;
+function TQueryBase.Search(const AParamNames: array of string;
+  const AParamValues: array of Variant; TestResult: Integer = -1): Integer;
 var
   i: Integer;
 begin

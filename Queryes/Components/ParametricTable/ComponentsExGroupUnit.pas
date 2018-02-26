@@ -134,7 +134,7 @@ var
   AFieldName: string;
   AID: Integer;
   AParamSubParamID: Integer;
-  AProductCategoryID: Integer;
+//  AProductCategoryID: Integer;
   ARecHolder: TRecordHolder;
   OK: Boolean;
 begin
@@ -143,8 +143,8 @@ begin
   begin
     AParamSubParamID := ARecHolder.Field
       [qCategoryParameters.ParamSubParamId.FieldName];
-    AProductCategoryID := ARecHolder.Field
-      [qCategoryParameters.ProductCategoryID.FieldName];
+//    AProductCategoryID := ARecHolder.Field
+//      [qCategoryParameters.ProductCategoryID.FieldName];
     OK := FAllParameterFields.ContainsKey(AParamSubParamID);
     Assert(OK);
     AFieldName := FAllParameterFields[AParamSubParamID];
@@ -153,8 +153,8 @@ begin
     FFreeFields.Add(AFieldName);
 
     // Удаляем данные удалённого параметра
-    TqUpdateParameterValuesParamSubParam.DoDelete(AParamSubParamID,
-      AProductCategoryID);
+//    TqUpdateParameterValuesParamSubParam.DoDelete(AParamSubParamID,
+//      AProductCategoryID);
   end;
 
   // Обрабатываем изменённые подпараметры
@@ -175,9 +175,9 @@ begin
       AFieldName);
 
     // Переносим данные с со старого подпараметра на новый
-    TqUpdateParameterValuesParamSubParam.DoUpdate
-      (qCategoryParameters.ParamSubParamId.AsInteger, AParamSubParamID,
-      qCategoryParameters.ProductCategoryID.AsInteger)
+//    TqUpdateParameterValuesParamSubParam.DoUpdate
+//      (qCategoryParameters.ParamSubParamId.AsInteger, AParamSubParamID,
+//      qCategoryParameters.ProductCategoryID.AsInteger)
   end;
 
   // Обрабатываем добавленные подпараметры
