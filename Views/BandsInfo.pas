@@ -67,6 +67,7 @@ type
   TColumnInfo = class(TObject)
   private
     FColIndex: Integer;
+    FBandIndex: Integer;
     FColumn: TcxGridDBBandedColumn;
     FDefaultCreated: Boolean;
     FIDCategoryParam: Integer;
@@ -79,6 +80,7 @@ type
     procedure FreeColumn; virtual;
     function HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean; virtual;
     property ColIndex: Integer read FColIndex write FColIndex;
+    property BandIndex: Integer read FBandIndex write FBandIndex;
     property Column: TcxGridDBBandedColumn read FColumn write FColumn;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property IDCategoryParam: Integer read FIDCategoryParam

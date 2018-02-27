@@ -530,7 +530,8 @@ begin
       end;
 
       // «агружаем значени€ параметров дл€ текущей категории
-      AnalogGroup.Load(AProductCategoryID, ARecHolder, ComponentsExGroup.AllParameterFields);
+      AnalogGroup.Load(AProductCategoryID, ARecHolder,
+        ComponentsExGroup.AllParameterFields);
 
       AfrmAnalog := TfrmAnalog.Create(Self);
       try
@@ -1120,6 +1121,7 @@ end;
 procedure TViewParametricTable.DoAfterLoad(Sender: TObject);
 var
   ABandInfo: TBandInfo;
+  ACI: TColumnInfo;
   qCatParams: TQryCategoryParameters;
 begin
   FreeAndNil(FColumnsBarButtons);
@@ -1149,6 +1151,13 @@ begin
     // запоминаем в какой позиции находитс€ наш бэнд
     for ABandInfo in FBandsInfo do
       ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
+
+    // запоминаем, в какой позиции наход€тс€ наши колонки
+    for ACI in FColumnsInfo do
+    begin
+      ACI.ColIndex := ACI.Column.Position.ColIndex;
+      ACI.BandIndex := ACI.Column.Position.BandIndex;
+    end;
 
   finally
     MainView.ViewData.Collapse(True);
@@ -1421,7 +1430,7 @@ begin
     for ABand in (ABandInfo as TBandInfoEx).Bands do
     begin
       ABand.Visible := ABandInfo.DefaultVisible;
-      ABand.Options.HoldOwnColumnsOnly := True;
+      ABand.Options.HoldOwnColumnsOnly := ABandInfo.DefaultCreated;
       ABand.VisibleForCustomization := True;
       ABand.Caption := DeleteDouble(qCategoryParameters.Value.AsString, ' ');
       ABand.AlternateCaption :=
@@ -1849,10 +1858,18 @@ var
 begin
   // ”беждаемс€, что перемещение действительно произошло
   Assert(FColumnInfo <> nil);
-  Assert(FColumnInfo.ColIndex <> FColumnInfo.Column.Position.ColIndex);
+  Assert((FColumnInfo.ColIndex <> FColumnInfo.Column.Position.ColIndex) or
+    (FColumnInfo.BandIndex <> FColumnInfo.Column.Position.BandIndex));
+
+  // ≈сли колонка переместилась в другой бэнд
+  if FColumnInfo.BandIndex <> FColumnInfo.Column.Position.BandIndex then
+    Exit;
+
 
   //  уда произошло перемещение: влево или вправо?
   ALeft := FColumnInfo.ColIndex > FColumnInfo.Column.Position.ColIndex;
+
+  // Ќадо получить список колонок-подпараметров, которые помен€ли свои позиции
 
   CIList := FColumnsInfo.GetChangedColIndex;
   try

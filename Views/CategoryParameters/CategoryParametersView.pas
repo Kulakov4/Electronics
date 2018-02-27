@@ -223,9 +223,7 @@ end;
 procedure TViewCategoryParameters.actApplyUpdatesExecute(Sender: TObject);
 begin
   inherited;
-  // DisableCollapsingAndExpanding;
   CatParamsGroup.ApplyUpdates;
-  // EnableCollapsingAndExpanding;
   UpdateView;
 end;
 
