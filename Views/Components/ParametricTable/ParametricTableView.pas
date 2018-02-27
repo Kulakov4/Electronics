@@ -434,15 +434,14 @@ var
 begin
   ComponentsExGroup.TryPost;
 
+  AProductCategoryID := ComponentsExGroup.qFamilyEx.ParentValue;
+  if MainView.Focused then
+    AView := MainView
+  else
+    AView := GridView(cxGridLevel2);
+
   AnalogGroup := TAnalogGroup.Create(Self);
   try
-
-    AProductCategoryID := ComponentsExGroup.qFamilyEx.ParentValue;
-    if MainView.Focused then
-      AView := MainView
-    else
-      AView := GridView(cxGridLevel2);
-
     ARecHolder := TRecordHolder.Create();
     try
       // Цикл по всем бэндам сфокусированного табличного представления
@@ -531,7 +530,7 @@ begin
       end;
 
       // Загружаем значения параметров для текущей категории
-      AnalogGroup.Load(AProductCategoryID, ARecHolder);
+      AnalogGroup.Load(AProductCategoryID, ARecHolder, ComponentsExGroup.AllParameterFields);
 
       AfrmAnalog := TfrmAnalog.Create(Self);
       try
@@ -551,46 +550,6 @@ begin
       // RefreshData; // Перечитываем данные о найденных аналогов из бд
       ApplyFilter;
       UpdateView;
-      {
-        q := TQueryBase.Create(Self);
-        try
-        q.FDQuery.SQL.Text := Format('SELECT FamilyID FROM FamilyAnalog',
-        [AnalogGroup.TempTableName]);
-
-        q.RefreshQuery;
-
-        Assert(q.FDQuery.RecordCount > 0);
-        // Создаём вариантный массив
-        AFilterValues := VarArrayCreate([0, q.FDQuery.RecordCount - 1],
-        varInteger);
-        // Надо наложить фильтр
-        for i := 1 to q.FDQuery.RecordCount do
-        begin
-        q.FDQuery.RecNo := i;
-        AFilterValues[i - 1] := q.Field('FamilyID').AsInteger;
-        end;
-
-        q.FDQuery.SQL.Text := Format('SELECT distinct ProductID FROM %s',
-        [AnalogGroup.TempTableName]);
-
-        q.RefreshQuery;
-
-        Assert(q.FDQuery.RecordCount > 0);
-        // Создаём вариантный массив
-        AFilterValues2 := VarArrayCreate([0, q.FDQuery.RecordCount - 1],
-        varInteger);
-        // Надо наложить фильтр
-        for i := 1 to q.FDQuery.RecordCount do
-        begin
-        q.FDQuery.RecNo := i;
-        AFilterValues2[i - 1] := q.Field('ProductID').AsInteger;
-        end;
-
-        ApplyFilter(AFilterValues, AFilterValues2);
-        finally
-        FreeAndNil(q);
-        end;
-      }
     end;
 
   finally
@@ -1389,7 +1348,7 @@ end;
 
 procedure TViewParametricTable.CreateColumn(AViewArray
   : TArray<TcxGridDBBandedTableView>; AIDBand: Integer;
-qCategoryParameters: TQueryCategoryParameters2);
+  qCategoryParameters: TQueryCategoryParameters2);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -1755,7 +1714,7 @@ begin
 end;
 
 procedure TViewParametricTable.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
-var AllowPopup: Boolean);
+  var AllowPopup: Boolean);
 var
   ABI: TBandInfo;
 begin

@@ -1257,7 +1257,7 @@ end;
 
 procedure TfrmGrid.MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
 const
-  MAGIC = 10;
+  MAGIC = 12;
 var
   ABand: TcxGridBand;
   // ABandCaption: string;

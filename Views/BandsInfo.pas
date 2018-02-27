@@ -440,7 +440,7 @@ constructor TColumnInfoEx.Create(AColumns: TArray<TcxGridDBBandedColumn>;
   AIDCategoryParam, AOrder: Integer; ADefaultCreated, AIsDefault: Boolean);
 begin
   // ¬ массиве колонок должна быть хот€ бы одна колонка
-  Assert(Length(AColumns) > 1);
+  Assert(Length(AColumns) > 0);
   Create(AColumns[0], AIDCategoryParam, AOrder, ADefaultCreated, AIsDefault);
   FColumns := AColumns;
 end;

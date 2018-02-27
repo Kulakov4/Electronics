@@ -671,7 +671,7 @@ begin
 
   // Добавляем в запрос условие
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    Format('and (ifnull(p.IDParameterKind, pp.IDParameterKind) <> %d)',
+    Format('and (p.IDParameterKind <> %d)',
     [Integer(Неиспользуется)]), 'and 0=0');
 
   // Ищем
