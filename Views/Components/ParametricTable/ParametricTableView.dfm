@@ -1,6 +1,8 @@
 inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
   inherited cxGrid: TcxGrid
+    Top = 56
+    Height = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -220,7 +222,7 @@ inherited ViewParametricTable: TViewParametricTable
     DockControlHeights = (
       0
       0
-      28
+      56
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -255,7 +257,37 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton8'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton9'
         end>
+    end
+    object dxBarManagerBar1: TdxBar [1]
+      Caption = 'Custom 1'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 0
+      DockedTop = 28
+      DockingStyle = dsTop
+      FloatLeft = 903
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton10'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton11'
+        end>
+      OneOnRow = True
+      Row = 1
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
     end
     object dxbrbtnApplyUpdates: TdxBarButton
       Action = actCommit
@@ -304,18 +336,39 @@ inherited ViewParametricTable: TViewParametricTable
       Visible = ivAlways
     end
     object dxBarButton7: TdxBarButton
-      Caption = 'New Button'
+      Caption = 'RC'
       Category = 0
-      Hint = 'New Button'
+      Hint = 'RC'
       Visible = ivAlways
       OnClick = dxBarButton7Click
     end
     object dxBarButton8: TdxBarButton
-      Caption = 'New Button'
+      Caption = 'SaveLP'
       Category = 0
-      Hint = 'New Button'
+      Hint = 'SaveLP'
       Visible = ivAlways
       OnClick = dxBarButton8Click
+    end
+    object dxBarButton9: TdxBarButton
+      Caption = 'RestoreLP'
+      Category = 0
+      Hint = 'RestoreLP'
+      Visible = ivAlways
+      OnClick = dxBarButton9Click
+    end
+    object dxBarButton10: TdxBarButton
+      Caption = 'BU'
+      Category = 0
+      Hint = 'BU'
+      Visible = ivAlways
+      OnClick = dxBarButton10Click
+    end
+    object dxBarButton11: TdxBarButton
+      Caption = 'EU'
+      Category = 0
+      Hint = 'EU'
+      Visible = ivAlways
+      OnClick = dxBarButton11Click
     end
   end
   inherited ActionList: TActionList

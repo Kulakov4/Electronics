@@ -69,8 +69,8 @@ type
     FColumnsInfo: TColumnsInfo;
     FcxGridDBBandedColumn: TcxGridDBBandedColumn;
     FcxMemo: TcxMemo;
-    procedure CreateColumn(AViewArray: TArray<TcxGridDBBandedTableView>; AIDBand:
-        Integer; qCategoryParameters: TQueryCategoryParameters2);
+    procedure CreateColumn(AViewArray: TArray<TcxGridDBBandedTableView>; const
+        AIDList: string; qCategoryParameters: TQueryCategoryParameters2);
     procedure DeleteBands;
     procedure DeleteColumns;
     function GetqCategoryParameters: TQueryCategoryParameters2;
@@ -80,7 +80,7 @@ type
     { Private declarations }
   protected
     procedure AfterInitEdit(var Message: TMessage); message WM_AFTER_INIT_EDIT;
-    procedure CreateColumnsForBand(AIDCategoryParam, AIDBand: Integer);
+    procedure CreateColumnsForBand(AIDCategoryParam: Integer);
     procedure DoAfterInitMemo;
     function IsMemoEditorHide: Boolean;
     procedure InitColumns; override;
@@ -95,7 +95,8 @@ implementation
 
 uses
   AutoSizeGridViewForm, System.Types,
-  CategoryParametersGroupUnit, FireDAC.Comp.Client, TextRectHelper;
+  CategoryParametersGroupUnit, FireDAC.Comp.Client, TextRectHelper,
+  System.StrUtils;
 
 {$R *.dfm}
 
@@ -239,8 +240,8 @@ begin
 end;
 
 procedure TViewAnalogGrid.CreateColumn(AViewArray:
-    TArray<TcxGridDBBandedTableView>; AIDBand: Integer; qCategoryParameters:
-    TQueryCategoryParameters2);
+    TArray<TcxGridDBBandedTableView>; const AIDList: string;
+    qCategoryParameters: TQueryCategoryParameters2);
 var
   ABand: TcxGridBand;
   ABandInfo: TBandInfo;
@@ -259,7 +260,7 @@ begin
     (qCategoryParameters.ParamSubParamId.AsInteger);
   // Ищем по идентификатору бэнда
   if ABandInfo = nil then
-    ABandInfo := FBandsInfo.SearchByID(AIDBand);
+    ABandInfo := FBandsInfo.SearchByIDList(AIDList);
 
   AParamSubParamID := qCategoryParameters.ParamSubParamId.AsInteger;
 
@@ -281,7 +282,7 @@ begin
       end;
 
       // Добавляем эти бэнды в описание
-      ABandInfo := TBandInfoEx.Create(ABandList.ToArray, AIDBand);
+      ABandInfo := TBandInfoEx.Create(ABandList.ToArray, AIDList);
     finally
       FreeAndNil(ABandList);
     end;
@@ -292,7 +293,7 @@ begin
   // Если инициализация нужна
   if NeedInitialize then
   begin
-    ABandInfo.BandID := AIDBand; // Идентификатор бэнда
+    ABandInfo.IDList := AIDList; // Идентификаторы колонок бэнда
     ABandInfo.IsDefault := qCategoryParameters.IsDefault.AsInteger = 1;
     // Параметр "по умолчанию" всегда в отдельно бэнде
     if qCategoryParameters.IsDefault.AsInteger = 1 then
@@ -406,18 +407,26 @@ begin
   end;
 end;
 
-procedure TViewAnalogGrid.CreateColumnsForBand(AIDCategoryParam, AIDBand:
-    Integer);
+procedure TViewAnalogGrid.CreateColumnsForBand(AIDCategoryParam: Integer);
 var
   AClone: TFDMemTable;
+  AIDList: string;
 begin
   Assert(AIDCategoryParam > 0);
-  Assert(AIDBand > 0);
-
+  AIDList := '';
   qCategoryParameters.LocateByPK(AIDCategoryParam, True);
   // Получаем все подпараметры текущего бэнда
   AClone := qCategoryParameters.CreateSubParamsClone;
   try
+    // Составляем список идентификаторов текущего бэнда
+    while not AClone.Eof do
+    begin
+      AIDList := AIDList + IfThen(AIDList.IsEmpty, '', ',') + AClone.FieldByName
+        (qCategoryParameters.PKFieldName).AsString;
+      AClone.Next;
+    end;
+
+    AClone.First;
     while not AClone.Eof do
     begin
       // Переходим на очередной подпараметр
@@ -425,8 +434,7 @@ begin
         (AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger, True);
 
       // Создаём колонку
-      CreateColumn([MainView], AIDBand,
-        qCategoryParameters);
+      CreateColumn([MainView], AIDList, qCategoryParameters);
 
       AClone.Next;
     end;
@@ -568,7 +576,7 @@ begin
     // Цикл по бэндам (параметрам)
     while not qCatParams.Eof do
     begin
-      CreateColumnsForBand(qCatParams.ID.AsInteger, qCatParams.VID.AsInteger);
+      CreateColumnsForBand(qCatParams.ID.AsInteger);
       qCatParams.Next;
     end;
 

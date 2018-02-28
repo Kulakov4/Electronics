@@ -76,6 +76,7 @@ type
     FcxDataDetailExpandingEvent: TcxDataDetailExpandingEvent;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
+    FLeftPos: Integer;
     FPostOnEnterFields: TList<String>;
     FSortSL: TList<String>;
     FStartDragLevel: TcxGridLevel;
@@ -168,6 +169,8 @@ type
     procedure FocusFirstSelectedRow(AView: TcxGridDBBandedTableView);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
     procedure FocusSelectedRecord; overload;
+    function GetColumns(AView: TcxGridDBBandedTableView)
+      : TArray<TcxGridDBBandedColumn>;
     procedure PutInTheCenterFocusedRecord
       (AView: TcxGridDBBandedTableView); overload;
     function GetDBBandedTableView(ALevel: Cardinal): TcxGridDBBandedTableView;
@@ -177,10 +180,10 @@ type
       : TcxGridDBBandedColumn;
     function GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
       AReverse: Boolean): TArray<Integer>;
-    function GetSelectedIntValues(AColumn: TcxGridDBBandedColumn): TArray<Integer>;
-        overload;
-    function GetSelectedIntValues(AView: TcxGridDBBandedTableView; AColumnIndex:
-        Integer): TArray<Integer>; overload;
+    function GetSelectedIntValues(AColumn: TcxGridDBBandedColumn)
+      : TArray<Integer>; overload;
+    function GetSelectedIntValues(AView: TcxGridDBBandedTableView;
+      AColumnIndex: Integer): TArray<Integer>; overload;
     function GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
       AUp: Boolean; var AArray: TArray<Integer>;
       var ATargetRowIndex: Integer): Boolean;
@@ -1135,6 +1138,25 @@ begin
   AView.Controller.SelectedRows[0].Focused := True;
 end;
 
+function TfrmGrid.GetColumns(AView: TcxGridDBBandedTableView)
+  : TArray<TcxGridDBBandedColumn>;
+var
+  i: Integer;
+  L: TList<TcxGridDBBandedColumn>;
+begin
+  L := TList<TcxGridDBBandedColumn>.Create;
+  try
+    // Цикл по всем колонкам
+    for i := 0 to AView.ColumnCount - 1 do
+    begin
+      L.Add(AView.Columns[i]);
+    end;
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
+  end;
+end;
+
 function TfrmGrid.GetParentForm: TForm;
 var
   AWinControl: TWinControl;
@@ -1196,8 +1218,8 @@ begin
   end;
 end;
 
-function TfrmGrid.GetSelectedIntValues(AColumn: TcxGridDBBandedColumn):
-    TArray<Integer>;
+function TfrmGrid.GetSelectedIntValues(AColumn: TcxGridDBBandedColumn)
+  : TArray<Integer>;
 begin
   Assert(AColumn <> nil);
   Result := GetSelectedIntValues(AColumn.GridView as TcxGridDBBandedTableView,
@@ -1205,7 +1227,7 @@ begin
 end;
 
 function TfrmGrid.GetSelectedIntValues(AView: TcxGridDBBandedTableView;
-    AColumnIndex: Integer): TArray<Integer>;
+AColumnIndex: Integer): TArray<Integer>;
 var
   i: Integer;
   L: TList<Integer>;
@@ -1267,6 +1289,7 @@ var
   ACanvas: TCanvas;
   ACaption: String;
   AColumn: TcxGridDBBandedColumn;
+  AIsBandViewInfoExist: Boolean;
   AMaxBandHeight: Integer;
   i: Integer;
   j: Integer;
@@ -1277,10 +1300,16 @@ begin
   begin
     // Предполагается что подбор ширину колонок происходит с учётом возможности переноса слов в заголовке
     Assert(AView.OptionsView.HeaderAutoHeight);
+
+    // Во время подбора оптимальной ширины грид не должен быть заблокирован!!!
+    Assert(FUpdateCount = 0);
+
     if not FApplyBestFitPosted then
       AView.BeginBestFitUpdate;
     try
       SetZeroBandWidth(AView);
+
+      AIsBandViewInfoExist := AView.ViewInfo.HeaderViewInfo.BandsViewInfo.Count > 0;
 
       AMaxBandHeight := 0;
       ACanvas := AView.ViewInfo.Canvas.Canvas;
@@ -1304,33 +1333,48 @@ begin
           // В каждой строке по слову
           AColumn.Caption := GetWords(AColumn.Caption);
 
-          AColumn.ApplyBestFit(True);
+          try
+            AColumn.ApplyBestFit(True);
+          except
+            ;
+          end;
 
           // Возвращаем старый заголовок
           AColumn.Caption := ACaption;
         end;
-        // Вычисляем минимальную ширину бэнда
-        ABandRect := TTextRect.Calc(ACanvas, ABand.Caption);
-        // Получаем реальную ширину бэнда
-        ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
-          [ABand.VisibleIndex].Width;
 
-        // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
-        if ABandWidth < (ABandRect.Width + MAGIC) then
+        // Если информацию о ширине бэндов доступна
+        if AIsBandViewInfoExist then
         begin
-          ABand.Width := ABandRect.Width + MAGIC;
+
+          // Вычисляем минимальную ширину бэнда
+          ABandRect := TTextRect.Calc(ACanvas, ABand.Caption);
+          // Получаем реальную ширину бэнда
           ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.
             Items[ABand.VisibleIndex].Width;
-          Assert(ABandWidth >= ABandRect.Width);
+
+          // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
+          if ABandWidth < (ABandRect.Width + MAGIC) then
+          begin
+            ABand.Width := ABandRect.Width + MAGIC;
+            ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.
+              Items[ABand.VisibleIndex].Width;
+
+            Assert(ABandWidth >= ABandRect.Width);
+          end;
+
+          // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
+          ABandHeight := CalcBandHeight(ABand);
+
+          AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
+            AMaxBandHeight);
         end;
-
-        // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
-        ABandHeight := CalcBandHeight(ABand);
-
-        AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
-          AMaxBandHeight);
       end;
-      AView.OptionsView.BandHeaderHeight := AMaxBandHeight;
+
+      if AMaxBandHeight > 0 then
+        AView.OptionsView.BandHeaderHeight := AMaxBandHeight;
+
+      AView.Controller.LeftPos := FLeftPos;
 
       {
         for i := 0 to AView.VisibleColumnCount - 1 do
@@ -1389,6 +1433,7 @@ begin
   FApplyBestFitPosted := True;
   try
     AView.BeginBestFitUpdate;
+    FLeftPos := AView.Controller.LeftPos;
     PostMessage(Handle, WM_MY_APPLY_BEST_FIT, NativeUInt(AView), 0);
   except
     FApplyBestFitPosted := False;

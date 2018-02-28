@@ -114,6 +114,7 @@ type
     function ExpandDetail: TcxGridDBBandedTableView;
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
+    procedure DoAfterLoadData; virtual;
     procedure DoOnMasterDetailChange; virtual;
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
       message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
@@ -128,7 +129,7 @@ type
     procedure AfterConstruction; override;
     procedure ApplyBestFitFocusedBand; override;
     function CheckAndSaveChanges: Integer;
-    procedure MyApplyBestFit; override;
+    procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure UpdateView; override;
     property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
       write SetBaseComponentsGroup;
@@ -337,8 +338,7 @@ end;
 procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
 begin
   FIsSyncScrollbars := False;
-  PostMyApplyBestFitEvent;
-  UpdateView;
+  DoAfterLoadData;
 end;
 
 procedure TViewComponentsParent.ApplyBestFitFocusedBand;
@@ -606,6 +606,12 @@ begin
   SyncScrollbarPositions;
 end;
 
+procedure TViewComponentsParent.DoAfterLoadData;
+begin
+  PostMyApplyBestFitEvent;
+  UpdateView;
+end;
+
 procedure TViewComponentsParent.DoOnMasterDetailChange;
 begin
   if FBaseComponentsGroup <> nil then
@@ -656,10 +662,12 @@ begin
   Result := FQuerySubGroups;
 end;
 
-procedure TViewComponentsParent.MyApplyBestFit;
+procedure TViewComponentsParent.MyApplyBestFitForView(AView:
+    TcxGridDBBandedTableView);
 begin
   inherited;
-  UpdateDetailColumnsWidth;
+  if AView = MainView then
+    UpdateDetailColumnsWidth;
 end;
 
 procedure TViewComponentsParent.MyDelete;

@@ -4,7 +4,7 @@ interface
 
 uses
   cxGridBandedTableView, System.Generics.Collections, System.Generics.Defaults,
-  ParameterKindEnum, cxGridDBBandedTableView;
+  ParameterKindEnum, cxGridDBBandedTableView, System.SysUtils;
 
 type
   TBandInfo = class(TObject)
@@ -13,7 +13,7 @@ type
     FDefaultCreated: Boolean;
     FDefaultVisible: Boolean;
     FOrder: Integer;
-    FBandID: Integer;
+    FIDList: string;
     FColIndex: Integer;
     FIDParameter: Integer;
     FIDParameterKind: Integer;
@@ -22,7 +22,7 @@ type
     FPos: Integer;
   protected
   public
-    constructor Create(ABand: TcxGridBand; ABandID: Integer); overload;
+    constructor Create(const ABand: TcxGridBand; AIDList: string); overload;
     procedure FreeBand; virtual;
     function HaveBand(OtherBand: TcxGridBand): Boolean; virtual;
     procedure Hide; virtual;
@@ -30,7 +30,7 @@ type
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property DefaultVisible: Boolean read FDefaultVisible write FDefaultVisible;
     property Order: Integer read FOrder write FOrder;
-    property BandID: Integer read FBandID write FBandID;
+    property IDList: string read FIDList write FIDList;
     property ColIndex: Integer read FColIndex write FColIndex;
     property IDParameter: Integer read FIDParameter write FIDParameter;
     property IDParameterKind: Integer read FIDParameterKind
@@ -53,8 +53,8 @@ type
       : TBandInfo; overload;
     function SearchByColIndex(AColIndex: Integer; TestResult: Boolean = False)
       : TBandInfo;
-    function SearchByID(AIDBand: Integer; TestResult: Boolean = False)
-      : TBandInfo;
+    function SearchByIDList(const AIDList: string; TestResult: Boolean = False):
+        TBandInfo;
     function SearchByIDParamSubParam(AIDParamSubParam: Integer;
       TestResult: Boolean = False): TBandInfo;
   end;
@@ -68,8 +68,10 @@ type
   private
     FColIndex: Integer;
     FBandIndex: Integer;
+    FGeneralColIndex: Integer;
     FColumn: TcxGridDBBandedColumn;
     FDefaultCreated: Boolean;
+    FOldGeneralColIndex: Integer;
     FIDCategoryParam: Integer;
     FIsDefault: Boolean;
     FOrder: Integer;
@@ -81,8 +83,12 @@ type
     function HaveColumn(OtherColumn: TcxGridBandedColumn): Boolean; virtual;
     property ColIndex: Integer read FColIndex write FColIndex;
     property BandIndex: Integer read FBandIndex write FBandIndex;
+    property GeneralColIndex: Integer read FGeneralColIndex
+      write FGeneralColIndex;
     property Column: TcxGridDBBandedColumn read FColumn write FColumn;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
+    property OldGeneralColIndex: Integer read FOldGeneralColIndex
+      write FOldGeneralColIndex;
     property IDCategoryParam: Integer read FIDCategoryParam
       write FIDCategoryParam;
     property IsDefault: Boolean read FIsDefault write FIsDefault;
@@ -94,10 +100,12 @@ type
   public
     procedure FreeNotDefaultColumns;
     function GetChangedColIndex: TColumnsInfo;
+    function GetChangedGeneralColIndex: TColumnsInfo;
     function Search(AColumn: TcxGridDBBandedColumn; TestResult: Boolean = False)
       : TColumnInfo; overload;
     function Search(AIDCategoryParam: Integer; TestResult: Boolean = False)
       : TColumnInfo; overload;
+    procedure UpdateIndexes(AColumns: TArray<TcxGridDBBandedColumn>);
   end;
 
   TBandInfoEx = class(TBandInfo)
@@ -105,8 +113,8 @@ type
     FBands: TArray<TcxGridBand>;
   protected
   public
-    constructor Create(ABands: TArray<TcxGridBand>; ABandID: Integer);
-      reintroduce; overload;
+    constructor Create(ABands: TArray<TcxGridBand>; const AIDList: string);
+        reintroduce; overload;
     constructor CreateAsDefault(AIDParamSubParam: Integer;
       ABands: TArray<TcxGridBand>);
     procedure FreeBand; override;
@@ -130,14 +138,14 @@ type
 
 implementation
 
-constructor TBandInfo.Create(ABand: TcxGridBand; ABandID: Integer);
+constructor TBandInfo.Create(const ABand: TcxGridBand; AIDList: string);
 begin
   inherited Create;
   Assert(ABand <> nil);
-  Assert(ABandID > 0);
+  Assert(  not AIDList.IsEmpty);
 
   FBand := ABand;
-  FBandID := ABandID;
+  FIDList := AIDList;
 end;
 
 procedure TBandInfo.FreeBand;
@@ -249,14 +257,14 @@ begin
     Assert(False);
 end;
 
-function TBandsInfo.SearchByID(AIDBand: Integer; TestResult: Boolean = False)
-  : TBandInfo;
+function TBandsInfo.SearchByIDList(const AIDList: string; TestResult: Boolean =
+    False): TBandInfo;
 begin
-  Assert(AIDBand > 0);
+  Assert(not AIDList.IsEmpty);
 
   for Result in Self do
   begin
-    if Result.BandID = AIDBand then
+    if Result.IDList = AIDList then
       Exit;
   end;
   Result := nil;
@@ -345,6 +353,18 @@ begin
   end;
 end;
 
+function TColumnsInfo.GetChangedGeneralColIndex: TColumnsInfo;
+var
+  ACI: TColumnInfo;
+begin
+  Result := TColumnsInfo.Create;
+  for ACI in Self do
+  begin
+    if ACI.OldGeneralColIndex <> ACI.GeneralColIndex then
+      Result.Add(ACI);
+  end;
+end;
+
 function TColumnsInfo.Search(AColumn: TcxGridDBBandedColumn;
   TestResult: Boolean = False): TColumnInfo;
 begin
@@ -373,11 +393,37 @@ begin
     Assert(False);
 end;
 
-constructor TBandInfoEx.Create(ABands: TArray<TcxGridBand>; ABandID: Integer);
+procedure TColumnsInfo.UpdateIndexes(AColumns: TArray<TcxGridDBBandedColumn>);
+var
+  ACI: TColumnInfo;
+  AColumn: TcxGridDBBandedColumn;
+  i: Integer;
+begin
+  i := 0;
+  for AColumn in AColumns do
+  begin
+    ACI := Search(AColumn);
+    // Если эта колонка не является колонкой-подпараметром
+    if ACI = nil then
+      Continue;
+
+    ACI.OldGeneralColIndex := ACI.GeneralColIndex;
+    ACI.GeneralColIndex := i;
+
+    // запоминаем, в какой позиции находятся наши колонки
+    ACI.ColIndex := ACI.Column.Position.ColIndex;
+    ACI.BandIndex := ACI.Column.Position.BandIndex;
+
+    Inc(i);
+  end;
+end;
+
+constructor TBandInfoEx.Create(ABands: TArray<TcxGridBand>; const AIDList:
+    string);
 begin
   // В массиве должен быть хотя-бы один бэнд
   Assert(Length(ABands) > 0);
-  inherited Create(ABands[0], ABandID);
+  inherited Create(ABands[0], AIDList);
   // Все бэнды
   FBands := ABands;
 end;

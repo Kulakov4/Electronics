@@ -132,7 +132,7 @@ type
     procedure CancelUpdates; override;
     procedure DeleteParameters(APKValues: array of Integer);
     procedure DeleteSubParameters(APKValues: array of Integer);
-    function GetVID(AID: Integer): Integer;
+    function GetIDList(AID: Integer): string;
     procedure UpdateData;
     procedure LoadData;
     procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer;
@@ -760,28 +760,26 @@ begin
   Result := FqUpdNegativeOrd;
 end;
 
-function TCategoryParametersGroup.GetVID(AID: Integer): Integer;
+function TCategoryParametersGroup.GetIDList(AID: Integer): string;
 var
   AClone: TFDMemTable;
-  AFirstID: Integer;
 begin
   Assert(AID > 0);
   // Хотябы одна группа должна существовать
-  Assert(qCatParams.RecordCount > 0);
+  Assert(qCategoryParameters.FDQuery.RecordCount > 0);
 
-  // Если этот подпараметр первый в группе - его ID будет в словаре
-  if FIDDic.ContainsKey(AID) then
-  begin
-    Result := FIDDic[AID];
-    Exit;
-  end;
+  Result := '';
 
   qCategoryParameters.LocateByPK(AID, True);
   AClone := qCategoryParameters.CreateSubParamsClone;
   try
-    AFirstID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
-    Assert(FIDDic.ContainsKey(AFirstID));
-    Result := FIDDic[AFirstID];
+    // Составляем список идентификаторов текущего бэнда
+    while not AClone.Eof do
+    begin
+      Result := Result + IfThen(Result.IsEmpty, '', ',') + AClone.FieldByName
+        (qCategoryParameters.PKFieldName).AsString;
+      AClone.Next;
+    end;
   finally
     qCategoryParameters.DropClone(AClone);
   end;
