@@ -132,7 +132,7 @@ type
     procedure CancelUpdates; override;
     procedure DeleteParameters(APKValues: array of Integer);
     procedure DeleteSubParameters(APKValues: array of Integer);
-    function GetIDList(AID: Integer): string;
+    function GetIDList(AID: Integer): TArray<Integer>;
     procedure UpdateData;
     procedure LoadData;
     procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer;
@@ -614,8 +614,8 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup.DeleteParameters(APKValues: array of
-    Integer);
+procedure TCategoryParametersGroup.DeleteParameters
+  (APKValues: array of Integer);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -636,8 +636,8 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup.DeleteSubParameters(APKValues: array of
-    Integer);
+procedure TCategoryParametersGroup.DeleteSubParameters
+  (APKValues: array of Integer);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -760,28 +760,32 @@ begin
   Result := FqUpdNegativeOrd;
 end;
 
-function TCategoryParametersGroup.GetIDList(AID: Integer): string;
+function TCategoryParametersGroup.GetIDList(AID: Integer): TArray<Integer>;
 var
   AClone: TFDMemTable;
+  L: TList<Integer>;
 begin
   Assert(AID > 0);
   // Хотябы одна группа должна существовать
   Assert(qCategoryParameters.FDQuery.RecordCount > 0);
 
-  Result := '';
-
-  qCategoryParameters.LocateByPK(AID, True);
-  AClone := qCategoryParameters.CreateSubParamsClone;
+  L := TList<Integer>.Create;
   try
-    // Составляем список идентификаторов текущего бэнда
-    while not AClone.Eof do
-    begin
-      Result := Result + IfThen(Result.IsEmpty, '', ',') + AClone.FieldByName
-        (qCategoryParameters.PKFieldName).AsString;
-      AClone.Next;
+    qCategoryParameters.LocateByPK(AID, True);
+    AClone := qCategoryParameters.CreateSubParamsClone;
+    try
+      // Составляем список идентификаторов текущего бэнда
+      while not AClone.Eof do
+      begin
+        L.Add(AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger);
+        AClone.Next;
+      end;
+      Result := L.ToArray;
+    finally
+      qCategoryParameters.DropClone(AClone);
     end;
   finally
-    qCategoryParameters.DropClone(AClone);
+    FreeAndNil(L);
   end;
 end;
 

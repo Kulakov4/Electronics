@@ -3,6 +3,8 @@ inherited ViewParametricTable: TViewParametricTable
   inherited cxGrid: TcxGrid
     Top = 56
     Height = 416
+    ExplicitTop = 56
+    ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -500,13 +502,6 @@ inherited ViewParametricTable: TViewParametricTable
       Color = 13431295
     end
   end
-  object ColumnTimer: TTimer
-    Enabled = False
-    Interval = 500
-    OnTimer = ColumnTimerTimer
-    Left = 128
-    Top = 152
-  end
   object pmHeaders: TPopupMenu
     Left = 440
     Top = 248
@@ -541,5 +536,12 @@ inherited ViewParametricTable: TViewParametricTable
     object ChangeBandWidth1: TMenuItem
       Action = actChangeBandWidth
     end
+  end
+  object ColumnTimer: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = ColumnTimerTimer
+    Left = 64
+    Top = 296
   end
 end

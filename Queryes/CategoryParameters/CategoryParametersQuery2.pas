@@ -84,6 +84,7 @@ type
       TestResult: Boolean = False): Boolean; overload;
     procedure LocateDefault(AIDParameter: Integer; TestResult: Boolean = False);
     procedure Move(AData: TArray < TPair < Integer, Integer >> );
+    function NextEx: Boolean;
     function NextOrder: Integer;
     function SearchAnalog(AProductCategoryID: Integer): Integer;
     procedure SetPos(APosID: Integer); overload;
@@ -654,6 +655,23 @@ begin
   finally
     FDQuery.EnableControls;
   end;
+end;
+
+function TQueryCategoryParameters2.NextEx: Boolean;
+var
+  AIDParameter: Integer;
+  AIsDefault: Integer;
+begin
+  Assert(not FDQuery.Eof);
+
+  AIDParameter := IDParameter.AsInteger;
+  AIsDefault := IsDefault.AsInteger;
+
+  FDQuery.Next;
+
+  // Мы всё ещё в той же группе?
+  Result := (IDParameter.AsInteger = AIDParameter) and
+    (IsDefault.AsInteger = AIsDefault) and (not FDQuery.Eof);
 end;
 
 function TQueryCategoryParameters2.NextOrder: Integer;
