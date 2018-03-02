@@ -1975,6 +1975,8 @@ begin
   // Просим сделать соответствующие изменения в БД
   qCategoryParameters.Move(A);
 
+//  actShowCategoryParametersQuery.Execute;
+
   ANewIDListArr := ComponentsExGroup.CatParamsGroup.GetIDList
     (ACI.IDCategoryParam);
 
@@ -2095,6 +2097,7 @@ begin
               FreeAndNil(AIDList);
             end;
             ABandInfo.IDList.Assign(ANewIDList.ToArray);
+            AOldBandInfo.IDList.Remove(ACI.IDCategoryParam);
 
             // Помещаем колонку в её бэнд!
             AColumn.Position.BandIndex := ABandInfo.Band.Index;
