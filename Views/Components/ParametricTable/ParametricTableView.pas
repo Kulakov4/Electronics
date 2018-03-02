@@ -2282,25 +2282,21 @@ begin
     UpdateColumn(AIDCategoryParam);
   end;
 
+  // Добавляем колонки
   DisableCollapsingAndExpanding;
   try
-    // Добавляем колонки
     for ARecHolder in qCategoryParameters.InsertedSubParams do
     begin
       AIDCategoryParam := ARecHolder.Field[qCategoryParameters.PKFieldName];
+
+      // Новые идентификаторы
       ANewIDList := ComponentsExGroup.CatParamsGroup.GetIDList
         (AIDCategoryParam);
-      AIDList := TIDList.Create;
-      try
-        AIDList.AddRange(ANewIDList);
-        AIDList.Remove(AIDCategoryParam);
-        // Ищем бэнд в который должна попасть наша колонка
-        ABI := FBandsInfo.SearchByIDList(AIDList.ToArray, True);
-        // Меняем список идентификаторов колонок этого бэнда
-        ABI.IDList.Assign(ANewIDList);
-      finally
-        FreeAndNil(AIDList);
-      end;
+
+      // Ищем бэнд в который должна попасть наша колонка
+      ABI := FBandsInfo.SearchByID(ANewIDList[0], True);
+      ABI.IDList.Assign(ANewIDList);
+
       qCategoryParameters.LocateByPK(AIDCategoryParam, True);
       // Создаём колонку для бэнда
       CreateColumn([MainView, GridView(cxGridLevel2)], ABI,

@@ -66,6 +66,7 @@ type
       : TBandInfo;
     function SearchByIDList(const AIDList: TArray<Integer>;
       TestResult: Boolean = False): TBandInfo;
+    function SearchByID(const AID: Integer; TestResult: Boolean = False): TBandInfo;
     function SearchByIDParamSubParam(AIDParamSubParam: Integer;
       TestResult: Boolean = False): TBandInfo;
   end;
@@ -302,6 +303,19 @@ begin
   for Result in Self do
   begin
     if Result.IDList.eq(AIDList) then
+      Exit;
+  end;
+  Result := nil;
+  if TestResult then
+    Assert(False);
+end;
+
+function TBandsInfo.SearchByID(const AID: Integer; TestResult: Boolean =
+    False): TBandInfo;
+begin
+  for Result in Self do
+  begin
+    if Result.IDList.IndexOf(AID) >= 0 then
       Exit;
   end;
   Result := nil;
