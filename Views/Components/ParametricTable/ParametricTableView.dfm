@@ -284,6 +284,10 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton11'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton12'
         end>
       OneOnRow = True
       Row = 1
@@ -372,6 +376,10 @@ inherited ViewParametricTable: TViewParametricTable
       Visible = ivAlways
       OnClick = dxBarButton11Click
     end
+    object dxBarButton12: TdxBarButton
+      Action = actShowCategoryParametersQuery
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAutoWidth: TAction
@@ -448,6 +456,10 @@ inherited ViewParametricTable: TViewParametricTable
     object actChangeBandWidth: TAction
       Caption = 'Change Band Width'
       OnExecute = actChangeBandWidthExecute
+    end
+    object actShowCategoryParametersQuery: TAction
+      Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1087#1072#1088#1072#1084#1077#1090#1088#1072#1093
+      OnExecute = actShowCategoryParametersQueryExecute
     end
   end
   inherited pmGrid: TPopupMenu

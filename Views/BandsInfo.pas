@@ -343,8 +343,10 @@ begin
   FIDCategoryParam := AIDCategoryParam;
   FOrder := AOrder;
   FDefaultCreated := ADefaultCreated;
-  FColIndex := FColumn.Position.ColIndex;
   FIsDefault := AIsDefault;
+
+  // Запоминаем позицию колонки
+  SaveColumnPosition;
 end;
 
 procedure TColumnInfo.FreeColumn;
