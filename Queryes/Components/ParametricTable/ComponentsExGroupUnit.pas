@@ -395,6 +395,8 @@ begin
   FApplyUpdateEvents.Clear;
   qFamilyEx.SaveValuesAfterEdit := False;
   qComponentsEx.SaveValuesAfterEdit := False;
+//  qFamilyEx.AutoTransaction := True;
+//  qComponentsEx.AutoTransaction := True;
 
   // Загружаем значения параметров из БД принудительно
   qProductParameters.Load(qFamilyEx.ParentValue, True);

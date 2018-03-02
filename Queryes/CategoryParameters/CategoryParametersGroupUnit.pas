@@ -564,10 +564,12 @@ procedure TCategoryParametersGroup.ApplyUpdates;
 var
   AID: Integer;
   AKey: Integer;
+  ok: Boolean;
   VID: Integer;
 begin
-
-  FqCategoryParameters.FDQuery.Connection.StartTransaction;
+  ok := FqCategoryParameters.FDQuery.Connection.InTransaction;
+  Assert(ok);
+//  FqCategoryParameters.FDQuery.Connection.StartTransaction;
 
   // Тут все сделанные изменения применятся рекурсивно ко всей БД
   FqCategoryParameters.ApplyUpdates;
@@ -604,6 +606,8 @@ begin
     end;
   end;
   FqCategoryParameters.FDQuery.Connection.Commit;
+  ok := not FqCategoryParameters.FDQuery.Connection.InTransaction;
+  Assert(ok);
 end;
 
 procedure TCategoryParametersGroup.CancelUpdates;
