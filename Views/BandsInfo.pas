@@ -344,7 +344,6 @@ begin
   Result := nil;
   if TestResult then
   begin
-    beep;
     Assert(False);
   end;
 end;

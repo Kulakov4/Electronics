@@ -53,8 +53,8 @@ type
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
   private
-    FCheckedMode: Boolean;
     FQuerySubParameters: TQuerySubParameters2;
+    function GetCheckedMode: Boolean;
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetQuerySubParameters(const Value: TQuerySubParameters2);
@@ -67,7 +67,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure CommitOrPost;
     procedure UpdateView; override;
-    property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
+    property CheckedMode: Boolean read GetCheckedMode write SetCheckedMode;
     property QuerySubParameters: TQuerySubParameters2 read FQuerySubParameters
         write SetQuerySubParameters;
     { Public declarations }
@@ -167,6 +167,11 @@ begin
     actCommit.Execute; // завершаем транзакцию
 end;
 
+function TViewSubParameters.GetCheckedMode: Boolean;
+begin
+  Result := clChecked.Visible;
+end;
+
 procedure TViewSubParameters.LoadDataFromExcelTable
   (AExcelTable: TSubParametersExcelTable);
 begin
@@ -207,11 +212,10 @@ end;
 
 procedure TViewSubParameters.SetCheckedMode(const Value: Boolean);
 begin
-  if FCheckedMode = Value then
+  if clChecked.Visible = Value then
     Exit;
 
-  FCheckedMode := Value;
-  clChecked.Visible := FCheckedMode;
+  clChecked.Visible := Value;
   clChecked.VisibleForCustomization := False;
 
   if QuerySubParameters <> nil then
@@ -234,6 +238,9 @@ begin
 
   MainView.DataController.DataSource := FQuerySubParameters.DataSource;
   MainView.DataController.KeyFieldNames := FQuerySubParameters.PKFieldName;
+
+  CheckedMode := FQuerySubParameters.CheckedMode;
+
   MyApplyBestFit;
   UpdateAutoTransaction;
   UpdateView;
@@ -241,7 +248,7 @@ end;
 
 procedure TViewSubParameters.UpdateAutoTransaction;
 begin
-  QuerySubParameters.AutoTransaction := FCheckedMode;
+  QuerySubParameters.AutoTransaction := CheckedMode;
 end;
 
 procedure TViewSubParameters.UpdateTotalCount;

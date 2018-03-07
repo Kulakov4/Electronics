@@ -18,6 +18,7 @@ type
     procedure DoAfterInsert(Sender: TObject);
     procedure DoBeforeCheckedOpen(Sender: TObject);
     function GetChecked: TField;
+    function GetCheckedMode: Boolean;
     function GetIsDefault: TField;
     function GetName: TField;
     function GetTranslation: TField;
@@ -31,6 +32,7 @@ type
     procedure OpenWithChecked(AIDParameter, AProductCategoryId: Integer);
     function Search(const AName: String): Integer; overload;
     property Checked: TField read GetChecked;
+    property CheckedMode: Boolean read GetCheckedMode;
     property IsDefault: TField read GetIsDefault;
     property Name: TField read GetName;
     property Translation: TField read GetTranslation;
@@ -76,6 +78,11 @@ end;
 function TQuerySubParameters2.GetChecked: TField;
 begin
   Result := Field('Checked');
+end;
+
+function TQuerySubParameters2.GetCheckedMode: Boolean;
+begin
+  Result := FDQuery.FindField('Checked') <> nil;
 end;
 
 function TQuerySubParameters2.GetCheckedValues(const AFieldName

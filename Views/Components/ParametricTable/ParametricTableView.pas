@@ -1982,16 +1982,16 @@ procedure TViewParametricTable.ProcessColumnMove
 var
   A: TArray<TPair<Integer, Integer>>;
   ABand: TcxGridBand;
-  ABandInfo: TBandInfo;
+//  ABandInfo: TBandInfo;
   ACI: TColumnInfo;
   ACI2: TColumnInfo;
   ANewIDList: TIDList;
   ALeft: Boolean;
   AOldBandInfo: TBandInfoEx;
-  AIDList: TIDList;
+//  AIDList: TIDList;
   ANewIDListArr: TArray<Integer>;
   AOldIDListArr: TArray<Integer>;
-  APair: TPair<Integer, Integer>;
+//  APair: TPair<Integer, Integer>;
   CIList: TArray<TColumnInfo>;
   L: TList<TPair<Integer, Integer>>;
 begin
