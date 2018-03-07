@@ -567,9 +567,11 @@ var
   ok: Boolean;
   VID: Integer;
 begin
-  ok := FqCategoryParameters.FDQuery.Connection.InTransaction;
+  ok := not FqCategoryParameters.FDQuery.Connection.InTransaction;
   Assert(ok);
-//  FqCategoryParameters.FDQuery.Connection.StartTransaction;
+
+  // Сами начинаем транзакцию!!
+  FqCategoryParameters.FDQuery.Connection.StartTransaction;
 
   // Тут все сделанные изменения применятся рекурсивно ко всей БД
   FqCategoryParameters.ApplyUpdates;

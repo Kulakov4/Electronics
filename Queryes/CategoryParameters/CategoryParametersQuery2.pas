@@ -146,8 +146,9 @@ begin
 
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
 
-  // Будем сами начинать транзакцию!!!
-  AutoTransaction := False;
+  // Не будем сами начинать транзакцию!!!
+  // Работаем в режиме кэширования записей
+  // AutoTransaction := True;
 end;
 
 destructor TQueryCategoryParameters2.Destroy;
