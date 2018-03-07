@@ -1309,7 +1309,8 @@ begin
     try
       SetZeroBandWidth(AView);
 
-      AIsBandViewInfoExist := AView.ViewInfo.HeaderViewInfo.BandsViewInfo.Count > 0;
+      AIsBandViewInfoExist := AView.ViewInfo.HeaderViewInfo.
+        BandsViewInfo.Count > 0;
 
       AMaxBandHeight := 0;
       ACanvas := AView.ViewInfo.Canvas.Canvas;
@@ -1344,7 +1345,9 @@ begin
         end;
 
         // Если информацию о ширине бэндов доступна
-        if AIsBandViewInfoExist then
+        if AIsBandViewInfoExist and
+          (ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Count >
+          ABand.VisibleIndex) then
         begin
 
           // Вычисляем минимальную ширину бэнда
@@ -1374,7 +1377,14 @@ begin
       if AMaxBandHeight > 0 then
         AView.OptionsView.BandHeaderHeight := AMaxBandHeight;
 
-      AView.Controller.LeftPos := FLeftPos;
+      if AView.Controller.LeftPos <> FLeftPos then
+      begin
+        try
+          AView.Controller.LeftPos := FLeftPos;
+        except
+          ;
+        end;
+      end;
 
       {
         for i := 0 to AView.VisibleColumnCount - 1 do

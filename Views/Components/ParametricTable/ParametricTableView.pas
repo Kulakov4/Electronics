@@ -313,7 +313,12 @@ begin
 
   ComponentsExGroup.CatParamsGroup.AddOrDeleteSubParameters
     (ACI.IDCategoryParam, S);
-  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+
+  // Если сохранить изменения не удалось
+  if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
+  begin
+    Exit;
+  end;
 
   // Обновляем поля в запросе
   ComponentsExGroup.UpdateFields;
@@ -779,7 +784,10 @@ begin
 
   // Просим удалить все подпараметры этой группы
   ComponentsExGroup.CatParamsGroup.DeleteParameters([ACI.IDCategoryParam]);
-  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+
+  // Если не удалось сохранить сделанные изменения
+  if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
+    Exit;
 
   ComponentsExGroup.UpdateFields;
   UpdateColumns;
@@ -803,7 +811,10 @@ begin
   ACI := FColumnsInfo.Search(AColumn, True);
   // Удаляем подпараметр, соответствующий колоке
   ComponentsExGroup.CatParamsGroup.DeleteSubParameters([ACI.IDCategoryParam]);
-  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+
+  // Если не удалось сохранить сделанные изменения
+  if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
+    Exit;
 
   // Извещаем всех, что произошли изменения среди параметров категории
   ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);
@@ -989,7 +1000,8 @@ var
 begin
   inherited;
   S1 := BoolToStr(qCategoryParameters.FDQuery.Connection.InTransaction, True);
-  S2 := BoolToStr(ComponentsExGroup.qFamilyEx.FDQuery.Connection.InTransaction, True);
+  S2 := BoolToStr(ComponentsExGroup.qFamilyEx.FDQuery.Connection.
+    InTransaction, True);
   ShowMessage(S1 + ' ' + S2);
 end;
 
@@ -1426,7 +1438,13 @@ begin
   inherited;
   ColumnTimer.Enabled := False;
 
-  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+  if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
+  begin
+    // Восстанавливаем позиции колонок
+    FColumnsInfo.RestoreColumnPosition;
+    Exit;
+  end;
+
   FColumnsInfo.SaveColumnPosition;
 
   // Надо обновить порядок в БД для описания колонок
@@ -1879,7 +1897,6 @@ end;
 procedure TViewParametricTable.ProcessBandMove;
 var
   A: TArray<TPair<Integer, Integer>>;
-  ABandInfo: TBandInfo;
   ABI: TBandInfo;
   ACI: TColumnInfo;
   AColumn: TcxGridDBBandedColumn;
@@ -1927,11 +1944,16 @@ begin
 
   // Просим сделать соответствующие изменения в БД
   ComponentsExGroup.CatParamsGroup.qCategoryParameters.Move(A);
-  ComponentsExGroup.CatParamsGroup.ApplyUpdates;
+
+  // Если не удалось сохранить эти изменения
+  if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
+  begin
+    FBandsInfo.RestoreBandPosition;
+    Exit;
+  end;
 
   // запоминаем в какой позиции находится наш бэнд
-  for ABandInfo in FBandsInfo do
-    ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
+  FBandsInfo.SaveBandPosition;
 
   // Надо обновить порядок в БД для описания колонок
   for APair in A do
@@ -2026,8 +2048,10 @@ begin
     (ACI.IDCategoryParam);
 
   ANewIDList := TIDList.Create;
-  ANewIDList.AddRange(ANewIDListArr);
   try
+    ANewIDList.AddRange(ANewIDListArr);
+    UpdateBandsPosition;
+    (*
     // Если колонка осталась в том же бэнде
     if AOldBandInfo.IDList.IsSame(ANewIDList.ToArray) then
     begin
@@ -2055,21 +2079,21 @@ begin
         Assert(AOldBandInfo.IDList.IndexOf(ACI.IDCategoryParam) >= 0);
         // Удаляем идентификатор нашей колонки из идентификаторов старого бэнда
         AOldBandInfo.IDList.Remove(ACI.IDCategoryParam);
-
-        // Создаём новый бэнд
-        ABandInfo := CreateBandInfoEx([MainView, GridView(cxGridLevel2)],
+        {
+          // Создаём новый бэнд
+          ABandInfo := CreateBandInfoEx([MainView, GridView(cxGridLevel2)],
           [ACI.IDCategoryParam]);
-        FBandsInfo.Add(ABandInfo);
+          FBandsInfo.Add(ABandInfo);
 
-        qCategoryParameters.LocateByPK(ACI.IDCategoryParam, True);
+          qCategoryParameters.LocateByPK(ACI.IDCategoryParam, True);
 
-        // Инициализируем новый бэнд
-        InitializeBandInfo(ABandInfo as TBandInfoEx, ANewIDList.ToArray,
+          // Инициализируем новый бэнд
+          InitializeBandInfo(ABandInfo as TBandInfoEx, ANewIDList.ToArray,
           qCategoryParameters);
 
-        // Помещаем колонку в наш новый бэнд!
-        AColumn.Position.BandIndex := ABandInfo.Band.Index;
-
+          // Помещаем колонку в наш новый бэнд!
+          AColumn.Position.BandIndex := ABandInfo.Band.Index;
+        }
         UpdateBandsPosition;
       end
       else
@@ -2137,37 +2161,17 @@ begin
       end;
 
     end;
+    *)
   finally
     FreeAndNil(ANewIDList);
   end;
-  FColumnsInfo.SaveColumnPosition;
 
   FColMoveArray := A;
   ColumnTimer.Enabled := True;
-
-  // Остальное сделаем по таймеру
-  {
-
-    ComponentsExGroup.CatParamsGroup.ApplyUpdates;
-    FColumnsInfo.SaveColumnPosition;
-
-    // Надо обновить порядок в БД для описания колонок
-    for APair in A do
-    begin
-    ACI := FColumnsInfo.Search(APair.Key, True);
-
-    // Запоминаем, какой теперь порядок у этой колонки в БД
-    ACI.Order := APair.Value;
-    end;
-
-    // Извещаем кого-то о том, что мы обновили порядок
-    ComponentsExGroup.OnParamOrderChange.CallEventHandlers(Self);
-  }
 end;
 
 procedure TViewParametricTable.RecreateColumns;
 var
-  ABandInfo: TBandInfo;
   qCatParams: TQryCategoryParameters;
 begin
   FreeAndNil(FColumnsBarButtons);
@@ -2198,12 +2202,9 @@ begin
       end;
 
       // запоминаем в какой позиции находится наш бэнд
-      for ABandInfo in FBandsInfo do
-        ABandInfo.ColIndex := ABandInfo.Band.Position.ColIndex;
-
+      FBandsInfo.SaveBandPosition;
       UpdateGeneralIndexes;
       FColumnsInfo.SaveColumnPosition;
-
     finally
       MainView.ViewData.Collapse(True);
 
@@ -2225,7 +2226,12 @@ var
   A: TArray<Integer>;
   ABand: TcxGridBand;
   ABI: TBandInfo;
+  ABI2: TBandInfo;
+  ACI: TColumnInfo;
+  ADropBI: TList<TBandInfo>;
+  AID: Integer;
   AIDList: TList<Integer>;
+  AIsEof: Boolean;
   i: Integer;
   k: Integer;
 begin
@@ -2241,6 +2247,7 @@ begin
       Inc(k);
   end;
 
+  ADropBI := TList<TBandInfo>.Create;
   AIDList := TList<Integer>.Create;
   try
     qCategoryParameters.FDQuery.First;
@@ -2253,21 +2260,81 @@ begin
         AIDList.Add(qCategoryParameters.PK.AsInteger)
       else
       begin
+        AIsEof := qCategoryParameters.FDQuery.Eof;
+
         // Ишем бэнд с такими идентификаторами
         A := AIDList.ToArray;
-        ABI := FBandsInfo.SearchByIDList(A, True);
+
+        ABI := FBandsInfo.SearchByIDList(A);
+
+        // Если бэнд был разбит на части, соединился из частей или не существовал
+        if ABI = nil then
+        begin
+          ABI := FBandsInfo.SearchByID(A[0]);
+
+          // Такой бэнд существовал ранее, но был разбит на части или соединился из частей
+          if ABI <> nil then
+          begin
+            // Проверяем остальные идентификаторы
+            for i := 1 to AIDList.Count - 1 do
+            begin
+              ABI2 := FBandsInfo.SearchByID(AIDList[i]);
+
+              // Если имеет место объединение нескольких бэндов в один
+              if (ABI2 <> nil) and (ABI2 <> ABI) and (ADropBI.IndexOf(ABI2) < 0)
+              then
+                ADropBI.Add(ABI2);
+            end;
+
+            ABI.IDList.Assign(A);
+            // часть колонок потом перенесётся в новый бэнд
+          end
+          else
+          begin
+            // Если такой бэнд даже не существовал ранее
+            // Создаём новый бэнд
+            ABI := CreateBandInfoEx([MainView, GridView(cxGridLevel2)], A);
+            FBandsInfo.Add(ABI);
+
+            qCategoryParameters.SaveBookmark;
+            qCategoryParameters.LocateByPK(A[0], True);
+            // Инициализируем новый бэнд
+            InitializeBandInfo(ABI as TBandInfoEx, A, qCategoryParameters);
+            qCategoryParameters.RestoreBookmark;
+          end;
+        end;
+
         Inc(k);
         ABI.UpdateBandPosition(k);
 
-        if qCategoryParameters.FDQuery.Eof then
-          Exit;
+        // Цикл по всем идентификатором колонок бэнда
+        for AID in A do
+        begin
+          ACI := FColumnsInfo.Search(AID, True);
+          // Помещаем колонку в наш новый бэнд!
+          if ACI.Column.Position.BandIndex <> ABI.Band.Index then
+            ACI.Column.Position.BandIndex := ABI.Band.Index;
+        end;
+
+        if AIsEof then
+          break;
 
         AIDList.Clear;
         AIDList.Add(qCategoryParameters.PK.AsInteger);
       end;
     end;
+
+    // Цикл по бэндам, которые нужно удалить
+    for ABI in ADropBI do
+    begin
+      Assert(ABI.Band.ColumnCount = 0);
+      // Нужно удалить старый бэнд - он остался без колонки
+      FBandsInfo.FreeBand(ABI);
+    end;
+
   finally
     FreeAndNil(AIDList);
+    FreeAndNil(ADropBI);
   end;
 end;
 
@@ -2341,6 +2408,7 @@ begin
 
   UpdateGeneralIndexes;
   FColumnsInfo.SaveColumnPosition;
+  FBandsInfo.SaveBandPosition;
 end;
 
 procedure TViewParametricTable.UpdateColumnsCustomization;

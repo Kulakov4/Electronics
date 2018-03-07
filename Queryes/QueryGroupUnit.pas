@@ -28,7 +28,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure ApplyUpdates; virtual;
+    function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
     procedure Commit; virtual;
     procedure RefreshData; virtual;
@@ -65,7 +65,7 @@ begin
   end;
 end;
 
-procedure TQueryGroup.ApplyUpdates;
+function TQueryGroup.ApplyUpdates: Boolean;
 begin
   CheckMasterAndDetail;
 
@@ -74,6 +74,7 @@ begin
 
   Main.ApplyUpdates;
   Detail.ApplyUpdates;
+  Result := (not Main.HaveAnyChanges) and (not Detail.HaveAnyChanges);
 end;
 
 procedure TQueryGroup.CancelUpdates;

@@ -128,7 +128,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AddOrDeleteSubParameters(AID: Integer; ASubParamIDList: string);
     procedure AddOrDeleteParameters(AParamIDList: string; APosID: Integer);
-    procedure ApplyUpdates; override;
+    function ApplyOrCancelUpdates: Boolean;
+    function ApplyUpdates: Boolean; override;
     procedure CancelUpdates; override;
     procedure DeleteParameters(APKValues: array of Integer);
     procedure DeleteSubParameters(APKValues: array of Integer);
@@ -560,7 +561,16 @@ begin
   end;
 end;
 
-procedure TCategoryParametersGroup.ApplyUpdates;
+function TCategoryParametersGroup.ApplyOrCancelUpdates: Boolean;
+begin
+  Result := ApplyUpdates;
+//  Result := False;
+  // Если не удалось сохранить изменения
+  if not Result then
+    CancelUpdates;
+end;
+
+function TCategoryParametersGroup.ApplyUpdates: Boolean;
 var
   AID: Integer;
   AKey: Integer;
@@ -577,7 +587,8 @@ begin
   FqCategoryParameters.ApplyUpdates;
 
   // Проверяем, успешно ли
-  if FqCategoryParameters.HaveAnyChanges then
+  Result := not FqCategoryParameters.HaveAnyChanges;
+  if not Result then
   begin
     FqCategoryParameters.FDQuery.Connection.Rollback;
     Exit;

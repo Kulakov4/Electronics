@@ -35,6 +35,8 @@ type
     procedure FreeBand; virtual;
     function HaveBand(OtherBand: TcxGridBand): Boolean; virtual;
     procedure Hide; virtual;
+    procedure RestoreBandPosition;
+    procedure SaveBandPosition;
     procedure UpdateBandPosition(AColIndex: Integer); virtual;
     property Band: TcxGridBand read FBand write FBand;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
@@ -60,6 +62,8 @@ type
     function HaveDifferentPos: Boolean;
     procedure HideDefaultBands;
     procedure FreeBand(ABandInfo: TBandInfo);
+    procedure RestoreBandPosition;
+    procedure SaveBandPosition;
     function Search(ABand: TcxGridBand; TestResult: Boolean = False)
       : TBandInfo; overload;
     function SearchByColIndex(AColIndex: Integer; TestResult: Boolean = False)
@@ -117,6 +121,7 @@ type
     procedure FreeNotDefaultColumns;
     function GetChangedColIndex: TColumnsInfo;
     function GetChangedGeneralColIndex: TArray<TColumnInfo>;
+    procedure RestoreColumnPosition;
     function Search(AColumn: TcxGridDBBandedColumn; TestResult: Boolean = False)
       : TColumnInfo; overload;
     function Search(AIDCategoryParam: Integer; TestResult: Boolean = False)
@@ -191,6 +196,18 @@ procedure TBandInfo.Hide;
 begin
   Band.Visible := False;
   Band.VisibleForCustomization := False;
+end;
+
+procedure TBandInfo.RestoreBandPosition;
+begin
+  // Восстанавливаем позицию бэнда
+  Band.Position.ColIndex := ColIndex;
+end;
+
+procedure TBandInfo.SaveBandPosition;
+begin
+  // Сохраняем позицию бэнда
+  ColIndex := Band.Position.ColIndex;
 end;
 
 procedure TBandInfo.UpdateBandPosition(AColIndex: Integer);
@@ -268,6 +285,24 @@ begin
 
 end;
 
+procedure TBandsInfo.RestoreBandPosition;
+var
+  ABandInfo: TBandInfo;
+begin
+  // Восстанавливаем позицию бэнда
+  for ABandInfo in Self do
+    ABandInfo.RestoreBandPosition;
+end;
+
+procedure TBandsInfo.SaveBandPosition;
+var
+  ABandInfo: TBandInfo;
+begin
+  // Сохраняем позицию бэнда
+  for ABandInfo in Self do
+    ABandInfo.SaveBandPosition;
+end;
+
 function TBandsInfo.Search(ABand: TcxGridBand; TestResult: Boolean = False)
   : TBandInfo;
 begin
@@ -308,7 +343,10 @@ begin
   end;
   Result := nil;
   if TestResult then
+  begin
+    beep;
     Assert(False);
+  end;
 end;
 
 function TBandsInfo.SearchByID(const AID: Integer; TestResult: Boolean = False)
@@ -376,7 +414,7 @@ end;
 
 procedure TColumnInfo.RestoreColumnPosition;
 begin
-  // запоминаем, в какой позиции находятся наши колонки
+  // восстанавливаем позиции, в которых находились наши колонки
   Column.Position.BandIndex := BandIndex;
   Column.Position.ColIndex := ColIndex;
 end;
@@ -386,7 +424,7 @@ begin
   Column.Position.BandIndex := ABandIndex;
   Column.Position.ColIndex := AColIndex;
   // запоминаем, в какой позиции находятся наши колонки
-  SaveColumnPosition;
+//  SaveColumnPosition;
 end;
 
 procedure TColumnInfo.SaveColumnPosition;
@@ -444,6 +482,17 @@ begin
     Result := L.ToArray;
   finally
     FreeAndNil(L);
+  end;
+end;
+
+procedure TColumnsInfo.RestoreColumnPosition;
+var
+  ACI: TColumnInfo;
+begin
+  for ACI in Self do
+  begin
+    // Восстанавливаем позиции колонок
+    ACI.RestoreColumnPosition;
   end;
 end;
 
