@@ -221,7 +221,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
       procedure(ASender: TObject)
       begin
-        ProducersGroup.InsertRecordList(ASender as TProducersExcelTable);
+        ProducersGroup.LoadDataFromExcelTable(ASender as TProducersExcelTable);
       end,
       procedure(ASender: TObject)
       begin

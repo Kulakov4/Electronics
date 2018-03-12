@@ -27,12 +27,12 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
-    procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable;
-      AIDProducer: Integer);
+    procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable;
+        AIDProducer: Integer);
     procedure Rollback; override;
     // TODO: Append
-    /// / TODO: InsertRecordList
-    /// /  procedure InsertRecordList(ABodyTypesExcelTable: TBodyTypesExcelTable);
+    /// / TODO: LoadDataFromExcelTable
+    /// /  procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable);
     // function Append(APackage, AOutlineDrawing, ALandPattern, AVariation: String):
     // Integer;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
@@ -96,8 +96,8 @@ begin
   Result := FQueryBodyTypesSimple;
 end;
 
-procedure TBodyTypesGroup.InsertRecordList(ABodyTypesExcelTable
-  : TBodyTypesExcelTable; AIDProducer: Integer);
+procedure TBodyTypesGroup.LoadDataFromExcelTable(ABodyTypesExcelTable:
+    TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
   F: TField;

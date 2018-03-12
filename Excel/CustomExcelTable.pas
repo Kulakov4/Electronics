@@ -42,7 +42,7 @@ type
 
 implementation
 
-uses System.SysUtils, System.Variants;
+uses System.SysUtils, System.Variants, StrHelper;
 
 constructor TCustomExcelTable.Create(AOwner: TComponent);
 begin
@@ -131,7 +131,8 @@ end;
 
 function TCustomExcelTable.ProcessValue(const AValue: string): String;
 begin
-  Result := AValue.Trim;
+ // Избавляемся от начальных, конечных и двойных пробелов
+  Result := DeleteDouble(AValue.Trim, ' ');
 end;
 
 procedure TCustomExcelTable.CreateFieldDefs;

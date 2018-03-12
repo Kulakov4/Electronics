@@ -34,7 +34,7 @@ type
     destructor Destroy; override;
     procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure InsertList(AParametersExcelTable: TParametersExcelTable);
+    procedure LoadDataFromExcelTable(AParametersExcelTable: TParametersExcelTable);
     procedure ReOpen; override;
     procedure Rollback; override;
     procedure TryPost; override;
@@ -157,8 +157,8 @@ begin
   Result := FqParameterKinds;
 end;
 
-procedure TParametersGroup.InsertList(AParametersExcelTable
-  : TParametersExcelTable);
+procedure TParametersGroup.LoadDataFromExcelTable(AParametersExcelTable:
+    TParametersExcelTable);
 var
   AField: TField;
   AParameterKindID: Integer;

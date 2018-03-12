@@ -89,46 +89,6 @@ begin
       // Выполняем привязку
       DoBindDocs(ASender as TDocBindExcelTable);
     end);
-
-  {
-    ADocBindExcelDM := TDocBindExcelDM.Create(nil);
-    try
-    // Первый этап - загружаем данные из Excel файла
-    TfrmProgressBar.Process(ADocBindExcelDM,
-    procedure (ASender: TObject)
-    begin
-    ADocBindExcelDM.LoadExcelFile(AFileName);
-    end, 'Загрузка данных о файлах документации из Excel документа', sRows);
-
-    // Второй этап - отображаем окно с ошибками
-    OK := ADocBindExcelDM.ExcelTable.Errors.RecordCount = 0;
-
-    if not OK then
-    begin
-    AfrmError := TfrmError.Create(nil);
-    try
-    AfrmError.ErrorTable := ADocBindExcelDM.ExcelTable.Errors;
-    // Показываем ошибки (семейство не найдено)
-    OK := AfrmError.ShowModal = mrOk;
-    ADocBindExcelDM.ExcelTable.ExcludeErrors(etError);
-    finally
-    FreeAndNil(AfrmError);
-    end;
-    end;
-
-    // Третий этап - сохраняем в базе данных
-    if OK then
-    begin
-    TfrmProgressBar.Process(ADocBindExcelDM.ExcelTable,
-    procedure (ASender: TObject)
-    begin
-    DoBindDocs(ADocBindExcelDM.ExcelTable);
-    end, 'Выполнение привязки к документации', sComponents);
-    end;
-    finally
-    FreeAndNil(ADocBindExcelDM);
-    end;
-  }
 end;
 
 end.

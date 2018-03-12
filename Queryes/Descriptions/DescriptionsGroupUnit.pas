@@ -27,8 +27,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure InsertRecordList(ADescriptionsExcelTable
-      : TDescriptionsExcelTable);
+    procedure LoadDataFromExcelTable(ADescriptionsExcelTable :
+        TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
     procedure ReOpen; override;
     procedure Rollback; override;
@@ -113,8 +113,8 @@ begin
   Result := FqProducers;
 end;
 
-procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable
-  : TDescriptionsExcelTable);
+procedure TDescriptionsGroup.LoadDataFromExcelTable(ADescriptionsExcelTable :
+    TDescriptionsExcelTable);
 var
   AField: TField;
   I: Integer;

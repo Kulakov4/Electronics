@@ -226,8 +226,7 @@ begin
       TfrmImportError,
       procedure(ASender: TObject)
       begin
-
-        DescriptionsGroup.InsertRecordList(ASender as TDescriptionsExcelTable);
+        DescriptionsGroup.LoadDataFromExcelTable(ASender as TDescriptionsExcelTable);
       end,
       procedure(ASender: TObject)
       begin

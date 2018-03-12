@@ -301,7 +301,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
-        AQueryRecursiveTree.LoadRecords(ASender as TTreeExcelTable);
+        AQueryRecursiveTree.LoadDataFromExcelTable(ASender as TTreeExcelTable);
       end);
 
     // Получаем добавленные категории

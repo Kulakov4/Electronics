@@ -294,7 +294,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
-        BodyTypesGroup.InsertRecordList(ASender as TBodyTypesExcelTable,
+        BodyTypesGroup.LoadDataFromExcelTable(ASender as TBodyTypesExcelTable,
           AProducerID);
       end);
   finally

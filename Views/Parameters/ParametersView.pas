@@ -150,7 +150,7 @@ type
     FNewValue: string;
     FParametersGrp: TParametersGroup;
     FParametersDI: TDragAndDropInfo;
-    procedure InsertParametersList(AList: TParametersExcelTable);
+    procedure LoadDataFromExcelTable(AData: TParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetParametersGrp(const Value: TParametersGroup);
     procedure UpdateAutoTransaction;
@@ -804,14 +804,14 @@ begin
   end;
 end;
 
-procedure TViewParameters.InsertParametersList(AList: TParametersExcelTable);
+procedure TViewParameters.LoadDataFromExcelTable(AData: TParametersExcelTable);
 begin
   cxGridDBBandedTableView.BeginUpdate();
   try
-    TfrmProgressBar.Process(AList,
+    TfrmProgressBar.Process(AData,
       procedure(ASender: TObject)
       begin
-        ParametersGrp.InsertList(AList);
+        ParametersGrp.LoadDataFromExcelTable(AData);
       end, 'Обновление параметров в БД', sRecords);
 
   finally
@@ -826,7 +826,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TParametersExcelDM, TfrmImportError,
       procedure(ASender: TObject)
       begin
-        InsertParametersList(ASender as TParametersExcelTable)
+        LoadDataFromExcelTable(ASender as TParametersExcelTable)
       end,
       procedure(ASender: TObject)
       begin

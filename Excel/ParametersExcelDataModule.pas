@@ -219,10 +219,10 @@ function TParametersExcelTable.ProcessValue(const AValue: string): String;
 begin
   // Избавляемся от переносов на новую строку
   // Двойные кавычки могут встречаться !!! Напр. Класс изделия "Green"
-  Result := AValue.Replace(#13, ' ', [rfReplaceAll])
+  Result := Result.Replace(#13, ' ', [rfReplaceAll])
     .Replace(#10, ' ', [rfReplaceAll]);
-  // Избавляемся от двойных пробелов
-  Result := DeleteDouble(Result, ' ');
+
+  Result := inherited ProcessValue(Result);
 end;
 
 procedure TParametersExcelTable.SetFieldsInfo;

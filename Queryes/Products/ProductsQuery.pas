@@ -38,19 +38,10 @@ type
       read GetqStoreHouseProductsCount;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AppendList(AExcelTable: TProductsExcelTable);
+    procedure LoadDataFromExcelTable(AExcelTable: TProductsExcelTable);
     procedure AppendRows(AValues: TList<String>;
       const AProducers: TList<String>); overload;
     property StoreHouseName: string read GetStoreHouseName;
-    // TODO: AddStringList
-    // function AddStringList(ARows: TArray<String>): TStringList;
-    // TODO: InsertRecordList
-    /// / TODO: ConvertRowsToRecords
-    /// /  function ConvertRowsToRecords(ARows: TStringList): TList<TProductRecord>;
-    // // TODO: FindAndDeleteDuplicates
-    // // function FindAndDeleteDuplicates(AMainDataSet: TDataSet):
-    // // TList<TComponentRecord>;
-    // procedure InsertRecordList(AList: TList<TProductRecord>);
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
   end;
@@ -77,7 +68,8 @@ begin
   TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
 end;
 
-procedure TQueryProducts.AppendList(AExcelTable: TProductsExcelTable);
+procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable:
+    TProductsExcelTable);
 var
   AExcelField: TField;
   AField: TField;
@@ -296,42 +288,5 @@ begin
   end;
   Result := FTotalCount;
 end;
-
-// TODO: InsertRecordList
-// procedure TQueryProducts.InsertRecordList(AList: TList<TProductRecord>);
-// var
-// ARecord: TProductRecord;
-/// / AComparison: TComparison<TProductRecord>;
-// begin
-/// / AComparison := function(const Left, Right: TProductRecord): Integer
-/// / begin
-/// / Result := CompareValue(Left.ExcelRowNumber, Right.ExcelRowNumber);
-/// / end;
-//
-// FDQuery.DisableControls;
-// try
-// for ARecord in AList do
-// begin
-// FDQuery.Append;
-// FDQuery.FieldByName('Value').AsString := ARecord.Value;
-// FDQuery.FieldByName('ManufacturerStr').AsString := ARecord.Manufacturer;
-// FDQuery.FieldByName('ComponentGroupStr').AsString :=
-// ARecord.ComponentGroup;
-// FDQuery.FieldByName('DescriptionStr').AsString := ARecord.Description;
-// FDQuery.FieldByName('Specification').AsString := ARecord.Specification;
-// FDQuery.FieldByName('Image').AsString := ARecord.Image;
-// FDQuery.FieldByName('BodyStr').AsString := ARecord.Body;
-//
-// FDQuery.FieldByName('Amount').AsString := ARecord.Amount;
-// FDQuery.FieldByName('ReleaseDate').AsString := ARecord.ManufacturerDate;
-// FDQuery.FieldByName('Price').AsString := ARecord.Price;
-//
-// FDQuery.FieldByName('ExcelRowNum').AsInteger := ARecord.ExcelRowNumber;
-// FDQuery.Post;
-// end;
-// finally
-// FDQuery.EnableControls;
-// end;
-// end;
 
 end.

@@ -297,7 +297,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TComponentsExcelDM, TfrmImportError,
       procedure(ASender: TObject)
       begin
-        ComponentsGroup.InsertRecordList(ASender as TComponentsExcelTable,
+        ComponentsGroup.LoadDataFromExcelTable(ASender as TComponentsExcelTable,
           AProducer);
       end);
   finally

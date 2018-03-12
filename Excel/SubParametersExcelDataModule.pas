@@ -17,7 +17,6 @@ type
   protected
     function CheckSubParameter: Boolean;
     procedure Clone;
-    function ProcessValue(const AValue: string): String; override;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -102,12 +101,6 @@ end;
 function TSubParametersExcelTable.GetTranslation: TField;
 begin
   Result := FieldByName('Translation');
-end;
-
-function TSubParametersExcelTable.ProcessValue(const AValue: string): String;
-begin
-  // Избавляемся от двойных пробелов
-  Result := DeleteDouble(AValue, ' ');
 end;
 
 procedure TSubParametersExcelTable.SetFieldsInfo;

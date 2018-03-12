@@ -21,7 +21,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure InsertRecordList(AProducersExcelTable: TProducersExcelTable);
+    procedure LoadDataFromExcelTable(AProducersExcelTable: TProducersExcelTable);
     procedure LocateOrAppend(AValue: string; const AProducerType: String);
     { Public declarations }
   end;
@@ -73,8 +73,8 @@ begin
 
 end;
 
-procedure TProducersGroup.InsertRecordList(AProducersExcelTable
-  : TProducersExcelTable);
+procedure TProducersGroup.LoadDataFromExcelTable(AProducersExcelTable:
+    TProducersExcelTable);
 var
   AField: TField;
   I: Integer;

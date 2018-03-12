@@ -30,7 +30,7 @@ type
     procedure DeleteAll;
     procedure HideNotDeleted;
     procedure HideNotAdded;
-    procedure LoadRecords(ATreeExcelTable: TTreeExcelTable);
+    procedure LoadDataFromExcelTable(ATreeExcelTable: TTreeExcelTable);
     function LocateByExternalID(AParentExternalID: Variant;
       const AExternalID: string): Boolean; overload;
     function LocateByExternalID(const AExternalID: string; TestResult: Boolean =
@@ -137,7 +137,8 @@ begin
   FDQuery.Filtered := True;
 end;
 
-procedure TQueryRecursiveTree.LoadRecords(ATreeExcelTable: TTreeExcelTable);
+procedure TQueryRecursiveTree.LoadDataFromExcelTable(ATreeExcelTable:
+    TTreeExcelTable);
 var
   AParentID: Variant;
 begin
