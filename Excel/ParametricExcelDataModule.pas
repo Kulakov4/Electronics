@@ -5,14 +5,15 @@ interface
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
   CustomExcelTable, Data.DB, System.Generics.Collections,
-  FieldInfoUnit, SearchComponentOrFamilyQuery, SearchFamily;
+  FieldInfoUnit, SearchComponentOrFamilyQuery, SearchFamily,
+  ComponentTypeSetUnit;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
   TParametricExcelTable = class(TCustomExcelTable)
   private
-    FFamily: Boolean;
+    FComponentTypeSet: TComponentTypeSet;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetComponentName: TField;
     // TODO: GetIDBodyType
@@ -26,8 +27,8 @@ type
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
         GetqSearchComponentOrFamily;
   public
-    constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>; AFamily:
-        Boolean); reintroduce;
+    constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
+        AComponentTypeSet: TComponentTypeSet); reintroduce;
     function CheckRecord: Boolean; override;
     class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer):
         String; static;
@@ -40,15 +41,15 @@ type
 
   TParametricExcelDM = class(TExcelDM)
   private
-    FFamily: Boolean;
+    FComponentTypeSet: TComponentTypeSet;
     FFieldsInfo: TList<TFieldInfo>;
     function GetExcelTable: TParametricExcelTable;
     { Private declarations }
   protected
     function CreateExcelTable: TCustomExcelTable; override;
   public
-    constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>; AFamily:
-        Boolean); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
+        AComponentTypeSet: TComponentTypeSet); reintroduce; overload;
     property ExcelTable: TParametricExcelTable read GetExcelTable;
     { Public declarations }
   end;
@@ -65,7 +66,7 @@ const
   FParamPrefix = 'Param';
 
 constructor TParametricExcelTable.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>; AFamily: Boolean);
+    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet);
 var
   AFieldInfo: TFieldInfo;
 begin
@@ -73,7 +74,7 @@ begin
   for AFieldInfo in AFieldsInfo do
     FieldsInfo.Add(AFieldInfo);
 
-  FFamily := AFamily;
+  FComponentTypeSet := AComponentTypeSet;
 end;
 
 function TParametricExcelTable.CheckComponent: Boolean;
@@ -81,21 +82,30 @@ var
   AErrorMessage: string;
 begin
   AErrorMessage := '';
+  Assert(FComponentTypeSet <> []);
 
   // Если надо искать только среди семейств
-  if FFamily then
+  if FComponentTypeSet = [ctFamily] then
   begin
     // Ищем семейство компонентов
     Result := qSearchComponentOrFamily.SearchFamily(ComponentName.AsString) > 0;
     if not Result then
       AErrorMessage := 'Семейство компонентов с таким именем не найдено';
-  end
-  else
+  end;
+
+  // Ищем компонент
+  if FComponentTypeSet = [ctComponent] then
   begin
-    // Ищем компонент
     Result := qSearchComponentOrFamily.SearchComponent(ComponentName.AsString) > 0;
     if not Result then
       AErrorMessage := 'Компонент с таким именем не найден';
+  end;
+
+  if FComponentTypeSet = [ctComponent, ctFamily] then
+  begin
+    Result := qSearchComponentOrFamily.SearchByValue(ComponentName.AsString) > 0;
+    if not Result then
+      AErrorMessage := 'Семейство или компонент с таким именем не найден';
   end;
 
   Edit;
@@ -194,11 +204,11 @@ begin
 end;
 
 constructor TParametricExcelDM.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>; AFamily: Boolean);
+    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet);
 begin
   Assert(AFieldsInfo <> nil);
   FFieldsInfo := AFieldsInfo;
-  FFamily := AFamily;
+  FComponentTypeSet := AComponentTypeSet;
 
   Create(AOwner);
 end;
@@ -206,7 +216,7 @@ end;
 function TParametricExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
   Assert(FFieldsInfo <> nil);
-  Result := TParametricExcelTable.Create(Self, FFieldsInfo, FFamily);
+  Result := TParametricExcelTable.Create(Self, FFieldsInfo, FComponentTypeSet);
 end;
 
 function TParametricExcelDM.GetExcelTable: TParametricExcelTable;

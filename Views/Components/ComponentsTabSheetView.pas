@@ -32,7 +32,7 @@ uses
   ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls,
   DataModule2, ParametricErrorTable, ParametricTableErrorForm,
   SubParametersQuery2, ParamSubParamsQuery, SearchParamDefSubParamQuery,
-  SearchParameterQuery;
+  SearchParameterQuery, ComponentTypeSetUnit;
 
 type
   TFieldsInfo = class(TList<TFieldInfo>)
@@ -116,8 +116,8 @@ type
       AFieldsInfo: TFieldsInfo): Boolean;
     function InternalLoadExcelFileHeader(AExcelDM: TExcelDM;
       ARootTreeNode: TStringTreeNode; AFieldsInfo: TFieldsInfo): Boolean;
-    procedure LoadParametricData(AFamily: Boolean);
-    procedure LoadParametricData2(AFamily: Boolean);
+    procedure LoadParametricData(AComponentTypeSet: TComponentTypeSet);
+    procedure LoadParametricDataFromActiveSheet;
     procedure TryUpdateWrite0Statistic(API: TProgressInfo);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
     { Private declarations }
@@ -308,21 +308,21 @@ procedure TComponentsFrame.actLoadParametricDataExecute(Sender: TObject);
 begin
   Application.Hint := '';
   // будем загружать параметрические данные для компонентов (не семейств)
-  LoadParametricData(False);
+  LoadParametricData([ctComponent]);
 end;
 
 procedure TComponentsFrame.actLoadParametricTableExecute(Sender: TObject);
 begin
   Application.Hint := '';
   // будем загружать параметрические данные для семейств компонентов
-  LoadParametricData(True);
+  LoadParametricData([ctFamily]);
 end;
 
 procedure TComponentsFrame.actLoadParametricTableRangeExecute(Sender: TObject);
 begin
   Application.Hint := '';
   // будем загружать параметрические данные для семейств компонентов
-  LoadParametricData2(True);
+  LoadParametricDataFromActiveSheet;
 end;
 
 procedure TComponentsFrame.actReportExecute(Sender: TObject);
@@ -841,7 +841,8 @@ begin
   Result := OK;
 end;
 
-procedure TComponentsFrame.LoadParametricData(AFamily: Boolean);
+procedure TComponentsFrame.LoadParametricData(AComponentTypeSet:
+    TComponentTypeSet);
 var
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
@@ -852,7 +853,7 @@ begin
     if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
       Exit;
 
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, AFamily);
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, AComponentTypeSet);
     FWriteProgress := TTotalProgress.Create;
     FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try
@@ -879,7 +880,7 @@ begin
 
 end;
 
-procedure TComponentsFrame.LoadParametricData2(AFamily: Boolean);
+procedure TComponentsFrame.LoadParametricDataFromActiveSheet;
 var
   AExcelDM: TExcelDM;
   AFieldsInfo: TFieldsInfo;
@@ -901,7 +902,7 @@ begin
       FreeAndNil(AExcelDM);
     end;
 
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, AFamily);
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, [ctComponent, ctFamily]);
     FWriteProgress := TTotalProgress.Create;
     FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try
