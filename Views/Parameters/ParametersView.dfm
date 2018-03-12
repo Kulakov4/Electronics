@@ -333,10 +333,6 @@ inherited ViewParameters: TViewParameters
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnAddSubParameter'
-        end
-        item
-          Visible = True
           ItemName = 'dxbrbtnDelete'
         end
         item
@@ -509,6 +505,7 @@ inherited ViewParameters: TViewParameters
     object actAddSubParameter: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 1
+      Visible = False
       OnExecute = actAddSubParameterExecute
     end
     object actLoadFromExcelDocument: TAction
