@@ -125,11 +125,10 @@ var
   V: Variant;
   AFDIndex: TFDIndex;
 begin
+  Result := False;
+
   if (not FDQuery.Active) or (FDQuery.RecordCount = 0) then
-  begin
-    Result := False;
     Exit;
-  end;
 
   if FClone = nil then
   begin
@@ -142,7 +141,10 @@ begin
     FClone.IndexName := AFDIndex.Name;
   end;
 
-  Assert(FClone.Active);
+  if not FClone.Active then
+    Exit;
+
+//  Assert(FClone.Active);
   V := FClone.LookupEx(ParentProductID.FieldName, AMasterID, PKFieldName );
   Result := not VarIsNull(V);
 end;
