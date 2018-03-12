@@ -19,7 +19,6 @@ type
     FBand: TcxGridBand;
     FDefaultCreated: Boolean;
     FDefaultVisible: Boolean;
-    FOrder: Integer;
     FIDList: TIDList;
     FColIndex: Integer;
     FIDParameter: Integer;
@@ -41,7 +40,6 @@ type
     property Band: TcxGridBand read FBand write FBand;
     property DefaultCreated: Boolean read FDefaultCreated write FDefaultCreated;
     property DefaultVisible: Boolean read FDefaultVisible write FDefaultVisible;
-    property Order: Integer read FOrder write FOrder;
     property IDList: TIDList read FIDList;
     property ColIndex: Integer read FColIndex write FColIndex;
     property IDParameter: Integer read FIDParameter write FIDParameter;
@@ -59,9 +57,9 @@ type
   public
     procedure FreeNotDefaultBands;
     function GetChangedColIndex: TBandsInfo;
-    function HaveDifferentPos: Boolean;
     procedure HideDefaultBands;
     procedure FreeBand(ABandInfo: TBandInfo);
+    function HaveDifferentPos: Boolean;
     procedure RestoreBandPosition;
     procedure SaveBandPosition;
     function Search(ABand: TcxGridBand; TestResult: Boolean = False)
