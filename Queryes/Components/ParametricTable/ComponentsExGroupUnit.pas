@@ -45,10 +45,6 @@ type
     function GetqProductParameters: TQueryProductParameters;
     procedure UpdateParameterValue(AComponentID: Integer;
       const AParamSubParamID: Integer; const AVaramValue: String);
-    // TODO: qProductParameters
-    // // TODO: qParametersForCategory
-    // // property qParametersForCategory: TQueryParametersForCategory read
-    // // FqParametersForCategory;
     { Private declarations }
   protected
     // TODO: ClearUpdateCount

@@ -266,11 +266,10 @@ implementation
 
 uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   cxGridDBDataDefinitions, StrHelper, ParameterValuesUnit, ProjectConst,
-  ParametersForProductQuery, SearchParametersForCategoryQuery, GridExtension,
-  DragHelper, System.Math, AnalogForm, AnalogQueryes, AnalogGridView,
-  SearchProductByParamValuesQuery, NaturalSort, CategoryParametersGroupUnit,
-  FireDAC.Comp.Client, MoveHelper, SubParametersForm, System.Types,
-  TextRectHelper, GridViewForm;
+  ParametersForProductQuery, GridExtension, DragHelper, System.Math, AnalogForm,
+  AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery, NaturalSort,
+  CategoryParametersGroupUnit, FireDAC.Comp.Client, MoveHelper,
+  SubParametersForm, System.Types, TextRectHelper, GridViewForm;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin

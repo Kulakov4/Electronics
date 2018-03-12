@@ -19,8 +19,7 @@ implementation
 
 uses
   System.SysUtils, ParametersForProductQuery, ParametersValueQuery,
-  ProgressInfo, System.Classes, FieldInfoUnit, System.Math,
-  ProjectConst, SearchParametersForCategoryQuery,
+  ProgressInfo, System.Classes, FieldInfoUnit, System.Math, ProjectConst,
   MaxCategoryParameterOrderQuery, IDTempTableQuery, UpdateParamValueRec,
   SearchFamilyParamValuesQuery;
 

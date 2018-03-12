@@ -270,11 +270,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchParametersForCategoryQuery.pas">
-            <Form>QuerySearchParametersForCategory</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
             <Form>QuerySearchProducerTypes</Form>
             <FormType>dfm</FormType>
