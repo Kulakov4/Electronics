@@ -92,9 +92,6 @@ type
     procedure FetchFields(const AFetchFieldList: TFetchFieldList;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
-    procedure FetchNullValues(ASource: TFDQuery; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions;
-      MapFieldInfo: string = '');
     function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
@@ -585,56 +582,6 @@ begin
   Assert(AFetchFieldList <> nil);
   FetchFields(AFetchFieldList.FieldNames.ToArray,
     AFetchFieldList.FieldValues.ToArray, ARequest, AAction, AOptions);
-end;
-
-procedure TQueryBase.FetchNullValues(ASource: TFDQuery;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions; MapFieldInfo: string = '');
-var
-  ASourceField: TField;
-  ADestinField: TField;
-  AFieldNames: TList<String>;
-  AFieldValues: TList<Variant>;
-  AMap: TFieldsMap;
-begin
-  Assert(ASource <> nil);
-  AFieldNames := nil;
-  AFieldValues := nil;
-  AMap := TFieldsMap.Create(MapFieldInfo);
-  try
-    for ASourceField in ASource.Fields do
-    begin
-      if ASourceField.IsNull then
-        Continue;
-
-      // Ищем такое-же поле
-      ADestinField := FDQuery.FindField(AMap.Map(ASourceField.FieldName));
-
-      if (ADestinField = nil) or (not ADestinField.IsNull) then
-        Continue;
-
-      if AFieldNames = nil then
-      begin
-        AFieldNames := TList<String>.Create;
-        AFieldValues := TList<Variant>.Create;
-      end;
-
-      AFieldNames.Add(ADestinField.FieldName);
-      AFieldValues.Add(ASourceField.Value);
-    end;
-
-    if AFieldNames <> nil then
-    begin
-      // Выбираем значения полей
-      FetchFields(AFieldNames.ToArray, AFieldValues.ToArray, ARequest, AAction,
-        AOptions);
-
-      FreeAndNil(AFieldNames);
-      FreeAndNil(AFieldValues);
-    end;
-  finally
-    FreeAndNil(AMap);
-  end;
 end;
 
 function TQueryBase.Field(const AFieldName: String): TField;
