@@ -97,7 +97,7 @@ begin
     //APK.AsInteger := qProducts.PKValue;
 
     // ќбрабатываем значени€ параметров
-    UpdateParamValue(PKFieldName, ASender);
+    UpdateParamValue(PKFieldName);
   end
   else
   begin
@@ -125,7 +125,7 @@ begin
         end;
 
         // ќбрабатываем значени€ параметров
-        UpdateParamValue(PKFieldName, ASender);
+        UpdateParamValue(PKFieldName);
       end;
     finally
       FreeAndNil(ARH);
@@ -161,7 +161,7 @@ begin
   end;
 
   // ќбрабатываем обновление значений параметров
-  UpdateParamValue(PKFieldName, ASender);
+  UpdateParamValue(PKFieldName);
 
   ASubGroup := ASender.FindField('SubGroup');
   // ≈сли в запросе выбираютс€ внешние коды категорий
