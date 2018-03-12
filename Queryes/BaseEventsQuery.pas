@@ -198,9 +198,14 @@ procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
 var
   AFilter: String;
 begin
-  Assert(not AClone.Filter.IsEmpty);
+  //Assert(not AClone.Filter.IsEmpty);
   AFilter := AClone.Filter;
   AClone.CloneCursor( FDQuery );
+
+  // Если фильтр накладывать не надо
+  if (AFilter.IsEmpty) then
+    Exit;
+
   AClone.Filter := AFilter;
   AClone.Filtered := True;
 end;

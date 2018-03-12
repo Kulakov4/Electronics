@@ -28,7 +28,6 @@ type
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;
-    procedure DoAfterClose(Sender: TObject);
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
@@ -76,11 +75,10 @@ begin
   FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where ID = 0', '--where');
 
   // Создаём два клона
-  FGetModeClone := TFDMemTable.Create(Self);
-  FClone := TFDMemTable.Create(Self);
+  FGetModeClone := AddClone('ID > 0');
+  FClone := AddClone('Value <> null');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);
@@ -135,12 +133,6 @@ begin
   SetConditionSQL(fdqBase.SQL.Text, 'where ID = 0', '--where');
 end;
 
-procedure TQueryProductsSearch.DoAfterClose(Sender: TObject);
-begin
-  FGetModeClone.Close;
-  FClone.Close;
-end;
-
 
 procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
 begin
@@ -153,15 +145,6 @@ procedure TQueryProductsSearch.DoAfterOpen(Sender: TObject);
 var
   I: Integer;
 begin
-  // Фильтруем клоны
-  FGetModeClone.CloneCursor(FDQuery);
-  FGetModeClone.Filter := 'ID > 0';
-  FGetModeClone.Filtered := True;
-
-  FClone.CloneCursor(FDQuery);
-  FClone.Filter := 'Value <> null';
-  FClone.Filtered := True;
-
   SetFieldsRequired(False);
   SetFieldsReadOnly(False);
 

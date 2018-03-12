@@ -70,56 +70,6 @@ begin
   FfdmtBodyVariations := TFDMemTable.Create(Self);
 end;
 
-// TODO: CheckRecord
-/// / TODO: CheckBodyVariation
-/// /function TBodyTypesExcelTable.CheckBodyVariation: Boolean;
-/// /var
-/// /V: Variant;
-/// /begin
-/// /// Ищем параметр с таким-же именем
-/// /V := FfdmtBodyVariations.LookupEx(Format('%s', [Variation.FieldName]),
-/// /  Variation.Value, 'ID');
-/// /
-/// /Result := VarIsNull(V);
-/// /
-/// /// Если нашли
-/// /if not Result then
-/// /begin
-/// /  MarkAsError(etWarring);
-/// /
-/// /  Errors.AddWarring(ExcelRow.AsInteger, Variation.Index + 1,
-/// /    Variation.AsString, 'Такой вариант корпуса уже существует');
-/// /end;
-/// /
-/// /end;
-//
-// function TBodyTypesExcelTable.CheckRecord: Boolean;
-// begin
-// Result := inherited;
-// if Result then
-// begin
-// // Проверяем что такой корпус существует
-// Result := CheckBodyVariation;
-// end;
-// end;
-
-// TODO: Clone
-// procedure TBodyTypesExcelTable.Clone;
-// var
-// AFDIndex: TFDIndex;
-// begin
-/// / Клонируем курсор
-// FfdmtBodyVariations.CloneCursor(BodyVariationsDataSet);
-//
-/// / Создаём индекс
-// AFDIndex := FfdmtBodyVariations.Indexes.Add;
-//
-// AFDIndex.Fields := Format('%s', [Variation.FieldName]);
-// AFDIndex.Name := 'idxBodyVariations';
-// AFDIndex.Active := True;
-// FfdmtBodyVariations.IndexName := AFDIndex.Name;
-// end;
-
 function TBodyTypesExcelTable.GetBodyKind: TField;
 begin
   Result := FieldByName('BodyKind');

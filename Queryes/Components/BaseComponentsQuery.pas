@@ -16,8 +16,6 @@ type
   private
     FClone: TFDMemTable;
     FqSearchComponent: TQuerySearchComponentOrFamily;
-    procedure DoAfterClose(Sender: TObject);
-    procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetqSearchComponent: TQuerySearchComponentOrFamily;
     { Private declarations }
@@ -47,9 +45,6 @@ constructor TQueryBaseComponents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
-  FClone := TFDMemTable.Create(Self);
 end;
 
 procedure TQueryBaseComponents.ApplyDelete(ASender: TDataSet);
@@ -95,7 +90,7 @@ begin
     // Запоминаем найденный первичный ключ
     FetchFields([PK.FieldName], [qSearchComponent.PK.Value], ARequest, AAction,
       AOptions);
-    //ASender.FieldByName(PKFieldName).Value := qSearchComponent.PK.Value;
+    // ASender.FieldByName(PKFieldName).Value := qSearchComponent.PK.Value;
   end;
 
   Assert(PK.AsInteger > 0);
@@ -119,24 +114,6 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseComponents.DoAfterClose(Sender: TObject);
-begin
-  FClone.Close;
-end;
-
-procedure TQueryBaseComponents.DoAfterOpen(Sender: TObject);
-var
-  AFDIndex: TFDIndex;
-begin
-  FClone.CloneCursor(FDQuery);
-  // Создаём индекс
-  AFDIndex := FClone.Indexes.Add;
-  AFDIndex.Fields := 'ParentProductID';
-  AFDIndex.Name := 'idxParentProductID';
-  AFDIndex.Active := True;
-  FClone.IndexName := AFDIndex.Name;
-end;
-
 procedure TQueryBaseComponents.DoBeforeOpen(Sender: TObject);
 begin
   FDQuery.ParamByName('PackagePinsParamSubParamID').AsInteger :=
@@ -146,14 +123,28 @@ end;
 function TQueryBaseComponents.Exists(AMasterID: Integer): Boolean;
 var
   V: Variant;
+  AFDIndex: TFDIndex;
 begin
-  if FClone.Active then
+  if (not FDQuery.Active) or (FDQuery.RecordCount = 0) then
   begin
-    V := FClone.LookupEx('ParentProductID', AMasterID, 'ID');
-    Result := not VarIsNull(V);
-  end
-  else
     Result := False;
+    Exit;
+  end;
+
+  if FClone = nil then
+  begin
+    FClone := AddClone('');
+    // Создаём индекс
+    AFDIndex := FClone.Indexes.Add;
+    AFDIndex.Fields := 'ParentProductID';
+    AFDIndex.Name := 'idxParentProductID';
+    AFDIndex.Active := True;
+    FClone.IndexName := AFDIndex.Name;
+  end;
+
+  Assert(FClone.Active);
+  V := FClone.LookupEx(ParentProductID.FieldName, AMasterID, PKFieldName );
+  Result := not VarIsNull(V);
 end;
 
 function TQueryBaseComponents.GetqSearchComponent

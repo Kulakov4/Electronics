@@ -131,7 +131,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Создаём клон
-  FInsertedClone := AddClone('0=0');
+  FInsertedClone := AddClone('');
   FInsertedClone.FilterChanges := [rtInserted];
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);

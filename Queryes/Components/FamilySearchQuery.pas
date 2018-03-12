@@ -17,12 +17,10 @@ type
   strict private
   private const
     FEmptyAmount = 1;
-
   var
     FGetModeClone: TFDMemTable;
     FClone: TFDMemTable;
     FMode: TContentMode;
-    procedure DoAfterClose(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     function GetCurrentMode: TContentMode;
     function GetIsClearEnabled: Boolean;
@@ -63,12 +61,11 @@ begin
   AutoTransaction := True;
 
   // Создаём два клона
-  FGetModeClone := TFDMemTable.Create(Self);
-  FClone := TFDMemTable.Create(Self);
+  FGetModeClone := AddClone('ID > 0');
+  FClone := AddClone('Value <> null');
 
   // Подписываемся на событие
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
 procedure TQueryFamilySearch.AppendRows(AFieldName: string;
@@ -112,25 +109,10 @@ begin
   Search('');
 end;
 
-procedure TQueryFamilySearch.DoAfterClose(Sender: TObject);
-begin
-  FGetModeClone.Close;
-  FClone.Close;
-end;
-
 procedure TQueryFamilySearch.DoAfterOpen(Sender: TObject);
 var
   I: Integer;
 begin
-  // Фильтруем клоны
-  FGetModeClone.CloneCursor(FDQuery);
-  FGetModeClone.Filter := 'ID > 0';
-  FGetModeClone.Filtered := True;
-
-  FClone.CloneCursor(FDQuery);
-  FClone.Filter := 'Value <> null';
-  FClone.Filtered := True;
-
   subGroup.ReadOnly := False;
 
   // Добавляем пустую запись для поиска, если она необходима

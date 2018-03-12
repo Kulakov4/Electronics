@@ -82,7 +82,6 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    function CreateClone(AIDComponentGroup: Integer): TFDMemTable;
     function GetExportFileName: string; virtual; abstract;
     function GetProcurementPrice: Variant;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
@@ -500,16 +499,6 @@ begin
 
 end;
 
-function TQueryProductsBase.CreateClone(AIDComponentGroup: Integer)
-  : TFDMemTable;
-begin
-  Assert(AIDComponentGroup > 0);
-  Result := TFDMemTable.Create(Self);
-  Result.CloneCursor(FDQuery);
-  Result.Filter := Format('IDComponentGroup=%d', [AIDComponentGroup]);
-  Result.Filtered := True;
-end;
-
 procedure TQueryProductsBase.DeleteNode(AID: Integer);
 var
   AClone: TFDMemTable;
@@ -522,14 +511,14 @@ begin
     // Если нужно удалить группу
     if IsGroup.AsInteger = 1 then
     begin
-      AClone := CreateClone(PK.AsInteger);
+      AClone := AddClone(Format('%s=%d', [IDComponentGroup.FieldName, PK.AsInteger]));
       try
         // Удаляем все компоненты группы
         while AClone.RecordCount > 0 do
           DeleteNode(AClone.FieldByName('ID').AsInteger);
 
       finally
-        FreeAndNil(AClone);
+        DropClone(AClone);
       end;
 
       // Снова переходим на группу
