@@ -1822,8 +1822,6 @@ begin
   // Подпараметр по "умолчанию"
   ABandInfo.DefaultVisible := qCategoryParameters.IsAttribute.AsInteger = 1;
   ABandInfo.IDParameterKind := qCategoryParameters.IDParameterKind.AsInteger;
-  // Какой порядок имеет параметр в БД
-  ABandInfo.Order := qCategoryParameters.Ord.AsInteger;
   ABandInfo.pos := qCategoryParameters.PosID.AsInteger;
 
   // Инициализируем сами бэнды
