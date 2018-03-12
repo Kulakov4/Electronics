@@ -81,7 +81,6 @@ type
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
-    procedure DeleteList(var AList: TList<Variant>);
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
@@ -413,30 +412,6 @@ begin
     FreeAndNil(AClone);
   end;
 
-end;
-
-procedure TQueryBase.DeleteList(var AList: TList<Variant>);
-var
-  V: Variant;
-begin
-  // Удаляет список
-  FDQuery.DisableControls;
-  try
-    for V in AList do
-    begin
-      // Сначала удаляем у себя же подчинённые записи
-      DeleteSelfDetail(V);
-
-      // Теперь удаляем саму запись
-      if LocateByPK(V) then
-      begin
-        // Затем удаляем себя
-        FDQuery.Delete;
-      end;
-    end;
-  finally
-    FDQuery.EnableControls;
-  end;
 end;
 
 procedure TQueryBase.DeleteSelfDetail(AIDMaster: Variant);
