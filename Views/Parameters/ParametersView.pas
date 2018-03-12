@@ -170,6 +170,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function CheckAndSaveChanges: Integer;
     procedure CommitOrPost;
     procedure MyApplyBestFit; override;
     procedure Search(const AName: string);
@@ -458,6 +459,26 @@ begin
   // AView := GetDBBandedTableView(1);
   ARow.Expand(False);
   FocusColumnEditor(1, clIDParameterType.DataBinding.FieldName);
+end;
+
+function TViewParameters.CheckAndSaveChanges: Integer;
+begin
+  Result := 0;
+  if ParametersGrp = nil then
+    Exit;
+
+  if ParametersGrp.HaveAnyChanges then
+  begin
+    Result := TDialog.Create.SaveDataDialog;
+    case Result of
+      IDYES:
+        actCommit.Execute;
+      IDNO:
+        begin
+          actRollback.Execute;
+        end;
+    end;
+  end;
 end;
 
 procedure TViewParameters.clIDParameterTypePropertiesCloseUp(Sender: TObject);

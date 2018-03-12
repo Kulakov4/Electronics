@@ -384,8 +384,8 @@ begin
 
   Value := InputBox(sDatabase, sPleaseWrite, DM2.qTreeList.Value.AsString);
   if (Value <> '') and
-    (DM2.qTreeList.CheckPossibility(DM2.qTreeList.FDQuery.FieldByName
-    ('ParentId').AsInteger, Value)) then
+    (DM2.qTreeList.CheckPossibility(DM2.qTreeList.ParentId.AsInteger, Value))
+  then
   begin
     DM2.qTreeList.TryEdit;
     DM2.qTreeList.Value.AsString := Value;
@@ -493,7 +493,8 @@ begin
     DM2.ParametersGroup.ReOpen;
     frmParameters := TfrmParameters.Create(Self);
     frmParameters.ViewParameters.ParametersGrp := DM2.ParametersGroup;
-    frmParameters.ViewSubParameters.QuerySubParameters := DM2.ParametersGroup.qSubParameters;
+    frmParameters.ViewSubParameters.QuerySubParameters :=
+      DM2.ParametersGroup.qSubParameters;
   end;
 
   frmParameters.Show;
@@ -697,7 +698,7 @@ begin
     end;
   end;
 
-//  OK := OK and TProtect.Create.Check;
+  // OK := OK and TProtect.Create.Check;
 
   if not OK then
   begin

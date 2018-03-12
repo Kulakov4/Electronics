@@ -34,6 +34,8 @@ type
     ViewParameters: TViewParameters;
     ViewSubParameters: TViewSubParameters;
     procedure FormCreate(Sender: TObject);
+    procedure cxPageControlPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
   private
     { Private declarations }
   protected
@@ -65,6 +67,17 @@ end;
 procedure TfrmParameters.ClearFormVariable;
 begin
   frmParameters := nil;
+end;
+
+procedure TfrmParameters.cxPageControlPageChanging(Sender: TObject;
+  NewPage: TcxTabSheet; var AllowChange: Boolean);
+begin
+  inherited;
+  if cxPageControl.ActivePage = cxtsSubParameters then
+    AllowChange := ViewSubParameters.CheckAndSaveChanges <> IDCANCEL;
+
+  if cxPageControl.ActivePage = cxtsParameters then
+    AllowChange := ViewParameters.CheckAndSaveChanges <> IDCANCEL;
 end;
 
 procedure TfrmParameters.FormCreate(Sender: TObject);

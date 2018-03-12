@@ -65,6 +65,7 @@ type
     procedure LoadFromExcel(AFileName: string);
   public
     constructor Create(AOwner: TComponent); override;
+    function CheckAndSaveChanges: Integer;
     procedure CommitOrPost;
     procedure UpdateView; override;
     property CheckedMode: Boolean read GetCheckedMode write SetCheckedMode;
@@ -157,6 +158,26 @@ begin
   // Обновляем представление
   UpdateView;
 
+end;
+
+function TViewSubParameters.CheckAndSaveChanges: Integer;
+begin
+  Result := 0;
+  if QuerySubParameters = nil then
+    Exit;
+
+  if QuerySubParameters.HaveAnyChanges then
+  begin
+    Result := TDialog.Create.SaveDataDialog;
+    case Result of
+      IDYES:
+        actCommit.Execute;
+      IDNO:
+        begin
+          actRollback.Execute;
+        end;
+    end;
+  end;
 end;
 
 procedure TViewSubParameters.CommitOrPost;
