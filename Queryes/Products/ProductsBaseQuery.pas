@@ -916,7 +916,7 @@ begin
   // Если пытаемся применить коэффициент к группе
   if IsGroup.AsInteger = 1 then
   begin
-    AClone := CreateClone(PK.AsInteger);
+    AClone := AddClone(Format('%s=%d', [IDComponentGroup.FieldName, PK.AsInteger]));
     try
       AClone.First;
       while not AClone.Eof do
@@ -926,9 +926,8 @@ begin
         AClone.Next;
       end;
     finally
-      FreeAndNil(AClone);
+      DropClone(AClone);
     end;
-
   end
   else
   begin
