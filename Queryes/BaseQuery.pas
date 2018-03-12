@@ -69,8 +69,7 @@ type
     destructor Destroy; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>);
       overload; virtual;
-    procedure AppendRows(AFieldNames: Array of String; AValues: TArray<String>);
-      overload; virtual;
+    procedure AppendRows(AFieldNames, AValues: TArray<String>); overload; virtual;
     procedure ApplyUpdates; virtual;
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
@@ -99,21 +98,20 @@ type
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     procedure Load(AIDParent: Integer; AForcibly: Boolean = False);
       overload; virtual;
-    procedure Load(const AParamNames: array of string;
-      const AParamValues: array of Variant); overload;
+    procedure Load(const AParamNames: TArray<String>; const AParamValues:
+        TArray<Variant>); overload;
     function LocateByField(const AFieldName: string;
       const AValue: Variant): Boolean;
-    procedure SetParameters(const AParamNames: array of string;
-      const AParamValues: array of Variant);
+    procedure SetParameters(const AParamNames: TArray<String>; const AParamValues:
+        TArray<Variant>);
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
       : Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     procedure RestoreBookmark;
     procedure SaveBookmark;
-    function Search(const AParamNames: array of string;
-      const AParamValues: array of Variant; TestResult: Integer = -1)
-      : Integer; overload;
+    function Search(const AParamNames: TArray<String>; const AParamValues:
+        TArray<Variant>; TestResult: Integer = -1): Integer; overload;
     procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
@@ -184,8 +182,7 @@ begin
   end;
 end;
 
-procedure TQueryBase.AppendRows(AFieldNames: Array of String;
-  AValues: TArray<String>);
+procedure TQueryBase.AppendRows(AFieldNames, AValues: TArray<String>);
 var
   AValue: string;
   i: Integer;
@@ -767,8 +764,8 @@ begin
   end;
 end;
 
-procedure TQueryBase.Load(const AParamNames: array of string;
-  const AParamValues: array of Variant);
+procedure TQueryBase.Load(const AParamNames: TArray<String>; const
+    AParamValues: TArray<Variant>);
 begin
   FDQuery.DisableControls;
   try
@@ -788,8 +785,8 @@ begin
     [lxoCaseInsensitive, lxoPartialKey]);
 end;
 
-procedure TQueryBase.SetParameters(const AParamNames: array of string;
-  const AParamValues: array of Variant);
+procedure TQueryBase.SetParameters(const AParamNames: TArray<String>; const
+    AParamValues: TArray<Variant>);
 var
   i: Integer;
 begin
@@ -839,25 +836,11 @@ begin
   FBookmark := PK.Value;
 end;
 
-function TQueryBase.Search(const AParamNames: array of string;
-  const AParamValues: array of Variant; TestResult: Integer = -1): Integer;
-var
-  i: Integer;
+function TQueryBase.Search(const AParamNames: TArray<String>; const
+    AParamValues: TArray<Variant>; TestResult: Integer = -1): Integer;
 begin
-  Assert(Low(AParamNames) = Low(AParamValues));
-  Assert(High(AParamNames) = High(AParamValues));
+  Load(AParamNames, AParamValues);
 
-  FDQuery.DisableControls;
-  try
-    FDQuery.Close;
-    for i := Low(AParamNames) to High(AParamNames) do
-    begin
-      FDQuery.ParamByName(AParamNames[i]).Value := AParamValues[i];
-    end;
-    FDQuery.Open;
-  finally
-    FDQuery.EnableControls;
-  end;
   Result := FDQuery.RecordCount;
   if TestResult >= 0 then
     Assert(Result = TestResult);
