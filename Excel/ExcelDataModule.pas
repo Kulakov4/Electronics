@@ -71,6 +71,7 @@ type
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
+    function LoadExcelFileHeaderInternal: TStringTreeNode;
     // TODO: LoadExcelFile
     // procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
     // TNotifyEventRef = nil);
@@ -92,6 +93,7 @@ type
     procedure LoadExcelFile2(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
+    function LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
@@ -509,6 +511,39 @@ begin
 end;
 
 function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
+begin
+  InternalLoadExcelFile(AFileName);
+  ConnectToSheet(1);
+
+  Result := LoadExcelFileHeaderInternal;
+
+  EA.Quit;
+  EA.Disconnect;
+end;
+
+function TExcelDM.LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+begin
+  EA.ConnectKind := ckRunningInstance;
+  try
+    EA.Connect;
+  except
+    raise Exception.Create('Не найден активный лист документа Excel');
+  end;
+
+  if EA.ActiveWorkbook = nil then
+    raise Exception.Create('Не найден активный лист документа Excel');
+
+  EWB.ConnectTo(EA.ActiveWorkbook);
+  EWS.ConnectTo(EWB.ActiveSheet as _WorkSheet);
+
+  Result := LoadExcelFileHeaderInternal;
+
+  EWS.Disconnect;
+  EWB.Disconnect;
+  EA.Disconnect;
+end;
+
+function TExcelDM.LoadExcelFileHeaderInternal: TStringTreeNode;
 var
   ACell: OleVariant;
   ACell2: OleVariant;
@@ -518,16 +553,7 @@ var
   AColor2: TColor;
   ARow: Integer;
   AStringNode: TStringTreeNode;
-{
-  c: Integer;
-  cc: Integer;
-  r: Integer;
-  rc: Integer;
-}
 begin
-  InternalLoadExcelFile(AFileName);
-  ConnectToSheet(1);
-
   // Создали дерево
   Result := TStringTreeNode.Create;
   AStringNode := nil;
@@ -573,8 +599,6 @@ begin
     Inc(ACol);
   end;
 
-  EA.Quit;
-  EA.Disconnect;
 end;
 
 procedure TExcelDM.ProcessRange(AExcelRange: ExcelRange);

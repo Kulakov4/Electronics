@@ -81,12 +81,15 @@ type
     dxBarButton8: TdxBarButton;
     ViewCategoryParameters: TViewCategoryParameters;
     ViewParametricTable: TViewParametricTable;
+    actLoadParametricTableRange: TAction;
+    dxBarButton7: TdxBarButton;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricDataExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
+    procedure actLoadParametricTableRangeExecute(Sender: TObject);
     procedure actReportExecute(Sender: TObject);
     procedure cxpcComponentsPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
@@ -102,6 +105,7 @@ type
     FWriteProgress: TTotalProgress;
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
+    procedure DoOnTotalReadProgressSelected(ASender: TObject);
     function GetNFFieldName(AStringTreeNodeID: Integer): string;
     function GetqParamSubParams: TQueryParamSubParams;
     function GetqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
@@ -110,7 +114,10 @@ type
     procedure LoadDocFromExcelDocument;
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TFieldsInfo): Boolean;
+    function InternalLoadExcelFileHeader(AExcelDM: TExcelDM;
+      ARootTreeNode: TStringTreeNode; AFieldsInfo: TFieldsInfo): Boolean;
     procedure LoadParametricData(AFamily: Boolean);
+    procedure LoadParametricData2(AFamily: Boolean);
     procedure TryUpdateWrite0Statistic(API: TProgressInfo);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
     { Private declarations }
@@ -311,6 +318,13 @@ begin
   LoadParametricData(True);
 end;
 
+procedure TComponentsFrame.actLoadParametricTableRangeExecute(Sender: TObject);
+begin
+  Application.Hint := '';
+  // будем загружать параметрические данные для семейств компонентов
+  LoadParametricData2(True);
+end;
+
 procedure TComponentsFrame.actReportExecute(Sender: TObject);
 var
   AQueryReports: TQueryReports;
@@ -471,6 +485,15 @@ begin
   FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
 end;
 
+procedure TComponentsFrame.DoOnTotalReadProgressSelected(ASender: TObject);
+var
+  API: TProgressInfo;
+begin
+  Assert(FfrmProgressBar <> nil);
+  API := ASender as TProgressInfo;
+  FfrmProgressBar.UpdateReadStatistic(API);
+end;
+
 function TComponentsFrame.GetNFFieldName(AStringTreeNodeID: Integer): string;
 begin
   Assert(AStringTreeNodeID > 0);
@@ -528,13 +551,42 @@ end;
 function TComponentsFrame.LoadExcelFileHeader(var AFileName: String;
 AFieldsInfo: TFieldsInfo): Boolean;
 var
-  AFixIDList: TList<TPair<Integer, Integer>>;
   AExcelDM: TExcelDM;
+  ARootTreeNode: TStringTreeNode;
+  FamilyNameCoumn: string;
+
+begin
+  Result := False;
+  Assert(AFieldsInfo <> nil);
+
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.ParametricDataFolder, '', AFileName) then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
+
+  // Варианты того как может называться колонка с наименованием компонентов
+  FamilyNameCoumn := ';PART;PART NUMBER;';
+
+  // Описания полей excel файла
+  AExcelDM := TExcelDM.Create(Self);
+  ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
+  try
+    Result := InternalLoadExcelFileHeader(AExcelDM, ARootTreeNode, AFieldsInfo);
+  finally
+    FreeAndNil(ARootTreeNode);
+    FreeAndNil(AExcelDM);
+  end;
+end;
+
+function TComponentsFrame.InternalLoadExcelFileHeader(AExcelDM: TExcelDM;
+ARootTreeNode: TStringTreeNode; AFieldsInfo: TFieldsInfo): Boolean;
+var
+  AFixIDList: TList<TPair<Integer, Integer>>;
   AFieldInfo: TFieldInfo;
   AFieldName: string;
-  // AfrmGridView: TfrmGridView;
   AParametricErrorTable: TParametricErrorTable;
-  ARootTreeNode: TStringTreeNode;
   AStringTreeNode: TStringTreeNode;
   AStringTreeNode2: TStringTreeNode;
   I: Integer;
@@ -556,19 +608,9 @@ begin
   // Варианты того как может называться колонка с наименованием компонентов
   FamilyNameCoumn := ';PART;PART NUMBER;';
 
-  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
-    TSettings.Create.ParametricDataFolder, '', AFileName) then
-    Exit; // отказались от выбора файла
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
-
   // Описания полей excel файла
   AParametricErrorTable := TParametricErrorTable.Create(Self);
-  AExcelDM := TExcelDM.Create(Self);
   AIDList := TList<Integer>.Create;
-  // Загружаем описания полей Excel файла
-  ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
   try
     ARootTreeNode.ClearMaxID;
 
@@ -795,8 +837,6 @@ begin
   finally
     FreeAndNil(AIDList);
     FreeAndNil(AParametricErrorTable);
-    FreeAndNil(ARootTreeNode);
-    FreeAndNil(AExcelDM);
   end;
   Result := OK;
 end;
@@ -837,6 +877,54 @@ begin
     FreeAndNil(AFieldsInfo);
   end;
 
+end;
+
+procedure TComponentsFrame.LoadParametricData2(AFamily: Boolean);
+var
+  AExcelDM: TExcelDM;
+  AFieldsInfo: TFieldsInfo;
+  AParametricExcelDM: TParametricExcelDM;
+  ARootTreeNode: TStringTreeNode;
+begin
+  AFieldsInfo := TFieldsInfo.Create();
+  try
+    // Описания полей excel файла
+    AExcelDM := TExcelDM.Create(Self);
+    try
+      ARootTreeNode := AExcelDM.LoadExcelFileHeaderFromActiveSheet;
+      try
+        InternalLoadExcelFileHeader(AExcelDM, ARootTreeNode, AFieldsInfo);
+      finally
+        FreeAndNil(ARootTreeNode);
+      end;
+    finally
+      FreeAndNil(AExcelDM);
+    end;
+
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, AFamily);
+    FWriteProgress := TTotalProgress.Create;
+    FfrmProgressBar := TfrmProgressBar3.Create(Self);
+    try
+      TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
+        DoAfterLoadSheet);
+      TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
+        DoOnTotalReadProgressSelected);
+
+      FfrmProgressBar.Show;
+      AParametricExcelDM.LoadFromActiveSheet();
+
+      // Обновляем параметры для текущей категории
+      DM2.CategoryParametersGroup.RefreshData;
+      // Пытаемся обновить параметрическую таблицу
+      DM2.ComponentsExGroup.TryRefresh;
+    finally
+      FreeAndNil(AParametricExcelDM);
+      FreeAndNil(FWriteProgress);
+      FreeAndNil(FfrmProgressBar);
+    end;
+  finally
+    FreeAndNil(AFieldsInfo);
+  end;
 end;
 
 procedure TComponentsFrame.TryUpdateWrite0Statistic(API: TProgressInfo);
