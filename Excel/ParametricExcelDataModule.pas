@@ -81,6 +81,7 @@ function TParametricExcelTable.CheckComponent: Boolean;
 var
   AErrorMessage: string;
 begin
+  Result := False;
   AErrorMessage := '';
   Assert(FComponentTypeSet <> []);
 

@@ -490,6 +490,11 @@ inherited ViewParameters: TViewParameters
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton3: TdxBarButton
+      Caption = 'actFocusLastRecord'
+      Category = 0
+      Visible = ivAlways
+    end
   end
   inherited ActionList: TActionList
     object actAddParameterType: TAction

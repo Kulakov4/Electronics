@@ -35,6 +35,7 @@ type
     procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(AParametersExcelTable: TParametersExcelTable);
+    function LocateAll(AParameterID: Integer): Boolean;
     procedure ReOpen; override;
     procedure Rollback; override;
     procedure TryPost; override;
@@ -230,6 +231,17 @@ begin
     qParameters.FDQuery.EnableControls;
     qParameterTypes.FDQuery.EnableControls;
   end;
+end;
+
+function TParametersGroup.LocateAll(AParameterID: Integer): Boolean;
+begin
+  // —начала ищем параметр
+  Result := qParameters.LocateByPK(AParameterID);
+  if not Result then
+    Exit;
+
+  // »щем тип параметра
+  qParameterTypes.LocateByPK(qParameters.IDParameterType.AsInteger, True);
 end;
 
 procedure TParametersGroup.ReOpen;

@@ -27,7 +27,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
-  BaseQuery, System.Generics.Collections, DragHelper, OrderQuery, GridSort;
+  System.Generics.Collections, DragHelper, OrderQuery, GridSort;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -187,8 +187,6 @@ type
     function GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
       AUp: Boolean; var AArray: TArray<Integer>;
       var ATargetRowIndex: Integer): Boolean;
-    procedure LocateAndFocus(AMaster, ADetail: TQueryBase; ADetailID: Integer;
-      const AMasterKeyFieldName, AFocusedColumnFieldName: string);
     procedure MyApplyBestFit; virtual;
     procedure PostMyApplyBestFitEvent;
     procedure UpdateColumnsMinWidth(AView: TcxGridDBBandedTableView);
@@ -810,48 +808,6 @@ begin
     AcxComboBoxProperties.Items.Add(AField.AsString);
     AField.DataSet.Next;
   end;
-end;
-
-procedure TfrmGrid.LocateAndFocus(AMaster, ADetail: TQueryBase;
-ADetailID: Integer; const AMasterKeyFieldName, AFocusedColumnFieldName: string);
-var
-  AView: TcxGridDBBandedTableView;
-begin
-  Assert(AMaster <> nil);
-  Assert(ADetail <> nil);
-  Assert(ADetailID > 0);
-  Assert(not AMasterKeyFieldName.IsEmpty);
-  Assert(not AFocusedColumnFieldName.IsEmpty);
-
-  // Ищем запись в дочернем наборе данных
-  if ADetail.LocateByPK(ADetailID) then
-  begin
-    // Ищем соответсвующую запись в главном наборе данных
-    if AMaster.LocateByPK(ADetail.Field(AMasterKeyFieldName).Value) then
-    begin
-      // Получаем строку в гриде
-      // AcxGridMasterDataRow := GetRow(0) as TcxGridMasterDataRow;
-      // Раскрываем эту строку
-      MainView.ViewData.Expand(False);
-
-      // Получаем дочернее представление
-      AView := GetDBBandedTableView(1);
-
-      if (ParentForm <> nil) and (ParentForm.Visible) then
-      begin
-        try
-          // Фокусируем его
-          AView.Focused := True;
-          PutInTheCenterFocusedRecord(AView);
-
-          FocusColumnEditor(AView, AFocusedColumnFieldName);
-        except
-          ; // Иногда возникает ошибка
-        end;
-      end;
-    end;
-  end;
-
 end;
 
 procedure TfrmGrid.MyApplyBestFit;

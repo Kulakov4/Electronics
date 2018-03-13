@@ -87,6 +87,7 @@ type
     clIDSubParameter: TcxGridDBBandedColumn;
     clTranslation: TcxGridDBBandedColumn;
     clChecked3: TcxGridDBBandedColumn;
+    dxBarButton3: TdxBarButton;
     procedure actAddMainParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actAddSubParameterExecute(Sender: TObject);
@@ -167,6 +168,7 @@ type
     procedure DoOnDataChange(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(AFileName: string);
+    procedure LocateAndFocus(AParameterID: Integer);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -176,8 +178,8 @@ type
     procedure Search(const AName: string);
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
-    property ParametersGrp: TParametersGroup read FParametersGrp write
-        SetParametersGrp;
+    property ParametersGrp: TParametersGroup read FParametersGrp
+      write SetParametersGrp;
     { Public declarations }
   end;
 
@@ -275,7 +277,6 @@ begin
     // Поле IdSubParameter останется пустым!!
     ARow.Expand(False);
 
-
     AView.DataController.DeleteFocused;
 
     AView.DataController.Append;
@@ -343,14 +344,10 @@ begin
     cxGrid.EndUpdate;
   end;
 
-  // Ищем тот же параметр
-  LocateAndFocus(ParametersGrp.qParameterTypes,
-    ParametersGrp.qParameters, AID,
-    ParametersGrp.qParameters.IDParameterType.FieldName,
-    ParametersGrp.qParameters.TableName.FieldName);
-
   if actFilterByTableName.Checked then
-    MainView.ViewData.Expand(True);
+    MainView.ViewData.Expand(True)
+  else
+    LocateAndFocus(AID);
 
   // Обновляем представление
   UpdateView;
@@ -422,11 +419,11 @@ begin
     cxGrid.EndUpdate;
   end;
 
-  // Ищем тот же параметр
-  LocateAndFocus(ParametersGrp.qParameterTypes,
-    ParametersGrp.qParameters, AID,
-    ParametersGrp.qParameters.IDParameterType.FieldName,
-    ParametersGrp.qParameters.TableName.FieldName);
+  if actShowDuplicate.Checked then
+    LocateAndFocus(AID)
+  else
+    // нажимаем кнопку "Показать все" - сделай отображение типов в свёрнутом виде.
+    MainView.ViewData.Collapse(True);
 
   // Обновляем представление
   UpdateView;
@@ -835,6 +832,34 @@ begin
     EndUpdate;
   end;
   UpdateView;
+end;
+
+procedure TViewParameters.LocateAndFocus(AParameterID: Integer);
+var
+  ARow: TcxGridMasterDataRow;
+  AView: TcxGridDBBandedTableView;
+begin
+  // Переходим на параметр и его тип
+  ParametersGrp.LocateAll(AParameterID);
+
+  // Запись о типе - в цент
+  PutInTheCenterFocusedRecord(MainView);
+
+  // Разворачиваем запись
+  ARow := MainView.Controller.FocusedRow as TcxGridMasterDataRow;
+  Assert(ARow <> nil);
+  ARow.Expand(False);
+
+  AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
+
+  // Фокусируем его
+  AView.Focused := True;
+  // Запись о параметре - в центр
+  PutInTheCenterFocusedRecord(AView);
+
+  // Выделяем строку и столбец
+  AView.ViewData.Records[AView.Controller.FocusedRecordIndex].Selected := True;
+  AView.Columns[clValue2.Index].Selected := True;
 end;
 
 procedure TViewParameters.MyApplyBestFit;
