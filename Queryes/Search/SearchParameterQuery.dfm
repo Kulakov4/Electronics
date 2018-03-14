@@ -8,6 +8,8 @@ inherited QuerySearchParameter: TQuerySearchParameter
   end
   inherited FDQuery: TFDQuery
     AfterOpen = FDQueryAfterOpen
+    UpdateOptions.AssignedValues = [uvRefreshMode]
+    UpdateOptions.RefreshMode = rmAll
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select p.*, psp.id ParamSubParamID '
@@ -58,13 +60,17 @@ inherited QuerySearchParameter: TQuerySearchParameter
       'DELETE FROM PARAMETERS'
       'WHERE ID = :OLD_ID')
     FetchRowSQL.Strings = (
-      'SELECT ID, VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
+      'SELECT p.ID, p.VALUE, p.VALUET, p.CODELETTERS, p.MEASURINGUNIT,'
       
-        '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
-        'RAMETER, '
-      '  ISCUSTOMPARAMETER, IDPARAMETERTYPE'
-      'FROM PARAMETERS'
-      'WHERE ID = :ID')
+        '  p.TABLENAME, p.DEFINITION, p."ORDER" AS "ORDER", p.FIELDTYPE, ' +
+        'p.PARENTPARAMETER,'
+      '  p.ISCUSTOMPARAMETER, p.IDPARAMETERTYPE, psp.id ParamSubParamID'
+      'FROM PARAMETERS p'
+      'join ParamSubParams psp on psp.IdParameter = p.Id'
+      
+        'join SubParameters sp on psp.IdSubParameter = sp.id and sp.IsDef' +
+        'ault = 1'
+      'WHERE p.ID = :ID')
     Left = 72
     Top = 24
   end

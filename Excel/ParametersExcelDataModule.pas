@@ -220,7 +220,7 @@ function TParametersExcelTable.ProcessValue(const AFieldName, AValue: string):
 begin
   // Избавляемся от переносов на новую строку
   // Двойные кавычки могут встречаться !!! Напр. Класс изделия "Green"
-  Result := Result.Replace(#13, ' ', [rfReplaceAll])
+  Result := AValue.Replace(#13, ' ', [rfReplaceAll])
     .Replace(#10, ' ', [rfReplaceAll]);
 
   Result := inherited ProcessValue(AFieldName, Result);

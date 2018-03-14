@@ -161,7 +161,8 @@ type
     procedure ProcessBandMove;
     procedure ProcessColumnMove(AColumn: TcxGridDBBandedColumn);
     procedure SetComponentsExGroup(const Value: TComponentsExGroup);
-    procedure UpdateColumnPosition(ABandInfo: TBandInfo);
+// TODO: UpdateColumnPosition
+//  procedure UpdateColumnPosition(ABandInfo: TBandInfo);
     procedure UpdateColumns;
     procedure UpdateColumnsCustomization;
     { Private declarations }
@@ -2271,28 +2272,29 @@ begin
   end;
 end;
 
-procedure TViewParametricTable.UpdateColumnPosition(ABandInfo: TBandInfo);
-var
-  ACI: TColumnInfo;
-  AColIndex: Integer;
-  AID: Integer;
-begin
-  Assert(ABandInfo <> nil);
-
-  // Колонки выстраиваем в порядке следования их идентификаторов
-
-  AColIndex := 0;
-  for AID in ABandInfo.IDList do
-  begin
-    // Ищем колонку
-    ACI := FColumnsInfo.Search(AID, True);
-    Assert(ACI.Column.Position.Band = ABandInfo.Band);
-    // Изменяем позицию колонки
-    ACI.SetColumnPosition(ABandInfo.Band.Index, AColIndex);
-
-    Inc(AColIndex);
-  end;
-end;
+// TODO: UpdateColumnPosition
+//procedure TViewParametricTable.UpdateColumnPosition(ABandInfo: TBandInfo);
+//var
+//ACI: TColumnInfo;
+//AColIndex: Integer;
+//AID: Integer;
+//begin
+//Assert(ABandInfo <> nil);
+//
+//// Колонки выстраиваем в порядке следования их идентификаторов
+//
+//AColIndex := 0;
+//for AID in ABandInfo.IDList do
+//begin
+//  // Ищем колонку
+//  ACI := FColumnsInfo.Search(AID, True);
+//  Assert(ACI.Column.Position.Band = ABandInfo.Band);
+//  // Изменяем позицию колонки
+//  ACI.SetColumnPosition(ABandInfo.Band.Index, AColIndex);
+//
+//  Inc(AColIndex);
+//end;
+//end;
 
 procedure TViewParametricTable.UpdateColumns;
 var

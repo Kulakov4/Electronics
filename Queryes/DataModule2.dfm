@@ -28,39 +28,12 @@ object DM2: TDM2
     TabOrder = 1
     ExplicitLeft = 144
   end
-  inline BodyTypesGroup: TBodyTypesGroup
-    Left = 2
-    Top = 165
-    Width = 971
-    Height = 82
-    TabOrder = 2
-    ExplicitLeft = 2
-    ExplicitTop = 165
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = 0
-          Control = BodyTypesGroup.qBodyKinds
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = BodyTypesGroup.qBodyTypes2
-          Row = 0
-        end
-        item
-          Column = 2
-          Control = BodyTypesGroup.qProducers
-          Row = 0
-        end>
-    end
-  end
   inline ProducersGroup: TProducersGroup
     Left = 2
     Top = 247
     Width = 315
     Height = 90
-    TabOrder = 3
+    TabOrder = 2
     ExplicitLeft = 2
     ExplicitTop = 247
     inherited GridPanel1: TGridPanel
@@ -82,7 +55,7 @@ object DM2: TDM2
     Top = 417
     Width = 539
     Height = 81
-    TabOrder = 4
+    TabOrder = 3
     ExplicitLeft = 1
     ExplicitTop = 417
     inherited GridPanel1: TGridPanel
@@ -116,7 +89,7 @@ object DM2: TDM2
     Top = 498
     Width = 514
     Height = 124
-    TabOrder = 5
+    TabOrder = 4
     ExplicitLeft = 2
     ExplicitTop = 498
     ExplicitHeight = 124
@@ -165,7 +138,7 @@ object DM2: TDM2
     Top = 623
     Width = 526
     Height = 82
-    TabOrder = 6
+    TabOrder = 5
     ExplicitTop = 623
     inherited GridPanel1: TGridPanel
       ControlCollection = <
@@ -194,7 +167,7 @@ object DM2: TDM2
     Top = 0
     Width = 125
     Height = 77
-    TabOrder = 7
+    TabOrder = 6
     ExplicitLeft = 571
     ExplicitHeight = 77
   end
@@ -203,7 +176,7 @@ object DM2: TDM2
     Top = 432
     Width = 139
     Height = 77
-    TabOrder = 8
+    TabOrder = 7
     ExplicitLeft = 560
     ExplicitTop = 432
   end
@@ -212,7 +185,7 @@ object DM2: TDM2
     Top = 512
     Width = 208
     Height = 86
-    TabOrder = 10
+    TabOrder = 9
     ExplicitLeft = 532
     ExplicitTop = 512
   end
@@ -221,7 +194,7 @@ object DM2: TDM2
     Top = 432
     Width = 190
     Height = 83
-    TabOrder = 9
+    TabOrder = 8
     ExplicitLeft = 733
     ExplicitTop = 432
   end
@@ -230,7 +203,7 @@ object DM2: TDM2
     Top = 82
     Width = 604
     Height = 81
-    TabOrder = 11
+    TabOrder = 10
     ExplicitLeft = 8
     ExplicitTop = 82
     inherited GridPanel1: TGridPanel
@@ -245,59 +218,6 @@ object DM2: TDM2
           Control = DescriptionsGroup.qDescriptions
           Row = 0
         end>
-    end
-  end
-  inline ParametersGroup: TParametersGroup
-    Left = 3
-    Top = 340
-    Width = 790
-    Height = 79
-    TabOrder = 13
-    ExplicitLeft = 3
-    ExplicitTop = 340
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = 0
-          Row = 0
-        end
-        item
-          Column = 1
-          Row = 0
-        end
-        item
-          Column = -1
-          Row = 0
-        end
-        item
-          Column = 4
-          Row = 0
-        end
-        item
-          Column = 2
-          Row = 0
-        end
-        item
-          Column = 3
-          Row = 0
-        end>
-    end
-  end
-  inline CategoryParametersGroup: TCategoryParametersGroup
-    Left = 328
-    Top = 261
-    Width = 338
-    Height = 60
-    TabOrder = 12
-    ExplicitLeft = 328
-    ExplicitTop = 261
-    ExplicitWidth = 338
-    ExplicitHeight = 60
-    inherited GridPanel1: TGridPanel
-      Width = 338
-      Height = 60
-      ExplicitWidth = 338
-      ExplicitHeight = 60
     end
   end
 end

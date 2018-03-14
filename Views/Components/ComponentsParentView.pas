@@ -811,7 +811,7 @@ var
   ABand: TcxGridBand;
   ADetailColumn: TcxGridDBBandedColumn;
   AMainColumn: TcxGridDBBandedColumn;
-  dx: Integer;
+//  dx: Integer;
   i: Integer;
   RealBandWidth: Integer;
   RealColumnWidth: Integer;

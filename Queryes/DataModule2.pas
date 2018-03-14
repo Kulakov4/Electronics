@@ -19,7 +19,6 @@ type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    BodyTypesGroup: TBodyTypesGroup;
     ProducersGroup: TProducersGroup;
     ComponentsExGroup: TComponentsExGroup;
     ComponentsGroup: TComponentsGroup;
@@ -29,11 +28,12 @@ type
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
     DescriptionsGroup: TDescriptionsGroup;
-    ParametersGroup: TParametersGroup;
-    CategoryParametersGroup: TCategoryParametersGroup;
   private
+    FBodyTypesGroup: TBodyTypesGroup;
+    FCategoryParametersGroup: TCategoryParametersGroup;
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
+    FParametersGroup: TParametersGroup;
     FQueryGroups: TList<TQueryGroup>;
     FTreeListAfterFirstOpen: TNotifyEventWrap;
     // FRecommendedReplacement: TRecommendedReplacementThread;
@@ -45,6 +45,9 @@ type
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
+    function GetBodyTypesGroup: TBodyTypesGroup;
+    function GetCategoryParametersGroup: TCategoryParametersGroup;
+    function GetParametersGroup: TParametersGroup;
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
@@ -57,6 +60,10 @@ type
     procedure CreateOrOpenDataBase;
     function HaveAnyChanges: Boolean;
     procedure SaveAll;
+    property BodyTypesGroup: TBodyTypesGroup read GetBodyTypesGroup;
+    property CategoryParametersGroup: TCategoryParametersGroup read
+        GetCategoryParametersGroup;
+    property ParametersGroup: TParametersGroup read GetParametersGroup;
     { Public declarations }
   end;
 
@@ -284,6 +291,30 @@ end;
 procedure TDM2.DoOnParamOrderChange(Sender: TObject);
 begin
   CategoryParametersGroup.RefreshData;
+end;
+
+function TDM2.GetBodyTypesGroup: TBodyTypesGroup;
+begin
+  if FBodyTypesGroup = nil then
+    FBodyTypesGroup := TBodyTypesGroup.Create(Self);
+
+  Result := FBodyTypesGroup;
+end;
+
+function TDM2.GetCategoryParametersGroup: TCategoryParametersGroup;
+begin
+  if FCategoryParametersGroup = nil then
+    FCategoryParametersGroup := TCategoryParametersGroup.Create(Self);
+
+  Result := FCategoryParametersGroup;
+end;
+
+function TDM2.GetParametersGroup: TParametersGroup;
+begin
+  if FParametersGroup = nil then
+    FParametersGroup := TParametersGroup.Create(Self);
+
+  Result := FParametersGroup;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;

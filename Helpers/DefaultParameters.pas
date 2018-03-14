@@ -55,6 +55,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDatasheetParamTableName, True);
     FDatasheetParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDatasheetParamSubParamID > 0);
   end;
 
   Result := FDatasheetParamSubParamID;
@@ -68,6 +69,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDescriptionParamTableName, True);
     FDescriptionParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDescriptionParamSubParamID > 0);
   end;
 
   Result := FDescriptionParamSubParamID;
@@ -81,6 +83,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDiagramParamTableName, True);
     FDiagramParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDiagramParamSubParamID > 0);
   end;
 
   Result := FDiagramParamSubParamID;
@@ -94,6 +97,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDrawingParamTableName, True);
     FDrawingParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDrawingParamSubParamID > 0);
   end;
 
   Result := FDrawingParamSubParamID;
@@ -107,6 +111,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sImageParamTableName, True);
     FImageParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FImageParamSubParamID > 0);
   end;
 
   Result := FImageParamSubParamID;
@@ -120,6 +125,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sPackagePinsParamTableName, True);
     FPackagePinsParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FPackagePinsParamSubParamID > 0);
   end;
 
   Result := FPackagePinsParamSubParamID;
@@ -134,6 +140,7 @@ begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sProducerParamTableName, True);
     FProducerParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FProducerParamSubParamID > 0);
   end;
 
   Result := FProducerParamSubParamID;
