@@ -47,7 +47,6 @@ type
     actFullAnalog: TAction;
     actClearFilters: TAction;
     actAnalog: TAction;
-    dxBarButton2: TdxBarButton;
     dxbbClearFilters: TdxBarButton;
     BandTimer: TTimer;
     dxBarButton1: TdxBarButton;
@@ -87,6 +86,7 @@ type
     actShowCategoryParametersQuery: TAction;
     actBandIDList: TAction;
     N14: TMenuItem;
+    actUpdateDetailColumnWidth2: TAction;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -105,6 +105,7 @@ type
     procedure actDropSubParameterExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actShowCategoryParametersQueryExecute(Sender: TObject);
+    procedure actUpdateDetailColumnWidth2Execute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
     procedure cxGridDBBandedTableViewInitEditValue
@@ -114,7 +115,6 @@ type
       (Sender: TObject);
     procedure cxGridDBBandedTableViewMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
-    procedure dxBarButton2Click(Sender: TObject);
     procedure BandTimerTimer(Sender: TObject);
     procedure ColumnTimerTimer(Sender: TObject);
     procedure cxGridDBBandedTableViewColumnHeaderClick(Sender: TcxGridTableView;
@@ -833,6 +833,13 @@ begin
   end;
 end;
 
+procedure TViewParametricTable.actUpdateDetailColumnWidth2Execute(Sender:
+    TObject);
+begin
+  inherited;
+  UpdateDetailColumnsWidth;
+end;
+
 procedure TViewParametricTable.ApplyFilter;
 var
   AColumn: TcxGridDBBandedColumn;
@@ -961,12 +968,6 @@ begin
     // В конце списка
     AMyFilterList.AddItem(Sender, foLike, '%' + #13#10 + AValue, AValue);
   }
-end;
-
-procedure TViewParametricTable.dxBarButton2Click(Sender: TObject);
-begin
-  inherited;
-  UpdateDetailColumnsWidth2;
 end;
 
 procedure TViewParametricTable.CreateColumnsBarButtons;

@@ -662,8 +662,8 @@ begin
   Result := FQuerySubGroups;
 end;
 
-procedure TViewComponentsParent.MyApplyBestFitForView(AView:
-    TcxGridDBBandedTableView);
+procedure TViewComponentsParent.MyApplyBestFitForView
+  (AView: TcxGridDBBandedTableView);
 begin
   inherited;
   if AView = MainView then
@@ -808,48 +808,52 @@ end;
 
 procedure TViewComponentsParent.UpdateDetailColumnsWidth;
 var
-  // ABand: TcxGridBand;
+  ABand: TcxGridBand;
   ADetailColumn: TcxGridDBBandedColumn;
   AMainColumn: TcxGridDBBandedColumn;
-  // dx: Integer;
+  dx: Integer;
   i: Integer;
-  // RealBandWidth: Integer;
+  RealBandWidth: Integer;
   RealColumnWidth: Integer;
 begin
-  if not (MainView.ColumnCount = cxGridDBBandedTableView2.ColumnCount) then
-    beep;
-
-
   // Предпологаем, что количество главных и дочерних колонок одинаковое
   Assert(MainView.ColumnCount = cxGridDBBandedTableView2.ColumnCount);
 
   cxGrid.BeginUpdate();
   // cxGridDBBandedTableView2.BeginBestFitUpdate;
   try
-    // Не будем изменять ширину бэндов.
-    // Достаточно того, чтобы родительский и дочерний бэнд имели ширину 0
+
+
+    // Большинство бэндов имеют ширину 0
     // Тогда их ширина подстроится под ширину колонок
+    // Но есть и те, у которых задана минимальная ширина, чтобы влез их заголовок
 
-    {
-      // Сначала выравниваем длину всех бэндов
-      for i := 0 to cxGridDBBandedTableView2.Bands.Count - 1 do
-      begin
+    Assert(MainView.Bands.Count = cxGridDBBandedTableView2.Bands.Count);
+    // Сначала выравниваем длину всех бэндов
+    for i := 0 to MainView.Bands.Count - 1 do
+    begin
       ABand := MainView.Bands[i];
-      if ABand.VisibleIndex >= 0 then
-      begin
+      if (not ABand.Visible) or (ABand.VisibleIndex = 0) {or (ABand.Width = 0)} then
+        Continue;
+
+      // Если информация о том, сколько бэнд занимает на экране не доступна!
+      if MainView.ViewInfo.HeaderViewInfo.BandsViewInfo.Count <= ABand.VisibleIndex
+      then
+        Continue;
+
       RealBandWidth := MainView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
-      [ABand.VisibleIndex].Width;
-
-      if ABand.VisibleIndex = 0 then
-      begin
-      dx := ABand.Width - RealBandWidth;
-      Dec(RealBandWidth, MainView.ViewInfo.FirstItemAdditionalWidth - dx);
-      end;
-
+        [ABand.VisibleIndex].Width;
+      {
+        if ABand.VisibleIndex = 0 then
+        begin
+        dx := ABand.Width - RealBandWidth;
+        Dec(RealBandWidth, MainView.ViewInfo.FirstItemAdditionalWidth - dx);
+        end;
+      }
       cxGridDBBandedTableView2.Bands[i].Width := RealBandWidth;
-      end;
-      end;
-    }
+      // cxGridDBBandedTableView2.Bands[i].Width := ABand.Width;
+    end;
+
     // Потом изменяем размеры всех дочерних колонок
     for i := 0 to cxGridDBBandedTableView2.ColumnCount - 1 do
     begin
