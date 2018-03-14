@@ -13,6 +13,7 @@ inherited QueryBodyTypesSimple: TQueryBodyTypesSimple
       '    bv.LandPattern,'
       '    bv.Variation Variations,'
       '    bv.Image,'
+      '    bv.JEDEC,'
       '    bd.IDBody,'
       '    bd.IDProducer,'
       '    BodyData,'

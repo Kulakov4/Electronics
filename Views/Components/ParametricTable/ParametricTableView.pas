@@ -71,12 +71,10 @@ type
     pmBands: TPopupMenu;
     actDropParameter: TAction;
     N9: TMenuItem;
-    dxBarButton6: TdxBarButton;
     actBandWidth: TAction;
     N10: TMenuItem;
     actColumnWidth: TAction;
     N11: TMenuItem;
-    dxBarButton7: TdxBarButton;
     actColumnApplyBestFit: TAction;
     ColumnApplyBestFit1: TMenuItem;
     actBandAutoHeight: TAction;
@@ -85,17 +83,10 @@ type
     N13: TMenuItem;
     actChangeBandWidth: TAction;
     ChangeBandWidth1: TMenuItem;
-    dxBarButton8: TdxBarButton;
-    dxBarButton9: TdxBarButton;
-    dxBarManagerBar1: TdxBar;
-    dxBarButton10: TdxBarButton;
-    dxBarButton11: TdxBarButton;
     ColumnTimer: TTimer;
     actShowCategoryParametersQuery: TAction;
-    dxBarButton12: TdxBarButton;
     actBandIDList: TAction;
     N14: TMenuItem;
-    dxBarButton13: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -135,12 +126,6 @@ type
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
-    procedure dxBarButton7Click(Sender: TObject);
-    procedure dxBarButton8Click(Sender: TObject);
-    procedure dxBarButton9Click(Sender: TObject);
-    procedure dxBarButton10Click(Sender: TObject);
-    procedure dxBarButton11Click(Sender: TObject);
-    procedure dxBarButton13Click(Sender: TObject);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -148,7 +133,6 @@ type
     FBandInfo: TBandInfo;
     FBandsInfo: TBandsInfo;
     FColumnsInfo: TColumnsInfo;
-    FLeftPos: Integer;
     FLockDetailFilterChange: Boolean;
     FMark: string;
     FColMoveArray: TArray<TPair<Integer, Integer>>;
@@ -979,59 +963,10 @@ begin
   }
 end;
 
-procedure TViewParametricTable.dxBarButton10Click(Sender: TObject);
-begin
-  inherited;
-  BeginUpdate;
-end;
-
-procedure TViewParametricTable.dxBarButton11Click(Sender: TObject);
-begin
-  inherited;
-  PostMyApplyBestFitEvent;
-  EndUpdate;
-end;
-
-procedure TViewParametricTable.dxBarButton13Click(Sender: TObject);
-var
-  S1: string;
-  S2: string;
-begin
-  inherited;
-  S1 := BoolToStr(qCategoryParameters.FDQuery.Connection.InTransaction, True);
-  S2 := BoolToStr(ComponentsExGroup.qFamilyEx.FDQuery.Connection.
-    InTransaction, True);
-  ShowMessage(S1 + ' ' + S2);
-end;
-
 procedure TViewParametricTable.dxBarButton2Click(Sender: TObject);
 begin
   inherited;
   UpdateDetailColumnsWidth2;
-end;
-
-procedure TViewParametricTable.dxBarButton7Click(Sender: TObject);
-begin
-  inherited;
-  BeginUpdate;
-  try
-    RecreateColumns;
-  finally
-    PostMyApplyBestFitEvent;
-    EndUpdate;
-  end;
-end;
-
-procedure TViewParametricTable.dxBarButton8Click(Sender: TObject);
-begin
-  inherited;
-  FLeftPos := MainView.Controller.LeftPos;
-end;
-
-procedure TViewParametricTable.dxBarButton9Click(Sender: TObject);
-begin
-  inherited;
-  MainView.Controller.LeftPos := FLeftPos;
 end;
 
 procedure TViewParametricTable.CreateColumnsBarButtons;

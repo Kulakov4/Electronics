@@ -1,8 +1,6 @@
 inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
   inherited cxGrid: TcxGrid
-    Top = 56
-    Height = 416
     ExplicitTop = 56
     ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -224,7 +222,7 @@ inherited ViewParametricTable: TViewParametricTable
     DockControlHeights = (
       0
       0
-      56
+      28
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -251,53 +249,7 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton5'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton7'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton8'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton9'
         end>
-    end
-    object dxBarManagerBar1: TdxBar [1]
-      Caption = 'Custom 1'
-      CaptionButtons = <>
-      DockedDockingStyle = dsTop
-      DockedLeft = 0
-      DockedTop = 28
-      DockingStyle = dsTop
-      FloatLeft = 903
-      FloatTop = 0
-      FloatClientWidth = 0
-      FloatClientHeight = 0
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxBarButton10'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton11'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton13'
-        end>
-      OneOnRow = True
-      Row = 1
-      UseOwnFont = False
-      Visible = True
-      WholeRow = False
     end
     object dxbrbtnApplyUpdates: TdxBarButton
       Action = actCommit
@@ -338,58 +290,6 @@ inherited ViewParametricTable: TViewParametricTable
       Action = actRefresh
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxBarButton6: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-    end
-    object dxBarButton7: TdxBarButton
-      Caption = 'RC'
-      Category = 0
-      Hint = 'RC'
-      Visible = ivAlways
-      OnClick = dxBarButton7Click
-    end
-    object dxBarButton8: TdxBarButton
-      Caption = 'SaveLP'
-      Category = 0
-      Hint = 'SaveLP'
-      Visible = ivAlways
-      OnClick = dxBarButton8Click
-    end
-    object dxBarButton9: TdxBarButton
-      Caption = 'RestoreLP'
-      Category = 0
-      Hint = 'RestoreLP'
-      Visible = ivAlways
-      OnClick = dxBarButton9Click
-    end
-    object dxBarButton10: TdxBarButton
-      Caption = 'BU'
-      Category = 0
-      Hint = 'BU'
-      Visible = ivAlways
-      OnClick = dxBarButton10Click
-    end
-    object dxBarButton11: TdxBarButton
-      Caption = 'EU'
-      Category = 0
-      Hint = 'EU'
-      Visible = ivAlways
-      OnClick = dxBarButton11Click
-    end
-    object dxBarButton12: TdxBarButton
-      Action = actShowCategoryParametersQuery
-      Category = 0
-    end
-    object dxBarButton13: TdxBarButton
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
-      OnClick = dxBarButton13Click
     end
   end
   inherited ActionList: TActionList
@@ -446,34 +346,42 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actBandWidth: TAction
       Caption = #1064#1080#1088#1080#1085#1072' '#1073#1101#1085#1076#1072
+      Visible = False
       OnExecute = actBandWidthExecute
     end
     object actColumnWidth: TAction
       Caption = #1064#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1082#1080
+      Visible = False
       OnExecute = actColumnWidthExecute
     end
     object actColumnApplyBestFit: TAction
       Caption = #1051#1091#1095#1096#1072#1103' '#1096#1080#1088#1080#1085#1072
+      Visible = False
       OnExecute = actColumnApplyBestFitExecute
     end
     object actBandAutoHeight: TAction
       Caption = #1040#1074#1090#1086' '#1074#1099#1089#1086#1090#1072' '#1073#1101#1085#1076#1072
+      Visible = False
       OnExecute = actBandAutoHeightExecute
     end
     object actBandAutoWidth: TAction
       Caption = #1059#1089#1090#1072#1085#1086#1074#1080#1090#1100' '#1086#1087#1090#1080#1084#1072#1083#1100#1085#1091#1102' '#1096#1080#1088#1080#1085#1091
+      Visible = False
       OnExecute = actBandAutoWidthExecute
     end
     object actChangeBandWidth: TAction
       Caption = 'Change Band Width'
+      Visible = False
       OnExecute = actChangeBandWidthExecute
     end
     object actShowCategoryParametersQuery: TAction
       Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1087#1072#1088#1072#1084#1077#1090#1088#1072#1093
+      Visible = False
       OnExecute = actShowCategoryParametersQueryExecute
     end
     object actBandIDList: TAction
       Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088#1099
+      Visible = False
       OnExecute = actBandIDListExecute
     end
   end

@@ -13,15 +13,17 @@ uses
 
 type
   TBodyTypesGroup = class(TQueryGroup)
-    qBodyKinds: TQueryBodyKinds;
-    qBodyTypes2: TQueryBodyTypes2;
-    qProducers: TQueryProducers;
   private
     FAfterDataChange: TNotifyEventsEx;
+    FqBodyKinds: TQueryBodyKinds;
+    FqBodyTypes2: TQueryBodyTypes2;
+    FqProducers: TQueryProducers;
     FQueryBodyTypesSimple: TQueryBodyTypesSimple;
     procedure DoAfterDelete(Sender: TObject);
-    procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPostOrDelete(Sender: TObject);
+    function GetqBodyKinds: TQueryBodyKinds;
+    function GetqBodyTypes2: TQueryBodyTypes2;
+    function GetqProducers: TQueryProducers;
     function GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
     { Private declarations }
   protected
@@ -30,12 +32,10 @@ type
     procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable;
         AIDProducer: Integer);
     procedure Rollback; override;
-    // TODO: Append
-    /// / TODO: LoadDataFromExcelTable
-    /// /  procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable);
-    // function Append(APackage, AOutlineDrawing, ALandPattern, AVariation: String):
-    // Integer;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
+    property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
+    property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
+    property qProducers: TQueryProducers read GetqProducers;
     property QueryBodyTypesSimple: TQueryBodyTypesSimple
       read GetQueryBodyTypesSimple;
     { Public declarations }
@@ -59,7 +59,6 @@ begin
   TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterPostOrDelete);
   TNotifyEventWrap.Create(qBodyTypes2.AfterPost, DoAfterPostOrDelete);
   TNotifyEventWrap.Create(qBodyTypes2.AfterDelete, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qBodyTypes2.AfterOpen, DoAfterOpen);
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete);
@@ -73,17 +72,32 @@ begin
     qBodyTypes2.IDBodyKind.FieldName, True);
 end;
 
-procedure TBodyTypesGroup.DoAfterOpen(Sender: TObject);
-begin
-  // Загружаем справочник корпусов 1-го уровня
-  // qBodyTypesBranch1.Load(1);
-  // Загружаем справочник корпусов 2-го уровня
-  // qBodyTypesBranch2.Load(2);
-end;
-
 procedure TBodyTypesGroup.DoAfterPostOrDelete(Sender: TObject);
 begin
   FAfterDataChange.CallEventHandlers(Self);
+end;
+
+function TBodyTypesGroup.GetqBodyKinds: TQueryBodyKinds;
+begin
+  if FqBodyKinds = nil then
+    FqBodyKinds := TQueryBodyKinds.Create(Self);
+
+  Result := FqBodyKinds;
+end;
+
+function TBodyTypesGroup.GetqBodyTypes2: TQueryBodyTypes2;
+begin
+  if FqBodyTypes2 = nil then
+    FqBodyTypes2 := TQueryBodyTypes2.Create(Self);
+
+  Result := FqBodyTypes2;
+end;
+
+function TBodyTypesGroup.GetqProducers: TQueryProducers;
+begin
+  if FqProducers = nil then
+    FqProducers := TQueryProducers.Create(Self);
+  Result := FqProducers;
 end;
 
 function TBodyTypesGroup.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
@@ -120,6 +134,8 @@ begin
       QueryBodyTypesSimple.IDBodyKind.Value := qBodyKinds.PK.Value;
       QueryBodyTypesSimple.Variations.AsString :=
         ABodyTypesExcelTable.Variation.AsString;
+      QueryBodyTypesSimple.JEDEC.AsString :=
+        ABodyTypesExcelTable.JEDEC.AsString;
 
       for AField in ABodyTypesExcelTable.Fields do
       begin

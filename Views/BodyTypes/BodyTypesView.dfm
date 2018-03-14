@@ -228,6 +228,13 @@ inherited ViewBodyTypes: TViewBodyTypes
         Position.ColIndex = 10
         Position.RowIndex = 0
       end
+      object clJEDEC: TcxGridDBBandedColumn
+        Caption = 'JEDEC '#1050#1086#1076
+        DataBinding.FieldName = 'JEDEC'
+        Position.BandIndex = 0
+        Position.ColIndex = 11
+        Position.RowIndex = 0
+      end
     end
     inherited cxGridLevel: TcxGridLevel
       object cxGridLevel2: TcxGridLevel

@@ -1,6 +1,6 @@
 inherited QueryBodyTypesBase: TQueryBodyTypesBase
-  Width = 317
-  ExplicitWidth = 317
+  Width = 326
+  ExplicitWidth = 326
   inherited Label1: TLabel
     Width = 101
     Caption = 'BodyTypesBase'

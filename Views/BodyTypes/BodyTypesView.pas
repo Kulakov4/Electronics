@@ -75,6 +75,7 @@ type
     actLoadOutlineDrawing: TAction;
     actLoadLandPattern: TAction;
     actLoadImage: TAction;
+    clJEDEC: TcxGridDBBandedColumn;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);

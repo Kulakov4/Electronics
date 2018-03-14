@@ -19,7 +19,7 @@ type
     function GetErrorType: TField;
     function GetExcelRow: TField;
   protected
-    function ProcessValue(const AValue: string): String; virtual;
+    function ProcessValue(const AFieldName, AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
     procedure MarkAsError(AErrorType: TErrorTypes);
     procedure SetFieldsInfo; virtual;
@@ -91,7 +91,7 @@ begin
     S := VarToStrDef(V, '');
     if not S.IsEmpty then
     begin
-      FieldByName(AFieldInfo.FieldName).AsString := ProcessValue(S);
+      FieldByName(AFieldInfo.FieldName).AsString := ProcessValue(AFieldInfo.FieldName, S);
       Inc(k);
     end;
     Inc(i);
@@ -129,7 +129,8 @@ begin
   Result := ErrorType.AsInteger = Integer(etNone);
 end;
 
-function TCustomExcelTable.ProcessValue(const AValue: string): String;
+function TCustomExcelTable.ProcessValue(const AFieldName, AValue: string):
+    String;
 begin
  // Избавляемся от начальных, конечных и двойных пробелов
   Result := DeleteDouble(AValue.Trim, ' ');

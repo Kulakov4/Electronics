@@ -3,7 +3,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
     Top = 56
-    Width = 624
+    Width = 1037
     Height = 416
     ExplicitTop = 56
     ExplicitWidth = 624
@@ -23,6 +23,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Styles.OnGetHeaderStyle = nil
       object clVID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'VID'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
@@ -30,12 +32,14 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
+        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False
         Options.Moving = False
         Options.Sorting = False
         Options.VertSizing = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
@@ -136,6 +140,8 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
       object clIDParameter: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDParameter'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 9
         Position.RowIndex = 0
@@ -165,12 +171,16 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         end>
       object clID2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
       object clIDParent: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDParent'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
@@ -202,16 +212,20 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
       object clPosID2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'PosID'
+        Visible = False
         SortIndex = 0
         SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 5
         Position.RowIndex = 0
       end
       object clOrd2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
+        Visible = False
         SortIndex = 1
         SortOrder = soAscending
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 6
         Position.RowIndex = 0
@@ -226,19 +240,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   inherited StatusBar: TStatusBar
     Width = 1037
     ExplicitWidth = 1037
-  end
-  object DBGrid: TDBGrid [2]
-    Left = 624
-    Top = 56
-    Width = 413
-    Height = 416
-    Align = alRight
-    TabOrder = 6
-    TitleFont.Charset = DEFAULT_CHARSET
-    TitleFont.Color = clWindowText
-    TitleFont.Height = -11
-    TitleFont.Name = 'Tahoma'
-    TitleFont.Style = []
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

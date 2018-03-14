@@ -87,7 +87,6 @@ type
     dxBarButton17: TdxBarButton;
     dxBarButton18: TdxBarButton;
     clVID: TcxGridDBBandedColumn;
-    DBGrid: TDBGrid;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -168,6 +167,7 @@ begin
   DeleteMessages.Add(cxGridLevel2, sDoYouWantToDeleteCategorySubParameter);
 
   ApplyBestFitMultiLine := True;
+  dxBarManagerBar1.Visible := False;
 end;
 
 procedure TViewCategoryParameters.actAddSubParameterExecute(Sender: TObject);
@@ -665,7 +665,7 @@ begin
     MyApplyBestFit;
     // PostMyApplyBestFitEvent;
 
-    DBGrid.DataSource := CatParamsGroup.qCategoryParameters.DataSource;
+    //DBGrid.DataSource := CatParamsGroup.qCategoryParameters.DataSource;
   end;
 end;
 

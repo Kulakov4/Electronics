@@ -20,10 +20,12 @@ type
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
     function GetBodyData: TField;
+    function GetJEDEC: TField;
     function GetVariation: TField;
     // TODO: SetBodyVariationsDataSet
     // procedure SetBodyVariationsDataSet(const Value: TFDDataSet);
   protected
+    function ProcessValue(const AFieldName, AValue: string): String; override;
     // TODO: CheckBodyVariation
     // function CheckBodyVariation: Boolean;
     // TODO: Clone
@@ -42,6 +44,7 @@ type
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
     property BodyData: TField read GetBodyData;
+    property JEDEC: TField read GetJEDEC;
     property Variation: TField read GetVariation;
   end;
 
@@ -100,24 +103,31 @@ begin
   Result := FieldByName('BodyData');
 end;
 
+function TBodyTypesExcelTable.GetJEDEC: TField;
+begin
+  Result := FieldByName('JEDEC');
+end;
+
 function TBodyTypesExcelTable.GetVariation: TField;
 begin
   Result := FieldByName('Variation');
 end;
 
-// TODO: SetBodyVariationsDataSet
-// procedure TBodyTypesExcelTable.SetBodyVariationsDataSet
-// (const Value: TFDDataSet);
-// begin
-// if FBodyVariationsDataSet <> Value then
-// begin
-// FBodyVariationsDataSet := Value;
-// if FBodyVariationsDataSet <> nil then
-// begin
-// Clone;
-// end;
-// end;
-// end;
+function TBodyTypesExcelTable.ProcessValue(const AFieldName, AValue: string):
+    String;
+var
+  i: Integer;
+begin
+  Result := inherited ProcessValue(AFieldName, AValue);
+
+  // Для JEDEC будем згружать информацию только до слэша
+  if (AFieldName.ToUpperInvariant = JEDEC.FieldName) and (not Result.IsEmpty) then
+  begin
+    i := Result.IndexOf('/');
+    if i > 0 then
+      Result := Result.Substring(0, i);
+  end;
+end;
 
 procedure TBodyTypesExcelTable.SetFieldsInfo;
 begin
@@ -129,9 +139,9 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('LandPattern'));
   FieldsInfo.Add(TFieldInfo.Create('Variation'));
   FieldsInfo.Add(TFieldInfo.Create('Image'));
+  FieldsInfo.Add(TFieldInfo.Create('JEDEC'));
   FieldsInfo.Add(TFieldInfo.Create('BodyKind', True,
     'Тип корпуса не может быть пустым', True));
-
 end;
 
 function TBodyTypesExcelDM.CreateExcelTable: TCustomExcelTable;

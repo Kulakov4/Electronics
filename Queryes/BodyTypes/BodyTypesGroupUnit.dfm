@@ -16,58 +16,7 @@ inherited BodyTypesGroup: TBodyTypesGroup
       item
         Value = 34.000000000000000000
       end>
-    ControlCollection = <
-      item
-        Column = 0
-        Control = qBodyKinds
-        Row = 0
-      end
-      item
-        Column = 1
-        Control = qBodyTypes2
-        Row = 0
-      end
-      item
-        Column = 2
-        Control = qProducers
-        Row = 0
-      end>
     ExplicitWidth = 971
     ExplicitHeight = 82
-    inline qBodyKinds: TQueryBodyKinds
-      Left = 1
-      Top = 1
-      Width = 319
-      Height = 80
-      Align = alClient
-      TabOrder = 0
-      ExplicitLeft = 1
-      ExplicitTop = 1
-      ExplicitWidth = 319
-    end
-    inline qBodyTypes2: TQueryBodyTypes2
-      Left = 320
-      Top = 1
-      Width = 319
-      Height = 80
-      Align = alClient
-      TabOrder = 1
-      ExplicitLeft = 320
-      ExplicitTop = 1
-      ExplicitWidth = 319
-      ExplicitHeight = 80
-    end
-    inline qProducers: TQueryProducers
-      Left = 639
-      Top = 1
-      Width = 331
-      Height = 80
-      Align = alClient
-      TabOrder = 2
-      ExplicitLeft = 639
-      ExplicitTop = 1
-      ExplicitWidth = 331
-      ExplicitHeight = 80
-    end
   end
 end

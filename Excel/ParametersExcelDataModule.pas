@@ -26,7 +26,7 @@ type
   protected
     function CheckParameter: Boolean;
     procedure Clone;
-    function ProcessValue(const AValue: string): String; override;
+    function ProcessValue(const AFieldName, AValue: string): String; override;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -215,14 +215,15 @@ begin
   Result := FieldByName('Value');
 end;
 
-function TParametersExcelTable.ProcessValue(const AValue: string): String;
+function TParametersExcelTable.ProcessValue(const AFieldName, AValue: string):
+    String;
 begin
   // Избавляемся от переносов на новую строку
   // Двойные кавычки могут встречаться !!! Напр. Класс изделия "Green"
   Result := Result.Replace(#13, ' ', [rfReplaceAll])
     .Replace(#10, ' ', [rfReplaceAll]);
 
-  Result := inherited ProcessValue(Result);
+  Result := inherited ProcessValue(AFieldName, Result);
 end;
 
 procedure TParametersExcelTable.SetFieldsInfo;
