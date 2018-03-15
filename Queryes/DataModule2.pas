@@ -361,7 +361,7 @@ begin
   try
     // Обновляем структуру БД
     TDBMigration.UpdateDatabaseStructure(DMRepository.dbConnection,
-      TSettings.Create.DBMigrationFolder);
+      TSettings.Create.DBMigrationFolder, DBVersion);
   except
     // При обновлении версии БД произошла какая-то ошибка
     on E: Exception do

@@ -468,10 +468,15 @@ end;
 procedure TViewCategoryParameters.DoDeleteFromView
   (AView: TcxGridDBBandedTableView);
 var
+  AColumn: TcxGridDBBandedColumn;
   APKValues: TArray<Integer>;
 begin
-  Assert(clID.Index = clID2.Index);
-  APKValues := GetSelectedIntValues(AView, clID.Index);
+  if AView = MainView then
+    AColumn := clID
+  else
+    AColumn := clID2;
+
+  APKValues := GetSelectedIntValues(AView, AColumn.Index);
 
   // Если удаляем параметр
   if AView.Level = cxGridLevel then
