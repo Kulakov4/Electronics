@@ -2,8 +2,8 @@ object DM2: TDM2
   Left = 0
   Top = 0
   Caption = 'DM2'
-  ClientHeight = 705
-  ClientWidth = 987
+  ClientHeight = 251
+  ClientWidth = 673
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -28,152 +28,40 @@ object DM2: TDM2
     TabOrder = 1
     ExplicitLeft = 144
   end
-  inline ComponentsExGroup: TComponentsExGroup
-    Left = 1
-    Top = 417
-    Width = 539
-    Height = 81
-    TabOrder = 2
-    ExplicitLeft = 1
-    ExplicitTop = 417
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = -1
-          Row = -1
-        end
-        item
-          Column = -1
-          Row = 0
-        end
-        item
-          Column = -1
-          Row = -1
-        end
-        item
-          Column = 0
-          Control = ComponentsExGroup.qFamilyEx
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = ComponentsExGroup.qComponentsEx
-          Row = 0
-        end>
-    end
-  end
-  inline ComponentsGroup: TComponentsGroup
-    Left = 2
-    Top = 498
-    Width = 514
-    Height = 124
-    TabOrder = 3
-    ExplicitLeft = 2
-    ExplicitTop = 498
-    ExplicitHeight = 124
-    inherited GridPanel1: TGridPanel
-      Height = 124
-      ControlCollection = <
-        item
-          Column = -1
-          Row = -1
-        end
-        item
-          Column = -1
-          Row = -1
-        end
-        item
-          Column = -1
-          Row = -1
-        end
-        item
-          Column = -1
-          Row = 0
-        end
-        item
-          Column = 0
-          Control = ComponentsGroup.qFamily
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = ComponentsGroup.qComponents
-          Row = 0
-        end>
-      ExplicitHeight = 124
-      inherited qFamily: TQueryFamily
-        Height = 122
-        ExplicitHeight = 122
-      end
-      inherited qComponents: TQueryComponents
-        Height = 122
-        ExplicitHeight = 122
-      end
-    end
-  end
-  inline ComponentsSearchGroup: TComponentsSearchGroup
-    Left = 0
-    Top = 623
-    Width = 526
-    Height = 82
-    TabOrder = 4
-    ExplicitTop = 623
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = 0
-          Control = ComponentsSearchGroup.qFamilySearch
-          Row = 0
-        end
-        item
-          Column = -1
-          Row = -1
-        end
-        item
-          Column = -1
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = ComponentsSearchGroup.qComponentsSearch
-          Row = 0
-        end>
-    end
-  end
   inline qChildCategories: TQueryChildCategories
-    Left = 571
+    Left = 291
     Top = 0
     Width = 125
     Height = 77
-    TabOrder = 5
-    ExplicitLeft = 571
+    TabOrder = 2
+    ExplicitLeft = 291
     ExplicitHeight = 77
   end
   inline qProducts: TQueryProducts
-    Left = 560
-    Top = 432
+    Left = 16
+    Top = 104
     Width = 139
     Height = 77
-    TabOrder = 6
-    ExplicitLeft = 560
-    ExplicitTop = 432
+    TabOrder = 3
+    ExplicitLeft = 16
+    ExplicitTop = 104
   end
   inline qStoreHouseList: TQueryStoreHouseList
-    Left = 532
-    Top = 512
+    Left = 410
+    Top = 101
     Width = 208
     Height = 86
-    TabOrder = 8
-    ExplicitLeft = 532
-    ExplicitTop = 512
+    TabOrder = 5
+    ExplicitLeft = 410
+    ExplicitTop = 101
   end
   inline qProductsSearch: TQueryProductsSearch
-    Left = 733
-    Top = 432
+    Left = 197
+    Top = 104
     Width = 190
     Height = 83
-    TabOrder = 7
-    ExplicitLeft = 733
-    ExplicitTop = 432
+    TabOrder = 4
+    ExplicitLeft = 197
+    ExplicitTop = 104
   end
 end

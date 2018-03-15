@@ -19,9 +19,6 @@ type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    ComponentsExGroup: TComponentsExGroup;
-    ComponentsGroup: TComponentsGroup;
-    ComponentsSearchGroup: TComponentsSearchGroup;
     qChildCategories: TQueryChildCategories;
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
@@ -29,6 +26,9 @@ type
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FCategoryParametersGroup: TCategoryParametersGroup;
+    FComponentsExGroup: TComponentsExGroup;
+    FComponentsGroup: TComponentsGroup;
+    FComponentsSearchGroup: TComponentsSearchGroup;
     FDataSetList: TList<TQueryBase>;
     FDescriptionsGroup: TDescriptionsGroup;
     FEventList: TObjectList;
@@ -47,6 +47,9 @@ type
     procedure DoOnParamOrderChange(Sender: TObject);
     function GetBodyTypesGroup: TBodyTypesGroup;
     function GetCategoryParametersGroup: TCategoryParametersGroup;
+    function GetComponentsExGroup: TComponentsExGroup;
+    function GetComponentsGroup: TComponentsGroup;
+    function GetComponentsSearchGroup: TComponentsSearchGroup;
     function GetDescriptionsGroup: TDescriptionsGroup;
     function GetParametersGroup: TParametersGroup;
     function GetProducersGroup: TProducersGroup;
@@ -65,6 +68,10 @@ type
     property BodyTypesGroup: TBodyTypesGroup read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup read
         GetCategoryParametersGroup;
+    property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup;
+    property ComponentsGroup: TComponentsGroup read GetComponentsGroup;
+    property ComponentsSearchGroup: TComponentsSearchGroup read
+        GetComponentsSearchGroup;
     property DescriptionsGroup: TDescriptionsGroup read GetDescriptionsGroup;
     property ParametersGroup: TParametersGroup read GetParametersGroup;
     property ProducersGroup: TProducersGroup read GetProducersGroup;
@@ -311,6 +318,29 @@ begin
     FCategoryParametersGroup := TCategoryParametersGroup.Create(Self);
 
   Result := FCategoryParametersGroup;
+end;
+
+function TDM2.GetComponentsExGroup: TComponentsExGroup;
+begin
+  if FComponentsExGroup = nil then
+    FComponentsExGroup := TComponentsExGroup.Create(Self);
+
+  Result := FComponentsExGroup;
+end;
+
+function TDM2.GetComponentsGroup: TComponentsGroup;
+begin
+  if FComponentsGroup = nil then
+    FComponentsGroup := TComponentsGroup.Create(Self);
+
+  Result := FComponentsGroup;
+end;
+
+function TDM2.GetComponentsSearchGroup: TComponentsSearchGroup;
+begin
+  if FComponentsSearchGroup = nil then
+    FComponentsSearchGroup := TComponentsSearchGroup.Create(Self);
+  Result := FComponentsSearchGroup;
 end;
 
 function TDM2.GetDescriptionsGroup: TDescriptionsGroup;
