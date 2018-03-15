@@ -198,26 +198,4 @@ object DM2: TDM2
     ExplicitLeft = 733
     ExplicitTop = 432
   end
-  inline DescriptionsGroup: TDescriptionsGroup
-    Left = 8
-    Top = 82
-    Width = 604
-    Height = 81
-    TabOrder = 10
-    ExplicitLeft = 8
-    ExplicitTop = 82
-    inherited GridPanel1: TGridPanel
-      ControlCollection = <
-        item
-          Column = 0
-          Control = DescriptionsGroup.qDescriptionTypes
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = DescriptionsGroup.qDescriptions
-          Row = 0
-        end>
-    end
-  end
 end

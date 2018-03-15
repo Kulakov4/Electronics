@@ -27,11 +27,11 @@ type
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
-    DescriptionsGroup: TDescriptionsGroup;
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FCategoryParametersGroup: TCategoryParametersGroup;
     FDataSetList: TList<TQueryBase>;
+    FDescriptionsGroup: TDescriptionsGroup;
     FEventList: TObjectList;
     FParametersGroup: TParametersGroup;
     FQueryGroups: TList<TQueryGroup>;
@@ -47,6 +47,7 @@ type
     procedure DoOnParamOrderChange(Sender: TObject);
     function GetBodyTypesGroup: TBodyTypesGroup;
     function GetCategoryParametersGroup: TCategoryParametersGroup;
+    function GetDescriptionsGroup: TDescriptionsGroup;
     function GetParametersGroup: TParametersGroup;
     procedure InitDataSetValues;
     procedure OpenConnection;
@@ -63,6 +64,7 @@ type
     property BodyTypesGroup: TBodyTypesGroup read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup read
         GetCategoryParametersGroup;
+    property DescriptionsGroup: TDescriptionsGroup read GetDescriptionsGroup;
     property ParametersGroup: TParametersGroup read GetParametersGroup;
     { Public declarations }
   end;
@@ -307,6 +309,14 @@ begin
     FCategoryParametersGroup := TCategoryParametersGroup.Create(Self);
 
   Result := FCategoryParametersGroup;
+end;
+
+function TDM2.GetDescriptionsGroup: TDescriptionsGroup;
+begin
+  if FDescriptionsGroup = nil then
+    FDescriptionsGroup := TDescriptionsGroup.Create(Self);
+
+  Result := FDescriptionsGroup;
 end;
 
 function TDM2.GetParametersGroup: TParametersGroup;
