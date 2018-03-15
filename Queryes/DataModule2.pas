@@ -19,7 +19,6 @@ type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    ProducersGroup: TProducersGroup;
     ComponentsExGroup: TComponentsExGroup;
     ComponentsGroup: TComponentsGroup;
     ComponentsSearchGroup: TComponentsSearchGroup;
@@ -34,6 +33,7 @@ type
     FDescriptionsGroup: TDescriptionsGroup;
     FEventList: TObjectList;
     FParametersGroup: TParametersGroup;
+    FProducersGroup: TProducersGroup;
     FQueryGroups: TList<TQueryGroup>;
     FTreeListAfterFirstOpen: TNotifyEventWrap;
     // FRecommendedReplacement: TRecommendedReplacementThread;
@@ -49,6 +49,7 @@ type
     function GetCategoryParametersGroup: TCategoryParametersGroup;
     function GetDescriptionsGroup: TDescriptionsGroup;
     function GetParametersGroup: TParametersGroup;
+    function GetProducersGroup: TProducersGroup;
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
@@ -66,6 +67,7 @@ type
         GetCategoryParametersGroup;
     property DescriptionsGroup: TDescriptionsGroup read GetDescriptionsGroup;
     property ParametersGroup: TParametersGroup read GetParametersGroup;
+    property ProducersGroup: TProducersGroup read GetProducersGroup;
     { Public declarations }
   end;
 
@@ -325,6 +327,14 @@ begin
     FParametersGroup := TParametersGroup.Create(Self);
 
   Result := FParametersGroup;
+end;
+
+function TDM2.GetProducersGroup: TProducersGroup;
+begin
+  if FProducersGroup = nil then
+    FProducersGroup := TProducersGroup.Create(Self);
+
+  Result := FProducersGroup;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;
