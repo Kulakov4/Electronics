@@ -5,6 +5,7 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       OnInitEdit = cxGridDBBandedTableViewInitEdit
       OptionsData.Editing = True
       OptionsView.CellAutoHeight = True
+      OptionsView.HeaderAutoHeight = True
       OptionsView.BandHeaders = True
       Bands = <
         item

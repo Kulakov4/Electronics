@@ -10,7 +10,7 @@ uses
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, Data.DB, FireDAC.Comp.Client, Vcl.ImgList,
   Vcl.Controls, cxGraphics, cxStyles, System.ImageList, NotifyEvents,
-  FireDAC.VCLUI.Wait;
+  FireDAC.VCLUI.Wait, FireDAC.Moni.Base, FireDAC.Moni.FlatFile;
 
 type
   TDMRepository = class(TDataModule)
@@ -30,6 +30,7 @@ type
     cxImageList: TcxImageList;
     cxStyleRepository: TcxStyleRepository;
     cxHeaderStyle: TcxStyle;
+    FDMoniFlatFileClientLink1: TFDMoniFlatFileClientLink;
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);

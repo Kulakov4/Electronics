@@ -79,8 +79,8 @@ type
     procedure Commit; override;
     procedure DoAfterLoadSheet(e: TFolderLoadEvent);
     procedure DoOnTotalProgress(e: TFolderLoadEvent);
-    procedure InsertRecordList(AComponentsExcelTable: TComponentsExcelTable;
-      const AProducer: string);
+    procedure LoadDataFromExcelTable(AComponentsExcelTable: TComponentsExcelTable;
+        const AProducer: string);
     // TODO: LoadBodyList
     // procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
@@ -156,7 +156,7 @@ begin
     AExcelTable.Process(
       procedure(ASender: TObject)
       begin
-        InsertRecordList(AExcelTable, e.Producer);
+        LoadDataFromExcelTable(AExcelTable, e.Producer);
       end,
       procedure(ASender: TObject)
       Var
@@ -244,8 +244,8 @@ begin
   Result := x;
 end;
 
-procedure TComponentsGroup.InsertRecordList(AComponentsExcelTable
-  : TComponentsExcelTable; const AProducer: string);
+procedure TComponentsGroup.LoadDataFromExcelTable(AComponentsExcelTable:
+    TComponentsExcelTable; const AProducer: string);
 var
   I: Integer;
   k: Integer;

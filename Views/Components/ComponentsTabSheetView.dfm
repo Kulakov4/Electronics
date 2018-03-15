@@ -85,10 +85,6 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
       ImageIndex = 1
       OnShow = cxtsCategoryComponentsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       inline ViewComponents: TViewComponents
         Left = 0
         Top = 0
@@ -165,7 +161,6 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -193,10 +188,6 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
       ImageIndex = 4
       OnShow = cxtsCategoryParametersShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       inline ViewCategoryParameters: TViewCategoryParameters
         Left = 0
         Top = 0
@@ -209,8 +200,8 @@ object ComponentsFrame: TComponentsFrame
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 405
-          ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitWidth = 457
+          ExplicitHeight = 377
         end
         inherited StatusBar: TStatusBar
           Top = 433
@@ -219,7 +210,6 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -244,10 +234,6 @@ object ComponentsFrame: TComponentsFrame
       Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1073#1072#1079#1099' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 3
       OnShow = cxtsComponentsSearchShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       inline ViewComponentsSearch: TViewComponentsSearch
         Left = 0
         Top = 0
@@ -320,7 +306,6 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          ShowHint = False
           DockControlHeights = (
             0
             0
@@ -347,10 +332,6 @@ object ComponentsFrame: TComponentsFrame
     object cxtsParametricTable: TcxTabSheet
       Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       inline ViewParametricTable: TViewParametricTable
         Left = 0
         Top = 0
@@ -364,9 +345,9 @@ object ComponentsFrame: TComponentsFrame
         ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
-          Height = 405
+          Height = 377
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 377
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True
@@ -438,18 +419,17 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          ShowHint = False
           DockControlHeights = (
             0
             0
-            28
+            56
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
             item
               GridView = ViewParametricTable.cxGridDBBandedTableView
-              HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
+              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
               Index = 0
               PopupMenu = ViewParametricTable.pmGrid
             end
@@ -458,6 +438,18 @@ object ComponentsFrame: TComponentsFrame
               HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
               Index = 1
               PopupMenu = ViewParametricTable.pmGrid
+            end
+            item
+              GridView = ViewParametricTable.cxGridDBBandedTableView
+              HitTypes = [gvhtColumnHeader, gvhtColumnHeaderFilterButton]
+              Index = 2
+              PopupMenu = ViewParametricTable.pmHeaders
+            end
+            item
+              GridView = ViewParametricTable.cxGridDBBandedTableView
+              HitTypes = [gvhtBandHeader]
+              Index = 3
+              PopupMenu = ViewParametricTable.pmBands
             end>
         end
         inherited cxStyleRepository: TcxStyleRepository
@@ -562,6 +554,10 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarButton3'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -617,6 +613,10 @@ object ComponentsFrame: TComponentsFrame
     end
     object dxBarButton8: TdxBarButton
       Action = actLoadParametricData
+      Category = 0
+    end
+    object dxBarButton7: TdxBarButton
+      Action = actLoadParametricTableRange
       Category = 0
     end
   end
@@ -681,6 +681,11 @@ object ComponentsFrame: TComponentsFrame
         #1075#1086' '#1086#1087#1080#1089#1072#1085#1080#1103' '#1082#1072#1078#1076#1086#1084#1091' '#1089#1077#1084#1077#1081#1089#1090#1074#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074'.'
       ImageIndex = 29
       OnExecute = actAutoBindingDescriptionsExecute
+    end
+    object actLoadParametricTableRange: TAction
+      Caption = #1042#1099#1076#1077#1083#1077#1085#1085#1099#1081' '#1076#1080#1072#1087#1072#1079#1086#1085' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 32
+      OnExecute = actLoadParametricTableRangeExecute
     end
   end
 end

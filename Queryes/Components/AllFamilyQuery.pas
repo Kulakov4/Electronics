@@ -45,7 +45,7 @@ begin
   inherited;
 
   // Поля Description (описание) в нашем запросе нет
-  ParameterFields.Remove(TDefaultParameters.DescriptionParameterID);
+  ParameterFields.Remove(TDefaultParameters.DescriptionParamSubParamID);
 end;
 
 end.

@@ -9,126 +9,141 @@ type
   TDefaultParameters = class(TObject)
   private
   class var
-    FDatasheetParameterID: Integer;
-    FDescriptionParameterID: Integer;
-    FDiagramParameterID: Integer;
-    FDrawingParameterID: Integer;
-    FImageParameterID: Integer;
-    FPackagePinsParameterID: Integer;
-    FProducerParameterID: Integer;
+    FDatasheetParamSubParamID: Integer;
+    FDescriptionParamSubParamID: Integer;
+    FDiagramParamSubParamID: Integer;
+    FDrawingParamSubParamID: Integer;
+    FImageParamSubParamID: Integer;
+    FPackagePinsParamSubParamID: Integer;
+    FProducerParamSubParamID: Integer;
     FqSearchParameter: TQuerySearchParameter;
-    class function GetDatasheetParameterID: Integer; static;
-    class function GetDescriptionParameterID: Integer; static;
-    class function GetDiagramParameterID: Integer; static;
-    class function GetDrawingParameterID: Integer; static;
-    class function GetImageParameterID: Integer; static;
-    class function GetPackagePinsParameterID: Integer; static;
-    class function GetProducerParameterID: Integer; static;
+
+  var
+    class function GetDatasheetParamSubParamID: Integer; static;
+    class function GetDescriptionParamSubParamID: Integer; static;
+    class function GetDiagramParamSubParamID: Integer; static;
+    class function GetDrawingParamSubParamID: Integer; static;
+    class function GetImageParamSubParamID: Integer; static;
+    class function GetPackagePinsParamSubParamID: Integer; static;
+    class function GetProducerParamSubParamID: Integer; static;
     class function GetqSearchParameter: TQuerySearchParameter; static;
-    class property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
+    class property qSearchParameter: TQuerySearchParameter
+      read GetqSearchParameter;
   public
-    class property DatasheetParameterID: Integer read GetDatasheetParameterID;
-    class property DescriptionParameterID: Integer read GetDescriptionParameterID;
-    class property DiagramParameterID: Integer read GetDiagramParameterID;
-    class property DrawingParameterID: Integer read GetDrawingParameterID;
-    class property ImageParameterID: Integer read GetImageParameterID;
-    class property PackagePinsParameterID: Integer read GetPackagePinsParameterID;
-    class property ProducerParameterID: Integer read GetProducerParameterID;
+    class property DatasheetParamSubParamID: Integer read
+        GetDatasheetParamSubParamID;
+    class property DescriptionParamSubParamID: Integer read
+        GetDescriptionParamSubParamID;
+    class property DiagramParamSubParamID: Integer read GetDiagramParamSubParamID;
+    class property DrawingParamSubParamID: Integer read GetDrawingParamSubParamID;
+    class property ImageParamSubParamID: Integer read GetImageParamSubParamID;
+    class property PackagePinsParamSubParamID: Integer read
+        GetPackagePinsParamSubParamID;
+    class property ProducerParamSubParamID: Integer
+      read GetProducerParamSubParamID;
   end;
 
 implementation
 
 uses ProjectConst;
 
-class function TDefaultParameters.GetDatasheetParameterID: Integer;
+class function TDefaultParameters.GetDatasheetParamSubParamID: Integer;
 begin
   // Ќадо поределить код параметра с табличным именем Datasheet (техническа€ спецификаци€)
-  if FDatasheetParameterID = 0 then
+  if FDatasheetParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDatasheetParamTableName, True);
-    FDatasheetParameterID := qSearchParameter.PK.AsInteger;
+    FDatasheetParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDatasheetParamSubParamID > 0);
   end;
 
-  Result := FDatasheetParameterID;
+  Result := FDatasheetParamSubParamID;
 end;
 
-class function TDefaultParameters.GetDescriptionParameterID: Integer;
+class function TDefaultParameters.GetDescriptionParamSubParamID: Integer;
 begin
   // Ќадо поределить код параметра с табличным именем Description (описание)
-  if FDescriptionParameterID = 0 then
+  if FDescriptionParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDescriptionParamTableName, True);
-    FDescriptionParameterID := qSearchParameter.PK.AsInteger;
+    FDescriptionParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDescriptionParamSubParamID > 0);
   end;
 
-  Result := FDescriptionParameterID;
+  Result := FDescriptionParamSubParamID;
 end;
 
-class function TDefaultParameters.GetDiagramParameterID: Integer;
+class function TDefaultParameters.GetDiagramParamSubParamID: Integer;
 begin
   // Ќадо поределить код параметра с табличным именем Diagram (структурна€ схема)
-  if FDiagramParameterID = 0 then
+  if FDiagramParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDiagramParamTableName, True);
-    FDiagramParameterID := qSearchParameter.PK.AsInteger;
+    FDiagramParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDiagramParamSubParamID > 0);
   end;
 
-  Result := FDiagramParameterID;
+  Result := FDiagramParamSubParamID;
 end;
 
-class function TDefaultParameters.GetDrawingParameterID: Integer;
+class function TDefaultParameters.GetDrawingParamSubParamID: Integer;
 begin
   // Ќадо поределить код параметра с табличным именем Drawing (чертЄж)
-  if FDrawingParameterID = 0 then
+  if FDrawingParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sDrawingParamTableName, True);
-    FDrawingParameterID := qSearchParameter.PK.AsInteger;
+    FDrawingParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FDrawingParamSubParamID > 0);
   end;
 
-  Result := FDrawingParameterID;
+  Result := FDrawingParamSubParamID;
 end;
 
-class function TDefaultParameters.GetImageParameterID: Integer;
+class function TDefaultParameters.GetImageParamSubParamID: Integer;
 begin
   // Ќадо поределить код параметра с табличным именем Image (изображение)
-  if FImageParameterID = 0 then
+  if FImageParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sImageParamTableName, True);
-    FImageParameterID := qSearchParameter.PK.AsInteger;
+    FImageParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FImageParamSubParamID > 0);
   end;
 
-  Result := FImageParameterID;
+  Result := FImageParamSubParamID;
 end;
 
-class function TDefaultParameters.GetPackagePinsParameterID: Integer;
+class function TDefaultParameters.GetPackagePinsParamSubParamID: Integer;
 begin
   // Ќадо поределить код параметра с табличным именем Package/Pins ( орпус/ ол-во выводов)
-  if FPackagePinsParameterID = 0 then
+  if FPackagePinsParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sPackagePinsParamTableName, True);
-    FPackagePinsParameterID := qSearchParameter.PK.AsInteger;
+    FPackagePinsParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FPackagePinsParamSubParamID > 0);
   end;
 
-  Result := FPackagePinsParameterID;
+  Result := FPackagePinsParamSubParamID;
 end;
 
-class function TDefaultParameters.GetProducerParameterID: Integer;
+class function TDefaultParameters.GetProducerParamSubParamID: Integer;
 begin
-  // Ќадо поределить код параметра с табличным именем Producer (производитель)
-  if FProducerParameterID = 0 then
+  // Ќадо поределить код св€зки параметра с табличным именем Producer (производитель)
+  // с его подпараметром по умолчанию
+  if FProducerParamSubParamID = 0 then
   begin
     // »щем параметр либо добавл€ем его
     qSearchParameter.SearchMainOrAppend(sProducerParamTableName, True);
-    FProducerParameterID := qSearchParameter.PK.AsInteger;
+    FProducerParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    Assert(FProducerParamSubParamID > 0);
   end;
 
-  Result := FProducerParameterID;
+  Result := FProducerParamSubParamID;
 end;
 
 class function TDefaultParameters.GetqSearchParameter: TQuerySearchParameter;

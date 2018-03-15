@@ -21,7 +21,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure InsertRecordList(AProducersExcelTable: TProducersExcelTable);
+    procedure LoadDataFromExcelTable(AProducersExcelTable: TProducersExcelTable);
     procedure LocateOrAppend(AValue: string; const AProducerType: String);
     { Public declarations }
   end;
@@ -51,8 +51,6 @@ begin
 end;
 
 function TProducersGroup.Find(const AFieldName, S: string): TList<String>;
-var
-  OK: Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -60,8 +58,7 @@ begin
   // Пытаемся искать среди производителей по какому-то полю
   if qProducers.LocateByField(AFieldName, S) then
   begin
-    OK := qProducerTypes.LocateByPK(qProducers.ProducerTypeID.Value);
-    Assert(OK);
+    qProducerTypes.LocateByPK(qProducers.ProducerTypeID.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qProducerTypes.ProducerType.AsString);
     // запоминаем что надо искать на втором уровне
@@ -76,8 +73,8 @@ begin
 
 end;
 
-procedure TProducersGroup.InsertRecordList(AProducersExcelTable
-  : TProducersExcelTable);
+procedure TProducersGroup.LoadDataFromExcelTable(AProducersExcelTable:
+    TProducersExcelTable);
 var
   AField: TField;
   I: Integer;

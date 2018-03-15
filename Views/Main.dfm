@@ -138,10 +138,6 @@ object frmMain: TfrmMain
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
       OnShow = cxtsStorehousesShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
@@ -206,22 +202,16 @@ object frmMain: TfrmMain
         inherited cxpcComponents: TcxPageControl
           Width = 926
           Height = 505
-          Properties.ActivePage = ComponentsFrame.cxtsCategory
           ExplicitWidth = 926
           ExplicitHeight = 505
           ClientRectBottom = 501
           ClientRectRight = 922
           ClientRectTop = 27
           inherited cxtsCategory: TcxTabSheet
-            ExplicitTop = 27
-            ExplicitWidth = 918
-            ExplicitHeight = 474
-            inherited cxgrdFunctionalGroup: TcxGrid
-              Width = 918
-              Height = 474
-              ExplicitWidth = 918
-              ExplicitHeight = 474
-            end
+            ExplicitLeft = 4
+            ExplicitTop = 24
+            ExplicitWidth = 870
+            ExplicitHeight = 452
           end
           inherited cxtsCategoryComponents: TcxTabSheet
             inherited ViewComponents: TViewComponents
@@ -307,7 +297,7 @@ object frmMain: TfrmMain
                 DockControlHeights = (
                   0
                   0
-                  28
+                  56
                   0)
               end
               inherited cxGridPopupMenu: TcxGridPopupMenu
@@ -390,13 +380,13 @@ object frmMain: TfrmMain
                 PopupMenus = <
                   item
                     GridView = ComponentsFrame.ViewComponentsSearch.cxGridDBBandedTableView
-                    HitTypes = [gvhtCell]
+                    HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
                     Index = 0
                     PopupMenu = ComponentsFrame.ViewComponentsSearch.pmGrid
                   end
                   item
                     GridView = ComponentsFrame.ViewComponentsSearch.cxGridDBBandedTableView2
-                    HitTypes = [gvhtCell]
+                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
                     Index = 1
                     PopupMenu = ComponentsFrame.ViewComponentsSearch.pmGrid
                   end>
@@ -404,12 +394,20 @@ object frmMain: TfrmMain
             end
           end
           inherited cxtsParametricTable: TcxTabSheet
+            ExplicitTop = 27
+            ExplicitWidth = 918
+            ExplicitHeight = 474
             inherited ViewParametricTable: TViewParametricTable
+              Width = 918
+              Height = 474
+              ExplicitWidth = 918
+              ExplicitHeight = 474
               inherited cxGrid: TcxGrid
+                Width = 918
+                Height = 427
                 ExplicitWidth = 918
-                ExplicitHeight = 427
+                ExplicitHeight = 399
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-                  Styles.OnGetHeaderStyle = nil
                   inherited clProducer: TcxGridDBBandedColumn
                     IsCaptionAssigned = True
                   end
@@ -474,6 +472,8 @@ object frmMain: TfrmMain
                 end
               end
               inherited StatusBar: TStatusBar
+                Top = 455
+                Width = 918
                 ExplicitTop = 455
                 ExplicitWidth = 918
               end
@@ -488,19 +488,28 @@ object frmMain: TfrmMain
                 PopupMenus = <
                   item
                     GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
-                    HitTypes = [gvhtCell]
+                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
                     Index = 0
                     PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
                   end
                   item
                     GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView2
-                    HitTypes = [gvhtCell]
+                    HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
                     Index = 1
                     PopupMenu = ComponentsFrame.ViewParametricTable.pmGrid
+                  end
+                  item
+                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
+                    HitTypes = [gvhtColumnHeader, gvhtColumnHeaderFilterButton]
+                    Index = 2
+                    PopupMenu = ComponentsFrame.ViewParametricTable.pmHeaders
+                  end
+                  item
+                    GridView = ComponentsFrame.ViewParametricTable.cxGridDBBandedTableView
+                    HitTypes = [gvhtBandHeader]
+                    Index = 3
+                    PopupMenu = ComponentsFrame.ViewParametricTable.pmBands
                   end>
-              end
-              inherited BandTimer: TTimer
-                OnTimer = nil
               end
               inherited cxStyleRepository: TcxStyleRepository
                 PixelsPerInch = 96
@@ -569,6 +578,7 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
+            ExplicitLeft = 4
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474

@@ -7,9 +7,9 @@ inherited QueryParametersValue: TQueryParametersValue
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from ParameterValues pv'
+      'from ParameterValues2 pv'
       'where pv.ProductId = :ProductId'
-      'and pv.ParameterId = :ParameterId')
+      'and pv.ParamSubParamId = :ParamSubParamId')
     ParamData = <
       item
         Name = 'PRODUCTID'
@@ -18,7 +18,7 @@ inherited QueryParametersValue: TQueryParametersValue
         Value = 1
       end
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

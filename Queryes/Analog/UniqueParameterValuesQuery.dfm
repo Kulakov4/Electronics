@@ -6,14 +6,14 @@ inherited QueryUniqueParameterValues: TQueryUniqueParameterValues
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select distinct pv.ParameterId, pv.Value'
-      'from ParameterValues pv'
+      'select distinct pv.ParamSubParamId, pv.Value'
+      'from ParameterValues2 pv'
       'join Products p on pv.ProductId = p.ID'
       
         'join ProductProductCategories ppc on  ifnull(p.ParentProductId, ' +
         'p.id) = ppc.ProductId and ppc.ProductCategoryId = :ProductCatego' +
         'ryId'
-      'where ParameterId = :ParameterID')
+      'where pv.ParamSubParamId = :ParamSubParamID')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'
@@ -22,7 +22,7 @@ inherited QueryUniqueParameterValues: TQueryUniqueParameterValues
         Value = Null
       end
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

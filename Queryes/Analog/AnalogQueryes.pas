@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
-  ParametersForCategoryQuery, TableWithProgress, Data.DB,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  QueryGroupUnit, Vcl.ExtCtrls, TableWithProgress, Data.DB,
   System.Generics.Collections, UniqueParameterValuesQuery, System.StrUtils,
   FireDAC.Comp.Client, DBRecordHolder, StrHelper,
-  SearchProductByParamValuesQuery, System.Math;
+  SearchProductByParamValuesQuery, System.Math, CategoryParametersGroupUnit;
 
 type
   TParameterValuesTable = class(TTableWithProgress)
@@ -40,16 +39,13 @@ type
 
   TParamValues = class(TObject)
   private
-    FCaption: String;
-    FParameterID: Integer;
+    FParamSubParamID: Integer;
     FParameterKindID: Integer;
     FTable: TParameterValuesTable;
   public
-    constructor Create(const ACaption: String;
-      AParameterID, AParameterKindID: Integer);
+    constructor Create(AParamSubParamID, AParameterKindID: Integer);
     destructor Destroy; override;
-    property Caption: String read FCaption;
-    property ParameterID: Integer read FParameterID;
+    property ParamSubParamID: Integer read FParamSubParamID;
     property ParameterKindID: Integer read FParameterKindID
       write FParameterKindID;
     property Table: TParameterValuesTable read FTable;
@@ -57,16 +53,17 @@ type
 
   TParamValuesList = class(TList<TParamValues>)
   public
-    function FindByParameterID(AParameterID: Integer): TParamValues;
+    function FindByParamSubParamID(AParamSubParamID: Integer): TParamValues;
   end;
 
   TAnalogGroup = class(TQueryGroup)
   private
     FAllParameterFields: TDictionary<Integer, String>;
+    FCatParamsGroup: TCategoryParametersGroup;
     FFDMemTable: TFDMemTable;
+    FParamSubParamIDDic: TDictionary<String, Integer>;
     FParamValuesList: TParamValuesList;
     FProductCategoryID: Integer;
-    FqParametersForCategory: TQueryParametersForCategory;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
     FTempTableName: String;
 
@@ -79,18 +76,17 @@ type
     procedure ApplyFilter;
     procedure CheckDefault;
     procedure CheckNear;
-    procedure Clear(AParameterID: Integer);
-    function GetFieldName(AIDParameter: Integer): String;
-    function GetParamIDByFieldName(const AFieldName: String): Integer;
-    procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder);
+    procedure Clear(AParamSubParamID: Integer);
+    function GetParamSubParamIDByFieldName(const AFieldName: String): Integer;
+    procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder;
+      AAllParameterFields: TDictionary<Integer, String>);
     procedure SetAsDefaultValues;
-    procedure UpdateParameterValues(AParameterID: Integer);
+    procedure UpdateParameterValues(AParamSubParamID: Integer);
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
+    property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup;
     property FDMemTable: TFDMemTable read FFDMemTable;
     property ParamValuesList: TParamValuesList read FParamValuesList;
-    property qParametersForCategory: TQueryParametersForCategory
-      read FqParametersForCategory;
     property qUniqueParameterValues: TQueryUniqueParameterValues
       read FqUniqueParameterValues;
     property TempTableName: String read FTempTableName;
@@ -106,11 +102,12 @@ uses ParameterKindEnum, NaturalSort;
 constructor TAnalogGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  FqParametersForCategory := TQueryParametersForCategory.Create(Self);
+  FCatParamsGroup := TCategoryParametersGroup.Create(Self);
   FqUniqueParameterValues := TQueryUniqueParameterValues.Create(Self);
   FParamValuesList := TParamValuesList.Create;
   FFDMemTable := TFDMemTable.Create(Self);
   FAllParameterFields := TDictionary<Integer, String>.Create;
+  FParamSubParamIDDic := TDictionary<String, Integer>.Create;
   FTempTableName := 'search_analog_temp_table';
 end;
 
@@ -118,6 +115,7 @@ destructor TAnalogGroup.Destroy;
 begin
   FreeAndNil(FAllParameterFields);
   FreeAndNil(FParamValuesList);
+  FreeAndNil(FParamSubParamIDDic);
   inherited;
 end;
 
@@ -141,7 +139,7 @@ begin
     if ACheckedValues.IsEmpty then
       Continue;
 
-    S := Q.GetSQL(AParamValues.ParameterID,
+    S := Q.GetSQL(AParamValues.ParamSubParamID,
       AParamValues.Table.GetCheckedValues(',', ''''));
 
     if not ASQL.IsEmpty then
@@ -188,7 +186,7 @@ begin
   for AParamValues in ParamValuesList do
   begin
     AParamValues.Table.CheckDefault;
-    UpdateParameterValues(AParamValues.ParameterID);
+    UpdateParameterValues(AParamValues.ParamSubParamID);
   end;
 end;
 
@@ -200,49 +198,45 @@ begin
   for AParamValues in ParamValuesList do
   begin
     AParamValues.Table.CheckNear(AParamValues.ParameterKindID);
-    UpdateParameterValues(AParamValues.ParameterID);
+    UpdateParameterValues(AParamValues.ParamSubParamID);
   end;
 end;
 
-procedure TAnalogGroup.Clear(AParameterID: Integer);
+procedure TAnalogGroup.Clear(AParamSubParamID: Integer);
 var
   AParamValues: TParamValues;
 begin
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
 
-  AParamValues := ParamValuesList.FindByParameterID(AParameterID);
+  AParamValues := ParamValuesList.FindByParamSubParamID(AParamSubParamID);
   Assert(AParamValues <> nil);
 
   AParamValues.Table.UncheckAll;
 
+  Assert(AllParameterFields.ContainsKey(AParamSubParamID));
+
   FDMemTable.Edit;
-  FDMemTable.FieldByName(GetFieldName(AParameterID)).Value := null;
+  FDMemTable.FieldByName(AllParameterFields[AParamSubParamID]).Value := null;
   FDMemTable.Post;
 
 end;
 
-function TAnalogGroup.GetFieldName(AIDParameter: Integer): String;
-begin
-  Result := Format('%s%d', [FFieldPrefix, AIDParameter]);
-end;
-
-function TAnalogGroup.GetParamIDByFieldName(const AFieldName: String): Integer;
-var
-  i: Integer;
+function TAnalogGroup.GetParamSubParamIDByFieldName(const AFieldName: String):
+    Integer;
 begin
   Assert(not AFieldName.IsEmpty);
-  i := AFieldName.IndexOf(FFieldPrefix);
-  Assert(i = 0);
-  Result := AFieldName.Substring(FFieldPrefix.Length).ToInteger();
+  Assert(FParamSubParamIDDic.ContainsKey(AFieldName));
+
+  Result := FParamSubParamIDDic[AFieldName];
 end;
 
 procedure TAnalogGroup.Load(AProductCategoryID: Integer;
-  ARecHolder: TRecordHolder);
+  ARecHolder: TRecordHolder; AAllParameterFields: TDictionary<Integer, String>);
 var
-  ACaption: String;
   AFieldList: TList<String>;
   AFieldName: string;
-  AParameterID: Integer;
+  AIDParameterKind: Integer;
+  AParamSubParamID: Integer;
   AParamValues: TParamValues;
   ASortList: TList<String>;
   F: TField;
@@ -250,35 +244,39 @@ var
   S: string;
 begin
   Assert(ARecHolder <> nil);
+
+  FAllParameterFields.Clear;
+  FParamSubParamIDDic.Clear;
+
   FProductCategoryID := AProductCategoryID;
 
   AFieldList := TList<String>.Create;
   ASortList := TList<String>.Create;
   try
     // Ищем параметры используемые для поиска аналога
-    FqParametersForCategory.SearchByParameterKind(AProductCategoryID);
-    while not FqParametersForCategory.FDQuery.Eof do
+    CatParamsGroup.qCategoryParameters.SearchAnalog(AProductCategoryID);
+    while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
     begin
-      // Имя поля в таблице поределяющей выбранные значения для поиска аналога
-      AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
+      AParamSubParamID := CatParamsGroup.qCategoryParameters.
+        ParamSubParamID.AsInteger;
+      AIDParameterKind := CatParamsGroup.qCategoryParameters.
+        IDParameterKind.AsInteger;
+      // Имя поля в таблице определяющей выбранные значения для поиска аналога
+      Assert(AAllParameterFields.ContainsKey(AParamSubParamID));
+      AFieldName := AAllParameterFields[AParamSubParamID];
       // Добавляем очередное поле
       AFieldList.Add(AFieldName);
-      FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
-        AFieldName);
 
-      ACaption := IfThen(qParametersForCategory.ParentCaption.AsString <> '',
-        Format('%s (%s)', [qParametersForCategory.ParentCaption.AsString,
-        FqParametersForCategory.Caption.AsString]),
-        qParametersForCategory.Caption.AsString);
+      // Заполняем словари id->поле и поле->id
+      FAllParameterFields.Add(AParamSubParamID, AFieldName);
+      FParamSubParamIDDic.Add(AFieldName, AParamSubParamID);
 
       // Создаём список значений параметра
-      AParamValues := TParamValues.Create(ACaption,
-        FqParametersForCategory.ParameterID.AsInteger,
-        FqParametersForCategory.IDParameterKind.AsInteger);
+      AParamValues := TParamValues.Create(AParamSubParamID, AIDParameterKind);
 
       // Выбираем значения из БД
-      FqUniqueParameterValues.SearchEx(AProductCategoryID,
-        FqParametersForCategory.ParameterID.AsInteger);
+      FqUniqueParameterValues.SearchEx(AProductCategoryID, AParamSubParamID);
+
       ASortList.Clear;
       while not FqUniqueParameterValues.FDQuery.Eof do
       begin
@@ -294,7 +292,7 @@ begin
       end;
 
       ParamValuesList.Add(AParamValues);
-      FqParametersForCategory.FDQuery.Next;
+      CatParamsGroup.qCategoryParameters.FDQuery.Next;
     end;
 
     FFDMemTable.Close;
@@ -316,8 +314,8 @@ begin
         Continue;
 
       F.Value := ARecHolder.Items[i].Value;
-      AParameterID := GetParamIDByFieldName(F.FieldName);
-      AParamValues := ParamValuesList.FindByParameterID(AParameterID);
+      AParamSubParamID := GetParamSubParamIDByFieldName(F.FieldName);
+      AParamValues := ParamValuesList.FindByParamSubParamID(AParamSubParamID);
       AParamValues.Table.CheckRecords(F.Value);
 
       // Запоминаем эти значения для поиска полного аналога
@@ -342,19 +340,21 @@ begin
   end;
 end;
 
-procedure TAnalogGroup.UpdateParameterValues(AParameterID: Integer);
+procedure TAnalogGroup.UpdateParameterValues(AParamSubParamID: Integer);
 var
   AParamValues: TParamValues;
   AValues: String;
 begin
-  Assert(AParameterID > 0);
-  AParamValues := ParamValuesList.FindByParameterID(AParameterID);
+  Assert(AParamSubParamID > 0);
+  AParamValues := ParamValuesList.FindByParamSubParamID(AParamSubParamID);
   Assert(AParamValues <> nil);
 
   AValues := AParamValues.Table.GetCheckedValues(#13#10, #0);
 
+  Assert(AllParameterFields.ContainsKey(AParamSubParamID));
+
   FDMemTable.Edit;
-  FDMemTable.FieldByName(GetFieldName(AParameterID)).Value := AValues;
+  FDMemTable.FieldByName(AllParameterFields[AParamSubParamID]).Value := AValues;
   FDMemTable.Post;
 end;
 
@@ -597,16 +597,15 @@ begin
   end;
 end;
 
-constructor TParamValues.Create(const ACaption: String;
-  AParameterID, AParameterKindID: Integer);
+constructor TParamValues.Create(AParamSubParamID, AParameterKindID: Integer);
 begin
-  Assert(not ACaption.IsEmpty);
-  Assert(AParameterID > 0);
+  // Assert(not ACaption.IsEmpty);
+  Assert(AParamSubParamID > 0);
   Assert(AParameterKindID >= Integer(Неиспользуется));
   Assert(AParameterKindID <= Integer(Строковый_частичный));
 
-  FParameterID := AParameterID;
-  FCaption := ACaption;
+  FParamSubParamID := AParamSubParamID;
+  // FCaption := ACaption;
   FParameterKindID := AParameterKindID;
   FTable := TParameterValuesTable.Create(nil);
 end;
@@ -617,12 +616,12 @@ begin
   inherited;
 end;
 
-function TParamValuesList.FindByParameterID(AParameterID: Integer)
+function TParamValuesList.FindByParamSubParamID(AParamSubParamID: Integer)
   : TParamValues;
 begin
   for Result in Self do
   begin
-    if Result.ParameterID = AParameterID then
+    if Result.ParamSubParamID = AParamSubParamID then
       Exit;
   end;
 

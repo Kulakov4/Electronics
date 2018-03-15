@@ -74,13 +74,6 @@ begin
   begin
     FfrmProgressBar.Show;
     e.ExcelTable.Process(FProcRef,
-      {
-        // Метод, обрабатывающий нашу таблицу
-        procedure
-        begin
-        ProductGroup.qProducts.AppendList(e.ExcelTable as TProductsExcelTable);
-        end,
-      }
       // Обработчик события
       procedure(ASender: TObject)
       Var

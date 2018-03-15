@@ -19,7 +19,7 @@ type
     function GetErrorType: TField;
     function GetExcelRow: TField;
   protected
-    function ProcessValue(const AValue: string): String; virtual;
+    function ProcessValue(const AFieldName, AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
     procedure MarkAsError(AErrorType: TErrorTypes);
     procedure SetFieldsInfo; virtual;
@@ -42,7 +42,7 @@ type
 
 implementation
 
-uses System.SysUtils, System.Variants;
+uses System.SysUtils, System.Variants, StrHelper;
 
 constructor TCustomExcelTable.Create(AOwner: TComponent);
 begin
@@ -91,7 +91,7 @@ begin
     S := VarToStrDef(V, '');
     if not S.IsEmpty then
     begin
-      FieldByName(AFieldInfo.FieldName).AsString := ProcessValue(S);
+      FieldByName(AFieldInfo.FieldName).AsString := ProcessValue(AFieldInfo.FieldName, S);
       Inc(k);
     end;
     Inc(i);
@@ -114,7 +114,8 @@ begin
   for AFieldInfo in FFieldsInfo do
   begin
     Inc(ACol);
-    if (AFieldInfo.Required) and FieldByName(AFieldInfo.FieldName).IsNull then
+    if (AFieldInfo.Required) and (FieldByName(AFieldInfo.FieldName).IsNull or
+      FieldByName(AFieldInfo.FieldName).AsString.Trim.IsEmpty) then
     begin
       // Запоминаем, что в этой строке ошибка
       Edit;
@@ -128,9 +129,11 @@ begin
   Result := ErrorType.AsInteger = Integer(etNone);
 end;
 
-function TCustomExcelTable.ProcessValue(const AValue: string): String;
+function TCustomExcelTable.ProcessValue(const AFieldName, AValue: string):
+    String;
 begin
-  Result := AValue.Trim;
+ // Избавляемся от начальных, конечных и двойных пробелов
+  Result := DeleteDouble(AValue.Trim, ' ');
 end;
 
 procedure TCustomExcelTable.CreateFieldDefs;

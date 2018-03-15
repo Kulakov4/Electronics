@@ -6,7 +6,7 @@ uses
   CustomErrorTable, Data.DB, System.Classes, System.SysUtils, ExcelDataModule;
 
 type
-  TParametricErrorType = (petDuplicate, petNotFound, petDaughterDuplicate);
+  TParametricErrorType = (petNotFound, petSubParamNotFound, petDuplicate, petNotUnique);
 
   TParametricErrorTable = class(TCustomErrorTable)
   private

@@ -20,8 +20,8 @@ inherited QueryComponentsEx: TQueryComponentsEx
       '    case when pa.ProductId is null then 0 else 1 end analog'
       'from Products p'
       
-        'LEFT JOIN ParameterValues pv2 ON pv2.ProductID = p.Id AND pv2.Pa' +
-        'rameterId = :PackagePinsParameterID'
+        'LEFT JOIN ParameterValues2 pv2 ON pv2.ProductID = p.Id AND pv2.P' +
+        'aramSubParamId = :PackagePinsParamSubParamID'
       'LEFT JOIN ProductsAnalog pa on pa.ProductId = p.Id'
       'where p.ParentProductId in'
       '('
@@ -33,5 +33,18 @@ inherited QueryComponentsEx: TQueryComponentsEx
       '    WHERE ppc.ProductCategoryId = :vProductCategoryId     '
       ')'
       'order by p.ParentProductId, p.Value')
+    ParamData = <
+      item
+        Name = 'PACKAGEPINSPARAMSUBPARAMID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end
+      item
+        Name = 'VPRODUCTCATEGORYID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
   end
 end

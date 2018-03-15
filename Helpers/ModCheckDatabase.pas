@@ -13,17 +13,18 @@ type
       Version: Integer; ADBMigrationFolder: String): Boolean; static;
   public
     class function UpdateDatabaseStructure(AFDConnection: TFDConnection;
-      ADBMigrationFolder: String): Integer; static;
+        ADBMigrationFolder: String; ALastVersion: Integer): Integer; static;
   end;
 
 implementation
 
-class function TDBMigration.UpdateDatabaseStructure(AFDConnection
-  : TFDConnection; ADBMigrationFolder: String): Integer;
+class function TDBMigration.UpdateDatabaseStructure(AFDConnection:
+    TFDConnection; ADBMigrationFolder: String; ALastVersion: Integer): Integer;
 var
   AUpdateConnection: TFDConnection;
 begin
   Assert(AFDConnection <> nil);
+  Assert(ALastVersion > 0);
   Assert(not ADBMigrationFolder.IsEmpty);
 
   AUpdateConnection := TFDConnection.Create(nil);
@@ -33,15 +34,25 @@ begin
     AUpdateConnection.Params.DriverID := AFDConnection.Params.DriverID;
     AUpdateConnection.Connected := True;
 
+    // Текущая версия БД
     Result := AUpdateConnection.ExecSQLScalar('select version from dbVersion');
 
-    // пока есть возможность - обновлять бд
+    // Если у нас и так последняя версия БД или Версия БД больше чем надо
+    if Result >= ALastVersion then
+      Exit;
+
+    // Следующая версия
+    Inc(Result);
+
+    // пока есть SQL скрипт для следующей версии
     while ExecUpdateScript(AUpdateConnection, Result, ADBMigrationFolder) do
     begin
-      Inc(Result);
-      AUpdateConnection.ExecSQL
+//      Inc(Result);
+      AUpdateConnection.ExecSQL // Выполняем обновление БД
         (String.Format('update dbVersion set version = %d', [Result]));
       AUpdateConnection.Commit;
+
+      Inc(Result);
     end;
     AUpdateConnection.Connected := False;
   finally
@@ -61,7 +72,6 @@ begin
 
   if TDirectory.Exists(ADBMigrationFolder) then
   begin
-
     AFileName := TPath.Combine(ADBMigrationFolder, Format('%d.sql', [Version]));
     if TFile.Exists(AFileName) then
     begin

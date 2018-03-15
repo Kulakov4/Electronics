@@ -25,6 +25,7 @@ type
     procedure FDQueryAfterOpen(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
     procedure FDQueryAfterScroll(DataSet: TDataSet);
+    procedure FDQueryBeforeClose(DataSet: TDataSet);
     procedure FDQueryBeforeDelete(DataSet: TDataSet);
     procedure FDQueryBeforeEdit(DataSet: TDataSet);
     procedure FDQueryBeforeInsert(DataSet: TDataSet);
@@ -33,6 +34,7 @@ type
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
     FAfterClose: TNotifyEventsEx;
+    FBeforeClose: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
     FAfterInsert: TNotifyEventsEx;
@@ -81,6 +83,7 @@ type
     function AddClone(const AFilter: String): TFDMemTable;
     procedure DropClone(AClone: TFDMemTable);
     property AfterClose: TNotifyEventsEx read FAfterClose;
+    property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
     property AfterInsert: TNotifyEventsEx read FAfterInsert;
@@ -132,6 +135,8 @@ begin
 
   FBeforeOpen := TNotifyEventsEx.Create(Self);
   FAfterOpen := TNotifyEventsEx.Create(Self);
+
+  FBeforeClose := TNotifyEventsEx.Create(Self);
   FAfterClose := TNotifyEventsEx.Create(Self);
 
   FBeforePost := TNotifyEventsEx.Create(Self);
@@ -193,9 +198,14 @@ procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
 var
   AFilter: String;
 begin
-  Assert(not AClone.Filter.IsEmpty);
+  //Assert(not AClone.Filter.IsEmpty);
   AFilter := AClone.Filter;
   AClone.CloneCursor( FDQuery );
+
+  // Если фильтр накладывать не надо
+  if (AFilter.IsEmpty) then
+    Exit;
+
   AClone.Filter := AFilter;
   AClone.Filtered := True;
 end;
@@ -329,6 +339,12 @@ begin
     // Отправляем новое сообщение
     PostMessage(Handle, WM_DS_AFTER_SCROLL, 0, 0);
   end;
+end;
+
+procedure TQueryBaseEvents.FDQueryBeforeClose(DataSet: TDataSet);
+begin
+  inherited;
+  FBeforeClose.CallEventHandlers(FDQuery);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeDelete(DataSet: TDataSet);

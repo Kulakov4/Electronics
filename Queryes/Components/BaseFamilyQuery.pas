@@ -97,7 +97,7 @@ begin
     //APK.AsInteger := qProducts.PKValue;
 
     // Обрабатываем значения параметров
-    UpdateParamValue(PKFieldName, ASender);
+    UpdateParamValue(PKFieldName);
   end
   else
   begin
@@ -125,7 +125,7 @@ begin
         end;
 
         // Обрабатываем значения параметров
-        UpdateParamValue(PKFieldName, ASender);
+        UpdateParamValue(PKFieldName);
       end;
     finally
       FreeAndNil(ARH);
@@ -161,7 +161,7 @@ begin
   end;
 
   // Обрабатываем обновление значений параметров
-  UpdateParamValue(PKFieldName, ASender);
+  UpdateParamValue(PKFieldName);
 
   ASubGroup := ASender.FindField('SubGroup');
   // Если в запросе выбираются внешние коды категорий
@@ -179,23 +179,23 @@ end;
 procedure TQueryBaseFamily.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
-  FDQuery.ParamByName('ProducerParameterID').AsInteger :=
-    TDefaultParameters.ProducerParameterID;
+  FDQuery.ParamByName('ProducerParamSubParamID').AsInteger :=
+    TDefaultParameters.ProducerParamSubParamID;
 
-  FDQuery.ParamByName('PackagePinsParameterID').AsInteger :=
-    TDefaultParameters.PackagePinsParameterID;
+  FDQuery.ParamByName('PackagePinsParamSubParamID').AsInteger :=
+    TDefaultParameters.PackagePinsParamSubParamID;
 
-  FDQuery.ParamByName('DatasheetParameterID').AsInteger :=
-    TDefaultParameters.DatasheetParameterID;
+  FDQuery.ParamByName('DatasheetParamSubParamID').AsInteger :=
+    TDefaultParameters.DatasheetParamSubParamID;
 
-  FDQuery.ParamByName('DiagramParameterID').AsInteger :=
-    TDefaultParameters.DiagramParameterID;
+  FDQuery.ParamByName('DiagramParamSubParamID').AsInteger :=
+    TDefaultParameters.DiagramParamSubParamID;
 
-  FDQuery.ParamByName('DrawingParameterID').AsInteger :=
-    TDefaultParameters.DrawingParameterID;
+  FDQuery.ParamByName('DrawingParamSubParamID').AsInteger :=
+    TDefaultParameters.DrawingParamSubParamID;
 
-  FDQuery.ParamByName('ImageParameterID').AsInteger :=
-    TDefaultParameters.ImageParameterID;
+  FDQuery.ParamByName('ImageParamSubParamID').AsInteger :=
+    TDefaultParameters.ImageParamSubParamID;
 
 end;
 
@@ -205,8 +205,6 @@ begin
 end;
 
 function TQueryBaseFamily.GetCategoryExternalID: string;
-var
-  rc: Integer;
 begin
   Assert(FDQuery.Active);
 
@@ -218,8 +216,7 @@ begin
 
   Assert(not DetailParameterName.IsEmpty);
 
-  rc := qSearchCategory.SearchByID(FDQuery.ParamByName(DetailParameterName).AsInteger);
-  Assert(rc = 1);
+  qSearchCategory.SearchByID(FDQuery.ParamByName(DetailParameterName).AsInteger, 1);
   Result := qSearchCategory.ExternalID.AsString;
 end;
 

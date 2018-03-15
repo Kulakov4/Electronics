@@ -26,7 +26,6 @@ type
     FIsModifedClone: TFDMemTable;
     FOnDataChange: TNotifyEventsEx;
     FResiveOnDataChangeMessage: Boolean;
-    procedure DoAfterClose(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     procedure InitializeFields;
@@ -57,9 +56,6 @@ begin
 
   // Во всех строковых полях будем удалять начальные и конечные пробелы
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
-
-  // После закрытия будем закрывать своих клонов
-  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FEventList);
 end;
 
 procedure TQueryWithDataSource.DataSourceDataChange(Sender: TObject;
@@ -79,23 +75,12 @@ begin
   Text := VarToStr(Sender.Value);
 end;
 
-procedure TQueryWithDataSource.DoAfterClose(Sender: TObject);
-begin
-  // Если ранее создали клона
-  if FIsModifedClone <> nil then
-    FIsModifedClone.Close; // закроем и клона
-end;
-
 procedure TQueryWithDataSource.DoAfterOpen(Sender: TObject);
 var
   i: Integer;
 begin
   // Костыль с некоторыми типами полей
   InitializeFields;
-
-  // Если клона создавали раньше, то клонируем курсор
-  if FIsModifedClone <> nil then
-    FIsModifedClone.CloneCursor(FDQuery);
 
   // делаем выравнивание всех полей по левому краю
   for i := 0 to FDQuery.FieldCount - 1 do
@@ -156,10 +141,8 @@ begin
     // Для проверки другой записи надо создать клон
     if FIsModifedClone = nil then
     begin
-      // Создаём набор данных в памяти
-      FIsModifedClone := TFDMemTable.Create(Self);
-      // Создаём клон себя
-      FIsModifedClone.CloneCursor(FDQuery);
+      // Создаём клон
+      FIsModifedClone := AddClone('');
     end;
     OK := FIsModifedClone.LocateEx(PKFieldName, APKValue);
     Assert(OK);

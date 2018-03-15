@@ -262,84 +262,84 @@ end;
 procedure TGVColumnsBarButtons.ProcessGridView;
 var
   AAction: TGVAction;
+  ABands: TList<TcxGridBand>;
   AColumn: TcxGridDBBandedColumn;
   i: Integer;
-  ACaptions: TList<string>;
+  AAllColumns: TList<TcxGridDBBandedColumn>;
   AColumns: TList<TcxGridDBBandedColumn>;
   ACustomizeGridViewAction: TGroupGVAction;
 begin
   // Создаём действия для табличного представления в целом
   CreateGroupActions;
 
-  ACaptions := TList<string>.Create;
+  ABands := TList<TcxGridBand>.Create;
+  AColumns := TList<TcxGridDBBandedColumn>.Create;
+  // Список всех колонок cxGrid
+  AAllColumns := TList<TcxGridDBBandedColumn>.Create;
   try
-    // Список колонок cxGrid
-    AColumns := TList<TcxGridDBBandedColumn>.Create;
-    try
-      // Добавляем в список все колонки, которые есть у cxGrid
-      for i := 0 to FcxGridDBBandedTableView.ColumnCount - 1 do
+    // Добавляем в список все колонки, которые есть у cxGrid
+    for i := 0 to FcxGridDBBandedTableView.ColumnCount - 1 do
+    begin
+      Assert(FcxGridDBBandedTableView.Columns[i].Position.Band <> nil);
+      AAllColumns.Add(FcxGridDBBandedTableView.Columns[i]);
+    end;
+    // Сортируем эти столбцы по позиции бэнда и по позиции внутри бэнда
+    AAllColumns.Sort(TComparer<TcxGridDBBandedColumn>.Construct(
+      function(const L, R: TcxGridDBBandedColumn): Integer
       begin
-        Assert(FcxGridDBBandedTableView.Columns[i].Position.Band <> nil);
-        AColumns.Add(FcxGridDBBandedTableView.Columns[i]);
-      end;
-      // Сортируем эти столбцы по позиции бэнда и по позиции внутри бэнда
-      AColumns.Sort(TComparer<TcxGridDBBandedColumn>.Construct(
-        function(const L, R: TcxGridDBBandedColumn): Integer
-        begin
-          Result := L.Position.Band.Position.ColIndex -
-            R.Position.Band.Position.ColIndex;
-          if Result = 0 then
-            Result := L.Position.ColIndex - R.Position.ColIndex;
-        end));
+        Result := L.Position.Band.Position.ColIndex -
+          R.Position.Band.Position.ColIndex;
+        if Result = 0 then
+          Result := L.Position.ColIndex - R.Position.ColIndex;
+      end));
 
-      for AColumn in AColumns do
+    for AColumn in AAllColumns do
+    begin
+      // AColumn := FcxGridDBBandedTableView.Columns[i];
+      Assert(AColumn.Position.Band <> nil);
+      if (AColumn.VisibleForCustomization) and
+        (AColumn.Position.Band.VisibleForCustomization) then
       begin
-        // AColumn := FcxGridDBBandedTableView.Columns[i];
-        Assert(AColumn.Position.Band <> nil);
-        if (AColumn.VisibleForCustomization) and
-          (AColumn.Position.Band.VisibleForCustomization) then
-        begin
-          AAction := nil;
+        AAction := nil;
 
-          // Если колонка относится к "пустому" бэнду
-          if (AColumn.Position.Band.Caption = '') then
+        // Если колонка относится к "пустому" бэнду
+        if (AColumn.Position.Band.Caption = '') then
+        begin
+          // Если этот бэнд не зафиксирован
+          if AColumn.Position.Band.FixedKind = fkNone then
           begin
-            // Если этот бэнд не зафиксирован
-            if AColumn.Position.Band.FixedKind = fkNone then
+            // если действия для такой колонки ещё не создавали
+            if AColumns.IndexOf(AColumn) < 0 then
             begin
-              // если такого заголовка ещё не было
-              if ACaptions.IndexOf(AColumn.Caption) < 0 then
-              begin
-                ACaptions.Add(AColumn.Caption);
-                AAction := CreateColumnAction(AColumn);
-              end;
-            end;
-          end
-          else
-          begin
-            // Если колонка относится к не пустому бэнду
-            // если такого заголовка бэнда ещё не было
-            if ACaptions.IndexOf(AColumn.Position.Band.Caption) < 0 then
-            begin
-              ACaptions.Add(AColumn.Position.Band.Caption);
-              AAction := CreateBandAction(AColumn.Position.Band);
+              AColumns.Add(AColumn);
+              AAction := CreateColumnAction(AColumn);
             end;
           end;
-
-          if AAction <> nil then
+        end
+        else
+        begin
+          // Если колонка относится к не пустому бэнду
+          // Если для такого бэнда действие ещё не создавали
+          if ABands.IndexOf(AColumn.Position.Band) < 0 then
           begin
-            for ACustomizeGridViewAction in FGroupActions do
-              ACustomizeGridViewAction.Actions.Add(AAction);
-
-            CreateDxBarButton(AAction, bsChecked, False);
+            ABands.Add(AColumn.Position.Band);
+            AAction := CreateBandAction(AColumn.Position.Band);
           end;
         end;
+
+        if AAction <> nil then
+        begin
+          for ACustomizeGridViewAction in FGroupActions do
+            ACustomizeGridViewAction.Actions.Add(AAction);
+
+          CreateDxBarButton(AAction, bsChecked, False);
+        end;
       end;
-    finally
-      FreeAndNil(AColumns)
     end;
   finally
-    FreeAndNil(ACaptions);
+    FreeAndNil(ABands);
+    FreeAndNil(AColumns);
+    FreeAndNil(AAllColumns);
   end;
 
 end;
@@ -475,7 +475,7 @@ end;
 
 procedure TGVColumnActionEx.actCustomizeColumnExecute(Sender: TObject);
 {
-var
+  var
   ABand: TcxGridBand;
   ABand2: TcxGridBand;
   AWidth: Integer;
@@ -488,20 +488,20 @@ begin
 
   FChildAction.Execute;
 
-// Всё это не имеет смысла
-// Достаточно сделать ширину дочернего бэнда 0
-{
-  ABand := FColumn.Position.Band;
-  ABand2 := FChildAction.Column.Position.Band;
+  // Всё это не имеет смысла
+  // Достаточно сделать ширину дочернего бэнда 0
+  {
+    ABand := FColumn.Position.Band;
+    ABand2 := FChildAction.Column.Position.Band;
 
-  if (ABand = nil) or (ABand2 = nil) then
+    if (ABand = nil) or (ABand2 = nil) then
     Exit;
 
 
-  // Пытаемся выровнять ширину бэндов, к которым относятся колонки
-  AWidth := FColumn.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex].Width;
-  ABand2.Width := AWidth;
-}
+    // Пытаемся выровнять ширину бэндов, к которым относятся колонки
+    AWidth := FColumn.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex].Width;
+    ABand2.Width := AWidth;
+  }
 end;
 
 { TGVColumnsBarButtonsEx }

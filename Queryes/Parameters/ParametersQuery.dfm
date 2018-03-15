@@ -1,12 +1,10 @@
-inherited QueryMainParameters: TQueryMainParameters
+inherited QueryParameters: TQueryParameters
   Width = 551
   Height = 86
   ExplicitWidth = 551
   ExplicitHeight = 86
   inherited Label1: TLabel
-    Width = 106
-    Caption = 'MainParameters'
-    ExplicitWidth = 106
+    Caption = 'Parameters'
   end
   inline ParametersApplyQuery: TfrmApplyQuery [1]
     Left = 192
@@ -98,11 +96,22 @@ inherited QueryMainParameters: TQueryMainParameters
   object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'select p.*, IFNULL(cp.id, 0) > 0 Checked'
-      'from Parameters p'
       
-        'LEFT JOIN CategoryParams cp on cp.ProductCategoryId = :ProductCa' +
-        'tegoryId and cp.ParameterId = p.id'
+        'select p.*, IFNULL(cp.id, 0) > 0 Checked, t.ID ParamSubParamID, ' +
+        't.IdSubParameter'
+      'from Parameters p'
+      'LEFT JOIN '
+      '('
+      '    select psp.ID, psp.IdParameter, psp.IdSubParameter'
+      '    from ParamSubParams psp'
+      
+        '    join SubParameters sp on psp.IdSubParameter = sp.Id and sp.I' +
+        'sDefault = 1'
+      ') t on t.IdParameter = p.Id'
+      ''
+      
+        'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
+        'ategoryId and cp.ParamSubParamID = t.id '
       
         'where p.ParentParameter is null and p.IDParameterType is not nul' +
         'l'
@@ -139,7 +148,7 @@ inherited QueryMainParameters: TQueryMainParameters
   object fdqDeleteFromCategoryParams: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'delete from CategoryParams where ParameterID = :ParameterID')
+      'delete from CategoryParams2 where ParameterID = :ParameterID')
     Left = 400
     Top = 24
     ParamData = <

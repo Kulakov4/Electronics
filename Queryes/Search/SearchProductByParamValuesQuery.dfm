@@ -13,11 +13,11 @@ inherited qSearchProductByParamValues: TqSearchProductByParamValues
         'join ProductProductCategories ppc on ppc.ProductId = pp.Id and p' +
         'pc.ProductCategoryId = :ProductCategoryId'
       
-        'left join ParameterValues pv on pv.ProductId = p.id and pv.Param' +
-        'eterId = (0)'
+        'left join ParameterValues2 pv on pv.ProductId = p.id and pv.Para' +
+        'mSubParamId = (0)'
       
-        'left join ParameterValues pvcategory on pvcategory.ProductId = p' +
-        'p.id and pvcategory.ParameterId = (1)'
+        'left join ParameterValues2 pvcategory on pvcategory.ProductId = ' +
+        'pp.id and pvcategory.ParamSubParamId = (1)'
       'where p.ParentProductID is not null '
       
         'and cast(ifnull(pv.Value, pvcategory.Value) as VARCHAR(255)) in ' +

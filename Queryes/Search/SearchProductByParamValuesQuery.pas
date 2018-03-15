@@ -15,7 +15,7 @@ type
     function GetProductId: TField;
     { Private declarations }
   public
-    function GetSQL(AParameterID: Integer; const AParamValues: String): String;
+    function GetSQL(AParamSubParamID: Integer; const AParamValues: String): String;
     procedure Execute(AProductCategoryId: Integer);
     property ProductId: TField read GetProductId;
     { Public declarations }
@@ -30,14 +30,14 @@ begin
   Result := Field('ProductId');
 end;
 
-function TqSearchProductByParamValues.GetSQL(AParameterID: Integer; const
+function TqSearchProductByParamValues.GetSQL(AParamSubParamID: Integer; const
     AParamValues: String): String;
 begin
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
   Assert(not AParamValues.IsEmpty);
 
-  Result := Replace(FDQuery.SQL.Text, AParameterID.ToString, '(0)');
-  Result := Replace(Result, AParameterID.ToString, '(1)');
+  Result := Replace(FDQuery.SQL.Text, AParamSubParamID.ToString, '(0)');
+  Result := Replace(Result, AParamSubParamID.ToString, '(1)');
   Result := Replace(Result, Format('(%s)', [AParamValues]), '(2)');
 end;
 

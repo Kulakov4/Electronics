@@ -40,6 +40,8 @@ resourcestring
 
   sDoYouWantToDeleteCategoryParameter =
     'Вы действительно хотите убрать выделенные параметры из текущей категории?';
+  sDoYouWantToDeleteCategorySubParameter =
+    'Вы действительно хотите удалить выделенные подпараметры?';
   sDoYouWantToDeleteFamily =
     'Вы действительно хотите удалить выделенные семейства компонентов из текущей категории?';
   sDoYouWantToDeleteFamilyFromAll =
@@ -55,7 +57,7 @@ resourcestring
   sDoYouWantToSaveChanges = 'Изменения не были сохранены. Сохранить изменения?';
   sError = 'Ошибка';
   sSaving = 'Сохранение';
-  sLocalizationFileName = 'bin\Localization.ini';
+  sLocalizationFileName = 'Localization.ini';
 
   sProducerParamTableName = 'Producer';
   sPackagePinsParamTableName = 'Package / Pins';
@@ -74,7 +76,7 @@ resourcestring
   sTreeRootNodeName = 'Структура';
 
 const
-  DBVersion = 34;
+  DBVersion = 1;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
   DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
   OnReadProcessEventRecordCount = 100; // Через сколько считанных / записанных записей извещать о прогрессе

@@ -29,9 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  CustomComponentsQuery, SearchParameterValues, cxTextEdit, cxBlobEdit,
-  cxRichEdit, DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit,
-  ProjectConst;
+  CustomComponentsQuery, cxTextEdit, cxBlobEdit, cxRichEdit,
+  DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit, ProjectConst;
 
 type
   TViewComponentsBase = class(TViewComponentsParent)
@@ -113,7 +112,8 @@ type
   protected
     procedure DoOnMasterDetailChange; override;
     procedure InternalRefreshData; override;
-    procedure OnGridPopupMenuPopup(AColumn: TcxGridDBBandedColumn); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
@@ -236,20 +236,18 @@ end;
 procedure TViewComponentsBase.actPastePackagePinsExecute(Sender: TObject);
 var
   AID: Integer;
-  AIDList: TList<Integer>;
+  AIDList: TArray<Integer>;
   m: TArray<String>;
 begin
   m := TClb.Create.GetRowsAsArray;
   if (Length(m) = 0) or (GetFocusedQuery = nil) then
     Exit;
 
-  AIDList := GetSelectedIDs;
-  try
-    for AID in AIDList do
-      GetFocusedQuery.SetPackagePins(AID, m[0]);
-  finally
-    FreeAndNil(AIDList);
-  end;
+  Assert(clID.Index = clID.Index);
+  AIDList := GetSelectedIntValues(FocusedTableView, clID.Index);
+
+  for AID in AIDList do
+    GetFocusedQuery.SetPackagePins(AID, m[0]);
 
   UpdateView;
 end;
@@ -274,7 +272,7 @@ end;
 procedure TViewComponentsBase.actPasteProducerExecute(Sender: TObject);
 var
   AID: Integer;
-  AIDList: TList<Integer>;
+  AIDList: TArray<Integer>;
   AProducer: string;
   m: TArray<String>;
 begin
@@ -294,17 +292,15 @@ begin
     Exit;
   end;
 
-  AIDList := GetSelectedIDs;
+  Assert(clID.Index = clID2.Index);
+  AIDList := GetSelectedIntValues(FocusedTableView, clID.Index);
+
+  BeginUpdate;
   try
-    BeginUpdate;
-    try
-      for AID in AIDList do
-        GetFocusedQuery.SetProducer(AID, AProducer);
-    finally
-      EndUpdate;
-    end;
+    for AID in AIDList do
+      GetFocusedQuery.SetProducer(AID, AProducer);
   finally
-    FreeAndNil(AIDList);
+    EndUpdate;
   end;
 
   UpdateView;
@@ -505,8 +501,8 @@ begin
     lsEditFixedList, BaseComponentsGroup.Producers.Name);
 end;
 
-procedure TViewComponentsBase.OnGridPopupMenuPopup
-  (AColumn: TcxGridDBBandedColumn);
+procedure TViewComponentsBase.OnGridRecordCellPopupMenu
+  (AColumn: TcxGridDBBandedColumn; var AllowPopup: Boolean);
 Var
   AColumnIsValue: Boolean;
   IsText: Boolean;

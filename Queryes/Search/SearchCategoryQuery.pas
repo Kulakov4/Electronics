@@ -18,7 +18,7 @@ type
   public
     function SearchByExternalID(const AExternalID: String): Integer;
     function SearchBySubgroup(const ASubgroup: String): Integer;
-    function SearchByID(const AID: Integer): Integer;
+    function SearchByID(const AID: Integer; TestResult: Integer = -1): Integer;
     function SearchSubCategories(const AParentID: Integer): Integer;
     property ExternalID: TField read GetExternalID;
     { Public declarations }
@@ -70,14 +70,15 @@ begin
   Result := Search(['SubGroup'], [ASubgroup]);
 end;
 
-function TQuerySearchCategory.SearchByID(const AID: Integer): Integer;
+function TQuerySearchCategory.SearchByID(const AID: Integer; TestResult:
+    Integer = -1): Integer;
 begin
   Assert(AID > 0);
 
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where pc.ID = :ID', 'where');
   SetParamType('ID');
 
-  Result := Search(['ID'], [AID]);
+  Result := Search(['ID'], [AID], TestResult);
 end;
 
 function TQuerySearchCategory.SearchSubCategories(const AParentID

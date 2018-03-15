@@ -10,30 +10,32 @@ uses
   ProjectConst, BaseEventsQuery, QueryWithMasterUnit, QueryWithDataSourceUnit,
   TreeListQuery, DescriptionsGroupUnit, BodyTypesGroupUnit, ProducersGroupUnit,
   ParametersGroupUnit, BaseComponentsGroupUnit, ComponentsExGroupUnit,
-  ComponentsGroupUnit, ComponentsSearchGroupUnit, CategoryParametersQuery,
+  ComponentsGroupUnit, ComponentsSearchGroupUnit,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
-  StoreHouseListQuery, ProductsSearchQuery;
+  StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2,
+  CategoryParametersGroupUnit, NotifyEvents;
 
 type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    BodyTypesGroup: TBodyTypesGroup;
     ProducersGroup: TProducersGroup;
-    ParametersGroup: TParametersGroup;
     ComponentsExGroup: TComponentsExGroup;
     ComponentsGroup: TComponentsGroup;
     ComponentsSearchGroup: TComponentsSearchGroup;
-    qCategoryParameters: TQueryCategoryParameters;
     qChildCategories: TQueryChildCategories;
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
     DescriptionsGroup: TDescriptionsGroup;
   private
+    FBodyTypesGroup: TBodyTypesGroup;
+    FCategoryParametersGroup: TCategoryParametersGroup;
     FDataSetList: TList<TQueryBase>;
     FEventList: TObjectList;
+    FParametersGroup: TParametersGroup;
     FQueryGroups: TList<TQueryGroup>;
+    FTreeListAfterFirstOpen: TNotifyEventWrap;
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
@@ -43,15 +45,25 @@ type
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
+    function GetBodyTypesGroup: TBodyTypesGroup;
+    function GetCategoryParametersGroup: TCategoryParametersGroup;
+    function GetParametersGroup: TParametersGroup;
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
+  protected
+    procedure DoAfterTreeListFirstOpen(Sender: TObject);
+    procedure DoBeforeTreeListClose(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure CreateOrOpenDataBase;
     function HaveAnyChanges: Boolean;
     procedure SaveAll;
+    property BodyTypesGroup: TBodyTypesGroup read GetBodyTypesGroup;
+    property CategoryParametersGroup: TCategoryParametersGroup read
+        GetCategoryParametersGroup;
+    property ParametersGroup: TParametersGroup read GetParametersGroup;
     { Public declarations }
   end;
 
@@ -62,7 +74,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.IOUtils, NotifyEvents, DragHelper;
+uses System.IOUtils, DragHelper, Data.DB;
 
 constructor TDM2.Create(AOwner: TComponent);
 begin
@@ -93,12 +105,15 @@ begin
     Add(ComponentsSearchGroup.qComponentsSearch);
     // Поиск среди компонентов (подчинённое)
     // вкладка параметры - список параметров
-    Add(qCategoryParameters);
+    Add(CategoryParametersGroup.qCategoryParameters);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
 //  ComponentsGroup.Producers := ProducersGroup.qProducers;
 //  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
 //  ComponentsExGroup.Producers := ProducersGroup.qProducers;
+
+  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.AfterOpen, DoAfterTreeListFirstOpen);
+  TNotifyEventWrap.Create(qTreeList.BeforeClose, DoBeforeTreeListClose, FEventList);
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
@@ -112,7 +127,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  qCategoryParameters.Master := qTreeList;
+  CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
 
   // Список групп
   FQueryGroups := TList<TQueryGroup>.Create;
@@ -123,7 +138,7 @@ begin
   TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
     FEventList);
 
-  TNotifyEventWrap.Create(qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
+  TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
     FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
@@ -146,19 +161,26 @@ end;
 
 destructor TDM2.Destroy;
 begin
+  CloseConnection;
   FreeAndNil(FEventList);
   FreeAndNil(FDataSetList);
   FreeAndNil(FQueryGroups);
   inherited;
 end;
 
+
 { закрытие датасетов }
 procedure TDM2.CloseConnection;
 var
   I: Integer;
 begin
+  // Это событие не срабатывает, потому что csDestroying in ComponentState
+  DoBeforeTreeListClose(qTreeList.FDQuery);
+
   for I := FDataSetList.Count - 1 downto 0 do
     FDataSetList[I].FDQuery.Close;
+
+  qTreeList.FDQuery.Close;
 
   // Закрываем соединение с БД
   DMRepository.dbConnection.Close;
@@ -215,7 +237,7 @@ end;
 procedure TDM2.DoAfterParametersCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
-  qCategoryParameters.RefreshQuery;
+  CategoryParametersGroup.qCategoryParameters.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterProducerCommit(Sender: TObject);
@@ -239,13 +261,60 @@ begin
   qProductsSearch.qStoreHouseList.RefreshQuery;
 end;
 
-procedure TDM2.DoOnParamOrderChange(Sender: TObject);
+procedure TDM2.DoAfterTreeListFirstOpen(Sender: TObject);
 var
-  L: TList<TRecOrder>;
+  ACategoryID: Integer;
 begin
-  L := Sender as TList<TRecOrder>;
-  qCategoryParameters.Move(L);
-  qCategoryParameters.ApplyUpdates;
+  Assert(qTreeList.FDQuery.Active);
+
+
+  ACategoryID := TSettings.Create.CategoryID;
+  // Если в настройках не сохранилась последняя открытая категория
+  // Либо отключена загрузка последней категории
+  if (ACategoryID = 0) or (not TSettings.Create.LoadLastCategory) then
+    Exit;
+
+  // Пытаемся перейти на ту-же запись
+  qTreeList.LocateByPK(ACategoryID);
+end;
+
+procedure TDM2.DoBeforeTreeListClose(Sender: TObject);
+begin
+  Assert(qTreeList.FDQuery.Active);
+
+  if qTreeList.FDQuery.RecordCount = 0 then
+    Exit;
+
+  TSettings.Create.CategoryID := qTreeList.PK.AsInteger;
+end;
+
+procedure TDM2.DoOnParamOrderChange(Sender: TObject);
+begin
+  CategoryParametersGroup.RefreshData;
+end;
+
+function TDM2.GetBodyTypesGroup: TBodyTypesGroup;
+begin
+  if FBodyTypesGroup = nil then
+    FBodyTypesGroup := TBodyTypesGroup.Create(Self);
+
+  Result := FBodyTypesGroup;
+end;
+
+function TDM2.GetCategoryParametersGroup: TCategoryParametersGroup;
+begin
+  if FCategoryParametersGroup = nil then
+    FCategoryParametersGroup := TCategoryParametersGroup.Create(Self);
+
+  Result := FCategoryParametersGroup;
+end;
+
+function TDM2.GetParametersGroup: TParametersGroup;
+begin
+  if FParametersGroup = nil then
+    FParametersGroup := TParametersGroup.Create(Self);
+
+  Result := FParametersGroup;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;
@@ -292,7 +361,7 @@ begin
   try
     // Обновляем структуру БД
     TDBMigration.UpdateDatabaseStructure(DMRepository.dbConnection,
-      TSettings.Create.DBMigrationFolder);
+      TSettings.Create.DBMigrationFolder, DBVersion);
   except
     // При обновлении версии БД произошла какая-то ошибка
     on E: Exception do
@@ -333,6 +402,11 @@ begin
   begin
     FDataSetList[I].FDQuery.Open;
   end;
+
+  // Отписываемся от события
+  Assert(FTreeListAfterFirstOpen <> nil);
+  FreeAndNil(FTreeListAfterFirstOpen);
+
 
   InitDataSetValues();
 end;

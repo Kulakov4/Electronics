@@ -270,16 +270,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchParametersForCategoryQuery.pas">
-            <Form>QuerySearchParametersForCategory</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchParameterValues.pas">
-            <Form>QuerySearchParameterValues</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
             <Form>QuerySearchProducerTypes</Form>
             <FormType>dfm</FormType>
@@ -380,8 +370,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Parameters\MainParametersQuery.pas">
-            <Form>QueryMainParameters</Form>
+        <DCCReference Include="Queryes\Parameters\ParametersQuery.pas">
+            <Form>QueryParameters</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -421,11 +411,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Queryes\ParameterValues\ParameterValuesUnit.pas"/>
-        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersQuery.pas">
-            <Form>QueryCategoryParameters</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\CategoryParameters\MaxCategoryParameterOrderQuery.pas">
             <Form>QueryMaxCategoryParameterOrder</Form>
             <FormType>dfm</FormType>
@@ -525,11 +510,6 @@
         </DCCReference>
         <DCCReference Include="Queryes\Components\ComponentsGroupUnit.pas">
             <Form>ComponentsGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Components\ParametricTable\ParametersForCategoryQuery.pas">
-            <Form>QueryParametersForCategory</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -863,6 +843,63 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\UpdateParamValueRec.pas"/>
+        <DCCReference Include="Queryes\Parameters\SubParametersQuery2.pas">
+            <Form>QuerySubParameters2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\SubParametersView.pas">
+            <Form>ViewSubParameters</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Excel\SubParametersExcelDataModule.pas">
+            <Form>SubParametersExcelDM</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Parameters\ParamSubParamsQuery.pas">
+            <Form>QueryParamSubParams</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersQuery2.pas">
+            <Form>QueryCategoryParameters2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersGroupUnit.pas">
+            <Form>CategoryParametersGroup</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParamSubParamQuery.pas">
+            <Form>QuerySearchParamSubParam</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Search\SearchParamDefSubParamQuery.pas">
+            <Form>QuerySearchParamDefSubParam</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Parameters\SubParametersForm.pas">
+            <Form>frmSubParameters</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\CategoryParameters\UpdateNegativeOrdQuery.pas">
+            <Form>QueryUpdNegativeOrd</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\MoveHelper.pas"/>
+        <DCCReference Include="Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas">
+            <Form>qUpdateParameterValuesParamSubParam</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Helpers\TextRectHelper.pas"/>
+        <DCCReference Include="Helpers\ComponentTypeSetUnit.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

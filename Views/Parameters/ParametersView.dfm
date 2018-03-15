@@ -220,9 +220,11 @@ inherited ViewParameters: TViewParameters
       end
     end
     object cxGridDBBandedTableView3: TcxGridDBBandedTableView [2]
+      OnKeyDown = cxGridDBBandedTableView3KeyDown
+      OnMouseDown = cxGridDBBandedTableView3MouseDown
       Navigator.Buttons.CustomButtons = <>
       OnEditKeyDown = cxGridDBBandedTableView3EditKeyDown
-      DataController.DetailKeyFieldNames = 'ParentParameter'
+      DataController.DetailKeyFieldNames = 'IDParameter'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
@@ -248,32 +250,42 @@ inherited ViewParameters: TViewParameters
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
-      object clParentParameter: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ParentParameter'
-        Visible = False
-        VisibleForCustomization = False
+      object clChecked3: TcxGridDBBandedColumn
+        Caption = 'X'
+        DataBinding.FieldName = 'Checked'
+        PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.ImmediatePost = True
+        Properties.ValueChecked = '1'
+        Properties.ValueUnchecked = '0'
+        Width = 20
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
       end
-      object clValue3: TcxGridDBBandedColumn
-        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-        DataBinding.FieldName = 'Value'
-        PropertiesClassName = 'TcxTextEditProperties'
-        MinWidth = 100
-        Width = 313
+      object clIdParameter: TcxGridDBBandedColumn
+        DataBinding.FieldName = 'IdParameter'
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
       end
-      object clValueT3: TcxGridDBBandedColumn
-        Caption = #1055#1077#1088#1077#1074#1086#1076
-        DataBinding.FieldName = 'ValueT'
-        PropertiesClassName = 'TcxTextEditProperties'
-        MinWidth = 100
-        Width = 514
+      object clIDSubParameter: TcxGridDBBandedColumn
+        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
+        DataBinding.FieldName = 'IDSubParameter'
+        PropertiesClassName = 'TcxLookupComboBoxProperties'
+        Properties.ImmediatePost = True
+        Properties.ListColumns = <>
+        Properties.OnCloseUp = clIDSubParameterPropertiesCloseUp
         Position.BandIndex = 0
         Position.ColIndex = 3
+        Position.RowIndex = 0
+      end
+      object clTranslation: TcxGridDBBandedColumn
+        Caption = #1055#1077#1088#1077#1074#1086#1076
+        DataBinding.FieldName = 'Translation'
+        Position.BandIndex = 0
+        Position.ColIndex = 4
         Position.RowIndex = 0
       end
     end
@@ -282,6 +294,7 @@ inherited ViewParameters: TViewParameters
         GridView = cxGridDBBandedTableView2
         object cxGridLevel3: TcxGridLevel
           GridView = cxGridDBBandedTableView3
+          Visible = False
         end
       end
     end
@@ -317,10 +330,6 @@ inherited ViewParameters: TViewParameters
         item
           Visible = True
           ItemName = 'dxbbAddMainParameter'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbrbtnAddSubParameter'
         end
         item
           Visible = True
@@ -481,6 +490,11 @@ inherited ViewParameters: TViewParameters
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton3: TdxBarButton
+      Caption = 'actFocusLastRecord'
+      Category = 0
+      Visible = ivAlways
+    end
   end
   inherited ActionList: TActionList
     object actAddParameterType: TAction
@@ -496,6 +510,7 @@ inherited ViewParameters: TViewParameters
     object actAddSubParameter: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 1
+      Visible = False
       OnExecute = actAddSubParameterExecute
     end
     object actLoadFromExcelDocument: TAction

@@ -19,8 +19,8 @@ inherited QueryComponentsSearch: TQueryComponentsSearch
       '  '#39#39' Description'
       'from Products p'
       
-        'LEFT JOIN ParameterValues pv2 ON pv2.ProductID = p.Id AND pv2.Pa' +
-        'rameterId = :PackagePinsParameterID'
+        'LEFT JOIN ParameterValues2 pv2 ON pv2.ProductID = p.Id AND pv2.P' +
+        'aramSubParamId = :PackagePinsParamSubParamID'
       'where p.ParentProductId in'
       '('
       '    select p.Id from'
@@ -38,7 +38,7 @@ inherited QueryComponentsSearch: TQueryComponentsSearch
       'order by ParentProductId')
     ParamData = <
       item
-        Name = 'PACKAGEPINSPARAMETERID'
+        Name = 'PACKAGEPINSPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

@@ -6,12 +6,12 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, FamilyExQuery,
-  ParametersForCategoryQuery, ProductParametersQuery, Data.DB,
-  FireDAC.Stan.Option, FireDAC.Comp.DataSet, CustomComponentsQuery,
-  System.Contnrs, System.Generics.Collections, QueryWithDataSourceUnit,
-  BaseQuery, BaseEventsQuery, QueryWithMasterUnit, FamilyQuery, BaseFamilyQuery,
-  BaseComponentsQuery, ComponentsQuery, ComponentsExQuery,
-  BaseComponentsGroupUnit, NotifyEvents, UpdateParamValueRec;
+  ProductParametersQuery, Data.DB, FireDAC.Stan.Option, FireDAC.Comp.DataSet,
+  CustomComponentsQuery, System.Contnrs, System.Generics.Collections,
+  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
+  FamilyQuery, BaseFamilyQuery, BaseComponentsQuery, ComponentsQuery,
+  ComponentsExQuery, BaseComponentsGroupUnit, NotifyEvents, UpdateParamValueRec,
+  CategoryParametersGroupUnit, CategoryParametersQuery2, DBRecordHolder;
 
 type
   TComponentsExGroup = class(TBaseComponentsGroup)
@@ -25,51 +25,54 @@ type
     FClientCount: Integer;
     FMark: string;
     FAllParameterFields: TDictionary<Integer, String>;
-    FFamilyIDList: TUpdParamList;
+    FCatParamsGroup: TCategoryParametersGroup;
+    FFieldIndex: Integer;
+    FFreeFields: TList<String>;
     FOnParamOrderChange: TNotifyEventsEx;
-    FqParametersForCategory: TQueryParametersForCategory;
     FqProductParameters: TQueryProductParameters;
 
   const
     FFieldPrefix: string = 'Field';
+    FFreeFieldCount = 20;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     procedure ApplyUpdate(AQueryCustomComponents: TQueryCustomComponents;
       AFamily: Boolean);
     procedure DoOnApplyUpdateComponent(Sender: TObject);
     procedure DoOnApplyUpdateFamily(Sender: TObject);
-    function GetFamilyIDList: TUpdParamList;
-    function GetFieldName(AIDParameter: Integer): String;
-    procedure UpdateParameterValue(AComponentID, AParameterID: Integer; const
-        AVaramValue: String);
-    property qProductParameters: TQueryProductParameters
-      read FqProductParameters;
+    function GetNextFieldName: String;
+    function GetqCategoryParameters: TQueryCategoryParameters2;
+    function GetqProductParameters: TQueryProductParameters;
+    procedure UpdateParameterValue(AComponentID: Integer;
+      const AParamSubParamID: Integer; const AVaramValue: String);
     { Private declarations }
   protected
     // TODO: ClearUpdateCount
     procedure LoadParameterValues;
-    property FamilyIDList: TUpdParamList read GetFamilyIDList;
+    property qCategoryParameters: TQueryCategoryParameters2
+      read GetqCategoryParameters;
+    property qProductParameters: TQueryProductParameters
+      read GetqProductParameters;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddClient;
+    procedure UpdateFields;
     procedure DecClient;
     function GetIDParameter(const AFieldName: String): Integer;
     procedure TryRefresh;
-    procedure UpdateData;
-    procedure UpdateFamilyParameterValues;
     property Mark: string read FMark;
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
     property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
-    property qParametersForCategory: TQueryParametersForCategory
-      read FqParametersForCategory;
+    property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup;
     { Public declarations }
   end;
 
 implementation
 
-uses FireDAC.Stan.Param, SearchFamilyParamValuesQuery;
+uses FireDAC.Stan.Param, SearchFamilyParamValuesQuery,
+  UpdateParameterValuesParamSubParamQuery;
 
 {$R *.dfm}
 { TfrmComponentsMasterDetail }
@@ -84,8 +87,7 @@ begin
 
   FMark := '!';
 
-  FqParametersForCategory := TQueryParametersForCategory.Create(Self);
-  FqProductParameters := TQueryProductParameters.Create(Self);
+  FCatParamsGroup := TCategoryParametersGroup.Create(Self);
 
   Main := qFamilyEx;
   Detail := qComponentsEx;
@@ -98,15 +100,14 @@ begin
   DecClient; // Искусственно блокируем обновление
 
   FOnParamOrderChange := TNotifyEventsEx.Create(Self);
+  FFreeFields := TList<String>.Create;
 end;
 
 destructor TComponentsExGroup.Destroy;
 begin
-  if FFamilyIDList <> nil then
-    FreeAndNil(FFamilyIDList);
-
   FreeAndNil(FAllParameterFields);
   FreeAndNil(FApplyUpdateEvents);
+  FreeAndNil(FFreeFields);
   inherited;
 end;
 
@@ -122,6 +123,73 @@ begin
     qFamilyEx.Lock := False;
   end;
 
+end;
+
+procedure TComponentsExGroup.UpdateFields;
+var
+  AFieldName: string;
+  AID: Integer;
+  AParamSubParamID: Integer;
+//  AProductCategoryID: Integer;
+  ARecHolder: TRecordHolder;
+  OK: Boolean;
+begin
+  // Обрабатываем удалённые подпараметры
+  for ARecHolder in qCategoryParameters.DeletedSubParams do
+  begin
+    AParamSubParamID := ARecHolder.Field
+      [qCategoryParameters.ParamSubParamId.FieldName];
+//    AProductCategoryID := ARecHolder.Field
+//      [qCategoryParameters.ProductCategoryID.FieldName];
+    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
+    Assert(OK);
+    AFieldName := FAllParameterFields[AParamSubParamID];
+    FAllParameterFields.Remove(AParamSubParamID);
+    // Добавляем поля в список свободных
+    FFreeFields.Add(AFieldName);
+
+    // Удаляем данные удалённого параметра
+//    TqUpdateParameterValuesParamSubParam.DoDelete(AParamSubParamID,
+//      AProductCategoryID);
+  end;
+
+  // Обрабатываем изменённые подпараметры
+  for ARecHolder in qCategoryParameters.EditedSubParams do
+  begin
+    AParamSubParamID := ARecHolder.Field
+      [qCategoryParameters.ParamSubParamId.FieldName];
+    AID := ARecHolder.Field[qCategoryParameters.PKFieldName];
+    qCategoryParameters.LocateByPK(AID, True);
+    Assert(AParamSubParamID <> qCategoryParameters.ParamSubParamId.AsInteger);
+
+    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
+    Assert(OK);
+    AFieldName := FAllParameterFields[AParamSubParamID];
+
+    FAllParameterFields.Remove(AParamSubParamID);
+    FAllParameterFields.Add(qCategoryParameters.ParamSubParamId.AsInteger,
+      AFieldName);
+
+    // Переносим данные с со старого подпараметра на новый
+//    TqUpdateParameterValuesParamSubParam.DoUpdate
+//      (qCategoryParameters.ParamSubParamId.AsInteger, AParamSubParamID,
+//      qCategoryParameters.ProductCategoryID.AsInteger)
+  end;
+
+  // Обрабатываем добавленные подпараметры
+  for ARecHolder in qCategoryParameters.InsertedSubParams do
+  begin
+    Assert(FFreeFields.Count > 0);
+    AParamSubParamID := ARecHolder.Field
+      [qCategoryParameters.ParamSubParamId.FieldName];
+    // Такого подпараметра ещё не должно быть
+    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
+    Assert(not OK);
+
+    // Задействуем первое свободное поле
+    FAllParameterFields.Add(AParamSubParamID, FFreeFields[0]);
+    FFreeFields.Delete(0);
+  end;
 end;
 
 procedure TComponentsExGroup.DecClient;
@@ -147,10 +215,14 @@ var
   AFDQuery: TFDQuery;
   AFieldName: String;
   AFieldType: TFieldType;
+  AParamSubParamID: Integer;
   ASize: Integer;
+  I: Integer;
 begin
   // Очищаем словарь параметров
   FAllParameterFields.Clear;
+  // Очищаем список "свободных" полей
+  FFreeFields.Clear;
 
   AData := Sender as TQueryCustomComponents;
   AFDQuery := AData.FDQuery;
@@ -159,68 +231,62 @@ begin
 
   AFDQuery.FieldDefs.Update;
 
+  FFieldIndex := 0;
+  AFieldType := ftWideString;
+  ASize := 200;
   // В списке параметров могли произойти изменения (порядок, видимость)
-  qParametersForCategory.Load(AData.ParentValue, True); // принудительно
-
-  qParametersForCategory.FDQuery.First;
-  while not FqParametersForCategory.FDQuery.Eof do
+  FCatParamsGroup.qCategoryParameters.Load(AData.ParentValue, True);
+  FCatParamsGroup.qCategoryParameters.FDQuery.First;
+  while not FCatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
+    AParamSubParamID := FCatParamsGroup.qCategoryParameters.
+      ParamSubParamId.AsInteger;
     // Если для такого параметра в SQL запросе поля не существует
-    if not AData.ParameterFields.ContainsKey
-      (FqParametersForCategory.ParameterID.AsInteger) then
+    if not AData.ParameterFields.ContainsKey(AParamSubParamID) then
     begin
-      ASize := 0;
-      // AFieldType := ftInteger;
-
-      case qParametersForCategory.FieldType.AsInteger of
-        // целое число
-        1:
-          AFieldType := ftInteger;
-        2: // строка
-          begin
-            AFieldType := ftWideString;
-            ASize := 200;
-          end;
-        // дробное число
-        3:
-          AFieldType := ftFloat;
-        // булево значение
-        4:
-          AFieldType := ftBoolean;
-        // дата и время
-        5:
-          AFieldType := ftDateTime;
-      else
-        AFieldType := ftWideString;
-        ASize := 200;
-      end;
-
-      AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
+      // Получаем поле со случайным именем
+      AFieldName := GetNextFieldName; // GetFieldName(AParamSubParamId);
       // Добавляем очередное поле
       AFDQuery.FieldDefs.Add(AFieldName, AFieldType, ASize);
-      FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
-        AFieldName);
+      FAllParameterFields.Add(AParamSubParamID, AFieldName);
     end
     else
-      FAllParameterFields.Add(FqParametersForCategory.ParameterID.AsInteger,
-        AData.ParameterFields[FqParametersForCategory.ParameterID.AsInteger]);
+      FAllParameterFields.Add(AParamSubParamID,
+        AData.ParameterFields[AParamSubParamID]);
 
-    FqParametersForCategory.FDQuery.Next;
+    FCatParamsGroup.qCategoryParameters.FDQuery.Next;
+  end;
+
+  // Добавляем некоторое количество свободных полей
+  for I := 0 to FFreeFieldCount - 1 do
+  begin
+    AFieldName := GetNextFieldName;
+    // Добавляем очередное поле
+    AFDQuery.FieldDefs.Add(AFieldName, AFieldType, ASize);
+    FFreeFields.Add(AFieldName);
   end;
 
   AData.CreateDefaultFields(False);
 
-  FqParametersForCategory.FDQuery.First;
-  while not FqParametersForCategory.FDQuery.Eof do
+  FCatParamsGroup.qCategoryParameters.FDQuery.First;
+  while not FCatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
-    if not AData.ParameterFields.ContainsKey
-      (FqParametersForCategory.ParameterID.AsInteger) then
+    AParamSubParamID := FCatParamsGroup.qCategoryParameters.
+      ParamSubParamId.AsInteger;
+    if not AData.ParameterFields.ContainsKey(AParamSubParamID) then
     begin
-      AFieldName := GetFieldName(FqParametersForCategory.ParameterID.AsInteger);
+      AFieldName := FAllParameterFields[AParamSubParamID];
       AFDQuery.FieldByName(AFieldName).FieldKind := fkInternalCalc;
     end;
-    FqParametersForCategory.FDQuery.Next;
+    FCatParamsGroup.qCategoryParameters.FDQuery.Next;
   end;
+
+  // Помечаем свободные поля как внутринне вычисляемые
+  for AFieldName in FFreeFields do
+  begin
+    AFDQuery.FieldByName(AFieldName).FieldKind := fkInternalCalc;
+  end;
+
 end;
 
 procedure TComponentsExGroup.ApplyUpdate(AQueryCustomComponents
@@ -229,6 +295,7 @@ var
   // AQueryCustomComponents: TQueryCustomComponents;
   AField: TField;
   AFieldName: String;
+  AParamSubParamID: Integer;
   // ADataSet: TFDQuery;
   // ANewValue: String;
   // AOldValue: String;
@@ -239,11 +306,13 @@ begin
   Assert(AQueryCustomComponents.RecordHolder <> nil);
 
   // Цикл по всем добавленным полям
-  qParametersForCategory.FDQuery.First;
-  while not qParametersForCategory.FDQuery.Eof do
+
+  CatParamsGroup.qCategoryParameters.FDQuery.First;
+  while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
-    AFieldName := AllParameterFields
-      [FqParametersForCategory.ParameterID.AsInteger];
+    AParamSubParamID := CatParamsGroup.qCategoryParameters.
+      ParamSubParamId.AsInteger;
+    AFieldName := AllParameterFields[AParamSubParamID];
     AField := AQueryCustomComponents.Field(AFieldName);
 
 
@@ -257,10 +326,10 @@ begin
     begin
       // Обновляем значение параметра на сервере
       UpdateParameterValue(AQueryCustomComponents.PK.AsInteger,
-        FqParametersForCategory.ParameterID.AsInteger, AField.AsString);
+        AParamSubParamID, AField.AsString);
     end;
-    // Переходим к следующему параметру
-    qParametersForCategory.FDQuery.Next;
+    // Переходим к следующему подпараметру
+    CatParamsGroup.qCategoryParameters.FDQuery.Next;
   end;
 end;
 
@@ -274,24 +343,11 @@ begin
   ApplyUpdate(Sender as TQueryCustomComponents, True);
 end;
 
-function TComponentsExGroup.GetFamilyIDList: TUpdParamList;
-begin
-  if FFamilyIDList = nil then
-    FFamilyIDList := TUpdParamList.Create;
-
-  Result := FFamilyIDList;
-end;
-
 procedure TComponentsExGroup.OnFDQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
   AAction := eaApplied;
-end;
-
-function TComponentsExGroup.GetFieldName(AIDParameter: Integer): String;
-begin
-  Result := Format('%s%d', [FFieldPrefix, AIDParameter]);
 end;
 
 function TComponentsExGroup.GetIDParameter(const AFieldName: String): Integer;
@@ -302,68 +358,92 @@ begin
   Result := S.ToInteger();
 end;
 
+function TComponentsExGroup.GetNextFieldName: String;
+begin
+  Inc(FFieldIndex);
+  Result := Format('%s_%d', [FFieldPrefix, FFieldIndex]);
+end;
+
+function TComponentsExGroup.GetqCategoryParameters: TQueryCategoryParameters2;
+begin
+  Result := CatParamsGroup.qCategoryParameters;
+end;
+
+function TComponentsExGroup.GetqProductParameters: TQueryProductParameters;
+begin
+  if FqProductParameters = nil then
+    FqProductParameters := TQueryProductParameters.Create(Self);
+
+  Result := FqProductParameters;
+end;
+
 procedure TComponentsExGroup.LoadParameterValues;
 var
   AField: TField;
   qryComponents: TQueryCustomComponents;
   AFieldName: String;
   ANewValue: string;
+  AParamSubParamID: Integer;
   AValue: string;
-  OK: Boolean;
   S: string;
 begin
   // Во время загрузки из БД ничего в БД сохранять не будем
   FApplyUpdateEvents.Clear;
   qFamilyEx.SaveValuesAfterEdit := False;
   qComponentsEx.SaveValuesAfterEdit := False;
+//  qFamilyEx.AutoTransaction := True;
+//  qComponentsEx.AutoTransaction := True;
 
   // Загружаем значения параметров из БД принудительно
-  FqProductParameters.Load(qFamilyEx.ParentValue, True);
+  qProductParameters.Load(qFamilyEx.ParentValue, True);
 
   qFamilyEx.FDQuery.DisableControls;
   qComponentsEx.FDQuery.DisableControls;
   try
-    FqProductParameters.FDQuery.First;
-    while not FqProductParameters.FDQuery.Eof do
+    // Цикл по значениям параметров текущей категории
+    qProductParameters.FDQuery.First;
+    while not qProductParameters.FDQuery.Eof do
     begin
 
-      if FqProductParameters.ParentProductID.IsNull then
+      if qProductParameters.ParentProductID.IsNull then
         qryComponents := qFamilyEx
       else
         qryComponents := qComponentsEx;
 
-      OK := qryComponents.LocateByPK(FqProductParameters.ProductID.Value);
-      Assert(OK);
+      qryComponents.LocateByPK(qProductParameters.ProductID.Value, True);
 
-      // Если для такого параметра в SQL запросе поля не существует
-      if not qryComponents.ParameterFields.ContainsKey
-        (FqParametersForCategory.ParameterID.AsInteger) then
+      AParamSubParamID := qProductParameters.ParamSubParamId.AsInteger;
+
+      // Возможно значение подпараметра в БД есть, а сам подпараметр отвязали
+      // Или для такого параметра в SQL запросе поля СУЩЕСТВУЕТ
+      if (not(AllParameterFields.ContainsKey(AParamSubParamID))) or
+        (qryComponents.ParameterFields.ContainsKey(AParamSubParamID)) then
       begin
-        AFieldName := GetFieldName(FqProductParameters.ParameterID.AsInteger);
-        S := FqProductParameters.Value.AsString.Trim;
-        if not S.IsEmpty then
-        begin
-          // Возможно такого параметра у нашей категории уже нет
-          AField := qryComponents.FDQuery.FindField(AFieldName);
-          // Если такой параметр у нашей категории есть
-          if AField <> nil then
-          begin
-            // Добавляем ограничители, чтобы потом можно было фильтровать
-            ANewValue := Format('%s%s%s',
-              [FMark, FqProductParameters.Value.AsString.Trim, FMark]);
-
-            AValue := AField.AsString.Trim;
-            if AValue <> '' then
-              AValue := AValue + #13#10;
-            AValue := AValue + ANewValue;
-
-            qryComponents.TryEdit;
-            AField.AsString := AValue;
-            qryComponents.TryPost;
-          end;
-        end;
+        qProductParameters.FDQuery.Next;
+        Continue;
       end;
-      FqProductParameters.FDQuery.Next;
+
+      AFieldName := AllParameterFields[AParamSubParamID];
+      S := qProductParameters.Value.AsString.Trim;
+      if not S.IsEmpty then
+      begin
+        AField := qryComponents.FDQuery.FindField(AFieldName);
+        Assert(AField <> nil);
+        // Добавляем ограничители, чтобы потом можно было фильтровать
+        ANewValue := Format('%s%s%s',
+          [FMark, qProductParameters.Value.AsString.Trim, FMark]);
+
+        AValue := AField.AsString.Trim;
+        if AValue <> '' then
+          AValue := AValue + #13#10;
+        AValue := AValue + ANewValue;
+
+        qryComponents.TryEdit;
+        AField.AsString := AValue;
+        qryComponents.TryPost;
+      end;
+
+      qProductParameters.FDQuery.Next;
     end;
   finally
     qFamilyEx.FDQuery.First;
@@ -392,45 +472,8 @@ begin
   qFamilyEx.TryRefresh;
 end;
 
-procedure TComponentsExGroup.UpdateData;
-begin
-  qParametersForCategory.FDQuery.Params.ParamByName
-    (qParametersForCategory.DetailParameterName).AsInteger := 0;
-  qProductParameters.FDQuery.Params.ParamByName
-    (qProductParameters.DetailParameterName).AsInteger := 0;
-  // Запросы нужно обновить, но мастер у них не изменился
-  qComponentsEx.TryRefresh;
-  qFamilyEx.TryRefresh;
-end;
-
-procedure TComponentsExGroup.UpdateFamilyParameterValues;
-var
-  AUpdParam: TUpdParam;
-  Q: TQueryFamilyParamValues;
-begin
-  if (FFamilyIDList = nil) or (FamilyIDList.Count = 0) then
-    Exit;
-
-  Q := TQueryFamilyParamValues.Create(Self);
-  try
-
-    for AUpdParam in FFamilyIDList do
-    begin
-      // Если найдено единственное значение
-      if Q.SearchEx(AUpdParam.FamilyID, AUpdParam.ParameterID) = 1 then
-      begin
-        UpdateParameterValue(AUpdParam.FamilyID, AUpdParam.ParameterID,
-        Q.Value.AsString)
-      end;
-    end;
-
-  finally
-    FreeAndNil(Q);
-  end;
-end;
-
-procedure TComponentsExGroup.UpdateParameterValue(AComponentID, AParameterID:
-    Integer; const AVaramValue: String);
+procedure TComponentsExGroup.UpdateParameterValue(AComponentID: Integer;
+  const AParamSubParamID: Integer; const AVaramValue: String);
 var
   AValue: string;
   k: Integer;
@@ -438,13 +481,12 @@ var
   S: string;
 begin
   Assert(AComponentID > 0);
-  Assert(AParameterID > 0);
-
+  Assert(AParamSubParamID > 0);
 
   // Фильтруем значения параметров
-  FqProductParameters.ApplyFilter(AComponentID, AParameterID);
+  qProductParameters.ApplyFilter(AComponentID, AParamSubParamID);
 
-  FqProductParameters.FDQuery.First;
+  qProductParameters.FDQuery.First;
 
   S := AVaramValue;
   m := S.Split([#13]);
@@ -456,29 +498,28 @@ begin
     if not AValue.IsEmpty then
     begin
       Inc(k);
-      if not(FqProductParameters.FDQuery.Eof) then
-        FqProductParameters.FDQuery.Edit
+      if not(qProductParameters.FDQuery.Eof) then
+        qProductParameters.FDQuery.Edit
       else
       begin
-        FqProductParameters.FDQuery.Append;
-        FqProductParameters.ParameterID.AsInteger :=
-          FqParametersForCategory.ParameterID.AsInteger;
-        FqProductParameters.ProductID.AsInteger := AComponentID;
+        qProductParameters.FDQuery.Append;
+        qProductParameters.ParamSubParamId.AsInteger := AParamSubParamID;
+        qProductParameters.ProductID.AsInteger := AComponentID;
       end;
 
-      FqProductParameters.Value.AsString := AValue;
-      FqProductParameters.TryPost;
-      FqProductParameters.FDQuery.Next;
+      qProductParameters.Value.AsString := AValue;
+      qProductParameters.TryPost;
+      qProductParameters.FDQuery.Next;
     end;
   end;
 
   // Удаляем "лишние" значения
-  while FqProductParameters.FDQuery.RecordCount > k do
+  while qProductParameters.FDQuery.RecordCount > k do
   begin
-    FqProductParameters.FDQuery.Last;
-    FqProductParameters.FDQuery.Delete;
+    qProductParameters.FDQuery.Last;
+    qProductParameters.FDQuery.Delete;
   end;
-  FqProductParameters.FDQuery.Filtered := False;
+  qProductParameters.FDQuery.Filtered := False;
 end;
 
 end.

@@ -30,10 +30,11 @@ type
     procedure DeleteAll;
     procedure HideNotDeleted;
     procedure HideNotAdded;
-    procedure LoadRecords(ATreeExcelTable: TTreeExcelTable);
+    procedure LoadDataFromExcelTable(ATreeExcelTable: TTreeExcelTable);
     function LocateByExternalID(AParentExternalID: Variant;
       const AExternalID: string): Boolean; overload;
-    function LocateByExternalID(const AExternalID: string): Boolean; overload;
+    function LocateByExternalID(const AExternalID: string; TestResult: Boolean =
+        False): Boolean; overload;
     function LocateByValue(AParentExternalID: Variant;
       const AValue: string): Boolean;
     property Added: TField read GetAdded;
@@ -136,10 +137,10 @@ begin
   FDQuery.Filtered := True;
 end;
 
-procedure TQueryRecursiveTree.LoadRecords(ATreeExcelTable: TTreeExcelTable);
+procedure TQueryRecursiveTree.LoadDataFromExcelTable(ATreeExcelTable:
+    TTreeExcelTable);
 var
   AParentID: Variant;
-  OK: Boolean;
 begin
   // DeleteAll;
 
@@ -175,8 +176,7 @@ begin
           ATreeExcelTable.ExternalID.AsString) then
         begin
           // »щем родительскую запись по внешнему идентификатору
-          OK := LocateByExternalID(ATreeExcelTable.ParentExternalID.AsString);
-          Assert(OK);
+          LocateByExternalID(ATreeExcelTable.ParentExternalID.AsString, True);
           AParentID := PK.Value;
 
           TryAppend;
@@ -221,13 +221,16 @@ begin
     VarArrayOf([AParentExternalID, AExternalID]), []);
 end;
 
-function TQueryRecursiveTree.LocateByExternalID(const AExternalID
-  : string): Boolean;
+function TQueryRecursiveTree.LocateByExternalID(const AExternalID: string;
+    TestResult: Boolean = False): Boolean;
 begin
   Assert(not AExternalID.IsEmpty);
 
   // »щем в ветви дерева внешний идентификатор
   Result := FDQuery.LocateEx(ExternalID.FieldName, AExternalID, []);
+
+  if TestResult then
+    Assert(Result);
 end;
 
 function TQueryRecursiveTree.LocateByValue(AParentExternalID: Variant;

@@ -62,7 +62,8 @@ begin
   AfrmParameters := TfrmParameters.Create(Self);
   try
     AfrmParameters.CloseAction := caHide;
-    AfrmParameters.ViewParameters.ParametersGroup := AParametersGroup;
+    AfrmParameters.ViewParameters.ParametersGrp := AParametersGroup;
+    AfrmParameters.ViewSubParameters.QuerySubParameters := AParametersGroup.qSubParameters;
     if ParametricErrorTable.ErrorType.AsInteger = Integer(petDuplicate) then
     begin
       AfrmParameters.ViewParameters.Search(ParametricErrorTable.ParameterName.AsString);
@@ -72,14 +73,14 @@ begin
     if AfrmParameters.ShowModal <> mrOK then
       Exit;
 
-    OK := (AParametersGroup.qMainParameters.FDQuery.RecordCount <> 0) and
-      (AParametersGroup.qMainParameters.TableName.AsString =
+    OK := (AParametersGroup.qParameters.FDQuery.RecordCount <> 0) and
+      (AParametersGroup.qParameters.TableName.AsString =
       ParametricErrorTable.ParameterName.AsString);
 
     if OK then
     begin
       // Фиксим ошибку
-      ParametricErrorTable.Fix(AParametersGroup.qMainParameters.PK.AsInteger);
+      ParametricErrorTable.Fix(AParametersGroup.qParameters.PK.AsInteger);
     end
     else
     begin

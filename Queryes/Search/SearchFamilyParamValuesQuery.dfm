@@ -7,8 +7,8 @@ inherited QueryFamilyParamValues: TQueryFamilyParamValues
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select distinct Value'
-      'from ParameterValues'
-      'where ParameterID = :ParameterID'
+      'from ParameterValues2'
+      'where ParamSubParamID = :ParamSubParamID'
       'and productId in'
       '('
       '    select id'
@@ -18,7 +18,7 @@ inherited QueryFamilyParamValues: TQueryFamilyParamValues
       'and Value is not null')
     ParamData = <
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

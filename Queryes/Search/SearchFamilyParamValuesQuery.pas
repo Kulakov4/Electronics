@@ -16,7 +16,7 @@ type
     { Private declarations }
   protected
   public
-    function SearchEx(AFamilyID, AParameterID: Integer): Integer;
+    function SearchEx(AFamilyID, AParamSubParamID: Integer): Integer;
     property Value: TField read GetValue;
     { Public declarations }
   end;
@@ -30,13 +30,13 @@ begin
   Result := Field('Value');
 end;
 
-function TQueryFamilyParamValues.SearchEx(AFamilyID, AParameterID: Integer):
-    Integer;
+function TQueryFamilyParamValues.SearchEx(AFamilyID, AParamSubParamID:
+    Integer): Integer;
 begin
   Assert(AFamilyID > 0);
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
 
-  Result := Search(['ParameterID', 'parentProductid'], [AParameterID, AFamilyID]);
+  Result := Search(['ParamSubParamID', 'parentProductid'], [AParamSubParamID, AFamilyID]);
 end;
 
 end.

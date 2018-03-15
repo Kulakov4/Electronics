@@ -27,8 +27,8 @@ inherited QueryProducers: TQueryProducers
       '    from products p'
       '    join products f on p.ParentProductId = f.Id'
       
-        '    join ParameterValues pv on pv.ProductId = f.id and pv.Parame' +
-        'terId = :ProducerParameterID'
+        '    join ParameterValues2 pv on pv.ProductId = f.id and pv.Param' +
+        'SubParamId = :ProducerParamSubParamID'
       '    group by pv.Value'
       ') t on pr.name = t.Value'
       ''
@@ -37,8 +37,8 @@ inherited QueryProducers: TQueryProducers
       '    select pv.Value, count(*) cnt'
       '    from products f'
       
-        '    join ParameterValues pv on pv.ProductId = f.id and pv.Parame' +
-        'terId = :ProducerParameterID'
+        '    join ParameterValues2 pv on pv.ProductId = f.id and pv.Param' +
+        'SubParamId = :ProducerParamSubParamID'
       '    where f.ParentProductId is null'
       '    and not exists '
       '    ('
@@ -51,7 +51,7 @@ inherited QueryProducers: TQueryProducers
       'order by pr.ProducerTypeID, pr.Name')
     ParamData = <
       item
-        Name = 'PRODUCERPARAMETERID'
+        Name = 'PRODUCERPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

@@ -21,7 +21,8 @@ type
       ASplitter: string): string;
     function GetMinimizePath(ACategoryID: Integer; ACanvas: TCanvas;
       MaxLen: Integer): String;
-    function Search(ACategoryID: Integer): Integer; overload;
+    function Search(ACategoryID: Integer; TestResult: Integer = -1): Integer;
+        overload;
     property Path: TField read GetPath;
     { Public declarations }
   end;
@@ -37,11 +38,8 @@ implementation
 uses Vcl.FileCtrl;
 
 function TQuerySearchCategoriesPath.GetFullPath(ACategoryID: Integer): string;
-var
-  rc: Integer;
 begin
-  rc := Search(ACategoryID);
-  Assert(rc = 1);
+  Search(ACategoryID, 1);
   Result := Path.AsString;
 end;
 
@@ -86,11 +84,12 @@ begin
   Result := Field('Path');
 end;
 
-function TQuerySearchCategoriesPath.Search(ACategoryID: Integer): Integer;
+function TQuerySearchCategoriesPath.Search(ACategoryID: Integer; TestResult:
+    Integer = -1): Integer;
 begin
   Assert(ACategoryID > 0);
 
-  Result := Search(['ID'], [ACategoryID]);
+  Result := Search(['ID'], [ACategoryID], TestResult);
 end;
 
 end.

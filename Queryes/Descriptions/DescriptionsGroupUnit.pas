@@ -27,8 +27,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure InsertRecordList(ADescriptionsExcelTable
-      : TDescriptionsExcelTable);
+    procedure LoadDataFromExcelTable(ADescriptionsExcelTable :
+        TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
     procedure ReOpen; override;
     procedure Rollback; override;
@@ -81,8 +81,6 @@ begin
 end;
 
 function TDescriptionsGroup.Find(const AFieldName, S: string): TList<String>;
-var
-  OK: Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -90,8 +88,7 @@ begin
   // Пытаемся искать среди кратких описаний по какому-то полю
   if qDescriptions.LocateByField(AFieldName, S) then
   begin
-    OK := qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.Value);
-    Assert(OK);
+    qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qDescriptionTypes.ComponentType.AsString);
     // запоминаем что надо искать на втором уровне
@@ -116,8 +113,8 @@ begin
   Result := FqProducers;
 end;
 
-procedure TDescriptionsGroup.InsertRecordList(ADescriptionsExcelTable
-  : TDescriptionsExcelTable);
+procedure TDescriptionsGroup.LoadDataFromExcelTable(ADescriptionsExcelTable :
+    TDescriptionsExcelTable);
 var
   AField: TField;
   I: Integer;

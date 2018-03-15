@@ -13,6 +13,7 @@ type
     function GetBodyTypesLandPatternFolder: string;
     function GetBodyTypesOutlineDrawingFolder: string;
     function GetBodyTypesImageFolder: string;
+    function GetCategoryID: Integer;
     function GetComponentsDrawingFolder: String;
     function GetComponentsImageFolder: String;
     function GetComponentsDiagramFolder: String;
@@ -29,9 +30,11 @@ type
     function GetLastFolderForExcelFile: string;
     function GetProducer: String;
     function GetRate: Double;
+    function GetLoadLastCategory: Boolean;
     procedure SetBodyTypesLandPatternFolder(const Value: string);
     procedure SetBodyTypesOutlineDrawingFolder(const Value: string);
     procedure SetBodyTypesImageFolder(const Value: string);
+    procedure SetCategoryID(const Value: Integer);
     procedure SetComponentsDrawingFolder(const Value: String);
     procedure SetComponentsImageFolder(const Value: String);
     procedure SetComponentsDiagramFolder(const Value: String);
@@ -47,6 +50,7 @@ type
     procedure SetLastFolderForExcelFile(const Value: string);
     procedure SetProducer(const Value: String);
     procedure SetRate(const Value: Double);
+    procedure SetLoadLastCategory(const Value: Boolean);
     // TODO: UpdatePath
     // function UpdatePath(const APath, ANewDBPath: string): string;
   protected
@@ -67,6 +71,7 @@ type
       write SetBodyTypesOutlineDrawingFolder;
     property BodyTypesImageFolder: string read GetBodyTypesImageFolder
       write SetBodyTypesImageFolder;
+    property CategoryID: Integer read GetCategoryID write SetCategoryID;
     property ComponentsDrawingFolder: String read GetComponentsDrawingFolder
       write SetComponentsDrawingFolder;
     property ComponentsImageFolder: String read GetComponentsImageFolder
@@ -94,6 +99,8 @@ type
       write SetLastFolderForExcelFile;
     property Producer: String read GetProducer write SetProducer;
     property Rate: Double read GetRate write SetRate;
+    property LoadLastCategory: Boolean read GetLoadLastCategory write
+        SetLoadLastCategory;
   end;
 
 implementation
@@ -119,6 +126,11 @@ end;
 function TSettings.GetBodyTypesImageFolder: string;
 begin
   Result := GetPath('BodyTypes', 'ImageFolder', sBodyImageFolder);
+end;
+
+function TSettings.GetCategoryID: Integer;
+begin
+  Result := StrToIntDef( GetValue('Db', 'CategoryID', '0'), 0);
 end;
 
 function TSettings.GetComponentsDrawingFolder: String;
@@ -240,6 +252,11 @@ begin
     DefaultRate);
 end;
 
+function TSettings.GetLoadLastCategory: Boolean;
+begin
+  Result := StrToBool( GetValue('Settings', 'LoadLastCategory', 'True') );
+end;
+
 class function TSettings.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
@@ -261,6 +278,11 @@ end;
 procedure TSettings.SetBodyTypesImageFolder(const Value: string);
 begin
   SetValue('BodyTypes', 'ImageFolder', Value);
+end;
+
+procedure TSettings.SetCategoryID(const Value: Integer);
+begin
+  SetValue('Db', 'CategoryID', Value);
 end;
 
 procedure TSettings.SetComponentsDrawingFolder(const Value: String);
@@ -365,6 +387,11 @@ begin
   SetValue('Rate', 'Rate', Value);
 end;
 
+procedure TSettings.SetLoadLastCategory(const Value: Boolean);
+begin
+  SetValue('Settings', 'LoadLastCategory', Value);
+end;
+
 procedure TSettings.SetValue(const ASection, AParameter: string;
   const Value: Variant);
 var
@@ -379,6 +406,10 @@ begin
       AIniFile.WriteString(ASection, AParameter, Value);
     if VarIsFloat(Value) then
       AIniFile.WriteFloat(ASection, AParameter, Value);
+    if VarIsNumeric(Value) then
+      AIniFile.WriteInteger(ASection, AParameter, Value);
+    if VarIsType(Value, varBoolean) then
+      AIniFile.WriteBool(ASection, AParameter, Value);
   finally
     AIniFile.Free;
   end;

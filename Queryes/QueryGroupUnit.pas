@@ -18,23 +18,23 @@ type
     FMain: TQueryWithDataSource;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
-    function GetHaveAnyChanges: Boolean;
     procedure SetDetail(const Value: TQueryWithDataSource);
     procedure SetMain(const Value: TQueryWithDataSource);
     { Private declarations }
   protected
     procedure CheckMasterAndDetail;
+    function GetHaveAnyChanges: Boolean; virtual;
     procedure InitializeQuery(AQuery: TFDQuery); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure ApplyUpdates; virtual;
+    function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
     procedure Commit; virtual;
     procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
-    procedure TryPost;
+    procedure TryPost; virtual;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
@@ -65,7 +65,7 @@ begin
   end;
 end;
 
-procedure TQueryGroup.ApplyUpdates;
+function TQueryGroup.ApplyUpdates: Boolean;
 begin
   CheckMasterAndDetail;
 
@@ -74,6 +74,7 @@ begin
 
   Main.ApplyUpdates;
   Detail.ApplyUpdates;
+  Result := (not Main.HaveAnyChanges) and (not Detail.HaveAnyChanges);
 end;
 
 procedure TQueryGroup.CancelUpdates;

@@ -39,7 +39,8 @@ type
     constructor Create(AOwner: TComponent); override;
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
-    procedure LoadDocFile(const AFileName: String; ADocFieldInfo: TDocFieldInfo);
+    procedure LoadDocFile(const AFileName: String;
+      ADocFieldInfo: TDocFieldInfo);
     procedure LocateOrAppend(AIDBodyKind: Integer;
       const ABody, ABodyData: String; AIDProducer: Integer;
       const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
@@ -139,7 +140,8 @@ begin
     for I := 0 to L.Count - 1 do
     begin
       QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
-        OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString);
+        OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString,
+        JEDEC.AsString);
       AID := QueryBodyVariations.PK.AsString;
       Assert(not AID.IsEmpty);
 
@@ -344,8 +346,8 @@ begin
   }
 end;
 
-procedure TQueryBodyTypes2.LoadDocFile(const AFileName: String; ADocFieldInfo:
-    TDocFieldInfo);
+procedure TQueryBodyTypes2.LoadDocFile(const AFileName: String;
+  ADocFieldInfo: TDocFieldInfo);
 var
   S: string;
 begin

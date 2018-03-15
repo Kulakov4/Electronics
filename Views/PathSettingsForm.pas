@@ -25,7 +25,7 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, cxClasses, cxShellBrowserDialog,
-  System.Generics.Collections, DialogUnit;
+  System.Generics.Collections, DialogUnit, cxCheckBox;
 
 {$WARN UNIT_PLATFORM OFF}
 
@@ -87,6 +87,7 @@ type
     actBrowseWareHouseImageFilder: TAction;
     actBrowseWareHouseDrawingFolder: TAction;
     actBrowseWareHouseSchemeFolder: TAction;
+    cbLoadLastCategory: TcxCheckBox;
     procedure actBrowseComponentsDataSheetFolderExecute(Sender: TObject);
     procedure actBrowseComponentsDrawingFolderExecute(Sender: TObject);
     procedure actBrowseComponentsImageFolderExecute(Sender: TObject);
@@ -357,6 +358,8 @@ begin
   cxteWareHouseDrawingFolder.Text := TSettings.Create.WareHouseDrawingFolder;
 
   cxteWareHouseDiagramFolder.Text := TSettings.Create.WareHouseDiagramFolder;
+
+  cbLoadLastCategory.Checked := TSettings.Create.LoadLastCategory;
 end;
 
 procedure TfrmPathSettings.SaveToSettings;
@@ -387,6 +390,8 @@ begin
 
   TSettings.Create.WareHouseDatasheetFolder :=
     cxteWareHouseDataSheetFolder.Text;
+
+  TSettings.Create.LoadLastCategory := cbLoadLastCategory.Checked;
 
 end;
 

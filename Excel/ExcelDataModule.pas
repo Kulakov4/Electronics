@@ -35,12 +35,12 @@ type
     FValue: string;
   protected
   class var
-    FMaxlID: Integer;
+    FMaxID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
     function AddChild(const AValue: String): TStringTreeNode;
-    procedure ClearMaxlID;
+    procedure ClearMaxID;
     function FindByID(AID: Integer): TStringTreeNode;
     property Childs: TList<TStringTreeNode> read FChilds write FChilds;
     property ID: Integer read FID;
@@ -71,6 +71,7 @@ type
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
+    function LoadExcelFileHeaderInternal: TStringTreeNode;
     // TODO: LoadExcelFile
     // procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
     // TNotifyEventRef = nil);
@@ -92,6 +93,7 @@ type
     procedure LoadExcelFile2(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
+    function LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
@@ -509,24 +511,49 @@ begin
 end;
 
 function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
+begin
+  InternalLoadExcelFile(AFileName);
+  ConnectToSheet(1);
+
+  Result := LoadExcelFileHeaderInternal;
+
+  EA.Quit;
+  EA.Disconnect;
+end;
+
+function TExcelDM.LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+begin
+  EA.ConnectKind := ckRunningInstance;
+  try
+    EA.Connect;
+  except
+    raise Exception.Create('Не найден активный лист документа Excel');
+  end;
+
+  if EA.ActiveWorkbook = nil then
+    raise Exception.Create('Не найден активный лист документа Excel');
+
+  EWB.ConnectTo(EA.ActiveWorkbook);
+  EWS.ConnectTo(EWB.ActiveSheet as _WorkSheet);
+
+  Result := LoadExcelFileHeaderInternal;
+
+  EWS.Disconnect;
+  EWB.Disconnect;
+  EA.Disconnect;
+end;
+
+function TExcelDM.LoadExcelFileHeaderInternal: TStringTreeNode;
 var
   ACell: OleVariant;
   ACell2: OleVariant;
+  ACellValue: string;
   ACol: Integer;
   AColor: TColor;
   AColor2: TColor;
   ARow: Integer;
   AStringNode: TStringTreeNode;
-{
-  c: Integer;
-  cc: Integer;
-  r: Integer;
-  rc: Integer;
-}
 begin
-  InternalLoadExcelFile(AFileName);
-  ConnectToSheet(1);
-
   // Создали дерево
   Result := TStringTreeNode.Create;
   AStringNode := nil;
@@ -550,28 +577,28 @@ begin
       break
     else
     begin
+      ACellValue := ACell.Value;
       // Если это новая ячейка, то создаём новый узел
-      if ACell.Value <> '' then
-        AStringNode := Result.AddChild(ACell.Value);
+      if ACellValue <> '' then
+        AStringNode := Result.AddChild(ACellValue);
 
       // Получаем ячейку под нашей
       ACell2 := EWS.Cells.Item[ARow + 1, ACol];
       // Получаем её цвет
       AColor2 := GetCellsColor(ACell2);
 
+      ACellValue := ACell2.Value;
       // если в заголовке указан подпараметр
-      if (AColor2 <> clWhite) and (ACell2.Value <> '') then
+      if (AColor2 <> clWhite) and (ACellValue <> '') then
       begin
         // Родительская ячейка должна быть заполнена
         Assert(AStringNode <> nil);
-        AStringNode.AddChild(ACell2.Value);
+        AStringNode.AddChild(ACellValue);
       end;
     end;
     Inc(ACol);
   end;
 
-  EA.Quit;
-  EA.Disconnect;
 end;
 
 procedure TExcelDM.ProcessRange(AExcelRange: ExcelRange);
@@ -774,7 +801,7 @@ constructor TStringTreeNode.Create;
 begin
   inherited;
   FChilds := TObjectList<TStringTreeNode>.Create;
-  FID := FMaxlID;
+  FID := FMaxID;
 end;
 
 destructor TStringTreeNode.Destroy;
@@ -786,7 +813,7 @@ end;
 function TStringTreeNode.AddChild(const AValue: String): TStringTreeNode;
 begin
   // Увеличиваем максимальный идентификатор
-  Inc(FMaxlID);
+  Inc(FMaxID);
   Result := TStringTreeNode.Create;
   Result.Value := AValue;
   Result.Parent := Self;
@@ -794,9 +821,9 @@ begin
   Childs.Add(Result);
 end;
 
-procedure TStringTreeNode.ClearMaxlID;
+procedure TStringTreeNode.ClearMaxID;
 begin
-  FMaxlID := 0;
+  FMaxID := 0;
 end;
 
 function TStringTreeNode.FindByID(AID: Integer): TStringTreeNode;

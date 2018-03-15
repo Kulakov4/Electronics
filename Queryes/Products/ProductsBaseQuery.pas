@@ -82,7 +82,6 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    function CreateClone(AIDComponentGroup: Integer): TFDMemTable;
     function GetExportFileName: string; virtual; abstract;
     function GetProcurementPrice: Variant;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
@@ -266,7 +265,6 @@ var
   ARH: TRecordHolder;
   ARHFamily: TRecordHolder;
   ARHProducts: TRecordHolder;
-  OK: Boolean;
   rc: Integer;
 begin
   Assert(ASender = FDQuery);
@@ -307,8 +305,7 @@ begin
     if IDProducer.AsInteger > 0 then
     begin
       // Ищем производителя по коду
-      OK := ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger);
-      Assert(OK);
+      ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger, True);
 
       rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
         ProducersGroup.qProducers.Name.AsString);
@@ -321,9 +318,8 @@ begin
       if rc > 0 then
       begin
         // Ищем в справочнике такого производителя
-        OK := ProducersGroup.qProducers.Locate
-          (qSearchComponentOrFamily.Producer.AsString);
-        Assert(OK);
+        ProducersGroup.qProducers.Locate
+          (qSearchComponentOrFamily.Producer.AsString, True);
 
         // Запоминаем, какое будет значение у кода производителя
         ARH.Field[IDProducer.FieldName] := ProducersGroup.qProducers.PK.Value;
@@ -339,9 +335,8 @@ begin
       // Запоминаем, что этот компонент есть в теоретической базе
       ARH.Field[Checked.FieldName] := 1;
       // Ищем соответствующее семейство компонентов
-      rc := qSearchFamily.SearchByID
-        (qSearchComponentOrFamily.ParentProductID.AsInteger);
-      Assert(rc = 1);
+      qSearchFamily.SearchByID
+        (qSearchComponentOrFamily.ParentProductID.AsInteger, 1);
 
       ARHFamily := TRecordHolder.Create(qSearchFamily.FDQuery);
       try
@@ -504,43 +499,30 @@ begin
 
 end;
 
-function TQueryProductsBase.CreateClone(AIDComponentGroup: Integer)
-  : TFDMemTable;
-begin
-  Assert(AIDComponentGroup > 0);
-  Result := TFDMemTable.Create(Self);
-  Result.CloneCursor(FDQuery);
-  Result.Filter := Format('IDComponentGroup=%d', [AIDComponentGroup]);
-  Result.Filtered := True;
-end;
-
 procedure TQueryProductsBase.DeleteNode(AID: Integer);
 var
   AClone: TFDMemTable;
-  OK: Boolean;
 begin
   // FDQuery.DisableControls;
   try
     // Ищем запись которую надо удалить
-    OK := LocateByPK(AID);
-    Assert(OK);
+    LocateByPK(AID, True);
 
     // Если нужно удалить группу
     if IsGroup.AsInteger = 1 then
     begin
-      AClone := CreateClone(PK.AsInteger);
+      AClone := AddClone(Format('%s=%d', [IDComponentGroup.FieldName, PK.AsInteger]));
       try
         // Удаляем все компоненты группы
         while AClone.RecordCount > 0 do
           DeleteNode(AClone.FieldByName('ID').AsInteger);
 
       finally
-        FreeAndNil(AClone);
+        DropClone(AClone);
       end;
 
       // Снова переходим на группу
-      OK := LocateByPK(AID);
-      Assert(OK);
+      LocateByPK(AID, True);
     end;
     FDQuery.Delete;
   finally
@@ -834,7 +816,6 @@ end;
 function TQueryProductsBase.LocateInComponents: Boolean;
 var
   AIDCategory: Integer;
-  OK: Boolean;
   rc: Integer;
   LR: TLocateObject;
   m: TArray<String>;
@@ -844,8 +825,7 @@ begin
   if IDProducer.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    OK := ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger);
-    Assert(OK);
+    ProducersGroup.qProducers.LocateByPK(IDProducer.AsInteger, True);
 
     rc := qSearchComponentOrFamily.SearchComponentWithProducer(Value.AsString,
       ProducersGroup.qProducers.Name.AsString);
@@ -924,7 +904,6 @@ procedure TQueryProductsBase.UpdateRate(AID: Integer; RateField: TField;
   ARate: Double; AUpdatedIDList: TList<Integer>);
 var
   AClone: TFDMemTable;
-  OK: Boolean;
 begin
   Assert(AID <> 0);
 
@@ -932,13 +911,12 @@ begin
   if AUpdatedIDList.IndexOf(AID) >= 0 then
     Exit;
 
-  OK := LocateByPK(AID);
-  Assert(OK);
+  LocateByPK(AID, True);
 
   // Если пытаемся применить коэффициент к группе
   if IsGroup.AsInteger = 1 then
   begin
-    AClone := CreateClone(PK.AsInteger);
+    AClone := AddClone(Format('%s=%d', [IDComponentGroup.FieldName, PK.AsInteger]));
     try
       AClone.First;
       while not AClone.Eof do
@@ -948,9 +926,8 @@ begin
         AClone.Next;
       end;
     finally
-      FreeAndNil(AClone);
+      DropClone(AClone);
     end;
-
   end
   else
   begin

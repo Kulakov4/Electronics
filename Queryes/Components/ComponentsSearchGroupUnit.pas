@@ -23,7 +23,7 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
-    procedure ApplyUpdates; override;
+    function ApplyUpdates: Boolean; override;
     procedure ClearSearchResult;
     procedure Search(ALike: Boolean);
     { Public declarations }
@@ -42,13 +42,15 @@ begin
   Detail := qComponentsSearch;
 end;
 
-procedure TComponentsSearchGroup.ApplyUpdates;
+function TComponentsSearchGroup.ApplyUpdates: Boolean;
 begin
   // Если находимся в режиме отображения найденных записей
   if qFamilySearch.Mode = RecordsMode then
   begin
-    Inherited;
-  end;
+    Result := Inherited;
+  end
+  else
+    Result := True;
 end;
 
 procedure TComponentsSearchGroup.ClearSearchResult;

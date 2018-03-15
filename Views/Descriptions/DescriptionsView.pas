@@ -226,8 +226,7 @@ begin
       TfrmImportError,
       procedure(ASender: TObject)
       begin
-
-        DescriptionsGroup.InsertRecordList(ASender as TDescriptionsExcelTable);
+        DescriptionsGroup.LoadDataFromExcelTable(ASender as TDescriptionsExcelTable);
       end,
       procedure(ASender: TObject)
       begin
@@ -380,7 +379,6 @@ var
   F: TcxFilterCriteriaItem;
   I: Integer;
   r: TcxFilterCriteriaItemList;
-  a: array of string;
   Arr: Variant;
   X: Integer;
 begin
@@ -389,7 +387,6 @@ begin
   if F <> nil then
   begin
     AIDtypeList := '';
-    SetLength(a, cxGridDBBandedTableView.ViewData.RowCount);
 
     Arr := VarArrayCreate([0, cxGridDBBandedTableView.ViewData.RowCount],
       varInteger);

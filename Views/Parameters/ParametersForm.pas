@@ -23,11 +23,19 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue;
+  dxSkinXmas2008Blue, cxControls, dxSkinscxPCPainter, dxBarBuiltInMenu, cxPC,
+  SubParametersView;
 
 type
   TfrmParameters = class(TfrmDictonary)
+    cxPageControl: TcxPageControl;
+    cxtsParameters: TcxTabSheet;
+    cxtsSubParameters: TcxTabSheet;
     ViewParameters: TViewParameters;
+    ViewSubParameters: TViewSubParameters;
+    procedure FormCreate(Sender: TObject);
+    procedure cxPageControlPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
   private
     { Private declarations }
   protected
@@ -61,9 +69,26 @@ begin
   frmParameters := nil;
 end;
 
+procedure TfrmParameters.cxPageControlPageChanging(Sender: TObject;
+  NewPage: TcxTabSheet; var AllowChange: Boolean);
+begin
+  inherited;
+  if cxPageControl.ActivePage = cxtsSubParameters then
+    AllowChange := ViewSubParameters.CheckAndSaveChanges <> IDCANCEL;
+
+  if cxPageControl.ActivePage = cxtsParameters then
+    AllowChange := ViewParameters.CheckAndSaveChanges <> IDCANCEL;
+end;
+
+procedure TfrmParameters.FormCreate(Sender: TObject);
+begin
+  inherited;
+  cxPageControl.ActivePage := cxtsParameters;
+end;
+
 function TfrmParameters.HaveAnyChanges: Boolean;
 begin
-  Result := ViewParameters.ParametersGroup.Connection.InTransaction;
+  Result := ViewParameters.ParametersGrp.Connection.InTransaction;
 end;
 
 end.

@@ -17,23 +17,24 @@ type
     fdqUpdate: TFDQuery;
     fdqInsert: TFDQuery;
     fdqSelect: TFDQuery;
+    procedure FDQueryAfterOpen(DataSet: TDataSet);
     procedure FDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
   private
     function GetID: TField;
-    function GetParameterIDParam: TFDParam;
+    function GetParamSubParamIDParam: TFDParam;
     function GetIsAttribute: TField;
-    function GetOrder: TField;
+    function GetOrd: TField;
     function GetProductCategoryID2: TField;
     procedure Process(AOrder: Integer);
     { Private declarations }
   protected
-    property Order: TField read GetOrder;
+    property Ord: TField read GetOrd;
   public
-    procedure LoadAndProcess(const ATempTableName: String;
-      AParameterID, AOrder: Integer);
+    procedure LoadAndProcess(const ATempTableName: String; AParamSubParamID,
+        AOrder: Integer);
     property ID: TField read GetID;
-    property ParameterIDParam: TFDParam read GetParameterIDParam;
+    property ParamSubParamIDParam: TFDParam read GetParamSubParamIDParam;
     property IsAttribute: TField read GetIsAttribute;
     property ProductCategoryID2: TField read GetProductCategoryID2;
     { Public declarations }
@@ -45,22 +46,30 @@ implementation
 
 uses RepositoryDataModule, StrHelper;
 
+procedure TQueryParametersForProduct.FDQueryAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  SetFieldsRequired(False);
+end;
+
 procedure TQueryParametersForProduct.FDQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
+  Assert(ASender = FDQuery);
+
   if ARequest = arUpdate then
   begin
     if ID.IsNull then
     begin
       fdqInsert.ParamByName('ProductCategoryId').AsInteger :=
         ProductCategoryID2.AsInteger;
-      fdqInsert.ParamByName('ParameterId').AsInteger :=
-        ParameterIDParam.AsInteger;
-      if Order.AsInteger > 0 then
-        fdqInsert.ParamByName('Order').AsInteger := Order.AsInteger
+      fdqInsert.ParamByName('ParamSubParamId').AsInteger :=
+        ParamSubParamIDParam.AsInteger;
+      if Ord.AsInteger > 0 then
+        fdqInsert.ParamByName('Ord').AsInteger := Ord.AsInteger
       else
-        fdqInsert.ParamByName('Order').Value := NULL;
+        fdqInsert.ParamByName('Ord').Value := NULL;
 
       fdqInsert.ExecSQL;
     end
@@ -69,10 +78,10 @@ begin
       // ¬ключаем этот параметр применительно к текущей категории
       fdqUpdate.ParamByName('ID').AsInteger := ID.AsInteger;
 
-      if Order.AsInteger > 0 then
-        fdqUpdate.ParamByName('Order').AsInteger := Order.AsInteger
+      if Ord.AsInteger > 0 then
+        fdqUpdate.ParamByName('Ord').AsInteger := Ord.AsInteger
       else
-        fdqUpdate.ParamByName('Order').Value := NULL;
+        fdqUpdate.ParamByName('Ord').Value := NULL;
 
       fdqUpdate.ExecSQL;
     end;
@@ -85,9 +94,9 @@ begin
   Result := Field('ID');
 end;
 
-function TQueryParametersForProduct.GetParameterIDParam: TFDParam;
+function TQueryParametersForProduct.GetParamSubParamIDParam: TFDParam;
 begin
-  Result := FDQuery.ParamByName('ParameterID');
+  Result := FDQuery.ParamByName('ParamSubParamID');
 end;
 
 function TQueryParametersForProduct.GetIsAttribute: TField;
@@ -95,9 +104,9 @@ begin
   Result := Field('IsAttribute');
 end;
 
-function TQueryParametersForProduct.GetOrder: TField;
+function TQueryParametersForProduct.GetOrd: TField;
 begin
-  Result := Field('Order');
+  Result := Field('Ord');
 end;
 
 function TQueryParametersForProduct.GetProductCategoryID2: TField;
@@ -105,11 +114,11 @@ begin
   Result := Field('ProductCategoryID2');
 end;
 
-procedure TQueryParametersForProduct.LoadAndProcess(const ATempTableName
-  : String; AParameterID, AOrder: Integer);
+procedure TQueryParametersForProduct.LoadAndProcess(const ATempTableName:
+    String; AParamSubParamID, AOrder: Integer);
 begin
   Assert(not ATempTableName.IsEmpty);
-  Assert(AParameterID > 0);
+  Assert(AParamSubParamID > 0);
   Assert(AOrder >= 0);
 
   // ‘ормируем SQL запрос с участием временной таблицы
@@ -119,7 +128,7 @@ begin
   //  опируем параметры
   FDQuery.Params.Assign(fdqSelect.Params);
 
-  Load([ParameterIDParam.Name], [AParameterID]);
+  Load([ParamSubParamIDParam.Name], [AParamSubParamID]);
   Process(AOrder);
 end;
 
@@ -131,8 +140,8 @@ begin
     FDQuery.Edit;
 
     // если хотим изменить пор€док
-    if (AOrder > 0) and (Order.AsInteger = 0) then
-      Order.AsInteger := AOrder;
+    if (AOrder > 0) and (Ord.AsInteger = 0) then
+      Ord.AsInteger := AOrder;
 
     // ќб€зательно делаем параметр видимым
     IsAttribute.Value := 1;

@@ -20,10 +20,12 @@ type
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
     function GetBodyData: TField;
+    function GetJEDEC: TField;
     function GetVariation: TField;
     // TODO: SetBodyVariationsDataSet
     // procedure SetBodyVariationsDataSet(const Value: TFDDataSet);
   protected
+    function ProcessValue(const AFieldName, AValue: string): String; override;
     // TODO: CheckBodyVariation
     // function CheckBodyVariation: Boolean;
     // TODO: Clone
@@ -42,6 +44,7 @@ type
     property LandPattern: TField read GetLandPattern;
     property OutlineDrawing: TField read GetOutlineDrawing;
     property BodyData: TField read GetBodyData;
+    property JEDEC: TField read GetJEDEC;
     property Variation: TField read GetVariation;
   end;
 
@@ -69,56 +72,6 @@ begin
   inherited;
   FfdmtBodyVariations := TFDMemTable.Create(Self);
 end;
-
-// TODO: CheckRecord
-/// / TODO: CheckBodyVariation
-/// /function TBodyTypesExcelTable.CheckBodyVariation: Boolean;
-/// /var
-/// /V: Variant;
-/// /begin
-/// /// Ищем параметр с таким-же именем
-/// /V := FfdmtBodyVariations.LookupEx(Format('%s', [Variation.FieldName]),
-/// /  Variation.Value, 'ID');
-/// /
-/// /Result := VarIsNull(V);
-/// /
-/// /// Если нашли
-/// /if not Result then
-/// /begin
-/// /  MarkAsError(etWarring);
-/// /
-/// /  Errors.AddWarring(ExcelRow.AsInteger, Variation.Index + 1,
-/// /    Variation.AsString, 'Такой вариант корпуса уже существует');
-/// /end;
-/// /
-/// /end;
-//
-// function TBodyTypesExcelTable.CheckRecord: Boolean;
-// begin
-// Result := inherited;
-// if Result then
-// begin
-// // Проверяем что такой корпус существует
-// Result := CheckBodyVariation;
-// end;
-// end;
-
-// TODO: Clone
-// procedure TBodyTypesExcelTable.Clone;
-// var
-// AFDIndex: TFDIndex;
-// begin
-/// / Клонируем курсор
-// FfdmtBodyVariations.CloneCursor(BodyVariationsDataSet);
-//
-/// / Создаём индекс
-// AFDIndex := FfdmtBodyVariations.Indexes.Add;
-//
-// AFDIndex.Fields := Format('%s', [Variation.FieldName]);
-// AFDIndex.Name := 'idxBodyVariations';
-// AFDIndex.Active := True;
-// FfdmtBodyVariations.IndexName := AFDIndex.Name;
-// end;
 
 function TBodyTypesExcelTable.GetBodyKind: TField;
 begin
@@ -150,24 +103,31 @@ begin
   Result := FieldByName('BodyData');
 end;
 
+function TBodyTypesExcelTable.GetJEDEC: TField;
+begin
+  Result := FieldByName('JEDEC');
+end;
+
 function TBodyTypesExcelTable.GetVariation: TField;
 begin
   Result := FieldByName('Variation');
 end;
 
-// TODO: SetBodyVariationsDataSet
-// procedure TBodyTypesExcelTable.SetBodyVariationsDataSet
-// (const Value: TFDDataSet);
-// begin
-// if FBodyVariationsDataSet <> Value then
-// begin
-// FBodyVariationsDataSet := Value;
-// if FBodyVariationsDataSet <> nil then
-// begin
-// Clone;
-// end;
-// end;
-// end;
+function TBodyTypesExcelTable.ProcessValue(const AFieldName, AValue: string):
+    String;
+var
+  i: Integer;
+begin
+  Result := inherited ProcessValue(AFieldName, AValue);
+
+  // Для JEDEC будем згружать информацию только до слэша
+  if (AFieldName.ToUpperInvariant = JEDEC.FieldName) and (not Result.IsEmpty) then
+  begin
+    i := Result.IndexOf('/');
+    if i > 0 then
+      Result := Result.Substring(0, i);
+  end;
+end;
 
 procedure TBodyTypesExcelTable.SetFieldsInfo;
 begin
@@ -179,9 +139,9 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('LandPattern'));
   FieldsInfo.Add(TFieldInfo.Create('Variation'));
   FieldsInfo.Add(TFieldInfo.Create('Image'));
+  FieldsInfo.Add(TFieldInfo.Create('JEDEC'));
   FieldsInfo.Add(TFieldInfo.Create('BodyKind', True,
     'Тип корпуса не может быть пустым', True));
-
 end;
 
 function TBodyTypesExcelDM.CreateExcelTable: TCustomExcelTable;

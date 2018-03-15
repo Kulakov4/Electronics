@@ -86,7 +86,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmCustomError,
     procedure (ASender: TObject)
     begin
-      qProducts.AppendList(ASender as TProductsExcelTable);
+      qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
     end
     );
   finally

@@ -123,8 +123,7 @@ implementation
 uses NotifyEvents, RepositoryDataModule, DialogUnit,
   ProducersExcelDataModule, ImportErrorForm, CustomExcelTable, System.Math,
   SettingsController, System.IOUtils, ProjectConst, ProgressBarForm,
-  SearchParameterValues, cxDropDownEdit, DialogUnit2, CustomErrorForm,
-  LoadFromExcelFileHelper;
+  cxDropDownEdit, DialogUnit2, CustomErrorForm, LoadFromExcelFileHelper;
 
 constructor TViewProducers.Create(AOwner: TComponent);
 begin
@@ -222,7 +221,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
       procedure(ASender: TObject)
       begin
-        ProducersGroup.InsertRecordList(ASender as TProducersExcelTable);
+        ProducersGroup.LoadDataFromExcelTable(ASender as TProducersExcelTable);
       end,
       procedure(ASender: TObject)
       begin

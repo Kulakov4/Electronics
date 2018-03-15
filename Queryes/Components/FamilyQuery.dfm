@@ -50,61 +50,61 @@ inherited QueryFamily: TQueryFamily
       'left join'
       '('
       '    select pv.ProductId, GROUP_CONCAT(pv.Value,'#39','#39') ValueSet'
-      '    from ParameterValues pv'
+      '    from ParameterValues2 pv'
       '    where '
-      '    pv.ParameterId = :PackagePinsParameterID'
+      '    pv.ParamSubParamId = :PackagePinsParamSubParamID'
       '    group by pv.ProductId'
       ') PackagePins on PackagePins.ProductId = p.id'
       
-        'LEFT JOIN ParameterValues pv ON pv.ProductID = p.Id AND pv.Param' +
-        'eterId = :ProducerParameterID'
+        'LEFT JOIN ParameterValues2 pv ON pv.ProductID = p.Id AND pv.Para' +
+        'mSubParamId = :ProducerParamSubParamID'
       
-        'LEFT JOIN ParameterValues pv3 ON pv3.ProductID = p.Id AND pv3.Pa' +
-        'rameterId = :DatasheetParameterID'
+        'LEFT JOIN ParameterValues2 pv3 ON pv3.ProductID = p.Id AND pv3.P' +
+        'aramSubParamId = :DatasheetParamSubParamID'
       
-        'LEFT JOIN ParameterValues pv4 ON pv4.ProductID = p.Id AND pv4.Pa' +
-        'rameterId = :DiagramParameterID'
+        'LEFT JOIN ParameterValues2 pv4 ON pv4.ProductID = p.Id AND pv4.P' +
+        'aramSubParamId = :DiagramParamSubParamID'
       
-        'LEFT JOIN ParameterValues pv5 ON pv5.ProductID = p.Id AND pv5.Pa' +
-        'rameterId = :DrawingParameterID'
+        'LEFT JOIN ParameterValues2 pv5 ON pv5.ProductID = p.Id AND pv5.P' +
+        'aramSubParamId = :DrawingParamSubParamID'
       
-        'LEFT JOIN ParameterValues pv6 ON pv6.ProductID = p.Id AND pv6.Pa' +
-        'rameterId = :ImageParameterID'
+        'LEFT JOIN ParameterValues2 pv6 ON pv6.ProductID = p.Id AND pv6.P' +
+        'aramSubParamId = :ImageParamSubParamID'
       'where ppc.ProductCategoryId = :vProductCategoryId'
       ') t')
     ParamData = <
       item
-        Name = 'PACKAGEPINSPARAMETERID'
+        Name = 'PACKAGEPINSPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'PRODUCERPARAMETERID'
+        Name = 'PRODUCERPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'DATASHEETPARAMETERID'
+        Name = 'DATASHEETPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'DIAGRAMPARAMETERID'
+        Name = 'DIAGRAMPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'DRAWINGPARAMETERID'
+        Name = 'DRAWINGPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null
       end
       item
-        Name = 'IMAGEPARAMETERID'
+        Name = 'IMAGEPARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

@@ -17,19 +17,19 @@ type
     procedure DoAfterInsert(Sender: TObject);
     function GetProductId: TField;
     function GetProductIDParam: TFDParam;
-    function GetParameterId: TField;
-    function GetParameterIdParam: TFDParam;
+    function GetParamSubParamId: TField;
+    function GetParamSubParamIdParam: TFDParam;
     function GetValue: TField;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
-    procedure Load(AIDComponent, AIDParameter: Integer); overload;
+    procedure Load(AIDComponent, AParamSubParamID: Integer); overload;
     procedure LocateOrAppend(AValue: string);
     property ProductId: TField read GetProductId;
     property ProductIDParam: TFDParam read GetProductIDParam;
-    property ParameterId: TField read GetParameterId;
-    property ParameterIdParam: TFDParam read GetParameterIdParam;
+    property ParamSubParamId: TField read GetParamSubParamId;
+    property ParamSubParamIdParam: TFDParam read GetParamSubParamIdParam;
     property Value: TField read GetValue;
     { Public declarations }
   end;
@@ -55,7 +55,7 @@ end;
 
 procedure TQueryParametersValue.DoAfterInsert(Sender: TObject);
 begin
-  ParameterId.AsInteger := ParameterIdParam.AsInteger;
+  ParamSubParamId.AsInteger := ParamSubParamIdParam.AsInteger;
   ProductId.AsInteger := ProductIDParam.AsInteger;
 end;
 
@@ -69,14 +69,14 @@ begin
   Result := FDQuery.ParamByName('ProductID');
 end;
 
-function TQueryParametersValue.GetParameterId: TField;
+function TQueryParametersValue.GetParamSubParamId: TField;
 begin
-  Result := Field('ParameterId');
+  Result := Field('ParamSubParamId');
 end;
 
-function TQueryParametersValue.GetParameterIdParam: TFDParam;
+function TQueryParametersValue.GetParamSubParamIdParam: TFDParam;
 begin
-  Result := FDQuery.ParamByName('ParameterId');
+  Result := FDQuery.ParamByName('ParamSubParamId');
 end;
 
 function TQueryParametersValue.GetValue: TField;
@@ -84,12 +84,12 @@ begin
   Result := Field('Value');
 end;
 
-procedure TQueryParametersValue.Load(AIDComponent, AIDParameter: Integer);
+procedure TQueryParametersValue.Load(AIDComponent, AParamSubParamID: Integer);
 begin
   Assert(AIDComponent > 0);
-  Assert(AIDParameter > 0);
-  Load([ProductIDParam.Name, ParameterIdParam.Name],
-    [AIDComponent, AIDParameter]);
+  Assert(AParamSubParamID > 0);
+  Load([ProductIDParam.Name, ParamSubParamIdParam.Name],
+    [AIDComponent, AParamSubParamID]);
 end;
 
 procedure TQueryParametersValue.LocateOrAppend(AValue: string);

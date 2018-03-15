@@ -301,7 +301,7 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
-        AQueryRecursiveTree.LoadRecords(ASender as TTreeExcelTable);
+        AQueryRecursiveTree.LoadDataFromExcelTable(ASender as TTreeExcelTable);
       end);
 
     // Получаем добавленные категории
@@ -384,8 +384,8 @@ begin
 
   Value := InputBox(sDatabase, sPleaseWrite, DM2.qTreeList.Value.AsString);
   if (Value <> '') and
-    (DM2.qTreeList.CheckPossibility(DM2.qTreeList.FDQuery.FieldByName
-    ('ParentId').AsInteger, Value)) then
+    (DM2.qTreeList.CheckPossibility(DM2.qTreeList.ParentId.AsInteger, Value))
+  then
   begin
     DM2.qTreeList.TryEdit;
     DM2.qTreeList.Value.AsString := Value;
@@ -492,7 +492,9 @@ begin
   begin
     DM2.ParametersGroup.ReOpen;
     frmParameters := TfrmParameters.Create(Self);
-    frmParameters.ViewParameters.ParametersGroup := DM2.ParametersGroup;
+    frmParameters.ViewParameters.ParametersGrp := DM2.ParametersGroup;
+    frmParameters.ViewSubParameters.QuerySubParameters :=
+      DM2.ParametersGroup.qSubParameters;
   end;
 
   frmParameters.Show;
@@ -659,8 +661,8 @@ begin
         DM2.ComponentsSearchGroup;
 
       // Параметры в виде списка
-      ComponentsFrame.ViewCategoryParameters.QueryCategoryParameters :=
-        DM2.qCategoryParameters;
+      ComponentsFrame.ViewCategoryParameters.CatParamsGroup :=
+        DM2.CategoryParametersGroup;
 
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
         DM2.ComponentsExGroup;
@@ -696,7 +698,7 @@ begin
     end;
   end;
 
-//  OK := OK and TProtect.Create.Check;
+  // OK := OK and TProtect.Create.Check;
 
   if not OK then
   begin
@@ -971,7 +973,7 @@ begin
     else
       S := DM2.qTreeList.Value.AsString;
 
-    Caption := Format('%s - %s', [sMainFormCaption, S]);
+    Caption := Format('%s (вер. %d) - %s', [sMainFormCaption, DBVersion, S]);
   end;
 end;
 

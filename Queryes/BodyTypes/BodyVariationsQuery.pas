@@ -16,6 +16,7 @@ type
   private
     function GetIDBodyData: TField;
     function GetImage: TField;
+    function GetJEDEC: TField;
     function GetLandPattern: TField;
     function GetOutlineDrawing: TField;
     function GetVariation: TField;
@@ -27,8 +28,9 @@ type
     property OutlineDrawing: TField read GetOutlineDrawing;
     property Variation: TField read GetVariation;
   public
-    procedure LocateOrAppend(AIDBodyData: Integer;
-      const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
+    procedure LocateOrAppend(AIDBodyData: Integer; const AOutlineDrawing,
+        ALandPattern, AVariation, AImage, AJedec: string);
+    property JEDEC: TField read GetJEDEC;
     { Public declarations }
   end;
 
@@ -46,6 +48,11 @@ begin
   Result := Field('Image');
 end;
 
+function TQueryBodyVariations.GetJEDEC: TField;
+begin
+  Result := Field('JEDEC');
+end;
+
 function TQueryBodyVariations.GetLandPattern: TField;
 begin
   Result := Field('LandPattern');
@@ -61,8 +68,8 @@ begin
   Result := Field('Variation');
 end;
 
-procedure TQueryBodyVariations.LocateOrAppend(AIDBodyData: Integer;
-  const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
+procedure TQueryBodyVariations.LocateOrAppend(AIDBodyData: Integer; const
+    AOutlineDrawing, ALandPattern, AVariation, AImage, AJedec: string);
 var
   AFieldNames: string;
 begin
@@ -80,6 +87,7 @@ begin
   LandPattern.Value := ALandPattern;
   Variation.Value := AVariation;
   Image.Value := AImage;
+  JEDEC.Value := AJedec;
 
   TryPost;
 end;
