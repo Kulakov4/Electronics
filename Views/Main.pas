@@ -973,7 +973,7 @@ begin
     else
       S := DM2.qTreeList.Value.AsString;
 
-    Caption := Format('%s - %s', [sMainFormCaption, S]);
+    Caption := Format('%s (вер. %d) - %s', [sMainFormCaption, DBVersion, S]);
   end;
 end;
 
