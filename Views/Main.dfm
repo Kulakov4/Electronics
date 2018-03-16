@@ -406,7 +406,7 @@ object frmMain: TfrmMain
                 Width = 918
                 Height = 427
                 ExplicitWidth = 918
-                ExplicitHeight = 399
+                ExplicitHeight = 427
                 inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
                   inherited clProducer: TcxGridDBBandedColumn
                     IsCaptionAssigned = True
@@ -578,7 +578,6 @@ object frmMain: TfrmMain
             end
           end
           inherited tsStorehouseProducts: TcxTabSheet
-            ExplicitLeft = 4
             ExplicitTop = 27
             ExplicitWidth = 918
             ExplicitHeight = 474
