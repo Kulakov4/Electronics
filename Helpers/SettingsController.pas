@@ -254,7 +254,7 @@ end;
 
 function TSettings.GetLoadLastCategory: Boolean;
 begin
-  Result := StrToBool( GetValue('Settings', 'LoadLastCategory', 'True') );
+  Result := StrToBool( GetValue('Settings', 'LoadLastCategory', 'False') );
 end;
 
 class function TSettings.NewInstance: TObject;
