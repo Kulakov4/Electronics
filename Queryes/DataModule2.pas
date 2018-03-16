@@ -19,21 +19,21 @@ type
   TDM2 = class(TForm)
     qVersion: TQueryVersion;
     qTreeList: TQueryTreeList;
-    ProducersGroup: TProducersGroup;
-    ComponentsExGroup: TComponentsExGroup;
-    ComponentsGroup: TComponentsGroup;
-    ComponentsSearchGroup: TComponentsSearchGroup;
     qChildCategories: TQueryChildCategories;
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
-    DescriptionsGroup: TDescriptionsGroup;
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FCategoryParametersGroup: TCategoryParametersGroup;
+    FComponentsExGroup: TComponentsExGroup;
+    FComponentsGroup: TComponentsGroup;
+    FComponentsSearchGroup: TComponentsSearchGroup;
     FDataSetList: TList<TQueryBase>;
+    FDescriptionsGroup: TDescriptionsGroup;
     FEventList: TObjectList;
     FParametersGroup: TParametersGroup;
+    FProducersGroup: TProducersGroup;
     FQueryGroups: TList<TQueryGroup>;
     FTreeListAfterFirstOpen: TNotifyEventWrap;
     // FRecommendedReplacement: TRecommendedReplacementThread;
@@ -47,7 +47,12 @@ type
     procedure DoOnParamOrderChange(Sender: TObject);
     function GetBodyTypesGroup: TBodyTypesGroup;
     function GetCategoryParametersGroup: TCategoryParametersGroup;
+    function GetComponentsExGroup: TComponentsExGroup;
+    function GetComponentsGroup: TComponentsGroup;
+    function GetComponentsSearchGroup: TComponentsSearchGroup;
+    function GetDescriptionsGroup: TDescriptionsGroup;
     function GetParametersGroup: TParametersGroup;
+    function GetProducersGroup: TProducersGroup;
     procedure InitDataSetValues;
     procedure OpenConnection;
     { Private declarations }
@@ -63,7 +68,13 @@ type
     property BodyTypesGroup: TBodyTypesGroup read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup read
         GetCategoryParametersGroup;
+    property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup;
+    property ComponentsGroup: TComponentsGroup read GetComponentsGroup;
+    property ComponentsSearchGroup: TComponentsSearchGroup read
+        GetComponentsSearchGroup;
+    property DescriptionsGroup: TDescriptionsGroup read GetDescriptionsGroup;
     property ParametersGroup: TParametersGroup read GetParametersGroup;
+    property ProducersGroup: TProducersGroup read GetProducersGroup;
     { Public declarations }
   end;
 
@@ -309,12 +320,51 @@ begin
   Result := FCategoryParametersGroup;
 end;
 
+function TDM2.GetComponentsExGroup: TComponentsExGroup;
+begin
+  if FComponentsExGroup = nil then
+    FComponentsExGroup := TComponentsExGroup.Create(Self);
+
+  Result := FComponentsExGroup;
+end;
+
+function TDM2.GetComponentsGroup: TComponentsGroup;
+begin
+  if FComponentsGroup = nil then
+    FComponentsGroup := TComponentsGroup.Create(Self);
+
+  Result := FComponentsGroup;
+end;
+
+function TDM2.GetComponentsSearchGroup: TComponentsSearchGroup;
+begin
+  if FComponentsSearchGroup = nil then
+    FComponentsSearchGroup := TComponentsSearchGroup.Create(Self);
+  Result := FComponentsSearchGroup;
+end;
+
+function TDM2.GetDescriptionsGroup: TDescriptionsGroup;
+begin
+  if FDescriptionsGroup = nil then
+    FDescriptionsGroup := TDescriptionsGroup.Create(Self);
+
+  Result := FDescriptionsGroup;
+end;
+
 function TDM2.GetParametersGroup: TParametersGroup;
 begin
   if FParametersGroup = nil then
     FParametersGroup := TParametersGroup.Create(Self);
 
   Result := FParametersGroup;
+end;
+
+function TDM2.GetProducersGroup: TProducersGroup;
+begin
+  if FProducersGroup = nil then
+    FProducersGroup := TProducersGroup.Create(Self);
+
+  Result := FProducersGroup;
 end;
 
 function TDM2.HaveAnyChanges: Boolean;

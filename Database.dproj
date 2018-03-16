@@ -548,11 +548,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas">
-            <Form>StoreHouseGroup</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Products\Search\ProductsSearchQuery.pas">
             <Form>QueryProductsSearch</Form>
             <FormType>dfm</FormType>

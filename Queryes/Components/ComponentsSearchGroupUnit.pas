@@ -12,10 +12,12 @@ uses
 
 type
   TComponentsSearchGroup = class(TBaseComponentsGroup)
-    qFamilySearch: TQueryFamilySearch;
-    qComponentsSearch: TQueryComponentsSearch;
   private
+    FqComponentsSearch: TQueryComponentsSearch;
+    FqFamilySearch: TQueryFamilySearch;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
+    function GetqComponentsSearch: TQueryComponentsSearch;
+    function GetqFamilySearch: TQueryFamilySearch;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
         GetqSearchComponentOrFamily;
@@ -26,6 +28,8 @@ type
     function ApplyUpdates: Boolean; override;
     procedure ClearSearchResult;
     procedure Search(ALike: Boolean);
+    property qComponentsSearch: TQueryComponentsSearch read GetqComponentsSearch;
+    property qFamilySearch: TQueryFamilySearch read GetqFamilySearch;
     { Public declarations }
   end;
 
@@ -57,6 +61,21 @@ procedure TComponentsSearchGroup.ClearSearchResult;
 begin
   qComponentsSearch.ClearSearchResult;
   qFamilySearch.ClearSearchResult;
+end;
+
+function TComponentsSearchGroup.GetqComponentsSearch: TQueryComponentsSearch;
+begin
+  if FqComponentsSearch = nil then
+    FqComponentsSearch := TQueryComponentsSearch.Create(Self);
+
+  Result := FqComponentsSearch;
+end;
+
+function TComponentsSearchGroup.GetqFamilySearch: TQueryFamilySearch;
+begin
+  if FqFamilySearch = nil then
+    FqFamilySearch := TQueryFamilySearch.Create(Self);
+  Result := FqFamilySearch;
 end;
 
 function TComponentsSearchGroup.GetqSearchComponentOrFamily:

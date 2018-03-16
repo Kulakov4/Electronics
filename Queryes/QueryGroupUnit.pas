@@ -10,7 +10,6 @@ uses
 
 type
   TQueryGroup = class(TFrame)
-    GridPanel1: TGridPanel;
   private
     FAfterCommit: TNotifyEventsEx;
     FDetail: TQueryWithDataSource;

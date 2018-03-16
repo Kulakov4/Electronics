@@ -960,6 +960,7 @@ end;
 
 procedure TfrmMain.UpdateCaption;
 var
+  AFS: TFormatSettings;
   S: string;
 begin
   if (DM2 <> nil) and (DM2.qTreeList.FDQuery.RecordCount > 0) then
@@ -973,7 +974,8 @@ begin
     else
       S := DM2.qTreeList.Value.AsString;
 
-    Caption := Format('%s (вер. %d) - %s', [sMainFormCaption, DBVersion, S]);
+    AFS.DecimalSeparator := '.';
+    Caption := Format('%s %0.1f - %s', [sMainFormCaption, ProgramVersion, S], AFS);
   end;
 end;
 

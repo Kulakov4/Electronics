@@ -55,14 +55,15 @@ type
   end;
 
   TComponentsGroup = class(TBaseComponentsGroup)
-    fdqUpdateBody: TFDQuery;
-    qFamily: TQueryFamily;
-    qComponents: TQueryComponents;
   private
     FNeedUpdateCount: Boolean;
+    FqComponents: TQueryComponents;
+    FqFamily: TQueryFamily;
     FQueryComponentsCount: TQueryComponentsCount;
     FQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
     procedure AfterComponentPostOrDelete(Sender: TObject);
+    function GetqComponents: TQueryComponents;
+    function GetqFamily: TQueryFamily;
     function GetQueryComponentsCount: TQueryComponentsCount;
     function GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
     function GetTotalCount: Integer;
@@ -86,6 +87,8 @@ type
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
       AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
       const AProducer: String);
+    property qComponents: TQueryComponents read GetqComponents;
+    property qFamily: TQueryFamily read GetqFamily;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
   end;
@@ -202,6 +205,21 @@ begin
     Round(e.ExcelDMEvent.TotalProgress.PIList[e.ExcelDMEvent.SheetIndex - 1]
     .Position)]), '');
   Application.ProcessMessages;
+end;
+
+function TComponentsGroup.GetqComponents: TQueryComponents;
+begin
+  if FqComponents = nil then
+    FqComponents := TQueryComponents.Create(Self);
+  Result := FqComponents;
+end;
+
+function TComponentsGroup.GetqFamily: TQueryFamily;
+begin
+  if FqFamily = nil then
+    FqFamily := TQueryFamily.Create(Self);
+
+  Result := FqFamily;
 end;
 
 function TComponentsGroup.GetQueryComponentsCount: TQueryComponentsCount;

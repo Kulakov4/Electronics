@@ -13,13 +13,15 @@ uses
 
 type
   TDescriptionsGroup = class(TQueryGroup)
-    qDescriptionTypes: TQueryDescriptionTypes;
-    qDescriptions: TQueryDescriptions;
   private
     FAfterDataChange: TNotifyEventsEx;
+    FqDescriptions: TQueryDescriptions;
+    FqDescriptionTypes: TQueryDescriptionTypes;
     FqProducers: TQueryProducers;
     procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
+    function GetqDescriptions: TQueryDescriptions;
+    function GetqDescriptionTypes: TQueryDescriptionTypes;
     function GetqProducers: TQueryProducers;
     { Private declarations }
   protected
@@ -33,6 +35,8 @@ type
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
+    property qDescriptions: TQueryDescriptions read GetqDescriptions;
+    property qDescriptionTypes: TQueryDescriptionTypes read GetqDescriptionTypes;
     property qProducers: TQueryProducers read GetqProducers;
     { Public declarations }
   end;
@@ -101,6 +105,21 @@ begin
       Result.Add(S);
     end;
 
+end;
+
+function TDescriptionsGroup.GetqDescriptions: TQueryDescriptions;
+begin
+  if FqDescriptions = nil then
+    FqDescriptions := TQueryDescriptions.Create(Self);
+
+  Result := FqDescriptions;
+end;
+
+function TDescriptionsGroup.GetqDescriptionTypes: TQueryDescriptionTypes;
+begin
+  if FqDescriptionTypes = nil then
+    FqDescriptionTypes := TQueryDescriptionTypes.Create(Self);
+  Result := FqDescriptionTypes;
 end;
 
 function TDescriptionsGroup.GetqProducers: TQueryProducers;

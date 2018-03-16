@@ -12,9 +12,12 @@ uses
 
 type
   TProducersGroup = class(TQueryGroup)
-    qProducerTypes: TQueryProducerTypes;
-    qProducers: TQueryProducers;
   private
+    FqProducers: TQueryProducers;
+    FqProducerTypes: TQueryProducerTypes;
+    function GetqProducers: TQueryProducers;
+    function GetqProducerTypes: TQueryProducerTypes;
+    procedure SetqProducers(const Value: TQueryProducers);
     { Private declarations }
   protected
     procedure DoAfterDelete(Sender: TObject);
@@ -23,6 +26,8 @@ type
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(AProducersExcelTable: TProducersExcelTable);
     procedure LocateOrAppend(AValue: string; const AProducerType: String);
+    property qProducers: TQueryProducers read GetqProducers write SetqProducers;
+    property qProducerTypes: TQueryProducerTypes read GetqProducerTypes;
     { Public declarations }
   end;
 
@@ -71,6 +76,22 @@ begin
       Result.Add(S);
     end;
 
+end;
+
+function TProducersGroup.GetqProducers: TQueryProducers;
+begin
+  if FqProducers = nil then
+    FqProducers := TQueryProducers.Create(Self);
+
+  Result := FqProducers;
+end;
+
+function TProducersGroup.GetqProducerTypes: TQueryProducerTypes;
+begin
+  if FqProducerTypes = nil then
+    FqProducerTypes := TQueryProducerTypes.Create(Self);
+
+  Result := FqProducerTypes;
 end;
 
 procedure TProducersGroup.LoadDataFromExcelTable(AProducersExcelTable:
@@ -131,6 +152,11 @@ begin
 
   qProducerTypes.LocateOrAppend(AProducerType);
   qProducers.AddNewValue(AValue, qProducerTypes.PK.AsInteger);
+end;
+
+procedure TProducersGroup.SetqProducers(const Value: TQueryProducers);
+begin
+  FqProducers := Value;
 end;
 
 end.

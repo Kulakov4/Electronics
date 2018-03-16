@@ -15,8 +15,6 @@ uses
 
 type
   TComponentsExGroup = class(TBaseComponentsGroup)
-    qFamilyEx: TQueryFamilyEx;
-    qComponentsEx: TQueryComponentsEx;
     procedure OnFDQueryUpdateRecord(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
@@ -29,6 +27,8 @@ type
     FFieldIndex: Integer;
     FFreeFields: TList<String>;
     FOnParamOrderChange: TNotifyEventsEx;
+    FqComponentsEx: TQueryComponentsEx;
+    FqFamilyEx: TQueryFamilyEx;
     FqProductParameters: TQueryProductParameters;
 
   const
@@ -42,6 +42,8 @@ type
     procedure DoOnApplyUpdateFamily(Sender: TObject);
     function GetNextFieldName: String;
     function GetqCategoryParameters: TQueryCategoryParameters2;
+    function GetqComponentsEx: TQueryComponentsEx;
+    function GetqFamilyEx: TQueryFamilyEx;
     function GetqProductParameters: TQueryProductParameters;
     procedure UpdateParameterValue(AComponentID: Integer;
       const AParamSubParamID: Integer; const AVaramValue: String);
@@ -66,6 +68,8 @@ type
       read FAllParameterFields;
     property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
     property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup;
+    property qComponentsEx: TQueryComponentsEx read GetqComponentsEx;
+    property qFamilyEx: TQueryFamilyEx read GetqFamilyEx;
     { Public declarations }
   end;
 
@@ -367,6 +371,21 @@ end;
 function TComponentsExGroup.GetqCategoryParameters: TQueryCategoryParameters2;
 begin
   Result := CatParamsGroup.qCategoryParameters;
+end;
+
+function TComponentsExGroup.GetqComponentsEx: TQueryComponentsEx;
+begin
+  if FqComponentsEx = nil then
+    FqComponentsEx := TQueryComponentsEx.Create(Self);
+
+  Result := FqComponentsEx;
+end;
+
+function TComponentsExGroup.GetqFamilyEx: TQueryFamilyEx;
+begin
+  if FqFamilyEx = nil then
+    FqFamilyEx := TQueryFamilyEx.Create(Self);
+  Result := FqFamilyEx;
 end;
 
 function TComponentsExGroup.GetqProductParameters: TQueryProductParameters;

@@ -110,7 +110,6 @@ uses
   StoreHouseListQuery in 'Queryes\Products\StoreHouse\StoreHouseListQuery.pas' {QueryStoreHouseList: TFrame},
   ProductsExcelDataModule in 'Excel\ProductsExcelDataModule.pas' {ProductsExcelDM: TDataModule},
   ProductsQuery in 'Queryes\Products\ProductsQuery.pas' {QueryProducts: TFrame},
-  StoreHouseGroupUnit in 'Queryes\Products\StoreHouse\StoreHouseGroupUnit.pas' {StoreHouseGroup: TFrame},
   ProductsSearchQuery in 'Queryes\Products\Search\ProductsSearchQuery.pas' {QueryProductsSearch: TFrame},
   RootForm in 'Views\RootForm.pas' {frmRoot},
   DictonaryForm in 'Views\DictonaryForm.pas' {frmDictonary},

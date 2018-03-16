@@ -17,9 +17,6 @@ implementation
 type
   TChunkType = (Alphanumeric, Numeric);
 
-  // var
-  // FS: TFormatSettings := TFormatSettings.Create;
-
 function TNaturalStringComparer.Compare(const Left, Right: String): Integer;
 Var
   s: string;
