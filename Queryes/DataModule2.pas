@@ -186,7 +186,8 @@ var
   I: Integer;
 begin
   // Это событие не срабатывает, потому что csDestroying in ComponentState
-  DoBeforeTreeListClose(qTreeList.FDQuery);
+  if qTreeList.FDQuery.Active then
+    DoBeforeTreeListClose(qTreeList.FDQuery);
 
   for I := FDataSetList.Count - 1 downto 0 do
     FDataSetList[I].FDQuery.Close;
@@ -291,8 +292,6 @@ end;
 
 procedure TDM2.DoBeforeTreeListClose(Sender: TObject);
 begin
-  Assert(qTreeList.FDQuery.Active);
-
   if qTreeList.FDQuery.RecordCount = 0 then
     Exit;
 
