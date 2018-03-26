@@ -31,7 +31,7 @@ object DM2: TDM2
   inline qChildCategories: TQueryChildCategories
     Left = 291
     Top = 0
-    Width = 125
+    Width = 199
     Height = 77
     TabOrder = 2
     ExplicitLeft = 291

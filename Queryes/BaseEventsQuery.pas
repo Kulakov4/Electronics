@@ -82,6 +82,7 @@ type
     destructor Destroy; override;
     function AddClone(const AFilter: String): TFDMemTable;
     procedure DropClone(AClone: TFDMemTable);
+    procedure SmartRefresh;
     property AfterClose: TNotifyEventsEx read FAfterClose;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
@@ -179,9 +180,9 @@ begin
     FCloneEvents := TObjectList.Create;
 
     // Будем клонировать курсоры
-    TNotifyEventWrap.Create( AfterOpen, DoAfterOpen, FCloneEvents );
+    TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
     // Будем закрывать курсоры
-    TNotifyEventWrap.Create( AfterClose, DoAfterClose, FCloneEvents );
+    TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
   end;
 
   Result := TFDMemTable.Create(Self);
@@ -198,9 +199,9 @@ procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
 var
   AFilter: String;
 begin
-  //Assert(not AClone.Filter.IsEmpty);
+  // Assert(not AClone.Filter.IsEmpty);
   AFilter := AClone.Filter;
-  AClone.CloneCursor( FDQuery );
+  AClone.CloneCursor(FDQuery);
 
   // Если фильтр накладывать не надо
   if (AFilter.IsEmpty) then
@@ -237,7 +238,7 @@ begin
   // клонируем курсоры
   for AClone in FClones do
   begin
-    CloneCursor( AClone );
+    CloneCursor(AClone);
   end;
 end;
 
@@ -259,7 +260,7 @@ begin
   Assert(AClone <> nil);
   Assert(FClones <> nil);
 
-  FClones.Remove( AClone );
+  FClones.Remove(AClone);
 
   if FClones.Count = 0 then
   begin
@@ -447,6 +448,44 @@ begin
     end;
 
   end;
+end;
+
+procedure TQueryBaseEvents.SmartRefresh;
+var
+  OK: Boolean;
+begin
+  // Обновление данных, при котором не возникает события AfterScroll
+  FDQuery.DisableControls;
+  try
+    SaveBookmark;
+
+    // Как будто предыдущее сообщение AfterScroll ещё не получили
+    FResiveAfterScrollMessage := False;
+
+    // Заново выполняем запрос
+    RefreshQuery;
+
+    OK := RestoreBookmark;
+
+    // Если старой записи не существует
+    if not OK then
+    begin
+      // Как будто предыдущее сообщение AfterScroll ещё уже получили
+      FResiveAfterScrollMessage := True;
+
+      // Искусственно вызываем событие AfterScroll
+      FDQueryAfterScroll(FDQuery);
+    end;
+
+  finally
+    // Тут визуальные компоненты DevExpress начнут загрузку данных и будут делать Scroll
+    FDQuery.EnableControls;
+  end;
+
+  if OK then
+    // Как будто предыдущее сообщение AfterScroll ещё уже получили
+    FResiveAfterScrollMessage := True;
+
 end;
 
 end.

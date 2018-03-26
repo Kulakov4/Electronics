@@ -5,7 +5,7 @@ interface
 {$WARN UNIT_PLATFORM OFF}
 
 uses
-  Windows, Messages, SysUtils, Variants, Graphics, Controls, Forms,
+  Windows, Messages, Variants, Graphics, Controls, Forms,
   Dialogs, dxSkinsdxBarPainter, dxBar, cxClasses,
   Menus, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
   cxCustomData, cxStyles, cxTL, cxTLdxBarBuiltInMenu, dxSkinscxPCPainter,
@@ -95,7 +95,6 @@ type
     tvStorehouseList: TcxGridDBTableView;
     clStorehouseListTitle: TcxGridDBColumn;
     glStorehouseList: TcxGridLevel;
-    ComponentsFrame: TComponentsFrame;
     ProductsFrame: TProductsFrame;
     pmLeftStoreHouse: TPopupMenu;
     actAddStorehouse: TAction;
@@ -150,6 +149,7 @@ type
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
     FCategoryPath: string;
+    FComponentsFrame: TComponentsFrame;
     FEventList: TObjectList;
     FHintWindowEx: THintWindowEx;
     FOnProductCategoriesChange: TNotifyEventWrap;
@@ -161,12 +161,15 @@ type
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
     function GetLevel(ANode: TcxTreeListNode): Integer;
+    procedure SetComponentsFrame(const Value: TComponentsFrame);
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
     { Private declarations }
   protected
     procedure DoOnProductLocate(Sender: TObject);
+    property ComponentsFrame: TComponentsFrame read FComponentsFrame write
+        SetComponentsFrame;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
@@ -189,7 +192,8 @@ uses
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
-  LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm;
+  LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
+  System.SysUtils;
 
 {$R *.dfm}
 
@@ -217,22 +221,15 @@ end;
 
 procedure TfrmMain.actAddTreeNodeExecute(Sender: TObject);
 var
-  Value: string;
+  AValue: string;
 begin
   DM2.qTreeList.TryPost;
 
-  Value := InputBox(sDatabase, sPleaseWrite, '');
+  AValue := InputBox(sDatabase, sPleaseWrite, '');
+  if AValue.IsEmpty then
+    Exit;
 
-  if Value <> '' then
-  begin
-    DM2.qTreeList.FDQuery.DisableControls;
-    try
-      DM2.qTreeList.AddChildCategory(Value,
-        GetLevel(dbtlCategories.FocusedNode));
-    finally
-      DM2.qTreeList.FDQuery.EnableControls;
-    end;
-  end;
+  DM2.qTreeList.AddChildCategory(AValue, GetLevel(dbtlCategories.FocusedNode));
 end;
 
 procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
@@ -592,10 +589,17 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
+  AClone: TFDMemTable;
   OK: Boolean;
 begin
   cxpcRight.Properties.HideTabs := True;
   cxpcLeft.ActivePage := cxtsComponents;
+
+  // Создаём фрейм с компонентами
+  ComponentsFrame := TComponentsFrame.Create(Self);
+  ComponentsFrame.Parent := cxtsRComponents;
+  ComponentsFrame.Align := alClient;
+
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
 
@@ -683,12 +687,18 @@ begin
       // ViewStoreHouse.QueryProductsSearch := DM2.qProductsSearch;
 
       // привязываем дерево катогорий к данным
+//      AClone := DM2.qTreeList.AddClone('');
+//      DM2.qTreeList.DataSource.DataSet := AClone;
+
       dbtlCategories.DataController.DataSource := DM2.qTreeList.DataSource;
 
       // Привязываем подкатегории к данным (функциональная группа)
-      ComponentsFrame.tvFunctionalGroup.DataController.DataSource :=
+      ComponentsFrame.ViewChildCategories.qChildCategories :=
+        DM2.qChildCategories;
+      {
+        ComponentsFrame.tvFunctionalGroup.DataController.DataSource :=
         DM2.qChildCategories.DataSource;
-
+      }
       FOnProductCategoriesChange := TNotifyEventWrap.Create
         (DM2.qTreeList.AfterScroll, DoOnProductCategoriesChange, FEventList);
 
@@ -958,6 +968,11 @@ begin
   DM2.ComponentsExGroup.DecClient;
 end;
 
+procedure TfrmMain.SetComponentsFrame(const Value: TComponentsFrame);
+begin
+  FComponentsFrame := Value;
+end;
+
 procedure TfrmMain.UpdateCaption;
 var
   AFS: TFormatSettings;
@@ -975,7 +990,8 @@ begin
       S := DM2.qTreeList.Value.AsString;
 
     AFS.DecimalSeparator := '.';
-    Caption := Format('%s %0.1f - %s', [sMainFormCaption, ProgramVersion, S], AFS);
+    Caption := Format('%s %0.1f - %s',
+      [sMainFormCaption, ProgramVersion, S], AFS);
   end;
 end;
 

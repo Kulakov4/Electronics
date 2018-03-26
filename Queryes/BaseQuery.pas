@@ -107,7 +107,7 @@ type
       : Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
-    procedure RestoreBookmark;
+    function RestoreBookmark: Boolean;
     procedure SaveBookmark;
     function Search(const AParamNames: TArray<String>; const AParamValues:
         TArray<Variant>; TestResult: Integer = -1): Integer; overload;
@@ -799,11 +799,12 @@ begin
   end;
 end;
 
-procedure TQueryBase.RestoreBookmark;
+function TQueryBase.RestoreBookmark: Boolean;
 begin
+  Result := False;
   if VarIsNull(FBookmark) then
     Exit;
-  LocateByPK(FBookmark);
+  Result := LocateByPK(FBookmark);
 end;
 
 procedure TQueryBase.SaveBookmark;

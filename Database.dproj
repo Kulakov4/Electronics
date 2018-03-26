@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>Database.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -895,6 +895,11 @@
         </DCCReference>
         <DCCReference Include="Helpers\TextRectHelper.pas"/>
         <DCCReference Include="Helpers\ComponentTypeSetUnit.pas"/>
+        <DCCReference Include="Views\ChildCategories\ChildCategoriesView.pas">
+            <Form>ViewChildCategories</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -922,6 +927,12 @@
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="C:\Public\ElectronicDB\Database.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Database.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="C:\Public\ElectronicDB\Database.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Database.exe</RemoteName>
                         <Overwrite>true</Overwrite>

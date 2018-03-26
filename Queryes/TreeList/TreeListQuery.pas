@@ -8,22 +8,26 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
+  SearchCategoryQuery;
 
 type
   TQueryTreeList = class(TQueryWithDataSource)
   private
-    function CalculateExternalId(ParentId, ALevel: Integer): string;
+    FqSearchCategory: TQuerySearchCategory;
     function GetExternalID: TField;
     function GetIsRootFocused: Boolean;
     function GetParentID: TField;
+    function GetqSearchCategory: TQuerySearchCategory;
     function GetValue: TField;
     { Private declarations }
   protected
+    property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
     procedure AddChildCategory(const AValue: string; ALevel: Integer);
     procedure AddRoot;
-    function CheckPossibility(ParentId: Integer; value: string): Boolean;
+    function CheckPossibility(const AParentID: Integer;
+      const AValue: String): Boolean;
     procedure FilterByExternalID(AExternalID: string);
     function LocateByExternalID(AExternalID: string): Boolean;
     procedure LocateToRoot;
@@ -43,23 +47,29 @@ uses System.Generics.Collections, ProjectConst;
 procedure TQueryTreeList.AddChildCategory(const AValue: string;
   ALevel: Integer);
 var
-  AParentId: Variant;
+  AParentID: Variant;
   AExternalID: string;
 begin
   Assert(FDQuery.RecordCount > 0);
-  AParentId := PK.value;
+  AParentID := PK.value;
 
-  if not CheckPossibility(AParentId, AValue) then
+  if not CheckPossibility(AParentID, AValue) then
     Exit;
 
-  TryPost;
+  FDQuery.DisableControls;
+  try
+    TryPost;
+//    AExternalID := CalculateExternalId(AParentID, ALevel);
+    AExternalID := qSearchCategory.CalculateExternalId(AParentID, ALevel-1);
 
-  AExternalID := CalculateExternalId(AParentId, ALevel);
-  TryAppend;
-  value.AsString := AValue;
-  ParentId.AsInteger := AParentId;
-  ExternalID.AsString := AExternalID;
-  TryPost;
+    TryAppend;
+    value.AsString := AValue;
+    ParentId.AsInteger := AParentID;
+    ExternalID.AsString := AExternalID;
+    TryPost;
+  finally
+    FDQuery.EnableControls;
+  end;
 end;
 
 // Добавляет корень дерева
@@ -75,69 +85,11 @@ begin
   end;
 end;
 
-function TQueryTreeList.CalculateExternalId(ParentId, ALevel: Integer): string;
-var
-  AQuery: TFDQuery;
-  vLevel, vId, vInteger: Integer;
-  vLevelStr, vExternalId: string;
-  vIntegers: TList<Integer>;
+function TQueryTreeList.CheckPossibility(const AParentID: Integer;
+  const AValue: String): Boolean;
 begin
-  vLevel := ALevel - 1;
-  vLevelStr := Format('%.2d', [vLevel]);
-  Result := '';
-
-  AQuery := TFDQuery.Create(nil);
-  vIntegers := TList<Integer>.Create;
-  try
-    AQuery.Connection := FDQuery.Connection;
-    AQuery.Params.CreateParam(ftWideString, 'vPartOfExternalId', ptInput);
-    AQuery.ParamByName('vPartOfExternalId').AsString := vLevelStr + '%';
-    AQuery.SQL.Add
-      ('select * from ProductCategories where externalId like :vPartOfExternalId');
-    AQuery.Open();
-    AQuery.First;
-    while not AQuery.Eof do
-    begin
-      vExternalId := AQuery.FieldByName('ExternalId').AsString;
-      Delete(vExternalId, 1, 2); // удалить 2 символа в начале
-      vIntegers.Add(StrToInt(vExternalId));
-      AQuery.Next;
-    end;
-    vIntegers.Sort;
-    vId := 1;
-    for vInteger in vIntegers do
-    begin
-      if vInteger <> vId then
-        Break;
-      vId := vId + 1;
-    end;
-    Result := vLevelStr + Format('%.3d', [vId]);
-  finally
-    AQuery.Free;
-    vIntegers.Free;
-  end;
-end;
-
-function TQueryTreeList.CheckPossibility(ParentId: Integer;
-  value: string): Boolean;
-var
-  AQuery: TFDQuery;
-begin
-  // Result := false;
-  AQuery := TFDQuery.Create(nil);
-  try
-    AQuery.Connection := FDQuery.Connection;
-    AQuery.Params.CreateParam(ftInteger, 'vId', ptInput);
-    AQuery.ParamByName('vId').AsInteger := ParentId;
-    AQuery.Params.CreateParam(ftWideString, 'vValue', ptInput);
-    AQuery.ParamByName('vValue').AsString := value;
-    AQuery.SQL.Add
-      ('select * from ProductCategories where ParentId = :vId and value LIKE :vValue');
-    AQuery.Open();
-    Result := AQuery.RecordCount = 0;
-  finally
-    AQuery.Free;
-  end;
+  Assert(FDQuery.Active);
+  Result := qSearchCategory.SearchByParentAndValue(AParentID, AValue) = 0;
 end;
 
 procedure TQueryTreeList.FilterByExternalID(AExternalID: string);
@@ -164,6 +116,14 @@ end;
 function TQueryTreeList.GetParentID: TField;
 begin
   Result := Field('ParentID');
+end;
+
+function TQueryTreeList.GetqSearchCategory: TQuerySearchCategory;
+begin
+  if FqSearchCategory = nil then
+    FqSearchCategory := TQuerySearchCategory.Create(Self);
+
+  Result := FqSearchCategory;
 end;
 
 function TQueryTreeList.GetValue: TField;

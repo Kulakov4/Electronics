@@ -57,6 +57,7 @@ type
     procedure OpenConnection;
     { Private declarations }
   protected
+    procedure DoAfterChildCategoriesPostOrDelete(Sender: TObject);
     procedure DoAfterTreeListFirstOpen(Sender: TObject);
     procedure DoBeforeTreeListClose(Sender: TObject);
   public
@@ -128,6 +129,10 @@ begin
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
+  // При редактировании дочерней категории нужно будет обновлять дерево
+  TNotifyEventWrap.Create(qChildCategories.AfterPost, DoAfterChildCategoriesPostOrDelete);
+  TNotifyEventWrap.Create(qChildCategories.AfterDelete, DoAfterChildCategoriesPostOrDelete);
+
   qProducts.Master := qStoreHouseList;
 
   // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
@@ -230,6 +235,12 @@ begin
 
   // Открываем новое соединение с БД
   OpenConnection();
+end;
+
+procedure TDM2.DoAfterChildCategoriesPostOrDelete(Sender: TObject);
+begin
+  // обновляем дерево с подавление AfterScroll
+  qTreeList.SmartRefresh;
 end;
 
 procedure TDM2.DoOnCategoryParametersApplyUpdates(Sender: TObject);

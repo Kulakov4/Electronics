@@ -197,7 +197,8 @@ uses
   MoveHelper in 'Helpers\MoveHelper.pas',
   UpdateParameterValuesParamSubParamQuery in 'Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas' {qUpdateParameterValuesParamSubParam: TFrame},
   TextRectHelper in 'Helpers\TextRectHelper.pas',
-  ComponentTypeSetUnit in 'Helpers\ComponentTypeSetUnit.pas';
+  ComponentTypeSetUnit in 'Helpers\ComponentTypeSetUnit.pas',
+  ChildCategoriesView in 'Views\ChildCategories\ChildCategoriesView.pas' {ViewChildCategories: TFrame};
 
 {$R *.res}
 

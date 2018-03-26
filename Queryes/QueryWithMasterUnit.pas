@@ -118,12 +118,6 @@ begin
   end;
 end;
 
-// TODO: PostPostMessage
-// procedure TQueryWithMaster.PostPostMessage;
-// begin
-// PostMessage(Handle, WM_NEED_POST, PKValue, 0);
-// end;
-
 procedure TQueryWithMaster.TryLoad;
 begin
   // Будем обновляться, т.к. мы подчинены мастеру

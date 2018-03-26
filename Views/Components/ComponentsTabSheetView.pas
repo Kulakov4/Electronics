@@ -32,7 +32,7 @@ uses
   ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls,
   DataModule2, ParametricErrorTable, ParametricTableErrorForm,
   SubParametersQuery2, ParamSubParamsQuery, SearchParamDefSubParamQuery,
-  SearchParameterQuery, ComponentTypeSetUnit;
+  SearchParameterQuery, ComponentTypeSetUnit, ChildCategoriesView;
 
 type
   TFieldsInfo = class(TList<TFieldInfo>)
@@ -43,14 +43,6 @@ type
   TComponentsFrame = class(TFrame)
     cxpcComponents: TcxPageControl;
     cxtsCategory: TcxTabSheet;
-    cxgrdFunctionalGroup: TcxGrid;
-    tvFunctionalGroup: TcxGridDBTableView;
-    clFunctionalGroupId: TcxGridDBColumn;
-    clFunctionalGroupExternalId: TcxGridDBColumn;
-    clFunctionalGroupValue: TcxGridDBColumn;
-    clFunctionalGroupOrder: TcxGridDBColumn;
-    clFunctionalGroupParentExternalId: TcxGridDBColumn;
-    glFunctionalGroup: TcxGridLevel;
     cxtsCategoryComponents: TcxTabSheet;
     cxtsCategoryParameters: TcxTabSheet;
     cxtsComponentsSearch: TcxTabSheet;
@@ -83,6 +75,7 @@ type
     ViewParametricTable: TViewParametricTable;
     actLoadParametricTableRange: TAction;
     dxBarButton7: TdxBarButton;
+    ViewChildCategories: TViewChildCategories;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
