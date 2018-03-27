@@ -9,11 +9,12 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  SearchCategoryQuery;
+  SearchCategoryQuery, NotifyEvents;
 
 type
   TQueryTreeList = class(TQueryWithDataSource)
   private
+    FAfterSmartRefresh: TNotifyEventsEx;
     FqSearchCategory: TQuerySearchCategory;
     function GetExternalID: TField;
     function GetIsRootFocused: Boolean;
@@ -24,6 +25,7 @@ type
   protected
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure AddChildCategory(const AValue: string; ALevel: Integer);
     procedure AddRoot;
     function CheckPossibility(const AParentID: Integer;
@@ -31,8 +33,10 @@ type
     procedure FilterByExternalID(AExternalID: string);
     function LocateByExternalID(AExternalID: string): Boolean;
     procedure LocateToRoot;
+    procedure SmartRefresh; override;
     property ExternalID: TField read GetExternalID;
     property IsRootFocused: Boolean read GetIsRootFocused;
+    property AfterSmartRefresh: TNotifyEventsEx read FAfterSmartRefresh;
     property ParentId: TField read GetParentID;
     property value: TField read GetValue;
     { Public declarations }
@@ -43,6 +47,12 @@ implementation
 uses System.Generics.Collections, ProjectConst;
 
 {$R *.dfm}
+
+constructor TQueryTreeList.Create(AOwner: TComponent);
+begin
+  inherited;
+  FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
+end;
 
 procedure TQueryTreeList.AddChildCategory(const AValue: string;
   ALevel: Integer);
@@ -140,6 +150,18 @@ end;
 procedure TQueryTreeList.LocateToRoot;
 begin
   FDQuery.LocateEx(ParentId.FieldName, NULL, []);
+end;
+
+procedure TQueryTreeList.SmartRefresh;
+var
+  rc: Integer;
+begin
+  rc := FDQuery.RecordCount;
+  inherited;
+
+  // Если была одна запись а стало больше
+  if (rc = 1) and (FDQuery.RecordCount > 1) then
+    FAfterSmartRefresh.CallEventHandlers(Self);
 end;
 
 end.

@@ -82,7 +82,7 @@ type
     destructor Destroy; override;
     function AddClone(const AFilter: String): TFDMemTable;
     procedure DropClone(AClone: TFDMemTable);
-    procedure SmartRefresh;
+    procedure SmartRefresh; virtual;
     property AfterClose: TNotifyEventsEx read FAfterClose;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;

@@ -155,6 +155,7 @@ type
     FProductsFrame: TProductsFrame;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
+    procedure DoAfterTreeListSmartRefresh(Sender: TObject);
     procedure DoBeforeParametricTableActivate(Sender: TObject);
     procedure DoBeforeParametricTableDeactivate(Sender: TObject);
     procedure DoOnComponentLocate(Sender: TObject);
@@ -252,11 +253,11 @@ end;
 procedure TfrmMain.actDeleteTreeNodeExecute(Sender: TObject);
 begin
   DM2.qTreeList.TryPost;
-  if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
-  begin
-    DM2.qTreeList.FDQuery.Delete;
-    DM2.qTreeList.FDQuery.Refresh;
-  end;
+  if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
+    Exit;
+
+  DM2.qTreeList.FDQuery.Delete;
+  DM2.qTreeList.FDQuery.Refresh;
 end;
 
 procedure TfrmMain.actExitExecute(Sender: TObject);
@@ -690,10 +691,12 @@ begin
       // ViewStoreHouse.QueryProductsSearch := DM2.qProductsSearch;
 
       // привязываем дерево катогорий к данным
-//      AClone := DM2.qTreeList.AddClone('');
-//      DM2.qTreeList.DataSource.DataSet := AClone;
+      // AClone := DM2.qTreeList.AddClone('');
+      // DM2.qTreeList.DataSource.DataSet := AClone;
 
       dbtlCategories.DataController.DataSource := DM2.qTreeList.DataSource;
+      TNotifyEventWrap.Create(DM2.qTreeList.AfterSmartRefresh,
+        DoAfterTreeListSmartRefresh);
 
       // Привязываем подкатегории к данным (функциональная группа)
       ComponentsFrame.ViewChildCategories.qChildCategories :=
@@ -943,6 +946,12 @@ procedure TfrmMain.cxtsStorehousesShow(Sender: TObject);
 begin
   // Справа активизируем вкладку "Склады"
   cxpcRight.ActivePage := cxtsRStorehouses;
+end;
+
+procedure TfrmMain.DoAfterTreeListSmartRefresh(Sender: TObject);
+begin
+  Assert(dbtlCategories.Root.Count >= 1);
+  dbtlCategories.Root.Items[0].Expand(False);
 end;
 
 procedure TfrmMain.DoBeforeParametricTableActivate(Sender: TObject);

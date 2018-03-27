@@ -75,7 +75,6 @@ object frmMain: TfrmMain
         OptionsView.Headers = False
         OptionsView.ShowRoot = False
         PopupMenu = pmLeftTreeList
-        RootValue = 1
         TabOrder = 0
         OnCanFocusNode = dbtlCategoriesCanFocusNode
         OnClick = dbtlCategoriesClick
