@@ -26,32 +26,42 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ChildCategoriesQuery;
+  cxGridDBBandedTableView, cxGrid, ChildCategoriesQuery, DragHelper, HRTimer;
 
 type
   TViewChildCategories = class(TfrmGrid)
-    clFunctionalGroupId: TcxGridDBBandedColumn;
-    clFunctionalGroupExternalId: TcxGridDBBandedColumn;
-    clFunctionalGroupValue: TcxGridDBBandedColumn;
-    clFunctionalGroupOrder: TcxGridDBBandedColumn;
-    clFunctionalGroupParentExternalId: TcxGridDBBandedColumn;
+    clId: TcxGridDBBandedColumn;
+    clExternalId: TcxGridDBBandedColumn;
+    clValue: TcxGridDBBandedColumn;
+    clParentExternalId: TcxGridDBBandedColumn;
     actRename: TAction;
     actAdd: TAction;
     N2: TMenuItem;
     N3: TMenuItem;
     N4: TMenuItem;
     clOrd: TcxGridDBBandedColumn;
+    dxBarButton1: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actRenameExecute(Sender: TObject);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
+      X, Y: Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject;
+      X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
+    procedure dxBarButton1Click(Sender: TObject);
   private
+    FDragAndDropInfo: TDragAndDropInfo;
+    FHRTimer: THRTimer;
     FqChildCategories: TQueryChildCategories;
     procedure SetqChildCategories(const Value: TQueryChildCategories);
     { Private declarations }
   protected
     procedure OnGridViewNoneHitTest(var AllowPopup: Boolean); override;
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
-        AllowPopup: Boolean); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); override;
   public
+    constructor Create(AOwner: TComponent); override;
     property qChildCategories: TQueryChildCategories read FqChildCategories
       write SetqChildCategories;
     { Public declarations }
@@ -60,9 +70,18 @@ type
 implementation
 
 uses
-  ProjectConst;
+  ProjectConst, GridSort;
 
 {$R *.dfm}
+
+constructor TViewChildCategories.Create(AOwner: TComponent);
+begin
+  inherited;
+  FDragAndDropInfo := TDragAndDropInfo.Create(clId, clOrd);
+
+  GridSort.Add(TSortVariant.Create(clOrd, [clOrd]));
+  ApplySort(MainView, clOrd);
+end;
 
 procedure TViewChildCategories.actAddExecute(Sender: TObject);
 var
@@ -99,6 +118,52 @@ begin
 
 end;
 
+procedure TViewChildCategories.cxGridDBBandedTableViewDragDrop(Sender,
+  Source: TObject; X, Y: Integer);
+var
+  t: Double;
+begin
+  inherited;
+  // Таймер должны были запустить
+  Assert(FHRTimer <> nil);
+  t := FHRTimer.ReadTimer;
+  // Таймер больше не нужен
+  FreeAndNil(FHRTimer);
+
+  // Если это было случайное перемещение, то ничего не делаем
+  if t < DragDropTimeOut then
+    Exit;
+
+  DoDragDrop(Sender as TcxGridSite, FDragAndDropInfo, qChildCategories, X, Y);
+
+end;
+
+procedure TViewChildCategories.cxGridDBBandedTableViewDragOver(Sender,
+  Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  inherited;
+  DoDragOver(Sender as TcxGridSite, X, Y, Accept);
+end;
+
+procedure TViewChildCategories.cxGridDBBandedTableViewStartDrag(Sender: TObject;
+  var DragObject: TDragObject);
+begin
+  inherited;
+  DoOnStartDrag(Sender as TcxGridSite, FDragAndDropInfo);
+
+  // Запускаем таймер чтобы рассчитать время переноса записей
+  FHRTimer := THRTimer.Create(True);
+end;
+
+procedure TViewChildCategories.dxBarButton1Click(Sender: TObject);
+begin
+  inherited;
+
+  ShowMessage(BoolToStr(qChildCategories.FDQuery.Connection.
+    InTransaction, True));
+
+end;
+
 procedure TViewChildCategories.OnGridViewNoneHitTest(var AllowPopup: Boolean);
 begin
   actDeleteEx.Enabled := False;
@@ -106,8 +171,8 @@ begin
   actCopyToClipboard.Enabled := False;
 end;
 
-procedure TViewChildCategories.OnGridRecordCellPopupMenu(AColumn:
-    TcxGridDBBandedColumn; var AllowPopup: Boolean);
+procedure TViewChildCategories.OnGridRecordCellPopupMenu
+  (AColumn: TcxGridDBBandedColumn; var AllowPopup: Boolean);
 begin
   actDeleteEx.Enabled := True;
   actRename.Enabled := True;

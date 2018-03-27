@@ -121,10 +121,12 @@ object frmMain: TfrmMain
         end
         object clOrder: TcxDBTreeListColumn
           Visible = False
-          DataBinding.FieldName = 'Order'
+          DataBinding.FieldName = 'ORD'
           Position.ColIndex = 3
           Position.RowIndex = 0
           Position.BandIndex = 0
+          SortOrder = soAscending
+          SortIndex = 0
           Summary.FooterSummaryItems = <>
           Summary.GroupFooterSummaryItems = <>
         end

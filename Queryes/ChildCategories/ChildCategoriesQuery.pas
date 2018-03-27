@@ -9,15 +9,14 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  SearchCategoryQuery;
+  SearchCategoryQuery, OrderQuery;
 
 type
-  TQueryChildCategories = class(TQueryWithDataSource)
+  TQueryChildCategories = class(TQueryOrder)
     FDUpdateSQL: TFDUpdateSQL;
   private
     FqSearchCategory: TQuerySearchCategory;
     function GetExternalID: TField;
-    function GetOrd: TField;
     function GetParentExternalId: TField;
     function GetParentID: TField;
     function GetqSearchCategory: TQuerySearchCategory;
@@ -33,7 +32,6 @@ type
       const AValue: String): Boolean;
     function GetLevel: Integer;
     property ExternalID: TField read GetExternalID;
-    property Ord: TField read GetOrd;
     property ParentExternalId: TField read GetParentExternalId;
     property ParentID: TField read GetParentID;
     property Value: TField read GetValue;
@@ -93,6 +91,9 @@ end;
 procedure TQueryChildCategories.DoAfterOpen(Sender: TObject);
 begin
   ParentExternalId.Required := False;
+
+  // ѕор€док будет заполн€тьс€ на стороне сервера
+  Ord.Required := False;
 end;
 
 function TQueryChildCategories.GetExternalID: TField;
@@ -115,11 +116,6 @@ begin
     Inc(Result);
     qSearchCategory.SearchByID(qSearchCategory.ParentID.AsInteger, 1);
   end;
-end;
-
-function TQueryChildCategories.GetOrd: TField;
-begin
-  Result := Field('Ord');
 end;
 
 function TQueryChildCategories.GetParentExternalId: TField;

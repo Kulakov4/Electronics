@@ -49,7 +49,7 @@ begin
     begin
       // Получаем очередной скрипт для обновления БД
       ASQL := GetUpdateScript(Result + 1, ADBMigrationFolder);
-      m := ASQL.Split([';']);
+      m := ASQL.Split([#13#10#13#10]);
 
       // Начинаем транзакцию
       AUpdateConnection.StartTransaction;
@@ -57,12 +57,13 @@ begin
 
         for s in m do
         begin
-          ASQL := s.Trim;
+          ASQL := s.Trim([' ', #13, #10]);
+          if ASQL.IsEmpty then Continue;
           AUpdateConnection.ExecSQL(ASQL); // Выполняем обновление структуры БД
         end;
 
         AUpdateConnection.ExecSQL // Выполняем обновление версии БД
-          (String.Format('update dbVersion set version = %d', [Result]));
+          (String.Format('update dbVersion set version = %d', [Result + 1]));
       except
         // Если во время обновления структуры БД произошла ошибка
         AUpdateConnection.Rollback;

@@ -13,7 +13,7 @@ uses
   ComponentsGroupUnit, ComponentsSearchGroupUnit,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
   StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2,
-  CategoryParametersGroupUnit, NotifyEvents;
+  CategoryParametersGroupUnit, NotifyEvents, OrderQuery;
 
 type
   TDM2 = class(TForm)
