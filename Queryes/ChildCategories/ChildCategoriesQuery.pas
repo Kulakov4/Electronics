@@ -17,6 +17,7 @@ type
   private
     FqSearchCategory: TQuerySearchCategory;
     function GetExternalID: TField;
+    function GetOrd: TField;
     function GetParentExternalId: TField;
     function GetParentID: TField;
     function GetqSearchCategory: TQuerySearchCategory;
@@ -32,6 +33,7 @@ type
       const AValue: String): Boolean;
     function GetLevel: Integer;
     property ExternalID: TField read GetExternalID;
+    property Ord: TField read GetOrd;
     property ParentExternalId: TField read GetParentExternalId;
     property ParentID: TField read GetParentID;
     property Value: TField read GetValue;
@@ -113,6 +115,11 @@ begin
     Inc(Result);
     qSearchCategory.SearchByID(qSearchCategory.ParentID.AsInteger, 1);
   end;
+end;
+
+function TQueryChildCategories.GetOrd: TField;
+begin
+  Result := Field('Ord');
 end;
 
 function TQueryChildCategories.GetParentExternalId: TField;

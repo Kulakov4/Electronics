@@ -38,6 +38,13 @@ inherited ViewChildCategories: TViewChildCategories
         Position.ColIndex = 4
         Position.RowIndex = 0
       end
+      object clOrd: TcxGridDBBandedColumn
+        Caption = #1055#1086#1088#1103#1076#1086#1082
+        DataBinding.FieldName = 'Ord'
+        Position.BandIndex = 0
+        Position.ColIndex = 5
+        Position.RowIndex = 0
+      end
     end
   end
   inherited dxBarManager: TdxBarManager

@@ -12,8 +12,8 @@ inherited QueryChildCategories: TQueryChildCategories
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       
-        'SELECT pc.Id, pc.Value, pc.ParentId, pc.ExternalId, pc2.External' +
-        'Id ParentExternalId'
+        'SELECT pc.Id, pc.Value, pc.ParentId, pc.ExternalId, pc.ORD, pc2.' +
+        'ExternalId ParentExternalId'
       'FROM ProductCategories pc'
       'left join ProductCategories pc2'
       'on pc.ParentId = pc2.Id'

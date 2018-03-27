@@ -40,6 +40,7 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     N4: TMenuItem;
+    clOrd: TcxGridDBBandedColumn;
     procedure actAddExecute(Sender: TObject);
     procedure actRenameExecute(Sender: TObject);
   private

@@ -588,7 +588,6 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
-  AClone: TFDMemTable;
   OK: Boolean;
 begin
   cxpcRight.Properties.HideTabs := True;
