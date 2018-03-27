@@ -75,6 +75,7 @@ object frmMain: TfrmMain
         OptionsView.Headers = False
         OptionsView.ShowRoot = False
         PopupMenu = pmLeftTreeList
+        RootValue = -1
         TabOrder = 0
         OnCanFocusNode = dbtlCategoriesCanFocusNode
         OnClick = dbtlCategoriesClick
@@ -383,8 +384,8 @@ object frmMain: TfrmMain
     object mniRenameRecord: TMenuItem
       Action = actRenameTreeNode
     end
-    object mniDeleteRecord: TMenuItem
-      Action = actDeleteTreeNode
+    object actNew1: TMenuItem
+      Action = actNew
     end
     object Excel1: TMenuItem
       Action = actExportTreeToExcelDocument
@@ -434,12 +435,6 @@ object frmMain: TfrmMain
       Caption = #1042#1099#1093#1086#1076
       OnExecute = actExitExecute
     end
-    object actDeleteTreeNode: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
-      ImageIndex = 2
-      OnExecute = actDeleteTreeNodeExecute
-    end
     object actRenameTreeNode: TAction
       Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100
       Hint = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
@@ -482,6 +477,12 @@ object frmMain: TfrmMain
       ImageIndex = 11
       OnExecute = actRenameStorehouseExecute
       OnUpdate = actRenameStorehouseUpdate
+    end
+    object actNew: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100
+      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+      ImageIndex = 2
+      OnExecute = actNewExecute
     end
   end
   object pmLeftStoreHouse: TPopupMenu

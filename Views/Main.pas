@@ -56,7 +56,6 @@ type
     pmLeftTreeList: TPopupMenu;
     mniAddRecord: TMenuItem;
     mniRenameRecord: TMenuItem;
-    mniDeleteRecord: TMenuItem;
     dxbrMainBar2: TdxBar;
     dxbrbtnSettings: TdxBarButton;
     cxpcLeft: TcxPageControl;
@@ -73,7 +72,6 @@ type
     actSaveAll: TAction;
     dxBarButton4: TdxBarButton;
     actExit: TAction;
-    actDeleteTreeNode: TAction;
     actRenameTreeNode: TAction;
     actAddTreeNode: TAction;
     actLoadBodyTypes: TAction;
@@ -103,14 +101,16 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     ApplicationEvents: TApplicationEvents;
+    actNew: TAction;
+    actNew1: TMenuItem;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);
-    procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
+    procedure actNewExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseUpdate(Sender: TObject);
     procedure actRenameTreeNodeExecute(Sender: TObject);
@@ -250,16 +250,6 @@ begin
     RecordCount > 0;
 end;
 
-procedure TfrmMain.actDeleteTreeNodeExecute(Sender: TObject);
-begin
-  DM2.qTreeList.TryPost;
-  if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
-    Exit;
-
-  DM2.qTreeList.FDQuery.Delete;
-  DM2.qTreeList.FDQuery.Refresh;
-end;
-
 procedure TfrmMain.actExitExecute(Sender: TObject);
 begin
   Close
@@ -346,6 +336,15 @@ begin
     dbtlCategories.EndUpdate;
     dbtlCategories.FocusedNode.Expand(False);
   end;
+end;
+
+procedure TfrmMain.actNewExecute(Sender: TObject);
+begin
+  DM2.qTreeList.TryPost;
+  if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
+    Exit;
+
+  DM2.qTreeList.Delete
 end;
 
 procedure TfrmMain.actRenameStorehouseExecute(Sender: TObject);
@@ -896,8 +895,8 @@ end;
 procedure TfrmMain.tlLeftControlMouseDown(Sender: TObject; Button: TMouseButton;
 Shift: TShiftState; X, Y: Integer);
 begin
-  pmLeftTreeList.Items[1].Enabled := True;
-  pmLeftTreeList.Items[2].Enabled := True;
+  actRenameTreeNode.Enabled := True;
+
   with TcxTreeList(Sender) do
   begin
     OptionsData.Editing := True;
@@ -906,24 +905,17 @@ begin
     if HitTest.HitAtBackground then
     begin
       DM2.qTreeList.LocateToRoot;
-      // datamoduleMain.IsCurrentlyBusy := True;
-      // datamoduleMain.qTreeList.Locate('Id', 1, []);
-      // datamoduleMain.IsCurrentlyBusy := false;
-      // datamoduleMain.qTreeList.AfterScroll(datamoduleMain.qTreeList);
-
-      pmLeftTreeList.Items[1].Enabled := False;
-      pmLeftTreeList.Items[2].Enabled := False;
+      actRenameTreeNode.Enabled := False;
       OptionsData.Editing := False;
     end;
 
     if HitTest.HitAtNode then
     begin
       if DM2.qTreeList.
-        IsRootFocused { datamoduleMain.qTreeList.FieldByName('Id').AsInteger = 1 }
+        IsRootFocused
       then
       begin
-        pmLeftTreeList.Items[1].Enabled := False;
-        pmLeftTreeList.Items[2].Enabled := False;
+        actRenameTreeNode.Enabled := False;
         OptionsData.Editing := False;
       end;
     end;

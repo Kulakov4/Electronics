@@ -30,6 +30,7 @@ type
     procedure AddRoot;
     function CheckPossibility(const AParentID: Integer;
       const AValue: String): Boolean;
+    procedure Delete;
     procedure FilterByExternalID(AExternalID: string);
     function LocateByExternalID(AExternalID: string): Boolean;
     procedure LocateToRoot;
@@ -100,6 +101,22 @@ function TQueryTreeList.CheckPossibility(const AParentID: Integer;
 begin
   Assert(FDQuery.Active);
   Result := qSearchCategory.SearchByParentAndValue(AParentID, AValue) = 0;
+end;
+
+procedure TQueryTreeList.Delete;
+begin
+  FDQuery.DisableControls;
+  try
+    FDQuery.Delete;
+    FDQuery.Refresh;
+
+    // Если удалили всё, то заново добавляем корень
+    if FDQuery.RecordCount = 0 then
+      AddRoot;
+  finally
+    FDQuery.EnableControls;
+  end;
+
 end;
 
 procedure TQueryTreeList.FilterByExternalID(AExternalID: string);

@@ -83,7 +83,6 @@ class function TDBMigration.GetUpdateScript(Version: Integer;
   ADBMigrationFolder: String): string;
 var
   AFileName: string;
-  s: string;
 begin
   Assert(not ADBMigrationFolder.IsEmpty);
 
