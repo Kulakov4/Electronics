@@ -129,6 +129,7 @@ type
       var AllowPopup: Boolean); virtual;
     procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
       var AllowPopup: Boolean); virtual;
+    procedure OnGridViewNoneHitTest(var AllowPopup: Boolean); virtual;
     procedure ProcessGridPopupMenu(ASenderMenu: TComponent;
       AHitTest: TcxCustomGridHitTest; X, Y: Integer;
       var AllowPopup: Boolean); virtual;
@@ -1381,6 +1382,10 @@ var AllowPopup: Boolean);
 begin
 end;
 
+procedure TfrmGrid.OnGridViewNoneHitTest(var AllowPopup: Boolean);
+begin
+end;
+
 procedure TfrmGrid.PostMyApplyBestFitEventForView
   (AView: TcxGridDBBandedTableView);
 begin
@@ -1413,12 +1418,20 @@ var
   AcxGridBandHeaderHitTest: TcxGridBandHeaderHitTest;
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
   AcxGridColumnHeaderHitTest: TcxGridColumnHeaderHitTest;
+  S: string;
   // S: string;
 begin
   inherited;
 
   // Запоминаем информацию о щелчке
   FHitTest := AHitTest;
+
+  S := AHitTest.ClassName;
+
+  if AHitTest is TcxGridViewNoneHitTest then
+  begin
+    OnGridViewNoneHitTest(AllowPopup);
+  end;
 
   if (AHitTest is TcxGridRecordCellHitTest) then
   begin

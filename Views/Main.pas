@@ -95,7 +95,6 @@ type
     tvStorehouseList: TcxGridDBTableView;
     clStorehouseListTitle: TcxGridDBColumn;
     glStorehouseList: TcxGridLevel;
-    ProductsFrame: TProductsFrame;
     pmLeftStoreHouse: TPopupMenu;
     actAddStorehouse: TAction;
     actDeleteStorehouse: TAction;
@@ -153,6 +152,7 @@ type
     FEventList: TObjectList;
     FHintWindowEx: THintWindowEx;
     FOnProductCategoriesChange: TNotifyEventWrap;
+    FProductsFrame: TProductsFrame;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FSelectedId: Integer;
     procedure DoBeforeParametricTableActivate(Sender: TObject);
@@ -161,15 +161,14 @@ type
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
     function GetLevel(ANode: TcxTreeListNode): Integer;
-    procedure SetComponentsFrame(const Value: TComponentsFrame);
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
     { Private declarations }
   protected
     procedure DoOnProductLocate(Sender: TObject);
-    property ComponentsFrame: TComponentsFrame read FComponentsFrame write
-        SetComponentsFrame;
+    property ComponentsFrame: TComponentsFrame read FComponentsFrame;
+    property ProductsFrame: TProductsFrame read FProductsFrame;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
@@ -596,9 +595,14 @@ begin
   cxpcLeft.ActivePage := cxtsComponents;
 
   // Создаём фрейм с компонентами
-  ComponentsFrame := TComponentsFrame.Create(Self);
+  FComponentsFrame := TComponentsFrame.Create(Self);
   ComponentsFrame.Parent := cxtsRComponents;
   ComponentsFrame.Align := alClient;
+
+  // Создаём фрейм со складом
+  FProductsFrame := TProductsFrame.Create(Self);
+  ProductsFrame.Parent := cxtsRStorehouses;
+  ProductsFrame.Align := alClient;
 
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
@@ -966,11 +970,6 @@ end;
 procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);
 begin
   DM2.ComponentsExGroup.DecClient;
-end;
-
-procedure TfrmMain.SetComponentsFrame(const Value: TComponentsFrame);
-begin
-  FComponentsFrame := Value;
 end;
 
 procedure TfrmMain.UpdateCaption;

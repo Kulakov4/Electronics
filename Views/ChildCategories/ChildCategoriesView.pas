@@ -46,6 +46,10 @@ type
     FqChildCategories: TQueryChildCategories;
     procedure SetqChildCategories(const Value: TQueryChildCategories);
     { Private declarations }
+  protected
+    procedure OnGridViewNoneHitTest(var AllowPopup: Boolean); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
+        AllowPopup: Boolean); override;
   public
     property qChildCategories: TQueryChildCategories read FqChildCategories
       write SetqChildCategories;
@@ -92,6 +96,21 @@ begin
     FqChildCategories.TryPost;
   end;
 
+end;
+
+procedure TViewChildCategories.OnGridViewNoneHitTest(var AllowPopup: Boolean);
+begin
+  actDeleteEx.Enabled := False;
+  actRename.Enabled := False;
+  actCopyToClipboard.Enabled := False;
+end;
+
+procedure TViewChildCategories.OnGridRecordCellPopupMenu(AColumn:
+    TcxGridDBBandedColumn; var AllowPopup: Boolean);
+begin
+  actDeleteEx.Enabled := True;
+  actRename.Enabled := True;
+  actCopyToClipboard.Enabled := True;
 end;
 
 procedure TViewChildCategories.SetqChildCategories
