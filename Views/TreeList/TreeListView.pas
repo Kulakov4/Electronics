@@ -23,7 +23,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxInplaceContainer, cxTLData,
-  cxDBTL, TreeListQuery, cxMaskEdit, RepositoryDataModule;
+  cxDBTL, TreeListQuery, cxMaskEdit, RepositoryDataModule, Vcl.ExtCtrls,
+  cxSplitter, DuplicateCategoryView;
 
 type
   TViewTreeList = class(TfrmTreeList)
@@ -40,6 +41,8 @@ type
     N4: TMenuItem;
     Excel1: TMenuItem;
     Excel2: TMenuItem;
+    pnlBottom: TPanel;
+    cxSplitter: TcxSplitter;
     procedure actAddExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
@@ -57,12 +60,16 @@ type
         TShiftState; X, Y: Integer);
   private
     FqTreeList: TQueryTreeList;
+    FViewDuplicateCategory: TViewDuplicateCategory;
     function GetLevel(ANode: TcxTreeListNode): Integer;
     procedure SetqTreeList(const Value: TQueryTreeList);
     { Private declarations }
   protected
     procedure MyUpdateView(X, Y: Integer);
+    property ViewDuplicateCategory: TViewDuplicateCategory read
+        FViewDuplicateCategory;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure ExpandRoot;
     procedure UpdateView; override;
     property qTreeList: TQueryTreeList read FqTreeList write SetqTreeList;
@@ -77,6 +84,17 @@ uses
   System.Types, System.UITypes, Vcl.StdCtrls;
 
 {$R *.dfm}
+
+constructor TViewTreeList.Create(AOwner: TComponent);
+begin
+  inherited;
+  // Создаём представление для дублирующихся категорий
+  FViewDuplicateCategory := TViewDuplicateCategory.Create(Self);
+  FViewDuplicateCategory.Parent := pnlBottom;
+  FViewDuplicateCategory.Align := alClient;
+
+  cxSplitter.CloseSplitter;
+end;
 
 procedure TViewTreeList.actAddExecute(Sender: TObject);
 var

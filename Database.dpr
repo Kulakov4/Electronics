@@ -199,7 +199,9 @@ uses
   TextRectHelper in 'Helpers\TextRectHelper.pas',
   ComponentTypeSetUnit in 'Helpers\ComponentTypeSetUnit.pas',
   ChildCategoriesView in 'Views\ChildCategories\ChildCategoriesView.pas' {ViewChildCategories: TFrame},
-  TreeListView in 'Views\TreeList\TreeListView.pas' {ViewTreeList: TFrame};
+  TreeListView in 'Views\TreeList\TreeListView.pas' {ViewTreeList: TFrame},
+  DuplicateCategoryQuery in 'Queryes\TreeList\DuplicateCategoryQuery.pas',
+  DuplicateCategoryView in 'Views\TreeList\DuplicateCategoryView.pas' {ViewDuplicateCategory: TFrame};
 
 {$R *.res}
 

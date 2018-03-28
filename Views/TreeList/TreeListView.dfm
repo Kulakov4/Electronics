@@ -1,5 +1,8 @@
 inherited ViewTreeList: TViewTreeList
+  Height = 420
+  ExplicitHeight = 420
   inherited cxDBTreeList: TcxDBTreeList
+    Height = 220
     Bands = <
       item
       end>
@@ -19,6 +22,7 @@ inherited ViewTreeList: TViewTreeList
     OnDragOver = cxDBTreeListDragOver
     OnExpanded = cxDBTreeListExpanded
     OnMouseUp = cxDBTreeListMouseUp
+    ExplicitHeight = 212
     object clID: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'ID'
@@ -48,7 +52,27 @@ inherited ViewTreeList: TViewTreeList
     end
   end
   inherited StatusBar: TStatusBar
+    Top = 401
     Visible = False
+  end
+  object pnlBottom: TPanel [2]
+    Left = 0
+    Top = 256
+    Width = 320
+    Height = 145
+    Align = alBottom
+    TabOrder = 6
+  end
+  object cxSplitter: TcxSplitter [3]
+    Left = 0
+    Top = 248
+    Width = 320
+    Height = 8
+    HotZoneClassName = 'TcxSimpleStyle'
+    AlignSplitter = salBottom
+    Control = pnlBottom
+    ExplicitTop = 28
+    ExplicitWidth = 332
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
