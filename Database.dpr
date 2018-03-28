@@ -198,7 +198,8 @@ uses
   UpdateParameterValuesParamSubParamQuery in 'Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas' {qUpdateParameterValuesParamSubParam: TFrame},
   TextRectHelper in 'Helpers\TextRectHelper.pas',
   ComponentTypeSetUnit in 'Helpers\ComponentTypeSetUnit.pas',
-  ChildCategoriesView in 'Views\ChildCategories\ChildCategoriesView.pas' {ViewChildCategories: TFrame};
+  ChildCategoriesView in 'Views\ChildCategories\ChildCategoriesView.pas' {ViewChildCategories: TFrame},
+  TreeListView in 'Views\TreeList\TreeListView.pas' {ViewTreeList: TFrame};
 
 {$R *.res}
 

@@ -50,87 +50,8 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      object dbtlCategories: TcxDBTreeList
-        Left = 0
-        Top = 0
-        Width = 265
-        Height = 533
-        Align = alClient
-        Bands = <
-          item
-          end>
-        DataController.ParentField = 'ParentId'
-        DataController.KeyField = 'Id'
-        DragCursor = crDrag
-        DragMode = dmAutomatic
-        Navigator.Buttons.CustomButtons = <>
-        OptionsBehavior.ImmediateEditor = False
-        OptionsBehavior.BestFitMaxRecordCount = 10
-        OptionsBehavior.DragDropText = True
-        OptionsBehavior.ExpandOnIncSearch = True
-        OptionsBehavior.IncSearch = True
-        OptionsBehavior.IncSearchItem = clValue
-        OptionsData.SmartRefresh = True
-        OptionsSelection.InvertSelect = False
-        OptionsView.Headers = False
-        OptionsView.ShowRoot = False
-        PopupMenu = pmLeftTreeList
-        RootValue = -1
-        TabOrder = 0
-        OnCanFocusNode = dbtlCategoriesCanFocusNode
-        OnClick = dbtlCategoriesClick
-        OnCollapsed = dbtlCategoriesCollapsed
-        OnDragDrop = dbtlCategoriesDragDrop
-        OnDragOver = dbtlCategoriesDragOver
-        OnExpanded = dbtlCategoriesExpanded
-        OnMouseUp = tlLeftControlMouseDown
-        OnStartDrag = dbtlCategoriesStartDrag
-        object clValue: TcxDBTreeListColumn
-          PropertiesClassName = 'TcxMemoProperties'
-          Properties.ReadOnly = False
-          Properties.WantReturns = False
-          Properties.WordWrap = False
-          BestFitMaxWidth = 1200
-          DataBinding.FieldName = 'Value'
-          Options.Sizing = False
-          Options.VertSizing = False
-          Width = 1200
-          Position.ColIndex = 0
-          Position.RowIndex = 0
-          Position.BandIndex = 0
-          Summary.FooterSummaryItems = <>
-          Summary.GroupFooterSummaryItems = <>
-        end
-        object clId: TcxDBTreeListColumn
-          Visible = False
-          DataBinding.FieldName = 'Id'
-          Position.ColIndex = 1
-          Position.RowIndex = 0
-          Position.BandIndex = 0
-          Summary.FooterSummaryItems = <>
-          Summary.GroupFooterSummaryItems = <>
-        end
-        object clParentId: TcxDBTreeListColumn
-          Visible = False
-          DataBinding.FieldName = 'ParentId'
-          Position.ColIndex = 2
-          Position.RowIndex = 0
-          Position.BandIndex = 0
-          Summary.FooterSummaryItems = <>
-          Summary.GroupFooterSummaryItems = <>
-        end
-        object clOrder: TcxDBTreeListColumn
-          Visible = False
-          DataBinding.FieldName = 'ORD'
-          Position.ColIndex = 3
-          Position.RowIndex = 0
-          Position.BandIndex = 0
-          SortOrder = soAscending
-          SortIndex = 0
-          Summary.FooterSummaryItems = <>
-          Summary.GroupFooterSummaryItems = <>
-        end
-      end
+      ExplicitLeft = 3
+      ExplicitTop = 28
     end
     object cxtsStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
@@ -374,26 +295,6 @@ object frmMain: TfrmMain
       Visible = ivAlways
     end
   end
-  object pmLeftTreeList: TPopupMenu
-    Images = DMRepository.cxImageList
-    Left = 40
-    Top = 168
-    object mniAddRecord: TMenuItem
-      Action = actAddTreeNode
-    end
-    object mniRenameRecord: TMenuItem
-      Action = actRenameTreeNode
-    end
-    object actNew1: TMenuItem
-      Action = actNew
-    end
-    object Excel1: TMenuItem
-      Action = actExportTreeToExcelDocument
-    end
-    object Excel2: TMenuItem
-      Action = actLoadTreeFromExcelDocument
-    end
-  end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
     Left = 48
@@ -435,31 +336,9 @@ object frmMain: TfrmMain
       Caption = #1042#1099#1093#1086#1076
       OnExecute = actExitExecute
     end
-    object actRenameTreeNode: TAction
-      Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100
-      Hint = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
-      ImageIndex = 11
-      OnExecute = actRenameTreeNodeExecute
-    end
-    object actAddTreeNode: TAction
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
-      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1082#1072#1090#1077#1075#1086#1088#1080#1102
-      ImageIndex = 1
-      OnExecute = actAddTreeNodeExecute
-    end
     object actLoadBodyTypes: TAction
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 25
-    end
-    object actExportTreeToExcelDocument: TAction
-      Caption = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
-      ImageIndex = 6
-      OnExecute = actExportTreeToExcelDocumentExecute
-    end
-    object actLoadTreeFromExcelDocument: TAction
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
-      ImageIndex = 6
-      OnExecute = actLoadTreeFromExcelDocumentExecute
     end
     object actAddStorehouse: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1082#1083#1072#1076
@@ -477,12 +356,6 @@ object frmMain: TfrmMain
       ImageIndex = 11
       OnExecute = actRenameStorehouseExecute
       OnUpdate = actRenameStorehouseUpdate
-    end
-    object actNew: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
-      ImageIndex = 2
-      OnExecute = actNewExecute
     end
   end
   object pmLeftStoreHouse: TPopupMenu
