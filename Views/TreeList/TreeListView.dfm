@@ -7,6 +7,7 @@ inherited ViewTreeList: TViewTreeList
       item
       end>
     DragMode = dmAutomatic
+    OptionsBehavior.CellHints = False
     OptionsBehavior.ImmediateEditor = False
     OptionsBehavior.BestFitMaxRecordCount = 10
     OptionsBehavior.DragDropText = True
@@ -22,7 +23,7 @@ inherited ViewTreeList: TViewTreeList
     OnDragOver = cxDBTreeListDragOver
     OnExpanded = cxDBTreeListExpanded
     OnMouseUp = cxDBTreeListMouseUp
-    ExplicitHeight = 212
+    ExplicitHeight = 220
     object clID: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'ID'
@@ -41,6 +42,7 @@ inherited ViewTreeList: TViewTreeList
       Summary.GroupFooterSummaryItems = <>
     end
     object clOrd: TcxDBTreeListColumn
+      Visible = False
       DataBinding.FieldName = 'Ord'
       Position.ColIndex = 2
       Position.RowIndex = 0
@@ -54,6 +56,7 @@ inherited ViewTreeList: TViewTreeList
   inherited StatusBar: TStatusBar
     Top = 401
     Visible = False
+    ExplicitTop = 401
   end
   object pnlBottom: TPanel [2]
     Left = 0
@@ -71,8 +74,8 @@ inherited ViewTreeList: TViewTreeList
     HotZoneClassName = 'TcxSimpleStyle'
     AlignSplitter = salBottom
     Control = pnlBottom
-    ExplicitTop = 28
-    ExplicitWidth = 332
+    OnAfterOpen = cxSplitterAfterOpen
+    OnAfterClose = cxSplitterAfterClose
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
@@ -80,6 +83,25 @@ inherited ViewTreeList: TViewTreeList
       0
       28
       0)
+    inherited dxBarManagerBar1: TdxBar
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbsColumns'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
+        end>
+    end
+    inherited dxbsColumns: TdxBarSubItem
+      Visible = ivNever
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actSearch
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -115,6 +137,11 @@ inherited ViewTreeList: TViewTreeList
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1080' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 6
       OnExecute = actLoadTreeFromExcelDocumentExecute
+    end
+    object actSearch: TAction
+      Caption = #1044#1091#1073#1083#1080#1082#1072#1090#1099
+      ImageIndex = 9
+      OnExecute = actSearchExecute
     end
   end
   inherited PopupMenu: TPopupMenu

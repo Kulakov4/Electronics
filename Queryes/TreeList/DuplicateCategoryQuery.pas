@@ -3,19 +3,28 @@ unit DuplicateCategoryQuery;
 interface
 
 uses
-  FireDAC.Comp.Client, System.Classes, Data.DB, SearchCategoryQuery;
+  FireDAC.Comp.Client, System.Classes, Data.DB, SearchCategoryQuery,
+  NotifyEvents;
 
 type
   TQueryDuplicateCategory = class(TFDMemTable)
   private
+    FOnDuplicateClick: TNotifyEventsEx;
+    FAfterSearch: TNotifyEventsEx;
+    FqSearchCategory: TQuerySearchCategory;
     function GetCaption: TField;
     function GetID: TField;
+    function GetqSearchCategory: TQuerySearchCategory;
   protected
+    procedure LoadData(AQuerySearchCategory: TQuerySearchCategory);
+    property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure LoadData(AQuerySearchCategory: TQuerySearchCategory);
+    procedure Search(const AID: Integer);
     property Caption: TField read GetCaption;
     property ID: TField read GetID;
+    property OnDuplicateClick: TNotifyEventsEx read FOnDuplicateClick;
+    property AfterSearch: TNotifyEventsEx read FAfterSearch;
   end;
 
 implementation
@@ -30,6 +39,9 @@ begin
   FieldDefs.Add('Caption', ftWideString, 50, True);
 
   CreateDataSet;
+
+  FOnDuplicateClick := TNotifyEventsEx.Create(Self);
+  FAfterSearch := TNotifyEventsEx.Create(Self);
 end;
 
 function TQueryDuplicateCategory.GetCaption: TField;
@@ -40,6 +52,14 @@ end;
 function TQueryDuplicateCategory.GetID: TField;
 begin
   Result := FieldByName('ID');
+end;
+
+function TQueryDuplicateCategory.GetqSearchCategory: TQuerySearchCategory;
+begin
+  if FqSearchCategory = nil then
+    FqSearchCategory := TQuerySearchCategory.Create(Self);
+
+  Result := FqSearchCategory;
 end;
 
 procedure TQueryDuplicateCategory.LoadData(AQuerySearchCategory:
@@ -63,6 +83,19 @@ begin
     AQuerySearchCategory.FDQuery.Next;
   end;
 
+end;
+
+procedure TQueryDuplicateCategory.Search(const AID: Integer);
+var
+  rc: Integer;
+begin
+  rc := qSearchCategory.SearchDuplicate(AID);
+  Assert(rc > 0);
+
+  LoadData(qSearchCategory);
+  Locate(ID.FieldName, AID);
+
+  FAfterSearch.CallEventHandlers(Self);
 end;
 
 end.

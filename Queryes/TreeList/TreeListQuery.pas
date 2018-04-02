@@ -9,20 +9,27 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  SearchCategoryQuery, NotifyEvents;
+  SearchCategoryQuery, NotifyEvents, DuplicateCategoryQuery;
 
 type
   TQueryTreeList = class(TQueryWithDataSource)
   private
     FAfterSmartRefresh: TNotifyEventsEx;
+    FAutoSearchDuplicate: Boolean;
+    FNeedRestoreAutoSearch: Boolean;
+    FOldAutoSearchDuplicate: Boolean;
+    FqDuplicateCategory: TQueryDuplicateCategory;
     FqSearchCategory: TQuerySearchCategory;
     function GetExternalID: TField;
     function GetIsRootFocused: Boolean;
     function GetParentID: TField;
+    function GetqDuplicateCategory: TQueryDuplicateCategory;
     function GetqSearchCategory: TQuerySearchCategory;
     function GetValue: TField;
+    procedure SetAutoSearchDuplicate(const Value: Boolean);
     { Private declarations }
   protected
+    procedure DoAfterScroll(Sender: TObject);
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
     constructor Create(AOwner: TComponent); override;
@@ -34,11 +41,16 @@ type
     procedure FilterByExternalID(AExternalID: string);
     function LocateByExternalID(AExternalID: string): Boolean;
     procedure LocateToRoot;
+    procedure GotoDuplicate;
     procedure SmartRefresh; override;
     property ExternalID: TField read GetExternalID;
     property IsRootFocused: Boolean read GetIsRootFocused;
     property AfterSmartRefresh: TNotifyEventsEx read FAfterSmartRefresh;
+    property AutoSearchDuplicate: Boolean read FAutoSearchDuplicate write
+        SetAutoSearchDuplicate;
     property ParentId: TField read GetParentID;
+    property qDuplicateCategory: TQueryDuplicateCategory
+      read GetqDuplicateCategory;
     property value: TField read GetValue;
     { Public declarations }
   end;
@@ -53,6 +65,8 @@ constructor TQueryTreeList.Create(AOwner: TComponent);
 begin
   inherited;
   FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
+
+  TNotifyEventWrap.Create(AfterScroll, DoAfterScroll);
 end;
 
 procedure TQueryTreeList.AddChildCategory(const AValue: string;
@@ -70,8 +84,8 @@ begin
   FDQuery.DisableControls;
   try
     TryPost;
-//    AExternalID := CalculateExternalId(AParentID, ALevel);
-    AExternalID := qSearchCategory.CalculateExternalId(AParentID, ALevel-1);
+    // AExternalID := CalculateExternalId(AParentID, ALevel);
+    AExternalID := qSearchCategory.CalculateExternalId(AParentID, ALevel - 1);
 
     TryAppend;
     value.AsString := AValue;
@@ -119,6 +133,22 @@ begin
 
 end;
 
+procedure TQueryTreeList.DoAfterScroll(Sender: TObject);
+begin
+  if not FAutoSearchDuplicate then
+  begin
+    if FNeedRestoreAutoSearch then
+    begin
+      FNeedRestoreAutoSearch := False;
+      FAutoSearchDuplicate := FOldAutoSearchDuplicate;
+    end;
+
+    Exit;
+  end;
+
+  qDuplicateCategory.Search(PK.AsInteger);
+end;
+
 procedure TQueryTreeList.FilterByExternalID(AExternalID: string);
 begin
   if AExternalID.Length > 0 then
@@ -145,6 +175,14 @@ begin
   Result := Field('ParentID');
 end;
 
+function TQueryTreeList.GetqDuplicateCategory: TQueryDuplicateCategory;
+begin
+  if FqDuplicateCategory = nil then
+    FqDuplicateCategory := TQueryDuplicateCategory.Create(Self);
+
+  Result := FqDuplicateCategory;
+end;
+
 function TQueryTreeList.GetqSearchCategory: TQuerySearchCategory;
 begin
   if FqSearchCategory = nil then
@@ -167,6 +205,25 @@ end;
 procedure TQueryTreeList.LocateToRoot;
 begin
   FDQuery.LocateEx(ParentId.FieldName, NULL, []);
+end;
+
+procedure TQueryTreeList.GotoDuplicate;
+begin
+  FOldAutoSearchDuplicate := AutoSearchDuplicate;
+  FNeedRestoreAutoSearch := True;
+  AutoSearchDuplicate := False;
+  LocateByPK(qDuplicateCategory.ID.AsInteger);
+end;
+
+procedure TQueryTreeList.SetAutoSearchDuplicate(const Value: Boolean);
+begin
+  if FAutoSearchDuplicate = Value then
+    Exit;
+
+  FAutoSearchDuplicate := Value;
+
+  if FAutoSearchDuplicate then
+    qDuplicateCategory.Search(PK.AsInteger);
 end;
 
 procedure TQueryTreeList.SmartRefresh;

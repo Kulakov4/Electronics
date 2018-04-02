@@ -3,7 +3,8 @@ unit TreeListView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TreeListFrame, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles, cxTL,
   cxTLdxBarBuiltInMenu, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
@@ -24,7 +25,7 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxInplaceContainer, cxTLData,
   cxDBTL, TreeListQuery, cxMaskEdit, RepositoryDataModule, Vcl.ExtCtrls,
-  cxSplitter, DuplicateCategoryView;
+  cxSplitter, DuplicateCategoryView, DuplicateCategoryQuery, NotifyEvents;
 
 type
   TViewTreeList = class(TfrmTreeList)
@@ -43,21 +44,26 @@ type
     Excel2: TMenuItem;
     pnlBottom: TPanel;
     cxSplitter: TcxSplitter;
+    dxBarButton1: TdxBarButton;
+    actSearch: TAction;
     procedure actAddExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameExecute(Sender: TObject);
+    procedure actSearchExecute(Sender: TObject);
     procedure cxDBTreeListClick(Sender: TObject);
-    procedure cxDBTreeListCollapsed(Sender: TcxCustomTreeList; ANode:
-        TcxTreeListNode);
+    procedure cxDBTreeListCollapsed(Sender: TcxCustomTreeList;
+      ANode: TcxTreeListNode);
     procedure cxDBTreeListDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure cxDBTreeListDragOver(Sender, Source: TObject; X, Y: Integer; State:
-        TDragState; var Accept: Boolean);
-    procedure cxDBTreeListExpanded(Sender: TcxCustomTreeList; ANode:
-        TcxTreeListNode);
-    procedure cxDBTreeListMouseUp(Sender: TObject; Button: TMouseButton; Shift:
-        TShiftState; X, Y: Integer);
+    procedure cxDBTreeListDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure cxDBTreeListExpanded(Sender: TcxCustomTreeList;
+      ANode: TcxTreeListNode);
+    procedure cxDBTreeListMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure cxSplitterAfterClose(Sender: TObject);
+    procedure cxSplitterAfterOpen(Sender: TObject);
   private
     FqTreeList: TQueryTreeList;
     FViewDuplicateCategory: TViewDuplicateCategory;
@@ -65,9 +71,10 @@ type
     procedure SetqTreeList(const Value: TQueryTreeList);
     { Private declarations }
   protected
+    procedure DoOnDuplicateClick(Sender: TObject);
     procedure MyUpdateView(X, Y: Integer);
-    property ViewDuplicateCategory: TViewDuplicateCategory read
-        FViewDuplicateCategory;
+    property ViewDuplicateCategory: TViewDuplicateCategory
+      read FViewDuplicateCategory;
   public
     constructor Create(AOwner: TComponent); override;
     procedure ExpandRoot;
@@ -88,6 +95,7 @@ uses
 constructor TViewTreeList.Create(AOwner: TComponent);
 begin
   inherited;
+
   // Создаём представление для дублирующихся категорий
   FViewDuplicateCategory := TViewDuplicateCategory.Create(Self);
   FViewDuplicateCategory.Parent := pnlBottom;
@@ -215,14 +223,20 @@ begin
   qTreeList.TryPost;
 
   Value := InputBox(sDatabase, sPleaseWrite, qTreeList.Value.AsString);
-  if (Value <> '') and
-    (qTreeList.CheckPossibility(qTreeList.ParentId.AsInteger, Value))
-  then
+  if (Value <> '') and (qTreeList.CheckPossibility(qTreeList.ParentId.AsInteger,
+    Value)) then
   begin
     qTreeList.TryEdit;
     qTreeList.Value.AsString := Value;
     qTreeList.TryPost;
   end;
+end;
+
+procedure TViewTreeList.actSearchExecute(Sender: TObject);
+begin
+  inherited;
+  cxSplitter.OpenSplitter;
+  Assert(qTreeList.FDQuery.RecordCount > 0);
 end;
 
 procedure TViewTreeList.cxDBTreeListClick(Sender: TObject);
@@ -231,8 +245,8 @@ begin
   cxDBTreeList.ApplyBestFit;
 end;
 
-procedure TViewTreeList.cxDBTreeListCollapsed(Sender: TcxCustomTreeList; ANode:
-    TcxTreeListNode);
+procedure TViewTreeList.cxDBTreeListCollapsed(Sender: TcxCustomTreeList;
+ANode: TcxTreeListNode);
 begin
   inherited;
   cxDBTreeList.ApplyBestFit;
@@ -240,8 +254,8 @@ begin
   cxDBTreeList.OptionsView.ScrollBars := ssBoth;
 end;
 
-procedure TViewTreeList.cxDBTreeListDragDrop(Sender, Source: TObject; X, Y:
-    Integer);
+procedure TViewTreeList.cxDBTreeListDragDrop(Sender, Source: TObject;
+X, Y: Integer);
 begin
   inherited;
   with TcxTreeList(Sender) do
@@ -251,19 +265,19 @@ begin
     begin
       HitTest.HitTestItem := Root;
     end;
-//    cn := HitTest.HitTestItem.ClassName;
+    // cn := HitTest.HitTestItem.ClassName;
   end;
 end;
 
-procedure TViewTreeList.cxDBTreeListDragOver(Sender, Source: TObject; X, Y:
-    Integer; State: TDragState; var Accept: Boolean);
+procedure TViewTreeList.cxDBTreeListDragOver(Sender, Source: TObject;
+X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   inherited;
   Accept := True;
 end;
 
-procedure TViewTreeList.cxDBTreeListExpanded(Sender: TcxCustomTreeList; ANode:
-    TcxTreeListNode);
+procedure TViewTreeList.cxDBTreeListExpanded(Sender: TcxCustomTreeList;
+ANode: TcxTreeListNode);
 var
   vOldWidth: Integer;
 begin
@@ -283,11 +297,31 @@ begin
   cxDBTreeList.OptionsView.ScrollBars := ssBoth;
 end;
 
-procedure TViewTreeList.cxDBTreeListMouseUp(Sender: TObject; Button:
-    TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TViewTreeList.cxDBTreeListMouseUp(Sender: TObject;
+Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   MyUpdateView(X, Y);
+end;
+
+procedure TViewTreeList.cxSplitterAfterClose(Sender: TObject);
+begin
+  inherited;
+  if qTreeList = nil then  Exit;
+
+  qTreeList.AutoSearchDuplicate := False;
+end;
+
+procedure TViewTreeList.cxSplitterAfterOpen(Sender: TObject);
+begin
+  inherited;
+  if qTreeList = nil then  Exit;
+  qTreeList.AutoSearchDuplicate := True;
+end;
+
+procedure TViewTreeList.DoOnDuplicateClick(Sender: TObject);
+begin
+  qTreeList.GotoDuplicate;
 end;
 
 procedure TViewTreeList.ExpandRoot;
@@ -321,8 +355,7 @@ begin
 
     if HitTest.HitAtNode then
     begin
-      if qTreeList.IsRootFocused
-      then
+      if qTreeList.IsRootFocused then
       begin
         actRename.Enabled := False;
         OptionsData.Editing := False;
@@ -344,6 +377,11 @@ begin
   cxDBTreeList.DataController.DataSource := qTreeList.DataSource;
   cxDBTreeList.DataController.KeyField := qTreeList.PKFieldName;
   cxDBTreeList.DataController.ParentField := qTreeList.ParentId.FieldName;
+
+  ViewDuplicateCategory.qDuplicateCategory := FqTreeList.qDuplicateCategory;
+
+  TNotifyEventWrap.Create(FqTreeList.qDuplicateCategory.OnDuplicateClick,
+    DoOnDuplicateClick, FEventList);
 end;
 
 procedure TViewTreeList.UpdateView;

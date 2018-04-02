@@ -25,18 +25,28 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, DuplicateCategoryQuery;
+  cxGridDBBandedTableView, cxGrid, DuplicateCategoryQuery, NotifyEvents,
+  dxBarExtItems;
 
 type
   TViewDuplicateCategory = class(TfrmGrid)
     DataSource: TDataSource;
     clID: TcxGridDBBandedColumn;
     clCaption: TcxGridDBBandedColumn;
+    actRecordCount: TAction;
+    dxBarStatic1: TdxBarStatic;
+    procedure actRecordCountExecute(Sender: TObject);
+    procedure cxGridDBBandedTableViewCellClick(Sender: TcxCustomGridTableView;
+        ACellViewInfo: TcxGridTableDataCellViewInfo; AButton: TMouseButton; AShift:
+        TShiftState; var AHandled: Boolean);
   private
     FqDuplicateCategory: TQueryDuplicateCategory;
     procedure SetqDuplicateCategory(const Value: TQueryDuplicateCategory);
     { Private declarations }
+  protected
+    procedure DoAfterSearch(Sender: TObject);
   public
+    procedure UpdateView; override;
     property qDuplicateCategory: TQueryDuplicateCategory read FqDuplicateCategory
         write SetqDuplicateCategory;
     { Public declarations }
@@ -45,6 +55,29 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TViewDuplicateCategory.actRecordCountExecute(Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
+procedure TViewDuplicateCategory.cxGridDBBandedTableViewCellClick(Sender:
+    TcxCustomGridTableView; ACellViewInfo: TcxGridTableDataCellViewInfo;
+    AButton: TMouseButton; AShift: TShiftState; var AHandled: Boolean);
+begin
+  inherited;
+
+  if FqDuplicateCategory = nil then
+    Exit;
+
+  qDuplicateCategory.OnDuplicateClick.CallEventHandlers(qDuplicateCategory);
+end;
+
+procedure TViewDuplicateCategory.DoAfterSearch(Sender: TObject);
+begin
+  UpdateView;
+end;
 
 procedure TViewDuplicateCategory.SetqDuplicateCategory(const Value:
     TQueryDuplicateCategory);
@@ -58,6 +91,16 @@ begin
     Exit;
 
   DataSource.DataSet := qDuplicateCategory;
+
+  TNotifyEventWrap.Create( qDuplicateCategory.AfterSearch, DoAfterSearch );
+end;
+
+procedure TViewDuplicateCategory.UpdateView;
+begin
+  if qDuplicateCategory = nil then
+    Exit;
+
+  actRecordCount.Caption := Format('Найдено совпадений: %d', [qDuplicateCategory.RecordCount]);
 end;
 
 end.
