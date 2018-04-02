@@ -117,6 +117,7 @@ inherited ViewDescriptions: TViewDescriptions
       object clDescription: TcxGridDBBandedColumn
         Caption = #1054#1087#1080#1089#1072#1085#1080#1077
         DataBinding.FieldName = 'Description'
+        BestFitMaxWidth = 750
         Options.Sorting = False
         Width = 200
         Position.BandIndex = 0

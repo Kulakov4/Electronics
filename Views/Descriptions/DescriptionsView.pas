@@ -210,7 +210,12 @@ begin
     AFileName) then
     Exit;
 
-  ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
+  ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
+    procedure(AView: TcxGridDBBandedTableView)
+    begin
+      AView.OptionsView.ColumnAutoWidth := False;
+      AView.OptionsView.CellAutoHeight := True;
+    end);
 end;
 
 procedure TViewDescriptions.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -226,7 +231,8 @@ begin
       TfrmImportError,
       procedure(ASender: TObject)
       begin
-        DescriptionsGroup.LoadDataFromExcelTable(ASender as TDescriptionsExcelTable);
+        DescriptionsGroup.LoadDataFromExcelTable
+          (ASender as TDescriptionsExcelTable);
       end,
       procedure(ASender: TObject)
       begin
