@@ -39,7 +39,8 @@ type
     FqSearchFamily: TQuerySearchFamily;
     FqSearchProduct: TQuerySearchProduct;
     FqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
-    FRate: Double;
+    FDollarCource: Double;
+    FEuroCource: Double;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetAmount: TField;
@@ -57,6 +58,9 @@ type
     function GetPriceD: TField;
     function GetPriceD1: TField;
     function GetPriceD2: TField;
+    function GetPriceE: TField;
+    function GetPriceE1: TField;
+    function GetPriceE2: TField;
     function GetPriceR: TField;
     function GetPriceR1: TField;
     function GetPriceR2: TField;
@@ -71,7 +75,8 @@ type
     function GetRate2: TField;
     function GetStorehouseId: TField;
     function GetValue: TField;
-    procedure SetRate(const Value: Double);
+    procedure SetDollarCource(const Value: Double);
+    procedure SetEuroCource(const Value: Double);
     // TODO: SplitComponentName
     // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
@@ -131,7 +136,11 @@ type
     property PriceR2: TField read GetPriceR2;
     property ProductID: TField read GetProductID;
     property ProducersGroup: TProducersGroup read GetProducersGroup;
-    property Rate: Double read FRate write SetRate;
+    property DollarCource: Double read FDollarCource write SetDollarCource;
+    property EuroCource: Double read FEuroCource write SetEuroCource;
+    property PriceE: TField read GetPriceE;
+    property PriceE1: TField read GetPriceE1;
+    property PriceE2: TField read GetPriceE2;
     property Rate1: TField read GetRate1;
     property Rate2: TField read GetRate2;
     property StorehouseId: TField read GetStorehouseId;
@@ -172,7 +181,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Текущий курс доллара по отношению к рублю загружаем из хранилища настроек
-  FRate := TSettings.Create.Rate;
+  //  FDollarCource := TSettings.Create.DollarCource;
 
   // По умолчанию мы не в режиме автоматических транзакций
   AutoTransaction := False;
@@ -292,7 +301,7 @@ begin
   end;
 
   // если это не группа, до закупочная цена должна быть указана
-  if PriceD.IsNull and PriceR.IsNull then
+  if PriceD.IsNull and PriceR.IsNull and PriceE.IsNull then
     raise Exception.Create('Необходимо задать закупочную цену');
 
   if Amount.IsNull then
@@ -572,17 +581,20 @@ begin;
   // Закупочная цена
   FDQuery.FieldDefs.Add('PriceR', ftFloat);
   FDQuery.FieldDefs.Add('PriceD', ftFloat);
+  FDQuery.FieldDefs.Add('PriceE', ftFloat);
 
   // Розничная цена
   FDQuery.FieldDefs.Add('PriceR1', ftFloat);
   FDQuery.FieldDefs.Add('PriceD1', ftFloat);
+  FDQuery.FieldDefs.Add('PriceE1', ftFloat);
 
   // Оптовая цена
   FDQuery.FieldDefs.Add('PriceR2', ftFloat);
   FDQuery.FieldDefs.Add('PriceD2', ftFloat);
+  FDQuery.FieldDefs.Add('PriceE2', ftFloat);
 
   CreateDefaultFields(False);
-  TunePriceFields([PriceD, PriceR, PriceD1, PriceR1, PriceD2, PriceR2]);
+  TunePriceFields([PriceD, PriceR, PriceE, PriceD1, PriceR1, PriceE1, PriceD2, PriceR2, PriceE2]);
 end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
@@ -597,23 +609,47 @@ begin
   begin
     // Если исходная цена была в рублях
     PriceR.Value := Price.Value;
-    PriceD.Value := Price.Value / Rate;
+
+    if DollarCource > 0 then
+      PriceD.Value := Price.Value / DollarCource;
+
+    if EuroCource > 0 then
+      PriceE.Value := Price.Value / EuroCource;
   end;
 
   if IDCurrency.AsInteger = 2 then
   begin
     // Если исходная цена была в долларах
-    PriceR.Value := Price.Value * Rate;
+    if DollarCource > 0 then
+      PriceR.Value := Price.Value * DollarCource;
+
     PriceD.Value := Price.Value;
+
+    if (DollarCource > 0) and (EuroCource > 0) then
+      PriceE.Value := Price.Value * DollarCource / EuroCource;
+  end;
+
+  if IDCurrency.AsInteger = 3 then
+  begin
+    // Если исходная цена была в евро
+    if EuroCource > 0 then
+      PriceR.Value := Price.Value * EuroCource;
+
+    if (DollarCource > 0) and (EuroCource > 0) then
+      PriceD.Value := Price.Value * EuroCource / DollarCource;
+
+    PriceE.Value := Price.Value;
   end;
 
   // Розничная цена
   PriceR1.Value := PriceR.Value * Rate1.Value;
   PriceD1.Value := PriceD.Value * Rate1.Value;
+  PriceE1.Value := PriceE.Value * Rate1.Value;
 
   // Оптовая цена
   PriceR2.Value := PriceR.Value * Rate2.Value;
   PriceD2.Value := PriceD.Value * Rate2.Value;
+  PriceE2.Value := PriceE.Value * Rate2.Value;
 end;
 
 function TQueryProductsBase.GetAmount: TField;
@@ -691,6 +727,21 @@ begin
   Result := Field('PriceD2');
 end;
 
+function TQueryProductsBase.GetPriceE: TField;
+begin
+  Result := Field('PriceE');
+end;
+
+function TQueryProductsBase.GetPriceE1: TField;
+begin
+  Result := Field('PriceE1');
+end;
+
+function TQueryProductsBase.GetPriceE2: TField;
+begin
+  Result := Field('PriceE2');
+end;
+
 function TQueryProductsBase.GetPriceR: TField;
 begin
   Result := Field('PriceR');
@@ -713,7 +764,9 @@ begin
     1:
       Result := PriceR.Value;
     2:
-      Result := PriceD.Value
+      Result := PriceD.Value;
+    3:
+      Result := PriceE.Value
   end;
 end;
 
@@ -878,12 +931,21 @@ begin
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
 end;
 
-procedure TQueryProductsBase.SetRate(const Value: Double);
+procedure TQueryProductsBase.SetDollarCource(const Value: Double);
 begin
-  if FRate <> Value then
+  if FDollarCource <> Value then
   begin
-    FRate := Value;
-    TSettings.Create.Rate := FRate;
+    FDollarCource := Value;
+//    TSettings.Create.DollarCource := FDollarCource;
+  end;
+end;
+
+procedure TQueryProductsBase.SetEuroCource(const Value: Double);
+begin
+  if FEuroCource <> Value then
+  begin
+    FEuroCource := Value;
+//    TSettings.Create.EuroCource := FEuroCource;
   end;
 end;
 

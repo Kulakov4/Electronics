@@ -26,7 +26,7 @@ uses
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ProductsExcelDataModule,
   Vcl.Menus, Vcl.ComCtrls, System.Contnrs, ProgressBarForm2, ExcelDataModule,
-  cxDropDownEdit, ProductsQuery;
+  cxDropDownEdit, ProductsQuery, cxTextEdit;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -37,9 +37,12 @@ type
     dxBarButton4: TdxBarButton;
     dxBarButton5: TdxBarButton;
     dxBarButton6: TdxBarButton;
-    dxBarButton7: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
+    procedure dxbeDollarChange(Sender: TObject);
+    procedure dxbeDollarCurChange(Sender: TObject);
+    procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
+      var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
   private
     procedure DoBeforeLoad(ASender: TObject);
     function GetqProducts: TQueryProducts;
@@ -62,7 +65,20 @@ implementation
 
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
   NotifyEvents, Data.DB, ProgressInfo, LoadFromExcelFileHelper,
-  CustomErrorForm;
+  CustomErrorForm, HttpUnit;
+
+procedure TViewProducts2.cxBarEditItem1PropertiesValidate(Sender: TObject;
+  var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+var
+  x: Double;
+begin
+  inherited;
+  x := StrToFloatDef( DisplayValue, 0 );
+  if x > 0 then Exit;
+
+  ErrorText := 'Редактируемое значение не является курсом валюты';
+  Error := True;
+end;
 
 procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
 begin
@@ -70,6 +86,18 @@ begin
   { при выборе другого склада проверить наличие изменений в старом складе }
   if CheckAndSaveChanges = IDCANCEL then
     raise EAbort.Create('Cancel scroll');
+end;
+
+procedure TViewProducts2.dxbeDollarChange(Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
+procedure TViewProducts2.dxbeDollarCurChange(Sender: TObject);
+begin
+  inherited;
+  ;
 end;
 
 function TViewProducts2.GetqProducts: TQueryProducts;

@@ -71,7 +71,7 @@ type
     dxBarManagerBar2: TdxBar;
     dxbcRate1: TdxBarCombo;
     dxbcRate2: TdxBarCombo;
-    cxbeiRate: TcxBarEditItem;
+    cxbeiDollar: TcxBarEditItem;
     actOpenDatasheet: TAction;
     actLoadDatasheet: TAction;
     actOpenImage: TAction;
@@ -85,6 +85,12 @@ type
     cxNormalStyle: TcxStyle;
     clIDCurrency: TcxDBTreeListColumn;
     clChecked: TcxDBTreeListColumn;
+    actRefreshCources: TAction;
+    dxbbRefreshCources: TdxBarButton;
+    cxbeiEuro: TcxBarEditItem;
+    clPriceE: TcxDBTreeListColumn;
+    clPriceE1: TcxDBTreeListColumn;
+    clPriceE2: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -99,10 +105,11 @@ type
     procedure actOpenDrawingExecute(Sender: TObject);
     procedure actOpenImageExecute(Sender: TObject);
     procedure actOpenInParametricTableExecute(Sender: TObject);
+    procedure actRefreshCourcesExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn;
       ANode: TcxTreeListNode; var Value: string);
-    procedure cxbeiRateChange(Sender: TObject);
+    procedure cxbeiDollarChange(Sender: TObject);
     procedure cxDBTreeListBandHeaderClick(Sender: TcxCustomTreeList;
       ABand: TcxTreeListBand);
     procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
@@ -120,6 +127,9 @@ type
     procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
     procedure clDescriptionPropertiesInitPopup(Sender: TObject);
+    procedure cxbeiDollarPropertiesValidate(Sender: TObject;
+      var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+    procedure cxbeiEuroChange(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
@@ -169,7 +179,8 @@ implementation
 
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi, System.Generics.Collections,
-  System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst;
+  System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
+  HttpUnit;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
 var
@@ -417,6 +428,16 @@ begin
 
 end;
 
+procedure TViewProductsBase2.actRefreshCourcesExecute(Sender: TObject);
+var
+  ACources: TArray<Double>;
+begin
+  inherited;
+  ACources := TCBRHttp.GetCourses(['Доллар США', 'Евро']);
+  cxbeiDollar.EditValue := ACources[0].ToString;
+  cxbeiEuro.EditValue := ACources[1].ToString;
+end;
+
 procedure TViewProductsBase2.actRollbackExecute(Sender: TObject);
 begin
   inherited;
@@ -510,22 +531,54 @@ begin
   UpdateProductCount;
 end;
 
-procedure TViewProductsBase2.cxbeiRateChange(Sender: TObject);
+procedure TViewProductsBase2.cxbeiDollarChange(Sender: TObject);
 var
   r: Double;
   S: string;
 begin
   inherited;
-  S := cxbeiRate.EditValue;
+  S := cxbeiDollar.EditValue;
   r := StrToFloatDef(S, 0);
-  if (r = 0) or (FqProductsBase.Rate = r) then
+  if (r = 0) or (FqProductsBase.DollarCource = r) then
     Exit;
 
   // Обновлям курс доллара
-  FqProductsBase.Rate := r;
+  FqProductsBase.DollarCource := r;
   if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0)
   then
     FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+end;
+
+procedure TViewProductsBase2.cxbeiDollarPropertiesValidate(Sender: TObject;
+  var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+var
+  x: Double;
+begin
+  inherited;
+  x := StrToFloatDef( DisplayValue, 0 );
+  if x > 0 then Exit;
+
+  ErrorText := 'Редактируемое значение не является курсом валюты';
+  Error := True;
+end;
+
+procedure TViewProductsBase2.cxbeiEuroChange(Sender: TObject);
+var
+  r: Double;
+  S: string;
+begin
+  inherited;
+  S := cxbeiEuro.EditValue;
+  r := StrToFloatDef(S, 0);
+  if (r = 0) or (FqProductsBase.EuroCource = r) then
+    Exit;
+
+  // Обновлям курс Евро
+  FqProductsBase.EuroCource := r;
+  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0)
+  then
+    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+
 end;
 
 procedure TViewProductsBase2.cxDBTreeListBandHeaderClick
@@ -920,7 +973,11 @@ begin
   actDelete.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
-  cxbeiRate.EditValue := qProductsBase.Rate;
+  // Отображаем текущие курсы валют
+  if qProductsBase.DollarCource > 0 then
+    cxbeiDollar.EditValue := qProductsBase.DollarCource;
+  if qProductsBase.EuroCource > 0 then
+  cxbeiEuro.EditValue := qProductsBase.EuroCource;
 end;
 
 procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);

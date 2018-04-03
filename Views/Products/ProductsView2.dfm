@@ -23,7 +23,7 @@ inherited ViewProducts2: TViewProducts2
     DockControlHeights = (
       0
       0
-      54
+      56
       0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
@@ -54,6 +54,33 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxBarButton6'
+        end>
+    end
+    inherited dxBarManagerBar2: TdxBar
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'cxbeiDollar'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiEuro'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbRefreshCources'
+        end
+        item
+          UserDefine = [udWidth]
+          UserWidth = 80
+          Visible = True
+          ItemName = 'dxbcRate2'
+        end
+        item
+          UserDefine = [udWidth]
+          UserWidth = 74
+          Visible = True
+          ItemName = 'dxbcRate1'
         end>
     end
     object dxBarSubItem1: TdxBarSubItem [4]
@@ -98,12 +125,6 @@ inherited ViewProducts2: TViewProducts2
     object dxBarButton6: TdxBarButton [10]
       Action = actOpenInParametricTable
       Category = 0
-    end
-    object dxBarButton7: TdxBarButton [11]
-      Caption = 'New Button'
-      Category = 0
-      Hint = 'New Button'
-      Visible = ivAlways
     end
     object dxBarSubItem2: TdxBarSubItem
       Caption = #1069#1082#1089#1087#1086#1088#1090

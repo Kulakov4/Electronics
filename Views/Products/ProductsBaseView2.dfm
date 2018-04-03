@@ -4,9 +4,9 @@ inherited ViewProductsBase2: TViewProductsBase2
   ExplicitWidth = 1092
   ExplicitHeight = 598
   inherited cxDBTreeList: TcxDBTreeList
-    Top = 54
+    Top = 56
     Width = 1092
-    Height = 525
+    Height = 523
     Bands = <
       item
         Caption.AlignHorz = taCenter
@@ -83,7 +83,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       end
       item
         Caption.AlignHorz = taCenter
-        Caption.Text = #1054#1088#1075#1072#1085#1080#1079#1072#1094#1080#1103' '#1087#1088#1086#1076#1072#1074#1077#1094
+        Caption.Text = #1054#1088#1075#1072#1085#1080#1079#1072#1094#1080#1103'-'#1087#1088#1086#1076#1072#1074#1077#1094
       end
       item
         Caption.AlignHorz = taCenter
@@ -108,9 +108,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 54
+    ExplicitTop = 56
     ExplicitWidth = 1092
-    ExplicitHeight = 525
+    ExplicitHeight = 523
     object clID: TcxDBTreeListColumn
       Visible = False
       Caption.AlignHorz = taCenter
@@ -556,6 +556,36 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+    object clPriceE: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = #8364
+      DataBinding.FieldName = 'PriceE'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 13
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clPriceE1: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = #8364
+      DataBinding.FieldName = 'PriceE1'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 12
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clPriceE2: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = #8364
+      DataBinding.FieldName = 'PriceE2'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 11
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
   end
   inherited StatusBar: TStatusBar
     Top = 579
@@ -567,7 +597,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     DockControlHeights = (
       0
       0
-      54
+      56
       0)
     object dxBarManagerBar2: TdxBar [1]
       Caption = 'Price'
@@ -580,12 +610,21 @@ inherited ViewProductsBase2: TViewProductsBase2
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Images = DMRepository.cxImageList
       ItemLinks = <
         item
           UserDefine = [udWidth]
           UserWidth = 97
           Visible = True
-          ItemName = 'cxbeiRate'
+          ItemName = 'cxbeiDollar'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiEuro'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbRefreshCources'
         end
         item
           UserDefine = [udWidth]
@@ -669,18 +708,34 @@ inherited ViewProductsBase2: TViewProductsBase2
         '100')
       ItemIndex = -1
     end
-    object cxbeiRate: TcxBarEditItem
+    object cxbeiDollar: TcxBarEditItem
       Caption = #1050#1091#1088#1089' $'
       Category = 0
       Hint = #1050#1091#1088#1089' $'
       Visible = ivAlways
-      OnChange = cxbeiRateChange
+      OnChange = cxbeiDollarChange
       ShowCaption = True
       PropertiesClassName = 'TcxMaskEditProperties'
       Properties.BeepOnError = True
       Properties.MaskKind = emkRegExpr
-      Properties.EditMask = '(\d+\,?\d?\d?)'
-      Properties.ValidateOnEnter = False
+      Properties.EditMask = '(\d+\,?\d?\d?\d?\d?)'
+      Properties.OnValidate = cxbeiDollarPropertiesValidate
+    end
+    object dxbbRefreshCources: TdxBarButton
+      Action = actRefreshCources
+      Category = 0
+    end
+    object cxbeiEuro: TcxBarEditItem
+      Caption = #1050#1091#1088#1089' '#8364
+      Category = 0
+      Hint = #1050#1091#1088#1089' '#8364
+      Visible = ivAlways
+      OnChange = cxbeiEuroChange
+      ShowCaption = True
+      PropertiesClassName = 'TcxMaskEditProperties'
+      Properties.MaskKind = emkRegExpr
+      Properties.EditMask = '(\d+\,?\d?\d?\d?\d?)'
+      Properties.OnValidate = cxbeiDollarPropertiesValidate
     end
   end
   inherited ActionList: TActionList
@@ -769,6 +824,12 @@ inherited ViewProductsBase2: TViewProductsBase2
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       OnExecute = actLoadDrawingExecute
+    end
+    object actRefreshCources: TAction
+      Caption = #1054#1073#1085#1086#1074#1083#1077#1085#1080#1077' '#1082#1091#1088#1089#1086#1074' '#1074#1072#1083#1102#1090
+      Hint = #1054#1073#1085#1086#1074#1083#1077#1085#1080#1077' '#1082#1091#1088#1089#1086#1074' '#1074#1072#1083#1102#1090
+      ImageIndex = 26
+      OnExecute = actRefreshCourcesExecute
     end
   end
   object cxStyleRepository1: TcxStyleRepository
