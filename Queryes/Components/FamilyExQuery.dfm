@@ -70,48 +70,5 @@ inherited QueryFamilyEx: TQueryFamilyEx
       'LEFT JOIN FamilyAnalog fa on fa.FamilyId = p.Id'
       'where ppc.ProductCategoryId = :vProductCategoryId'
       ') t')
-    ParamData = <
-      item
-        Name = 'PACKAGEPINSPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'PRODUCERPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DATASHEETPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DIAGRAMPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'DRAWINGPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'IMAGEPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'VPRODUCTCATEGORYID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
   end
 end

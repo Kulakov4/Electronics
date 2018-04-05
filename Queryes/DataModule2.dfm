@@ -2,7 +2,7 @@ object DM2: TDM2
   Left = 0
   Top = 0
   Caption = 'DM2'
-  ClientHeight = 251
+  ClientHeight = 316
   ClientWidth = 673
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -63,5 +63,14 @@ object DM2: TDM2
     TabOrder = 4
     ExplicitLeft = 197
     ExplicitTop = 104
+  end
+  inline qExtraCharge: TQueryExtraCharge
+    Left = 30
+    Top = 203
+    Width = 125
+    Height = 80
+    TabOrder = 6
+    ExplicitLeft = 30
+    ExplicitTop = 203
   end
 end

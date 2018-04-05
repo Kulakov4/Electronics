@@ -539,7 +539,7 @@ begin
   inherited;
   S := cxbeiDollar.EditValue;
   r := StrToFloatDef(S, 0);
-  if (r = 0) or (FqProductsBase.DollarCource = r) then
+  if (not s.IsEmpty and (r = 0)) or (FqProductsBase.DollarCource = r) then
     Exit;
 
   // Обновлям курс доллара
@@ -555,6 +555,9 @@ var
   x: Double;
 begin
   inherited;
+  if DisplayValue = '' then
+    Exit;
+
   x := StrToFloatDef( DisplayValue, 0 );
   if x > 0 then Exit;
 
@@ -569,8 +572,9 @@ var
 begin
   inherited;
   S := cxbeiEuro.EditValue;
+
   r := StrToFloatDef(S, 0);
-  if (r = 0) or (FqProductsBase.EuroCource = r) then
+  if ((not S.IsEmpty) and (r = 0)) or (FqProductsBase.EuroCource = r) then
     Exit;
 
   // Обновлям курс Евро

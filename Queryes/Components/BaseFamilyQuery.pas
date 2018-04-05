@@ -27,7 +27,8 @@ type
     function GetQuerySearchComponentCategory: TQuerySearchComponentCategory;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -58,7 +59,8 @@ begin
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 
-procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet);
+procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
   if PK.AsInteger > 0 then

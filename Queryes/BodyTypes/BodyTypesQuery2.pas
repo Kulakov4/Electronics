@@ -27,7 +27,8 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsertOrUpdate;
@@ -64,7 +65,8 @@ begin
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
 end;
 
-procedure TQueryBodyTypes2.ApplyDelete(ASender: TDataSet);
+procedure TQueryBodyTypes2.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   AID: Integer;
   AIDS: string;

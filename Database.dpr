@@ -202,7 +202,11 @@ uses
   TreeListView in 'Views\TreeList\TreeListView.pas' {ViewTreeList: TFrame},
   DuplicateCategoryQuery in 'Queryes\TreeList\DuplicateCategoryQuery.pas',
   DuplicateCategoryView in 'Views\TreeList\DuplicateCategoryView.pas' {ViewDuplicateCategory: TFrame},
-  HttpUnit in 'Queryes\HTTP\HttpUnit.pas';
+  HttpUnit in 'Queryes\HTTP\HttpUnit.pas',
+  ExtraChargeQuery in 'Queryes\ExtraCharge\ExtraChargeQuery.pas' {QueryExtraCharge: TFrame},
+  ExtraChargeView in 'Views\ExtraCharge\ExtraChargeView.pas' {ViewExtraCharge: TFrame},
+  ExtraChargeForm in 'Views\ExtraCharge\ExtraChargeForm.pas' {frmExtraCharge},
+  ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame};
 
 {$R *.res}
 

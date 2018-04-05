@@ -26,7 +26,7 @@ uses
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ProductsExcelDataModule,
   Vcl.Menus, Vcl.ComCtrls, System.Contnrs, ProgressBarForm2, ExcelDataModule,
-  cxDropDownEdit, ProductsQuery, cxTextEdit;
+  cxDropDownEdit, ProductsQuery, cxTextEdit, Vcl.ExtCtrls;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -39,10 +39,13 @@ type
     dxBarButton6: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
+    cxbeiDate: TcxBarEditItem;
+    Timer: TTimer;
     procedure dxbeDollarChange(Sender: TObject);
     procedure dxbeDollarCurChange(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+    procedure TimerTimer(Sender: TObject);
   private
     procedure DoBeforeLoad(ASender: TObject);
     function GetqProducts: TQueryProducts;
@@ -136,6 +139,12 @@ begin
   begin
     TNotifyEventWrap.Create(qProducts.BeforeLoad, DoBeforeLoad, FEventList);
   end;
+end;
+
+procedure TViewProducts2.TimerTimer(Sender: TObject);
+begin
+  inherited;
+  cxbeiDate.EditValue := DateToStr(Date);
 end;
 
 procedure TViewProducts2.UpdateProductCount;

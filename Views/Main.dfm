@@ -50,8 +50,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      ExplicitLeft = 3
-      ExplicitTop = 28
     end
     object cxtsStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
@@ -240,6 +238,10 @@ object frmMain: TfrmMain
         item
           Visible = True
           ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end>
     end
     object dxbbOptions: TdxBarButton
@@ -293,6 +295,10 @@ object frmMain: TfrmMain
       Category = 0
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1087#1088#1080#1074#1103#1079#1082#1077' '#1082' '#1076#1086#1082#1091#1084#1077#1085#1090#1072#1094#1080#1080
       Visible = ivAlways
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actShowExtraCharge
+      Category = 0
     end
   end
   object ActionList: TActionList
@@ -357,6 +363,10 @@ object frmMain: TfrmMain
       OnExecute = actRenameStorehouseExecute
       OnUpdate = actRenameStorehouseUpdate
     end
+    object actShowExtraCharge: TAction
+      Caption = #1058#1072#1073#1083#1080#1094#1072' '#1086#1087#1090#1086#1074#1086#1081' '#1085#1072#1094#1077#1085#1082#1080
+      OnExecute = actShowExtraChargeExecute
+    end
   end
   object pmLeftStoreHouse: TPopupMenu
     Images = DMRepository.cxImageList
@@ -371,10 +381,5 @@ object frmMain: TfrmMain
     object N3: TMenuItem
       Action = actRenameStorehouse
     end
-  end
-  object ApplicationEvents: TApplicationEvents
-    OnHint = ApplicationEventsHint
-    Left = 45
-    Top = 303
   end
 end

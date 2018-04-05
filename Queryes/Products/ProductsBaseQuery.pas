@@ -82,7 +82,8 @@ type
     { Private declarations }
   protected
     FEnableCalc: Boolean;
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -209,7 +210,8 @@ begin
   // FDQuery.EnableControls;
 end;
 
-procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet);
+procedure TQueryProductsBase.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   AProductIDS: TList<Integer>;
 begin
@@ -611,32 +613,44 @@ begin
     PriceR.Value := Price.Value;
 
     if DollarCource > 0 then
-      PriceD.Value := Price.Value / DollarCource;
+      PriceD.Value := Price.Value / DollarCource
+    else
+      PriceD.Value := null;
 
     if EuroCource > 0 then
-      PriceE.Value := Price.Value / EuroCource;
+      PriceE.Value := Price.Value / EuroCource
+    else
+      PriceE.Value := null;
   end;
 
   if IDCurrency.AsInteger = 2 then
   begin
     // Если исходная цена была в долларах
     if DollarCource > 0 then
-      PriceR.Value := Price.Value * DollarCource;
+      PriceR.Value := Price.Value * DollarCource
+    else
+      PriceR.Value := null;
 
     PriceD.Value := Price.Value;
 
     if (DollarCource > 0) and (EuroCource > 0) then
-      PriceE.Value := Price.Value * DollarCource / EuroCource;
+      PriceE.Value := Price.Value * DollarCource / EuroCource
+    else
+      PriceE.Value := null;
   end;
 
   if IDCurrency.AsInteger = 3 then
   begin
     // Если исходная цена была в евро
     if EuroCource > 0 then
-      PriceR.Value := Price.Value * EuroCource;
+      PriceR.Value := Price.Value * EuroCource
+    else
+      PriceR.Value := null;
 
     if (DollarCource > 0) and (EuroCource > 0) then
-      PriceD.Value := Price.Value * EuroCource / DollarCource;
+      PriceD.Value := Price.Value * EuroCource / DollarCource
+    else
+      PriceD.Value := null;
 
     PriceE.Value := Price.Value;
   end;

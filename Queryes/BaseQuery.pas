@@ -49,7 +49,8 @@ type
   protected
     FEventList: TObjectList;
     FPKFieldName: String;
-    procedure ApplyDelete(ASender: TDataSet); virtual;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -212,7 +213,8 @@ begin
   end;
 end;
 
-procedure TQueryBase.ApplyDelete(ASender: TDataSet);
+procedure TQueryBase.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
 end;
 
@@ -426,10 +428,11 @@ begin
   if ARequest in [arDelete, arInsert, arUpdate] then
   begin
     try
+      AAction := eaApplied;
       // Если произошло удаление
       if ARequest = arDelete then
       begin
-        ApplyDelete(ASender);
+        ApplyDelete(ASender, ARequest, AAction, AOptions);
       end;
 
       // Операция добавления записи на клиенте
@@ -444,7 +447,6 @@ begin
         ApplyUpdate(ASender, ARequest, AAction, AOptions);
       end;
 
-      AAction := eaApplied;
     except
       on E: Exception do
       begin
@@ -507,7 +509,7 @@ begin
       FDUpdateSQL.ModifySQL.Text := ASQL;
   end;
 
-  FDUpdateSQL.Apply(ARequest, AAction, [] { AOptions } );
+  FDUpdateSQL.Apply(ARequest, AAction,  AOptions );
 end;
 
 procedure TQueryBase.FetchFields(ARecordHolder: TRecordHolder;

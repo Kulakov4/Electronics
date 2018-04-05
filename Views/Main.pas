@@ -37,7 +37,7 @@ uses
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
   StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
-  Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView;
+  Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -86,7 +86,8 @@ type
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
-    ApplicationEvents: TApplicationEvents;
+    actShowExtraCharge: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);
@@ -98,6 +99,7 @@ type
     procedure actShowBodyTypes2Execute(Sender: TObject);
     procedure actShowBodyTypes3Execute(Sender: TObject);
     procedure actShowDescriptionsExecute(Sender: TObject);
+    procedure actShowExtraChargeExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
     procedure ApplicationEventsHint(Sender: TObject);
@@ -163,7 +165,7 @@ uses
   ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
   LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
-  System.SysUtils;
+  ExtraChargeForm;
 
 {$R *.dfm}
 
@@ -313,6 +315,18 @@ begin
   frmDescriptions.Show;
 end;
 
+procedure TfrmMain.actShowExtraChargeExecute(Sender: TObject);
+begin
+  if frmExtraCharge = nil then
+  begin
+    DM2.qExtraCharge.RefreshQuery;
+    frmExtraCharge := TfrmExtraCharge.Create(Self);
+    frmExtraCharge.ViewExtraCharge.qExtraCharge := DM2.qExtraCharge;
+  end;
+
+  frmExtraCharge.Show;
+end;
+
 procedure TfrmMain.actShowProducersExecute(Sender: TObject);
 begin
   if frmProducers = nil then
@@ -453,6 +467,7 @@ begin
   // Устанавливаем обработчик события
   ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
 
+  Application.OnHint := ApplicationEventsHint;
 
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;

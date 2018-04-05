@@ -912,6 +912,25 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Queryes\HTTP\HttpUnit.pas"/>
+        <DCCReference Include="Queryes\ExtraCharge\ExtraChargeQuery.pas">
+            <Form>QueryExtraCharge</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\ExtraCharge\ExtraChargeView.pas">
+            <Form>ViewExtraCharge</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\ExtraCharge\ExtraChargeForm.pas">
+            <Form>frmExtraCharge</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas">
+            <Form>QueryExtraChargeSimple</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

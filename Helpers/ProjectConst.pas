@@ -57,6 +57,9 @@ resourcestring
   sDoYouWantToSaveChanges = 'Изменения не были сохранены. Сохранить изменения?';
   sError = 'Ошибка';
   sSaving = 'Сохранение';
+
+  sExtraChargeRangeError = 'Поле количество должно содержать диапазон вида 2-10';
+
   sLocalizationFileName = 'Localization.ini';
 
   sProducerParamTableName = 'Producer';

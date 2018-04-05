@@ -60,6 +60,10 @@ inherited ViewProducts2: TViewProducts2
       ItemLinks = <
         item
           Visible = True
+          ItemName = 'cxbeiDate'
+        end
+        item
+          Visible = True
           ItemName = 'cxbeiDollar'
         end
         item
@@ -141,8 +145,20 @@ inherited ViewProducts2: TViewProducts2
       Action = actExportToExcelDocument
       Category = 0
     end
+    object cxbeiDate: TcxBarEditItem
+      Caption = 'New Item'
+      Category = 0
+      Hint = 'New Item'
+      Visible = ivAlways
+      PropertiesClassName = 'TcxTextEditProperties'
+    end
   end
   inherited cxStyleRepository1: TcxStyleRepository
     PixelsPerInch = 96
+  end
+  object Timer: TTimer
+    OnTimer = TimerTimer
+    Left = 72
+    Top = 224
   end
 end

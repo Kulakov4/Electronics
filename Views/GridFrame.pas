@@ -1253,6 +1253,8 @@ var
 begin
   Assert(AView <> nil);
 
+  // Предполагается что автоширина колонок не используется
+  Assert(not AView.OptionsView.ColumnAutoWidth);
   if ApplyBestFitMultiLine then
   begin
     // Предполагается что подбор ширину колонок происходит с учётом возможности переноса слов в заголовке

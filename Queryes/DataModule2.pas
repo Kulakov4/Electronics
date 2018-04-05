@@ -13,7 +13,7 @@ uses
   ComponentsGroupUnit, ComponentsSearchGroupUnit,
   ChildCategoriesQuery, ProductsBaseQuery, ProductsQuery,
   StoreHouseListQuery, ProductsSearchQuery, CategoryParametersQuery2,
-  CategoryParametersGroupUnit, NotifyEvents, OrderQuery;
+  CategoryParametersGroupUnit, NotifyEvents, OrderQuery, ExtraChargeQuery;
 
 type
   TDM2 = class(TForm)
@@ -23,6 +23,7 @@ type
     qProducts: TQueryProducts;
     qStoreHouseList: TQueryStoreHouseList;
     qProductsSearch: TQueryProductsSearch;
+    qExtraCharge: TQueryExtraCharge;
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FCategoryParametersGroup: TCategoryParametersGroup;
