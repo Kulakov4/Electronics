@@ -59,11 +59,11 @@ inherited ViewProductsBase2: TViewProductsBase2
       end
       item
         Caption.AlignHorz = taCenter
-        Caption.Text = #1056#1086#1079#1085#1080#1095#1085#1072#1103' '#1094#1077#1085#1072
+        Caption.Text = #1056#1086#1079#1085#1080#1095#1085#1072#1103' '#1094#1077#1085#1072' ('#1079#1072' 1 '#1096#1090'.)'
       end
       item
         Caption.AlignHorz = taCenter
-        Caption.Text = #1047#1072#1082#1091#1087#1086#1095#1085#1072#1103' '#1094#1077#1085#1072
+        Caption.Text = #1047#1072#1082#1091#1087#1086#1095#1085#1072#1103' '#1094#1077#1085#1072' ('#1073#1077#1079' '#1053#1044#1057')'
       end
       item
         Caption.AlignHorz = taCenter
