@@ -59,6 +59,7 @@ resourcestring
   sSaving = '—охранение';
 
   sExtraChargeRangeError = 'ѕоле количество должно содержать диапазон вида 2-10';
+  sExtraChargeRangeError2 = 'Ћева€ граница диапазона должна быть больше правой';
 
   sLocalizationFileName = 'Localization.ini';
 

@@ -3,7 +3,8 @@ unit ExtraChargeView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -42,9 +43,12 @@ type
     dxBarButton4: TdxBarButton;
     dxBarSubItem1: TdxBarSubItem;
     dxBarButton5: TdxBarButton;
+    actLoadFromExcelDocument: TAction;
+    dxBarButton6: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
+    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
   private
     FqExtraCharge: TQueryExtraCharge;
@@ -54,15 +58,16 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
-    property qExtraCharge: TQueryExtraCharge read FqExtraCharge write
-        SetqExtraCharge;
+    property qExtraCharge: TQueryExtraCharge read FqExtraCharge
+      write SetqExtraCharge;
     { Public declarations }
   end;
 
 implementation
 
 uses
-  DialogUnit, RepositoryDataModule;
+  DialogUnit, RepositoryDataModule, DialogUnit2, LoadFromExcelFileHelper,
+  ExtraChargeExcelDataModule, ImportErrorForm, GridSort;
 
 {$R *.dfm}
 
@@ -71,9 +76,15 @@ begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
 
+  PostOnEnterFields.Add(clRange.DataBinding.FieldName);
   PostOnEnterFields.Add(clWholeSale.DataBinding.FieldName);
 
   DeleteMessages.Add(cxGridLevel, 'Удалить диапазон оптовой наценки?');
+
+  GridSort.Add(TSortVariant.Create(clWholeSale, [clWholeSale]));
+  ApplySort(MainView, clWholeSale);
+  ApplySort(MainView, clWholeSale);
+
 
   UpdateView;
 end;
@@ -91,17 +102,45 @@ procedure TViewExtraCharge.actCommitExecute(Sender: TObject);
 begin
   inherited;
   qExtraCharge.ApplyUpdates;
+  UpdateView;
 end;
 
 procedure TViewExtraCharge.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Таблица оптовой наценки',
-    AFileName) then
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+    'Таблица оптовой наценки', AFileName) then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);
+  UpdateView;
+end;
+
+procedure TViewExtraCharge.actLoadFromExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: string;
+begin
+  inherited;
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+    Exit;
+
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TExtraChargeExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        qExtraCharge.LoadDataFromExcelTable(ASender as TExtraChargeExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TExtraChargeExcelTable).ExtraChargeDataSet :=
+          qExtraCharge.FDQuery;
+      end);
+  finally
+    EndUpdate;
+    UpdateView;
+  end;
 end;
 
 procedure TViewExtraCharge.actRollbackExecute(Sender: TObject);
@@ -127,14 +166,16 @@ end;
 
 procedure TViewExtraCharge.SetqExtraCharge(const Value: TQueryExtraCharge);
 begin
-  if FqExtraCharge = Value then Exit;
+  if FqExtraCharge = Value then
+    Exit;
 
   FqExtraCharge := Value;
 
-  if FqExtraCharge = nil then Exit;
+  if FqExtraCharge = nil then
+    Exit;
 
   MainView.DataController.DataSource := qExtraCharge.DataSource;
-//  ApplyBestFitMultiLine := True;
+  // ApplyBestFitMultiLine := True;
   MyApplyBestFit;
   UpdateView;
 end;
@@ -158,9 +199,7 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  OK := (qExtraCharge <> nil) and
-    (qExtraCharge.FDQuery.Active);
-
+  OK := (qExtraCharge <> nil) and (qExtraCharge.FDQuery.Active);
 
   actAdd.Enabled := OK and (AView <> nil) and
     (MainView.DataController.RecordCount > 0);

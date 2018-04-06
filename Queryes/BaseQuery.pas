@@ -427,7 +427,7 @@ procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
 begin
   if ARequest in [arDelete, arInsert, arUpdate] then
   begin
-    try
+//    try
       AAction := eaApplied;
       // Если произошло удаление
       if ARequest = arDelete then
@@ -446,7 +446,7 @@ begin
       begin
         ApplyUpdate(ASender, ARequest, AAction, AOptions);
       end;
-
+{
     except
       on E: Exception do
       begin
@@ -454,6 +454,7 @@ begin
         DoOnUpdateRecordException(E);
       end;
     end;
+}
   end
   else
     AAction := eaSkip;

@@ -2,6 +2,9 @@ inherited ViewExtraCharge: TViewExtraCharge
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DataController.KeyFieldNames = 'ID'
+      OptionsCustomize.ColumnFiltering = False
+      OptionsCustomize.ColumnSorting = False
+      OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
       OptionsView.ColumnAutoWidth = False
       OptionsView.HeaderAutoHeight = True
@@ -103,10 +106,18 @@ inherited ViewExtraCharge: TViewExtraCharge
         item
           Visible = True
           ItemName = 'dxBarButton5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton6'
         end>
     end
     object dxBarButton5: TdxBarButton
       Action = actExportToExcelDocument
+      Category = 0
+    end
+    object dxBarButton6: TdxBarButton
+      Action = actLoadFromExcelDocument
       Category = 0
     end
   end
@@ -131,6 +142,11 @@ inherited ViewExtraCharge: TViewExtraCharge
       Hint = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1086#1087#1090#1086#1074#1099#1077' '#1085#1072#1094#1077#1085#1082#1080' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
       ImageIndex = 6
       OnExecute = actExportToExcelDocumentExecute
+    end
+    object actLoadFromExcelDocument: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1086#1087#1090#1086#1074#1099#1077' '#1085#1072#1094#1077#1085#1082#1080
+      ImageIndex = 6
+      OnExecute = actLoadFromExcelDocumentExecute
     end
   end
 end

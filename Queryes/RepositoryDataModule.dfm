@@ -1582,9 +1582,4 @@ object DMRepository: TDMRepository
       Color = 16113353
     end
   end
-  object FDMoniFlatFileClientLink1: TFDMoniFlatFileClientLink
-    FileName = 'C:\Public\trace1.txt'
-    Left = 96
-    Top = 88
-  end
 end

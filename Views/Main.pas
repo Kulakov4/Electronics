@@ -88,6 +88,7 @@ type
     N3: TMenuItem;
     actShowExtraCharge: TAction;
     dxBarButton1: TdxBarButton;
+    ApplicationEvents: TApplicationEvents;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);
@@ -102,6 +103,7 @@ type
     procedure actShowExtraChargeExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
+    procedure ApplicationEventsException(Sender: TObject; E: Exception);
     procedure ApplicationEventsHint(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -165,7 +167,7 @@ uses
   ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
   LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
-  ExtraChargeForm;
+  ExtraChargeForm, ExceptionHelper, System.StrUtils;
 
 {$R *.dfm}
 
@@ -354,6 +356,15 @@ begin
 
 end;
 
+procedure TfrmMain.ApplicationEventsException(Sender: TObject; E: Exception);
+var
+  Msg: string;
+begin
+  Msg := IfThen(MyExceptionMessage.IsEmpty, E.Message, MyExceptionMessage );
+  MyExceptionMessage := '';
+  TDialog.Create.ErrorMessageDialog(Msg);
+end;
+
 procedure TfrmMain.ApplicationEventsHint(Sender: TObject);
 begin
   FHintWindowEx.DoActivateHint(Application.Hint)
@@ -467,7 +478,7 @@ begin
   // Устанавливаем обработчик события
   ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
 
-  Application.OnHint := ApplicationEventsHint;
+//  Application.OnHint := ApplicationEventsHint;
 
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;

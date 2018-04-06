@@ -206,7 +206,9 @@ uses
   ExtraChargeQuery in 'Queryes\ExtraCharge\ExtraChargeQuery.pas' {QueryExtraCharge: TFrame},
   ExtraChargeView in 'Views\ExtraCharge\ExtraChargeView.pas' {ViewExtraCharge: TFrame},
   ExtraChargeForm in 'Views\ExtraCharge\ExtraChargeForm.pas' {frmExtraCharge},
-  ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame};
+  ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame},
+  ExceptionHelper in 'Helpers\ExceptionHelper.pas',
+  ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule};
 
 {$R *.res}
 

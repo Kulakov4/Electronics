@@ -30,7 +30,6 @@ type
     cxImageList: TcxImageList;
     cxStyleRepository: TcxStyleRepository;
     cxHeaderStyle: TcxStyle;
-    FDMoniFlatFileClientLink1: TFDMoniFlatFileClientLink;
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);

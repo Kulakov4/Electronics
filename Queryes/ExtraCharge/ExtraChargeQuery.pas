@@ -89,7 +89,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, ExtraChargeSimpleQuery;
+  FireDAC.Comp.Client, Vcl.StdCtrls, ExtraChargeSimpleQuery,
+  ExtraChargeExcelDataModule;
 
 type
   TQueryExtraCharge = class(TQueryWithDataSource)
@@ -107,11 +108,12 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoAfterOpen(Sender: TObject);
-    function GetRangeBounds(out ALow, AHight: Integer): Boolean;
     property qExtraChargeSimple: TQueryExtraChargeSimple
       read GetqExtraChargeSimple;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure LoadDataFromExcelTable(AExcelTable: TExtraChargeExcelTable);
+    function LocateByRange(ARange: string): Boolean;
     property Range: TField read GetRange;
     property WholeSale: TField read GetWholeSale;
     { Public declarations }
@@ -120,7 +122,7 @@ type
 implementation
 
 uses
-  ProjectConst, NotifyEvents;
+  ProjectConst, NotifyEvents, ExceptionHelper;
 
 {$R *.dfm}
 
@@ -152,16 +154,18 @@ var
   AHight: Integer;
   ALow: Integer;
 begin
+  MyExceptionMessage := qExtraChargeSimple.CheckBounds(0, Range.AsString,
+    ALow, AHight);
+  if not MyExceptionMessage.IsEmpty then
+  begin
+    // Потом будет создана исключительная ситуация
+    AAction := eaFail;
+    raise Exception.Create(MyExceptionMessage);
+    // Exit;
+  end;
+
   if not qExtraChargeSimple.FDQuery.Active then
     qExtraChargeSimple.SearchByID(0);
-
-  if not GetRangeBounds(ALow, AHight) then
-  begin
-    AAction := eaFail;
-    ShowMessage(sExtraChargeRangeError);
-    Exit;
-  end;
-//    raise Exception.Create(sExtraChargeRangeError);
 
   // Добавляем запись
   qExtraChargeSimple.TryAppend;
@@ -172,7 +176,8 @@ begin
 
   Assert(qExtraChargeSimple.PK.AsInteger > 0);
 
-  FetchFields([PKFieldName], [qExtraChargeSimple.PK.Value], ARequest, AAction, AOptions);
+  FetchFields([PKFieldName], [qExtraChargeSimple.PK.Value], ARequest, AAction,
+    AOptions);
 end;
 
 procedure TQueryExtraCharge.ApplyUpdate(ASender: TDataSet;
@@ -183,9 +188,16 @@ var
   ALow: Integer;
 begin
   Assert(ASender = FDQuery);
+  MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
+    Range.AsString, ALow, AHight);
+  if not MyExceptionMessage.IsEmpty then
+  begin
+    AAction := eaFail;
+    // Потом будет создана исключительная ситуация
+    raise Exception.Create(MyExceptionMessage);
 
-  if not GetRangeBounds(ALow, AHight) then
-    raise Exception.Create(sExtraChargeRangeError);
+    // Exit;
+  end;
 
   // Ищем обновляемую запись
   qExtraChargeSimple.SearchByID(PK.AsInteger, 1);
@@ -215,27 +227,39 @@ begin
   Result := Field('Range');
 end;
 
-function TQueryExtraCharge.GetRangeBounds(out ALow, AHight: Integer): Boolean;
-var
-  m: TArray<String>;
-begin
-  Result := False;
-  m := Range.AsString.Split(['-']);
-
-  if Length(m) <> 2 then
-    Exit;
-
-  ALow := StrToIntDef(m[0], 0);
-  AHight := StrToIntDef(m[1], 0);
-  if (ALow = 0) or (AHight = 0) or (AHight <= ALow) then
-    Exit;
-
-  Result := True;
-end;
-
 function TQueryExtraCharge.GetWholeSale: TField;
 begin
   Result := Field('WholeSale');
+end;
+
+procedure TQueryExtraCharge.LoadDataFromExcelTable
+  (AExcelTable: TExtraChargeExcelTable);
+begin
+  // FDQuery.DisableControls;
+  try
+    AExcelTable.First;
+    while not AExcelTable.Eof do
+    begin
+      // Если такой диапазон уже есть
+      if LocateByRange(AExcelTable.Range.Value) then
+        TryEdit
+      else
+        TryAppend;
+
+      Range.Value := AExcelTable.Range.Value;
+      WholeSale.Value := AExcelTable.WholeSale.Value;
+      TryPost;
+
+      AExcelTable.Next;
+    end;
+  finally
+    // FDQuery.EnableControls;
+  end;
+end;
+
+function TQueryExtraCharge.LocateByRange(ARange: string): Boolean;
+begin
+  Result := FDQuery.LocateEx(Range.FieldName, ARange, []);
 end;
 
 end.
