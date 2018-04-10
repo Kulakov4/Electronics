@@ -23,7 +23,7 @@ type
     procedure SetFieldsInfo; override;
     property qExtraChargeSimple: TQueryExtraChargeSimple read GetqExtraChargeSimple;
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
     property ExtraChargeDataSet: TFDDataSet read FExtraChargeDataSet
       write SetExtraChargeDataSet;
@@ -58,8 +58,8 @@ var
   AErrorMessage: string;
   AHigh: Integer;
   ALow: Integer;
-  Pattern: string;
-  RegEx: TRegEx;
+//  Pattern: string;
+//  RegEx: TRegEx;
   V: Variant;
 begin
   // »щем точно такой-же диапазон

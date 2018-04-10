@@ -77,6 +77,7 @@ object DMRepository: TDMRepository
       'DriverID=SQLite')
     LoginPrompt = False
     AfterConnect = dbConnectionAfterConnect
+    BeforeConnect = dbConnectionBeforeConnect
     AfterCommit = dbConnectionAfterCommit
     AfterRollback = dbConnectionAfterRollback
     Left = 152

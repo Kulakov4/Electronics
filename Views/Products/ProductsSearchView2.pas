@@ -25,7 +25,7 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxCalc, System.Actions, Vcl.ActnList,
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   Vcl.Menus, Vcl.ComCtrls, cxDropDownEdit,
-  ProductsSearchQuery;
+  ProductsSearchQuery, cxDBExtLookupComboBox;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)

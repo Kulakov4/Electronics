@@ -7,7 +7,6 @@ inherited ViewExtraCharge: TViewExtraCharge
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
       OptionsView.ColumnAutoWidth = False
-      OptionsView.HeaderAutoHeight = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         VisibleForCustomization = False

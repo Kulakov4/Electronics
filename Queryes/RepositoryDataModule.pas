@@ -33,6 +33,7 @@ type
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
+    procedure dbConnectionBeforeConnect(Sender: TObject);
   private
     FAfterCommit: TNotifyEventsEx;
     FAfterConnect: TNotifyEventsEx;
@@ -86,6 +87,11 @@ procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);
 begin
   // Извещаем всех о роллбэке
   FAfterRollback.CallEventHandlers(Sender);
+end;
+
+procedure TDMRepository.dbConnectionBeforeConnect(Sender: TObject);
+begin
+;
 end;
 
 procedure TDMRepository.LocalizeDevExpress;

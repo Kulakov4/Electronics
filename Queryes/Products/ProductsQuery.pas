@@ -127,6 +127,26 @@ begin
         Price.Value := AExcelTable.PriceD.Value;
       end;
 
+      // Если цена задана в евро
+      if not AExcelTable.PriceE.IsNull then
+      begin
+        // Тип валюты - евро
+        IDCurrency.AsInteger := 3;
+        Price.Value := AExcelTable.PriceE.Value;
+      end;
+
+      // Если дата загрузки в загрузочном файле не указана
+      if LoadDate.IsNull then
+        LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
+
+      // Если курс доллара не был указан в загрузочном файле
+      if Dollar.IsNull then
+        Dollar.Value := DollarCource;
+
+      // Если курс евро не был указан в загрузочном файле
+      if Euro.IsNull then
+        Euro.Value := EuroCource;
+
       FDQuery.Post;
 
       AExcelTable.Next;

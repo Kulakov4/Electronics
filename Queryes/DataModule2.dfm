@@ -72,5 +72,6 @@ object DM2: TDM2
     TabOrder = 6
     ExplicitLeft = 30
     ExplicitTop = 203
+    ExplicitWidth = 125
   end
 end

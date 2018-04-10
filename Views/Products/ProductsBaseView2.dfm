@@ -92,6 +92,14 @@ inherited ViewProductsBase2: TViewProductsBase2
       item
         Caption.AlignHorz = taCenter
         Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1044#1072#1090#1072' '#1079#1072#1075#1088#1091#1079#1082#1080
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1050#1091#1088#1089#1099' '#1074#1072#1083#1102#1090
       end>
     DataController.ParentField = 'IDComponentGroup'
     DataController.KeyField = 'ID'
@@ -300,34 +308,13 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object clYYYY: TcxDBTreeListColumn
+    object clReleaseDate: TcxDBTreeListColumn
       Caption.AlignHorz = taCenter
-      DataBinding.FieldName = 'YYYY'
+      Caption.Text = ' '
+      DataBinding.FieldName = 'ReleaseDate'
       Options.VertSizing = False
       Options.Sorting = False
       Position.ColIndex = 0
-      Position.RowIndex = 0
-      Position.BandIndex = 8
-      Summary.FooterSummaryItems = <>
-      Summary.GroupFooterSummaryItems = <>
-    end
-    object clMM: TcxDBTreeListColumn
-      Caption.AlignHorz = taCenter
-      DataBinding.FieldName = 'MM'
-      Options.VertSizing = False
-      Options.Sorting = False
-      Position.ColIndex = 1
-      Position.RowIndex = 0
-      Position.BandIndex = 8
-      Summary.FooterSummaryItems = <>
-      Summary.GroupFooterSummaryItems = <>
-    end
-    object clWW: TcxDBTreeListColumn
-      Caption.AlignHorz = taCenter
-      DataBinding.FieldName = 'WW'
-      Options.VertSizing = False
-      Options.Sorting = False
-      Position.ColIndex = 2
       Position.RowIndex = 0
       Position.BandIndex = 8
       Summary.FooterSummaryItems = <>
@@ -586,6 +573,36 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+    object clLoadDate: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = ' '
+      DataBinding.FieldName = 'LoadDate'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 21
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clDollar: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = '$'
+      DataBinding.FieldName = 'Dollar'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 22
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clEuro: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = #8364
+      DataBinding.FieldName = 'Euro'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 22
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
   end
   inherited StatusBar: TStatusBar
     Top = 579
@@ -614,11 +631,13 @@ inherited ViewProductsBase2: TViewProductsBase2
       ItemLinks = <
         item
           UserDefine = [udWidth]
-          UserWidth = 97
+          UserWidth = 55
           Visible = True
           ItemName = 'cxbeiDollar'
         end
         item
+          UserDefine = [udWidth]
+          UserWidth = 51
           Visible = True
           ItemName = 'cxbeiEuro'
         end
@@ -628,15 +647,19 @@ inherited ViewProductsBase2: TViewProductsBase2
         end
         item
           UserDefine = [udWidth]
-          UserWidth = 80
+          UserWidth = 84
           Visible = True
-          ItemName = 'dxbcRate2'
+          ItemName = 'cxbeiExtraCharge'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbcWholeSale'
         end
         item
           UserDefine = [udWidth]
           UserWidth = 74
           Visible = True
-          ItemName = 'dxbcRate1'
+          ItemName = 'dxbcRetail'
         end>
       OneOnRow = True
       Row = 1
@@ -644,47 +667,15 @@ inherited ViewProductsBase2: TViewProductsBase2
       Visible = True
       WholeRow = False
     end
-    object dxbcRate1: TdxBarCombo
+    object dxbcRetail: TdxBarCombo
       Caption = #1056#1086#1079#1085#1080#1095#1085#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
       Category = 0
       Hint = #1056#1086#1079#1085#1080#1095#1085#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
       Visible = ivAlways
-      OnChange = dxbcRate1Change
+      OnChange = dxbcRetailChange
       ShowCaption = True
       Text = '100'
-      OnDrawItem = dxbcRate1DrawItem
-      Items.Strings = (
-        '5'
-        '10'
-        '15'
-        '20'
-        '25'
-        '30'
-        '35'
-        '40'
-        '45'
-        '50'
-        '55'
-        '60'
-        '65'
-        '70'
-        '75'
-        '80'
-        '85'
-        '90'
-        '95'
-        '100')
-      ItemIndex = -1
-    end
-    object dxbcRate2: TdxBarCombo
-      Caption = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
-      Category = 0
-      Hint = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
-      Visible = ivAlways
-      OnChange = dxbcRate2Change
-      ShowCaption = True
-      Text = '100'
-      OnDrawItem = dxbcRate1DrawItem
+      OnDrawItem = dxbcRetailDrawItem
       Items.Strings = (
         '5'
         '10'
@@ -736,6 +727,29 @@ inherited ViewProductsBase2: TViewProductsBase2
       Properties.MaskKind = emkRegExpr
       Properties.EditMask = '(\d+\,?\d?\d?\d?\d?)'
       Properties.OnValidate = cxbeiDollarPropertiesValidate
+    end
+    object cxbeiExtraCharge: TcxBarEditItem
+      Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
+      Category = 0
+      Hint = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
+      Visible = ivAlways
+      ShowCaption = True
+      PropertiesClassName = 'TcxExtLookupComboBoxProperties'
+      Properties.OnValidate = cxbeiExtraChargePropertiesValidate
+    end
+    object dxbcWholeSale: TdxBarCombo
+      Caption = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
+      Category = 0
+      Hint = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
+      Visible = ivAlways
+      OnChange = dxbcWholeSaleChange
+      ShowCaption = True
+      OnDrawItem = dxbcRetailDrawItem
+      Items.Strings = (
+        '90'
+        '80'
+        '70')
+      ItemIndex = -1
     end
   end
   inherited ActionList: TActionList

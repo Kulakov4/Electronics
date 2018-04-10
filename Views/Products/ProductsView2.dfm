@@ -63,10 +63,14 @@ inherited ViewProducts2: TViewProducts2
           ItemName = 'cxbeiDate'
         end
         item
+          UserDefine = [udWidth]
+          UserWidth = 55
           Visible = True
           ItemName = 'cxbeiDollar'
         end
         item
+          UserDefine = [udWidth]
+          UserWidth = 51
           Visible = True
           ItemName = 'cxbeiEuro'
         end
@@ -76,15 +80,13 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           UserDefine = [udWidth]
-          UserWidth = 80
+          UserWidth = 84
           Visible = True
-          ItemName = 'dxbcRate2'
+          ItemName = 'cxbeiExtraCharge'
         end
         item
-          UserDefine = [udWidth]
-          UserWidth = 74
           Visible = True
-          ItemName = 'dxbcRate1'
+          ItemName = 'dxbcWholeSale'
         end>
     end
     object dxBarSubItem1: TdxBarSubItem [4]
@@ -130,7 +132,11 @@ inherited ViewProducts2: TViewProducts2
       Action = actOpenInParametricTable
       Category = 0
     end
-    object dxBarSubItem2: TdxBarSubItem
+    inherited cxbeiExtraCharge: TcxBarEditItem
+      Properties.DropDownAutoSize = True
+      Properties.GridMode = True
+    end
+    object dxBarSubItem2: TdxBarSubItem [15]
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0
       Visible = ivAlways
@@ -141,16 +147,16 @@ inherited ViewProducts2: TViewProducts2
           ItemName = 'dxBarButton9'
         end>
     end
-    object dxBarButton9: TdxBarButton
+    object dxBarButton9: TdxBarButton [16]
       Action = actExportToExcelDocument
       Category = 0
     end
-    object cxbeiDate: TcxBarEditItem
-      Caption = 'New Item'
+    object cxbeiDate: TcxBarEditItem [17]
+      Caption = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
       Category = 0
-      Hint = 'New Item'
+      Hint = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
       Visible = ivAlways
-      PropertiesClassName = 'TcxTextEditProperties'
+      PropertiesClassName = 'TcxDateEditProperties'
     end
   end
   inherited cxStyleRepository1: TcxStyleRepository

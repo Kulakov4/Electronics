@@ -108,6 +108,7 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoAfterOpen(Sender: TObject);
+    procedure DoBeforeOpen(Sender: TObject);
     property qExtraChargeSimple: TQueryExtraChargeSimple
       read GetqExtraChargeSimple;
   public
@@ -131,6 +132,7 @@ begin
   inherited;
   AutoTransaction := False;
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
+  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
@@ -212,6 +214,19 @@ end;
 procedure TQueryExtraCharge.DoAfterOpen(Sender: TObject);
 begin
   Range.ReadOnly := False;
+end;
+
+procedure TQueryExtraCharge.DoBeforeOpen(Sender: TObject);
+begin
+  if FDQuery.FieldDefs.Count > 0 then
+  begin
+    FDQuery.FieldDefs.Clear;
+    FDQuery.Fields.Clear;
+  end;
+
+  FDQuery.FieldDefs.Update;
+  FDQuery.FieldDefs.Find('Range').Size := 30;
+  CreateDefaultFields(False);
 end;
 
 function TQueryExtraCharge.GetqExtraChargeSimple: TQueryExtraChargeSimple;

@@ -26,7 +26,11 @@ uses
   cxClasses, dxBar, cxInplaceContainer, cxTLData, cxDBTL,
   cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxBarEditItem, Data.DB,
   cxCalc, DocFieldInfo, cxButtonEdit, Vcl.Menus, cxEdit, Vcl.ComCtrls,
-  System.Contnrs, DescriptionPopupForm, ProductsBaseQuery;
+  System.Contnrs, DescriptionPopupForm, ProductsBaseQuery,
+  cxDBExtLookupComboBox,
+  cxFilter, cxData, cxDataStorage, cxNavigator, cxDBData, cxGridCustomTableView,
+  cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
+  cxGridCustomView, cxGrid, ExtraChargeView;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -46,9 +50,7 @@ type
     clDrawing: TcxDBTreeListColumn;
     clImage: TcxDBTreeListColumn;
     clPackagePins: TcxDBTreeListColumn;
-    clYYYY: TcxDBTreeListColumn;
-    clMM: TcxDBTreeListColumn;
-    clWW: TcxDBTreeListColumn;
+    clReleaseDate: TcxDBTreeListColumn;
     clAmount: TcxDBTreeListColumn;
     clPackaging: TcxDBTreeListColumn;
     clPriceR2: TcxDBTreeListColumn;
@@ -69,8 +71,7 @@ type
     actAddComponent: TAction;
     actDelete: TAction;
     dxBarManagerBar2: TdxBar;
-    dxbcRate1: TdxBarCombo;
-    dxbcRate2: TdxBarCombo;
+    dxbcRetail: TdxBarCombo;
     cxbeiDollar: TcxBarEditItem;
     actOpenDatasheet: TAction;
     actLoadDatasheet: TAction;
@@ -91,6 +92,11 @@ type
     clPriceE: TcxDBTreeListColumn;
     clPriceE1: TcxDBTreeListColumn;
     clPriceE2: TcxDBTreeListColumn;
+    cxbeiExtraCharge: TcxBarEditItem;
+    dxbcWholeSale: TdxBarCombo;
+    clLoadDate: TcxDBTreeListColumn;
+    clDollar: TcxDBTreeListColumn;
+    clEuro: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -122,34 +128,44 @@ type
     procedure cxDBTreeListInitEditValue(Sender, AItem: TObject;
       AEdit: TcxCustomEdit; var AValue: Variant);
     procedure cxDBTreeListSelectionChanged(Sender: TObject);
-    procedure dxbcRate2Change(Sender: TObject);
-    procedure dxbcRate1Change(Sender: TObject);
-    procedure dxbcRate1DrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
+    procedure dxbcRetailChange(Sender: TObject);
+    procedure dxbcRetailDrawItem(Sender: TdxBarCustomCombo; AIndex: Integer;
       ARect: TRect; AState: TOwnerDrawState);
     procedure clDescriptionPropertiesInitPopup(Sender: TObject);
     procedure cxbeiDollarPropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure cxbeiEuroChange(Sender: TObject);
+    procedure cxbeiExtraChargePropertiesValidate(Sender: TObject;
+      var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+    procedure cxbeiWholeSalePropertiesDrawItem(AControl: TcxCustomComboBox;
+      ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
+      AState: TOwnerDrawState);
+    procedure cxbeiWholeSalePropertiesChange(Sender: TObject);
+    procedure cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
+    procedure dxbcWholeSaleChange(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FqProductsBase: TQueryProductsBase;
+    FViewExtraCharge: TViewExtraCharge;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
+    function GetViewExtraCharge: TViewExtraCharge;
     procedure SetqProductsBase(const Value: TQueryProductsBase);
     procedure UpdateSelectedCount;
     { Private declarations }
   protected
     FSelectedCountPanelIndex: Integer;
-    procedure BindRate(ARateField: TField; AdxBarCombo: TdxBarCombo);
+    procedure UpdateBarCombo(AValue: Variant; AdxBarCombo: TdxBarCombo);
     procedure CreateCountEvents;
     procedure DoAfterScroll(Sender: TObject);
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
+    procedure LoadWholeSale;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
@@ -157,16 +173,18 @@ type
     // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
     // : TList<TProductRecord>;
     procedure UpdateProductCount; virtual;
-    procedure UpdateRate(const ARate: Double; RateField: TField);
+    procedure UpdateFieldValue(AFields: TArray<TField>;
+      AValues: TArray<Variant>);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
+    property ViewExtraCharge: TViewExtraCharge read GetViewExtraCharge;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
-    function IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn; AValue: Variant):
-        Boolean;
+    function IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn;
+      AValue: Variant): Boolean;
     procedure UpdateView; override;
     property qProductsBase: TQueryProductsBase read FqProductsBase
       write SetqProductsBase;
@@ -181,6 +199,9 @@ uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi, System.Generics.Collections,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
   HttpUnit;
+
+const
+  clClickedColor = clRed;
 
 constructor TViewProductsBase2.Create(AOwner: TComponent);
 var
@@ -460,20 +481,16 @@ begin
   inherited;
 end;
 
-procedure TViewProductsBase2.BindRate(ARateField: TField;
+procedure TViewProductsBase2.UpdateBarCombo(AValue: Variant;
   AdxBarCombo: TdxBarCombo);
-var
-  r: Double;
 begin
-  r := RateToPerсent(ARateField.AsFloat);
-  if r = 0 then
-  begin
-    AdxBarCombo.Text := '';
-  end
-  else
-  begin
-    AdxBarCombo.Tag := 1;
-    AdxBarCombo.Text := Format('%8.2f', [r]);
+  AdxBarCombo.Tag := 1;
+  try
+    if VarIsNull(AValue) then
+      AdxBarCombo.Text := ''
+    else
+      AdxBarCombo.Text := AValue;
+  finally
     AdxBarCombo.Tag := 0;
   end;
 end;
@@ -539,7 +556,7 @@ begin
   inherited;
   S := cxbeiDollar.EditValue;
   r := StrToFloatDef(S, 0);
-  if (not s.IsEmpty and (r = 0)) or (FqProductsBase.DollarCource = r) then
+  if (not S.IsEmpty and (r = 0)) or (FqProductsBase.DollarCource = r) then
     Exit;
 
   // Обновлям курс доллара
@@ -558,8 +575,9 @@ begin
   if DisplayValue = '' then
     Exit;
 
-  x := StrToFloatDef( DisplayValue, 0 );
-  if x > 0 then Exit;
+  x := StrToFloatDef(DisplayValue, 0);
+  if x > 0 then
+    Exit;
 
   ErrorText := 'Редактируемое значение не является курсом валюты';
   Error := True;
@@ -582,6 +600,60 @@ begin
   if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0)
   then
     FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+
+end;
+
+procedure TViewProductsBase2.cxbeiExtraChargePropertiesValidate(Sender: TObject;
+  var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+begin
+  inherited;
+  // qProductsBase.SaveExtraCharge;
+  UpdateFieldValue([FqProductsBase.IDExtraCharge, FqProductsBase.WholeSale],
+    [qProductsBase.qExtraCharge.PK.Value,
+    qProductsBase.qExtraCharge.WholeSale.Value]);
+end;
+
+procedure TViewProductsBase2.cxbeiWholeSalePropertiesChange(Sender: TObject);
+begin
+  inherited;;
+end;
+
+procedure TViewProductsBase2.cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
+begin
+  inherited;;
+end;
+
+procedure TViewProductsBase2.cxbeiWholeSalePropertiesDrawItem
+  (AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
+  const ARect: TRect; AState: TOwnerDrawState);
+var
+  S: string;
+begin
+  inherited;
+
+  if odSelected in AState then
+  begin
+    Brush.Color := clClickedColor;
+    Font.Color := clHighlightText;
+  end
+  else
+  begin
+    Brush.Color := clWindow;
+    Font.Color := clWindowText;
+  end;
+
+  AControl.Canvas.FillRect(ARect);
+  if odFocused in AState then
+    DrawFocusRect(AControl.Canvas.Handle, ARect);
+
+  if AIndex >= 0 then
+    S := AControl.Properties.Items[AIndex]
+  else
+    S := AControl.Text;
+  if S <> '' then
+    S := S + '%';
+
+  AControl.Canvas.TextOut(ARect.Left + 2, ARect.Top + 2, S);
 
 end;
 
@@ -718,8 +790,17 @@ end;
 
 procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
 begin
-  BindRate(FqProductsBase.Rate1, dxbcRate1);
-  BindRate(FqProductsBase.Rate2, dxbcRate2);
+  UpdateBarCombo(FqProductsBase.Retail.Value, dxbcRetail);
+  UpdateBarCombo(FqProductsBase.WholeSale.Value, dxbcWholeSale);
+
+  if qProductsBase.IDExtraCharge.IsNull then
+    cxbeiExtraCharge.EditValue := null
+  else
+  begin
+    // qProductsBase.qExtraCharge.LocateByPK
+    // (qProductsBase.IDExtraCharge.AsInteger, True);
+    cxbeiExtraCharge.EditValue := qProductsBase.IDExtraCharge.Value;
+  end;
 end;
 
 procedure TViewProductsBase2.DoOnDescriptionPopupHide(Sender: TObject);
@@ -727,7 +808,7 @@ begin
   UpdateView;
 end;
 
-procedure TViewProductsBase2.dxbcRate2Change(Sender: TObject);
+procedure TViewProductsBase2.dxbcRetailChange(Sender: TObject);
 var
   r: Double;
 begin
@@ -735,32 +816,19 @@ begin
   if (Sender as TComponent).Tag = 1 then
     Exit;
 
-  r := StrToFloatDef(dxbcRate2.Text, 0);
+  r := StrToFloatDef(dxbcRetail.Text, 0);
   if r = 0 then
-    Exit;
+  begin
+    if not dxbcRetail.Text.IsEmpty then
+      UpdateBarCombo(null, dxbcRetail);
 
-  UpdateRate(PerсentToRate(r), FqProductsBase.Rate2);
+    Exit;
+  end;
+
+  UpdateFieldValue([FqProductsBase.Retail], [dxbcRetail.Text]);
 end;
 
-procedure TViewProductsBase2.dxbcRate1Change(Sender: TObject);
-var
-  r: Double;
-begin
-  inherited;
-  if (Sender as TComponent).Tag = 1 then
-    Exit;
-
-  r := StrToFloatDef(dxbcRate1.Text, 0);
-  if r = 0 then
-    Exit;
-
-  UpdateRate(PerсentToRate(r), FqProductsBase.Rate1);
-end;
-
-const
-  clClickedColor = clRed;
-
-procedure TViewProductsBase2.dxbcRate1DrawItem(Sender: TdxBarCustomCombo;
+procedure TViewProductsBase2.dxbcRetailDrawItem(Sender: TdxBarCustomCombo;
   AIndex: Integer; ARect: TRect; AState: TOwnerDrawState);
 var
   S: string;
@@ -792,11 +860,37 @@ begin
   Sender.Canvas.TextOut(ARect.Left + 2, ARect.Top + 2, S);
 end;
 
+procedure TViewProductsBase2.dxbcWholeSaleChange(Sender: TObject);
+var
+  r: Double;
+begin
+  inherited;
+  if (Sender as TComponent).Tag = 1 then
+    Exit;
+
+  r := StrToFloatDef(dxbcWholeSale.Text, 0);
+  if r = 0 then
+  begin
+    if not dxbcWholeSale.Text.IsEmpty then
+      UpdateBarCombo(null, dxbcWholeSale);
+    Exit;
+  end;
+
+  UpdateFieldValue([FqProductsBase.WholeSale], [dxbcWholeSale.Text]);
+end;
+
 procedure TViewProductsBase2.EndUpdate;
 begin
   inherited;
   if FUpdateCount = 0 then
     CreateCountEvents;
+end;
+
+function TViewProductsBase2.GetViewExtraCharge: TViewExtraCharge;
+begin
+  if FViewExtraCharge = nil then
+    FViewExtraCharge := TViewExtraCharge.Create(Self);
+  Result := FViewExtraCharge;
 end;
 
 procedure TViewProductsBase2.InitializeColumns;
@@ -823,7 +917,7 @@ begin
 end;
 
 function TViewProductsBase2.IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn;
-    AValue: Variant): Boolean;
+  AValue: Variant): Boolean;
 var
   ANode: TcxTreeListNode;
   V: Variant;
@@ -862,6 +956,26 @@ begin
   Result := S1 = S2;
 end;
 
+procedure TViewProductsBase2.LoadWholeSale;
+begin
+  dxbcWholeSale.Items.BeginUpdate;
+  try
+    qProductsBase.qExtraCharge.FDQuery.DisableControls;
+    try
+      qProductsBase.qExtraCharge.FDQuery.First;
+      while not qProductsBase.qExtraCharge.FDQuery.Eof do
+      begin
+        dxbcWholeSale.Items.Add(qProductsBase.qExtraCharge.WholeSale.AsString);
+        qProductsBase.qExtraCharge.FDQuery.Next;
+      end;
+    finally
+      qProductsBase.qExtraCharge.FDQuery.EnableControls;
+    end;
+  finally
+    dxbcWholeSale.Items.EndUpdate;
+  end;
+end;
+
 procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 begin
   Application.Hint := '';
@@ -896,6 +1010,8 @@ begin
 end;
 
 procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
+var
+  p: TcxExtLookupComboBoxProperties;
 begin
   if FqProductsBase = Value then
     Exit;
@@ -914,6 +1030,19 @@ begin
   // подписываемся на события о смене количества и надбавки
   CreateCountEvents;
 
+  // Привязываем представление оптовых надбавок
+  ViewExtraCharge.MainView.DataController.DataSource :=
+    FqProductsBase.qExtraCharge.DataSource;
+  p := cxbeiExtraCharge.Properties as TcxExtLookupComboBoxProperties;
+  p.View := ViewExtraCharge.MainView;
+  p.ListFieldItem := ViewExtraCharge.clRange;
+  p.KeyFieldNames := FqProductsBase.qExtraCharge.PKFieldName;
+  p.DropDownAutoSize := True;
+  // p.GridMode := True;
+  p.DropDownSizeable := True;
+
+  LoadWholeSale;
+
   UpdateView;
 end;
 
@@ -924,7 +1053,8 @@ begin
     Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
 end;
 
-procedure TViewProductsBase2.UpdateRate(const ARate: Double; RateField: TField);
+procedure TViewProductsBase2.UpdateFieldValue(AFields: TArray<TField>;
+  AValues: TArray<Variant>);
 var
   ANode: TcxDBTreeListNode;
   AUpdatedIDList: TList<Integer>;
@@ -939,8 +1069,8 @@ begin
       // if ANode.IsGroupNode then
       // Continue;
 
-      FqProductsBase.UpdateRate(ANode.Values[clID.ItemIndex], RateField, ARate,
-        AUpdatedIDList);
+      FqProductsBase.UpdateFieldValue(ANode.Values[clID.ItemIndex], AFields,
+        AValues, AUpdatedIDList);
     end;
   finally
     FqProductsBase.FDQuery.EnableControls;
@@ -981,7 +1111,7 @@ begin
   if qProductsBase.DollarCource > 0 then
     cxbeiDollar.EditValue := qProductsBase.DollarCource;
   if qProductsBase.EuroCource > 0 then
-  cxbeiEuro.EditValue := qProductsBase.EuroCource;
+    cxbeiEuro.EditValue := qProductsBase.EuroCource;
 end;
 
 procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);

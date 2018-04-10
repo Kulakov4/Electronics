@@ -26,7 +26,11 @@ uses
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   System.Generics.collections, FieldInfoUnit, ProductsExcelDataModule,
   Vcl.Menus, Vcl.ComCtrls, System.Contnrs, ProgressBarForm2, ExcelDataModule,
-  cxDropDownEdit, ProductsQuery, cxTextEdit, Vcl.ExtCtrls;
+  cxDropDownEdit, ProductsQuery, cxTextEdit, Vcl.ExtCtrls,
+  cxDBExtLookupComboBox, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator,
+  Data.DB, cxDBData, cxGridCustomTableView, cxGridTableView,
+  cxGridBandedTableView, cxGridDBBandedTableView, cxGridCustomView, cxGrid,
+  cxCalendar;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -39,22 +43,18 @@ type
     dxBarButton6: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
-    cxbeiDate: TcxBarEditItem;
     Timer: TTimer;
-    procedure dxbeDollarChange(Sender: TObject);
-    procedure dxbeDollarCurChange(Sender: TObject);
+    cxbeiDate: TcxBarEditItem;
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
+    procedure cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
   private
     procedure DoBeforeLoad(ASender: TObject);
     function GetqProducts: TQueryProducts;
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
   protected
-    // TODO: SortList
-    // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
-    // : TList<TProductRecord>;
     procedure UpdateProductCount; override;
   public
     procedure LoadFromExcelDocument(const AFileName: String);
@@ -67,7 +67,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
-  NotifyEvents, Data.DB, ProgressInfo, LoadFromExcelFileHelper,
+  NotifyEvents, ProgressInfo, LoadFromExcelFileHelper,
   CustomErrorForm, HttpUnit;
 
 procedure TViewProducts2.cxBarEditItem1PropertiesValidate(Sender: TObject;
@@ -83,24 +83,18 @@ begin
   Error := True;
 end;
 
+procedure TViewProducts2.cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
+begin
+  inherited;
+;
+end;
+
 procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
 begin
   UpdateView;
   { при выборе другого склада проверить наличие изменений в старом складе }
   if CheckAndSaveChanges = IDCANCEL then
     raise EAbort.Create('Cancel scroll');
-end;
-
-procedure TViewProducts2.dxbeDollarChange(Sender: TObject);
-begin
-  inherited;
-  ;
-end;
-
-procedure TViewProducts2.dxbeDollarCurChange(Sender: TObject);
-begin
-  inherited;
-  ;
 end;
 
 function TViewProducts2.GetqProducts: TQueryProducts;

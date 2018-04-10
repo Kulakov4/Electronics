@@ -8,7 +8,7 @@ inherited QueryExtraCharge: TQueryExtraCharge
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select ID, L || '#39'-'#39' || H Range, WholeSale'
+      'select ID, cast(L || '#39'-'#39' || H as VARCHAR(30)) Range, WholeSale'
       'FROM ExtraCharge'
       'ORDER BY L')
   end
