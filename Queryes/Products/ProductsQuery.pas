@@ -11,10 +11,13 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   System.Generics.Collections, ProductsBaseQuery,
   StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
-  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents;
+  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents,
+  CheckDuplicateInterface, CustomExcelTable;
 
 type
-  TQueryProducts = class(TQueryProductsBase)
+  TQueryProducts = class(TQueryProductsBase, ICheckDuplicate)
+  strict private
+    function HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean; stdcall;
   private
     FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
@@ -68,8 +71,8 @@ begin
   TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
 end;
 
-procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable:
-    TProductsExcelTable);
+procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable
+  : TProductsExcelTable);
 var
   AExcelField: TField;
   AField: TField;
@@ -179,6 +182,67 @@ begin
     IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
     TryPost;
   end;
+end;
+
+function TQueryProducts.HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean;
+var
+  AIDComponentGroup: Integer;
+  AIDProducer: Integer;
+  AKeyFields: string;
+  AProductsExcelTable: TProductsExcelTable;
+  V: Variant;
+begin
+  AProductsExcelTable := AExcelTable as TProductsExcelTable;
+
+  // 1) Ищем группу компонентов на текущем складе
+
+  AKeyFields := Format('%s;%s', [IsGroup.FieldName, Value.FieldName]);
+  V := FDQuery.LookupEx(AKeyFields,
+    VarArrayOf([1, AProductsExcelTable.ComponentGroup.Value]), PKFieldName);
+
+  // Если такой группы компонентов на складе ещё не было
+  Result := not VarIsNull(V);
+  if not Result then
+    Exit;
+
+  AIDComponentGroup := V;
+
+  // 2) Ищем производителя
+  Result := ProducersGroup.qProducers.Locate
+    (AProductsExcelTable.Producer.AsString);
+  // Если такого производителя не было
+  if not Result then
+    Exit;
+
+  AIDProducer := ProducersGroup.qProducers.PK.AsInteger;
+
+  // Ищем на складе
+  AKeyFields := Format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s',
+    [IsGroup.FieldName, IDComponentGroup.FieldName, Value.FieldName,
+    IDProducer.FieldName, PackagePins.FieldName, ReleaseDate.FieldName,
+    Amount.FieldName, Packaging.FieldName, Price.FieldName,
+    OriginCountryCode.FieldName, OriginCountry.FieldName, BatchNumber.FieldName,
+    CustomsDeclarationNumber.FieldName, Storage.FieldName,
+    StoragePlace.FieldName, Seller.FieldName, DocumentNumber.FieldName,
+    Barcode.FieldName]);
+
+  V := FDQuery.LookupEx(AKeyFields,
+    VarArrayOf([0, AIDComponentGroup, AProductsExcelTable.Value.AsString,
+    AIDProducer, AProductsExcelTable.PackagePins.AsString,
+    AProductsExcelTable.ReleaseDate.AsString,
+    AProductsExcelTable.Amount.AsInteger,
+    AProductsExcelTable.Packaging.AsString, AProductsExcelTable.Price.AsFloat,
+    AProductsExcelTable.OriginCountryCode.AsString,
+    AProductsExcelTable.OriginCountry.AsString,
+    AProductsExcelTable.BatchNumber.AsString,
+    AProductsExcelTable.CustomsDeclarationNumber.AsString,
+    AProductsExcelTable.Storage.AsString,
+    AProductsExcelTable.StoragePlace.AsString,
+    AProductsExcelTable.Seller.AsString,
+    AProductsExcelTable.DocumentNumber.AsString,
+    AProductsExcelTable.Barcode.AsString]), PKFieldName);
+
+  Result := not VarIsNull(V);
 end;
 
 procedure TQueryProducts.DoAfterDelete(Sender: TObject);

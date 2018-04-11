@@ -76,8 +76,9 @@ var
   x: Double;
 begin
   inherited;
-  x := StrToFloatDef( DisplayValue, 0 );
-  if x > 0 then Exit;
+  x := StrToFloatDef(DisplayValue, 0);
+  if x > 0 then
+    Exit;
 
   ErrorText := 'Редактируемое значение не является курсом валюты';
   Error := True;
@@ -85,8 +86,7 @@ end;
 
 procedure TViewProducts2.cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
 begin
-  inherited;
-;
+  inherited;;
 end;
 
 procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
@@ -103,17 +103,26 @@ begin
 end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
+var
+  AExcelTable: TProductsExcelTable;
 begin
   Assert(not AFileName.IsEmpty);
 
   BeginUpdate;
   try
     TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmCustomError,
-    procedure (ASender: TObject)
-    begin
-      qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
-    end
-    );
+      procedure(ASender: TObject)
+      begin
+        qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        AExcelTable := ASender as TProductsExcelTable;
+        // Инициализируем курс доллара и евро
+        AExcelTable.DollarCource := qProducts.DollarCource;
+        AExcelTable.EuroCource := qProducts.EuroCource;
+        AExcelTable.CheckDuplicate := qProducts;
+      end);
   finally
     cxDBTreeList.FullCollapse;
     EndUpdate;

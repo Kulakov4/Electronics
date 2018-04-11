@@ -208,7 +208,8 @@ uses
   ExtraChargeForm in 'Views\ExtraCharge\ExtraChargeForm.pas' {frmExtraCharge},
   ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame},
   ExceptionHelper in 'Helpers\ExceptionHelper.pas',
-  ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule};
+  ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule},
+  CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas';
 
 {$R *.res}
 

@@ -109,7 +109,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Locate(const AProducer: string);
-    procedure MyApplyBestFit; override;
     procedure UpdateView; override;
     property ProducersGroup: TProducersGroup read FProducersGroup
       write SetProducersGroup;
@@ -478,16 +477,6 @@ begin
   end;
 end;
 
-procedure TViewProducers.MyApplyBestFit;
-var
-  AView: TcxGridDBBandedTableView;
-begin
-  inherited;
-  AView := GetDBBandedTableView(1);
-  if AView <> nil then
-    AView.ApplyBestFit(nil, True, True);
-end;
-
 procedure TViewProducers.MyInitializeComboBoxColumn;
 begin
   // Ищем возможные значения типа производителя для выпадающего списка
@@ -524,7 +513,7 @@ begin
       MainView.DataController.DataSource := nil;
     end;
 
-    PostMyApplyBestFitEvent;
+    PostMyApplyBestFitEventForView(cxGridDBBandedTableView2);
 
     UpdateView;
   end;

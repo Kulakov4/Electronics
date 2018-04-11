@@ -45,11 +45,15 @@ type
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetAmount: TField;
+    function GetBarcode: TField;
+    function GetBatchNumber: TField;
     function GetChecked: TField;
+    function GetCustomsDeclarationNumber: TField;
     function GetDatasheet: TField;
     function GetDescriptionID: TField;
     function GetLoadDate: TField;
     function GetDiagram: TField;
+    function GetDocumentNumber: TField;
     function GetDrawing: TField;
     function GetIDComponentGroup: TField;
     function GetIDCurrency: TField;
@@ -60,6 +64,10 @@ type
     function GetPrice: TField;
     function GetEuro: TField;
     function GetDollar: TField;
+    function GetOriginCountry: TField;
+    function GetOriginCountryCode: TField;
+    function GetPackagePins: TField;
+    function GetPackaging: TField;
     function GetPriceD: TField;
     function GetPriceD1: TField;
     function GetPriceD2: TField;
@@ -77,7 +85,11 @@ type
     function GetqSearchFamily: TQuerySearchFamily;
     function GetqSearchProduct: TQuerySearchProduct;
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
+    function GetReleaseDate: TField;
     function GetRetail: TField;
+    function GetSeller: TField;
+    function GetStorage: TField;
+    function GetStoragePlace: TField;
     function GetStorehouseId: TField;
     function GetValue: TField;
     function GetWholesale: TField;
@@ -123,11 +135,15 @@ type
     procedure UpdateFieldValue(AID: Integer; AFields: TArray<TField>;
       AValues: TArray<Variant>; AUpdatedIDList: TList<Integer>);
     property Amount: TField read GetAmount;
+    property Barcode: TField read GetBarcode;
+    property BatchNumber: TField read GetBatchNumber;
     property Checked: TField read GetChecked;
+    property CustomsDeclarationNumber: TField read GetCustomsDeclarationNumber;
     property Datasheet: TField read GetDatasheet;
     property DescriptionID: TField read GetDescriptionID;
     property LoadDate: TField read GetLoadDate;
     property Diagram: TField read GetDiagram;
+    property DocumentNumber: TField read GetDocumentNumber;
     property Drawing: TField read GetDrawing;
     property ExportFileName: string read GetExportFileName;
     property IDComponentGroup: TField read GetIDComponentGroup;
@@ -150,11 +166,19 @@ type
     property IDExtraCharge: TField read GetIDExtraCharge;
     property Euro: TField read GetEuro;
     property Dollar: TField read GetDollar;
+    property OriginCountry: TField read GetOriginCountry;
+    property OriginCountryCode: TField read GetOriginCountryCode;
+    property PackagePins: TField read GetPackagePins;
+    property Packaging: TField read GetPackaging;
     property PriceE: TField read GetPriceE;
     property PriceE1: TField read GetPriceE1;
     property PriceE2: TField read GetPriceE2;
     property qExtraCharge: TQueryExtraCharge read GetqExtraCharge;
+    property ReleaseDate: TField read GetReleaseDate;
     property Retail: TField read GetRetail;
+    property Seller: TField read GetSeller;
+    property Storage: TField read GetStorage;
+    property StoragePlace: TField read GetStoragePlace;
     property StorehouseId: TField read GetStorehouseId;
     property Value: TField read GetValue;
     property Wholesale: TField read GetWholesale;
@@ -399,6 +423,7 @@ begin
     begin
       // Добавляем в базу сам продукт
       qSearchProduct.InsertRecord(ARH);
+      // Тут ошибка сохранения внешнего ключа
     end;
 
     // Запоминаем код продукта
@@ -504,19 +529,20 @@ begin
 end;
 
 procedure TQueryProductsBase.CancelUpdates;
-var
-  V: Variant;
 begin
   // отменяем все сделанные изменения на стороне клиента
   TryCancel;
 
-  V := PK.Value;
+  SaveBookmark;
   FDQuery.DisableControls;
   try
     FDQuery.Connection.Rollback;
+    // Убеждаемся что мы не в транзакции
+    Assert(not FDQuery.Connection.InTransaction);
     RefreshQuery;
-    if not VarIsNull(V) then
-      LocateByPK(V);
+    ProducersGroup.ReOpen;
+
+    RestoreBookmark;
   finally
     FDQuery.EnableControls;
   end;
@@ -702,9 +728,24 @@ begin
   Result := Field('Amount');
 end;
 
+function TQueryProductsBase.GetBarcode: TField;
+begin
+  Result := Field('Barcode');
+end;
+
+function TQueryProductsBase.GetBatchNumber: TField;
+begin
+  Result := Field( 'BatchNumber' );
+end;
+
 function TQueryProductsBase.GetChecked: TField;
 begin
   Result := Field('Checked');
+end;
+
+function TQueryProductsBase.GetCustomsDeclarationNumber: TField;
+begin
+  Result := Field('CustomsDeclarationNumber');
 end;
 
 function TQueryProductsBase.GetDatasheet: TField;
@@ -725,6 +766,11 @@ end;
 function TQueryProductsBase.GetDiagram: TField;
 begin
   Result := Field('Diagram');
+end;
+
+function TQueryProductsBase.GetDocumentNumber: TField;
+begin
+  Result := Field('DocumentNumber');
 end;
 
 function TQueryProductsBase.GetDrawing: TField;
@@ -775,6 +821,26 @@ end;
 function TQueryProductsBase.GetDollar: TField;
 begin
   Result := Field('Dollar');
+end;
+
+function TQueryProductsBase.GetOriginCountry: TField;
+begin
+  Result := Field('OriginCountry');
+end;
+
+function TQueryProductsBase.GetOriginCountryCode: TField;
+begin
+  Result := Field('OriginCountryCode');
+end;
+
+function TQueryProductsBase.GetPackagePins: TField;
+begin
+  Result := Field('PackagePins');
+end;
+
+function TQueryProductsBase.GetPackaging: TField;
+begin
+  Result := Field('Packaging');
 end;
 
 function TQueryProductsBase.GetPriceD: TField;
@@ -903,9 +969,29 @@ begin
   Result := FqSearchStorehouseProduct;
 end;
 
+function TQueryProductsBase.GetReleaseDate: TField;
+begin
+  Result := Field('ReleaseDate');
+end;
+
 function TQueryProductsBase.GetRetail: TField;
 begin
   Result := Field('Retail');
+end;
+
+function TQueryProductsBase.GetSeller: TField;
+begin
+  Result := Field('Seller');
+end;
+
+function TQueryProductsBase.GetStorage: TField;
+begin
+  Result := Field('Storage');
+end;
+
+function TQueryProductsBase.GetStoragePlace: TField;
+begin
+  Result := Field('StoragePlace');
 end;
 
 function TQueryProductsBase.GetStorehouseId: TField;
