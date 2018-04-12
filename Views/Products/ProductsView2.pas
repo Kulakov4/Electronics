@@ -45,6 +45,9 @@ type
     dxBarButton9: TdxBarButton;
     Timer: TTimer;
     cxbeiDate: TcxBarEditItem;
+    actColumnsAutoWidth: TAction;
+    dxBarButton7: TdxBarButton;
+    procedure actColumnsAutoWidthExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
@@ -69,6 +72,20 @@ implementation
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
   NotifyEvents, ProgressInfo, LoadFromExcelFileHelper,
   CustomErrorForm, HttpUnit;
+
+procedure TViewProducts2.actColumnsAutoWidthExecute(Sender: TObject);
+begin
+  inherited;
+//  cxDBTreeList.BeginUpdate;
+//  try
+    cxDBTreeList.Root.Expand(true);
+
+    MyApplyBestFit;
+//    cxDBTreeList.Root.Collapse(true);
+//  finally
+//    cxDBTreeList.EndUpdate;
+//  end;
+end;
 
 procedure TViewProducts2.cxBarEditItem1PropertiesValidate(Sender: TObject;
   var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);

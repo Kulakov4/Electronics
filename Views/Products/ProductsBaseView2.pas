@@ -97,8 +97,17 @@ type
     clLoadDate: TcxDBTreeListColumn;
     clDollar: TcxDBTreeListColumn;
     clEuro: TcxDBTreeListColumn;
+    actBandWidth: TAction;
+    N2: TMenuItem;
+    actColumnAutoWidth: TAction;
+    N3: TMenuItem;
+    actColumnWidth: TAction;
+    N4: TMenuItem;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
+    procedure actBandWidthExecute(Sender: TObject);
+    procedure actColumnAutoWidthExecute(Sender: TObject);
+    procedure actColumnWidthExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
@@ -142,9 +151,14 @@ type
       AState: TOwnerDrawState);
     procedure cxbeiWholeSalePropertiesChange(Sender: TObject);
     procedure cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
+    procedure cxDBTreeListExpanded(Sender: TcxCustomTreeList; ANode:
+        TcxTreeListNode);
     procedure dxbcWholeSaleChange(Sender: TObject);
+    procedure PopupMenuPopup(Sender: TObject);
   private
     FCountEvents: TObjectList;
+    FcxTreeListBandHeaderCellViewInfo: TcxTreeListBandHeaderCellViewInfo;
+    FcxTreeListColumnHeaderCellViewInfo: TcxTreeListColumnHeaderCellViewInfo;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FqProductsBase: TQueryProductsBase;
     FViewExtraCharge: TViewExtraCharge;
@@ -198,7 +212,7 @@ implementation
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi, System.Generics.Collections,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
-  HttpUnit;
+  HttpUnit, StrHelper;
 
 const
   clClickedColor = clRed;
@@ -281,6 +295,49 @@ begin
   finally
     // EndBlockEvents;
   end;
+end;
+
+procedure TViewProductsBase2.actBandWidthExecute(Sender: TObject);
+var
+  ABand: TcxTreeListBand;
+  S1: string;
+  S2: string;
+begin
+  inherited;
+  Assert(FcxTreeListBandHeaderCellViewInfo <> nil);
+  ABand := FcxTreeListBandHeaderCellViewInfo.Band;
+
+  S1 := Format('Band width = %d', [ABand.Width]);
+  S2 := Format('Band display width = %d', [ABand.DisplayWidth]);
+
+  ShowMessage(Format('%s'#13#10'%s', [S1, S2]));
+end;
+
+procedure TViewProductsBase2.actColumnAutoWidthExecute(Sender: TObject);
+var
+  AColumn: TcxTreeListColumn;
+begin
+  inherited;
+  Assert(FcxTreeListColumnHeaderCellViewInfo <> nil);
+  AColumn := FcxTreeListColumnHeaderCellViewInfo.Column;
+  AColumn.Caption.Text := ' ';
+  AColumn.ApplyBestFit;
+end;
+
+procedure TViewProductsBase2.actColumnWidthExecute(Sender: TObject);
+var
+  AColumn: TcxTreeListColumn;
+  S1: string;
+  S2: string;
+begin
+  inherited;
+  Assert(FcxTreeListColumnHeaderCellViewInfo <> nil);
+  AColumn := FcxTreeListColumnHeaderCellViewInfo.Column;
+
+  S1 := Format('Column width = %d', [AColumn.Width]);
+  S2 := Format('Column display width = %d', [AColumn.DisplayWidth]);
+
+  ShowMessage(Format('%s'#13#10'%s', [S1, S2]));
 end;
 
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
@@ -457,6 +514,7 @@ begin
   ACources := TCBRHttp.GetCourses(['Доллар США', 'Евро']);
   cxbeiDollar.EditValue := ACources[0].ToString;
   cxbeiEuro.EditValue := ACources[1].ToString;
+  MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.actRollbackExecute(Sender: TObject);
@@ -714,6 +772,13 @@ begin
   { }
 end;
 
+procedure TViewProductsBase2.cxDBTreeListExpanded(Sender: TcxCustomTreeList;
+    ANode: TcxTreeListNode);
+begin
+  inherited;
+  MyApplyBestFit;
+end;
+
 procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
   (Sender: TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
@@ -896,10 +961,19 @@ end;
 procedure TViewProductsBase2.InitializeColumns;
 var
   i: Integer;
+  j: Integer;
 begin
-  for i := 0 to cxDBTreeList.ColumnCount - 1 do
+  for i := 0 to cxDBTreeList.Bands.Count - 1 do
   begin
-    cxDBTreeList.Columns[i].MinWidth := 100;
+    cxDBTreeList.Bands[i].Caption.MultiLine := True;
+    cxDBTreeList.Bands[i].Caption.ShowEndEllipsis := False;
+    // cxDBTreeList.Bands[i].Expandable := tlbeNotExpandable
+
+    for j := 0 to cxDBTreeList.Bands[i].ColumnCount - 1 do
+    begin
+      cxDBTreeList.Bands[i].Columns[j].Caption.MultiLine := True;
+      cxDBTreeList.Bands[i].Columns[j].Caption.ShowEndEllipsis := False;
+    end;
   end;
 
   Assert(FqProductsBase <> nil);
@@ -990,6 +1064,38 @@ begin
   Result := 1 + APerсent / 100
 end;
 
+procedure TViewProductsBase2.PopupMenuPopup(Sender: TObject);
+var
+  AHitTest: TcxTreeListHitTest;
+  S: string;
+begin
+  inherited;
+  FcxTreeListBandHeaderCellViewInfo := nil;
+  FcxTreeListColumnHeaderCellViewInfo := nil;
+
+  AHitTest := cxDBTreeList.HitTest;
+
+  S := AHitTest.HitCell.ClassName;
+
+  // Если щёлкнули на заголовке колонки
+  if AHitTest.HitCell is TcxTreeListColumnHeaderCellViewInfo then
+  begin
+    FcxTreeListColumnHeaderCellViewInfo :=
+      AHitTest.HitCell as TcxTreeListColumnHeaderCellViewInfo;
+  end;
+
+  // Если щёлкнули на заголовке бэнда
+  if AHitTest.HitCell is TcxTreeListBandHeaderCellViewInfo then
+  begin
+    FcxTreeListBandHeaderCellViewInfo :=
+      AHitTest.HitCell as TcxTreeListBandHeaderCellViewInfo;
+  end;
+
+  actBandWidth.Enabled := FcxTreeListBandHeaderCellViewInfo <> nil;
+  actColumnAutoWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
+  actColumnWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
+end;
+
 function TViewProductsBase2.RateToPerсent(ARate: Double): Double;
 begin
   if ARate <= 0 then
@@ -1044,6 +1150,7 @@ begin
   LoadWholeSale;
 
   UpdateView;
+  MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.UpdateProductCount;
@@ -1075,6 +1182,7 @@ begin
   finally
     FqProductsBase.FDQuery.EnableControls;
     FreeAndNil(AUpdatedIDList);
+    MyApplyBestFit;
   end;
 end;
 

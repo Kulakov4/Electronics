@@ -19,6 +19,8 @@ inherited ViewProductsBase2: TViewProductsBase2
       end
       item
         Caption.AlignHorz = taCenter
+        Caption.MultiLine = True
+        Caption.ShowEndEllipsis = False
         Caption.Text = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
       end
       item
@@ -108,15 +110,17 @@ inherited ViewProductsBase2: TViewProductsBase2
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
     OptionsView.GridLines = tlglBoth
+    OptionsView.HeaderAutoHeight = True
     OptionsView.PaintStyle = tlpsCategorized
     OptionsView.TreeLineStyle = tllsNone
     Styles.OnGetBandHeaderStyle = nil
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
+    OnExpanded = cxDBTreeListExpanded
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 56
+    ExplicitTop = 50
     ExplicitWidth = 1092
     ExplicitHeight = 523
     object clID: TcxDBTreeListColumn
@@ -210,6 +214,7 @@ inherited ViewProductsBase2: TViewProductsBase2
         end>
       Properties.Images = DMRepository.cxImageList
       Caption.AlignHorz = taCenter
+      Caption.ShowEndEllipsis = False
       Caption.Text = ' '
       DataBinding.FieldName = 'Datasheet'
       Options.VertSizing = False
@@ -844,6 +849,30 @@ inherited ViewProductsBase2: TViewProductsBase2
       Hint = #1054#1073#1085#1086#1074#1083#1077#1085#1080#1077' '#1082#1091#1088#1089#1086#1074' '#1074#1072#1083#1102#1090
       ImageIndex = 26
       OnExecute = actRefreshCourcesExecute
+    end
+    object actBandWidth: TAction
+      Caption = #1064#1080#1088#1080#1085#1072' '#1073#1101#1085#1076#1072
+      OnExecute = actBandWidthExecute
+    end
+    object actColumnAutoWidth: TAction
+      Caption = #1040#1074#1090#1086#1096#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1082#1080
+      OnExecute = actColumnAutoWidthExecute
+    end
+    object actColumnWidth: TAction
+      Caption = #1064#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1082#1080
+      OnExecute = actColumnWidthExecute
+    end
+  end
+  inherited PopupMenu: TPopupMenu
+    OnPopup = PopupMenuPopup
+    object N2: TMenuItem
+      Action = actBandWidth
+    end
+    object N4: TMenuItem
+      Action = actColumnWidth
+    end
+    object N3: TMenuItem
+      Action = actColumnAutoWidth
     end
   end
   object cxStyleRepository1: TcxStyleRepository

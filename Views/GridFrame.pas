@@ -338,18 +338,20 @@ const
 var
   ABandHeight: Integer;
   ABandWidth: Integer;
+  ACanvas: TCanvas;
   R: TRect;
 begin
   Assert(ABand <> nil);
 
+  ACanvas := ABand.GridView.ViewInfo.Canvas.Canvas;
+
   ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
     [ABand.VisibleIndex].Width;
 
-  // ABandWidth := IfThen(ABandWidth > AMinWidth, ABandWidth, AMinWidth);
 
-  ABandHeight := ABand.GridView.ViewInfo.Canvas.TextHeight(ABand.Caption);
+  ABandHeight := ACanvas.TextHeight(ABand.Caption);
 
-  R := TTextRect.Calc(ABand.GridView.ViewInfo.Canvas.Canvas, ABand.Caption,
+  R := TTextRect.Calc(ACanvas, ABand.Caption,
     Rect(0, 0, ABandWidth, ABandHeight));
 
   Result := MAGIC + R.Height;

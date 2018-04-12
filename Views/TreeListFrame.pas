@@ -79,24 +79,27 @@ type
     procedure ApplySort(AColumn: TcxTreeListColumn);
     procedure BeginBlockEvents;
     procedure BeginUpdate; virtual;
+    function CalcBandHeight(ABand: TcxTreeListBand): Integer;
     procedure ClearSort;
     procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
     procedure EndBlockEvents;
     procedure EndUpdate; virtual;
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
       : Variant;
+    procedure MyApplyBestFit;
     procedure RefreshData;
     procedure UpdateView; virtual;
     property GridSort: TGridSort read FGridSort;
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
-    property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex write
-        SetStatusBarEmptyPanelIndex;
+    property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
+      write SetStatusBarEmptyPanelIndex;
     { Public declarations }
   end;
 
 implementation
 
-uses dxCore, RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math;
+uses dxCore, RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math,
+  StrHelper, TextRectHelper;
 
 {$R *.dfm}
 
@@ -197,6 +200,31 @@ begin
     cxDBTreeList.BeginUpdate();
 end;
 
+function TfrmTreeList.CalcBandHeight(ABand: TcxTreeListBand): Integer;
+const
+  MAGIC = 10;
+var
+  ABandHeight: Integer;
+  ABandWidth: Integer;
+  ACanvas: TCanvas;
+  R: TRect;
+begin
+  ACanvas := ABand.TreeList.Canvas.Canvas;
+
+  Assert(ABand <> nil);
+
+  // Получаем текущую ширину бэнда
+  ABandWidth := ABand.DisplayWidth;
+
+  // Высота текста заголовка бэнда
+  ABandHeight := ACanvas.TextHeight(ABand.Caption.Text);
+
+  R := TTextRect.Calc(ACanvas, ABand.Caption.Text,
+    Rect(0, 0, ABandWidth, ABandHeight));
+
+  Result := MAGIC + R.Height;
+end;
+
 procedure TfrmTreeList.ClearSort;
 var
   I: Integer;
@@ -243,7 +271,6 @@ begin
   if (FBlockEvents > 0) or
     (not(cxDBTreeList.DataController.DataSet.State in [dsEdit, dsInsert])) then
     Exit;
-
 
   // Если в TreeList в фокуе одна запись а в датасете редактируется другая
   if not IsSyncToDataSet then
@@ -306,18 +333,18 @@ end;
 
 procedure TfrmTreeList.DoStatusBarResize(AEmptyPanelIndex: Integer);
 var
-  i: Integer;
+  I: Integer;
   X: Integer;
 begin
   Assert(AEmptyPanelIndex >= 0);
   Assert(AEmptyPanelIndex < StatusBar.Panels.Count);
 
   X := StatusBar.ClientWidth;
-  for i := 0 to StatusBar.Panels.Count - 1 do
+  for I := 0 to StatusBar.Panels.Count - 1 do
   begin
-    if i <> AEmptyPanelIndex then
+    if I <> AEmptyPanelIndex then
     begin
-      Dec(X, StatusBar.Panels[i].Width);
+      Dec(X, StatusBar.Panels[I].Width);
     end;
   end;
   X := IfThen(X >= 0, X, 0);
@@ -406,6 +433,97 @@ end;
 function TfrmTreeList.IsSyncToDataSet: Boolean;
 begin
   Result := cxDBTreeList.FocusedNode <> nil;
+end;
+
+procedure TfrmTreeList.MyApplyBestFit;
+const
+  MAGIC = 12;
+var
+  ABand: TcxTreeListBand;
+  ABandHeight: Integer;
+  ABandRect: TRect;
+  ABandWidth: Integer;
+  ACanvas: TCanvas;
+  ACaption: string;
+  AColumn: TcxTreeListColumn;
+  AColumnRect: TRect;
+  AMaxBandHeight: Integer;
+  AMinColWidth: Integer;
+  I: Integer;
+  j: Integer;
+begin
+  cxDBTreeList.BeginUpdate;
+  try
+    AMaxBandHeight := 0;
+    ACanvas := cxDBTreeList.Canvas.Canvas;
+    for I := 0 to cxDBTreeList.Bands.Count - 1 do
+    begin
+      ABand := cxDBTreeList.Bands[I];
+      if not ABand.Visible then
+        Continue;
+
+      // Предпологаем что дочерних бэндов нет!!!
+      Assert(ABand.ChildBandCount = 0);
+
+      for j := 0 to ABand.ColumnCount - 1 do
+      begin
+        AColumn := ABand.Columns[j] as TcxTreeListColumn;
+        if not AColumn.Visible then
+          Continue;
+
+        // Пусть ширина бэнда подстраивается под ширину колонок
+        ABand.Width := 0;
+
+        // Определяемся с минимальной шириной колонки
+        AMinColWidth := 0;
+        ACaption := AColumn.Caption.Text;
+        // Если заголовок колонки не пустой
+        if not ACaption.Trim.IsEmpty then
+        begin
+          // Колонка вычисляет свою оптимальную ширину без учёта переноса на новую строку!!!
+          // Вычисляем минимальную ширину колонки
+          AColumnRect := TTextRect.Calc(ACanvas, ACaption);
+          AMinColWidth := AColumnRect.Width + MAGIC;
+        end;
+
+        // Находим оптимальную ширину колонки без учёта её заголовка
+        AColumn.Caption.Text := ' ';
+        AColumn.ApplyBestFit;
+
+        if AColumn.DisplayWidth < AMinColWidth then
+          AColumn.DisplayWidth := AMinColWidth;
+
+        if AColumn.Caption.Text <> ACaption then
+          AColumn.Caption.Text := ACaption;
+
+        // Вычисляем минимальную ширину бэнда
+        ABandRect := TTextRect.Calc(ACanvas, ABand.Caption.Text);
+        // Получаем реальную ширину бэнда
+        ABandWidth := ABand.DisplayWidth;
+
+        // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
+        if ABandWidth < (ABandRect.Width + MAGIC) then
+        begin
+          ABand.Width := ABandRect.Width + MAGIC;
+          ABandWidth := ABand.DisplayWidth;
+          Assert(ABandWidth >= ABandRect.Width);
+        end;
+
+        // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
+        ABandHeight := CalcBandHeight(ABand);
+
+        AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
+          AMaxBandHeight);
+
+      end;
+
+      if AMaxBandHeight > 0 then
+        cxDBTreeList.OptionsView.BandLineHeight := AMaxBandHeight;
+
+    end;
+  finally
+    cxDBTreeList.EndUpdate;
+  end;
 end;
 
 procedure TfrmTreeList.RefreshData;
