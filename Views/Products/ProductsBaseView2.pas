@@ -30,7 +30,7 @@ uses
   cxDBExtLookupComboBox,
   cxFilter, cxData, cxDataStorage, cxNavigator, cxDBData, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ExtraChargeView;
+  cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -161,6 +161,7 @@ type
     FcxTreeListColumnHeaderCellViewInfo: TcxTreeListColumnHeaderCellViewInfo;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FqProductsBase: TQueryProductsBase;
+    FReadOnlyColumns: TList<TcxDBTreeListColumn>;
     FViewExtraCharge: TViewExtraCharge;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterLoad(Sender: TObject);
@@ -210,7 +211,7 @@ implementation
 {$R *.dfm}
 
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
-  SettingsController, Winapi.Shellapi, System.Generics.Collections,
+  SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
   HttpUnit, StrHelper;
 
@@ -246,6 +247,20 @@ begin
   TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
     DoOnDescriptionPopupHide);
 
+  // Список колонок только "для чтения"
+  FReadOnlyColumns := TList<TcxDBTreeListColumn>.Create;
+  FReadOnlyColumns.Add(clPriceR);
+  FReadOnlyColumns.Add(clPriceD);
+  FReadOnlyColumns.Add(clPriceE);
+  FReadOnlyColumns.Add(clPriceR1);
+  FReadOnlyColumns.Add(clPriceD1);
+  FReadOnlyColumns.Add(clPriceE1);
+  FReadOnlyColumns.Add(clPriceR2);
+  FReadOnlyColumns.Add(clPriceD2);
+  FReadOnlyColumns.Add(clPriceE2);
+  FReadOnlyColumns.Add(clLoadDate);
+  FReadOnlyColumns.Add(clDollar);
+  FReadOnlyColumns.Add(clEuro);
 end;
 
 destructor TViewProductsBase2.Destroy;
@@ -790,8 +805,9 @@ end;
 procedure TViewProductsBase2.cxDBTreeListInitEditValue(Sender, AItem: TObject;
   AEdit: TcxCustomEdit; var AValue: Variant);
 var
-  AcxDBTreeListColumn: TcxDBTreeListColumn;
+  AColumn: TcxDBTreeListColumn;
   AcxMaskEdit: TcxMaskEdit;
+  S: string;
   // S: string;
 begin
   inherited;
@@ -799,13 +815,14 @@ begin
   if qProductsBase.FDQuery.State = dsInsert then
     Exit;
 
-  AcxDBTreeListColumn := AItem as TcxDBTreeListColumn;
+  AColumn := AItem as TcxDBTreeListColumn;
 
-  if not AcxDBTreeListColumn.DataBinding.Field.FieldName.StartsWith('Price')
-  then
+  if FReadOnlyColumns.IndexOf(AColumn) < 0 then
     Exit;
 
-  if not(AEdit is TcxMaskEdit) then
+  S := AEdit.ClassName;
+
+  if not (AEdit is TcxMaskEdit) then
     Exit;
 
   AcxMaskEdit := AEdit as TcxMaskEdit;
