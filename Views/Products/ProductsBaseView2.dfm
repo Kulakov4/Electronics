@@ -741,7 +741,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     object cxbeiExtraCharge: TcxBarEditItem
       Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
       Category = 0
-      Hint = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
+      Hint = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086', '#1096#1090'.'
       Visible = ivAlways
       ShowCaption = True
       PropertiesClassName = 'TcxExtLookupComboBoxProperties'
