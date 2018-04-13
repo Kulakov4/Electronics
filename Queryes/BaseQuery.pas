@@ -50,7 +50,7 @@ type
     FEventList: TObjectList;
     FPKFieldName: String;
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -70,15 +70,16 @@ type
     destructor Destroy; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>);
       overload; virtual;
-    procedure AppendRows(AFieldNames, AValues: TArray<String>); overload; virtual;
+    procedure AppendRows(AFieldNames, AValues: TArray<String>);
+      overload; virtual;
     procedure ApplyUpdates; virtual;
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Variant;
       const ADetailKeyFieldName: String;
       AFromClientOnly: Boolean = False); virtual;
-    procedure ClearFields(AFieldList: TArray<String>; AProductIDList:
-        TArray<Integer>);
+    procedure ClearFields(AFieldList: TArray<String>;
+      AProductIDList: TArray<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -98,20 +99,21 @@ type
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     procedure Load(AIDParent: Integer; AForcibly: Boolean = False);
       overload; virtual;
-    procedure Load(const AParamNames: TArray<String>; const AParamValues:
-        TArray<Variant>); overload;
+    procedure Load(const AParamNames: TArray<String>;
+      const AParamValues: TArray<Variant>); overload;
     function LocateByField(const AFieldName: string;
       const AValue: Variant): Boolean;
-    procedure SetParameters(const AParamNames: TArray<String>; const AParamValues:
-        TArray<Variant>);
+    procedure SetParameters(const AParamNames: TArray<String>;
+      const AParamValues: TArray<Variant>);
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
       : Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     function RestoreBookmark: Boolean;
     procedure SaveBookmark;
-    function Search(const AParamNames: TArray<String>; const AParamValues:
-        TArray<Variant>; TestResult: Integer = -1): Integer; overload;
+    function Search(const AParamNames: TArray<String>;
+      const AParamValues: TArray<Variant>; TestResult: Integer = -1)
+      : Integer; overload;
     procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
@@ -123,6 +125,8 @@ type
     procedure TryCancel;
     procedure TryAppend;
     procedure TryOpen;
+    procedure UpdateNullFields(AFields: TArray<TField>;
+      AValues: TArray<Variant>);
     function UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
     property BeforeLoad: TNotifyEventsEx read FBeforeLoad;
@@ -324,8 +328,8 @@ begin
   // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
 end;
 
-procedure TQueryBase.ClearFields(AFieldList: TArray<String>; AProductIDList:
-    TArray<Integer>);
+procedure TQueryBase.ClearFields(AFieldList: TArray<String>;
+  AProductIDList: TArray<Integer>);
 var
   AFieldName: String;
   AID: Integer;
@@ -427,34 +431,34 @@ procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
 begin
   if ARequest in [arDelete, arInsert, arUpdate] then
   begin
-//    try
-      AAction := eaApplied;
-      // Если произошло удаление
-      if ARequest = arDelete then
-      begin
-        ApplyDelete(ASender, ARequest, AAction, AOptions);
-      end;
+    // try
+    AAction := eaApplied;
+    // Если произошло удаление
+    if ARequest = arDelete then
+    begin
+      ApplyDelete(ASender, ARequest, AAction, AOptions);
+    end;
 
-      // Операция добавления записи на клиенте
-      if ARequest = arInsert then
-      begin
-        ApplyInsert(ASender, ARequest, AAction, AOptions);
-      end;
+    // Операция добавления записи на клиенте
+    if ARequest = arInsert then
+    begin
+      ApplyInsert(ASender, ARequest, AAction, AOptions);
+    end;
 
-      // Операция обновления записи на клиенте
-      if ARequest = arUpdate then
-      begin
-        ApplyUpdate(ASender, ARequest, AAction, AOptions);
-      end;
-{
-    except
+    // Операция обновления записи на клиенте
+    if ARequest = arUpdate then
+    begin
+      ApplyUpdate(ASender, ARequest, AAction, AOptions);
+    end;
+    {
+      except
       on E: Exception do
       begin
-        AAction := eaFail;
-        DoOnUpdateRecordException(E);
+      AAction := eaFail;
+      DoOnUpdateRecordException(E);
       end;
-    end;
-}
+      end;
+    }
   end
   else
     AAction := eaSkip;
@@ -510,7 +514,7 @@ begin
       FDUpdateSQL.ModifySQL.Text := ASQL;
   end;
 
-  FDUpdateSQL.Apply(ARequest, AAction,  AOptions );
+  FDUpdateSQL.Apply(ARequest, AAction, AOptions);
 end;
 
 procedure TQueryBase.FetchFields(ARecordHolder: TRecordHolder;
@@ -742,8 +746,8 @@ begin
   end;
 end;
 
-procedure TQueryBase.Load(const AParamNames: TArray<String>; const
-    AParamValues: TArray<Variant>);
+procedure TQueryBase.Load(const AParamNames: TArray<String>;
+  const AParamValues: TArray<Variant>);
 begin
   FDQuery.DisableControls;
   try
@@ -763,8 +767,8 @@ begin
     [lxoCaseInsensitive, lxoPartialKey]);
 end;
 
-procedure TQueryBase.SetParameters(const AParamNames: TArray<String>; const
-    AParamValues: TArray<Variant>);
+procedure TQueryBase.SetParameters(const AParamNames: TArray<String>;
+  const AParamValues: TArray<Variant>);
 var
   i: Integer;
 begin
@@ -815,8 +819,8 @@ begin
   FBookmark := PK.Value;
 end;
 
-function TQueryBase.Search(const AParamNames: TArray<String>; const
-    AParamValues: TArray<Variant>; TestResult: Integer = -1): Integer;
+function TQueryBase.Search(const AParamNames: TArray<String>;
+  const AParamValues: TArray<Variant>; TestResult: Integer = -1): Integer;
 begin
   Load(AParamNames, AParamValues);
 
@@ -913,6 +917,32 @@ procedure TQueryBase.TryOpen;
 begin
   if not FDQuery.Active then
     FDQuery.Open;
+end;
+
+procedure TQueryBase.UpdateNullFields(AFields: TArray<TField>;
+  AValues: TArray<Variant>);
+var
+  f: TField;
+  i: Integer;
+  V: Variant;
+begin
+  Assert(FDQuery.State in [dsInsert, dsEdit]);
+
+  Assert(Length(AFields) > 0);
+  Assert(Length(AFields) = Length(AValues));
+
+  // Обновляет пустые значения полей на значения из ADataSet
+  for i := Low(AFields) to High(AFields) do
+  begin
+    f := AFields[i];
+    V := AValues[i];
+
+    // Если NULL или пустая строка
+    if (f.IsNull or f.AsString.Trim.IsEmpty) and
+      (not VarIsNull(V) and (not VarToStr(V).Trim.IsEmpty)) then
+      f.Value := V;
+
+  end;
 end;
 
 function TQueryBase.UpdateRecord(ARecordHolder: TRecordHolder): Boolean;

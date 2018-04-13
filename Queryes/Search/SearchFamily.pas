@@ -16,7 +16,11 @@ type
   private
     function GetCategoryIDList: TField;
     function GetComponentGroup: TField;
+    function GetDatasheet: TField;
+    function GetDiagram: TField;
     function GetDescriptionID: TField;
+    function GetDrawing: TField;
+    function GetImage: TField;
     function GetSubgroup: TField;
     function GetValue: TField;
     { Private declarations }
@@ -28,7 +32,11 @@ type
     function SearchByValueSimple(const AValue: string): Integer;
     property CategoryIDList: TField read GetCategoryIDList;
     property ComponentGroup: TField read GetComponentGroup;
+    property Datasheet: TField read GetDatasheet;
+    property Diagram: TField read GetDiagram;
     property DescriptionID: TField read GetDescriptionID;
+    property Drawing: TField read GetDrawing;
+    property Image: TField read GetImage;
     property Subgroup: TField read GetSubgroup;
     property Value: TField read GetValue;
     { Public declarations }
@@ -50,9 +58,29 @@ begin
   Result := Field('ComponentGroup');
 end;
 
+function TQuerySearchFamily.GetDatasheet: TField;
+begin
+  Result := Field('Datasheet');
+end;
+
+function TQuerySearchFamily.GetDiagram: TField;
+begin
+  Result := Field('Diagram');
+end;
+
 function TQuerySearchFamily.GetDescriptionID: TField;
 begin
   Result := Field('DescriptionID');
+end;
+
+function TQuerySearchFamily.GetDrawing: TField;
+begin
+  Result := Field('Drawing');
+end;
+
+function TQuerySearchFamily.GetImage: TField;
+begin
+  Result := Field('Image');
 end;
 
 function TQuerySearchFamily.GetSubgroup: TField;

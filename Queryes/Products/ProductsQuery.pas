@@ -35,7 +35,6 @@ type
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
-    procedure DoBeforePost(Sender: TObject);
     function GetExportFileName: string; override;
     property qStoreHouseProductsCount: TQueryStoreHouseProductsCount
       read GetqStoreHouseProductsCount;
@@ -65,7 +64,6 @@ begin
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
   TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
@@ -280,53 +278,6 @@ end;
 procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
 begin
   FNeedDecTotalCount := not IsGroup.IsNull and (IsGroup.AsInteger = 0);
-end;
-
-procedure TQueryProducts.DoBeforePost(Sender: TObject);
-begin
-  // Если не происходит вставка новой записи
-  if not(FDQuery.State in [dsInsert]) then
-    Exit;
-
-  Assert(not IsGroup.IsNull);
-
-  FEnableCalc := False;
-  try
-
-    // Это группа, цену заполнять не надо
-    if IsGroup.AsInteger = 1 then
-      Exit;
-
-    // Если тип валюты задан - ничего не предпринимаем
-    if not IDCurrency.IsNull then
-      Exit;
-
-    if PriceR.IsNull and PriceD.IsNull then
-      raise Exception.Create('Не задана закупочная цена');
-
-    if (not PriceR.IsNull) and (not PriceD.IsNull) then
-      raise Exception.Create('Закупочная цена должна быть задана один раз');
-
-    // Если заполнена закупочная цена в рублях
-    if not PriceR.IsNull then
-    begin
-      Price.Value := PriceR.Value;
-      IDCurrency.AsInteger := 1;
-    end;
-
-    // Если заполнена закупочная цена в долларах
-    if not PriceD.IsNull then
-    begin
-      Price.Value := PriceD.Value;
-      IDCurrency.AsInteger := 2;
-    end;
-
-  finally
-    FEnableCalc := True;
-  end;
-  // Сами вызываем обновление вычисляемы полей
-  FDQueryCalcFields(FDQuery);
-
 end;
 
 function TQueryProducts.GetExportFileName: string;

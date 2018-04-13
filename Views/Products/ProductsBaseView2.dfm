@@ -107,6 +107,8 @@ inherited ViewProductsBase2: TViewProductsBase2
     DataController.KeyField = 'ID'
     LookAndFeel.Kind = lfFlat
     LookAndFeel.NativeStyle = False
+    OptionsCustomizing.BandMoving = False
+    OptionsCustomizing.ColumnMoving = False
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
     OptionsView.GridLines = tlglBoth
@@ -115,12 +117,13 @@ inherited ViewProductsBase2: TViewProductsBase2
     OptionsView.TreeLineStyle = tllsNone
     Styles.OnGetBandHeaderStyle = nil
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
+    OnColumnHeaderClick = cxDBTreeListColumnHeaderClick
     OnExpanded = cxDBTreeListExpanded
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 50
+    ExplicitTop = 56
     ExplicitWidth = 1092
     ExplicitHeight = 523
     object clID: TcxDBTreeListColumn
@@ -592,6 +595,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Caption.AlignHorz = taCenter
       Caption.Text = '$'
       DataBinding.FieldName = 'Dollar'
+      Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
       Position.BandIndex = 22
@@ -602,6 +606,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Caption.AlignHorz = taCenter
       Caption.Text = #8364
       DataBinding.FieldName = 'Euro'
+      Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
       Position.BandIndex = 22
@@ -861,6 +866,12 @@ inherited ViewProductsBase2: TViewProductsBase2
     object actColumnWidth: TAction
       Caption = #1064#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1082#1080
       OnExecute = actColumnWidthExecute
+    end
+    object actApplyBestFit: TAction
+      Caption = #1054#1087#1090#1080#1084#1072#1083#1100#1085#1072#1103' '#1096#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1086#1082
+      Hint = #1055#1086#1076#1086#1073#1088#1072#1090#1100' '#1086#1087#1090#1080#1084#1072#1083#1100#1085#1091#1102' '#1096#1080#1088#1080#1085#1091' '#1082#1086#1083#1086#1085#1086#1082
+      ImageIndex = 13
+      OnExecute = actApplyBestFitExecute
     end
   end
   inherited PopupMenu: TPopupMenu

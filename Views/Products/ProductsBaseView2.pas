@@ -103,8 +103,10 @@ type
     N3: TMenuItem;
     actColumnWidth: TAction;
     N4: TMenuItem;
+    actApplyBestFit: TAction;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
+    procedure actApplyBestFitExecute(Sender: TObject);
     procedure actBandWidthExecute(Sender: TObject);
     procedure actColumnAutoWidthExecute(Sender: TObject);
     procedure actColumnWidthExecute(Sender: TObject);
@@ -151,8 +153,10 @@ type
       AState: TOwnerDrawState);
     procedure cxbeiWholeSalePropertiesChange(Sender: TObject);
     procedure cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
-    procedure cxDBTreeListExpanded(Sender: TcxCustomTreeList; ANode:
-        TcxTreeListNode);
+    procedure cxDBTreeListColumnHeaderClick(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn);
+    procedure cxDBTreeListExpanded(Sender: TcxCustomTreeList;
+      ANode: TcxTreeListNode);
     procedure dxbcWholeSaleChange(Sender: TObject);
     procedure PopupMenuPopup(Sender: TObject);
   private
@@ -160,6 +164,7 @@ type
     FcxTreeListBandHeaderCellViewInfo: TcxTreeListBandHeaderCellViewInfo;
     FcxTreeListColumnHeaderCellViewInfo: TcxTreeListColumnHeaderCellViewInfo;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
+    FNeedResyncAfterPost: Boolean;
     FqProductsBase: TQueryProductsBase;
     FReadOnlyColumns: TList<TcxDBTreeListColumn>;
     FViewExtraCharge: TViewExtraCharge;
@@ -177,6 +182,9 @@ type
     procedure UpdateBarCombo(AValue: Variant; AdxBarCombo: TdxBarCombo);
     procedure CreateCountEvents;
     procedure DoAfterScroll(Sender: TObject);
+    procedure DoOnCourceChange(Sender: TObject);
+    procedure DoOnDollarCourceChange(Sender: TObject);
+    procedure DoOnEuroCourceChange(Sender: TObject);
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
@@ -213,7 +221,7 @@ implementation
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
-  HttpUnit, StrHelper;
+  HttpUnit, StrHelper, dxCore;
 
 const
   clClickedColor = clRed;
@@ -235,6 +243,8 @@ begin
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
+  GridSort.Add(TSortVariant.Create(clLoadDate, [clLoadDate, clValue]));
+  ApplySort(clValue, soAscending);
 
   FCountEvents := TObjectList.Create;
 
@@ -274,7 +284,7 @@ begin
   inherited;
   qProductsBase.AddCategory;
 
-  cxDBTreeList.ApplyBestFit;
+  // cxDBTreeList.ApplyBestFit;
   cxDBTreeList.SetFocus;
 
   // Переводим колонку в режим редактирования
@@ -302,7 +312,7 @@ begin
 
     qProductsBase.AddProduct(AID);
 
-    cxDBTreeList.ApplyBestFit;
+    // cxDBTreeList.ApplyBestFit;
     cxDBTreeList.SetFocus;
 
     // Переводим колонку в режим редактирования
@@ -310,6 +320,12 @@ begin
   finally
     // EndBlockEvents;
   end;
+end;
+
+procedure TViewProductsBase2.actApplyBestFitExecute(Sender: TObject);
+begin
+  inherited;
+  MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.actBandWidthExecute(Sender: TObject);
@@ -527,8 +543,9 @@ var
 begin
   inherited;
   ACources := TCBRHttp.GetCourses(['Доллар США', 'Евро']);
-  cxbeiDollar.EditValue := ACources[0].ToString;
-  cxbeiEuro.EditValue := ACources[1].ToString;
+
+  qProductsBase.DollarCource := ACources[0];
+  qProductsBase.EuroCource := ACources[1];
   MyApplyBestFit;
 end;
 
@@ -634,9 +651,6 @@ begin
 
   // Обновлям курс доллара
   FqProductsBase.DollarCource := r;
-  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0)
-  then
-    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
 end;
 
 procedure TViewProductsBase2.cxbeiDollarPropertiesValidate(Sender: TObject;
@@ -670,10 +684,6 @@ begin
 
   // Обновлям курс Евро
   FqProductsBase.EuroCource := r;
-  if (FqProductsBase.FDQuery.Active) and (FqProductsBase.FDQuery.RecordCount > 0)
-  then
-    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
-
 end;
 
 procedure TViewProductsBase2.cxbeiExtraChargePropertiesValidate(Sender: TObject;
@@ -742,6 +752,13 @@ begin
   { }
 end;
 
+procedure TViewProductsBase2.cxDBTreeListColumnHeaderClick
+  (Sender: TcxCustomTreeList; AColumn: TcxTreeListColumn);
+begin
+  inherited;
+  ApplySort(AColumn);
+end;
+
 procedure TViewProductsBase2.cxDBTreeListCustomDrawDataCell
   (Sender: TcxCustomTreeList; ACanvas: TcxCanvas;
   AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
@@ -788,7 +805,7 @@ begin
 end;
 
 procedure TViewProductsBase2.cxDBTreeListExpanded(Sender: TcxCustomTreeList;
-    ANode: TcxTreeListNode);
+  ANode: TcxTreeListNode);
 begin
   inherited;
   MyApplyBestFit;
@@ -822,7 +839,7 @@ begin
 
   S := AEdit.ClassName;
 
-  if not (AEdit is TcxMaskEdit) then
+  if not(AEdit is TcxMaskEdit) then
     Exit;
 
   AcxMaskEdit := AEdit as TcxMaskEdit;
@@ -867,7 +884,14 @@ end;
 
 procedure TViewProductsBase2.DoAfterPost(Sender: TObject);
 begin
+  if FNeedResyncAfterPost then
+  begin
+    FNeedResyncAfterPost := False;
+    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+  end;
+
   UpdateProductCount;
+  MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
@@ -883,6 +907,31 @@ begin
     // (qProductsBase.IDExtraCharge.AsInteger, True);
     cxbeiExtraCharge.EditValue := qProductsBase.IDExtraCharge.Value;
   end;
+end;
+
+procedure TViewProductsBase2.DoOnCourceChange(Sender: TObject);
+begin
+  if not(FqProductsBase.FDQuery.Active) or
+    (FqProductsBase.FDQuery.RecordCount = 0) then
+    Exit;
+
+  FNeedResyncAfterPost := FqProductsBase.FDQuery.State in [dsEdit, dsInsert];
+  if not FNeedResyncAfterPost then
+    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+end;
+
+procedure TViewProductsBase2.DoOnDollarCourceChange(Sender: TObject);
+begin
+  // Отображаем курс доллара в поле ввода
+  cxbeiDollar.EditValue := qProductsBase.DollarCource.ToString;
+  DoOnCourceChange(Sender);
+end;
+
+procedure TViewProductsBase2.DoOnEuroCourceChange(Sender: TObject);
+begin
+  // Отображаем курс евро в поле ввода
+  cxbeiEuro.EditValue := qProductsBase.EuroCource.ToString;
+  DoOnCourceChange(Sender);
 end;
 
 procedure TViewProductsBase2.DoOnDescriptionPopupHide(Sender: TObject);
@@ -990,6 +1039,7 @@ begin
     begin
       cxDBTreeList.Bands[i].Columns[j].Caption.MultiLine := True;
       cxDBTreeList.Bands[i].Columns[j].Caption.ShowEndEllipsis := False;
+      // cxDBTreeList.Bands[i].Columns[j].Options.Sorting := False;
     end;
   end;
 
@@ -1149,6 +1199,10 @@ begin
   InitializeColumns;
 
   TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
+  TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
+    DoOnDollarCourceChange, FEventList);
+  TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,
+    DoOnEuroCourceChange, FEventList);
 
   // подписываемся на события о смене количества и надбавки
   CreateCountEvents;

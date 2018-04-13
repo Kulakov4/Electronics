@@ -61,31 +61,29 @@ begin
       ACources.Add(0);
 
     AXMLDocument := LoadXMLData(AXML); // TXMLDocument.Create(nil);
-    try
-      ARootNode := AXMLDocument.DocumentElement;
 
-      // ÷икл по всем валютам
-      for i := 0 to ARootNode.ChildNodes.Count - 1 do
-      begin
-        ANode := ARootNode.ChildNodes[i];
+    ARootNode := AXMLDocument.DocumentElement;
 
-        S := ANode.ChildValues['Name'];
+    // ÷икл по всем валютам
+    for i := 0 to ARootNode.ChildNodes.Count - 1 do
+    begin
+      ANode := ARootNode.ChildNodes[i];
 
-        // »щем, нужна ли нам така€ валюта
-        k := AValues.IndexOf(S);
-        if k = -1 then
-          Continue;
+      S := ANode.ChildValues['Name'];
 
-        ANominal := StrToIntDef(ANode.ChildValues['Nominal'], 0);
-        if ANominal = 0 then
-          Continue;
+      // »щем, нужна ли нам така€ валюта
+      k := AValues.IndexOf(S);
+      if k = -1 then
+        Continue;
 
-        S := ANode.ChildValues['Value'];
-        ACources[k] := StrToFloatDef(S, 0) / ANominal;
-      end;
-    finally
-      FreeAndNil(AXMLDocument);
+      ANominal := StrToIntDef(ANode.ChildValues['Nominal'], 0);
+      if ANominal = 0 then
+        Continue;
+
+      S := ANode.ChildValues['Value'];
+      ACources[k] := StrToFloatDef(S, 0) / ANominal;
     end;
+
     Result := ACources.ToArray;
   finally
     FreeAndNil(AValues);

@@ -360,6 +360,8 @@ end;
 
 function TProductsExcelTable.GetPrice: TField;
 begin
+  Result := nil;
+
   if not PriceR.IsNull then
   begin
     Assert(PriceD.IsNull and PriceE.IsNull);

@@ -94,6 +94,7 @@ inherited ViewProducts2: TViewProducts2
         Caption.AlignHorz = taCenter
         Caption.Text = #1050#1091#1088#1089#1099' '#1074#1072#1083#1102#1090
       end>
+    ExplicitTop = 50
   end
   inherited StatusBar: TStatusBar
     Panels = <
@@ -258,14 +259,14 @@ inherited ViewProducts2: TViewProducts2
       PropertiesClassName = 'TcxDateEditProperties'
     end
     object dxBarButton7: TdxBarButton
-      Action = actColumnsAutoWidth
+      Action = actApplyBestFit
       Category = 0
     end
   end
   inherited ActionList: TActionList
-    object actColumnsAutoWidth: TAction [17]
+    object actColumnsAutoWidth2: TAction [17]
       Caption = #1040#1074#1090#1086#1096#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1086#1082
-      OnExecute = actColumnsAutoWidthExecute
+      OnExecute = actColumnsAutoWidth2Execute
     end
   end
   inherited cxStyleRepository1: TcxStyleRepository

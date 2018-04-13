@@ -36,11 +36,12 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure DoBeforePost(Sender: TObject); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
     // procedure SetConditionSQL(const AConditionSQL, AMark: String;
@@ -100,8 +101,9 @@ begin
 
 end;
 
-procedure TQueryProductsSearch.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryProductsSearch.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   if Mode = RecordsMode then
     inherited;
@@ -135,7 +137,6 @@ begin
   SetConditionSQL(fdqBase.SQL.Text, 'where ID = 0', '--where');
 end;
 
-
 procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
 begin
   Inc(FX);
@@ -167,6 +168,12 @@ begin
 
   // Выбираем нужный режим транзакции
   AutoTransaction := Mode = SearchMode;
+end;
+
+procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
+begin
+  // Ничего не делаем
+  ;
 end;
 
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
@@ -218,10 +225,10 @@ begin
   begin
     with FDQuery.ParamByName('Value') do
     begin
-       DataType := ftWideString;
-       ParamType := ptInput;
-       AsString := s;
-     end;
+      DataType := ftWideString;
+      ParamType := ptInput;
+      AsString := s;
+    end;
   end;
 
   FDQuery.Open;

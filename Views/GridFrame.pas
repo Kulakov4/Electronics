@@ -290,6 +290,7 @@ end;
 
 procedure TfrmGrid.ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
 var
+  AColSortOrder: TdxSortOrder;
   ASortOrder: TdxSortOrder;
   ASortVariant: TSortVariant;
   Col: TcxGridDBBandedColumn;
@@ -318,7 +319,10 @@ begin
     begin
       Col := (Sender as TcxGridDBBandedTableView).GetColumnByFieldName(S);
       Assert(Col <> nil);
-      Col.SortOrder := ASortOrder;
+      AColSortOrder := ASortOrder;
+
+      // Применяем сортировку
+      Col.SortOrder := AColSortOrder;
     end;
 
   finally

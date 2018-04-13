@@ -4,7 +4,7 @@ interface
 
 uses
   cxGridDBBandedTableView, System.Generics.Collections, System.SysUtils,
-  System.StrUtils, cxGridTableView, cxDBTL;
+  System.StrUtils, cxGridTableView, cxDBTL, dxCore;
 
 type
   TSortVariant = class(TObject)
@@ -13,10 +13,10 @@ type
     FSortedFieldNames: TList<String>;
     procedure Init(AKeyFieldName: string);
   public
-    constructor Create(AColumn: TcxGridDBBandedColumn; ASortedColumns: array of
-        TcxGridDBBandedColumn); overload;
-    constructor Create(AColumn: TcxDBTreeListColumn; ASortedColumns: array of
-        TcxDBTreeListColumn); overload;
+    constructor Create(AColumn: TcxGridDBBandedColumn;
+      ASortedColumns: TArray<TcxGridDBBandedColumn>); overload;
+    constructor Create(AColumn: TcxDBTreeListColumn; ASortedColumns:
+        TArray<TcxDBTreeListColumn>); overload;
     destructor Destroy; override;
     property KeyFieldName: string read FKeyFieldName;
     property SortedFieldNames: TList<String> read FSortedFieldNames;
@@ -31,13 +31,14 @@ type
     procedure Add(ASortVariant: TSortVariant);
     function ContainsColumn(const AFieldName: string): Boolean;
     function GetSortVariant(AColumn: TcxGridColumn): TSortVariant; overload;
-    function GetSortVariant(AColumn: TcxDBTreeListColumn): TSortVariant; overload;
+    function GetSortVariant(AColumn: TcxDBTreeListColumn)
+      : TSortVariant; overload;
   end;
 
 implementation
 
-constructor TSortVariant.Create(AColumn: TcxGridDBBandedColumn; ASortedColumns:
-    array of TcxGridDBBandedColumn);
+constructor TSortVariant.Create(AColumn: TcxGridDBBandedColumn;
+  ASortedColumns: TArray<TcxGridDBBandedColumn>);
 var
   i: Integer;
 begin
@@ -50,7 +51,7 @@ begin
 end;
 
 constructor TSortVariant.Create(AColumn: TcxDBTreeListColumn; ASortedColumns:
-    array of TcxDBTreeListColumn);
+    TArray<TcxDBTreeListColumn>);
 var
   i: Integer;
 begin
@@ -58,6 +59,7 @@ begin
   Init(AColumn.DataBinding.FieldName);
 
   Assert(Length(ASortedColumns) > 0);
+
   for i := Low(ASortedColumns) to High(ASortedColumns) do
     FSortedFieldNames.Add(ASortedColumns[i].DataBinding.FieldName);
 end;
@@ -73,7 +75,7 @@ begin
   Assert(not AKeyFieldName.IsEmpty);
 
   FKeyFieldName := AKeyFieldName;
-  FSortedFieldNames := TList<String>.Create;
+  FSortedFieldNames := TList < String>.Create;
 end;
 
 constructor TGridSort.Create;

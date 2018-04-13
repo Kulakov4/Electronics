@@ -26,7 +26,7 @@ uses
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
   Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections,
   Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper, System.Contnrs,
-  Vcl.ComCtrls;
+  Vcl.ComCtrls, dxCore;
 
 type
   TfrmTreeList = class(TFrame)
@@ -54,6 +54,7 @@ type
     FBlockEvents: Integer;
     FGridSort: TGridSort;
     FPostOnEnterFields: TList<String>;
+    FSortVariant: TSortVariant;
     FStatusBarEmptyPanelIndex: Integer;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
@@ -70,13 +71,16 @@ type
       ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
       const AKeyFieldNames: string = 'ID'); overload;
+    procedure InternalApplySort(ASortedColumns: TArray < TPair <
+      TcxDBTreeListColumn, TdxSortOrder >> );
     procedure InternalRefreshData; virtual;
     function IsSyncToDataSet: Boolean; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
-    procedure ApplySort(AColumn: TcxTreeListColumn);
+    procedure ApplySort(AColumn: TcxTreeListColumn;
+      AdxSortOrder: TdxSortOrder = soNone);
     procedure BeginBlockEvents;
     procedure BeginUpdate; virtual;
     function CalcBandHeight(ABand: TcxTreeListBand): Integer;
@@ -98,7 +102,7 @@ type
 
 implementation
 
-uses dxCore, RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math,
+uses RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math,
   StrHelper, TextRectHelper;
 
 {$R *.dfm}
@@ -149,11 +153,13 @@ begin
   CreateColumnsBarButtons;
 end;
 
-procedure TfrmTreeList.ApplySort(AColumn: TcxTreeListColumn);
+procedure TfrmTreeList.ApplySort(AColumn: TcxTreeListColumn;
+  AdxSortOrder: TdxSortOrder = soNone);
 var
-  ASortOrder: TdxSortOrder;
+  AColSortOrder: TdxSortOrder;
   ASortVariant: TSortVariant;
   Col: TcxDBTreeListColumn;
+  L: TList<TPair<TcxDBTreeListColumn, TdxSortOrder>>;
   S: string;
 begin
   inherited;
@@ -164,26 +170,43 @@ begin
   if ASortVariant = nil then
     Exit;
 
-  if (AColumn.SortOrder = soAscending) then
-    ASortOrder := soDescending
-  else
-    ASortOrder := soAscending;
-
-  cxDBTreeList.BeginUpdate;
+  L := TList < TPair < TcxDBTreeListColumn, TdxSortOrder >>.Create;
   try
-    // Очистили сортировку
-    ClearSort();
-
-    // Применяем сортировку
+    // Готовим данные для иной сортировки
     for S in ASortVariant.SortedFieldNames do
     begin
       Col := cxDBTreeList.GetColumnByFieldName(S);
       Assert(Col <> nil);
-      Col.SortOrder := ASortOrder;
+
+      // Если нужно произвести только реверс сортировки
+      if (Col = AColumn) and (FSortVariant = ASortVariant) then
+      begin
+        if AdxSortOrder = soNone then
+        begin
+          if (AColumn.SortOrder = soAscending) then
+            AColSortOrder := soDescending
+          else
+            AColSortOrder := soAscending;
+        end
+        else
+          AColSortOrder := AdxSortOrder;
+      end
+      else
+      begin
+        if Col.SortOrder <> soNone then
+          AColSortOrder := Col.SortOrder
+        else
+          AColSortOrder := soAscending;
+      end;
+      L.Add(TPair<TcxDBTreeListColumn, TdxSortOrder>.Create(Col,
+        AColSortOrder));
     end;
+    FSortVariant := ASortVariant;
+
+    InternalApplySort(L.ToArray);
 
   finally
-    cxDBTreeList.EndUpdate;
+    FreeAndNil(L)
   end;
 end;
 
@@ -423,6 +446,29 @@ begin
   AcxLookupComboBoxProperties.ListFieldNames := AListFieldNames;
   AcxLookupComboBoxProperties.KeyFieldNames := AKeyFieldNames;
   AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
+end;
+
+procedure TfrmTreeList.InternalApplySort(ASortedColumns: TArray < TPair <
+  TcxDBTreeListColumn, TdxSortOrder >> );
+var
+  APair: TPair<TcxDBTreeListColumn, TdxSortOrder>;
+begin
+  Assert(Length(ASortedColumns) > 0);
+
+  cxDBTreeList.BeginUpdate;
+  try
+    // Очистили сортировку
+    ClearSort();
+
+    // Применяем сортировку
+    for APair in ASortedColumns do
+    begin
+      APair.Key.SortOrder := APair.Value;
+    end;
+
+  finally
+    cxDBTreeList.EndUpdate;
+  end;
 end;
 
 procedure TfrmTreeList.InternalRefreshData;
