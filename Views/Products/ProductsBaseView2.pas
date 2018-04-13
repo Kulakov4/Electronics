@@ -785,7 +785,7 @@ begin
     begin
       // ѕишем чЄрным по белому
       ACanvas.Font.Color := clBlack;
-      ACanvas.FillRect(AViewInfo.BoundsRect, $00F5DEC9);
+      ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
     end;
     Exit;
   end;
@@ -799,7 +799,7 @@ begin
   begin
     // ѕишем чЄрным по белому
     ACanvas.Font.Color := clBlack;
-    ACanvas.FillRect(AViewInfo.BoundsRect, $00F5DEC9);
+    ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
   end;
   { }
 end;
