@@ -51,12 +51,10 @@ type
     dxBarButton8: TdxBarButton;
     actFilterAndExportToExcelDocument: TAction;
     dxBarButton10: TdxBarButton;
-    actShowStoreHouseID: TAction;
     procedure actColumnsAutoWidth2Execute(Sender: TObject);
     procedure actExportToExcelDocument2Execute(Sender: TObject);
     procedure actFilterAndExportToExcelDocumentExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
-    procedure actShowStoreHouseIDExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
@@ -71,6 +69,7 @@ type
     procedure UpdateProductCount; override;
   public
     procedure LoadFromExcelDocument(const AFileName: String);
+    procedure UpdateView; override;
     property qProducts: TQueryProducts read GetqProducts write SetqProducts;
     { Public declarations }
   end;
@@ -157,16 +156,6 @@ begin
     frmProducts.ViewProducts2.qProducts := qProducts;
   end;
   frmProducts.Show;
-end;
-
-procedure TViewProducts2.actShowStoreHouseIDExecute(Sender: TObject);
-var
-  S: string;
-begin
-  inherited;
-  S := qProducts.FDQuery.Params.ParamByName
-    (qProducts.DetailParameterName).AsString;
-  ShowMessage(S);
 end;
 
 function TViewProducts2.CreateProductView: TViewProductsBase2;
@@ -260,6 +249,12 @@ begin
 
   // обновляем количество продуктов на всех складах
   StatusBar.Panels[3].Text := Format('%d', [qProducts.TotalCount]);
+end;
+
+procedure TViewProducts2.UpdateView;
+begin
+  inherited;
+  actFilterAndExportToExcelDocument.Enabled := actExportToExcelDocument.Enabled;
 end;
 
 end.

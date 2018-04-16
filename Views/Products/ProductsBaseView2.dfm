@@ -756,9 +756,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       ShowCaption = True
       OnDrawItem = dxbcRetailDrawItem
       Items.Strings = (
-        '90'
-        '80'
-        '70')
+        '')
       ItemIndex = -1
     end
   end

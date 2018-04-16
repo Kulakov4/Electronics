@@ -330,7 +330,6 @@ var
   ASQL: string;
   ATempTable: TQueryIDTempTable;
   I: Integer;
-  V: Variant;
 begin
   Assert(Length(AIDArray) > 0);
 

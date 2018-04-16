@@ -546,11 +546,14 @@ var
   ACources: TArray<Double>;
 begin
   inherited;
-  ACources := TCBRHttp.GetCourses(['Доллар США', 'Евро']);
-
-  qProductsBase.DollarCource := ACources[0];
-  qProductsBase.EuroCource := ACources[1];
-  MyApplyBestFit;
+  try
+    ACources := TCBRHttp.GetCourses(['Доллар США', 'Евро']);
+    qProductsBase.DollarCource := ACources[0];
+    qProductsBase.EuroCource := ACources[1];
+    MyApplyBestFit;
+  except
+    TDialog.Create.ErrorMessageDialog('Курсы валют не обновлены');
+  end;
 end;
 
 procedure TViewProductsBase2.actRollbackExecute(Sender: TObject);
@@ -1031,7 +1034,7 @@ procedure TViewProductsBase2.ExportToExcelDocument(const AFileName: String);
 const
   W = 15;
 begin
-//  BeginUpdate;
+  // BeginUpdate;
   try
     cxDBTreeList.Root.Expand(True);
     MyApplyBestFit;
@@ -1040,7 +1043,7 @@ begin
     cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
     MyApplyBestFit;
   finally
-//    EndUpdate;
+    // EndUpdate;
   end;
 end;
 
@@ -1080,7 +1083,6 @@ var
   AIDList: TList<Integer>;
   ANode: TcxDBTreeListNode;
   i: Integer;
-  V: Variant;
 begin
   AIDList := TList<Integer>.Create;
   try
