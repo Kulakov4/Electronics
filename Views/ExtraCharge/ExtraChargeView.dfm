@@ -9,6 +9,7 @@ inherited ViewExtraCharge: TViewExtraCharge
       OptionsView.ColumnAutoWidth = False
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
+        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -24,6 +25,7 @@ inherited ViewExtraCharge: TViewExtraCharge
       object clWholeSale: TcxGridDBBandedColumn
         Caption = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072' (%)'
         DataBinding.FieldName = 'WholeSale'
+        OnGetDisplayText = clWholeSaleGetDisplayText
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -61,6 +63,10 @@ inherited ViewExtraCharge: TViewExtraCharge
         item
           Visible = True
           ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end
         item
           Visible = True
@@ -119,6 +125,11 @@ inherited ViewExtraCharge: TViewExtraCharge
       Action = actLoadFromExcelDocument
       Category = 0
     end
+    object dxBarButton7: TdxBarButton
+      Action = actClear
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     object actCommit: TAction
@@ -146,6 +157,11 @@ inherited ViewExtraCharge: TViewExtraCharge
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1086#1087#1090#1086#1074#1099#1077' '#1085#1072#1094#1077#1085#1082#1080
       ImageIndex = 6
       OnExecute = actLoadFromExcelDocumentExecute
+    end
+    object actClear: TAction
+      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
+      ImageIndex = 33
+      OnExecute = actClearExecute
     end
   end
 end

@@ -41,6 +41,7 @@ type
     dxBarSubItem1: TdxBarSubItem;
     dxBarButton6: TdxBarButton;
     dxBarButton7: TdxBarButton;
+    dxBarButton8: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
@@ -52,12 +53,13 @@ type
     procedure SetqProductsSearch(const Value: TQueryProductsSearch);
     { Private declarations }
   protected
+    function CreateProductView: TViewProductsBase2; override;
     procedure InitializeColumns; override;
   public
     procedure FocusValueColumn;
     procedure UpdateView; override;
-    property qProductsSearch: TQueryProductsSearch read GetqProductsSearch write
-        SetqProductsSearch;
+    property qProductsSearch: TQueryProductsSearch read GetqProductsSearch
+      write SetqProductsSearch;
     { Public declarations }
   end;
 
@@ -88,8 +90,7 @@ begin
   inherited;
   cxDBTreeList.BeginUpdate;
   try
-    qProductsSearch.AppendRows
-      (qProductsSearch.Value.FieldName,
+    qProductsSearch.AppendRows(qProductsSearch.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
 
@@ -102,6 +103,11 @@ procedure TViewProductsSearch2.actSearchExecute(Sender: TObject);
 begin
   inherited;
   Search(False);
+end;
+
+function TViewProductsSearch2.CreateProductView: TViewProductsBase2;
+begin
+  Result := TViewProductsSearch2.Create(nil);
 end;
 
 procedure TViewProductsSearch2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
@@ -155,20 +161,22 @@ begin
     CheckAndSaveChanges;
 
     qProductsSearch.DoSearch(ALike);
-    UpdateView;
+
   finally
     cxDBTreeList.EndUpdate;
   end;
-  cxDBTreeList.ApplyBestFit;
+  MyApplyBestFit;
   // cxDBTreeList.FullExpand;
 
   cxDBTreeList.SetFocus;
   // Переводим колонку в режим редактирования
   clValue.Editing := True;
+
+  UpdateView;
 end;
 
-procedure TViewProductsSearch2.SetqProductsSearch(const Value:
-    TQueryProductsSearch);
+procedure TViewProductsSearch2.SetqProductsSearch
+  (const Value: TQueryProductsSearch);
 begin
   if qProductsBase <> Value then
     qProductsBase := Value;
@@ -179,8 +187,7 @@ var
   Ok: Boolean;
 begin
   inherited;
-  Ok := (qProductsSearch <> nil) and
-    (qProductsSearch.FDQuery.Active);
+  Ok := (qProductsSearch <> nil) and (qProductsSearch.FDQuery.Active);
 
   actClear.Enabled := qProductsSearch.IsClearEnabled;
 
@@ -191,18 +198,19 @@ begin
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actPasteFromBuffer.Enabled := qProductsSearch.Mode =
-    SearchMode;
+  actPasteFromBuffer.Enabled := Ok and (qProductsSearch.Mode = SearchMode);
 
 
-//  cxGridDBBandedTableView.OptionsData.Appending :=
-//    qProductsSearch.qProductsSearch.Mode = SearchMode;
+  // cxGridDBBandedTableView.OptionsData.Appending :=
+  // qProductsSearch.qProductsSearch.Mode = SearchMode;
 
-//  cxGridDBBandedTableView.OptionsData.Inserting :=
-//    qProductsSearch.qProductsSearch.Mode = SearchMode;
+  // cxGridDBBandedTableView.OptionsData.Inserting :=
+  // qProductsSearch.qProductsSearch.Mode = SearchMode;
 
+  actExportToExcelDocument.Caption := 'В документ Excel';
+  actExportToExcelDocument.Hint := 'Экспортировать в документ Excel';
   actExportToExcelDocument.Enabled := Ok and
-    (cxDBTreeList.DataController.RecordCount > 0) and
+    (qProductsSearch.FDQuery.RecordCount > 0) and
     (qProductsSearch.Mode = RecordsMode);
 end;
 

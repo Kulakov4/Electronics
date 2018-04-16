@@ -249,6 +249,10 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         item
           Visible = True
           ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -293,6 +297,10 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     end
     object dxBarButton7: TdxBarButton
       Action = actOpenInParametricTable
+      Category = 0
+    end
+    object dxBarButton8: TdxBarButton
+      Action = actApplyBestFit
       Category = 0
     end
   end

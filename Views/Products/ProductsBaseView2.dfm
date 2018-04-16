@@ -776,75 +776,69 @@ inherited ViewProductsBase2: TViewProductsBase2
       ImageIndex = 14
       OnExecute = actRollbackExecute
     end
-    object actExportToExcelDocument: TAction [2]
-      Caption = #1042' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
-      Hint = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
-      ImageIndex = 6
-      OnExecute = actExportToExcelDocumentExecute
-    end
-    object actOpenInParametricTable: TAction [3]
+    object actOpenInParametricTable: TAction [2]
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1080#1077' '#1076#1072#1085#1085#1099#1077
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1080#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 34
       OnExecute = actOpenInParametricTableExecute
     end
-    object actAddCategory: TAction [4]
+    object actAddCategory: TAction [3]
       Caption = #1043#1088#1091#1087#1087#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
       Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1075#1088#1091#1087#1087#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
       ImageIndex = 1
       OnExecute = actAddCategoryExecute
     end
-    object actAddComponent: TAction [5]
+    object actAddComponent: TAction [4]
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090
       ImageIndex = 1
       OnExecute = actAddComponentExecute
     end
-    object actDelete: TAction [6]
+    object actDelete: TAction [5]
       Caption = #1059#1076#1072#1083#1080#1090#1100
       Hint = #1059#1076#1072#1083#1080#1090#1100
       ImageIndex = 2
       OnExecute = actDeleteExecute
     end
-    object actOpenDatasheet: TAction [7]
+    object actOpenDatasheet: TAction [6]
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       ImageIndex = 7
       OnExecute = actOpenDatasheetExecute
     end
-    object actLoadDatasheet: TAction [8]
+    object actLoadDatasheet: TAction [7]
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1102
       OnExecute = actLoadDatasheetExecute
     end
-    object actOpenImage: TAction [9]
+    object actOpenImage: TAction [8]
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       ImageIndex = 8
       OnExecute = actOpenImageExecute
     end
-    object actLoadImage: TAction [10]
+    object actLoadImage: TAction [9]
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
       OnExecute = actLoadImageExecute
     end
-    object actOpenDiagram: TAction [11]
+    object actOpenDiagram: TAction [10]
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1089#1093#1077#1084#1091
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1089#1093#1077#1084#1091
       ImageIndex = 16
       OnExecute = actOpenDiagramExecute
     end
-    object actLoadDiagram: TAction [12]
+    object actLoadDiagram: TAction [11]
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1080#1072#1075#1088#1072#1084#1084#1091
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1080#1072#1075#1088#1072#1084#1084#1091
       OnExecute = actLoadDiagramExecute
     end
-    object actOpenDrawing: TAction [13]
+    object actOpenDrawing: TAction [12]
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078
       Hint = #1054#1090#1082#1088#1099#1090#1100' '#1095#1077#1088#1090#1105#1078
       ImageIndex = 17
       OnExecute = actOpenDrawingExecute
     end
-    object actLoadDrawing: TAction [14]
+    object actLoadDrawing: TAction [13]
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       OnExecute = actLoadDrawingExecute
@@ -872,6 +866,12 @@ inherited ViewProductsBase2: TViewProductsBase2
       Hint = #1055#1086#1076#1086#1073#1088#1072#1090#1100' '#1086#1087#1090#1080#1084#1072#1083#1100#1085#1091#1102' '#1096#1080#1088#1080#1085#1091' '#1082#1086#1083#1086#1085#1086#1082
       ImageIndex = 13
       OnExecute = actApplyBestFitExecute
+    end
+    object actExportToExcelDocument: TAction
+      Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1089#1082#1083#1072#1076#1072' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
+      Hint = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1089#1105' '#1089#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1089#1082#1083#1072#1076#1072' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
+      ImageIndex = 6
+      OnExecute = actExportToExcelDocumentExecute
     end
   end
   inherited PopupMenu: TPopupMenu

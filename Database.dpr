@@ -209,7 +209,8 @@ uses
   ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame},
   ExceptionHelper in 'Helpers\ExceptionHelper.pas',
   ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule},
-  CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas';
+  CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas',
+  ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts};
 
 {$R *.res}
 

@@ -938,6 +938,10 @@
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\CheckDuplicateInterface.pas"/>
+        <DCCReference Include="Views\Products\ProductsViewForm.pas">
+            <Form>frmProducts</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -598,7 +598,7 @@ begin;
   // Процент оптовой наценки
   FDQuery.FieldDefs.Add('wholesale', ftFloat);
   // Процент РОЗНИЧНОЙ наценки
-  FDQuery.FieldDefs.Add('Retail', ftFloat);
+//  FDQuery.FieldDefs.Add('Retail', ftInteger);
 
   // Закупочная цена
   FDQuery.FieldDefs.Add('PriceR', ftFloat);
@@ -618,7 +618,7 @@ begin;
   CreateDefaultFields(False);
   IDExtraCharge.FieldKind := fkInternalCalc;
   Wholesale.FieldKind := fkInternalCalc;
-  Retail.FieldKind := fkInternalCalc;
+//  Retail.FieldKind := fkInternalCalc;
 
   TunePriceFields([PriceD, PriceR, PriceE, PriceD1, PriceR1, PriceE1, PriceD2,
     PriceR2, PriceE2]);

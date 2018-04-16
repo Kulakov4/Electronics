@@ -47,7 +47,16 @@ type
     cxbeiDate: TcxBarEditItem;
     actColumnsAutoWidth2: TAction;
     dxBarButton7: TdxBarButton;
+    actFullScreen: TAction;
+    dxBarButton8: TdxBarButton;
+    actFilterAndExportToExcelDocument: TAction;
+    dxBarButton10: TdxBarButton;
+    actShowStoreHouseID: TAction;
     procedure actColumnsAutoWidth2Execute(Sender: TObject);
+    procedure actExportToExcelDocument2Execute(Sender: TObject);
+    procedure actFilterAndExportToExcelDocumentExecute(Sender: TObject);
+    procedure actFullScreenExecute(Sender: TObject);
+    procedure actShowStoreHouseIDExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
@@ -58,6 +67,7 @@ type
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
   protected
+    function CreateProductView: TViewProductsBase2; override;
     procedure UpdateProductCount; override;
   public
     procedure LoadFromExcelDocument(const AFileName: String);
@@ -71,20 +81,97 @@ implementation
 
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
   NotifyEvents, ProgressInfo, LoadFromExcelFileHelper,
-  CustomErrorForm, HttpUnit;
+  CustomErrorForm, HttpUnit, ProductsViewForm, DialogUnit;
 
 procedure TViewProducts2.actColumnsAutoWidth2Execute(Sender: TObject);
 begin
   inherited;
-//  cxDBTreeList.BeginUpdate;
-//  try
-    cxDBTreeList.Root.Expand(true);
+  // cxDBTreeList.BeginUpdate;
+  // try
+  cxDBTreeList.Root.Expand(true);
 
-    MyApplyBestFit;
-//    cxDBTreeList.Root.Collapse(true);
-//  finally
-//    cxDBTreeList.EndUpdate;
-//  end;
+  MyApplyBestFit;
+  // cxDBTreeList.Root.Collapse(true);
+  // finally
+  // cxDBTreeList.EndUpdate;
+  // end;
+end;
+
+procedure TViewProducts2.actExportToExcelDocument2Execute(Sender: TObject);
+var
+  AFileName: String;
+  AViewProducts2: TViewProducts2;
+begin
+  inherited;
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+    qProductsBase.ExportFileName, AFileName) then
+    Exit;
+
+  AViewProducts2 := TViewProducts2.Create(nil);
+  try
+    AViewProducts2.qProducts := qProducts;
+    AViewProducts2.ExportToExcelDocument(AFileName);
+  finally
+    FreeAndNil(AViewProducts2);
+  end;
+end;
+
+procedure TViewProducts2.actFilterAndExportToExcelDocumentExecute
+  (Sender: TObject);
+var
+  AFileName: String;
+  AIDArray: TArray<Integer>;
+  AQueryProducts: TQueryProducts;
+  AViewProducts2: TViewProducts2;
+  rc: Integer;
+begin
+  inherited;
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+    qProductsBase.ExportFileName, AFileName) then
+    Exit;
+
+  AIDArray := GetSelectedID;
+
+  AQueryProducts := TQueryProducts.Create(nil);
+  try
+    rc := AQueryProducts.SearchByID(AIDArray);
+    Assert(rc > 0);
+    AViewProducts2 := TViewProducts2.Create(nil);
+    try
+      AViewProducts2.qProducts := AQueryProducts;
+      AViewProducts2.ExportToExcelDocument(AFileName);
+    finally
+      FreeAndNil(AViewProducts2);
+    end;
+  finally
+    FreeAndNil(AQueryProducts);
+  end;
+end;
+
+procedure TViewProducts2.actFullScreenExecute(Sender: TObject);
+begin
+  inherited;
+  if frmProducts = nil then
+  begin
+    frmProducts := TfrmProducts.Create(Self);
+    frmProducts.ViewProducts2.qProducts := qProducts;
+  end;
+  frmProducts.Show;
+end;
+
+procedure TViewProducts2.actShowStoreHouseIDExecute(Sender: TObject);
+var
+  S: string;
+begin
+  inherited;
+  S := qProducts.FDQuery.Params.ParamByName
+    (qProducts.DetailParameterName).AsString;
+  ShowMessage(S);
+end;
+
+function TViewProducts2.CreateProductView: TViewProductsBase2;
+begin
+  Result := TViewProducts2.Create(nil);
 end;
 
 procedure TViewProducts2.cxBarEditItem1PropertiesValidate(Sender: TObject;
@@ -98,7 +185,7 @@ begin
     Exit;
 
   ErrorText := '–едактируемое значение не €вл€етс€ курсом валюты';
-  Error := True;
+  Error := true;
 end;
 
 procedure TViewProducts2.cxbeiWholeSalePropertiesCloseUp(Sender: TObject);

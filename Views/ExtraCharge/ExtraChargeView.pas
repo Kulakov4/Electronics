@@ -45,11 +45,16 @@ type
     dxBarButton5: TdxBarButton;
     actLoadFromExcelDocument: TAction;
     dxBarButton6: TdxBarButton;
+    dxBarButton7: TdxBarButton;
+    actClear: TAction;
     procedure actAddExecute(Sender: TObject);
+    procedure actClearExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
+    procedure clWholeSaleGetDisplayText(Sender: TcxCustomGridTableItem; ARecord:
+        TcxCustomGridRecord; var AText: string);
   private
     FqExtraCharge: TQueryExtraCharge;
     procedure SetqExtraCharge(const Value: TQueryExtraCharge);
@@ -95,6 +100,18 @@ begin
   MainView.DataController.Append;
   FocusColumnEditor(0, clRange.DataBinding.FieldName);
 
+  UpdateView;
+end;
+
+procedure TViewExtraCharge.actClearExecute(Sender: TObject);
+begin
+  inherited;
+  BeginUpdate;
+  try
+    qExtraCharge.DeleteAll;
+  finally
+    EndUpdate;
+  end;
   UpdateView;
 end;
 
@@ -164,6 +181,16 @@ begin
   UpdateView;
 end;
 
+procedure TViewExtraCharge.clWholeSaleGetDisplayText(Sender:
+    TcxCustomGridTableItem; ARecord: TcxCustomGridRecord; var AText: string);
+begin
+  inherited;
+  if AText.Trim.IsEmpty then
+    Exit;
+
+  AText := AText + '%';
+end;
+
 procedure TViewExtraCharge.SetqExtraCharge(const Value: TQueryExtraCharge);
 begin
   if FqExtraCharge = Value then
@@ -201,8 +228,7 @@ begin
   AView := FocusedTableView;
   OK := (qExtraCharge <> nil) and (qExtraCharge.FDQuery.Active);
 
-  actAdd.Enabled := OK and (AView <> nil) and
-    (MainView.DataController.RecordCount > 0);
+  actAdd.Enabled := OK and (AView <> nil);
 
   // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (AView <> nil) and
@@ -214,6 +240,8 @@ begin
 
   actExportToExcelDocument.Enabled := OK and
     (qExtraCharge.FDQuery.RecordCount > 0);
+
+  actClear.Enabled := OK and (MainView.DataController.RecordCount > 0);
 
   UpdateTotalCount;
 end;

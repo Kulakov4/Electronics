@@ -38,7 +38,7 @@ inherited QueryProducts: TQueryProducts
       '    NULL LoadDate,'
       '    NULL DOLLAR,'
       '    NULL EURO,'
-      '--    cast (NULL as REAL) RATE1,'
+      '    cast (NULL as INTEGER) RETAIL,'
       '    NULL PackagePins,'
       '    NULL Datasheet,'
       '    NULL Diagram,'
@@ -76,7 +76,7 @@ inherited QueryProducts: TQueryProducts
       '       sp.LoadDate,'
       '       sp.DOLLAR,'
       '       sp.EURO,'
-      '--       sp.RATE1,'
+      '       sp.RETAIL,'
       '       p.PackagePins,'
       '       p.Datasheet,'
       '       p.Diagram,'
@@ -91,7 +91,8 @@ inherited QueryProducts: TQueryProducts
       'left join Products pr on p.Value = pr.Value'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       ')'
-      'where StorehouseId = :vStorehouseId')
+      'where StorehouseId = :vStorehouseId'
+      'and 0=0')
     ParamData = <
       item
         Name = 'VSTOREHOUSEID'

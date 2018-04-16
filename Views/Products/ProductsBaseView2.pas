@@ -36,7 +36,6 @@ type
   TViewProductsBase2 = class(TfrmTreeList)
     actCommit: TAction;
     actRollback: TAction;
-    actExportToExcelDocument: TAction;
     actOpenInParametricTable: TAction;
     actAddCategory: TAction;
     clID: TcxDBTreeListColumn;
@@ -104,6 +103,7 @@ type
     actColumnWidth: TAction;
     N4: TMenuItem;
     actApplyBestFit: TAction;
+    actExportToExcelDocument: TAction;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -181,10 +181,14 @@ type
     FSelectedCountPanelIndex: Integer;
     procedure UpdateBarCombo(AValue: Variant; AdxBarCombo: TdxBarCombo);
     procedure CreateCountEvents;
+    function CreateProductView: TViewProductsBase2; virtual; abstract;
     procedure DoAfterScroll(Sender: TObject);
+    procedure DoBeforeLoad(Sender: TObject);
     procedure DoOnCourceChange(Sender: TObject);
     procedure DoOnDollarCourceChange(Sender: TObject);
     procedure DoOnEuroCourceChange(Sender: TObject);
+    procedure ExportToExcelDocument(const AFileName: String);
+    function GetNodeID(ANode: TcxDBTreeListNode): TArray<Integer>;
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
@@ -206,6 +210,7 @@ type
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
+    function GetSelectedID: TArray<Integer>;
     function IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn;
       AValue: Variant): Boolean;
     procedure UpdateView; override;
@@ -426,6 +431,7 @@ end;
 procedure TViewProductsBase2.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
+  AViewProductsBase2: TViewProductsBase2;
 begin
   inherited;
 
@@ -433,16 +439,14 @@ begin
     qProductsBase.ExportFileName, AFileName) then
     Exit;
 
-  cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
+  AViewProductsBase2 := CreateProductView;
+  try
+    AViewProductsBase2.qProductsBase := qProductsBase;
+    AViewProductsBase2.ExportToExcelDocument(AFileName);
+  finally
+    FreeAndNil(AViewProductsBase2);
+  end;
 
-  // Тут надо создать какое-то табличное представление
-  {
-    ExportViewToExcel(MainView, AFileName,
-    procedure(AView: TcxGridDBBandedTableView)
-    begin
-    AView.Bands[0].FixedKind := fkNone;
-    end);
-  }
 end;
 
 procedure TViewProductsBase2.actLoadDatasheetExecute(Sender: TObject);
@@ -871,9 +875,10 @@ end;
 
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
 begin
-  UpdateView;
+  cxDBTreeList.EndUpdate;
   cxDBTreeList.FullCollapse;
-  // cxDBTreeList.ApplyBestFit;
+
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.DoAfterOpen(Sender: TObject);
@@ -907,6 +912,11 @@ begin
     // (qProductsBase.IDExtraCharge.AsInteger, True);
     cxbeiExtraCharge.EditValue := qProductsBase.IDExtraCharge.Value;
   end;
+end;
+
+procedure TViewProductsBase2.DoBeforeLoad(Sender: TObject);
+begin
+  cxDBTreeList.BeginUpdate;
 end;
 
 procedure TViewProductsBase2.DoOnCourceChange(Sender: TObject);
@@ -1015,6 +1025,74 @@ begin
   inherited;
   if FUpdateCount = 0 then
     CreateCountEvents;
+end;
+
+procedure TViewProductsBase2.ExportToExcelDocument(const AFileName: String);
+const
+  W = 15;
+begin
+//  BeginUpdate;
+  try
+    cxDBTreeList.Root.Expand(True);
+    MyApplyBestFit;
+    clDollar.Width := clDollar.Width + W;
+    clEuro.Width := clEuro.Width + W;
+    cxExportTLToExcel(AFileName, cxDBTreeList, True, True, True, 'xls');
+    MyApplyBestFit;
+  finally
+//    EndUpdate;
+  end;
+end;
+
+function TViewProductsBase2.GetNodeID(ANode: TcxDBTreeListNode)
+  : TArray<Integer>;
+var
+  AChildNode: TcxDBTreeListNode;
+  AID: Integer;
+  AIDList: TList<Integer>;
+  i: Integer;
+  V: Variant;
+begin
+  AIDList := TList<Integer>.Create;
+  try
+    V := ANode.Values[clID.ItemIndex];
+    Assert(not VarIsNull(V));
+    AID := V;
+    if AIDList.IndexOf(AID) < 0 then
+      AIDList.Add(AID);
+
+    if ANode.HasChildren then
+    begin
+      for i := 0 to ANode.Count - 1 do
+      begin
+        AChildNode := ANode.Items[i] as TcxDBTreeListNode;
+        AIDList.AddRange(GetNodeID(AChildNode));
+      end;
+    end;
+    Result := AIDList.ToArray;
+  finally
+    FreeAndNil(AIDList);
+  end;
+end;
+
+function TViewProductsBase2.GetSelectedID: TArray<Integer>;
+var
+  AIDList: TList<Integer>;
+  ANode: TcxDBTreeListNode;
+  i: Integer;
+  V: Variant;
+begin
+  AIDList := TList<Integer>.Create;
+  try
+    for i := 0 to cxDBTreeList.SelectionCount - 1 do
+    begin
+      ANode := cxDBTreeList.Selections[i] as TcxDBTreeListNode;
+      AIDList.AddRange(GetNodeID(ANode));
+    end;
+    Result := AIDList.ToArray;
+  finally
+    FreeAndNil(AIDList);
+  end;
 end;
 
 function TViewProductsBase2.GetViewExtraCharge: TViewExtraCharge;
@@ -1197,7 +1275,7 @@ begin
   cxDBTreeList.DataController.DataSource := FqProductsBase.DataSource;
 
   InitializeColumns;
-
+  TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad, FEventList);
   TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
   TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
     DoOnDollarCourceChange, FEventList);
@@ -1274,11 +1352,10 @@ begin
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
-  actExportToExcelDocument.Enabled := OK and
-    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
   actOpenInParametricTable.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
-
+  actExportToExcelDocument.Enabled := OK and
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
   actAddCategory.Enabled := OK;
 
   actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil);

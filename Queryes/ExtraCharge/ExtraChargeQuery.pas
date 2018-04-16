@@ -113,6 +113,7 @@ type
       read GetqExtraChargeSimple;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure DeleteAll;
     procedure LoadDataFromExcelTable(AExcelTable: TExtraChargeExcelTable);
     function LocateByRange(ARange: string): Boolean;
     property Range: TField read GetRange;
@@ -209,6 +210,17 @@ begin
   qExtraChargeSimple.H.Value := AHight;
   qExtraChargeSimple.WholeSale.Value := WholeSale.Value;
   qExtraChargeSimple.TryPost;
+end;
+
+procedure TQueryExtraCharge.DeleteAll;
+begin
+  FDQuery.DisableControls;
+  try
+    while not FDQuery.Eof do
+      FDQuery.Delete;
+  finally
+    FDQuery.EnableControls;
+  end;
 end;
 
 procedure TQueryExtraCharge.DoAfterOpen(Sender: TObject);

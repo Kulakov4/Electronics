@@ -43,6 +43,7 @@ type
     procedure LoadDataFromExcelTable(AExcelTable: TProductsExcelTable);
     procedure AppendRows(AValues: TList<String>;
       const AProducers: TList<String>); overload;
+    function SearchByID(AIDArray: TArray<Integer>): Integer;
     property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
@@ -51,7 +52,7 @@ type
 implementation
 
 uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
-  ParameterValuesUnit, StoreHouseListQuery;
+  ParameterValuesUnit, StoreHouseListQuery, IDTempTableQuery, StrHelper;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }
@@ -322,6 +323,41 @@ begin
     FNeedUpdateCount := False;
   end;
   Result := FTotalCount;
+end;
+
+function TQueryProducts.SearchByID(AIDArray: TArray<Integer>): Integer;
+var
+  ASQL: string;
+  ATempTable: TQueryIDTempTable;
+  I: Integer;
+  V: Variant;
+begin
+  Assert(Length(AIDArray) > 0);
+
+  ATempTable := TQueryIDTempTable.Create(nil);
+  try
+    for I := Low(AIDArray) to High(AIDArray) do
+    begin
+      ATempTable.TryAppend;
+      ATempTable.ID.AsInteger := AIDArray[I];
+      ATempTable.TryPost;
+    end;
+
+    // ASQL := Replace(FDQuery.SQL.Text, 'Id in (-6)', 'StorehouseId = :vStorehouseId');
+
+    ASQL := Replace(FDQuery.SQL.Text, Format('Id in (%s)',
+      [ATempTable.FDQuery.SQL.Text]), 'StorehouseId = :vStorehouseId');
+  finally
+    FreeAndNil(ATempTable);
+  end;
+
+  // V := FDQuery.Params.ParamByName(DetailParameterName).Value;
+
+  FDQuery.SQL.Text := ASQL;
+  RefreshQuery;
+  Result := FDQuery.RecordCount;
+
+  // Result := Search([DetailParameterName], [V]);
 end;
 
 end.
