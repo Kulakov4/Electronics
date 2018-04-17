@@ -62,11 +62,13 @@ end;
 
 procedure TfrmProducers.ApplyUpdates;
 begin
+  ViewProducers.UpdateView;
   ViewProducers.actCommit.Execute;
 end;
 
 procedure TfrmProducers.CancelUpdates;
 begin
+  ViewProducers.UpdateView;
   ViewProducers.actRollback.Execute;
 end;
 

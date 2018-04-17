@@ -15,14 +15,31 @@ type
   private
     function GetParameterKind: TField;
     { Private declarations }
+  protected
+    procedure DoAfterOpen(Sender: TObject);
   public
+    constructor Create(AOwner: TComponent); override;
     property ParameterKind: TField read GetParameterKind;
     { Public declarations }
   end;
 
 implementation
 
+uses
+  NotifyEvents;
+
 {$R *.dfm}
+
+constructor TQueryParameterKinds.Create(AOwner: TComponent);
+begin
+  inherited;
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+end;
+
+procedure TQueryParameterKinds.DoAfterOpen(Sender: TObject);
+begin
+  ParameterKind.DisplayLabel := 'Тип параметра';
+end;
 
 function TQueryParameterKinds.GetParameterKind: TField;
 begin

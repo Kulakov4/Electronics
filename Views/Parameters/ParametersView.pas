@@ -288,22 +288,7 @@ end;
 
 procedure TViewParameters.actCommitExecute(Sender: TObject);
 begin
-  // Мы просто завершаем транзакцию
-  // cxGrid.BeginUpdate();
-  // try
-  // СОхраняем все сделанные изменения
   FParametersGrp.Commit;
-
-  // FParametersGrp.Connection.StartTransaction;
-
-  // Переносим фокус на первую выделенную запись
-  // FocusSelectedRecord();
-  // finally
-  // cxGrid.EndUpdate;
-  // end;
-
-  // Помещаем фокус в центр грида
-  // PutInTheCenterFocusedRecord();
 
   // Обновляем представление
   UpdateView;
@@ -460,6 +445,7 @@ end;
 
 function TViewParameters.CheckAndSaveChanges: Integer;
 begin
+  UpdateView;
   Result := 0;
   if ParametersGrp = nil then
     Exit;
@@ -525,6 +511,9 @@ end;
 
 procedure TViewParameters.CommitOrPost;
 begin
+  // actCommit может быть Disabled!!!
+  UpdateView;
+
   if CheckedMode then // В этом случае транзакция не начата
     ParametersGrp.TryPost
   else
@@ -577,6 +566,7 @@ end;
 procedure TViewParameters.cxbeiSearchPropertiesEditValueChanged
   (Sender: TObject);
 begin
+  UpdateView;
   actSearch.Execute;
 end;
 

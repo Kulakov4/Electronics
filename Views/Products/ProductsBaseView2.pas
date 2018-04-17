@@ -598,6 +598,8 @@ begin
   if qProductsBase = nil then
     Exit;
 
+  UpdateView;
+
   if qProductsBase.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;

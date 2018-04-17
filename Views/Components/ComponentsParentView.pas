@@ -353,6 +353,8 @@ begin
   if BaseComponentsGroup = nil then
     Exit;
 
+  UpdateView;
+
   // Если есть несохранённые изменения
   if BaseComponentsGroup.Main.HaveAnyChanges or BaseComponentsGroup.Detail.HaveAnyChanges
   then

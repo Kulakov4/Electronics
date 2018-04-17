@@ -58,11 +58,13 @@ end;
 
 procedure TfrmExtraCharge.ApplyUpdates;
 begin
+  ViewExtraCharge.UpdateView;
   ViewExtraCharge.actCommit.Execute;
 end;
 
 procedure TfrmExtraCharge.CancelUpdates;
 begin
+  ViewExtraCharge.UpdateView;
   ViewExtraCharge.actRollback.Execute;
 end;
 

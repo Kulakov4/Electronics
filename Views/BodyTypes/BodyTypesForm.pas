@@ -47,11 +47,13 @@ implementation
 
 procedure TfrmBodyTypes.ApplyUpdates;
 begin
+  ViewBodyTypes.UpdateView;
   ViewBodyTypes.actCommit.Execute;
 end;
 
 procedure TfrmBodyTypes.CancelUpdates;
 begin
+  ViewBodyTypes.UpdateView;
   ViewBodyTypes.actRollback.Execute;
 end;
 

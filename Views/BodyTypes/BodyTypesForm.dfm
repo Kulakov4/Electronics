@@ -13,11 +13,15 @@ inherited frmBodyTypes: TfrmBodyTypes
       Height = 427
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = -152
-      ExplicitTop = -171
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 788
+      ExplicitHeight = 427
       inherited cxGrid: TcxGrid
         Width = 788
         Height = 352
+        ExplicitWidth = 788
+        ExplicitHeight = 352
         inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
           DataController.Summary.FooterSummaryItems = <
             item
@@ -72,6 +76,8 @@ inherited frmBodyTypes: TfrmBodyTypes
       inherited StatusBar: TStatusBar
         Top = 408
         Width = 788
+        ExplicitTop = 408
+        ExplicitWidth = 788
       end
       inherited dxBarManager: TdxBarManager
         DockControlHeights = (

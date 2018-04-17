@@ -166,6 +166,8 @@ begin
   if QuerySubParameters = nil then
     Exit;
 
+  UpdateView;
+
   if QuerySubParameters.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
@@ -182,6 +184,8 @@ end;
 
 procedure TViewSubParameters.CommitOrPost;
 begin
+  UpdateView;
+
   if CheckedMode then // В этом случае транзакция не начата
     QuerySubParameters.TryPost
   else

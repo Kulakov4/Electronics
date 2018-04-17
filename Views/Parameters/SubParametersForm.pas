@@ -54,6 +54,7 @@ end;
 
 procedure TfrmSubParameters.CancelUpdates;
 begin
+  ViewSubParameters.UpdateView;
   ViewSubParameters.actRollback.Execute;
 end;
 
