@@ -342,8 +342,6 @@ begin
 end;
 
 procedure TfrmMain.actShowParametersExecute(Sender: TObject);
-var
-  AID: Integer;
 begin
   if frmParameters = nil then
   begin
@@ -354,10 +352,7 @@ begin
       DM2.ParametersGroup.qSubParameters;
   end;
 
-  AID := DM2.ParametersGroup.qSubParameters.PK.AsInteger;
-
   frmParameters.Show;
-
 end;
 
 procedure TfrmMain.ApplicationEventsException(Sender: TObject; E: Exception);
