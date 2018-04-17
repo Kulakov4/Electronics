@@ -135,6 +135,7 @@ type
   protected
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure LoadFromExcel(const AFileName: String; AProducerID: Integer);
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
   public
@@ -290,19 +291,7 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
-  BeginUpdate;
-  try
-    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmCustomError,
-      procedure(ASender: TObject)
-      begin
-        BodyTypesGroup.LoadDataFromExcelTable(ASender as TBodyTypesExcelTable,
-          AProducerID);
-      end);
-  finally
-    MainView.ViewData.Collapse(True);
-    EndUpdate;
-  end;
-  UpdateView;
+  LoadFromExcel(AFileName, AProducerID);
 end;
 
 procedure TViewBodyTypes.actLoadImageExecute(Sender: TObject);
@@ -667,6 +656,25 @@ function TViewBodyTypes.GetProducerDisplayText: string;
 begin
   Result := GetDBBandedTableView(1).Controller.FocusedRecord.DisplayTexts
     [clIDProducer.Index];
+end;
+
+procedure TViewBodyTypes.LoadFromExcel(const AFileName: String; AProducerID:
+    Integer);
+begin
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmCustomError,
+      procedure(ASender: TObject)
+      begin
+        BodyTypesGroup.LoadDataFromExcelTable(ASender as TBodyTypesExcelTable,
+          AProducerID);
+      end);
+  finally
+    MainView.ViewData.Collapse(True);
+    EndUpdate;
+  end;
+  UpdateView;
+
 end;
 
 procedure TViewBodyTypes.OpenDoc(ADocFieldInfo: TDocFieldInfo);

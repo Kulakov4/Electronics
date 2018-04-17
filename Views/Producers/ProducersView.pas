@@ -103,6 +103,7 @@ type
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDataChange(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure LoadFromExcel(const AFileName: String);
     property QuerySearchProducerTypes: TQuerySearchProducerTypes
       read GetQuerySearchProducerTypes;
   public
@@ -200,23 +201,7 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
-  BeginUpdate;
-  try
-    TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
-      procedure(ASender: TObject)
-      begin
-        ProducersGroup.LoadDataFromExcelTable(ASender as TProducersExcelTable);
-      end,
-      procedure(ASender: TObject)
-      begin
-        (ASender as TProducersExcelTable).ProducersDataSet :=
-          ProducersGroup.qProducers.FDQuery;
-      end);
-  finally
-    EndUpdate;
-  end;
-
-  UpdateView;
+  LoadFromExcel(AFileName);
 end;
 
 procedure TViewProducers.actRollbackExecute(Sender: TObject);
@@ -342,7 +327,6 @@ begin
     as TcxGridMasterDataRow;
   (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
     .ApplyBestFit();
-
 end;
 
 procedure TViewProducers.
@@ -426,6 +410,27 @@ begin
     FQuerySearchProducerTypes := TQuerySearchProducerTypes.Create(Self);
 
   Result := FQuerySearchProducerTypes;
+end;
+
+procedure TViewProducers.LoadFromExcel(const AFileName: String);
+begin
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        ProducersGroup.LoadDataFromExcelTable(ASender as TProducersExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TProducersExcelTable).ProducersDataSet :=
+          ProducersGroup.qProducers.FDQuery;
+      end);
+  finally
+    EndUpdate;
+  end;
+
+  UpdateView;
 end;
 
 procedure TViewProducers.Locate(const AProducer: string);

@@ -133,10 +133,10 @@ procedure TViewSubParameters.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  if TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
-    LoadFromExcel(AFileName);
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+    Exit;
 
-  UpdateView;
+  LoadFromExcel(AFileName);
 end;
 
 procedure TViewSubParameters.actRollbackExecute(Sender: TObject);
@@ -232,6 +232,7 @@ begin
   finally
     EndUpdate;
   end;
+  MyApplyBestFitForView(MainView);
   UpdateView;
 end;
 

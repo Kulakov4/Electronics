@@ -109,6 +109,7 @@ type
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure LoadFromExcel(const AFileName: String);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -213,7 +214,7 @@ begin
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
     procedure(AView: TcxGridDBBandedTableView)
     begin
-      AView.OptionsView.ColumnAutoWidth := False;
+      AView.OptionsView.ColumnAutoWidth := false;
       AView.OptionsView.CellAutoHeight := True;
     end);
 end;
@@ -225,26 +226,7 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
-  BeginUpdate;
-  try
-    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM,
-      TfrmImportError,
-      procedure(ASender: TObject)
-      begin
-        DescriptionsGroup.LoadDataFromExcelTable
-          (ASender as TDescriptionsExcelTable);
-      end,
-      procedure(ASender: TObject)
-      begin
-        (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
-          DescriptionsGroup.qDescriptions.FDQuery;
-        (ASender as TDescriptionsExcelTable).ProducersDataSet :=
-          DescriptionsGroup.qProducers.FDQuery
-      end);
-  finally
-    EndUpdate;
-  end;
-  UpdateView;
+  LoadFromExcel(AFileName);
 end;
 
 procedure TViewDescriptions.actRollbackExecute(Sender: TObject);
@@ -548,6 +530,30 @@ begin
     if (Result <> nil) and (not Result.Focused) then
       Result := nil;
   end;
+end;
+
+procedure TViewDescriptions.LoadFromExcel(const AFileName: String);
+begin
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM,
+      TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        DescriptionsGroup.LoadDataFromExcelTable
+          (ASender as TDescriptionsExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
+          DescriptionsGroup.qDescriptions.FDQuery;
+        (ASender as TDescriptionsExcelTable).ProducersDataSet :=
+          DescriptionsGroup.qProducers.FDQuery
+      end);
+  finally
+    EndUpdate;
+  end;
+  UpdateView;
 end;
 
 procedure TViewDescriptions.Locate(const AComponentName: string);
