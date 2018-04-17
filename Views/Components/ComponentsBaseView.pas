@@ -151,7 +151,7 @@ begin
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
 
   TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
-    DoOnDescriptionPopupHide);
+    DoOnDescriptionPopupHide, FEventList);
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));

@@ -107,12 +107,12 @@ begin
   Main := qFamily;
   Detail := qComponents;
 
-  TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost);
+  TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost, EventList);
 
-  TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete);
-  TNotifyEventWrap.Create(qFamily.AfterDelete, AfterComponentPostOrDelete);
-  TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete);
-  TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete);
+  TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qFamily.AfterDelete, AfterComponentPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete, EventList);
 end;
 
 procedure TComponentsGroup.AfterComponentPostOrDelete(Sender: TObject);

@@ -44,7 +44,7 @@ begin
   Detail := qProducers;
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qProducerTypes.AfterDelete, DoAfterDelete);
+  TNotifyEventWrap.Create(qProducerTypes.AfterDelete, DoAfterDelete, EventList);
 end;
 
 procedure TProducersGroup.DoAfterDelete(Sender: TObject);

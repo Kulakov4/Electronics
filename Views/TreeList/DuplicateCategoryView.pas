@@ -92,7 +92,7 @@ begin
 
   DataSource.DataSet := qDuplicateCategory;
 
-  TNotifyEventWrap.Create( qDuplicateCategory.AfterSearch, DoAfterSearch );
+  TNotifyEventWrap.Create( qDuplicateCategory.AfterSearch, DoAfterSearch, FEventList );
 end;
 
 procedure TViewDuplicateCategory.UpdateView;

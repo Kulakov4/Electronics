@@ -367,7 +367,7 @@ begin
   FqCatParams := TQryCategoryParameters.Create(Self);
   FqCatSubParams := TQryCategorySubParameters.Create(Self);
 
-  TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad);
+  TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad, EventList);
 
   FBeforeUpdateData := TNotifyEventsEx.Create(Self);
   FAfterUpdateData := TNotifyEventsEx.Create(Self);

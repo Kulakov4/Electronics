@@ -48,9 +48,9 @@ begin
   inherited;
 
 
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen);
-  TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll);
+  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll, FEventList);
 
   AutoTransaction := False;
 end;

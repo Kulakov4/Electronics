@@ -260,7 +260,7 @@ begin
   // Вручную задаём обработчик события
   AcxPopupEditproperties.OnInitPopup := clDescriptionPropertiesInitPopup;
   TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
-    DoOnDescriptionPopupHide);
+    DoOnDescriptionPopupHide, FEventList);
 
   // Список колонок только "для чтения"
   FReadOnlyColumns := TList<TcxDBTreeListColumn>.Create;

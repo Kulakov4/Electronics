@@ -527,11 +527,11 @@ begin
     begin
       // Подписываемся чтобы искать компонент на складах
       TNotifyEventWrap.Create(DM2.ComponentsExGroup.qComponentsEx.OnLocate,
-        DoOnComponentLocate);
+        DoOnComponentLocate, FEventList);
 
       // Подписываемся чтобы искать компонент в параметрической таблице
-      TNotifyEventWrap.Create(DM2.qProducts.OnLocate, DoOnProductLocate);
-      TNotifyEventWrap.Create(DM2.qProductsSearch.OnLocate, DoOnProductLocate);
+      TNotifyEventWrap.Create(DM2.qProducts.OnLocate, DoOnProductLocate, FEventList);
+      TNotifyEventWrap.Create(DM2.qProductsSearch.OnLocate, DoOnProductLocate, FEventList);
 
       // Привязываем представления к данным
       ComponentsFrame.ViewComponents.ComponentsGroup := DM2.ComponentsGroup;
@@ -572,7 +572,7 @@ begin
 
       ViewTreeList.qTreeList := DM2.qTreeList;
       TNotifyEventWrap.Create(DM2.qTreeList.AfterSmartRefresh,
-        DoAfterTreeListSmartRefresh);
+        DoAfterTreeListSmartRefresh, FEventList);
 
       // Привязываем подкатегории к данным (функциональная группа)
       ComponentsFrame.ViewChildCategories.qChildCategories :=

@@ -258,7 +258,7 @@ begin
     DoOnUpdateComponentslCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterOpen,
-    DoOnUpdateComponentslCount);
+    DoOnUpdateComponentslCount, FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterDelete,
     DoOnUpdateComponentslCount, FCountEvents);

@@ -169,22 +169,7 @@ end;
 
 procedure TViewProducers.actCommitExecute(Sender: TObject);
 begin
-  // Мы просто завершаем транзакцию
-  // cxGrid.BeginUpdate();
-  // try
-  // Сохраняем изменения и завершаем транзакцию
   ProducersGroup.Commit;
-
-  // Переносим фокус на первую выделенную запись
-  // FocusSelectedRecord;
-  // finally
-  // cxGrid.EndUpdate;
-  // end;
-
-  // Помещаем фокус в центр грида
-  // PutInTheCenterFocusedRecord;
-
-  // Обновляем представление
   UpdateView;
 end;
 
@@ -500,7 +485,7 @@ begin
         FProducersGroup.qProducers.DataSource;
 
       TNotifyEventWrap.Create(FProducersGroup.qProducers.OnDataChange,
-        DoOnDataChange);
+        DoOnDataChange, FEventList);
 
       InitializeLookupColumn(clProducerTypeID,
         FProducersGroup.qProducerTypes.DataSource, lsEditList,

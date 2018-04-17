@@ -55,13 +55,13 @@ begin
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(qBodyKinds.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qBodyTypes2.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qBodyTypes2.AfterDelete, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qBodyKinds.AfterPost, DoAfterPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qBodyTypes2.AfterPost, DoAfterPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qBodyTypes2.AfterDelete, DoAfterPostOrDelete, EventList);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete);
+  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete, EventList);
 end;
 
 procedure TBodyTypesGroup.DoAfterDelete(Sender: TObject);

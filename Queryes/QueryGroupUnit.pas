@@ -24,6 +24,7 @@ type
     procedure CheckMasterAndDetail;
     function GetHaveAnyChanges: Boolean; virtual;
     procedure InitializeQuery(AQuery: TFDQuery); virtual;
+    property EventList: TObjectList read FEventList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -56,12 +57,9 @@ end;
 
 destructor TQueryGroup.Destroy;
 begin
+  // Отписываемся от всех событий!
   FreeAndNil(FEventList);
-  try
-    inherited;
-  except
-    ;
-  end;
+
 end;
 
 function TQueryGroup.ApplyUpdates: Boolean;

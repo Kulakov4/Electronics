@@ -125,14 +125,14 @@ begin
 //  ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
 //  ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
-  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.AfterOpen, DoAfterTreeListFirstOpen);
+  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.AfterOpen, DoAfterTreeListFirstOpen, FEventList);
   TNotifyEventWrap.Create(qTreeList.BeforeClose, DoBeforeTreeListClose, FEventList);
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
   // При редактировании дочерней категории нужно будет обновлять дерево
-  TNotifyEventWrap.Create(qChildCategories.AfterPost, DoAfterChildCategoriesPostOrDelete);
-  TNotifyEventWrap.Create(qChildCategories.AfterDelete, DoAfterChildCategoriesPostOrDelete);
+  TNotifyEventWrap.Create(qChildCategories.AfterPost, DoAfterChildCategoriesPostOrDelete, FEventList);
+  TNotifyEventWrap.Create(qChildCategories.AfterDelete, DoAfterChildCategoriesPostOrDelete, FEventList);
 
   qProducts.Master := qStoreHouseList;
 

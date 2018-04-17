@@ -66,7 +66,7 @@ begin
   inherited;
   FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(AfterScroll, DoAfterScroll);
+  TNotifyEventWrap.Create(AfterScroll, DoAfterScroll, FEventList);
 end;
 
 procedure TQueryTreeList.AddChildCategory(const AValue: string;

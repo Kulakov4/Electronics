@@ -27,8 +27,8 @@ uses
 
 type
   TfrmProducers = class(TfrmDictonary)
-    ViewProducers: TViewProducers;
   private
+    FViewProducers: TViewProducers;
     { Private declarations }
   protected
     procedure ApplyUpdates; override;
@@ -36,8 +36,10 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
+    constructor Create(AOwner: TComponent); override;
     class function TakeProducer(var AProducerID: Integer;
       var AProducerName: String): Boolean; static;
+    property ViewProducers: TViewProducers read FViewProducers;
     { Public declarations }
   end;
 
@@ -49,6 +51,14 @@ implementation
 {$R *.dfm}
 
 uses ProducersQuery, DialogUnit, ProducersGroupUnit, SettingsController;
+
+constructor TfrmProducers.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewProducers := TViewProducers.Create(Self);
+  FViewProducers.Parent := Panel1;
+  FViewProducers.Align := alClient;
+end;
 
 procedure TfrmProducers.ApplyUpdates;
 begin

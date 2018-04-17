@@ -29,14 +29,15 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure LoadDataFromExcelTable(ADescriptionsExcelTable :
-        TDescriptionsExcelTable);
+    procedure LoadDataFromExcelTable(ADescriptionsExcelTable
+      : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
     procedure ReOpen; override;
     procedure Rollback; override;
     property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
-    property qDescriptionTypes: TQueryDescriptionTypes read GetqDescriptionTypes;
+    property qDescriptionTypes: TQueryDescriptionTypes
+      read GetqDescriptionTypes;
     property qProducers: TQueryProducers read GetqProducers;
     { Public declarations }
   end;
@@ -56,13 +57,18 @@ begin
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(qDescriptionTypes.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qDescriptions.AfterPost, DoAfterPostOrDelete);
-  TNotifyEventWrap.Create(qDescriptions.AfterDelete, DoAfterPostOrDelete);
+  TNotifyEventWrap.Create(qDescriptionTypes.AfterPost, DoAfterPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qDescriptions.AfterPost, DoAfterPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qDescriptions.AfterDelete, DoAfterPostOrDelete,
+    EventList);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterDelete);
+  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterDelete,
+    EventList);
 end;
 
 procedure TDescriptionsGroup.Commit;
@@ -100,7 +106,8 @@ begin
   end
   else
     // Пытаемся искать среди типов кратких описаний
-    if qDescriptionTypes.LocateByField(qDescriptionTypes.ComponentType.FieldName, S) then
+    if qDescriptionTypes.LocateByField
+      (qDescriptionTypes.ComponentType.FieldName, S) then
     begin
       Result.Add(S);
     end;
@@ -132,8 +139,8 @@ begin
   Result := FqProducers;
 end;
 
-procedure TDescriptionsGroup.LoadDataFromExcelTable(ADescriptionsExcelTable :
-    TDescriptionsExcelTable);
+procedure TDescriptionsGroup.LoadDataFromExcelTable(ADescriptionsExcelTable
+  : TDescriptionsExcelTable);
 var
   AField: TField;
   I: Integer;
@@ -159,7 +166,8 @@ begin
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
       qDescriptions.IDComponentType.Value := qDescriptionTypes.PK.Value;
-      qDescriptions.IDProducer.Value := ADescriptionsExcelTable.IDProducer.Value;
+      qDescriptions.IDProducer.Value :=
+        ADescriptionsExcelTable.IDProducer.Value;
       qDescriptions.FDQuery.Post;
 
       ADescriptionsExcelTable.Next;
@@ -180,7 +188,7 @@ begin
   qDescriptionTypes.FDQuery.DisableControls;
   try
     qDescriptions.LocateByPK(AIDDescription);
-    qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.AsInteger );
+    qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.AsInteger);
   finally
     qDescriptionTypes.FDQuery.EnableControls;
     qDescriptions.FDQuery.EnableControls;

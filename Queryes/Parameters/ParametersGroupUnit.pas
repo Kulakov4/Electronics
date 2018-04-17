@@ -73,22 +73,22 @@ begin
 
   FAfterDataChange := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoOnDataChange);
-  TNotifyEventWrap.Create(qParameterTypes.AfterDelete, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoOnDataChange, EventList);
+  TNotifyEventWrap.Create(qParameterTypes.AfterDelete, DoOnDataChange, EventList);
 
-  TNotifyEventWrap.Create(qParameters.AfterPost, DoOnDataChange);
-  TNotifyEventWrap.Create(qParameters.AfterDelete, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameters.AfterPost, DoOnDataChange, EventList);
+  TNotifyEventWrap.Create(qParameters.AfterDelete, DoOnDataChange, EventList);
 
-  TNotifyEventWrap.Create(qParamSubParams.AfterPost, DoOnDataChange);
-  TNotifyEventWrap.Create(qParamSubParams.AfterDelete, DoOnDataChange);
+  TNotifyEventWrap.Create(qParamSubParams.AfterPost, DoOnDataChange, EventList);
+  TNotifyEventWrap.Create(qParamSubParams.AfterDelete, DoOnDataChange, EventList);
 
-  TNotifyEventWrap.Create(qParameterTypes.AfterOpen, DoOnDataChange);
-  TNotifyEventWrap.Create(qParameters.AfterOpen, DoOnDataChange);
-  TNotifyEventWrap.Create(qParamSubParams.AfterOpen, DoOnDataChange);
+  TNotifyEventWrap.Create(qParameterTypes.AfterOpen, DoOnDataChange, EventList);
+  TNotifyEventWrap.Create(qParameters.AfterOpen, DoOnDataChange, EventList);
+  TNotifyEventWrap.Create(qParamSubParams.AfterOpen, DoOnDataChange, EventList);
 
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete);
+  TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete, EventList);
 end;
 
 destructor TParametersGroup.Destroy;
