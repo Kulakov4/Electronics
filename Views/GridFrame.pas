@@ -615,6 +615,7 @@ end;
 
 procedure TfrmGrid.EndUpdate;
 begin
+  Assert(FUpdateCount > 0);
   cxGrid.EndUpdate;
   Dec(FUpdateCount)
 end;
