@@ -22,6 +22,7 @@ object frmGrid: TfrmGrid
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
       OptionsBehavior.CopyCaptionsToClipboard = False
+      OptionsCustomize.ColumnSorting = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
       OptionsSelection.InvertSelect = False

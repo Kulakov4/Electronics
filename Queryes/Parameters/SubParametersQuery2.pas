@@ -10,10 +10,10 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, SubParametersExcelDataModule,
-  System.StrUtils;
+  System.StrUtils, OrderQuery;
 
 type
-  TQuerySubParameters2 = class(TQueryWithDataSource)
+  TQuerySubParameters2 = class(TQueryOrder)
   private
     procedure DoAfterInsert(Sender: TObject);
     procedure DoBeforeCheckedOpen(Sender: TObject);
