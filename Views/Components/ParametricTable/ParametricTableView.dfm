@@ -233,6 +233,11 @@ inherited ViewParametricTable: TViewParametricTable
           ItemName = 'dxbsColumns'
         end
         item
+          ViewLayout = ivlGlyphControlCaption
+          Visible = True
+          ItemName = 'cxbeiTableName'
+        end
+        item
           Visible = True
           ItemName = 'dxbrbtnApplyUpdates'
         end
@@ -285,6 +290,19 @@ inherited ViewParametricTable: TViewParametricTable
       Action = actRefresh
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object cxbeiTableName: TcxBarEditItem
+      Caption = #1058#1072#1073#1083#1080#1095#1085#1086#1077' '#1080#1084#1103
+      Category = 0
+      Hint = #1058#1072#1073#1083#1080#1095#1085#1086#1077' '#1080#1084#1103
+      Visible = ivAlways
+      ShowCaption = True
+      Width = 0
+      PropertiesClassName = 'TcxCheckBoxProperties'
+      Properties.ImmediatePost = True
+      Properties.OnChange = cxbeiTableNamePropertiesChange
+      Properties.OnEditValueChanged = cxbeiTableNamePropertiesEditValueChanged
+      InternalEditValue = 'True'
     end
   end
   inherited ActionList: TActionList
