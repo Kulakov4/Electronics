@@ -6,22 +6,29 @@ uses
   CustomErrorTable, Data.DB, System.Classes, System.SysUtils, ExcelDataModule;
 
 type
-  TParametricErrorType = (petNotFound, petSubParamNotFound, petDuplicate, petNotUnique);
+  TParametricErrorType = (petParamNotFound, petParamDuplicate,
+    petSubParamNotFound, petSubParamDuplicate, petNotUnique);
 
   TParametricErrorTable = class(TCustomErrorTable)
   private
     function GetDescription: TField;
     function GetError: TField;
     function GetErrorType: TField;
+    function GetLargeError: TField;
     function GetStringTreeNodeID: TField;
     function GetParameterID: TField;
     function GetParameterName: TField;
+  protected
+    property LargeError: TField read GetLargeError;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddErrorMessage(const AParameterName, AMessage: string; const
-        AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
+        AErrorType: TParametricErrorType; ALargeError: Boolean; AStringTreeNodeID:
+        Integer);
     procedure FilterFixed;
+    procedure FilterLargeError;
     procedure Fix(AParameterID: Integer);
+    function LocateByID(AStringTreeNodeID: Integer): Boolean;
     property Description: TField read GetDescription;
     property Error: TField read GetError;
     property ErrorType: TField read GetErrorType;
@@ -40,6 +47,7 @@ begin
   FieldDefs.Add('Description', ftWideString, 150);
   FieldDefs.Add('StringTreeNodeID', ftInteger, 0);
   FieldDefs.Add('ErrorType', ftInteger, 0);
+  FieldDefs.Add('LargeError', ftBoolean, 0);
   FieldDefs.Add('ParameterID', ftInteger, 0);
   CreateDataSet;
 
@@ -69,7 +77,8 @@ begin
 end;
 
 procedure TParametricErrorTable.AddErrorMessage(const AParameterName, AMessage:
-    string; const AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
+    string; const AErrorType: TParametricErrorType; ALargeError: Boolean;
+    AStringTreeNodeID: Integer);
 begin
   Assert(Active);
   Assert(AStringTreeNodeID > 0);
@@ -82,6 +91,7 @@ begin
   Description.AsString := AMessage;
   StringTreeNodeID.AsInteger := AStringTreeNodeID;
   ErrorType.AsInteger := Integer(AErrorType);
+  LargeError.AsBoolean := ALargeError;
   Post;
 end;
 
@@ -89,6 +99,11 @@ procedure TParametricErrorTable.FilterFixed;
 begin
   Filter := Format('%s is not null', [ParameterID.FieldName]);
   Filtered := True;
+end;
+
+procedure TParametricErrorTable.FilterLargeError;
+begin
+  Filter := Format('%s = true', [LargeError.FieldName]);
 end;
 
 procedure TParametricErrorTable.Fix(AParameterID: Integer);
@@ -106,6 +121,11 @@ begin
   Result := FieldByName('ErrorType');
 end;
 
+function TParametricErrorTable.GetLargeError: TField;
+begin
+  Result := FieldByName('LargeError');
+end;
+
 function TParametricErrorTable.GetStringTreeNodeID: TField;
 begin
   Result := FieldByName('StringTreeNodeID');
@@ -114,6 +134,11 @@ end;
 function TParametricErrorTable.GetParameterID: TField;
 begin
   Result := FieldByName('ParameterID');
+end;
+
+function TParametricErrorTable.LocateByID(AStringTreeNodeID: Integer): Boolean;
+begin
+  Result := LocateEx(StringTreeNodeID.FieldName, AStringTreeNodeID, []);
 end;
 
 end.

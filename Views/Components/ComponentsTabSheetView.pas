@@ -107,8 +107,10 @@ type
     procedure LoadDocFromExcelDocument;
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TFieldsInfo): Boolean;
-    function InternalLoadExcelFileHeader(AExcelDM: TExcelDM;
-      ARootTreeNode: TStringTreeNode; AFieldsInfo: TFieldsInfo): Boolean;
+    function InternalLoadExcelFileHeader(ARootTreeNode: TStringTreeNode;
+      AFieldsInfo: TFieldsInfo): Boolean;
+    function InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
+      AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
     procedure LoadParametricData(AComponentTypeSet: TComponentTypeSet);
     procedure LoadParametricDataFromActiveSheet;
     procedure TryUpdateWrite0Statistic(API: TProgressInfo);
@@ -544,10 +546,7 @@ end;
 function TComponentsFrame.LoadExcelFileHeader(var AFileName: String;
 AFieldsInfo: TFieldsInfo): Boolean;
 var
-  AExcelDM: TExcelDM;
   ARootTreeNode: TStringTreeNode;
-  FamilyNameCoumn: string;
-
 begin
   Result := False;
   Assert(AFieldsInfo <> nil);
@@ -559,27 +558,187 @@ begin
   // Сохраняем эту папку в настройках
   TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
 
-  // Варианты того как может называться колонка с наименованием компонентов
-  FamilyNameCoumn := ';PART;PART NUMBER;';
-
   // Описания полей excel файла
-  AExcelDM := TExcelDM.Create(Self);
-  ARootTreeNode := AExcelDM.LoadExcelFileHeader(AFileName);
+  ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
   try
-    Result := InternalLoadExcelFileHeader(AExcelDM, ARootTreeNode, AFieldsInfo);
+    Result := InternalLoadExcelFileHeader(ARootTreeNode, AFieldsInfo);
   finally
     FreeAndNil(ARootTreeNode);
-    FreeAndNil(AExcelDM);
   end;
 end;
 
-function TComponentsFrame.InternalLoadExcelFileHeader(AExcelDM: TExcelDM;
-ARootTreeNode: TStringTreeNode; AFieldsInfo: TFieldsInfo): Boolean;
+function TComponentsFrame.InternalLoadExcelFileHeader(ARootTreeNode
+  : TStringTreeNode; AFieldsInfo: TFieldsInfo): Boolean;
+
+  function ShowErrorForm(AParametricErrorTable: TParametricErrorTable): Boolean;
+  var
+    AfrmParametricTableError: TfrmParametricTableError;
+  begin
+    AfrmParametricTableError := TfrmParametricTableError.Create(Self);
+    try
+      // AfrmGridView.Caption := 'Ошибки среди параметров';
+      AfrmParametricTableError.ViewParametricTableError.DataSet :=
+        AParametricErrorTable;
+      // Показываем что мы собираемся привязывать
+      Result := AfrmParametricTableError.ShowModal = mrOk;
+    finally
+      FreeAndNil(AfrmParametricTableError);
+    end;
+  end;
+
 var
   AFixIDList: TList<TPair<Integer, Integer>>;
   AFieldInfo: TFieldInfo;
   AFieldName: string;
   AParametricErrorTable: TParametricErrorTable;
+  AStringTreeNode: TStringTreeNode;
+  AStringTreeNode2: TStringTreeNode;
+  I: Integer;
+  nf: Boolean;
+  OK: Boolean;
+  rc: Integer;
+  AIDArray: TArray<Integer>;
+  AID: Integer;
+  APair: TPair<Integer, Integer>;
+  AParamSubParamID: Integer;
+  FamilyNameCoumn: string;
+  prc: Integer;
+begin
+  Result := False;
+  Assert(AFieldsInfo <> nil);
+
+  // Описания полей excel файла
+  AParametricErrorTable := TParametricErrorTable.Create(Self);
+  try
+    AIDArray := InternalLoadExcelFileHeaderEx(ARootTreeNode,
+      AParametricErrorTable);
+
+    if Length(AIDArray) = 0 then
+    begin
+      TDialog.Create.ParametricTableNotFound;
+      Exit;
+    end;
+
+    // Оставляем только большие ошибки (Параметр не найден)
+    AParametricErrorTable.FilterLargeError;
+    // Пока обнаруживаются грубые ошибки
+    while AParametricErrorTable.RecordCount > 0 do
+    begin
+      OK := ShowErrorForm(AParametricErrorTable);
+
+      // Если отказались от загрузки
+      if not OK then
+        Exit;
+
+      AIDArray := InternalLoadExcelFileHeaderEx(ARootTreeNode,
+        AParametricErrorTable);
+
+      // Снова оставляем только большие ошибки
+      AParametricErrorTable.FilterLargeError;
+    end;
+
+    // Если больших ошибок не осталось
+    // Берём все ошибки
+    AParametricErrorTable.Filtered := False;
+    AParametricErrorTable.Filter := '';
+
+    OK := AParametricErrorTable.RecordCount = 0;
+    // Если остались ещё простые ошибки
+    if not OK then
+    begin
+      OK := ShowErrorForm(AParametricErrorTable);
+
+      // Если отказались от загрузки
+      if not OK then
+        Exit;
+    end;
+
+  finally
+    FreeAndNil(AParametricErrorTable);
+  end;
+
+  // Для всех найденных полей создаём их описания
+  for AID in AIDArray do
+  begin
+    // Если этот столбец с ошибкой
+    if AID < 0 then
+      AFieldName := GetNFFieldName(-AID)
+    else
+      AFieldName := TParametricExcelTable.GetFieldNameByParamSubParamID(AID);
+
+    AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
+  end;
+
+  Result := OK;
+end;
+
+function TComponentsFrame.InternalLoadExcelFileHeaderEx(ARootTreeNode
+  : TStringTreeNode; AParametricErrorTable: TParametricErrorTable)
+  : TArray<Integer>;
+
+  function ProcessParamSearhResult(var AParamSubParamID: Integer;
+  ACount: Integer; AStringTreeNode: TStringTreeNode;
+  AParametricErrorTable: TParametricErrorTable): Boolean;
+  begin
+    Result := True;
+    if ACount = 1 then
+      Exit;
+
+    if ACount = 0 then
+    begin
+      AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+        'Параметр не найден', petParamNotFound, True, AStringTreeNode.ID);
+    end
+    else
+    begin
+      AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+        Format('Параметр найден в справочнике параметров %d раз', [ACount]),
+        petParamDuplicate, False, AStringTreeNode.ID);
+    end;
+
+    AParamSubParamID := -AStringTreeNode.ID;
+    Result := False;
+  end;
+
+  procedure ProcessSubParamSearhResult(var AParamSubParamID: Integer;
+  ACount: Integer; AStringTreeNode: TStringTreeNode;
+  AParametricErrorTable: TParametricErrorTable);
+  begin
+    case ACount of
+      0:
+        AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+          'Подпараметр не найден', petSubParamNotFound, False,
+          AStringTreeNode.ID);
+      1:
+        Exit; // Нашли один раз - это хорошо
+    else
+      AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+        Format('Подпараметр найден в справочнике подпараметров %d раз', [ACount]
+        ), petSubParamDuplicate, False, AStringTreeNode.ID);
+    end;
+
+    AParamSubParamID := -AStringTreeNode.ID;
+  end;
+
+  procedure CheckUniqueSubParam(var AParamSubParamID: Integer;
+  AIDList: TList<Integer>; AStringTreeNode: TStringTreeNode;
+  AParametricErrorTable: TParametricErrorTable);
+  begin
+    // Проверяем, не встечался ли такой подпараметр ранее
+    if not((AParamSubParamID > 0) and (AIDList.IndexOf(AParamSubParamID) >= 0))
+    then
+      Exit;
+
+    AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
+      'Параметр встречается более одного раза', petNotUnique, True,
+      AStringTreeNode.ID);
+    AParamSubParamID := -AStringTreeNode.ID;
+  end;
+
+var
+  AFixIDList: TList<TPair<Integer, Integer>>;
+  AFieldInfo: TFieldInfo;
+  AFieldName: string;
   AStringTreeNode: TStringTreeNode;
   AStringTreeNode2: TStringTreeNode;
   I: Integer;
@@ -592,21 +751,19 @@ var
   APair: TPair<Integer, Integer>;
   AParamSubParamID: Integer;
   FamilyNameCoumn: string;
+  ParamIsOk: Boolean;
   prc: Integer;
+  SubParamIsOk: Boolean;
 
 begin
-  Result := False;
-  Assert(AFieldsInfo <> nil);
+  Assert(AParametricErrorTable <> nil);
 
   // Варианты того как может называться колонка с наименованием компонентов
   FamilyNameCoumn := ';PART;PART NUMBER;';
 
   // Описания полей excel файла
-  AParametricErrorTable := TParametricErrorTable.Create(Self);
   AIDList := TList<Integer>.Create;
   try
-    ARootTreeNode.ClearMaxID;
-
     // Цикл по всем заголовкам таблицы
     for AStringTreeNode in ARootTreeNode.Childs do
     begin
@@ -616,59 +773,73 @@ begin
       begin
         Assert(AStringTreeNode.Childs.Count = 0);
         AIDList.Add(-AStringTreeNode.ID);
-        // AFieldsInfo.Add
-        // (TFieldInfo.Create(GetNFFieldName(AStringTreeNode.ID)));
         Continue;
       end;
 
-      // Нужно найти такой параметр
-      prc := qSearchParameter.SearchMain(AStringTreeNode.value);
+      // Ищем, возможно этот узел уже исправляли
+      ParamIsOk := AParametricErrorTable.LocateByID(AStringTreeNode.ID);
+      if ParamIsOk then
+        qSearchParameter.LocateByPK(AParametricErrorTable.ParameterID.AsInteger)
+      else
+      begin
+        // Ищем такой параметр в справочнике параметров
+        prc := qSearchParameter.SearchMain(AStringTreeNode.value);
+        ParamIsOk := ProcessParamSearhResult(AParamSubParamID, prc,
+          AStringTreeNode, AParametricErrorTable);
+      end;
+
       // Цикл по всем подпараметрам
       if AStringTreeNode.Childs.Count > 0 then
       begin
         for AStringTreeNode2 in AStringTreeNode.Childs do
         begin
-          // если параметр был найден
-          if prc = 1 then
+          // Если с нашим параметром не всё в порядке
+          if not ParamIsOk then
           begin
-            // Ищем, есть ли подпараметр с таким именем
+            // Этот столбец в Excel-файле будем пропускать
+            AParamSubParamID := -1;
+            Continue;
+          end;
+
+          // Ищем, возможно этот узел уже исправляли
+          SubParamIsOk := AParametricErrorTable.LocateByID(AStringTreeNode2.ID);
+          if SubParamIsOk then
+            qSubParameters.LocateByPK
+              (AParametricErrorTable.ParameterID.AsInteger)
+          else
+          begin
+            // Ищем такой подпараметр в справочнике подпараметров
             rc := qSubParameters.Search(AStringTreeNode2.value);
+            SubParamIsOk := ProcessSubParamSearhResult(AParamSubParamID, rc,
+              AStringTreeNode2, AParametricErrorTable);
+          end;
+
+          // Ищем, есть ли подпараметр с таким именем
+          rc := qSubParameters.Search(AStringTreeNode2.value);
+          Assert(rc <= 1);
+          if rc = 1 then
+          begin
+            // Ищем, есть ли у нашего параметра такой подпараметр
+            rc := qParamSubParams.SearchBySubParam
+              (qSearchParameter.PK.AsInteger, qSubParameters.PK.AsInteger);
             Assert(rc <= 1);
-            if rc = 1 then
-            begin
-              // Ищем, есть ли у нашего параметра такой подпараметр
-              rc := qParamSubParams.SearchBySubParam
-                (qSearchParameter.PK.AsInteger, qSubParameters.PK.AsInteger);
-              // Если нужно связть параметр с подпараметром
-              if rc = 0 then
-                qParamSubParams.AppendSubParameter
-                  (qSearchParameter.PK.AsInteger, qSubParameters.PK.AsInteger);
 
-              // Запоминаем описание поля связанного с подпараметром
-              AParamSubParamID := qParamSubParams.PK.AsInteger;
-            end
-            else
-            begin
-              AParametricErrorTable.AddErrorMessage(AStringTreeNode2.value,
-                'Подпараметр не найден', petSubParamNotFound,
-                AStringTreeNode2.ID);
-              AParamSubParamID := -AStringTreeNode2.ID;
-            end;
+            // Если нужно связть параметр с подпараметром
+            if rc = 0 then
+              qParamSubParams.AppendSubParameter(qSearchParameter.PK.AsInteger,
+                qSubParameters.PK.AsInteger);
+
+            // Запоминаем описание поля связанного с подпараметром
+            AParamSubParamID := qParamSubParams.PK.AsInteger;
           end
-          else // параметр был не найден или дублируется
+          else
           begin
-            AParamSubParamID := -AStringTreeNode2.ID;
+            ProcessSubParamSearhResult(AParamSubParamID, rc, AStringTreeNode2,
+              AParametricErrorTable);
           end;
 
-          // Проверяем, не встечался ли такой подпараметр ранее
-          if (AParamSubParamID > 0) and (AIDList.IndexOf(AParamSubParamID) >= 0)
-          then
-          begin
-            AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-              'Параметр встречается более одного раза', petNotUnique,
-              AStringTreeNode.ID);
-            AParamSubParamID := -AStringTreeNode.ID;
-          end;
+          CheckUniqueSubParam(AParamSubParamID, AIDList, AStringTreeNode,
+            AParametricErrorTable);
 
           AIDList.Add(AParamSubParamID);
         end;
@@ -685,157 +856,26 @@ begin
         end
         else
         begin
-          case prc of
-            0:
-              AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-                'Параметр не найден', petNotFound, AStringTreeNode.ID);
-            1:
-              ; // Нашли один раз - это хорошо
-          else
-            AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-              Format('Параметр найден в справочнике параметров %d раз', [prc]),
-              petDuplicate, AStringTreeNode.ID);
-          end;
-
-          AParamSubParamID := -AStringTreeNode.ID;
+          ProcessParamSearhResult(AParamSubParamID, prc, AStringTreeNode,
+            AParametricErrorTable);
         end;
 
         // Проверяем, не встечался ли такой подпараметр ранее
-        if (AParamSubParamID > 0) and (AIDList.IndexOf(AParamSubParamID) >= 0)
-        then
-        begin
-          AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-            'Параметр встречается более одного раза', petNotUnique,
-            AStringTreeNode.ID);
-          AParamSubParamID := -AStringTreeNode.ID;
-        end;
+        CheckUniqueSubParam(AParamSubParamID, AIDList, AStringTreeNode,
+          AParametricErrorTable);
 
         AIDList.Add(AParamSubParamID);
       end;
     end;
 
-    // Для всех найденных полей создаём их описания
-    for AID in AIDList do
-    begin
-      // Если этот столбец с ошибкой
-      if AID < 0 then
-        AFieldName := GetNFFieldName(-AID)
-      else
-        AFieldName := TParametricExcelTable.GetFieldNameByParamSubParamID(AID);
-
-      AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
-    end;
-
-    if AFieldsInfo.Count = 0 then
-    begin
-      TDialog.Create.ParametricTableNotFound;
-      Exit;
-    end;
-
-    // Если среди параметров есть ошибки (не найденные)
-    OK := AParametricErrorTable.RecordCount = 0;
-    if not OK then
-    begin
-      AfrmParametricTableError := TfrmParametricTableError.Create(Self);
-      try
-        // AfrmGridView.Caption := 'Ошибки среди параметров';
-        AfrmParametricTableError.ViewParametricTableError.DataSet :=
-          AParametricErrorTable;
-        // Показываем что мы собираемся привязывать
-        OK := AfrmParametricTableError.ShowModal = mrOk;
-      finally
-        FreeAndNil(AfrmParametricTableError);
-      end;
-
-      if OK then
-      begin
-        // Оставляем только то, что исправили
-        AParametricErrorTable.FilterFixed;
-        AParametricErrorTable.First;
-        AFixIDList := TList < TPair < Integer, Integer >>.Create;
-        try
-          while not AParametricErrorTable.Eof do
-          begin
-            Assert(AParametricErrorTable.ParameterID.AsInteger > 0);
-
-            // Ищем тот узел в дереве, который вызыал ошибку
-            AStringTreeNode := ARootTreeNode.FindByID
-              (AParametricErrorTable.StringTreeNodeID.AsInteger);
-            Assert(AStringTreeNode <> nil);
-
-            // если есть подпараметры
-            if AStringTreeNode.Childs.Count > 0 then
-            begin
-              // Цикл по всем подпараметрам изначально не найденного параметра
-              for AStringTreeNode2 in AStringTreeNode.Childs do
-              begin
-
-                // Ищем, есть ли подпараметр с таким именем
-                rc := qSubParameters.Search(AStringTreeNode2.value);
-                Assert(rc <= 1);
-                if rc = 1 then
-                begin
-                  // Ищем, есть ли у нашего параметра такой подпараметр
-                  rc := qParamSubParams.SearchBySubParam
-                    (qSearchParameter.PK.AsInteger,
-                    qSubParameters.PK.AsInteger);
-                  // Если нужно связть параметр с подпараметром
-                  if rc = 0 then
-                    qParamSubParams.AppendSubParameter
-                      (qSearchParameter.PK.AsInteger,
-                      qSubParameters.PK.AsInteger);
-
-                  // Запоминаем описание поля связанного с подпараметром
-                  AParamSubParamID := qParamSubParams.PK.AsInteger;
-                  AFixIDList.Add
-                    (TPair<Integer, Integer>.Create(AParamSubParamID,
-                    AStringTreeNode2.ID));
-                end
-              end;
-            end
-            else
-            begin
-              // Ищем подпараметр "по умолчанию" для параметра без подпараметров
-              qSearchParamDefSubParam.SearchByID
-                (AParametricErrorTable.ParameterID.AsInteger, 1);
-              AParamSubParamID :=
-                qSearchParamDefSubParam.ParamSubParamID.AsInteger;
-              AFixIDList.Add(TPair<Integer, Integer>.Create(AParamSubParamID,
-                AStringTreeNode.ID));
-            end;
-            AParametricErrorTable.Next;
-          end;
-          // Анализируем, что мы пофиксили
-          for APair in AFixIDList do
-          begin
-            // Если такое сочетание параметра-подпараметра уже встречается
-            if (AIDList.IndexOf(APair.Key) >= 0) then
-              Continue;
-
-            AIDList.Add(APair.Key);
-            AFieldName := TParametricExcelTable.GetFieldNameByParamSubParamID
-              (APair.Key);
-
-            // Ищем описание этого поля
-            AFieldInfo := AFieldsInfo.Find(GetNFFieldName(APair.value));
-            Assert(AFieldInfo <> nil);
-            // Изменяем имя поля
-            AFieldInfo.FieldName := AFieldName;
-          end;
-        finally
-          FreeAndNil(AFixIDList);
-        end;
-      end;
-    end;
+    Result := AIDList.ToArray;
   finally
     FreeAndNil(AIDList);
-    FreeAndNil(AParametricErrorTable);
   end;
-  Result := OK;
 end;
 
-procedure TComponentsFrame.LoadParametricData(AComponentTypeSet:
-    TComponentTypeSet);
+procedure TComponentsFrame.LoadParametricData(AComponentTypeSet
+  : TComponentTypeSet);
 var
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
@@ -846,7 +886,8 @@ begin
     if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
       Exit;
 
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, AComponentTypeSet);
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
+      AComponentTypeSet);
     FWriteProgress := TTotalProgress.Create;
     FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try
@@ -875,7 +916,6 @@ end;
 
 procedure TComponentsFrame.LoadParametricDataFromActiveSheet;
 var
-  AExcelDM: TExcelDM;
   AFieldsInfo: TFieldsInfo;
   AParametricExcelDM: TParametricExcelDM;
   ARootTreeNode: TStringTreeNode;
@@ -883,19 +923,15 @@ begin
   AFieldsInfo := TFieldsInfo.Create();
   try
     // Описания полей excel файла
-    AExcelDM := TExcelDM.Create(Self);
+    ARootTreeNode := TExcelDM.LoadExcelFileHeaderFromActiveSheet;
     try
-      ARootTreeNode := AExcelDM.LoadExcelFileHeaderFromActiveSheet;
-      try
-        InternalLoadExcelFileHeader(AExcelDM, ARootTreeNode, AFieldsInfo);
-      finally
-        FreeAndNil(ARootTreeNode);
-      end;
+      InternalLoadExcelFileHeader(ARootTreeNode, AFieldsInfo);
     finally
-      FreeAndNil(AExcelDM);
+      FreeAndNil(ARootTreeNode);
     end;
 
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo, [ctComponent, ctFamily]);
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
+      [ctComponent, ctFamily]);
     FWriteProgress := TTotalProgress.Create;
     FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try

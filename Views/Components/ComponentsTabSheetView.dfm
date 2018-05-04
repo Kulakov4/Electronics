@@ -34,9 +34,9 @@ object ComponentsFrame: TComponentsFrame
         ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
-          Height = 405
+          Height = 433
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 433
         end
         inherited StatusBar: TStatusBar
           Top = 433
@@ -48,7 +48,7 @@ object ComponentsFrame: TComponentsFrame
           DockControlHeights = (
             0
             0
-            28
+            0
             0)
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu

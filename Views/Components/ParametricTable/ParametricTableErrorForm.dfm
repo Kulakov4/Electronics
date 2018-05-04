@@ -21,11 +21,15 @@ inherited frmParametricTableError: TfrmParametricTableError
       Height = 327
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = -176
-      ExplicitTop = -162
+      ExplicitLeft = 1
+      ExplicitTop = 1
+      ExplicitWidth = 715
+      ExplicitHeight = 327
       inherited cxGrid: TcxGrid
         Width = 715
         Height = 280
+        ExplicitWidth = 715
+        ExplicitHeight = 280
         inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
           inherited clButton: TcxGridDBBandedColumn
             Properties.Buttons = <

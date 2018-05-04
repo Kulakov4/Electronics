@@ -34,13 +34,12 @@ type
     FParent: TStringTreeNode;
     FValue: string;
   protected
-  class var
-    FMaxID: Integer;
+    class var FMaxID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
     function AddChild(const AValue: String): TStringTreeNode;
-    procedure ClearMaxID;
+    class procedure ClearMaxID;
     function FindByID(AID: Integer): TStringTreeNode;
     property Childs: TList<TStringTreeNode> read FChilds write FChilds;
     property ID: Integer read FID;
@@ -71,6 +70,8 @@ type
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
+    function LoadExcelFileHeaderEx(const AFileName: string): TStringTreeNode;
+    function LoadExcelFileHeaderFromActiveSheetEx: TStringTreeNode;
     function LoadExcelFileHeaderInternal: TStringTreeNode;
     // TODO: LoadExcelFile
     // procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
@@ -92,8 +93,9 @@ type
     procedure ConnectToSheet(ASheetIndex: Integer = -1);
     procedure LoadExcelFile2(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
-    function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
-    function LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+    class function LoadExcelFileHeader(const AFileName: string)
+      : TStringTreeNode; static;
+    class function LoadExcelFileHeaderFromActiveSheet: TStringTreeNode; static;
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
@@ -510,7 +512,21 @@ begin
   end;
 end;
 
-function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
+class function TExcelDM.LoadExcelFileHeader(const AFileName: string)
+  : TStringTreeNode;
+var
+  AExcelDM: TExcelDM;
+begin
+  AExcelDM := TExcelDM.Create(nil);
+  try
+    Result := AExcelDM.LoadExcelFileHeaderEx(AFileName);
+  finally
+    FreeAndNil(AExcelDM);
+  end;
+end;
+
+function TExcelDM.LoadExcelFileHeaderEx(const AFileName: string)
+  : TStringTreeNode;
 begin
   InternalLoadExcelFile(AFileName);
   ConnectToSheet(1);
@@ -521,7 +537,19 @@ begin
   EA.Disconnect;
 end;
 
-function TExcelDM.LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+class function TExcelDM.LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+var
+  AExcelDM: TExcelDM;
+begin
+  AExcelDM := TExcelDM.Create(nil);
+  try
+    Result := AExcelDM.LoadExcelFileHeaderFromActiveSheetEx;
+  finally
+    FreeAndNil(AExcelDM);
+  end;
+end;
+
+function TExcelDM.LoadExcelFileHeaderFromActiveSheetEx: TStringTreeNode;
 begin
   EA.ConnectKind := ckRunningInstance;
   try
@@ -554,6 +582,8 @@ var
   ARow: Integer;
   AStringNode: TStringTreeNode;
 begin
+  // Очистили
+  TStringTreeNode.ClearMaxID;
   // Создали дерево
   Result := TStringTreeNode.Create;
   AStringNode := nil;
@@ -563,15 +593,15 @@ begin
   while True do
   begin
     ACell := EWS.Cells.Item[ARow, ACol];
-{
-    if ACell.MergeCells then
-    begin
+    {
+      if ACell.MergeCells then
+      begin
       r := ACell.MergeArea.Row;
       c := ACell.MergeArea.Column;
       rc := ACell.MergeArea.Rows.Count;
       cc := ACell.MergeArea.Columns.Count;
-    end;
-}
+      end;
+    }
     AColor := GetCellsColor(ACell);
     if (AColor = clWhite) and (not ACell.MergeCells) then
       break
@@ -821,7 +851,7 @@ begin
   Childs.Add(Result);
 end;
 
-procedure TStringTreeNode.ClearMaxID;
+class procedure TStringTreeNode.ClearMaxID;
 begin
   FMaxID := 0;
 end;
@@ -836,7 +866,6 @@ begin
 
   if FID = AID then
     Exit;
-
 
   for AStringTreeNode in Childs do
   begin
