@@ -14,59 +14,6 @@ inherited frmParametricTableError: TfrmParametricTableError
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
-    inline ViewParametricTableError: TViewParametricTableError
-      Left = 1
-      Top = 1
-      Width = 715
-      Height = 327
-      Align = alClient
-      TabOrder = 0
-      ExplicitLeft = 1
-      ExplicitTop = 1
-      ExplicitWidth = 715
-      ExplicitHeight = 327
-      inherited cxGrid: TcxGrid
-        Width = 715
-        Height = 280
-        ExplicitWidth = 715
-        ExplicitHeight = 280
-        inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-          inherited clButton: TcxGridDBBandedColumn
-            Properties.Buttons = <
-              item
-                Action = ViewParametricTableError.actFix
-                Default = True
-                Kind = bkText
-              end>
-          end
-        end
-      end
-      inherited StatusBar: TStatusBar
-        Top = 308
-        Width = 715
-        ExplicitTop = 308
-        ExplicitWidth = 715
-      end
-      inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          28
-          0)
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewParametricTableError.cxGridDBBandedTableView
-            HitTypes = [gvhtNone, gvhtCell]
-            Index = 0
-            PopupMenu = ViewParametricTableError.pmGrid
-          end>
-      end
-      inherited cxImageList1: TcxImageList
-        FormatVersion = 1
-      end
-    end
   end
   object cxButtonNext: TcxButton
     Left = 440

@@ -48,11 +48,16 @@ implementation
 
 {$R *.dfm}
 
+uses BaseQuery;
+
 procedure TViewParametricTableError.actFixExecute(Sender: TObject);
 var
   AfrmParameters: TfrmParameters;
   OK: Boolean;
   AParametersGroup: TParametersGroup;
+  F: TField;
+  ErrMsg: String;
+  PKFieldName: String;
 begin
   Assert(ParametricErrorTable <> nil);
 
@@ -65,39 +70,62 @@ begin
     AfrmParameters.ViewParameters.ParametersGrp := AParametersGroup;
     AfrmParameters.ViewSubParameters.QuerySubParameters :=
       AParametersGroup.qSubParameters;
-    // Если ошибка связана с тем, что параметр дублируется в параметрической таблице
-    if ParametricErrorTable.ErrorType.AsInteger = Integer(petParamDuplicate)
-    then
-    begin
-      AfrmParameters.ViewParameters.Search
-        (ParametricErrorTable.ParameterName.AsString);
-      AfrmParameters.ViewParameters.actFilterByTableName.Execute;
+
+    OK := True;
+    case ParametricErrorTable.ErrorType.AsInteger of
+      Integer(petNotUnique):
+        begin
+          OK := False;
+          ShowMessage('Для исправления нужно изменить excel-файл');
+        end;
+
+      Integer(petParamNotFound), Integer(petParamDuplicate):
+        begin
+          // Переключаемся на вкладку "Параметры"
+          AfrmParameters.cxPageControl.ActivePage :=
+            AfrmParameters.cxtsParameters;
+
+          F := AParametersGroup.qParameters.TableName;
+          ErrMsg := 'Табличное имя выбранного параметра не совпадает с заголовком в Excel файле';
+          PKFieldName := AParametersGroup.qParameters.PKFieldName;
+
+          if ParametricErrorTable.ErrorType.AsInteger = Integer
+            (petParamDuplicate) then
+          begin
+            AfrmParameters.ViewParameters.Search
+              (ParametricErrorTable.ParameterName.AsString);
+            AfrmParameters.ViewParameters.actFilterByTableName.Execute;
+          end;
+        end;
+      Integer(petSubParamNotFound), Integer(petSubParamDuplicate):
+        begin
+          // Переключаемся на вкладку "Подпараметры"
+          AfrmParameters.cxPageControl.ActivePage :=
+            AfrmParameters.cxtsSubParameters;
+
+          F := AParametersGroup.qSubParameters.Name;
+          ErrMsg := 'Имя выбранного подпараметра не совпадает с заголовком в Excel файле';
+          PKFieldName := AParametersGroup.qSubParameters.PKFieldName;
+        end;
+    else
+      Assert(False);
     end;
 
-    // Ошибки "Подпараметр не найден, Подпараметр дублируется в справочнике подпараметров"
-    if ParametricErrorTable.ErrorType.AsInteger
-      in [Integer(petSubParamNotFound), Integer(petSubParamDuplicate)] then
-      // Переключаемся на вкладку "Подпараметры"
-      AfrmParameters.cxPageControl.ActivePage :=
-        AfrmParameters.cxtsSubParameters;
-
-    if AfrmParameters.ShowModal <> mrOK then
+    if not OK then
       Exit;
 
-    OK := (AParametersGroup.qParameters.FDQuery.RecordCount <> 0) and
-      (AParametersGroup.qParameters.TableName.AsString = ParametricErrorTable.
-      ParameterName.AsString);
+    if (AfrmParameters.ShowModal <> mrOK) or (F.DataSet.RecordCount = 0) then
+      Exit;
 
-    if OK then
+    if F.AsString <> ParametricErrorTable.ParameterName.AsString then
     begin
-      // Фиксим ошибку
-      ParametricErrorTable.Fix(AParametersGroup.qParameters.PK.AsInteger);
-    end
-    else
-    begin
-      TDialog.Create.ErrorMessageDialog
-        ('Табличное имя выбранного параметра не совпадает с заголовков в Excel файле');
-    end
+      TDialog.Create.ErrorMessageDialog(ErrMsg);
+      Exit;
+    end;
+
+    // Фиксим ошибку
+    ParametricErrorTable.Fix(F.DataSet.FieldByName(PKFieldName).AsInteger);
+
   finally
     FreeAndNil(AfrmParameters);
     FreeAndNil(AParametersGroup);

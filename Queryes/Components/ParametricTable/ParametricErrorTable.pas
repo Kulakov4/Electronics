@@ -14,6 +14,7 @@ type
     function GetDescription: TField;
     function GetError: TField;
     function GetErrorType: TField;
+    function GetFixed: TField;
     function GetLargeError: TField;
     function GetStringTreeNodeID: TField;
     function GetParameterID: TField;
@@ -32,6 +33,7 @@ type
     property Description: TField read GetDescription;
     property Error: TField read GetError;
     property ErrorType: TField read GetErrorType;
+    property Fixed: TField read GetFixed;
     property StringTreeNodeID: TField read GetStringTreeNodeID;
     property ParameterID: TField read GetParameterID;
     property ParameterName: TField read GetParameterName;
@@ -49,6 +51,7 @@ begin
   FieldDefs.Add('ErrorType', ftInteger, 0);
   FieldDefs.Add('LargeError', ftBoolean, 0);
   FieldDefs.Add('ParameterID', ftInteger, 0);
+  FieldDefs.Add('Fixed', ftBoolean);
   CreateDataSet;
 
   Open;
@@ -97,7 +100,7 @@ end;
 
 procedure TParametricErrorTable.FilterFixed;
 begin
-  Filter := Format('%s is not null', [ParameterID.FieldName]);
+  Filter := Format('%s = true', [Fixed.FieldName]);
   Filtered := True;
 end;
 
@@ -111,14 +114,18 @@ begin
   Assert(AParameterID > 0);
   Edit;
   ParameterID.AsInteger := AParameterID;
+  Fixed.AsBoolean := True;
   Post;
-  Filter := Format('%s is null', [ParameterID.FieldName]);
-  Filtered := True;
 end;
 
 function TParametricErrorTable.GetErrorType: TField;
 begin
   Result := FieldByName('ErrorType');
+end;
+
+function TParametricErrorTable.GetFixed: TField;
+begin
+  Result := FieldByName('Fixed');
 end;
 
 function TParametricErrorTable.GetLargeError: TField;
