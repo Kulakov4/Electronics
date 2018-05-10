@@ -937,6 +937,11 @@
             <Form>frmProducts</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Queryes\CategoryParameters\CategoryParametersQuery.pas">
+            <Form>QueryCategoryParams</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

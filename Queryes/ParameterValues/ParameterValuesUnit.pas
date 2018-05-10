@@ -10,9 +10,10 @@ type
   private
   class var
   public
-    class procedure LoadParameters(AExcelTable: TParametricExcelTable); static;
+    class procedure LoadParameters(AProductCategoryID: Integer; AExcelTable:
+        TParametricExcelTable); static;
     class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
-      AddParameters: Boolean); static;
+        AProductCategoryID: Integer); static;
   end;
 
 implementation
@@ -21,31 +22,35 @@ uses
   System.SysUtils, ParametersForProductQuery, ParametersValueQuery,
   ProgressInfo, System.Classes, FieldInfoUnit, System.Math, ProjectConst,
   MaxCategoryParameterOrderQuery, IDTempTableQuery, UpdateParamValueRec,
-  SearchFamilyParamValuesQuery;
+  SearchFamilyParamValuesQuery, CategoryParametersQuery;
 
 // Добавляет параметры на вкладку параметры
-class procedure TParameterValues.LoadParameters(AExcelTable
-  : TParametricExcelTable);
+class procedure TParameterValues.LoadParameters(AProductCategoryID: Integer;
+    AExcelTable: TParametricExcelTable);
 var
   AFieldInfo: TFieldInfo;
   AParamSubParamID: Integer;
   AOrder: Integer;
-  ATempTable: TQueryIDTempTable;
+//  ATempTable: TQueryIDTempTable;
   AParamOrders: TDictionary<Integer, Integer>;
   API: TProgressInfo;
   AQueryParametersForProduct: TQueryParametersForProduct;
+  qCategoryParams: TQueryCategoryParams;
   i: Integer;
 begin
-  if AExcelTable.RecordCount = 0 then
-    Exit;
+  Assert(AProductCategoryID > 0);
 
+//  if AExcelTable.RecordCount = 0 then
+//    Exit;
+
+  qCategoryParams := TQueryCategoryParams.Create(nil);
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AParamOrders := TDictionary<Integer, Integer>.Create;
-  ATempTable := TQueryIDTempTable.Create(nil);
+//  ATempTable := TQueryIDTempTable.Create(nil);
   API := TProgressInfo.Create;;
   try
     // Сохраняем идентификаторы всех компонентов во временную таблицу
-    ATempTable.AppendData(AExcelTable.IDComponent);
+//    ATempTable.AppendData(AExcelTable.IDComponent);
 
     AOrder := TQueryMaxCategoryParameterOrder.Max_Order;
 
@@ -77,19 +82,23 @@ begin
         AParamOrders.Add(AParamSubParamID, AOrder);
       end;
 
+      // Добавляем эту связь между параметром и подпараметром в одну категорию
+      qCategoryParams.AppendOrEdit(AProductCategoryID, AParamSubParamID, AOrder);
+
       // Добавляем эту связь между параметром и подпараметром во все категории наших компонентов
-      AQueryParametersForProduct.LoadAndProcess(ATempTable.TableName,
-        AParamSubParamID, AOrder);
+//      AQueryParametersForProduct.LoadAndProcess(ATempTable.TableName,
+//        AParamSubParamID, AOrder);
     end;
   finally
-    FreeAndNil(ATempTable);
+//    FreeAndNil(ATempTable);
     FreeAndNil(AParamOrders);
     FreeAndNil(AQueryParametersForProduct);
+    FreeAndNil(qCategoryParams);
   end;
 end;
 
-class procedure TParameterValues.LoadParameterValues
-  (AExcelTable: TParametricExcelTable; AddParameters: Boolean);
+class procedure TParameterValues.LoadParameterValues(AExcelTable:
+    TParametricExcelTable; AProductCategoryID: Integer);
 var
   a: TArray<String>;
   AFieldInfo: TFieldInfo;
@@ -106,8 +115,9 @@ begin
   if AExcelTable.RecordCount = 0 then
     Exit;
 
-  if AddParameters then
-    LoadParameters(AExcelTable);
+  // Если сначала нужно создать все необходимые параметры
+  if AProductCategoryID > 0 then
+    LoadParameters(AProductCategoryID, AExcelTable);
 
   AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AQueryParametersValue := TQueryParametersValue.Create(nil);

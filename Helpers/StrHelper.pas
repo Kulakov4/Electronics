@@ -12,6 +12,7 @@ Type
     constructor Create(SS, XX: String);
   end;
 
+function NameForm(x: Integer; const s1: String; const s2: String; const s5: String): String;
 function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String;
   const ADelimiter: Char = ','): Boolean;
@@ -26,6 +27,27 @@ function GetWords(const S: String): String;
 implementation
 
 uses System.SysUtils, System.RegularExpressions;
+
+function NameForm(x: Integer; const s1: String; const s2: String; const s5: String): String;
+var
+  d: Integer;
+begin
+  d := x mod 100;
+  if (d >= 10) and (d <= 20) then
+  begin
+    Result := s5;
+    Exit;
+  end;
+
+  d := x mod 10;
+  if d = 1 then
+    Result := s1
+  else
+    if (d >= 2) and (d <= 4) then
+      Result := s2
+    else
+      Result := s5;
+end;
 
 function GetWords(const S: String): String;
 var

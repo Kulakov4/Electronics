@@ -33,6 +33,7 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property ViewParametricTableError: TViewParametricTableError read
         FViewParametricTableError;
     { Public declarations }
@@ -48,6 +49,12 @@ begin
   FViewParametricTableError := TViewParametricTableError.Create(Self);
   FViewParametricTableError.Parent := pnlMain;
   FViewParametricTableError.Align := alClient;
+end;
+
+destructor TfrmParametricTableError.Destroy;
+begin
+  FreeAndNil(FViewParametricTableError);
+  inherited;
 end;
 
 end.

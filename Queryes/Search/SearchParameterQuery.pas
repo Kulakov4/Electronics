@@ -28,6 +28,8 @@ type
     function SearchMain(const ATableName: String; AIsCustomParameter: Boolean)
       : Integer; overload;
     function SearchMain(const ATableName: String): Integer; overload;
+    function SearchByID(AID: Integer; ATestResult: Boolean = False): Integer;
+        overload;
     procedure SearchMainOrAppend(const ATableName: String; AIsCustomParameter:
         Boolean = False);
     property IsCustomParameter: TField read GetIsCustomParameter;
@@ -139,6 +141,25 @@ begin
 
   // »щем
   Result := Search(['TableName'], [ATableName]);
+end;
+
+function TQuerySearchParameter.SearchByID(AID: Integer; ATestResult: Boolean =
+    False): Integer;
+var
+  ACondition: string;
+begin
+  Assert(AID > 0);
+
+  // ћен€ем условие
+  ACondition := 'where p.ID = :ID and ParentParameter is null';
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
+  SetParamType('ID');
+
+  // »щем
+  Result := Search(['ID'], [AID]);
+
+  if ATestResult then
+    Assert(Result = 1);
 end;
 
 procedure TQuerySearchParameter.SearchMainOrAppend(const ATableName:

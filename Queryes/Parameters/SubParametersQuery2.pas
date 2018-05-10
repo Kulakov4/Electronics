@@ -31,6 +31,8 @@ type
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
     procedure OpenWithChecked(AIDParameter, AProductCategoryId: Integer);
     function Search(const AName: String): Integer; overload;
+    function SearchByID(AID: Integer; TestResult: Boolean = False): Integer;
+        overload;
     property Checked: TField read GetChecked;
     property CheckedMode: Boolean read GetCheckedMode;
     property IsDefault: TField read GetIsDefault;
@@ -177,12 +179,25 @@ end;
 function TQuerySubParameters2.Search(const AName: String): Integer;
 begin
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    Format('and 0=0 and upper(Name) = upper(:Name)', [QuotedStr(AName)]),
-    'and 0=0');
+    'and 0=0 and upper(Name) = upper(:Name)', 'and 0=0');
 
   SetParamType('Name', ptInput, ftString);
 
   Result := Search(['Name'], [AName]);
+end;
+
+function TQuerySubParameters2.SearchByID(AID: Integer; TestResult: Boolean =
+    False): Integer;
+begin
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+    'and 0=0 and sp.ID = :ID', 'and 0=0');
+
+  SetParamType('ID');
+
+  Result := Search(['ID'], [AID]);
+
+  if TestResult then
+    Assert(Result = 1);
 end;
 
 end.

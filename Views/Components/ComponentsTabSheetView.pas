@@ -32,7 +32,8 @@ uses
   ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls,
   DataModule2, ParametricErrorTable, ParametricTableErrorForm,
   SubParametersQuery2, ParamSubParamsQuery, SearchParamDefSubParamQuery,
-  SearchParameterQuery, ComponentTypeSetUnit, ChildCategoriesView;
+  SearchParameterQuery, ComponentTypeSetUnit, ChildCategoriesView,
+  SearchCategoryQuery;
 
 type
   TFieldsInfo = class(TList<TFieldInfo>)
@@ -92,6 +93,7 @@ type
   private
     FfrmProgressBar: TfrmProgressBar3;
     FqParamSubParams: TQueryParamSubParams;
+    FqSearchCategory: TQuerySearchCategory;
     FqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     FqSearchParameter: TQuerySearchParameter;
     FqSubParameters: TQuerySubParameters2;
@@ -101,6 +103,7 @@ type
     procedure DoOnTotalReadProgressSelected(ASender: TObject);
     function GetNFFieldName(AStringTreeNodeID: Integer): string;
     function GetqParamSubParams: TQueryParamSubParams;
+    function GetqSearchCategory: TQuerySearchCategory;
     function GetqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     function GetqSearchParameter: TQuerySearchParameter;
     function GetqSubParameters: TQuerySubParameters2;
@@ -118,6 +121,7 @@ type
     { Private declarations }
   protected
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
+    property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
     property qSearchParamDefSubParam: TQuerySearchParamDefSubParam
       read GetqSearchParamDefSubParam;
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
@@ -136,7 +140,7 @@ uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
   ProgressBarForm, ProjectConst, CustomExcelTable, ParameterValuesUnit,
   GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client, AllFamilyQuery,
   AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm, BindDocUnit,
-  NotifyEvents, CustomErrorForm;
+  NotifyEvents, CustomErrorForm, StrHelper;
 
 constructor TComponentsFrame.Create(AOwner: TComponent);
 begin
@@ -388,6 +392,8 @@ var
   e: TExcelDMEvent;
   OK: Boolean;
 begin
+  Assert(qSearchCategory.FDQuery.RecordCount = 1);
+
   e := ASender as TExcelDMEvent;
 
   // Надо обновить прогресс записи
@@ -434,7 +440,8 @@ begin
     e.ExcelTable.Process(
       procedure(ASender: TObject)
       begin
-        TParameterValues.LoadParameters(e.ExcelTable as TParametricExcelTable);
+        TParameterValues.LoadParameters(qSearchCategory.PK.AsInteger,
+          e.ExcelTable as TParametricExcelTable);
       end,
 
     // Обработчик события
@@ -452,7 +459,7 @@ begin
     procedure(ASender: TObject)
     begin
       TParameterValues.LoadParameterValues
-        (e.ExcelTable as TParametricExcelTable, False);
+        (e.ExcelTable as TParametricExcelTable, 0);
     end,
 
   // Обработчик события
@@ -501,6 +508,16 @@ begin
     FqParamSubParams := TQueryParamSubParams.Create(Self);
 
   Result := FqParamSubParams;
+end;
+
+function TComponentsFrame.GetqSearchCategory: TQuerySearchCategory;
+begin
+  if FqSearchCategory = nil then
+  begin
+    FqSearchCategory := TQuerySearchCategory.Create(Self);
+  end;
+
+  Result := FqSearchCategory;
 end;
 
 function TComponentsFrame.GetqSearchParamDefSubParam
@@ -626,11 +643,12 @@ begin
         if not OK then
           Exit;
 
+        // Снова оставляем все ошибки
+        AParametricErrorTable.Filtered := False;
+
         AIDArray := InternalLoadExcelFileHeaderEx(ARootTreeNode,
           AParametricErrorTable);
 
-        // Снова оставляем все ошибки
-        AParametricErrorTable.Filtered := False;
       until AParametricErrorTable.RecordCount = rc;
     end;
   finally
@@ -667,13 +685,14 @@ function TComponentsFrame.InternalLoadExcelFileHeaderEx(ARootTreeNode
     if ACount = 0 then
     begin
       AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-        'Параметр не найден', petParamNotFound, True, AStringTreeNode.ID);
+        'Параметр не найден', petParamNotFound, AStringTreeNode.ID);
     end
     else
     begin
       AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-        Format('Параметр найден в справочнике параметров %d раз', [ACount]),
-        petParamDuplicate, False, AStringTreeNode.ID);
+        Format('Параметр найден в справочнике параметров %d %s',
+        [ACount, NameForm(ACount, 'раз', 'раза', 'раз')]), petParamDuplicate,
+        AStringTreeNode.ID);
     end;
 
     Result := False;
@@ -690,15 +709,15 @@ function TComponentsFrame.InternalLoadExcelFileHeaderEx(ARootTreeNode
     if ACount = 0 then
     begin
       AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-        'Подпараметр не найден', petSubParamNotFound, False,
-        AStringTreeNode.ID);
+        'Подпараметр не найден', petSubParamNotFound, AStringTreeNode.ID);
     end;
 
     if ACount > 1 then
     begin
       AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-        Format('Подпараметр найден в справочнике подпараметров %d раз', [ACount]
-        ), petSubParamDuplicate, False, AStringTreeNode.ID);
+        Format('Подпараметр найден в справочнике подпараметров %d %s',
+        [ACount, NameForm(ACount, 'раз', 'раза', 'раз')]), petSubParamDuplicate,
+        AStringTreeNode.ID);
     end;
 
     Result := False;
@@ -716,7 +735,7 @@ function TComponentsFrame.InternalLoadExcelFileHeaderEx(ARootTreeNode
       Exit;
 
     AParametricErrorTable.AddErrorMessage(AStringTreeNode.value,
-      'Параметр встречается более одного раза', petNotUnique, True,
+      'Параметр встречается более одного раза', petNotUnique,
       AStringTreeNode.ID);
     Result := False;
   end;
@@ -758,8 +777,8 @@ begin
       begin
         ParamIsOk := AParametricErrorTable.Fixed.AsBoolean;
         if ParamIsOk then
-          qSearchParameter.LocateByPK
-            (AParametricErrorTable.ParameterID.AsInteger);
+          qSearchParameter.SearchByID
+            (AParametricErrorTable.ParameterID.AsInteger, True);
       end
       else
       begin
@@ -787,8 +806,8 @@ begin
           begin
             SubParamIsOk := AParametricErrorTable.Fixed.AsBoolean;
             if SubParamIsOk then
-              qSubParameters.LocateByPK
-                (AParametricErrorTable.ParameterID.AsInteger)
+              qSubParameters.SearchByID
+                (AParametricErrorTable.ParameterID.AsInteger, True)
           end
           else
           begin
@@ -862,12 +881,40 @@ procedure TComponentsFrame.LoadParametricData(AComponentTypeSet
 var
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
+  AFullFileName: string;
   AParametricExcelDM: TParametricExcelDM;
+  m: TArray<String>;
 begin
   AFieldsInfo := TFieldsInfo.Create();
   try
-    if not LoadExcelFileHeader(AFileName, AFieldsInfo) then
+    if not LoadExcelFileHeader(AFullFileName, AFieldsInfo) then
       Exit;
+
+    // В начале имени файла - код категории в которую будем загружать параметры
+    AFileName := TPath.GetFileNameWithoutExtension(AFullFileName);
+
+    m := AFileName.Split([' ']);
+    if Length(m) = 1 then
+    begin
+      TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+      Exit;
+    end;
+
+    try
+      // Проверяем что первая часть содержит целочисленный код категории
+      m[0].ToInteger;
+    except
+      TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+      Exit;
+    end;
+
+    // Ищем, есть ли категория с такми внешним кодом
+    if qSearchCategory.SearchByExternalID(m[0]) = 0 then
+    begin
+      TDialog.Create.ErrorMessageDialog
+        (Format('Категория %s не найдена', [m[0]]));
+      Exit;
+    end;
 
     AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
       AComponentTypeSet);
@@ -880,7 +927,7 @@ begin
         DoOnTotalReadProgress);
 
       FfrmProgressBar.Show;
-      AParametricExcelDM.LoadExcelFile2(AFileName);
+      AParametricExcelDM.LoadExcelFile2(AFullFileName);
 
       // Обновляем параметры для текущей категории
       DM2.CategoryParametersGroup.RefreshData;

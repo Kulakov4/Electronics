@@ -209,7 +209,8 @@ uses
   ExceptionHelper in 'Helpers\ExceptionHelper.pas',
   ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule},
   CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas',
-  ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts};
+  ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts},
+  CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame};
 
 {$R *.res}
 

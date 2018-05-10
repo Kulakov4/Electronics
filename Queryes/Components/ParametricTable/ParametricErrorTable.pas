@@ -15,19 +15,15 @@ type
     function GetError: TField;
     function GetErrorType: TField;
     function GetFixed: TField;
-    function GetLargeError: TField;
     function GetStringTreeNodeID: TField;
     function GetParameterID: TField;
     function GetParameterName: TField;
   protected
-    property LargeError: TField read GetLargeError;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddErrorMessage(const AParameterName, AMessage: string; const
-        AErrorType: TParametricErrorType; ALargeError: Boolean; AStringTreeNodeID:
-        Integer);
+        AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
     procedure FilterFixed;
-    procedure FilterLargeError;
     procedure Fix(AParameterID: Integer);
     function LocateByID(AStringTreeNodeID: Integer): Boolean;
     property Description: TField read GetDescription;
@@ -49,7 +45,6 @@ begin
   FieldDefs.Add('Description', ftWideString, 150);
   FieldDefs.Add('StringTreeNodeID', ftInteger, 0);
   FieldDefs.Add('ErrorType', ftInteger, 0);
-  FieldDefs.Add('LargeError', ftBoolean, 0);
   FieldDefs.Add('ParameterID', ftInteger, 0);
   FieldDefs.Add('Fixed', ftBoolean);
   CreateDataSet;
@@ -80,8 +75,7 @@ begin
 end;
 
 procedure TParametricErrorTable.AddErrorMessage(const AParameterName, AMessage:
-    string; const AErrorType: TParametricErrorType; ALargeError: Boolean;
-    AStringTreeNodeID: Integer);
+    string; const AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
 begin
   Assert(Active);
   Assert(AStringTreeNodeID > 0);
@@ -94,19 +88,14 @@ begin
   Description.AsString := AMessage;
   StringTreeNodeID.AsInteger := AStringTreeNodeID;
   ErrorType.AsInteger := Integer(AErrorType);
-  LargeError.AsBoolean := ALargeError;
+  Fixed.AsBoolean := False;
   Post;
 end;
 
 procedure TParametricErrorTable.FilterFixed;
 begin
-  Filter := Format('%s = true', [Fixed.FieldName]);
+  Filter := Format('%s = false', [Fixed.FieldName]);
   Filtered := True;
-end;
-
-procedure TParametricErrorTable.FilterLargeError;
-begin
-  Filter := Format('%s = true', [LargeError.FieldName]);
 end;
 
 procedure TParametricErrorTable.Fix(AParameterID: Integer);
@@ -126,11 +115,6 @@ end;
 function TParametricErrorTable.GetFixed: TField;
 begin
   Result := FieldByName('Fixed');
-end;
-
-function TParametricErrorTable.GetLargeError: TField;
-begin
-  Result := FieldByName('LargeError');
 end;
 
 function TParametricErrorTable.GetStringTreeNodeID: TField;
