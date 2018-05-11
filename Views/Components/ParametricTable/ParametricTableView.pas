@@ -88,6 +88,7 @@ type
     N14: TMenuItem;
     actUpdateDetailColumnWidth2: TAction;
     cxbeiTableName: TcxBarEditItem;
+    actUpdateColumnWidth: TAction;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -106,6 +107,7 @@ type
     procedure actDropSubParameterExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actShowCategoryParametersQueryExecute(Sender: TObject);
+    procedure actUpdateColumnWidthExecute(Sender: TObject);
     procedure actUpdateDetailColumnWidth2Execute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
@@ -824,6 +826,14 @@ procedure TViewParametricTable.actRefreshExecute(Sender: TObject);
 begin
   inherited;
   RefreshData;
+  if MainView.ViewData.RowCount = 0 then
+    Exit;
+
+  MainView.Controller.ClearSelection;
+  MainView.Controller.TopRowIndex := 0;
+  MainView.Controller.LeftPos := 0;
+  MainView.ViewData.Rows[0].Focused := True;
+  clValue.Focused := True;
 end;
 
 procedure TViewParametricTable.actShowCategoryParametersQueryExecute
@@ -839,6 +849,16 @@ begin
   finally
     FreeAndNil(AfrmGridView);
   end;
+end;
+
+procedure TViewParametricTable.actUpdateColumnWidthExecute(Sender: TObject);
+var
+  ACol: TcxGridDBBandedColumn;
+begin
+  inherited;
+  ACol := MainView.GetColumnByFieldName(clValue.DataBinding.FieldName);
+  ACol.Position.Band.Width := 0;
+  ACol.ApplyBestFit();
 end;
 
 procedure TViewParametricTable.actUpdateDetailColumnWidth2Execute

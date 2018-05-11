@@ -1,7 +1,6 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
       Bands = <

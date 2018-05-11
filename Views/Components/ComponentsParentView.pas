@@ -111,6 +111,7 @@ type
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
   protected
+    procedure ApplyBestFitForColumn(AColumn: TcxGridDBBandedColumn); override;
     function ExpandDetail: TcxGridDBBandedTableView;
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
@@ -345,6 +346,15 @@ procedure TViewComponentsParent.ApplyBestFitFocusedBand;
 begin
   inherited;
   UpdateDetailColumnsWidth;
+end;
+
+procedure TViewComponentsParent.ApplyBestFitForColumn(AColumn:
+    TcxGridDBBandedColumn);
+begin
+  inherited;
+  // Увеличиваем ширину колонки наименование, для того чтобы влезла кнопка
+  if AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName then
+    AColumn.Width := AColumn.Width + 35;
 end;
 
 function TViewComponentsParent.CheckAndSaveChanges: Integer;

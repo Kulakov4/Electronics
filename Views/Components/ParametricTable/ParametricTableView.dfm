@@ -1,6 +1,9 @@
 inherited ViewParametricTable: TViewParametricTable
+  Width = 903
   ParentShowHint = False
+  ExplicitWidth = 903
   inherited cxGrid: TcxGrid
+    Width = 903
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -220,6 +223,9 @@ inherited ViewParametricTable: TViewParametricTable
       end
     end
   end
+  inherited StatusBar: TStatusBar
+    Width = 903
+  end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (
       0
@@ -359,6 +365,7 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actBandWidth: TAction
       Caption = #1064#1080#1088#1080#1085#1072' '#1073#1101#1085#1076#1072
+      Visible = False
       OnExecute = actBandWidthExecute
     end
     object actColumnWidth: TAction
@@ -398,7 +405,12 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actUpdateDetailColumnWidth2: TAction
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100' '#1096#1080#1088#1080#1085#1091' '#1076#1086#1095#1077#1088#1085#1080#1093' '#1082#1086#1083#1086#1085#1086#1082
+      Visible = False
       OnExecute = actUpdateDetailColumnWidth2Execute
+    end
+    object actUpdateColumnWidth: TAction
+      Caption = 'actUpdateColumnWidth'
+      OnExecute = actUpdateColumnWidthExecute
     end
   end
   inherited pmGrid: TPopupMenu

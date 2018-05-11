@@ -92,6 +92,7 @@ type
     FHitTest: TcxCustomGridHitTest;
     procedure AfterKeyOrMouseDown(var Message: TMessage);
       message WM_AfterKeyOrMouseDown;
+    procedure ApplyBestFitForColumn(AColumn: TcxGridDBBandedColumn); virtual;
     procedure CreateColumnsBarButtons; virtual;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); virtual;
@@ -288,6 +289,15 @@ begin
   end;
 end;
 
+procedure TfrmGrid.ApplyBestFitForColumn(AColumn: TcxGridDBBandedColumn);
+begin
+  try
+    AColumn.ApplyBestFit(True);
+  except
+    ;
+  end;
+end;
+
 procedure TfrmGrid.ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
 var
   AColSortOrder: TdxSortOrder;
@@ -351,7 +361,6 @@ begin
 
   ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
     [ABand.VisibleIndex].Width;
-
 
   ABandHeight := ACanvas.TextHeight(ABand.Caption);
 
@@ -1300,11 +1309,7 @@ begin
           // В каждой строке по слову
           AColumn.Caption := GetWords(AColumn.Caption);
 
-          try
-            AColumn.ApplyBestFit(True);
-          except
-            ;
-          end;
+          ApplyBestFitForColumn(AColumn);
 
           // Возвращаем старый заголовок
           AColumn.Caption := ACaption;
