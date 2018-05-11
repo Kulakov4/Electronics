@@ -468,7 +468,7 @@ begin
   else
     AView := GridView(cxGridLevel2);
 
-  AnalogGroup := TAnalogGroup.Create(Self);
+  AnalogGroup := TAnalogGroup.Create(nil);
   try
     ARecHolder := TRecordHolder.Create();
     try
@@ -563,7 +563,7 @@ begin
 
       AfrmAnalog := TfrmAnalog.Create(Self);
       try
-      AfrmAnalog.ViewAnalogGrid.UseTableName := UseTableName;
+        AfrmAnalog.ViewAnalogGrid.UseTableName := UseTableName;
         AfrmAnalog.ViewAnalogGrid.AnalogGroup := AnalogGroup;
         OK := AfrmAnalog.ShowModal = mrOk;
       finally
@@ -2166,7 +2166,7 @@ begin
   for ABI in FBandsInfo do
   begin
     if not ABI.Band.Visible then
-      continue;
+      Continue;
 
     // Ищем данные о заголовке бэнда
     Assert(ABI.IDList.Count > 0);
