@@ -258,8 +258,8 @@ implementation
 
 uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   cxGridDBDataDefinitions, StrHelper, ParameterValuesUnit, ProjectConst,
-  ParametersForProductQuery, GridExtension, DragHelper, System.Math, AnalogForm,
-  AnalogQueryes, AnalogGridView, SearchProductByParamValuesQuery, NaturalSort,
+  GridExtension, DragHelper, System.Math, AnalogForm, AnalogQueryes,
+  AnalogGridView, SearchProductByParamValuesQuery, NaturalSort,
   CategoryParametersGroupUnit, FireDAC.Comp.Client, MoveHelper,
   SubParametersForm, System.Types, TextRectHelper, GridViewForm;
 

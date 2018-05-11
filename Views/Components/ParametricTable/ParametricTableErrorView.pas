@@ -60,6 +60,7 @@ var
   PKFieldName: String;
 begin
   Assert(ParametricErrorTable <> nil);
+  F := nil;
 
   AParametersGroup := TParametersGroup.Create(nil);
   try
@@ -115,7 +116,8 @@ begin
       if not OK then
         Exit;
 
-      if (AfrmParameters.ShowModal <> mrOK) or (F.DataSet.RecordCount = 0) then
+      if (F = nil) or (AfrmParameters.ShowModal <> mrOK) or
+        (F.DataSet.RecordCount = 0) then
         Exit;
 
       if F.AsString <> ParametricErrorTable.ParameterName.AsString then

@@ -15,6 +15,8 @@ type
   private
     function GetIsAttribute: TField;
     function GetOrd: TField;
+    function GetIsEnabled: TField;
+    function GetPosID: TField;
     function GetParamSubParamID: TField;
     function GetProductCategoryID: TField;
     { Private declarations }
@@ -24,6 +26,8 @@ type
       : Integer; overload;
     property IsAttribute: TField read GetIsAttribute;
     property Ord: TField read GetOrd;
+    property IsEnabled: TField read GetIsEnabled;
+    property PosID: TField read GetPosID;
     property ParamSubParamID: TField read GetParamSubParamID;
     property ProductCategoryID: TField read GetProductCategoryID;
     { Public declarations }
@@ -46,6 +50,8 @@ begin
 
   ProductCategoryID.AsInteger := AProductCategoryID;
   ParamSubParamID.AsInteger := AParamSubParamID;
+  IsEnabled.AsInteger := 1;
+  PosID.AsInteger := 1; // ¬ середину
 
   // если хотим изменить пор€док
   if (AOrd > 0) and (Ord.AsInteger = 0) then
@@ -65,6 +71,16 @@ end;
 function TQueryCategoryParams.GetOrd: TField;
 begin
   Result := Field('Ord');
+end;
+
+function TQueryCategoryParams.GetIsEnabled: TField;
+begin
+  Result := Field('IsEnabled');
+end;
+
+function TQueryCategoryParams.GetPosID: TField;
+begin
+  Result := Field('PosID');
 end;
 
 function TQueryCategoryParams.GetParamSubParamID: TField;

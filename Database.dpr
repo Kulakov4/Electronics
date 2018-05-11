@@ -76,7 +76,6 @@ uses
   ParametersExcelDataModule in 'Excel\ParametersExcelDataModule.pas' {ParametersExcelDM: TDataModule},
   ParametersGroupUnit in 'Queryes\Parameters\ParametersGroupUnit.pas' {ParametersGroup: TFrame},
   ParametricExcelDataModule in 'Excel\ParametricExcelDataModule.pas' {ParametricExcelDM: TDataModule},
-  ParametersForProductQuery in 'Queryes\ParameterValues\ParametersForProductQuery.pas' {QueryParametersForProduct: TFrame},
   ParametersValueQuery in 'Queryes\ParameterValues\ParametersValueQuery.pas' {QueryParametersValue: TFrame},
   IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame},
   ParameterValuesUnit in 'Queryes\ParameterValues\ParameterValuesUnit.pas',
