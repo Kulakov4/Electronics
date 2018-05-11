@@ -26,16 +26,26 @@ uses
 type
   TfrmAnalog = class(TfrmRoot)
     pnlMain: TPanel;
-    ViewAnalogGrid: TViewAnalogGrid;
     cxbtnOK: TcxButton;
   private
+    FViewAnalogGrid: TViewAnalogGrid;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
+    property ViewAnalogGrid: TViewAnalogGrid read FViewAnalogGrid;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+constructor TfrmAnalog.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewAnalogGrid := TViewAnalogGrid.Create(Self);
+  FViewAnalogGrid.Parent := pnlMain;
+  FViewAnalogGrid.Align := alClient;
+end;
 
 end.

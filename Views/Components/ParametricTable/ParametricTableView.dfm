@@ -307,7 +307,6 @@ inherited ViewParametricTable: TViewParametricTable
       PropertiesClassName = 'TcxCheckBoxProperties'
       Properties.ImmediatePost = True
       Properties.OnChange = cxbeiTableNamePropertiesChange
-      Properties.OnEditValueChanged = cxbeiTableNamePropertiesEditValueChanged
       InternalEditValue = 'True'
     end
   end

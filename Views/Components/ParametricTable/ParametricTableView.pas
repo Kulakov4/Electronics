@@ -130,7 +130,6 @@ type
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
     procedure cxbeiTableNamePropertiesChange(Sender: TObject);
-    procedure cxbeiTableNamePropertiesEditValueChanged(Sender: TObject);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -564,6 +563,7 @@ begin
 
       AfrmAnalog := TfrmAnalog.Create(Self);
       try
+      AfrmAnalog.ViewAnalogGrid.UseTableName := UseTableName;
         AfrmAnalog.ViewAnalogGrid.AnalogGroup := AnalogGroup;
         OK := AfrmAnalog.ShowModal = mrOk;
       finally
@@ -1012,16 +1012,12 @@ begin
 end;
 
 procedure TViewParametricTable.cxbeiTableNamePropertiesChange(Sender: TObject);
+var
+  S: String;
 begin
   inherited;
-  UseTableName := cxbeiTableName.EditValue = True;
-end;
-
-procedure TViewParametricTable.cxbeiTableNamePropertiesEditValueChanged
-  (Sender: TObject);
-begin
-  inherited;
-  // UseTableName := cxbeiTableName.EditValue = True;
+  (Sender as TcxCheckBox).PostEditValue;
+  UseTableName := (Sender as TcxCheckBox).Checked;
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewBandPosChanged
