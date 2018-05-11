@@ -1,7 +1,10 @@
 inherited ViewTreeList: TViewTreeList
+  Width = 377
   Height = 420
+  ExplicitWidth = 377
   ExplicitHeight = 420
   inherited cxDBTreeList: TcxDBTreeList
+    Width = 377
     Height = 220
     Bands = <
       item
@@ -23,6 +26,7 @@ inherited ViewTreeList: TViewTreeList
     OnDragOver = cxDBTreeListDragOver
     OnExpanded = cxDBTreeListExpanded
     OnMouseUp = cxDBTreeListMouseUp
+    ExplicitWidth = 355
     ExplicitHeight = 220
     object clID: TcxDBTreeListColumn
       Visible = False
@@ -55,30 +59,34 @@ inherited ViewTreeList: TViewTreeList
   end
   inherited StatusBar: TStatusBar
     Top = 401
+    Width = 377
     Visible = False
     ExplicitTop = 401
+    ExplicitWidth = 355
   end
   object pnlBottom: TPanel [2]
     Left = 0
     Top = 256
-    Width = 320
+    Width = 377
     Height = 145
     Align = alBottom
     TabOrder = 6
+    ExplicitWidth = 355
   end
   object cxSplitter: TcxSplitter [3]
     Left = 0
     Top = 248
-    Width = 320
+    Width = 377
     Height = 8
     HotZoneClassName = 'TcxSimpleStyle'
     AlignSplitter = salBottom
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
-    ExplicitWidth = 8
+    ExplicitWidth = 355
   end
   inherited dxBarManager: TdxBarManager
+    ShowHint = False
     DockControlHeights = (
       0
       0
@@ -93,15 +101,45 @@ inherited ViewTreeList: TViewTreeList
         item
           Visible = True
           ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiSearch'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
         end>
     end
     inherited dxbsColumns: TdxBarSubItem
       Visible = ivNever
     end
     object dxBarButton1: TdxBarButton
+      Action = actDuplicate
+      Category = 0
+    end
+    object cxbeiSearch: TcxBarEditItem
+      Caption = #1055#1086#1080#1089#1082':'
+      Category = 0
+      Hint = #1055#1086#1080#1089#1082':'
+      Visible = ivAlways
+      OnKeyDown = cxbeiSearchKeyDown
+      ShowCaption = True
+      PropertiesClassName = 'TcxTextEditProperties'
+      Properties.OnChange = cxbeiSearchPropertiesChange
+    end
+    object dxBarButton2: TdxBarButton
       Action = actSearch
       Category = 0
-      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton3: TdxBarButton
+      Action = actClear
+      Category = 0
+      PaintStyle = psCaptionInMenu
     end
   end
   inherited ActionList: TActionList
@@ -139,10 +177,23 @@ inherited ViewTreeList: TViewTreeList
       ImageIndex = 6
       OnExecute = actLoadTreeFromExcelDocumentExecute
     end
-    object actSearch: TAction
+    object actDuplicate: TAction
       Caption = #1044#1091#1073#1083#1080#1082#1072#1090#1099
+      Hint = #1044#1091#1073#1083#1080#1082#1072#1090#1099
+      ImageIndex = 40
+      OnExecute = actDuplicateExecute
+    end
+    object actSearch: TAction
+      Caption = #1055#1086#1080#1089#1082
+      Hint = #1055#1086#1080#1089#1082' '#1082#1072#1090#1077#1075#1086#1088#1080#1080' '#1087#1086' '#1080#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088#1091
       ImageIndex = 9
       OnExecute = actSearchExecute
+    end
+    object actClear: TAction
+      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
+      Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1087#1086#1083#1077' '#1087#1086#1080#1089#1082#1072
+      ImageIndex = 10
+      OnExecute = actClearExecute
     end
   end
   inherited PopupMenu: TPopupMenu

@@ -60,6 +60,7 @@ begin
         form.Top := StrToInt(ASplitted[2]);
         form.Width := StrToInt(ASplitted[3]);
         form.Height := StrToInt(ASplitted[4]);
+        form.Position := poDesigned;
       end;
     end;
   except

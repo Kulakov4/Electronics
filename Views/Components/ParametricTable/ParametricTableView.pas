@@ -2149,6 +2149,9 @@ var
 begin
   for ABI in FBandsInfo do
   begin
+    if not ABI.Band.Visible then
+      continue;
+
     // Ищем данные о заголовке бэнда
     Assert(ABI.IDList.Count > 0);
     // Берём первый подпараметр

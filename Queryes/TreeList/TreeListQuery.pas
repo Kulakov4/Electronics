@@ -39,7 +39,7 @@ type
       const AValue: String): Boolean;
     procedure Delete;
     procedure FilterByExternalID(AExternalID: string);
-    function LocateByExternalID(AExternalID: string): Boolean;
+    function LocateByExternalID(AExternalID: string; AOptions: TFDDataSetLocateOptions = []): Boolean;
     procedure LocateToRoot;
     procedure GotoDuplicate;
     procedure SmartRefresh; override;
@@ -196,10 +196,10 @@ begin
   Result := Field('Value');
 end;
 
-function TQueryTreeList.LocateByExternalID(AExternalID: string): Boolean;
+function TQueryTreeList.LocateByExternalID(AExternalID: string; AOptions: TFDDataSetLocateOptions = []): Boolean;
 begin
   Assert(not AExternalID.IsEmpty);
-  Result := FDQuery.LocateEx(ExternalID.FieldName, AExternalID, []);
+  Result := FDQuery.LocateEx(ExternalID.FieldName, AExternalID, AOptions);
 end;
 
 procedure TQueryTreeList.LocateToRoot;

@@ -43,15 +43,16 @@ uses
 procedure TQueryCategoryParams.AppendOrEdit(AProductCategoryID,
   AParamSubParamID, AOrd: Integer);
 begin
-  if SearchBy(AProductCategoryID, AParamSubParamID) = 0 then
-    TryAppend
+  if SearchBy(AProductCategoryID, AParamSubParamID) <> 0 then
+    TryEdit
   else
-    TryEdit;
-
-  ProductCategoryID.AsInteger := AProductCategoryID;
-  ParamSubParamID.AsInteger := AParamSubParamID;
-  IsEnabled.AsInteger := 1;
-  PosID.AsInteger := 1; // В середину
+  begin
+    TryAppend;
+    ProductCategoryID.AsInteger := AProductCategoryID;
+    ParamSubParamID.AsInteger := AParamSubParamID;
+    IsEnabled.AsInteger := 1;
+    PosID.AsInteger := 1; // В середину
+  end;
 
   // если хотим изменить порядок
   if (AOrd > 0) and (Ord.AsInteger = 0) then

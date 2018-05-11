@@ -783,7 +783,8 @@ begin
       else
       begin
         // Ищем такой параметр в справочнике параметров
-        prc := qSearchParameter.SearchMain(AStringTreeNode.value);
+        prc := qSearchParameter.SearchMain
+          (ReplaceNotKeyboadChars(AStringTreeNode.value));
         ParamIsOk := ProcessParamSearhResult(prc, AStringTreeNode,
           AParametricErrorTable);
       end;
@@ -812,7 +813,8 @@ begin
           else
           begin
             // Ищем такой подпараметр в справочнике подпараметров
-            rc := qSubParameters.Search(AStringTreeNode2.value);
+            rc := qSubParameters.Search
+              (ReplaceNotKeyboadChars(AStringTreeNode2.value));
             SubParamIsOk := ProcessSubParamSearhResult(rc, AStringTreeNode2,
               AParametricErrorTable);
           end;

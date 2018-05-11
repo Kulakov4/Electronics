@@ -25,7 +25,8 @@ uses
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxInplaceContainer, cxTLData,
   cxDBTL, TreeListQuery, cxMaskEdit, RepositoryDataModule, Vcl.ExtCtrls,
-  cxSplitter, DuplicateCategoryView, DuplicateCategoryQuery, NotifyEvents;
+  cxSplitter, DuplicateCategoryView, DuplicateCategoryQuery, NotifyEvents,
+  cxTextEdit, cxBarEditItem;
 
 type
   TViewTreeList = class(TfrmTreeList)
@@ -45,13 +46,22 @@ type
     pnlBottom: TPanel;
     cxSplitter: TcxSplitter;
     dxBarButton1: TdxBarButton;
+    actDuplicate: TAction;
+    cxbeiSearch: TcxBarEditItem;
+    dxBarButton2: TdxBarButton;
     actSearch: TAction;
+    dxBarButton3: TdxBarButton;
+    actClear: TAction;
     procedure actAddExecute(Sender: TObject);
+    procedure actClearExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
     procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameExecute(Sender: TObject);
+    procedure actDuplicateExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
+    procedure cxbeiSearchKeyDown(Sender: TObject; var Key: Word; Shift:
+        TShiftState);
     procedure cxDBTreeListClick(Sender: TObject);
     procedure cxDBTreeListCollapsed(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode);
@@ -64,6 +74,7 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure cxSplitterAfterClose(Sender: TObject);
     procedure cxSplitterAfterOpen(Sender: TObject);
+    procedure cxbeiSearchPropertiesChange(Sender: TObject);
   private
     FqTreeList: TQueryTreeList;
     FViewDuplicateCategory: TViewDuplicateCategory;
@@ -88,7 +99,7 @@ implementation
 uses
   ProjectConst, DialogUnit, RecursiveTreeQuery, RecursiveTreeView, DialogUnit2,
   GridViewForm, LoadFromExcelFileHelper, TreeExcelDataModule, CustomErrorForm,
-  System.Types, System.UITypes, Vcl.StdCtrls;
+  System.Types, System.UITypes, Vcl.StdCtrls, FireDAC.Comp.DataSet, cxEdit;
 
 {$R *.dfm}
 
@@ -102,6 +113,9 @@ begin
   FViewDuplicateCategory.Align := alClient;
 
   cxSplitter.CloseSplitter;
+
+  cxbeiSearch.Properties.ImmediatePost := True;
+  (cxbeiSearch.Properties as TcxTextEditProperties).ImmediateUpdateText := True;
 end;
 
 procedure TViewTreeList.actAddExecute(Sender: TObject);
@@ -116,6 +130,12 @@ begin
     Exit;
 
   qTreeList.AddChildCategory(AValue, GetLevel(cxDBTreeList.FocusedNode));
+end;
+
+procedure TViewTreeList.actClearExecute(Sender: TObject);
+begin
+  inherited;
+  cxbeiSearch.EditValue := Null;
 end;
 
 procedure TViewTreeList.actDeleteExecute(Sender: TObject);
@@ -232,11 +252,43 @@ begin
   end;
 end;
 
-procedure TViewTreeList.actSearchExecute(Sender: TObject);
+procedure TViewTreeList.actDuplicateExecute(Sender: TObject);
 begin
   inherited;
   cxSplitter.OpenSplitter;
   Assert(qTreeList.FDQuery.RecordCount > 0);
+end;
+
+procedure TViewTreeList.actSearchExecute(Sender: TObject);
+var
+  AExternalID: string;
+  S: String;
+begin
+  inherited;
+//  (cxbeiSearch.Properties as TcxTextEditProperties).po
+  AExternalID := VarToStrDef( cxbeiSearch.EditValue, '' );
+  S := VarToStrDef( cxbeiSearch.CurEditValue, '' );
+  if AExternalID.IsEmpty then
+    Exit;
+
+  // »щем
+  qTreeList.LocateByExternalID(AExternalID, [lxoPartialKey]);
+end;
+
+procedure TViewTreeList.cxbeiSearchKeyDown(Sender: TObject; var Key: Word;
+    Shift: TShiftState);
+begin
+  inherited;
+  if Key <> 13 then
+    Exit;
+
+  actSearch.Execute;
+end;
+
+procedure TViewTreeList.cxbeiSearchPropertiesChange(Sender: TObject);
+begin
+  inherited;
+  (Sender as TcxTextEdit).PostEditValue;
 end;
 
 procedure TViewTreeList.cxDBTreeListClick(Sender: TObject);

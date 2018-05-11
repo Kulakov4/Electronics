@@ -23,6 +23,7 @@ function Replace(const S: String; const ANewValue: String; const AMark: String;
 function MySplit(const S: string): TList<TMySplit>;
 
 function GetWords(const S: String): String;
+function ReplaceNotKeyboadChars(const S: String): String;
 
 implementation
 
@@ -68,6 +69,12 @@ begin
     Result := Format('%s'#13'%s', [Result, S2]);
   end;
   Result := Result.Trim([#13]);
+end;
+
+function ReplaceNotKeyboadChars(const S: String): String;
+begin
+  Result := S.Replace(chr($02C2), '<');
+  Result := Result.Replace(chr($02C3), '>');
 end;
 
 function Replace(const S: String; const ANewValue: String; const AMark: String;
