@@ -26,7 +26,7 @@ inherited ViewTreeList: TViewTreeList
     OnDragOver = cxDBTreeListDragOver
     OnExpanded = cxDBTreeListExpanded
     OnMouseUp = cxDBTreeListMouseUp
-    ExplicitWidth = 355
+    ExplicitWidth = 377
     ExplicitHeight = 220
     object clID: TcxDBTreeListColumn
       Visible = False
@@ -62,7 +62,7 @@ inherited ViewTreeList: TViewTreeList
     Width = 377
     Visible = False
     ExplicitTop = 401
-    ExplicitWidth = 355
+    ExplicitWidth = 377
   end
   object pnlBottom: TPanel [2]
     Left = 0
@@ -71,7 +71,6 @@ inherited ViewTreeList: TViewTreeList
     Height = 145
     Align = alBottom
     TabOrder = 6
-    ExplicitWidth = 355
   end
   object cxSplitter: TcxSplitter [3]
     Left = 0
@@ -83,7 +82,6 @@ inherited ViewTreeList: TViewTreeList
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
-    ExplicitWidth = 355
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False
@@ -125,7 +123,7 @@ inherited ViewTreeList: TViewTreeList
     object cxbeiSearch: TcxBarEditItem
       Caption = #1055#1086#1080#1089#1082':'
       Category = 0
-      Hint = #1055#1086#1080#1089#1082':'
+      Hint = #1055#1086#1080#1089#1082' '#1087#1086' '#1080#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088#1091
       Visible = ivAlways
       OnKeyDown = cxbeiSearchKeyDown
       ShowCaption = True

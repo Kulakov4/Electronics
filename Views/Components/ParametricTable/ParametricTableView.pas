@@ -1012,8 +1012,6 @@ begin
 end;
 
 procedure TViewParametricTable.cxbeiTableNamePropertiesChange(Sender: TObject);
-var
-  S: String;
 begin
   inherited;
   (Sender as TcxCheckBox).PostEditValue;

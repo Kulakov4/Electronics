@@ -4,6 +4,7 @@ inherited ViewParametricTable: TViewParametricTable
   ExplicitWidth = 903
   inherited cxGrid: TcxGrid
     Width = 903
+    ExplicitWidth = 903
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -225,6 +226,7 @@ inherited ViewParametricTable: TViewParametricTable
   end
   inherited StatusBar: TStatusBar
     Width = 903
+    ExplicitWidth = 903
   end
   inherited dxBarManager: TdxBarManager
     DockControlHeights = (

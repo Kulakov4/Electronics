@@ -33,7 +33,7 @@ uses
   DataModule2, ParametricErrorTable, ParametricTableErrorForm,
   SubParametersQuery2, ParamSubParamsQuery, SearchParamDefSubParamQuery,
   SearchParameterQuery, ComponentTypeSetUnit, ChildCategoriesView,
-  SearchCategoryQuery;
+  SearchCategoryQuery, SearchDaughterCategoriesQuery;
 
 type
   TFieldsInfo = class(TList<TFieldInfo>)
@@ -94,6 +94,7 @@ type
     FfrmProgressBar: TfrmProgressBar3;
     FqParamSubParams: TQueryParamSubParams;
     FqSearchCategory: TQuerySearchCategory;
+    FqSearchDaughterCategories: TQuerySearchDaughterCategories;
     FqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     FqSearchParameter: TQuerySearchParameter;
     FqSubParameters: TQuerySubParameters2;
@@ -104,6 +105,7 @@ type
     function GetNFFieldName(AStringTreeNodeID: Integer): string;
     function GetqParamSubParams: TQueryParamSubParams;
     function GetqSearchCategory: TQuerySearchCategory;
+    function GetqSearchDaughterCategories: TQuerySearchDaughterCategories;
     function GetqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     function GetqSearchParameter: TQuerySearchParameter;
     function GetqSubParameters: TQuerySubParameters2;
@@ -118,6 +120,7 @@ type
     procedure LoadParametricDataFromActiveSheet;
     procedure TryUpdateWrite0Statistic(API: TProgressInfo);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
+    procedure TryUpdateAnalizeStatistic(API: TProgressInfo);
     { Private declarations }
   protected
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
@@ -128,6 +131,8 @@ type
     property qSubParameters: TQuerySubParameters2 read GetqSubParameters;
   public
     constructor Create(AOwner: TComponent); override;
+    property qSearchDaughterCategories: TQuerySearchDaughterCategories
+      read GetqSearchDaughterCategories;
     { Public declarations }
   end;
 
@@ -388,13 +393,17 @@ end;
 
 procedure TComponentsFrame.DoAfterLoadSheet(ASender: TObject);
 var
+  A: TArray<Integer>;
+  ADataOnly: Boolean;
   AfrmError: TfrmCustomError;
+  AParametricExcelTable: TParametricExcelTable;
   e: TExcelDMEvent;
+  ne: TNotifyEventR;
   OK: Boolean;
 begin
-  Assert(qSearchCategory.FDQuery.RecordCount = 1);
-
   e := ASender as TExcelDMEvent;
+
+  AParametricExcelTable := e.ExcelTable as TParametricExcelTable;
 
   // Надо обновить прогресс записи
   if FWriteProgress.PIList.Count = 0 then
@@ -432,15 +441,23 @@ begin
 
   FfrmProgressBar.Show;
 
+  // Если требуется загрузить только данные, но не сами параметры
+  ADataOnly := AParametricExcelTable.ComponentTypeSet = [ctComponent];
+
   // Перед записью первого листа создадим все необходимые параметры
-  if e.SheetIndex = 1 then
+  if (e.SheetIndex = 1) and (not ADataOnly) then
   begin
+    // Должна быть хотя-бы одна катнгория, в которую будем добавлять параметры
+    Assert(qSearchDaughterCategories.FDQuery.RecordCount >= 1);
+
+    A := qSearchDaughterCategories.GetFieldValuesAsIntArray
+      (qSearchDaughterCategories.PKFieldName);
 
     // 1 Добавляем параметры в категорию
     e.ExcelTable.Process(
       procedure(ASender: TObject)
       begin
-        TParameterValues.LoadParameters(qSearchCategory.PK.AsInteger,
+        TParameterValues.LoadParameters(A,
           e.ExcelTable as TParametricExcelTable);
       end,
 
@@ -455,14 +472,9 @@ begin
   end;
 
   // 2 Сохраняем значения параметров
-  e.ExcelTable.Process(
-    procedure(ASender: TObject)
-    begin
-      TParameterValues.LoadParameterValues
-        (e.ExcelTable as TParametricExcelTable, 0);
-    end,
 
-  // Обработчик события
+  // Подписываемся на событие
+  ne := TNotifyEventR.Create(e.ExcelTable.OnProgress,
     procedure(ASender: TObject)
     Var
       API: TProgressInfo;
@@ -475,7 +487,42 @@ begin
 
       TryUpdateWriteStatistic(FWriteProgress.TotalProgress);
     end);
+  try
+    // Выполняем загрузку значений параметров
+    TParameterValues.LoadParameterValues(e.ExcelTable as TParametricExcelTable,
 
+      procedure(ASender: TObject)
+      Var
+        API: TProgressInfo;
+      begin
+        API := ASender as TProgressInfo;
+        TryUpdateAnalizeStatistic(API);
+      end);
+
+  finally
+    FreeAndNil(ne);
+  end;
+  {
+    e.ExcelTable.Process(
+    procedure(ASender: TObject)
+    begin
+    TParameterValues.LoadParameterValues(e.ExcelTable as TParametricExcelTable);
+    end,
+
+    // Обработчик события
+    procedure(ASender: TObject)
+    Var
+    API: TProgressInfo;
+    begin
+    API := ASender as TProgressInfo;
+    // Запоминаем прогресс записи листа
+    FWriteProgress.PIList[e.SheetIndex - 1].Assign(API);
+    // Обновляем общий прогресс записи
+    FWriteProgress.UpdateTotalProgress;
+
+    TryUpdateWriteStatistic(FWriteProgress.TotalProgress);
+    end);
+  }
 end;
 
 procedure TComponentsFrame.DoOnTotalReadProgress(ASender: TObject);
@@ -513,11 +560,18 @@ end;
 function TComponentsFrame.GetqSearchCategory: TQuerySearchCategory;
 begin
   if FqSearchCategory = nil then
-  begin
     FqSearchCategory := TQuerySearchCategory.Create(Self);
-  end;
 
   Result := FqSearchCategory;
+end;
+
+function TComponentsFrame.GetqSearchDaughterCategories
+  : TQuerySearchDaughterCategories;
+begin
+  if FqSearchDaughterCategories = nil then
+    FqSearchDaughterCategories := TQuerySearchDaughterCategories.Create(Self);
+
+  Result := FqSearchDaughterCategories;
 end;
 
 function TComponentsFrame.GetqSearchParamDefSubParam
@@ -551,7 +605,8 @@ var
 begin
   if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
     TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
-    Exit; // отказались от выбора файла
+    Exit;
+  // отказались от выбора файла
 
   // Сохраняем эту папку в настройках
   TSettings.Create.LastFolderForComponentsLoad :=
@@ -570,7 +625,8 @@ begin
 
   if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
     TSettings.Create.ParametricDataFolder, '', AFileName) then
-    Exit; // отказались от выбора файла
+    Exit;
+  // отказались от выбора файла
 
   // Сохраняем эту папку в настройках
   TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
@@ -655,6 +711,7 @@ begin
     FreeAndNil(AParametricErrorTable);
   end;
 
+  OK := False;
   // Для всех найденных полей создаём их описания
   for AID in AIDArray do
   begin
@@ -662,12 +719,18 @@ begin
     if AID < 0 then
       AFieldName := GetNFFieldName(-AID)
     else
+    begin
       AFieldName := TParametricExcelTable.GetFieldNameByParamSubParamID(AID);
+      OK := True;
+    end;
 
     AFieldsInfo.Add(TFieldInfo.Create(AFieldName));
   end;
 
-  Result := True;
+  if not OK then
+    TDialog.Create.ErrorMessageDialog('Нет параметров, значения которых можно загрузить');
+
+  Result := OK;
 end;
 
 function TComponentsFrame.InternalLoadExcelFileHeaderEx(ARootTreeNode
@@ -881,41 +944,53 @@ end;
 procedure TComponentsFrame.LoadParametricData(AComponentTypeSet
   : TComponentTypeSet);
 var
+  ADataOnly: Boolean;
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
   AFullFileName: string;
   AParametricExcelDM: TParametricExcelDM;
   m: TArray<String>;
+  rc: Integer;
 begin
   AFieldsInfo := TFieldsInfo.Create();
   try
     if not LoadExcelFileHeader(AFullFileName, AFieldsInfo) then
       Exit;
 
-    // В начале имени файла - код категории в которую будем загружать параметры
-    AFileName := TPath.GetFileNameWithoutExtension(AFullFileName);
+    // Если идёт загрузка только данных
+    ADataOnly := AComponentTypeSet = [ctComponent];
 
-    m := AFileName.Split([' ']);
-    if Length(m) = 1 then
+    if not ADataOnly then
     begin
-      TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
-      Exit;
-    end;
+      // В начале имени файла - код категории в которую будем загружать параметры
+      AFileName := TPath.GetFileNameWithoutExtension(AFullFileName);
 
-    try
-      // Проверяем что первая часть содержит целочисленный код категории
-      m[0].ToInteger;
-    except
-      TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
-      Exit;
-    end;
+      m := AFileName.Split([' ']);
+      if Length(m) = 1 then
+      begin
+        TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+        Exit;
+      end;
 
-    // Ищем, есть ли категория с такми внешним кодом
-    if qSearchCategory.SearchByExternalID(m[0]) = 0 then
-    begin
-      TDialog.Create.ErrorMessageDialog
-        (Format('Категория %s не найдена', [m[0]]));
-      Exit;
+      try
+        // Проверяем что первая часть содержит целочисленный код категории
+        m[0].ToInteger;
+      except
+        TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+        Exit;
+      end;
+
+      // Ищем, есть ли категория с такми внешним кодом
+      if qSearchCategory.SearchByExternalID(m[0]) = 0 then
+      begin
+        TDialog.Create.ErrorMessageDialog
+          (Format('Категория %s не найдена', [m[0]]));
+        Exit;
+      end;
+
+      // Ищем все дочерние категории
+      rc := qSearchDaughterCategories.SearchEx(qSearchCategory.PK.AsInteger);
+      Assert(rc > 1);
     end;
 
     AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
@@ -963,7 +1038,7 @@ begin
     end;
 
     AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
-      [ctComponent, ctFamily]);
+      [ctComponent]);
     FWriteProgress := TTotalProgress.Create;
     FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try
@@ -1003,6 +1078,14 @@ begin
     (API.ProcessRecords = API.TotalRecords) then
     // Отображаем общий прогресс записи
     FfrmProgressBar.UpdateWriteStatistic(API);
+end;
+
+procedure TComponentsFrame.TryUpdateAnalizeStatistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем прогресс анализа
+    FfrmProgressBar.UpdateAnalizeStatistic(API);
 end;
 
 function TFieldsInfo.Find(const AFieldName: string): TFieldInfo;

@@ -30,13 +30,17 @@ type
     pbWrite: TcxProgressBar;
     lWrite0: TcxLabel;
     pbWrite0: TcxProgressBar;
+    lAnalize: TcxLabel;
+    bpAnalize: TcxProgressBar;
   private
     FReadLabel: string;
+    FAnalizeLabel: string;
     FWriteLabel0: string;
     FWriteLabel: string;
     { Private declarations }
   protected
     property ReadLabel: string read FReadLabel write FReadLabel;
+    property AnalizeLabel: string read FAnalizeLabel write FAnalizeLabel;
     property WriteLabel0: string read FWriteLabel0 write FWriteLabel0;
     property WriteLabel: string read FWriteLabel write FWriteLabel;
   public
@@ -44,6 +48,7 @@ type
     procedure UpdateReadStatistic(AProgressInfo: TProgressInfo);
     procedure UpdateWriteStatistic(AProgressInfo: TProgressInfo);
     procedure UpdateWriteStatistic0(AProgressInfo: TProgressInfo);
+    procedure UpdateAnalizeStatistic(AProgressInfo: TProgressInfo);
     { Public declarations }
   end;
 
@@ -59,7 +64,8 @@ begin
   inherited;
   FReadLabel := 'Прочитано строк';
   FWriteLabel0 := 'Добавлено/обновлено параметров';
-  FWriteLabel := 'Сохранено записей'
+  FWriteLabel := 'Сохранено записей';
+  FAnalizeLabel := 'Проанализировано записей';
 end;
 
 procedure TfrmProgressBar3.UpdateReadStatistic(AProgressInfo: TProgressInfo);
@@ -93,6 +99,17 @@ begin
     AProgressInfo.TotalRecords]);
 
   pbWrite0.Position := AProgressInfo.Position;
+
+  Application.ProcessMessages;
+end;
+
+procedure TfrmProgressBar3.UpdateAnalizeStatistic(AProgressInfo: TProgressInfo);
+begin
+  lAnalize.Caption := Format('%s: %d из %d',
+    [FAnalizeLabel, AProgressInfo.ProcessRecords,
+    AProgressInfo.TotalRecords]);
+
+  bpAnalize.Position := AProgressInfo.Position;
 
   Application.ProcessMessages;
 end;

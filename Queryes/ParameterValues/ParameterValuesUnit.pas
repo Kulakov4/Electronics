@@ -3,17 +3,18 @@ unit ParameterValuesUnit;
 interface
 
 uses
-  ParametricExcelDataModule, System.Generics.Collections, SearchParameterQuery;
+  ParametricExcelDataModule, System.Generics.Collections, SearchParameterQuery,
+  NotifyEvents;
 
 type
   TParameterValues = class(TObject)
   private
   class var
   public
-    class procedure LoadParameters(AProductCategoryID: Integer; AExcelTable:
-        TParametricExcelTable); static;
+    class procedure LoadParameters(AProductCategoryIDArray: TArray<Integer>;
+      AExcelTable: TParametricExcelTable); static;
     class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
-        AProductCategoryID: Integer); static;
+      ANotifyEventRef: TNotifyEventRef); static;
   end;
 
 implementation
@@ -22,22 +23,22 @@ uses
   System.SysUtils, ParametersValueQuery, ProgressInfo, System.Classes,
   FieldInfoUnit, System.Math, ProjectConst, MaxCategoryParameterOrderQuery,
   IDTempTableQuery, UpdateParamValueRec, SearchFamilyParamValuesQuery,
-  CategoryParametersQuery;
+  CategoryParametersQuery, SearchComponentParamSubParamsQuery;
 
 // Добавляет параметры на вкладку параметры
-class procedure TParameterValues.LoadParameters(AProductCategoryID: Integer;
-    AExcelTable: TParametricExcelTable);
+class procedure TParameterValues.LoadParameters(AProductCategoryIDArray
+  : TArray<Integer>; AExcelTable: TParametricExcelTable);
 var
   AFieldInfo: TFieldInfo;
   AParamSubParamID: Integer;
   AOrder: Integer;
   AParamOrders: TDictionary<Integer, Integer>;
   API: TProgressInfo;
+  AProductCategoryID: Integer;
   qCategoryParams: TQueryCategoryParams;
   i: Integer;
 begin
-  Assert(AProductCategoryID > 0);
-
+  Assert(Length(AProductCategoryIDArray) > 0);
 
   qCategoryParams := TQueryCategoryParams.Create(nil);
   AParamOrders := TDictionary<Integer, Integer>.Create;
@@ -70,8 +71,10 @@ begin
         AParamOrders.Add(AParamSubParamID, AOrder);
       end;
 
-      // Добавляем эту связь между параметром и подпараметром в одну категорию
-      qCategoryParams.AppendOrEdit(AProductCategoryID, AParamSubParamID, AOrder);
+      // Добавляем эту связь между параметром и подпараметром в очередную категорию
+      for AProductCategoryID in AProductCategoryIDArray do
+        qCategoryParams.AppendOrEdit(AProductCategoryID,
+          AParamSubParamID, AOrder);
 
     end;
   finally
@@ -81,17 +84,19 @@ begin
   end;
 end;
 
-class procedure TParameterValues.LoadParameterValues(AExcelTable:
-    TParametricExcelTable; AProductCategoryID: Integer);
+class procedure TParameterValues.LoadParameterValues
+  (AExcelTable: TParametricExcelTable; ANotifyEventRef: TNotifyEventRef);
 var
   a: TArray<String>;
   AFieldInfo: TFieldInfo;
   AIDComponent: Integer;
   AParamSubParamID: Integer;
+  API: TProgressInfo;
   AQueryParametersValue: TQueryParametersValue;
   AUpdParamSubParamList: TUpdParamSubParamList;
   AUpdPSP: TUpdParamSubParam;
   AValue: String;
+  i: Integer;
   Q: TQueryFamilyParamValues;
   S: string;
 begin
@@ -99,11 +104,10 @@ begin
     Exit;
 
   // Если сначала нужно создать все необходимые параметры
-  if AProductCategoryID > 0 then
-    LoadParameters(AProductCategoryID, AExcelTable);
+  // if AProductCategoryID > 0 then
+  // LoadParameters(AProductCategoryID, AExcelTable);
 
   AQueryParametersValue := TQueryParametersValue.Create(nil);
-
   AUpdParamSubParamList := TUpdParamSubParamList.Create;
   try
     AExcelTable.DisableControls;
@@ -173,7 +177,10 @@ begin
 
     // Единственное значение выносим я ячейку семейства
     Q := TQueryFamilyParamValues.Create(nil);
+    API := TProgressInfo.Create;
     try
+      API.TotalRecords := AUpdParamSubParamList.Count;
+      i := 0;
       for AUpdPSP in AUpdParamSubParamList do
       begin
         // Если найдено единственное значение
@@ -183,9 +190,14 @@ begin
           AQueryParametersValue.Load(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
           AQueryParametersValue.LocateOrAppend(Q.Value.AsString);
         end;
+        Inc(i);
+        API.ProcessRecords := i;
+        if Assigned(ANotifyEventRef) then
+          ANotifyEventRef(API);
       end;
     finally
       FreeAndNil(Q);
+      FreeAndNil(API);
     end;
 
   finally

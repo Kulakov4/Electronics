@@ -209,7 +209,9 @@ uses
   ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule},
   CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas',
   ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts},
-  CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame};
+  CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame},
+  SearchComponentParamSubParamsQuery in 'Queryes\Search\SearchComponentParamSubParamsQuery.pas' {QuerySearchComponentParamSubParams: TFrame},
+  SearchDaughterCategoriesQuery in 'Queryes\Search\SearchDaughterCategoriesQuery.pas' {QuerySearchDaughterCategories: TFrame};
 
 {$R *.res}
 

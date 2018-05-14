@@ -35,6 +35,7 @@ object ComponentsFrame: TComponentsFrame
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 433
+          ExplicitTop = -6
           ExplicitWidth = 870
           ExplicitHeight = 433
         end
@@ -228,7 +229,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 433
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -328,7 +329,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 405
+          ExplicitHeight = 433
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True
@@ -535,10 +536,6 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarButton3'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -590,6 +587,10 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarButton8'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton8: TdxBarButton

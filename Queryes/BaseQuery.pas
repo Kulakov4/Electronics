@@ -95,6 +95,7 @@ type
     function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
+    function GetFieldValuesAsIntArray(AFieldName: string): TArray<Integer>;
     procedure IncUpdateRecCount;
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     procedure Load(AIDParent: Integer; AForcibly: Boolean = False);
@@ -658,6 +659,35 @@ begin
     end;
   finally
     FreeAndNil(AClone);
+  end;
+end;
+
+function TQueryBase.GetFieldValuesAsIntArray(AFieldName: string):
+    TArray<Integer>;
+var
+  AClone: TFDMemTable;
+  AValue: Integer;
+  L: TList<Integer>;
+begin
+  // Создаём список
+  L := TList<Integer>.Create;
+  // Создаём клона
+  AClone := TFDMemTable.Create(Self);
+  try
+    AClone.CloneCursor(FDQuery);
+    AClone.First;
+    while not AClone.Eof do
+    begin
+
+      AValue := AClone.FieldByName(AFieldName).AsInteger;
+      L.Add(AValue);
+
+      AClone.Next;
+    end;
+    Result := L.ToArray;
+  finally
+    FreeAndNil(AClone);
+    FreeAndNil(L);
   end;
 end;
 
