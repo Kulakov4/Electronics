@@ -36,9 +36,6 @@ uses
   BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
   CategoryParametersQuery2, cxCheckBox, cxBarEditItem;
 
-const
-  WM_ON_EDIT_VALUE_CHANGE = WM_USER + 61;
-
 type
   TViewParametricTable = class(TViewComponentsBase)
     actAutoWidth: TAction;
@@ -156,6 +153,8 @@ type
     procedure DoOnUserFilteringEx(Sender: TcxCustomGridTableItem;
       AFilterList: TcxFilterCriteriaItemList; const AValue: Variant;
       const ADisplayText: string);
+    procedure DoOnValidate(Sender: TObject; var DisplayValue: Variant;
+      var ErrorText: TCaption; var Error: Boolean);
     procedure UpdateColumn(AIDCategoryParam: Integer);
     function GetComponentsExGroup: TComponentsExGroup;
     function GetqCategoryParameters: TQueryCategoryParameters2;
@@ -190,8 +189,6 @@ type
     procedure InitializeBandInfo(ABandInfo: TBandInfoEx;
       const AIDList: TArray<Integer>;
       qCategoryParameters2: TQueryCategoryParameters2);
-    procedure OnEditValueChangeProcess(var Message: TMessage);
-      message WM_ON_EDIT_VALUE_CHANGE;
     procedure OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
       var AllowPopup: Boolean); override;
     procedure OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
@@ -1216,42 +1213,22 @@ begin
   EndUpdate;
 end;
 
-var
-  b: Boolean = False;
-
 procedure TViewParametricTable.DoOnEditValueChanged(Sender: TObject);
 var
-  AMemo: TcxMemo;
-  AStringList: TStringList;
-  i: Integer;
-  S: string;
+  AColumn: TcxGridDBBandedColumn;
 begin
-  if b then
+  // ќправл€ем редактируемое значение в грид (тут второй раз вызоветс€ валидаци€)
+  (Sender as TcxCustomEdit).PostEditValue;
+
+  ComponentsExGroup.TryPost;
+  UpdateView;
+
+  if not (FocusedTableView = MainView) then
     Exit;
 
-  b := True;
-
-  AMemo := (Sender as TcxMemo);
-
-  AStringList := TStringList.Create;
-  try
-    for i := 0 to AMemo.Lines.Count - 1 do
-    begin
-      AStringList.Add(Format('%s%s%s', [Mark, AMemo.Lines[i].Trim, Mark]));
-    end;
-    S := AStringList.Text.Trim([#13, #10]);
-
-    AMemo.Text := S;
-  finally
-    FreeAndNil(AStringList);
-  end;
-
-  b := False;
-
-  ApplyBestFitFocusedBand;
-  PostMessage(Handle, WM_ON_EDIT_VALUE_CHANGE, 0, 0);
-  // UpdateView;
-  // ComponentsExGroup.TryPost;
+  AColumn := (MainView.Controller.FocusedColumn as TcxGridDBBandedColumn);
+  MyApplyBestFitForBand(AColumn.Position.Band);
+  UpdateDetailColumnsWidth;
 end;
 
 procedure TViewParametricTable.DoOnMasterDetailChange;
@@ -1379,13 +1356,6 @@ begin
       FreeAndNil(ABandList);
     end;
   end;
-end;
-
-procedure TViewParametricTable.OnEditValueChangeProcess(var Message: TMessage);
-begin
-  inherited;
-  ComponentsExGroup.TryPost;
-  UpdateView;
 end;
 
 procedure TViewParametricTable.SetComponentsExGroup
@@ -1550,6 +1520,10 @@ begin
           begin
             AColumn.PropertiesClass := TcxMemoProperties;
             (AColumn.Properties as TcxMemoProperties).WordWrap := False;
+
+            (AColumn.Properties as TcxMemoProperties).OnValidate :=
+              DoOnValidate;
+
             (AColumn.Properties as TcxMemoProperties).OnEditValueChanged :=
               DoOnEditValueChanged;
             AColumn.OnUserFilteringEx := DoOnUserFilteringEx;
@@ -1558,6 +1532,8 @@ begin
           else
           begin
             AColumn.PropertiesClass := TcxTextEditProperties;
+            (AColumn.Properties as TcxTextEditProperties).OnEditValueChanged
+             := DoOnEditValueChanged;
           end;
           AColumnList.Add(AColumn);
         end;
@@ -1644,6 +1620,40 @@ end;
 procedure TViewParametricTable.DoBeforeOpen(Sender: TObject);
 begin
   BeginUpdate;
+end;
+
+procedure TViewParametricTable.DoOnValidate(Sender: TObject;
+  var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+var
+  AStringList: TStringList;
+  m: TArray<String>;
+  S: String;
+  S1: string;
+begin
+  S := VarToStrDef(DisplayValue, '');
+  if S.IsEmpty then
+    Exit;
+
+  // ≈сли это значение уже было отвалидировано!
+  if s.Contains(Mark) then
+    Exit;
+
+
+  AStringList := TStringList.Create;
+  try
+    m := S.Split([#13]);
+    for S1 in m do
+    begin
+      S := S1.Trim([#10, ' ']);
+      if S.IsEmpty then
+        Continue;
+
+      AStringList.Add(Format('%s%s%s', [Mark, S, Mark]))
+    end;
+    DisplayValue := AStringList.Text.Trim([#13, #10, ' ']);
+  finally
+    FreeAndNil(AStringList);
+  end;
 end;
 
 procedure TViewParametricTable.DropColumn(AIDCategoryParam: Integer);

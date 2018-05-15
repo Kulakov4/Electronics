@@ -195,6 +195,7 @@ type
     procedure UpdateView; virtual;
     function GridView(ALevel: TcxGridLevel): TcxGridDBBandedTableView;
     procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
+    function MyApplyBestFitForBand(ABand: TcxGridBand): Integer;
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); virtual;
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
@@ -1250,6 +1251,75 @@ begin
     AColumn.SortOrder := soAscending;
 end;
 
+function TfrmGrid.MyApplyBestFitForBand(ABand: TcxGridBand): Integer;
+const
+  MAGIC = 12;
+var
+  ABandHeight: Integer;
+  ABandRect: TRect;
+  ABandWidth: Integer;
+  ACanvas: TCanvas;
+  ACaption: string;
+  AColumn: TcxGridDBBandedColumn;
+  AIsBandViewInfoExist: Boolean;
+  j: Integer;
+begin
+  Assert(ABand <> nil);
+  // Предпологаем что дочерних бэндов нет!!!
+  Assert(ABand.ChildBandCount = 0);
+
+  // Ширина бэнда будет подбираться автоматически
+  ABand.Width := 0;
+  Result := 0;
+
+  // Цикл по всем колонкам
+  for j := 0 to ABand.ColumnCount - 1 do
+  begin
+    AColumn := ABand.Columns[j] as TcxGridDBBandedColumn;
+    if not AColumn.Visible then
+      Continue;
+
+    ACaption := AColumn.Caption;
+
+    // В каждой строке по слову
+    AColumn.Caption := GetWords(AColumn.Caption);
+
+    ApplyBestFitForColumn(AColumn);
+
+    // Возвращаем старый заголовок
+    AColumn.Caption := ACaption;
+  end;
+
+  AIsBandViewInfoExist := ABand.GridView.ViewInfo.HeaderViewInfo.
+    BandsViewInfo.Count > ABand.VisibleIndex;
+
+  // Если информацию о ширине бэндов доступна
+  if AIsBandViewInfoExist then
+  begin
+    ACanvas := ABand.GridView.ViewInfo.Canvas.Canvas;
+    // Вычисляем минимальную ширину бэнда
+    ABandRect := TTextRect.Calc(ACanvas, ABand.Caption);
+    // Получаем реальную ширину бэнда
+    ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+      [ABand.VisibleIndex].Width;
+
+    // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
+    if ABandWidth < (ABandRect.Width + MAGIC) then
+    begin
+      ABand.Width := ABandRect.Width + MAGIC;
+      ABandWidth := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items
+        [ABand.VisibleIndex].Width;
+
+      Assert(ABandWidth >= ABandRect.Width);
+    end;
+
+    // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
+    ABandHeight := CalcBandHeight(ABand);
+    Result := ABandHeight;
+  end;
+
+end;
+
 procedure TfrmGrid.MyApplyBestFitForView(AView: TcxGridDBBandedTableView);
 const
   MAGIC = 12;
@@ -1257,15 +1327,15 @@ var
   ABand: TcxGridBand;
   // ABandCaption: string;
   ABandHeight: Integer;
-  ABandRect: TRect;
-  ABandWidth: Integer;
-  ACanvas: TCanvas;
-  ACaption: String;
-  AColumn: TcxGridDBBandedColumn;
-  AIsBandViewInfoExist: Boolean;
+//  ABandRect: TRect;
+//  ABandWidth: Integer;
+//  ACanvas: TCanvas;
+//  ACaption: String;
+//  AColumn: TcxGridDBBandedColumn;
+//  AIsBandViewInfoExist: Boolean;
   AMaxBandHeight: Integer;
   i: Integer;
-  j: Integer;
+//  j: Integer;
 begin
   Assert(AView <> nil);
 
@@ -1284,19 +1354,20 @@ begin
     try
       SetZeroBandWidth(AView);
 
-      AIsBandViewInfoExist := AView.ViewInfo.HeaderViewInfo.
-        BandsViewInfo.Count > 0;
+//      AIsBandViewInfoExist := AView.ViewInfo.HeaderViewInfo.
+//        BandsViewInfo.Count > 0;
 
       AMaxBandHeight := 0;
-      ACanvas := AView.ViewInfo.Canvas.Canvas;
+//      ACanvas := AView.ViewInfo.Canvas.Canvas;
       for i := 0 to AView.Bands.Count - 1 do
       begin
         ABand := AView.Bands[i];
         if not ABand.Visible then
           Continue;
-
         // Предпологаем что дочерних бэндов нет!!!
         Assert(ABand.ChildBandCount = 0);
+
+        (*
 
         for j := 0 to ABand.ColumnCount - 1 do
         begin
@@ -1339,10 +1410,13 @@ begin
 
           // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
           ABandHeight := CalcBandHeight(ABand);
+          *)
+
+          ABandHeight := MyApplyBestFitForBand(ABand);
 
           AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
             AMaxBandHeight);
-        end;
+//        end;
       end;
 
       if AMaxBandHeight > 0 then

@@ -57,6 +57,7 @@ begin
   StringTreeNodeID.Visible := False;
   ErrorType.Visible := False;
   ParameterID.Visible := False;
+  Fixed.Visible := False;
 end;
 
 function TParametricErrorTable.GetDescription: TField;

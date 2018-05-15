@@ -134,6 +134,8 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsBehavior.ColumnHeaderHints = False
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsBehavior.BandHeaderHints = False
+      OptionsData.Deleting = False
+      OptionsData.DeletingConfirmation = True
       OptionsView.CellAutoHeight = True
       Bands = <
         item
