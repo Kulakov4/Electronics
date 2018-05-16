@@ -17,6 +17,8 @@ const
   WM_DS_AFTER_POST = WM_USER + 557;
 
 type
+  TQueryMonitor = class;
+
   TQueryBaseEvents = class(TQueryBase)
     procedure FDQueryAfterClose(DataSet: TDataSet);
     procedure FDQueryAfterDelete(DataSet: TDataSet);
@@ -59,6 +61,7 @@ type
     FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
     FUseAfterPostMessage: Boolean;
+    class var FMonitor: TQueryMonitor;
     procedure CloneCursor(AClone: TFDMemTable);
     procedure DoAfterClose(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
@@ -104,9 +107,30 @@ type
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property OldPKValue: Variant read FOldPKValue;
     property OldState: TDataSetState read FOldState;
+    class property Monitor: TQueryMonitor read FMonitor;
     property UseAfterPostMessage: Boolean read FUseAfterPostMessage
       write FUseAfterPostMessage;
     { Public declarations }
+  end;
+
+  TQueryMonitor = class
+  private
+    FChangedQueries: TList<TQueryBaseEvents>;
+    FEventList: TObjectList;
+    FHaveAnyChange: Boolean;
+    FQueries: TList<TQueryBaseEvents>;
+  protected
+    procedure DoAfterCommit(Sender: TObject);
+    procedure DoAfterDelete(Sender: TObject);
+    procedure DoAfterEdit(Sender: TObject);
+    procedure DoAfterPost(Sender: TObject);
+    procedure DoAfterRollback(Sender: TObject);
+    property Queries: TList<TQueryBaseEvents> read FQueries;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Add(AQuery: TQueryBaseEvents);
+    property HaveAnyChange: Boolean read FHaveAnyChange;
   end;
 
 implementation
@@ -160,6 +184,13 @@ begin
   // Создаём список своих подписчиков на события
   FAutoTransactionEventList := TObjectList.Create;
   FMasterEventList := TObjectList.Create;
+
+  if FMonitor = nil then
+    FMonitor := TQueryMonitor.Create;
+
+  // Добавляем себя в список всех запросов
+  FMonitor.Add(Self);
+
 end;
 
 destructor TQueryBaseEvents.Destroy;
@@ -486,6 +517,102 @@ begin
     // Как будто предыдущее сообщение AfterScroll ещё уже получили
     FResiveAfterScrollMessage := True;
 
+end;
+
+constructor TQueryMonitor.Create;
+begin
+  inherited;
+  FQueries := TList<TQueryBaseEvents>.Create;
+  FChangedQueries := TList<TQueryBaseEvents>.Create;
+  FEventList := FEventList.Create(True);
+
+  TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommit, FEventList);
+
+  TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterRollback,
+    FEventList);
+
+end;
+
+destructor TQueryMonitor.Destroy;
+begin
+  FreeAndNil(FEventList);
+  FreeAndNil(FQueries);
+  FreeAndNil(FChangedQueries);
+  inherited;
+end;
+
+procedure TQueryMonitor.Add(AQuery: TQueryBaseEvents);
+var
+  i: Integer;
+begin
+  Assert(AQuery <> nil);
+
+  i := FQueries.IndexOf(AQuery);
+  Assert(i = -1);
+
+  FQueries.Add(AQuery);
+
+  TNotifyEventWrap.Create(AQuery.AfterEdit, DoAfterEdit, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterPost, DoAfterPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
+end;
+
+procedure TQueryMonitor.DoAfterCommit(Sender: TObject);
+var
+  I: Integer;
+begin
+  for I := FChangedQueries.Count - 1 downto 0 do
+  begin
+    if not FChangedQueries[i].HaveAnyChanges then
+      FChangedQueries.Delete(i);
+  end;
+end;
+
+procedure TQueryMonitor.DoAfterDelete(Sender: TObject);
+var
+  i: Integer;
+  Q: TQueryBaseEvents;
+begin
+  Q := Sender as TQueryBaseEvents;
+
+  // Если нет несохранённных изменений
+  if not Q.HaveAnyChanges then
+  begin
+    i := FChangedQueries.IndexOf(Q);
+    if i >= 0 then
+      FChangedQueries.Delete(i);
+  end
+  else
+    FChangedQueries.Add(Q);
+  // Запоминаем, что здесь есть не сохранённые изменения
+end;
+
+procedure TQueryMonitor.DoAfterEdit(Sender: TObject);
+var
+  Q: TQueryBaseEvents;
+begin
+  Q := Sender as TQueryBaseEvents;
+  FChangedQueries.Add(Q);
+end;
+
+procedure TQueryMonitor.DoAfterPost(Sender: TObject);
+var
+  i: Integer;
+  Q: TQueryBaseEvents;
+begin
+  Q := Sender as TQueryBaseEvents;
+
+  i := FChangedQueries.IndexOf(Q);
+  Assert(i >= 0);
+
+  // Если нет несохранённых изменений
+  if not Q.HaveAnyChanges then
+    FChangedQueries.Delete(i);
+end;
+
+procedure TQueryMonitor.DoAfterRollback(Sender: TObject);
+begin
+  // TODO -cMM: TQueryMonitor.DoAfterRollback default body inserted
 end;
 
 end.

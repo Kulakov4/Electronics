@@ -38,6 +38,7 @@ type
     FFDUpdateSQL: TFDUpdateSQL;
     FMaxUpdateRecCount: Integer;
     FUpdateRecCount: Integer;
+  class var
     procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
