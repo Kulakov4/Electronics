@@ -17,14 +17,12 @@ uses
 type
   TParametersGroup = class(TQueryGroup)
   private
-    FAfterDataChange: TNotifyEventsEx;
     FProductCategoryIDValue: Integer;
     FqParameterKinds: TQueryParameterKinds;
     FqParameters: TQueryParameters;
     FqParameterTypes: TQueryParameterTypes;
     FqParamSubParams: TQueryParamSubParams;
     FqSubParameters: TQuerySubParameters2;
-    procedure DoOnDataChange(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
     function GetqParameterKinds: TQueryParameterKinds;
     procedure SetProductCategoryIDValue(const Value: Integer);
@@ -32,14 +30,13 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Commit; override;
+    function ApplyUpdates: Boolean; override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(AParametersExcelTable: TParametersExcelTable);
     function LocateAll(AParameterID: Integer): Boolean;
     procedure ReOpen; override;
     procedure Rollback; override;
     procedure TryPost; override;
-    property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue write
         SetProductCategoryIDValue;
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
@@ -71,22 +68,6 @@ begin
   Main := qParameterTypes;
   Detail := qParameters;
 
-  FAfterDataChange := TNotifyEventsEx.Create(Self);
-
-  TNotifyEventWrap.Create(qParameterTypes.AfterPost, DoOnDataChange, EventList);
-  TNotifyEventWrap.Create(qParameterTypes.AfterDelete, DoOnDataChange, EventList);
-
-  TNotifyEventWrap.Create(qParameters.AfterPost, DoOnDataChange, EventList);
-  TNotifyEventWrap.Create(qParameters.AfterDelete, DoOnDataChange, EventList);
-
-  TNotifyEventWrap.Create(qParamSubParams.AfterPost, DoOnDataChange, EventList);
-  TNotifyEventWrap.Create(qParamSubParams.AfterDelete, DoOnDataChange, EventList);
-
-  TNotifyEventWrap.Create(qParameterTypes.AfterOpen, DoOnDataChange, EventList);
-  TNotifyEventWrap.Create(qParameters.AfterOpen, DoOnDataChange, EventList);
-  TNotifyEventWrap.Create(qParamSubParams.AfterOpen, DoOnDataChange, EventList);
-
-
   // Для каскадного удаления
   TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete, EventList);
 end;
@@ -96,25 +77,23 @@ begin
   inherited;
 end;
 
-procedure TParametersGroup.Commit;
+function TParametersGroup.ApplyUpdates: Boolean;
 begin
   CheckMasterAndDetail;
+
   // Предполагается что мы работаем в транзакции
   Assert(Connection.InTransaction);
 
-  qParameterTypes.TryPost;
-  qParameters.TryPost;
-  qSubParameters.TryPost;
-  qParamSubParams.TryPost;
+  qParameterTypes.ApplyUpdates(False);
+  qParameters.ApplyUpdates(False);
+  qSubParameters.ApplyUpdates(False);
+  qParamSubParams.ApplyUpdates(False);
 
   Connection.Commit;
+  Result := (not Main.HaveAnyChanges) and (not Detail.HaveAnyChanges);
 
   AfterCommit.CallEventHandlers(Self);
-end;
 
-procedure TParametersGroup.DoOnDataChange(Sender: TObject);
-begin
-  FAfterDataChange.CallEventHandlers(Self);
 end;
 
 procedure TParametersGroup.DoBeforeDelete(Sender: TObject);

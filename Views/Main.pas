@@ -37,7 +37,8 @@ uses
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
   StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
-  Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils;
+  Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils,
+  BaseEventsQuery;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -135,14 +136,17 @@ type
     procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
+    function GetQueryMonitor: TQueryMonitor;
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
     { Private declarations }
   protected
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnProductLocate(Sender: TObject);
     property ComponentsFrame: TComponentsFrame read FComponentsFrame;
     property ProductsFrame: TProductsFrame read FProductsFrame;
+    property QueryMonitor: TQueryMonitor read GetQueryMonitor;
     property ViewTreeList: TViewTreeList read FViewTreeList;
   public
     constructor Create(AOwner: TComponent); override;
@@ -243,7 +247,8 @@ end;
 
 procedure TfrmMain.actSaveAllExecute(Sender: TObject);
 begin
-  DM2.SaveAll;
+  QueryMonitor.ApplyUpdates;
+//  DM2.SaveAll;
 end;
 
 procedure TfrmMain.actSelectDataBasePathExecute(Sender: TObject);
@@ -524,6 +529,10 @@ begin
 
     if OK then
     begin
+      // обновляем доступность кнопки "Сохранить всё"
+      DoOnHaveAnyChanges(nil);
+      TNotifyEventWrap.Create( QueryMonitor.OnHaveAnyChanges, DoOnHaveAnyChanges );
+
       // Подписываемся чтобы искать компонент на складах
       TNotifyEventWrap.Create(DM2.ComponentsExGroup.qComponentsEx.OnLocate,
         DoOnComponentLocate, FEventList);
@@ -771,6 +780,18 @@ end;
 procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);
 begin
   DM2.ComponentsExGroup.DecClient;
+end;
+
+procedure TfrmMain.DoOnHaveAnyChanges(Sender: TObject);
+begin
+  actSaveAll.Enabled := QueryMonitor.HaveAnyChanges;
+end;
+
+function TfrmMain.GetQueryMonitor: TQueryMonitor;
+begin
+  Result := nil;
+  if DM2 <> nil then
+    Result := DM2.qTreeList.Monitor;
 end;
 
 procedure TfrmMain.UpdateCaption;

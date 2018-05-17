@@ -116,6 +116,7 @@ type
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
     procedure DoAfterLoadData; virtual;
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnMasterDetailChange; virtual;
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
       message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
@@ -348,8 +349,8 @@ begin
   UpdateDetailColumnsWidth;
 end;
 
-procedure TViewComponentsParent.ApplyBestFitForColumn(AColumn:
-    TcxGridDBBandedColumn);
+procedure TViewComponentsParent.ApplyBestFitForColumn
+  (AColumn: TcxGridDBBandedColumn);
 begin
   inherited;
   // Увеличиваем ширину колонки наименование, для того чтобы влезла кнопка
@@ -624,6 +625,11 @@ begin
   UpdateView;
 end;
 
+procedure TViewComponentsParent.DoOnHaveAnyChanges(Sender: TObject);
+begin
+  UpdateView;
+end;
+
 procedure TViewComponentsParent.DoOnMasterDetailChange;
 begin
   if FBaseComponentsGroup <> nil then
@@ -639,6 +645,10 @@ begin
       TNotifyEventWrap.Create(FBaseComponentsGroup.Detail.AfterLoad,
         AfterLoadData, FEventList);
     end;
+
+    // Пусть нам монитор сообщает об изменениях в БД
+    TNotifyEventWrap.Create(FBaseComponentsGroup.Main.Monitor.OnHaveAnyChanges,
+      DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
   cxGridPopupMenu.PopupMenus.Items[0].GridView := MainView;
@@ -823,7 +833,7 @@ var
   ABand: TcxGridBand;
   ADetailColumn: TcxGridDBBandedColumn;
   AMainColumn: TcxGridDBBandedColumn;
-//  dx: Integer;
+  // dx: Integer;
   i: Integer;
   RealBandWidth: Integer;
   RealColumnWidth: Integer;
@@ -845,7 +855,8 @@ begin
     for i := 0 to MainView.Bands.Count - 1 do
     begin
       ABand := MainView.Bands[i];
-      if (not ABand.Visible) or (ABand.VisibleIndex = 0) {or (ABand.Width = 0)} then
+      if (not ABand.Visible) or (ABand.VisibleIndex = 0) { or (ABand.Width = 0) }
+      then
         Continue;
 
       // Если информация о том, сколько бэнд занимает на экране не доступна!
@@ -971,7 +982,7 @@ begin
   actAddComponent.Enabled := Ok and (AView <> nil);
   // and (AView.Level = tlComponentsDetails);
 
-  actCommit.Enabled := Ok and BaseComponentsGroup.Connection.InTransaction;
+  actCommit.Enabled := Ok and BaseComponentsGroup.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
 end;
 

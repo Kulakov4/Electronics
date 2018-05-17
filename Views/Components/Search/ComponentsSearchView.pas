@@ -217,7 +217,7 @@ begin
   actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
   actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled;
 
-  actCommit.Enabled := ComponentsSearchGroup.Connection.InTransaction and
+  actCommit.Enabled := ComponentsSearchGroup.HaveAnyChanges and
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;

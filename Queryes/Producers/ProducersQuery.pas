@@ -28,7 +28,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string; AProducerTypeID: Integer);
-    procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     function Locate(AValue: string; TestResult: Boolean = False): Boolean;
     property Cnt: TField read GetCnt;
@@ -64,12 +63,6 @@ begin
   ProducerTypeID.AsInteger := AProducerTypeID;
   Name.AsString := AValue;
   FDQuery.Post;
-end;
-
-procedure TQueryProducers.ApplyUpdates;
-begin
-  TryPost;
-  FDQuery.Connection.Commit;
 end;
 
 procedure TQueryProducers.CancelUpdates;

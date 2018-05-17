@@ -3,7 +3,6 @@ inherited ViewExtraCharge: TViewExtraCharge
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DataController.KeyFieldNames = 'ID'
       OptionsCustomize.ColumnFiltering = False
-      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
       OptionsView.ColumnAutoWidth = False

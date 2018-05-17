@@ -408,8 +408,7 @@ begin
   AView := FocusedTableView;
   OK := (FQuerySubParameters <> nil) and (FQuerySubParameters.FDQuery.Active);
 
-  actCommit.Enabled := OK and FQuerySubParameters.FDQuery.Connection.
-    InTransaction;
+  actCommit.Enabled := OK and FQuerySubParameters.HaveAnyChanges;
 
   actRollback.Enabled := actCommit.Enabled;
 

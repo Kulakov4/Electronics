@@ -721,7 +721,9 @@ begin
         DoAfterDataChange, FEventList);
       TNotifyEventWrap.Create(FBodyTypesGroup.qBodyTypes2.AfterOpen,
         DoAfterDataChange, FEventList);
-      TNotifyEventWrap.Create(FBodyTypesGroup.AfterDataChange,
+
+      // Просим монитор сообщать нам об изменении в БД
+      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.Monitor.OnHaveAnyChanges,
         DoAfterDataChange, FEventList);
 
       MainView.ViewData.Collapse(True);
@@ -768,7 +770,7 @@ begin
     (BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount > 0);
 
   actCommit.Enabled := (BodyTypesGroup <> nil) and
-    (BodyTypesGroup.Connection.InTransaction);
+    (BodyTypesGroup.HaveAnyChanges);
 
   actRollback.Enabled := actCommit.Enabled;
 

@@ -15,6 +15,7 @@ type
     FDetail: TQueryWithDataSource;
     FEventList: TObjectList;
     FMain: TQueryWithDataSource;
+    procedure Commit;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
     procedure SetDetail(const Value: TQueryWithDataSource);
@@ -30,7 +31,6 @@ type
     destructor Destroy; override;
     function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
-    procedure Commit; virtual;
     procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
@@ -66,11 +66,9 @@ function TQueryGroup.ApplyUpdates: Boolean;
 begin
   CheckMasterAndDetail;
 
-  Main.TryPost;
-  Detail.TryPost;
+  Main.ApplyUpdates(False);
+  Detail.ApplyUpdates(True);
 
-  Main.ApplyUpdates;
-  Detail.ApplyUpdates;
   Result := (not Main.HaveAnyChanges) and (not Detail.HaveAnyChanges);
 end;
 

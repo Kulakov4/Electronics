@@ -73,7 +73,7 @@ type
       overload; virtual;
     procedure AppendRows(AFieldNames, AValues: TArray<String>);
       overload; virtual;
-    procedure ApplyUpdates; virtual;
+    procedure ApplyUpdates(ACommit: Boolean = True); virtual;
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Variant;
@@ -234,7 +234,7 @@ procedure TQueryBase.ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
 begin
 end;
 
-procedure TQueryBase.ApplyUpdates;
+procedure TQueryBase.ApplyUpdates(ACommit: Boolean = True);
 begin
   TryPost;
   if FDQuery.CachedUpdates then
@@ -245,7 +245,8 @@ begin
   end
   else
   begin
-    FDQuery.Connection.Commit;
+    if (FDQuery.Connection.InTransaction) and ACommit then
+      FDQuery.Connection.Commit;
   end;
 end;
 

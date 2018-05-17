@@ -98,7 +98,7 @@ type
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
-    procedure DoAfterDataChange(Sender: TObject);
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure SetDescriptionsGroup(const Value: TDescriptionsGroup);
     procedure UpdateTotalCount;
     { Private declarations }
@@ -514,9 +514,9 @@ begin
   FHRTimer := THRTimer.Create(True);
 end;
 
-procedure TViewDescriptions.DoAfterDataChange(Sender: TObject);
+procedure TViewDescriptions.DoOnHaveAnyChanges(Sender: TObject);
 begin
-  // UpdateView;
+  UpdateView;
 end;
 
 function TViewDescriptions.GetFocusedTableView: TcxGridDBBandedTableView;
@@ -614,12 +614,15 @@ begin
       FDescriptionsGroup.qProducers.DataSource, lsFixedList,
       FDescriptionsGroup.qProducers.Name.FieldName);
 
-    TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,
-      DoAfterDataChange, FEventList);
+    // Пусть монитор сообщает нам об изменениях в БД
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.Monitor.
+      OnHaveAnyChanges, DoOnHaveAnyChanges, FEventList);
+
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionTypes.AfterOpen,
-      DoAfterDataChange, FEventList);
+      DoOnHaveAnyChanges, FEventList);
+
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.AfterOpen,
-      DoAfterDataChange, FEventList);
+      DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
 end;
@@ -652,7 +655,7 @@ begin
   // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (AView.Controller.SelectedRowCount > 0);
 
-  actCommit.Enabled := OK and (DescriptionsGroup.Connection.InTransaction);
+  actCommit.Enabled := OK and DescriptionsGroup.HaveAnyChanges;
 
   actRollback.Enabled := actCommit.Enabled;
 

@@ -79,7 +79,7 @@ end;
 
 function TfrmProducers.HaveAnyChanges: Boolean;
 begin
-  Result := ViewProducers.ProducersGroup.Connection.InTransaction;
+  Result := ViewProducers.ProducersGroup.HaveAnyChanges;
 end;
 
 class function TfrmProducers.TakeProducer(var AProducerID: Integer;

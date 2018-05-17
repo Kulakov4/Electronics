@@ -104,7 +104,11 @@ end;
 
 function TfrmParameters.HaveAnyChanges: Boolean;
 begin
-  Result := ViewParameters.ParametersGrp.Connection.InTransaction;
+  Result := True;
+  if cxPageControl.ActivePage = cxtsParameters then
+    Result := ViewParameters.ParametersGrp.HaveAnyChanges;
+  if cxPageControl.ActivePage = cxtsSubParameters then
+    Result := ViewSubParameters.QuerySubParameters.HaveAnyChanges;
 end;
 
 end.

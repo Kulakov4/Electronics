@@ -165,7 +165,7 @@ type
       ASource: TcxGridDBBandedTableView); override;
     procedure DoAfterEditValueChanged(var Message: TMessage);
       message WM_AFTER_EDIT_VALUE_CHANGED;
-    procedure DoOnDataChange(Sender: TObject);
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(AFileName: string);
     procedure LocateAndFocus(AParameterID: Integer);
@@ -763,7 +763,7 @@ begin
   TQueryBase(Message.WParam).TryPost;
 end;
 
-procedure TViewParameters.DoOnDataChange(Sender: TObject);
+procedure TViewParameters.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
 end;
@@ -988,8 +988,16 @@ begin
       FParametersGrp.qSubParameters.DataSource, lsEditFixedList,
       FParametersGrp.qSubParameters.Name.FieldName);
 
-    TNotifyEventWrap.Create(FParametersGrp.AfterDataChange, DoOnDataChange,
-      FEventList);
+    // Пусть монитор сообщает нам обо всех изменениях в БД
+    TNotifyEventWrap.Create
+      (FParametersGrp.qParameterTypes.Monitor.OnHaveAnyChanges,
+      DoOnHaveAnyChanges, FEventList);
+
+    TNotifyEventWrap.Create(FParametersGrp.qParameterTypes.AfterOpen,
+      DoOnHaveAnyChanges, FEventList);
+
+    TNotifyEventWrap.Create(FParametersGrp.qParameters.AfterOpen,
+      DoOnHaveAnyChanges, FEventList);
 
     UpdateAutoTransaction;
   end;
@@ -1045,7 +1053,7 @@ begin
   actExportToExcelDocument.Enabled := OK and
     (FParametersGrp.qParameters.FDQuery.RecordCount > 0);
 
-  actCommit.Enabled := OK and FParametersGrp.Connection.InTransaction;
+  actCommit.Enabled := OK and FParametersGrp.HaveAnyChanges;
 
   actRollback.Enabled := actCommit.Enabled;
 

@@ -101,7 +101,7 @@ type
       message WM_AFTER_SET_NEW_VALUE;
     procedure CreateColumnsBarButtons; override;
     procedure DoAfterPost(Sender: TObject);
-    procedure DoOnDataChange(Sender: TObject);
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(const AFileName: String);
     property QuerySearchProducerTypes: TQuerySearchProducerTypes
@@ -386,7 +386,7 @@ begin
   MyInitializeComboBoxColumn;
 end;
 
-procedure TViewProducers.DoOnDataChange(Sender: TObject);
+procedure TViewProducers.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
 end;
@@ -489,8 +489,17 @@ begin
       GridView(cxGridLevel2).DataController.DataSource :=
         FProducersGroup.qProducers.DataSource;
 
-      TNotifyEventWrap.Create(FProducersGroup.qProducers.OnDataChange,
-        DoOnDataChange, FEventList);
+      TNotifyEventWrap.Create
+        (FProducersGroup.qProducers.Monitor.OnHaveAnyChanges,
+        DoOnHaveAnyChanges, FEventList);
+
+      TNotifyEventWrap.Create
+        (FProducersGroup.qProducerTypes.AfterOpen,
+        DoOnHaveAnyChanges, FEventList);
+
+      TNotifyEventWrap.Create
+        (FProducersGroup.qProducers.AfterOpen,
+        DoOnHaveAnyChanges, FEventList);
 
       InitializeLookupColumn(clProducerTypeID,
         FProducersGroup.qProducerTypes.DataSource, lsEditList,
@@ -534,7 +543,7 @@ begin
   actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);;
 
-  actCommit.Enabled := OK and (ProducersGroup.Connection.InTransaction);
+  actCommit.Enabled := OK and (ProducersGroup.HaveAnyChanges);
 
   actRollback.Enabled := actCommit.Enabled;
 

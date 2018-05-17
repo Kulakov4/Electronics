@@ -234,7 +234,7 @@ begin
   actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);;
 
-  actCommit.Enabled := OK and (qExtraCharge.FDQuery.Connection.InTransaction);
+  actCommit.Enabled := OK and (qExtraCharge.HaveAnyChanges);
 
   actRollback.Enabled := actCommit.Enabled;
 

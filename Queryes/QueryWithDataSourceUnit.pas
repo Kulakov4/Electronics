@@ -17,26 +17,20 @@ const
 type
   TQueryWithDataSource = class(TQueryWithMaster)
     DataSource: TDataSource;
-    procedure DataSourceDataChange(Sender: TObject; Field: TField);
     procedure DefaultOnGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure HideNullGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
   private
     FIsModifedClone: TFDMemTable;
-    FOnDataChange: TNotifyEventsEx;
-    FResiveOnDataChangeMessage: Boolean;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     procedure InitializeFields;
     { Private declarations }
   protected
-    procedure ProcessOnDataChange(var Message: TMessage);
-      message WM_ON_DATA_CHANGE;
   public
     constructor Create(AOwner: TComponent); override;
     function IsModifed(APKValue: Variant): Boolean;
-    property OnDataChange: TNotifyEventsEx read FOnDataChange;
     { Public declarations }
   end;
 
@@ -47,26 +41,12 @@ implementation
 constructor TQueryWithDataSource.Create(AOwner: TComponent);
 begin
   inherited;
-  // Создаём события
-  FOnDataChange := TNotifyEventsEx.Create(Self);
-  FResiveOnDataChangeMessage := True;
 
   // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 
   // Во всех строковых полях будем удалять начальные и конечные пробелы
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
-end;
-
-procedure TQueryWithDataSource.DataSourceDataChange(Sender: TObject;
-  Field: TField);
-begin
-  // если есть подписчики
-  if (FOnDataChange.Count > 0) and (FResiveOnDataChangeMessage) then
-  begin
-    FResiveOnDataChangeMessage := False;
-    PostMessage(Handle, WM_ON_DATA_CHANGE, 0, 0);
-  end;
 end;
 
 procedure TQueryWithDataSource.DefaultOnGetText(Sender: TField;
@@ -150,12 +130,6 @@ begin
   end;
 
   Result := AFDDataSet.UpdateStatus in [usModified, usInserted]
-end;
-
-procedure TQueryWithDataSource.ProcessOnDataChange(var Message: TMessage);
-begin
-  FOnDataChange.CallEventHandlers(Self);
-  FResiveOnDataChangeMessage := True;
 end;
 
 end.

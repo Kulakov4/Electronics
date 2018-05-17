@@ -14,11 +14,9 @@ uses
 type
   TDescriptionsGroup = class(TQueryGroup)
   private
-    FAfterDataChange: TNotifyEventsEx;
     FqDescriptions: TQueryDescriptions;
     FqDescriptionTypes: TQueryDescriptionTypes;
     FqProducers: TQueryProducers;
-    procedure DoAfterPostOrDelete(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
     function GetqDescriptions: TQueryDescriptions;
     function GetqDescriptionTypes: TQueryDescriptionTypes;
@@ -27,14 +25,12 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
-    procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(ADescriptionsExcelTable
       : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
     procedure ReOpen; override;
     procedure Rollback; override;
-    property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
     property qDescriptionTypes: TQueryDescriptionTypes
       read GetqDescriptionTypes;
@@ -55,31 +51,9 @@ begin
   Main := qDescriptionTypes;
   Detail := qDescriptions;
 
-  FAfterDataChange := TNotifyEventsEx.Create(Self);
-
-  TNotifyEventWrap.Create(qDescriptionTypes.AfterPost, DoAfterPostOrDelete,
-    EventList);
-  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterPostOrDelete,
-    EventList);
-  TNotifyEventWrap.Create(qDescriptions.AfterPost, DoAfterPostOrDelete,
-    EventList);
-  TNotifyEventWrap.Create(qDescriptions.AfterDelete, DoAfterPostOrDelete,
-    EventList);
-
   // Для каскадного удаления
   TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterDelete,
     EventList);
-end;
-
-procedure TDescriptionsGroup.Commit;
-begin
-  Inherited;
-  // qProducers.DropUnuses;
-end;
-
-procedure TDescriptionsGroup.DoAfterPostOrDelete(Sender: TObject);
-begin
-  FAfterDataChange.CallEventHandlers(Self);
 end;
 
 procedure TDescriptionsGroup.DoAfterDelete(Sender: TObject);

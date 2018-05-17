@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.396,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Analog\UniqueParameterValuesQuery.pas=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Analog\ParameterValuesQuery.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.921,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\Producers\ProducersView.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.294,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\Producers\ProducersView.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.160,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\HTTP\HttpUnit.pas=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.973,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Parameters\ParametersQuery.pas=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Parameters\MainParametersQuery.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.148,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Products\ProductSearchGroupUnit2.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.922,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Helpers\NaturalSort\Sort.StringCompare.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.330,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\Producers\ProducersView.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.694,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Helpers\DialogUnit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.571,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Helpers\DialogUnit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.504,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Helpers\DialogUnit2.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.202,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Excel\FieldInfoUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.571,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\TreeList\TreeListView.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.260,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\TreeList\TreeListView.pas=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.252,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\TreeList\TreeListView.pas=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.663,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Search\SearchParameterSubParameterQuery.dfm=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.980,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\Analog\AnalogView2.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.859,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\Components\ParametricTable\ParametricTableView.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.701,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Helpers\ModCheckDatabase.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.438,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\Parameters\ParametersForm.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.162,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\BodyTypes\BodyTypesView.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.618,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\BodyTypes\BodyTypesView.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.086,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Views\BodyTypes\BodyTypesView.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.599,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Components\ParametricTable\ParametricErrorTable.pas=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.414,D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\QueryGroupUnit3.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.353,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\QueryGroupUnit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.274,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Excel\ComponentsExcelDataModule.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.960,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Queryes\Components\SubGroups\SubGroupsQuery.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.566,=D:\Users2\Kulakov\Documents\Embarcadero\Studio\Projects\Electronics\Helpers\DialogUnit.pas</Transacti

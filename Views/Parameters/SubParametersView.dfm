@@ -2,6 +2,8 @@ inherited ViewSubParameters: TViewSubParameters
   inherited cxGrid: TcxGrid
     Top = 54
     Height = 418
+    ExplicitTop = 54
+    ExplicitHeight = 418
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop

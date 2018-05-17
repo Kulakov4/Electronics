@@ -14,13 +14,11 @@ uses
 type
   TBodyTypesGroup = class(TQueryGroup)
   private
-    FAfterDataChange: TNotifyEventsEx;
     FqBodyKinds: TQueryBodyKinds;
     FqBodyTypes2: TQueryBodyTypes2;
     FqProducers: TQueryProducers;
     FQueryBodyTypesSimple: TQueryBodyTypesSimple;
     procedure DoAfterDelete(Sender: TObject);
-    procedure DoAfterPostOrDelete(Sender: TObject);
     function GetqBodyKinds: TQueryBodyKinds;
     function GetqBodyTypes2: TQueryBodyTypes2;
     function GetqProducers: TQueryProducers;
@@ -32,7 +30,6 @@ type
     procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable;
         AIDProducer: Integer);
     procedure Rollback; override;
-    property AfterDataChange: TNotifyEventsEx read FAfterDataChange;
     property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
     property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
     property qProducers: TQueryProducers read GetqProducers;
@@ -53,13 +50,6 @@ begin
   Main := qBodyKinds;
   Detail := qBodyTypes2;
 
-  FAfterDataChange := TNotifyEventsEx.Create(Self);
-
-  TNotifyEventWrap.Create(qBodyKinds.AfterPost, DoAfterPostOrDelete, EventList);
-  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterPostOrDelete, EventList);
-  TNotifyEventWrap.Create(qBodyTypes2.AfterPost, DoAfterPostOrDelete, EventList);
-  TNotifyEventWrap.Create(qBodyTypes2.AfterDelete, DoAfterPostOrDelete, EventList);
-
   // Для каскадного удаления
   TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete, EventList);
 end;
@@ -70,11 +60,6 @@ begin
   // Каскадно удаляем типы корпусов
   qBodyTypes2.CascadeDelete(qBodyKinds.OldPKValue,
     qBodyTypes2.IDBodyKind.FieldName, True);
-end;
-
-procedure TBodyTypesGroup.DoAfterPostOrDelete(Sender: TObject);
-begin
-  FAfterDataChange.CallEventHandlers(Self);
 end;
 
 function TBodyTypesGroup.GetqBodyKinds: TQueryBodyKinds;
