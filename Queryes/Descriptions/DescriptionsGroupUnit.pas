@@ -29,8 +29,6 @@ type
     procedure LoadDataFromExcelTable(ADescriptionsExcelTable
       : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
-    procedure ReOpen; override;
-    procedure Rollback; override;
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
     property qDescriptionTypes: TQueryDescriptionTypes
       read GetqDescriptionTypes;
@@ -48,8 +46,9 @@ uses
 constructor TDescriptionsGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  Main := qDescriptionTypes;
-  Detail := qDescriptions;
+  QList.Add(qDescriptionTypes);
+  QList.Add(qDescriptions);
+  QList.Add(qProducers);
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterDelete,
@@ -167,18 +166,6 @@ begin
     qDescriptionTypes.FDQuery.EnableControls;
     qDescriptions.FDQuery.EnableControls;
   end;
-end;
-
-procedure TDescriptionsGroup.ReOpen;
-begin
-  qDescriptionTypes.RefreshQuery;
-  qDescriptions.RefreshQuery;
-  qProducers.RefreshQuery;
-end;
-
-procedure TDescriptionsGroup.Rollback;
-begin
-  inherited;
 end;
 
 end.

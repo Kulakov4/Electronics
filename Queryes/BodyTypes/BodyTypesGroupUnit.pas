@@ -47,8 +47,8 @@ uses Data.DB;
 constructor TBodyTypesGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  Main := qBodyKinds;
-  Detail := qBodyTypes2;
+  QList.Add(qBodyKinds);
+  QList.Add(qBodyTypes2);
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete, EventList);

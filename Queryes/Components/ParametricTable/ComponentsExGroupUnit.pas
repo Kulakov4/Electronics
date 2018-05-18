@@ -93,8 +93,10 @@ begin
 
   FCatParamsGroup := TCategoryParametersGroup.Create(Self);
 
-  Main := qFamilyEx;
-  Detail := qComponentsEx;
+  // Сначала будем открывать компоненты, чтобы при открытии семейства знать сколько у него компонент
+  // Компоненты и семейства не связаны как главный-подчинённый главным для них является категория
+  QList.Add(qComponentsEx);
+  QList.Add(qFamilyEx);
 
   TNotifyEventWrap.Create(qFamilyEx.BeforeOpen, DoBeforeOpen, EventList);
   TNotifyEventWrap.Create(qComponentsEx.BeforeOpen, DoBeforeOpen, EventList);

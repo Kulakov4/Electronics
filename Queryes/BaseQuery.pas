@@ -73,7 +73,7 @@ type
       overload; virtual;
     procedure AppendRows(AFieldNames, AValues: TArray<String>);
       overload; virtual;
-    procedure ApplyUpdates(ACommit: Boolean = True); virtual;
+    procedure ApplyUpdates; virtual;
     procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Variant;
@@ -234,7 +234,7 @@ procedure TQueryBase.ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
 begin
 end;
 
-procedure TQueryBase.ApplyUpdates(ACommit: Boolean = True);
+procedure TQueryBase.ApplyUpdates;
 begin
   TryPost;
   if FDQuery.CachedUpdates then
@@ -243,11 +243,6 @@ begin
     if FDQuery.ApplyUpdates() = 0 then
       FDQuery.CommitUpdates;
   end
-  else
-  begin
-    if (FDQuery.Connection.InTransaction) and ACommit then
-      FDQuery.Connection.Commit;
-  end;
 end;
 
 procedure TQueryBase.AssignFrom(AFDQuery: TFDQuery);
@@ -290,11 +285,11 @@ begin
   begin
     FDQuery.CancelUpdates;
   end
-  else
-  begin
-    FDQuery.Connection.Rollback;
-    RefreshQuery;
-  end;
+//  else
+//  begin
+//    FDQuery.Connection.Rollback;
+//    RefreshQuery;
+//  end;
 end;
 
 procedure TQueryBase.CascadeDelete(const AIDMaster: Variant;

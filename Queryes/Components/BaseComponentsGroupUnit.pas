@@ -29,12 +29,10 @@ type
     procedure Commit; override;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
-    procedure ReOpen; override;
     procedure Rollback; override;
     property AfterApplyUpdates: TNotifyEventsEx read FAfterApplyUpdates;
     property FullDeleted: TList<Integer> read FFullDeleted;
-    property QueryBaseComponents: TQueryBaseComponents
-      read GetQueryBaseComponents;
+    property QueryBaseComponents: TQueryBaseComponents read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
     property Producers: TQueryProducers read GetProducers;
     { Public declarations }
@@ -43,7 +41,7 @@ type
 implementation
 
 uses RepositoryDataModule, System.Math, System.IOUtils, SettingsController,
-  System.Types, ProjectConst, StrHelper, BaseQuery;
+  System.Types, ProjectConst, StrHelper, BaseQuery, BaseEventsQuery;
 
 {$R *.dfm}
 
@@ -79,15 +77,39 @@ begin
 end;
 
 function TBaseComponentsGroup.GetQueryBaseComponents: TQueryBaseComponents;
+var
+  Q: TQueryBaseEvents;
 begin
-  Assert(Detail <> nil);
-  Result := Detail as TQueryBaseComponents;
+  Assert(QList.Count > 0);
+  Result := nil;
+
+  for Q in QList do
+  begin
+    if Q is TQueryBaseComponents then
+    begin
+      Result := Q as TQueryBaseComponents;
+      Exit;
+    end;
+  end;
+  Assert(Result <> nil);
 end;
 
 function TBaseComponentsGroup.GetQueryBaseFamily: TQueryBaseFamily;
+var
+  Q: TQueryBaseEvents;
 begin
-  Assert(Main <> nil);
-  Result := Main as TQueryBaseFamily;
+  Assert(QList.Count > 0);
+  Result := nil;
+
+  for Q in QList do
+  begin
+    if Q is TQueryBaseFamily then
+    begin
+      Result := Q as TQueryBaseFamily;
+      Exit;
+    end;
+  end;
+  Assert(Result <> nil);
 end;
 
 procedure TBaseComponentsGroup.LoadDocFile(const AFileName: String;
@@ -100,20 +122,13 @@ begin
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    IsEdited := not Main.TryEdit;
-    Main.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
+    IsEdited := not QueryBaseFamily.TryEdit;
+    QueryBaseFamily.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
 
     // Сохраняем только если запись уже была сохранена до редактирования
     if not IsEdited then
-      Main.TryPost;
+      QueryBaseFamily.TryPost;
   end;
-end;
-
-procedure TBaseComponentsGroup.ReOpen;
-begin
-  // Сначала обновим детали, чтобы при обновлении мастера знать сколько у него дочерних
-  Detail.RefreshQuery;
-  Main.RefreshQuery;
 end;
 
 procedure TBaseComponentsGroup.Rollback;

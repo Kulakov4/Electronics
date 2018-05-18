@@ -36,13 +36,12 @@ type
     FParametersGroup: TParametersGroup;
     FProducersGroup: TProducersGroup;
     FQueryGroups: TList<TQueryGroup>;
+    FRefreshQList: TList;
     FTreeListAfterFirstOpen: TNotifyEventWrap;
     // FRecommendedReplacement: TRecommendedReplacementThread;
     // FTempThread: TTempThread;
     procedure CloseConnection;
     procedure DoOnCategoryParametersApplyUpdates(Sender: TObject);
-    procedure DoAfterComponentsCommit(Sender: TObject);
-    procedure DoAfterParametersCommit(Sender: TObject);
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
@@ -59,14 +58,14 @@ type
     { Private declarations }
   protected
     procedure DoAfterChildCategoriesPostOrDelete(Sender: TObject);
+    procedure DoAfterCommit(Sender: TObject);
     procedure DoAfterTreeListFirstOpen(Sender: TObject);
+    procedure DoBeforeCommit(Sender: TObject);
     procedure DoBeforeTreeListClose(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure CreateOrOpenDataBase;
-    function HaveAnyChanges: Boolean;
-    procedure SaveAll;
     property BodyTypesGroup: TBodyTypesGroup read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup read
         GetCategoryParametersGroup;
@@ -97,6 +96,7 @@ begin
   Assert(not DMRepository.dbConnection.Connected);
 
   FEventList := TObjectList.Create;
+  FRefreshQList := TList.Create;
 
   // СОздаём список наборов данных, кторые будем открывать
   FDataSetList := TList<TQueryBase>.Create;
@@ -152,15 +152,11 @@ begin
   FQueryGroups.Add(ComponentsExGroup);
   FQueryGroups.Add(ComponentsSearchGroup);
 
-  TNotifyEventWrap.Create(ParametersGroup.AfterCommit, DoAfterParametersCommit,
-    FEventList);
+  TNotifyEventWrap.Create(DMRepository.BeforeCommit, DoBeforeCommit, FEventList);
+  TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommit, FEventList);
 
   TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters.On_ApplyUpdates, DoOnCategoryParametersApplyUpdates,
     FEventList);
-
-  TNotifyEventWrap.Create(ComponentsGroup.AfterCommit, DoAfterComponentsCommit,
-    FEventList);
-
 
   // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
   // справочника производителей
@@ -182,6 +178,7 @@ begin
   FreeAndNil(FEventList);
   FreeAndNil(FDataSetList);
   FreeAndNil(FQueryGroups);
+  FreeAndNil(FRefreshQList);
   inherited;
 end;
 
@@ -244,24 +241,35 @@ begin
   qTreeList.SmartRefresh;
 end;
 
+procedure TDM2.DoAfterCommit(Sender: TObject);
+var
+  i: Integer;
+begin
+  if FRefreshQList.Count = 0 then
+    Exit;
+
+  i := FRefreshQList.IndexOf(ParametersGroup);
+  if i >= 0 then
+  begin
+    CategoryParametersGroup.qCategoryParameters.SmartRefresh;
+    FRefreshQList.Delete(i);
+  end;
+
+  i := FRefreshQList.IndexOf(ComponentsGroup);
+  if i >= 0  then
+  begin
+    ComponentsExGroup.TryRefresh;
+    FRefreshQList.Delete(i);
+  end;
+
+  Assert(FRefreshQList.Count = 0);
+end;
+
 procedure TDM2.DoOnCategoryParametersApplyUpdates(Sender: TObject);
 begin
   // Произошли изменения в таблице параметров для категорий
   // Будем обновлять параметрическую таблицу
   ComponentsExGroup.TryRefresh;
-end;
-
-procedure TDM2.DoAfterComponentsCommit(Sender: TObject);
-begin
-  // Произошли изменения в таблице компонентов
-  // Будем обновлять параметрическую таблицу
-  ComponentsExGroup.TryRefresh;
-end;
-
-procedure TDM2.DoAfterParametersCommit(Sender: TObject);
-begin
-  // Применили изменения в параметрах - надо обновить параметры для категории
-  CategoryParametersGroup.qCategoryParameters.RefreshQuery;
 end;
 
 procedure TDM2.DoAfterProducerCommit(Sender: TObject);
@@ -300,6 +308,18 @@ begin
 
   // Пытаемся перейти на ту-же запись
   qTreeList.LocateByPK(ACategoryID);
+end;
+
+procedure TDM2.DoBeforeCommit(Sender: TObject);
+begin
+  // Применили изменения в параметрах - надо обновить параметры для категории
+  if ParametersGroup.HaveAnyChanges then
+    FRefreshQList.Add(ParametersGroup);
+
+  // Произошли изменения в таблице компонентов
+  // Будем обновлять параметрическую таблицу
+  if ComponentsGroup.HaveAnyChanges then
+    FRefreshQList.Add(ComponentsGroup);
 end;
 
 procedure TDM2.DoBeforeTreeListClose(Sender: TObject);
@@ -378,31 +398,6 @@ begin
   Result := FProducersGroup;
 end;
 
-function TDM2.HaveAnyChanges: Boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-  if not DMRepository.dbConnection.Connected then
-    Exit;
-
-  Result := False;
-  for I := 0 to FDataSetList.Count - 1 do
-  begin
-    Result := FDataSetList[I].HaveAnyChanges;
-    if Result then
-      Exit;
-  end;
-
-  for I := 0 to FQueryGroups.Count - 1 do
-  begin
-    Result := FQueryGroups[I].Main.HaveAnyChanges or
-      FQueryGroups[I].Detail.HaveAnyChanges;
-    if Result then
-      Exit;
-  end;
-end;
-
 { Заполнение БД необходимыми полями }
 procedure TDM2.InitDataSetValues;
 begin
@@ -470,21 +465,6 @@ begin
 
 
   InitDataSetValues();
-end;
-
-{ сохранить всё }
-procedure TDM2.SaveAll;
-var
-  I: Integer;
-begin
-  // Сохраняем изменения сделанные в категориях компонентов
-  for I := 0 to FDataSetList.Count - 1 do
-    FDataSetList[I].TryPost;
-
-  // Если работали в рамках транзакции, то сохраняем
-  if FDataSetList[0].FDQuery.Connection.InTransaction then
-    FDataSetList[0].FDQuery.Connection.Commit;
-
 end;
 
 end.

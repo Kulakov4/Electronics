@@ -104,11 +104,14 @@ uses System.Types, System.StrUtils, RepositoryDataModule, BodyTypesQuery2,
 constructor TComponentsGroup.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Main := qFamily;
-  Detail := qComponents;
+
+  // Сначала будем открывать компоненты, чтобы при открытии семейства знать сколько у него компонент
+  // Компоненты и семейства не связаны как главный-подчинённый главным для них является категория
+  QList.Add(qComponents);
+  QList.Add(qFamily);
+
 
   TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost, EventList);
-
   TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete, EventList);
   TNotifyEventWrap.Create(qFamily.AfterDelete, AfterComponentPostOrDelete, EventList);
   TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete, EventList);

@@ -42,8 +42,11 @@ uses SearchInterfaceUnit, RepositoryDataModule;
 constructor TComponentsSearchGroup.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Main := qFamilySearch;
-  Detail := qComponentsSearch;
+
+  // Сначала будем открывать компоненты, чтобы при открытии семейства знать сколько у него компонент
+  // Компоненты и семейства не связаны как главный-подчинённый главным для них является категория
+  QList.Add(qComponentsSearch);
+  QList.Add(qFamilySearch);
 end;
 
 function TComponentsSearchGroup.ApplyUpdates: Boolean;

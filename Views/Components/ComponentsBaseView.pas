@@ -213,8 +213,8 @@ begin
   if Length(m) = 0 then
     Exit;
 
-  // Сначала сохраняем родительский компонент
-  BaseComponentsGroup.Main.TryPost;
+  // Сначала сохраняем семейство компонентов
+  BaseComponentsGroup.QueryBaseFamily.TryPost;
 
   ARow := GetRow(0) as TcxMyGridMasterDataRow;
   Assert(ARow <> nil);
@@ -367,19 +367,16 @@ begin
   Assert(qSubGroups.FDQuery.Active);
   ParamValue := qSubGroups.GetFieldValues('ExternalID', ',').Trim([',']);
 
-  with BaseComponentsGroup.Main.FDQuery do
-  begin
-    if FieldByName('SubGroup').AsString <> ParamValue then
-    begin
-      DisableControls;
-      try
-        Edit;
-        FieldByName('SubGroup').AsString := ParamValue;
-        Post;
-      finally
-        EnableControls;
-      end;
-    end;
+  if BaseComponentsGroup.QueryBaseFamily.SubGroup.AsString = ParamValue then
+    Exit;
+
+  BaseComponentsGroup.QueryBaseFamily.FDQuery.DisableControls;
+  try
+    BaseComponentsGroup.QueryBaseFamily.TryEdit;
+    BaseComponentsGroup.QueryBaseFamily.SubGroup.AsString := ParamValue;
+    BaseComponentsGroup.QueryBaseFamily.TryPost;
+  finally
+    BaseComponentsGroup.QueryBaseFamily.FDQuery.EnableControls;
   end;
 
   UpdateView;
@@ -478,8 +475,7 @@ begin
   if FqSubGroups = nil then
   begin
     FqSubGroups := TfrmQuerySubGroups.Create(Self);
-    FqSubGroups.FDQuery.Connection :=
-      BaseComponentsGroup.Main.FDQuery.Connection;
+    FqSubGroups.FDQuery.Connection := BaseComponentsGroup.Connection;
   end;
   Result := FqSubGroups;
 end;
@@ -539,7 +535,7 @@ procedure TViewComponentsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 begin
   Application.Hint := '';
   TDocument.Open(Handle, ADocFieldInfo.Folder,
-    BaseComponentsGroup.Main.FDQuery.FieldByName(ADocFieldInfo.FieldName)
+    BaseComponentsGroup.QueryBaseFamily.FDQuery.FieldByName(ADocFieldInfo.FieldName)
     .AsString, ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
     sBodyTypesFilesExt);
 end;

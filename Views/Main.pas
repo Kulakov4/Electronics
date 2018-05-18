@@ -445,11 +445,11 @@ end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  if DM2.HaveAnyChanges then
+  if QueryMonitor.HaveAnyChanges then
   begin
     case TDialog.Create.SaveDataDialog of
       IDYES:
-        DM2.SaveAll;
+        QueryMonitor.ApplyUpdates;
       IDCancel:
         Action := caNone;
     end;

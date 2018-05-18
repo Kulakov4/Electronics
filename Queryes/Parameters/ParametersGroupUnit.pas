@@ -29,14 +29,9 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    function ApplyUpdates: Boolean; override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(AParametersExcelTable: TParametersExcelTable);
     function LocateAll(AParameterID: Integer): Boolean;
-    procedure ReOpen; override;
-    procedure Rollback; override;
-    procedure TryPost; override;
     property ProductCategoryIDValue: Integer read FProductCategoryIDValue write
         SetProductCategoryIDValue;
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
@@ -65,35 +60,13 @@ begin
   // Подпараметры
   FqSubParameters := TQuerySubParameters2.Create(Self);
 
-  Main := qParameterTypes;
-  Detail := qParameters;
+  QList.Add(qParameterTypes); // Тип каждого параметра
+  QList.Add(qParameters);     // Сами параметры
+  QList.Add(qSubParameters);  // Подпараметры
+  QList.Add(qParamSubParams); // Связь между параметрами и подпараметрами
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete, EventList);
-end;
-
-destructor TParametersGroup.Destroy;
-begin
-  inherited;
-end;
-
-function TParametersGroup.ApplyUpdates: Boolean;
-begin
-  CheckMasterAndDetail;
-
-  // Предполагается что мы работаем в транзакции
-  Assert(Connection.InTransaction);
-
-  qParameterTypes.ApplyUpdates(False);
-  qParameters.ApplyUpdates(False);
-  qSubParameters.ApplyUpdates(False);
-  qParamSubParams.ApplyUpdates(False);
-
-  Connection.Commit;
-  Result := (not Main.HaveAnyChanges) and (not Detail.HaveAnyChanges);
-
-  AfterCommit.CallEventHandlers(Self);
-
 end;
 
 procedure TParametersGroup.DoBeforeDelete(Sender: TObject);
@@ -223,37 +196,6 @@ begin
   qParameterTypes.LocateByPK(qParameters.IDParameterType.AsInteger, True);
 end;
 
-procedure TParametersGroup.ReOpen;
-begin
-  qSubParameters.FDQuery.Close;
-  qParamSubParams.FDQuery.Close;
-  qParameters.FDQuery.Close;
-  qParameterTypes.FDQuery.Close;
-  qParameterKinds.FDQuery.Close;
-
-  qParameterKinds.FDQuery.Open;
-  qParameterTypes.FDQuery.Open;
-  qParameters.FDQuery.Open;
-  qSubParameters.FDQuery.Open;
-  qParamSubParams.FDQuery.Open;
-end;
-
-procedure TParametersGroup.Rollback;
-begin
-  CheckMasterAndDetail;
-  // Предполагается что мы работаем в транзакции
-  Assert(Connection.InTransaction);
-
-  qSubParameters.TryCancel;
-  qParameters.TryCancel;
-  qParameterTypes.TryCancel;
-  qParamSubParams.TryCancel;
-
-  Connection.Rollback;
-
-  ReOpen;
-end;
-
 procedure TParametersGroup.SetProductCategoryIDValue(const Value: Integer);
 begin
   if FProductCategoryIDValue = Value then
@@ -262,14 +204,6 @@ begin
   FProductCategoryIDValue := Value;
   qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
   qParamSubParams.ProductCategoryIDValue := FProductCategoryIDValue;
-end;
-
-procedure TParametersGroup.TryPost;
-begin
-  qSubParameters.TryPost;
-  qParameterTypes.TryPost;
-  qParameters.TryPost;
-  qParamSubParams.TryPost;
 end;
 
 end.

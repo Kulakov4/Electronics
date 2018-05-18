@@ -4,43 +4,36 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
-  FireDAC.Comp.Client, QueryWithDataSourceUnit, System.Contnrs, NotifyEvents;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.ExtCtrls, FireDAC.Comp.Client, BaseEventsQuery, System.Contnrs,
+  NotifyEvents, System.Generics.Collections;
 
 type
   TQueryGroup = class(TFrame)
   private
-    FAfterCommit: TNotifyEventsEx;
-    FDetail: TQueryWithDataSource;
     FEventList: TObjectList;
-    FMain: TQueryWithDataSource;
-    procedure Commit;
+    FQList: TList<TQueryBaseEvents>;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
-    procedure SetDetail(const Value: TQueryWithDataSource);
-    procedure SetMain(const Value: TQueryWithDataSource);
     { Private declarations }
   protected
-    procedure CheckMasterAndDetail;
     function GetHaveAnyChanges: Boolean; virtual;
     procedure InitializeQuery(AQuery: TFDQuery); virtual;
     property EventList: TObjectList read FEventList;
+    property QList: TList<TQueryBaseEvents> read FQList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
+    procedure Commit; virtual;
     procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
     procedure TryPost; virtual;
-    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
-    property Detail: TQueryWithDataSource read FDetail write SetDetail;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
-    property Main: TQueryWithDataSource read FMain write SetMain;
     { Public declarations }
   end;
 
@@ -52,78 +45,83 @@ constructor TQueryGroup.Create(AOwner: TComponent);
 begin
   inherited;
   FEventList := TObjectList.Create;
-  FAfterCommit := TNotifyEventsEx.Create(Self);
+
+  FQList := TList<TQueryBaseEvents>.Create;
 end;
 
 destructor TQueryGroup.Destroy;
 begin
   // Отписываемся от всех событий!
   FreeAndNil(FEventList);
-
+  FreeAndNil(FQList);
 end;
 
 function TQueryGroup.ApplyUpdates: Boolean;
+var
+  Q: TQueryBaseEvents;
 begin
-  CheckMasterAndDetail;
+  Result := False;
 
-  Main.ApplyUpdates(False);
-  Detail.ApplyUpdates(True);
+  Assert(FQList.Count > 0);
+  for Q in QList do
+  begin
+    Q.ApplyUpdates;
 
-  Result := (not Main.HaveAnyChanges) and (not Detail.HaveAnyChanges);
+    // Если сохранение не удалось
+    if Q.HaveAnyChanges then
+      Exit;
+  end;
 end;
 
 procedure TQueryGroup.CancelUpdates;
+var
+  I: Integer;
 begin
-  CheckMasterAndDetail;
+  Assert(QList.Count > 0);
 
   // отменяем все сделанные изменения на стороне клиента
-  Main.CancelUpdates;
-  Detail.CancelUpdates;
-end;
-
-procedure TQueryGroup.CheckMasterAndDetail;
-begin
-  Assert(Main <> nil);
-  Assert(Detail <> nil);
+  for I := QList.Count - 1 downto 0 do
+  begin
+    if QList[I].FDQuery.CachedUpdates then
+      QList[I].CancelUpdates;
+  end;
 end;
 
 procedure TQueryGroup.Commit;
 begin
-  CheckMasterAndDetail;
-  // Предполагается что мы работаем в транзакции
+  ApplyUpdates;
   Assert(Connection.InTransaction);
-
-  Main.TryPost;
-  Detail.TryPost;
-
-  if Connection.InTransaction then
-    Connection.Commit;
-
-  FAfterCommit.CallEventHandlers(Self);
+  Connection.Commit;
 end;
 
 function TQueryGroup.GetChangeCount: Integer;
+var
+  Q: TQueryBaseEvents;
 begin
-  Assert(Main <> nil);
-  Assert(Detail <> nil);
-  Result := Main.FDQuery.ChangeCount + Detail.FDQuery.ChangeCount;
+  Result := 0;
+  for Q in QList do
+  begin
+    Inc(Result, Q.FDQuery.ChangeCount);
+  end;
 end;
 
 function TQueryGroup.GetConnection: TFDCustomConnection;
 begin
-  Assert(Main <> nil);
-  Result := Main.FDQuery.Connection;
+  Assert(QList.Count > 0);
+  Result := QList[0].FDQuery.Connection;
 end;
 
 function TQueryGroup.GetHaveAnyChanges: Boolean;
+var
+  Q: TQueryBaseEvents;
 begin
   Result := False;
-
-  if Main <> nil then
-    Result := Main.HaveAnyChanges;
-
-  if (Detail <> nil) and (not Result) then
-    Result := Detail.HaveAnyChanges;
+  for Q in QList do
+  begin
+    Result := Q.HaveAnyChanges;
+    if Result then
+      Exit;
+  end;
 end;
 
 procedure TQueryGroup.InitializeQuery(AQuery: TFDQuery);
@@ -132,68 +130,56 @@ begin
 end;
 
 procedure TQueryGroup.RefreshData;
+var
+  I: Integer;
 begin
-  Detail.FDQuery.DisableControls;
-  Main.FDQuery.DisableControls;
+  for I := QList.Count - 1 downto 0 do
+    QList[I].FDQuery.DisableControls;
   try
-    Detail.SaveBookmark;
-    Main.SaveBookmark;
+    for I := QList.Count - 1 downto 0 do
+      QList[I].SaveBookmark;
+
     ReOpen;
-    Main.RestoreBookmark;
-    Detail.RestoreBookmark;
+
+    for I := 0 to QList.Count - 1 do
+      QList[I].RestoreBookmark;
+
   finally
-    Main.FDQuery.EnableControls;
-    Detail.FDQuery.EnableControls;
+    for I := 0 to QList.Count - 1 do
+      QList[I].FDQuery.EnableControls;
   end;
 end;
 
 procedure TQueryGroup.ReOpen;
+var
+  I: Integer;
 begin
-  Detail.FDQuery.Close;
-  Main.FDQuery.Close;
+  for I := QList.Count - 1 downto 0 do
+    QList[I].FDQuery.Close;
 
-  Main.FDQuery.Open;
-  Detail.FDQuery.Open;
+  for I := 0 to QList.Count - 1 do
+    QList[I].FDQuery.Open;
 end;
 
 procedure TQueryGroup.Rollback;
+var
+  I: Integer;
 begin
-  CheckMasterAndDetail;
+  CancelUpdates;
 
-  Detail.TryCancel;
-  Main.TryCancel;
+  Assert(Connection.InTransaction);
 
-  // Предполагается что мы работаем в транзакции
-  if Connection.InTransaction then
-  begin
-    Connection.Rollback;
-    ReOpen;
-  end;
-  // Иногда транзакция уже завершилась но программа об этом не знает
-end;
+  Connection.Rollback;
 
-procedure TQueryGroup.SetDetail(const Value: TQueryWithDataSource);
-begin
-  if FDetail <> Value then
-  begin
-    FDetail := Value;
-    InitializeQuery(FDetail.FDQuery);
-  end;
-end;
-
-procedure TQueryGroup.SetMain(const Value: TQueryWithDataSource);
-begin
-  if FMain <> Value then
-  begin
-    FMain := Value;
-    InitializeQuery(FMain.FDQuery);
-  end;
+  RefreshData;
 end;
 
 procedure TQueryGroup.TryPost;
+var
+  I: Integer;
 begin
-  Main.TryPost;
-  Detail.TryPost;
+  for I := 0 to QList.Count - 1 do
+    QList[I].TryPost;
 end;
 
 end.

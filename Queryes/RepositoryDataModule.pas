@@ -33,9 +33,11 @@ type
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
+    procedure dbConnectionBeforeCommit(Sender: TObject);
     procedure dbConnectionBeforeConnect(Sender: TObject);
   private
     FAfterCommit: TNotifyEventsEx;
+    FBeforeCommit: TNotifyEventsEx;
     FAfterConnect: TNotifyEventsEx;
     FAfterRollback: TNotifyEventsEx;
     procedure LocalizeDevExpress;
@@ -43,6 +45,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
+    property BeforeCommit: TNotifyEventsEx read FBeforeCommit;
     property AfterConnect: TNotifyEventsEx read FAfterConnect;
     property AfterRollback: TNotifyEventsEx read FAfterRollback;
     { Public declarations }
@@ -64,6 +67,8 @@ begin
   inherited Create(AOwner);
 
   FAfterCommit := TNotifyEventsEx.Create(Self);
+  FBeforeCommit := TNotifyEventsEx.Create(Self);
+
   FAfterRollback := TNotifyEventsEx.Create(Self);
   FAfterConnect := TNotifyEventsEx.Create(Self);
 
@@ -87,6 +92,12 @@ procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);
 begin
   // Извещаем всех о роллбэке
   FAfterRollback.CallEventHandlers(Sender);
+end;
+
+procedure TDMRepository.dbConnectionBeforeCommit(Sender: TObject);
+begin
+  // Извещаем всех о предстоящем коммите
+  FBeforeCommit.CallEventHandlers(Sender);
 end;
 
 procedure TDMRepository.dbConnectionBeforeConnect(Sender: TObject);

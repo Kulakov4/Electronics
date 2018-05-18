@@ -367,8 +367,7 @@ begin
   UpdateView;
 
   // Если есть несохранённые изменения
-  if BaseComponentsGroup.Main.HaveAnyChanges or BaseComponentsGroup.Detail.HaveAnyChanges
-  then
+  if BaseComponentsGroup.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -405,7 +404,7 @@ begin
 
   // В режиме редактирования - доступ в зависимости от состояния
   AReadOnly := (not VarIsNull(V)) and
-    (not BaseComponentsGroup.Detail.IsModifed(V));
+    (not BaseComponentsGroup.QueryBaseComponents.IsModifed(V));
 
   if AReadOnly then
     AProperties := cxertiValueRO.Properties
@@ -476,7 +475,7 @@ begin
     HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
 
     // Только для чтения те записи, которые не модифицировались
-    AReadOnly := not BaseComponentsGroup.Main.IsModifed(AID);
+    AReadOnly := not BaseComponentsGroup.QueryBaseFamily.IsModifed(AID);
   end;
 
   if HavDetails then
@@ -635,19 +634,20 @@ begin
   if FBaseComponentsGroup <> nil then
   begin
     // Привязываем вью к данным
-    MainView.DataController.DataSource := BaseComponentsGroup.Main.DataSource;
+    MainView.DataController.DataSource := BaseComponentsGroup.QueryBaseFamily.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FBaseComponentsGroup.Detail.DataSource;
+      FBaseComponentsGroup.QueryBaseComponents.DataSource;
 
     // Подписываемся на события
-    if FBaseComponentsGroup.Main.Master <> nil then
+    if FBaseComponentsGroup.QueryBaseComponents.Master <> nil then
     begin
-      TNotifyEventWrap.Create(FBaseComponentsGroup.Detail.AfterLoad,
+      // Компоненты у нас загружаются первыми
+      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.AfterLoad,
         AfterLoadData, FEventList);
     end;
 
     // Пусть нам монитор сообщает об изменениях в БД
-    TNotifyEventWrap.Create(FBaseComponentsGroup.Main.Monitor.OnHaveAnyChanges,
+    TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.Monitor.OnHaveAnyChanges,
       DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
@@ -678,8 +678,7 @@ begin
   if FQuerySubGroups = nil then
   begin
     FQuerySubGroups := TfrmQuerySubGroups.Create(Self);
-    FQuerySubGroups.FDQuery.Connection :=
-      BaseComponentsGroup.Main.FDQuery.Connection;
+    FQuerySubGroups.FDQuery.Connection := BaseComponentsGroup.Connection;
   end;
   Result := FQuerySubGroups;
 end;
@@ -965,9 +964,9 @@ begin
 
   if Ok and (AView <> nil) and (AView.Level = cxGridLevel) then
   begin
-    if BaseComponentsGroup.Main.Master <> nil then
+    if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) then
     begin
-      S := BaseComponentsGroup.Main.Master.FDQuery.FieldByName('Value')
+      S := BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.FieldByName('Value')
         .AsString;
       actDeleteEx.Caption := Format('Удалить семейство из категории «%s»', [S]);
     end;

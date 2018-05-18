@@ -40,8 +40,8 @@ uses Data.DB, NotifyEvents;
 constructor TProducersGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  Main := qProducerTypes;
-  Detail := qProducers;
+  QList.Add(qProducerTypes);
+  QList.Add(qProducers);
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qProducerTypes.AfterDelete, DoAfterDelete, EventList);

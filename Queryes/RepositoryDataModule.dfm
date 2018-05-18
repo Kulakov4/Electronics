@@ -78,6 +78,7 @@ object DMRepository: TDMRepository
     LoginPrompt = False
     AfterConnect = dbConnectionAfterConnect
     BeforeConnect = dbConnectionBeforeConnect
+    BeforeCommit = dbConnectionBeforeCommit
     AfterCommit = dbConnectionAfterCommit
     AfterRollback = dbConnectionAfterRollback
     Left = 152
