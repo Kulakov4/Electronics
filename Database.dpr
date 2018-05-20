@@ -211,7 +211,8 @@ uses
   ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts},
   CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame},
   SearchComponentParamSubParamsQuery in 'Queryes\Search\SearchComponentParamSubParamsQuery.pas' {QuerySearchComponentParamSubParams: TFrame},
-  SearchDaughterCategoriesQuery in 'Queryes\Search\SearchDaughterCategoriesQuery.pas' {QuerySearchDaughterCategories: TFrame};
+  SearchDaughterCategoriesQuery in 'Queryes\Search\SearchDaughterCategoriesQuery.pas' {QuerySearchDaughterCategories: TFrame},
+  JEDECPopupForm in 'Views\BodyTypes\JEDECPopupForm.pas' {frmJEDECPopup};
 
 {$R *.res}
 

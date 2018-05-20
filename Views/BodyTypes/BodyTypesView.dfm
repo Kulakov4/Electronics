@@ -461,4 +461,10 @@ inherited ViewBodyTypes: TViewBodyTypes
       OnExecute = actLoadImageExecute
     end
   end
+  object cxEditRepository: TcxEditRepository
+    Left = 160
+    Top = 152
+    object cxerpiJEDEC: TcxEditRepositoryPopupItem
+    end
+  end
 end

@@ -53,6 +53,7 @@ type
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancel: TNotifyEventsEx;
+    FAfterCancelUpdates: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
@@ -86,6 +87,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function AddClone(const AFilter: String): TFDMemTable;
+    procedure CancelUpdates; override;
     procedure DropClone(AClone: TFDMemTable);
     procedure SmartRefresh; virtual;
     property AfterClose: TNotifyEventsEx read FAfterClose;
@@ -106,6 +108,7 @@ type
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancel: TNotifyEventsEx read FAfterCancel;
+    property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property OldPKValue: Variant read FOldPKValue;
@@ -184,6 +187,8 @@ begin
 
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
+  FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
+
   FResiveAfterScrollMessage := True;
   FResiveBeforeScrollMessage := True;
   FResiveAfterPostMessage := True;
@@ -244,6 +249,13 @@ begin
     CloneCursor(Result);
 
   FClones.Add(Result);
+end;
+
+procedure TQueryBaseEvents.CancelUpdates;
+begin
+  inherited;
+  if FDQuery.CachedUpdates then
+    FAfterCancelUpdates.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
@@ -588,7 +600,7 @@ begin
   TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancel, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterPost, DoAfterCancelOrPost, FEventList);
-
+  TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost, FEventList);
 end;
 
 procedure TQueryMonitor.DoAfterCommitOrRollback(Sender: TObject);
@@ -684,6 +696,10 @@ begin
 
     Continue;
   end;
+
+  // Если есть незавершённая транзакция
+  if Queries[0].FDQuery.Connection.InTransaction then
+    Queries[0].FDQuery.Connection.Commit;
 end;
 
 procedure TQueryMonitor.DoChangedListNotify(Sender: TObject;

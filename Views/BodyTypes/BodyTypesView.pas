@@ -30,7 +30,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
   Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort,
-  CustomErrorForm, NaturalSort, DocFieldInfo;
+  CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -76,6 +76,8 @@ type
     actLoadLandPattern: TAction;
     actLoadImage: TAction;
     clJEDEC: TcxGridDBBandedColumn;
+    cxEditRepository: TcxEditRepository;
+    cxerpiJEDEC: TcxEditRepositoryPopupItem;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);

@@ -75,7 +75,7 @@ end;
 
 function TfrmExtraCharge.HaveAnyChanges: Boolean;
 begin
-  Result := ViewExtraCharge.qExtraCharge.FDQuery.Connection.InTransaction;
+  Result := ViewExtraCharge.qExtraCharge.HaveAnyChanges;
 end;
 
 end.

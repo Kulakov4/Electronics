@@ -162,8 +162,6 @@ begin
 end;
 
 procedure TQueryGroup.Rollback;
-var
-  I: Integer;
 begin
   CancelUpdates;
 
