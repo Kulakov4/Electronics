@@ -14,6 +14,7 @@ inherited QueryBodyTypesSimple: TQueryBodyTypesSimple
       '    bv.Variation Variations,'
       '    bv.Image,'
       '    bv.JEDEC,'
+      '    bv.OPTION,'
       '    bd.IDBody,'
       '    bd.IDProducer,'
       '    BodyData,'

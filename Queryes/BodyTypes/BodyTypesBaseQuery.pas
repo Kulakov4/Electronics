@@ -35,6 +35,7 @@ type
     function GetImage: TField;
     function GetJEDEC: TField;
     function GetLandPattern: TField;
+    function GetOption: TField;
     function GetOutlineDrawing: TField;
     function GetQueryBodies: TQueryBodies;
     function GetQueryBodyData: TQueryBodyData;
@@ -73,6 +74,7 @@ type
     property Image: TField read GetImage;
     property JEDEC: TField read GetJEDEC;
     property LandPattern: TField read GetLandPattern;
+    property Option: TField read GetOption;
     property OutlineDrawing: TField read GetOutlineDrawing;
     property Variations: TField read GetVariations;
     { Public declarations }
@@ -199,6 +201,11 @@ end;
 function TQueryBodyTypesBase.GetLandPattern: TField;
 begin
   Result := Field('LandPattern');
+end;
+
+function TQueryBodyTypesBase.GetOption: TField;
+begin
+  Result := Field('Option');
 end;
 
 function TQueryBodyTypesBase.GetOutlineDrawing: TField;
