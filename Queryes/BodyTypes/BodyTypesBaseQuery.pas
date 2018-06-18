@@ -33,7 +33,6 @@ type
     function GetIDProducer: TField;
     function GetIDS: TField;
     function GetImage: TField;
-    function GetJEDEC: TField;
     function GetLandPattern: TField;
     function GetOption: TField;
     function GetOutlineDrawing: TField;
@@ -72,7 +71,6 @@ type
     // const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
     // AImage: string);
     property Image: TField read GetImage;
-    property JEDEC: TField read GetJEDEC;
     property LandPattern: TField read GetLandPattern;
     property Option: TField read GetOption;
     property OutlineDrawing: TField read GetOutlineDrawing;
@@ -191,11 +189,6 @@ end;
 function TQueryBodyTypesBase.GetImage: TField;
 begin
   Result := Field('Image');
-end;
-
-function TQueryBodyTypesBase.GetJEDEC: TField;
-begin
-  Result := Field('JEDEC');
 end;
 
 function TQueryBodyTypesBase.GetLandPattern: TField;

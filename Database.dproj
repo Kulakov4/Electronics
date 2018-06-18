@@ -951,6 +951,26 @@
             <Form>frmJEDECPopup</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyOptionsQuery.pas">
+            <Form>QueryBodyOptions</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\JEDECQuery.pas">
+            <Form>QueryJEDEC</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyVariationJedecQuery.pas">
+            <Form>QueryBodyVariationJedec</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\BodyTypes\BodyVariationOptionQuery.pas">
+            <Form>QueryBodyVariationOption</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

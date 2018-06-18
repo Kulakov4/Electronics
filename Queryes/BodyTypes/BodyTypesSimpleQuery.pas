@@ -61,7 +61,7 @@ begin
 
   QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
     OutlineDrawing.AsString, LandPattern.AsString, Variations.AsString,
-    Image.AsString, JEDEC.AsString, Option.AsString);
+    Image.AsString);
   AID := QueryBodyVariations.PK.Value;
   Assert(AID > 0);
 

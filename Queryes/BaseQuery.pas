@@ -103,8 +103,9 @@ type
       overload; virtual;
     procedure Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>); overload;
-    function LocateByField(const AFieldName: string;
-      const AValue: Variant): Boolean;
+    function LocateByField(const AFieldName: string; const AValue: Variant;
+      AOptions: TFDDataSetLocateOptions = [lxoCaseInsensitive, lxoPartialKey]
+      ): Boolean;
     procedure SetParameters(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>);
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
@@ -285,11 +286,11 @@ begin
   begin
     FDQuery.CancelUpdates;
   end
-//  else
-//  begin
-//    FDQuery.Connection.Rollback;
-//    RefreshQuery;
-//  end;
+  // else
+  // begin
+  // FDQuery.Connection.Rollback;
+  // RefreshQuery;
+  // end;
 end;
 
 procedure TQueryBase.CascadeDelete(const AIDMaster: Variant;
@@ -659,8 +660,8 @@ begin
   end;
 end;
 
-function TQueryBase.GetFieldValuesAsIntArray(AFieldName: string):
-    TArray<Integer>;
+function TQueryBase.GetFieldValuesAsIntArray(AFieldName: string)
+  : TArray<Integer>;
 var
   AClone: TFDMemTable;
   AValue: Integer;
@@ -787,11 +788,12 @@ begin
 end;
 
 function TQueryBase.LocateByField(const AFieldName: string;
-  const AValue: Variant): Boolean;
+  const AValue: Variant;
+  AOptions: TFDDataSetLocateOptions = [lxoCaseInsensitive, lxoPartialKey]
+  ): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
-  Result := FDQuery.LocateEx(AFieldName, AValue,
-    [lxoCaseInsensitive, lxoPartialKey]);
+  Result := FDQuery.LocateEx(AFieldName, AValue, AOptions);
 end;
 
 procedure TQueryBase.SetParameters(const AParamNames: TArray<String>;

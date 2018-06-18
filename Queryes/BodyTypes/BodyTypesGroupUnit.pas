@@ -119,8 +119,8 @@ begin
       QueryBodyTypesSimple.IDBodyKind.Value := qBodyKinds.PK.Value;
       QueryBodyTypesSimple.Variations.AsString :=
         ABodyTypesExcelTable.Variation.AsString;
-      QueryBodyTypesSimple.JEDEC.AsString :=
-        ABodyTypesExcelTable.JEDEC.AsString;
+//      QueryBodyTypesSimple.JEDEC.AsString :=
+//        ABodyTypesExcelTable.JEDEC.AsString;
 
       for AField in ABodyTypesExcelTable.Fields do
       begin

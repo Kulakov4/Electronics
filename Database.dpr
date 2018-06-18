@@ -212,7 +212,11 @@ uses
   CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame},
   SearchComponentParamSubParamsQuery in 'Queryes\Search\SearchComponentParamSubParamsQuery.pas' {QuerySearchComponentParamSubParams: TFrame},
   SearchDaughterCategoriesQuery in 'Queryes\Search\SearchDaughterCategoriesQuery.pas' {QuerySearchDaughterCategories: TFrame},
-  JEDECPopupForm in 'Views\BodyTypes\JEDECPopupForm.pas' {frmJEDECPopup};
+  JEDECPopupForm in 'Views\BodyTypes\JEDECPopupForm.pas' {frmJEDECPopup},
+  BodyOptionsQuery in 'Queryes\BodyTypes\BodyOptionsQuery.pas' {QueryBodyOptions: TFrame},
+  JEDECQuery in 'Queryes\BodyTypes\JEDECQuery.pas' {QueryJEDEC: TFrame},
+  BodyVariationJedecQuery in 'Queryes\BodyTypes\BodyVariationJedecQuery.pas' {QueryBodyVariationJedec: TFrame},
+  BodyVariationOptionQuery in 'Queryes\BodyTypes\BodyVariationOptionQuery.pas' {QueryBodyVariationOption: TFrame};
 
 {$R *.res}
 
