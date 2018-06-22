@@ -231,8 +231,17 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clJEDEC: TcxGridDBBandedColumn
         Caption = 'JEDEC '#1050#1086#1076
         DataBinding.FieldName = 'JEDEC'
+        PropertiesClassName = 'TcxPopupEditProperties'
+        Properties.OnInitPopup = clJEDECPropertiesInitPopup
         Position.BandIndex = 0
         Position.ColIndex = 11
+        Position.RowIndex = 0
+      end
+      object clOptions: TcxGridDBBandedColumn
+        Caption = #1042#1072#1088#1080#1072#1085#1090
+        DataBinding.FieldName = 'Options'
+        Position.BandIndex = 0
+        Position.ColIndex = 12
         Position.RowIndex = 0
       end
     end

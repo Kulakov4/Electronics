@@ -14,7 +14,7 @@ inherited QueryBodyTypesSimple: TQueryBodyTypesSimple
       '    bv.Variation Variations,'
       '    bv.Image,'
       '    bv.JEDEC,'
-      '    bv.OPTION,'
+      '    bv.OPTIONS,'
       '    bd.IDBody,'
       '    bd.IDProducer,'
       '    BodyData,'
@@ -22,7 +22,27 @@ inherited QueryBodyTypesSimple: TQueryBodyTypesSimple
       '    b.IDBodyKind'
       'from Bodies b'
       'join BodyData bd on bd.IDBody = b.id'
-      'join BodyVariations2 bv on bv.IDBodyData = bd.ID'
+      'join '
+      '('
+      
+        '    select bv2.id, bv2.IDBodyData, bv2.OutlineDrawing, bv2.LandP' +
+        'attern, bv2.Variation, bv2.Image'
+      '    , GROUP_CONCAT(j.JEDEC, '#39'; '#39') JEDEC'
+      '    , GROUP_CONCAT(o.Option, '#39'; '#39') Options'
+      '    from BodyVariations2 bv2'
+      
+        '    left join BodyVariationJEDEC bvj on bvj.IDBodyVariation = bv' +
+        '2.ID'
+      '    left join JEDEC j on bvj.IDJEDEC = j.ID'
+      
+        '    left join BodyVariationOption bvo on bvo.IdBodyVariation = b' +
+        'v2.ID'
+      '    left join BodyOptions o on bvo.IdBodyOption = o.ID'
+      
+        '    group by bv2.id, bv2.IDBodyData, bv2.OutlineDrawing, bv2.Lan' +
+        'dPattern, bv2.Variation, bv2.Image'
+      ') bv on bv.IDBodyData = bd.ID'
+      ''
       'order by IDBodyKind, Body, BodyData')
   end
 end

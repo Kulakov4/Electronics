@@ -21,6 +21,7 @@ type
     function GetOutlineDrawing: TField;
     function GetBodyData: TField;
     function GetJEDEC: TField;
+    function GetOptions: TField;
     function GetVariation: TField;
     // TODO: SetBodyVariationsDataSet
     // procedure SetBodyVariationsDataSet(const Value: TFDDataSet);
@@ -45,6 +46,7 @@ type
     property OutlineDrawing: TField read GetOutlineDrawing;
     property BodyData: TField read GetBodyData;
     property JEDEC: TField read GetJEDEC;
+    property Options: TField read GetOptions;
     property Variation: TField read GetVariation;
   end;
 
@@ -108,6 +110,11 @@ begin
   Result := FieldByName('JEDEC');
 end;
 
+function TBodyTypesExcelTable.GetOptions: TField;
+begin
+  Result := FieldByName('Options');
+end;
+
 function TBodyTypesExcelTable.GetVariation: TField;
 begin
   Result := FieldByName('Variation');
@@ -115,18 +122,19 @@ end;
 
 function TBodyTypesExcelTable.ProcessValue(const AFieldName, AValue: string):
     String;
-var
-  i: Integer;
+//var
+//  i: Integer;
 begin
   Result := inherited ProcessValue(AFieldName, AValue);
-
-  // Для JEDEC будем згружать информацию только до слэша
+{
+  // Для JEDEC будем загружать информацию только до слэша
   if (AFieldName.ToUpperInvariant = JEDEC.FieldName) and (not Result.IsEmpty) then
   begin
     i := Result.IndexOf('/');
     if i > 0 then
       Result := Result.Substring(0, i);
   end;
+}
 end;
 
 procedure TBodyTypesExcelTable.SetFieldsInfo;
@@ -140,6 +148,7 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('Variation'));
   FieldsInfo.Add(TFieldInfo.Create('Image'));
   FieldsInfo.Add(TFieldInfo.Create('JEDEC'));
+  FieldsInfo.Add(TFieldInfo.Create('Options'));
   FieldsInfo.Add(TFieldInfo.Create('BodyKind', True,
     'Тип корпуса не может быть пустым', True));
 end;

@@ -28,7 +28,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable;
-        AIDProducer: Integer);
+      AIDProducer: Integer);
     procedure Rollback; override;
     property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
     property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
@@ -95,8 +95,8 @@ begin
   Result := FQueryBodyTypesSimple;
 end;
 
-procedure TBodyTypesGroup.LoadDataFromExcelTable(ABodyTypesExcelTable:
-    TBodyTypesExcelTable; AIDProducer: Integer);
+procedure TBodyTypesGroup.LoadDataFromExcelTable(ABodyTypesExcelTable
+  : TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
   F: TField;
@@ -119,8 +119,10 @@ begin
       QueryBodyTypesSimple.IDBodyKind.Value := qBodyKinds.PK.Value;
       QueryBodyTypesSimple.Variations.AsString :=
         ABodyTypesExcelTable.Variation.AsString;
-//      QueryBodyTypesSimple.JEDEC.AsString :=
-//        ABodyTypesExcelTable.JEDEC.AsString;
+      QueryBodyTypesSimple.JEDEC.AsString :=
+        ABodyTypesExcelTable.JEDEC.AsString;
+      QueryBodyTypesSimple.Options.AsString :=
+        ABodyTypesExcelTable.Options.AsString;
 
       for AField in ABodyTypesExcelTable.Fields do
       begin

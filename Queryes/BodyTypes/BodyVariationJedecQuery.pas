@@ -17,6 +17,8 @@ type
     function GetIDJEDEC: TField;
     { Private declarations }
   public
+    function SearchByIDJEDEC(AIDBodyVariation, AIDJEDEC: Integer; TestResult:
+        Integer = -1): Integer;
     function SearchByIDBodyVariation(AIDBodyVariation: Integer): Integer;
     procedure UpdateJEDEC(AIDBodyVariation: Integer;
       AJedecIDArr: TArray<Integer>);
@@ -39,16 +41,46 @@ end;
 
 function TQueryBodyVariationJedec.GetIDJEDEC: TField;
 begin
-  Result := Field('JEDEC');
+  Result := Field('IDJEDEC');
 end;
 
-function TQueryBodyVariationJedec.SearchByIDBodyVariation(AIDBodyVariation
-  : Integer): Integer;
+function TQueryBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, AIDJEDEC:
+    Integer; TestResult: Integer = -1): Integer;
+var
+  AFieldName1: string;
+  AFieldName2: string;
+begin
+  Assert(AIDBodyVariation > 0);
+  Assert(AIDJEDEC > 0);
+
+  // «прос может быть ещЄ не открыт, им€ пол€ не известно
+  AFieldName1 := 'IDBodyVariation';
+  AFieldName2 := 'IDJEDEC';
+
+  // ћен€ем в запросе условие
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
+    Format('where (%s = :%s) and (%s = :%s)', [AFieldName1, AFieldName1,
+    AFieldName2, AFieldName2]
+    ), 'where');
+  SetParamType(AFieldName1);
+  SetParamType(AFieldName2);
+
+  // »щем
+  Result := Search([AFieldName1, AFieldName2], [AIDBodyVariation, AIDJEDEC]);
+
+  if TestResult <> -1 then
+    Assert(Result = TestResult);
+  
+end;
+
+function TQueryBodyVariationJedec.SearchByIDBodyVariation(AIDBodyVariation:
+    Integer): Integer;
 var
   AFieldName: string;
 begin
   Assert(AIDBodyVariation > 0);
-  AFieldName := IDBodyVariation.FieldName;
+  // «прос может быть ещЄ не открыт, им€ пол€ не известно
+  AFieldName := 'IDBodyVariation';
 
   // ћен€ем в запросе условие
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, Format('where %s = :%s',

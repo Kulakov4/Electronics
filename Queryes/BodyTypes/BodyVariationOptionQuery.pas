@@ -47,7 +47,8 @@ var
   AFieldName: string;
 begin
   Assert(AIDBodyVariation > 0);
-  AFieldName := IDBodyVariation.FieldName;
+  AFieldName := 'IDBodyVariation';
+  //AFieldName := IDBodyVariation.FieldName;
 
   // Меняем в запросе условие
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, Format('where %s = :%s',

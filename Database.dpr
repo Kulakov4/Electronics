@@ -216,7 +216,9 @@ uses
   BodyOptionsQuery in 'Queryes\BodyTypes\BodyOptionsQuery.pas' {QueryBodyOptions: TFrame},
   JEDECQuery in 'Queryes\BodyTypes\JEDECQuery.pas' {QueryJEDEC: TFrame},
   BodyVariationJedecQuery in 'Queryes\BodyTypes\BodyVariationJedecQuery.pas' {QueryBodyVariationJedec: TFrame},
-  BodyVariationOptionQuery in 'Queryes\BodyTypes\BodyVariationOptionQuery.pas' {QueryBodyVariationOption: TFrame};
+  BodyVariationOptionQuery in 'Queryes\BodyTypes\BodyVariationOptionQuery.pas' {QueryBodyVariationOption: TFrame},
+  BodyVariationJedecView in 'Views\BodyTypes\BodyVariationJedecView.pas' {ViewBodyVariationJEDEC: TFrame},
+  BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame};
 
 {$R *.res}
 

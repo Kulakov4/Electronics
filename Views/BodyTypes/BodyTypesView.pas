@@ -30,7 +30,8 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
   Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort,
-  CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems;
+  CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems,
+  JEDECPopupForm;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -78,6 +79,7 @@ type
     clJEDEC: TcxGridDBBandedColumn;
     cxEditRepository: TcxEditRepository;
     cxerpiJEDEC: TcxEditRepositoryPopupItem;
+    clOptions: TcxGridDBBandedColumn;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -124,12 +126,15 @@ type
     procedure cxGridDBBandedTableView2DataControllerCompare(ADataController
       : TcxCustomDataController; ARecordIndex1, ARecordIndex2,
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
+    procedure clJEDECPropertiesInitPopup(Sender: TObject);
   private
     FBodyTypesGroup: TBodyTypesGroup;
     FDragAndDropInfo: TDragAndDropInfo;
+    FfrmJEDECPopup: TfrmJEDECPopup;
     FHRTimer: THRTimer;
     FNaturalStringComparer: TNaturalStringComparer;
     procedure DoAfterDataChange(Sender: TObject);
+    function GetfrmJEDECPopup: TfrmJEDECPopup;
     function GetProducerDisplayText: string;
     procedure SetBodyTypesGroup(const Value: TBodyTypesGroup);
     procedure UpdateTotalCount;
@@ -140,6 +145,7 @@ type
     procedure LoadFromExcel(const AFileName: String; AProducerID: Integer);
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
+    property frmJEDECPopup: TfrmJEDECPopup read GetfrmJEDECPopup;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -180,6 +186,8 @@ begin
 
   DeleteMessages.Add(cxGridLevel, 'Удалить тип корпуса?');
   DeleteMessages.Add(cxGridLevel2, 'Удалить корпус?');
+
+  (clJEDEC.Properties as TcxPopupEditProperties).PopupControl := frmJEDECPopup;
 end;
 
 destructor TViewBodyTypes.Destroy;
@@ -387,6 +395,12 @@ begin
   // Обновляем представление
   UpdateView;
 
+end;
+
+procedure TViewBodyTypes.clJEDECPropertiesInitPopup(Sender: TObject);
+begin
+  inherited;
+  frmJEDECPopup.ViewBodyVariationJEDEC.IDBodyVariations := BodyTypesGroup.qBodyTypes2.IDS.AsString;
 end;
 
 procedure TViewBodyTypes.clOutlineDrawingGetDataText
@@ -652,6 +666,15 @@ begin
     if (Result <> nil) and (not Result.Focused) then
       Result := nil;
   end;
+end;
+
+function TViewBodyTypes.GetfrmJEDECPopup: TfrmJEDECPopup;
+begin
+  if FfrmJEDECPopup = nil then
+  begin
+    FfrmJEDECPopup := TfrmJEDECPopup.Create(Self);
+  end;
+  Result := FfrmJEDECPopup;
 end;
 
 function TViewBodyTypes.GetProducerDisplayText: string;

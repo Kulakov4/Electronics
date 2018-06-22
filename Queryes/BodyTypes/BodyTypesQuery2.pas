@@ -24,17 +24,7 @@ type
     procedure FDQueryBodyType2Change(Sender: TField);
   private
     FIDS: string;
-    FqBodyOptions: TQueryBodyOptions;
-    FqBodyVariationJedec: TQueryBodyVariationJedec;
-    FqBodyVariationOption: TQueryBodyVariationOption;
-    FqJedec: TQueryJEDEC;
     FShowDuplicate: Boolean;
-    function GetJEDEC: TField;
-    function GetOptions: TField;
-    function GetqBodyOptions: TQueryBodyOptions;
-    function GetqBodyVariationJedec: TQueryBodyVariationJedec;
-    function GetqBodyVariationOption: TQueryBodyVariationOption;
-    function GetqJedec: TQueryJEDEC;
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
@@ -47,12 +37,6 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
     procedure DoBeforeDelete(Sender: TObject);
-    property qBodyOptions: TQueryBodyOptions read GetqBodyOptions;
-    property qBodyVariationJedec: TQueryBodyVariationJedec
-      read GetqBodyVariationJedec;
-    property qBodyVariationOption: TQueryBodyVariationOption read
-        GetqBodyVariationOption;
-    property qJedec: TQueryJEDEC read GetqJedec;
   public
     constructor Create(AOwner: TComponent); override;
     function ConstructBodyKind(const APackage: String): string;
@@ -62,8 +46,6 @@ type
     procedure LocateOrAppend(AIDBodyKind: Integer;
       const ABody, ABodyData: String; AIDProducer: Integer;
       const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
-    property JEDEC: TField read GetJEDEC;
-    property Options: TField read GetOptions;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     { Public declarations }
   end;
@@ -96,21 +78,20 @@ begin
   Assert(ASender = FDQuery);
   AIDS := FIDS;
 
-  if not AIDS.IsEmpty then
-  begin
-    // Почему-то иногда AID = 0
-    m := AIDS.Split([',']);
-    for S in m do
-    begin
-      AID := S.Trim.ToInteger();
-      // Удаляем вариант корпуса
-      QueryBodyVariations.LocateByPKAndDelete(AID);
-    end;
+  // Почему-то иногда AID = 0
+  if AIDS.IsEmpty then
+    Exit;
 
-    // Удаляем неиспользуемые корпуса
-    DropUnusedBodies;
+  m := AIDS.Split([',']);
+  for S in m do
+  begin
+    AID := S.Trim.ToInteger();
+    // Удаляем вариант корпуса
+    QueryBodyVariations.LocateByPKAndDelete(AID);
   end;
 
+  // Удаляем неиспользуемые корпуса
+  DropUnusedBodies;
 end;
 
 procedure TQueryBodyTypes2.ApplyInsert(ASender: TDataSet;
@@ -126,17 +107,10 @@ procedure TQueryBodyTypes2.ApplyInsertOrUpdate;
 var
   AID: string;
   AIDSS: string;
-  AJEDEC: string;
   AOLDIDS: string;
-  AOption: string;
   I: Integer;
-  J: Integer;
-  JEDECArr: TArray<String>;
-  JEDECIDList: TList<Integer>;
   L: TStringList;
   m: TArray<String>;
-  OptionArr: TArray<String>;
-  OptionIDList: TList<Integer>;
 begin
   QueryBodies.LocateOrAppend(Body.Value, IDBodyKind.Value);
   QueryBodyData.LocateOrAppend(BodyData.Value, IDProducer.Value,
@@ -181,47 +155,8 @@ begin
       AIDSS := AIDSS + IfThen(AIDSS.IsEmpty, '', ', ');
       AIDSS := AIDSS + AID;
 
-      // Дополнительно обновляем список JEDEC
-      JEDECIDList := TList<Integer>.Create;
-      try
-        JEDECArr := JEDEC.AsString.Split([';']);
-        for J := Low(JEDECArr) to High(JEDECArr) do
-        begin
-          AJEDEC := JEDECArr[J].Trim;
-          if AJEDEC.IsEmpty then
-            Continue;
-
-          qJedec.LocateOrAppend(AJEDEC);
-          JEDECIDList.Add(qJedec.PK.AsInteger)
-        end;
-
-        // Обновляем JEDEC для текущего варианта корпуса
-        qBodyVariationJedec.UpdateJEDEC(QueryBodyVariations.PK.AsInteger,
-          JEDECIDList.ToArray);
-      finally
-        FreeAndNil(JEDECIDList);
-      end;
-
-      // Дополнительно обновляем список вариантов (options)
-      OptionIDList := TList<Integer>.Create;
-      try
-        OptionArr := Options.AsString.Split([';']);
-        for J := Low(OptionArr) to High(OptionArr) do
-        begin
-          AOption := OptionArr[J].Trim;
-          if AOption.IsEmpty then
-            Continue;
-
-          qBodyOptions.LocateOrAppend(AOption);
-          OptionIDList.Add(qBodyOptions.PK.AsInteger)
-        end;
-
-        // Обновляем OPTIONS для текущего варианта корпуса
-        qBodyVariationOption.UpdateOption(QueryBodyVariations.PK.AsInteger,
-          OptionIDList.ToArray);
-      finally
-        FreeAndNil(JEDECIDList);
-      end;
+      UpdateJEDEC;
+      UpdateOptions;
     end;
 
     AOLDIDS := AOLDIDS.Trim([',']);
@@ -416,56 +351,6 @@ begin
     FInChange := False;
     end;
   }
-end;
-
-function TQueryBodyTypes2.GetJEDEC: TField;
-begin
-  Result := Field('JEDEC');
-end;
-
-function TQueryBodyTypes2.GetOptions: TField;
-begin
-  Result := Field('Options');
-end;
-
-function TQueryBodyTypes2.GetqBodyOptions: TQueryBodyOptions;
-begin
-  if FqBodyOptions = nil then
-  begin
-    FqBodyOptions := TQueryBodyOptions.Create(Self);
-    FqBodyOptions.FDQuery.Open;
-  end;
-
-  Result := FqBodyOptions;
-end;
-
-function TQueryBodyTypes2.GetqBodyVariationJedec: TQueryBodyVariationJedec;
-begin
-  if FqBodyVariationJedec = nil then
-  begin
-    FqBodyVariationJedec := TQueryBodyVariationJedec.Create(Self);
-  end;
-
-  Result := FqBodyVariationJedec;
-end;
-
-function TQueryBodyTypes2.GetqBodyVariationOption: TQueryBodyVariationOption;
-begin
-  if FqBodyVariationOption = nil then
-    FqBodyVariationOption := TQueryBodyVariationOption.Create(Self);
-
-  Result := FqBodyVariationOption;
-end;
-
-function TQueryBodyTypes2.GetqJedec: TQueryJEDEC;
-begin
-  if FqJedec = nil then
-  begin
-    FqJedec := TQueryJEDEC.Create(Self);
-    FqJedec.FDQuery.Open;
-  end;
-
-  Result := FqJedec;
 end;
 
 procedure TQueryBodyTypes2.LoadDocFile(const AFileName: String;

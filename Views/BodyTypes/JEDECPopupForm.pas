@@ -20,29 +20,32 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxClasses, dxBar, System.Actions,
-  Vcl.ActnList, System.ImageList, Vcl.ImgList, cxGraphics;
+  Vcl.ActnList, System.ImageList, Vcl.ImgList, cxGraphics,
+  BodyVariationJedecQuery, BodyVariationJedecView;
 
 type
   TfrmJEDECPopup = class(TfrmPopupForm)
-    dxBarManager: TdxBarManager;
-    dxBarManagerBar1: TdxBar;
-    ActionList: TActionList;
-    actAdd: TAction;
-    cxImageList: TcxImageList;
-    dxBarButton1: TdxBarButton;
-    dxBarButton2: TdxBarButton;
-    actDrop: TAction;
   private
+    FViewBodyVariationJEDEC: TViewBodyVariationJEDEC;
     { Private declarations }
+  protected
   public
+    constructor Create(AOwner: TComponent); override;
+    property ViewBodyVariationJEDEC: TViewBodyVariationJEDEC read
+        FViewBodyVariationJEDEC;
     { Public declarations }
   end;
-
-var
-  frmJEDECPopup: TfrmJEDECPopup;
 
 implementation
 
 {$R *.dfm}
+
+constructor TfrmJEDECPopup.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewBodyVariationJEDEC := TViewBodyVariationJEDEC.Create(Self);
+  FViewBodyVariationJEDEC.Parent := Self;
+  FViewBodyVariationJEDEC.Align := alClient;
+end;
 
 end.
