@@ -9,10 +9,10 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  BodyVariationJedecQuery;
+  BodyVariationJedecQuery, BaseEventsQuery;
 
 type
-  TQueryBodyVariationsJedec = class(TQueryBase)
+  TQueryBodyVariationsJedec = class(TQueryBaseEvents)
   private
     FIDBodyVariations: TArray<Integer>;
     FqBodyVariationJedec: TQueryBodyVariationJedec;
@@ -29,6 +29,7 @@ type
     property qBodyVariationJedec: TQueryBodyVariationJedec
       read GetqBodyVariationJedec;
   public
+    constructor Create(AOwner: TComponent); override;
     function SearchByIDBodyVariations(AIDBodyVariations: string): Integer;
     property IDJEDEC: TField read GetIDJEDEC;
     { Public declarations }
@@ -40,6 +41,16 @@ uses
   StrHelper, System.Generics.Collections;
 
 {$R *.dfm}
+
+constructor TQueryBodyVariationsJedec.Create(AOwner: TComponent);
+begin
+  inherited;
+  // На сервер ничего сохранять не будем!
+  FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
+
+  FPKFieldName := 'IDJEDEC';
+
+end;
 
 procedure TQueryBodyVariationsJedec.ApplyDelete(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
@@ -64,10 +75,15 @@ begin
 
   for AIDBodyVariation in FIDBodyVariations do
   begin
+    if not qBodyVariationJedec.FDQuery.Active then
+      qBodyVariationJedec.SearchByIDBodyVariation(AIDBodyVariation);
+
     qBodyVariationJedec.TryAppend;
+    qBodyVariationJedec.IDBodyVariation.Value := AIDBodyVariation;
     qBodyVariationJedec.IDJEDEC.Value := IDJEDEC.Value;
     qBodyVariationJedec.TryPost;
   end;
+  FetchFields(['IDJEDEC'], [IDJEDEC.Value], ARequest, AAction, AOptions);
 end;
 
 procedure TQueryBodyVariationsJedec.ApplyUpdate(ASender: TDataSet;
@@ -80,7 +96,7 @@ begin
 
   for AIDBodyVariation in FIDBodyVariations do
   begin
-    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, IDJEDEC.AsInteger, 1);
+    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, IDJEDEC.OldValue, 1);
     qBodyVariationJedec.TryEdit;
     qBodyVariationJedec.IDJEDEC.Value := IDJEDEC.Value;
     qBodyVariationJedec.TryPost;

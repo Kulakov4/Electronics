@@ -1,9 +1,9 @@
 inherited frmJEDECPopup: TfrmJEDECPopup
   Caption = 'frmJEDECPopup'
-  ClientHeight = 348
-  ClientWidth = 501
-  ExplicitWidth = 517
-  ExplicitHeight = 387
+  ClientHeight = 145
+  ClientWidth = 296
+  ExplicitWidth = 312
+  ExplicitHeight = 184
   PixelsPerInch = 96
   TextHeight = 16
 end

@@ -33,6 +33,9 @@ resourcestring
   // Папка по умолчанию для хранения чертежей корпуса
   sBodyOutlineDrawingFolder = 'Чертёж корпуса';
 
+  // Папка по умолчанию для хранения JEDEC
+  sBodyJEDECFolder = 'Чертёж корпуса\JEDEC';
+
   sBodyTypesFilesExt = 'pdf;jpg;png;bmp;gif';
 
   sDefaultDatabaseFileName = 'database.db';

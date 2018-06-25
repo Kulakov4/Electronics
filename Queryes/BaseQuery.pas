@@ -39,9 +39,6 @@ type
     FMaxUpdateRecCount: Integer;
     FUpdateRecCount: Integer;
   class var
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
-      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-      AOptions: TFDUpdateRowOptions);
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
@@ -63,6 +60,9 @@ type
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
     procedure DoOnUpdateRecordException(AException: Exception); virtual;
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+        TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
@@ -472,9 +472,9 @@ procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
 begin;
 end;
 
-procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 begin
   AAction := eaApplied;
 end;

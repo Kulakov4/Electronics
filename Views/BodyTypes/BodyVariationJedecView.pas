@@ -26,62 +26,148 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, BodyVariationJedecQuery,
-  BodyVariationsJedecQuery, JEDECQuery, cxDBLookupComboBox;
+  BodyVariationsJedecQuery, JEDECQuery, cxDBLookupComboBox, GridFrame,
+  NotifyEvents;
 
 type
-  TViewBodyVariationJEDEC = class(TViewGrid)
+  TViewBodyVariationJEDEC = class(TfrmGrid)
     DataSource: TDataSource;
     clIDJEDEC: TcxGridDBBandedColumn;
     dsJEDEC: TDataSource;
+    actOK: TAction;
+    actCancel: TAction;
+    dxBarButton2: TdxBarButton;
+    dxBarButton3: TdxBarButton;
+    actAdd: TAction;
+    dxBarButton1: TdxBarButton;
+    dxBarButton4: TdxBarButton;
+    procedure actAddExecute(Sender: TObject);
+    procedure actOKExecute(Sender: TObject);
+    procedure actCancelExecute(Sender: TObject);
   private
-    FIDBodyVariations: string;
+    FOnOK: TNotifyEventsEx;
+    FOnCancel: TNotifyEventsEx;
     FqBodyVariationsJedec: TQueryBodyVariationsJedec;
-    FqJEDEC: TQueryJEDEC;
+    function GetJEDECList: string;
     function GetqBodyVariationsJedec: TQueryBodyVariationsJedec;
-    function GetqJEDEC: TQueryJEDEC;
-    procedure SetIDBodyVariations(const Value: string);
     { Private declarations }
   protected
+    procedure DoOnHaveAnyChange(Sender: TObject);
     property qBodyVariationsJedec: TQueryBodyVariationsJedec read
         GetqBodyVariationsJedec;
-    property qJEDEC: TQueryJEDEC read GetqJEDEC;
   public
-    property IDBodyVariations: string read FIDBodyVariations write
-        SetIDBodyVariations;
+    constructor Create(AOwner: TComponent);
+    destructor Destroy; override;
+    procedure Init(const AIDBodyVariations: string; qJEDEC: TQueryJEDEC);
+    procedure UpdateView; override;
+    property JEDECList: string read GetJEDECList;
+    property OnOK: TNotifyEventsEx read FOnOK;
+    property OnCancel: TNotifyEventsEx read FOnCancel;
     { Public declarations }
   end;
 
 implementation
 
+uses
+  System.StrUtils;
+
 {$R *.dfm}
+
+constructor TViewBodyVariationJEDEC.Create(AOwner: TComponent);
+begin
+  inherited;
+  FOnOK := TNotifyEventsEx.Create(Self);
+  FOnCancel := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TViewBodyVariationJEDEC.Destroy;
+begin
+  if Assigned(FqBodyVariationsJedec) then
+    FreeAndNil(FqBodyVariationsJedec);
+
+  inherited;
+end;
+
+procedure TViewBodyVariationJEDEC.actAddExecute(Sender: TObject);
+begin
+  inherited;
+  MainView.Controller.ClearSelection;
+  MainView.DataController.Append;
+  FocusColumnEditor(0, clIDJEDEC.DataBinding.FieldName);
+
+  UpdateView;
+end;
+
+procedure TViewBodyVariationJEDEC.actOKExecute(Sender: TObject);
+begin
+  inherited;
+  qBodyVariationsJedec.TryPost;
+  FOnOK.CallEventHandlers(Self);
+end;
+
+procedure TViewBodyVariationJEDEC.actCancelExecute(Sender: TObject);
+begin
+  inherited;
+  qBodyVariationsJedec.TryCancel;
+  FOnCancel.CallEventHandlers(Self);
+end;
+
+procedure TViewBodyVariationJEDEC.DoOnHaveAnyChange(Sender: TObject);
+begin
+  UpdateView;
+end;
+
+function TViewBodyVariationJEDEC.GetJEDECList: string;
+var
+  i: Integer;
+  S: String;
+begin
+  S := '';
+  for i := 0 to MainView.DataController.RowCount - 1 do
+  begin
+    S := S + IfThen(not S.IsEmpty, '; ', '');
+    S := S + VarToStr( MainView.ViewData.Rows[i].DisplayTexts[clIDJEDEC.Index] );
+  end;
+
+  Result := S;
+end;
 
 function TViewBodyVariationJEDEC.GetqBodyVariationsJedec:
     TQueryBodyVariationsJedec;
 begin
   if FqBodyVariationsJedec = nil then
   begin
-    FqBodyVariationsJedec := TQueryBodyVariationsJedec.Create(Self);
+    FqBodyVariationsJedec := TQueryBodyVariationsJedec.Create(nil);
   end;
   Result := FqBodyVariationsJedec;
 end;
 
-function TViewBodyVariationJEDEC.GetqJEDEC: TQueryJEDEC;
+procedure TViewBodyVariationJEDEC.Init(const AIDBodyVariations: string; qJEDEC:
+    TQueryJEDEC);
 begin
-  if FqJEDEC = nil then
-  begin
-    FqJEDEC := TQueryJEDEC.Create(Self);
-    FqJEDEC.FDQuery.Open;
-  end;
-  Result := FqJEDEC;
-end;
+  Assert(qJEDEC <> nil);
+  Assert(not AIDBodyVariations.IsEmpty);
 
-procedure TViewBodyVariationJEDEC.SetIDBodyVariations(const Value: string);
-begin
-  FIDBodyVariations := Value;
+  FEventList.Clear;
+
   dsJEDEC.DataSet := qJEDEC.FDQuery;
   DataSource.DataSet := qBodyVariationsJedec.FDQuery;
 
-  qBodyVariationsJedec.SearchByIDBodyVariations(FIDBodyVariations);
+  qBodyVariationsJedec.SearchByIDBodyVariations(AIDBodyVariations);
+  TNotifyEventWrap.Create( qBodyVariationsJedec.Monitor.OnHaveAnyChanges,
+    DoOnHaveAnyChange, FEventList);
+  UpdateView;
+end;
+
+procedure TViewBodyVariationJEDEC.UpdateView;
+var
+  OK: Boolean;
+begin
+  OK := (FqBodyVariationsJedec <> nil) and (FqBodyVariationsJedec.FDQuery.Active);
+  actOK.Enabled := OK;// and qBodyVariationsJedec.HaveAnyChanges;
+  actCancel.Enabled := actOK.Enabled;
+  actAdd.Enabled := OK;
+  actDeleteEx.Enabled := OK and (MainView.Controller.SelectedRowCount > 0)
 end;
 
 end.

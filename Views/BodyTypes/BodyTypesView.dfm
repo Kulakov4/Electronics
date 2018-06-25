@@ -231,8 +231,7 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clJEDEC: TcxGridDBBandedColumn
         Caption = 'JEDEC '#1050#1086#1076
         DataBinding.FieldName = 'JEDEC'
-        PropertiesClassName = 'TcxPopupEditProperties'
-        Properties.OnInitPopup = clJEDECPropertiesInitPopup
+        OnGetProperties = clJEDECGetProperties
         Position.BandIndex = 0
         Position.ColIndex = 11
         Position.RowIndex = 0
@@ -298,6 +297,10 @@ inherited ViewBodyTypes: TViewBodyTypes
         item
           Visible = True
           ItemName = 'dxbrbtnRollback'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton3'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -390,6 +393,10 @@ inherited ViewBodyTypes: TViewBodyTypes
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton3: TdxBarButton
+      Action = actApplyBestFit
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAdd: TAction
@@ -469,11 +476,41 @@ inherited ViewBodyTypes: TViewBodyTypes
       ImageIndex = 8
       OnExecute = actLoadImageExecute
     end
+    object actApplyBestFit: TAction
+      Caption = 'actApplyBestFit'
+      OnExecute = actApplyBestFitExecute
+    end
+    object actLoadJEDEC: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' JEDEC'
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' JEDEC'
+      OnExecute = actLoadJEDECExecute
+    end
+    object actOpenJEDEC: TAction
+      Caption = 'JD'
+      Hint = #1054#1090#1082#1088#1099#1090#1100' JEDEC'
+      OnExecute = actOpenJEDECExecute
+    end
   end
   object cxEditRepository: TcxEditRepository
     Left = 160
     Top = 152
     object cxerpiJEDEC: TcxEditRepositoryPopupItem
+      Properties.ImmediateDropDownWhenActivated = False
+      Properties.ImmediateDropDownWhenKeyPressed = False
+      Properties.OnCloseUp = cxerpiJEDECPropertiesCloseUp
+      Properties.OnInitPopup = cxerpiJEDECPropertiesInitPopup
+    end
+    object cxerbiJEDEC: TcxEditRepositoryButtonItem
+      Properties.Buttons = <
+        item
+          Action = actOpenJEDEC
+          Default = True
+          Kind = bkText
+        end
+        item
+          Action = actLoadJEDEC
+          Kind = bkEllipsis
+        end>
     end
   end
 end

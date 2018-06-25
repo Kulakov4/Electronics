@@ -66,7 +66,6 @@ type
       read GetqBodyVariationJedec;
     property qBodyVariationOption: TQueryBodyVariationOption
       read GetqBodyVariationOption;
-    property qJedec: TQueryJEDEC read GetqJedec;
     property QueryBodies: TQueryBodies read GetQueryBodies;
     property QueryBodyData: TQueryBodyData read GetQueryBodyData;
     property QueryBodyVariations: TQueryBodyVariations
@@ -93,6 +92,7 @@ type
     property LandPattern: TField read GetLandPattern;
     property Options: TField read GetOptions;
     property OutlineDrawing: TField read GetOutlineDrawing;
+    property qJedec: TQueryJEDEC read GetqJedec;
     property Variations: TField read GetVariations;
     { Public declarations }
   end;

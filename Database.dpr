@@ -218,7 +218,8 @@ uses
   BodyVariationJedecQuery in 'Queryes\BodyTypes\BodyVariationJedecQuery.pas' {QueryBodyVariationJedec: TFrame},
   BodyVariationOptionQuery in 'Queryes\BodyTypes\BodyVariationOptionQuery.pas' {QueryBodyVariationOption: TFrame},
   BodyVariationJedecView in 'Views\BodyTypes\BodyVariationJedecView.pas' {ViewBodyVariationJEDEC: TFrame},
-  BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame};
+  BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame},
+  BodyVariationJedecGroupQuery in 'Queryes\BodyTypes\BodyVariationJedecGroupQuery.pas' {QueryBodyVariationJEDECGroup: TFrame};
 
 {$R *.res}
 

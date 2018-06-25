@@ -21,7 +21,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinsdxBarPainter, cxClasses, dxBar, System.Actions,
   Vcl.ActnList, System.ImageList, Vcl.ImgList, cxGraphics,
-  BodyVariationJedecQuery, BodyVariationJedecView;
+  BodyVariationJedecQuery, BodyVariationJedecView, NotifyEvents;
 
 type
   TfrmJEDECPopup = class(TfrmPopupForm)
@@ -29,6 +29,8 @@ type
     FViewBodyVariationJEDEC: TViewBodyVariationJEDEC;
     { Private declarations }
   protected
+    procedure DoOnCancel(Sender: TObject);
+    procedure DoOnOK(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     property ViewBodyVariationJEDEC: TViewBodyVariationJEDEC read
@@ -46,6 +48,21 @@ begin
   FViewBodyVariationJEDEC := TViewBodyVariationJEDEC.Create(Self);
   FViewBodyVariationJEDEC.Parent := Self;
   FViewBodyVariationJEDEC.Align := alClient;
+
+  TNotifyEventWrap.Create( FViewBodyVariationJEDEC.OnOK, DoOnOk);
+  TNotifyEventWrap.Create( FViewBodyVariationJEDEC.OnCancel, DoOnCancel);
+end;
+
+procedure TfrmJEDECPopup.DoOnCancel(Sender: TObject);
+begin
+  ModalResult := mrCancel;
+  PopupWindow.CloseUp;
+end;
+
+procedure TfrmJEDECPopup.DoOnOK(Sender: TObject);
+begin
+  ModalResult := mrOk;
+  PopupWindow.CloseUp;
 end;
 
 end.

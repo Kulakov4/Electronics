@@ -13,6 +13,7 @@ type
     function GetBodyTypesLandPatternFolder: string;
     function GetBodyTypesOutlineDrawingFolder: string;
     function GetBodyTypesImageFolder: string;
+    function GetBodyTypesJEDECFolder: string;
     function GetCategoryID: Integer;
     function GetComponentsDrawingFolder: String;
     function GetComponentsImageFolder: String;
@@ -34,6 +35,7 @@ type
     procedure SetBodyTypesLandPatternFolder(const Value: string);
     procedure SetBodyTypesOutlineDrawingFolder(const Value: string);
     procedure SetBodyTypesImageFolder(const Value: string);
+    procedure SetBodyTypesJEDECFolder(const Value: string);
     procedure SetCategoryID(const Value: Integer);
     procedure SetComponentsDrawingFolder(const Value: String);
     procedure SetComponentsImageFolder(const Value: String);
@@ -71,6 +73,8 @@ type
       write SetBodyTypesOutlineDrawingFolder;
     property BodyTypesImageFolder: string read GetBodyTypesImageFolder
       write SetBodyTypesImageFolder;
+    property BodyTypesJEDECFolder: string read GetBodyTypesJEDECFolder write
+        SetBodyTypesJEDECFolder;
     property CategoryID: Integer read GetCategoryID write SetCategoryID;
     property ComponentsDrawingFolder: String read GetComponentsDrawingFolder
       write SetComponentsDrawingFolder;
@@ -126,6 +130,11 @@ end;
 function TSettings.GetBodyTypesImageFolder: string;
 begin
   Result := GetPath('BodyTypes', 'ImageFolder', sBodyImageFolder);
+end;
+
+function TSettings.GetBodyTypesJEDECFolder: string;
+begin
+  Result := GetPath('BodyTypes', 'JEDECFolder', sBodyJEDECFolder);
 end;
 
 function TSettings.GetCategoryID: Integer;
@@ -278,6 +287,11 @@ end;
 procedure TSettings.SetBodyTypesImageFolder(const Value: string);
 begin
   SetValue('BodyTypes', 'ImageFolder', Value);
+end;
+
+procedure TSettings.SetBodyTypesJEDECFolder(const Value: string);
+begin
+  SetValue('BodyTypes', 'JEDECFolder', Value);
 end;
 
 procedure TSettings.SetCategoryID(const Value: Integer);
