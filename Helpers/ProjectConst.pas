@@ -61,7 +61,8 @@ resourcestring
   sError = 'ќшибка';
   sSaving = '—охранение';
 
-  sExtraChargeRangeError = 'ѕоле количество должно содержать диапазон вида 2-10';
+  sExtraChargeRangeError =
+    'ѕоле количество должно содержать диапазон вида 2-10';
   sExtraChargeRangeError2 = 'Ћева€ граница диапазона должна быть больше правой';
 
   sLocalizationFileName = 'Localization.ini';
@@ -87,7 +88,8 @@ const
   ProgramVersion = 1.2;
   DragDropTimeOut = 200; // «ащита от случайного перетаскивани€
   DefaultRate = 60; //  урс доллара к рублю "по умолчанию"
-  OnReadProcessEventRecordCount = 100; // „ерез сколько считанных / записанных записей извещать о прогрессе
+  OnReadProcessEventRecordCount = 100;
+  // „ерез сколько считанных / записанных записей извещать о прогрессе
   OnWriteProcessEventRecordCount = 5;
 
 implementation

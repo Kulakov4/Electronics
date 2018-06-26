@@ -84,9 +84,14 @@ type
     actApplyBestFit: TAction;
     cxerbiJEDEC: TcxEditRepositoryButtonItem;
     actLoadJEDEC: TAction;
-    actOpenJEDEC: TAction;
+    actAddJEDECFile: TAction;
+    N2: TMenuItem;
+    JEDEC1: TMenuItem;
+    actOpenJEDECAll: TAction;
+    N3: TMenuItem;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
+    procedure actAddJEDECFileExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
@@ -96,7 +101,7 @@ type
     procedure actLoadLandPatternExecute(Sender: TObject);
     procedure actLoadOutlineDrawingExecute(Sender: TObject);
     procedure actOpenImageExecute(Sender: TObject);
-    procedure actOpenJEDECExecute(Sender: TObject);
+    procedure actOpenJEDECAllExecute(Sender: TObject);
     procedure actOpenLandPatternExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
@@ -154,14 +159,17 @@ type
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(const AFileName: String; AProducerID: Integer);
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
+        AllowPopup: Boolean); override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
-    procedure OpenJEDEC(const AFileName: string);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
-    procedure UploadJEDEC;
+    procedure UploadJEDEC(Add: Boolean);
     property frmJEDECPopup: TfrmJEDECPopup read GetfrmJEDECPopup;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterConstruction; override;
+    procedure ApplyBestFitJEDEC;
     procedure UpdateView; override;
     property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup
       write SetBodyTypesGroup;
@@ -175,7 +183,8 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   RepositoryDataModule, NotifyEvents, ColumnsBarButtonsHelper, CustomExcelTable,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
   System.Math, System.IOUtils, ProgressBarForm, DialogUnit2,
-  BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper;
+  BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper,
+  OpenJedecUnit;
 
 {$R *.dfm}
 
@@ -238,14 +247,15 @@ begin
 
 end;
 
-procedure TViewBodyTypes.actApplyBestFitExecute(Sender: TObject);
-var
-  AView: TcxGridDBBandedTableView;
+procedure TViewBodyTypes.actAddJEDECFileExecute(Sender: TObject);
 begin
   inherited;
-  // clJEDEC.ApplyBestFit();
-  // AView := GetDBBandedTableView(1);
-  // MyApplyBestFitForView( AView );
+  UploadJEDEC(True);
+end;
+
+procedure TViewBodyTypes.actApplyBestFitExecute(Sender: TObject);
+begin
+  inherited;
   GetDBBandedTableView(1).GetColumnByFieldName(clJEDEC.DataBinding.FieldName)
     .ApplyBestFit();
 end;
@@ -339,7 +349,7 @@ end;
 procedure TViewBodyTypes.actLoadJEDECExecute(Sender: TObject);
 begin
   inherited;
-  UploadJEDEC;
+  UploadJEDEC(false);
 end;
 
 procedure TViewBodyTypes.actLoadLandPatternExecute(Sender: TObject);
@@ -359,10 +369,19 @@ begin
   OpenDoc(TBodyTypeImageDoc.Create);
 end;
 
-procedure TViewBodyTypes.actOpenJEDECExecute(Sender: TObject);
+procedure TViewBodyTypes.actOpenJEDECAllExecute(Sender: TObject);
+var
+  AJedec: string;
+  m: TArray<String>;
+  S: String;
 begin
   inherited;
-  OpenJEDEC(BodyTypesGroup.qBodyTypes2.JEDEC.AsString);
+  m := BodyTypesGroup.qBodyTypes2.JEDEC.AsString.Split([';']);
+  for S in m do
+  begin
+    AJedec := s.Trim;
+    TJEDECDocument.OpenJEDEC(Handle, AJedec);
+  end;
 end;
 
 procedure TViewBodyTypes.actOpenLandPatternExecute(Sender: TObject);
@@ -433,6 +452,20 @@ begin
   // Обновляем представление
   UpdateView;
 
+end;
+
+procedure TViewBodyTypes.AfterConstruction;
+begin
+//  cxGridPopupMenu.PopupMenus[0].GridView := MainView;
+//  cxGridPopupMenu.PopupMenus[1].GridView := cxGridDBBandedTableView2;
+
+  inherited;
+end;
+
+procedure TViewBodyTypes.ApplyBestFitJEDEC;
+begin
+  GetDBBandedTableView(1).GetColumnByFieldName(clJEDEC.DataBinding.FieldName)
+    .ApplyBestFit();
 end;
 
 procedure TViewBodyTypes.clJEDECGetProperties(Sender: TcxCustomGridTableItem;
@@ -541,8 +574,7 @@ begin
   BodyTypesGroup.qBodyTypes2.TryEdit;
   BodyTypesGroup.qBodyTypes2.JEDEC.AsString := AJEDEC;
   BodyTypesGroup.TryPost;
-  GetDBBandedTableView(1).GetColumnByFieldName(clJEDEC.DataBinding.FieldName)
-    .ApplyBestFit();
+  ApplyBestFitJEDEC;
 end;
 
 procedure TViewBodyTypes.cxerpiJEDECPropertiesInitPopup(Sender: TObject);
@@ -785,6 +817,16 @@ begin
 
 end;
 
+procedure TViewBodyTypes.OnGridRecordCellPopupMenu(AColumn:
+    TcxGridDBBandedColumn; var AllowPopup: Boolean);
+begin
+  actAddJEDECFile.Visible := AColumn.DataBinding.FieldName = clJEDEC.DataBinding.FieldName;
+  actOpenJEDECAll.Visible := actAddJEDECFile.Visible;
+  actLoadJEDEC.Visible := actAddJEDECFile.Visible;
+
+  actOpenJEDECAll.Enabled := not BodyTypesGroup.qBodyTypes2.JEDEC.AsString.IsEmpty;
+end;
+
 procedure TViewBodyTypes.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 var
   AFolders: string;
@@ -801,18 +843,6 @@ begin
     BodyTypesGroup.qBodyTypes2.Field(ADocFieldInfo.FieldName).AsString,
     ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
     sBodyTypesFilesExt);
-end;
-
-procedure TViewBodyTypes.OpenJEDEC(const AFileName: string);
-var
-  AFolders: string;
-begin
-  Application.Hint := '';
-  // Формируем папки, в которых мы будем искать наш файл
-  AFolders := TSettings.Create.BodyTypesJEDECFolder;
-
-  TDocument.Open(Handle, AFolders, AFileName, 'JEDEC файл %s не найден',
-    'Не задан файл JEDEC', sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);
@@ -937,30 +967,30 @@ begin
     Exit;
 
   BodyTypesGroup.qBodyTypes2.LoadDocFile(sourceFileName, ADocFieldInfo);
-  MyApplyBestFit;
+  MyApplyBestFitForView(cxGridDBBandedTableView2);
 end;
 
-procedure TViewBodyTypes.UploadJEDEC;
+procedure TViewBodyTypes.UploadJEDEC(Add: Boolean);
 var
-  AProducer: string;
+//  AProducer: string;
   S: String;
-  sourceFileName: string;
+  AFileName: string;
 begin
   Application.Hint := '';
   Assert(BodyTypesGroup <> nil);
 
   // Файл должен лежать в каталоге = производителю
-  AProducer := ProducerDisplayText;
+//  AProducer := ProducerDisplayText;
 
-  // S := ADocFieldInfo.Folder;
+  S := TSettings.Create.BodyTypesJEDECFolder;
 
   // Открываем диалог выбора файла для загрузки
-  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', sourceFileName)
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', AFileName)
   then
     Exit;
 
-  // BodyTypesGroup.qBodyTypes2.LoadDocFile(sourceFileName, ADocFieldInfo);
-  MyApplyBestFit;
+  BodyTypesGroup.qBodyTypes2.LoadJEDEC(AFileName, Add);
+  ApplyBestFitJEDEC;
 end;
 
 end.

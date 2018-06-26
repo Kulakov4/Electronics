@@ -7,6 +7,7 @@ uses Winapi.Windows, System.Generics.Collections;
 type
   TDocument = class(TObject)
   private
+  protected
     class procedure GetFileNames(const AFileName, AFileExts: string;
       L: TList<String>); static;
   public

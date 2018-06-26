@@ -91,7 +91,8 @@ begin
     S := VarToStrDef(V, '');
     if not S.IsEmpty then
     begin
-      FieldByName(AFieldInfo.FieldName).AsString := ProcessValue(AFieldInfo.FieldName, S);
+      FieldByName(AFieldInfo.FieldName).AsString :=
+        ProcessValue(AFieldInfo.FieldName, S);
       Inc(k);
     end;
     Inc(i);
@@ -129,10 +130,10 @@ begin
   Result := ErrorType.AsInteger = Integer(etNone);
 end;
 
-function TCustomExcelTable.ProcessValue(const AFieldName, AValue: string):
-    String;
+function TCustomExcelTable.ProcessValue(const AFieldName,
+  AValue: string): String;
 begin
- // Избавляемся от начальных, конечных и двойных пробелов
+  // Избавляемся от начальных, конечных и двойных пробелов
   Result := DeleteDouble(AValue.Trim, ' ');
 end;
 

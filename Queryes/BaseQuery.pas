@@ -60,9 +60,9 @@ type
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
     procedure DoOnUpdateRecordException(AException: Exception); virtual;
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-        TFDUpdateRowOptions);
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
+      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+      AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
@@ -472,9 +472,9 @@ procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
 begin;
 end;
 
-procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   AAction := eaApplied;
 end;
@@ -908,14 +908,15 @@ end;
 
 function TQueryBase.TryEdit: Boolean;
 begin
-  Assert(FDQuery.Active and (FDQuery.RecordCount > 0));
+  Assert(FDQuery.Active);
 
   Result := False;
-  if not(FDQuery.State in [dsEdit, dsInsert]) then
-  begin
-    FDQuery.Edit;
-    Result := True;
-  end;
+  if FDQuery.State in [dsEdit, dsInsert] then
+    Exit;
+
+  Assert(FDQuery.RecordCount > 0);
+  FDQuery.Edit;
+  Result := True;
 end;
 
 procedure TQueryBase.TryPost;

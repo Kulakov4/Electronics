@@ -17,6 +17,7 @@ type
     FIDBodyVariations: TArray<Integer>;
     FqBodyVariationJedec: TQueryBodyVariationJedec;
     function GetIDJEDEC: TField;
+    function GetJEDEC: TField;
     function GetqBodyVariationJedec: TQueryBodyVariationJedec;
     { Private declarations }
   protected
@@ -26,19 +27,22 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure DoAfterOpen(Sender: TObject);
     property qBodyVariationJedec: TQueryBodyVariationJedec
       read GetqBodyVariationJedec;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure LoadJEDEC(const AFileName: String);
     function SearchByIDBodyVariations(AIDBodyVariations: string): Integer;
     property IDJEDEC: TField read GetIDJEDEC;
+    property JEDEC: TField read GetJEDEC;
     { Public declarations }
   end;
 
 implementation
 
 uses
-  StrHelper, System.Generics.Collections;
+  StrHelper, System.Generics.Collections, System.IOUtils, NotifyEvents;
 
 {$R *.dfm}
 
@@ -49,7 +53,9 @@ begin
   FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
 
   FPKFieldName := 'IDJEDEC';
-
+  // Будем накапливать изменения, чтобы понять, есть-ли изменения
+  FDQuery.CachedUpdates := True;
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
 procedure TQueryBodyVariationsJedec.ApplyDelete(ASender: TDataSet;
@@ -103,9 +109,19 @@ begin
   end;
 end;
 
+procedure TQueryBodyVariationsJedec.DoAfterOpen(Sender: TObject);
+begin
+  SetFieldsReadOnly(False);
+end;
+
 function TQueryBodyVariationsJedec.GetIDJEDEC: TField;
 begin
   Result := Field('IDJEDEC');
+end;
+
+function TQueryBodyVariationsJedec.GetJEDEC: TField;
+begin
+  Result := Field('JEDEC');
 end;
 
 function TQueryBodyVariationsJedec.GetqBodyVariationJedec
@@ -117,6 +133,21 @@ begin
   end;
 
   Result := FqBodyVariationJedec;
+end;
+
+procedure TQueryBodyVariationsJedec.LoadJEDEC(const AFileName: String);
+var
+  S: string;
+begin
+  Assert(not AFileName.IsEmpty);
+  Assert( FDQuery.RecordCount > 0 );
+
+  // В БД храним имя файла без расширения и всё
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+
+  TryEdit;
+  JEDEC.AsString := S;
+  TryPost;
 end;
 
 function TQueryBodyVariationsJedec.SearchByIDBodyVariations(AIDBodyVariations
@@ -146,6 +177,8 @@ begin
 
   // Ищем
   RefreshQuery;
+
+  Result := FDQuery.RecordCount;
 end;
 
 end.

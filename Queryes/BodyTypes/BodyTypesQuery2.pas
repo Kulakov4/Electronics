@@ -43,6 +43,7 @@ type
     function ConstructBodyType(const APackage: string): string;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
+    procedure LoadJEDEC(const AFileName: String; Add: Boolean);
     procedure LocateOrAppend(AIDBodyKind: Integer;
       const ABody, ABodyData: String; AIDProducer: Integer;
       const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
@@ -356,16 +357,37 @@ end;
 procedure TQueryBodyTypes2.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
+  OK: Boolean;
   S: string;
 begin
-  if not AFileName.IsEmpty then
-  begin
-    // В БД храним имя файла без расширения и всё
-    S := TPath.GetFileNameWithoutExtension(AFileName);
-    TryEdit;
-    Field(ADocFieldInfo.FieldName).AsString := S;
+  Assert(not AFileName.IsEmpty);
+
+  // В БД храним имя файла без расширения и всё
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+  OK := TryEdit;
+  Field(ADocFieldInfo.FieldName).AsString := S;
+  if OK then
     TryPost;
-  end;
+end;
+
+procedure TQueryBodyTypes2.LoadJEDEC(const AFileName: String; Add: Boolean);
+var
+  OK: Boolean;
+  S: string;
+begin
+  Assert(not AFileName.IsEmpty);
+
+  S := '';
+  if Add and (not JEDEC.AsString.IsEmpty) then
+    S := JEDEC.AsString + '; ';
+
+  // В БД храним имя файла без расширения и всё
+  S := S + TPath.GetFileNameWithoutExtension(AFileName);
+
+  OK := TryEdit;
+  JEDEC.AsString := S;
+  if OK then
+    TryPost;
 end;
 
 procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer;

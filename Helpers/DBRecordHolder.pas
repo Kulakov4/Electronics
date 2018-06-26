@@ -272,7 +272,7 @@ begin
       if VarIsNull(Items[i].Value) or VarToStr(Items[i].Value).Trim.IsEmpty then
       begin
         // Ищем такое же поле у нас с учётом карты сопостовления полей
-        AFieldHolder := ASource.Find( AMap.Map( Items[i].FieldName ) );
+        AFieldHolder := ASource.Find(AMap.Map(Items[i].FieldName));
 
         // Нашли такое же поле не NULL и не пустая строка
         if (AFieldHolder <> nil) and (not VarIsNull(AFieldHolder.Value)) and

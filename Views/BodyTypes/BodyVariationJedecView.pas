@@ -3,7 +3,8 @@ unit BodyVariationJedecView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridView, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -27,7 +28,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, BodyVariationJedecQuery,
   BodyVariationsJedecQuery, JEDECQuery, cxDBLookupComboBox, GridFrame,
-  NotifyEvents;
+  NotifyEvents, cxButtonEdit, RepositoryDataModule;
 
 type
   TViewBodyVariationJEDEC = class(TfrmGrid)
@@ -41,9 +42,18 @@ type
     actAdd: TAction;
     dxBarButton1: TdxBarButton;
     dxBarButton4: TdxBarButton;
+    clJEDEC: TcxGridDBBandedColumn;
+    actOpenJEDEC: TAction;
+    actLoadJEDEC: TAction;
+    actOpenAll: TAction;
+    dxBarButton5: TdxBarButton;
+    N2: TMenuItem;
     procedure actAddExecute(Sender: TObject);
     procedure actOKExecute(Sender: TObject);
     procedure actCancelExecute(Sender: TObject);
+    procedure actLoadJEDECExecute(Sender: TObject);
+    procedure actOpenAllExecute(Sender: TObject);
+    procedure actOpenJEDECExecute(Sender: TObject);
   private
     FOnOK: TNotifyEventsEx;
     FOnCancel: TNotifyEventsEx;
@@ -53,10 +63,12 @@ type
     { Private declarations }
   protected
     procedure DoOnHaveAnyChange(Sender: TObject);
-    property qBodyVariationsJedec: TQueryBodyVariationsJedec read
-        GetqBodyVariationsJedec;
+    procedure OpenJEDEC(const AFileName: string);
+    procedure UploadJEDEC;
+    property qBodyVariationsJedec: TQueryBodyVariationsJedec
+      read GetqBodyVariationsJedec;
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Init(const AIDBodyVariations: string; qJEDEC: TQueryJEDEC);
     procedure UpdateView; override;
@@ -69,7 +81,8 @@ type
 implementation
 
 uses
-  System.StrUtils;
+  System.StrUtils, SettingsController, OpenDocumentUnit, ProjectConst,
+  OpenJedecUnit, DialogUnit;
 
 {$R *.dfm}
 
@@ -101,15 +114,43 @@ end;
 procedure TViewBodyVariationJEDEC.actOKExecute(Sender: TObject);
 begin
   inherited;
-  qBodyVariationsJedec.TryPost;
+  qBodyVariationsJedec.ApplyUpdates;
   FOnOK.CallEventHandlers(Self);
 end;
 
 procedure TViewBodyVariationJEDEC.actCancelExecute(Sender: TObject);
 begin
   inherited;
-  qBodyVariationsJedec.TryCancel;
+  qBodyVariationsJedec.CancelUpdates;
   FOnCancel.CallEventHandlers(Self);
+end;
+
+procedure TViewBodyVariationJEDEC.actLoadJEDECExecute(Sender: TObject);
+begin
+  inherited;
+  UploadJEDEC();
+end;
+
+procedure TViewBodyVariationJEDEC.actOpenAllExecute(Sender: TObject);
+
+var
+  AJedec: string;
+  m: TArray<String>;
+begin
+  inherited;
+  m := qBodyVariationsJedec.GetFieldValues(qBodyVariationsJedec.JEDEC.FieldName,
+    ',').Trim([',']).Split([',']);
+
+  for AJedec in m do
+  begin
+    TJEDECDocument.OpenJEDEC(Handle, AJedec);
+  end;
+end;
+
+procedure TViewBodyVariationJEDEC.actOpenJEDECExecute(Sender: TObject);
+begin
+  inherited;
+  TJEDECDocument.OpenJEDEC(Handle, qBodyVariationsJedec.JEDEC.AsString);
 end;
 
 procedure TViewBodyVariationJEDEC.DoOnHaveAnyChange(Sender: TObject);
@@ -118,22 +159,26 @@ begin
 end;
 
 function TViewBodyVariationJEDEC.GetJEDECList: string;
-var
-  i: Integer;
-  S: String;
+// var
+// i: Integer;
+// S: String;
 begin
-  S := '';
-  for i := 0 to MainView.DataController.RowCount - 1 do
-  begin
+  Result := qBodyVariationsJedec.GetFieldValues
+    (qBodyVariationsJedec.JEDEC.FieldName, '; ').Trim([';', ' ']);
+  {
+    S := '';
+    for i := 0 to MainView.DataController.RowCount - 1 do
+    begin
     S := S + IfThen(not S.IsEmpty, '; ', '');
     S := S + VarToStr( MainView.ViewData.Rows[i].DisplayTexts[clIDJEDEC.Index] );
-  end;
+    end;
 
-  Result := S;
+    Result := S;
+  }
 end;
 
-function TViewBodyVariationJEDEC.GetqBodyVariationsJedec:
-    TQueryBodyVariationsJedec;
+function TViewBodyVariationJEDEC.GetqBodyVariationsJedec
+  : TQueryBodyVariationsJedec;
 begin
   if FqBodyVariationsJedec = nil then
   begin
@@ -142,8 +187,8 @@ begin
   Result := FqBodyVariationsJedec;
 end;
 
-procedure TViewBodyVariationJEDEC.Init(const AIDBodyVariations: string; qJEDEC:
-    TQueryJEDEC);
+procedure TViewBodyVariationJEDEC.Init(const AIDBodyVariations: string;
+  qJEDEC: TQueryJEDEC);
 begin
   Assert(qJEDEC <> nil);
   Assert(not AIDBodyVariations.IsEmpty);
@@ -154,20 +199,55 @@ begin
   DataSource.DataSet := qBodyVariationsJedec.FDQuery;
 
   qBodyVariationsJedec.SearchByIDBodyVariations(AIDBodyVariations);
-  TNotifyEventWrap.Create( qBodyVariationsJedec.Monitor.OnHaveAnyChanges,
+  TNotifyEventWrap.Create(qBodyVariationsJedec.Monitor.OnHaveAnyChanges,
     DoOnHaveAnyChange, FEventList);
   UpdateView;
+end;
+
+procedure TViewBodyVariationJEDEC.OpenJEDEC(const AFileName: string);
+var
+  AFolders: string;
+begin
+  Application.Hint := '';
+  // Формируем папки, в которых мы будем искать наш файл
+  AFolders := TSettings.Create.BodyTypesJEDECFolder;
+
+  TDocument.Open(Handle, AFolders, AFileName, 'JEDEC файл %s не найден',
+    'Не задан файл JEDEC', sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyVariationJEDEC.UpdateView;
 var
   OK: Boolean;
 begin
-  OK := (FqBodyVariationsJedec <> nil) and (FqBodyVariationsJedec.FDQuery.Active);
-  actOK.Enabled := OK;// and qBodyVariationsJedec.HaveAnyChanges;
-  actCancel.Enabled := actOK.Enabled;
+  OK := (FqBodyVariationsJedec <> nil) and
+    (FqBodyVariationsJedec.FDQuery.Active);
+  actOK.Enabled := OK;
+  actCancel.Enabled := OK and qBodyVariationsJedec.HaveAnyChanges;
+  actOpenAll.Enabled := OK and (MainView.DataController.RowCount > 0);
   actAdd.Enabled := OK;
   actDeleteEx.Enabled := OK and (MainView.Controller.SelectedRowCount > 0)
+end;
+
+procedure TViewBodyVariationJEDEC.UploadJEDEC;
+var
+  // AProducer: string;
+  S: String;
+  AFileName: string;
+begin
+  Application.Hint := '';
+  Assert(FqBodyVariationsJedec <> nil);
+
+  // Файл должен лежать в каталоге = производителю
+  // AProducer := ProducerDisplayText;
+
+  S := TSettings.Create.BodyTypesJEDECFolder;
+
+  // Открываем диалог выбора файла для загрузки
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', AFileName) then
+    Exit;
+
+  FqBodyVariationsJedec.LoadJEDEC(AFileName);
 end;
 
 end.

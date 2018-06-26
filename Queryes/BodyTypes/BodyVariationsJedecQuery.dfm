@@ -10,8 +10,9 @@ inherited QueryBodyVariationsJedec: TQueryBodyVariationsJedec
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select Distinct IDJEDEC, Color'
+      'select Distinct IDJEDEC, Color, J.JEDEC'
       'from BodyVariationJEDEC bvj'
+      'join JEDEC j on bvj.IDJEDEC = j.ID'
       'where IDBodyVariation in (0)')
   end
 end

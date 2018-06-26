@@ -481,15 +481,48 @@ inherited ViewBodyTypes: TViewBodyTypes
       OnExecute = actApplyBestFitExecute
     end
     object actLoadJEDEC: TAction
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' JEDEC'
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' JEDEC'
+      ImageIndex = 43
       OnExecute = actLoadJEDECExecute
     end
-    object actOpenJEDEC: TAction
-      Caption = 'JD'
-      Hint = #1054#1090#1082#1088#1099#1090#1100' JEDEC'
-      OnExecute = actOpenJEDECExecute
+    object actAddJEDECFile: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100
+      ImageIndex = 1
+      OnExecute = actAddJEDECFileExecute
     end
+    object actOpenJEDECAll: TAction
+      Caption = #1054#1090#1082#1088#1099#1090#1100
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1074#1089#1077' JEDEC '#1076#1086#1082#1091#1084#1077#1085#1090#1099
+      ImageIndex = 42
+      OnExecute = actOpenJEDECAllExecute
+    end
+  end
+  inherited pmGrid: TPopupMenu
+    object N3: TMenuItem
+      Action = actOpenJEDECAll
+    end
+    object JEDEC1: TMenuItem
+      Action = actLoadJEDEC
+    end
+    object N2: TMenuItem
+      Action = actAddJEDECFile
+    end
+  end
+  inherited cxGridPopupMenu: TcxGridPopupMenu
+    PopupMenus = <
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtCell]
+        Index = 0
+        PopupMenu = pmGrid
+      end
+      item
+        GridView = cxGridDBBandedTableView2
+        HitTypes = [gvhtCell]
+        Index = 1
+        PopupMenu = pmGrid
+      end>
   end
   object cxEditRepository: TcxEditRepository
     Left = 160
@@ -503,14 +536,17 @@ inherited ViewBodyTypes: TViewBodyTypes
     object cxerbiJEDEC: TcxEditRepositoryButtonItem
       Properties.Buttons = <
         item
-          Action = actOpenJEDEC
+          Action = actOpenJEDECAll
+          Caption = 'JD'
           Default = True
-          Kind = bkText
+          Hint = #1054#1090#1082#1088#1099#1090#1100' JEDEC'
+          Kind = bkGlyph
         end
         item
           Action = actLoadJEDEC
           Kind = bkEllipsis
         end>
+      Properties.Images = DMRepository.cxImageList
     end
   end
 end

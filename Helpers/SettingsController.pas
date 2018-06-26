@@ -73,8 +73,8 @@ type
       write SetBodyTypesOutlineDrawingFolder;
     property BodyTypesImageFolder: string read GetBodyTypesImageFolder
       write SetBodyTypesImageFolder;
-    property BodyTypesJEDECFolder: string read GetBodyTypesJEDECFolder write
-        SetBodyTypesJEDECFolder;
+    property BodyTypesJEDECFolder: string read GetBodyTypesJEDECFolder
+      write SetBodyTypesJEDECFolder;
     property CategoryID: Integer read GetCategoryID write SetCategoryID;
     property ComponentsDrawingFolder: String read GetComponentsDrawingFolder
       write SetComponentsDrawingFolder;
@@ -103,8 +103,8 @@ type
       write SetLastFolderForExcelFile;
     property Producer: String read GetProducer write SetProducer;
     property Rate: Double read GetRate write SetRate;
-    property LoadLastCategory: Boolean read GetLoadLastCategory write
-        SetLoadLastCategory;
+    property LoadLastCategory: Boolean read GetLoadLastCategory
+      write SetLoadLastCategory;
   end;
 
 implementation
@@ -139,7 +139,7 @@ end;
 
 function TSettings.GetCategoryID: Integer;
 begin
-  Result := StrToIntDef( GetValue('Db', 'CategoryID', '0'), 0);
+  Result := StrToIntDef(GetValue('Db', 'CategoryID', '0'), 0);
 end;
 
 function TSettings.GetComponentsDrawingFolder: String;
@@ -263,7 +263,7 @@ end;
 
 function TSettings.GetLoadLastCategory: Boolean;
 begin
-  Result := StrToBool( GetValue('Settings', 'LoadLastCategory', 'False') );
+  Result := StrToBool(GetValue('Settings', 'LoadLastCategory', 'False'));
 end;
 
 class function TSettings.NewInstance: TObject;

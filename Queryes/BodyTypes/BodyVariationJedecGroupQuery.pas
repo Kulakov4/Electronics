@@ -34,9 +34,6 @@ end;
 
 function TQueryBodyVariationJEDECGroup.SearchByIDBodyVariations(
     AIDBodyVariations : string): Integer;
-var
-  I: Integer;
-
 begin
   Assert(not AIDBodyVariations.IsEmpty);
 
@@ -46,6 +43,8 @@ begin
 
   // »щем
   RefreshQuery;
+
+  Result := FDQuery.RecordCount;
 end;
 
 end.
