@@ -198,6 +198,30 @@ inherited ViewBodyTypes: TViewBodyTypes
         Position.ColIndex = 7
         Position.RowIndex = 0
       end
+      object clIDProducer: TcxGridDBBandedColumn
+        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
+        DataBinding.FieldName = 'IDProducer'
+        Options.Sorting = False
+        Options.VertSizing = False
+        Position.BandIndex = 0
+        Position.ColIndex = 8
+        Position.RowIndex = 0
+      end
+      object clJEDEC: TcxGridDBBandedColumn
+        Caption = 'JEDEC '#1050#1086#1076
+        DataBinding.FieldName = 'JEDEC'
+        OnGetProperties = clJEDECGetProperties
+        Position.BandIndex = 0
+        Position.ColIndex = 9
+        Position.RowIndex = 0
+      end
+      object clOptions: TcxGridDBBandedColumn
+        Caption = #1042#1072#1088#1080#1072#1085#1090
+        DataBinding.FieldName = 'Options'
+        Position.BandIndex = 0
+        Position.ColIndex = 10
+        Position.RowIndex = 0
+      end
       object clIDBody: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDBody'
         Visible = False
@@ -205,7 +229,7 @@ inherited ViewBodyTypes: TViewBodyTypes
         Options.VertSizing = False
         VisibleForCustomization = False
         Position.BandIndex = 0
-        Position.ColIndex = 8
+        Position.ColIndex = 11
         Position.RowIndex = 0
       end
       object clIDBodyKind: TcxGridDBBandedColumn
@@ -215,30 +239,6 @@ inherited ViewBodyTypes: TViewBodyTypes
         Options.Sorting = False
         Options.VertSizing = False
         VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 9
-        Position.RowIndex = 0
-      end
-      object clIDProducer: TcxGridDBBandedColumn
-        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
-        DataBinding.FieldName = 'IDProducer'
-        Options.Sorting = False
-        Options.VertSizing = False
-        Position.BandIndex = 0
-        Position.ColIndex = 10
-        Position.RowIndex = 0
-      end
-      object clJEDEC: TcxGridDBBandedColumn
-        Caption = 'JEDEC '#1050#1086#1076
-        DataBinding.FieldName = 'JEDEC'
-        OnGetProperties = clJEDECGetProperties
-        Position.BandIndex = 0
-        Position.ColIndex = 11
-        Position.RowIndex = 0
-      end
-      object clOptions: TcxGridDBBandedColumn
-        Caption = #1042#1072#1088#1080#1072#1085#1090
-        DataBinding.FieldName = 'Options'
         Position.BandIndex = 0
         Position.ColIndex = 12
         Position.RowIndex = 0

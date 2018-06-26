@@ -302,6 +302,9 @@ begin
       ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
         procedure(AView: TcxGridDBBandedTableView)
         begin
+          // Производитель будет последней колонкой
+          AView.GetColumnByFieldName(clIDProducer.DataBinding.FieldName).Position.ColIndex := 12;
+
           AView.GetColumnByFieldName(clVariations.DataBinding.FieldName).Caption
             := 'Вариант корпуса';
           AView.GetColumnByFieldName(clIDBodyKind.DataBinding.FieldName)
