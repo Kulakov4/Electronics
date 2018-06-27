@@ -35,7 +35,6 @@ object ComponentsFrame: TComponentsFrame
         inherited cxGrid: TcxGrid
           Width = 870
           Height = 433
-          ExplicitTop = -6
           ExplicitWidth = 870
           ExplicitHeight = 433
         end
@@ -229,7 +228,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 433
+          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clDatasheet: TcxGridDBBandedColumn
               Properties.Buttons = <
@@ -329,7 +328,7 @@ object ComponentsFrame: TComponentsFrame
           Width = 870
           Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 433
+          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True

@@ -126,7 +126,7 @@ begin
 
   Result := Search(['ID', 'ProducerParamSubParamID',
     'PackagePinsParamSubParamID', 'DatasheetParamSubParamID',
-    'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParameterID'],
+    'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParamSubParamID'],
     [AIDComponent, TDefaultParameters.ProducerParamSubParamID,
     TDefaultParameters.PackagePinsParamSubParamID,
     TDefaultParameters.DatasheetParamSubParamID,

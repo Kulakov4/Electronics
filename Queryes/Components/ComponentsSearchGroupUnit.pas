@@ -8,11 +8,13 @@ uses
   FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, CustomComponentsQuery,
   QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
   BaseFamilyQuery, BaseComponentsQuery, FamilySearchQuery,
-  ComponentsSearchQuery, BaseComponentsGroupUnit, SearchComponentOrFamilyQuery;
+  ComponentsSearchQuery, BaseComponentsGroupUnit, SearchComponentOrFamilyQuery,
+  NotifyEvents;
 
 type
   TComponentsSearchGroup = class(TBaseComponentsGroup)
   private
+    FOnOpenCategory: TNotifyEventsEx;
     FqComponentsSearch: TQueryComponentsSearch;
     FqFamilySearch: TQueryFamilySearch;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
@@ -27,7 +29,9 @@ type
     constructor Create(AOwner: TComponent); override;
     function ApplyUpdates: Boolean; override;
     procedure ClearSearchResult;
+    procedure OpenCategory;
     procedure Search(ALike: Boolean);
+    property OnOpenCategory: TNotifyEventsEx read FOnOpenCategory;
     property qComponentsSearch: TQueryComponentsSearch read GetqComponentsSearch;
     property qFamilySearch: TQueryFamilySearch read GetqFamilySearch;
     { Public declarations }
@@ -47,6 +51,8 @@ begin
   // Компоненты и семейства не связаны как главный-подчинённый главным для них является категория
   QList.Add(qComponentsSearch);
   QList.Add(qFamilySearch);
+
+  FOnOpenCategory := TNotifyEventsEx.Create(Self);
 end;
 
 function TComponentsSearchGroup.ApplyUpdates: Boolean;
@@ -88,6 +94,11 @@ begin
     FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
 
   Result := FqSearchComponentOrFamily;
+end;
+
+procedure TComponentsSearchGroup.OpenCategory;
+begin
+  FOnOpenCategory.CallEventHandlers(Self);
 end;
 
 procedure TComponentsSearchGroup.Search(ALike: Boolean);

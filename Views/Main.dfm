@@ -50,10 +50,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
       OnShow = cxtsComponentsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object cxtsStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
@@ -104,7 +100,7 @@ object frmMain: TfrmMain
     Height = 564
     Align = alClient
     TabOrder = 6
-    Properties.ActivePage = cxtsRStorehouses
+    Properties.ActivePage = cxtsRComponents
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 560
     ClientRectLeft = 4
@@ -113,18 +109,10 @@ object frmMain: TfrmMain
     object cxtsRComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object cxtsRStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object cxspltrMain: TcxSplitter

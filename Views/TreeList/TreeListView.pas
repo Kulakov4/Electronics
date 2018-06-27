@@ -265,7 +265,6 @@ var
   S: String;
 begin
   inherited;
-//  (cxbeiSearch.Properties as TcxTextEditProperties).po
   AExternalID := VarToStrDef( cxbeiSearch.EditValue, '' );
   S := VarToStrDef( cxbeiSearch.CurEditValue, '' );
   if AExternalID.IsEmpty then

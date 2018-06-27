@@ -137,6 +137,9 @@ procedure TViewSubParameters.actCommitExecute(Sender: TObject);
 begin
   inherited;
   FQuerySubParameters.ApplyUpdates;
+  Assert(FQuerySubParameters.FDQuery.Connection.InTransaction);
+  FQuerySubParameters.FDQuery.Connection.Commit;
+  Assert(not FQuerySubParameters.FDQuery.Connection.InTransaction);
 
   UpdateView;
 end;
@@ -169,6 +172,11 @@ begin
   try
     // Отменяем все сделанные изменения
     FQuerySubParameters.CancelUpdates;
+    Assert(FQuerySubParameters.FDQuery.Connection.InTransaction);
+    FQuerySubParameters.FDQuery.Connection.Rollback;
+    Assert(not FQuerySubParameters.FDQuery.Connection.InTransaction);
+
+    FQuerySubParameters.SmartRefresh;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);

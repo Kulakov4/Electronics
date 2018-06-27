@@ -13,11 +13,19 @@ inherited ViewComponentsSearch: TViewComponentsSearch
         end
         item
           Visible = True
+          ItemName = 'dxbbClear'
+        end
+        item
+          Visible = True
           ItemName = 'dxbrbtnSearch'
         end
         item
           Visible = True
-          ItemName = 'dxbbClear'
+          ItemName = 'dxbbPasteFromBuffer'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end
         item
           Visible = True
@@ -30,10 +38,6 @@ inherited ViewComponentsSearch: TViewComponentsSearch
         item
           Visible = True
           ItemName = 'dxBarButton2'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbPasteFromBuffer'
         end>
     end
     object dxbrbtnSearch: TdxBarButton
@@ -59,12 +63,16 @@ inherited ViewComponentsSearch: TViewComponentsSearch
     object dxbbPasteFromBuffer: TdxBarButton
       Action = actPasteFromBuffer
       Category = 0
-      PaintStyle = psCaptionGlyph
+      PaintStyle = psCaptionInMenu
     end
     object dxBarButton2: TdxBarButton
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actOpenCategory
+      Category = 0
     end
   end
   inherited ActionList: TActionList
@@ -85,6 +93,12 @@ inherited ViewComponentsSearch: TViewComponentsSearch
       Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
       ImageIndex = 5
       OnExecute = actPasteFromBufferExecute
+    end
+    object actOpenCategory: TAction
+      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+      Hint = #1054#1090#1082#1088#1099#1090#1100' '#1082#1072#1090#1077#1075#1086#1088#1080#1102
+      ImageIndex = 44
+      OnExecute = actOpenCategoryExecute
     end
   end
   inherited cxerComponents: TcxEditRepository

@@ -42,7 +42,10 @@ type
     dxbbSave: TdxBarButton;
     dxbbPasteFromBuffer: TdxBarButton;
     dxBarButton2: TdxBarButton;
+    actOpenCategory: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
+    procedure actOpenCategoryExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
     procedure clSubGroupGetProperties(Sender: TcxCustomGridTableItem;
@@ -59,8 +62,8 @@ type
     procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup);
     { Private declarations }
   protected
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDbBandedColumn; var
-        AllowPopup: Boolean); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDbBandedColumn;
+      var AllowPopup: Boolean); override;
   public
     procedure UpdateView; override;
     property ComponentsSearchGroup: TComponentsSearchGroup
@@ -89,6 +92,12 @@ begin
 
     FocusColumnEditor(0, 'Value');
   end;
+end;
+
+procedure TViewComponentsSearch.actOpenCategoryExecute(Sender: TObject);
+begin
+  inherited;
+  ComponentsSearchGroup.OpenCategory;
 end;
 
 procedure TViewComponentsSearch.actPasteFromBufferExecute(Sender: TObject);
@@ -169,8 +178,8 @@ begin
   Result := BaseComponentsGroup as TComponentsSearchGroup;
 end;
 
-procedure TViewComponentsSearch.OnGridRecordCellPopupMenu(AColumn:
-    TcxGridDbBandedColumn; var AllowPopup: Boolean);
+procedure TViewComponentsSearch.OnGridRecordCellPopupMenu
+  (AColumn: TcxGridDbBandedColumn; var AllowPopup: Boolean);
 begin
   inherited;
 
@@ -210,9 +219,9 @@ begin
 end;
 
 procedure TViewComponentsSearch.UpdateView;
-//var
-//  AColumn: TcxGridDBBandedColumn;
-//  AReadOnly: Boolean;
+// var
+// AColumn: TcxGridDBBandedColumn;
+// AReadOnly: Boolean;
 begin
   actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
   actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled;
@@ -233,12 +242,16 @@ begin
   MainView.OptionsData.Inserting := ComponentsSearchGroup.qFamilySearch.Mode =
     SearchMode;
 
-//  AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
+  actOpenCategory.Enabled :=
+    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
+    (MainView.Controller.SelectedRowCount > 0);
 
-//  AColumn := GetSameColumn(MainView, clDescription);
+  // AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
 
-//  (AColumn.Properties as TcxPopupEditProperties).ReadOnly := True;
-//  GetSameColumn(MainView, clDatasheet).Properties.ReadOnly := AReadOnly;
+  // AColumn := GetSameColumn(MainView, clDescription);
+
+  // (AColumn.Properties as TcxPopupEditProperties).ReadOnly := True;
+  // GetSameColumn(MainView, clDatasheet).Properties.ReadOnly := AReadOnly;
 end;
 
 end.

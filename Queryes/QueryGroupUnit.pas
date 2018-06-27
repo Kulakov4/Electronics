@@ -71,6 +71,7 @@ begin
     if Q.HaveAnyChanges then
       Exit;
   end;
+  Result := True;
 end;
 
 procedure TQueryGroup.CancelUpdates;

@@ -170,6 +170,7 @@ inherited ViewBodyTypes: TViewBodyTypes
       object clVariations: TcxGridDBBandedColumn
         Caption = #1042#1072#1088#1080#1072#1085#1090#1099' '#1082#1086#1088#1087#1091#1089#1086#1074
         DataBinding.FieldName = 'Variations'
+        BestFitMaxWidth = 500
         Options.Sorting = False
         Options.VertSizing = False
         Position.BandIndex = 0
@@ -297,10 +298,6 @@ inherited ViewBodyTypes: TViewBodyTypes
         item
           Visible = True
           ItemName = 'dxbrbtnRollback'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton3'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]

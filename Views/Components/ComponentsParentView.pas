@@ -962,6 +962,8 @@ begin
   actDeleteEx.Enabled := Ok and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);
 
+  actDeleteFromAllCategories.Enabled := actDeleteEx.Enabled;
+
   if Ok and (AView <> nil) and (AView.Level = cxGridLevel) then
   begin
     if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) then

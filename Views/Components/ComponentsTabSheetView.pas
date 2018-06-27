@@ -447,7 +447,7 @@ begin
   // Перед записью первого листа создадим все необходимые параметры
   if (e.SheetIndex = 1) and (not ADataOnly) then
   begin
-    // Должна быть хотя-бы одна катнгория, в которую будем добавлять параметры
+    // Должна быть хотя-бы одна категория, в которую будем добавлять параметры
     Assert(qSearchDaughterCategories.FDQuery.RecordCount >= 1);
 
     A := qSearchDaughterCategories.GetFieldValuesAsIntArray

@@ -25,6 +25,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AValue, AProducer: string): Boolean;
+    function LocateValue(const AValue: string): Boolean;
     { Public declarations }
   end;
 
@@ -75,6 +76,12 @@ begin
   if not Result then
     AddNewValue(AValue, AProducer);
 
+end;
+
+function TQueryFamily.LocateValue(const AValue: string): Boolean;
+begin
+  // Ищем компонент по имени без учёта регистра
+  Result := FDQuery.LocateEx(Value.FieldName, AValue, [lxoCaseInsensitive]);
 end;
 
 procedure TQueryFamily.OnDatasheetGetText(Sender: TField; var Text: String;

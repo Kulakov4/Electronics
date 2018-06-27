@@ -116,8 +116,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormResize(Sender: TObject);
-    procedure OnTreeListCanFocusNode(Sender: TcxCustomTreeList; ANode:
-        TcxTreeListNode; var Allow: Boolean);
+    procedure OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
+      ANode: TcxTreeListNode; var Allow: Boolean);
     procedure cxtsComponentsShow(Sender: TObject);
     procedure cxtsStorehousesShow(Sender: TObject);
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
@@ -143,6 +143,7 @@ type
     { Private declarations }
   protected
     procedure DoOnHaveAnyChanges(Sender: TObject);
+    procedure DoOnOpenCategory(Sender: TObject);
     procedure DoOnProductLocate(Sender: TObject);
     property ComponentsFrame: TComponentsFrame read FComponentsFrame;
     property ProductsFrame: TProductsFrame read FProductsFrame;
@@ -248,7 +249,7 @@ end;
 procedure TfrmMain.actSaveAllExecute(Sender: TObject);
 begin
   QueryMonitor.ApplyUpdates;
-//  DM2.SaveAll;
+  // DM2.SaveAll;
 end;
 
 procedure TfrmMain.actSelectDataBasePathExecute(Sender: TObject);
@@ -364,7 +365,7 @@ procedure TfrmMain.ApplicationEventsException(Sender: TObject; E: Exception);
 var
   Msg: string;
 begin
-  Msg := IfThen(MyExceptionMessage.IsEmpty, E.Message, MyExceptionMessage );
+  Msg := IfThen(MyExceptionMessage.IsEmpty, E.Message, MyExceptionMessage);
   MyExceptionMessage := '';
   TDialog.Create.ErrorMessageDialog(Msg);
 end;
@@ -482,7 +483,7 @@ begin
   // Устанавливаем обработчик события
   ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
 
-//  Application.OnHint := ApplicationEventsHint;
+  // Application.OnHint := ApplicationEventsHint;
 
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
@@ -516,9 +517,9 @@ begin
         // Создаём или открываем базу данных
         DM2.CreateOrOpenDataBase;
       except
-        on e: Exception do
+        on E: Exception do
         begin
-          TDialog.Create.ErrorMessageDialog(e.Message);
+          TDialog.Create.ErrorMessageDialog(E.Message);
           // Снова предлагаем выбрать папку с БД
 
           OK := ShowSettingsEditor = mrOk;
@@ -531,15 +532,18 @@ begin
     begin
       // обновляем доступность кнопки "Сохранить всё"
       DoOnHaveAnyChanges(nil);
-      TNotifyEventWrap.Create( QueryMonitor.OnHaveAnyChanges, DoOnHaveAnyChanges );
+      TNotifyEventWrap.Create(QueryMonitor.OnHaveAnyChanges,
+        DoOnHaveAnyChanges);
 
       // Подписываемся чтобы искать компонент на складах
       TNotifyEventWrap.Create(DM2.ComponentsExGroup.qComponentsEx.OnLocate,
         DoOnComponentLocate, FEventList);
 
       // Подписываемся чтобы искать компонент в параметрической таблице
-      TNotifyEventWrap.Create(DM2.qProducts.OnLocate, DoOnProductLocate, FEventList);
-      TNotifyEventWrap.Create(DM2.qProductsSearch.OnLocate, DoOnProductLocate, FEventList);
+      TNotifyEventWrap.Create(DM2.qProducts.OnLocate, DoOnProductLocate,
+        FEventList);
+      TNotifyEventWrap.Create(DM2.qProductsSearch.OnLocate, DoOnProductLocate,
+        FEventList);
 
       // Привязываем представления к данным
       ComponentsFrame.ViewComponents.ComponentsGroup := DM2.ComponentsGroup;
@@ -551,6 +555,10 @@ begin
 
       ComponentsFrame.ViewComponentsSearch.ComponentsSearchGroup :=
         DM2.ComponentsSearchGroup;
+
+      // Подписываемся на событие чтобы открывать найденную категорию
+      TNotifyEventWrap.Create(DM2.ComponentsSearchGroup.OnOpenCategory,
+        DoOnOpenCategory, FEventList);
 
       // Параметры в виде списка
       ComponentsFrame.ViewCategoryParameters.CatParamsGroup :=
@@ -710,8 +718,8 @@ begin
   end;
 end;
 
-procedure TfrmMain.OnTreeListCanFocusNode(Sender: TcxCustomTreeList; ANode:
-    TcxTreeListNode; var Allow: Boolean);
+procedure TfrmMain.OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
+  ANode: TcxTreeListNode; var Allow: Boolean);
 begin
   Allow := (ComponentsFrame.ViewComponents.CheckAndSaveChanges <> IDCancel) and
     (ComponentsFrame.ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
@@ -785,6 +793,44 @@ end;
 procedure TfrmMain.DoOnHaveAnyChanges(Sender: TObject);
 begin
   actSaveAll.Enabled := QueryMonitor.HaveAnyChanges;
+end;
+
+procedure TfrmMain.DoOnOpenCategory(Sender: TObject);
+var
+  AExternalID: string;
+  AFamilyCaption: string;
+  ASubGroup: string;
+  I: Integer;
+begin
+  Assert(DM2.ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
+  AFamilyCaption := DM2.ComponentsSearchGroup.qFamilySearch.Value.AsString;
+  ASubGroup := DM2.ComponentsSearchGroup.qFamilySearch.subGroup.AsString;
+  Assert(not ASubGroup.IsEmpty);
+  // Получаем первую - главную категорию семейства
+  I := ASubGroup.IndexOf(',');
+  if I = -1 then
+    I := ASubGroup.Length;
+
+  AExternalID := ASubGroup.Substring(0, I);
+  DM2.qTreeList.LocateByExternalID(AExternalID);
+
+  // Ждём, пока группа компонентов обновит свои данные!
+  Application.ProcessMessages;
+
+  DM2.ComponentsGroup.qFamily.LocateValue(AFamilyCaption);
+
+  // Переключаемся на вкладку "Компоненты"
+  ComponentsFrame.cxpcComponents.ActivePage :=
+    ComponentsFrame.cxtsCategoryComponents;
+  ComponentsFrame.ViewComponents.cxGrid.SetFocus;
+  // Application.ProcessMessages;
+
+  ComponentsFrame.ViewComponents.MainView.Controller.FocusedRow.
+    Selected := True;
+
+  ComponentsFrame.ViewComponents.MainView.GetColumnByFieldName
+    (ComponentsFrame.ViewComponents.clValue.DataBinding.FieldName)
+    .Selected := True;
 end;
 
 function TfrmMain.GetQueryMonitor: TQueryMonitor;
