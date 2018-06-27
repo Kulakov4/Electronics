@@ -159,8 +159,8 @@ type
     procedure CreateColumnsBarButtons; override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(const AFileName: String; AProducerID: Integer);
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn; var
-        AllowPopup: Boolean); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
+      var AllowPopup: Boolean); override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadJEDEC(Add: Boolean);
@@ -184,7 +184,7 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
   System.Math, System.IOUtils, ProgressBarForm, DialogUnit2,
   BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper,
-  OpenJedecUnit;
+  OpenJedecUnit, ExcelDataModule;
 
 {$R *.dfm}
 
@@ -303,7 +303,8 @@ begin
         procedure(AView: TcxGridDBBandedTableView)
         begin
           // Производитель будет последней колонкой
-          AView.GetColumnByFieldName(clIDProducer.DataBinding.FieldName).Position.ColIndex := 12;
+          AView.GetColumnByFieldName(clIDProducer.DataBinding.FieldName)
+            .Position.ColIndex := 12;
 
           AView.GetColumnByFieldName(clVariations.DataBinding.FieldName).Caption
             := 'Вариант корпуса';
@@ -331,13 +332,22 @@ var
   // AfrmError: TfrmError;
   AProducer: string;
   AProducerID: Integer;
+  ARootTreeNode: TStringTreeNode;
   // OK: Boolean;
 begin
-  // Выбираем производителя
-  if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
+  // Сначала дадим возможность выбрать excel файл
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  AProducerID := 0;
+
+  // Описания полей excel файла
+  ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
+
+  // если среди колонок нет колонки производитель
+  // и от выбора производителя отказались
+  if (ARootTreeNode.IndexOf(clIDProducer.Caption) = -1) and
+    (not TfrmProducers.TakeProducer(AProducerID, AProducer)) then
     Exit;
 
   LoadFromExcel(AFileName, AProducerID);
@@ -382,7 +392,7 @@ begin
   m := BodyTypesGroup.qBodyTypes2.JEDEC.AsString.Split([';']);
   for S in m do
   begin
-    AJedec := s.Trim;
+    AJedec := S.Trim;
     TJEDECDocument.OpenJEDEC(Handle, AJedec);
   end;
 end;
@@ -459,8 +469,8 @@ end;
 
 procedure TViewBodyTypes.AfterConstruction;
 begin
-//  cxGridPopupMenu.PopupMenus[0].GridView := MainView;
-//  cxGridPopupMenu.PopupMenus[1].GridView := cxGridDBBandedTableView2;
+  // cxGridPopupMenu.PopupMenus[0].GridView := MainView;
+  // cxGridPopupMenu.PopupMenus[1].GridView := cxGridDBBandedTableView2;
 
   inherited;
 end;
@@ -474,7 +484,7 @@ end;
 procedure TViewBodyTypes.clJEDECGetProperties(Sender: TcxCustomGridTableItem;
 ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
 var
-  AJEDEC: string;
+  AJedec: string;
   i: Integer;
 begin
   inherited;
@@ -482,10 +492,10 @@ begin
     Exit;
 
   // Получаем значение первичного ключа
-  AJEDEC := VarToStrDef(ARecord.Values[clJEDEC.Index], '');
+  AJedec := VarToStrDef(ARecord.Values[clJEDEC.Index], '');
 
   // Ишем, составной у нас JEDEC код или простой
-  i := AJEDEC.IndexOf(';');
+  i := AJedec.IndexOf(';');
   if i >= 0 then
     AProperties := cxerpiJEDEC.Properties
   else
@@ -561,7 +571,7 @@ end;
 
 procedure TViewBodyTypes.cxerpiJEDECPropertiesCloseUp(Sender: TObject);
 var
-  AJEDEC: String;
+  AJedec: String;
 begin
   inherited;
   Assert(FfrmJEDECPopup <> nil);
@@ -569,13 +579,13 @@ begin
   if FfrmJEDECPopup.ModalResult <> mrOk then
     Exit;
 
-  AJEDEC := FfrmJEDECPopup.ViewBodyVariationJEDEC.JEDECList;
+  AJedec := FfrmJEDECPopup.ViewBodyVariationJEDEC.JEDECList;
 
-  if AJEDEC = BodyTypesGroup.qBodyTypes2.JEDEC.AsString then
+  if AJedec = BodyTypesGroup.qBodyTypes2.JEDEC.AsString then
     Exit;
 
   BodyTypesGroup.qBodyTypes2.TryEdit;
-  BodyTypesGroup.qBodyTypes2.JEDEC.AsString := AJEDEC;
+  BodyTypesGroup.qBodyTypes2.JEDEC.AsString := AJedec;
   BodyTypesGroup.TryPost;
   ApplyBestFitJEDEC;
 end;
@@ -803,31 +813,47 @@ end;
 
 procedure TViewBodyTypes.LoadFromExcel(const AFileName: String;
 AProducerID: Integer);
+var
+  AExcelDMClass: TExcelDMClass;
 begin
+  if AProducerID > 0 then
+    AExcelDMClass := TBodyTypesExcelDM
+  else
+    AExcelDMClass := TBodyTypesExcelDM2;
+
   BeginUpdate;
   try
-    TLoad.Create.LoadAndProcess(AFileName, TBodyTypesExcelDM, TfrmCustomError,
+    TLoad.Create.LoadAndProcess(AFileName, AExcelDMClass, TfrmCustomError,
       procedure(ASender: TObject)
       begin
         BodyTypesGroup.LoadDataFromExcelTable(ASender as TBodyTypesExcelTable,
           AProducerID);
+      end,
+      procedure(ASender: TObject)
+      begin
+        if ASender is TBodyTypesExcelTable2 then
+        begin
+          (ASender as TBodyTypesExcelTable2).ProducerInt :=
+            BodyTypesGroup.qProducers;
+        end;
       end);
   finally
     MainView.ViewData.Collapse(True);
     EndUpdate;
   end;
   UpdateView;
-
 end;
 
-procedure TViewBodyTypes.OnGridRecordCellPopupMenu(AColumn:
-    TcxGridDBBandedColumn; var AllowPopup: Boolean);
+procedure TViewBodyTypes.OnGridRecordCellPopupMenu
+  (AColumn: TcxGridDBBandedColumn; var AllowPopup: Boolean);
 begin
-  actAddJEDECFile.Visible := AColumn.DataBinding.FieldName = clJEDEC.DataBinding.FieldName;
+  actAddJEDECFile.Visible := AColumn.DataBinding.FieldName = clJEDEC.
+    DataBinding.FieldName;
   actOpenJEDECAll.Visible := actAddJEDECFile.Visible;
   actLoadJEDEC.Visible := actAddJEDECFile.Visible;
 
-  actOpenJEDECAll.Enabled := not BodyTypesGroup.qBodyTypes2.JEDEC.AsString.IsEmpty;
+  actOpenJEDECAll.Enabled := not BodyTypesGroup.qBodyTypes2.JEDEC.
+    AsString.IsEmpty;
 end;
 
 procedure TViewBodyTypes.OpenDoc(ADocFieldInfo: TDocFieldInfo);
@@ -902,29 +928,32 @@ end;
 procedure TViewBodyTypes.UpdateView;
 var
   AView: TcxGridDBBandedTableView;
+  OK: Boolean;
 begin
+  OK := (BodyTypesGroup <> nil) and (BodyTypesGroup.qBodyKinds.FDQuery.Active)
+    and (BodyTypesGroup.qBodyTypes2.FDQuery.Active);
+
   AView := FocusedTableView;
 
-  actAdd.Enabled := (BodyTypesGroup <> nil) and
-    (BodyTypesGroup.qBodyKinds.FDQuery.Active) and (AView <> nil) and
-    (AView.Level = cxGridLevel);
+  actAdd.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
-  actAddBody.Enabled := (BodyTypesGroup <> nil) and
-    (BodyTypesGroup.qBodyTypes2.FDQuery.Active) and (AView <> nil) and
-    (((AView.Level = cxGridLevel) and (AView.DataController.RecordCount > 0)) or
+  actAddBody.Enabled := OK and (AView <> nil) and
+    (((AView.Level = cxGridLevel) and (AView.DataController.RowCount > 0)) or
     (AView.Level = cxGridLevel2));
 
   // Удалять разрешаем только если что-то выделено
-  actDeleteEx.Enabled := (BodyTypesGroup <> nil) and (AView <> nil) and
+  actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);
 
-  actLoadFromExcelDocument.Enabled := (BodyTypesGroup <> nil);
+  actLoadFromExcelDocument.Enabled := OK;
 
-  actExportToExcelDocument.Enabled := (BodyTypesGroup <> nil) and
-    (BodyTypesGroup.qBodyTypes2.FDQuery.RecordCount > 0);
+  actExportToExcelDocument.Enabled := OK and (AView <> nil) and
+    (AView.DataController.RowCount > 0);
 
-  actCommit.Enabled := (BodyTypesGroup <> nil) and
-    (BodyTypesGroup.HaveAnyChanges);
+  actShowDuplicate.Enabled := OK and (AView <> nil) and
+    (AView.DataController.RowCount > 0);
+
+  actCommit.Enabled := OK and (BodyTypesGroup.HaveAnyChanges);
 
   actRollback.Enabled := actCommit.Enabled;
 
@@ -975,7 +1004,7 @@ end;
 
 procedure TViewBodyTypes.UploadJEDEC(Add: Boolean);
 var
-//  AProducer: string;
+  // AProducer: string;
   S: String;
   AFileName: string;
 begin
@@ -983,13 +1012,12 @@ begin
   Assert(BodyTypesGroup <> nil);
 
   // Файл должен лежать в каталоге = производителю
-//  AProducer := ProducerDisplayText;
+  // AProducer := ProducerDisplayText;
 
   S := TSettings.Create.BodyTypesJEDECFolder;
 
   // Открываем диалог выбора файла для загрузки
-  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', AFileName)
-  then
+  if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', AFileName) then
     Exit;
 
   BodyTypesGroup.qBodyTypes2.LoadJEDEC(AFileName, Add);

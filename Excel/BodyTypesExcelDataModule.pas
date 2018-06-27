@@ -4,7 +4,8 @@ interface
 
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
-  CustomExcelTable, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet;
+  CustomExcelTable, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  ProducerInterface;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -59,6 +60,30 @@ type
   public
     property ExcelTable: TBodyTypesExcelTable read GetExcelTable;
     { Public declarations }
+  end;
+
+  TBodyTypesExcelTable2 = class(TBodyTypesExcelTable)
+  private
+    FProducerInt: IProducer;
+    function GetIDProducer: TField;
+    function GetProducer: TField;
+  protected
+    procedure CreateFieldDefs; override;
+    // TODO: CheckBodyVariation
+    // function CheckBodyVariation: Boolean;
+    // TODO: Clone
+    // procedure Clone;
+    procedure SetFieldsInfo; override;
+  public
+    function CheckRecord: Boolean; override;
+    property ProducerInt: IProducer read FProducerInt write FProducerInt;
+    property IDProducer: TField read GetIDProducer;
+    property Producer: TField read GetProducer;
+  end;
+
+  TBodyTypesExcelDM2 = class(TBodyTypesExcelDM)
+  protected
+    function CreateExcelTable: TCustomExcelTable; override;
   end;
 
 implementation
@@ -120,21 +145,21 @@ begin
   Result := FieldByName('Variation');
 end;
 
-function TBodyTypesExcelTable.ProcessValue(const AFieldName, AValue: string):
-    String;
-//var
-//  i: Integer;
+function TBodyTypesExcelTable.ProcessValue(const AFieldName,
+  AValue: string): String;
+// var
+// i: Integer;
 begin
   Result := inherited ProcessValue(AFieldName, AValue);
-{
-  // Для JEDEC будем загружать информацию только до слэша
-  if (AFieldName.ToUpperInvariant = JEDEC.FieldName) and (not Result.IsEmpty) then
-  begin
+  {
+    // Для JEDEC будем загружать информацию только до слэша
+    if (AFieldName.ToUpperInvariant = JEDEC.FieldName) and (not Result.IsEmpty) then
+    begin
     i := Result.IndexOf('/');
     if i > 0 then
-      Result := Result.Substring(0, i);
-  end;
-}
+    Result := Result.Substring(0, i);
+    end;
+  }
 end;
 
 procedure TBodyTypesExcelTable.SetFieldsInfo;
@@ -155,12 +180,66 @@ end;
 
 function TBodyTypesExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
-  Result := TBodyTypesExcelTable.Create(Self);
+  Result := TBodyTypesExcelTable.Create(Self)
 end;
 
 function TBodyTypesExcelDM.GetExcelTable: TBodyTypesExcelTable;
 begin
   Result := CustomExcelTable as TBodyTypesExcelTable;
+end;
+
+function TBodyTypesExcelTable2.CheckRecord: Boolean;
+begin
+  inherited;
+  Result := inherited;
+  if Result then
+  begin
+    Assert(Assigned(ProducerInt));
+
+    // Ищем такого производителя
+    Edit;
+    IDProducer.AsInteger := ProducerInt.GetProducerID(Producer.AsString);
+    Post;
+
+    Result := IDProducer.AsInteger > 0;
+    if not Result then
+    begin
+      MarkAsError(etError);
+      Errors.AddError(ExcelRow.AsInteger, Producer.Index + 1, 'Производитель',
+        'Производитель не существует');
+      Exit;
+    end;
+  end;
+end;
+
+procedure TBodyTypesExcelTable2.CreateFieldDefs;
+
+begin
+  inherited;
+  FieldDefs.Add('IDProducer', ftInteger, 0, True); // Обяз. для заполнения
+end;
+
+function TBodyTypesExcelTable2.GetIDProducer: TField;
+begin
+  Result := FieldByName('IDProducer');
+end;
+
+function TBodyTypesExcelTable2.GetProducer: TField;
+begin
+  Result := FieldByName('Producer');
+end;
+
+procedure TBodyTypesExcelTable2.SetFieldsInfo;
+begin
+  inherited;
+  // Добавляется поле производитель
+  FieldsInfo.Add(TFieldInfo.Create('Producer', True,
+    'Производитель не может быть пустым'));
+end;
+
+function TBodyTypesExcelDM2.CreateExcelTable: TCustomExcelTable;
+begin
+  Result := TBodyTypesExcelTable2.Create(Self);
 end;
 
 end.

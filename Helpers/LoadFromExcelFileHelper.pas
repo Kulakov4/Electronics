@@ -19,10 +19,9 @@ type
     procedure DoOnTotalReadProgress(ASender: TObject);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
   public
-    procedure LoadAndProcess(const AFileName: string;
-      AExcelDMClass: TExcelDMClass;
-      ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef;
-      AInitExcelDM: TProcRef = nil);
+    procedure LoadAndProcess(const AFileName: string; AExcelDMClass: TExcelDMClass;
+        ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef;
+        AInitExcelTable: TProcRef = nil);
     class function NewInstance: TObject; override;
   end;
 
@@ -99,9 +98,9 @@ begin
   FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
 end;
 
-procedure TLoad.LoadAndProcess(const AFileName: string;
-AExcelDMClass: TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass;
-AProcRef: TProcRef; AInitExcelDM: TProcRef = nil);
+procedure TLoad.LoadAndProcess(const AFileName: string; AExcelDMClass:
+    TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass; AProcRef:
+    TProcRef; AInitExcelTable: TProcRef = nil);
 var
   AExcelDM: TExcelDM;
 begin
@@ -114,8 +113,8 @@ begin
   AExcelDM := AExcelDMClass.Create(nil);
   try
     // ƒополнительно инициализируем Excel модуль
-    if Assigned(AInitExcelDM) then
-      AInitExcelDM(AExcelDM.CustomExcelTable);
+    if Assigned(AInitExcelTable) then
+      AInitExcelTable(AExcelDM.CustomExcelTable);
 
     TNotifyEventWrap.Create(AExcelDM.AfterLoadSheet, DoAfterLoadSheet);
     TNotifyEventWrap.Create(AExcelDM.OnTotalProgress, DoOnTotalReadProgress);

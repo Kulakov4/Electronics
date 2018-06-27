@@ -99,9 +99,9 @@ procedure TBodyTypesGroup.LoadDataFromExcelTable(ABodyTypesExcelTable
   : TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
+  AProducerID: Integer;
   F: TField;
 begin
-  Assert(AIDProducer > 0);
   ABodyTypesExcelTable.DisableControls;
   try
     QueryBodyTypesSimple.RefreshQuery;
@@ -111,11 +111,16 @@ begin
     QueryBodyTypesSimple.ClearUpdateRecCount;
     while not ABodyTypesExcelTable.Eof do
     begin
+      if AIDProducer > 0 then
+        AProducerID := AIDProducer
+      else
+        AProducerID := (ABodyTypesExcelTable as TBodyTypesExcelTable2).IDProducer.AsInteger;
+
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
 
       QueryBodyTypesSimple.TryAppend;
-      QueryBodyTypesSimple.IDProducer.AsInteger := AIDProducer;
+      QueryBodyTypesSimple.IDProducer.AsInteger := AProducerID;
       QueryBodyTypesSimple.IDBodyKind.Value := qBodyKinds.PK.Value;
       QueryBodyTypesSimple.Variations.AsString :=
         ABodyTypesExcelTable.Variation.AsString;

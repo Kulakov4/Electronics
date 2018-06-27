@@ -8,12 +8,15 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit,
+  ProducerInterface;
 
 type
-  TQueryProducers = class(TQueryWithDataSource)
+  TQueryProducers = class(TQueryWithDataSource, IProducer)
     procedure FDQueryCntGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+  strict private
+    function GetProducerID(const AProducerName: String): Integer; stdcall;
   private
     procedure DoBeforeScroll(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
@@ -110,6 +113,16 @@ end;
 function TQueryProducers.GetName: TField;
 begin
   Result := Field('Name');
+end;
+
+function TQueryProducers.GetProducerID(const AProducerName: String): Integer;
+var
+  V: Variant;
+begin
+  Result := 0;
+  V := FDQuery.LookupEx(Name.FieldName, AProducerName, PK.FieldName);
+  if not VarIsNull(V) then
+    Result := V;
 end;
 
 function TQueryProducers.GetProducerTypeID: TField;

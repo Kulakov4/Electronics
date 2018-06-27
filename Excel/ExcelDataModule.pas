@@ -41,6 +41,7 @@ type
     function AddChild(const AValue: String): TStringTreeNode;
     class procedure ClearMaxID;
     function FindByID(AID: Integer): TStringTreeNode;
+    function IndexOf(AValue: string): Integer;
     property Childs: TList<TStringTreeNode> read FChilds write FChilds;
     property ID: Integer read FID;
     property Parent: TStringTreeNode read FParent write FParent;
@@ -68,6 +69,7 @@ type
     FOnProgress: TNotifyEventsEx;
     FOnTotalProgress: TNotifyEventsEx;
     function GetCellsColor(ACell: OleVariant): TColor;
+    function GetCustomExcelTable: TCustomExcelTable;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
     function LoadExcelFileHeaderEx(const AFileName: string): TStringTreeNode;
@@ -100,7 +102,7 @@ type
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
       ANotifyEventRef: TNotifyEventRef); overload;
-    property CustomExcelTable: TCustomExcelTable read FCustomExcelTable;
+    property CustomExcelTable: TCustomExcelTable read GetCustomExcelTable;
     property AfterLoadSheet: TNotifyEventsEx read FAfterLoadSheet;
     property BeforeLoadSheet: TNotifyEventsEx read FBeforeLoadSheet;
     property OnProgress: TNotifyEventsEx read FOnProgress;
@@ -134,13 +136,6 @@ uses System.Variants, System.Math, ActiveX, ProjectConst, DBRecordHolder;
 constructor TExcelDM.Create(AOwner: TComponent);
 begin
   inherited;
-
-  FCustomExcelTable := CreateExcelTable;
-
-  if FCustomExcelTable <> nil then
-    FLastColIndex := FCustomExcelTable.FieldsInfo.Count
-  else
-    FLastColIndex := 0;
 
   FOnProgress := TNotifyEventsEx.Create(Self);
 
@@ -180,6 +175,20 @@ var
 begin
   R := EWS.Range[ACell, ACell];
   Result := R.Interior.Color;
+end;
+
+function TExcelDM.GetCustomExcelTable: TCustomExcelTable;
+begin
+  if FCustomExcelTable = nil then
+  begin
+    FCustomExcelTable := CreateExcelTable;
+
+    if FCustomExcelTable <> nil then
+      FLastColIndex := FCustomExcelTable.FieldsInfo.Count
+    else
+      FLastColIndex := 0;
+  end;
+  Result := FCustomExcelTable;
 end;
 
 // ѕровер€ет, находитс€ ли в строке ARow заголовок
@@ -876,6 +885,21 @@ begin
   end;
 
   Result := nil;
+end;
+
+function TStringTreeNode.IndexOf(AValue: string): Integer;
+var
+  I: Integer;
+begin
+  Assert(not AValue.IsEmpty);
+
+  for I := 0 to Childs.Count - 1 do
+  begin
+    Result := I;
+    if String.CompareText(Childs[I].Value, AValue) = 0 then
+      Exit;
+  end;
+  Result := -1;
 end;
 
 constructor TTotalProgress.Create;
