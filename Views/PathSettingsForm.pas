@@ -65,7 +65,7 @@ type
     cxteComponentsDiagramFolder: TcxTextEdit;
     cxButton9: TcxButton;
     actBrowseComponentsSchemeFolder: TAction;
-    cxTabSheet1: TcxTabSheet;
+    cxtshDatabase: TcxTabSheet;
     Label8: TLabel;
     cxteDataBasePath: TcxTextEdit;
     cxButton10: TcxButton;
@@ -131,6 +131,8 @@ uses SettingsController, System.IOUtils, Vcl.FileCtrl;
 constructor TfrmPathSettings.Create(AOwner: TComponent);
 begin
   inherited;
+  cxPageControl.ActivePage := cxtshDatabase;
+
   FTextBoxes := TList<TcxTextEdit>.Create();
   FTextBoxes.Add(cxteBodyOutlineDrawingFolder);
   FTextBoxes.Add(cxteBodyLandPatternFolder);

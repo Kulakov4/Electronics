@@ -47,11 +47,12 @@ object frmPathSettings: TfrmPathSettings
     TabOrder = 2
     Properties.ActivePage = cxtshBodyTypes
     Properties.CustomButtons.Buttons = <>
+    ExplicitTop = 4
     ClientRectBottom = 184
     ClientRectLeft = 4
     ClientRectRight = 784
     ClientRectTop = 27
-    object cxTabSheet1: TcxTabSheet
+    object cxtshDatabase: TcxTabSheet
       Caption = #1041#1072#1079#1072' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 2
       object Label8: TLabel
