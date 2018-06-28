@@ -75,7 +75,7 @@ implementation
 
 {$R *.dfm}
 
-uses SearchInterfaceUnit, ClipboardUnit;
+uses SearchInterfaceUnit, ClipboardUnit, Vcl.Clipbrd;
 
 procedure TViewComponentsSearch.actClearExecute(Sender: TObject);
 begin
@@ -102,6 +102,10 @@ end;
 
 procedure TViewComponentsSearch.actPasteFromBufferExecute(Sender: TObject);
 begin
+  // Если в буфере обмена ничего нет
+  if Clipboard.AsText.Trim.IsEmpty then
+    Exit;
+
   MainView.BeginUpdate();
   try
     ComponentsSearchGroup.qFamilySearch.AppendRows
@@ -222,34 +226,44 @@ procedure TViewComponentsSearch.UpdateView;
 // var
 // AColumn: TcxGridDBBandedColumn;
 // AReadOnly: Boolean;
+var
+  AView: TcxGridDBBandedTableView;
+  OK: Boolean;
 begin
-  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
-  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled;
+  OK := (ComponentsSearchGroup <> nil) and
+    (ComponentsSearchGroup.qFamilySearch.FDQuery.Active);
 
-  actCommit.Enabled := ComponentsSearchGroup.HaveAnyChanges and
+  AView := FocusedTableView;
+
+  actClear.Enabled := OK and ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
+  actSearch.Enabled := OK and ComponentsSearchGroup.qFamilySearch.
+    IsSearchEnabled;
+
+  actCommit.Enabled := OK and ComponentsSearchGroup.HaveAnyChanges and
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actDeleteFromAllCategories.Enabled :=
-    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
-    (ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
+  actDeleteFromAllCategories.Enabled := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and (AView <> nil)
+    and (AView.Controller.SelectedRowCount > 0);
 
-  actPasteFromBuffer.Enabled := ComponentsSearchGroup.qFamilySearch.Mode =
-    SearchMode;
-  MainView.OptionsData.Appending := ComponentsSearchGroup.qFamilySearch.Mode =
-    SearchMode;
-  MainView.OptionsData.Inserting := ComponentsSearchGroup.qFamilySearch.Mode =
-    SearchMode;
+  actPasteFromBuffer.Enabled := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode){ and
+    (not Clipboard.AsText.Trim.IsEmpty)};
 
-  actOpenCategory.Enabled :=
+  MainView.OptionsData.Appending := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+
+  MainView.OptionsData.Inserting := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+
+  actOpenCategory.Enabled := OK and
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
     (MainView.Controller.SelectedRowCount > 0);
 
   // AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
-
   // AColumn := GetSameColumn(MainView, clDescription);
-
   // (AColumn.Properties as TcxPopupEditProperties).ReadOnly := True;
   // GetSameColumn(MainView, clDatasheet).Properties.ReadOnly := AReadOnly;
 end;

@@ -72,6 +72,10 @@ end;
 procedure TQueryFamilySearch.AppendRows(AFieldName: string;
   AValues: TArray<String>);
 begin
+  // Если вставлять нечего
+  if Length(AValues) = 0 then
+    Exit;
+
   if Mode = SearchMode then
   begin
     // Удаляем пустую строку

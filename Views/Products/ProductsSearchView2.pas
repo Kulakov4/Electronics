@@ -65,7 +65,7 @@ type
 
 implementation
 
-uses ClipboardUnit, SearchInterfaceUnit;
+uses ClipboardUnit, SearchInterfaceUnit, Vcl.Clipbrd;
 
 {$R *.dfm}
 
@@ -88,6 +88,10 @@ end;
 procedure TViewProductsSearch2.actPasteFromBufferExecute(Sender: TObject);
 begin
   inherited;
+  // Если в буфере обмена ничего нет
+  if Clipboard.AsText.Trim.IsEmpty then
+    Exit;
+
   cxDBTreeList.BeginUpdate;
   try
     qProductsSearch.AppendRows(qProductsSearch.Value.FieldName,

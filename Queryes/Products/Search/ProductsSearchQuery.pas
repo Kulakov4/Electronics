@@ -90,6 +90,9 @@ end;
 procedure TQueryProductsSearch.AppendRows(AFieldName: string;
   AValues: TArray<String>);
 begin
+  if Length(AValues) = 0 then
+    Exit;
+
   if Mode = SearchMode then
   begin
     // Удаляем пустую строку
