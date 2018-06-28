@@ -123,6 +123,7 @@ procedure TViewComponents.actRefreshExecute(Sender: TObject);
 begin
   inherited;
   RefreshData;
+  FocusTopLeft(clValue.DataBinding.FieldName);
 end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);
@@ -300,9 +301,13 @@ begin
         ComponentsGroup.LoadDataFromExcelTable(ASender as TComponentsExcelTable,
           AProducer);
       end);
+
+     // “ут некоторые узлы почему-то разворачиваютс€
+     MainView.ViewData.Collapse(True);
   finally
     EndUpdate;
   end;
+  FocusTopLeft(clValue.DataBinding.FieldName);
 
   UpdateView;
 end;
@@ -373,6 +378,10 @@ begin
   finally
     FreeAndNil(AFileNames);
   end;
+
+  // “ут некоторые узлы почему-то разворачиваютс€
+  MainView.ViewData.Collapse(True);
+  FocusTopLeft(clValue.DataBinding.FieldName);
 
   UpdateView;
 end;

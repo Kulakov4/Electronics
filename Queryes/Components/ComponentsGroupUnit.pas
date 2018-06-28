@@ -80,8 +80,8 @@ type
     procedure Commit; override;
     procedure DoAfterLoadSheet(e: TFolderLoadEvent);
     procedure DoOnTotalProgress(e: TFolderLoadEvent);
-    procedure LoadDataFromExcelTable(AComponentsExcelTable: TComponentsExcelTable;
-        const AProducer: string);
+    procedure LoadDataFromExcelTable(AComponentsExcelTable
+      : TComponentsExcelTable; const AProducer: string);
     // TODO: LoadBodyList
     // procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
@@ -110,12 +110,16 @@ begin
   QList.Add(qComponents);
   QList.Add(qFamily);
 
-
-  TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost, EventList);
-  TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete, EventList);
-  TNotifyEventWrap.Create(qFamily.AfterDelete, AfterComponentPostOrDelete, EventList);
-  TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete, EventList);
-  TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost,
+    EventList);
+  TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qFamily.AfterDelete, AfterComponentPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete,
+    EventList);
 end;
 
 procedure TComponentsGroup.AfterComponentPostOrDelete(Sender: TObject);
@@ -151,7 +155,7 @@ var
   S: string;
 begin
   AExcelTable := e.ExcelDMEvent.ExcelTable as TComponentsExcelTable;
-//  if AExcelTable.RecordCount = 0 then Exit;
+  // if AExcelTable.RecordCount = 0 then Exit;
 
   e.AutomaticLoadErrorTable.LocateOrAppendData(e.FileName,
     e.ExcelDMEvent.SheetIndex, e.CategoryName,
@@ -265,8 +269,8 @@ begin
   Result := x;
 end;
 
-procedure TComponentsGroup.LoadDataFromExcelTable(AComponentsExcelTable:
-    TComponentsExcelTable; const AProducer: string);
+procedure TComponentsGroup.LoadDataFromExcelTable(AComponentsExcelTable
+  : TComponentsExcelTable; const AProducer: string);
 var
   I: Integer;
   k: Integer;
@@ -287,6 +291,9 @@ begin
     qFamily.FDQuery.DisableControls;
     qComponents.FDQuery.DisableControls;
     try
+      // qFamily.SaveBookmark;
+      // qComponents.SaveBookmark;
+      // try
       AComponentsExcelTable.First;
       AComponentsExcelTable.CallOnProcessEvent;
       while not AComponentsExcelTable.Eof do
@@ -339,6 +346,10 @@ begin
         AComponentsExcelTable.Next;
         AComponentsExcelTable.CallOnProcessEvent;
       end;
+      // finally
+      // qFamily.RestoreBookmark;
+      // qComponents.RestoreBookmark;
+      // end;
     finally
       qComponents.FDQuery.EnableControls;
       qFamily.FDQuery.EnableControls

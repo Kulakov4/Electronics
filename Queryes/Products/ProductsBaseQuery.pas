@@ -691,10 +691,10 @@ begin
       AsInteger, 1);
 
     // Заполняем пустые поля из найденного компонента
-    UpdateNullFields([Datasheet, Diagram, Drawing, Image, DescriptionID],
+    UpdateFields([Datasheet, Diagram, Drawing, Image, DescriptionID],
       [qSearchFamily.Datasheet.Value, qSearchFamily.Diagram.Value,
       qSearchFamily.Drawing.Value, qSearchFamily.Image.Value,
-      qSearchFamily.DescriptionID.Value]);
+      qSearchFamily.DescriptionID.Value], True);
   end;
 
   // Если производитель не задан
@@ -714,10 +714,10 @@ begin
   if qSearchProduct.SearchByValue(Value.AsString, IDProducer.AsInteger) > 0 then
   begin
     // Заполняем пустые поля из найденного продукта
-    UpdateNullFields([Datasheet, Diagram, Drawing, Image, DescriptionID,
+    UpdateFields([Datasheet, Diagram, Drawing, Image, DescriptionID,
       ProductID], [qSearchProduct.Datasheet.Value, qSearchProduct.Diagram.Value,
       qSearchProduct.Drawing.Value, qSearchProduct.Image.Value,
-      qSearchProduct.DescriptionID.Value, qSearchProduct.PK.Value]);
+      qSearchProduct.DescriptionID.Value, qSearchProduct.PK.Value], True);
   end;
 
   // Если тип валюты задан - ничего не предпринимаем

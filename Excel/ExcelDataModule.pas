@@ -267,53 +267,6 @@ begin
   end;
 end;
 
-// TODO: LoadExcelFile
-// procedure TExcelDM.LoadExcelFile(const AFileName: string; ANotifyEventRef:
-// TNotifyEventRef = nil);
-// var
-// AEWS: ExcelWorksheet;
-// ARange: ExcelRange;
-// AStartLine: Integer;
-// lcid: Integer;
-// ne: TNotifyEventR;
-// rc: Integer;
-// begin
-// ne := nil;
-// lcid := 0;
-// InternalLoadExcelFile(AFileName);
-// ConnectToSheet();
-//
-// ARange := EWS.UsedRange[lcid];
-// Assert(ARange <> nil);
-// rc := ARange.Rows.Count;
-//
-/// / Делаем или не делаем смещение на заголовок
-// AStartLine := 1;
-// while (HaveHeader(AStartLine)) do
-// Inc(AStartLine);
-//
-/// / Получаем "Рабочий" диапазон
-// ARange := GetExcelRange(AStartLine, Indent + 1, rc, Indent + FLastColIndex);
-//
-/// / Обрабатываем диапазон если он не пустой
-// if ARange <> nil then
-// begin
-// // При необходимости подписываем кого-то на событие
-// if Assigned(ANotifyEventRef) then
-// ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
-// try
-// ProcessRange(ARange);
-// finally
-// // Отписываем кого-то от события
-// FreeAndNil(ne);
-// end;
-// end;
-//
-// AEWS := nil;
-// EA.Quit;
-// EA.Disconnect;
-// end;
-
 procedure TExcelDM.InternalLoadExcelFile(const AFileName: string);
 var
   AWorkbook: ExcelWorkbook;
@@ -421,6 +374,7 @@ begin
       ATotalProgressNE := TNotifyEventR.Create(OnTotalProgress,
         ANotifyEventRef);
 
+    // Подписываемся на событие OnProgress
     ne := TNotifyEventR.Create(OnProgress,
       procedure(Sender: TObject)
       Var
@@ -483,18 +437,19 @@ begin
           end;
 
           ProcessRange(ARange);
-
-          // Извещаем о том, что один лист уже загрузили
-          e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
-          try
+          {
+            // Извещаем о том, что один лист уже загрузили
+            e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+            try
             // Извещаем всех о событии
             FAfterLoadSheet.CallEventHandlers(e);
             // Если следующие листы загружать не надо
             if e.Terminate then
-              break;
-          finally
+            break;
+            finally
             FreeAndNil(e);
-          end;
+            end;
+          }
         end
         else
         begin
@@ -502,8 +457,21 @@ begin
           // Обновляем общий прогресс
           ATotalProgress.UpdateTotalProgress;
           // Извещаем всех, что общий прогресс изменился
-          FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
+          // FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
         end;
+
+        // Извещаем о том, что один лист уже загрузили
+        e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+        try
+          // Извещаем всех о событии
+          FAfterLoadSheet.CallEventHandlers(e);
+          // Если следующие листы загружать не надо
+          if e.Terminate then
+            break;
+        finally
+          FreeAndNil(e);
+        end;
+
       end;
     finally
       // Отписываемся от события
@@ -763,6 +731,8 @@ begin
   if ARange <> nil then
   begin
     ATotalProgress := TTotalProgress.Create;
+
+    // Подписываемся на событие OnProgress
     ne := TNotifyEventR.Create(OnProgress,
       procedure(Sender: TObject)
       Var

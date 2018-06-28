@@ -128,8 +128,8 @@ type
     procedure TryCancel;
     procedure TryAppend;
     procedure TryOpen;
-    procedure UpdateNullFields(AFields: TArray<TField>;
-      AValues: TArray<Variant>);
+    procedure UpdateFields(AFields: TArray<TField>; AValues: TArray<Variant>;
+      AUpdateNullFieldsOnly: Boolean);
     function UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
     property BeforeLoad: TNotifyEventsEx read FBeforeLoad;
@@ -286,11 +286,6 @@ begin
   begin
     FDQuery.CancelUpdates;
   end
-  // else
-  // begin
-  // FDQuery.Connection.Rollback;
-  // RefreshQuery;
-  // end;
 end;
 
 procedure TQueryBase.CascadeDelete(const AIDMaster: Variant;
@@ -949,8 +944,8 @@ begin
     FDQuery.Open;
 end;
 
-procedure TQueryBase.UpdateNullFields(AFields: TArray<TField>;
-  AValues: TArray<Variant>);
+procedure TQueryBase.UpdateFields(AFields: TArray<TField>;
+  AValues: TArray<Variant>; AUpdateNullFieldsOnly: Boolean);
 var
   f: TField;
   i: Integer;
@@ -968,10 +963,9 @@ begin
     V := AValues[i];
 
     // Если NULL или пустая строка
-    if (f.IsNull or f.AsString.Trim.IsEmpty) and
-      (not VarIsNull(V) and (not VarToStr(V).Trim.IsEmpty)) then
+    if ((not AUpdateNullFieldsOnly) or (f.IsNull or f.AsString.Trim.IsEmpty))
+      and (not VarIsNull(V) and (not VarToStr(V).Trim.IsEmpty)) then
       f.Value := V;
-
   end;
 end;
 

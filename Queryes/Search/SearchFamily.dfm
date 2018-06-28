@@ -30,6 +30,7 @@ inherited QuerySearchFamily: TQuerySearchFamily
       '    ,pv6.Value as Image'
       'ParametersValues */'
       '/* Description'
+      '    ,d.ComponentName DescriptionComponentName'
       '    ,d.Description'
       'Description */'
       'from Products p'

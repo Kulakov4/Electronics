@@ -254,8 +254,11 @@ end;
 procedure TQueryBaseEvents.CancelUpdates;
 begin
   inherited;
+  // Дополнительно сообщаем о том, что изменения отменены
   if FDQuery.CachedUpdates then
+  begin
     FAfterCancelUpdates.CallEventHandlers(Self);
+  end;
 end;
 
 procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
@@ -600,7 +603,8 @@ begin
   TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancel, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterPost, DoAfterCancelOrPost, FEventList);
-  TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
+    FEventList);
 end;
 
 procedure TQueryMonitor.DoAfterCommitOrRollback(Sender: TObject);
@@ -635,10 +639,17 @@ end;
 
 procedure TQueryMonitor.DoAfterEditOrInsert(Sender: TObject);
 var
+  i: Integer;
   Q: TQueryBaseEvents;
 begin
   Q := Sender as TQueryBaseEvents;
-  if Q.HaveAnyChanges then
+
+  if not Q.HaveAnyChanges then
+    Exit;
+
+  i := FChangedQueries.IndexOf(Q);
+  // Если этого запроса ещё нет в списке изменённых
+  if i = -1 then
     FChangedQueries.Add(Q);
 end;
 

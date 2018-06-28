@@ -172,6 +172,11 @@ begin
   SetParamType('ProductCategoryId');
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeCheckedOpen, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterCheckedOpen, FEventList);
+
+  // Переходим в режим кэширования записей
+  FDQuery.CachedUpdates := True;
+  AutoTransaction := True;
+
   Load(['IdParameter', 'ProductCategoryId'],
     [AIDParameter, AProductCategoryId]);
 end;

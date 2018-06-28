@@ -823,14 +823,7 @@ procedure TViewParametricTable.actRefreshExecute(Sender: TObject);
 begin
   inherited;
   RefreshData;
-  if MainView.ViewData.RowCount = 0 then
-    Exit;
-
-  MainView.Controller.ClearSelection;
-  MainView.Controller.TopRowIndex := 0;
-  MainView.Controller.LeftPos := 0;
-  MainView.ViewData.Rows[0].Focused := True;
-  clValue.Focused := True;
+  FocusTopLeft(clValue.DataBinding.FieldName);
 end;
 
 procedure TViewParametricTable.actShowCategoryParametersQueryExecute
