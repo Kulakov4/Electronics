@@ -69,7 +69,6 @@ type
     FOnProgress: TNotifyEventsEx;
     FOnTotalProgress: TNotifyEventsEx;
     function GetCellsColor(ACell: OleVariant): TColor;
-    function GetCustomExcelTable: TCustomExcelTable;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
     function LoadExcelFileHeaderEx(const AFileName: string): TStringTreeNode;
@@ -102,7 +101,7 @@ type
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
       ANotifyEventRef: TNotifyEventRef); overload;
-    property CustomExcelTable: TCustomExcelTable read GetCustomExcelTable;
+    property CustomExcelTable: TCustomExcelTable read FCustomExcelTable;
     property AfterLoadSheet: TNotifyEventsEx read FAfterLoadSheet;
     property BeforeLoadSheet: TNotifyEventsEx read FBeforeLoadSheet;
     property OnProgress: TNotifyEventsEx read FOnProgress;
@@ -136,6 +135,12 @@ uses System.Variants, System.Math, ActiveX, ProjectConst, DBRecordHolder;
 constructor TExcelDM.Create(AOwner: TComponent);
 begin
   inherited;
+  FCustomExcelTable := CreateExcelTable;
+
+  if FCustomExcelTable <> nil then
+    FLastColIndex := FCustomExcelTable.FieldsInfo.Count
+  else
+    FLastColIndex := 0;
 
   FOnProgress := TNotifyEventsEx.Create(Self);
 
@@ -175,20 +180,6 @@ var
 begin
   R := EWS.Range[ACell, ACell];
   Result := R.Interior.Color;
-end;
-
-function TExcelDM.GetCustomExcelTable: TCustomExcelTable;
-begin
-  if FCustomExcelTable = nil then
-  begin
-    FCustomExcelTable := CreateExcelTable;
-
-    if FCustomExcelTable <> nil then
-      FLastColIndex := FCustomExcelTable.FieldsInfo.Count
-    else
-      FLastColIndex := 0;
-  end;
-  Result := FCustomExcelTable;
 end;
 
 // ѕровер€ет, находитс€ ли в строке ARow заголовок

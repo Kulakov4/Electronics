@@ -76,6 +76,7 @@ var
   AExcelField: TField;
   AField: TField;
   AIDComponentGroup: Integer;
+  AIsCurrentDate: Boolean;
   V: Variant;
 begin
   try
@@ -141,9 +142,14 @@ begin
       if LoadDate.IsNull then
         LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
 
+      // Курсы валют за текущую дату?
+      AIsCurrentDate := LoadDate.AsString = FormatDateTime('dd.mm.yyyy', Date);
+
       // Если курс доллара не был указан в загрузочном файле
       if Dollar.IsNull then
+      begin
         Dollar.Value := DollarCource;
+      end;
 
       // Если курс евро не был указан в загрузочном файле
       if Euro.IsNull then

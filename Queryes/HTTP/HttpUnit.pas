@@ -8,7 +8,7 @@ uses
 type
   TCBRHttp = class(TObject)
   public
-    class function GetCourses(AValueNames: TArray<String>)
+    class function GetCourses(AValueNames: TArray<String>; ADate: TDateTime = 0)
       : TArray<Double>; static;
     class function ParseXML(const AXML: String; AValueNames: TArray<String>)
       : TArray<Double>; static;
@@ -20,7 +20,8 @@ uses
   System.Classes, System.SysUtils, Xml.XMLDoc, Xml.XMLIntf,
   System.Generics.Collections;
 
-class function TCBRHttp.GetCourses(AValueNames: TArray<String>): TArray<Double>;
+class function TCBRHttp.GetCourses(AValueNames: TArray<String>;
+  ADate: TDateTime = 0): TArray<Double>;
 var
   AidHttp: TIdHTTP;
   AURL: string;
@@ -29,6 +30,9 @@ begin
   Assert(Length(AValueNames) > 0);
 
   AURL := 'http://www.cbr.ru/scripts/XML_daily.asp';
+  if ADate > 0 then
+    AURL := AURL + Format('?date_req=%s',
+      [FormatDateTime('dd/mm/yyyy', ADate)]);
 
   AidHttp := TIdHTTP.Create(nil);
   try

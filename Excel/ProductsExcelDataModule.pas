@@ -5,14 +5,13 @@ interface
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
   CustomExcelTable, System.Generics.Collections, FieldInfoUnit, Data.DB,
-  FireDAC.Comp.DataSet, CheckDuplicateInterface;
+  FireDAC.Comp.DataSet, CheckDuplicateInterface, CurrencyInterface;
 
 type
   TProductsExcelTable = class(TCustomExcelTable)
   private
     FCheckDuplicate: ICheckDuplicate;
-    FDollarCource: Double;
-    FEuroCource: Double;
+    FCurrencyInt: ICurrency;
     function GetComponentGroup: TField;
     function GetDollar: TField;
     function GetEuro: TField;
@@ -45,8 +44,6 @@ type
     property ComponentGroup: TField read GetComponentGroup;
     property Dollar: TField read GetDollar;
     property Euro: TField read GetEuro;
-    property DollarCource: Double read FDollarCource write FDollarCource;
-    property EuroCource: Double read FEuroCource write FEuroCource;
     property LoadDate: TField read GetLoadDate;
     property PackagePins: TField read GetPackagePins;
     property ReleaseDate: TField read GetReleaseDate;
@@ -65,6 +62,7 @@ type
     property Seller: TField read GetSeller;
     property DocumentNumber: TField read GetDocumentNumber;
     property Barcode: TField read GetBarcode;
+    property CurrencyInt: ICurrency read FCurrencyInt write FCurrencyInt;
     property Price: TField read GetPrice;
     property Value: TField read GetValue;
   end;
@@ -98,8 +96,11 @@ end;
 
 function TProductsExcelTable.CheckRecord: Boolean;
 var
+  ALoadDate: TDateTime;
+  FS: TFormatSettings;
   k: Integer;
   S: string;
+  x: Integer;
 begin
   Result := inherited;
 
@@ -210,25 +211,103 @@ begin
     Exit;
   end;
 
-  // Должен быть указан курс доллара или известен текущий курс доллара
-  Result := (not Dollar.IsNull) or (DollarCource > 0);
-  if not Result then
+  // Если задана дата загрузки
+  if not LoadDate.AsString.Trim.IsEmpty then
   begin
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, Dollar.Index + 1,
-      'Курс доллара неизвестен', 'Курсы валют не обновлены');
-    Exit;
+    // Если в Excel считали дату как целое число
+    if TryStrToInt(LoadDate.AsString.Trim, x) then
+    begin
+      try
+        ALoadDate := TDate(LoadDate.AsInteger);
+      except
+        Result := False;
+      end;
+    end
+    else
+    begin
+      // Пытаемся преобразовать строку в дату
+      FS.ShortDateFormat := 'dd.mm.yyyy';
+      FS.DateSeparator := '.';
+      Result := TryStrToDate(LoadDate.AsString, ALoadDate, FS);
+    end;
+
+    // Если дата не в том формате
+    if not Result then
+    begin
+      MarkAsError(etError);
+      Errors.AddError(ExcelRow.AsInteger, LoadDate.Index + 1, 'Дата',
+        'Поле дата имеет неверный формат');
+      Exit;
+    end;
+  end
+  else
+  begin
+    // Если дата не заполнена
+    ALoadDate := Date;
+    TryEdit;
+    LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
+    TryPost;
   end;
 
-  // Должен быть указан курс евро или известен текущий курс евро
-  Result := (not Euro.IsNull) or (EuroCource > 0);
-  if not Result then
+  Assert(CurrencyInt <> nil);
+
+  // Должен быть указан курс доллара или известен курс на нужную нам дату
+  if Dollar.IsNull then
   begin
+    TryEdit;
+    // Пытаемся получить курс доллара
+    Dollar.AsFloat := CurrencyInt.GetCourses(2, ALoadDate);
+    TryPost;
+    // Если курс доллара получить не удалось
+    Result := Dollar.AsFloat > 0;
+    if not Result then
+    begin
+      MarkAsError(etError);
+      Errors.AddError(ExcelRow.AsInteger, Dollar.Index + 1,
+        'Курс доллара неизвестен', 'Не удалось получить курс доллара');
+      Exit;
+    end;
+  end;
+
+  // Должен быть указан курс евро или известен курс на нужную нам дату
+  if Euro.IsNull then
+  begin
+    TryEdit;
+    // Пытаемся получить курс доллара
+    Euro.AsFloat := CurrencyInt.GetCourses(3, ALoadDate);
+    TryPost;
+    // Если курс евро получить не удалось
+    Result := Euro.AsFloat > 0;
+    if not Result then
+    begin
+      MarkAsError(etError);
+      Errors.AddError(ExcelRow.AsInteger, Euro.Index + 1,
+        'Курс евро неизвестен', 'Не удалось получить курс евро');
+      Exit;
+    end;
+  end;
+
+  (*
+    // Должен быть указан курс доллара или известен текущий курс доллара
+    Result := (not Dollar.IsNull) or (DollarCource > 0);
+    if not Result then
+    begin
+    MarkAsError(etError);
+    Errors.AddError(ExcelRow.AsInteger, Dollar.Index + 1,
+    'Курс доллара неизвестен', 'Курсы валют не обновлены');
+    Exit;
+    end;
+
+    // Должен быть указан курс евро или известен текущий курс евро
+    Result := (not Euro.IsNull) or (EuroCource > 0);
+    if not Result then
+    begin
     MarkAsError(etError);
     Errors.AddError(ExcelRow.AsInteger, Euro.Index + 1, 'Курс евро неизвестен',
-      'Курсы валют не обновлены');
+    'Курсы валют не обновлены');
     Exit;
-  end;
+    end;
+  *)
 
   // Проверяем, что количество - целое число
   Result := StrToFloatDef(Amount.AsString, -1) <> -1;

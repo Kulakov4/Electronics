@@ -221,7 +221,9 @@ uses
   BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame},
   BodyVariationJedecGroupQuery in 'Queryes\BodyTypes\BodyVariationJedecGroupQuery.pas' {QueryBodyVariationJEDECGroup: TFrame},
   OpenJedecUnit in 'Helpers\OpenJedecUnit.pas',
-  ProducerInterface in 'Helpers\ProducerInterface.pas';
+  ProducerInterface in 'Helpers\ProducerInterface.pas',
+  CurrencyInterface in 'Helpers\CurrencyInterface.pas',
+  CurrencyUnit in 'Queryes\HTTP\CurrencyUnit.pas';
 
 {$R *.res}
 

@@ -80,7 +80,7 @@ implementation
 
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
   NotifyEvents, ProgressInfo, LoadFromExcelFileHelper,
-  CustomErrorForm, HttpUnit, ProductsViewForm, DialogUnit;
+  CustomErrorForm, HttpUnit, ProductsViewForm, DialogUnit, CurrencyUnit;
 
 procedure TViewProducts2.actColumnsAutoWidth2Execute(Sender: TObject);
 begin
@@ -211,10 +211,9 @@ begin
       procedure(ASender: TObject)
       begin
         AExcelTable := ASender as TProductsExcelTable;
-        // Инициализируем курс доллара и евро
-        AExcelTable.DollarCource := qProducts.DollarCource;
-        AExcelTable.EuroCource := qProducts.EuroCource;
+        // Инициализируем
         AExcelTable.CheckDuplicate := qProducts;
+        AExcelTable.CurrencyInt := TMyCurrency.Create;
       end);
   finally
     cxDBTreeList.FullCollapse;

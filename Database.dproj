@@ -988,6 +988,8 @@
         </DCCReference>
         <DCCReference Include="Helpers\OpenJedecUnit.pas"/>
         <DCCReference Include="Helpers\ProducerInterface.pas"/>
+        <DCCReference Include="Helpers\CurrencyInterface.pas"/>
+        <DCCReference Include="Queryes\HTTP\CurrencyUnit.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

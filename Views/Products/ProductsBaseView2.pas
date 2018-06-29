@@ -226,7 +226,7 @@ implementation
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
-  HttpUnit, StrHelper, dxCore;
+  HttpUnit, StrHelper, dxCore, CurrencyUnit;
 
 const
   clClickedColor = clRed;
@@ -547,9 +547,8 @@ var
 begin
   inherited;
   try
-    ACources := TCBRHttp.GetCourses(['Доллар США', 'Евро']);
-    qProductsBase.DollarCource := ACources[0];
-    qProductsBase.EuroCource := ACources[1];
+    qProductsBase.DollarCource := TMyCurrency.Create.GetCourses(1, Date);
+    qProductsBase.EuroCource := TMyCurrency.Create.GetCourses(2, Date);
     MyApplyBestFit;
   except
     TDialog.Create.ErrorMessageDialog('Курсы валют не обновлены');
