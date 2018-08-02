@@ -92,12 +92,8 @@ end;
 procedure TLoad.DoOnTotalReadProgress(ASender: TObject);
 var
   e: TExcelDMEvent;
-  S: String;
 begin
   Assert(FfrmProgressBar <> nil);
-  S := ASender.ClassName;
-  if (S.IsEmpty) then
-    beep;
 
   e := ASender as TExcelDMEvent;
   FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);

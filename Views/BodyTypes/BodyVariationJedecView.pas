@@ -28,7 +28,8 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, BodyVariationJedecQuery,
   BodyVariationsJedecQuery, JEDECQuery, cxDBLookupComboBox, GridFrame,
-  NotifyEvents, cxButtonEdit, RepositoryDataModule;
+  NotifyEvents, cxButtonEdit, RepositoryDataModule,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewBodyVariationJEDEC = class(TfrmGrid)
@@ -95,6 +96,9 @@ end;
 
 destructor TViewBodyVariationJEDEC.Destroy;
 begin
+  FreeAndNil(FOnOK);
+  FreeAndNil(FOnCancel);
+
   if Assigned(FqBodyVariationsJedec) then
     FreeAndNil(FqBodyVariationsJedec);
 

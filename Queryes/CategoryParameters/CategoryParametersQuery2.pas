@@ -154,6 +154,7 @@ end;
 
 destructor TQueryCategoryParameters2.Destroy;
 begin
+  FreeAndNil(FOn_ApplyUpdates);
   FreeAndNil(FEditedSubParams);
   FreeAndNil(FDeletedSubParams);
   FreeAndNil(FInsertedSubParams);

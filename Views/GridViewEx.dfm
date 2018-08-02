@@ -11,11 +11,7 @@ inherited ViewGridEx: TViewGridEx
       end>
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       Images = cxImageList1
     end
@@ -29,6 +25,7 @@ inherited ViewGridEx: TViewGridEx
     Top = 104
   end
   object cxImageList1: TcxImageList
+    SourceDPI = 96
     FormatVersion = 1
     DesignInfo = 16253368
     ImageInfo = <

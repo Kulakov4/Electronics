@@ -64,6 +64,7 @@ object frmGrid: TfrmGrid
     UseSystemFont = True
     Left = 440
     Top = 120
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

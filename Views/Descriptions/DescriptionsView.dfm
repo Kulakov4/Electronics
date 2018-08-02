@@ -162,11 +162,7 @@ inherited ViewDescriptions: TViewDescriptions
     ExplicitWidth = 991
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item

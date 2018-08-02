@@ -12,7 +12,7 @@ uses
   Vcl.Menus, System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls,
   cxGridLevel, cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGridCustomView, cxGrid,
-  ComponentsExGroupUnit, System.Generics.Collections,
+  ComponentsExGroupUnit2, System.Generics.Collections,
   ColumnsBarButtonsHelper, cxContainer, cxTextEdit, cxMemo, Vcl.StdCtrls,
   Vcl.ExtCtrls, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -34,7 +34,8 @@ uses
   cxExtEditRepositoryItems, CustomComponentsQuery, cxBlobEdit,
   System.Generics.Defaults, BandsInfo, DBRecordHolder,
   BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
-  CategoryParametersQuery2, cxCheckBox, cxBarEditItem;
+  CategoryParametersQuery2, cxCheckBox, cxBarEditItem,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewParametricTable = class(TViewComponentsBase)
@@ -156,14 +157,14 @@ type
     procedure DoOnValidate(Sender: TObject; var DisplayValue: Variant;
       var ErrorText: TCaption; var Error: Boolean);
     procedure UpdateColumn(AIDCategoryParam: Integer);
-    function GetComponentsExGroup: TComponentsExGroup;
+    function GetComponentsExGroup: TComponentsExGroup2;
     function GetqCategoryParameters: TQueryCategoryParameters2;
     function GetUseTableName: Boolean;
     procedure InitializeDefaultCreatedBands(AViewArray
       : TArray<TcxGridDBBandedTableView>);
     procedure ProcessBandMove;
     procedure ProcessColumnMove(AColumn: TcxGridDBBandedColumn);
-    procedure SetComponentsExGroup(const Value: TComponentsExGroup);
+    procedure SetComponentsExGroup(const Value: TComponentsExGroup2);
     procedure SetUseTableName(const Value: Boolean);
     // TODO: UpdateColumnPosition
     // procedure UpdateColumnPosition(ABandInfo: TBandInfo);
@@ -211,8 +212,8 @@ type
     procedure FilterByComponent(AComponent: string);
     procedure UpdateMinBandWindth(ABandInfo: TBandInfoEx);
     procedure UpdateView; override;
-    property ComponentsExGroup: TComponentsExGroup read GetComponentsExGroup
-      write SetComponentsExGroup;
+    property ComponentsExGroup: TComponentsExGroup2 read GetComponentsExGroup write
+        SetComponentsExGroup;
     property Mark: string read FMark;
     { Public declarations }
   end;
@@ -258,7 +259,7 @@ uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   cxGridDBDataDefinitions, StrHelper, ParameterValuesUnit, ProjectConst,
   GridExtension, DragHelper, System.Math, AnalogForm, AnalogQueryes,
   AnalogGridView, SearchProductByParamValuesQuery, NaturalSort,
-  CategoryParametersGroupUnit, FireDAC.Comp.Client, MoveHelper,
+  CategoryParametersGroupUnit2, FireDAC.Comp.Client, MoveHelper,
   SubParametersForm, System.Types, TextRectHelper, GridViewForm;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
@@ -272,7 +273,17 @@ begin
 end;
 
 destructor TViewParametricTable.Destroy;
+var
+  ABI: TBandInfo;
+  I: Integer;
 begin
+  for I := FBandsInfo.Count - 1 downto 0 do
+  begin
+    ABI := FBandsInfo[i];
+    FBandsInfo.Delete(i);
+    FreeAndNil(ABI);
+  end;
+
   FreeAndNil(FBandsInfo);
   FreeAndNil(FColumnsInfo);
   inherited;
@@ -1307,9 +1318,9 @@ begin
   AView.Focused := True;
 end;
 
-function TViewParametricTable.GetComponentsExGroup: TComponentsExGroup;
+function TViewParametricTable.GetComponentsExGroup: TComponentsExGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsExGroup;
+  Result := BaseComponentsGroup as TComponentsExGroup2;
 end;
 
 procedure TViewParametricTable.InitializeDefaultCreatedBands
@@ -1351,8 +1362,8 @@ begin
   end;
 end;
 
-procedure TViewParametricTable.SetComponentsExGroup
-  (const Value: TComponentsExGroup);
+procedure TViewParametricTable.SetComponentsExGroup(const Value:
+    TComponentsExGroup2);
 begin
   BaseComponentsGroup := Value;
 end;

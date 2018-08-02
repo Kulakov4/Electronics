@@ -30,22 +30,27 @@ type
     class property qSearchParameter: TQuerySearchParameter
       read GetqSearchParameter;
   public
-    class property DatasheetParamSubParamID: Integer read
-        GetDatasheetParamSubParamID;
-    class property DescriptionParamSubParamID: Integer read
-        GetDescriptionParamSubParamID;
-    class property DiagramParamSubParamID: Integer read GetDiagramParamSubParamID;
-    class property DrawingParamSubParamID: Integer read GetDrawingParamSubParamID;
+    class property DatasheetParamSubParamID: Integer
+      read GetDatasheetParamSubParamID;
+    class property DescriptionParamSubParamID: Integer
+      read GetDescriptionParamSubParamID;
+    class property DiagramParamSubParamID: Integer
+      read GetDiagramParamSubParamID;
+    class property DrawingParamSubParamID: Integer
+      read GetDrawingParamSubParamID;
     class property ImageParamSubParamID: Integer read GetImageParamSubParamID;
-    class property PackagePinsParamSubParamID: Integer read
-        GetPackagePinsParamSubParamID;
+    class property PackagePinsParamSubParamID: Integer
+      read GetPackagePinsParamSubParamID;
     class property ProducerParamSubParamID: Integer
       read GetProducerParamSubParamID;
   end;
 
 implementation
 
-uses ProjectConst;
+uses ProjectConst, System.Contnrs, System.SysUtils, System.Classes;
+
+var
+  SingletonList: TObjectList;
 
 class function TDefaultParameters.GetDatasheetParamSubParamID: Integer;
 begin
@@ -149,9 +154,20 @@ end;
 class function TDefaultParameters.GetqSearchParameter: TQuerySearchParameter;
 begin
   if FqSearchParameter = nil then
+  begin
     FqSearchParameter := TQuerySearchParameter.Create(nil);
+    SingletonList.Add(FqSearchParameter);
+  end;
 
   Result := FqSearchParameter;
+end;
+
+initialization
+  SingletonList := TObjectList.Create(True);
+
+finalization
+begin
+  FreeAndNil(SingletonList);
 end;
 
 end.

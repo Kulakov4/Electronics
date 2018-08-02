@@ -30,7 +30,7 @@ uses
   dxSkinsdxBarPainter, dxBar, System.Actions, Vcl.ActnList, FieldInfoUnit,
   System.Generics.Collections, CustomErrorTable, ExcelDataModule,
   ProgressBarForm3, ProgressInfo, Vcl.AppEvnts, HintWindowEx, Vcl.StdCtrls,
-  DataModule2, ParametricErrorTable, ParametricTableErrorForm,
+  DataModule, ParametricErrorTable, ParametricTableErrorForm,
   SubParametersQuery2, ParamSubParamsQuery, SearchParamDefSubParamQuery,
   SearchParameterQuery, ComponentTypeSetUnit, ChildCategoriesView,
   SearchCategoryQuery, SearchDaughterCategoriesQuery;
@@ -1007,9 +1007,9 @@ begin
       AParametricExcelDM.LoadExcelFile2(AFullFileName);
 
       // Обновляем параметры для текущей категории
-      DM2.CategoryParametersGroup.RefreshData;
+      TDM.Create.CategoryParametersGroup.RefreshData;
       // Пытаемся обновить параметрическую таблицу
-      DM2.ComponentsExGroup.TryRefresh;
+      TDM.Create.ComponentsExGroup.TryRefresh;
     finally
       FreeAndNil(AParametricExcelDM);
       FreeAndNil(FWriteProgress);
@@ -1051,9 +1051,9 @@ begin
       AParametricExcelDM.LoadFromActiveSheet();
 
       // Обновляем параметры для текущей категории
-      DM2.CategoryParametersGroup.RefreshData;
+      TDM.Create.CategoryParametersGroup.RefreshData;
       // Пытаемся обновить параметрическую таблицу
-      DM2.ComponentsExGroup.TryRefresh;
+      TDM.Create.ComponentsExGroup.TryRefresh;
     finally
       FreeAndNil(AParametricExcelDM);
       FreeAndNil(FWriteProgress);

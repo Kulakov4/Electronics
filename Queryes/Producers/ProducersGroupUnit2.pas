@@ -1,24 +1,19 @@
-unit ProducersGroupUnit;
+unit ProducersGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryGroupUnit, Vcl.ExtCtrls,
-  ProducersQuery, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryWithDataSourceUnit, ProducerTypesQuery, ProducersExcelDataModule,
-  OrderQuery, System.Generics.Collections;
+  QueryGroupUnit2, System.Classes, NotifyEvents, ProducersQuery,
+  ProducerTypesQuery, System.Generics.Collections, ProducersExcelDataModule;
 
 type
-  TProducersGroup = class(TQueryGroup)
+  TProducersGroup2 = class(TQueryGroup2)
   private
     FqProducers: TQueryProducers;
     FqProducerTypes: TQueryProducerTypes;
     function GetqProducers: TQueryProducers;
     function GetqProducerTypes: TQueryProducerTypes;
     procedure SetqProducers(const Value: TQueryProducers);
-    { Private declarations }
   protected
     procedure DoAfterDelete(Sender: TObject);
   public
@@ -28,16 +23,14 @@ type
     procedure LocateOrAppend(AValue: string; const AProducerType: String);
     property qProducers: TQueryProducers read GetqProducers write SetqProducers;
     property qProducerTypes: TQueryProducerTypes read GetqProducerTypes;
-    { Public declarations }
   end;
 
 implementation
 
-{$R *.dfm}
+uses
+  System.SysUtils, Data.DB;
 
-uses Data.DB, NotifyEvents;
-
-constructor TProducersGroup.Create(AOwner: TComponent);
+constructor TProducersGroup2.Create(AOwner: TComponent);
 begin
   inherited;
   QList.Add(qProducerTypes);
@@ -47,7 +40,7 @@ begin
   TNotifyEventWrap.Create(qProducerTypes.AfterDelete, DoAfterDelete, EventList);
 end;
 
-procedure TProducersGroup.DoAfterDelete(Sender: TObject);
+procedure TProducersGroup2.DoAfterDelete(Sender: TObject);
 begin
   Assert(qProducerTypes.OldPKValue > 0);
   // Каскадно удаляем производителей
@@ -55,7 +48,7 @@ begin
     qProducers.ProducerTypeID.FieldName, True);
 end;
 
-function TProducersGroup.Find(const AFieldName, S: string): TList<String>;
+function TProducersGroup2.Find(const AFieldName, S: string): TList<String>;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -78,7 +71,7 @@ begin
 
 end;
 
-function TProducersGroup.GetqProducers: TQueryProducers;
+function TProducersGroup2.GetqProducers: TQueryProducers;
 begin
   if FqProducers = nil then
     FqProducers := TQueryProducers.Create(Self);
@@ -86,7 +79,7 @@ begin
   Result := FqProducers;
 end;
 
-function TProducersGroup.GetqProducerTypes: TQueryProducerTypes;
+function TProducersGroup2.GetqProducerTypes: TQueryProducerTypes;
 begin
   if FqProducerTypes = nil then
     FqProducerTypes := TQueryProducerTypes.Create(Self);
@@ -94,7 +87,7 @@ begin
   Result := FqProducerTypes;
 end;
 
-procedure TProducersGroup.LoadDataFromExcelTable(AProducersExcelTable:
+procedure TProducersGroup2.LoadDataFromExcelTable(AProducersExcelTable:
     TProducersExcelTable);
 var
   AField: TField;
@@ -140,7 +133,7 @@ begin
   end;
 end;
 
-procedure TProducersGroup.LocateOrAppend(AValue: string; const AProducerType:
+procedure TProducersGroup2.LocateOrAppend(AValue: string; const AProducerType:
     String);
 var
   OK: Boolean;
@@ -154,7 +147,7 @@ begin
   qProducers.AddNewValue(AValue, qProducerTypes.PK.AsInteger);
 end;
 
-procedure TProducersGroup.SetqProducers(const Value: TQueryProducers);
+procedure TProducersGroup2.SetqProducers(const Value: TQueryProducers);
 begin
   FqProducers := Value;
 end;

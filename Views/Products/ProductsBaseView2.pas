@@ -30,7 +30,8 @@ uses
   cxDBExtLookupComboBox,
   cxFilter, cxData, cxDataStorage, cxNavigator, cxDBData, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections;
+  cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections,
+  cxDataControllerConditionalFormattingRulesManagerDialog;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -281,6 +282,7 @@ end;
 destructor TViewProductsBase2.Destroy;
 begin
   inherited;
+  FreeAndNil(FReadOnlyColumns);
   FreeAndNil(FCountEvents);
 end;
 

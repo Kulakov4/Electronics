@@ -113,6 +113,10 @@ object frmMain: TfrmMain
     object cxtsRStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object cxspltrMain: TcxSplitter
@@ -142,6 +146,7 @@ object frmMain: TfrmMain
     UseSystemFont = False
     Left = 40
     Top = 104
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

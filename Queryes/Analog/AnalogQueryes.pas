@@ -8,7 +8,7 @@ uses
   QueryGroupUnit, Vcl.ExtCtrls, TableWithProgress, Data.DB,
   System.Generics.Collections, UniqueParameterValuesQuery, System.StrUtils,
   FireDAC.Comp.Client, DBRecordHolder, StrHelper,
-  SearchProductByParamValuesQuery, System.Math, CategoryParametersGroupUnit;
+  SearchProductByParamValuesQuery, System.Math, CategoryParametersGroupUnit2;
 
 type
   TParameterValuesTable = class(TTableWithProgress)
@@ -59,7 +59,7 @@ type
   TAnalogGroup = class(TQueryGroup)
   private
     FAllParameterFields: TDictionary<Integer, String>;
-    FCatParamsGroup: TCategoryParametersGroup;
+    FCatParamsGroup: TCategoryParametersGroup2;
     FFDMemTable: TFDMemTable;
     FParamSubParamIDDic: TDictionary<String, Integer>;
     FParamValuesList: TParamValuesList;
@@ -84,7 +84,7 @@ type
     procedure UpdateParameterValues(AParamSubParamID: Integer);
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
-    property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup;
+    property CatParamsGroup: TCategoryParametersGroup2 read FCatParamsGroup;
     property FDMemTable: TFDMemTable read FFDMemTable;
     property ParamValuesList: TParamValuesList read FParamValuesList;
     property qUniqueParameterValues: TQueryUniqueParameterValues
@@ -102,7 +102,7 @@ uses ParameterKindEnum, NaturalSort;
 constructor TAnalogGroup.Create(AOwner: TComponent);
 begin
   inherited;
-  FCatParamsGroup := TCategoryParametersGroup.Create(Self);
+  FCatParamsGroup := TCategoryParametersGroup2.Create(Self);
   FqUniqueParameterValues := TQueryUniqueParameterValues.Create(Self);
   FParamValuesList := TParamValuesList.Create;
   FFDMemTable := TFDMemTable.Create(Self);

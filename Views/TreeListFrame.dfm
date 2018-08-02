@@ -51,6 +51,7 @@ object frmTreeList: TfrmTreeList
     UseSystemFont = True
     Left = 72
     Top = 80
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

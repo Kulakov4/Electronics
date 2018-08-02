@@ -27,7 +27,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
-  System.Generics.Collections, DragHelper, OrderQuery, GridSort;
+  System.Generics.Collections, DragHelper, OrderQuery, GridSort,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;

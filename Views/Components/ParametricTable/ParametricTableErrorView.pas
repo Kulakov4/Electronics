@@ -28,7 +28,9 @@ uses
   Vcl.ComCtrls, cxGridLevel, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
   cxButtonEdit, ParametersForm, ParametricErrorTable, DialogUnit,
-  ParametersGroupUnit, System.UITypes;
+  ParametersGroupUnit2, System.UITypes,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxImageList;
 
 type
   TViewParametricTableError = class(TViewGridEx)
@@ -54,7 +56,7 @@ procedure TViewParametricTableError.actFixExecute(Sender: TObject);
 var
   AfrmParameters: TfrmParameters;
   OK: Boolean;
-  AParametersGroup: TParametersGroup;
+  AParametersGroup: TParametersGroup2;
   F: TField;
   ErrMsg: String;
   PKFieldName: String;
@@ -62,7 +64,7 @@ begin
   Assert(ParametricErrorTable <> nil);
   F := nil;
 
-  AParametersGroup := TParametersGroup.Create(nil);
+  AParametersGroup := TParametersGroup2.Create(nil);
   try
     AParametersGroup.ReOpen;
 

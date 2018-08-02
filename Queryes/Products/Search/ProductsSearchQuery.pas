@@ -48,6 +48,7 @@ type
     // ANotifyEventRef: TNotifyEventRef = nil);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
     procedure DoSearch(ALike: Boolean);
@@ -85,6 +86,13 @@ begin
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);
   FOnEndUpdate := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TQueryProductsSearch.Destroy;
+begin
+  FreeAndNil(FOnBeginUpdate);
+  FreeAndNil(FOnEndUpdate);
+  inherited;
 end;
 
 procedure TQueryProductsSearch.AppendRows(AFieldName: string;

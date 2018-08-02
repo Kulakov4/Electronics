@@ -16,7 +16,7 @@ inherited frmSubParameters: TfrmSubParameters
       ExplicitHeight = 427
       inherited cxGrid: TcxGrid
         Width = 788
-        Height = 380
+        Height = 354
         ExplicitWidth = 788
         ExplicitHeight = 380
       end
@@ -30,7 +30,7 @@ inherited frmSubParameters: TfrmSubParameters
         DockControlHeights = (
           0
           0
-          28
+          54
           0)
       end
       inherited cxGridPopupMenu: TcxGridPopupMenu

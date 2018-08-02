@@ -30,7 +30,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   CustomComponentsQuery, cxTextEdit, cxBlobEdit, cxRichEdit,
-  DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit, ProjectConst;
+  DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit, ProjectConst,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewComponentsBase = class(TViewComponentsParent)

@@ -1,19 +1,13 @@
-unit BaseComponentsGroupUnit;
+unit BaseComponentsGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, Data.DB,
-  System.Generics.Collections, NotifyEvents, FireDAC.Comp.DataSet,
-  ProducersQuery, BodyTypesQuery2, ExcelDataModule, CustomErrorTable,
-  DocFieldInfo, CustomComponentsQuery, ProcRefUnit,
-  TableWithProgress, BaseComponentsQuery, BaseFamilyQuery, QueryGroupUnit;
+  QueryGroupUnit2, NotifyEvents, System.Classes, System.Generics.Collections,
+  ProducersQuery, BaseComponentsQuery, BaseFamilyQuery, DocFieldInfo;
 
 type
-  TBaseComponentsGroup = class(TQueryGroup)
-  strict private
+  TBaseComponentsGroup2 = class(TQueryGroup2)
   private
     FAfterApplyUpdates: TNotifyEventsEx;
     FFullDeleted: TList<Integer>;
@@ -21,31 +15,25 @@ type
     function GetProducers: TQueryProducers;
     function GetQueryBaseComponents: TQueryBaseComponents;
     function GetQueryBaseFamily: TQueryBaseFamily;
-    { Private declarations }
-  protected
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Commit; override;
-    procedure LoadDocFile(const AFileName: String;
-      ADocFieldInfo: TDocFieldInfo);
+    procedure LoadDocFile(const AFileName: String; ADocFieldInfo: TDocFieldInfo);
     procedure Rollback; override;
     property AfterApplyUpdates: TNotifyEventsEx read FAfterApplyUpdates;
     property FullDeleted: TList<Integer> read FFullDeleted;
+    property Producers: TQueryProducers read GetProducers;
     property QueryBaseComponents: TQueryBaseComponents read GetQueryBaseComponents;
     property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
-    property Producers: TQueryProducers read GetProducers;
-    { Public declarations }
   end;
 
 implementation
 
-uses RepositoryDataModule, System.Math, System.IOUtils, SettingsController,
-  System.Types, ProjectConst, StrHelper, BaseQuery, BaseEventsQuery;
+uses
+  System.SysUtils, BaseEventsQuery, StrHelper;
 
-{$R *.dfm}
-
-constructor TBaseComponentsGroup.Create(AOwner: TComponent);
+constructor TBaseComponentsGroup2.Create(AOwner: TComponent);
 begin
   inherited;
   FFullDeleted := TList<Integer>.Create;
@@ -54,19 +42,20 @@ begin
   FAfterApplyUpdates := TNotifyEventsEx.Create(Self);
 end;
 
-destructor TBaseComponentsGroup.Destroy;
+destructor TBaseComponentsGroup2.Destroy;
 begin
+  FreeAndNil(FAfterApplyUpdates);
   FreeAndNil(FFullDeleted);
   inherited;
 end;
 
-procedure TBaseComponentsGroup.Commit;
+procedure TBaseComponentsGroup2.Commit;
 begin
   inherited;
   FFullDeleted.Clear;
 end;
 
-function TBaseComponentsGroup.GetProducers: TQueryProducers;
+function TBaseComponentsGroup2.GetProducers: TQueryProducers;
 begin
   if FProducers = nil then
   begin
@@ -76,7 +65,7 @@ begin
   Result := FProducers;
 end;
 
-function TBaseComponentsGroup.GetQueryBaseComponents: TQueryBaseComponents;
+function TBaseComponentsGroup2.GetQueryBaseComponents: TQueryBaseComponents;
 var
   Q: TQueryBaseEvents;
 begin
@@ -94,7 +83,7 @@ begin
   Assert(Result <> nil);
 end;
 
-function TBaseComponentsGroup.GetQueryBaseFamily: TQueryBaseFamily;
+function TBaseComponentsGroup2.GetQueryBaseFamily: TQueryBaseFamily;
 var
   Q: TQueryBaseEvents;
 begin
@@ -112,8 +101,8 @@ begin
   Assert(Result <> nil);
 end;
 
-procedure TBaseComponentsGroup.LoadDocFile(const AFileName: String;
-  ADocFieldInfo: TDocFieldInfo);
+procedure TBaseComponentsGroup2.LoadDocFile(const AFileName: String;
+    ADocFieldInfo: TDocFieldInfo);
 var
   IsEdited: Boolean;
   S: string;
@@ -131,7 +120,7 @@ begin
   end;
 end;
 
-procedure TBaseComponentsGroup.Rollback;
+procedure TBaseComponentsGroup2.Rollback;
 begin
   inherited;
   FFullDeleted.Clear;

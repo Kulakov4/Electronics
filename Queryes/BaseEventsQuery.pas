@@ -211,7 +211,45 @@ begin
 end;
 
 destructor TQueryBaseEvents.Destroy;
+var
+  I: Integer;
 begin
+  // Удалим все клоны
+  if FClones <> nil then
+  begin
+    for I := FClones.Count - 1 downto 0 do
+      DropClone(FClones[i]);
+  end;
+  Assert(FClones = nil);
+
+  FreeAndNil(FBeforeScroll);
+  FreeAndNil(FBeforeScrollI);
+  FreeAndNil(FAfterScroll);
+
+  FreeAndNil(FBeforeInsert);
+  FreeAndNil(FAfterInsert);
+
+  FreeAndNil(FBeforeDelete);
+  FreeAndNil(FAfterDelete);
+
+  FreeAndNil(FBeforeOpen);
+  FreeAndNil(FAfterOpen);
+
+  FreeAndNil(FBeforeClose);
+  FreeAndNil(FAfterClose);
+
+  FreeAndNil(FBeforePost);
+  FreeAndNil(FAfterPost);
+
+  FreeAndNil(FBeforeEdit);
+  FreeAndNil(FAfterEdit);
+
+  FreeAndNil(FAfterCancel);
+
+  FreeAndNil(FAfterCommit);
+
+  FreeAndNil(FAfterCancelUpdates);
+
   Assert(FMonitor <> nil);
   // Удаляем себя из списка всех запросов
   FMonitor.Remove(Self);
@@ -241,14 +279,14 @@ begin
     TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
   end;
 
-  Result := TFDMemTable.Create(Self);
+  Result := TFDMemTable.Create(nil); // Владельцем будет список
   Result.Filter := AFilter;
 
   // Клонируем
   if FDQuery.Active then
     CloneCursor(Result);
 
-  FClones.Add(Result);
+  FClones.Add(Result); // Владельцем будет список
 end;
 
 procedure TQueryBaseEvents.CancelUpdates;

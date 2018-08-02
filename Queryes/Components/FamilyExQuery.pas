@@ -46,6 +46,7 @@ end;
 
 destructor TQueryFamilyEx.Destroy;
 begin
+  FreeAndNil(FOn_ApplyUpdate);
   FreeAndNil(FRecordHolder);
   inherited;
 end;

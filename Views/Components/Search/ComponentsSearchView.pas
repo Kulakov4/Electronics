@@ -12,7 +12,7 @@ uses
   cxEditRepositoryItems, cxExtEditRepositoryItems, System.Actions, Vcl.ActnList,
   dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ComponentsSearchGroupUnit,
+  cxGridCustomView, cxGrid, ComponentsSearchGroupUnit2,
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
   dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxTextEdit,
-  cxBlobEdit;
+  cxBlobEdit, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 type
   TViewComponentsSearch = class(TViewComponentsBase)
@@ -57,17 +58,17 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    function GetComponentsSearchGroup: TComponentsSearchGroup;
+    function GetComponentsSearchGroup: TComponentsSearchGroup2;
     procedure Search(ALike: Boolean);
-    procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup);
+    procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup2);
     { Private declarations }
   protected
     procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDbBandedColumn;
       var AllowPopup: Boolean); override;
   public
     procedure UpdateView; override;
-    property ComponentsSearchGroup: TComponentsSearchGroup
-      read GetComponentsSearchGroup write SetComponentsSearchGroup;
+    property ComponentsSearchGroup: TComponentsSearchGroup2 read
+        GetComponentsSearchGroup write SetComponentsSearchGroup;
     { Public declarations }
   end;
 
@@ -177,9 +178,10 @@ begin
   end;
 end;
 
-function TViewComponentsSearch.GetComponentsSearchGroup: TComponentsSearchGroup;
+function TViewComponentsSearch.GetComponentsSearchGroup:
+    TComponentsSearchGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsSearchGroup;
+  Result := BaseComponentsGroup as TComponentsSearchGroup2;
 end;
 
 procedure TViewComponentsSearch.OnGridRecordCellPopupMenu
@@ -210,8 +212,8 @@ begin
   PostMyApplyBestFitEvent;
 end;
 
-procedure TViewComponentsSearch.SetComponentsSearchGroup
-  (const Value: TComponentsSearchGroup);
+procedure TViewComponentsSearch.SetComponentsSearchGroup(const Value:
+    TComponentsSearchGroup2);
 begin
   if BaseComponentsGroup <> Value then
   begin

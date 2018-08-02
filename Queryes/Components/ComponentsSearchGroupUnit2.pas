@@ -1,18 +1,13 @@
-unit ComponentsSearchGroupUnit;
+unit ComponentsSearchGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, CustomComponentsQuery,
-  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  BaseFamilyQuery, BaseComponentsQuery, FamilySearchQuery,
-  ComponentsSearchQuery, BaseComponentsGroupUnit, SearchComponentOrFamilyQuery,
-  NotifyEvents;
+  BaseComponentsGroupUnit2, NotifyEvents, System.Classes,
+  ComponentsSearchQuery, FamilySearchQuery, SearchComponentOrFamilyQuery;
 
 type
-  TComponentsSearchGroup = class(TBaseComponentsGroup)
+  TComponentsSearchGroup2 = class(TBaseComponentsGroup2)
   private
     FOnOpenCategory: TNotifyEventsEx;
     FqComponentsSearch: TQueryComponentsSearch;
@@ -23,27 +18,24 @@ type
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
         GetqSearchComponentOrFamily;
-    { Private declarations }
-  protected
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function ApplyUpdates: Boolean; override;
     procedure ClearSearchResult;
     procedure OpenCategory;
     procedure Search(ALike: Boolean);
-    property OnOpenCategory: TNotifyEventsEx read FOnOpenCategory;
     property qComponentsSearch: TQueryComponentsSearch read GetqComponentsSearch;
     property qFamilySearch: TQueryFamilySearch read GetqFamilySearch;
-    { Public declarations }
+    property OnOpenCategory: TNotifyEventsEx read FOnOpenCategory;
   end;
 
 implementation
 
-{$R *.dfm}
+uses
+  SearchInterfaceUnit, System.SysUtils;
 
-uses SearchInterfaceUnit, RepositoryDataModule;
-
-constructor TComponentsSearchGroup.Create(AOwner: TComponent);
+constructor TComponentsSearchGroup2.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
@@ -55,7 +47,13 @@ begin
   FOnOpenCategory := TNotifyEventsEx.Create(Self);
 end;
 
-function TComponentsSearchGroup.ApplyUpdates: Boolean;
+destructor TComponentsSearchGroup2.Destroy;
+begin
+  FreeAndNil(FOnOpenCategory);
+  inherited;
+end;
+
+function TComponentsSearchGroup2.ApplyUpdates: Boolean;
 begin
   // Если находимся в режиме отображения найденных записей
   if qFamilySearch.Mode = RecordsMode then
@@ -66,13 +64,13 @@ begin
     Result := True;
 end;
 
-procedure TComponentsSearchGroup.ClearSearchResult;
+procedure TComponentsSearchGroup2.ClearSearchResult;
 begin
   qComponentsSearch.ClearSearchResult;
   qFamilySearch.ClearSearchResult;
 end;
 
-function TComponentsSearchGroup.GetqComponentsSearch: TQueryComponentsSearch;
+function TComponentsSearchGroup2.GetqComponentsSearch: TQueryComponentsSearch;
 begin
   if FqComponentsSearch = nil then
     FqComponentsSearch := TQueryComponentsSearch.Create(Self);
@@ -80,14 +78,14 @@ begin
   Result := FqComponentsSearch;
 end;
 
-function TComponentsSearchGroup.GetqFamilySearch: TQueryFamilySearch;
+function TComponentsSearchGroup2.GetqFamilySearch: TQueryFamilySearch;
 begin
   if FqFamilySearch = nil then
     FqFamilySearch := TQueryFamilySearch.Create(Self);
   Result := FqFamilySearch;
 end;
 
-function TComponentsSearchGroup.GetqSearchComponentOrFamily:
+function TComponentsSearchGroup2.GetqSearchComponentOrFamily:
     TQuerySearchComponentOrFamily;
 begin
   if FqSearchComponentOrFamily = nil then
@@ -96,12 +94,12 @@ begin
   Result := FqSearchComponentOrFamily;
 end;
 
-procedure TComponentsSearchGroup.OpenCategory;
+procedure TComponentsSearchGroup2.OpenCategory;
 begin
   FOnOpenCategory.CallEventHandlers(Self);
 end;
 
-procedure TComponentsSearchGroup.Search(ALike: Boolean);
+procedure TComponentsSearchGroup2.Search(ALike: Boolean);
 var
   s: string;
   sDetail: string;

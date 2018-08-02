@@ -26,7 +26,7 @@ uses
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
   Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections,
   Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper, System.Contnrs,
-  Vcl.ComCtrls, dxCore;
+  Vcl.ComCtrls, dxCore, cxDataControllerConditionalFormattingRulesManagerDialog;
 
 type
   TfrmTreeList = class(TFrame)

@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ParametersGroupUnit,
+  cxGridDBBandedTableView, cxGrid, ParametersGroupUnit2,
   cxDBLookupComboBox, cxBlobEdit, FireDAC.Comp.Client, cxTextEdit,
   HRTimer, DragHelper, ParametersExcelDataModule, dxSkinsCore,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
@@ -29,7 +29,8 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxBarEditItem,
-  cxCheckBox;
+  cxCheckBox, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 12;
@@ -149,11 +150,11 @@ type
     FExpandedRecordIndex: Integer;
     FHRTimer: THRTimer;
     FNewValue: string;
-    FParametersGrp: TParametersGroup;
+    FParametersGrp: TParametersGroup2;
     FParametersDI: TDragAndDropInfo;
     procedure LoadDataFromExcelTable(AData: TParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
-    procedure SetParametersGrp(const Value: TParametersGroup);
+    procedure SetParametersGrp(const Value: TParametersGroup2);
     procedure UpdateAutoTransaction;
     procedure UpdateTotalCount;
     { Private declarations }
@@ -178,8 +179,8 @@ type
     procedure Search(const AName: string);
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
-    property ParametersGrp: TParametersGroup read FParametersGrp
-      write SetParametersGrp;
+    property ParametersGrp: TParametersGroup2 read FParametersGrp write
+        SetParametersGrp;
     { Public declarations }
   end;
 
@@ -222,6 +223,7 @@ end;
 
 destructor TViewParameters.Destroy;
 begin
+  FreeAndNil(FParametersDI);
   FreeAndNil(FParameterTypesDI);
   inherited;
 end;
@@ -959,7 +961,7 @@ begin
   end;
 end;
 
-procedure TViewParameters.SetParametersGrp(const Value: TParametersGroup);
+procedure TViewParameters.SetParametersGrp(const Value: TParametersGroup2);
 begin
   if FParametersGrp = Value then
     Exit;

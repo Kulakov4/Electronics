@@ -26,7 +26,8 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ChildCategoriesQuery, DragHelper, HRTimer;
+  cxGridDBBandedTableView, cxGrid, ChildCategoriesQuery, DragHelper, HRTimer,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewChildCategories = class(TfrmGrid)
@@ -62,6 +63,7 @@ type
       var AllowPopup: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property qChildCategories: TQueryChildCategories read FqChildCategories
       write SetqChildCategories;
     { Public declarations }
@@ -81,6 +83,12 @@ begin
 
   GridSort.Add(TSortVariant.Create(clOrd, [clOrd]));
   ApplySort(MainView, clOrd);
+end;
+
+destructor TViewChildCategories.Destroy;
+begin
+  FreeAndNil( FDragAndDropInfo );
+  inherited;
 end;
 
 procedure TViewChildCategories.actAddExecute(Sender: TObject);

@@ -33,6 +33,7 @@ type
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AddChildCategory(const AValue: string; ALevel: Integer);
     procedure AddRoot;
     function CheckPossibility(const AParentID: Integer;
@@ -67,6 +68,13 @@ begin
   FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(AfterScroll, DoAfterScroll, FEventList);
+end;
+
+destructor TQueryTreeList.Destroy;
+begin
+  FreeAndNil(FAfterSmartRefresh);
+
+  inherited;
 end;
 
 procedure TQueryTreeList.AddChildCategory(const AValue: string;

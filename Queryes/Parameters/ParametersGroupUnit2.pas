@@ -1,21 +1,14 @@
-unit ParametersGroupUnit;
+unit ParametersGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.ExtCtrls, ParameterTypesQuery, ParametersQuery, FireDAC.Comp.Client,
-  FireDAC.Stan.Intf, NotifyEvents, ParametersExcelDataModule,
-  System.Generics.Collections, FireDAC.Stan.Option,  FireDAC.Stan.Param,
-  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,  FireDAC.DApt.Intf,
-  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  QueryGroupUnit, OrderQuery, ParameterKindsQuery,
-  SubParametersQuery2, ParamSubParamsQuery;
+  QueryGroupUnit2, System.Classes, ParameterKindsQuery, ParametersQuery,
+  ParameterTypesQuery, ParamSubParamsQuery, SubParametersQuery2,
+  System.Generics.Collections, ParametersExcelDataModule, NotifyEvents;
 
 type
-  TParametersGroup = class(TQueryGroup)
+  TParametersGroup2 = class(TQueryGroup2)
   private
     FProductCategoryIDValue: Integer;
     FqParameterKinds: TQueryParameterKinds;
@@ -26,7 +19,6 @@ type
     procedure DoBeforeDelete(Sender: TObject);
     function GetqParameterKinds: TQueryParameterKinds;
     procedure SetProductCategoryIDValue(const Value: Integer);
-    { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
@@ -39,16 +31,14 @@ type
     property qParameterTypes: TQueryParameterTypes read FqParameterTypes;
     property qParamSubParams: TQueryParamSubParams read FqParamSubParams;
     property qSubParameters: TQuerySubParameters2 read FqSubParameters;
-    { Public declarations }
   end;
 
 implementation
 
-{$R *.dfm}
+uses
+  System.SysUtils, Data.DB, ParameterKindEnum;
 
-uses RepositoryDataModule, ParameterKindEnum;
-
-constructor TParametersGroup.Create(AOwner: TComponent);
+constructor TParametersGroup2.Create(AOwner: TComponent);
 begin
   inherited;
   // Типы параметров
@@ -69,14 +59,14 @@ begin
   TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete, EventList);
 end;
 
-procedure TParametersGroup.DoBeforeDelete(Sender: TObject);
+procedure TParametersGroup2.DoBeforeDelete(Sender: TObject);
 begin
   // Каскадно удаляем параметры
   qParameters.CascadeDelete(qParameterTypes.PK.Value,
     qParameters.IDParameterType.FieldName);
 end;
 
-function TParametersGroup.Find(const AFieldName, S: string): TList<String>;
+function TParametersGroup2.Find(const AFieldName, S: string): TList<String>;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -99,7 +89,7 @@ begin
     end;
 end;
 
-function TParametersGroup.GetqParameterKinds: TQueryParameterKinds;
+function TParametersGroup2.GetqParameterKinds: TQueryParameterKinds;
 begin
   if FqParameterKinds = nil then
   begin
@@ -110,7 +100,7 @@ begin
   Result := FqParameterKinds;
 end;
 
-procedure TParametersGroup.LoadDataFromExcelTable(AParametersExcelTable:
+procedure TParametersGroup2.LoadDataFromExcelTable(AParametersExcelTable:
     TParametersExcelTable);
 var
   AField: TField;
@@ -185,7 +175,7 @@ begin
   end;
 end;
 
-function TParametersGroup.LocateAll(AParameterID: Integer): Boolean;
+function TParametersGroup2.LocateAll(AParameterID: Integer): Boolean;
 begin
   // Сначала ищем параметр
   Result := qParameters.LocateByPK(AParameterID);
@@ -196,7 +186,7 @@ begin
   qParameterTypes.LocateByPK(qParameters.IDParameterType.AsInteger, True);
 end;
 
-procedure TParametersGroup.SetProductCategoryIDValue(const Value: Integer);
+procedure TParametersGroup2.SetProductCategoryIDValue(const Value: Integer);
 begin
   if FProductCategoryIDValue = Value then
     Exit;

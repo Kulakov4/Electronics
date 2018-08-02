@@ -231,11 +231,7 @@ inherited ViewParametricTable: TViewParametricTable
     ExplicitWidth = 903
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item
@@ -447,6 +443,9 @@ inherited ViewParametricTable: TViewParametricTable
         Index = 3
         PopupMenu = pmBands
       end>
+  end
+  inherited cxerComponents: TcxEditRepository
+    PixelsPerInch = 96
   end
   object BandTimer: TTimer
     Enabled = False

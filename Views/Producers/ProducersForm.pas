@@ -50,7 +50,7 @@ implementation
 
 {$R *.dfm}
 
-uses ProducersQuery, DialogUnit, ProducersGroupUnit, SettingsController;
+uses ProducersQuery, DialogUnit, ProducersGroupUnit2, SettingsController;
 
 constructor TfrmProducers.Create(AOwner: TComponent);
 begin
@@ -87,11 +87,11 @@ class function TfrmProducers.TakeProducer(var AProducerID: Integer;
 var
   AfrmProducers: TfrmProducers;
   ALastProducer: string;
-  AProducersGroup: TProducersGroup;
+  AProducersGroup: TProducersGroup2;
 begin
   Result := False;
   // —начала выберем производител€ из справочника
-  AProducersGroup := TProducersGroup.Create(nil);
+  AProducersGroup := TProducersGroup2.Create(nil);
   try
     AProducersGroup.ReOpen;
     AfrmProducers := TfrmProducers.Create(nil);

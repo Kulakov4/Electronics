@@ -10,7 +10,7 @@ uses
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, Data.DB, FireDAC.Comp.Client, Vcl.ImgList,
   Vcl.Controls, cxGraphics, cxStyles, System.ImageList, NotifyEvents,
-  FireDAC.VCLUI.Wait, FireDAC.Moni.Base, FireDAC.Moni.FlatFile;
+  FireDAC.VCLUI.Wait, FireDAC.Moni.Base, FireDAC.Moni.FlatFile, cxImageList;
 
 type
   TDMRepository = class(TDataModule)
@@ -44,6 +44,7 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property BeforeCommit: TNotifyEventsEx read FBeforeCommit;
     property AfterConnect: TNotifyEventsEx read FAfterConnect;
@@ -74,6 +75,16 @@ begin
 
   // локализуем девэкспресс
   LocalizeDevExpress();
+end;
+
+destructor TDMRepository.Destroy;
+begin
+  inherited;
+  FreeAndNil(FAfterCommit);
+  FreeAndNil(FBeforeCommit);
+
+  FreeAndNil(FAfterRollback);
+  FreeAndNil(FAfterConnect);
 end;
 
 procedure TDMRepository.dbConnectionAfterCommit(Sender: TObject);

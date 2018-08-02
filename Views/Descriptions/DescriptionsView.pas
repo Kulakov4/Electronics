@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, DescriptionsGroupUnit,
+  cxGridDBBandedTableView, cxGrid, DescriptionsGroupUnit2,
   cxDBLookupComboBox, Vcl.Grids, Vcl.DBGrids, ColumnsBarButtonsHelper,
   cxGridDBTableView, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, HRTimer,
-  DragHelper, dxCore, System.Generics.Collections;
+  DragHelper, dxCore, System.Generics.Collections,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 11;
@@ -93,13 +94,13 @@ type
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
-    FDescriptionsGroup: TDescriptionsGroup;
+    FDescriptionsGroup: TDescriptionsGroup2;
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
     procedure DoOnHaveAnyChanges(Sender: TObject);
-    procedure SetDescriptionsGroup(const Value: TDescriptionsGroup);
+    procedure SetDescriptionsGroup(const Value: TDescriptionsGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -115,8 +116,8 @@ type
     destructor Destroy; override;
     procedure Locate(const AComponentName: string);
     procedure UpdateView; override;
-    property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup
-      write SetDescriptionsGroup;
+    property DescriptionsGroup: TDescriptionsGroup2 read FDescriptionsGroup write
+        SetDescriptionsGroup;
     { Public declarations }
   end;
 
@@ -592,8 +593,8 @@ begin
   end;
 end;
 
-procedure TViewDescriptions.SetDescriptionsGroup(const Value
-  : TDescriptionsGroup);
+procedure TViewDescriptions.SetDescriptionsGroup(const Value:
+    TDescriptionsGroup2);
 begin
   FDescriptionsGroup := Value;
 

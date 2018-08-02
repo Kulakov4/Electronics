@@ -45,11 +45,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            0
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -142,11 +138,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            28
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -162,6 +154,9 @@ object ComponentsFrame: TComponentsFrame
               Index = 1
               PopupMenu = ViewComponents.pmGrid
             end>
+        end
+        inherited cxerComponents: TcxEditRepository
+          PixelsPerInch = 96
         end
       end
     end
@@ -191,11 +186,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            56
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -287,11 +278,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            28
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -307,6 +294,9 @@ object ComponentsFrame: TComponentsFrame
               Index = 1
               PopupMenu = ViewComponentsSearch.pmGrid
             end>
+        end
+        inherited cxerComponents: TcxEditRepository
+          PixelsPerInch = 96
         end
       end
     end
@@ -400,11 +390,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            28
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -433,6 +419,9 @@ object ComponentsFrame: TComponentsFrame
               PopupMenu = ViewParametricTable.pmBands
             end>
         end
+        inherited cxerComponents: TcxEditRepository
+          PixelsPerInch = 96
+        end
         inherited cxStyleRepository: TcxStyleRepository
           PixelsPerInch = 96
         end
@@ -456,6 +445,7 @@ object ComponentsFrame: TComponentsFrame
     UseSystemFont = True
     Left = 340
     Top = 120
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

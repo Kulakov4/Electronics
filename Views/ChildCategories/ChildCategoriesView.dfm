@@ -12,7 +12,6 @@ inherited ViewChildCategories: TViewChildCategories
       OptionsCustomize.ColumnFiltering = False
       OptionsCustomize.ColumnGrouping = False
       OptionsCustomize.ColumnMoving = False
-      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       object clId: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Id'
@@ -54,11 +53,7 @@ inherited ViewChildCategories: TViewChildCategories
     end
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      0
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item

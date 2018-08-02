@@ -30,7 +30,9 @@ uses
   System.Generics.Collections, StrHelper, BandsInfo, cxMemo, Vcl.StdCtrls,
   cxButtons, Vcl.ExtCtrls, dxCalloutPopup, GridFrame, GridView, System.Math,
   cxCheckBox, cxLabel, ParameterKindEnum, PopupAnalogGridView,
-  RepositoryDataModule, CategoryParametersQuery2;
+  RepositoryDataModule, CategoryParametersQuery2,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxImageList;
 
 const
   WM_AFTER_INIT_EDIT = WM_USER + 1;
@@ -102,9 +104,8 @@ type
 implementation
 
 uses
-  AutoSizeGridViewForm, System.Types,
-  CategoryParametersGroupUnit, FireDAC.Comp.Client, TextRectHelper,
-  System.StrUtils;
+  AutoSizeGridViewForm, System.Types, FireDAC.Comp.Client, TextRectHelper,
+  System.StrUtils, CategoryParametersGroupUnit2;
 
 {$R *.dfm}
 

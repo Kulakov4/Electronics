@@ -1,43 +1,37 @@
-unit ComponentsExGroupUnit;
+unit ComponentsExGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, FamilyExQuery,
-  ProductParametersQuery, Data.DB, FireDAC.Stan.Option, FireDAC.Comp.DataSet,
-  CustomComponentsQuery, System.Contnrs, System.Generics.Collections,
-  QueryWithDataSourceUnit, BaseQuery, BaseEventsQuery, QueryWithMasterUnit,
-  FamilyQuery, BaseFamilyQuery, BaseComponentsQuery, ComponentsQuery,
-  ComponentsExQuery, BaseComponentsGroupUnit, NotifyEvents, UpdateParamValueRec,
-  CategoryParametersGroupUnit, CategoryParametersQuery2, DBRecordHolder;
+  BaseComponentsGroupUnit2, CategoryParametersGroupUnit2,
+  CategoryParametersQuery2, Data.DB, NotifyEvents, System.Classes,
+  System.Contnrs, FireDAC.Stan.Option, FireDAC.Stan.Intf,
+  System.Generics.Collections, ComponentsExQuery, FamilyExQuery,
+  ProductParametersQuery, CustomComponentsQuery;
 
 type
-  TComponentsExGroup = class(TBaseComponentsGroup)
-    procedure OnFDQueryUpdateRecord(ASender: TDataSet;
-      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-      AOptions: TFDUpdateRowOptions);
+  TComponentsExGroup2 = class(TBaseComponentsGroup2)
+    procedure OnFDQueryUpdateRecord(ASender: TDataSet; ARequest: TFDUpdateRequest;
+        var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
   private
-    FApplyUpdateEvents: TObjectList;
-    FClientCount: Integer;
-    FMark: string;
     FAllParameterFields: TDictionary<Integer, String>;
-    FCatParamsGroup: TCategoryParametersGroup;
+    FApplyUpdateEvents: TObjectList;
+    FCatParamsGroup: TCategoryParametersGroup2;
+    FClientCount: Integer;
     FFieldIndex: Integer;
     FFreeFields: TList<String>;
+    FMark: string;
     FOnParamOrderChange: TNotifyEventsEx;
     FqComponentsEx: TQueryComponentsEx;
     FqFamilyEx: TQueryFamilyEx;
     FqProductParameters: TQueryProductParameters;
-
   const
     FFieldPrefix: string = 'Field';
     FFreeFieldCount = 20;
+    procedure ApplyUpdate(AQueryCustomComponents: TQueryCustomComponents; AFamily:
+        Boolean);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    procedure ApplyUpdate(AQueryCustomComponents: TQueryCustomComponents;
-      AFamily: Boolean);
     procedure DoOnApplyUpdateComponent(Sender: TObject);
     procedure DoOnApplyUpdateFamily(Sender: TObject);
     function GetNextFieldName: String;
@@ -45,43 +39,39 @@ type
     function GetqComponentsEx: TQueryComponentsEx;
     function GetqFamilyEx: TQueryFamilyEx;
     function GetqProductParameters: TQueryProductParameters;
-    procedure UpdateParameterValue(AComponentID: Integer;
-      const AParamSubParamID: Integer; const AVaramValue: String);
-    { Private declarations }
+    procedure UpdateParameterValue(AComponentID: Integer; const AParamSubParamID:
+        Integer; const AVaramValue: String);
   protected
     // TODO: ClearUpdateCount
     procedure LoadParameterValues;
-    property qCategoryParameters: TQueryCategoryParameters2
-      read GetqCategoryParameters;
-    property qProductParameters: TQueryProductParameters
-      read GetqProductParameters;
+    property qCategoryParameters: TQueryCategoryParameters2 read
+        GetqCategoryParameters;
+    property qProductParameters: TQueryProductParameters read GetqProductParameters;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddClient;
-    procedure UpdateFields;
     procedure DecClient;
     function GetIDParameter(const AFieldName: String): Integer;
     procedure TryRefresh;
+    procedure UpdateFields;
+    property AllParameterFields: TDictionary<Integer, String> read
+        FAllParameterFields;
+    property CatParamsGroup: TCategoryParametersGroup2 read FCatParamsGroup;
     property Mark: string read FMark;
-    property AllParameterFields: TDictionary<Integer, String>
-      read FAllParameterFields;
-    property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
-    property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup;
     property qComponentsEx: TQueryComponentsEx read GetqComponentsEx;
     property qFamilyEx: TQueryFamilyEx read GetqFamilyEx;
-    { Public declarations }
+    property OnParamOrderChange: TNotifyEventsEx read FOnParamOrderChange;
   end;
 
 implementation
 
-uses FireDAC.Stan.Param, SearchFamilyParamValuesQuery,
-  UpdateParameterValuesParamSubParamQuery;
+uses
+  System.SysUtils, FireDAC.Comp.Client, DBRecordHolder;
 
-{$R *.dfm}
 { TfrmComponentsMasterDetail }
 
-constructor TComponentsExGroup.Create(AOwner: TComponent);
+constructor TComponentsExGroup2.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
@@ -91,7 +81,7 @@ begin
 
   FMark := '!';
 
-  FCatParamsGroup := TCategoryParametersGroup.Create(Self);
+  FCatParamsGroup := TCategoryParametersGroup2.Create(Self);
 
   // Сначала будем открывать компоненты, чтобы при открытии семейства знать сколько у него компонент
   // Компоненты и семейства не связаны как главный-подчинённый главным для них является категория
@@ -109,15 +99,17 @@ begin
   FFreeFields := TList<String>.Create;
 end;
 
-destructor TComponentsExGroup.Destroy;
+destructor TComponentsExGroup2.Destroy;
 begin
+  FreeAndNil(FOnParamOrderChange);
+
   FreeAndNil(FAllParameterFields);
   FreeAndNil(FApplyUpdateEvents);
   FreeAndNil(FFreeFields);
   inherited;
 end;
 
-procedure TComponentsExGroup.AddClient;
+procedure TComponentsExGroup2.AddClient;
 begin
   Inc(FClientCount);
 
@@ -131,74 +123,51 @@ begin
 
 end;
 
-procedure TComponentsExGroup.UpdateFields;
+procedure TComponentsExGroup2.ApplyUpdate(AQueryCustomComponents :
+    TQueryCustomComponents; AFamily: Boolean);
 var
-  AFieldName: string;
-  AID: Integer;
+  // AQueryCustomComponents: TQueryCustomComponents;
+  AField: TField;
+  AFieldName: String;
   AParamSubParamID: Integer;
-//  AProductCategoryID: Integer;
-  ARecHolder: TRecordHolder;
-  OK: Boolean;
+  // ADataSet: TFDQuery;
+  // ANewValue: String;
+  // AOldValue: String;
 begin
-  // Обрабатываем удалённые подпараметры
-  for ARecHolder in qCategoryParameters.DeletedSubParams do
+  // AQueryCustomComponents := Sender as TQueryCustomComponents;
+
+  // ADataSet := AQueryCustomComponents.FDQuery;
+  Assert(AQueryCustomComponents.RecordHolder <> nil);
+
+  // Цикл по всем добавленным полям
+
+  CatParamsGroup.qCategoryParameters.FDQuery.First;
+  while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
-    AParamSubParamID := ARecHolder.Field
-      [qCategoryParameters.ParamSubParamId.FieldName];
-//    AProductCategoryID := ARecHolder.Field
-//      [qCategoryParameters.ProductCategoryID.FieldName];
-    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
-    Assert(OK);
-    AFieldName := FAllParameterFields[AParamSubParamID];
-    FAllParameterFields.Remove(AParamSubParamID);
-    // Добавляем поля в список свободных
-    FFreeFields.Add(AFieldName);
+    AParamSubParamID := CatParamsGroup.qCategoryParameters.
+      ParamSubParamId.AsInteger;
+    AFieldName := AllParameterFields[AParamSubParamID];
+    AField := AQueryCustomComponents.Field(AFieldName);
 
-    // Удаляем данные удалённого параметра
-//    TqUpdateParameterValuesParamSubParam.DoDelete(AParamSubParamID,
-//      AProductCategoryID);
-  end;
 
-  // Обрабатываем изменённые подпараметры
-  for ARecHolder in qCategoryParameters.EditedSubParams do
-  begin
-    AParamSubParamID := ARecHolder.Field
-      [qCategoryParameters.ParamSubParamId.FieldName];
-    AID := ARecHolder.Field[qCategoryParameters.PKFieldName];
-    qCategoryParameters.LocateByPK(AID, True);
-    Assert(AParamSubParamID <> qCategoryParameters.ParamSubParamId.AsInteger);
+    // AField.OldValue <> AField.Value почему-то не работает
+    // AOldValue := VarToStrDef(AQueryCustomComponents.RecordHolder.Field[AFieldName], '');
+    // ANewValue := VarToStrDef(AField.Value, '');
 
-    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
-    Assert(OK);
-    AFieldName := FAllParameterFields[AParamSubParamID];
-
-    FAllParameterFields.Remove(AParamSubParamID);
-    FAllParameterFields.Add(qCategoryParameters.ParamSubParamId.AsInteger,
-      AFieldName);
-
-    // Переносим данные с со старого подпараметра на новый
-//    TqUpdateParameterValuesParamSubParam.DoUpdate
-//      (qCategoryParameters.ParamSubParamId.AsInteger, AParamSubParamID,
-//      qCategoryParameters.ProductCategoryID.AsInteger)
-  end;
-
-  // Обрабатываем добавленные подпараметры
-  for ARecHolder in qCategoryParameters.InsertedSubParams do
-  begin
-    Assert(FFreeFields.Count > 0);
-    AParamSubParamID := ARecHolder.Field
-      [qCategoryParameters.ParamSubParamId.FieldName];
-    // Такого подпараметра ещё не должно быть
-    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
-    Assert(not OK);
-
-    // Задействуем первое свободное поле
-    FAllParameterFields.Add(AParamSubParamID, FFreeFields[0]);
-    FFreeFields.Delete(0);
+    // Если значение данного параметра изменилось
+    if AQueryCustomComponents.RecordHolder.Field[AFieldName] <> AField.Value
+    then
+    begin
+      // Обновляем значение параметра на сервере
+      UpdateParameterValue(AQueryCustomComponents.PK.AsInteger,
+        AParamSubParamID, AField.AsString);
+    end;
+    // Переходим к следующему подпараметру
+    CatParamsGroup.qCategoryParameters.FDQuery.Next;
   end;
 end;
 
-procedure TComponentsExGroup.DecClient;
+procedure TComponentsExGroup2.DecClient;
 begin
   Dec(FClientCount);
   Assert(FClientCount >= 0);
@@ -210,12 +179,12 @@ begin
   end;
 end;
 
-procedure TComponentsExGroup.DoAfterOpen(Sender: TObject);
+procedure TComponentsExGroup2.DoAfterOpen(Sender: TObject);
 begin
   LoadParameterValues;
 end;
 
-procedure TComponentsExGroup.DoBeforeOpen(Sender: TObject);
+procedure TComponentsExGroup2.DoBeforeOpen(Sender: TObject);
 var
   AData: TQueryCustomComponents;
   AFDQuery: TFDQuery;
@@ -295,68 +264,17 @@ begin
 
 end;
 
-procedure TComponentsExGroup.ApplyUpdate(AQueryCustomComponents
-  : TQueryCustomComponents; AFamily: Boolean);
-var
-  // AQueryCustomComponents: TQueryCustomComponents;
-  AField: TField;
-  AFieldName: String;
-  AParamSubParamID: Integer;
-  // ADataSet: TFDQuery;
-  // ANewValue: String;
-  // AOldValue: String;
-begin
-  // AQueryCustomComponents := Sender as TQueryCustomComponents;
-
-  // ADataSet := AQueryCustomComponents.FDQuery;
-  Assert(AQueryCustomComponents.RecordHolder <> nil);
-
-  // Цикл по всем добавленным полям
-
-  CatParamsGroup.qCategoryParameters.FDQuery.First;
-  while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
-  begin
-    AParamSubParamID := CatParamsGroup.qCategoryParameters.
-      ParamSubParamId.AsInteger;
-    AFieldName := AllParameterFields[AParamSubParamID];
-    AField := AQueryCustomComponents.Field(AFieldName);
-
-
-    // AField.OldValue <> AField.Value почему-то не работает
-    // AOldValue := VarToStrDef(AQueryCustomComponents.RecordHolder.Field[AFieldName], '');
-    // ANewValue := VarToStrDef(AField.Value, '');
-
-    // Если значение данного параметра изменилось
-    if AQueryCustomComponents.RecordHolder.Field[AFieldName] <> AField.Value
-    then
-    begin
-      // Обновляем значение параметра на сервере
-      UpdateParameterValue(AQueryCustomComponents.PK.AsInteger,
-        AParamSubParamID, AField.AsString);
-    end;
-    // Переходим к следующему подпараметру
-    CatParamsGroup.qCategoryParameters.FDQuery.Next;
-  end;
-end;
-
-procedure TComponentsExGroup.DoOnApplyUpdateComponent(Sender: TObject);
+procedure TComponentsExGroup2.DoOnApplyUpdateComponent(Sender: TObject);
 begin
   ApplyUpdate(Sender as TQueryCustomComponents, False);
 end;
 
-procedure TComponentsExGroup.DoOnApplyUpdateFamily(Sender: TObject);
+procedure TComponentsExGroup2.DoOnApplyUpdateFamily(Sender: TObject);
 begin
   ApplyUpdate(Sender as TQueryCustomComponents, True);
 end;
 
-procedure TComponentsExGroup.OnFDQueryUpdateRecord(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
-begin
-  AAction := eaApplied;
-end;
-
-function TComponentsExGroup.GetIDParameter(const AFieldName: String): Integer;
+function TComponentsExGroup2.GetIDParameter(const AFieldName: String): Integer;
 var
   S: string;
 begin
@@ -364,18 +282,18 @@ begin
   Result := S.ToInteger();
 end;
 
-function TComponentsExGroup.GetNextFieldName: String;
+function TComponentsExGroup2.GetNextFieldName: String;
 begin
   Inc(FFieldIndex);
   Result := Format('%s_%d', [FFieldPrefix, FFieldIndex]);
 end;
 
-function TComponentsExGroup.GetqCategoryParameters: TQueryCategoryParameters2;
+function TComponentsExGroup2.GetqCategoryParameters: TQueryCategoryParameters2;
 begin
   Result := CatParamsGroup.qCategoryParameters;
 end;
 
-function TComponentsExGroup.GetqComponentsEx: TQueryComponentsEx;
+function TComponentsExGroup2.GetqComponentsEx: TQueryComponentsEx;
 begin
   if FqComponentsEx = nil then
     FqComponentsEx := TQueryComponentsEx.Create(Self);
@@ -383,14 +301,14 @@ begin
   Result := FqComponentsEx;
 end;
 
-function TComponentsExGroup.GetqFamilyEx: TQueryFamilyEx;
+function TComponentsExGroup2.GetqFamilyEx: TQueryFamilyEx;
 begin
   if FqFamilyEx = nil then
     FqFamilyEx := TQueryFamilyEx.Create(Self);
   Result := FqFamilyEx;
 end;
 
-function TComponentsExGroup.GetqProductParameters: TQueryProductParameters;
+function TComponentsExGroup2.GetqProductParameters: TQueryProductParameters;
 begin
   if FqProductParameters = nil then
     FqProductParameters := TQueryProductParameters.Create(Self);
@@ -398,7 +316,7 @@ begin
   Result := FqProductParameters;
 end;
 
-procedure TComponentsExGroup.LoadParameterValues;
+procedure TComponentsExGroup2.LoadParameterValues;
 var
   AField: TField;
   qryComponents: TQueryCustomComponents;
@@ -486,15 +404,89 @@ begin
   Connection.Commit;
 end;
 
-procedure TComponentsExGroup.TryRefresh;
+procedure TComponentsExGroup2.OnFDQueryUpdateRecord(ASender: TDataSet;
+    ARequest: TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
+begin
+  AAction := eaApplied;
+end;
+
+procedure TComponentsExGroup2.TryRefresh;
 begin
   // Обновляем если они не заблокированы
   qComponentsEx.TryRefresh;
   qFamilyEx.TryRefresh;
 end;
 
-procedure TComponentsExGroup.UpdateParameterValue(AComponentID: Integer;
-  const AParamSubParamID: Integer; const AVaramValue: String);
+procedure TComponentsExGroup2.UpdateFields;
+var
+  AFieldName: string;
+  AID: Integer;
+  AParamSubParamID: Integer;
+//  AProductCategoryID: Integer;
+  ARecHolder: TRecordHolder;
+  OK: Boolean;
+begin
+  // Обрабатываем удалённые подпараметры
+  for ARecHolder in qCategoryParameters.DeletedSubParams do
+  begin
+    AParamSubParamID := ARecHolder.Field
+      [qCategoryParameters.ParamSubParamId.FieldName];
+//    AProductCategoryID := ARecHolder.Field
+//      [qCategoryParameters.ProductCategoryID.FieldName];
+    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
+    Assert(OK);
+    AFieldName := FAllParameterFields[AParamSubParamID];
+    FAllParameterFields.Remove(AParamSubParamID);
+    // Добавляем поля в список свободных
+    FFreeFields.Add(AFieldName);
+
+    // Удаляем данные удалённого параметра
+//    TqUpdateParameterValuesParamSubParam.DoDelete(AParamSubParamID,
+//      AProductCategoryID);
+  end;
+
+  // Обрабатываем изменённые подпараметры
+  for ARecHolder in qCategoryParameters.EditedSubParams do
+  begin
+    AParamSubParamID := ARecHolder.Field
+      [qCategoryParameters.ParamSubParamId.FieldName];
+    AID := ARecHolder.Field[qCategoryParameters.PKFieldName];
+    qCategoryParameters.LocateByPK(AID, True);
+    Assert(AParamSubParamID <> qCategoryParameters.ParamSubParamId.AsInteger);
+
+    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
+    Assert(OK);
+    AFieldName := FAllParameterFields[AParamSubParamID];
+
+    FAllParameterFields.Remove(AParamSubParamID);
+    FAllParameterFields.Add(qCategoryParameters.ParamSubParamId.AsInteger,
+      AFieldName);
+
+    // Переносим данные с со старого подпараметра на новый
+//    TqUpdateParameterValuesParamSubParam.DoUpdate
+//      (qCategoryParameters.ParamSubParamId.AsInteger, AParamSubParamID,
+//      qCategoryParameters.ProductCategoryID.AsInteger)
+  end;
+
+  // Обрабатываем добавленные подпараметры
+  for ARecHolder in qCategoryParameters.InsertedSubParams do
+  begin
+    Assert(FFreeFields.Count > 0);
+    AParamSubParamID := ARecHolder.Field
+      [qCategoryParameters.ParamSubParamId.FieldName];
+    // Такого подпараметра ещё не должно быть
+    OK := FAllParameterFields.ContainsKey(AParamSubParamID);
+    Assert(not OK);
+
+    // Задействуем первое свободное поле
+    FAllParameterFields.Add(AParamSubParamID, FFreeFields[0]);
+    FFreeFields.Delete(0);
+  end;
+end;
+
+procedure TComponentsExGroup2.UpdateParameterValue(AComponentID: Integer; const
+    AParamSubParamID: Integer; const AVaramValue: String);
 var
   AValue: string;
   k: Integer;

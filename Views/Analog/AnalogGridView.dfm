@@ -58,11 +58,7 @@ inherited ViewAnalogGrid: TViewAnalogGrid
         ExplicitWidth = 696
       end
       inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          0
-          0)
+        PixelsPerInch = 96
         inherited dxbrMain: TdxBar
           Visible = False
         end
@@ -84,11 +80,7 @@ inherited ViewAnalogGrid: TViewAnalogGrid
   inherited dxBarManager: TdxBarManager
     Left = 24
     Top = 168
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       Images = DMRepository.cxImageList
       ItemLinks = <

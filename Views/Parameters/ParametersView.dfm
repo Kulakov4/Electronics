@@ -312,6 +312,7 @@ inherited ViewParameters: TViewParameters
       end>
   end
   inherited dxBarManager: TdxBarManager
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

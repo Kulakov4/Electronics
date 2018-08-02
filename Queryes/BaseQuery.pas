@@ -171,6 +171,8 @@ end;
 destructor TQueryBase.Destroy;
 begin
   FreeAndNil(FEventList); // отписываемся от всех событий
+  FreeAndNil(FBeforeLoad);
+  FreeAndNil(FAfterLoad);
   inherited;
 end;
 

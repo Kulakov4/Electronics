@@ -28,10 +28,12 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  BodyTypesGroupUnit, DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
+  DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
   Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort,
   CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems,
-  JEDECPopupForm, BodyVariationsJedecQuery, BodyVariationJedecGroupQuery;
+  JEDECPopupForm, BodyVariationsJedecQuery, BodyVariationJedecGroupQuery,
+  BodyTypesGroupUnit2, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -144,7 +146,7 @@ type
     procedure cxerpiJEDECPropertiesInitPopup(Sender: TObject);
     procedure cxerpiJEDECPropertiesCloseUp(Sender: TObject);
   private
-    FBodyTypesGroup: TBodyTypesGroup;
+    FBodyTypesGroup: TBodyTypesGroup2;
     FDragAndDropInfo: TDragAndDropInfo;
     FfrmJEDECPopup: TfrmJEDECPopup;
     FHRTimer: THRTimer;
@@ -152,7 +154,7 @@ type
     procedure DoAfterDataChange(Sender: TObject);
     function GetfrmJEDECPopup: TfrmJEDECPopup;
     function GetProducerDisplayText: string;
-    procedure SetBodyTypesGroup(const Value: TBodyTypesGroup);
+    procedure SetBodyTypesGroup(const Value: TBodyTypesGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -171,8 +173,8 @@ type
     procedure AfterConstruction; override;
     procedure ApplyBestFitJEDEC;
     procedure UpdateView; override;
-    property BodyTypesGroup: TBodyTypesGroup read FBodyTypesGroup
-      write SetBodyTypesGroup;
+    property BodyTypesGroup: TBodyTypesGroup2 read FBodyTypesGroup write
+        SetBodyTypesGroup;
     property ProducerDisplayText: string read GetProducerDisplayText;
     { Public declarations }
   end;
@@ -215,6 +217,7 @@ end;
 
 destructor TViewBodyTypes.Destroy;
 begin
+  FreeAndNil(FNaturalStringComparer);
   FreeAndNil(FDragAndDropInfo);
   inherited;
 end;
@@ -874,7 +877,7 @@ begin
     sBodyTypesFilesExt);
 end;
 
-procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup);
+procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup2);
 begin
   if FBodyTypesGroup <> Value then
   begin

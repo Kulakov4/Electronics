@@ -59,6 +59,7 @@ type
     property IniFile: TIniFile read GetIniFile;
   public
     constructor Create; virtual;
+    destructor Destroy; override;
     function GetValue(const ASection, AParameter: string;
       const ADefault: string = ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
@@ -109,11 +110,26 @@ type
 
 implementation
 
-uses ProjectConst, System.IOUtils, System.Variants;
+uses ProjectConst, System.IOUtils, System.Variants, System.Contnrs,
+  System.Classes;
+
+var
+  SingletonList : TObjectList;
 
 constructor TSettings.Create;
 begin
-  FFileName := ChangeFileExt(Application.ExeName, '.ini');
+  Assert(Instance <> nil);
+  if FFileName.IsEmpty then
+    FFileName := ChangeFileExt(Application.ExeName, '.ini');
+end;
+
+destructor TSettings.Destroy;
+begin
+  if Assigned(FIniFile) then
+    FreeAndNil(FIniFile);
+
+  FFileName := '';
+  inherited;
 end;
 
 function TSettings.GetBodyTypesLandPatternFolder: string;
@@ -269,7 +285,10 @@ end;
 class function TSettings.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TSettings(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
@@ -428,5 +447,11 @@ begin
     AIniFile.Free;
   end;
 end;
+
+initialization
+   SingletonList := TObjectList.Create(True);
+
+finalization
+   SingletonList.Free;
 
 end.

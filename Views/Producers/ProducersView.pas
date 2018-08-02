@@ -27,8 +27,9 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox,
-  DragHelper, HRTimer, ColumnsBarButtonsHelper, System.Generics.Collections;
+  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit2, cxDBLookupComboBox,
+  DragHelper, HRTimer, ColumnsBarButtonsHelper, System.Generics.Collections,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
@@ -89,11 +90,11 @@ type
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
-    FProducersGroup: TProducersGroup;
+    FProducersGroup: TProducersGroup2;
     FQuerySearchProducerTypes: TQuerySearchProducerTypes;
     function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
     procedure MyInitializeComboBoxColumn;
-    procedure SetProducersGroup(const Value: TProducersGroup);
+    procedure SetProducersGroup(const Value: TProducersGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -111,8 +112,8 @@ type
     destructor Destroy; override;
     procedure Locate(const AProducer: string);
     procedure UpdateView; override;
-    property ProducersGroup: TProducersGroup read FProducersGroup
-      write SetProducersGroup;
+    property ProducersGroup: TProducersGroup2 read FProducersGroup write
+        SetProducersGroup;
     { Public declarations }
   end;
 
@@ -477,7 +478,7 @@ begin
     QuerySearchProducerTypes.ProducerType);
 end;
 
-procedure TViewProducers.SetProducersGroup(const Value: TProducersGroup);
+procedure TViewProducers.SetProducersGroup(const Value: TProducersGroup2);
 begin
   if FProducersGroup <> Value then
   begin

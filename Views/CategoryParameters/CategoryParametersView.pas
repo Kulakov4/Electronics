@@ -27,8 +27,9 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, ParameterPosQuery, DragHelper, cxCheckBox,
-  CategoryParametersQuery2, CategoryParametersGroupUnit,
-  SearchParamSubParamQuery, Vcl.Grids, Vcl.DBGrids;
+  CategoryParametersQuery2, CategoryParametersGroupUnit2,
+  SearchParamSubParamQuery, Vcl.Grids, Vcl.DBGrids,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -123,7 +124,7 @@ type
     procedure dxBarButton17Click(Sender: TObject);
     procedure dxBarButton18Click(Sender: TObject);
   private
-    FCatParamsGroup: TCategoryParametersGroup;
+    FCatParamsGroup: TCategoryParametersGroup2;
     FLoading: Boolean;
     FQueryParameterPos: TQueryParameterPos;
     procedure AddParameter(APosID: Integer);
@@ -131,7 +132,7 @@ type
     function GetQueryParameterPos: TQueryParameterPos;
     procedure MoveParameter(AUp: Boolean);
     procedure MoveSubParameter(AUp: Boolean);
-    procedure SetCatParamsGroup(const Value: TCategoryParametersGroup);
+    procedure SetCatParamsGroup(const Value: TCategoryParametersGroup2);
     procedure SetPos(APosID: Integer);
     { Private declarations }
   protected
@@ -146,8 +147,8 @@ type
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
     procedure UpdateView; override;
-    property CatParamsGroup: TCategoryParametersGroup read FCatParamsGroup
-      write SetCatParamsGroup;
+    property CatParamsGroup: TCategoryParametersGroup2 read FCatParamsGroup write
+        SetCatParamsGroup;
     { Public declarations }
   end;
 
@@ -156,7 +157,7 @@ implementation
 {$R *.dfm}
 
 uses cxDropDownEdit, NotifyEvents, System.Generics.Collections, System.Math,
-  DialogUnit, ProjectConst, ParametersForm, ParametersGroupUnit, DBRecordHolder,
+  DialogUnit, ProjectConst, ParametersForm, ParametersGroupUnit2, DBRecordHolder,
   MaxCategoryParameterOrderQuery, SubParametersForm, SubParametersQuery2,
   ParamSubParamsQuery;
 
@@ -276,13 +277,13 @@ end;
 procedure TViewCategoryParameters.AddParameter(APosID: Integer);
 var
   AfrmParameters: TfrmParameters;
-  AParamsGrp: TParametersGroup;
+  AParamsGrp: TParametersGroup2;
   AParamIDList: string;
 begin
   inherited;
   AParamIDList := '';
 
-  AParamsGrp := TParametersGroup.Create(Self);
+  AParamsGrp := TParametersGroup2.Create(Self);
   try
     // Настраиваем на отображение галочек из нашей категории
     AParamsGrp.ProductCategoryIDValue :=
@@ -635,8 +636,8 @@ begin
   UpdateView;
 end;
 
-procedure TViewCategoryParameters.SetCatParamsGroup
-  (const Value: TCategoryParametersGroup);
+procedure TViewCategoryParameters.SetCatParamsGroup(const Value:
+    TCategoryParametersGroup2);
 begin
   if FCatParamsGroup = Value then
     Exit;

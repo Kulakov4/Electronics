@@ -1,18 +1,14 @@
-unit DescriptionsGroupUnit;
+unit DescriptionsGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.ExtCtrls, DescriptionTypesQuery, DescriptionsQuery,
-  FireDAC.Comp.Client, FireDAC.Stan.Intf, ProducersQuery, NotifyEvents,
-  DescriptionsExcelDataModule, QueryWithDataSourceUnit, BaseQuery,
-  BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit, OrderQuery,
-  System.Generics.Collections, ProducersGroupUnit;
+  QueryGroupUnit2, System.Classes, DescriptionsQuery, DescriptionTypesQuery,
+  ProducersQuery, DescriptionsExcelDataModule, System.Generics.Collections,
+  NotifyEvents;
 
 type
-  TDescriptionsGroup = class(TQueryGroup)
+  TDescriptionsGroup2 = class(TQueryGroup2)
   private
     FqDescriptions: TQueryDescriptions;
     FqDescriptionTypes: TQueryDescriptionTypes;
@@ -21,29 +17,23 @@ type
     function GetqDescriptions: TQueryDescriptions;
     function GetqDescriptionTypes: TQueryDescriptionTypes;
     function GetqProducers: TQueryProducers;
-    { Private declarations }
-  protected
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure LoadDataFromExcelTable(ADescriptionsExcelTable
-      : TDescriptionsExcelTable);
+    procedure LoadDataFromExcelTable(ADescriptionsExcelTable :
+        TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
-    property qDescriptionTypes: TQueryDescriptionTypes
-      read GetqDescriptionTypes;
+    property qDescriptionTypes: TQueryDescriptionTypes read GetqDescriptionTypes;
     property qProducers: TQueryProducers read GetqProducers;
-    { Public declarations }
   end;
 
 implementation
 
 uses
-  FireDAC.Comp.DataSet, Data.DB, RepositoryDataModule;
+  System.SysUtils, Data.DB;
 
-{$R *.dfm}
-
-constructor TDescriptionsGroup.Create(AOwner: TComponent);
+constructor TDescriptionsGroup2.Create(AOwner: TComponent);
 begin
   inherited;
   QList.Add(qDescriptionTypes);
@@ -55,7 +45,7 @@ begin
     EventList);
 end;
 
-procedure TDescriptionsGroup.DoAfterDelete(Sender: TObject);
+procedure TDescriptionsGroup2.DoAfterDelete(Sender: TObject);
 begin
   Assert(qDescriptionTypes.OldPKValue > 0);
   // Каскадно удаляем производителей
@@ -63,7 +53,7 @@ begin
     qDescriptions.IDComponentType.FieldName, True);
 end;
 
-function TDescriptionsGroup.Find(const AFieldName, S: string): TList<String>;
+function TDescriptionsGroup2.Find(const AFieldName, S: string): TList<String>;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := TList<String>.Create();
@@ -87,7 +77,7 @@ begin
 
 end;
 
-function TDescriptionsGroup.GetqDescriptions: TQueryDescriptions;
+function TDescriptionsGroup2.GetqDescriptions: TQueryDescriptions;
 begin
   if FqDescriptions = nil then
     FqDescriptions := TQueryDescriptions.Create(Self);
@@ -95,14 +85,14 @@ begin
   Result := FqDescriptions;
 end;
 
-function TDescriptionsGroup.GetqDescriptionTypes: TQueryDescriptionTypes;
+function TDescriptionsGroup2.GetqDescriptionTypes: TQueryDescriptionTypes;
 begin
   if FqDescriptionTypes = nil then
     FqDescriptionTypes := TQueryDescriptionTypes.Create(Self);
   Result := FqDescriptionTypes;
 end;
 
-function TDescriptionsGroup.GetqProducers: TQueryProducers;
+function TDescriptionsGroup2.GetqProducers: TQueryProducers;
 begin
   if FqProducers = nil then
   begin
@@ -112,8 +102,8 @@ begin
   Result := FqProducers;
 end;
 
-procedure TDescriptionsGroup.LoadDataFromExcelTable(ADescriptionsExcelTable
-  : TDescriptionsExcelTable);
+procedure TDescriptionsGroup2.LoadDataFromExcelTable(ADescriptionsExcelTable :
+    TDescriptionsExcelTable);
 var
   AField: TField;
   I: Integer;
@@ -153,7 +143,7 @@ begin
   end;
 end;
 
-procedure TDescriptionsGroup.LocateDescription(AIDDescription: Integer);
+procedure TDescriptionsGroup2.LocateDescription(AIDDescription: Integer);
 begin
   Assert(AIDDescription > 0);
 

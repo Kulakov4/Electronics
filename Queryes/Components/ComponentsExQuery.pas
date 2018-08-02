@@ -52,6 +52,8 @@ end;
 destructor TQueryComponentsEx.Destroy;
 begin
   inherited;
+  FreeAndNil(FOn_ApplyUpdate);
+  FreeAndNil(FOnLocate);
   FreeAndNil(FRecordHolder);
 end;
 

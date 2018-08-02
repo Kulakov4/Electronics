@@ -94,11 +94,7 @@ inherited ViewComponentsParent: TViewComponentsParent
     end
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
   end
   inherited ActionList: TActionList
     object actDeleteFromAllCategories: TAction
@@ -148,6 +144,7 @@ inherited ViewComponentsParent: TViewComponentsParent
   object cxerComponents: TcxEditRepository
     Left = 64
     Top = 208
+    PixelsPerInch = 96
     object cxFieldValueWithExpand: TcxEditRepositoryButtonItem
       Properties.Buttons = <
         item

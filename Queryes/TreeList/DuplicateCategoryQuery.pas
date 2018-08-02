@@ -20,6 +20,7 @@ type
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure Search(const AID: Integer);
     property Caption: TField read GetCaption;
     property ID: TField read GetID;
@@ -42,6 +43,13 @@ begin
 
   FOnDuplicateClick := TNotifyEventsEx.Create(Self);
   FAfterSearch := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TQueryDuplicateCategory.Destroy;
+begin
+  FreeAndNil(FAfterSearch);
+  FreeAndNil(FOnDuplicateClick);
+  inherited;
 end;
 
 function TQueryDuplicateCategory.GetCaption: TField;

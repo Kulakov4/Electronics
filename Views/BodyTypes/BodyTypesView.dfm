@@ -268,6 +268,7 @@ inherited ViewBodyTypes: TViewBodyTypes
     ExplicitWidth = 942
   end
   inherited dxBarManager: TdxBarManager
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0
@@ -524,6 +525,7 @@ inherited ViewBodyTypes: TViewBodyTypes
   object cxEditRepository: TcxEditRepository
     Left = 160
     Top = 152
+    PixelsPerInch = 96
     object cxerpiJEDEC: TcxEditRepositoryPopupItem
       Properties.ImmediateDropDownWhenActivated = False
       Properties.ImmediateDropDownWhenKeyPressed = False

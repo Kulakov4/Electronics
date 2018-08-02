@@ -1,18 +1,14 @@
-unit BodyTypesGroupUnit;
+unit BodyTypesGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.ExtCtrls, BodyKindsQuery, BodyTypesQuery2, FireDAC.Comp.Client,
-  NotifyEvents, BodyTypesExcelDataModule, QueryWithDataSourceUnit,
-  BaseQuery, BaseEventsQuery, QueryWithMasterUnit, QueryGroupUnit,
-  ProducersQuery, OrderQuery, BodiesQuery, BodyTypesSimpleQuery,
-  BodyTypesBaseQuery, DocFieldInfo, System.IOUtils;
+  QueryGroupUnit2, System.Classes, NotifyEvents, BodyKindsQuery,
+  BodyTypesQuery2, ProducersQuery, BodyTypesSimpleQuery,
+  BodyTypesExcelDataModule;
 
 type
-  TBodyTypesGroup = class(TQueryGroup)
+  TBodyTypesGroup2 = class(TQueryGroup2)
   private
     FqBodyKinds: TQueryBodyKinds;
     FqBodyTypes2: TQueryBodyTypes2;
@@ -23,38 +19,44 @@ type
     function GetqBodyTypes2: TQueryBodyTypes2;
     function GetqProducers: TQueryProducers;
     function GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
-    { Private declarations }
-  protected
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable;
-      AIDProducer: Integer);
+        AIDProducer: Integer);
     procedure Rollback; override;
     property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
     property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
     property qProducers: TQueryProducers read GetqProducers;
-    property QueryBodyTypesSimple: TQueryBodyTypesSimple
-      read GetQueryBodyTypesSimple;
-    { Public declarations }
+    property QueryBodyTypesSimple: TQueryBodyTypesSimple read
+        GetQueryBodyTypesSimple;
   end;
 
 implementation
 
-{$R *.dfm}
+uses
+  Data.DB;
 
-uses Data.DB;
-
-constructor TBodyTypesGroup.Create(AOwner: TComponent);
+constructor TBodyTypesGroup2.Create(AOwner: TComponent);
 begin
   inherited;
   QList.Add(qBodyKinds);
   QList.Add(qBodyTypes2);
 
+  Assert(ComponentCount > 0);
+
   // Для каскадного удаления
   TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete, EventList);
 end;
 
-procedure TBodyTypesGroup.DoAfterDelete(Sender: TObject);
+destructor TBodyTypesGroup2.Destroy;
+begin
+  Assert(ComponentCount > 0);
+  ;
+  inherited;
+end;
+
+procedure TBodyTypesGroup2.DoAfterDelete(Sender: TObject);
 begin
   Assert(qBodyKinds.OldPKValue > 0);
   // Каскадно удаляем типы корпусов
@@ -62,7 +64,7 @@ begin
     qBodyTypes2.IDBodyKind.FieldName, True);
 end;
 
-function TBodyTypesGroup.GetqBodyKinds: TQueryBodyKinds;
+function TBodyTypesGroup2.GetqBodyKinds: TQueryBodyKinds;
 begin
   if FqBodyKinds = nil then
     FqBodyKinds := TQueryBodyKinds.Create(Self);
@@ -70,7 +72,7 @@ begin
   Result := FqBodyKinds;
 end;
 
-function TBodyTypesGroup.GetqBodyTypes2: TQueryBodyTypes2;
+function TBodyTypesGroup2.GetqBodyTypes2: TQueryBodyTypes2;
 begin
   if FqBodyTypes2 = nil then
     FqBodyTypes2 := TQueryBodyTypes2.Create(Self);
@@ -78,14 +80,14 @@ begin
   Result := FqBodyTypes2;
 end;
 
-function TBodyTypesGroup.GetqProducers: TQueryProducers;
+function TBodyTypesGroup2.GetqProducers: TQueryProducers;
 begin
   if FqProducers = nil then
     FqProducers := TQueryProducers.Create(Self);
   Result := FqProducers;
 end;
 
-function TBodyTypesGroup.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
+function TBodyTypesGroup2.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
 begin
   if FQueryBodyTypesSimple = nil then
   begin
@@ -95,8 +97,8 @@ begin
   Result := FQueryBodyTypesSimple;
 end;
 
-procedure TBodyTypesGroup.LoadDataFromExcelTable(ABodyTypesExcelTable
-  : TBodyTypesExcelTable; AIDProducer: Integer);
+procedure TBodyTypesGroup2.LoadDataFromExcelTable(ABodyTypesExcelTable :
+    TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
   AProducerID: Integer;
@@ -153,7 +155,7 @@ begin
 
 end;
 
-procedure TBodyTypesGroup.Rollback;
+procedure TBodyTypesGroup2.Rollback;
 begin
   inherited;
   qBodyTypes2.RefreshLinkedData;

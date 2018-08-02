@@ -20,6 +20,7 @@ type
     property PopupWindow: TcxCustomEditPopupWindow read GetPopupWindow;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property CloseOnEscape: Boolean read FCloseOnEscape write FCloseOnEscape;
     property OnHide: TNotifyEventsEx read FOnHide;
     { Public declarations }
@@ -35,6 +36,12 @@ begin
   FCloseOnEscape := True;
 
   FOnHide := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TfrmPopupForm.Destroy;
+begin
+  FreeAndNil(FOnHide);
+  inherited;
 end;
 
 procedure TfrmPopupForm.CMDialogKey(var Message: TCMDialogKey);

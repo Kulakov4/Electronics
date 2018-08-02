@@ -242,6 +242,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     ExplicitWidth = 1037
   end
   inherited dxBarManager: TdxBarManager
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

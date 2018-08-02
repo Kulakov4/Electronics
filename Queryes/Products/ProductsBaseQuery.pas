@@ -13,7 +13,7 @@ uses
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents,
-  SearchComponentGroup, SearchFamily, ProducersGroupUnit, ExtraChargeQuery;
+  SearchComponentGroup, SearchFamily, ProducersGroupUnit2, ExtraChargeQuery;
 
 type
   TComponentNameParts = record
@@ -33,7 +33,7 @@ type
   private
     FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
-    FProducersGroup: TProducersGroup;
+    FProducersGroup: TProducersGroup2;
     FqSearchComponentGroup: TQuerySearchComponentGroup;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     FqSearchFamily: TQuerySearchFamily;
@@ -80,7 +80,7 @@ type
     function GetPriceR1: TField;
     function GetPriceR2: TField;
     function GetProductID: TField;
-    function GetProducersGroup: TProducersGroup;
+    function GetProducersGroup: TProducersGroup2;
     function GetqExtraCharge: TQueryExtraCharge;
     function GetqSearchComponentGroup: TQuerySearchComponentGroup;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
@@ -124,6 +124,7 @@ type
       read GetqSearchStorehouseProduct;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AddCategory;
     procedure AddProduct(AIDComponentGroup: Integer);
     procedure ApplyUpdates; override;
@@ -163,7 +164,7 @@ type
     property PriceR1: TField read GetPriceR1;
     property PriceR2: TField read GetPriceR2;
     property ProductID: TField read GetProductID;
-    property ProducersGroup: TProducersGroup read GetProducersGroup;
+    property ProducersGroup: TProducersGroup2 read GetProducersGroup;
     property DollarCource: Double read FDollarCource write SetDollarCource;
     property EuroCource: Double read FEuroCource write SetEuroCource;
     property IDExtraCharge: TField read GetIDExtraCharge;
@@ -235,6 +236,18 @@ begin
 
   FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
   FOnEuroCourceChange := TNotifyEventsEx.Create(Self);  
+end;
+
+destructor TQueryProductsBase.Destroy;
+begin
+  FreeAndNil(FOnDollarCourceChange);
+  FreeAndNil(FOnEuroCourceChange);
+
+  DropClone(FNotGroupClone);
+  FNotGroupClone := nil;
+
+  FreeAndNil(FOnLocate);
+  inherited;
 end;
 
 procedure TQueryProductsBase.AddCategory;
@@ -991,11 +1004,11 @@ begin
   Result := Field('ProductID');
 end;
 
-function TQueryProductsBase.GetProducersGroup: TProducersGroup;
+function TQueryProductsBase.GetProducersGroup: TProducersGroup2;
 begin
   if FProducersGroup = nil then
   begin
-    FProducersGroup := TProducersGroup.Create(Self);
+    FProducersGroup := TProducersGroup2.Create(Self);
     FProducersGroup.ReOpen;
   end;
 

@@ -1,19 +1,12 @@
-unit ComponentsGroupUnit;
+unit ComponentsGroupUnit2;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  FireDAC.Stan.Intf, FireDAC.Comp.Client, Vcl.ExtCtrls, FamilyQuery,
-  Data.DB, BaseComponentsGroupUnit, ComponentsCountQuery, NotifyEvents,
-  System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Stan.Option,
-  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
-  FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, ProgressInfo,
-  ComponentsExcelDataModule, CustomErrorTable, CustomComponentsQuery,
-  BaseQuery, QueryWithDataSourceUnit, BaseEventsQuery,
-  QueryWithMasterUnit, BaseFamilyQuery, EmptyFamilyCountQuery,
-  BaseComponentsQuery, ComponentsQuery, ExcelDataModule;
+  BaseComponentsGroupUnit2, System.Classes, NotifyEvents,
+  ComponentsQuery, FamilyQuery, ComponentsCountQuery, EmptyFamilyCountQuery,
+  ComponentsExcelDataModule, System.Generics.Collections,
+  ExcelDataModule, Data.DB, CustomErrorTable;
 
 type
   TAutomaticLoadErrorTable = class(TCustomErrorTable)
@@ -54,7 +47,7 @@ type
     property Producer: string read FProducer;
   end;
 
-  TComponentsGroup = class(TBaseComponentsGroup)
+  TComponentsGroup2 = class(TBaseComponentsGroup2)
   private
     FNeedUpdateCount: Boolean;
     FqComponents: TQueryComponents;
@@ -67,41 +60,38 @@ type
     function GetQueryComponentsCount: TQueryComponentsCount;
     function GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
     function GetTotalCount: Integer;
-    { Private declarations }
   protected
     procedure DoBeforeDetailPost(Sender: TObject);
-    property QueryComponentsCount: TQueryComponentsCount
-      read GetQueryComponentsCount;
-    property QueryEmptyFamilyCount: TQueryEmptyFamilyCount
-      read GetQueryEmptyFamilyCount;
+    property QueryComponentsCount: TQueryComponentsCount read
+        GetQueryComponentsCount;
+    property QueryEmptyFamilyCount: TQueryEmptyFamilyCount read
+        GetQueryEmptyFamilyCount;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRows(AValues: TArray<String>);
     procedure Commit; override;
     procedure DoAfterLoadSheet(e: TFolderLoadEvent);
     procedure DoOnTotalProgress(e: TFolderLoadEvent);
-    procedure LoadDataFromExcelTable(AComponentsExcelTable
-      : TComponentsExcelTable; const AProducer: string);
+    procedure LoadDataFromExcelTable(AComponentsExcelTable : TComponentsExcelTable;
+        const AProducer: string);
     // TODO: LoadBodyList
     // procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
-      AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
-      const AProducer: String);
+        AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
     property qComponents: TQueryComponents read GetqComponents;
     property qFamily: TQueryFamily read GetqFamily;
     property TotalCount: Integer read GetTotalCount;
-    { Public declarations }
   end;
 
 implementation
 
-uses System.Types, System.StrUtils, RepositoryDataModule, BodyTypesQuery2,
-  ErrorTable, TreeListQuery, System.IOUtils, StrHelper;
+uses
+  ProgressInfo, System.SysUtils, Vcl.Forms, System.StrUtils, TreeListQuery,
+  System.IOUtils, System.Variants, FireDAC.Comp.DataSet;
 
-{$R *.dfm}
 { TfrmComponentsMasterDetail }
 
-constructor TComponentsGroup.Create(AOwner: TComponent);
+constructor TComponentsGroup2.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
@@ -122,12 +112,12 @@ begin
     EventList);
 end;
 
-procedure TComponentsGroup.AfterComponentPostOrDelete(Sender: TObject);
+procedure TComponentsGroup2.AfterComponentPostOrDelete(Sender: TObject);
 begin
   FNeedUpdateCount := True;
 end;
 
-procedure TComponentsGroup.AppendRows(AValues: TArray<String>);
+procedure TComponentsGroup2.AppendRows(AValues: TArray<String>);
 var
   AValue: string;
 begin
@@ -142,13 +132,13 @@ begin
   end;
 end;
 
-procedure TComponentsGroup.Commit;
+procedure TComponentsGroup2.Commit;
 begin
   inherited;
   FNeedUpdateCount := True;
 end;
 
-procedure TComponentsGroup.DoAfterLoadSheet(e: TFolderLoadEvent);
+procedure TComponentsGroup2.DoAfterLoadSheet(e: TFolderLoadEvent);
 var
   AExcelTable: TComponentsExcelTable;
   AWarringCount: Integer;
@@ -196,7 +186,7 @@ begin
 
 end;
 
-procedure TComponentsGroup.DoBeforeDetailPost(Sender: TObject);
+procedure TComponentsGroup2.DoBeforeDetailPost(Sender: TObject);
 begin
   Assert(qFamily.FDQuery.RecordCount > 0);
 
@@ -204,7 +194,7 @@ begin
     qComponents.ParentProductID.Value := qFamily.PK.Value;
 end;
 
-procedure TComponentsGroup.DoOnTotalProgress(e: TFolderLoadEvent);
+procedure TComponentsGroup2.DoOnTotalProgress(e: TFolderLoadEvent);
 begin
   e.AutomaticLoadErrorTable.LocateOrAppendData(e.FileName,
     e.ExcelDMEvent.SheetIndex, e.CategoryName,
@@ -214,14 +204,14 @@ begin
   Application.ProcessMessages;
 end;
 
-function TComponentsGroup.GetqComponents: TQueryComponents;
+function TComponentsGroup2.GetqComponents: TQueryComponents;
 begin
   if FqComponents = nil then
     FqComponents := TQueryComponents.Create(Self);
   Result := FqComponents;
 end;
 
-function TComponentsGroup.GetqFamily: TQueryFamily;
+function TComponentsGroup2.GetqFamily: TQueryFamily;
 begin
   if FqFamily = nil then
     FqFamily := TQueryFamily.Create(Self);
@@ -229,7 +219,7 @@ begin
   Result := FqFamily;
 end;
 
-function TComponentsGroup.GetQueryComponentsCount: TQueryComponentsCount;
+function TComponentsGroup2.GetQueryComponentsCount: TQueryComponentsCount;
 begin
   if FQueryComponentsCount = nil then
   begin
@@ -239,7 +229,7 @@ begin
   Result := FQueryComponentsCount;
 end;
 
-function TComponentsGroup.GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
+function TComponentsGroup2.GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
 begin
   if FQueryEmptyFamilyCount = nil then
   begin
@@ -249,7 +239,7 @@ begin
   Result := FQueryEmptyFamilyCount;
 end;
 
-function TComponentsGroup.GetTotalCount: Integer;
+function TComponentsGroup2.GetTotalCount: Integer;
 var
   x: Integer;
 begin
@@ -269,8 +259,8 @@ begin
   Result := x;
 end;
 
-procedure TComponentsGroup.LoadDataFromExcelTable(AComponentsExcelTable
-  : TComponentsExcelTable; const AProducer: string);
+procedure TComponentsGroup2.LoadDataFromExcelTable(AComponentsExcelTable :
+    TComponentsExcelTable; const AProducer: string);
 var
   I: Integer;
   k: Integer;
@@ -360,7 +350,7 @@ begin
 end;
 
 // TODO: LoadBodyList
-// procedure TComponentsGroup.LoadBodyList(AExcelTable
+// procedure TComponentsGroup2.LoadBodyList(AExcelTable
 // : TComponentBodyTypesExcelTable);
 // var
 // AIDBodyType: Integer;
@@ -403,8 +393,8 @@ end;
 //
 // end;
 
-procedure TComponentsGroup.LoadFromExcelFolder(AFileNames: TList<String>;
-AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
+procedure TComponentsGroup2.LoadFromExcelFolder(AFileNames: TList<String>;
+    AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
 var
   AComponentsExcelDM: TComponentsExcelDM;
   AFullFileName: string;
@@ -536,6 +526,19 @@ begin
   qFamily.Load(qComponents.Master.PK.Value);
 end;
 
+constructor TFolderLoadEvent.Create(const AFileName: string;
+const AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
+const ACategoryName: string; const AExcelDMEvent: TExcelDMEvent;
+const AProducer: string);
+begin
+  inherited Create;
+  FFileName := AFileName;
+  FAutomaticLoadErrorTable := AutomaticLoadErrorTable;
+  FCategoryName := ACategoryName;
+  FExcelDMEvent := AExcelDMEvent;
+  FProducer := AProducer;
+end;
+
 constructor TAutomaticLoadErrorTable.Create(AOwner: TComponent);
 begin
   inherited;
@@ -613,19 +616,6 @@ end;
 function TAutomaticLoadErrorTable.GetSheetIndex: TField;
 begin
   Result := FieldByName('SheetIndex');
-end;
-
-constructor TFolderLoadEvent.Create(const AFileName: string;
-const AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
-const ACategoryName: string; const AExcelDMEvent: TExcelDMEvent;
-const AProducer: string);
-begin
-  inherited Create;
-  FFileName := AFileName;
-  FAutomaticLoadErrorTable := AutomaticLoadErrorTable;
-  FCategoryName := ACategoryName;
-  FExcelDMEvent := AExcelDMEvent;
-  FProducer := AProducer;
 end;
 
 end.

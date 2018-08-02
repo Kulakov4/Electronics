@@ -28,7 +28,8 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, SubParametersExcelDataModule,
   SubParametersQuery2, cxCheckBox, HRTimer, DragHelper, cxDropDownEdit,
-  cxBarEditItem;
+  cxBarEditItem, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 type
   TSortMode = (smManual, smAlphabet);
@@ -84,6 +85,7 @@ type
     procedure LoadFromExcel(AFileName: string);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function CheckAndSaveChanges: Integer;
     procedure CommitOrPost;
     procedure UpdateView; override;
@@ -121,6 +123,12 @@ begin
 //  clChecked.Visible := FCheckedMode;
 
   FDI := TDragAndDropInfo.Create(clID, clOrd);
+end;
+
+destructor TViewSubParameters.Destroy;
+begin
+  FreeAndNil(FDI);
+  inherited;
 end;
 
 procedure TViewSubParameters.actAddExecute(Sender: TObject);

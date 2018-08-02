@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  System.Generics.Collections, BaseComponentsGroupUnit;
+  System.Generics.Collections, BaseComponentsGroupUnit2,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_ON_DETAIL_EXPANDED = WM_USER + 57;
@@ -96,7 +97,7 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    FBaseComponentsGroup: TBaseComponentsGroup;
+    FBaseComponentsGroup: TBaseComponentsGroup2;
     FDeleteFromAllCategories: Boolean;
     FEditingValue: Variant;
     FIsSyncScrollbars: Boolean;
@@ -106,7 +107,7 @@ type
     procedure AfterLoadData(Sender: TObject);
     function GetQuerySubGroups: TfrmQuerySubGroups;
     procedure PostMessageUpdateDetailColumnsWidth;
-    procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup);
+    procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup2);
     procedure SyncScrollbarPositions;
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
@@ -133,8 +134,8 @@ type
     function CheckAndSaveChanges: Integer;
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure UpdateView; override;
-    property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
-      write SetBaseComponentsGroup;
+    property BaseComponentsGroup: TBaseComponentsGroup2 read FBaseComponentsGroup
+        write SetBaseComponentsGroup;
     { Public declarations }
   end;
 
@@ -771,8 +772,8 @@ begin
 
 end;
 
-procedure TViewComponentsParent.SetBaseComponentsGroup
-  (const Value: TBaseComponentsGroup);
+procedure TViewComponentsParent.SetBaseComponentsGroup(const Value:
+    TBaseComponentsGroup2);
 begin
   if FBaseComponentsGroup <> Value then
   begin

@@ -25,7 +25,9 @@ uses
   Vcl.ExtCtrls, System.ImageList, Vcl.ImgList, cxGridCustomPopupMenu,
   cxGridPopupMenu, Vcl.Menus, System.Actions, Vcl.ActnList, dxBar, cxClasses,
   Vcl.ComCtrls, cxGridLevel, cxGridCustomView, cxGridCustomTableView,
-  cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView, cxGrid;
+  cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxImageList;
 
 type
   TViewGridPopupAnalog = class(TViewGridEx)

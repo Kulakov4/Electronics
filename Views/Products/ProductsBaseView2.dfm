@@ -621,6 +621,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     ExplicitWidth = 1092
   end
   inherited dxBarManager: TdxBarManager
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0
