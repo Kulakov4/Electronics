@@ -30,7 +30,7 @@ uses
   cxDBExtLookupComboBox, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator,
   Data.DB, cxDBData, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGridCustomView, cxGrid,
-  cxCalendar;
+  cxCalendar, cxDataControllerConditionalFormattingRulesManagerDialog;
 
 type
   TViewProducts2 = class(TViewProductsBase2)

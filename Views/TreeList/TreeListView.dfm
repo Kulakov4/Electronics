@@ -82,14 +82,11 @@ inherited ViewTreeList: TViewTreeList
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
+    ExplicitWidth = 8
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
         item

@@ -91,6 +91,7 @@ type
     property Indent: Integer read GetIndent;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure ConnectToSheet(ASheetIndex: Integer = -1);
     procedure LoadExcelFile2(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
@@ -149,6 +150,17 @@ begin
   FAfterLoadSheet := TNotifyEventsEx.Create(Self);
 
   FBeforeLoadSheet := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TExcelDM.Destroy;
+begin
+  FreeAndNil(FCustomExcelTable);
+  FreeAndNil(FOnProgress);
+  FreeAndNil(FOnTotalProgress);
+  FreeAndNil(FAfterLoadSheet);
+  FreeAndNil(FBeforeLoadSheet);
+
+  inherited;
 end;
 
 procedure TExcelDM.CallOnProcessEvent(API: TProgressInfo);

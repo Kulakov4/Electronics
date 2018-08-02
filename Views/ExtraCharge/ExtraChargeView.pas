@@ -26,7 +26,8 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ExtraChargeQuery;
+  cxGridDBBandedTableView, cxGrid, ExtraChargeQuery,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewExtraCharge = class(TfrmGrid)
@@ -139,6 +140,7 @@ var
   AFileName: string;
 begin
   inherited;
+  Application.Hint := '';
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 

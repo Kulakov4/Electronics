@@ -9,8 +9,8 @@ type
   TMyCurrency = class(TObject, ICurrency)
   strict private
   private
-  class var
-    Instance: TMyCurrency;
+    class var Instance: TMyCurrency;
+
   var
     FDictionary: TDictionary<Cardinal, Double>;
     FRefCount: Integer;
@@ -28,7 +28,10 @@ type
 implementation
 
 uses
-  System.SysUtils, HttpUnit, Winapi.Windows;
+  System.SysUtils, HttpUnit, Winapi.Windows, System.Contnrs;
+
+var
+  SingletonList: TObjectList;
 
 constructor TMyCurrency.Create;
 begin
@@ -49,7 +52,7 @@ var
   ACources: TArray<Double>;
   Key: Cardinal;
 begin
-  Assert( (CurrencyID >= 2) and (CurrencyID <= 3) );
+  Assert((CurrencyID >= 2) and (CurrencyID <= 3));
   Key := GetKey(CurrencyID, ADate);
   if not FDictionary.ContainsKey(Key) then
   begin
@@ -72,13 +75,16 @@ Var
   Year: Word;
 begin
   DecodeDate(ADate, Year, Month, Day);
-  Result := CurrencyID * 1000000000 +  Year * 10000 + Month * 100 + Day;
+  Result := CurrencyID * 1000000000 + Year * 10000 + Month * 100 + Day;
 end;
 
 class function TMyCurrency.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TMyCurrency(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
@@ -99,8 +105,17 @@ end;
 function TMyCurrency._Release: Integer;
 begin
   Result := InterlockedDecrement(FRefCount);
-  if Result = 0 then
-    Destroy;
+//  Пусть синлтон существует, даже если на него нет ни одной ссылки
+//  if Result = 0 then
+//    Destroy;
 end;
+
+initialization
+
+SingletonList := TObjectList.Create(True);
+
+finalization
+
+FreeAndNil(SingletonList);
 
 end.

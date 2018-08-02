@@ -26,7 +26,8 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxInplaceContainer, cxTLData,
   cxDBTL, TreeListQuery, cxMaskEdit, RepositoryDataModule, Vcl.ExtCtrls,
   cxSplitter, DuplicateCategoryView, DuplicateCategoryQuery, NotifyEvents,
-  cxTextEdit, cxBarEditItem;
+  cxTextEdit, cxBarEditItem,
+  cxDataControllerConditionalFormattingRulesManagerDialog;
 
 type
   TViewTreeList = class(TfrmTreeList)
@@ -175,6 +176,7 @@ var
   OK: Boolean;
 begin
   inherited;
+  Application.Hint := '';
 
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;

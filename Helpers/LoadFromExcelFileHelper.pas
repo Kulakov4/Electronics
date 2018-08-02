@@ -19,16 +19,20 @@ type
     procedure DoOnTotalReadProgress(ASender: TObject);
     procedure TryUpdateWriteStatistic(API: TProgressInfo);
   public
-    procedure LoadAndProcess(const AFileName: string; AExcelDMClass: TExcelDMClass;
-        ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef;
-        AInitExcelTable: TProcRef = nil);
+    procedure LoadAndProcess(const AFileName: string;
+      AExcelDMClass: TExcelDMClass;
+      ACustomErrorFormClass: TCustomErrorFormClass; AProcRef: TProcRef;
+      AInitExcelTable: TProcRef = nil);
     class function NewInstance: TObject; override;
   end;
 
 implementation
 
 uses System.Sysutils, NotifyEvents, VCL.Controls, CustomExcelTable,
-  ProjectConst;
+  ProjectConst, System.Contnrs, System.Classes;
+
+var
+  SingletonList: TObjectList;
 
 procedure TLoad.DoAfterLoadSheet(ASender: TObject);
 var
@@ -99,9 +103,9 @@ begin
   FfrmProgressBar.UpdateReadStatistic(e.TotalProgress.TotalProgress);
 end;
 
-procedure TLoad.LoadAndProcess(const AFileName: string; AExcelDMClass:
-    TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass; AProcRef:
-    TProcRef; AInitExcelTable: TProcRef = nil);
+procedure TLoad.LoadAndProcess(const AFileName: string;
+AExcelDMClass: TExcelDMClass; ACustomErrorFormClass: TCustomErrorFormClass;
+AProcRef: TProcRef; AInitExcelTable: TProcRef = nil);
 var
   AExcelDM: TExcelDM;
 begin
@@ -136,7 +140,10 @@ end;
 class function TLoad.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TLoad(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
@@ -148,5 +155,13 @@ begin
     // Отображаем общий прогресс записи
     FfrmProgressBar.UpdateWriteStatistic(API);
 end;
+
+initialization
+
+SingletonList := TObjectList.Create(True);
+
+finalization
+
+FreeAndNil(SingletonList);
 
 end.

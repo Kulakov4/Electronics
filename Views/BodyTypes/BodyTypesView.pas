@@ -338,6 +338,7 @@ var
   ARootTreeNode: TStringTreeNode;
   // OK: Boolean;
 begin
+  Application.Hint := '';
   // Сначала дадим возможность выбрать excel файл
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;

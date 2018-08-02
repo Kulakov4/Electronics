@@ -38,10 +38,6 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       inline ViewProducts2: TViewProducts2
         Left = 0
         Top = 0
@@ -53,9 +49,9 @@ object ProductsFrame: TProductsFrame
         ExplicitHeight = 579
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 506
+          Height = 504
           ExplicitWidth = 990
-          ExplicitHeight = 506
+          ExplicitHeight = 504
           inherited clDatasheet: TcxDBTreeListColumn
             Properties.Buttons = <
               item
@@ -113,11 +109,7 @@ object ProductsFrame: TProductsFrame
         end
         inherited dxBarManager: TdxBarManager
           ShowHint = False
-          DockControlHeights = (
-            0
-            0
-            54
-            0)
+          PixelsPerInch = 96
         end
         inherited cxStyleRepository1: TcxStyleRepository
           PixelsPerInch = 96
@@ -138,9 +130,9 @@ object ProductsFrame: TProductsFrame
         ExplicitHeight = 579
         inherited cxDBTreeList: TcxDBTreeList
           Width = 990
-          Height = 506
+          Height = 504
           ExplicitWidth = 990
-          ExplicitHeight = 506
+          ExplicitHeight = 504
           inherited clDatasheet: TcxDBTreeListColumn
             Properties.Buttons = <
               item
@@ -197,11 +189,7 @@ object ProductsFrame: TProductsFrame
           ExplicitWidth = 990
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            54
-            0)
+          PixelsPerInch = 96
         end
         inherited cxStyleRepository1: TcxStyleRepository
           PixelsPerInch = 96
@@ -226,6 +214,7 @@ object ProductsFrame: TProductsFrame
     UseSystemFont = True
     Left = 64
     Top = 280
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

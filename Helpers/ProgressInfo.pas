@@ -14,6 +14,7 @@ type
     function GetPosition: Double;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure Assign(AProgressInfo: TProgressInfo);
     procedure Clear;
     property OnAssign: TNotifyEventsEx read FOnAssign;
@@ -25,12 +26,18 @@ type
 
 implementation
 
-uses System.Math;
+uses System.Math, System.SysUtils;
 
 constructor TProgressInfo.Create;
 begin
   Clear;
   FOnAssign := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TProgressInfo.Destroy;
+begin
+  FreeAndNil(FOnAssign);
+  inherited;
 end;
 
 procedure TProgressInfo.Assign(AProgressInfo: TProgressInfo);

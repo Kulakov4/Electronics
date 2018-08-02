@@ -15,7 +15,7 @@ type
   TCustomExcelTable = class(TTableWithProgress)
   private
     FErrors: TErrorTable;
-    FFieldsInfo: TList<TFieldInfo>;
+    FFieldsInfo: TObjectList<TFieldInfo>;
     function GetErrorType: TField;
     function GetExcelRow: TField;
   protected
@@ -37,7 +37,7 @@ type
     property Errors: TErrorTable read FErrors;
     property ErrorType: TField read GetErrorType;
     property ExcelRow: TField read GetExcelRow;
-    property FieldsInfo: TList<TFieldInfo> read FFieldsInfo;
+    property FieldsInfo: TObjectList<TFieldInfo> read FFieldsInfo;
   end;
 
 implementation
@@ -47,7 +47,7 @@ uses System.SysUtils, System.Variants, StrHelper;
 constructor TCustomExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FFieldsInfo := TList<TFieldInfo>.Create;
+  FFieldsInfo := TObjectList<TFieldInfo>.Create;
   FErrors := TErrorTable.Create(Self);
 end;
 

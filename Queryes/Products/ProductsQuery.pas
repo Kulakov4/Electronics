@@ -76,7 +76,6 @@ var
   AExcelField: TField;
   AField: TField;
   AIDComponentGroup: Integer;
-  AIsCurrentDate: Boolean;
   V: Variant;
 begin
   try
@@ -138,22 +137,14 @@ begin
         Price.Value := AExcelTable.PriceE.Value;
       end;
 
-      // Если дата загрузки в загрузочном файле не указана
-      if LoadDate.IsNull then
-        LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
+      // Дата загрузки должна заполняться при загрузке
+      Assert(not LoadDate.IsNull);
 
-      // Курсы валют за текущую дату?
-      AIsCurrentDate := LoadDate.AsString = FormatDateTime('dd.mm.yyyy', Date);
+      // Курс Доллара должен заполняться при загрузке
+      Assert(not Dollar.IsNull);
 
-      // Если курс доллара не был указан в загрузочном файле
-      if Dollar.IsNull then
-      begin
-        Dollar.Value := DollarCource;
-      end;
-
-      // Если курс евро не был указан в загрузочном файле
-      if Euro.IsNull then
-        Euro.Value := EuroCource;
+      // Курс Евро должен заполняться при загрузке
+      Assert(not Euro.IsNull);
 
       FDQuery.Post;
 

@@ -32,6 +32,7 @@ end;
 
 destructor TTableWithProgress.Destroy;
 begin
+  FreeAndNil(FOnProgress);
   FreeAndNil(FPI);
   inherited;
 end;

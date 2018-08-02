@@ -544,13 +544,11 @@ begin
 end;
 
 procedure TViewProductsBase2.actRefreshCourcesExecute(Sender: TObject);
-var
-  ACources: TArray<Double>;
 begin
   inherited;
   try
-    qProductsBase.DollarCource := TMyCurrency.Create.GetCourses(1, Date);
-    qProductsBase.EuroCource := TMyCurrency.Create.GetCourses(2, Date);
+    qProductsBase.DollarCource := TMyCurrency.Create.GetCourses(2, Date);
+    qProductsBase.EuroCource := TMyCurrency.Create.GetCourses(3, Date);
     MyApplyBestFit;
   except
     TDialog.Create.ErrorMessageDialog('Курсы валют не обновлены');

@@ -344,12 +344,14 @@ procedure TViewParameters.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
+  Application.Hint := '';
   if TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     LoadFromExcel(AFileName);
 end;
 
 procedure TViewParameters.actLoadFromExcelSheetExecute(Sender: TObject);
 begin
+  Application.Hint := '';
   LoadFromExcel('');
 end;
 

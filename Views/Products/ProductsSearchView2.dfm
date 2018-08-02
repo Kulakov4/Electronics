@@ -211,11 +211,7 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       end>
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      56
-      0)
+    PixelsPerInch = 96
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
         item

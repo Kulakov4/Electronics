@@ -18,24 +18,10 @@ type
 
 implementation
 
-uses Vcl.Clipbrd, Winapi.Windows, System.SysUtils;
+uses Vcl.Clipbrd, Winapi.Windows, System.SysUtils, System.Contnrs;
 
-// TODO: GetRows
-// function TClb.GetRows: TStringList;
-// var
-// i: Integer;
-// begin
-// Result := TStringList.Create;
-// if Clipboard.HasFormat(CF_TEXT) then
-// begin
-// Result.Text := Clipboard.AsText;
-// for i := 0 to Result.Count - 1 do
-// begin
-// Result[i] := Result[i].Trim(['"', #13, #10]);
-// end;
-// end;
-//
-// end;
+var
+  SingletonList: TObjectList;
 
 function TClb.GetRowsAsArray: TArray<String>;
 var
@@ -55,9 +41,20 @@ end;
 class function TClb.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TClb(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
+
+initialization
+
+SingletonList := TObjectList.Create(True);
+
+finalization
+
+FreeAndNil(SingletonList);
 
 end.

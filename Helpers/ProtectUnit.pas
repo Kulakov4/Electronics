@@ -27,7 +27,10 @@ type
 implementation
 
 uses
-  System.Classes, System.NetEncoding;
+  System.Classes, System.NetEncoding, System.Contnrs;
+
+var
+  SingletonList: TObjectList;
 
 const
   d1: Integer = 0;
@@ -69,7 +72,10 @@ end;
 class function TProtect.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TProtect(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
@@ -215,5 +221,13 @@ begin
 
   Result := DropKey(AKeyName);
 end;
+
+initialization
+
+SingletonList := TObjectList.Create(True);
+
+finalization
+
+FreeAndNil(SingletonList);
 
 end.

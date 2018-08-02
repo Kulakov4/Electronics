@@ -224,6 +224,7 @@ procedure TViewDescriptions.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
+  Application.Hint := '';
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 

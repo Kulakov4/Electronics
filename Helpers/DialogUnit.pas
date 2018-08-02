@@ -77,7 +77,10 @@ type
 implementation
 
 uses Vcl.Forms, System.SysUtils, Winapi.ShlObj,
-  Winapi.Messages, ProjectConst;
+  Winapi.Messages, ProjectConst, System.Contnrs;
+
+var
+  SingletonList: TObjectList;
 
 function TDialog.AddManufacturerDialog(const AValue: String): Boolean;
 begin
@@ -149,7 +152,10 @@ end;
 class function TDialog.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TDialog(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
@@ -298,5 +304,13 @@ begin
   FilterIndex := 0;
   Options := [ofFileMustExist];
 end;
+
+initialization
+
+SingletonList := TObjectList.Create(True);
+
+finalization
+
+FreeAndNil(SingletonList);
 
 end.
