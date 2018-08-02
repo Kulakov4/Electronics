@@ -12,7 +12,7 @@ uses
   cxEditRepositoryItems, cxExtEditRepositoryItems, System.Actions, Vcl.ActnList,
   dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ComponentsSearchGroupUnit,
+  cxGridCustomView, cxGrid, ComponentsSearchGroupUnit2,
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
   dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxTextEdit,
-  cxBlobEdit;
+  cxBlobEdit, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 type
   TViewComponentsSearch = class(TViewComponentsBase)
@@ -42,7 +43,10 @@ type
     dxbbSave: TdxBarButton;
     dxbbPasteFromBuffer: TdxBarButton;
     dxBarButton2: TdxBarButton;
+    actOpenCategory: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
+    procedure actOpenCategoryExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
     procedure clSubGroupGetProperties(Sender: TcxCustomGridTableItem;
@@ -54,17 +58,17 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    function GetComponentsSearchGroup: TComponentsSearchGroup;
+    function GetComponentsSearchGroup: TComponentsSearchGroup2;
     procedure Search(ALike: Boolean);
-    procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup);
+    procedure SetComponentsSearchGroup(const Value: TComponentsSearchGroup2);
     { Private declarations }
   protected
-    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDbBandedColumn; var
-        AllowPopup: Boolean); override;
+    procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDbBandedColumn;
+      var AllowPopup: Boolean); override;
   public
     procedure UpdateView; override;
-    property ComponentsSearchGroup: TComponentsSearchGroup
-      read GetComponentsSearchGroup write SetComponentsSearchGroup;
+    property ComponentsSearchGroup: TComponentsSearchGroup2 read
+        GetComponentsSearchGroup write SetComponentsSearchGroup;
     { Public declarations }
   end;
 
@@ -72,7 +76,7 @@ implementation
 
 {$R *.dfm}
 
-uses SearchInterfaceUnit, ClipboardUnit;
+uses SearchInterfaceUnit, ClipboardUnit, Vcl.Clipbrd;
 
 procedure TViewComponentsSearch.actClearExecute(Sender: TObject);
 begin
@@ -91,8 +95,18 @@ begin
   end;
 end;
 
+procedure TViewComponentsSearch.actOpenCategoryExecute(Sender: TObject);
+begin
+  inherited;
+  ComponentsSearchGroup.OpenCategory;
+end;
+
 procedure TViewComponentsSearch.actPasteFromBufferExecute(Sender: TObject);
 begin
+  // Если в буфере обмена ничего нет
+  if Clipboard.AsText.Trim.IsEmpty then
+    Exit;
+
   MainView.BeginUpdate();
   try
     ComponentsSearchGroup.qFamilySearch.AppendRows
@@ -164,13 +178,14 @@ begin
   end;
 end;
 
-function TViewComponentsSearch.GetComponentsSearchGroup: TComponentsSearchGroup;
+function TViewComponentsSearch.GetComponentsSearchGroup:
+    TComponentsSearchGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsSearchGroup;
+  Result := BaseComponentsGroup as TComponentsSearchGroup2;
 end;
 
-procedure TViewComponentsSearch.OnGridRecordCellPopupMenu(AColumn:
-    TcxGridDbBandedColumn; var AllowPopup: Boolean);
+procedure TViewComponentsSearch.OnGridRecordCellPopupMenu
+  (AColumn: TcxGridDbBandedColumn; var AllowPopup: Boolean);
 begin
   inherited;
 
@@ -197,8 +212,8 @@ begin
   PostMyApplyBestFitEvent;
 end;
 
-procedure TViewComponentsSearch.SetComponentsSearchGroup
-  (const Value: TComponentsSearchGroup);
+procedure TViewComponentsSearch.SetComponentsSearchGroup(const Value:
+    TComponentsSearchGroup2);
 begin
   if BaseComponentsGroup <> Value then
   begin
@@ -210,35 +225,49 @@ begin
 end;
 
 procedure TViewComponentsSearch.UpdateView;
-//var
-//  AColumn: TcxGridDBBandedColumn;
-//  AReadOnly: Boolean;
+// var
+// AColumn: TcxGridDBBandedColumn;
+// AReadOnly: Boolean;
+var
+  AView: TcxGridDBBandedTableView;
+  OK: Boolean;
 begin
-  actClear.Enabled := ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
-  actSearch.Enabled := ComponentsSearchGroup.qFamilySearch.IsSearchEnabled;
+  OK := (ComponentsSearchGroup <> nil) and
+    (ComponentsSearchGroup.qFamilySearch.FDQuery.Active);
 
-  actCommit.Enabled := ComponentsSearchGroup.Connection.InTransaction and
+  AView := FocusedTableView;
+
+  actClear.Enabled := OK and ComponentsSearchGroup.qFamilySearch.IsClearEnabled;
+  actSearch.Enabled := OK and ComponentsSearchGroup.qFamilySearch.
+    IsSearchEnabled;
+
+  actCommit.Enabled := OK and ComponentsSearchGroup.HaveAnyChanges and
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actDeleteFromAllCategories.Enabled :=
+  actDeleteFromAllCategories.Enabled := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and (AView <> nil)
+    and (AView.Controller.SelectedRowCount > 0);
+
+  actPasteFromBuffer.Enabled := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode){ and
+    (not Clipboard.AsText.Trim.IsEmpty)};
+
+  MainView.OptionsData.Appending := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+
+  MainView.OptionsData.Inserting := OK and
+    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+
+  actOpenCategory.Enabled := OK and
     (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
-    (ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
+    (MainView.Controller.SelectedRowCount > 0);
 
-  actPasteFromBuffer.Enabled := ComponentsSearchGroup.qFamilySearch.Mode =
-    SearchMode;
-  MainView.OptionsData.Appending := ComponentsSearchGroup.qFamilySearch.Mode =
-    SearchMode;
-  MainView.OptionsData.Inserting := ComponentsSearchGroup.qFamilySearch.Mode =
-    SearchMode;
-
-//  AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
-
-//  AColumn := GetSameColumn(MainView, clDescription);
-
-//  (AColumn.Properties as TcxPopupEditProperties).ReadOnly := True;
-//  GetSameColumn(MainView, clDatasheet).Properties.ReadOnly := AReadOnly;
+  // AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;
+  // AColumn := GetSameColumn(MainView, clDescription);
+  // (AColumn.Properties as TcxPopupEditProperties).ReadOnly := True;
+  // GetSameColumn(MainView, clDatasheet).Properties.ReadOnly := AReadOnly;
 end;
 
 end.

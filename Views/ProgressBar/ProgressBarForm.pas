@@ -42,6 +42,7 @@ type
       write FProgressBarLabel;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     class procedure Process(AHandling: IHandling; AProcRef: TProcRef;
       const ACaption, ARowSubstitute: string); static;
     property ProgressInfo: TProgressInfo read FProgressInfo;
@@ -60,6 +61,12 @@ begin
   FProgressBarLabel := 'Обработано строк';
   FProgressInfo := TProgressInfo.Create;
   TNotifyEventWrap.Create(FProgressInfo.OnAssign, DoOnAssign);
+end;
+
+destructor TfrmProgressBar.Destroy;
+begin
+  FreeAndNil(FProgressInfo);
+  inherited;
 end;
 
 procedure TfrmProgressBar.DoOnAssign(Sender: TObject);

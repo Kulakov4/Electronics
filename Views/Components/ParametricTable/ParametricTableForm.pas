@@ -12,7 +12,6 @@ uses
 
 type
   TfrmParametricTable = class(TfrmRoot)
-    ViewParametricTable: TViewParametricTable;
     procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDeactivate(Sender: TObject);
@@ -23,6 +22,7 @@ type
     FCategoryPath: string;
     FOnActivate: TNotifyEventsEx;
     FOnDeactivate: TNotifyEventsEx;
+    FViewParametricTable: TViewParametricTable;
     procedure SetCategoryPath(const Value: string);
     procedure UpdateCaption;
     { Private declarations }
@@ -30,6 +30,7 @@ type
     constructor Create(AOwner: TComponent); override;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property CategoryPath: string read FCategoryPath write SetCategoryPath;
+    property ViewParametricTable: TViewParametricTable read FViewParametricTable;
     property OnDeactivate: TNotifyEventsEx read FOnDeactivate;
     property OnActivate: TNotifyEventsEx read FOnActivate;
     { Public declarations }
@@ -47,6 +48,10 @@ uses Vcl.FileCtrl;
 constructor TfrmParametricTable.Create(AOwner: TComponent);
 begin
   inherited;
+  FViewParametricTable := TViewParametricTable.Create(Self);
+  FViewParametricTable.Parent := Self;
+  FViewParametricTable.Align := alClient;
+
   FBeforeClose := TNotifyEventsEx.Create(Self);
   FOnActivate := TNotifyEventsEx.Create(Self);
   FOnDeactivate := TNotifyEventsEx.Create(Self);

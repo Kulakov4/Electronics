@@ -34,14 +34,14 @@ type
     FParent: TStringTreeNode;
     FValue: string;
   protected
-  class var
-    FMaxID: Integer;
+    class var FMaxID: Integer;
   public
     constructor Create;
     destructor Destroy; override;
     function AddChild(const AValue: String): TStringTreeNode;
-    procedure ClearMaxID;
+    class procedure ClearMaxID;
     function FindByID(AID: Integer): TStringTreeNode;
+    function IndexOf(AValue: string): Integer;
     property Childs: TList<TStringTreeNode> read FChilds write FChilds;
     property ID: Integer read FID;
     property Parent: TStringTreeNode read FParent write FParent;
@@ -71,6 +71,8 @@ type
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
+    function LoadExcelFileHeaderEx(const AFileName: string): TStringTreeNode;
+    function LoadExcelFileHeaderFromActiveSheetEx: TStringTreeNode;
     function LoadExcelFileHeaderInternal: TStringTreeNode;
     // TODO: LoadExcelFile
     // procedure LoadExcelFile(const AFileName: string; ANotifyEventRef:
@@ -92,8 +94,9 @@ type
     procedure ConnectToSheet(ASheetIndex: Integer = -1);
     procedure LoadExcelFile2(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
-    function LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
-    function LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+    class function LoadExcelFileHeader(const AFileName: string)
+      : TStringTreeNode; static;
+    class function LoadExcelFileHeaderFromActiveSheet: TStringTreeNode; static;
     procedure ProcessRange(AExcelRange: ExcelRange); virtual;
     procedure LoadFromActiveSheet;
     procedure Process(AProcRef: TProcRef;
@@ -132,7 +135,6 @@ uses System.Variants, System.Math, ActiveX, ProjectConst, DBRecordHolder;
 constructor TExcelDM.Create(AOwner: TComponent);
 begin
   inherited;
-
   FCustomExcelTable := CreateExcelTable;
 
   if FCustomExcelTable <> nil then
@@ -256,53 +258,6 @@ begin
   end;
 end;
 
-// TODO: LoadExcelFile
-// procedure TExcelDM.LoadExcelFile(const AFileName: string; ANotifyEventRef:
-// TNotifyEventRef = nil);
-// var
-// AEWS: ExcelWorksheet;
-// ARange: ExcelRange;
-// AStartLine: Integer;
-// lcid: Integer;
-// ne: TNotifyEventR;
-// rc: Integer;
-// begin
-// ne := nil;
-// lcid := 0;
-// InternalLoadExcelFile(AFileName);
-// ConnectToSheet();
-//
-// ARange := EWS.UsedRange[lcid];
-// Assert(ARange <> nil);
-// rc := ARange.Rows.Count;
-//
-/// / Делаем или не делаем смещение на заголовок
-// AStartLine := 1;
-// while (HaveHeader(AStartLine)) do
-// Inc(AStartLine);
-//
-/// / Получаем "Рабочий" диапазон
-// ARange := GetExcelRange(AStartLine, Indent + 1, rc, Indent + FLastColIndex);
-//
-/// / Обрабатываем диапазон если он не пустой
-// if ARange <> nil then
-// begin
-// // При необходимости подписываем кого-то на событие
-// if Assigned(ANotifyEventRef) then
-// ne := TNotifyEventR.Create(OnProgress, ANotifyEventRef);
-// try
-// ProcessRange(ARange);
-// finally
-// // Отписываем кого-то от события
-// FreeAndNil(ne);
-// end;
-// end;
-//
-// AEWS := nil;
-// EA.Quit;
-// EA.Disconnect;
-// end;
-
 procedure TExcelDM.InternalLoadExcelFile(const AFileName: string);
 var
   AWorkbook: ExcelWorkbook;
@@ -410,6 +365,7 @@ begin
       ATotalProgressNE := TNotifyEventR.Create(OnTotalProgress,
         ANotifyEventRef);
 
+    // Подписываемся на событие OnProgress
     ne := TNotifyEventR.Create(OnProgress,
       procedure(Sender: TObject)
       Var
@@ -472,18 +428,19 @@ begin
           end;
 
           ProcessRange(ARange);
-
-          // Извещаем о том, что один лист уже загрузили
-          e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
-          try
+          {
+            // Извещаем о том, что один лист уже загрузили
+            e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+            try
             // Извещаем всех о событии
             FAfterLoadSheet.CallEventHandlers(e);
             // Если следующие листы загружать не надо
             if e.Terminate then
-              break;
-          finally
+            break;
+            finally
             FreeAndNil(e);
-          end;
+            end;
+          }
         end
         else
         begin
@@ -491,8 +448,21 @@ begin
           // Обновляем общий прогресс
           ATotalProgress.UpdateTotalProgress;
           // Извещаем всех, что общий прогресс изменился
-          FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
+          // FOnTotalProgress.CallEventHandlers(ATotalProgress.TotalProgress);
         end;
+
+        // Извещаем о том, что один лист уже загрузили
+        e := TExcelDMEvent.Create(I, ATotalProgress, CustomExcelTable);
+        try
+          // Извещаем всех о событии
+          FAfterLoadSheet.CallEventHandlers(e);
+          // Если следующие листы загружать не надо
+          if e.Terminate then
+            break;
+        finally
+          FreeAndNil(e);
+        end;
+
       end;
     finally
       // Отписываемся от события
@@ -510,7 +480,21 @@ begin
   end;
 end;
 
-function TExcelDM.LoadExcelFileHeader(const AFileName: string): TStringTreeNode;
+class function TExcelDM.LoadExcelFileHeader(const AFileName: string)
+  : TStringTreeNode;
+var
+  AExcelDM: TExcelDM;
+begin
+  AExcelDM := TExcelDM.Create(nil);
+  try
+    Result := AExcelDM.LoadExcelFileHeaderEx(AFileName);
+  finally
+    FreeAndNil(AExcelDM);
+  end;
+end;
+
+function TExcelDM.LoadExcelFileHeaderEx(const AFileName: string)
+  : TStringTreeNode;
 begin
   InternalLoadExcelFile(AFileName);
   ConnectToSheet(1);
@@ -521,7 +505,19 @@ begin
   EA.Disconnect;
 end;
 
-function TExcelDM.LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+class function TExcelDM.LoadExcelFileHeaderFromActiveSheet: TStringTreeNode;
+var
+  AExcelDM: TExcelDM;
+begin
+  AExcelDM := TExcelDM.Create(nil);
+  try
+    Result := AExcelDM.LoadExcelFileHeaderFromActiveSheetEx;
+  finally
+    FreeAndNil(AExcelDM);
+  end;
+end;
+
+function TExcelDM.LoadExcelFileHeaderFromActiveSheetEx: TStringTreeNode;
 begin
   EA.ConnectKind := ckRunningInstance;
   try
@@ -554,6 +550,8 @@ var
   ARow: Integer;
   AStringNode: TStringTreeNode;
 begin
+  // Очистили
+  TStringTreeNode.ClearMaxID;
   // Создали дерево
   Result := TStringTreeNode.Create;
   AStringNode := nil;
@@ -563,15 +561,15 @@ begin
   while True do
   begin
     ACell := EWS.Cells.Item[ARow, ACol];
-{
-    if ACell.MergeCells then
-    begin
+    {
+      if ACell.MergeCells then
+      begin
       r := ACell.MergeArea.Row;
       c := ACell.MergeArea.Column;
       rc := ACell.MergeArea.Rows.Count;
       cc := ACell.MergeArea.Columns.Count;
-    end;
-}
+      end;
+    }
     AColor := GetCellsColor(ACell);
     if (AColor = clWhite) and (not ACell.MergeCells) then
       break
@@ -724,6 +722,8 @@ begin
   if ARange <> nil then
   begin
     ATotalProgress := TTotalProgress.Create;
+
+    // Подписываемся на событие OnProgress
     ne := TNotifyEventR.Create(OnProgress,
       procedure(Sender: TObject)
       Var
@@ -821,7 +821,7 @@ begin
   Childs.Add(Result);
 end;
 
-procedure TStringTreeNode.ClearMaxID;
+class procedure TStringTreeNode.ClearMaxID;
 begin
   FMaxID := 0;
 end;
@@ -837,7 +837,6 @@ begin
   if FID = AID then
     Exit;
 
-
   for AStringTreeNode in Childs do
   begin
     // Просим свой дочерний узел поискать у себя
@@ -847,6 +846,21 @@ begin
   end;
 
   Result := nil;
+end;
+
+function TStringTreeNode.IndexOf(AValue: string): Integer;
+var
+  I: Integer;
+begin
+  Assert(not AValue.IsEmpty);
+
+  for I := 0 to Childs.Count - 1 do
+  begin
+    Result := I;
+    if String.CompareText(Childs[I].Value, AValue) = 0 then
+      Exit;
+  end;
+  Result := -1;
 end;
 
 constructor TTotalProgress.Create;

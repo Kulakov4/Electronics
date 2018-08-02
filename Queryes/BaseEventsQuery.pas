@@ -17,7 +17,10 @@ const
   WM_DS_AFTER_POST = WM_USER + 557;
 
 type
+  TQueryMonitor = class;
+
   TQueryBaseEvents = class(TQueryBase)
+    procedure FDQueryAfterCancel(DataSet: TDataSet);
     procedure FDQueryAfterClose(DataSet: TDataSet);
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
@@ -49,6 +52,8 @@ type
     FBeforePost: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
+    FAfterCancel: TNotifyEventsEx;
+    FAfterCancelUpdates: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
@@ -59,10 +64,11 @@ type
     FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
     FUseAfterPostMessage: Boolean;
+    class var FMonitor: TQueryMonitor;
     procedure CloneCursor(AClone: TFDMemTable);
     procedure DoAfterClose(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
-    procedure DoOnStartTransaction(Sender: TObject);
+    procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
     { Private declarations }
   protected
@@ -81,7 +87,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function AddClone(const AFilter: String): TFDMemTable;
+    procedure CancelUpdates; override;
     procedure DropClone(AClone: TFDMemTable);
+    procedure SmartRefresh; virtual;
     property AfterClose: TNotifyEventsEx read FAfterClose;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
@@ -99,20 +107,50 @@ type
     property BeforePost: TNotifyEventsEx read FBeforePost;
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
+    property AfterCancel: TNotifyEventsEx read FAfterCancel;
+    property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property OldPKValue: Variant read FOldPKValue;
     property OldState: TDataSetState read FOldState;
+    class property Monitor: TQueryMonitor read FMonitor;
     property UseAfterPostMessage: Boolean read FUseAfterPostMessage
       write FUseAfterPostMessage;
     { Public declarations }
+  end;
+
+  TQueryMonitor = class
+  private
+    FChangedQueries: TList<TQueryBaseEvents>;
+    FEventList: TObjectList;
+    FOnHaveAnyChanges: TNotifyEventsEx;
+    FQueries: TList<TQueryBaseEvents>;
+    procedure DoChangedListNotify(Sender: TObject; const Item: TQueryBaseEvents;
+      Action: TCollectionNotification);
+    function GetHaveAnyChanges: Boolean;
+    function GetIsEmpty: Boolean;
+  protected
+    procedure DoAfterCommitOrRollback(Sender: TObject);
+    procedure DoAfterDelete(Sender: TObject);
+    procedure DoAfterEditOrInsert(Sender: TObject);
+    procedure DoAfterCancelOrPost(Sender: TObject);
+    property Queries: TList<TQueryBaseEvents> read FQueries;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Add(AQuery: TQueryBaseEvents);
+    procedure ApplyUpdates;
+    procedure Remove(AQuery: TQueryBaseEvents);
+    property HaveAnyChanges: Boolean read GetHaveAnyChanges;
+    property IsEmpty: Boolean read GetIsEmpty;
+    property OnHaveAnyChanges: TNotifyEventsEx read FOnHaveAnyChanges;
   end;
 
 implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule;
+uses RepositoryDataModule, QueryGroupUnit;
 
 { TfrmDataModule }
 
@@ -145,7 +183,11 @@ begin
   FBeforeEdit := TNotifyEventsEx.Create(Self);
   FAfterEdit := TNotifyEventsEx.Create(Self);
 
+  FAfterCancel := TNotifyEventsEx.Create(Self);
+
   FAfterCommit := TNotifyEventsEx.Create(Self);
+
+  FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
 
   FResiveAfterScrollMessage := True;
   FResiveBeforeScrollMessage := True;
@@ -159,10 +201,63 @@ begin
   // Создаём список своих подписчиков на события
   FAutoTransactionEventList := TObjectList.Create;
   FMasterEventList := TObjectList.Create;
+
+  if FMonitor = nil then
+    FMonitor := TQueryMonitor.Create;
+
+  // Добавляем себя в список всех запросов
+  FMonitor.Add(Self);
+
 end;
 
 destructor TQueryBaseEvents.Destroy;
+var
+  I: Integer;
 begin
+  // Удалим все клоны
+  if FClones <> nil then
+  begin
+    for I := FClones.Count - 1 downto 0 do
+      DropClone(FClones[i]);
+  end;
+  Assert(FClones = nil);
+
+  FreeAndNil(FBeforeScroll);
+  FreeAndNil(FBeforeScrollI);
+  FreeAndNil(FAfterScroll);
+
+  FreeAndNil(FBeforeInsert);
+  FreeAndNil(FAfterInsert);
+
+  FreeAndNil(FBeforeDelete);
+  FreeAndNil(FAfterDelete);
+
+  FreeAndNil(FBeforeOpen);
+  FreeAndNil(FAfterOpen);
+
+  FreeAndNil(FBeforeClose);
+  FreeAndNil(FAfterClose);
+
+  FreeAndNil(FBeforePost);
+  FreeAndNil(FAfterPost);
+
+  FreeAndNil(FBeforeEdit);
+  FreeAndNil(FAfterEdit);
+
+  FreeAndNil(FAfterCancel);
+
+  FreeAndNil(FAfterCommit);
+
+  FreeAndNil(FAfterCancelUpdates);
+
+  Assert(FMonitor <> nil);
+  // Удаляем себя из списка всех запросов
+  FMonitor.Remove(Self);
+
+  // Если монитор больше не нужен
+  if FMonitor.IsEmpty then
+    FreeAndNil(FMonitor);
+
   FreeAndNil(FMasterEventList); // отписываемся от всех событий Мастера
   FreeAndNil(FAutoTransactionEventList);
   inherited;
@@ -179,28 +274,38 @@ begin
     FCloneEvents := TObjectList.Create;
 
     // Будем клонировать курсоры
-    TNotifyEventWrap.Create( AfterOpen, DoAfterOpen, FCloneEvents );
+    TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
     // Будем закрывать курсоры
-    TNotifyEventWrap.Create( AfterClose, DoAfterClose, FCloneEvents );
+    TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
   end;
 
-  Result := TFDMemTable.Create(Self);
+  Result := TFDMemTable.Create(nil); // Владельцем будет список
   Result.Filter := AFilter;
 
   // Клонируем
   if FDQuery.Active then
     CloneCursor(Result);
 
-  FClones.Add(Result);
+  FClones.Add(Result); // Владельцем будет список
+end;
+
+procedure TQueryBaseEvents.CancelUpdates;
+begin
+  inherited;
+  // Дополнительно сообщаем о том, что изменения отменены
+  if FDQuery.CachedUpdates then
+  begin
+    FAfterCancelUpdates.CallEventHandlers(Self);
+  end;
 end;
 
 procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
 var
   AFilter: String;
 begin
-  //Assert(not AClone.Filter.IsEmpty);
+  // Assert(not AClone.Filter.IsEmpty);
   AFilter := AClone.Filter;
-  AClone.CloneCursor( FDQuery );
+  AClone.CloneCursor(FDQuery);
 
   // Если фильтр накладывать не надо
   if (AFilter.IsEmpty) then
@@ -237,7 +342,7 @@ begin
   // клонируем курсоры
   for AClone in FClones do
   begin
-    CloneCursor( AClone );
+    CloneCursor(AClone);
   end;
 end;
 
@@ -247,7 +352,7 @@ begin
   FHaveAnyNotCommitedChanges := False;
 end;
 
-procedure TQueryBaseEvents.DoOnStartTransaction(Sender: TObject);
+procedure TQueryBaseEvents.TryStartTransaction(Sender: TObject);
 begin
   // начинаем транзакцию, если она ещё не началась
   if (not AutoTransaction) and (not FDQuery.Connection.InTransaction) then
@@ -259,7 +364,7 @@ begin
   Assert(AClone <> nil);
   Assert(FClones <> nil);
 
-  FClones.Remove( AClone );
+  FClones.Remove(AClone);
 
   if FClones.Count = 0 then
   begin
@@ -269,6 +374,12 @@ begin
     FreeAndNil(FClones);
   end;
 
+end;
+
+procedure TQueryBaseEvents.FDQueryAfterCancel(DataSet: TDataSet);
+begin
+  inherited;
+  FAfterCancel.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterClose(DataSet: TDataSet);
@@ -284,7 +395,7 @@ begin
   if FDQuery.Connection.InTransaction then
     FHaveAnyNotCommitedChanges := True;
 
-  FAfterDelete.CallEventHandlers(FDQuery);
+  FAfterDelete.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterEdit(DataSet: TDataSet);
@@ -296,13 +407,13 @@ end;
 procedure TQueryBaseEvents.FDQueryAfterInsert(DataSet: TDataSet);
 begin
   inherited;
-  FAfterInsert.CallEventHandlers(FDQuery);
+  FAfterInsert.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterOpen(DataSet: TDataSet);
 begin
   inherited;
-  FAfterOpen.CallEventHandlers(FDQuery);
+  FAfterOpen.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterPost(DataSet: TDataSet);
@@ -325,7 +436,7 @@ begin
     end;
   end
   else
-    FAfterPost.CallEventHandlers(FDQuery);
+    FAfterPost.CallEventHandlers(Self);
 
 end;
 
@@ -344,7 +455,7 @@ end;
 procedure TQueryBaseEvents.FDQueryBeforeClose(DataSet: TDataSet);
 begin
   inherited;
-  FBeforeClose.CallEventHandlers(FDQuery);
+  FBeforeClose.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeDelete(DataSet: TDataSet);
@@ -353,7 +464,7 @@ begin
   // Запоминаем удаляемое значение первичного ключа
   FOldPKValue := PK.Value;
 
-  FBeforeDelete.CallEventHandlers(FDQuery);
+  FBeforeDelete.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeEdit(DataSet: TDataSet);
@@ -365,7 +476,7 @@ end;
 procedure TQueryBaseEvents.FDQueryBeforeInsert(DataSet: TDataSet);
 begin
   inherited;
-  FBeforeInsert.CallEventHandlers(FDQuery);
+  FBeforeInsert.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeOpen(DataSet: TDataSet);
@@ -384,7 +495,7 @@ end;
 procedure TQueryBaseEvents.FDQueryBeforeScroll(DataSet: TDataSet);
 begin
   inherited;
-  FBeforeScrollI.CallEventHandlers(FDQuery);
+  FBeforeScrollI.CallEventHandlers(Self);
 
   // Если предыдущее сообщение о скроле уже получили
   if FResiveBeforeScrollMessage then
@@ -402,19 +513,19 @@ end;
 
 procedure TQueryBaseEvents.ProcessAfterPostMessage(var Message: TMessage);
 begin
-  FAfterPost.CallEventHandlers(FDQuery);
+  FAfterPost.CallEventHandlers(Self);
   FResiveAfterPostMessage := True;
 end;
 
 procedure TQueryBaseEvents.ProcessAfterScrollMessage(var Message: TMessage);
 begin
-  FAfterScroll.CallEventHandlers(FDQuery);
+  FAfterScroll.CallEventHandlers(Self);
   FResiveAfterScrollMessage := True;
 end;
 
 procedure TQueryBaseEvents.ProcessBeforeScrollMessage(var Message: TMessage);
 begin
-  FBeforeScroll.CallEventHandlers(FDQuery);
+  FBeforeScroll.CallEventHandlers(Self);
   FResiveBeforeScrollMessage := True;
 end;
 
@@ -434,11 +545,11 @@ begin
       TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterRollback,
         FAutoTransactionEventList);
 
-      TNotifyEventWrap.Create(BeforeInsert, DoOnStartTransaction,
+      TNotifyEventWrap.Create(BeforeInsert, TryStartTransaction,
         FAutoTransactionEventList);
-      TNotifyEventWrap.Create(BeforeDelete, DoOnStartTransaction,
+      TNotifyEventWrap.Create(BeforeDelete, TryStartTransaction,
         FAutoTransactionEventList);
-      TNotifyEventWrap.Create(BeforeEdit, DoOnStartTransaction,
+      TNotifyEventWrap.Create(BeforeEdit, TryStartTransaction,
         FAutoTransactionEventList);
     end
     else
@@ -447,6 +558,230 @@ begin
     end;
 
   end;
+end;
+
+procedure TQueryBaseEvents.SmartRefresh;
+var
+  OK: Boolean;
+begin
+  // Обновление данных, при котором не возникает события AfterScroll
+  FDQuery.DisableControls;
+  try
+    SaveBookmark;
+
+    // Как будто предыдущее сообщение AfterScroll ещё не получили
+    FResiveAfterScrollMessage := False;
+
+    // Заново выполняем запрос
+    RefreshQuery;
+
+    OK := RestoreBookmark;
+
+    // Если старой записи не существует
+    if not OK then
+    begin
+      // Как будто предыдущее сообщение AfterScroll ещё уже получили
+      FResiveAfterScrollMessage := True;
+
+      // Искусственно вызываем событие AfterScroll
+      FDQueryAfterScroll(FDQuery);
+    end;
+
+  finally
+    // Тут визуальные компоненты DevExpress начнут загрузку данных и будут делать Scroll
+    FDQuery.EnableControls;
+  end;
+
+  if OK then
+    // Как будто предыдущее сообщение AfterScroll ещё уже получили
+    FResiveAfterScrollMessage := True;
+
+end;
+
+constructor TQueryMonitor.Create;
+begin
+  inherited;
+  FQueries := TList<TQueryBaseEvents>.Create;
+  FChangedQueries := TList<TQueryBaseEvents>.Create;
+  FChangedQueries.OnNotify := DoChangedListNotify;
+
+  FEventList := TObjectList.Create(True);
+
+  TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommitOrRollback,
+    FEventList);
+
+  TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterCommitOrRollback,
+    FEventList);
+
+  FOnHaveAnyChanges := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TQueryMonitor.Destroy;
+begin
+  FreeAndNil(FOnHaveAnyChanges);
+  FreeAndNil(FEventList);
+  FreeAndNil(FQueries);
+  FreeAndNil(FChangedQueries);
+  inherited;
+end;
+
+procedure TQueryMonitor.Add(AQuery: TQueryBaseEvents);
+var
+  i: Integer;
+begin
+  Assert(AQuery <> nil);
+
+  i := FQueries.IndexOf(AQuery);
+  Assert(i = -1);
+
+  FQueries.Add(AQuery);
+
+  TNotifyEventWrap.Create(AQuery.AfterEdit, DoAfterEditOrInsert, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterInsert, DoAfterEditOrInsert, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterCancel, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterPost, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
+    FEventList);
+end;
+
+procedure TQueryMonitor.DoAfterCommitOrRollback(Sender: TObject);
+var
+  i: Integer;
+begin
+  for i := FChangedQueries.Count - 1 downto 0 do
+  begin
+    if not FChangedQueries[i].HaveAnyChanges then
+      FChangedQueries.Delete(i);
+  end;
+end;
+
+procedure TQueryMonitor.DoAfterDelete(Sender: TObject);
+var
+  i: Integer;
+  Q: TQueryBaseEvents;
+begin
+  Q := Sender as TQueryBaseEvents;
+
+  // Если нет несохранённных изменений
+  if not Q.HaveAnyChanges then
+  begin
+    i := FChangedQueries.IndexOf(Q);
+    if i >= 0 then
+      FChangedQueries.Delete(i);
+  end
+  else
+    FChangedQueries.Add(Q);
+  // Запоминаем, что здесь есть не сохранённые изменения
+end;
+
+procedure TQueryMonitor.DoAfterEditOrInsert(Sender: TObject);
+var
+  i: Integer;
+  Q: TQueryBaseEvents;
+begin
+  Q := Sender as TQueryBaseEvents;
+
+  if not Q.HaveAnyChanges then
+    Exit;
+
+  i := FChangedQueries.IndexOf(Q);
+  // Если этого запроса ещё нет в списке изменённых
+  if i = -1 then
+    FChangedQueries.Add(Q);
+end;
+
+procedure TQueryMonitor.DoAfterCancelOrPost(Sender: TObject);
+var
+  i: Integer;
+  Q: TQueryBaseEvents;
+begin
+  Q := Sender as TQueryBaseEvents;
+
+  i := FChangedQueries.IndexOf(Q);
+
+  // Если изменения в этом запросе не требуют сохранения
+  if i < 0 then
+    Exit;
+
+  // Если нет несохранённых изменений
+  if not Q.HaveAnyChanges then
+    FChangedQueries.Delete(i);
+end;
+
+function TQueryMonitor.GetHaveAnyChanges: Boolean;
+begin
+  Result := FChangedQueries.Count > 0;
+end;
+
+procedure TQueryMonitor.ApplyUpdates;
+var
+  ACount: Integer;
+  AQueryGroup: TQueryGroup;
+  k: Integer;
+  Q: TQueryBaseEvents;
+begin
+  if not HaveAnyChanges then
+    Exit;
+
+  ACount := FChangedQueries.Count;
+  k := 0;
+
+  while (FChangedQueries.Count > 0) and (k < ACount) do
+  begin
+    Q := FChangedQueries[0];
+    if (Q.Owner <> nil) and (Q.Owner is TQueryGroup) then
+    begin
+      AQueryGroup := Q.Owner as TQueryGroup;
+      // Просим группу сохранить свои изменения
+      AQueryGroup.ApplyUpdates;
+      Inc(k);
+    end
+    else
+    begin
+      // Если запрос сам по себе
+      Q.ApplyUpdates;
+    end;
+
+    Continue;
+  end;
+
+  // Если есть незавершённая транзакция
+  if Queries[0].FDQuery.Connection.InTransaction then
+    Queries[0].FDQuery.Connection.Commit;
+end;
+
+procedure TQueryMonitor.DoChangedListNotify(Sender: TObject;
+  const Item: TQueryBaseEvents; Action: TCollectionNotification);
+var
+  ACount: Integer;
+begin
+  ACount := (Sender as TList<TQueryBaseEvents>).Count;
+  if ((Action = cnAdded) and (ACount = 1)) or
+    ((Action = cnRemoved) and (ACount = 0)) then
+  begin
+    FOnHaveAnyChanges.CallEventHandlers(Self);
+  end;
+end;
+
+function TQueryMonitor.GetIsEmpty: Boolean;
+begin
+  Result := FQueries.Count = 0;
+end;
+
+procedure TQueryMonitor.Remove(AQuery: TQueryBaseEvents);
+var
+  i: Integer;
+begin
+  Assert(AQuery <> nil);
+
+  i := FChangedQueries.IndexOf(AQuery);
+  Assert(i = -1);
+
+  i := FQueries.IndexOf(AQuery);
+  Assert(i >= 0);
+
+  FQueries.Delete(i);
 end;
 
 end.

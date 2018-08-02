@@ -10,7 +10,7 @@ uses
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, Data.DB, FireDAC.Comp.Client, Vcl.ImgList,
   Vcl.Controls, cxGraphics, cxStyles, System.ImageList, NotifyEvents,
-  FireDAC.VCLUI.Wait, FireDAC.Moni.Base, FireDAC.Moni.FlatFile;
+  FireDAC.VCLUI.Wait, FireDAC.Moni.Base, FireDAC.Moni.FlatFile, cxImageList;
 
 type
   TDMRepository = class(TDataModule)
@@ -30,19 +30,23 @@ type
     cxImageList: TcxImageList;
     cxStyleRepository: TcxStyleRepository;
     cxHeaderStyle: TcxStyle;
-    FDMoniFlatFileClientLink1: TFDMoniFlatFileClientLink;
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
+    procedure dbConnectionBeforeCommit(Sender: TObject);
+    procedure dbConnectionBeforeConnect(Sender: TObject);
   private
     FAfterCommit: TNotifyEventsEx;
+    FBeforeCommit: TNotifyEventsEx;
     FAfterConnect: TNotifyEventsEx;
     FAfterRollback: TNotifyEventsEx;
     procedure LocalizeDevExpress;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
+    property BeforeCommit: TNotifyEventsEx read FBeforeCommit;
     property AfterConnect: TNotifyEventsEx read FAfterConnect;
     property AfterRollback: TNotifyEventsEx read FAfterRollback;
     { Public declarations }
@@ -64,11 +68,23 @@ begin
   inherited Create(AOwner);
 
   FAfterCommit := TNotifyEventsEx.Create(Self);
+  FBeforeCommit := TNotifyEventsEx.Create(Self);
+
   FAfterRollback := TNotifyEventsEx.Create(Self);
   FAfterConnect := TNotifyEventsEx.Create(Self);
 
   // локализуем девэкспресс
   LocalizeDevExpress();
+end;
+
+destructor TDMRepository.Destroy;
+begin
+  inherited;
+  FreeAndNil(FAfterCommit);
+  FreeAndNil(FBeforeCommit);
+
+  FreeAndNil(FAfterRollback);
+  FreeAndNil(FAfterConnect);
 end;
 
 procedure TDMRepository.dbConnectionAfterCommit(Sender: TObject);
@@ -87,6 +103,17 @@ procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);
 begin
   // Извещаем всех о роллбэке
   FAfterRollback.CallEventHandlers(Sender);
+end;
+
+procedure TDMRepository.dbConnectionBeforeCommit(Sender: TObject);
+begin
+  // Извещаем всех о предстоящем коммите
+  FBeforeCommit.CallEventHandlers(Sender);
+end;
+
+procedure TDMRepository.dbConnectionBeforeConnect(Sender: TObject);
+begin
+;
 end;
 
 procedure TDMRepository.LocalizeDevExpress;

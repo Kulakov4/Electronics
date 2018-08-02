@@ -45,17 +45,16 @@ object frmPathSettings: TfrmPathSettings
     Height = 188
     Align = alTop
     TabOrder = 2
-    Properties.ActivePage = cxTabSheet1
+    Properties.ActivePage = cxtshBodyTypes
     Properties.CustomButtons.Buttons = <>
+    ExplicitTop = 4
     ClientRectBottom = 184
     ClientRectLeft = 4
     ClientRectRight = 784
     ClientRectTop = 27
-    object cxTabSheet1: TcxTabSheet
+    object cxtshDatabase: TcxTabSheet
       Caption = #1041#1072#1079#1072' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 2
-      ExplicitLeft = 3
-      ExplicitTop = 28
       object Label8: TLabel
         Left = 3
         Top = 31
@@ -185,14 +184,14 @@ object frmPathSettings: TfrmPathSettings
       end
       object Label10: TLabel
         Left = 8
-        Top = 64
+        Top = 63
         Width = 43
         Height = 16
         Caption = #1057#1093#1077#1084#1099':'
       end
       object Label11: TLabel
         Left = 8
-        Top = 97
+        Top = 95
         Width = 57
         Height = 16
         Caption = #1063#1077#1088#1090#1077#1078#1080':'
@@ -206,19 +205,19 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxteWareHouseDataSheetFolder: TcxTextEdit
         Left = 224
-        Top = 27
+        Top = 29
         TabOrder = 0
         Width = 457
       end
       object cxteWareHouseDiagramFolder: TcxTextEdit
         Left = 224
-        Top = 60
+        Top = 59
         TabOrder = 1
         Width = 457
       end
       object cxteWareHouseDrawingFolder: TcxTextEdit
         Left = 224
-        Top = 93
+        Top = 91
         TabOrder = 2
         Width = 457
       end
@@ -266,24 +265,31 @@ object frmPathSettings: TfrmPathSettings
       ImageIndex = 0
       object Label1: TLabel
         Left = 8
-        Top = 31
+        Top = 32
         Width = 114
         Height = 16
         Caption = #1063#1077#1088#1090#1077#1078#1080' '#1082#1086#1088#1087#1091#1089#1086#1074':'
       end
       object Label2: TLabel
         Left = 8
-        Top = 73
+        Top = 95
         Width = 193
         Height = 16
         Caption = #1063#1077#1088#1090#1077#1078#1080' '#1087#1086#1089#1072#1076#1086#1095#1085#1086#1081' '#1087#1083#1086#1097#1072#1076#1082#1080':'
       end
       object Label3: TLabel
         Left = 8
-        Top = 112
+        Top = 127
         Width = 142
         Height = 16
         Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1103' '#1082#1086#1088#1087#1091#1089#1086#1074':'
+      end
+      object Label13: TLabel
+        Left = 8
+        Top = 63
+        Width = 40
+        Height = 16
+        Caption = 'JEDEC:'
       end
       object cxteBodyOutlineDrawingFolder: TcxTextEdit
         Left = 224
@@ -293,13 +299,13 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxteBodyLandPatternFolder: TcxTextEdit
         Left = 224
-        Top = 69
+        Top = 91
         TabOrder = 1
         Width = 457
       end
       object cxteBodyImageFolder: TcxTextEdit
         Left = 224
-        Top = 109
+        Top = 123
         TabOrder = 2
         Width = 457
       end
@@ -313,7 +319,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton2: TcxButton
         Left = 696
-        Top = 69
+        Top = 92
         Width = 75
         Height = 25
         Action = actBrowseLandPatternFolder
@@ -321,11 +327,25 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton3: TcxButton
         Left = 696
-        Top = 109
+        Top = 123
         Width = 75
         Height = 25
         Action = actBrowseImageFolder
         TabOrder = 5
+      end
+      object cxteBodyJEDECFolder: TcxTextEdit
+        Left = 224
+        Top = 59
+        TabOrder = 6
+        Width = 457
+      end
+      object cxButton15: TcxButton
+        Left = 696
+        Top = 59
+        Width = 75
+        Height = 25
+        Action = actBrowseOutlineDrawingFolder
+        TabOrder = 7
       end
     end
   end
@@ -379,6 +399,10 @@ object frmPathSettings: TfrmPathSettings
     object actBrowseWareHouseSchemeFolder: TAction
       Caption = #1054#1073#1079#1086#1088
       OnExecute = actBrowseWareHouseSchemeFolderExecute
+    end
+    object actBrowseJEDECFolder: TAction
+      Caption = 'actBrowseJEDECFolder'
+      OnExecute = actBrowseJEDECFolderExecute
     end
   end
 end

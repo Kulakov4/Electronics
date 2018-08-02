@@ -12,7 +12,7 @@ uses
   cxEditRepositoryItems, cxExtEditRepositoryItems, System.Actions, Vcl.ActnList,
   dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
-  cxGridCustomView, cxGrid, ComponentsGroupUnit, cxGridCustomPopupMenu,
+  cxGridCustomView, cxGrid, ComponentsGroupUnit2, cxGridCustomPopupMenu,
   cxGridPopupMenu, Vcl.Menus, ExcelDataModule, DocFieldInfo, ProgressBarForm,
   System.Contnrs, CustomExcelTable, NotifyEvents, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -31,7 +31,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   System.Generics.Collections, CustomComponentsQuery,
-  cxTextEdit, cxBlobEdit;
+  cxTextEdit, cxBlobEdit,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 {$WARN UNIT_PLATFORM OFF}
 
@@ -69,8 +70,8 @@ type
     FOnShowParametricTableEvent: TNotifyEventsEx;
     procedure DoOnUpdateComponentslCount(Sender: TObject);
     procedure DoOnUpdateFamilyCount(Sender: TObject);
-    function GetComponentsGroup: TComponentsGroup;
-    procedure SetComponentsGroup(const Value: TComponentsGroup);
+    function GetComponentsGroup: TComponentsGroup2;
+    procedure SetComponentsGroup(const Value: TComponentsGroup2);
     procedure UpdateSelectedCount;
     procedure UpdateTotalComponentCount;
     { Private declarations }
@@ -85,8 +86,8 @@ type
     procedure EndUpdate; override;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
-    property ComponentsGroup: TComponentsGroup read GetComponentsGroup
-      write SetComponentsGroup;
+    property ComponentsGroup: TComponentsGroup2 read GetComponentsGroup write
+        SetComponentsGroup;
     property OnShowParametricTableEvent: TNotifyEventsEx
       read FOnShowParametricTableEvent;
     { Public declarations }
@@ -115,6 +116,7 @@ end;
 
 destructor TViewComponents.Destroy;
 begin
+  FreeAndNil(FOnShowParametricTableEvent);
   FreeAndNil(FCountEvents);
   inherited;
 end;
@@ -123,6 +125,7 @@ procedure TViewComponents.actRefreshExecute(Sender: TObject);
 begin
   inherited;
   RefreshData;
+  FocusTopLeft(clValue.DataBinding.FieldName);
 end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);
@@ -258,7 +261,7 @@ begin
     DoOnUpdateComponentslCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterOpen,
-    DoOnUpdateComponentslCount);
+    DoOnUpdateComponentslCount, FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterDelete,
     DoOnUpdateComponentslCount, FCountEvents);
@@ -281,9 +284,9 @@ begin
     CreateCountEvents;
 end;
 
-function TViewComponents.GetComponentsGroup: TComponentsGroup;
+function TViewComponents.GetComponentsGroup: TComponentsGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsGroup;
+  Result := BaseComponentsGroup as TComponentsGroup2;
 end;
 
 procedure TViewComponents.LoadFromExcelDocument(const AFileName,
@@ -300,9 +303,13 @@ begin
         ComponentsGroup.LoadDataFromExcelTable(ASender as TComponentsExcelTable,
           AProducer);
       end);
+
+     // “ут некоторые узлы почему-то разворачиваютс€
+     MainView.ViewData.Collapse(True);
   finally
     EndUpdate;
   end;
+  FocusTopLeft(clValue.DataBinding.FieldName);
 
   UpdateView;
 end;
@@ -374,10 +381,14 @@ begin
     FreeAndNil(AFileNames);
   end;
 
+  // “ут некоторые узлы почему-то разворачиваютс€
+  MainView.ViewData.Collapse(True);
+  FocusTopLeft(clValue.DataBinding.FieldName);
+
   UpdateView;
 end;
 
-procedure TViewComponents.SetComponentsGroup(const Value: TComponentsGroup);
+procedure TViewComponents.SetComponentsGroup(const Value: TComponentsGroup2);
 begin
   if BaseComponentsGroup <> Value then
   begin

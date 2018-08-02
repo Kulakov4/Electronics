@@ -1,6 +1,19 @@
 program Database;
 
 uses
+  {$IFDEF EurekaLog}
+  EMemLeaks,
+  EResLeaks,
+  EDialogWinAPIMSClassic,
+  EDialogWinAPIEurekaLogDetailed,
+  EDialogWinAPIStepsToReproduce,
+  EDebugExports,
+  EDebugJCL,
+  EFixSafeCallException,
+  EMapWin32,
+  EAppVCL,
+  ExceptionLog7,
+  {$ENDIF EurekaLog}
   Vcl.Forms,
   DBRecordHolder in 'Helpers\DBRecordHolder.pas',
   ProjectConst in 'Helpers\ProjectConst.pas',
@@ -58,13 +71,10 @@ uses
   SearchProductQuery in 'Queryes\Search\SearchProductQuery.pas' {QuerySearchProduct: TFrame},
   SearchStorehouseProduct in 'Queryes\Search\SearchStorehouseProduct.pas' {QuerySearchStorehouseProduct: TFrame},
   ProducersQuery in 'Queryes\Producers\ProducersQuery.pas' {QueryProducers: TFrame},
-  ProducersGroupUnit in 'Queryes\Producers\ProducersGroupUnit.pas' {ProducersGroup: TFrame},
-  BodyTypesGroupUnit in 'Queryes\BodyTypes\BodyTypesGroupUnit.pas' {BodyTypesGroup: TFrame},
   ChildCategoriesQuery in 'Queryes\ChildCategories\ChildCategoriesQuery.pas' {QueryChildCategories: TFrame},
   DescriptionTypesQuery in 'Queryes\Descriptions\DescriptionTypesQuery.pas' {QueryDescriptionTypes: TFrame},
   DescriptionsQuery in 'Queryes\Descriptions\DescriptionsQuery.pas' {QueryDescriptions: TFrame},
   DescriptionsExcelDataModule in 'Excel\DescriptionsExcelDataModule.pas' {DescriptionsExcelDM: TDataModule},
-  DescriptionsGroupUnit in 'Queryes\Descriptions\DescriptionsGroupUnit.pas' {DescriptionsGroup: TFrame},
   SequenceQuery in 'Queryes\Sequence\SequenceQuery.pas' {QuerySequence: TFrame},
   TreeExcelDataModule in 'Excel\TreeExcelDataModule.pas' {TreeExcelDM: TDataModule},
   TreeListQuery in 'Queryes\TreeList\TreeListQuery.pas' {QueryTreeList: TFrame},
@@ -73,11 +83,8 @@ uses
   ParameterTypesQuery in 'Queryes\Parameters\ParameterTypesQuery.pas' {QueryParameterTypes: TFrame},
   ParameterPosQuery in 'Queryes\Parameters\ParameterPosQuery.pas' {QueryParameterPos: TFrame},
   ParametersQuery in 'Queryes\Parameters\ParametersQuery.pas' {QueryParameters: TFrame},
-  SubParametersQuery in 'Queryes\Parameters\SubParametersQuery.pas' {QuerySubParameters: TFrame},
   ParametersExcelDataModule in 'Excel\ParametersExcelDataModule.pas' {ParametersExcelDM: TDataModule},
-  ParametersGroupUnit in 'Queryes\Parameters\ParametersGroupUnit.pas' {ParametersGroup: TFrame},
   ParametricExcelDataModule in 'Excel\ParametricExcelDataModule.pas' {ParametricExcelDM: TDataModule},
-  ParametersForProductQuery in 'Queryes\ParameterValues\ParametersForProductQuery.pas' {QueryParametersForProduct: TFrame},
   ParametersValueQuery in 'Queryes\ParameterValues\ParametersValueQuery.pas' {QueryParametersValue: TFrame},
   IDTempTableQuery in 'Queryes\IDTempTable\IDTempTableQuery.pas' {QueryIDTempTable: TFrame},
   ParameterValuesUnit in 'Queryes\ParameterValues\ParameterValuesUnit.pas',
@@ -99,12 +106,8 @@ uses
   ComponentsSearchQuery in 'Queryes\Components\ComponentsSearchQuery.pas' {QueryComponentsSearch: TFrame},
   DocFieldInfo in 'Helpers\DocFieldInfo.pas',
   BaseComponentsQuery in 'Queryes\Components\BaseComponentsQuery.pas' {QueryBaseComponents: TFrame},
-  BaseComponentsGroupUnit in 'Queryes\Components\BaseComponentsGroupUnit.pas' {BaseComponentsGroup: TFrame},
-  ComponentsSearchGroupUnit in 'Queryes\Components\ComponentsSearchGroupUnit.pas' {ComponentsSearchGroup: TFrame},
   ComponentsExcelDataModule in 'Excel\ComponentsExcelDataModule.pas' {ComponentsExcelDM: TDataModule},
-  ComponentsGroupUnit in 'Queryes\Components\ComponentsGroupUnit.pas' {ComponentsGroup: TFrame},
   ProductParametersQuery in 'Queryes\Components\ParametricTable\ProductParametersQuery.pas' {QueryProductParameters: TFrame},
-  ComponentsExGroupUnit in 'Queryes\Components\ParametricTable\ComponentsExGroupUnit.pas' {ComponentsExGroup: TFrame},
   ProductsBaseQuery in 'Queryes\Products\ProductsBaseQuery.pas' {QueryProductsBase: TFrame},
   StoreHouseProductsCountQuery in 'Queryes\Products\Count\StoreHouseProductsCountQuery.pas' {QueryStoreHouseProductsCount: TFrame},
   StoreHouseListQuery in 'Queryes\Products\StoreHouse\StoreHouseListQuery.pas' {QueryStoreHouseList: TFrame},
@@ -119,7 +122,6 @@ uses
   GridFrame in 'Views\GridFrame.pas' {frmGrid: TFrame},
   TreeListFrame in 'Views\TreeListFrame.pas' {frmTreeList: TFrame},
   ModCheckDatabase in 'Helpers\ModCheckDatabase.pas',
-  DataModule2 in 'Queryes\DataModule2.pas' {DM2},
   AutoBindingDocForm in 'Views\AutoBinding\AutoBindingDocForm.pas' {frmAutoBindingDoc},
   AutoBindingDescriptionForm in 'Views\AutoBinding\AutoBindingDescriptionForm.pas' {frmAutoBindingDescriptions},
   GridView in 'Views\GridView\GridView.pas' {ViewGrid: TFrame},
@@ -189,7 +191,6 @@ uses
   SubParametersExcelDataModule in 'Excel\SubParametersExcelDataModule.pas' {SubParametersExcelDM: TDataModule},
   ParamSubParamsQuery in 'Queryes\Parameters\ParamSubParamsQuery.pas' {QueryParamSubParams: TFrame},
   CategoryParametersQuery2 in 'Queryes\CategoryParameters\CategoryParametersQuery2.pas' {QueryCategoryParameters2: TFrame},
-  CategoryParametersGroupUnit in 'Queryes\CategoryParameters\CategoryParametersGroupUnit.pas' {CategoryParametersGroup: TFrame},
   SearchParamSubParamQuery in 'Queryes\Search\SearchParamSubParamQuery.pas' {QuerySearchParamSubParam: TFrame},
   SearchParamDefSubParamQuery in 'Queryes\Search\SearchParamDefSubParamQuery.pas' {QuerySearchParamDefSubParam: TFrame},
   SubParametersForm in 'Views\Parameters\SubParametersForm.pas' {frmSubParameters},
@@ -197,14 +198,54 @@ uses
   MoveHelper in 'Helpers\MoveHelper.pas',
   UpdateParameterValuesParamSubParamQuery in 'Queryes\ParameterValues\UpdateParameterValuesParamSubParamQuery.pas' {qUpdateParameterValuesParamSubParam: TFrame},
   TextRectHelper in 'Helpers\TextRectHelper.pas',
-  ComponentTypeSetUnit in 'Helpers\ComponentTypeSetUnit.pas';
+  ComponentTypeSetUnit in 'Helpers\ComponentTypeSetUnit.pas',
+  ChildCategoriesView in 'Views\ChildCategories\ChildCategoriesView.pas' {ViewChildCategories: TFrame},
+  TreeListView in 'Views\TreeList\TreeListView.pas' {ViewTreeList: TFrame},
+  DuplicateCategoryQuery in 'Queryes\TreeList\DuplicateCategoryQuery.pas',
+  DuplicateCategoryView in 'Views\TreeList\DuplicateCategoryView.pas' {ViewDuplicateCategory: TFrame},
+  HttpUnit in 'Queryes\HTTP\HttpUnit.pas',
+  ExtraChargeQuery in 'Queryes\ExtraCharge\ExtraChargeQuery.pas' {QueryExtraCharge: TFrame},
+  ExtraChargeView in 'Views\ExtraCharge\ExtraChargeView.pas' {ViewExtraCharge: TFrame},
+  ExtraChargeForm in 'Views\ExtraCharge\ExtraChargeForm.pas' {frmExtraCharge},
+  ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame},
+  ExceptionHelper in 'Helpers\ExceptionHelper.pas',
+  ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule},
+  CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas',
+  ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts},
+  CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame},
+  SearchComponentParamSubParamsQuery in 'Queryes\Search\SearchComponentParamSubParamsQuery.pas' {QuerySearchComponentParamSubParams: TFrame},
+  SearchDaughterCategoriesQuery in 'Queryes\Search\SearchDaughterCategoriesQuery.pas' {QuerySearchDaughterCategories: TFrame},
+  JEDECPopupForm in 'Views\BodyTypes\JEDECPopupForm.pas' {frmJEDECPopup},
+  BodyOptionsQuery in 'Queryes\BodyTypes\BodyOptionsQuery.pas' {QueryBodyOptions: TFrame},
+  JEDECQuery in 'Queryes\BodyTypes\JEDECQuery.pas' {QueryJEDEC: TFrame},
+  BodyVariationJedecQuery in 'Queryes\BodyTypes\BodyVariationJedecQuery.pas' {QueryBodyVariationJedec: TFrame},
+  BodyVariationOptionQuery in 'Queryes\BodyTypes\BodyVariationOptionQuery.pas' {QueryBodyVariationOption: TFrame},
+  BodyVariationJedecView in 'Views\BodyTypes\BodyVariationJedecView.pas' {ViewBodyVariationJEDEC: TFrame},
+  BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame},
+  BodyVariationJedecGroupQuery in 'Queryes\BodyTypes\BodyVariationJedecGroupQuery.pas' {QueryBodyVariationJEDECGroup: TFrame},
+  OpenJedecUnit in 'Helpers\OpenJedecUnit.pas',
+  ProducerInterface in 'Helpers\ProducerInterface.pas',
+  CurrencyInterface in 'Helpers\CurrencyInterface.pas',
+  CurrencyUnit in 'Queryes\HTTP\CurrencyUnit.pas',
+  QueryGroupUnit2 in 'Queryes\QueryGroupUnit2.pas',
+  BodyTypesGroupUnit2 in 'Queryes\BodyTypes\BodyTypesGroupUnit2.pas',
+  DataModule in 'Queryes\DataModule.pas',
+  ProducersGroupUnit2 in 'Queryes\Producers\ProducersGroupUnit2.pas',
+  BaseComponentsGroupUnit2 in 'Queryes\Components\BaseComponentsGroupUnit2.pas',
+  ComponentsSearchGroupUnit2 in 'Queryes\Components\ComponentsSearchGroupUnit2.pas',
+  CategoryParametersGroupUnit2 in 'Queryes\CategoryParameters\CategoryParametersGroupUnit2.pas',
+  ComponentsGroupUnit2 in 'Queryes\Components\ComponentsGroupUnit2.pas',
+  ComponentsExGroupUnit2 in 'Queryes\Components\ParametricTable\ComponentsExGroupUnit2.pas',
+  ParametersGroupUnit2 in 'Queryes\Parameters\ParametersGroupUnit2.pas',
+  DescriptionsGroupUnit2 in 'Queryes\Descriptions\DescriptionsGroupUnit2.pas';
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TDMRepository, DMRepository);
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;
+
 end.
+

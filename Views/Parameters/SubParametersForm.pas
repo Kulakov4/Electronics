@@ -54,6 +54,7 @@ end;
 
 procedure TfrmSubParameters.CancelUpdates;
 begin
+  ViewSubParameters.UpdateView;
   ViewSubParameters.actRollback.Execute;
 end;
 
@@ -81,6 +82,9 @@ begin
       // Получаем идентификаторы отмеченных галочками подпараметров
       ACheckedID := qSubParameters.GetCheckedValues(qSubParameters.PKFieldName);
     end;
+
+    // Когда поставили галочку, в данных как-бы произошли изменения
+    qSubParameters.CancelUpdates;
   finally
     FreeAndNil(AfrmSubParameters);
     FreeAndNil(qSubParameters);

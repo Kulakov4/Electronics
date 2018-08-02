@@ -58,6 +58,9 @@ inherited ViewProducers: TViewProducers
         end>
       DataController.Summary.SummaryGroups = <>
       OptionsBehavior.CellHints = True
+      OptionsSelection.MultiSelect = True
+      OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
       OptionsView.CellEndEllipsis = True
       OptionsView.CellAutoHeight = True
       OptionsView.Footer = True
@@ -137,11 +140,7 @@ inherited ViewProducers: TViewProducers
       end>
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item

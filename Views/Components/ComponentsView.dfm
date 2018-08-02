@@ -34,11 +34,7 @@ inherited ViewComponents: TViewComponents
     ExplicitWidth = 960
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item
@@ -230,5 +226,8 @@ inherited ViewComponents: TViewComponents
       ImageIndex = 4
       OnExecute = actRefreshExecute
     end
+  end
+  inherited cxerComponents: TcxEditRepository
+    PixelsPerInch = 96
   end
 end

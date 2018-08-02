@@ -1,6 +1,10 @@
 inherited ViewParametricTable: TViewParametricTable
+  Width = 903
   ParentShowHint = False
+  ExplicitWidth = 903
   inherited cxGrid: TcxGrid
+    Width = 903
+    ExplicitWidth = 903
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -19,6 +23,7 @@ inherited ViewParametricTable: TViewParametricTable
       OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
       Bands = <
         item
+          Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
           FixedKind = fkLeft
           Options.HoldOwnColumnsOnly = True
           Options.Moving = False
@@ -61,6 +66,9 @@ inherited ViewParametricTable: TViewParametricTable
           VisibleForCustomization = False
         end>
       OnBandPosChanged = cxGridDBBandedTableViewBandPosChanged
+      inherited clValue: TcxGridDBBandedColumn
+        Caption = ' '
+      end
       inherited clProducer: TcxGridDBBandedColumn
         Caption = ''
         IsCaptionAssigned = True
@@ -126,6 +134,8 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsBehavior.ColumnHeaderHints = False
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsBehavior.BandHeaderHints = False
+      OptionsData.Deleting = False
+      OptionsData.DeletingConfirmation = True
       OptionsView.CellAutoHeight = True
       Bands = <
         item
@@ -216,17 +226,22 @@ inherited ViewParametricTable: TViewParametricTable
       end
     end
   end
+  inherited StatusBar: TStatusBar
+    Width = 903
+    ExplicitWidth = 903
+  end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item
           Visible = True
           ItemName = 'dxbsColumns'
+        end
+        item
+          ViewLayout = ivlGlyphControlCaption
+          Visible = True
+          ItemName = 'cxbeiTableName'
         end
         item
           Visible = True
@@ -281,6 +296,18 @@ inherited ViewParametricTable: TViewParametricTable
       Action = actRefresh
       Category = 0
       PaintStyle = psCaptionGlyph
+    end
+    object cxbeiTableName: TcxBarEditItem
+      Caption = #1058#1072#1073#1083#1080#1095#1085#1086#1077' '#1080#1084#1103
+      Category = 0
+      Hint = #1058#1072#1073#1083#1080#1095#1085#1086#1077' '#1080#1084#1103
+      Visible = ivAlways
+      ShowCaption = True
+      Width = 0
+      PropertiesClassName = 'TcxCheckBoxProperties'
+      Properties.ImmediatePost = True
+      Properties.OnChange = cxbeiTableNamePropertiesChange
+      InternalEditValue = 'True'
     end
   end
   inherited ActionList: TActionList
@@ -337,6 +364,7 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actBandWidth: TAction
       Caption = #1064#1080#1088#1080#1085#1072' '#1073#1101#1085#1076#1072
+      Visible = False
       OnExecute = actBandWidthExecute
     end
     object actColumnWidth: TAction
@@ -376,7 +404,12 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actUpdateDetailColumnWidth2: TAction
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100' '#1096#1080#1088#1080#1085#1091' '#1076#1086#1095#1077#1088#1085#1080#1093' '#1082#1086#1083#1086#1085#1086#1082
+      Visible = False
       OnExecute = actUpdateDetailColumnWidth2Execute
+    end
+    object actUpdateColumnWidth: TAction
+      Caption = 'actUpdateColumnWidth'
+      OnExecute = actUpdateColumnWidthExecute
     end
   end
   inherited pmGrid: TPopupMenu
@@ -410,6 +443,9 @@ inherited ViewParametricTable: TViewParametricTable
         Index = 3
         PopupMenu = pmBands
       end>
+  end
+  inherited cxerComponents: TcxEditRepository
+    PixelsPerInch = 96
   end
   object BandTimer: TTimer
     Enabled = False

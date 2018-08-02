@@ -94,16 +94,12 @@ inherited ViewComponentsParent: TViewComponentsParent
     end
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
   end
   inherited ActionList: TActionList
     object actDeleteFromAllCategories: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
-      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
       ImageIndex = 33
       OnExecute = actDeleteFromAllCategoriesExecute
     end
@@ -148,6 +144,7 @@ inherited ViewComponentsParent: TViewComponentsParent
   object cxerComponents: TcxEditRepository
     Left = 64
     Top = 208
+    PixelsPerInch = 96
     object cxFieldValueWithExpand: TcxEditRepositoryButtonItem
       Properties.Buttons = <
         item

@@ -11,7 +11,8 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ApplyQueryFrame, BodyTypesExcelDataModule, QueryWithDataSourceUnit,
   BodiesQuery, BodyDataQuery, BodyVariationsQuery, BodyTypesBaseQuery,
-  DocFieldInfo, System.IOUtils;
+  DocFieldInfo, System.IOUtils, JEDECQuery, System.Generics.Collections,
+  BodyVariationJedecQuery, BodyOptionsQuery, BodyVariationOptionQuery;
 
 const
   WM_arInsert = WM_USER + 139;
@@ -27,7 +28,8 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsertOrUpdate;
@@ -41,6 +43,7 @@ type
     function ConstructBodyType(const APackage: string): string;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
+    procedure LoadJEDEC(const AFileName: String; Add: Boolean);
     procedure LocateOrAppend(AIDBodyKind: Integer;
       const ABody, ABodyData: String; AIDProducer: Integer;
       const AOutlineDrawing, ALandPattern, AVariation, AImage: string);
@@ -64,7 +67,9 @@ begin
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
 end;
 
-procedure TQueryBodyTypes2.ApplyDelete(ASender: TDataSet);
+procedure TQueryBodyTypes2.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AID: Integer;
   AIDS: string;
@@ -74,21 +79,20 @@ begin
   Assert(ASender = FDQuery);
   AIDS := FIDS;
 
-  if not AIDS.IsEmpty then
-  begin
-    // Почему-то иногда AID = 0
-    m := AIDS.Split([',']);
-    for S in m do
-    begin
-      AID := S.Trim.ToInteger();
-      // Удаляем вариант корпуса
-      QueryBodyVariations.LocateByPKAndDelete(AID);
-    end;
+  // Почему-то иногда AID = 0
+  if AIDS.IsEmpty then
+    Exit;
 
-    // Удаляем неиспользуемые корпуса
-    DropUnusedBodies;
+  m := AIDS.Split([',']);
+  for S in m do
+  begin
+    AID := S.Trim.ToInteger();
+    // Удаляем вариант корпуса
+    QueryBodyVariations.LocateByPKAndDelete(AID);
   end;
 
+  // Удаляем неиспользуемые корпуса
+  DropUnusedBodies;
 end;
 
 procedure TQueryBodyTypes2.ApplyInsert(ASender: TDataSet;
@@ -137,11 +141,12 @@ begin
 
     AOLDIDS := ',' + IDS.AsString.Replace(' ', '') + ',';
 
+    // Цикл по всем вариантам корпуса
     for I := 0 to L.Count - 1 do
     begin
       QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
-        OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString,
-        JEDEC.AsString);
+        OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString);
+
       AID := QueryBodyVariations.PK.AsString;
       Assert(not AID.IsEmpty);
 
@@ -150,6 +155,9 @@ begin
 
       AIDSS := AIDSS + IfThen(AIDSS.IsEmpty, '', ', ');
       AIDSS := AIDSS + AID;
+
+      UpdateJEDEC;
+      UpdateOptions;
     end;
 
     AOLDIDS := AOLDIDS.Trim([',']);
@@ -349,16 +357,37 @@ end;
 procedure TQueryBodyTypes2.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
+  OK: Boolean;
   S: string;
 begin
-  if not AFileName.IsEmpty then
-  begin
-    // В БД храним имя файла без расширения и всё
-    S := TPath.GetFileNameWithoutExtension(AFileName);
-    TryEdit;
-    Field(ADocFieldInfo.FieldName).AsString := S;
+  Assert(not AFileName.IsEmpty);
+
+  // В БД храним имя файла без расширения и всё
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+  OK := TryEdit;
+  Field(ADocFieldInfo.FieldName).AsString := S;
+  if OK then
     TryPost;
-  end;
+end;
+
+procedure TQueryBodyTypes2.LoadJEDEC(const AFileName: String; Add: Boolean);
+var
+  OK: Boolean;
+  S: string;
+begin
+  Assert(not AFileName.IsEmpty);
+
+  S := '';
+  if Add and (not JEDEC.AsString.IsEmpty) then
+    S := JEDEC.AsString + '; ';
+
+  // В БД храним имя файла без расширения и всё
+  S := S + TPath.GetFileNameWithoutExtension(AFileName);
+
+  OK := TryEdit;
+  JEDEC.AsString := S;
+  if OK then
+    TryPost;
 end;
 
 procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer;

@@ -12,6 +12,8 @@ Type
     constructor Create(SS, XX: String);
   end;
 
+function NameForm(X: Integer; const s1: String; const s2: String;
+  const s5: String): String;
 function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String;
   const ADelimiter: Char = ','): Boolean;
@@ -22,30 +24,58 @@ function Replace(const S: String; const ANewValue: String; const AMark: String;
 function MySplit(const S: string): TList<TMySplit>;
 
 function GetWords(const S: String): String;
+function ReplaceNotKeyboadChars(const S: String): String;
 
 implementation
 
 uses System.SysUtils, System.RegularExpressions;
 
+function NameForm(X: Integer; const s1: String; const s2: String;
+  const s5: String): String;
+var
+  d: Integer;
+begin
+  d := X mod 100;
+  if (d >= 10) and (d <= 20) then
+  begin
+    Result := s5;
+    Exit;
+  end;
+
+  d := X mod 10;
+  if d = 1 then
+    Result := s1
+  else if (d >= 2) and (d <= 4) then
+    Result := s2
+  else
+    Result := s5;
+end;
+
 function GetWords(const S: String): String;
 var
   m: TArray<String>;
-  S2: string;
-  S1: string;
+  s2: string;
+  s1: string;
 begin
   Result := '';
-  S1 := S.Trim();
+  s1 := S.Trim();
 
-  m := S1.Split([' ', '/', '-']);
+  m := s1.Split([' ', '/', '-']);
 
-  for S1 in m do
+  for s1 in m do
   begin
-    S2 := S1.Trim;
-    if S2.IsEmpty then
+    s2 := s1.Trim;
+    if s2.IsEmpty then
       Continue;
-    Result := Format('%s'#13'%s', [Result, S2]);
+    Result := Format('%s'#13'%s', [Result, s2]);
   end;
   Result := Result.Trim([#13]);
+end;
+
+function ReplaceNotKeyboadChars(const S: String): String;
+begin
+  Result := S.Replace(chr($02C2), '<');
+  Result := Result.Replace(chr($02C3), '>');
 end;
 
 function Replace(const S: String; const ANewValue: String; const AMark: String;
@@ -90,28 +120,28 @@ end;
 function Contain(const SubStr: String; const S: String;
   const ADelimiter: Char = ','): Boolean;
 var
-  S1: string;
-  S2: string;
+  s1: string;
+  s2: string;
 begin
-  S1 := Format('%s%s%s', [ADelimiter, S.Trim([ADelimiter]), ADelimiter]);
-  S2 := Format('%s%s%s', [ADelimiter, SubStr.Trim([ADelimiter]), ADelimiter]);
-  Result := S1.IndexOf(S2) >= 0;
+  s1 := Format('%s%s%s', [ADelimiter, S.Trim([ADelimiter]), ADelimiter]);
+  s2 := Format('%s%s%s', [ADelimiter, SubStr.Trim([ADelimiter]), ADelimiter]);
+  Result := s1.IndexOf(s2) >= 0;
 end;
 
 function DeleteDouble(const S: string; const AChar: Char): String;
 var
-  S1: String;
-  S2: String;
+  s1: String;
+  s2: String;
   SS: string;
 begin
   Assert(AChar <> #0);
-  S1 := String.Create(AChar, 1);
-  S2 := String.Create(AChar, 2);
+  s1 := String.Create(AChar, 1);
+  s2 := String.Create(AChar, 2);
 
   Result := S;
   repeat
     SS := Result;
-    Result := SS.Replace(S2, S1, [rfReplaceAll]);
+    Result := SS.Replace(s2, s1, [rfReplaceAll]);
   until Result = SS;
 end;
 

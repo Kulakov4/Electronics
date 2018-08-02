@@ -19,7 +19,8 @@ type
     function GetAnalog: TField;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -51,10 +52,13 @@ end;
 destructor TQueryComponentsEx.Destroy;
 begin
   inherited;
+  FreeAndNil(FOn_ApplyUpdate);
+  FreeAndNil(FOnLocate);
   FreeAndNil(FRecordHolder);
 end;
 
-procedure TQueryComponentsEx.ApplyDelete(ASender: TDataSet);
+procedure TQueryComponentsEx.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   // ничего не делаем при удаении
 end;

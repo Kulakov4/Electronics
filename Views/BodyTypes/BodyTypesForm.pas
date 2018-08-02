@@ -26,8 +26,8 @@ uses
 
 type
   TfrmBodyTypes = class(TfrmDictonary)
-    ViewBodyTypes: TViewBodyTypes;
   private
+    FViewBodyTypes: TViewBodyTypes;
     { Private declarations }
   protected
     procedure ApplyUpdates; override;
@@ -35,6 +35,8 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
+    constructor Create(AOwner: TComponent); override;
+    property ViewBodyTypes: TViewBodyTypes read FViewBodyTypes;
     { Public declarations }
   end;
 
@@ -45,13 +47,23 @@ implementation
 
 {$R *.dfm}
 
+constructor TfrmBodyTypes.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewBodyTypes := TViewBodyTypes.Create(Self);
+  FViewBodyTypes.Parent := Panel1;
+  FViewBodyTypes.Align := alClient;
+end;
+
 procedure TfrmBodyTypes.ApplyUpdates;
 begin
+  ViewBodyTypes.UpdateView;
   ViewBodyTypes.actCommit.Execute;
 end;
 
 procedure TfrmBodyTypes.CancelUpdates;
 begin
+  ViewBodyTypes.UpdateView;
   ViewBodyTypes.actRollback.Execute;
 end;
 
@@ -62,7 +74,7 @@ end;
 
 function TfrmBodyTypes.HaveAnyChanges: Boolean;
 begin
-  Result := ViewBodyTypes.BodyTypesGroup.Connection.InTransaction;
+  Result := ViewBodyTypes.BodyTypesGroup.HaveAnyChanges;
 end;
 
 end.

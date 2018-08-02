@@ -27,7 +27,8 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, System.ImageList, Vcl.ImgList, Vcl.ExtCtrls,
-  NotifyEvents;
+  NotifyEvents, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu, cxImageList;
 
 const
   WM_ON_UPDATE_DATA = WM_USER + 125;

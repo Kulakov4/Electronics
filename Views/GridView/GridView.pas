@@ -26,7 +26,8 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid;
+  cxGridDBBandedTableView, cxGrid,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewGrid = class(TfrmGrid)

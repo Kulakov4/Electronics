@@ -26,17 +26,35 @@ uses
 type
   TfrmParametricTableError = class(TfrmRoot)
     pnlMain: TPanel;
-    ViewParametricTableError: TViewParametricTableError;
     cxButtonNext: TcxButton;
     cxButtonCancel: TcxButton;
   private
+    FViewParametricTableError: TViewParametricTableError;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property ViewParametricTableError: TViewParametricTableError read
+        FViewParametricTableError;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+constructor TfrmParametricTableError.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewParametricTableError := TViewParametricTableError.Create(Self);
+  FViewParametricTableError.Parent := pnlMain;
+  FViewParametricTableError.Align := alClient;
+end;
+
+destructor TfrmParametricTableError.Destroy;
+begin
+  FreeAndNil(FViewParametricTableError);
+  inherited;
+end;
 
 end.

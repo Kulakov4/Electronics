@@ -50,11 +50,13 @@ uses RepositoryDataModule;
 
 procedure TfrmDescriptions.ApplyUpdates;
 begin
+  ViewDescriptions.UpdateView;
   ViewDescriptions.actCommit.Execute;
 end;
 
 procedure TfrmDescriptions.CancelUpdates;
 begin
+  ViewDescriptions.UpdateView;
   ViewDescriptions.actRollback.Execute;
 end;
 
@@ -65,7 +67,7 @@ end;
 
 function TfrmDescriptions.HaveAnyChanges: Boolean;
 begin
-  Result := ViewDescriptions.DescriptionsGroup.Connection.InTransaction;
+  Result := ViewDescriptions.DescriptionsGroup.HaveAnyChanges;
 end;
 
 end.

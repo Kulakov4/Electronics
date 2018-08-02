@@ -21,15 +21,11 @@ inherited ViewParametricTableError: TViewParametricTableError
     end
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
   end
   inherited ActionList: TActionList
     object actFix: TAction
-      Caption = #1042#1099#1073#1088#1072#1090#1100
+      Caption = #1048#1089#1087#1088#1072#1074#1080#1090#1100
       OnExecute = actFixExecute
     end
   end

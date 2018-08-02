@@ -20,6 +20,7 @@ inherited QuerySubParameters2: TQuerySubParameters2
         'cp.ProductCategoryId = :ProductCategoryId'
       '/* ENDIF */'
       'where sp.IsDefault = 0'
-      'and 0=0')
+      'and 0=0'
+      'order by Name')
   end
 end

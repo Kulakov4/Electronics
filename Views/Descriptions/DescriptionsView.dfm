@@ -117,6 +117,7 @@ inherited ViewDescriptions: TViewDescriptions
       object clDescription: TcxGridDBBandedColumn
         Caption = #1054#1087#1080#1089#1072#1085#1080#1077
         DataBinding.FieldName = 'Description'
+        BestFitMaxWidth = 750
         Options.Sorting = False
         Width = 200
         Position.BandIndex = 0
@@ -161,11 +162,7 @@ inherited ViewDescriptions: TViewDescriptions
     ExplicitWidth = 991
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item

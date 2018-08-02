@@ -27,9 +27,8 @@ type
     function GetQuerySearchComponentCategory: TQuerySearchComponentCategory;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
@@ -58,7 +57,8 @@ begin
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 
-procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet);
+procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
   if PK.AsInteger > 0 then
@@ -73,83 +73,13 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseFamily.ApplyInsert(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
-var
-  ARH: TRecordHolder;
-begin
-  Assert(ASender = FDQuery);
-
-  // Если такого семейства ещё нет
-  if qSearchFamily.SearchByValue(Value.AsString) = 0 then
-  begin
-    ARH := TRecordHolder.Create(ASender);
-    try
-      qProducts.InsertRecord(ARH);
-    finally
-      FreeAndNil(ARH);
-    end;
-
-    // Запоминаем сгенерированный первичный ключ
-    FetchFields([PK.FieldName], [qProducts.PKValue], ARequest,
-      AAction, AOptions);
-    //APK.AsInteger := qProducts.PKValue;
-
-    // Обрабатываем значения параметров
-    UpdateParamValue(PKFieldName);
-  end
-  else
-  begin
-    // Если такой компонент уже есть
-    // Запоминаем найденный первичный ключ
-    FetchFields([PK.FieldName], [qSearchFamily.PK.Value], ARequest,
-      AAction, AOptions);
-    //APK.Value := qSearchFamily.PK.Value;
-
-    // Заполняем пустые поля значениями с сервера
-    ARH := TDBRecord.Fill(ASender, qSearchFamily.FDQuery,
-      PKFieldName);
-    try
-      // Если есть поля, которые нужно обновить
-      if ARH.Count > 0 then
-      begin
-        // Обновляем те поля, которые есть у компонента
-        qProducts.UpdateRecord(ARH);
-
-        // Если на сервере иное значение подгруппы
-        if ARH.Find(SubGroup.FieldName) <> nil then
-        begin
-          SubGroup.AsString := CombineSubgroup(SubGroup.AsString,
-            qSearchFamily.SubGroup.AsString)
-        end;
-
-        // Обрабатываем значения параметров
-        UpdateParamValue(PKFieldName);
-      end;
-    finally
-      FreeAndNil(ARH);
-    end;
-  end;
-
-  Assert(PK.AsInteger > 0);
-
-  // Обновляем категории нашего компонента
-  UpdateCategory(PK.AsInteger, SubGroup.AsString);
-
-  inherited;
-end;
-
 procedure TQueryBaseFamily.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-  // APackagePins: TField;
-//  APK: TField;
   ARH: TRecordHolder;
   ASubGroup: TField;
 begin
-  // APackagePins := ASender.FieldByName(PackagePins.FieldName);
   Assert(ASender = FDQuery);
 
   ARH := TRecordHolder.Create(ASender);
@@ -163,12 +93,10 @@ begin
   // Обрабатываем обновление значений параметров
   UpdateParamValue(PKFieldName);
 
-  ASubGroup := ASender.FindField('SubGroup');
+  ASubGroup := FDQuery.FindField('SubGroup');
   // Если в запросе выбираются внешние коды категорий
   if ASubGroup <> nil then
   begin
-    //APK := ASender.FieldByName(PKFieldName);
-
     // Обновляем категории нашего компонента
     UpdateCategory(PK.AsInteger, ASubGroup.AsString);
   end;

@@ -54,7 +54,8 @@ type
     function GetValueT: TField;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -153,6 +154,7 @@ end;
 
 destructor TQueryCategoryParameters2.Destroy;
 begin
+  FreeAndNil(FOn_ApplyUpdates);
   FreeAndNil(FEditedSubParams);
   FreeAndNil(FDeletedSubParams);
   FreeAndNil(FInsertedSubParams);
@@ -189,7 +191,8 @@ begin
   TryPost;
 end;
 
-procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet);
+procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
   // –екурсивно удал€ем из категорий сам параметр

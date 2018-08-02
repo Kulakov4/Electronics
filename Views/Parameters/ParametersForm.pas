@@ -31,12 +31,12 @@ type
     cxPageControl: TcxPageControl;
     cxtsParameters: TcxTabSheet;
     cxtsSubParameters: TcxTabSheet;
-    ViewParameters: TViewParameters;
-    ViewSubParameters: TViewSubParameters;
     procedure FormCreate(Sender: TObject);
     procedure cxPageControlPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
   private
+    FViewSubParameters: TViewSubParameters;
+    FViewParameters: TViewParameters;
     { Private declarations }
   protected
     procedure ApplyUpdates; override;
@@ -44,6 +44,9 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
+    constructor Create(AOwner: TComponent); override;
+    property ViewSubParameters: TViewSubParameters read FViewSubParameters;
+    property ViewParameters: TViewParameters read FViewParameters;
     { Public declarations }
   end;
 
@@ -54,6 +57,18 @@ implementation
 
 {$R *.dfm}
 
+constructor TfrmParameters.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewParameters := TViewParameters.Create(Self);
+  FViewParameters.Parent := cxtsParameters;
+  FViewParameters.Align := alClient;
+
+  FViewSubParameters := TViewSubParameters.Create(Self);
+  FViewSubParameters.Parent := cxtsSubParameters;
+  FViewSubParameters.Align := alClient;
+end;
+
 procedure TfrmParameters.ApplyUpdates;
 begin
   ViewParameters.CommitOrPost;
@@ -61,6 +76,7 @@ end;
 
 procedure TfrmParameters.CancelUpdates;
 begin
+  ViewParameters.UpdateView;
   ViewParameters.actRollback.Execute;
 end;
 
@@ -88,7 +104,11 @@ end;
 
 function TfrmParameters.HaveAnyChanges: Boolean;
 begin
-  Result := ViewParameters.ParametersGrp.Connection.InTransaction;
+  Result := True;
+  if cxPageControl.ActivePage = cxtsParameters then
+    Result := ViewParameters.ParametersGrp.HaveAnyChanges;
+  if cxPageControl.ActivePage = cxtsSubParameters then
+    Result := ViewSubParameters.QuerySubParameters.HaveAnyChanges;
 end;
 
 end.

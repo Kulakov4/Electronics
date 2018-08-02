@@ -65,7 +65,7 @@ type
     cxteComponentsDiagramFolder: TcxTextEdit;
     cxButton9: TcxButton;
     actBrowseComponentsSchemeFolder: TAction;
-    cxTabSheet1: TcxTabSheet;
+    cxtshDatabase: TcxTabSheet;
     Label8: TLabel;
     cxteDataBasePath: TcxTextEdit;
     cxButton10: TcxButton;
@@ -88,12 +88,17 @@ type
     actBrowseWareHouseDrawingFolder: TAction;
     actBrowseWareHouseSchemeFolder: TAction;
     cbLoadLastCategory: TcxCheckBox;
+    Label13: TLabel;
+    cxteBodyJEDECFolder: TcxTextEdit;
+    cxButton15: TcxButton;
+    actBrowseJEDECFolder: TAction;
     procedure actBrowseComponentsDataSheetFolderExecute(Sender: TObject);
     procedure actBrowseComponentsDrawingFolderExecute(Sender: TObject);
     procedure actBrowseComponentsImageFolderExecute(Sender: TObject);
     procedure actBrowseComponentsSchemeFolderExecute(Sender: TObject);
     procedure actBrowseDatabasePathExecute(Sender: TObject);
     procedure actBrowseImageFolderExecute(Sender: TObject);
+    procedure actBrowseJEDECFolderExecute(Sender: TObject);
     procedure actBrowseLandPatternFolderExecute(Sender: TObject);
     procedure actBrowseOutlineDrawingFolderExecute(Sender: TObject);
     procedure actBrowseWareHouseDataSheetFolderExecute(Sender: TObject);
@@ -126,10 +131,13 @@ uses SettingsController, System.IOUtils, Vcl.FileCtrl;
 constructor TfrmPathSettings.Create(AOwner: TComponent);
 begin
   inherited;
+  cxPageControl.ActivePage := cxtshDatabase;
+
   FTextBoxes := TList<TcxTextEdit>.Create();
   FTextBoxes.Add(cxteBodyOutlineDrawingFolder);
   FTextBoxes.Add(cxteBodyLandPatternFolder);
   FTextBoxes.Add(cxteBodyImageFolder);
+  FTextBoxes.Add(cxteBodyJEDECFolder);
   FTextBoxes.Add(cxteComponentsDataSheetFolder);
   FTextBoxes.Add(cxteComponentsImageFolder);
   FTextBoxes.Add(cxteComponentsDrawingFolder);
@@ -198,6 +206,11 @@ end;
 procedure TfrmPathSettings.actBrowseImageFolderExecute(Sender: TObject);
 begin
   InternalSelectDirectory(cxteBodyImageFolder, TPDFFilesFolderOpenDialog);
+end;
+
+procedure TfrmPathSettings.actBrowseJEDECFolderExecute(Sender: TObject);
+begin
+  InternalSelectDirectory(cxteBodyJEDECFolder, TPDFFilesFolderOpenDialog);
 end;
 
 procedure TfrmPathSettings.actBrowseLandPatternFolderExecute(Sender: TObject);
@@ -341,6 +354,8 @@ begin
 
   cxteBodyImageFolder.Text := TSettings.Create.BodyTypesImageFolder;
 
+  cxteBodyJEDECFolder.Text := TSettings.Create.BodyTypesJEDECFolder;
+
   cxteComponentsDataSheetFolder.Text :=
     TSettings.Create.ComponentsDatasheetFolder;
 
@@ -370,6 +385,8 @@ begin
     cxteBodyOutlineDrawingFolder.Text;
 
   TSettings.Create.BodyTypesLandPatternFolder := cxteBodyLandPatternFolder.Text;
+
+  TSettings.Create.BodyTypesJEDECFolder := cxteBodyJEDECFolder.Text;
 
   TSettings.Create.BodyTypesImageFolder := cxteBodyImageFolder.Text;
 

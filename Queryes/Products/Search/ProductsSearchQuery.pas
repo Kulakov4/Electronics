@@ -35,17 +35,20 @@ type
     function GetqStoreHouseList: TQueryStoreHouseList;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure DoBeforePost(Sender: TObject); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
     // procedure SetConditionSQL(const AConditionSQL, AMark: String;
     // ANotifyEventRef: TNotifyEventRef = nil);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
     procedure DoSearch(ALike: Boolean);
@@ -85,9 +88,19 @@ begin
   FOnEndUpdate := TNotifyEventsEx.Create(Self);
 end;
 
+destructor TQueryProductsSearch.Destroy;
+begin
+  FreeAndNil(FOnBeginUpdate);
+  FreeAndNil(FOnEndUpdate);
+  inherited;
+end;
+
 procedure TQueryProductsSearch.AppendRows(AFieldName: string;
   AValues: TArray<String>);
 begin
+  if Length(AValues) = 0 then
+    Exit;
+
   if Mode = SearchMode then
   begin
     // Удаляем пустую строку
@@ -99,7 +112,9 @@ begin
 
 end;
 
-procedure TQueryProductsSearch.ApplyDelete(ASender: TDataSet);
+procedure TQueryProductsSearch.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   if Mode = RecordsMode then
     inherited;
@@ -133,7 +148,6 @@ begin
   SetConditionSQL(fdqBase.SQL.Text, 'where ID = 0', '--where');
 end;
 
-
 procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
 begin
   Inc(FX);
@@ -165,6 +179,12 @@ begin
 
   // Выбираем нужный режим транзакции
   AutoTransaction := Mode = SearchMode;
+end;
+
+procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
+begin
+  // Ничего не делаем
+  ;
 end;
 
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
@@ -216,10 +236,10 @@ begin
   begin
     with FDQuery.ParamByName('Value') do
     begin
-       DataType := ftWideString;
-       ParamType := ptInput;
-       AsString := s;
-     end;
+      DataType := ftWideString;
+      ParamType := ptInput;
+      AsString := s;
+    end;
   end;
 
   FDQuery.Open;

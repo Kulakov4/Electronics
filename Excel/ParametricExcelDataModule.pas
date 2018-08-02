@@ -35,6 +35,7 @@ type
     function GetParamSubParamIDByFieldName(AFieldName: string; out
         AParamSubParamID: Integer): Boolean;
     property ComponentName: TField read GetComponentName;
+    property ComponentTypeSet: TComponentTypeSet read FComponentTypeSet;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
   end;

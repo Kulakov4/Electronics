@@ -11,10 +11,13 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   System.Generics.Collections, ProductsBaseQuery,
   StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
-  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents;
+  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents,
+  CheckDuplicateInterface, CustomExcelTable;
 
 type
-  TQueryProducts = class(TQueryProductsBase)
+  TQueryProducts = class(TQueryProductsBase, ICheckDuplicate)
+  strict private
+    function HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean; stdcall;
   private
     FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
@@ -32,7 +35,6 @@ type
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
-    procedure DoBeforePost(Sender: TObject);
     function GetExportFileName: string; override;
     property qStoreHouseProductsCount: TQueryStoreHouseProductsCount
       read GetqStoreHouseProductsCount;
@@ -41,6 +43,7 @@ type
     procedure LoadDataFromExcelTable(AExcelTable: TProductsExcelTable);
     procedure AppendRows(AValues: TList<String>;
       const AProducers: TList<String>); overload;
+    function SearchByID(AIDArray: TArray<Integer>): Integer;
     property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
@@ -49,7 +52,7 @@ type
 implementation
 
 uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
-  ParameterValuesUnit, StoreHouseListQuery;
+  ParameterValuesUnit, StoreHouseListQuery, IDTempTableQuery, StrHelper;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }
@@ -62,18 +65,18 @@ begin
   DetailParameterName := 'vStoreHouseID';
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
   TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
 end;
 
-procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable:
-    TProductsExcelTable);
+procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable
+  : TProductsExcelTable);
 var
   AExcelField: TField;
   AField: TField;
   AIDComponentGroup: Integer;
+  AIsCurrentDate: Boolean;
   V: Variant;
 begin
   try
@@ -127,6 +130,31 @@ begin
         Price.Value := AExcelTable.PriceD.Value;
       end;
 
+      // Если цена задана в евро
+      if not AExcelTable.PriceE.IsNull then
+      begin
+        // Тип валюты - евро
+        IDCurrency.AsInteger := 3;
+        Price.Value := AExcelTable.PriceE.Value;
+      end;
+
+      // Если дата загрузки в загрузочном файле не указана
+      if LoadDate.IsNull then
+        LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
+
+      // Курсы валют за текущую дату?
+      AIsCurrentDate := LoadDate.AsString = FormatDateTime('dd.mm.yyyy', Date);
+
+      // Если курс доллара не был указан в загрузочном файле
+      if Dollar.IsNull then
+      begin
+        Dollar.Value := DollarCource;
+      end;
+
+      // Если курс евро не был указан в загрузочном файле
+      if Euro.IsNull then
+        Euro.Value := EuroCource;
+
       FDQuery.Post;
 
       AExcelTable.Next;
@@ -159,6 +187,67 @@ begin
     IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
     TryPost;
   end;
+end;
+
+function TQueryProducts.HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean;
+var
+  AIDComponentGroup: Integer;
+  AIDProducer: Integer;
+  AKeyFields: string;
+  AProductsExcelTable: TProductsExcelTable;
+  V: Variant;
+begin
+  AProductsExcelTable := AExcelTable as TProductsExcelTable;
+
+  // 1) Ищем группу компонентов на текущем складе
+
+  AKeyFields := Format('%s;%s', [IsGroup.FieldName, Value.FieldName]);
+  V := FDQuery.LookupEx(AKeyFields,
+    VarArrayOf([1, AProductsExcelTable.ComponentGroup.Value]), PKFieldName);
+
+  // Если такой группы компонентов на складе ещё не было
+  Result := not VarIsNull(V);
+  if not Result then
+    Exit;
+
+  AIDComponentGroup := V;
+
+  // 2) Ищем производителя
+  Result := ProducersGroup.qProducers.Locate
+    (AProductsExcelTable.Producer.AsString);
+  // Если такого производителя не было
+  if not Result then
+    Exit;
+
+  AIDProducer := ProducersGroup.qProducers.PK.AsInteger;
+
+  // Ищем на складе
+  AKeyFields := Format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s',
+    [IsGroup.FieldName, IDComponentGroup.FieldName, Value.FieldName,
+    IDProducer.FieldName, PackagePins.FieldName, ReleaseDate.FieldName,
+    Amount.FieldName, Packaging.FieldName, Price.FieldName,
+    OriginCountryCode.FieldName, OriginCountry.FieldName, BatchNumber.FieldName,
+    CustomsDeclarationNumber.FieldName, Storage.FieldName,
+    StoragePlace.FieldName, Seller.FieldName, DocumentNumber.FieldName,
+    Barcode.FieldName]);
+
+  V := FDQuery.LookupEx(AKeyFields,
+    VarArrayOf([0, AIDComponentGroup, AProductsExcelTable.Value.AsString,
+    AIDProducer, AProductsExcelTable.PackagePins.AsString,
+    AProductsExcelTable.ReleaseDate.AsString,
+    AProductsExcelTable.Amount.AsInteger,
+    AProductsExcelTable.Packaging.AsString, AProductsExcelTable.Price.AsFloat,
+    AProductsExcelTable.OriginCountryCode.AsString,
+    AProductsExcelTable.OriginCountry.AsString,
+    AProductsExcelTable.BatchNumber.AsString,
+    AProductsExcelTable.CustomsDeclarationNumber.AsString,
+    AProductsExcelTable.Storage.AsString,
+    AProductsExcelTable.StoragePlace.AsString,
+    AProductsExcelTable.Seller.AsString,
+    AProductsExcelTable.DocumentNumber.AsString,
+    AProductsExcelTable.Barcode.AsString]), PKFieldName);
+
+  Result := not VarIsNull(V);
 end;
 
 procedure TQueryProducts.DoAfterDelete(Sender: TObject);
@@ -196,53 +285,6 @@ end;
 procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
 begin
   FNeedDecTotalCount := not IsGroup.IsNull and (IsGroup.AsInteger = 0);
-end;
-
-procedure TQueryProducts.DoBeforePost(Sender: TObject);
-begin
-  // Если не происходит вставка новой записи
-  if not(FDQuery.State in [dsInsert]) then
-    Exit;
-
-  Assert(not IsGroup.IsNull);
-
-  FEnableCalc := False;
-  try
-
-    // Это группа, цену заполнять не надо
-    if IsGroup.AsInteger = 1 then
-      Exit;
-
-    // Если тип валюты задан - ничего не предпринимаем
-    if not IDCurrency.IsNull then
-      Exit;
-
-    if PriceR.IsNull and PriceD.IsNull then
-      raise Exception.Create('Не задана закупочная цена');
-
-    if (not PriceR.IsNull) and (not PriceD.IsNull) then
-      raise Exception.Create('Закупочная цена должна быть задана один раз');
-
-    // Если заполнена закупочная цена в рублях
-    if not PriceR.IsNull then
-    begin
-      Price.Value := PriceR.Value;
-      IDCurrency.AsInteger := 1;
-    end;
-
-    // Если заполнена закупочная цена в долларах
-    if not PriceD.IsNull then
-    begin
-      Price.Value := PriceD.Value;
-      IDCurrency.AsInteger := 2;
-    end;
-
-  finally
-    FEnableCalc := True;
-  end;
-  // Сами вызываем обновление вычисляемы полей
-  FDQueryCalcFields(FDQuery);
-
 end;
 
 function TQueryProducts.GetExportFileName: string;
@@ -287,6 +329,40 @@ begin
     FNeedUpdateCount := False;
   end;
   Result := FTotalCount;
+end;
+
+function TQueryProducts.SearchByID(AIDArray: TArray<Integer>): Integer;
+var
+  ASQL: string;
+  ATempTable: TQueryIDTempTable;
+  I: Integer;
+begin
+  Assert(Length(AIDArray) > 0);
+
+  ATempTable := TQueryIDTempTable.Create(nil);
+  try
+    for I := Low(AIDArray) to High(AIDArray) do
+    begin
+      ATempTable.TryAppend;
+      ATempTable.ID.AsInteger := AIDArray[I];
+      ATempTable.TryPost;
+    end;
+
+    // ASQL := Replace(FDQuery.SQL.Text, 'Id in (-6)', 'StorehouseId = :vStorehouseId');
+
+    ASQL := Replace(FDQuery.SQL.Text, Format('Id in (%s)',
+      [ATempTable.FDQuery.SQL.Text]), 'StorehouseId = :vStorehouseId');
+  finally
+    FreeAndNil(ATempTable);
+  end;
+
+  // V := FDQuery.Params.ParamByName(DetailParameterName).Value;
+
+  FDQuery.SQL.Text := ASQL;
+  RefreshQuery;
+  Result := FDQuery.RecordCount;
+
+  // Result := Search([DetailParameterName], [V]);
 end;
 
 end.

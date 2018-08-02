@@ -1,13 +1,13 @@
 inherited frmProgressBar3: TfrmProgressBar3
   BorderStyle = bsSingle
   Caption = #1054#1073#1088#1072#1073#1086#1090#1082#1072' '#1076#1072#1085#1085#1099#1093
-  ClientHeight = 226
+  ClientHeight = 276
   ClientWidth = 532
   FormStyle = fsStayOnTop
   Position = poScreenCenter
   PrintScale = poNone
   ExplicitWidth = 538
-  ExplicitHeight = 255
+  ExplicitHeight = 305
   PixelsPerInch = 96
   TextHeight = 16
   object pbRead: TcxProgressBar
@@ -41,6 +41,17 @@ inherited frmProgressBar3: TfrmProgressBar3
     Left = 16
     Top = 98
     TabOrder = 5
+    Width = 489
+  end
+  object lAnalize: TcxLabel
+    Left = 16
+    Top = 198
+    Caption = #1040#1085#1072#1083#1080#1079' '#1076#1072#1085#1085#1099#1093
+  end
+  object bpAnalize: TcxProgressBar
+    Left = 16
+    Top = 224
+    TabOrder = 7
     Width = 489
   end
 end

@@ -13,6 +13,7 @@ type
     function GetBodyTypesLandPatternFolder: string;
     function GetBodyTypesOutlineDrawingFolder: string;
     function GetBodyTypesImageFolder: string;
+    function GetBodyTypesJEDECFolder: string;
     function GetCategoryID: Integer;
     function GetComponentsDrawingFolder: String;
     function GetComponentsImageFolder: String;
@@ -34,6 +35,7 @@ type
     procedure SetBodyTypesLandPatternFolder(const Value: string);
     procedure SetBodyTypesOutlineDrawingFolder(const Value: string);
     procedure SetBodyTypesImageFolder(const Value: string);
+    procedure SetBodyTypesJEDECFolder(const Value: string);
     procedure SetCategoryID(const Value: Integer);
     procedure SetComponentsDrawingFolder(const Value: String);
     procedure SetComponentsImageFolder(const Value: String);
@@ -57,6 +59,7 @@ type
     property IniFile: TIniFile read GetIniFile;
   public
     constructor Create; virtual;
+    destructor Destroy; override;
     function GetValue(const ASection, AParameter: string;
       const ADefault: string = ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
@@ -71,6 +74,8 @@ type
       write SetBodyTypesOutlineDrawingFolder;
     property BodyTypesImageFolder: string read GetBodyTypesImageFolder
       write SetBodyTypesImageFolder;
+    property BodyTypesJEDECFolder: string read GetBodyTypesJEDECFolder
+      write SetBodyTypesJEDECFolder;
     property CategoryID: Integer read GetCategoryID write SetCategoryID;
     property ComponentsDrawingFolder: String read GetComponentsDrawingFolder
       write SetComponentsDrawingFolder;
@@ -99,17 +104,32 @@ type
       write SetLastFolderForExcelFile;
     property Producer: String read GetProducer write SetProducer;
     property Rate: Double read GetRate write SetRate;
-    property LoadLastCategory: Boolean read GetLoadLastCategory write
-        SetLoadLastCategory;
+    property LoadLastCategory: Boolean read GetLoadLastCategory
+      write SetLoadLastCategory;
   end;
 
 implementation
 
-uses ProjectConst, System.IOUtils, System.Variants;
+uses ProjectConst, System.IOUtils, System.Variants, System.Contnrs,
+  System.Classes;
+
+var
+  SingletonList : TObjectList;
 
 constructor TSettings.Create;
 begin
-  FFileName := ChangeFileExt(Application.ExeName, '.ini');
+  Assert(Instance <> nil);
+  if FFileName.IsEmpty then
+    FFileName := ChangeFileExt(Application.ExeName, '.ini');
+end;
+
+destructor TSettings.Destroy;
+begin
+  if Assigned(FIniFile) then
+    FreeAndNil(FIniFile);
+
+  FFileName := '';
+  inherited;
 end;
 
 function TSettings.GetBodyTypesLandPatternFolder: string;
@@ -128,9 +148,14 @@ begin
   Result := GetPath('BodyTypes', 'ImageFolder', sBodyImageFolder);
 end;
 
+function TSettings.GetBodyTypesJEDECFolder: string;
+begin
+  Result := GetPath('BodyTypes', 'JEDECFolder', sBodyJEDECFolder);
+end;
+
 function TSettings.GetCategoryID: Integer;
 begin
-  Result := StrToIntDef( GetValue('Db', 'CategoryID', '0'), 0);
+  Result := StrToIntDef(GetValue('Db', 'CategoryID', '0'), 0);
 end;
 
 function TSettings.GetComponentsDrawingFolder: String;
@@ -254,13 +279,16 @@ end;
 
 function TSettings.GetLoadLastCategory: Boolean;
 begin
-  Result := StrToBool( GetValue('Settings', 'LoadLastCategory', 'False') );
+  Result := StrToBool(GetValue('Settings', 'LoadLastCategory', 'False'));
 end;
 
 class function TSettings.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
+  begin
     Instance := TSettings(inherited NewInstance);
+    SingletonList.Add(Instance);
+  end;
 
   Result := Instance;
 end;
@@ -278,6 +306,11 @@ end;
 procedure TSettings.SetBodyTypesImageFolder(const Value: string);
 begin
   SetValue('BodyTypes', 'ImageFolder', Value);
+end;
+
+procedure TSettings.SetBodyTypesJEDECFolder(const Value: string);
+begin
+  SetValue('BodyTypes', 'JEDECFolder', Value);
 end;
 
 procedure TSettings.SetCategoryID(const Value: Integer);
@@ -414,5 +447,11 @@ begin
     AIniFile.Free;
   end;
 end;
+
+initialization
+   SingletonList := TObjectList.Create(True);
+
+finalization
+   SingletonList.Free;
 
 end.

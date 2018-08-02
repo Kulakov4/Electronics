@@ -8,12 +8,15 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit,
+  ProducerInterface;
 
 type
-  TQueryProducers = class(TQueryWithDataSource)
+  TQueryProducers = class(TQueryWithDataSource, IProducer)
     procedure FDQueryCntGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+  strict private
+    function GetProducerID(const AProducerName: String): Integer; stdcall;
   private
     procedure DoBeforeScroll(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
@@ -28,7 +31,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string; AProducerTypeID: Integer);
-    procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     function Locate(AValue: string; TestResult: Boolean = False): Boolean;
     property Cnt: TField read GetCnt;
@@ -48,9 +50,9 @@ begin
   inherited;
 
 
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen);
-  TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll);
+  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll, FEventList);
 
   AutoTransaction := False;
 end;
@@ -64,12 +66,6 @@ begin
   ProducerTypeID.AsInteger := AProducerTypeID;
   Name.AsString := AValue;
   FDQuery.Post;
-end;
-
-procedure TQueryProducers.ApplyUpdates;
-begin
-  TryPost;
-  FDQuery.Connection.Commit;
 end;
 
 procedure TQueryProducers.CancelUpdates;
@@ -117,6 +113,16 @@ end;
 function TQueryProducers.GetName: TField;
 begin
   Result := Field('Name');
+end;
+
+function TQueryProducers.GetProducerID(const AProducerName: String): Integer;
+var
+  V: Variant;
+begin
+  Result := 0;
+  V := FDQuery.LookupEx(Name.FieldName, AProducerName, PK.FieldName);
+  if not VarIsNull(V) then
+    Result := V;
 end;
 
 function TQueryProducers.GetProducerTypeID: TField;

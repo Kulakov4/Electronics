@@ -89,6 +89,14 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       item
         Caption.AlignHorz = taCenter
         Caption.Text = #1062#1080#1092#1088#1086#1074#1086#1081' '#1082#1086#1076
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1044#1072#1090#1072' '#1079#1072#1075#1088#1091#1079#1082#1080
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1050#1091#1088#1089#1099' '#1074#1072#1083#1102#1090
       end>
     inherited clID: TcxDBTreeListColumn
       Caption.AlignHorz = taLeftJustify
@@ -114,13 +122,7 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     inherited clPackagePins: TcxDBTreeListColumn
       Position.BandIndex = 8
     end
-    inherited clYYYY: TcxDBTreeListColumn
-      Position.BandIndex = 9
-    end
-    inherited clMM: TcxDBTreeListColumn
-      Position.BandIndex = 9
-    end
-    inherited clWW: TcxDBTreeListColumn
+    inherited clReleaseDate: TcxDBTreeListColumn
       Position.BandIndex = 9
     end
     inherited clAmount: TcxDBTreeListColumn
@@ -174,6 +176,18 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     inherited clBarcode: TcxDBTreeListColumn
       Position.BandIndex = 21
     end
+    inherited clPriceE2: TcxDBTreeListColumn
+      Position.ColIndex = 1
+    end
+    inherited clLoadDate: TcxDBTreeListColumn
+      Position.BandIndex = 22
+    end
+    inherited clDollar: TcxDBTreeListColumn
+      Position.BandIndex = 23
+    end
+    inherited clEuro: TcxDBTreeListColumn
+      Position.BandIndex = 23
+    end
     object clStorehouseId: TcxDBTreeListColumn
       Caption.Text = ' '
       DataBinding.FieldName = 'StorehouseId'
@@ -200,7 +214,7 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     DockControlHeights = (
       0
       0
-      54
+      56
       0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
@@ -235,6 +249,10 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         item
           Visible = True
           ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -279,6 +297,10 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     end
     object dxBarButton7: TdxBarButton
       Action = actOpenInParametricTable
+      Category = 0
+    end
+    object dxBarButton8: TdxBarButton
+      Action = actApplyBestFit
       Category = 0
     end
   end

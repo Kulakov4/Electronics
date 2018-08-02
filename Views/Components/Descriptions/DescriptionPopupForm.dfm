@@ -27,6 +27,7 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
     UseSystemFont = True
     Left = 192
     Top = 152
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

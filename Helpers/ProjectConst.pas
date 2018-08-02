@@ -33,6 +33,9 @@ resourcestring
   // Папка по умолчанию для хранения чертежей корпуса
   sBodyOutlineDrawingFolder = 'Чертёж корпуса';
 
+  // Папка по умолчанию для хранения JEDEC
+  sBodyJEDECFolder = 'Чертёж корпуса\JEDEC';
+
   sBodyTypesFilesExt = 'pdf;jpg;png;bmp;gif';
 
   sDefaultDatabaseFileName = 'database.db';
@@ -57,6 +60,11 @@ resourcestring
   sDoYouWantToSaveChanges = 'Изменения не были сохранены. Сохранить изменения?';
   sError = 'Ошибка';
   sSaving = 'Сохранение';
+
+  sExtraChargeRangeError =
+    'Поле количество должно содержать диапазон вида 2-10';
+  sExtraChargeRangeError2 = 'Левая граница диапазона должна быть больше правой';
+
   sLocalizationFileName = 'Localization.ini';
 
   sProducerParamTableName = 'Producer';
@@ -76,11 +84,12 @@ resourcestring
   sTreeRootNodeName = 'Структура';
 
 const
-  DBVersion = 1;
-  ProgramVersion = 1.1;
+  DBVersion = 7;
+  ProgramVersion = 1.2;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
   DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
-  OnReadProcessEventRecordCount = 100; // Через сколько считанных / записанных записей извещать о прогрессе
+  OnReadProcessEventRecordCount = 100;
+  // Через сколько считанных / записанных записей извещать о прогрессе
   OnWriteProcessEventRecordCount = 5;
 
 implementation

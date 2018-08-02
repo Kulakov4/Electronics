@@ -27,8 +27,8 @@ uses
 
 type
   TfrmProducers = class(TfrmDictonary)
-    ViewProducers: TViewProducers;
   private
+    FViewProducers: TViewProducers;
     { Private declarations }
   protected
     procedure ApplyUpdates; override;
@@ -36,8 +36,10 @@ type
     procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
+    constructor Create(AOwner: TComponent); override;
     class function TakeProducer(var AProducerID: Integer;
       var AProducerName: String): Boolean; static;
+    property ViewProducers: TViewProducers read FViewProducers;
     { Public declarations }
   end;
 
@@ -48,15 +50,25 @@ implementation
 
 {$R *.dfm}
 
-uses ProducersQuery, DialogUnit, ProducersGroupUnit, SettingsController;
+uses ProducersQuery, DialogUnit, ProducersGroupUnit2, SettingsController;
+
+constructor TfrmProducers.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewProducers := TViewProducers.Create(Self);
+  FViewProducers.Parent := Panel1;
+  FViewProducers.Align := alClient;
+end;
 
 procedure TfrmProducers.ApplyUpdates;
 begin
+  ViewProducers.UpdateView;
   ViewProducers.actCommit.Execute;
 end;
 
 procedure TfrmProducers.CancelUpdates;
 begin
+  ViewProducers.UpdateView;
   ViewProducers.actRollback.Execute;
 end;
 
@@ -67,7 +79,7 @@ end;
 
 function TfrmProducers.HaveAnyChanges: Boolean;
 begin
-  Result := ViewProducers.ProducersGroup.Connection.InTransaction;
+  Result := ViewProducers.ProducersGroup.HaveAnyChanges;
 end;
 
 class function TfrmProducers.TakeProducer(var AProducerID: Integer;
@@ -75,11 +87,11 @@ class function TfrmProducers.TakeProducer(var AProducerID: Integer;
 var
   AfrmProducers: TfrmProducers;
   ALastProducer: string;
-  AProducersGroup: TProducersGroup;
+  AProducersGroup: TProducersGroup2;
 begin
   Result := False;
   // —начала выберем производител€ из справочника
-  AProducersGroup := TProducersGroup.Create(nil);
+  AProducersGroup := TProducersGroup2.Create(nil);
   try
     AProducersGroup.ReOpen;
     AfrmProducers := TfrmProducers.Create(nil);

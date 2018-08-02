@@ -27,8 +27,9 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit, cxDBLookupComboBox,
-  DragHelper, HRTimer, ColumnsBarButtonsHelper, System.Generics.Collections;
+  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit2, cxDBLookupComboBox,
+  DragHelper, HRTimer, ColumnsBarButtonsHelper, System.Generics.Collections,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
@@ -89,11 +90,11 @@ type
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
-    FProducersGroup: TProducersGroup;
+    FProducersGroup: TProducersGroup2;
     FQuerySearchProducerTypes: TQuerySearchProducerTypes;
     function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
     procedure MyInitializeComboBoxColumn;
-    procedure SetProducersGroup(const Value: TProducersGroup);
+    procedure SetProducersGroup(const Value: TProducersGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -101,18 +102,18 @@ type
       message WM_AFTER_SET_NEW_VALUE;
     procedure CreateColumnsBarButtons; override;
     procedure DoAfterPost(Sender: TObject);
-    procedure DoOnDataChange(Sender: TObject);
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure LoadFromExcel(const AFileName: String);
     property QuerySearchProducerTypes: TQuerySearchProducerTypes
       read GetQuerySearchProducerTypes;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Locate(const AProducer: string);
-    procedure MyApplyBestFit; override;
     procedure UpdateView; override;
-    property ProducersGroup: TProducersGroup read FProducersGroup
-      write SetProducersGroup;
+    property ProducersGroup: TProducersGroup2 read FProducersGroup write
+        SetProducersGroup;
     { Public declarations }
   end;
 
@@ -170,22 +171,7 @@ end;
 
 procedure TViewProducers.actCommitExecute(Sender: TObject);
 begin
-  // Мы просто завершаем транзакцию
-  // cxGrid.BeginUpdate();
-  // try
-  // Сохраняем изменения и завершаем транзакцию
   ProducersGroup.Commit;
-
-  // Переносим фокус на первую выделенную запись
-  // FocusSelectedRecord;
-  // finally
-  // cxGrid.EndUpdate;
-  // end;
-
-  // Помещаем фокус в центр грида
-  // PutInTheCenterFocusedRecord;
-
-  // Обновляем представление
   UpdateView;
 end;
 
@@ -216,23 +202,7 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
-  BeginUpdate;
-  try
-    TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
-      procedure(ASender: TObject)
-      begin
-        ProducersGroup.LoadDataFromExcelTable(ASender as TProducersExcelTable);
-      end,
-      procedure(ASender: TObject)
-      begin
-        (ASender as TProducersExcelTable).ProducersDataSet :=
-          ProducersGroup.qProducers.FDQuery;
-      end);
-  finally
-    EndUpdate;
-  end;
-
-  UpdateView;
+  LoadFromExcel(AFileName);
 end;
 
 procedure TViewProducers.actRollbackExecute(Sender: TObject);
@@ -358,7 +328,6 @@ begin
     as TcxGridMasterDataRow;
   (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
     .ApplyBestFit();
-
 end;
 
 procedure TViewProducers.
@@ -418,7 +387,7 @@ begin
   MyInitializeComboBoxColumn;
 end;
 
-procedure TViewProducers.DoOnDataChange(Sender: TObject);
+procedure TViewProducers.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
 end;
@@ -442,6 +411,27 @@ begin
     FQuerySearchProducerTypes := TQuerySearchProducerTypes.Create(Self);
 
   Result := FQuerySearchProducerTypes;
+end;
+
+procedure TViewProducers.LoadFromExcel(const AFileName: String);
+begin
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TProducersExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        ProducersGroup.LoadDataFromExcelTable(ASender as TProducersExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TProducersExcelTable).ProducersDataSet :=
+          ProducersGroup.qProducers.FDQuery;
+      end);
+  finally
+    EndUpdate;
+  end;
+
+  UpdateView;
 end;
 
 procedure TViewProducers.Locate(const AProducer: string);
@@ -478,16 +468,6 @@ begin
   end;
 end;
 
-procedure TViewProducers.MyApplyBestFit;
-var
-  AView: TcxGridDBBandedTableView;
-begin
-  inherited;
-  AView := GetDBBandedTableView(1);
-  if AView <> nil then
-    AView.ApplyBestFit(nil, True, True);
-end;
-
 procedure TViewProducers.MyInitializeComboBoxColumn;
 begin
   // Ищем возможные значения типа производителя для выпадающего списка
@@ -498,7 +478,7 @@ begin
     QuerySearchProducerTypes.ProducerType);
 end;
 
-procedure TViewProducers.SetProducersGroup(const Value: TProducersGroup);
+procedure TViewProducers.SetProducersGroup(const Value: TProducersGroup2);
 begin
   if FProducersGroup <> Value then
   begin
@@ -510,8 +490,17 @@ begin
       GridView(cxGridLevel2).DataController.DataSource :=
         FProducersGroup.qProducers.DataSource;
 
-      TNotifyEventWrap.Create(FProducersGroup.qProducers.OnDataChange,
-        DoOnDataChange);
+      TNotifyEventWrap.Create
+        (FProducersGroup.qProducers.Monitor.OnHaveAnyChanges,
+        DoOnHaveAnyChanges, FEventList);
+
+      TNotifyEventWrap.Create
+        (FProducersGroup.qProducerTypes.AfterOpen,
+        DoOnHaveAnyChanges, FEventList);
+
+      TNotifyEventWrap.Create
+        (FProducersGroup.qProducers.AfterOpen,
+        DoOnHaveAnyChanges, FEventList);
 
       InitializeLookupColumn(clProducerTypeID,
         FProducersGroup.qProducerTypes.DataSource, lsEditList,
@@ -524,7 +513,7 @@ begin
       MainView.DataController.DataSource := nil;
     end;
 
-    PostMyApplyBestFitEvent;
+    PostMyApplyBestFitEventForView(cxGridDBBandedTableView2);
 
     UpdateView;
   end;
@@ -555,7 +544,7 @@ begin
   actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);;
 
-  actCommit.Enabled := OK and (ProducersGroup.Connection.InTransaction);
+  actCommit.Enabled := OK and (ProducersGroup.HaveAnyChanges);
 
   actRollback.Enabled := actCommit.Enabled;
 

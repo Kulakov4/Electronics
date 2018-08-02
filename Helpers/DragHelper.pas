@@ -34,6 +34,7 @@ type
     FStartDrag: TStartDrag;
   public
     constructor Create(AKeyColumn, AOrderColumn: TcxGridDBBandedColumn);
+    destructor Destroy; override;
     property DropDrag: TDropDrag read FDropDrag;
     property KeyColumn: TcxGridDBBandedColumn read FKeyColumn;
     property OrderColumn: TcxGridDBBandedColumn read FOrderColumn;
@@ -41,6 +42,9 @@ type
   end;
 
 implementation
+
+uses
+  System.SysUtils;
 
 constructor TRecOrder.Create(AKey, AOrder: Integer);
 begin
@@ -64,6 +68,13 @@ begin
 
   FStartDrag := TStartDrag.Create;
   FDropDrag := TDropDrag.Create;
+end;
+
+destructor TDragAndDropInfo.Destroy;
+begin
+  FreeAndNil(FStartDrag);
+  FreeAndNil(FDropDrag);
+  inherited;
 end;
 
 end.

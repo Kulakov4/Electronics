@@ -7,6 +7,8 @@ inherited QueryTreeList: TQueryTreeList
     ExplicitWidth = 52
   end
   inherited FDQuery: TFDQuery
+    UpdateOptions.AssignedValues = [uvRefreshMode]
+    UpdateOptions.RefreshMode = rmAll
     SQL.Strings = (
       'select * from ProductCategories')
   end

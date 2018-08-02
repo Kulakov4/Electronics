@@ -22,6 +22,7 @@ object frmGrid: TfrmGrid
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
       OptionsBehavior.CopyCaptionsToClipboard = False
+      OptionsCustomize.ColumnSorting = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
       OptionsSelection.InvertSelect = False
@@ -63,6 +64,7 @@ object frmGrid: TfrmGrid
     UseSystemFont = True
     Left = 440
     Top = 120
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

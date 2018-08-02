@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, DescriptionsGroupUnit,
+  cxGridDBBandedTableView, cxGrid, DescriptionsGroupUnit2,
   cxDBLookupComboBox, Vcl.Grids, Vcl.DBGrids, ColumnsBarButtonsHelper,
   cxGridDBTableView, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint,
   dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, HRTimer,
-  DragHelper, dxCore, System.Generics.Collections;
+  DragHelper, dxCore, System.Generics.Collections,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 11;
@@ -93,13 +94,13 @@ type
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
   private
-    FDescriptionsGroup: TDescriptionsGroup;
+    FDescriptionsGroup: TDescriptionsGroup2;
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
-    procedure DoAfterDataChange(Sender: TObject);
-    procedure SetDescriptionsGroup(const Value: TDescriptionsGroup);
+    procedure DoOnHaveAnyChanges(Sender: TObject);
+    procedure SetDescriptionsGroup(const Value: TDescriptionsGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -109,13 +110,14 @@ type
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); override;
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    procedure LoadFromExcel(const AFileName: String);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Locate(const AComponentName: string);
     procedure UpdateView; override;
-    property DescriptionsGroup: TDescriptionsGroup read FDescriptionsGroup
-      write SetDescriptionsGroup;
+    property DescriptionsGroup: TDescriptionsGroup2 read FDescriptionsGroup write
+        SetDescriptionsGroup;
     { Public declarations }
   end;
 
@@ -210,7 +212,12 @@ begin
     AFileName) then
     Exit;
 
-  ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
+  ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
+    procedure(AView: TcxGridDBBandedTableView)
+    begin
+      AView.OptionsView.ColumnAutoWidth := false;
+      AView.OptionsView.CellAutoHeight := True;
+    end);
 end;
 
 procedure TViewDescriptions.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -220,25 +227,7 @@ begin
   if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
     Exit;
 
-  BeginUpdate;
-  try
-    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM,
-      TfrmImportError,
-      procedure(ASender: TObject)
-      begin
-        DescriptionsGroup.LoadDataFromExcelTable(ASender as TDescriptionsExcelTable);
-      end,
-      procedure(ASender: TObject)
-      begin
-        (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
-          DescriptionsGroup.qDescriptions.FDQuery;
-        (ASender as TDescriptionsExcelTable).ProducersDataSet :=
-          DescriptionsGroup.qProducers.FDQuery
-      end);
-  finally
-    EndUpdate;
-  end;
-  UpdateView;
+  LoadFromExcel(AFileName);
 end;
 
 procedure TViewDescriptions.actRollbackExecute(Sender: TObject);
@@ -526,9 +515,9 @@ begin
   FHRTimer := THRTimer.Create(True);
 end;
 
-procedure TViewDescriptions.DoAfterDataChange(Sender: TObject);
+procedure TViewDescriptions.DoOnHaveAnyChanges(Sender: TObject);
 begin
-  // UpdateView;
+  UpdateView;
 end;
 
 function TViewDescriptions.GetFocusedTableView: TcxGridDBBandedTableView;
@@ -542,6 +531,30 @@ begin
     if (Result <> nil) and (not Result.Focused) then
       Result := nil;
   end;
+end;
+
+procedure TViewDescriptions.LoadFromExcel(const AFileName: String);
+begin
+  BeginUpdate;
+  try
+    TLoad.Create.LoadAndProcess(AFileName, TDescriptionsExcelDM,
+      TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        DescriptionsGroup.LoadDataFromExcelTable
+          (ASender as TDescriptionsExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
+          DescriptionsGroup.qDescriptions.FDQuery;
+        (ASender as TDescriptionsExcelTable).ProducersDataSet :=
+          DescriptionsGroup.qProducers.FDQuery
+      end);
+  finally
+    EndUpdate;
+  end;
+  UpdateView;
 end;
 
 procedure TViewDescriptions.Locate(const AComponentName: string);
@@ -580,8 +593,8 @@ begin
   end;
 end;
 
-procedure TViewDescriptions.SetDescriptionsGroup(const Value
-  : TDescriptionsGroup);
+procedure TViewDescriptions.SetDescriptionsGroup(const Value:
+    TDescriptionsGroup2);
 begin
   FDescriptionsGroup := Value;
 
@@ -602,12 +615,15 @@ begin
       FDescriptionsGroup.qProducers.DataSource, lsFixedList,
       FDescriptionsGroup.qProducers.Name.FieldName);
 
-    TNotifyEventWrap.Create(FDescriptionsGroup.AfterDataChange,
-      DoAfterDataChange, FEventList);
+    // Пусть монитор сообщает нам об изменениях в БД
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.Monitor.
+      OnHaveAnyChanges, DoOnHaveAnyChanges, FEventList);
+
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionTypes.AfterOpen,
-      DoAfterDataChange, FEventList);
+      DoOnHaveAnyChanges, FEventList);
+
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.AfterOpen,
-      DoAfterDataChange, FEventList);
+      DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
 end;
@@ -640,7 +656,7 @@ begin
   // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (AView.Controller.SelectedRowCount > 0);
 
-  actCommit.Enabled := OK and (DescriptionsGroup.Connection.InTransaction);
+  actCommit.Enabled := OK and DescriptionsGroup.HaveAnyChanges;
 
   actRollback.Enabled := actCommit.Enabled;
 

@@ -33,18 +33,5 @@ inherited QueryComponentsEx: TQueryComponentsEx
       '    WHERE ppc.ProductCategoryId = :vProductCategoryId     '
       ')'
       'order by p.ParentProductId, p.Value')
-    ParamData = <
-      item
-        Name = 'PACKAGEPINSPARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'VPRODUCTCATEGORYID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
   end
 end

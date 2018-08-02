@@ -28,7 +28,9 @@ uses
   Vcl.ComCtrls, cxGridLevel, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
   cxButtonEdit, ParametersForm, ParametricErrorTable, DialogUnit,
-  ParametersGroupUnit, System.UITypes;
+  ParametersGroupUnit2, System.UITypes,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxImageList;
 
 type
   TViewParametricTableError = class(TViewGridEx)
@@ -48,46 +50,91 @@ implementation
 
 {$R *.dfm}
 
+uses BaseQuery;
+
 procedure TViewParametricTableError.actFixExecute(Sender: TObject);
 var
   AfrmParameters: TfrmParameters;
   OK: Boolean;
-  AParametersGroup: TParametersGroup;
+  AParametersGroup: TParametersGroup2;
+  F: TField;
+  ErrMsg: String;
+  PKFieldName: String;
 begin
   Assert(ParametricErrorTable <> nil);
+  F := nil;
 
-  AParametersGroup := TParametersGroup.Create(Self);
-  AParametersGroup.ReOpen;
-
-  AfrmParameters := TfrmParameters.Create(Self);
+  AParametersGroup := TParametersGroup2.Create(nil);
   try
-    AfrmParameters.CloseAction := caHide;
-    AfrmParameters.ViewParameters.ParametersGrp := AParametersGroup;
-    AfrmParameters.ViewSubParameters.QuerySubParameters := AParametersGroup.qSubParameters;
-    if ParametricErrorTable.ErrorType.AsInteger = Integer(petDuplicate) then
-    begin
-      AfrmParameters.ViewParameters.Search(ParametricErrorTable.ParameterName.AsString);
-      AfrmParameters.ViewParameters.actFilterByTableName.Execute;
-    end;
+    AParametersGroup.ReOpen;
 
-    if AfrmParameters.ShowModal <> mrOK then
-      Exit;
+    AfrmParameters := TfrmParameters.Create(nil);
+    try
+      AfrmParameters.CloseAction := caHide;
+      AfrmParameters.ViewParameters.ParametersGrp := AParametersGroup;
+      AfrmParameters.ViewSubParameters.QuerySubParameters :=
+        AParametersGroup.qSubParameters;
 
-    OK := (AParametersGroup.qParameters.FDQuery.RecordCount <> 0) and
-      (AParametersGroup.qParameters.TableName.AsString =
-      ParametricErrorTable.ParameterName.AsString);
+      OK := True;
+      case ParametricErrorTable.ErrorType.AsInteger of
+        Integer(petNotUnique):
+          begin
+            OK := False;
+            ShowMessage('Для исправления нужно изменить excel-файл');
+          end;
 
-    if OK then
-    begin
+        Integer(petParamNotFound), Integer(petParamDuplicate):
+          begin
+            // Переключаемся на вкладку "Параметры"
+            AfrmParameters.cxPageControl.ActivePage :=
+              AfrmParameters.cxtsParameters;
+
+            F := AParametersGroup.qParameters.TableName;
+            ErrMsg := 'Табличное имя выбранного параметра не совпадает с заголовком в Excel файле';
+            PKFieldName := AParametersGroup.qParameters.PKFieldName;
+
+            if ParametricErrorTable.ErrorType.AsInteger = Integer
+              (petParamDuplicate) then
+            begin
+              AfrmParameters.ViewParameters.Search
+                (ParametricErrorTable.ParameterName.AsString);
+              AfrmParameters.ViewParameters.actFilterByTableName.Execute;
+            end;
+          end;
+        Integer(petSubParamNotFound), Integer(petSubParamDuplicate):
+          begin
+            // Переключаемся на вкладку "Подпараметры"
+            AfrmParameters.cxPageControl.ActivePage :=
+              AfrmParameters.cxtsSubParameters;
+
+            F := AParametersGroup.qSubParameters.Name;
+            ErrMsg := 'Имя выбранного подпараметра не совпадает с заголовком в Excel файле';
+            PKFieldName := AParametersGroup.qSubParameters.PKFieldName;
+          end;
+      else
+        Assert(False);
+      end;
+
+      if not OK then
+        Exit;
+
+      if (F = nil) or (AfrmParameters.ShowModal <> mrOK) or
+        (F.DataSet.RecordCount = 0) then
+        Exit;
+
+      if F.AsString <> ParametricErrorTable.ParameterName.AsString then
+      begin
+        TDialog.Create.ErrorMessageDialog(ErrMsg);
+        Exit;
+      end;
+
       // Фиксим ошибку
-      ParametricErrorTable.Fix(AParametersGroup.qParameters.PK.AsInteger);
-    end
-    else
-    begin
-      TDialog.Create.ErrorMessageDialog('Табличное имя выбранного параметра не совпадает с заголовков в Excel файле');
-    end
+      ParametricErrorTable.Fix(F.DataSet.FieldByName(PKFieldName).AsInteger);
+
+    finally
+      FreeAndNil(AfrmParameters);
+    end;
   finally
-    FreeAndNil(AfrmParameters);
     FreeAndNil(AParametersGroup);
   end;
 end;

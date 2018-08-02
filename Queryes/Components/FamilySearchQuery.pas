@@ -28,7 +28,8 @@ type
     function GetsubGroup: TField;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -71,6 +72,10 @@ end;
 procedure TQueryFamilySearch.AppendRows(AFieldName: string;
   AValues: TArray<String>);
 begin
+  // Если вставлять нечего
+  if Length(AValues) = 0 then
+    Exit;
+
   if Mode = SearchMode then
   begin
     // Удаляем пустую строку
@@ -82,7 +87,8 @@ begin
 
 end;
 
-procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet);
+procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   if Mode = RecordsMode then
     inherited;

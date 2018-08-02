@@ -15,7 +15,8 @@ type
   private
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsertOrUpdate;
@@ -29,7 +30,8 @@ implementation
 
 {$R *.dfm}
 
-procedure TQueryBodyTypesSimple.ApplyDelete(ASender: TDataSet);
+procedure TQueryBodyTypesSimple.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -59,7 +61,7 @@ begin
 
   QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
     OutlineDrawing.AsString, LandPattern.AsString, Variations.AsString,
-    Image.AsString, JEDEC.AsString);
+    Image.AsString);
   AID := QueryBodyVariations.PK.Value;
   Assert(AID > 0);
 
@@ -69,13 +71,11 @@ begin
   Body.Value := QueryBodies.Body.Value;
   BodyData.Value := QueryBodyData.BodyData.Value;
 
-  // Заполняем части наименования
-//  SetMySplitDataValues(QueryBodies.FDQuery, 'BODY');
-  // Заполняем части корпусных данных
-//  SetMySplitDataValues(QueryBodyData.FDQuery, 'BODYDATA');
-
   IDBodyData.Value := QueryBodyData.PK.Value;
   IDBody.Value := QueryBodies.PK.Value;
+
+  UpdateJEDEC;
+  UpdateOptions;
 end;
 
 procedure TQueryBodyTypesSimple.ApplyUpdate(ASender: TDataSet;

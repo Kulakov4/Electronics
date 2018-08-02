@@ -29,7 +29,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  System.Generics.Collections, BaseComponentsGroupUnit;
+  System.Generics.Collections, BaseComponentsGroupUnit2,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
   WM_ON_DETAIL_EXPANDED = WM_USER + 57;
@@ -96,7 +97,7 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    FBaseComponentsGroup: TBaseComponentsGroup;
+    FBaseComponentsGroup: TBaseComponentsGroup2;
     FDeleteFromAllCategories: Boolean;
     FEditingValue: Variant;
     FIsSyncScrollbars: Boolean;
@@ -106,15 +107,17 @@ type
     procedure AfterLoadData(Sender: TObject);
     function GetQuerySubGroups: TfrmQuerySubGroups;
     procedure PostMessageUpdateDetailColumnsWidth;
-    procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup);
+    procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup2);
     procedure SyncScrollbarPositions;
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
   protected
+    procedure ApplyBestFitForColumn(AColumn: TcxGridDBBandedColumn); override;
     function ExpandDetail: TcxGridDBBandedTableView;
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
     procedure DoAfterLoadData; virtual;
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnMasterDetailChange; virtual;
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
       message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
@@ -131,8 +134,8 @@ type
     function CheckAndSaveChanges: Integer;
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure UpdateView; override;
-    property BaseComponentsGroup: TBaseComponentsGroup read FBaseComponentsGroup
-      write SetBaseComponentsGroup;
+    property BaseComponentsGroup: TBaseComponentsGroup2 read FBaseComponentsGroup
+        write SetBaseComponentsGroup;
     { Public declarations }
   end;
 
@@ -347,15 +350,25 @@ begin
   UpdateDetailColumnsWidth;
 end;
 
+procedure TViewComponentsParent.ApplyBestFitForColumn
+  (AColumn: TcxGridDBBandedColumn);
+begin
+  inherited;
+  // Увеличиваем ширину колонки наименование, для того чтобы влезла кнопка
+  if AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName then
+    AColumn.Width := AColumn.Width + 35;
+end;
+
 function TViewComponentsParent.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
   if BaseComponentsGroup = nil then
     Exit;
 
+  UpdateView;
+
   // Если есть несохранённые изменения
-  if BaseComponentsGroup.Main.HaveAnyChanges or BaseComponentsGroup.Detail.HaveAnyChanges
-  then
+  if BaseComponentsGroup.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -392,7 +405,7 @@ begin
 
   // В режиме редактирования - доступ в зависимости от состояния
   AReadOnly := (not VarIsNull(V)) and
-    (not BaseComponentsGroup.Detail.IsModifed(V));
+    (not BaseComponentsGroup.QueryBaseComponents.IsModifed(V));
 
   if AReadOnly then
     AProperties := cxertiValueRO.Properties
@@ -463,7 +476,7 @@ begin
     HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
 
     // Только для чтения те записи, которые не модифицировались
-    AReadOnly := not BaseComponentsGroup.Main.IsModifed(AID);
+    AReadOnly := not BaseComponentsGroup.QueryBaseFamily.IsModifed(AID);
   end;
 
   if HavDetails then
@@ -612,21 +625,31 @@ begin
   UpdateView;
 end;
 
+procedure TViewComponentsParent.DoOnHaveAnyChanges(Sender: TObject);
+begin
+  UpdateView;
+end;
+
 procedure TViewComponentsParent.DoOnMasterDetailChange;
 begin
   if FBaseComponentsGroup <> nil then
   begin
     // Привязываем вью к данным
-    MainView.DataController.DataSource := BaseComponentsGroup.Main.DataSource;
+    MainView.DataController.DataSource := BaseComponentsGroup.QueryBaseFamily.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FBaseComponentsGroup.Detail.DataSource;
+      FBaseComponentsGroup.QueryBaseComponents.DataSource;
 
     // Подписываемся на события
-    if FBaseComponentsGroup.Main.Master <> nil then
+    if FBaseComponentsGroup.QueryBaseComponents.Master <> nil then
     begin
-      TNotifyEventWrap.Create(FBaseComponentsGroup.Detail.AfterLoad,
+      // Компоненты у нас загружаются первыми
+      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.AfterLoad,
         AfterLoadData, FEventList);
     end;
+
+    // Пусть нам монитор сообщает об изменениях в БД
+    TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.Monitor.OnHaveAnyChanges,
+      DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
   cxGridPopupMenu.PopupMenus.Items[0].GridView := MainView;
@@ -656,8 +679,7 @@ begin
   if FQuerySubGroups = nil then
   begin
     FQuerySubGroups := TfrmQuerySubGroups.Create(Self);
-    FQuerySubGroups.FDQuery.Connection :=
-      BaseComponentsGroup.Main.FDQuery.Connection;
+    FQuerySubGroups.FDQuery.Connection := BaseComponentsGroup.Connection;
   end;
   Result := FQuerySubGroups;
 end;
@@ -750,8 +772,8 @@ begin
 
 end;
 
-procedure TViewComponentsParent.SetBaseComponentsGroup
-  (const Value: TBaseComponentsGroup);
+procedure TViewComponentsParent.SetBaseComponentsGroup(const Value:
+    TBaseComponentsGroup2);
 begin
   if FBaseComponentsGroup <> Value then
   begin
@@ -811,7 +833,7 @@ var
   ABand: TcxGridBand;
   ADetailColumn: TcxGridDBBandedColumn;
   AMainColumn: TcxGridDBBandedColumn;
-//  dx: Integer;
+  // dx: Integer;
   i: Integer;
   RealBandWidth: Integer;
   RealColumnWidth: Integer;
@@ -833,7 +855,8 @@ begin
     for i := 0 to MainView.Bands.Count - 1 do
     begin
       ABand := MainView.Bands[i];
-      if (not ABand.Visible) or (ABand.VisibleIndex = 0) {or (ABand.Width = 0)} then
+      if (not ABand.Visible) or (ABand.VisibleIndex = 0) { or (ABand.Width = 0) }
+      then
         Continue;
 
       // Если информация о том, сколько бэнд занимает на экране не доступна!
@@ -940,11 +963,13 @@ begin
   actDeleteEx.Enabled := Ok and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);
 
+  actDeleteFromAllCategories.Enabled := actDeleteEx.Enabled;
+
   if Ok and (AView <> nil) and (AView.Level = cxGridLevel) then
   begin
-    if BaseComponentsGroup.Main.Master <> nil then
+    if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) then
     begin
-      S := BaseComponentsGroup.Main.Master.FDQuery.FieldByName('Value')
+      S := BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.FieldByName('Value')
         .AsString;
       actDeleteEx.Caption := Format('Удалить семейство из категории «%s»', [S]);
     end;
@@ -959,7 +984,7 @@ begin
   actAddComponent.Enabled := Ok and (AView <> nil);
   // and (AView.Level = tlComponentsDetails);
 
-  actCommit.Enabled := Ok and BaseComponentsGroup.Connection.InTransaction;
+  actCommit.Enabled := Ok and BaseComponentsGroup.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
 end;
 

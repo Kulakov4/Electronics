@@ -25,7 +25,7 @@ var
   S: string;
 begin
   inherited Create;
-  FMapDictionary := TDictionary<String,String>.Create;
+  FMapDictionary := TDictionary<String, String>.Create;
   m := AFieldsMap.Split([';']);
   for S in m do
   begin
@@ -33,7 +33,7 @@ begin
     //  аждый переход пол€ состоит из двух названий полей
     Assert(Length(m2) = 2);
     // ƒобавл€ем переход в словарь
-    FMapDictionary.Add(m2[0].ToUpper, m2[1].ToUpper );
+    FMapDictionary.Add(m2[0].ToUpper, m2[1].ToUpper);
   end;
 end;
 

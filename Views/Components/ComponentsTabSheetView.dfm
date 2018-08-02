@@ -13,7 +13,7 @@ object ComponentsFrame: TComponentsFrame
     Height = 480
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = cxtsParametricTable
+    Properties.ActivePage = cxtsCategory
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcComponentsPageChanging
     ClientRectBottom = 476
@@ -23,61 +23,38 @@ object ComponentsFrame: TComponentsFrame
     object cxtsCategory: TcxTabSheet
       Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object cxgrdFunctionalGroup: TcxGrid
+      inline ViewChildCategories: TViewChildCategories
         Left = 0
         Top = 0
         Width = 870
         Height = 452
         Align = alClient
         TabOrder = 0
-        object tvFunctionalGroup: TcxGridDBTableView
-          Navigator.Buttons.CustomButtons = <>
-          DataController.Summary.DefaultGroupSummaryItems = <>
-          DataController.Summary.FooterSummaryItems = <>
-          DataController.Summary.SummaryGroups = <>
-          OptionsData.Deleting = False
-          OptionsData.DeletingConfirmation = False
-          OptionsData.Inserting = False
-          OptionsSelection.HideSelection = True
-          OptionsView.GroupByBox = False
-          object clFunctionalGroupId: TcxGridDBColumn
-            DataBinding.FieldName = 'Id'
-            Visible = False
-          end
-          object clFunctionalGroupExternalId: TcxGridDBColumn
-            Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
-            DataBinding.FieldName = 'ExternalId'
-            PropertiesClassName = 'TcxMemoProperties'
-            Properties.ReadOnly = True
-            Width = 113
-          end
-          object clFunctionalGroupValue: TcxGridDBColumn
-            Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-            DataBinding.FieldName = 'Value'
-            PropertiesClassName = 'TcxMemoProperties'
-            Properties.ReadOnly = True
-            Width = 373
-          end
-          object clFunctionalGroupOrder: TcxGridDBColumn
-            DataBinding.FieldName = 'Order'
-            Visible = False
-            SortIndex = 0
-            SortOrder = soAscending
-          end
-          object clFunctionalGroupParentExternalId: TcxGridDBColumn
-            Caption = #1056#1086#1076#1080#1090#1077#1083#1100#1089#1082#1080#1081' '#1080#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
-            DataBinding.FieldName = 'ParentExternalId'
-            PropertiesClassName = 'TcxMemoProperties'
-            Properties.ReadOnly = True
-            Width = 193
-          end
+        ExplicitWidth = 870
+        ExplicitHeight = 452
+        inherited cxGrid: TcxGrid
+          Width = 870
+          Height = 433
+          ExplicitWidth = 870
+          ExplicitHeight = 433
         end
-        object glFunctionalGroup: TcxGridLevel
-          GridView = tvFunctionalGroup
+        inherited StatusBar: TStatusBar
+          Top = 433
+          Width = 870
+          ExplicitTop = 433
+          ExplicitWidth = 870
+        end
+        inherited dxBarManager: TdxBarManager
+          PixelsPerInch = 96
+        end
+        inherited cxGridPopupMenu: TcxGridPopupMenu
+          PopupMenus = <
+            item
+              GridView = ViewChildCategories.cxGridDBBandedTableView
+              HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
+              Index = 0
+              PopupMenu = ViewChildCategories.pmGrid
+            end>
         end
       end
     end
@@ -161,11 +138,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            28
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -181,6 +154,9 @@ object ComponentsFrame: TComponentsFrame
               Index = 1
               PopupMenu = ViewComponents.pmGrid
             end>
+        end
+        inherited cxerComponents: TcxEditRepository
+          PixelsPerInch = 96
         end
       end
     end
@@ -199,8 +175,8 @@ object ComponentsFrame: TComponentsFrame
         ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
-          Height = 405
-          ExplicitWidth = 457
+          Height = 377
+          ExplicitWidth = 870
           ExplicitHeight = 377
         end
         inherited StatusBar: TStatusBar
@@ -210,11 +186,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            28
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -306,11 +278,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            28
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -326,6 +294,9 @@ object ComponentsFrame: TComponentsFrame
               Index = 1
               PopupMenu = ViewComponentsSearch.pmGrid
             end>
+        end
+        inherited cxerComponents: TcxEditRepository
+          PixelsPerInch = 96
         end
       end
     end
@@ -345,9 +316,9 @@ object ComponentsFrame: TComponentsFrame
         ExplicitHeight = 452
         inherited cxGrid: TcxGrid
           Width = 870
-          Height = 377
+          Height = 405
           ExplicitWidth = 870
-          ExplicitHeight = 377
+          ExplicitHeight = 405
           inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
             inherited clProducer: TcxGridDBBandedColumn
               IsCaptionAssigned = True
@@ -419,11 +390,7 @@ object ComponentsFrame: TComponentsFrame
           ExplicitWidth = 870
         end
         inherited dxBarManager: TdxBarManager
-          DockControlHeights = (
-            0
-            0
-            56
-            0)
+          PixelsPerInch = 96
         end
         inherited cxGridPopupMenu: TcxGridPopupMenu
           PopupMenus = <
@@ -452,6 +419,9 @@ object ComponentsFrame: TComponentsFrame
               PopupMenu = ViewParametricTable.pmBands
             end>
         end
+        inherited cxerComponents: TcxEditRepository
+          PixelsPerInch = 96
+        end
         inherited cxStyleRepository: TcxStyleRepository
           PixelsPerInch = 96
         end
@@ -475,6 +445,7 @@ object ComponentsFrame: TComponentsFrame
     UseSystemFont = True
     Left = 340
     Top = 120
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0
@@ -554,10 +525,6 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarButton3'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton1: TdxBarButton
@@ -609,6 +576,10 @@ object ComponentsFrame: TComponentsFrame
         item
           Visible = True
           ItemName = 'dxBarButton8'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
     end
     object dxBarButton8: TdxBarButton

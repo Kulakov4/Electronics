@@ -5,7 +5,7 @@ interface
 {$WARN UNIT_PLATFORM OFF}
 
 uses
-  Windows, Messages, SysUtils, Variants, Graphics, Controls, Forms,
+  Windows, Messages, Variants, Graphics, Controls, Forms,
   Dialogs, dxSkinsdxBarPainter, dxBar, cxClasses,
   Menus, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
   cxCustomData, cxStyles, cxTL, cxTLdxBarBuiltInMenu, dxSkinscxPCPainter,
@@ -15,8 +15,8 @@ uses
   cxGridCustomView, cxGridCustomTableView, cxGridTableView, cxGridDBTableView,
   cxGrid, cxMaskEdit, ComCtrls, dxtree, dxdbtree, dxBarBuiltInMenu,
   cxTextEdit, cxBlobEdit, cxLabel, cxMemo, cxNavigator, RootForm,
-  System.UITypes, System.Types, System.Contnrs, NotifyEvents, DataModule2,
-  System.Actions, Vcl.ActnList, dxSkinsCore, dxSkinsDefaultPainters, GridFrame,
+  System.UITypes, System.Types, System.Contnrs, NotifyEvents, System.Actions,
+  Vcl.ActnList, dxSkinsCore, dxSkinsDefaultPainters, GridFrame,
   ComponentsBaseView, ComponentsView, ComponentsSearchView,
   ComponentsParentView, ParametricTableView, CustomExcelTable,
   ExcelDataModule, ParameterValuesUnit, dxSkinBlack, dxSkinBlue,
@@ -37,7 +37,8 @@ uses
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
   StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
-  Vcl.AppEvnts, HintWindowEx, ProtectUnit;
+  Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils,
+  BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -53,10 +54,6 @@ type
     dxbrbtn6: TdxBarButton;
     dxbrbtn7: TdxBarButton;
     sbMain: TdxStatusBar;
-    pmLeftTreeList: TPopupMenu;
-    mniAddRecord: TMenuItem;
-    mniRenameRecord: TMenuItem;
-    mniDeleteRecord: TMenuItem;
     dxbrMainBar2: TdxBar;
     dxbrbtnSettings: TdxBarButton;
     cxpcLeft: TcxPageControl;
@@ -73,20 +70,8 @@ type
     actSaveAll: TAction;
     dxBarButton4: TdxBarButton;
     actExit: TAction;
-    actDeleteTreeNode: TAction;
-    actRenameTreeNode: TAction;
-    actAddTreeNode: TAction;
     actLoadBodyTypes: TAction;
-    actExportTreeToExcelDocument: TAction;
-    Excel1: TMenuItem;
-    actLoadTreeFromExcelDocument: TAction;
-    Excel2: TMenuItem;
     dxBarButton10: TdxBarButton;
-    dbtlCategories: TcxDBTreeList;
-    clValue: TcxDBTreeListColumn;
-    clId: TcxDBTreeListColumn;
-    clParentId: TcxDBTreeListColumn;
-    clOrder: TcxDBTreeListColumn;
     cxpcRight: TcxPageControl;
     cxspltrMain: TcxSplitter;
     cxtsRComponents: TcxTabSheet;
@@ -95,8 +80,6 @@ type
     tvStorehouseList: TcxGridDBTableView;
     clStorehouseListTitle: TcxGridDBColumn;
     glStorehouseList: TcxGridLevel;
-    ComponentsFrame: TComponentsFrame;
-    ProductsFrame: TProductsFrame;
     pmLeftStoreHouse: TPopupMenu;
     actAddStorehouse: TAction;
     actDeleteStorehouse: TAction;
@@ -104,69 +87,68 @@ type
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
+    actShowExtraCharge: TAction;
+    dxBarButton1: TdxBarButton;
     ApplicationEvents: TApplicationEvents;
     procedure actAddStorehouseExecute(Sender: TObject);
-    procedure actAddTreeNodeExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);
-    procedure actDeleteTreeNodeExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
-    procedure actExportTreeToExcelDocumentExecute(Sender: TObject);
-    procedure actLoadTreeFromExcelDocumentExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseUpdate(Sender: TObject);
-    procedure actRenameTreeNodeExecute(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
     procedure actSelectDataBasePathExecute(Sender: TObject);
     procedure actShowBodyTypes2Execute(Sender: TObject);
     procedure actShowBodyTypes3Execute(Sender: TObject);
     procedure actShowDescriptionsExecute(Sender: TObject);
+    procedure actShowExtraChargeExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
+    procedure ApplicationEventsException(Sender: TObject; E: Exception);
     procedure ApplicationEventsHint(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure dbtlCategoriesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure dbtlCategoriesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
-    procedure dbtlCategoriesStartDrag(Sender: TObject;
-      var DragObject: TDragObject);
     procedure btnFocusRootClick(Sender: TObject);
     procedure cxpcLeftChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure dbtlCategoriesClick(Sender: TObject);
-    procedure dbtlCategoriesCollapsed(Sender: TcxCustomTreeList;
-      ANode: TcxTreeListNode);
-    procedure dbtlCategoriesExpanded(Sender: TcxCustomTreeList;
-      ANode: TcxTreeListNode);
-    procedure tlLeftControlMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormResize(Sender: TObject);
-    procedure dbtlCategoriesCanFocusNode(Sender: TcxCustomTreeList;
+    procedure OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
     procedure cxtsComponentsShow(Sender: TObject);
     procedure cxtsStorehousesShow(Sender: TObject);
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
     FCategoryPath: string;
+    FComponentsFrame: TComponentsFrame;
     FEventList: TObjectList;
     FHintWindowEx: THintWindowEx;
     FOnProductCategoriesChange: TNotifyEventWrap;
+    FProductsFrame: TProductsFrame;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
-    FSelectedId: Integer;
+    FViewTreeList: TViewTreeList;
+    procedure DoAfterTreeListSmartRefresh(Sender: TObject);
     procedure DoBeforeParametricTableActivate(Sender: TObject);
     procedure DoBeforeParametricTableDeactivate(Sender: TObject);
     procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
-    function GetLevel(ANode: TcxTreeListNode): Integer;
+    function GetQueryMonitor: TQueryMonitor;
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
     procedure UpdateCaption;
     { Private declarations }
   protected
+    procedure DoOnHaveAnyChanges(Sender: TObject);
+    procedure DoOnOpenCategory(Sender: TObject);
     procedure DoOnProductLocate(Sender: TObject);
+    property ComponentsFrame: TComponentsFrame read FComponentsFrame;
+    property ProductsFrame: TProductsFrame read FProductsFrame;
+    property QueryMonitor: TQueryMonitor read GetQueryMonitor;
+    property ViewTreeList: TViewTreeList read FViewTreeList;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
@@ -187,9 +169,10 @@ uses
   Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm,
   TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
-  ProductsBaseQuery, DescriptionsGroupUnit, RecursiveTreeView,
+  ProductsBaseQuery, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
-  LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm;
+  LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
+  ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule;
 
 {$R *.dfm}
 
@@ -205,44 +188,24 @@ procedure TfrmMain.actAddStorehouseExecute(Sender: TObject);
 var
   Value: string;
 begin
-  DM2.qStoreHouseList.TryPost;
+  TDM.Create.qStoreHouseList.TryPost;
 
   Value := InputBox(sDatabase, sPleaseWrite, '');
   if Value <> '' then
   begin
-    DM2.qStoreHouseList.LocateOrAppend(Value);
+    TDM.Create.qStoreHouseList.LocateOrAppend(Value);
     clStorehouseListTitle.ApplyBestFit();
-  end;
-end;
-
-procedure TfrmMain.actAddTreeNodeExecute(Sender: TObject);
-var
-  Value: string;
-begin
-  DM2.qTreeList.TryPost;
-
-  Value := InputBox(sDatabase, sPleaseWrite, '');
-
-  if Value <> '' then
-  begin
-    DM2.qTreeList.FDQuery.DisableControls;
-    try
-      DM2.qTreeList.AddChildCategory(Value,
-        GetLevel(dbtlCategories.FocusedNode));
-    finally
-      DM2.qTreeList.FDQuery.EnableControls;
-    end;
   end;
 end;
 
 procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
 begin
-  DM2.qStoreHouseList.TryPost;
-  if DM2.qStoreHouseList.FDQuery.RecordCount > 0 then
+  TDM.Create.qStoreHouseList.TryPost;
+  if TDM.Create.qStoreHouseList.FDQuery.RecordCount > 0 then
   begin
     if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
     begin
-      DM2.qStoreHouseList.FDQuery.Delete;
+      TDM.Create.qStoreHouseList.FDQuery.Delete;
     end;
   end;
 end;
@@ -253,102 +216,9 @@ begin
     RecordCount > 0;
 end;
 
-procedure TfrmMain.actDeleteTreeNodeExecute(Sender: TObject);
-begin
-  DM2.qTreeList.TryPost;
-  if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
-  begin
-    DM2.qTreeList.FDQuery.Delete;
-    DM2.qTreeList.FDQuery.Refresh;
-  end;
-end;
-
 procedure TfrmMain.actExitExecute(Sender: TObject);
 begin
   Close
-end;
-
-procedure TfrmMain.actExportTreeToExcelDocumentExecute(Sender: TObject);
-var
-  AQueryRecursiveTree: TQueryRecursiveTree;
-  AViewRecursiveTree: TViewRecursiveTree;
-begin
-  AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
-  AViewRecursiveTree := TViewRecursiveTree.Create(Self);
-  try
-    AQueryRecursiveTree.RefreshQuery;
-    AViewRecursiveTree.QueryRecursiveTree := AQueryRecursiveTree;
-    AViewRecursiveTree.actExportToExcelDocument.Execute;
-  finally
-    FreeAndNil(AViewRecursiveTree);
-    FreeAndNil(AQueryRecursiveTree);
-  end;
-end;
-
-procedure TfrmMain.actLoadTreeFromExcelDocumentExecute(Sender: TObject);
-var
-  AFileName: string;
-  AfrmGridView: TfrmGridView;
-  AQueryRecursiveTree: TQueryRecursiveTree;
-  OK: Boolean;
-begin
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
-    Exit;
-
-  AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
-  try
-    AQueryRecursiveTree.RefreshQuery;
-    TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmCustomError,
-      procedure(ASender: TObject)
-      begin
-        AQueryRecursiveTree.LoadDataFromExcelTable(ASender as TTreeExcelTable);
-      end);
-
-    // Получаем добавленные категории
-    AQueryRecursiveTree.HideNotAdded;
-    // Если есть категории, которые были добавлены
-    if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
-    begin
-      AfrmGridView := TfrmGridView.Create(Self);
-      try
-        AfrmGridView.Caption := 'Добавленные категории';
-        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
-        AfrmGridView.ShowModal;
-      finally
-        FreeAndNil(AfrmGridView);
-      end;
-    end;
-
-    AQueryRecursiveTree.HideNotDeleted;
-    // Если есть категории, которые надо удалить
-    if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
-    begin
-      AfrmGridView := TfrmGridView.Create(Self);
-      try
-        AfrmGridView.Caption := 'Удаление категорий';
-        AfrmGridView.cxbtnOK.Caption := 'Удалить';
-        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
-        OK := AfrmGridView.ShowModal = mrOk;
-      finally
-        FreeAndNil(AfrmGridView);
-      end;
-
-      if OK then
-        AQueryRecursiveTree.DeleteAll;
-    end;
-
-  finally
-    FreeAndNil(AQueryRecursiveTree);
-  end;
-
-  // Перечитываем дерево из БД
-  dbtlCategories.BeginUpdate;
-  try
-    DM2.qTreeList.RefreshQuery;
-  finally
-    dbtlCategories.EndUpdate;
-    dbtlCategories.FocusedNode.Expand(False);
-  end;
 end;
 
 procedure TfrmMain.actRenameStorehouseExecute(Sender: TObject);
@@ -357,14 +227,14 @@ var
 begin
   if tvStorehouseList.Controller.SelectedRecordCount > 0 then
   begin
-    DM2.qStoreHouseList.TryPost;
+    TDM.Create.qStoreHouseList.TryPost;
     Value := InputBox(sDatabase, sPleaseWrite,
-      DM2.qStoreHouseList.Title.AsString);
+      TDM.Create.qStoreHouseList.Title.AsString);
     if (Value <> '') then
     begin
-      DM2.qStoreHouseList.TryEdit;
-      DM2.qStoreHouseList.Title.AsString := Value;
-      DM2.qStoreHouseList.TryPost;
+      TDM.Create.qStoreHouseList.TryEdit;
+      TDM.Create.qStoreHouseList.Title.AsString := Value;
+      TDM.Create.qStoreHouseList.TryPost;
       clStorehouseListTitle.ApplyBestFit();
     end;
   end;
@@ -376,27 +246,10 @@ begin
     RecordCount > 0;
 end;
 
-procedure TfrmMain.actRenameTreeNodeExecute(Sender: TObject);
-var
-  Value: string;
-begin
-  DM2.qTreeList.TryPost;
-
-  Value := InputBox(sDatabase, sPleaseWrite, DM2.qTreeList.Value.AsString);
-  if (Value <> '') and
-    (DM2.qTreeList.CheckPossibility(DM2.qTreeList.ParentId.AsInteger, Value))
-  then
-  begin
-    DM2.qTreeList.TryEdit;
-    DM2.qTreeList.Value.AsString := Value;
-    DM2.qTreeList.TryPost;
-  end;
-
-end;
-
 procedure TfrmMain.actSaveAllExecute(Sender: TObject);
 begin
-  DM2.SaveAll;
+  QueryMonitor.ApplyUpdates;
+  // DM2.SaveAll;
 end;
 
 procedure TfrmMain.actSelectDataBasePathExecute(Sender: TObject);
@@ -405,28 +258,24 @@ var
   AOldDataBasePath: string;
 begin
   AOldDataBasePath := TSettings.Create.databasePath;
-  if ShowSettingsEditor = mrOk then
-  begin
-    ANewDataBasePath := TSettings.Create.databasePath;
+  if not ShowSettingsEditor = mrOk then
+    Exit;
 
-    // Если путь до базы данных изменился
-    if AOldDataBasePath <> ANewDataBasePath then
-    begin
-      dbtlCategories.BeginUpdate;
-      try
-        DM2.CreateOrOpenDataBase;
-        // Искусственно вызываем событие
-        DoOnProductCategoriesChange(nil);
-      finally
-        try
-          dbtlCategories.EndUpdate;
-          dbtlCategories.FocusedNode.Expand(False);
-        finally
-        end;
-      end;
-    end;
+  ANewDataBasePath := TSettings.Create.databasePath;
+
+  // Если путь до базы данных не изменился
+  if AOldDataBasePath = ANewDataBasePath then
+    Exit;
+
+  FViewTreeList.BeginUpdate;
+  try
+    TDM.Create.CreateOrOpenDataBase(Application.ExeName);
+    // Искусственно вызываем событие
+    DoOnProductCategoriesChange(nil);
+  finally
+    FViewTreeList.EndUpdate;
+    FViewTreeList.ExpandRoot;
   end;
-
 end;
 
 procedure TfrmMain.actShowBodyTypes2Execute(Sender: TObject);
@@ -454,9 +303,9 @@ procedure TfrmMain.actShowBodyTypes3Execute(Sender: TObject);
 begin
   if frmBodyTypes = nil then
   begin
-    DM2.BodyTypesGroup.ReOpen;
+    TDM.Create.BodyTypesGroup.ReOpen;
     frmBodyTypes := TfrmBodyTypes.Create(Self);
-    frmBodyTypes.ViewBodyTypes.BodyTypesGroup := DM2.BodyTypesGroup;
+    frmBodyTypes.ViewBodyTypes.BodyTypesGroup := TDM.Create.BodyTypesGroup;
   end;
 
   frmBodyTypes.Show;
@@ -466,21 +315,33 @@ procedure TfrmMain.actShowDescriptionsExecute(Sender: TObject);
 begin
   if frmDescriptions = nil then
   begin
-    DM2.DescriptionsGroup.ReOpen;
+    TDM.Create.DescriptionsGroup.ReOpen;
     frmDescriptions := TfrmDescriptions.Create(Self);
-    frmDescriptions.ViewDescriptions.DescriptionsGroup := DM2.DescriptionsGroup;
+    frmDescriptions.ViewDescriptions.DescriptionsGroup := TDM.Create.DescriptionsGroup;
   end;
 
   frmDescriptions.Show;
+end;
+
+procedure TfrmMain.actShowExtraChargeExecute(Sender: TObject);
+begin
+  if frmExtraCharge = nil then
+  begin
+    TDM.Create.qExtraCharge.RefreshQuery;
+    frmExtraCharge := TfrmExtraCharge.Create(Self);
+    frmExtraCharge.ViewExtraCharge.qExtraCharge := TDM.Create.qExtraCharge;
+  end;
+
+  frmExtraCharge.Show;
 end;
 
 procedure TfrmMain.actShowProducersExecute(Sender: TObject);
 begin
   if frmProducers = nil then
   begin
-    DM2.ProducersGroup.ReOpen;
+    TDM.Create.ProducersGroup.ReOpen;
     frmProducers := TfrmProducers.Create(Self);
-    frmProducers.ViewProducers.ProducersGroup := DM2.ProducersGroup;
+    frmProducers.ViewProducers.ProducersGroup := TDM.Create.ProducersGroup;
   end;
 
   frmProducers.Show;
@@ -490,15 +351,23 @@ procedure TfrmMain.actShowParametersExecute(Sender: TObject);
 begin
   if frmParameters = nil then
   begin
-    DM2.ParametersGroup.ReOpen;
+    TDM.Create.ParametersGroup.ReOpen;
     frmParameters := TfrmParameters.Create(Self);
-    frmParameters.ViewParameters.ParametersGrp := DM2.ParametersGroup;
+    frmParameters.ViewParameters.ParametersGrp := TDM.Create.ParametersGroup;
     frmParameters.ViewSubParameters.QuerySubParameters :=
-      DM2.ParametersGroup.qSubParameters;
+      TDM.Create.ParametersGroup.qSubParameters;
   end;
 
   frmParameters.Show;
+end;
 
+procedure TfrmMain.ApplicationEventsException(Sender: TObject; E: Exception);
+var
+  Msg: string;
+begin
+  Msg := IfThen(MyExceptionMessage.IsEmpty, E.Message, MyExceptionMessage);
+  MyExceptionMessage := '';
+  TDialog.Create.ErrorMessageDialog(Msg);
 end;
 
 procedure TfrmMain.ApplicationEventsHint(Sender: TObject);
@@ -514,7 +383,7 @@ end;
 
 procedure TfrmMain.btnFocusRootClick(Sender: TObject);
 begin
-  DM2.qTreeList.LocateToRoot;
+  TDM.Create.qTreeList.LocateToRoot;
 end;
 
 function TfrmMain.CheckDataBasePath: Boolean;
@@ -564,7 +433,7 @@ begin
   l := Sender as TList<String>;
   Assert(l.Count > 0);
 
-  DM2.qProductsSearch.Search(l);
+  TDM.Create.qProductsSearch.Search(l);
 
   // Переключаемся на вкладку склады
   cxpcLeft.ActivePage := cxtsStorehouses;
@@ -577,11 +446,14 @@ end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  if DM2.HaveAnyChanges then
+  if QueryMonitor = nil then
+    Exit;
+
+  if QueryMonitor.HaveAnyChanges then
   begin
     case TDialog.Create.SaveDataDialog of
       IDYES:
-        DM2.SaveAll;
+        QueryMonitor.ApplyUpdates;
       IDCancel:
         Action := caNone;
     end;
@@ -594,18 +466,34 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var
   OK: Boolean;
 begin
+  // Создаём модуль репозитория
+  Assert(DMRepository = nil);
+  // if DMRepository = nil then
+  DMRepository := TDMRepository.Create(Self);
+  Assert(not DMRepository.dbConnection.Connected);
+
   cxpcRight.Properties.HideTabs := True;
   cxpcLeft.ActivePage := cxtsComponents;
+
+  // Создаём фрейм с компонентами
+  FComponentsFrame := TComponentsFrame.Create(Self);
+  ComponentsFrame.Parent := cxtsRComponents;
+  ComponentsFrame.Align := alClient;
+
+  // Создаём фрейм со складом
+  FProductsFrame := TProductsFrame.Create(Self);
+  ProductsFrame.Parent := cxtsRStorehouses;
+  ProductsFrame.Align := alClient;
+
+  // Создаём фрейм с деревом категорий
+  FViewTreeList := TViewTreeList.Create(Self);
+  ViewTreeList.Parent := cxtsComponents;
+  ViewTreeList.Align := alClient;
+  // Устанавливаем обработчик события
+  ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
+
   ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
   ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
-
-  // Создаём модуль репозитория
-  if DMRepository = nil then
-    DMRepository := TDMRepository.Create(Self);
-  Assert(not DMRepository.dbConnection.Connected);
-  Assert(DM2 = nil);
-  // Сами создаём модуль данных
-  DM2 := TDM2.Create(Self);
 
   Assert(not DMRepository.dbConnection.Connected);
 
@@ -618,19 +506,20 @@ begin
 
   // Проверяем что путь до базы данных корректный
   OK := CheckDataBasePath;
+
   if OK then
   begin
     // Пока ещё соединение с БД должно быть закрыто
     Assert(not DMRepository.dbConnection.Connected);
     repeat
-
       try
         // Создаём или открываем базу данных
-        DM2.CreateOrOpenDataBase;
+        TDM.Create.CreateOrOpenDataBase(Application.ExeName);
+        // DM2.CreateOrOpenDataBase;
       except
-        on e: Exception do
+        on E: Exception do
         begin
-          TDialog.Create.ErrorMessageDialog(e.Message);
+          TDialog.Create.ErrorMessageDialog(E.Message);
           // Снова предлагаем выбрать папку с БД
 
           OK := ShowSettingsEditor = mrOk;
@@ -641,16 +530,24 @@ begin
 
     if OK then
     begin
+      // обновляем доступность кнопки "Сохранить всё"
+      DoOnHaveAnyChanges(nil);
+      TNotifyEventWrap.Create(QueryMonitor.OnHaveAnyChanges,
+        DoOnHaveAnyChanges);
+
       // Подписываемся чтобы искать компонент на складах
-      TNotifyEventWrap.Create(DM2.ComponentsExGroup.qComponentsEx.OnLocate,
-        DoOnComponentLocate);
+      TNotifyEventWrap.Create(TDM.Create.ComponentsExGroup.qComponentsEx.
+        OnLocate, DoOnComponentLocate, FEventList);
 
       // Подписываемся чтобы искать компонент в параметрической таблице
-      TNotifyEventWrap.Create(DM2.qProducts.OnLocate, DoOnProductLocate);
-      TNotifyEventWrap.Create(DM2.qProductsSearch.OnLocate, DoOnProductLocate);
+      TNotifyEventWrap.Create(TDM.Create.qProducts.OnLocate, DoOnProductLocate,
+        FEventList);
+      TNotifyEventWrap.Create(TDM.Create.qProductsSearch.OnLocate,
+        DoOnProductLocate, FEventList);
 
       // Привязываем представления к данным
-      ComponentsFrame.ViewComponents.ComponentsGroup := DM2.ComponentsGroup;
+      ComponentsFrame.ViewComponents.ComponentsGroup :=
+        TDM.Create.ComponentsGroup;
 
       // Подписываемся на событие о отображении параметрической таблицы
       TNotifyEventWrap.Create
@@ -658,39 +555,60 @@ begin
         DoOnShowParametricTable, FEventList);
 
       ComponentsFrame.ViewComponentsSearch.ComponentsSearchGroup :=
-        DM2.ComponentsSearchGroup;
+        TDM.Create.ComponentsSearchGroup;
+
+      // Подписываемся на событие чтобы открывать найденную категорию
+      TNotifyEventWrap.Create(TDM.Create.ComponentsSearchGroup.OnOpenCategory,
+        DoOnOpenCategory, FEventList);
 
       // Параметры в виде списка
       ComponentsFrame.ViewCategoryParameters.CatParamsGroup :=
-        DM2.CategoryParametersGroup;
+        TDM.Create.CategoryParametersGroup;
 
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
-        DM2.ComponentsExGroup;
+        TDM.Create.ComponentsExGroup;
 
       // Привязываем список складов к данным
       tvStorehouseList.DataController.DataSource :=
-        DM2.qStoreHouseList.DataSource;
+        TDM.Create.qStoreHouseList.DataSource;
+
       clStorehouseListTitle.ApplyBestFit();
+
       // Привязываем информацию о складе к данным
       ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
-        DM2.qStoreHouseList;
+        TDM.Create.qStoreHouseList;
+
       // Привязываем текущий склад к данным
-      ProductsFrame.ViewProducts2.qProducts := DM2.qProducts;
+      ProductsFrame.ViewProducts2.qProducts := TDM.Create.qProducts;
+
       // Привязываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch2.qProductsSearch := DM2.qProductsSearch;
+      ProductsFrame.ViewProductsSearch2.qProductsSearch :=
+        TDM.Create.qProductsSearch;
+
 
       // ViewStoreHouse.StoreHouseGroup := DM2.StoreHouseGroup;
       // ViewStoreHouse.QueryProductsSearch := DM2.qProductsSearch;
 
       // привязываем дерево катогорий к данным
-      dbtlCategories.DataController.DataSource := DM2.qTreeList.DataSource;
+      // AClone := DM2.qTreeList.AddClone('');
+      // DM2.qTreeList.DataSource.DataSet := AClone;
+
+      ViewTreeList.qTreeList := TDM.Create.qTreeList;
+
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.AfterSmartRefresh,
+        DoAfterTreeListSmartRefresh, FEventList);
 
       // Привязываем подкатегории к данным (функциональная группа)
-      ComponentsFrame.tvFunctionalGroup.DataController.DataSource :=
-        DM2.qChildCategories.DataSource;
+      ComponentsFrame.ViewChildCategories.qChildCategories :=
+        TDM.Create.qChildCategories;
 
+      {
+        ComponentsFrame.tvFunctionalGroup.DataController.DataSource :=
+        DM2.qChildCategories.DataSource;
+      }
       FOnProductCategoriesChange := TNotifyEventWrap.Create
-        (DM2.qTreeList.AfterScroll, DoOnProductCategoriesChange, FEventList);
+        (TDM.Create.qTreeList.AfterScroll, DoOnProductCategoriesChange,
+        FEventList);
 
       // Искусственно вызываем событие
       DoOnProductCategoriesChange(nil);
@@ -699,30 +617,32 @@ begin
   end;
 
   // OK := OK and TProtect.Create.Check;
-
-  if not OK then
-  begin
+  (*
+    if not OK then
+    begin
     Application.ShowMainForm := False;
     Application.Terminate; // завершаем работу приложения
-  end;
+    end;
+  *)
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
 begin
-  if (Enabled) and (DMRepository.dbConnection.Connected) and
-    (dbtlCategories.FocusedNode <> nil) then
-    dbtlCategories.FocusedNode.Expand(False);
+  if (Enabled) and (FViewTreeList <> nil) and
+    (DMRepository.dbConnection.Connected) and
+    (ViewTreeList.cxDBTreeList.FocusedNode <> nil) then
+    ViewTreeList.ExpandRoot;
 end;
 
 procedure TfrmMain.DoOnProductCategoriesChange(Sender: TObject);
 begin
   ComponentsFrame.cxtsCategoryComponents.Enabled :=
-    not DM2.qTreeList.IsRootFocused;
+    not TDM.Create.qTreeList.IsRootFocused;
 
-  Assert(DM2.qTreeList.PK.AsInteger > 0);
+  Assert(TDM.Create.qTreeList.PK.AsInteger > 0);
   Assert(FQuerySearchCategoriesPath <> nil);
   FCategoryPath := FQuerySearchCategoriesPath.GetFullPath
-    (DM2.qTreeList.PK.AsInteger);
+    (TDM.Create.qTreeList.PK.AsInteger);
 
   UpdateCaption;
 
@@ -734,7 +654,7 @@ var
 begin
   LO := (Sender as TLocateObject);
 
-  if not DM2.qTreeList.LocateByPK(LO.IDCategory) then
+  if not TDM.Create.qTreeList.LocateByPK(LO.IDCategory) then
   begin
     TDialog.Create.ErrorMessageDialog(Format('Категория с кодом %d не найдена',
       [LO.IDCategory]));
@@ -757,13 +677,6 @@ end;
 procedure TfrmMain.FormResize(Sender: TObject);
 begin
   UpdateCaption;
-end;
-
-function TfrmMain.GetLevel(ANode: TcxTreeListNode): Integer;
-begin
-  Result := 1;
-  if ANode.Parent <> nil then
-    Result := Result + GetLevel(ANode.Parent);
 end;
 
 procedure TfrmMain.ShowParametricTable;
@@ -795,7 +708,7 @@ begin
 
     // Привязываем данные к представлению
     frmParametricTable.ViewParametricTable.ComponentsExGroup :=
-      DM2.ComponentsExGroup;
+      TDM.Create.ComponentsExGroup;
 
     // предупреждаем, что нам потребуются данные этого запроса
     // DM2.ComponentsExGroup.AddClient;
@@ -816,28 +729,15 @@ begin
   end;
 end;
 
-procedure TfrmMain.dbtlCategoriesCanFocusNode(Sender: TcxCustomTreeList;
-ANode: TcxTreeListNode; var Allow: Boolean);
+procedure TfrmMain.OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
+  ANode: TcxTreeListNode; var Allow: Boolean);
 begin
   Allow := (ComponentsFrame.ViewComponents.CheckAndSaveChanges <> IDCancel) and
     (ComponentsFrame.ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
 end;
 
-procedure TfrmMain.dbtlCategoriesClick(Sender: TObject);
-begin
-  dbtlCategories.ApplyBestFit;
-end;
-
-procedure TfrmMain.dbtlCategoriesCollapsed(Sender: TcxCustomTreeList;
-ANode: TcxTreeListNode);
-begin
-  dbtlCategories.ApplyBestFit;
-  /// todo: придумать как обработать правильно
-  dbtlCategories.OptionsView.ScrollBars := ssBoth;
-end;
-
 procedure TfrmMain.dbtlCategoriesDragDrop(Sender, Source: TObject;
-X, Y: Integer);
+  X, Y: Integer);
 var
   cn: string;
 begin
@@ -853,71 +753,9 @@ begin
 end;
 
 procedure TfrmMain.dbtlCategoriesDragOver(Sender, Source: TObject;
-X, Y: Integer; State: TDragState; var Accept: Boolean);
+  X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := True;
-end;
-
-procedure TfrmMain.dbtlCategoriesExpanded(Sender: TcxCustomTreeList;
-ANode: TcxTreeListNode);
-var
-  vOldWidth: Integer;
-begin
-  vOldWidth := dbtlCategories.Columns[0].DisplayWidth;
-  dbtlCategories.Columns[0].ApplyBestFit;
-  // tlLeftControl.ApplyBestFit;
-  if dbtlCategories.Columns[0].DisplayWidth < vOldWidth then
-  // при раскрытии убедиться что ширина не станет меньше чем была
-  begin
-    Application.ProcessMessages;
-    dbtlCategories.Columns[0].DisplayWidth := vOldWidth;
-    dbtlCategories.Columns[0].Width := vOldWidth;
-    dbtlCategories.Columns[0].MinWidth := vOldWidth;
-  end;
-  dbtlCategories.OptionsView.ScrollBars := ssBoth;
-end;
-
-procedure TfrmMain.tlLeftControlMouseDown(Sender: TObject; Button: TMouseButton;
-Shift: TShiftState; X, Y: Integer);
-begin
-  pmLeftTreeList.Items[1].Enabled := True;
-  pmLeftTreeList.Items[2].Enabled := True;
-  with TcxTreeList(Sender) do
-  begin
-    OptionsData.Editing := True;
-    HitTest.ReCalculate(Point(X, Y));
-
-    if HitTest.HitAtBackground then
-    begin
-      DM2.qTreeList.LocateToRoot;
-      // datamoduleMain.IsCurrentlyBusy := True;
-      // datamoduleMain.qTreeList.Locate('Id', 1, []);
-      // datamoduleMain.IsCurrentlyBusy := false;
-      // datamoduleMain.qTreeList.AfterScroll(datamoduleMain.qTreeList);
-
-      pmLeftTreeList.Items[1].Enabled := False;
-      pmLeftTreeList.Items[2].Enabled := False;
-      OptionsData.Editing := False;
-    end;
-
-    if HitTest.HitAtNode then
-    begin
-      if DM2.qTreeList.
-        IsRootFocused { datamoduleMain.qTreeList.FieldByName('Id').AsInteger = 1 }
-      then
-      begin
-        pmLeftTreeList.Items[1].Enabled := False;
-        pmLeftTreeList.Items[2].Enabled := False;
-        OptionsData.Editing := False;
-      end;
-    end;
-  end;
-end;
-
-procedure TfrmMain.dbtlCategoriesStartDrag(Sender: TObject;
-var DragObject: TDragObject);
-begin
-  FSelectedId := dbtlCategories.FocusedNode.Values[1];
 end;
 
 procedure TfrmMain.cxtsComponentsShow(Sender: TObject);
@@ -932,30 +770,83 @@ begin
   cxpcRight.ActivePage := cxtsRStorehouses;
 end;
 
+procedure TfrmMain.DoAfterTreeListSmartRefresh(Sender: TObject);
+begin
+  ViewTreeList.ExpandRoot;
+end;
+
 procedure TfrmMain.DoBeforeParametricTableActivate(Sender: TObject);
 var
   ACategoryPath: string;
   rc: Integer;
 begin
-  DM2.ComponentsExGroup.AddClient;
+  TDM.Create.ComponentsExGroup.AddClient;
 
   // Нам надо узнать, есть-ли у текущей категории подкатегории
-  rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
+  rc := TSearchSubCategories.Search(TDM.Create.qTreeList.PK.Value);
   // Если у нашей категории есть подкатегории
   if rc > 0 then
-    ACategoryPath := DM2.qTreeList.Value.AsString
+    ACategoryPath := TDM.Create.qTreeList.Value.AsString
   else
   begin
     // Если в цепочке категорий мы последнее звено
     ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-      (DM2.qTreeList.PK.Value, 2, '-');
+      (TDM.Create.qTreeList.PK.Value, 2, '-');
   end;
   frmParametricTable.CategoryPath := ACategoryPath;
 end;
 
 procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);
 begin
-  DM2.ComponentsExGroup.DecClient;
+  TDM.Create.ComponentsExGroup.DecClient;
+end;
+
+procedure TfrmMain.DoOnHaveAnyChanges(Sender: TObject);
+begin
+  actSaveAll.Enabled := QueryMonitor.HaveAnyChanges;
+end;
+
+procedure TfrmMain.DoOnOpenCategory(Sender: TObject);
+var
+  AExternalID: string;
+  AFamilyCaption: string;
+  ASubGroup: string;
+  I: Integer;
+begin
+  Assert(TDM.Create.ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
+  AFamilyCaption := TDM.Create.ComponentsSearchGroup.qFamilySearch.Value.AsString;
+  ASubGroup := TDM.Create.ComponentsSearchGroup.qFamilySearch.subGroup.AsString;
+  Assert(not ASubGroup.IsEmpty);
+  // Получаем первую - главную категорию семейства
+  I := ASubGroup.IndexOf(',');
+  if I = -1 then
+    I := ASubGroup.Length;
+
+  AExternalID := ASubGroup.Substring(0, I);
+  TDM.Create.qTreeList.LocateByExternalID(AExternalID);
+
+  // Ждём, пока группа компонентов обновит свои данные!
+  Application.ProcessMessages;
+
+  TDM.Create.ComponentsGroup.qFamily.LocateValue(AFamilyCaption);
+
+  // Переключаемся на вкладку "Компоненты"
+  ComponentsFrame.cxpcComponents.ActivePage :=
+    ComponentsFrame.cxtsCategoryComponents;
+  ComponentsFrame.ViewComponents.cxGrid.SetFocus;
+  // Application.ProcessMessages;
+
+  ComponentsFrame.ViewComponents.MainView.Controller.FocusedRow.
+    Selected := True;
+
+  ComponentsFrame.ViewComponents.MainView.GetColumnByFieldName
+    (ComponentsFrame.ViewComponents.clValue.DataBinding.FieldName)
+    .Selected := True;
+end;
+
+function TfrmMain.GetQueryMonitor: TQueryMonitor;
+begin
+  Result := TDM.Create.qTreeList.Monitor;
 end;
 
 procedure TfrmMain.UpdateCaption;
@@ -963,19 +854,20 @@ var
   AFS: TFormatSettings;
   S: string;
 begin
-  if (DM2 <> nil) and (DM2.qTreeList.FDQuery.RecordCount > 0) then
+  if (TDM.Created) and (TDM.Create.qTreeList.FDQuery.RecordCount > 0) then
   begin
-    if not DM2.qTreeList.IsRootFocused and not FCategoryPath.IsEmpty then
+    if not TDM.Create.qTreeList.IsRootFocused and not FCategoryPath.IsEmpty then
     begin
       S := MinimizeName(FCategoryPath, Canvas, Width - 200);
       S := S.Trim(['\']).Replace('\', '-');
 
     end
     else
-      S := DM2.qTreeList.Value.AsString;
+      S := TDM.Create.qTreeList.Value.AsString;
 
     AFS.DecimalSeparator := '.';
-    Caption := Format('%s %0.1f - %s', [sMainFormCaption, ProgramVersion, S], AFS);
+    Caption := Format('%s %0.1f - %s',
+      [sMainFormCaption, ProgramVersion, S], AFS);
   end;
 end;
 
@@ -983,5 +875,13 @@ procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
 begin
   ComponentsFrame.ViewComponents.actOpenDatasheetExecute(Sender);
 end;
+
+initialization
+
+  ;
+
+finalization
+
+  ;
 
 end.

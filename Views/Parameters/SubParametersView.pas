@@ -26,10 +26,14 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, SubParametersQuery,
-  SubParametersExcelDataModule, SubParametersQuery2, cxCheckBox;
+  cxGridDBBandedTableView, cxGrid, SubParametersExcelDataModule,
+  SubParametersQuery2, cxCheckBox, HRTimer, DragHelper, cxDropDownEdit,
+  cxBarEditItem, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 type
+  TSortMode = (smManual, smAlphabet);
+
   TViewSubParameters = class(TfrmGrid)
     clID: TcxGridDBBandedColumn;
     clName: TcxGridDBBandedColumn;
@@ -47,17 +51,33 @@ type
     actAdd: TAction;
     dxBarButton6: TdxBarButton;
     clChecked: TcxGridDBBandedColumn;
+    clOrd: TcxGridDBBandedColumn;
+    dxBarManagerBar1: TdxBar;
+    cxbeiSort: TcxBarEditItem;
     procedure actAddExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
+    procedure clNameHeaderClick(Sender: TObject);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
+        Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
+        Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
+        TDragObject);
+    procedure cxbeiSortPropertiesValidate(Sender: TObject;
+      var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
   private
+    FDI: TDragAndDropInfo;
+    FHRTimer: THRTimer;
     FQuerySubParameters: TQuerySubParameters2;
+    FSortMode: TSortMode;
     function GetCheckedMode: Boolean;
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetQuerySubParameters(const Value: TQuerySubParameters2);
+    procedure SetSortMode(const Value: TSortMode);
     procedure UpdateAutoTransaction;
     procedure UpdateTotalCount;
     { Private declarations }
@@ -65,12 +85,14 @@ type
     procedure LoadFromExcel(AFileName: string);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function CheckAndSaveChanges: Integer;
     procedure CommitOrPost;
     procedure UpdateView; override;
     property CheckedMode: Boolean read GetCheckedMode write SetCheckedMode;
     property QuerySubParameters: TQuerySubParameters2 read FQuerySubParameters
         write SetQuerySubParameters;
+    property SortMode: TSortMode read FSortMode write SetSortMode;
     { Public declarations }
   end;
 
@@ -92,11 +114,21 @@ begin
   PostOnEnterFields.Add(clName.DataBinding.FieldName);
   PostOnEnterFields.Add(clTranslation.DataBinding.FieldName);
 
+  GridSort.Add(TSortVariant.Create(clOrd, [clOrd]));
   GridSort.Add(TSortVariant.Create(clName, [clName]));
-  ApplySort(MainView, clName);
+  FSortMode := smAlphabet;
+  SortMode := smManual;
 
   DeleteMessages.Add(cxGridLevel, 'Удалить подпараметр?');
 //  clChecked.Visible := FCheckedMode;
+
+  FDI := TDragAndDropInfo.Create(clID, clOrd);
+end;
+
+destructor TViewSubParameters.Destroy;
+begin
+  FreeAndNil(FDI);
+  inherited;
 end;
 
 procedure TViewSubParameters.actAddExecute(Sender: TObject);
@@ -113,6 +145,9 @@ procedure TViewSubParameters.actCommitExecute(Sender: TObject);
 begin
   inherited;
   FQuerySubParameters.ApplyUpdates;
+  Assert(FQuerySubParameters.FDQuery.Connection.InTransaction);
+  FQuerySubParameters.FDQuery.Connection.Commit;
+  Assert(not FQuerySubParameters.FDQuery.Connection.InTransaction);
 
   UpdateView;
 end;
@@ -133,10 +168,10 @@ procedure TViewSubParameters.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
 begin
-  if TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
-    LoadFromExcel(AFileName);
+  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+    Exit;
 
-  UpdateView;
+  LoadFromExcel(AFileName);
 end;
 
 procedure TViewSubParameters.actRollbackExecute(Sender: TObject);
@@ -145,6 +180,11 @@ begin
   try
     // Отменяем все сделанные изменения
     FQuerySubParameters.CancelUpdates;
+    Assert(FQuerySubParameters.FDQuery.Connection.InTransaction);
+    FQuerySubParameters.FDQuery.Connection.Rollback;
+    Assert(not FQuerySubParameters.FDQuery.Connection.InTransaction);
+
+    FQuerySubParameters.SmartRefresh;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);
@@ -166,6 +206,8 @@ begin
   if QuerySubParameters = nil then
     Exit;
 
+  UpdateView;
+
   if QuerySubParameters.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
@@ -180,12 +222,77 @@ begin
   end;
 end;
 
+procedure TViewSubParameters.clNameHeaderClick(Sender: TObject);
+begin
+  inherited;
+  SortMode := smAlphabet;
+end;
+
 procedure TViewSubParameters.CommitOrPost;
 begin
+  UpdateView;
+
   if CheckedMode then // В этом случае транзакция не начата
     QuerySubParameters.TryPost
   else
     actCommit.Execute; // завершаем транзакцию
+end;
+
+procedure TViewSubParameters.cxbeiSortPropertiesValidate(Sender: TObject;
+  var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+var
+  i: Integer;
+  p: TcxComboBoxProperties;
+begin
+  inherited;
+  p := cxbeiSort.Properties as TcxComboBoxProperties;
+
+  i := p.Items.IndexOf(DisplayValue);
+
+  Assert(i >= 0);
+
+  case i of
+    0: SortMode := smManual;    // Ручная сортировка
+    1: SortMode := smAlphabet;  // Сортировка по алфавиту
+  else
+    Assert(False);
+  end;
+end;
+
+procedure TViewSubParameters.cxGridDBBandedTableViewDragDrop(Sender, Source:
+    TObject; X, Y: Integer);
+var
+  time: Double;
+begin
+  inherited;
+  // Таймер должны были запустить
+  Assert(FHRTimer <> nil);
+  time := FHRTimer.ReadTimer;
+  // Таймер больше не нужен
+  FreeAndNil(FHRTimer);
+
+  // Если это было случайное перемещение, то ничего не делаем
+  if time < DragDropTimeOut then
+    Exit;
+
+  DoDragDrop(Sender as TcxGridSite, FDI, QuerySubParameters, X, Y);
+end;
+
+procedure TViewSubParameters.cxGridDBBandedTableViewDragOver(Sender, Source:
+    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  inherited;
+  DoDragOver(Sender as TcxGridSite, X, Y, Accept);
+end;
+
+procedure TViewSubParameters.cxGridDBBandedTableViewStartDrag(Sender: TObject;
+    var DragObject: TDragObject);
+begin
+  inherited;
+  DoOnStartDrag(Sender as TcxGridSite, FDI);
+
+  // Запускаем таймер чтобы рассчитать время переноса записей
+  FHRTimer := THRTimer.Create(True);
 end;
 
 function TViewSubParameters.GetCheckedMode: Boolean;
@@ -228,6 +335,7 @@ begin
   finally
     EndUpdate;
   end;
+  MyApplyBestFitForView(MainView);
   UpdateView;
 end;
 
@@ -267,6 +375,34 @@ begin
   UpdateView;
 end;
 
+procedure TViewSubParameters.SetSortMode(const Value: TSortMode);
+var
+  i: Integer;
+  p: TcxComboBoxProperties;
+begin
+  if FSortMode = Value then
+    Exit;
+
+  FSortMode := Value;
+  p := cxbeiSort.Properties as TcxComboBoxProperties;
+  i := Integer(FSortMode);
+  Assert(i < p.Items.Count);
+  cxbeiSort.EditValue := p.Items[i];
+
+  case FSortMode of
+    smManual:
+    begin
+      ApplySort(MainView, clOrd);
+      MainView.DragMode := dmAutomatic;
+    end;
+    smAlphabet:
+    begin
+      ApplySort(MainView, clName);
+      MainView.DragMode := dmManual;
+    end;
+  end;
+end;
+
 procedure TViewSubParameters.UpdateAutoTransaction;
 begin
   QuerySubParameters.AutoTransaction := CheckedMode;
@@ -288,8 +424,7 @@ begin
   AView := FocusedTableView;
   OK := (FQuerySubParameters <> nil) and (FQuerySubParameters.FDQuery.Active);
 
-  actCommit.Enabled := OK and FQuerySubParameters.FDQuery.Connection.
-    InTransaction;
+  actCommit.Enabled := OK and FQuerySubParameters.HaveAnyChanges;
 
   actRollback.Enabled := actCommit.Enabled;
 

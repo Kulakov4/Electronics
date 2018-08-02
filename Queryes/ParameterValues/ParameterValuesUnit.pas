@@ -3,50 +3,47 @@ unit ParameterValuesUnit;
 interface
 
 uses
-  ParametricExcelDataModule, System.Generics.Collections, SearchParameterQuery;
+  ParametricExcelDataModule, System.Generics.Collections, SearchParameterQuery,
+  NotifyEvents;
 
 type
   TParameterValues = class(TObject)
   private
   class var
   public
-    class procedure LoadParameters(AExcelTable: TParametricExcelTable); static;
+    class procedure LoadParameters(AProductCategoryIDArray: TArray<Integer>;
+      AExcelTable: TParametricExcelTable); static;
     class procedure LoadParameterValues(AExcelTable: TParametricExcelTable;
-      AddParameters: Boolean); static;
+      ANotifyEventRef: TNotifyEventRef); static;
   end;
 
 implementation
 
 uses
-  System.SysUtils, ParametersForProductQuery, ParametersValueQuery,
-  ProgressInfo, System.Classes, FieldInfoUnit, System.Math, ProjectConst,
-  MaxCategoryParameterOrderQuery, IDTempTableQuery, UpdateParamValueRec,
-  SearchFamilyParamValuesQuery;
+  System.SysUtils, ParametersValueQuery, ProgressInfo, System.Classes,
+  FieldInfoUnit, System.Math, ProjectConst, MaxCategoryParameterOrderQuery,
+  IDTempTableQuery, UpdateParamValueRec, SearchFamilyParamValuesQuery,
+  CategoryParametersQuery, SearchComponentParamSubParamsQuery;
 
 // Добавляет параметры на вкладку параметры
-class procedure TParameterValues.LoadParameters(AExcelTable
-  : TParametricExcelTable);
+class procedure TParameterValues.LoadParameters(AProductCategoryIDArray
+  : TArray<Integer>; AExcelTable: TParametricExcelTable);
 var
   AFieldInfo: TFieldInfo;
   AParamSubParamID: Integer;
   AOrder: Integer;
-  ATempTable: TQueryIDTempTable;
   AParamOrders: TDictionary<Integer, Integer>;
   API: TProgressInfo;
-  AQueryParametersForProduct: TQueryParametersForProduct;
+  AProductCategoryID: Integer;
+  qCategoryParams: TQueryCategoryParams;
   i: Integer;
 begin
-  if AExcelTable.RecordCount = 0 then
-    Exit;
+  Assert(Length(AProductCategoryIDArray) > 0);
 
-  AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
+  qCategoryParams := TQueryCategoryParams.Create(nil);
   AParamOrders := TDictionary<Integer, Integer>.Create;
-  ATempTable := TQueryIDTempTable.Create(nil);
   API := TProgressInfo.Create;;
   try
-    // Сохраняем идентификаторы всех компонентов во временную таблицу
-    ATempTable.AppendData(AExcelTable.IDComponent);
-
     AOrder := TQueryMaxCategoryParameterOrder.Max_Order;
 
     API.TotalRecords := AExcelTable.FieldsInfo.Count;
@@ -64,9 +61,6 @@ begin
         AParamSubParamID) then
         continue;
 
-      // Берём либо сам параметр, либо родительский
-      // AIDP := IfThen(AIDParentParameter > 0, AIDParentParameter, AParamSubParamID);
-
       // Если такой параметр уже добавляли
       if AParamOrders.ContainsKey(AParamSubParamID) then
         AOrder := AParamOrders[AParamSubParamID]
@@ -77,41 +71,43 @@ begin
         AParamOrders.Add(AParamSubParamID, AOrder);
       end;
 
-      // Добавляем эту связь между параметром и подпараметром во все категории наших компонентов
-      AQueryParametersForProduct.LoadAndProcess(ATempTable.TableName,
-        AParamSubParamID, AOrder);
+      // Добавляем эту связь между параметром и подпараметром в очередную категорию
+      for AProductCategoryID in AProductCategoryIDArray do
+        qCategoryParams.AppendOrEdit(AProductCategoryID,
+          AParamSubParamID, AOrder);
+
     end;
   finally
-    FreeAndNil(ATempTable);
     FreeAndNil(AParamOrders);
-    FreeAndNil(AQueryParametersForProduct);
+    FreeAndNil(qCategoryParams);
+    FreeAndNil(API);
   end;
 end;
 
 class procedure TParameterValues.LoadParameterValues
-  (AExcelTable: TParametricExcelTable; AddParameters: Boolean);
+  (AExcelTable: TParametricExcelTable; ANotifyEventRef: TNotifyEventRef);
 var
   a: TArray<String>;
   AFieldInfo: TFieldInfo;
   AIDComponent: Integer;
   AParamSubParamID: Integer;
-  AQueryParametersForProduct: TQueryParametersForProduct;
+  API: TProgressInfo;
   AQueryParametersValue: TQueryParametersValue;
   AUpdParamSubParamList: TUpdParamSubParamList;
   AUpdPSP: TUpdParamSubParam;
   AValue: String;
+  i: Integer;
   Q: TQueryFamilyParamValues;
   S: string;
 begin
   if AExcelTable.RecordCount = 0 then
     Exit;
 
-  if AddParameters then
-    LoadParameters(AExcelTable);
+  // Если сначала нужно создать все необходимые параметры
+  // if AProductCategoryID > 0 then
+  // LoadParameters(AProductCategoryID, AExcelTable);
 
-  AQueryParametersForProduct := TQueryParametersForProduct.Create(nil);
   AQueryParametersValue := TQueryParametersValue.Create(nil);
-
   AUpdParamSubParamList := TUpdParamSubParamList.Create;
   try
     AExcelTable.DisableControls;
@@ -181,7 +177,10 @@ begin
 
     // Единственное значение выносим я ячейку семейства
     Q := TQueryFamilyParamValues.Create(nil);
+    API := TProgressInfo.Create;
     try
+      API.TotalRecords := AUpdParamSubParamList.Count;
+      i := 0;
       for AUpdPSP in AUpdParamSubParamList do
       begin
         // Если найдено единственное значение
@@ -191,13 +190,17 @@ begin
           AQueryParametersValue.Load(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
           AQueryParametersValue.LocateOrAppend(Q.Value.AsString);
         end;
+        Inc(i);
+        API.ProcessRecords := i;
+        if Assigned(ANotifyEventRef) then
+          ANotifyEventRef(API);
       end;
     finally
       FreeAndNil(Q);
+      FreeAndNil(API);
     end;
 
   finally
-    FreeAndNil(AQueryParametersForProduct);
     FreeAndNil(AQueryParametersValue);
     FreeAndNil(AUpdParamSubParamList);
   end;

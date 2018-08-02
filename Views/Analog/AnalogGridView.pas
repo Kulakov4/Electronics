@@ -30,7 +30,9 @@ uses
   System.Generics.Collections, StrHelper, BandsInfo, cxMemo, Vcl.StdCtrls,
   cxButtons, Vcl.ExtCtrls, dxCalloutPopup, GridFrame, GridView, System.Math,
   cxCheckBox, cxLabel, ParameterKindEnum, PopupAnalogGridView,
-  RepositoryDataModule, CategoryParametersQuery2;
+  RepositoryDataModule, CategoryParametersQuery2,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxImageList;
 
 const
   WM_AFTER_INIT_EDIT = WM_USER + 1;
@@ -69,6 +71,7 @@ type
     FColumnsInfo: TColumnsInfo;
     FcxGridDBBandedColumn: TcxGridDBBandedColumn;
     FcxMemo: TcxMemo;
+    FUseTableName: Boolean;
     procedure CreateColumn(AViewArray: TArray<TcxGridDBBandedTableView>;
       const AIDList: TArray<Integer>;
       qCategoryParameters: TQueryCategoryParameters2);
@@ -76,6 +79,7 @@ type
     procedure DeleteColumns;
     function GetqCategoryParameters: TQueryCategoryParameters2;
     procedure SetAnalogGroup(const Value: TAnalogGroup);
+    procedure SetUseTableName(const Value: Boolean);
     property qCategoryParameters: TQueryCategoryParameters2
       read GetqCategoryParameters;
     { Private declarations }
@@ -83,21 +87,25 @@ type
     procedure AfterInitEdit(var Message: TMessage); message WM_AFTER_INIT_EDIT;
     procedure CreateColumnsForBand(AIDCategoryParam: Integer);
     procedure DoAfterInitMemo;
+    function GetBandCaption(qryCategoryParameters : TQueryCategoryParameters2):
+        string;
     function IsMemoEditorHide: Boolean;
     procedure InitColumns; override;
+    procedure UpdateBandsCaptions;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure UpdateMinBandWindth(ABandInfo: TBandInfoEx);
     property AnalogGroup: TAnalogGroup read FAnalogGroup write SetAnalogGroup;
+    property UseTableName: Boolean read FUseTableName write SetUseTableName;
     { Public declarations }
   end;
 
 implementation
 
 uses
-  AutoSizeGridViewForm, System.Types,
-  CategoryParametersGroupUnit, FireDAC.Comp.Client, TextRectHelper,
-  System.StrUtils;
+  AutoSizeGridViewForm, System.Types, FireDAC.Comp.Client, TextRectHelper,
+  System.StrUtils, CategoryParametersGroupUnit2;
 
 {$R *.dfm}
 
@@ -315,7 +323,7 @@ begin
       ABand.Visible := ABandInfo.DefaultVisible;
       ABand.Options.HoldOwnColumnsOnly := True;
       ABand.VisibleForCustomization := True;
-      ABand.Caption := DeleteDouble(qCategoryParameters.Value.AsString, ' ');
+      ABand.Caption := GetBandCaption(qCategoryParameters);
       ABand.AlternateCaption :=
         DeleteDouble(qCategoryParameters.ValueT.AsString, ' ');
       if ABandInfo.DefaultCreated then
@@ -538,6 +546,20 @@ begin
     EditorTimer.Enabled := False;
 end;
 
+function TViewAnalogGrid.GetBandCaption(qryCategoryParameters :
+    TQueryCategoryParameters2): string;
+begin
+  Assert(qryCategoryParameters <> nil);
+  Assert(qryCategoryParameters.FDQuery.RecordCount > 0);
+
+  if UseTableName then
+    Result := qCategoryParameters.TableName.AsString
+  else
+    Result := qCategoryParameters.Value.AsString;
+
+  Result := DeleteDouble(Result, ' ');
+end;
+
 function TViewAnalogGrid.GetqCategoryParameters: TQueryCategoryParameters2;
 begin
   Result := AnalogGroup.CatParamsGroup.qCategoryParameters;
@@ -603,6 +625,55 @@ begin
 
   DataSet := FAnalogGroup.FDMemTable;
 
+end;
+
+procedure TViewAnalogGrid.SetUseTableName(const Value: Boolean);
+begin
+  FUseTableName := Value;
+  UpdateBandsCaptions;
+end;
+
+procedure TViewAnalogGrid.UpdateBandsCaptions;
+var
+  ABI: TBandInfo;
+  ACaption: string;
+  AID: Integer;
+begin
+  for ABI in FBandsInfo do
+  begin
+    if not ABI.Band.Visible then
+      continue;
+
+    // Ищем данные о заголовке бэнда
+    Assert(ABI.IDList.Count > 0);
+    // Берём первый подпараметр
+    AID := ABI.IDList[0];
+    qCategoryParameters.LocateByPK(AID, True);
+
+    // Меняем заголовок бэнда
+    ACaption := GetBandCaption(qCategoryParameters);
+    if ACaption = ABI.Band.Caption then
+      Continue;
+
+    ABI.Band.Caption := ACaption;
+    // Ширина бэнда
+    UpdateMinBandWindth(ABI as TBandInfoEx);
+  end;
+end;
+
+procedure TViewAnalogGrid.UpdateMinBandWindth(ABandInfo: TBandInfoEx);
+var
+  ABand: TcxGridBand;
+  R: TRect;
+begin
+  // Ширина бэнда
+
+  ABand := ABandInfo.Band;
+
+  R := TTextRect.Calc(ABand.GridView.ViewInfo.Canvas.Canvas, ABand.Caption);
+
+  for ABand in ABandInfo.Bands do
+    ABand.Width := R.Width + 10;
 end;
 
 end.

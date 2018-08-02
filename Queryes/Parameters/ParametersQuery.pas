@@ -39,7 +39,8 @@ type
     procedure SetTableNameFilter(const Value: string);
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -91,7 +92,8 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryParameters.ApplyDelete(ASender: TDataSet);
+procedure TQueryParameters.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 var
   AID: TField;
   AIsCustomParameter: TField;

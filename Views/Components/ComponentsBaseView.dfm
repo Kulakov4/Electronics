@@ -1,7 +1,6 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-      OptionsCustomize.ColumnSorting = False
       OptionsCustomize.ColumnVertSizing = False
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
       Bands = <
@@ -251,11 +250,7 @@ inherited ViewComponentsBase: TViewComponentsBase
     end
   end
   inherited dxBarManager: TdxBarManager
-    DockControlHeights = (
-      0
-      0
-      28
-      0)
+    PixelsPerInch = 96
   end
   inherited ActionList: TActionList
     object actSettings: TAction
@@ -354,6 +349,7 @@ inherited ViewComponentsBase: TViewComponentsBase
       end>
   end
   inherited cxerComponents: TcxEditRepository
+    PixelsPerInch = 96
     object cxerlSubGroup: TcxEditRepositoryLabel
     end
     object cxerpiSubGroup: TcxEditRepositoryPopupItem

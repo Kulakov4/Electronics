@@ -11,7 +11,7 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ParametersGroupUnit,
+  cxGridDBBandedTableView, cxGrid, ParametersGroupUnit2,
   cxDBLookupComboBox, cxBlobEdit, FireDAC.Comp.Client, cxTextEdit,
   HRTimer, DragHelper, ParametersExcelDataModule, dxSkinsCore,
   dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
@@ -29,7 +29,8 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxBarEditItem,
-  cxCheckBox;
+  cxCheckBox, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 12;
@@ -149,11 +150,11 @@ type
     FExpandedRecordIndex: Integer;
     FHRTimer: THRTimer;
     FNewValue: string;
-    FParametersGrp: TParametersGroup;
+    FParametersGrp: TParametersGroup2;
     FParametersDI: TDragAndDropInfo;
     procedure LoadDataFromExcelTable(AData: TParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
-    procedure SetParametersGrp(const Value: TParametersGroup);
+    procedure SetParametersGrp(const Value: TParametersGroup2);
     procedure UpdateAutoTransaction;
     procedure UpdateTotalCount;
     { Private declarations }
@@ -165,7 +166,7 @@ type
       ASource: TcxGridDBBandedTableView); override;
     procedure DoAfterEditValueChanged(var Message: TMessage);
       message WM_AFTER_EDIT_VALUE_CHANGED;
-    procedure DoOnDataChange(Sender: TObject);
+    procedure DoOnHaveAnyChanges(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(AFileName: string);
     procedure LocateAndFocus(AParameterID: Integer);
@@ -178,8 +179,8 @@ type
     procedure Search(const AName: string);
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
-    property ParametersGrp: TParametersGroup read FParametersGrp
-      write SetParametersGrp;
+    property ParametersGrp: TParametersGroup2 read FParametersGrp write
+        SetParametersGrp;
     { Public declarations }
   end;
 
@@ -222,6 +223,7 @@ end;
 
 destructor TViewParameters.Destroy;
 begin
+  FreeAndNil(FParametersDI);
   FreeAndNil(FParameterTypesDI);
   inherited;
 end;
@@ -288,22 +290,7 @@ end;
 
 procedure TViewParameters.actCommitExecute(Sender: TObject);
 begin
-  // Мы просто завершаем транзакцию
-  // cxGrid.BeginUpdate();
-  // try
-  // СОхраняем все сделанные изменения
   FParametersGrp.Commit;
-
-  // FParametersGrp.Connection.StartTransaction;
-
-  // Переносим фокус на первую выделенную запись
-  // FocusSelectedRecord();
-  // finally
-  // cxGrid.EndUpdate;
-  // end;
-
-  // Помещаем фокус в центр грида
-  // PutInTheCenterFocusedRecord();
 
   // Обновляем представление
   UpdateView;
@@ -460,6 +447,7 @@ end;
 
 function TViewParameters.CheckAndSaveChanges: Integer;
 begin
+  UpdateView;
   Result := 0;
   if ParametersGrp = nil then
     Exit;
@@ -525,6 +513,9 @@ end;
 
 procedure TViewParameters.CommitOrPost;
 begin
+  // actCommit может быть Disabled!!!
+  UpdateView;
+
   if CheckedMode then // В этом случае транзакция не начата
     ParametersGrp.TryPost
   else
@@ -577,6 +568,7 @@ end;
 procedure TViewParameters.cxbeiSearchPropertiesEditValueChanged
   (Sender: TObject);
 begin
+  UpdateView;
   actSearch.Execute;
 end;
 
@@ -773,7 +765,7 @@ begin
   TQueryBase(Message.WParam).TryPost;
 end;
 
-procedure TViewParameters.DoOnDataChange(Sender: TObject);
+procedure TViewParameters.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
 end;
@@ -969,7 +961,7 @@ begin
   end;
 end;
 
-procedure TViewParameters.SetParametersGrp(const Value: TParametersGroup);
+procedure TViewParameters.SetParametersGrp(const Value: TParametersGroup2);
 begin
   if FParametersGrp = Value then
     Exit;
@@ -998,8 +990,16 @@ begin
       FParametersGrp.qSubParameters.DataSource, lsEditFixedList,
       FParametersGrp.qSubParameters.Name.FieldName);
 
-    TNotifyEventWrap.Create(FParametersGrp.AfterDataChange, DoOnDataChange,
-      FEventList);
+    // Пусть монитор сообщает нам обо всех изменениях в БД
+    TNotifyEventWrap.Create
+      (FParametersGrp.qParameterTypes.Monitor.OnHaveAnyChanges,
+      DoOnHaveAnyChanges, FEventList);
+
+    TNotifyEventWrap.Create(FParametersGrp.qParameterTypes.AfterOpen,
+      DoOnHaveAnyChanges, FEventList);
+
+    TNotifyEventWrap.Create(FParametersGrp.qParameters.AfterOpen,
+      DoOnHaveAnyChanges, FEventList);
 
     UpdateAutoTransaction;
   end;
@@ -1055,7 +1055,7 @@ begin
   actExportToExcelDocument.Enabled := OK and
     (FParametersGrp.qParameters.FDQuery.RecordCount > 0);
 
-  actCommit.Enabled := OK and FParametersGrp.Connection.InTransaction;
+  actCommit.Enabled := OK and FParametersGrp.HaveAnyChanges;
 
   actRollback.Enabled := actCommit.Enabled;
 
