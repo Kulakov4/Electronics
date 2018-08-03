@@ -71,13 +71,26 @@ end;
 
 procedure TfrmParameters.ApplyUpdates;
 begin
-  ViewParameters.CommitOrPost;
+  if cxPageControl.ActivePage = cxtsParameters then
+    ViewParameters.CommitOrPost;
+
+  if cxPageControl.ActivePage = cxtsSubParameters then
+    ViewSubParameters.CommitOrPost;
 end;
 
 procedure TfrmParameters.CancelUpdates;
 begin
-  ViewParameters.UpdateView;
-  ViewParameters.actRollback.Execute;
+  if cxPageControl.ActivePage = cxtsParameters then
+  begin
+    ViewParameters.UpdateView;
+    ViewParameters.actRollback.Execute;
+  end;
+
+  if cxPageControl.ActivePage = cxtsSubParameters then
+  begin
+    ViewSubParameters.UpdateView;
+    ViewSubParameters.actRollback.Execute;
+  end;
 end;
 
 procedure TfrmParameters.ClearFormVariable;

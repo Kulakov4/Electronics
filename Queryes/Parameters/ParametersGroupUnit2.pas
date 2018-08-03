@@ -21,6 +21,7 @@ type
     procedure SetProductCategoryIDValue(const Value: Integer);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(AParametersExcelTable: TParametersExcelTable);
     function LocateAll(AParameterID: Integer): Boolean;
@@ -57,6 +58,15 @@ begin
 
   // ƒл€ каскадного удалени€
   TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete, EventList);
+end;
+
+procedure TParametersGroup2.Commit;
+begin
+  // ѕохоже мы в режиме отображени€ галочек дл€ какой-то категории
+  if ProductCategoryIDValue > 0 then
+    TryPost
+  else
+    inherited;
 end;
 
 procedure TParametersGroup2.DoBeforeDelete(Sender: TObject);

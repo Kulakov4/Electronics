@@ -1,8 +1,6 @@
 inherited frmParameters: TfrmParameters
   Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
   OnCreate = FormCreate
-  ExplicitWidth = 806
-  ExplicitHeight = 517
   PixelsPerInch = 96
   TextHeight = 16
   inherited Panel1: TPanel

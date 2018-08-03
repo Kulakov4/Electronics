@@ -54,6 +54,7 @@ type
     FAfterCommit: TNotifyEventsEx;
     FAfterCancel: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
+    FAfterPostI: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
@@ -109,6 +110,7 @@ type
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancel: TNotifyEventsEx read FAfterCancel;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
+    property AfterPostI: TNotifyEventsEx read FAfterPostI;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property OldPKValue: Variant read FOldPKValue;
@@ -179,6 +181,7 @@ begin
 
   FBeforePost := TNotifyEventsEx.Create(Self);
   FAfterPost := TNotifyEventsEx.Create(Self);
+  FAfterPostI := TNotifyEventsEx.Create(Self);
 
   FBeforeEdit := TNotifyEventsEx.Create(Self);
   FAfterEdit := TNotifyEventsEx.Create(Self);
@@ -240,6 +243,7 @@ begin
 
   FreeAndNil(FBeforePost);
   FreeAndNil(FAfterPost);
+  FreeAndNil(FAfterPostI);
 
   FreeAndNil(FBeforeEdit);
   FreeAndNil(FAfterEdit);
@@ -424,8 +428,8 @@ begin
   if FDQuery.Connection.InTransaction then
     FHaveAnyNotCommitedChanges := True;
 
-  // Если используем сообщение
-  if UseAfterPostMessage then
+  // Если используем сообщение и есть подписчики
+  if (FAfterPost.Count > 0) and UseAfterPostMessage then
   begin
     // Если предыдущее сообщение было получено
     if FResiveAfterPostMessage then
@@ -438,6 +442,8 @@ begin
   else
     FAfterPost.CallEventHandlers(Self);
 
+  // Извещаем тех, кто кочет получить сообщение немедленно
+  FAfterPostI.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterScroll(DataSet: TDataSet);
@@ -640,7 +646,7 @@ begin
   TNotifyEventWrap.Create(AQuery.AfterInsert, DoAfterEditOrInsert, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancel, DoAfterCancelOrPost, FEventList);
-  TNotifyEventWrap.Create(AQuery.AfterPost, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.AfterPostI, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
     FEventList);
 end;
@@ -775,6 +781,7 @@ var
 begin
   Assert(AQuery <> nil);
 
+  // Мы не должны разрушать запрос, который имеет несохранённые данные
   i := FChangedQueries.IndexOf(AQuery);
   Assert(i = -1);
 
