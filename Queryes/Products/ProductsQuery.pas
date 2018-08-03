@@ -83,68 +83,78 @@ begin
     AExcelTable.CallOnProcessEvent;
     while not AExcelTable.Eof do
     begin
-      // 1) Ищем такую группу компонентов на текущем складе
-      V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
-      if VarIsNull(V) then
-      begin
+      // Чтобы при изменении любого поля не происходил пересчёт автовычисляемых полей
+      DisableCalc;
+      try
+        // 1) Ищем такую группу компонентов на текущем складе
+        V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
+        if VarIsNull(V) then
+        begin
+          FDQuery.Append;
+          IsGroup.AsInteger := 1; // Будем добавлять группу
+          Value.AsString := AExcelTable.ComponentGroup.AsString;
+          FDQuery.Post;
+          AIDComponentGroup := PK.Value;
+        end
+        else
+          AIDComponentGroup := V;
+
+        // 2) Ищем или добавляем такого производителя в справочнике производителей
+        ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
+
+        // Добавляем товар на склад
         FDQuery.Append;
-        IsGroup.AsInteger := 1; // Будем добавлять группу
-        Value.AsString := AExcelTable.ComponentGroup.AsString;
-        FDQuery.Post;
-        AIDComponentGroup := PK.Value;
-      end
-      else
-        AIDComponentGroup := V;
 
-      // 2) Ищем или добавляем такого производителя в справочнике производителей
-      ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
+        // Заполняем все поля записи о товаре на складе значаниями из Excel таблицы
+        for AExcelField in AExcelTable.Fields do
+        begin
+          AField := FDQuery.FindField(AExcelField.FieldName);
+          if AField <> nil then
+            AField.Value := AExcelField.Value;
+        end;
 
-      // Добавляем товар на склад
-      FDQuery.Append;
-      // Заполняем все поля записи о товаре на складе значаниями из Excel таблицы
-      for AExcelField in AExcelTable.Fields do
-      begin
-        AField := FDQuery.FindField(AExcelField.FieldName);
-        if AField <> nil then
-          AField.Value := AExcelField.Value;
+        // Дополнительно заполняем
+        IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
+        IDComponentGroup.AsInteger := AIDComponentGroup;
+        IsGroup.AsInteger := 0;
+
+        // Если цена задана в рублях
+        if not AExcelTable.PriceR.IsNull then
+        begin
+          // Тип валюты - рубли
+          IDCurrency.AsInteger := 1;
+          Price.Value := AExcelTable.PriceR.Value;
+        end;
+
+        // Если цена задана в долларах
+        if not AExcelTable.PriceD.IsNull then
+        begin
+          // Тип валюты - доллар
+          IDCurrency.AsInteger := 2;
+          Price.Value := AExcelTable.PriceD.Value;
+        end;
+
+        // Если цена задана в евро
+        if not AExcelTable.PriceE.IsNull then
+        begin
+          // Тип валюты - евро
+          IDCurrency.AsInteger := 3;
+          Price.Value := AExcelTable.PriceE.Value;
+        end;
+
+        // Дата загрузки должна заполняться при загрузке
+        Assert(not LoadDate.IsNull);
+
+        // Курс Доллара должен заполняться при загрузке
+        Assert(not Dollar.IsNull);
+
+        // Курс Евро должен заполняться при загрузке
+        Assert(not Euro.IsNull);
+
+      finally
+        // Разрешаем обновиться автовычисляемым полям
+        EnableCalc;
       end;
-      // Дополнительно заполняем
-      IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
-      IDComponentGroup.AsInteger := AIDComponentGroup;
-      IsGroup.AsInteger := 0;
-
-      // Если цена задана в рублях
-      if not AExcelTable.PriceR.IsNull then
-      begin
-        // Тип валюты - рубли
-        IDCurrency.AsInteger := 1;
-        Price.Value := AExcelTable.PriceR.Value;
-      end;
-
-      // Если цена задана в долларах
-      if not AExcelTable.PriceD.IsNull then
-      begin
-        // Тип валюты - доллар
-        IDCurrency.AsInteger := 2;
-        Price.Value := AExcelTable.PriceD.Value;
-      end;
-
-      // Если цена задана в евро
-      if not AExcelTable.PriceE.IsNull then
-      begin
-        // Тип валюты - евро
-        IDCurrency.AsInteger := 3;
-        Price.Value := AExcelTable.PriceE.Value;
-      end;
-
-      // Дата загрузки должна заполняться при загрузке
-      Assert(not LoadDate.IsNull);
-
-      // Курс Доллара должен заполняться при загрузке
-      Assert(not Dollar.IsNull);
-
-      // Курс Евро должен заполняться при загрузке
-      Assert(not Euro.IsNull);
 
       FDQuery.Post;
 
@@ -246,7 +256,7 @@ begin
   // Если завершилось удаление записи о продукте и общее кол-во известно и не нуждается в обновлении
   if FNeedDecTotalCount and (not FNeedUpdateCount) then
   begin
-    FNeedDecTotalCount := False;
+    FNeedDecTotalCount := false;
     Assert(FTotalCount > 0);
     Dec(FTotalCount);
   end;
@@ -261,7 +271,7 @@ end;
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   FNeedUpdateCount := True;
-  FNeedDecTotalCount := False;
+  FNeedDecTotalCount := false;
   // FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
   // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
 end;
@@ -317,7 +327,7 @@ begin
     qStoreHouseProductsCount.FDQuery.Close;
     qStoreHouseProductsCount.FDQuery.Open;
     FTotalCount := qStoreHouseProductsCount.Count;
-    FNeedUpdateCount := False;
+    FNeedUpdateCount := false;
   end;
   Result := FTotalCount;
 end;

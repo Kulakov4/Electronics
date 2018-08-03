@@ -495,7 +495,14 @@ begin
     if VarIsStr(V) then
       S := QuotedStr(V)
     else
+    begin
       S := V;
+
+      // Если у нас вещественное число,
+      // надо в SQL запросе в качестве разделителя использовать точку
+      if VarIsType(V, [varDouble, varCurrency]) then
+        S := S.Replace(',', '.');
+    end;
     S := S + ' ' + AFieldNames[i];
 
     if i > Low(AFieldNames) then
@@ -532,7 +539,15 @@ begin
     if VarIsStr(V) then
       S := QuotedStr(V)
     else
+    begin
       S := V;
+
+      // Если у нас вещественное число,
+      // надо в SQL запросе в качестве разделителя использовать точку
+      if VarIsType(V, [varDouble, varCurrency]) then
+        S := S.Replace(',', '.');
+
+    end;
     S := S + ' ' + ARecordHolder[i].FieldName;
 
     if i > 0 then

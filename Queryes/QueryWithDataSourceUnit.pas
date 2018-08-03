@@ -72,6 +72,7 @@ var
   i: Integer;
   S: string;
 begin
+  // Убираем начальные и конечные пробелы в строковых полях
   for i := 0 to FDQuery.FieldCount - 1 do
   begin
     if (FDQuery.Fields[i] is TStringField) and

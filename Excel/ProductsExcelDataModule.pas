@@ -235,6 +235,10 @@ begin
     begin
       try
         ALoadDate := TDate(LoadDate.AsInteger);
+        TryEdit;
+        // Переводим дату в строку
+        LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
+        TryPost;
       except
         Result := False;
       end;

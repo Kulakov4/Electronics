@@ -31,6 +31,7 @@ type
   TQueryProductsBase = class(TQueryWithDataSource)
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
+    FCalcStatus: Integer;
     FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
     FProducersGroup: TProducersGroup2;
@@ -101,7 +102,6 @@ type
     // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
-    FEnableCalc: Boolean;
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -109,7 +109,9 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CheckRecord: String;
+    procedure DisableCalc;
     procedure DoBeforePost(Sender: TObject); virtual;
+    procedure EnableCalc;
     function GetExportFileName: string; virtual; abstract;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
@@ -230,7 +232,7 @@ begin
   // По умолчанию мы не в режиме автоматических транзакций
   AutoTransaction := False;
 
-  FEnableCalc := True;
+  FCalcStatus := 0;
 
   FNotGroupClone := AddClone('IsGroup=0');
 
@@ -580,6 +582,11 @@ begin
   end;
 end;
 
+procedure TQueryProductsBase.DisableCalc;
+begin
+  Inc(FCalcStatus);
+end;
+
 procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsRequired(False);
@@ -611,7 +618,7 @@ begin;
   // Процент оптовой наценки
   FDQuery.FieldDefs.Add('wholesale', ftFloat);
   // Процент РОЗНИЧНОЙ наценки
-//  FDQuery.FieldDefs.Add('Retail', ftInteger);
+  //  FDQuery.FieldDefs.Add('Retail', ftInteger);
 
   // Закупочная цена
   FDQuery.FieldDefs.Add('PriceR', ftFloat);
@@ -738,7 +745,7 @@ begin
     Exit;
    
   // Отключаем пока рассчёт вычисляемых полей
-  FEnableCalc := False;
+  DisableCalc;
   try
     // Если заполнена закупочная цена в рублях
     if not PriceR.IsNull then
@@ -762,17 +769,24 @@ begin
     end;
 
   finally
-    FEnableCalc := True;
+    // Если разблокировка полная, то вызовется автообновление вычисляемых полей
+    EnableCalc;
   end;
-  // Сами вызываем обновление вычисляемы полей
-  FDQueryCalcFields(FDQuery);
+end;
+
+procedure TQueryProductsBase.EnableCalc;
+begin
+  Assert(FCalcStatus > 0);
+  Dec(FCalcStatus);
+  if FCalcStatus = 0 then
+    FDQueryCalcFields(FDQuery);
 end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
 begin
   inherited;
 
-  if (not FEnableCalc) or (IDCurrency.AsInteger = 0) or (Price.IsNull) then
+  if (FCalcStatus > 0) or (IDCurrency.AsInteger = 0) or (Price.IsNull) then
     Exit;
 
   if IDCurrency.AsInteger = 1 then
