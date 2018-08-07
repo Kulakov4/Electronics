@@ -12,6 +12,7 @@ uses
 type
   TCategoryFDMemTable = class(TFDMemTable)
   private
+    FInUpdate: Boolean;
     function GetID: TField;
     function GetIsAttribute: TField;
     function GetOrd: TField;
@@ -30,6 +31,7 @@ type
     procedure UpdateFrom(ASource: TCategoryFDMemTable);
     procedure UpdatePK(APKDictionary: TDictionary<Integer, Integer>);
     property ID: TField read GetID;
+    property InUpdate: Boolean read FInUpdate;
     property IsAttribute: TField read GetIsAttribute;
     property Ord: TField read GetOrd;
     property PosID: TField read GetPosID;
@@ -95,6 +97,7 @@ type
     FFDQCategoryParameters: TQryCategoryParameters;
     FFDQCategorySubParameters: TQryCategorySubParameters;
     FIDDic: TDictionary<Integer, Integer>;
+    FOnIsAttributeChange: TNotifyEventsEx;
     FqCategoryParameters: TQueryCategoryParameters2;
     FqCatParams: TQryCategoryParameters;
     FqCatSubParams: TQryCategorySubParameters;
@@ -114,6 +117,7 @@ type
         AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
         AParameterType, AName, ATranslation: String; AIsDefault: Integer);
     procedure AppendSubParameter(AID, ASubParamID: Integer);
+    procedure DoOnIsAttributeChange(Sender: TField);
     function GetHaveAnyChanges: Boolean; override;
     function GetVirtualID(AID: Integer; AUseDic: Boolean): Integer;
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
@@ -144,6 +148,7 @@ type
     property AfterUpdateData: TNotifyEventsEx read FAfterUpdateData;
     property BeforeUpdateData: TNotifyEventsEx read FBeforeUpdateData;
     property IsAllQuerysActive: Boolean read GetIsAllQuerysActive;
+    property OnIsAttributeChange: TNotifyEventsEx read FOnIsAttributeChange;
     property qCategoryParameters: TQueryCategoryParameters2 read
         FqCategoryParameters;
     property qCatParams: TQryCategoryParameters read FqCatParams;
@@ -164,12 +169,15 @@ begin
   FFDQCategorySubParameters := TQryCategorySubParameters.Create(Self);
 
   FqCatParams := TQryCategoryParameters.Create(Self);
+  FqCatParams.IsAttribute.OnChange := DoOnIsAttributeChange;
   FqCatSubParams := TQryCategorySubParameters.Create(Self);
 
   TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad, EventList);
 
   FBeforeUpdateData := TNotifyEventsEx.Create(Self);
   FAfterUpdateData := TNotifyEventsEx.Create(Self);
+  FOnIsAttributeChange := TNotifyEventsEx.Create(Self);
+
   FIDDic := TDictionary<Integer, Integer>.Create;
 end;
 
@@ -178,6 +186,7 @@ begin
   FreeAndNil(FIDDic);
   FreeAndNil(FBeforeUpdateData);
   FreeAndNil(FAfterUpdateData);
+  FreeAndNil(FOnIsAttributeChange);
   inherited;
 end;
 
@@ -214,7 +223,7 @@ begin
   end;
 
   m := AParamIDList.Trim([',']).Split([',']);
-  // Цикл по отмеченным в справочнике подпараметрам
+  // Цикл по отмеченным в справочнике параметрам
   for AIDParam in m do
   begin
     // Если галочку поставили
@@ -520,6 +529,18 @@ begin
   FVID := 0;
   FIDDic.Clear;
   LoadData;
+end;
+
+procedure TCategoryParametersGroup2.DoOnIsAttributeChange(Sender: TField);
+begin
+  if qCatParams.InUpdate then Exit;
+
+  // Выполняем изменения в плоском наборе данных
+  qCategoryParameters.SetIsAttribute(qCatParams.ID.AsInteger, qCatParams.IsAttribute.AsInteger);
+
+  LoadData;
+
+  FOnIsAttributeChange.CallEventHandlers(Self);
 end;
 
 function TCategoryParametersGroup2.GetHaveAnyChanges: Boolean;
@@ -983,6 +1004,7 @@ begin
 
   DisableControls;
   try
+    FInUpdate := True;  // Ставим флаг сигнализирующий о том, что мы обновляемся
     AID := ID.AsInteger;
     ASource.First;
     while not ASource.Eof do
@@ -1008,6 +1030,7 @@ begin
     if AID <> 0 then
       LocateByPK(AID);
   finally
+    FInUpdate := False;
     EnableControls;
   end;
 end;

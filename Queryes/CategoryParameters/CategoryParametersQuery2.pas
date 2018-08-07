@@ -88,6 +88,7 @@ type
     function NextEx: Boolean;
     function NextOrder: Integer;
     function SearchAnalog(AProductCategoryID: Integer): Integer;
+    procedure SetIsAttribute(AID, AIsAttribute: Integer);
     procedure SetPos(APosID: Integer); overload;
     procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
     property CategoryID: TField read GetCategoryID;
@@ -205,7 +206,6 @@ begin
   // ”дал€ем данные удалЄнного параметра
   TqUpdateParameterValuesParamSubParam.DoDelete(ParamSubParamId.AsInteger,
     ProductCategoryID.AsInteger);
-
 end;
 
 procedure TQueryCategoryParameters2.ApplyInsert(ASender: TDataSet;
@@ -698,6 +698,29 @@ begin
 
   // »щем
   Result := Search(['ProductCategoryID'], [AProductCategoryID]);
+end;
+
+procedure TQueryCategoryParameters2.SetIsAttribute(AID, AIsAttribute: Integer);
+var
+  AClone: TFDMemTable;
+begin
+  Assert(AID > 0);
+  Assert(AIsAttribute in [0, 1]);
+
+  LocateByPK(AID, True);
+  AClone := CreateSubParamsClone;
+  try
+    while not AClone.Eof do
+    begin
+      AClone.Edit;
+      AClone.FieldByName(IsAttribute.FieldName).AsInteger := AIsAttribute;
+      AClone.Post;
+
+      AClone.Next;
+    end;
+  finally
+    DropClone(AClone);
+  end;
 end;
 
 procedure TQueryCategoryParameters2.SetPos(APosID: Integer);

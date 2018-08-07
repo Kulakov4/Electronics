@@ -83,8 +83,8 @@ begin
   // отменяем все сделанные изменения на стороне клиента
   for I := QList.Count - 1 downto 0 do
   begin
-    if QList[I].FDQuery.CachedUpdates then
-      QList[I].CancelUpdates;
+    // Просим набор данных отменить все свои изменения
+    QList[I].CancelUpdates;
   end;
 end;
 

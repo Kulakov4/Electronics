@@ -142,6 +142,7 @@ type
     destructor Destroy; override;
     procedure Add(AQuery: TQueryBaseEvents);
     procedure ApplyUpdates;
+    procedure CancelUpdates;
     procedure Remove(AQuery: TQueryBaseEvents);
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property IsEmpty: Boolean read GetIsEmpty;
@@ -757,6 +758,43 @@ begin
     Queries[0].FDQuery.Connection.Commit;
 end;
 
+procedure TQueryMonitor.CancelUpdates;
+var
+  ACount: Integer;
+  AQueryGroup: TQueryGroup;
+  k: Integer;
+  Q: TQueryBaseEvents;
+begin
+  if not HaveAnyChanges then
+    Exit;
+
+  ACount := FChangedQueries.Count;
+  k := 0;
+
+  while (FChangedQueries.Count > 0) and (k < ACount) do
+  begin
+    Q := FChangedQueries[0];
+    if (Q.Owner <> nil) and (Q.Owner is TQueryGroup) then
+    begin
+      AQueryGroup := Q.Owner as TQueryGroup;
+      // Просим группу Отменить свои изменения
+      AQueryGroup.CancelUpdates;
+      Inc(k);
+    end
+    else
+    begin
+      // Если запрос сам по себе
+      Q.CancelUpdates;
+    end;
+
+    Continue;
+  end;
+
+  // Если есть незавершённая транзакция
+  if Queries[0].FDQuery.Connection.InTransaction then
+    Queries[0].FDQuery.Connection.Rollback; // Отменяем транзакцию
+end;
+
 procedure TQueryMonitor.DoChangedListNotify(Sender: TObject;
   const Item: TQueryBaseEvents; Action: TCollectionNotification);
 var
@@ -783,6 +821,11 @@ begin
 
   // Мы не должны разрушать запрос, который имеет несохранённые данные
   i := FChangedQueries.IndexOf(AQuery);
+
+  if i >= 0 then
+    beep;
+
+
   Assert(i = -1);
 
   i := FQueries.IndexOf(AQuery);

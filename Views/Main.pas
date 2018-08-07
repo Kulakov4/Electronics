@@ -317,7 +317,8 @@ begin
   begin
     TDM.Create.DescriptionsGroup.ReOpen;
     frmDescriptions := TfrmDescriptions.Create(Self);
-    frmDescriptions.ViewDescriptions.DescriptionsGroup := TDM.Create.DescriptionsGroup;
+    frmDescriptions.ViewDescriptions.DescriptionsGroup :=
+      TDM.Create.DescriptionsGroup;
   end;
 
   frmDescriptions.Show;
@@ -454,6 +455,8 @@ begin
     case TDialog.Create.SaveDataDialog of
       IDYES:
         QueryMonitor.ApplyUpdates;
+      IDNo:
+        QueryMonitor.CancelUpdates;
       IDCancel:
         Action := caNone;
     end;
@@ -813,8 +816,10 @@ var
   ASubGroup: string;
   I: Integer;
 begin
-  Assert(TDM.Create.ComponentsSearchGroup.qFamilySearch.FDQuery.RecordCount > 0);
-  AFamilyCaption := TDM.Create.ComponentsSearchGroup.qFamilySearch.Value.AsString;
+  Assert(TDM.Create.ComponentsSearchGroup.qFamilySearch.FDQuery.
+    RecordCount > 0);
+  AFamilyCaption := TDM.Create.ComponentsSearchGroup.qFamilySearch.
+    Value.AsString;
   ASubGroup := TDM.Create.ComponentsSearchGroup.qFamilySearch.subGroup.AsString;
   Assert(not ASubGroup.IsEmpty);
   // ѕолучаем первую - главную категорию семейства

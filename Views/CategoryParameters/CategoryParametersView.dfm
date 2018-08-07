@@ -6,12 +6,11 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     Width = 1037
     Height = 416
     ExplicitTop = 56
-    ExplicitWidth = 624
+    ExplicitWidth = 1037
     ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       OnFocusedRecordChanged = cxGridDBBandedTableViewFocusedRecordChanged
-      DataController.DataModeController.SyncMode = False
       DataController.DataSource = dsParameters
       DataController.KeyFieldNames = 'VID'
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
@@ -23,7 +22,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Styles.OnGetHeaderStyle = nil
       object clVID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'VID'
-        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -32,7 +30,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
-        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False
@@ -171,7 +168,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         end>
       object clID2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
-        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -179,7 +175,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
       object clIDParent: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDParent'
-        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
@@ -203,6 +198,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         Caption = #1040#1082#1090#1080#1074#1085#1099#1081
         DataBinding.FieldName = 'IsAttribute'
         PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.ReadOnly = True
         Properties.ValueChecked = '1'
         Properties.ValueUnchecked = '0'
         MinWidth = 50
@@ -330,6 +326,10 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         item
           Visible = True
           ItemName = 'dxBarButton18'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton19'
         end>
       OneOnRow = True
       Row = 1
@@ -449,6 +449,13 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Hint = 'New Button'
       Visible = ivAlways
       OnClick = dxBarButton18Click
+    end
+    object dxBarButton19: TdxBarButton
+      Caption = 'New Button'
+      Category = 0
+      Hint = 'New Button'
+      Visible = ivAlways
+      OnClick = dxBarButton19Click
     end
   end
   inherited ActionList: TActionList
