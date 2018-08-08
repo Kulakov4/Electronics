@@ -199,6 +199,7 @@ type
     procedure InvertSortOrder(AColumn: TcxGridDBBandedColumn);
     function MyApplyBestFitForBand(ABand: TcxGridBand): Integer;
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); virtual;
+    procedure Place(AParent: TWinControl);
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
     procedure RefreshData;
@@ -1491,6 +1492,13 @@ end;
 
 procedure TfrmGrid.OnGridViewNoneHitTest(var AllowPopup: Boolean);
 begin
+end;
+
+procedure TfrmGrid.Place(AParent: TWinControl);
+begin
+  Assert(AParent <> nil);
+  Parent := AParent;
+  Align := alClient;
 end;
 
 procedure TfrmGrid.PostMyApplyBestFitEventForView

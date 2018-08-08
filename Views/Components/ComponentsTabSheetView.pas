@@ -67,16 +67,11 @@ type
     dxBarButton5: TdxBarButton;
     actAutoBindingDescriptions: TAction;
     dxBarButton6: TdxBarButton;
-    ViewComponents: TViewComponents;
-    ViewComponentsSearch: TViewComponentsSearch;
     actLoadParametricData: TAction;
     dxBarSubItem5: TdxBarSubItem;
     dxBarButton8: TdxBarButton;
-    ViewCategoryParameters: TViewCategoryParameters;
-    ViewParametricTable: TViewParametricTable;
     actLoadParametricTableRange: TAction;
     dxBarButton7: TdxBarButton;
-    ViewChildCategories: TViewChildCategories;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -98,6 +93,11 @@ type
     FqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
     FqSearchParameter: TQuerySearchParameter;
     FqSubParameters: TQuerySubParameters2;
+    FViewCategoryParameters: TViewCategoryParameters;
+    FViewChildCategories: TViewChildCategories;
+    FViewComponents: TViewComponents;
+    FViewComponentsSearch: TViewComponentsSearch;
+    FViewParametricTable: TViewParametricTable;
     FWriteProgress: TTotalProgress;
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
@@ -133,6 +133,12 @@ type
     constructor Create(AOwner: TComponent); override;
     property qSearchDaughterCategories: TQuerySearchDaughterCategories
       read GetqSearchDaughterCategories;
+    property ViewCategoryParameters: TViewCategoryParameters read
+        FViewCategoryParameters;
+    property ViewChildCategories: TViewChildCategories read FViewChildCategories;
+    property ViewComponents: TViewComponents read FViewComponents;
+    property ViewComponentsSearch: TViewComponentsSearch read FViewComponentsSearch;
+    property ViewParametricTable: TViewParametricTable read FViewParametricTable;
     { Public declarations }
   end;
 
@@ -150,7 +156,22 @@ uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
 constructor TComponentsFrame.Create(AOwner: TComponent);
 begin
   inherited;
-  ViewParametricTable.ShowHint := False;
+  cxpcComponents.ActivePage := cxtsCategory;
+
+  FViewChildCategories := TViewChildCategories.Create(Self);
+  FViewChildCategories.Place(cxtsCategory);
+
+  FViewComponents := TViewComponents.Create(Self);
+  FViewComponents.Place(cxtsCategoryComponents);
+
+  FViewComponentsSearch := TViewComponentsSearch.Create(Self);
+  FViewComponentsSearch.Place(cxtsComponentsSearch);
+
+  FViewCategoryParameters := TViewCategoryParameters.Create(Self);
+  FViewCategoryParameters.Place(cxtsCategoryParameters);
+
+  FViewParametricTable := TViewParametricTable.Create(Self);
+  FViewParametricTable.Place( cxtsParametricTable );
 end;
 
 procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);
@@ -359,20 +380,27 @@ end;
 procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
   NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
+ if ViewParametricTable = nil then Exit;
+
   // если переходим на вкладку "Параметрическая таблица"
   if (cxpcComponents.ActivePage <> cxtsParametricTable) and
     (NewPage = cxtsParametricTable) then
   begin
+    ViewParametricTable.Unlock;
+
     // сообщаем о том, что этот запрос понадобится и его надо разблокировать
     if ViewParametricTable.ComponentsExGroup <> nil then
       ViewParametricTable.ComponentsExGroup.AddClient;
   end;
 
+  // если уходим с вкладки "Параметрическая таблица"
   if (cxpcComponents.ActivePage = cxtsParametricTable) and
     (NewPage <> cxtsParametricTable) then
   begin
     if ViewParametricTable.ComponentsExGroup <> nil then
       ViewParametricTable.ComponentsExGroup.DecClient;
+
+    ViewParametricTable.Lock;
   end;
 end;
 

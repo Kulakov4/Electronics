@@ -827,7 +827,12 @@ function TQueryBase.LocateByPK(APKValue: Variant;
 begin
   Result := FDQuery.LocateEx(FPKFieldName, APKValue);
   if TestResult then
+  begin
+    if not Result then
+      beep;
+
     Assert(Result);
+  end;
 end;
 
 procedure TQueryBase.LocateByPKAndDelete(APKValue: Variant);

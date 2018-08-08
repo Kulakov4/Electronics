@@ -130,6 +130,7 @@ end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);
 begin
+  Application.Hint := '';
   CheckAndSaveChanges;
 
   FOnShowParametricTableEvent.CallEventHandlers(Self);

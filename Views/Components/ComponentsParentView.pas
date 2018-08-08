@@ -134,8 +134,8 @@ type
     function CheckAndSaveChanges: Integer;
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure UpdateView; override;
-    property BaseComponentsGroup: TBaseComponentsGroup2 read FBaseComponentsGroup
-        write SetBaseComponentsGroup;
+    property BaseComponentsGroup: TBaseComponentsGroup2
+      read FBaseComponentsGroup write SetBaseComponentsGroup;
     { Public declarations }
   end;
 
@@ -426,19 +426,22 @@ begin
     Exit;
 
   HavDetails := False;
-  V := ARecord.Values[0];
-  if not VarIsNull(V) then
+  if BaseComponentsGroup <> nil then
   begin
-    AID := V;
-    // Почему-то иногда поле не найдено
-    // F := BaseComponentsGroup.QueryBaseComponents.FDQuery.FindField('ParentProductID');
+    V := ARecord.Values[0];
+    if not VarIsNull(V) then
+    begin
+      AID := V;
+      // Почему-то иногда поле не найдено
+      // F := BaseComponentsGroup.QueryBaseComponents.FDQuery.FindField('ParentProductID');
 
-    HavDetails := (BaseComponentsGroup.QueryBaseComponents.FDQuery.RecordCount >
-      0) and (BaseComponentsGroup.QueryBaseComponents.Exists(AID) or
-      (BaseComponentsGroup.QueryBaseComponents.ParentProductID.
-      AsInteger = AID));
+      HavDetails := (BaseComponentsGroup.QueryBaseComponents.FDQuery.RecordCount
+        > 0) and (BaseComponentsGroup.QueryBaseComponents.Exists(AID) or
+        (BaseComponentsGroup.QueryBaseComponents.ParentProductID.
+        AsInteger = AID));
 
-    // ((F <> nil) and (F.AsInteger = AID))
+      // ((F <> nil) and (F.AsInteger = AID))
+    end;
   end;
 
   if HavDetails then
@@ -635,7 +638,8 @@ begin
   if FBaseComponentsGroup <> nil then
   begin
     // Привязываем вью к данным
-    MainView.DataController.DataSource := BaseComponentsGroup.QueryBaseFamily.DataSource;
+    MainView.DataController.DataSource :=
+      BaseComponentsGroup.QueryBaseFamily.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
       FBaseComponentsGroup.QueryBaseComponents.DataSource;
 
@@ -643,13 +647,14 @@ begin
     if FBaseComponentsGroup.QueryBaseComponents.Master <> nil then
     begin
       // Компоненты у нас загружаются первыми
-      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.AfterLoad,
-        AfterLoadData, FEventList);
+      TNotifyEventWrap.Create
+        (FBaseComponentsGroup.QueryBaseComponents.AfterLoad, AfterLoadData,
+        FEventList);
     end;
 
     // Пусть нам монитор сообщает об изменениях в БД
-    TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.Monitor.OnHaveAnyChanges,
-      DoOnHaveAnyChanges, FEventList);
+    TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.Monitor.
+      OnHaveAnyChanges, DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
   cxGridPopupMenu.PopupMenus.Items[0].GridView := MainView;
@@ -772,8 +777,8 @@ begin
 
 end;
 
-procedure TViewComponentsParent.SetBaseComponentsGroup(const Value:
-    TBaseComponentsGroup2);
+procedure TViewComponentsParent.SetBaseComponentsGroup
+  (const Value: TBaseComponentsGroup2);
 begin
   if FBaseComponentsGroup <> Value then
   begin
@@ -855,7 +860,8 @@ begin
     for i := 0 to MainView.Bands.Count - 1 do
     begin
       ABand := MainView.Bands[i];
-      if (not ABand.Visible) or (ABand.VisibleIndex = 0) { or (ABand.Width = 0) }
+      if (not ABand.Visible) or (ABand.VisibleIndex = 0)
+      { or (ABand.Width = 0) }
       then
         Continue;
 
@@ -969,8 +975,8 @@ begin
   begin
     if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) then
     begin
-      S := BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.FieldByName('Value')
-        .AsString;
+      S := BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.FieldByName
+        ('Value').AsString;
       actDeleteEx.Caption := Format('Удалить семейство из категории «%s»', [S]);
     end;
   end;

@@ -392,6 +392,7 @@ var
   AID: Variant;
   d: Boolean;
 begin
+  Application.Hint := '';
   AID := ParametersGrp.qParameters.PK.Value;
 
   d := not ParametersGrp.qParameters.ShowDuplicate;

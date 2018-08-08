@@ -51,7 +51,7 @@ type
     property Pos: Integer read FPos write FPos;
   end;
 
-  TBandsInfo = class(TList<TBandInfo>)
+  TBandsInfo = class(TObjectList<TBandInfo>)
   private
   protected
   public
@@ -113,11 +113,10 @@ type
     property Order: Integer read FOrder write FOrder;
   end;
 
-  TColumnsInfo = class(TList<TColumnInfo>)
+  TColumnsInfo = class(TObjectList<TColumnInfo>)
   protected
   public
     procedure FreeNotDefaultColumns;
-    function GetChangedColIndex: TColumnsInfo;
     function GetChangedGeneralColIndex: TArray<TColumnInfo>;
     procedure RestoreColumnPosition;
     function Search(AColumn: TcxGridDBBandedColumn; TestResult: Boolean = False)
@@ -235,6 +234,8 @@ var
   ABandInfo: TBandInfo;
 begin
   Result := TBandsInfo.Create;
+  Result.OwnsObjects := False;
+
   for ABandInfo in Self do
   begin
     if ABandInfo.ColIndex <> ABandInfo.Band.Position.ColIndex then
@@ -273,14 +274,15 @@ begin
   Assert(ABandInfo <> nil);
   Assert(not ABandInfo.DefaultCreated);
 
+  // разрушаем бэнд
+  ABandInfo.FreeBand;
+
   // Удаляем описание этого бэнда из списка
   Remove(ABandInfo);
 
-  // разрушаем бэнд
-  ABandInfo.FreeBand;
-  // Удаляем описание бэнда
-  ABandInfo.Free;
 
+  // Удаляем описание бэнда
+//  ABandInfo.Free;
 end;
 
 procedure TBandsInfo.RestoreBandPosition;
@@ -442,34 +444,22 @@ begin
     if ACI.DefaultCreated then
       Continue;
 
-    // Удаляем описание этой колонки
-    Remove(ACI);
-
     // разрушаем колонку
     ACI.FreeColumn;
-    ACI.Free;
+
+    // Удаляем описание этой колонки
+    Remove(ACI);   // Тут описание должно разрушиться
+    //ACI.Free;
   end;
 
-end;
-
-function TColumnsInfo.GetChangedColIndex: TColumnsInfo;
-var
-  ACI: TColumnInfo;
-begin
-  Result := TColumnsInfo.Create;
-  for ACI in Self do
-  begin
-    if ACI.ColIndex <> ACI.Column.Position.ColIndex then
-      Result.Add(ACI);
-  end;
 end;
 
 function TColumnsInfo.GetChangedGeneralColIndex: TArray<TColumnInfo>;
 var
   ACI: TColumnInfo;
-  L: TColumnsInfo;
+  L: TList<TColumnInfo>;
 begin
-  L := TColumnsInfo.Create;
+  L := TList<TColumnInfo>.Create;
   try
     for ACI in Self do
     begin

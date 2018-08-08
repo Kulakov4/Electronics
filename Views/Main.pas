@@ -301,6 +301,7 @@ end;
 
 procedure TfrmMain.actShowBodyTypes3Execute(Sender: TObject);
 begin
+  Application.Hint := '';
   if frmBodyTypes = nil then
   begin
     TDM.Create.BodyTypesGroup.ReOpen;
@@ -313,6 +314,7 @@ end;
 
 procedure TfrmMain.actShowDescriptionsExecute(Sender: TObject);
 begin
+  Application.Hint := '';
   if frmDescriptions = nil then
   begin
     TDM.Create.DescriptionsGroup.ReOpen;
@@ -326,6 +328,7 @@ end;
 
 procedure TfrmMain.actShowExtraChargeExecute(Sender: TObject);
 begin
+  Application.Hint := '';
   if frmExtraCharge = nil then
   begin
     TDM.Create.qExtraCharge.RefreshQuery;
@@ -338,6 +341,7 @@ end;
 
 procedure TfrmMain.actShowProducersExecute(Sender: TObject);
 begin
+  Application.Hint := '';
   if frmProducers = nil then
   begin
     TDM.Create.ProducersGroup.ReOpen;
@@ -350,6 +354,7 @@ end;
 
 procedure TfrmMain.actShowParametersExecute(Sender: TObject);
 begin
+  Application.Hint := '';
   if frmParameters = nil then
   begin
     TDM.Create.ParametersGroup.ReOpen;
@@ -570,6 +575,10 @@ begin
 
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
         TDM.Create.ComponentsExGroup;
+
+      // Блокируем это представление до тех пор, пока вкладка не станет активной
+      ComponentsFrame.ViewParametricTable.Lock;
+
 
       // Привязываем список складов к данным
       tvStorehouseList.DataController.DataSource :=

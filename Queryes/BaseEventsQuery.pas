@@ -129,6 +129,7 @@ type
     FQueries: TList<TQueryBaseEvents>;
     procedure DoChangedListNotify(Sender: TObject; const Item: TQueryBaseEvents;
       Action: TCollectionNotification);
+    function GetConnection: TFDCustomConnection;
     function GetHaveAnyChanges: Boolean;
     function GetIsEmpty: Boolean;
   protected
@@ -144,6 +145,7 @@ type
     procedure ApplyUpdates;
     procedure CancelUpdates;
     procedure Remove(AQuery: TQueryBaseEvents);
+    property Connection: TFDCustomConnection read GetConnection;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property IsEmpty: Boolean read GetIsEmpty;
     property OnHaveAnyChanges: TNotifyEventsEx read FOnHaveAnyChanges;
@@ -754,8 +756,8 @@ begin
   end;
 
   // Если есть незавершённая транзакция
-  if Queries[0].FDQuery.Connection.InTransaction then
-    Queries[0].FDQuery.Connection.Commit;
+  if Connection.InTransaction then
+    Connection.Commit;
 end;
 
 procedure TQueryMonitor.CancelUpdates;
@@ -791,8 +793,8 @@ begin
   end;
 
   // Если есть незавершённая транзакция
-  if Queries[0].FDQuery.Connection.InTransaction then
-    Queries[0].FDQuery.Connection.Rollback; // Отменяем транзакцию
+  if Connection.InTransaction then
+    Connection.Rollback; // Отменяем транзакцию
 end;
 
 procedure TQueryMonitor.DoChangedListNotify(Sender: TObject;
@@ -806,6 +808,14 @@ begin
   begin
     FOnHaveAnyChanges.CallEventHandlers(Self);
   end;
+end;
+
+function TQueryMonitor.GetConnection: TFDCustomConnection;
+begin
+  Result := nil;
+  if FQueries.Count = 0 then Exit;
+
+  Result := FQueries.Last.FDQuery.Connection;
 end;
 
 function TQueryMonitor.GetIsEmpty: Boolean;

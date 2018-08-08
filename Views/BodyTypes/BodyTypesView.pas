@@ -446,6 +446,7 @@ procedure TViewBodyTypes.actShowDuplicateExecute(Sender: TObject);
 var
   d: Boolean;
 begin
+  Application.Hint := '';
   d := not BodyTypesGroup.qBodyTypes2.ShowDuplicate;
   cxGrid.BeginUpdate();
   try

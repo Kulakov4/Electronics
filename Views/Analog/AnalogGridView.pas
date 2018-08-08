@@ -180,7 +180,7 @@ var
   R: TRect;
 begin
   inherited;
-
+  Application.Hint := '';
   Assert(FcxGridDBBandedColumn <> nil);
 
   // Получаем идентификатор связки подпараметра с параметром, связанного с редактируемой колонкой

@@ -35,9 +35,17 @@ uses
   System.Generics.Defaults, BandsInfo, DBRecordHolder,
   BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
   CategoryParametersQuery2, cxCheckBox, cxBarEditItem,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  BaseComponentsGroupUnit2;
 
 type
+  TParametricTableLockInfo = class
+  public
+    BaseComponentsGroup: TBaseComponentsGroup2;
+    Locked: Boolean;
+    constructor Create;
+  end;
+
   TViewParametricTable = class(TViewComponentsBase)
     actAutoWidth: TAction;
     dxbrbtnApplyUpdates: TdxBarButton;
@@ -87,6 +95,7 @@ type
     actUpdateDetailColumnWidth2: TAction;
     cxbeiTableName: TcxBarEditItem;
     actUpdateColumnWidth: TAction;
+    dxBarButton2: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -138,6 +147,7 @@ type
     FLockDetailFilterChange: Boolean;
     FMark: string;
     FColMoveArray: TArray<TPair<Integer, Integer>>;
+    FLockInfo: TParametricTableLockInfo;
     procedure CreateColumn(AViewArray: TArray<TcxGridDBBandedTableView>;
       AIDList: TArray<Integer>;
       qCategoryParameters: TQueryCategoryParameters2); overload;
@@ -145,7 +155,7 @@ type
       qCategoryParameters: TQueryCategoryParameters2); overload;
     procedure DeleteBands;
     procedure DeleteColumns;
-    procedure DoAfterOpen(Sender: TObject);
+    procedure DoAfterFamilyExOpen(Sender: TObject);
     procedure DoOnEditValueChanged(Sender: TObject);
     procedure DoOnGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
@@ -179,7 +189,7 @@ type
     procedure CreateColumnsForBand(AIDCategoryParam: Integer);
     procedure CreateDetailFilter;
     procedure DoAfterLoadData; override;
-    procedure DoBeforeOpen(Sender: TObject);
+    procedure DoBeforeFamilyExOpen(Sender: TObject);
     // TODO: CreateFilter
     // procedure CreateFilter(AColumn: TcxGridDBBandedColumn;
     // const AValue: string);
@@ -210,10 +220,12 @@ type
     destructor Destroy; override;
     procedure FilterByFamily(AFamily: string);
     procedure FilterByComponent(AComponent: string);
+    procedure Lock;
+    procedure Unlock;
     procedure UpdateMinBandWindth(ABandInfo: TBandInfoEx);
     procedure UpdateView; override;
-    property ComponentsExGroup: TComponentsExGroup2 read GetComponentsExGroup write
-        SetComponentsExGroup;
+    property ComponentsExGroup: TComponentsExGroup2 read GetComponentsExGroup
+      write SetComponentsExGroup;
     property Mark: string read FMark;
     { Public declarations }
   end;
@@ -265,6 +277,9 @@ uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
   inherited;
+  ShowHint := false;
+
+  FLockInfo := TParametricTableLockInfo.Create;
 
   FBandsInfo := TBandsInfo.Create;
   FColumnsInfo := TColumnsInfo.Create;
@@ -273,19 +288,26 @@ begin
 end;
 
 destructor TViewParametricTable.Destroy;
-var
-  ABI: TBandInfo;
-  I: Integer;
+// var
+// ABI: TBandInfo;
+// I: Integer;
 begin
-  for I := FBandsInfo.Count - 1 downto 0 do
-  begin
+  {
+    for I := FBandsInfo.Count - 1 downto 0 do
+    begin
     ABI := FBandsInfo[i];
     FBandsInfo.Delete(i);
     FreeAndNil(ABI);
-  end;
+    end;
+  }
 
+  // FBandsInfo владеет своим содержимым
   FreeAndNil(FBandsInfo);
+
   FreeAndNil(FColumnsInfo);
+
+  FreeAndNil(FLockInfo);
+
   inherited;
 end;
 
@@ -433,7 +455,7 @@ begin
     // if AView = MainView then
     CreateDetailFilter;
 
-    FLockDetailFilterChange := False;
+    FLockDetailFilterChange := false;
   finally
     FreeAndNil(F);
   end;
@@ -843,6 +865,7 @@ var
   AfrmGridView: TfrmGridView;
 begin
   inherited;
+  Application.Hint := '';
   AfrmGridView := TfrmGridView.Create(Self);
   try
     AfrmGridView.ViewGridEx.DataSet := qCategoryParameters.FDQuery;
@@ -949,7 +972,7 @@ begin
 
   for S in SortSL do
   begin
-    AValueList.Add(fviUserEx, Format('%%%s%s%s%%', [Mark, S, Mark]), S, False);
+    AValueList.Add(fviUserEx, Format('%%%s%s%s%%', [Mark, S, Mark]), S, false);
   end;
 
   // finally
@@ -1079,7 +1102,7 @@ end;
 // end;
 
 var
-  FInChange: Boolean = False;
+  FInChange: Boolean = false;
 
 procedure TViewParametricTable.
   cxGridDBBandedTableViewDataControllerFilterChanged(Sender: TObject);
@@ -1209,7 +1232,7 @@ begin
   FColumnsInfo.Clear;
 end;
 
-procedure TViewParametricTable.DoAfterOpen(Sender: TObject);
+procedure TViewParametricTable.DoAfterFamilyExOpen(Sender: TObject);
 begin
   RecreateColumns;
 
@@ -1227,7 +1250,7 @@ begin
   ComponentsExGroup.TryPost;
   UpdateView;
 
-  if not (FocusedTableView = MainView) then
+  if not(FocusedTableView = MainView) then
     Exit;
 
   AColumn := (MainView.Controller.FocusedColumn as TcxGridDBBandedColumn);
@@ -1238,15 +1261,16 @@ end;
 procedure TViewParametricTable.DoOnMasterDetailChange;
 begin
   inherited;
+  Assert(not FLockInfo.Locked);
   if BaseComponentsGroup <> nil then
   begin
     FMark := ComponentsExGroup.Mark;
 
     TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.BeforeOpen,
-      DoBeforeOpen, FEventList);
+      DoBeforeFamilyExOpen, FEventList);
 
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen, DoAfterOpen,
-      FEventList);
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen,
+      DoAfterFamilyExOpen, FEventList);
 
     InitializeDefaultCreatedBands([MainView, GridView(cxGridLevel2)]);
 
@@ -1282,7 +1306,7 @@ begin
     AFilterList.AddItem(AColumn, foEqual, AFamily, AFamily);
     MainView.DataController.Filter.Active := True;
   finally
-    FLockDetailFilterChange := False;
+    FLockDetailFilterChange := false;
   end;
 end;
 
@@ -1307,14 +1331,14 @@ begin
     AFilterList.AddItem(AColumn, foEqual, AComponent, AComponent);
     GridView(cxGridLevel2).DataController.Filter.Active := True;
   finally
-    FLockDetailFilterChange := False;
+    FLockDetailFilterChange := false;
   end;
 
   // Разворачиваем представление компонентов
   ARow := GetRow(0) as TcxMyGridMasterDataRow;
   Assert(ARow <> nil);
   AView := GetDBBandedTableView(1);
-  ARow.MyExpand(False);
+  ARow.MyExpand(false);
   AView.Focused := True;
 end;
 
@@ -1346,8 +1370,8 @@ begin
         Assert(AColumn <> nil);
         Assert(AColumn.Position.Band <> nil);
         Assert(AColumn.Position.Band.ColumnCount = 1);
-        AColumn.Position.Band.Visible := False;
-        AColumn.Position.Band.VisibleForCustomization := False;
+        AColumn.Position.Band.Visible := false;
+        AColumn.Position.Band.VisibleForCustomization := false;
 
         ABandList.Add(AColumn.Position.Band);
       end;
@@ -1362,8 +1386,8 @@ begin
   end;
 end;
 
-procedure TViewParametricTable.SetComponentsExGroup(const Value:
-    TComponentsExGroup2);
+procedure TViewParametricTable.SetComponentsExGroup
+  (const Value: TComponentsExGroup2);
 begin
   BaseComponentsGroup := Value;
 end;
@@ -1371,7 +1395,7 @@ end;
 procedure TViewParametricTable.BandTimerTimer(Sender: TObject);
 begin
   inherited;
-  BandTimer.Enabled := False;
+  BandTimer.Enabled := false;
   ProcessBandMove;
 end;
 
@@ -1381,7 +1405,7 @@ var
   APair: TPair<Integer, Integer>;
 begin
   inherited;
-  ColumnTimer.Enabled := False;
+  ColumnTimer.Enabled := false;
 
   if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
   begin
@@ -1523,7 +1547,7 @@ begin
           if ABand.GridView = MainView then
           begin
             AColumn.PropertiesClass := TcxMemoProperties;
-            (AColumn.Properties as TcxMemoProperties).WordWrap := False;
+            (AColumn.Properties as TcxMemoProperties).WordWrap := false;
 
             (AColumn.Properties as TcxMemoProperties).OnValidate :=
               DoOnValidate;
@@ -1536,8 +1560,8 @@ begin
           else
           begin
             AColumn.PropertiesClass := TcxTextEditProperties;
-            (AColumn.Properties as TcxTextEditProperties).OnEditValueChanged
-             := DoOnEditValueChanged;
+            (AColumn.Properties as TcxTextEditProperties).OnEditValueChanged :=
+              DoOnEditValueChanged;
           end;
           AColumnList.Add(AColumn);
         end;
@@ -1613,6 +1637,7 @@ procedure TViewParametricTable.cxGridDBBandedTableViewColumnPosChanged
   (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin
   inherited;
+  Application.Hint := '';
   ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
 end;
 
@@ -1621,7 +1646,7 @@ begin
   // Мы по своему обрабатываем событие после загрузки данных
 end;
 
-procedure TViewParametricTable.DoBeforeOpen(Sender: TObject);
+procedure TViewParametricTable.DoBeforeFamilyExOpen(Sender: TObject);
 begin
   BeginUpdate;
 end;
@@ -1639,9 +1664,8 @@ begin
     Exit;
 
   // Если это значение уже было отвалидировано!
-  if s.Contains(Mark) then
+  if S.Contains(Mark) then
     Exit;
-
 
   AStringList := TStringList.Create;
   try
@@ -1687,19 +1711,22 @@ begin
   begin
     ABI.IDList.Remove(AIDCategoryParam);
 
-    // Удаляем информацию о этой колонке
-    FColumnsInfo.Remove(ACI);
     // Удаляем саму колонку
     ACI.FreeColumn;
-    ACI.Free;
+
+    // Удаляем информацию о этой колонке
+    FColumnsInfo.Remove(ACI);
+    // ACI.Free;
 
     // Возможно мы удалили последнюю колонку бэнда
     if ABand.ColumnCount = 0 then
     begin
       // Удаляем сам бэнд
-      FBandsInfo.Remove(ABI);
       ABI.FreeBand;
-      ABI.Free;
+
+      // Удаляем информацию о бэнде
+      FBandsInfo.Remove(ABI);
+      // ABI.Free;
     end;
   end;
 end;
@@ -1793,6 +1820,19 @@ begin
   end;
   // Ширина бэнда
   UpdateMinBandWindth(ABandInfo);
+end;
+
+procedure TViewParametricTable.Lock;
+begin
+  Assert(not FLockInfo.Locked);
+
+  // Запоминаем, к каким данным мы сейчас были подключены
+  FLockInfo.BaseComponentsGroup := BaseComponentsGroup;
+
+  // Отключаемся от данных
+  BaseComponentsGroup := nil;
+
+  FLockInfo.Locked := True;
 end;
 
 procedure TViewParametricTable.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
@@ -2136,20 +2176,28 @@ begin
     if qCatParams.RecordCount = 0 then
       Exit;
 
-    qCatParams.First;
+    MainView.BeginUpdate();
+    cxGridLevel2.GridView.BeginUpdate();
     try
-      // Сначала удаляем ранее добавленные колонки
-      DeleteColumns;
-      // Потом удаляем ранее добавленные бэнды
-      DeleteBands;
 
-      // Цикл по бэндам (параметрам)
-      while not qCatParams.Eof do
-      begin
-        CreateColumnsForBand(qCatParams.ID.AsInteger);
-        qCatParams.Next;
+      qCatParams.First;
+      try
+        // Сначала удаляем ранее добавленные колонки
+        DeleteColumns;
+        // Потом удаляем ранее добавленные бэнды
+        DeleteBands;
+
+        // Цикл по бэндам (параметрам)
+        while not qCatParams.Eof do
+        begin
+          CreateColumnsForBand(qCatParams.ID.AsInteger);
+          qCatParams.Next;
+        end;
+
+      finally
+        cxGridLevel2.GridView.EndUpdate;
+        MainView.EndUpdate;
       end;
-
       // запоминаем в какой позиции находится наш бэнд
       FBandsInfo.SaveBandPosition;
       UpdateGeneralIndexes;
@@ -2167,6 +2215,16 @@ end;
 procedure TViewParametricTable.SetUseTableName(const Value: Boolean);
 begin
   UpdateBandsCaptions;
+end;
+
+procedure TViewParametricTable.Unlock;
+begin
+  Assert(FLockInfo.Locked);
+  Assert(BaseComponentsGroup = nil);
+  FLockInfo.Locked := False;
+
+  // Подключаем представление к данным
+  BaseComponentsGroup := FLockInfo.BaseComponentsGroup;
 end;
 
 procedure TViewParametricTable.UpdateBandsCaptions;
@@ -2592,6 +2650,7 @@ var
   AGridView: TcxGridDBBandedTableView;
   IsDefault: Boolean;
 begin
+  Application.Hint := '';
   if Actions.Count > 0 then
   begin
 
@@ -2652,6 +2711,12 @@ begin
   FColumn := AColumn;
   FFilterOperatorKind := AFilterOperatorKind;
   FValue := AValue;
+end;
+
+constructor TParametricTableLockInfo.Create;
+begin
+  Locked := False;
+  BaseComponentsGroup := nil;
 end;
 
 end.

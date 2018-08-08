@@ -258,6 +258,7 @@ procedure TViewDescriptions.actShowDuplicateExecute(Sender: TObject);
 var
   d: Boolean;
 begin
+  Application.Hint := '';
   d := not DescriptionsGroup.qDescriptions.ShowDuplicate;
   cxGrid.BeginUpdate();
   try

@@ -28,6 +28,7 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property CategoryPath: string read FCategoryPath write SetCategoryPath;
     property ViewParametricTable: TViewParametricTable read FViewParametricTable;
@@ -55,6 +56,14 @@ begin
   FBeforeClose := TNotifyEventsEx.Create(Self);
   FOnActivate := TNotifyEventsEx.Create(Self);
   FOnDeactivate := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TfrmParametricTable.Destroy;
+begin
+  FreeAndNil(FBeforeClose);
+  FreeAndNil(FOnActivate);
+  FreeAndNil(FOnDeactivate);
+  inherited;
 end;
 
 procedure TfrmParametricTable.FormActivate(Sender: TObject);
