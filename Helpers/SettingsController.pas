@@ -60,11 +60,13 @@ type
   public
     constructor Create; virtual;
     destructor Destroy; override;
+    function GetFolderFoExcelFile(const AKeyWord: String): String;
     function GetValue(const ASection, AParameter: string;
       const ADefault: string = ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
       : string): string;
     class function NewInstance: TObject; override;
+    procedure SetFolderForExcelFile(const AKeyWord, AFolders: String);
     procedure SetValue(const ASection, AParameter: string;
       const Value: Variant);
     property BodyTypesLandPatternFolder: string
@@ -217,6 +219,14 @@ begin
   Result := GetValue('Db', 'DBMigrationFolder', ADefaultFolder);
 end;
 
+function TSettings.GetFolderFoExcelFile(const AKeyWord: String): String;
+begin
+  // ѕытаемс€ прочитать папку по ключевому слову
+  Result := GetValue('Folder', AKeyWord, '');
+  if Result = '' then
+    Result := GetLastFolderForComponentsLoad;
+end;
+
 function TSettings.GetLastFolderForComponentsLoad: string;
 begin
   Result := GetValue('Folder', 'ComponentsLoadFolder', DataBasePath);
@@ -245,8 +255,8 @@ function TSettings.GetValue(const ASection, AParameter: string;
   const ADefault: string = ''): string;
 begin
   Result := IniFile.ReadString(ASection, AParameter, ADefault);
-  if Result = ADefault then
-    Result := IniFile.ReadString('Db', AParameter, ADefault);
+//  if Result = ADefault then
+//    Result := IniFile.ReadString('Db', AParameter, ADefault);
 end;
 
 function TSettings.GetPath(const ASection, AParameter, ADefaultFolder
@@ -381,6 +391,11 @@ begin
   begin
     SetValue('Db', 'DBMigrationFolder', Value);
   end;
+end;
+
+procedure TSettings.SetFolderForExcelFile(const AKeyWord, AFolders: String);
+begin
+  SetValue('Folder', AKeyWord, AFolder);
 end;
 
 procedure TSettings.SetLastFolderForComponentsLoad(const Value: string);

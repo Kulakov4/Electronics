@@ -38,7 +38,8 @@ uses
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
   StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
   Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils,
-  BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog;
+  BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -90,6 +91,7 @@ type
     actShowExtraCharge: TAction;
     dxBarButton1: TdxBarButton;
     ApplicationEvents: TApplicationEvents;
+    IdHTTP1: TIdHTTP;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);

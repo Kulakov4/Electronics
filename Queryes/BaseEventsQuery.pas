@@ -145,6 +145,8 @@ type
     procedure ApplyUpdates;
     procedure CancelUpdates;
     procedure Remove(AQuery: TQueryBaseEvents);
+    procedure TryCommit;
+    procedure TryRollback;
     property Connection: TFDCustomConnection read GetConnection;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property IsEmpty: Boolean read GetIsEmpty;
@@ -755,9 +757,7 @@ begin
     Continue;
   end;
 
-  // Если есть незавершённая транзакция
-  if Connection.InTransaction then
-    Connection.Commit;
+  TryCommit;
 end;
 
 procedure TQueryMonitor.CancelUpdates;
@@ -792,9 +792,7 @@ begin
     Continue;
   end;
 
-  // Если есть незавершённая транзакция
-  if Connection.InTransaction then
-    Connection.Rollback; // Отменяем транзакцию
+  TryRollback;
 end;
 
 procedure TQueryMonitor.DoChangedListNotify(Sender: TObject;
@@ -842,6 +840,20 @@ begin
   Assert(i >= 0);
 
   FQueries.Delete(i);
+end;
+
+procedure TQueryMonitor.TryCommit;
+begin
+  // Если есть незавершённая транзакция
+  if Connection.InTransaction then
+    Connection.Commit;
+end;
+
+procedure TQueryMonitor.TryRollback;
+begin
+  // Если есть незавершённая транзакция
+  if Connection.InTransaction then
+    Connection.Rollback; // Отменяем транзакцию
 end;
 
 end.

@@ -119,7 +119,9 @@ end;
 procedure TViewExtraCharge.actCommitExecute(Sender: TObject);
 begin
   inherited;
-  qExtraCharge.ApplyUpdates;
+  qExtraCharge.TryPost;
+  qExtraCharge.Monitor.TryCommit;
+
   UpdateView;
 end;
 
@@ -168,7 +170,10 @@ begin
   cxGrid.BeginUpdate();
   try
     // Отменяем все сделанные изменения
-    qExtraCharge.CancelUpdates;
+    qExtraCharge.TryCancel;
+    qExtraCharge.Monitor.TryRollback;
+    // Обновляем данные, возвращаясь на ту же запись
+    qExtraCharge.SmartRefresh;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord;
