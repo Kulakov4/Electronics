@@ -60,13 +60,13 @@ type
   public
     constructor Create; virtual;
     destructor Destroy; override;
-    function GetFolderFoExcelFile(const AKeyWord: String): String;
+    function GetFolderFoExcelFile(const AFolderKey: String): String;
     function GetValue(const ASection, AParameter: string;
       const ADefault: string = ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
       : string): string;
     class function NewInstance: TObject; override;
-    procedure SetFolderForExcelFile(const AKeyWord, AFolders: String);
+    procedure SetFolderForExcelFile(const AFolderKey, AFolder: String);
     procedure SetValue(const ASection, AParameter: string;
       const Value: Variant);
     property BodyTypesLandPatternFolder: string
@@ -219,10 +219,10 @@ begin
   Result := GetValue('Db', 'DBMigrationFolder', ADefaultFolder);
 end;
 
-function TSettings.GetFolderFoExcelFile(const AKeyWord: String): String;
+function TSettings.GetFolderFoExcelFile(const AFolderKey: String): String;
 begin
   // ѕытаемс€ прочитать папку по ключевому слову
-  Result := GetValue('Folder', AKeyWord, '');
+  Result := GetValue('Folder', AFolderKey, '');
   if Result = '' then
     Result := GetLastFolderForComponentsLoad;
 end;
@@ -393,9 +393,9 @@ begin
   end;
 end;
 
-procedure TSettings.SetFolderForExcelFile(const AKeyWord, AFolders: String);
+procedure TSettings.SetFolderForExcelFile(const AFolderKey, AFolder: String);
 begin
-  SetValue('Folder', AKeyWord, AFolder);
+  SetValue('Folder', AFolderKey, AFolder);
 end;
 
 procedure TSettings.SetLastFolderForComponentsLoad(const Value: string);

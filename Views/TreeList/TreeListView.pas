@@ -79,6 +79,8 @@ type
   private
     FqTreeList: TQueryTreeList;
     FViewDuplicateCategory: TViewDuplicateCategory;
+  const
+    KeyFolder: String = 'TreeList';
     function GetLevel(ANode: TcxTreeListNode): Integer;
     procedure SetqTreeList(const Value: TQueryTreeList);
     { Private declarations }
@@ -156,6 +158,8 @@ var
 begin
   inherited;
 
+  Application.Hint := '';
+
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   AViewRecursiveTree := TViewRecursiveTree.Create(Self);
   try
@@ -178,7 +182,7 @@ begin
   inherited;
   Application.Hint := '';
 
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, KeyFolder) then
     Exit;
 
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);

@@ -99,6 +99,9 @@ type
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
+
+  const
+    FolderKey: String = 'Descriptions';
     procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure SetDescriptionsGroup(const Value: TDescriptionsGroup2);
     procedure UpdateTotalCount;
@@ -116,8 +119,8 @@ type
     destructor Destroy; override;
     procedure Locate(const AComponentName: string);
     procedure UpdateView; override;
-    property DescriptionsGroup: TDescriptionsGroup2 read FDescriptionsGroup write
-        SetDescriptionsGroup;
+    property DescriptionsGroup: TDescriptionsGroup2 read FDescriptionsGroup
+      write SetDescriptionsGroup;
     { Public declarations }
   end;
 
@@ -208,7 +211,9 @@ procedure TViewDescriptions.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Краткие описания',
+  Application.Hint := '';
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(FolderKey), 'Краткие описания',
     AFileName) then
     Exit;
 
@@ -225,7 +230,7 @@ var
   AFileName: string;
 begin
   Application.Hint := '';
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     Exit;
 
   LoadFromExcel(AFileName);
@@ -595,8 +600,8 @@ begin
   end;
 end;
 
-procedure TViewDescriptions.SetDescriptionsGroup(const Value:
-    TDescriptionsGroup2);
+procedure TViewDescriptions.SetDescriptionsGroup(const Value
+  : TDescriptionsGroup2);
 begin
   FDescriptionsGroup := Value;
 

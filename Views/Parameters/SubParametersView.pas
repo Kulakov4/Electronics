@@ -60,12 +60,12 @@ type
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure clNameHeaderClick(Sender: TObject);
-    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject; X, Y:
-        Integer);
-    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject; X, Y:
-        Integer; State: TDragState; var Accept: Boolean);
-    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject; var DragObject:
-        TDragObject);
+    procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
+      X, Y: Integer);
+    procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject;
+      X, Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
+      var DragObject: TDragObject);
     procedure cxbeiSortPropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
   private
@@ -73,6 +73,9 @@ type
     FHRTimer: THRTimer;
     FQuerySubParameters: TQuerySubParameters2;
     FSortMode: TSortMode;
+
+  const
+    KeyFolder: String = 'SubParameters';
     function GetCheckedMode: Boolean;
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
@@ -91,7 +94,7 @@ type
     procedure UpdateView; override;
     property CheckedMode: Boolean read GetCheckedMode write SetCheckedMode;
     property QuerySubParameters: TQuerySubParameters2 read FQuerySubParameters
-        write SetQuerySubParameters;
+      write SetQuerySubParameters;
     property SortMode: TSortMode read FSortMode write SetSortMode;
     { Public declarations }
   end;
@@ -100,7 +103,7 @@ implementation
 
 uses
   GridSort, DialogUnit, DialogUnit2, LoadFromExcelFileHelper, ImportErrorForm,
-  ProgressBarForm, ProjectConst;
+  ProgressBarForm, ProjectConst, SettingsController;
 
 {$R *.dfm}
 
@@ -120,7 +123,7 @@ begin
   SortMode := smManual;
 
   DeleteMessages.Add(cxGridLevel, 'Удалить подпараметр?');
-//  clChecked.Visible := FCheckedMode;
+  // clChecked.Visible := FCheckedMode;
 
   FDI := TDragAndDropInfo.Create(clID, clOrd);
 end;
@@ -156,8 +159,10 @@ procedure TViewSubParameters.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Подпараметры',
-    AFileName) then
+  Application.Hint := '';
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(KeyFolder), 'Подпараметры', AFileName)
+  then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);
@@ -169,7 +174,7 @@ var
   AFileName: string;
 begin
   Application.Hint := '';
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, KeyFolder) then
     Exit;
 
   LoadFromExcel(AFileName);
@@ -253,15 +258,17 @@ begin
   Assert(i >= 0);
 
   case i of
-    0: SortMode := smManual;    // Ручная сортировка
-    1: SortMode := smAlphabet;  // Сортировка по алфавиту
+    0:
+      SortMode := smManual; // Ручная сортировка
+    1:
+      SortMode := smAlphabet; // Сортировка по алфавиту
   else
     Assert(False);
   end;
 end;
 
-procedure TViewSubParameters.cxGridDBBandedTableViewDragDrop(Sender, Source:
-    TObject; X, Y: Integer);
+procedure TViewSubParameters.cxGridDBBandedTableViewDragDrop(Sender,
+  Source: TObject; X, Y: Integer);
 var
   time: Double;
 begin
@@ -279,15 +286,15 @@ begin
   DoDragDrop(Sender as TcxGridSite, FDI, QuerySubParameters, X, Y);
 end;
 
-procedure TViewSubParameters.cxGridDBBandedTableViewDragOver(Sender, Source:
-    TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+procedure TViewSubParameters.cxGridDBBandedTableViewDragOver(Sender,
+  Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   inherited;
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
 procedure TViewSubParameters.cxGridDBBandedTableViewStartDrag(Sender: TObject;
-    var DragObject: TDragObject);
+  var DragObject: TDragObject);
 begin
   inherited;
   DoOnStartDrag(Sender as TcxGridSite, FDI);
@@ -354,8 +361,8 @@ begin
   end;
 end;
 
-procedure TViewSubParameters.SetQuerySubParameters(const Value:
-    TQuerySubParameters2);
+procedure TViewSubParameters.SetQuerySubParameters
+  (const Value: TQuerySubParameters2);
 begin
   if FQuerySubParameters = Value then
     Exit;
@@ -392,15 +399,15 @@ begin
 
   case FSortMode of
     smManual:
-    begin
-      ApplySort(MainView, clOrd);
-      MainView.DragMode := dmAutomatic;
-    end;
+      begin
+        ApplySort(MainView, clOrd);
+        MainView.DragMode := dmAutomatic;
+      end;
     smAlphabet:
-    begin
-      ApplySort(MainView, clName);
-      MainView.DragMode := dmManual;
-    end;
+      begin
+        ApplySort(MainView, clName);
+        MainView.DragMode := dmManual;
+      end;
   end;
 end;
 

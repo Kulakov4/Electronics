@@ -151,6 +151,9 @@ type
     FfrmJEDECPopup: TfrmJEDECPopup;
     FHRTimer: THRTimer;
     FNaturalStringComparer: TNaturalStringComparer;
+
+  const
+    FolderKey: String = 'BodyTypes';
     procedure DoAfterDataChange(Sender: TObject);
     function GetfrmJEDECPopup: TfrmJEDECPopup;
     function GetProducerDisplayText: string;
@@ -173,8 +176,8 @@ type
     procedure AfterConstruction; override;
     procedure ApplyBestFitJEDEC;
     procedure UpdateView; override;
-    property BodyTypesGroup: TBodyTypesGroup2 read FBodyTypesGroup write
-        SetBodyTypesGroup;
+    property BodyTypesGroup: TBodyTypesGroup2 read FBodyTypesGroup
+      write SetBodyTypesGroup;
     property ProducerDisplayText: string read GetProducerDisplayText;
     { Public declarations }
   end;
@@ -292,14 +295,16 @@ var
   AFileName: String;
   Q: TQueryBodyTypesSimple;
 begin
+  Application.Hint := '';
   Q := TQueryBodyTypesSimple.Create(Self);
   try
     Q.RefreshQuery;
 
     cxGridDBBandedTableView2.DataController.DataSource := Q.DataSource;
     try
-      if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
-        'Типы корпусов', AFileName) then
+      if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+        TSettings.Create.GetFolderFoExcelFile(FolderKey), 'Типы корпусов',
+        AFileName) then
         Exit;
 
       ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
@@ -340,7 +345,7 @@ var
 begin
   Application.Hint := '';
   // Сначала дадим возможность выбрать excel файл
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     Exit;
 
   AProducerID := 0;

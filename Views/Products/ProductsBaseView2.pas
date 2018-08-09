@@ -169,6 +169,9 @@ type
     FqProductsBase: TQueryProductsBase;
     FReadOnlyColumns: TList<TcxDBTreeListColumn>;
     FViewExtraCharge: TViewExtraCharge;
+
+  const
+    KeyFolder: String = 'Products';
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
@@ -260,8 +263,8 @@ begin
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
   // Вручную задаём обработчик события
   AcxPopupEditproperties.OnInitPopup := clDescriptionPropertiesInitPopup;
-  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
-    DoOnDescriptionPopupHide, FEventList);
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide,
+    FEventList);
 
   // Список колонок только "для чтения"
   FReadOnlyColumns := TList<TcxDBTreeListColumn>.Create;
@@ -437,7 +440,10 @@ var
 begin
   inherited;
 
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+  Application.Hint := '';
+
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(KeyFolder),
     qProductsBase.ExportFileName, AFileName) then
     Exit;
 

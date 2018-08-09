@@ -54,10 +54,12 @@ type
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
-    procedure clWholeSaleGetDisplayText(Sender: TcxCustomGridTableItem; ARecord:
-        TcxCustomGridRecord; var AText: string);
+    procedure clWholeSaleGetDisplayText(Sender: TcxCustomGridTableItem;
+      ARecord: TcxCustomGridRecord; var AText: string);
   private
     FqExtraCharge: TQueryExtraCharge;
+  const
+    FolderKey: String = 'ExtraCharge';
     procedure SetqExtraCharge(const Value: TQueryExtraCharge);
     procedure UpdateTotalCount;
     { Private declarations }
@@ -73,7 +75,7 @@ implementation
 
 uses
   DialogUnit, RepositoryDataModule, DialogUnit2, LoadFromExcelFileHelper,
-  ExtraChargeExcelDataModule, ImportErrorForm, GridSort;
+  ExtraChargeExcelDataModule, ImportErrorForm, GridSort, SettingsController;
 
 {$R *.dfm}
 
@@ -90,7 +92,6 @@ begin
   GridSort.Add(TSortVariant.Create(clWholeSale, [clWholeSale]));
   ApplySort(MainView, clWholeSale);
   ApplySort(MainView, clWholeSale);
-
 
   UpdateView;
 end;
@@ -129,7 +130,9 @@ procedure TViewExtraCharge.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
+  Application.Hint := '';
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(FolderKey),
     'Таблица оптовой наценки', AFileName) then
     Exit;
 
@@ -143,7 +146,7 @@ var
 begin
   inherited;
   Application.Hint := '';
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     Exit;
 
   BeginUpdate;
@@ -188,8 +191,9 @@ begin
   UpdateView;
 end;
 
-procedure TViewExtraCharge.clWholeSaleGetDisplayText(Sender:
-    TcxCustomGridTableItem; ARecord: TcxCustomGridRecord; var AText: string);
+procedure TViewExtraCharge.clWholeSaleGetDisplayText
+  (Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
+var AText: string);
 begin
   inherited;
   if AText.Trim.IsEmpty then

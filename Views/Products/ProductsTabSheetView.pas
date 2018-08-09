@@ -30,7 +30,6 @@ type
   TProductsFrame = class(TFrame)
     cxpcStorehouse: TcxPageControl;
     tsStorehouseInfo: TcxTabSheet;
-    ViewStorehouseInfo: TViewStorehouseInfo;
     tsStorehouseProducts: TcxTabSheet;
     tsStorehouseSearch: TcxTabSheet;
     dxBarManager: TdxBarManager;
@@ -40,16 +39,24 @@ type
     dxBarSubItem2: TdxBarSubItem;
     actLoadFromExcelDocument: TAction;
     dxBarButton1: TdxBarButton;
-    ViewProducts2: TViewProducts2;
-    ViewProductsSearch2: TViewProductsSearch2;
     dxBarSubItem3: TdxBarSubItem;
     actBindDescriptions: TAction;
     dxBarButton2: TdxBarButton;
     procedure actBindDescriptionsExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
   private
+  const
+    FolderKey: String = 'Products';
+  var
+    FViewProducts: TViewProducts2;
+    FViewProductsSearch: TViewProductsSearch2;
+    FViewStorehouseInfo: TViewStorehouseInfo;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
+    property ViewProducts: TViewProducts2 read FViewProducts;
+    property ViewProductsSearch: TViewProductsSearch2 read FViewProductsSearch;
+    property ViewStorehouseInfo: TViewStorehouseInfo read FViewStorehouseInfo;
     { Public declarations }
   end;
 
@@ -60,11 +67,29 @@ implementation
 uses RepositoryDataModule, DialogUnit2, System.IOUtils, DialogUnit,
   StoreHouseListQuery, AutoBinding;
 
+constructor TProductsFrame.Create(AOwner: TComponent);
+begin
+  inherited;
+  cxpcStorehouse.ActivePage := tsStorehouseInfo;
+
+  FViewStorehouseInfo := TViewStorehouseInfo.Create(Self);
+  FViewStorehouseInfo.Parent := tsStorehouseInfo;
+  FViewStorehouseInfo.Align := alClient;
+
+  FViewProducts := TViewProducts2.Create(Self);
+  FViewProducts.Parent := tsStorehouseProducts;
+  FViewProducts.Align := alClient;
+
+  FViewProductsSearch := TViewProductsSearch2.Create(Self);
+  FViewProductsSearch.Parent := tsStorehouseSearch;
+
+end;
+
 procedure TProductsFrame.actBindDescriptionsExecute(Sender: TObject);
 begin
   TAutoBind.BindProductDescriptions;
   // Обновим данные в текущей категории
-  ViewProducts2.RefreshData;
+  ViewProducts.RefreshData;
 end;
 
 procedure TProductsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -76,17 +101,17 @@ var
 begin
   Application.Hint := '';
 
-  if ViewProducts2.qProducts.Master.FDQuery.RecordCount = 0 then
+  if ViewProducts.qProducts.Master.FDQuery.RecordCount = 0 then
   begin
     TDialog.Create.ErrorMessageDialog('Нет информации о текущем складе.'#13#10'Действие отменено');
     Exit;
   end;
 
   // Открываем диалог выбора excel файла из последнего места
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     Exit;
 
-  ViewProducts2.LoadFromExcelDocument(AFileName);
+  ViewProducts.LoadFromExcelDocument(AFileName);
 //  S := TPath.GetFileNameWithoutExtension(AFileName);
 
 //  m := S.Split([' ']);

@@ -102,6 +102,7 @@ var
   AViewProducts2: TViewProducts2;
 begin
   inherited;
+  Application.Hint := '';
   if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '',
     qProductsBase.ExportFileName, AFileName) then
     Exit;

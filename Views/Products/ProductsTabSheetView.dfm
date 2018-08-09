@@ -13,7 +13,7 @@ object ProductsFrame: TProductsFrame
     Height = 607
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = tsStorehouseProducts
+    Properties.ActivePage = tsStorehouseSearch
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 603
     ClientRectLeft = 4
@@ -22,179 +22,14 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseInfo: TcxTabSheet
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1082#1083#1072#1076#1077
       ImageIndex = 0
-      inline ViewStorehouseInfo: TViewStorehouseInfo
-        Left = 0
-        Top = 0
-        Width = 990
-        Height = 579
-        Align = alClient
-        Color = clBtnFace
-        ParentColor = False
-        TabOrder = 0
-        ExplicitWidth = 990
-        ExplicitHeight = 579
-      end
     end
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
-      inline ViewProducts2: TViewProducts2
-        Left = 0
-        Top = 0
-        Width = 990
-        Height = 579
-        Align = alClient
-        TabOrder = 0
-        ExplicitWidth = 990
-        ExplicitHeight = 579
-        inherited cxDBTreeList: TcxDBTreeList
-          Width = 990
-          Height = 504
-          ExplicitWidth = 990
-          ExplicitHeight = 504
-          inherited clDatasheet: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProducts2.actOpenDatasheet
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProducts2.actLoadDatasheet
-                Kind = bkEllipsis
-              end>
-          end
-          inherited clDiagram: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProducts2.actOpenDiagram
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProducts2.actLoadDiagram
-                Kind = bkEllipsis
-              end>
-          end
-          inherited clDrawing: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProducts2.actOpenDrawing
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProducts2.actLoadDrawing
-                Kind = bkEllipsis
-              end>
-          end
-          inherited clImage: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProducts2.actOpenImage
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProducts2.actLoadImage
-                Kind = bkEllipsis
-              end>
-          end
-        end
-        inherited StatusBar: TStatusBar
-          Top = 560
-          Width = 990
-          ExplicitTop = 560
-          ExplicitWidth = 990
-        end
-        inherited dxBarManager: TdxBarManager
-          ShowHint = False
-          PixelsPerInch = 96
-        end
-        inherited cxStyleRepository1: TcxStyleRepository
-          PixelsPerInch = 96
-        end
-      end
     end
     object tsStorehouseSearch: TcxTabSheet
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 2
-      inline ViewProductsSearch2: TViewProductsSearch2
-        Left = 0
-        Top = 0
-        Width = 990
-        Height = 579
-        Align = alClient
-        TabOrder = 0
-        ExplicitWidth = 990
-        ExplicitHeight = 579
-        inherited cxDBTreeList: TcxDBTreeList
-          Width = 990
-          Height = 504
-          ExplicitWidth = 990
-          ExplicitHeight = 504
-          inherited clDatasheet: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProductsSearch2.actOpenDatasheet
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProductsSearch2.actLoadDatasheet
-                Kind = bkEllipsis
-              end>
-          end
-          inherited clDiagram: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProductsSearch2.actOpenDiagram
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProductsSearch2.actLoadDiagram
-                Kind = bkEllipsis
-              end>
-          end
-          inherited clDrawing: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProductsSearch2.actOpenDrawing
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProductsSearch2.actLoadDrawing
-                Kind = bkEllipsis
-              end>
-          end
-          inherited clImage: TcxDBTreeListColumn
-            Properties.Buttons = <
-              item
-                Action = ViewProductsSearch2.actOpenImage
-                Default = True
-                Kind = bkGlyph
-              end
-              item
-                Action = ViewProductsSearch2.actLoadImage
-                Kind = bkEllipsis
-              end>
-          end
-        end
-        inherited StatusBar: TStatusBar
-          Top = 560
-          Width = 990
-          ExplicitTop = 560
-          ExplicitWidth = 990
-        end
-        inherited dxBarManager: TdxBarManager
-          PixelsPerInch = 96
-        end
-        inherited cxStyleRepository1: TcxStyleRepository
-          PixelsPerInch = 96
-        end
-      end
     end
   end
   object dxBarManager: TdxBarManager

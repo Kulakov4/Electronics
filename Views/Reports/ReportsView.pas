@@ -27,7 +27,8 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter;
+  dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewReports = class(TfrmGrid)
@@ -107,6 +108,7 @@ procedure TViewReports.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
+  Application.Hint := '';
   if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', GetFileName,
     AFileName) then
     Exit;

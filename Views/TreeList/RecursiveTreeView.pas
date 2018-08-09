@@ -26,7 +26,8 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, RecursiveTreeQuery;
+  cxGridDBBandedTableView, cxGrid, RecursiveTreeQuery,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewRecursiveTree = class(TfrmGrid)
@@ -37,6 +38,9 @@ type
     procedure actExportToExcelDocumentExecute(Sender: TObject);
   private
     FQueryRecursiveTree: TQueryRecursiveTree;
+
+  const
+    KeyFolder: String = 'TreeList';
     procedure SetQueryRecursiveTree(const Value: TQueryRecursiveTree);
     { Private declarations }
   public
@@ -49,15 +53,17 @@ implementation
 
 {$R *.dfm}
 
-uses DialogUnit;
+uses DialogUnit, SettingsController;
 
 procedure TViewRecursiveTree.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
   inherited;
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Категории',
-    AFileName) then
+  Application.Hint := '';
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(KeyFolder), 'Категории', AFileName)
+  then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);

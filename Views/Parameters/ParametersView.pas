@@ -152,6 +152,9 @@ type
     FNewValue: string;
     FParametersGrp: TParametersGroup2;
     FParametersDI: TDragAndDropInfo;
+
+  const
+    FolderKey: String = 'Parameters';
     procedure LoadDataFromExcelTable(AData: TParametersExcelTable);
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetParametersGrp(const Value: TParametersGroup2);
@@ -179,8 +182,8 @@ type
     procedure Search(const AName: string);
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
-    property ParametersGrp: TParametersGroup2 read FParametersGrp write
-        SetParametersGrp;
+    property ParametersGrp: TParametersGroup2 read FParametersGrp
+      write SetParametersGrp;
     { Public declarations }
   end;
 
@@ -300,8 +303,10 @@ procedure TViewParameters.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Параметры',
-    AFileName) then
+  Application.Hint := '';
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(FolderKey), 'Параметры', AFileName)
+  then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
@@ -345,7 +350,7 @@ var
   AFileName: string;
 begin
   Application.Hint := '';
-  if TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     LoadFromExcel(AFileName);
 end;
 

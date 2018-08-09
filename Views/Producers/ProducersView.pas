@@ -92,6 +92,9 @@ type
     FNewValue: string;
     FProducersGroup: TProducersGroup2;
     FQuerySearchProducerTypes: TQuerySearchProducerTypes;
+
+  const
+    FolderKey = 'Producers';
     function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
     procedure MyInitializeComboBoxColumn;
     procedure SetProducersGroup(const Value: TProducersGroup2);
@@ -112,8 +115,8 @@ type
     destructor Destroy; override;
     procedure Locate(const AProducer: string);
     procedure UpdateView; override;
-    property ProducersGroup: TProducersGroup2 read FProducersGroup write
-        SetProducersGroup;
+    property ProducersGroup: TProducersGroup2 read FProducersGroup
+      write SetProducersGroup;
     { Public declarations }
   end;
 
@@ -179,8 +182,10 @@ procedure TViewProducers.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
 begin
-  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog, '', 'Производители',
-    AFileName) then
+  Application.Hint := '';
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(FolderKey), 'Производители', AFileName)
+  then
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName,
@@ -200,7 +205,7 @@ var
   AFileName: string;
 begin
   Application.Hint := '';
-  if not TOpenExcelDialog.SelectInLastFolder(AFileName, Handle) then
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     Exit;
 
   LoadFromExcel(AFileName);
@@ -495,12 +500,10 @@ begin
         (FProducersGroup.qProducers.Monitor.OnHaveAnyChanges,
         DoOnHaveAnyChanges, FEventList);
 
-      TNotifyEventWrap.Create
-        (FProducersGroup.qProducerTypes.AfterOpen,
+      TNotifyEventWrap.Create(FProducersGroup.qProducerTypes.AfterOpen,
         DoOnHaveAnyChanges, FEventList);
 
-      TNotifyEventWrap.Create
-        (FProducersGroup.qProducers.AfterOpen,
+      TNotifyEventWrap.Create(FProducersGroup.qProducers.AfterOpen,
         DoOnHaveAnyChanges, FEventList);
 
       InitializeLookupColumn(clProducerTypeID,
