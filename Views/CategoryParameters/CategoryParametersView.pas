@@ -325,22 +325,22 @@ end;
 function TViewCategoryParameters.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  {
-    if QueryCategoryParameters = nil then
+
+  if CatParamsGroup = nil then
     Exit;
 
-    // Если есть несохранённые изменения
-    if QueryCategoryParameters.HaveAnyChanges then
-    begin
+  // Если есть несохранённые изменения
+  if CatParamsGroup.HaveAnyChanges then
+  begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
-    IDYes:
-    actApplyUpdates.Execute;
-    IDNO:
-    actCancelUpdates.Execute;
+      IDYes:
+        actApplyUpdates.Execute;
+      IDNO:
+        actCancelUpdates.Execute;
     end;
-    end;
-  }
+  end;
+
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown
