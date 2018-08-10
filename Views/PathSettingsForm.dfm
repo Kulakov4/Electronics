@@ -45,9 +45,8 @@ object frmPathSettings: TfrmPathSettings
     Height = 188
     Align = alTop
     TabOrder = 2
-    Properties.ActivePage = cxtshBodyTypes
+    Properties.ActivePage = cxtshComponents
     Properties.CustomButtons.Buttons = <>
-    ExplicitTop = 4
     ClientRectBottom = 184
     ClientRectLeft = 4
     ClientRectRight = 784
@@ -56,22 +55,22 @@ object frmPathSettings: TfrmPathSettings
       Caption = #1041#1072#1079#1072' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 2
       object Label8: TLabel
-        Left = 3
-        Top = 31
+        Left = 8
+        Top = 33
         Width = 119
         Height = 16
         Caption = #1055#1091#1090#1100' '#1076#1086' '#1087#1072#1087#1082#1080' '#1089' '#1041#1044':'
       end
       object cxteDataBasePath: TcxTextEdit
         Left = 144
-        Top = 27
+        Top = 29
         Properties.ReadOnly = True
         TabOrder = 0
         Width = 537
       end
       object cxButton10: TcxButton
         Left = 696
-        Top = 27
+        Top = 29
         Width = 75
         Height = 25
         Action = actBrowseDatabasePath
@@ -89,7 +88,7 @@ object frmPathSettings: TfrmPathSettings
       ImageIndex = 1
       object Label4: TLabel
         Left = 8
-        Top = 31
+        Top = 33
         Width = 92
         Height = 16
         Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1080':'
@@ -103,27 +102,27 @@ object frmPathSettings: TfrmPathSettings
       end
       object Label6: TLabel
         Left = 8
-        Top = 97
+        Top = 95
         Width = 57
         Height = 16
         Caption = #1063#1077#1088#1090#1077#1078#1080':'
       end
       object Label7: TLabel
         Left = 8
-        Top = 64
+        Top = 63
         Width = 43
         Height = 16
         Caption = #1057#1093#1077#1084#1099':'
       end
       object cxteComponentsDataSheetFolder: TcxTextEdit
         Left = 224
-        Top = 27
+        Top = 29
         TabOrder = 0
         Width = 457
       end
       object cxButton6: TcxButton
         Left = 696
-        Top = 27
+        Top = 29
         Width = 75
         Height = 25
         Action = actBrowseComponentsDataSheetFolder
@@ -137,7 +136,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton7: TcxButton
         Left = 696
-        Top = 126
+        Top = 123
         Width = 75
         Height = 25
         Action = actBrowseComponentsImageFolder
@@ -145,13 +144,13 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxteComponentsDrawingFolder: TcxTextEdit
         Left = 224
-        Top = 93
+        Top = 91
         TabOrder = 4
         Width = 457
       end
       object cxButton8: TcxButton
         Left = 696
-        Top = 95
+        Top = 91
         Width = 75
         Height = 25
         Action = actBrowseComponentsDrawingFolder
@@ -159,13 +158,13 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxteComponentsDiagramFolder: TcxTextEdit
         Left = 224
-        Top = 60
+        Top = 59
         TabOrder = 6
         Width = 457
       end
       object cxButton9: TcxButton
         Left = 696
-        Top = 60
+        Top = 59
         Width = 75
         Height = 25
         Action = actBrowseComponentsSchemeFolder
@@ -177,7 +176,7 @@ object frmPathSettings: TfrmPathSettings
       ImageIndex = 3
       object Label9: TLabel
         Left = 8
-        Top = 31
+        Top = 33
         Width = 92
         Height = 16
         Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1080':'
@@ -229,7 +228,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton11: TcxButton
         Left = 696
-        Top = 27
+        Top = 29
         Width = 75
         Height = 25
         Action = actBrowseWareHouseDataSheetFolder
@@ -237,7 +236,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton12: TcxButton
         Left = 696
-        Top = 60
+        Top = 59
         Width = 75
         Height = 25
         Action = actBrowseWareHouseSchemeFolder
@@ -245,7 +244,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton13: TcxButton
         Left = 696
-        Top = 95
+        Top = 91
         Width = 75
         Height = 25
         Action = actBrowseWareHouseDrawingFolder
@@ -253,7 +252,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton14: TcxButton
         Left = 696
-        Top = 124
+        Top = 123
         Width = 75
         Height = 25
         Action = actBrowseWareHouseImageFilder
@@ -263,9 +262,11 @@ object frmPathSettings: TfrmPathSettings
     object cxtshBodyTypes: TcxTabSheet
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 0
+      ExplicitLeft = 5
+      ExplicitTop = 28
       object Label1: TLabel
         Left = 8
-        Top = 32
+        Top = 33
         Width = 114
         Height = 16
         Caption = #1063#1077#1088#1090#1077#1078#1080' '#1082#1086#1088#1087#1091#1089#1086#1074':'
@@ -293,7 +294,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxteBodyOutlineDrawingFolder: TcxTextEdit
         Left = 224
-        Top = 28
+        Top = 29
         TabOrder = 0
         Width = 457
       end
@@ -311,7 +312,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton1: TcxButton
         Left = 696
-        Top = 28
+        Top = 29
         Width = 75
         Height = 25
         Action = actBrowseOutlineDrawingFolder
@@ -319,7 +320,7 @@ object frmPathSettings: TfrmPathSettings
       end
       object cxButton2: TcxButton
         Left = 696
-        Top = 92
+        Top = 91
         Width = 75
         Height = 25
         Action = actBrowseLandPatternFolder

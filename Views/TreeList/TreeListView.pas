@@ -61,8 +61,8 @@ type
     procedure actRenameExecute(Sender: TObject);
     procedure actDuplicateExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
-    procedure cxbeiSearchKeyDown(Sender: TObject; var Key: Word; Shift:
-        TShiftState);
+    procedure cxbeiSearchKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure cxDBTreeListClick(Sender: TObject);
     procedure cxDBTreeListCollapsed(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode);
@@ -79,6 +79,7 @@ type
   private
     FqTreeList: TQueryTreeList;
     FViewDuplicateCategory: TViewDuplicateCategory;
+
   const
     KeyFolder: String = 'TreeList';
     function GetLevel(ANode: TcxTreeListNode): Integer;
@@ -271,8 +272,8 @@ var
   S: String;
 begin
   inherited;
-  AExternalID := VarToStrDef( cxbeiSearch.EditValue, '' );
-  S := VarToStrDef( cxbeiSearch.CurEditValue, '' );
+  AExternalID := VarToStrDef(cxbeiSearch.EditValue, '');
+  S := VarToStrDef(cxbeiSearch.CurEditValue, '');
   if AExternalID.IsEmpty then
     Exit;
 
@@ -281,7 +282,7 @@ begin
 end;
 
 procedure TViewTreeList.cxbeiSearchKeyDown(Sender: TObject; var Key: Word;
-    Shift: TShiftState);
+Shift: TShiftState);
 begin
   inherited;
   if Key <> 13 then
@@ -364,7 +365,8 @@ end;
 procedure TViewTreeList.cxSplitterAfterClose(Sender: TObject);
 begin
   inherited;
-  if qTreeList = nil then  Exit;
+  if qTreeList = nil then
+    Exit;
 
   qTreeList.AutoSearchDuplicate := False;
 end;
@@ -372,7 +374,8 @@ end;
 procedure TViewTreeList.cxSplitterAfterOpen(Sender: TObject);
 begin
   inherited;
-  if qTreeList = nil then  Exit;
+  if qTreeList = nil then
+    Exit;
   qTreeList.AutoSearchDuplicate := True;
 end;
 
@@ -395,7 +398,13 @@ begin
 end;
 
 procedure TViewTreeList.MyUpdateView(X, Y: Integer);
+
 begin
+  UpdateView;
+  if not actRename.Enabled then
+    Exit;
+
+
   actRename.Enabled := True;
 
   with cxDBTreeList do
@@ -442,7 +451,20 @@ begin
 end;
 
 procedure TViewTreeList.UpdateView;
+var
+  OK: Boolean;
 begin
+  OK := (qTreeList <> nil) and (qTreeList.FDQuery.Active);
+
+  actCopy.Enabled := OK;
+  actAdd.Enabled := OK;
+  actRename.Enabled := OK;
+  actDelete.Enabled := OK;
+  actExportTreeToExcelDocument.Enabled := OK;
+  actLoadTreeFromExcelDocument.Enabled := OK;
+  actDuplicate.Enabled := OK;
+  actClear.Enabled := OK;
+  actSearch.Enabled := OK;
 end;
 
 end.

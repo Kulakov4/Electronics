@@ -29,7 +29,7 @@ type
 implementation
 
 uses System.Sysutils, NotifyEvents, VCL.Controls, CustomExcelTable,
-  ProjectConst, System.Contnrs, System.Classes;
+  ProjectConst, System.Contnrs, System.Classes, ErrorType;
 
 var
   SingletonList: TObjectList;
@@ -47,7 +47,7 @@ begin
     FWriteProgress.Assign(e.TotalProgress);
 
   OK := e.ExcelTable.Errors.RecordCount = 0;
-  // Если в ходе загрузки данных произошли ошибки (производитель не найден)
+  // Если в ходе загрузки данных произошли ошибки
   if not OK then
   begin
     FfrmProgressBar.Hide;

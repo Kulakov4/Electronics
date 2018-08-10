@@ -61,7 +61,7 @@ implementation
 
 {$R *.dfm}
 
-uses ProgressInfo, System.Variants;
+uses ProgressInfo, System.Variants, ErrorType;
 
 const
   FParamPrefix = 'Param';

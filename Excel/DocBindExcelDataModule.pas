@@ -42,6 +42,9 @@ type
 
 implementation
 
+uses
+  ErrorType;
+
 function TDocBindExcelTable.CheckComponent: Boolean;
 begin
   Result := qSearchComponentOrFamily.SearchByValue(ComponentName.AsString) > 0;

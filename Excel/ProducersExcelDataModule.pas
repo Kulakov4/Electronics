@@ -50,7 +50,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, System.Math, FieldInfoUnit, ProgressInfo;
+uses System.Variants, System.Math, FieldInfoUnit, ProgressInfo, ErrorType;
 
 constructor TProducersExcelTable.Create(AOwner: TComponent);
 begin

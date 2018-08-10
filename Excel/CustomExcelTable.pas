@@ -5,13 +5,9 @@ interface
 uses
   FireDAC.Comp.Client, Data.DB, System.Classes, FieldInfoUnit,
   System.Generics.Collections, ErrorTable, DBRecordHolder, NotifyEvents,
-  ProgressInfo, TableWithProgress;
+  ProgressInfo, TableWithProgress, ErrorType;
 
 type
-  TCustomExcelTable = class;
-
-  TErrorTypes = (etNone = 0, etWarring = 1, etError = 2);
-
   TCustomExcelTable = class(TTableWithProgress)
   private
     FErrors: TErrorTable;
@@ -21,7 +17,7 @@ type
   protected
     function ProcessValue(const AFieldName, AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
-    procedure MarkAsError(AErrorType: TErrorTypes);
+    procedure MarkAsError(AErrorType: TErrorType);
     procedure SetFieldsInfo; virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -30,7 +26,7 @@ type
     function AppendRow(AExcelRow: Integer; var Value: Variant;
       ArrayRow: Integer): Boolean;
     function CheckRecord: Boolean; virtual;
-    procedure ExcludeErrors(AErrorTypes: TErrorTypes);
+    procedure ExcludeErrors(AErrorTypes: TErrorType);
     procedure SetUnionCellValues(ARecHolder: TRecordHolder);
     procedure TryEdit;
     procedure TryPost;
@@ -150,7 +146,7 @@ begin
   FieldDefs.Add('ErrorType', ftInteger);
 end;
 
-procedure TCustomExcelTable.ExcludeErrors(AErrorTypes: TErrorTypes);
+procedure TCustomExcelTable.ExcludeErrors(AErrorTypes: TErrorType);
 begin
   Filter := Format('%s < %d', [ErrorType.FieldName, Integer(AErrorTypes)]);
   Filtered := True;
@@ -166,7 +162,7 @@ begin
   Result := FieldByName('ExcelRow');
 end;
 
-procedure TCustomExcelTable.MarkAsError(AErrorType: TErrorTypes);
+procedure TCustomExcelTable.MarkAsError(AErrorType: TErrorType);
 begin
   Edit;
   ErrorType.AsInteger := Integer(AErrorType);

@@ -10,14 +10,17 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, DragHelper, System.Generics.Collections,
   NotifyEvents, QueryWithDataSourceUnit, SearchParameterQuery,
-  ApplyQueryFrame, OrderQuery;
+  ApplyQueryFrame, OrderQuery, ParametersInterface;
 
 type
-  TQueryParameters = class(TQueryOrder)
+  TQueryParameters = class(TQueryOrder, IParameters)
     fdqBase: TFDQuery;
     ParametersApplyQuery: TfrmApplyQuery;
     fdqDeleteFromCategoryParams: TFDQuery;
+  strict private
+    function Check(const AParameterName: string): TRecordCheck; stdcall;
   private
+    FCheckClone: TFDMemTable;
     FProductCategoryIDValue: Integer;
     FqSearchParameter: TQuerySearchParameter;
     FShowDuplicate: Boolean;
@@ -25,7 +28,9 @@ type
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
+    function GetCheckClone: TFDMemTable;
     function GetChecked: TField;
+    function GetCodeLetters: TField;
     function GetIDParameterKind: TField;
     function GetIDParameterType: TField;
     function GetIdSubParameter: TField;
@@ -40,18 +45,20 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function GetOrd: TField; override;
+    property CheckClone: TFDMemTable read GetCheckClone;
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
     constructor Create(AOwner: TComponent); override;
     function GetCheckedValues(const AFieldName: String): string;
     function Lookup(AValue: string): Integer;
     property Checked: TField read GetChecked;
+    property CodeLetters: TField read GetCodeLetters;
     property IDParameterKind: TField read GetIDParameterKind;
     property IDParameterType: TField read GetIDParameterType;
     property IdSubParameter: TField read GetIdSubParameter;
@@ -73,7 +80,7 @@ implementation
 {$R *.dfm}
 
 uses DBRecordHolder, System.StrUtils, StrHelper,
-  BaseQuery;
+  BaseQuery, ErrorType;
 
 constructor TQueryParameters.Create(AOwner: TComponent);
 begin
@@ -92,8 +99,9 @@ begin
   AutoTransaction := False;
 end;
 
-procedure TQueryParameters.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryParameters.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AID: TField;
   AIsCustomParameter: TField;
@@ -249,6 +257,19 @@ begin
   end;
 end;
 
+function TQueryParameters.Check(const AParameterName: string): TRecordCheck;
+begin
+  Result.ErrorType := etNone;
+
+  // ≈сли такого параметра у нас нет
+  if not CheckClone.LocateEx(Value.FieldName, AParameterName,
+    [lxoCaseInsensitive]) then
+    Exit;
+
+  Result.ErrorType := etWarring;
+  Result.ErrorMessage := 'ѕараметр с таким наименованием уже существует';
+end;
+
 procedure TQueryParameters.DoAfterInsert(Sender: TObject);
 begin
   FDQuery.FieldByName('IsCustomParameter').AsBoolean := False;
@@ -277,13 +298,19 @@ begin
   end;
 end;
 
+function TQueryParameters.GetCheckClone: TFDMemTable;
+begin
+  if FCheckClone = nil then
+    FCheckClone := AddClone('');
+  Result := FCheckClone;
+end;
+
 function TQueryParameters.GetChecked: TField;
 begin
   Result := Field('Checked');
 end;
 
-function TQueryParameters.GetCheckedValues(const AFieldName : String):
-    string;
+function TQueryParameters.GetCheckedValues(const AFieldName: String): string;
 var
   AClone: TFDMemTable;
 begin
@@ -301,6 +328,11 @@ begin
   finally
     DropClone(AClone);
   end;
+end;
+
+function TQueryParameters.GetCodeLetters: TField;
+begin
+  Result := Field('CodeLetters');
 end;
 
 function TQueryParameters.GetIDParameterKind: TField;

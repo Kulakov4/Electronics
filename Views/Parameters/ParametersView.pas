@@ -825,8 +825,7 @@ begin
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TParametersExcelTable).ParametersDataSet :=
-          ParametersGrp.qParameters.FDQuery;
+        (ASender as TParametersExcelTable).ParametersInt := ParametersGrp.qParameters;
       end);
   finally
     EndUpdate;

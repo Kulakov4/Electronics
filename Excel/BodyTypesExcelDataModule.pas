@@ -92,7 +92,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, FieldInfoUnit;
+uses System.Variants, FieldInfoUnit, ErrorType;
 
 constructor TBodyTypesExcelTable.Create(AOwner: TComponent);
 begin

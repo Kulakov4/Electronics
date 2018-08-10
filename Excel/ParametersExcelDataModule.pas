@@ -7,33 +7,29 @@ uses
   System.Generics.Collections, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  CustomExcelTable, ParameterKindsQuery;
+  CustomExcelTable, ParameterKindsQuery, ParametersInterface;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
   TParametersExcelTable = class(TCustomExcelTable)
   private
-    FDMemTable: TFDMemTable;
-    FParametersDataSet: TFDDataSet;
+    FParametersInt: IParameters;
     FqParameterKinds: TQueryParameterKinds;
     function GetParameterKindID: TField;
     function GetParameterType: TField;
     function GetqParameterKinds: TQueryParameterKinds;
     function GetValue: TField;
-    procedure SetParametersDataSet(const Value: TFDDataSet);
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
   protected
     function CheckParameter: Boolean;
-    procedure Clone;
     function ProcessValue(const AFieldName, AValue: string): String; override;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
     property ParameterKindID: TField read GetParameterKindID;
-    property ParametersDataSet: TFDDataSet read FParametersDataSet
-      write SetParametersDataSet;
+    property ParametersInt: IParameters read FParametersInt write FParametersInt;
     property ParameterType: TField read GetParameterType;
     property Value: TField read GetValue;
   end;
@@ -59,7 +55,7 @@ implementation
 {$R *.dfm}
 
 uses System.Variants, System.Math, StrHelper, FieldInfoUnit, ProgressInfo,
-  ParameterKindEnum;
+  ParameterKindEnum, ErrorType;
 
 function TParametersExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
@@ -108,31 +104,31 @@ end;
 constructor TParametersExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FDMemTable := TFDMemTable.Create(Self);
 end;
 
 function TParametersExcelTable.CheckParameter: Boolean;
 var
   AParameterKindID: Integer;
-  V: Variant;
+  rc: TRecordCheck;
 begin
-  // Ищем параметр с таким-же именем
-  V := FDMemTable.LookupEx(Value.FieldName, Value.Value, 'ID');
+  Assert(ParametersInt <> nil);
 
-  Result := VarIsNull(V);
+  rc := ParametersInt.Check(Value.Value);
 
-  // Если не нашли
+  Result := rc.ErrorType = etNone;
+
   if not Result then
   begin
-    // Запоминаем, что в этой строке предупреждение
-    MarkAsError(etWarring);
+    MarkAsError(rc.ErrorType);
 
     Errors.AddWarring(ExcelRow.AsInteger, Value.Index + 1, Value.AsString,
-      'Параметр с таким наименованием уже существует');
+      rc.ErrorMessage);
   end;
 
   // Проверяем, что в файле целое число
   AParameterKindID := StrToIntDef(ParameterKindID.AsString, -100);
+
+  // Если вид параметра задан строкой
   if AParameterKindID = -100 then
   begin
     // Ищем в справочнике видов параметров
@@ -160,7 +156,6 @@ begin
         ParameterKindID.AsString,
         Format('Код вида параметра должен быть от %d до %d',
         [Integer(Неиспользуется), Integer(Строковый_частичный)]));
-
     end;
   end;
 
@@ -171,23 +166,9 @@ begin
   Result := inherited;
   if Result then
   begin
-    // Проверяем что такой компонент существует
+    // Проверяем что такой параметр не существует
     Result := CheckParameter;
   end;
-end;
-
-procedure TParametersExcelTable.Clone;
-var
-  AFDIndex: TFDIndex;
-begin
-  // Клонируем курсор
-  FDMemTable.CloneCursor(ParametersDataSet);
-  // Создаём индекс
-  AFDIndex := FDMemTable.Indexes.Add;
-  AFDIndex.Fields := 'Value';
-  AFDIndex.Name := 'idxValue';
-  AFDIndex.Active := True;
-  FDMemTable.IndexName := AFDIndex.Name;
 end;
 
 function TParametersExcelTable.GetParameterKindID: TField;
@@ -239,18 +220,6 @@ begin
     'Тип параметра не должен быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('ParameterKindID', True,
     'Код вида параметра не должен быть пустым'));
-end;
-
-procedure TParametersExcelTable.SetParametersDataSet(const Value: TFDDataSet);
-begin
-  if FParametersDataSet <> Value then
-  begin
-    FParametersDataSet := Value;
-    if FParametersDataSet <> nil then
-    begin
-      Clone;
-    end;
-  end;
 end;
 
 end.

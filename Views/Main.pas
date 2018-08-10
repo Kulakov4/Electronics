@@ -581,7 +581,6 @@ begin
       // Блокируем это представление до тех пор, пока вкладка не станет активной
       ComponentsFrame.ViewParametricTable.Lock;
 
-
       // Привязываем список складов к данным
       tvStorehouseList.DataController.DataSource :=
         TDM.Create.qStoreHouseList.DataSource;
@@ -631,13 +630,12 @@ begin
   end;
 
   // OK := OK and TProtect.Create.Check;
-  (*
-    if not OK then
-    begin
+  if not OK then
+  begin
     Application.ShowMainForm := False;
     Application.Terminate; // завершаем работу приложения
-    end;
-  *)
+  end;
+
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);

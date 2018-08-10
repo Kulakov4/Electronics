@@ -158,8 +158,7 @@ begin
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TExtraChargeExcelTable).ExtraChargeDataSet :=
-          qExtraCharge.FDQuery;
+        (ASender as TExtraChargeExcelTable).ExtraChargeInt := qExtraCharge;
       end);
   finally
     EndUpdate;

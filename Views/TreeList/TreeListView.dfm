@@ -82,7 +82,6 @@ inherited ViewTreeList: TViewTreeList
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
-    ExplicitWidth = 8
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False

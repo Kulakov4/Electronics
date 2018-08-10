@@ -210,7 +210,7 @@ uses
   ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame},
   ExceptionHelper in 'Helpers\ExceptionHelper.pas',
   ExtraChargeExcelDataModule in 'Excel\ExtraChargeExcelDataModule.pas' {ExtraChargeExcelDM: TDataModule},
-  CheckDuplicateInterface in 'Helpers\CheckDuplicateInterface.pas',
+  CheckDuplicateInterface in 'Interfaces\CheckDuplicateInterface.pas',
   ProductsViewForm in 'Views\Products\ProductsViewForm.pas' {frmProducts},
   CategoryParametersQuery in 'Queryes\CategoryParameters\CategoryParametersQuery.pas' {QueryCategoryParams: TFrame},
   SearchComponentParamSubParamsQuery in 'Queryes\Search\SearchComponentParamSubParamsQuery.pas' {QuerySearchComponentParamSubParams: TFrame},
@@ -224,7 +224,7 @@ uses
   BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame},
   BodyVariationJedecGroupQuery in 'Queryes\BodyTypes\BodyVariationJedecGroupQuery.pas' {QueryBodyVariationJEDECGroup: TFrame},
   OpenJedecUnit in 'Helpers\OpenJedecUnit.pas',
-  ProducerInterface in 'Helpers\ProducerInterface.pas',
+  ProducerInterface in 'Queryes\Producers\ProducerInterface.pas',
   CurrencyInterface in 'Helpers\CurrencyInterface.pas',
   CurrencyUnit in 'Queryes\HTTP\CurrencyUnit.pas',
   QueryGroupUnit2 in 'Queryes\QueryGroupUnit2.pas',
@@ -237,7 +237,12 @@ uses
   ComponentsGroupUnit2 in 'Queryes\Components\ComponentsGroupUnit2.pas',
   ComponentsExGroupUnit2 in 'Queryes\Components\ParametricTable\ComponentsExGroupUnit2.pas',
   ParametersGroupUnit2 in 'Queryes\Parameters\ParametersGroupUnit2.pas',
-  DescriptionsGroupUnit2 in 'Queryes\Descriptions\DescriptionsGroupUnit2.pas';
+  DescriptionsGroupUnit2 in 'Queryes\Descriptions\DescriptionsGroupUnit2.pas',
+  DescriptionsInterface in 'Queryes\Descriptions\DescriptionsInterface.pas',
+  ExtraChargeInterface in 'Queryes\ExtraCharge\ExtraChargeInterface.pas',
+  ParametersInterface in 'Queryes\Parameters\ParametersInterface.pas',
+  ErrorType in 'Helpers\ErrorType.pas',
+  ParametersGroupInterface in 'Queryes\Parameters\ParametersGroupInterface.pas';
 
 {$R *.res}
 
@@ -248,4 +253,6 @@ begin
   Application.Run;
 
 end.
+
+
 

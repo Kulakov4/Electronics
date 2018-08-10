@@ -5,10 +5,14 @@ interface
 uses
   QueryGroupUnit2, System.Classes, ParameterKindsQuery, ParametersQuery,
   ParameterTypesQuery, ParamSubParamsQuery, SubParametersQuery2,
-  System.Generics.Collections, ParametersExcelDataModule, NotifyEvents;
+  System.Generics.Collections, ParametersExcelDataModule, NotifyEvents,
+  ParametersInterface, ParametersGroupInterface;
 
 type
-  TParametersGroup2 = class(TQueryGroup2)
+  TParametersGroup2 = class(TQueryGroup2, IParametersGroup)
+  strict private
+    function Check(AParametersExcelTable: TParametersExcelTable)
+      : TRecordCheck; stdcall;
   private
     FProductCategoryIDValue: Integer;
     FqParameterKinds: TQueryParameterKinds;
@@ -23,10 +27,11 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure LoadDataFromExcelTable(AParametersExcelTable: TParametersExcelTable);
+    procedure LoadDataFromExcelTable(AParametersExcelTable
+      : TParametersExcelTable);
     function LocateAll(AParameterID: Integer): Boolean;
-    property ProductCategoryIDValue: Integer read FProductCategoryIDValue write
-        SetProductCategoryIDValue;
+    property ProductCategoryIDValue: Integer read FProductCategoryIDValue
+      write SetProductCategoryIDValue;
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
     property qParameters: TQueryParameters read FqParameters;
     property qParameterTypes: TQueryParameterTypes read FqParameterTypes;
@@ -37,7 +42,7 @@ type
 implementation
 
 uses
-  System.SysUtils, Data.DB, ParameterKindEnum;
+  System.SysUtils, Data.DB, ParameterKindEnum, ErrorType;
 
 constructor TParametersGroup2.Create(AOwner: TComponent);
 begin
@@ -52,12 +57,57 @@ begin
   FqSubParameters := TQuerySubParameters2.Create(Self);
 
   QList.Add(qParameterTypes); // Тип каждого параметра
-  QList.Add(qParameters);     // Сами параметры
-  QList.Add(qSubParameters);  // Подпараметры
+  QList.Add(qParameters); // Сами параметры
+  QList.Add(qSubParameters); // Подпараметры
   QList.Add(qParamSubParams); // Связь между параметрами и подпараметрами
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete, EventList);
+  TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete,
+    EventList);
+end;
+
+function TParametersGroup2.Check(AParametersExcelTable: TParametersExcelTable)
+  : TRecordCheck;
+var
+  AParameterKindID: Integer;
+begin
+  Result.ErrorType := etNone;
+
+  // Проверяем, что в файле целое число
+  AParameterKindID :=
+    StrToIntDef(AParametersExcelTable.ParameterKindID.AsString, -100);
+
+  // Если вид параметра задан строкой
+  if AParameterKindID = -100 then
+  begin
+    // Ищем в справочнике видов параметров
+    if qParameterKinds.GetIDByParameterKind
+      (AParametersExcelTable.ParameterKindID.AsString) = 0 then
+    begin
+      // Запоминаем, что в этой строке предупреждение
+      MarkAsError(etError);
+
+      Errors.AddError(ExcelRow.AsInteger, ParameterKindID.Index + 1,
+        ParameterKindID.AsString,
+        Format('Код вида параметра должен быть целым числом от %d до %d',
+        [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+    end;
+  end
+  else
+  begin
+    if (ParameterKindID.AsInteger < Integer(Неиспользуется)) or
+      (ParameterKindID.AsInteger > Integer(Строковый_частичный)) then
+    begin
+      // Запоминаем, что в этой строке предупреждение
+      MarkAsError(etError);
+
+      Errors.AddError(ExcelRow.AsInteger, ParameterKindID.Index + 1,
+        ParameterKindID.AsString,
+        Format('Код вида параметра должен быть от %d до %d',
+        [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+    end;
+  end;
+
 end;
 
 procedure TParametersGroup2.Commit;
@@ -110,8 +160,8 @@ begin
   Result := FqParameterKinds;
 end;
 
-procedure TParametersGroup2.LoadDataFromExcelTable(AParametersExcelTable:
-    TParametersExcelTable);
+procedure TParametersGroup2.LoadDataFromExcelTable(AParametersExcelTable
+  : TParametersExcelTable);
 var
   AField: TField;
   AParameterKindID: Integer;
@@ -165,8 +215,7 @@ begin
           end;
         end;
 
-        qParameters.IDParameterType.AsInteger :=
-          qParameterTypes.PK.AsInteger;
+        qParameters.IDParameterType.AsInteger := qParameterTypes.PK.AsInteger;
         qParameters.IDParameterKind.AsInteger := AParameterKindID;
 
         qParameters.FDQuery.Post;

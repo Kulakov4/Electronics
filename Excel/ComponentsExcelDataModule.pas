@@ -59,7 +59,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, FieldInfoUnit, ProgressInfo, DBRecordHolder;
+uses System.Variants, FieldInfoUnit, ProgressInfo, DBRecordHolder, ErrorType;
 
 function TComponentsExcelDM.CreateExcelTable: TCustomExcelTable;
 begin

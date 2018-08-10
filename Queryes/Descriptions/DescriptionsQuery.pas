@@ -8,18 +8,24 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
+  DescriptionsInterface;
 
 type
-  TQueryDescriptions = class(TQueryWithDataSource)
+  TQueryDescriptions = class(TQueryWithDataSource, IDescriptions)
     fdqBase: TFDQuery;
     FDQueryID: TFDAutoIncField;
     FDQueryComponentName: TWideStringField;
     FDQueryDescription: TWideMemoField;
     FDQueryIDComponentType: TIntegerField;
     FDQueryIDProducer: TIntegerField;
+  strict private
+    function Check(const AComponentName, ADescription: String; AProducerID:
+        Integer): TCheckDescriptionResult; stdcall;
   private
+    FCheckClone: TFDMemTable;
     FShowDuplicate: Boolean;
+    function GetCheckClone: TFDMemTable;
     function GetComponentName: TField;
     function GetDescription: TField;
     function GetIDComponentType: TField;
@@ -27,6 +33,7 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
+    property CheckClone: TFDMemTable read GetCheckClone;
   public
     constructor Create(AOwner: TComponent); override;
     property ComponentName: TField read GetComponentName;
@@ -50,6 +57,30 @@ begin
   AssignFrom(fdqBase);
 
   AutoTransaction := False;
+end;
+
+function TQueryDescriptions.Check(const AComponentName, ADescription: String;
+    AProducerID: Integer): TCheckDescriptionResult;
+begin
+  Result := Ќе—уществует;
+
+  // »щем компонент
+  if not CheckClone.LocateEx(ComponentName.FieldName, AComponentName, [lxoCaseInsensitive]) then
+    Exit;
+
+  // —равниваем описани€
+  if Description.AsString = ADescription then
+    Result := ƒублируетс€
+  else
+    Result := —уществуетƒругое;
+end;
+
+function TQueryDescriptions.GetCheckClone: TFDMemTable;
+begin
+  if FCheckClone = nil then
+    FCheckClone := AddClone('');
+
+  Result := FCheckClone;
 end;
 
 function TQueryDescriptions.GetComponentName: TField;

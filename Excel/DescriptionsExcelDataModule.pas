@@ -6,40 +6,39 @@ uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, CustomExcelTable;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, CustomExcelTable,
+  ProducerInterface, DescriptionsInterface;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
   TDescriptionsExcelTable = class(TCustomExcelTable)
   private
-    FDescriptionsDataSet: TFDDataSet;
-    FProducersDataSet: TFDDataSet;
-    FDescriptionsMemTable: TFDMemTable;
-    FProducersMemTable: TFDMemTable;
+    FClone: TFDMemTable;
+    FDescriptionsInt: IDescriptions;
+    FProducerInt: IProducer;
+    procedure DoAfterOpen(Sender: TDataSet);
     function GetComponentName: TField;
     function GetComponentType: TField;
+    function GetDescription: TField;
     function GetIDProducer: TField;
     function GetProducer: TField;
-    procedure SetDescriptionsDataSet(const Value: TFDDataSet);
-    procedure SetProducersDataSet(const Value: TFDDataSet);
   protected
     function CheckDescription: Boolean;
-    procedure CloneDescriptions;
-    procedure CloneProducers;
     procedure CreateFieldDefs; override;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function CheckRecord: Boolean; override;
     property ComponentName: TField read GetComponentName;
     property ComponentType: TField read GetComponentType;
-    property DescriptionsDataSet: TFDDataSet read FDescriptionsDataSet
-      write SetDescriptionsDataSet;
+    property Description: TField read GetDescription;
+    property DescriptionsInt: IDescriptions read FDescriptionsInt
+      write FDescriptionsInt;
     property IDProducer: TField read GetIDProducer;
-    property ProducersDataSet: TFDDataSet read FProducersDataSet write
-        SetProducersDataSet;
     property Producer: TField read GetProducer;
+    property ProducerInt: IProducer read FProducerInt write FProducerInt;
   end;
 
   TDescriptionsExcelDM = class(TExcelDM)
@@ -57,58 +56,109 @@ implementation
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
-uses System.Math, System.Variants, FieldInfoUnit, ProgressInfo;
+uses System.Math, System.Variants, FieldInfoUnit, ProgressInfo, ErrorType;
 
 {$R *.dfm}
 
 constructor TDescriptionsExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FDescriptionsMemTable := TFDMemTable.Create(Self);
-  FProducersMemTable := TFDMemTable.Create(Self);
+  AfterOpen := DoAfterOpen;
+end;
+
+destructor TDescriptionsExcelTable.Destroy;
+begin
+  FreeAndNil(FClone);
+  inherited;
 end;
 
 function TDescriptionsExcelTable.CheckDescription: Boolean;
 var
-  V: Variant;
+  AProducerID: Integer;
+  OK: Boolean;
+  r: TCheckDescriptionResult;
 begin
-  Assert(FDescriptionsDataSet <> nil);
-  Assert(FProducersDataSet <> nil);
+  Assert(ProducerInt <> nil);
+  Assert(DescriptionsInt <> nil);
 
   // Ищем производителя
-  V := FProducersMemTable.LookupEx('Name', Producer.Value, 'ID');
+  AProducerID := ProducerInt.GetProducerID(Producer.Value);
+  Result := AProducerID > 0;
 
-  Result := not VarIsNull(V);
-
-  // Если нашли
+  // Если не нашли
   if not Result then
   begin
     MarkAsError(etError);
 
-    Errors.AddError(ExcelRow.AsInteger, Producer.Index + 1,
-      Producer.AsString, 'Производитель с таким наименованием не найден в справочнике производителей');
+    Errors.AddError(ExcelRow.AsInteger, Producer.Index + 1, Producer.AsString,
+      'Производитель с таким наименованием не найден в справочнике производителей');
 
     Exit;
   end;
 
   // Запоминаем код производителя
   Edit;
-  IDProducer.Value := V;
+  IDProducer.Value := AProducerID;
   Post;
+
+  // А может быть в Excel файле это уже встречалось ранее?
+  OK := FClone.LocateEx(ComponentName.FieldName, ComponentName.Value,
+    [lxoCaseInsensitive]);
+  Assert(OK); // Хотя бы один раз встречаться должно
+  Result := FClone.RecNo = RecNo;
+  // Если в Excel файле это встречается один раз
+
+  if not Result then
+  begin
+    if FClone.FieldByName(Description.FieldName).AsString = Description.AsString
+    then
+    begin
+      MarkAsError(etError);
+
+      Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
+        ComponentName.AsString, 'Такое описание уже есть в загружаемых данных');
+    end
+    else
+    begin
+      MarkAsError(etWarring);
+
+      Errors.AddWarring(ExcelRow.AsInteger, ComponentName.Index + 1,
+        ComponentName.AsString,
+        'Компонент с таким наименованием уже встречался в загружаемых данных');
+    end;
+    Exit;
+  end;
 
   // Продолжаем проверку
 
-  // Ищем компонент с таким-же именем
-  V := FDescriptionsMemTable.LookupEx(ComponentName.FieldName, ComponentName.Value, 'ID');
+  r := DescriptionsInt.Check(ComponentName.Value, Description.Value,
+    IDProducer.Value);
 
-  // Если нашли
-  if not Result then
+  Result := r = НеСуществует;
+
+  if Result then
+    Exit;
+
+  // Если нашли дубликат
+  if r = Дублируется then
+  begin
+    MarkAsError(etError);
+
+    Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
+      ComponentName.AsString, 'Такое описание уже есть в справочнике');
+
+    Exit;
+  end;
+
+  if r = СуществуетДругое then
   begin
     MarkAsError(etWarring);
 
-    Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
-      ComponentName.AsString, 'Компонент с таким наименованием уже существует');
+    Errors.AddWarring(ExcelRow.AsInteger, ComponentName.Index + 1,
+      ComponentName.AsString,
+      'Компонент с таким наименованием имеет другое описание в справочнике');
   end;
+
 end;
 
 function TDescriptionsExcelTable.CheckRecord: Boolean;
@@ -120,41 +170,18 @@ begin
   end;
 end;
 
-procedure TDescriptionsExcelTable.CloneDescriptions;
-var
-  AFDIndex: TFDIndex;
-begin
-  // Клонируем курсор
-  FDescriptionsMemTable.CloneCursor(DescriptionsDataSet);
-
-  // Создаём индекс
-  AFDIndex := FDescriptionsMemTable.Indexes.Add;
-  AFDIndex.Fields := 'ComponentName';
-  AFDIndex.Name := 'idxComponentName';
-  AFDIndex.Active := True;
-  FDescriptionsMemTable.IndexName := AFDIndex.Name;
-end;
-
-procedure TDescriptionsExcelTable.CloneProducers;
-var
-  AFDIndex: TFDIndex;
-begin
-  // Клонируем курсор
-  FProducersMemTable.CloneCursor(ProducersDataSet);
-
-  // Создаём индекс
-  AFDIndex := FProducersMemTable.Indexes.Add;
-  AFDIndex.Fields := 'Name';
-  AFDIndex.Name := 'idxName';
-  AFDIndex.Active := True;
-  FProducersMemTable.IndexName := AFDIndex.Name;
-end;
-
 procedure TDescriptionsExcelTable.CreateFieldDefs;
 begin
   inherited;
   // при проверке будем заполнять код производителя
   FieldDefs.Add('IDProducer', ftInteger);
+end;
+
+procedure TDescriptionsExcelTable.DoAfterOpen(Sender: TDataSet);
+begin
+  Assert(FClone = nil);
+  FClone := TFDMemTable.Create(Self);
+  FClone.CloneCursor(Self);
 end;
 
 function TDescriptionsExcelTable.GetComponentName: TField;
@@ -167,6 +194,11 @@ begin
   Result := FieldByName('ComponentType');
 end;
 
+function TDescriptionsExcelTable.GetDescription: TField;
+begin
+  Result := FieldByName('Description');
+end;
+
 function TDescriptionsExcelTable.GetIDProducer: TField;
 begin
   Result := FieldByName('IDProducer');
@@ -175,31 +207,6 @@ end;
 function TDescriptionsExcelTable.GetProducer: TField;
 begin
   Result := FieldByName('Producer');
-end;
-
-procedure TDescriptionsExcelTable.SetDescriptionsDataSet
-  (const Value: TFDDataSet);
-begin
-  if FDescriptionsDataSet <> Value then
-  begin
-    FDescriptionsDataSet := Value;
-    if FDescriptionsDataSet <> nil then
-    begin
-      CloneDescriptions;
-    end;
-  end;
-end;
-
-procedure TDescriptionsExcelTable.SetProducersDataSet(const Value: TFDDataSet);
-begin
-  if FProducersDataSet <> Value then
-  begin
-    FProducersDataSet := Value;
-    if FProducersDataSet <> nil then
-    begin
-      CloneProducers;
-    end;
-  end;
 end;
 
 procedure TDescriptionsExcelTable.SetFieldsInfo;

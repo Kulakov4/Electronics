@@ -151,7 +151,7 @@ uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
   ProgressBarForm, ProjectConst, CustomExcelTable, ParameterValuesUnit,
   GridViewForm, ReportQuery, ReportsForm, FireDAC.Comp.Client, AllFamilyQuery,
   AutoBindingDocForm, AutoBinding, AutoBindingDescriptionForm, BindDocUnit,
-  NotifyEvents, CustomErrorForm, StrHelper;
+  NotifyEvents, CustomErrorForm, StrHelper, ErrorType;
 
 constructor TComponentsFrame.Create(AOwner: TComponent);
 begin

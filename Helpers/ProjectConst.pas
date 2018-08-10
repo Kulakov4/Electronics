@@ -85,7 +85,7 @@ resourcestring
 
 const
   DBVersion = 7;
-  ProgramVersion = 1.2;
+  ProgramVersion = 1.3;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
   DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
   OnReadProcessEventRecordCount = 100;

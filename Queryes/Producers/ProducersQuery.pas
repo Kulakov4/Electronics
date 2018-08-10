@@ -16,6 +16,7 @@ type
     procedure FDQueryCntGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
   strict private
+    function Exist(const AProducerName: String): Boolean; stdcall;
     function GetProducerID(const AProducerName: String): Integer; stdcall;
   private
     procedure DoBeforeScroll(Sender: TObject);
@@ -96,6 +97,11 @@ begin
     TDefaultParameters.ProducerParamSubParamID;
 end;
 
+function TQueryProducers.Exist(const AProducerName: String): Boolean;
+begin
+  Result := GetProducerID(AProducerName) > 0;
+end;
+
 procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
@@ -119,6 +125,7 @@ function TQueryProducers.GetProducerID(const AProducerName: String): Integer;
 var
   V: Variant;
 begin
+  Assert(not AProducerName.IsEmpty);
   Result := 0;
   V := FDQuery.LookupEx(Name.FieldName, AProducerName, PK.FieldName);
   if not VarIsNull(V) then

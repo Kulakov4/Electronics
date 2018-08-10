@@ -553,10 +553,10 @@ begin
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TDescriptionsExcelTable).DescriptionsDataSet :=
-          DescriptionsGroup.qDescriptions.FDQuery;
-        (ASender as TDescriptionsExcelTable).ProducersDataSet :=
-          DescriptionsGroup.qProducers.FDQuery
+        (ASender as TDescriptionsExcelTable).DescriptionsInt :=
+          DescriptionsGroup.qDescriptions;
+        (ASender as TDescriptionsExcelTable).ProducerInt :=
+          DescriptionsGroup.qProducers;
       end);
   finally
     EndUpdate;

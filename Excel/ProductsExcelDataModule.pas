@@ -82,6 +82,9 @@ type
 
 implementation
 
+uses
+  ErrorType;
+
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
 {$R *.dfm}

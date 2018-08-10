@@ -41,7 +41,7 @@ type
 implementation
 
 uses
-  FieldInfoUnit, System.Variants, StrHelper;
+  FieldInfoUnit, System.Variants, StrHelper, ErrorType;
 
 constructor TSubParametersExcelTable.Create(AOwner: TComponent);
 begin
