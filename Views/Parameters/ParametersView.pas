@@ -825,7 +825,7 @@ begin
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TParametersExcelTable).ParametersInt := ParametersGrp.qParameters;
+        (ASender as TParametersExcelTable).ParametersGroupInt := ParametersGrp;
       end);
   finally
     EndUpdate;

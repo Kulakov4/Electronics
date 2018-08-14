@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  ApplyQueryFrame, BodyTypesExcelDataModule, QueryWithDataSourceUnit,
+  BodyTypesExcelDataModule, QueryWithDataSourceUnit,
   BodiesQuery, BodyDataQuery, BodyVariationsQuery, BodyTypesBaseQuery,
   DocFieldInfo, System.IOUtils, JEDECQuery, System.Generics.Collections,
   BodyVariationJedecQuery, BodyOptionsQuery, BodyVariationOptionQuery;

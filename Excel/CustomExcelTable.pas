@@ -5,7 +5,7 @@ interface
 uses
   FireDAC.Comp.Client, Data.DB, System.Classes, FieldInfoUnit,
   System.Generics.Collections, ErrorTable, DBRecordHolder, NotifyEvents,
-  ProgressInfo, TableWithProgress, ErrorType;
+  ProgressInfo, TableWithProgress, ErrorType, RecordCheck;
 
 type
   TCustomExcelTable = class(TTableWithProgress)
@@ -18,6 +18,7 @@ type
     function ProcessValue(const AFieldName, AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
     procedure MarkAsError(AErrorType: TErrorType);
+    procedure ProcessErrors(ARecordCheck: TRecordCheck);
     procedure SetFieldsInfo; virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -167,6 +168,18 @@ begin
   Edit;
   ErrorType.AsInteger := Integer(AErrorType);
   Post;
+end;
+
+procedure TCustomExcelTable.ProcessErrors(ARecordCheck: TRecordCheck);
+begin
+  if ARecordCheck.ErrorType = etNone then
+    Exit;
+
+  // Помечаем, что в этой строке есть ошибка
+  MarkAsError(ARecordCheck.ErrorType);
+
+  // Добавляем запись в таблицу с ошибками
+  Errors.Add(ARecordCheck);
 end;
 
 procedure TCustomExcelTable.SetUnionCellValues(ARecHolder: TRecordHolder);

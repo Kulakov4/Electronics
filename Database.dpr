@@ -240,9 +240,8 @@ uses
   DescriptionsGroupUnit2 in 'Queryes\Descriptions\DescriptionsGroupUnit2.pas',
   DescriptionsInterface in 'Queryes\Descriptions\DescriptionsInterface.pas',
   ExtraChargeInterface in 'Queryes\ExtraCharge\ExtraChargeInterface.pas',
-  ParametersInterface in 'Queryes\Parameters\ParametersInterface.pas',
   ErrorType in 'Helpers\ErrorType.pas',
-  ParametersGroupInterface in 'Queryes\Parameters\ParametersGroupInterface.pas';
+  RecordCheck in 'Helpers\RecordCheck.pas';
 
 {$R *.res}
 

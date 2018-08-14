@@ -14,18 +14,6 @@ uses
 // WM_NEED_POST = WM_USER + 558;
 
 type
-  TFetchFieldList = class
-  private
-    FFieldNames: TList<String>;
-    FFieldValues: TList<Variant>;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    procedure Add(const AFieldName: String; const AFieldValue: Variant);
-    property FieldNames: TList<String> read FFieldNames;
-    property FieldValues: TList<Variant> read FFieldValues;
-  end;
-
   TQueryBase = class(TFrame)
     FDQuery: TFDQuery;
     Label1: TLabel;
@@ -88,9 +76,6 @@ type
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
     procedure FetchFields(ARecordHolder: TRecordHolder;
-      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-      AOptions: TFDUpdateRowOptions); overload;
-    procedure FetchFields(const AFetchFieldList: TFetchFieldList;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
     function Field(const AFieldName: String): TField;
@@ -565,15 +550,6 @@ begin
   FDUpdateSQL.Apply(ARequest, AAction, AOptions);
 end;
 
-procedure TQueryBase.FetchFields(const AFetchFieldList: TFetchFieldList;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
-begin
-  Assert(AFetchFieldList <> nil);
-  FetchFields(AFetchFieldList.FieldNames.ToArray,
-    AFetchFieldList.FieldValues.ToArray, ARequest, AAction, AOptions);
-end;
-
 function TQueryBase.Field(const AFieldName: String): TField;
 begin
   Result := FDQuery.FieldByName(AFieldName);
@@ -1040,29 +1016,6 @@ begin
   finally
     FreeAndNil(AChangedFields);
   end;
-end;
-
-constructor TFetchFieldList.Create;
-begin
-  FFieldNames := TList<String>.Create;
-  FFieldValues := TList<Variant>.Create;
-end;
-
-destructor TFetchFieldList.Destroy;
-begin
-  FreeAndNil(FFieldNames);
-  FreeAndNil(FFieldValues);
-  inherited;
-end;
-
-procedure TFetchFieldList.Add(const AFieldName: String;
-  const AFieldValue: Variant);
-begin
-  Assert(not AFieldName.IsEmpty);
-  Assert(not VarIsNull(AFieldValue));
-
-  FFieldNames.Add(AFieldName);
-  FFieldValues.Add(AFieldValue);
 end;
 
 end.

@@ -15,28 +15,36 @@ type
     FDUpdateSQL: TFDUpdateSQL;
     procedure FDQueryAfterOpen(DataSet: TDataSet);
   private
+    function GetCodeLetters: TField;
+    function GetDefinition: TField;
+    function GetIDParameterKind: TField;
+    function GetIDParameterType: TField;
     function GetIsCustomParameter: TField;
+    function GetMeasuringUnit: TField;
+    function GetOrder: TField;
     function GetParamSubParamID: TField;
-    function GetParentParameter: TField;
     function GetTableName: TField;
     function GetValue: TField;
+    function GetValueT: TField;
     { Private declarations }
   public
-    procedure AppendDaughter(const AValue: String);
-    function SearchDaughter(const AValue: String; AParentID: Integer): Integer;
-        overload;
-    function SearchMain(const ATableName: String; AIsCustomParameter: Boolean)
+    function SearchByTableName(const ATableName: String; AIsCustomParameter: Boolean)
       : Integer; overload;
-    function SearchMain(const ATableName: String): Integer; overload;
+    function SearchByTableName(const ATableName: String): Integer; overload;
     function SearchByID(AID: Integer; ATestResult: Boolean = False): Integer;
         overload;
-    procedure SearchMainOrAppend(const ATableName: String; AIsCustomParameter:
-        Boolean = False);
+    procedure SearchOrAppend(const ATableName: String; AIsCustomParameter: Boolean);
+    property CodeLetters: TField read GetCodeLetters;
+    property Definition: TField read GetDefinition;
+    property IDParameterKind: TField read GetIDParameterKind;
+    property IDParameterType: TField read GetIDParameterType;
     property IsCustomParameter: TField read GetIsCustomParameter;
+    property MeasuringUnit: TField read GetMeasuringUnit;
+    property Order: TField read GetOrder;
     property ParamSubParamID: TField read GetParamSubParamID;
-    property ParentParameter: TField read GetParentParameter;
     property TableName: TField read GetTableName;
     property Value: TField read GetValue;
+    property ValueT: TField read GetValueT;
     { Public declarations }
   end;
 
@@ -46,25 +54,30 @@ implementation
 
 uses ProjectConst, StrHelper, System.Math;
 
-procedure TQuerySearchParameter.AppendDaughter(const AValue: String);
-var
-  AParentParameter: Integer;
-begin
-  Assert(not AValue.IsEmpty);
-  AParentParameter := FDQuery.ParamByName('ParentParameter').AsInteger;
-  Assert(AParentParameter > 0);
-
-  FDQuery.Append;
-  Value.AsString := AValue;
-  ParentParameter.AsInteger := AParentParameter;
-  IsCustomParameter.AsBoolean := False;
-  FDQuery.Post;
-end;
-
 procedure TQuerySearchParameter.FDQueryAfterOpen(DataSet: TDataSet);
 begin
   inherited;
   SetFieldsRequired(False);
+end;
+
+function TQuerySearchParameter.GetCodeLetters: TField;
+begin
+  Result := Field('CodeLetters');
+end;
+
+function TQuerySearchParameter.GetDefinition: TField;
+begin
+  Result := Field('Definition');
+end;
+
+function TQuerySearchParameter.GetIDParameterKind: TField;
+begin
+  Result := Field('IDParameterKind');
+end;
+
+function TQuerySearchParameter.GetIDParameterType: TField;
+begin
+  Result := Field('IDParameterType');
 end;
 
 function TQuerySearchParameter.GetIsCustomParameter: TField;
@@ -72,14 +85,19 @@ begin
   Result := Field('IsCustomParameter');
 end;
 
+function TQuerySearchParameter.GetMeasuringUnit: TField;
+begin
+  Result := Field('MeasuringUnit');
+end;
+
+function TQuerySearchParameter.GetOrder: TField;
+begin
+  Result := Field('Order');
+end;
+
 function TQuerySearchParameter.GetParamSubParamID: TField;
 begin
   Result := Field('ParamSubParamID');
-end;
-
-function TQuerySearchParameter.GetParentParameter: TField;
-begin
-  Result := Field('ParentParameter');
 end;
 
 function TQuerySearchParameter.GetTableName: TField;
@@ -92,25 +110,12 @@ begin
   Result := Field('Value');
 end;
 
-function TQuerySearchParameter.SearchDaughter(const AValue: String; AParentID:
-    Integer): Integer;
-var
-  ACondition: string;
+function TQuerySearchParameter.GetValueT: TField;
 begin
-  Assert(not AValue.IsEmpty);
-  Assert(AParentID > 0);
-
-  // Меняем условие
-  ACondition := 'where upper(Value) = upper(:Value) and ParentParameter = :ParentParameter';
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('Value', ptInput, ftWideString);
-  SetParamType('ParentParameter');
-
-  // Ищем
-  Result := Search(['Value', 'ParentParameter'], [AValue, AParentID]);
+  Result := Field('ValueT');
 end;
 
-function TQuerySearchParameter.SearchMain(const ATableName: String;
+function TQuerySearchParameter.SearchByTableName(const ATableName: String;
   AIsCustomParameter: Boolean): Integer;
 var
   ACondition: string;
@@ -118,7 +123,7 @@ begin
   Assert(not ATableName.IsEmpty);
 
   // Меняем условие
-  ACondition := 'where upper(TableName) = upper(:TableName) and ParentParameter is null and IsCustomParameter=:IsCustomParameter';
+  ACondition := 'where upper(TableName) = upper(:TableName) and IsCustomParameter=:IsCustomParameter';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
   SetParamType('TableName', ptInput, ftWideString);
   SetParamType('IsCustomParameter');
@@ -127,7 +132,7 @@ begin
   Result := Search(['TableName', 'IsCustomParameter'], [ATableName, IfThen(AIsCustomParameter, 1, 0)]);
 end;
 
-function TQuerySearchParameter.SearchMain(const ATableName: String):
+function TQuerySearchParameter.SearchByTableName(const ATableName: String):
     Integer;
 var
   ACondition: string;
@@ -135,7 +140,7 @@ begin
   Assert(not ATableName.IsEmpty);
 
   // Меняем условие
-  ACondition := 'where upper(TableName) = upper(:TableName) and ParentParameter is null';
+  ACondition := 'where upper(TableName) = upper(:TableName)';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
   SetParamType('TableName', ptInput, ftWideString);
 
@@ -151,7 +156,7 @@ begin
   Assert(AID > 0);
 
   // Меняем условие
-  ACondition := 'where p.ID = :ID and ParentParameter is null';
+  ACondition := 'where p.ID = :ID';
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
   SetParamType('ID');
 
@@ -162,12 +167,12 @@ begin
     Assert(Result = 1);
 end;
 
-procedure TQuerySearchParameter.SearchMainOrAppend(const ATableName:
-    String; AIsCustomParameter: Boolean = False);
+procedure TQuerySearchParameter.SearchOrAppend(const ATableName: String;
+    AIsCustomParameter: Boolean);
 var
   k: Integer;
 begin
-  k := SearchMain(ATableName, AIsCustomParameter);
+  k := SearchByTableName(ATableName, AIsCustomParameter);
   if k = 0 then
   begin
     TryAppend;

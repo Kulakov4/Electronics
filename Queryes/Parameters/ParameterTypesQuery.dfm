@@ -63,14 +63,13 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    SELECT *'
       '    FROM Parameters'
       
-        '    WHERE IDParameterType = pt.ID and ParentParameter IS NULL an' +
+        '    WHERE IDParameterType = pt.ID an' +
         'd IDParameterType is not null '
       '    /* ShowDuplicate    '
       '    AND tablename IN '
       '    ('
       '        SELECT TableName'
       '        FROM Parameters'
-      '        WHERE ParentParameter IS NULL'
       '        GROUP BY TableName'
       '        HAVING count( * ) > 1'
       '    )'

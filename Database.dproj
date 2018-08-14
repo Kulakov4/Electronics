@@ -794,9 +794,8 @@
         <DCCReference Include="Queryes\Descriptions\DescriptionsGroupUnit2.pas"/>
         <DCCReference Include="Queryes\Descriptions\DescriptionsInterface.pas"/>
         <DCCReference Include="Queryes\ExtraCharge\ExtraChargeInterface.pas"/>
-        <DCCReference Include="Queryes\Parameters\ParametersInterface.pas"/>
         <DCCReference Include="Helpers\ErrorType.pas"/>
-        <DCCReference Include="Queryes\Parameters\ParametersGroupInterface.pas"/>
+        <DCCReference Include="Helpers\RecordCheck.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

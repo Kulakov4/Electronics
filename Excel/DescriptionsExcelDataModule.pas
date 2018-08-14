@@ -17,7 +17,7 @@ type
     FClone: TFDMemTable;
     FDescriptionsInt: IDescriptions;
     FProducerInt: IProducer;
-    procedure DoAfterOpen(Sender: TDataSet);
+    procedure Do_AfterOpen(Sender: TDataSet);
     function GetComponentName: TField;
     function GetComponentType: TField;
     function GetDescription: TField;
@@ -63,7 +63,7 @@ uses System.Math, System.Variants, FieldInfoUnit, ProgressInfo, ErrorType;
 constructor TDescriptionsExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  AfterOpen := DoAfterOpen;
+  AfterOpen := Do_AfterOpen;
 end;
 
 destructor TDescriptionsExcelTable.Destroy;
@@ -177,7 +177,7 @@ begin
   FieldDefs.Add('IDProducer', ftInteger);
 end;
 
-procedure TDescriptionsExcelTable.DoAfterOpen(Sender: TDataSet);
+procedure TDescriptionsExcelTable.Do_AfterOpen(Sender: TDataSet);
 begin
   Assert(FClone = nil);
   FClone := TFDMemTable.Create(Self);

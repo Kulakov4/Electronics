@@ -30,6 +30,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
+    function GetParameterTypeID(const AParameterType: string): Integer;
     procedure LocateOrAppend(AValue: string);
     property ParameterType: TField read GetParameterType;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
@@ -73,9 +74,24 @@ begin
   Result := Field('ParameterType');
 end;
 
+function TQueryParameterTypes.GetParameterTypeID(const AParameterType
+  : string): Integer;
+var
+  V: Variant;
+begin
+  Result := 0;
+
+  V := FDQuery.LookupEx(ParameterType.FieldName, AParameterType,
+    PKFieldName, [lxoCaseInsensitive]);
+
+  if not VarIsNull(V) then
+    Result := V
+end;
+
 procedure TQueryParameterTypes.LocateOrAppend(AValue: string);
 begin
-  if not FDQuery.LocateEx(ParameterType.FieldName, AValue, [lxoCaseInsensitive]) then
+  if not FDQuery.LocateEx(ParameterType.FieldName, AValue, [lxoCaseInsensitive])
+  then
     AddNewValue(AValue);
 end;
 

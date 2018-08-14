@@ -32,16 +32,14 @@ type
     procedure SetField(const FieldName: String; const Value: Variant);
     procedure SetItems(Index: Integer; const Value: TFieldHolder);
   public
-    constructor Create(DataSet: TDataSet); reintroduce; overload;
+    constructor Create(DataSet: TDataSet; const AExceptFieldNames: String = '');
+        reintroduce; overload;
     constructor Create; overload;
     procedure Attach(DataSet: TDataSet; const AExceptFieldNames: String = '');
     procedure Detach;
     function FieldEx(const FieldName: String; NullSubstitute: Variant): Variant;
     function Find(const FieldName: string): TFieldHolder;
     procedure Put(DataSet: TDataSet);
-    procedure TryPut(DataSet: TDataSet);
-    procedure UpdateNullValues(ASource: TRecordHolder;
-      MapFieldInfo: String = '');
     property Field[const FieldName: String]: Variant read GetField
       write SetField;
     property Items[Index: Integer]: TFieldHolder read GetItems
@@ -112,10 +110,11 @@ end;
 
 { TRecordHolder }
 
-constructor TRecordHolder.Create(DataSet: TDataSet);
+constructor TRecordHolder.Create(DataSet: TDataSet; const AExceptFieldNames:
+    String = '');
 begin
   inherited Create(TFieldHolder);
-  Attach(DataSet);
+  Attach(DataSet, AExceptFieldNames);
 end;
 
 constructor TRecordHolder.Create;
@@ -130,7 +129,7 @@ Var
   S: string;
 begin
   Assert(DataSet <> nil);
-  if (not DataSet.Active) { or DataSet.IsEmpty } then
+  if (not DataSet.Active) then
     raise Exception.Create
       ('Ошибка при сохранении записи из набора данных. Набор данных не открыт или пуст');
 
@@ -209,6 +208,7 @@ var
   FieldHolder: TFieldHolder;
 begin
   Assert(DataSet <> nil);
+  Assert(DataSet.State in [dsEdit, dsInsert]);
 
   for i := 0 to Count - 1 do
   begin
@@ -239,50 +239,6 @@ end;
 procedure TRecordHolder.SetItems(Index: Integer; const Value: TFieldHolder);
 begin
   inherited SetItem(Index, Value);
-end;
-
-procedure TRecordHolder.TryPut(DataSet: TDataSet);
-var
-  AField: TField;
-  FH: TFieldHolder;
-begin
-  Assert(DataSet <> nil);
-
-  for AField in DataSet.Fields do
-  begin
-    FH := Find(AField.FieldName);
-    if FH <> nil then
-      AField.Value := FH.Value;
-  end;
-end;
-
-procedure TRecordHolder.UpdateNullValues(ASource: TRecordHolder;
-  MapFieldInfo: String = '');
-var
-  AFieldHolder: TFieldHolder;
-  i: Integer;
-  AMap: TFieldsMap;
-begin
-  AMap := TFieldsMap.Create(MapFieldInfo);
-  try
-    // Обновляет пустые значения полей на значения из ASource
-    for i := 0 to Count - 1 do
-    begin
-      // Если NULL или пустая строка
-      if VarIsNull(Items[i].Value) or VarToStr(Items[i].Value).Trim.IsEmpty then
-      begin
-        // Ищем такое же поле у нас с учётом карты сопостовления полей
-        AFieldHolder := ASource.Find(AMap.Map(Items[i].FieldName));
-
-        // Нашли такое же поле не NULL и не пустая строка
-        if (AFieldHolder <> nil) and (not VarIsNull(AFieldHolder.Value)) and
-          (not VarToStr(AFieldHolder.Value).Trim.IsEmpty) then
-          Items[i].Value := AFieldHolder.Value;
-      end;
-    end;
-  finally
-    FreeAndNil(AMap);
-  end;
 end;
 
 class function TDBRecord.GetFieldsDic(ADataSet: TDataSet)

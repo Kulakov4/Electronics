@@ -1,88 +1,12 @@
 inherited QueryParameters: TQueryParameters
-  Width = 551
+  Width = 340
   Height = 86
-  ExplicitWidth = 551
+  ExplicitWidth = 340
   ExplicitHeight = 86
   inherited Label1: TLabel
     Caption = 'Parameters'
   end
-  inline ParametersApplyQuery: TfrmApplyQuery [1]
-    Left = 192
-    Top = 16
-    Width = 129
-    Height = 59
-    TabOrder = 0
-    ExplicitLeft = 192
-    ExplicitTop = 16
-    inherited FDQuery: TFDQuery
-      SQL.Strings = (
-        'select *'
-        'from Parameters'
-        'where ID=:ID')
-      ParamData = <
-        item
-          Name = 'ID'
-          DataType = ftInteger
-          ParamType = ptInput
-          Value = Null
-        end>
-    end
-    inherited FDUpdateSQL: TFDUpdateSQL
-      InsertSQL.Strings = (
-        'INSERT INTO PARAMETERS'
-        '(VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
-        '  TABLENAME, DEFINITION, "ORDER", FIELDTYPE, '
-        
-          '  PARENTPARAMETER, ISCUSTOMPARAMETER, IDPARAMETERTYPE, IDPARAMET' +
-          'ERKIND)'
-        
-          'VALUES (:NEW_VALUE, :NEW_VALUET, :NEW_CODELETTERS, :NEW_MEASURIN' +
-          'GUNIT, '
-        '  :NEW_TABLENAME, :NEW_DEFINITION, :NEW_ORDER, :NEW_FIELDTYPE, '
-        
-          '  :NEW_PARENTPARAMETER, :NEW_ISCUSTOMPARAMETER, :NEW_IDPARAMETER' +
-          'TYPE, :NEW_IDPARAMETERKIND);'
-        ''
-        'SELECT ID, VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
-        
-          '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
-          'RAMETER, '
-        '  ISCUSTOMPARAMETER, IDPARAMETERTYPE, IDPARAMETERKIND'
-        'FROM PARAMETERS'
-        'WHERE ID = LAST_INSERT_ROWID();')
-      ModifySQL.Strings = (
-        'UPDATE PARAMETERS'
-        
-          'SET VALUE = :NEW_VALUE, VALUET = :NEW_VALUET, CODELETTERS = :NEW' +
-          '_CODELETTERS, '
-        
-          '  MEASURINGUNIT = :NEW_MEASURINGUNIT, TABLENAME = :NEW_TABLENAME' +
-          ', '
-        
-          '  DEFINITION = :NEW_DEFINITION, "ORDER" = :NEW_ORDER, FIELDTYPE ' +
-          '= :NEW_FIELDTYPE, '
-        
-          '  PARENTPARAMETER = :NEW_PARENTPARAMETER, ISCUSTOMPARAMETER = :N' +
-          'EW_ISCUSTOMPARAMETER, '
-        '  IDPARAMETERTYPE = :NEW_IDPARAMETERTYPE,'
-        '  IDPARAMETERKIND = :NEW_IDPARAMETERKIND'
-        'WHERE ID = :OLD_ID;'
-        ''
-        '')
-      DeleteSQL.Strings = (
-        'DELETE FROM PARAMETERS'
-        'WHERE ID = :OLD_ID')
-      FetchRowSQL.Strings = (
-        'SELECT ID, VALUE, VALUET, CODELETTERS, MEASURINGUNIT, '
-        
-          '  TABLENAME, DEFINITION, "ORDER" AS "ORDER", FIELDTYPE, PARENTPA' +
-          'RAMETER, '
-        '  ISCUSTOMPARAMETER, IDPARAMETERTYPE, IDPARAMETERKIND'
-        'FROM PARAMETERS'
-        'WHERE ID = :ID')
-    end
-  end
-  inherited FDQuery: TFDQuery [2]
+  inherited FDQuery: TFDQuery
     Indexes = <
       item
         Active = True
@@ -96,9 +20,7 @@ inherited QueryParameters: TQueryParameters
   object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      
-        'select p.*, IFNULL(cp.id, 0) > 0 Checked, t.ID ParamSubParamID, ' +
-        't.IdSubParameter'
+      'select p.*, IFNULL(cp.id, 0) > 0 Checked, t.ID ParamSubParamID'
       'from Parameters p'
       'LEFT JOIN '
       '('
@@ -112,17 +34,12 @@ inherited QueryParameters: TQueryParameters
       
         'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
         'ategoryId and cp.ParamSubParamID = t.id '
-      
-        'where p.ParentParameter is null and p.IDParameterType is not nul' +
-        'l'
       '/* ShowDuplicate'
       'and tablename in'
       '('
       '    select TableName'
       '    from Parameters'
-      
-        '    where ParentParameter is null and IDParameterType is not nul' +
-        'l'
+      '    where IDParameterType is not null'
       '    group by TableName'
       '    having count(*) > 1'
       ')'
@@ -148,12 +65,14 @@ inherited QueryParameters: TQueryParameters
   object fdqDeleteFromCategoryParams: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
-      'delete from CategoryParams2 where ParameterID = :ParameterID')
-    Left = 400
+      
+        'delete from CategoryParams2 where ParamSubParamId = :ParamSubPar' +
+        'amId')
+    Left = 240
     Top = 24
     ParamData = <
       item
-        Name = 'PARAMETERID'
+        Name = 'PARAMSUBPARAMID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

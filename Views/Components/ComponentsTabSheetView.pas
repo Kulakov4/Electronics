@@ -874,7 +874,7 @@ begin
       else
       begin
         // »щем такой параметр в справочнике параметров
-        prc := qSearchParameter.SearchMain
+        prc := qSearchParameter.SearchByTableName
           (ReplaceNotKeyboadChars(AStringTreeNode.value));
         ParamIsOk := ProcessParamSearhResult(prc, AStringTreeNode,
           AParametricErrorTable);

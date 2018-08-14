@@ -3,13 +3,14 @@ unit ErrorTable;
 interface
 
 uses
-  CustomErrorTable, System.Classes;
+  CustomErrorTable, System.Classes, ErrorType, RecordCheck;
 
 type
   TErrorTable = class(TCustomErrorTable)
   private
   public
     constructor Create(AOwner: TComponent); override;
+    procedure Add(ARecordCheck: TRecordCheck);
     procedure AddError(ARow, ACol: Integer; AError, ADescription: String);
     procedure AddWarring(ARow, ACol: Integer; AWarring, ADescription: string);
   end;
@@ -35,6 +36,22 @@ begin
   FieldByName('Error').DisplayLabel := 'Вид ошибки';
   FieldByName('ErrorValue').DisplayLabel := 'Ошибка';
   FieldByName('Description').DisplayLabel := 'Описание';
+end;
+
+procedure TErrorTable.Add(ARecordCheck: TRecordCheck);
+var
+  S: string;
+begin
+  case ARecordCheck.ErrorType of
+    etNone:
+      Exit;
+    etWarring:
+      S := WarringMessage;
+    etError:
+      S := ErrorMessage;
+  end;
+  AppendRecord([ARecordCheck.Row, ARecordCheck.Col, S,
+    ARecordCheck.ErrorMessage, ARecordCheck.Description]);
 end;
 
 procedure TErrorTable.AddError(ARow, ACol: Integer;

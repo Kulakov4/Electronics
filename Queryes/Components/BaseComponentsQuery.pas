@@ -84,7 +84,6 @@ begin
     // Запоминаем сгенерированный первичный ключ
     FetchFields([PK.FieldName], [qProducts.PKValue], ARequest, AAction,
       AOptions);
-    // ASender.FieldByName(PKFieldName).AsInteger := qProducts.PKValue;
   end
   else
   begin
@@ -92,7 +91,6 @@ begin
     // Запоминаем найденный первичный ключ
     FetchFields([PK.FieldName], [qSearchComponent.PK.Value], ARequest, AAction,
       AOptions);
-    // ASender.FieldByName(PKFieldName).Value := qSearchComponent.PK.Value;
   end;
 
   Assert(PK.AsInteger > 0);

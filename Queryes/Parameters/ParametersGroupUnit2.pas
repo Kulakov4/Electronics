@@ -6,7 +6,7 @@ uses
   QueryGroupUnit2, System.Classes, ParameterKindsQuery, ParametersQuery,
   ParameterTypesQuery, ParamSubParamsQuery, SubParametersQuery2,
   System.Generics.Collections, ParametersExcelDataModule, NotifyEvents,
-  ParametersInterface, ParametersGroupInterface;
+  RecordCheck;
 
 type
   TParametersGroup2 = class(TQueryGroup2, IParametersGroup)
@@ -42,7 +42,8 @@ type
 implementation
 
 uses
-  System.SysUtils, Data.DB, ParameterKindEnum, ErrorType;
+  System.SysUtils, Data.DB, ParameterKindEnum, ErrorType, System.Variants,
+  FireDAC.Comp.DataSet;
 
 constructor TParametersGroup2.Create(AOwner: TComponent);
 begin
@@ -69,7 +70,11 @@ end;
 function TParametersGroup2.Check(AParametersExcelTable: TParametersExcelTable)
   : TRecordCheck;
 var
+  AFieldNames: string;
   AParameterKindID: Integer;
+  AIDParameterType: Integer;
+  Arr: Variant;
+  V: Variant;
 begin
   Result.ErrorType := etNone;
 
@@ -81,33 +86,89 @@ begin
   if AParameterKindID = -100 then
   begin
     // Ищем в справочнике видов параметров
-    if qParameterKinds.GetIDByParameterKind
-      (AParametersExcelTable.ParameterKindID.AsString) = 0 then
-    begin
-      // Запоминаем, что в этой строке предупреждение
-      MarkAsError(etError);
+    AParameterKindID := qParameterKinds.GetIDByParameterKind
+      (AParametersExcelTable.ParameterKindID.AsString);
 
-      Errors.AddError(ExcelRow.AsInteger, ParameterKindID.Index + 1,
-        ParameterKindID.AsString,
+    if AParameterKindID = 0 then
+    begin
+      // Запоминаем, что в этой строке ошибка
+      Result.ErrorType := etError;
+      Result.Row := AParametersExcelTable.ExcelRow.AsInteger;
+      Result.Col := AParametersExcelTable.ParameterKindID.Index + 1;
+      Result.ErrorMessage := AParametersExcelTable.ParameterKindID.AsString;
+      Result.Description :=
         Format('Код вида параметра должен быть целым числом от %d до %d',
-        [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+        [Integer(Неиспользуется), Integer(Строковый_частичный)]);
+      Exit;
     end;
   end
   else
   begin
-    if (ParameterKindID.AsInteger < Integer(Неиспользуется)) or
-      (ParameterKindID.AsInteger > Integer(Строковый_частичный)) then
+    if (AParameterKindID < Integer(Неиспользуется)) or
+      (AParameterKindID > Integer(Строковый_частичный)) then
     begin
-      // Запоминаем, что в этой строке предупреждение
-      MarkAsError(etError);
-
-      Errors.AddError(ExcelRow.AsInteger, ParameterKindID.Index + 1,
-        ParameterKindID.AsString,
-        Format('Код вида параметра должен быть от %d до %d',
-        [Integer(Неиспользуется), Integer(Строковый_частичный)]));
+      // Запоминаем, что в этой строке ошибка
+      Result.ErrorType := etError;
+      Result.Row := AParametersExcelTable.ExcelRow.AsInteger;
+      Result.Col := AParametersExcelTable.ParameterKindID.Index + 1;
+      Result.ErrorMessage := AParametersExcelTable.ParameterKindID.AsString;
+      Result.Description := Format('Код вида параметра должен быть от %d до %d',
+        [Integer(Неиспользуется), Integer(Строковый_частичный)]);
+      Exit;
     end;
   end;
 
+  // Определяемся с типом параметра
+  AIDParameterType := qParameterTypes.GetParameterTypeID
+    (AParametersExcelTable.ParameterType.AsString);
+  // Если это не существующий ранее тип параметра
+  if AIDParameterType = 0 then
+    Exit;
+
+  // Возможно это полный дубликат
+  AFieldNames := Format('%s;%s;%s;%s;%s;%s;%s;%s', [qParameters.Value.FieldName,
+    qParameters.ValueT.FieldName, qParameters.CodeLetters.FieldName,
+    qParameters.MeasuringUnit.FieldName, qParameters.TableName.FieldName,
+    qParameters.Definition.FieldName, qParameters.IDParameterType.FieldName,
+    qParameters.IDParameterKind.FieldName]);
+
+  with AParametersExcelTable do
+    Arr := VarArrayOf([Value.AsString, ValueT.AsString, CodeLetters.AsString,
+      MeasuringUnit.AsString, TableName.AsString, Definition.AsString,
+      AIDParameterType, AParameterKindID]);
+
+  // Ищем дубликат
+  V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.PKFieldName,
+    [lxoCaseInsensitive]);
+
+  if not VarIsNull(V) then
+  begin
+    // Запоминаем, что в этой строке ошибка
+    Result.ErrorType := etError;
+    Result.Row := AParametersExcelTable.ExcelRow.AsInteger;
+    Result.Col := AParametersExcelTable.TableName.Index + 1;
+    Result.ErrorMessage := AParametersExcelTable.TableName.AsString;
+    Result.Description :=
+      'Точно такой же параметр уже есть в справочнике параметров';
+    Exit;
+  end;
+
+  // Ищем дубликат по табличному имени
+  V := qParameters.FDQuery.LookupEx(qParameters.TableName.FieldName,
+    AParametersExcelTable.TableName.AsString, qParameters.PKFieldName,
+    [lxoCaseInsensitive]);
+
+  if not VarIsNull(V) then
+  begin
+    // Запоминаем, что в этой строке ошибка
+    Result.ErrorType := etWarring;
+    Result.Row := AParametersExcelTable.ExcelRow.AsInteger;
+    Result.Col := AParametersExcelTable.TableName.Index + 1;
+    Result.ErrorMessage := AParametersExcelTable.TableName.AsString;
+    Result.Description :=
+      'Параметр с таким табличным именем уже есть в справочнике параметров';
+    Exit;
+  end;
 end;
 
 procedure TParametersGroup2.Commit;

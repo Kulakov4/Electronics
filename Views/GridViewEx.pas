@@ -53,6 +53,7 @@ type
     procedure InitColumns; virtual;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure UpdateStatusBar;
     procedure UpdateView; override;
     property ApplyBestFitOnUpdateData: Boolean read FApplyBestFitOnUpdateData
@@ -71,6 +72,12 @@ begin
   inherited;
   FOnAssignDataSet := TNotifyEventsEx.Create(Self);
   UpdateView;
+end;
+
+destructor TViewGridEx.Destroy;
+begin
+  FreeAndNil(FOnAssignDataSet);
+  inherited;
 end;
 
 procedure TViewGridEx.AssignDataSet;
