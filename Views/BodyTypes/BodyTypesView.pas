@@ -352,14 +352,17 @@ begin
 
   // Описания полей excel файла
   ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
+  try
+    // если среди колонок нет колонки производитель
+    // и от выбора производителя отказались
+    if (ARootTreeNode.IndexOf(clIDProducer.Caption) = -1) and
+      (not TfrmProducers.TakeProducer(AProducerID, AProducer)) then
+      Exit;
 
-  // если среди колонок нет колонки производитель
-  // и от выбора производителя отказались
-  if (ARootTreeNode.IndexOf(clIDProducer.Caption) = -1) and
-    (not TfrmProducers.TakeProducer(AProducerID, AProducer)) then
-    Exit;
-
-  LoadFromExcel(AFileName, AProducerID);
+    LoadFromExcel(AFileName, AProducerID);
+  finally
+    FreeAndNil(ARootTreeNode);
+  end;
 end;
 
 procedure TViewBodyTypes.actLoadImageExecute(Sender: TObject);

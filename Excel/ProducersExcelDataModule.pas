@@ -8,28 +8,24 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  CustomExcelTable;
+  CustomExcelTable, ProducerInterface;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
 type
   TProducersExcelTable = class(TCustomExcelTable)
   private
-    FDMemTable: TFDMemTable;
-    FProducersDataSet: TFDDataSet;
+    FProducerInt: IProducer;
     function GetName: TField;
     function GetProducerType: TField;
-    procedure SetProducersDataSet(const Value: TFDDataSet);
   protected
     function CheckProducer: Boolean;
-    procedure Clone;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
-    property ProducersDataSet: TFDDataSet read FProducersDataSet
-      write SetProducersDataSet;
     property Name: TField read GetName;
+    property ProducerInt: IProducer read FProducerInt write FProducerInt;
     property ProducerType: TField read GetProducerType;
   end;
 
@@ -50,31 +46,32 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, System.Math, FieldInfoUnit, ProgressInfo, ErrorType;
+uses System.Variants, System.Math, FieldInfoUnit, ProgressInfo, ErrorType,
+  RecordCheck;
 
 constructor TProducersExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FDMemTable := TFDMemTable.Create(Self);
 end;
 
 function TProducersExcelTable.CheckProducer: Boolean;
 var
-  V: Variant;
+  ARecordCheck: TRecordCheck;
 begin
+  Assert(ProducerInt <> nil);
+
   // Ищем производителя с таким-же именем без учёта регистра
-  V := FDMemTable.LookupEx(Name.FieldName, Name.Value, 'ID',
-    [lxoCaseInsensitive]);
+  Result := not ProducerInt.Exist(Name.Value);
 
-  Result := VarIsNull(V);
-
-  // Если не нашли
+  // Если нашли такого-же производителя
   if not Result then
   begin
-    MarkAsError(etWarring);
-
-    Errors.AddWarring(ExcelRow.AsInteger, Name.Index + 1, Name.AsString,
-      'Такой производитель уже существует');
+    ARecordCheck.ErrorType := etWarring;
+    ARecordCheck.Row := ExcelRow.AsInteger;
+    ARecordCheck.Col := Name.Index + 1;
+    ARecordCheck.ErrorMessage := Name.AsString;
+    ARecordCheck.Description := 'Такой производитель уже существует.';
+    ProcessErrors(ARecordCheck);
   end;
 end;
 
@@ -86,21 +83,6 @@ begin
     // Проверяем что такой производитель существует
     Result := CheckProducer;
   end;
-end;
-
-procedure TProducersExcelTable.Clone;
-var
-  AFDIndex: TFDIndex;
-begin
-  // Клонируем курсор
-  FDMemTable.CloneCursor(ProducersDataSet);
-
-  // Создаём индекс
-  AFDIndex := FDMemTable.Indexes.Add;
-  AFDIndex.Fields := 'Name';
-  AFDIndex.Name := 'idxProducersName';
-  AFDIndex.Active := True;
-  FDMemTable.IndexName := AFDIndex.Name;
 end;
 
 function TProducersExcelTable.GetName: TField;
@@ -120,19 +102,6 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('Products'));
   FieldsInfo.Add(TFieldInfo.Create('ProducerType', True,
     'Тип производителя не может быть пустым'));
-end;
-
-procedure TProducersExcelTable.SetProducersDataSet(const Value: TFDDataSet);
-begin
-  if FProducersDataSet <> Value then
-  begin
-    FProducersDataSet := Value;
-    if FProducersDataSet <> nil then
-    begin
-      Clone;
-    end;
-
-  end;
 end;
 
 function TProducersExcelDM.CreateExcelTable: TCustomExcelTable;

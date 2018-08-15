@@ -83,15 +83,14 @@ type
 implementation
 
 uses
-  ErrorType;
+  ErrorType, RecordCheck;
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
 {$R *.dfm}
 
 destructor TProductsExcelDM.Destroy;
-begin
-;
+begin;
   inherited;
 end;
 
@@ -106,8 +105,7 @@ begin
 end;
 
 destructor TProductsExcelTable.Destroy;
-begin
-;
+begin;
   inherited;
 end;
 
@@ -116,6 +114,7 @@ var
   ADollar: Double;
   AEuro: Double;
   ALoadDate: TDateTime;
+  ARecordCheck: TRecordCheck;
   FS: TFormatSettings;
   k: Integer;
   S: string;
@@ -126,6 +125,9 @@ begin
   if not Result then
     Exit;
 
+  ARecordCheck.ErrorType := etError;
+  ARecordCheck.Row := ExcelRow.AsInteger;
+
   // Проверяем цену в рублях
   if (not PriceR.IsNull) then
   begin
@@ -134,9 +136,10 @@ begin
     if not Result then
     begin
       // Сигнализируем о неверном значении цены
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
-        'Цена в рублях указана в неверном формате');
+      ARecordCheck.Col := PriceR.Index + 1;
+      ARecordCheck.ErrorMessage := 'Денежное значение';
+      ARecordCheck.Description := 'Цена в рублях указана в неверном формате';
+      ProcessErrors(ARecordCheck);
       Exit;
     end
     else
@@ -158,9 +161,10 @@ begin
     if not Result then
     begin
       // Сигнализируем о неверном значении цены
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, PriceD.Index + 1, 'Денежное значение',
-        'Цена в долларах указана в неверном формате');
+      ARecordCheck.Col := PriceD.Index + 1;
+      ARecordCheck.ErrorMessage := 'Денежное значение';
+      ARecordCheck.Description := 'Цена в долларах указана в неверном формате';
+      ProcessErrors(ARecordCheck);
       Exit;
     end
     else
@@ -182,9 +186,10 @@ begin
     if not Result then
     begin
       // Сигнализируем о неверном значении цены
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, PriceE.Index + 1, 'Денежное значение',
-        'Цена в евро указана в неверном формате');
+      ARecordCheck.Col := PriceE.Index + 1;
+      ARecordCheck.ErrorMessage := 'Денежное значение';
+      ARecordCheck.Description := 'Цена в евро указана в неверном формате';
+      ProcessErrors(ARecordCheck);
       Exit;
     end
     else
@@ -215,18 +220,20 @@ begin
   if k = 0 then
   begin
     // Сигнализируем что цена не задана
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
-      'Закупочная цена не указана');
+    ARecordCheck.Col := PriceR.Index + 1;
+    ARecordCheck.ErrorMessage := 'Денежное значение';
+    ARecordCheck.Description := 'Закупочная цена не указана';
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 
   // если указана больше чем одна цена
   if k > 1 then
   begin
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, PriceR.Index + 1, 'Денежное значение',
-      'Указана больше чем одна закупочная цена');
+    ARecordCheck.Col := PriceR.Index + 1;
+    ARecordCheck.ErrorMessage := 'Денежное значение';
+    ARecordCheck.Description := 'Указана больше чем одна закупочная цена';
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 
@@ -257,9 +264,10 @@ begin
     // Если дата не в том формате
     if not Result then
     begin
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, LoadDate.Index + 1, 'Дата',
-        'Поле дата имеет неверный формат');
+      ARecordCheck.Col := LoadDate.Index + 1;
+      ARecordCheck.ErrorMessage := 'Дата';
+      ARecordCheck.Description := 'Поле дата имеет неверный формат';
+      ProcessErrors(ARecordCheck);
       Exit;
     end;
   end
@@ -288,9 +296,10 @@ begin
     // Если курс доллара получить не удалось
     if (not Result) or (ADollar = 0) then
     begin
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, Dollar.Index + 1,
-        'Курс доллара неизвестен', 'Не удалось получить курс доллара');
+      ARecordCheck.Col := Dollar.Index + 1;
+      ARecordCheck.ErrorMessage := 'Курс доллара неизвестен';
+      ARecordCheck.Description := 'Не удалось получить курс доллара';
+      ProcessErrors(ARecordCheck);
       Exit;
     end;
 
@@ -313,9 +322,10 @@ begin
     // Если курс Евро получить не удалось
     if (not Result) or (AEuro = 0) then
     begin
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, Euro.Index + 1,
-        'Курс евро неизвестен', 'Не удалось получить курс евро');
+      ARecordCheck.Col := Euro.Index + 1;
+      ARecordCheck.ErrorMessage := 'Курс евро неизвестен';
+      ARecordCheck.Description := 'Не удалось получить курс евро';
+      ProcessErrors(ARecordCheck);
       Exit;
     end;
 
@@ -329,9 +339,10 @@ begin
   if not Result then
   begin
     // Сигнализируем о неверном значении количества
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, Amount.Index + 1, 'Неверный формат',
-      'Количество должно быть числом');
+    ARecordCheck.Col := Amount.Index + 1;
+    ARecordCheck.ErrorMessage := 'Неверный формат';
+    ARecordCheck.Description := 'Количество должно быть числом';
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 
@@ -340,9 +351,10 @@ begin
   Result := not CheckDuplicate.HaveDuplicate(Self);
   if not Result then
   begin
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, Value.Index + 1, 'Дубликат',
-      'Этот компонент уже был загружен на склад ранее');
+    ARecordCheck.Col := Value.Index + 1;
+    ARecordCheck.ErrorMessage := 'Дубликат';
+    ARecordCheck.Description := 'Этот компонент уже был загружен на склад ранее';
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 end;

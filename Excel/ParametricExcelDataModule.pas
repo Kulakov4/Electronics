@@ -61,7 +61,7 @@ implementation
 
 {$R *.dfm}
 
-uses ProgressInfo, System.Variants, ErrorType;
+uses ProgressInfo, System.Variants, ErrorType, RecordCheck;
 
 const
   FParamPrefix = 'Param';
@@ -81,6 +81,7 @@ end;
 function TParametricExcelTable.CheckComponent: Boolean;
 var
   AErrorMessage: string;
+  ARecordCheck: TRecordCheck;
 begin
   Result := False;
   AErrorMessage := '';
@@ -110,24 +111,24 @@ begin
       AErrorMessage := 'Семейство или компонент с таким именем не найден';
   end;
 
-  Edit;
-
   if Result then
   begin
+    Edit;
     IDComponent.AsInteger := qSearchComponentOrFamily.PK.AsInteger;
     IDParentComponent.AsInteger :=
       qSearchComponentOrFamily.ParentProductID.AsInteger;
+    Post;
   end
   else
   begin
     // Запоминаем, что в этой строке ошибка
-    ErrorType.AsInteger := Integer(etError);
-
-    Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
-      ComponentName.AsString, AErrorMessage);
+    ARecordCheck.ErrorType := etError;
+    ARecordCheck.Row := ExcelRow.AsInteger;
+    ARecordCheck.Col := ComponentName.Index + 1;
+    ARecordCheck.ErrorMessage := ComponentName.AsString;
+    ARecordCheck.Description := AErrorMessage;
+    ProcessErrors(ARecordCheck);
   end;
-
-  Post;
 end;
 
 function TParametricExcelTable.CheckRecord: Boolean;

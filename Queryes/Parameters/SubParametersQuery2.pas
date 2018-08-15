@@ -10,10 +10,12 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, SubParametersExcelDataModule,
-  System.StrUtils, OrderQuery;
+  System.StrUtils, OrderQuery, SubParametersInterface;
 
 type
-  TQuerySubParameters2 = class(TQueryOrder)
+  TQuerySubParameters2 = class(TQueryOrder, ISubParameters)
+  strict private
+    function GetSubParameterID(const AName: string): Integer; stdcall;
   private
     procedure DoAfterInsert(Sender: TObject);
     procedure DoBeforeCheckedOpen(Sender: TObject);
@@ -31,8 +33,8 @@ type
     procedure LoadDataFromExcelTable(AExcelTable: TSubParametersExcelTable);
     procedure OpenWithChecked(AIDParameter, AProductCategoryId: Integer);
     function Search(const AName: String): Integer; overload;
-    function SearchByID(AID: Integer; TestResult: Boolean = False): Integer;
-        overload;
+    function SearchByID(AID: Integer; TestResult: Boolean = False)
+      : Integer; overload;
     property Checked: TField read GetChecked;
     property CheckedMode: Boolean read GetCheckedMode;
     property IsDefault: TField read GetIsDefault;
@@ -118,6 +120,17 @@ begin
   Result := Field('Name');
 end;
 
+function TQuerySubParameters2.GetSubParameterID(const AName: string): Integer;
+var
+  V: Variant;
+begin
+  Result := 0;
+  V := FDQuery.LookupEx(Name.FullName, AName, PKFieldName,
+    [lxoCaseInsensitive]);
+  if not VarIsNull(V) then
+    Result := V;
+end;
+
 function TQuerySubParameters2.GetTranslation: TField;
 begin
   Result := Field('Translation');
@@ -191,11 +204,11 @@ begin
   Result := Search(['Name'], [AName]);
 end;
 
-function TQuerySubParameters2.SearchByID(AID: Integer; TestResult: Boolean =
-    False): Integer;
+function TQuerySubParameters2.SearchByID(AID: Integer;
+  TestResult: Boolean = False): Integer;
 begin
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    'and 0=0 and sp.ID = :ID', 'and 0=0');
+  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'and 0=0 and sp.ID = :ID',
+    'and 0=0');
 
   SetParamType('ID');
 

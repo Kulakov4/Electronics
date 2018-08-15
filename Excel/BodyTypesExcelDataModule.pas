@@ -92,7 +92,7 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, FieldInfoUnit, ErrorType;
+uses System.Variants, FieldInfoUnit, ErrorType, RecordCheck;
 
 constructor TBodyTypesExcelTable.Create(AOwner: TComponent);
 begin
@@ -189,6 +189,8 @@ begin
 end;
 
 function TBodyTypesExcelTable2.CheckRecord: Boolean;
+var
+  ARecordCheck: TRecordCheck;
 begin
   inherited;
   Result := inherited;
@@ -204,9 +206,12 @@ begin
     Result := IDProducer.AsInteger > 0;
     if not Result then
     begin
-      MarkAsError(etError);
-      Errors.AddError(ExcelRow.AsInteger, Producer.Index + 1, 'Производитель',
-        'Производитель не существует');
+      ARecordCheck.ErrorType := etError;
+      ARecordCheck.Row := ExcelRow.AsInteger;
+      ARecordCheck.Col := Producer.Index + 1;
+      ARecordCheck.ErrorMessage := Producer.AsString;
+      ARecordCheck.Description := 'Производитель не существует';
+      ProcessErrors(ARecordCheck);
       Exit;
     end;
   end;

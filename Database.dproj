@@ -796,6 +796,7 @@
         <DCCReference Include="Queryes\ExtraCharge\ExtraChargeInterface.pas"/>
         <DCCReference Include="Helpers\ErrorType.pas"/>
         <DCCReference Include="Helpers\RecordCheck.pas"/>
+        <DCCReference Include="Queryes\Parameters\SubParametersInterface.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

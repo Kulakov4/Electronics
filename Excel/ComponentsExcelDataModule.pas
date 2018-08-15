@@ -59,7 +59,8 @@ implementation
 
 {$R *.dfm}
 
-uses System.Variants, FieldInfoUnit, ProgressInfo, DBRecordHolder, ErrorType;
+uses System.Variants, FieldInfoUnit, ProgressInfo, DBRecordHolder, ErrorType,
+  RecordCheck;
 
 function TComponentsExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
@@ -184,6 +185,8 @@ begin
 end;
 
 function TComponentsExcelTable.CheckComponent: Boolean;
+var
+  ARecordCheck: TRecordCheck;
 begin
   Result := FQuerySearchFamily.SearchByValueSimple(FamilyName.AsString) = 0;
 
@@ -195,12 +198,15 @@ begin
     IDFamily.Value := FQuerySearchFamily.PK.Value;
     Post;
 
-    MarkAsError(etWarring);
+    ARecordCheck.ErrorType := etWarring;
+    ARecordCheck.Row := ExcelRow.AsInteger;
+    ARecordCheck.Col := FamilyName.Index + 1;
+    ARecordCheck.ErrorMessage := FamilyName.AsString;
+    ARecordCheck.Description :=
+      Format('Семейство компонентов с таким именем уже занесёно в БД в категорию %s',
+      [FQuerySearchFamily.SubGroup.AsString]);
 
-    Errors.AddWarring(ExcelRow.AsInteger, FamilyName.Index + 1,
-      FamilyName.AsString,
-      Format('Компонент с таким именем уже занесён в БД в категорию %s',
-      [FQuerySearchFamily.SubGroup.AsString]));
+    ProcessErrors(ARecordCheck);
   end;
 end;
 
@@ -216,6 +222,7 @@ end;
 
 function TComponentsExcelTable.CheckSubGroup: Boolean;
 var
+  ARecordCheck: TRecordCheck;
   IsBad: Boolean;
   IsGood: Boolean;
   s: String;
@@ -224,6 +231,11 @@ var
   x: Integer;
 begin
   Result := True;
+
+  ARecordCheck.ErrorType := etError;
+  ARecordCheck.Row := ExcelRow.AsInteger;
+  ARecordCheck.Col := SubGroup.Index + 1;
+
   Splitted := SubGroup.AsString.Split([',']);
 
   for ss in Splitted do
@@ -252,19 +264,18 @@ begin
 
       if IsBad then
       begin
-        MarkAsError(etError);
-
-        Errors.AddError(ExcelRow.AsInteger, SubGroup.Index + 1, s,
-          'не найдена категория с таким идентификатором');
+        ARecordCheck.ErrorMessage := s;
+        ARecordCheck.Description :=
+          'Не найдена категория с таким идентификатором';
+        ProcessErrors(ARecordCheck);
         Result := False;
       end;
     end
     else
     begin
-      MarkAsError(etError);
-
-      Errors.AddError(ExcelRow.AsInteger, SubGroup.Index + 1, s,
-        'неверный идентификатор категории');
+      ARecordCheck.ErrorMessage := s;
+      ARecordCheck.Description := 'Неверный идентификатор категории';
+      ProcessErrors(ARecordCheck);
       Result := False;
     end;
 

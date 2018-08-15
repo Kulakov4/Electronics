@@ -4,26 +4,24 @@ interface
 
 uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
-  CustomExcelTable, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet;
+  CustomExcelTable, Data.DB, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  SubParametersInterface;
 
 type
   TSubParametersExcelTable = class(TCustomExcelTable)
   private
-    FDMemTable: TFDMemTable;
-    FSubParametersDataSet: TFDDataSet;
+    FSubParametersInt: ISubParameters;
     function GetName: TField;
     function GetTranslation: TField;
-    procedure SetSubParametersDataSet(const Value: TFDDataSet);
   protected
     function CheckSubParameter: Boolean;
-    procedure Clone;
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckRecord: Boolean; override;
     property Name: TField read GetName;
-    property SubParametersDataSet: TFDDataSet read FSubParametersDataSet write
-        SetSubParametersDataSet;
+    property SubParametersInt: ISubParameters read FSubParametersInt write
+        FSubParametersInt;
     property Translation: TField read GetTranslation;
   end;
 
@@ -41,31 +39,30 @@ type
 implementation
 
 uses
-  FieldInfoUnit, System.Variants, StrHelper, ErrorType;
+  FieldInfoUnit, System.Variants, StrHelper, ErrorType, RecordCheck;
 
 constructor TSubParametersExcelTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FDMemTable := TFDMemTable.Create(Self);
 end;
 
 function TSubParametersExcelTable.CheckSubParameter: Boolean;
 var
-  V: Variant;
+  ARecordCheck: TRecordCheck;
 begin
-  // Ищем подпараметр с таким-же именем
-  V := FDMemTable.LookupEx(Name.FieldName, Name.Value, 'ID');
-
-  Result := VarIsNull(V);
+  Assert(SubParametersInt <> nil);
+  Result := SubParametersInt.GetSubParameterID(Name.Value) = 0;
 
   // Если не нашли
   if not Result then
   begin
     // Запоминаем, что в этой строке предупреждение
-    MarkAsError(etWarring);
-
-    Errors.AddWarring(ExcelRow.AsInteger, Name.Index + 1, Name.AsString,
-      'Подпараметр с таким наименованием уже существует');
+    ARecordCheck.ErrorType := etError;
+    ARecordCheck.Row := ExcelRow.AsInteger;
+    ARecordCheck.Col := Name.Index + 1;
+    ARecordCheck.ErrorMessage := Name.AsString;
+    ARecordCheck.Description := 'Подпараметр с таким наименованием уже существует.';
+    ProcessErrors(ARecordCheck);
   end;
 end;
 
@@ -77,20 +74,6 @@ begin
     // Проверяем что такой компонент существует
     Result := CheckSubParameter;
   end;
-end;
-
-procedure TSubParametersExcelTable.Clone;
-var
-  AFDIndex: TFDIndex;
-begin
-  // Клонируем курсор
-  FDMemTable.CloneCursor(FSubParametersDataSet);
-  // Создаём индекс
-  AFDIndex := FDMemTable.Indexes.Add;
-  AFDIndex.Fields := 'Name';
-  AFDIndex.Name := 'idxName';
-  AFDIndex.Active := True;
-  FDMemTable.IndexName := AFDIndex.Name;
 end;
 
 function TSubParametersExcelTable.GetName: TField;
@@ -108,19 +91,6 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('Name', True,
     'Наименование подпараметра не должно быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('Translation'));
-end;
-
-procedure TSubParametersExcelTable.SetSubParametersDataSet(const Value:
-    TFDDataSet);
-begin
-  if FSubParametersDataSet <> Value then
-  begin
-    FSubParametersDataSet := Value;
-    if FSubParametersDataSet <> nil then
-    begin
-      Clone;
-    end;
-  end;
 end;
 
 function TSubParametersExcelDM.CreateExcelTable: TCustomExcelTable;

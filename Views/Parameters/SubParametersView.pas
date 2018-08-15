@@ -337,8 +337,8 @@ begin
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TSubParametersExcelTable).SubParametersDataSet :=
-          FQuerySubParameters.FDQuery;
+        (ASender as TSubParametersExcelTable).SubParametersInt :=
+          FQuerySubParameters;
       end);
   finally
     EndUpdate;

@@ -17,7 +17,6 @@ type
   protected
     function ProcessValue(const AFieldName, AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
-    procedure MarkAsError(AErrorType: TErrorType);
     procedure ProcessErrors(ARecordCheck: TRecordCheck);
     procedure SetFieldsInfo; virtual;
   public
@@ -29,7 +28,7 @@ type
     function CheckRecord: Boolean; virtual;
     procedure ExcludeErrors(AErrorTypes: TErrorType);
     procedure SetUnionCellValues(ARecHolder: TRecordHolder);
-    procedure TryEdit;
+    function TryEdit: Boolean;
     procedure TryPost;
     property Errors: TErrorTable read FErrors;
     property ErrorType: TField read GetErrorType;
@@ -106,6 +105,7 @@ function TCustomExcelTable.CheckRecord: Boolean;
 var
   ACol: Integer;
   AFieldInfo: TFieldInfo;
+  ARecordCheck: TRecordCheck;
 begin
   Assert(not IsEmpty);
   ACol := 0;
@@ -115,13 +115,13 @@ begin
     if (AFieldInfo.Required) and (FieldByName(AFieldInfo.FieldName).IsNull or
       FieldByName(AFieldInfo.FieldName).AsString.Trim.IsEmpty) then
     begin
-      // Запоминаем, что в этой строке ошибка
-      Edit;
-      ErrorType.AsInteger := Integer(etError);
-      Post;
       // Сигнализируем о пустом значении
-      FErrors.AddError(ExcelRow.AsInteger, ACol, 'Пустое значение',
-        AFieldInfo.ErrorMessage);
+      ARecordCheck.ErrorType := etError;
+      ARecordCheck.Row := ExcelRow.AsInteger;
+      ARecordCheck.Col := ACol;
+      ARecordCheck.ErrorMessage := 'Пустое значение';
+      ARecordCheck.Description := AFieldInfo.ErrorMessage;
+      ProcessErrors(ARecordCheck);
     end;
   end;
   Result := ErrorType.AsInteger = Integer(etNone);
@@ -163,20 +163,17 @@ begin
   Result := FieldByName('ExcelRow');
 end;
 
-procedure TCustomExcelTable.MarkAsError(AErrorType: TErrorType);
-begin
-  Edit;
-  ErrorType.AsInteger := Integer(AErrorType);
-  Post;
-end;
-
 procedure TCustomExcelTable.ProcessErrors(ARecordCheck: TRecordCheck);
+var
+  OK: Boolean;
 begin
   if ARecordCheck.ErrorType = etNone then
     Exit;
 
   // Помечаем, что в этой строке есть ошибка
-  MarkAsError(ARecordCheck.ErrorType);
+  OK := TryEdit;
+  ErrorType.AsInteger := Integer(ARecordCheck.ErrorType);
+  if OK then TryPost;
 
   // Добавляем запись в таблицу с ошибками
   Errors.Add(ARecordCheck);
@@ -206,11 +203,15 @@ begin
   // TODO -cMM: TCustomExcelTable.SetFieldsInfo default body inserted
 end;
 
-procedure TCustomExcelTable.TryEdit;
+function TCustomExcelTable.TryEdit: Boolean;
 begin
   Assert(Active);
-  if not(State in [dsEdit, dsInsert]) then
+  Result := False;
+  if not (State in [dsEdit, dsInsert]) then
+  begin
     Edit;
+    Result := True;
+  end;
 end;
 
 procedure TCustomExcelTable.TryPost;

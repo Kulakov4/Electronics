@@ -43,9 +43,11 @@ type
 implementation
 
 uses
-  ErrorType;
+  ErrorType, RecordCheck;
 
 function TDocBindExcelTable.CheckComponent: Boolean;
+var
+  ARecordCheck: TRecordCheck;
 begin
   Result := qSearchComponentOrFamily.SearchByValue(ComponentName.AsString) > 0;
   // Если нашли такое семейство или компонент
@@ -57,10 +59,12 @@ begin
   end
   else
   begin
-    MarkAsError(etError);
-    Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
-      ComponentName.AsString,
-      'Семейство компонентов с таким именем не найдено');
+    ARecordCheck.ErrorType := etError;
+    ARecordCheck.Row := ExcelRow.AsInteger;
+    ARecordCheck.Col := ComponentName.Index + 1;
+    ARecordCheck.ErrorMessage := ComponentName.AsString;
+    ARecordCheck.Description := 'Семейство компонентов (компонент) с таким именем не найдено';
+    ProcessErrors(ARecordCheck);
   end;
 end;
 

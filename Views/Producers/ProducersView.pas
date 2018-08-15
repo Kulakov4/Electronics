@@ -430,8 +430,8 @@ begin
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TProducersExcelTable).ProducersDataSet :=
-          ProducersGroup.qProducers.FDQuery;
+        (ASender as TProducersExcelTable).ProducerInt :=
+          ProducersGroup.qProducers;
       end);
   finally
     EndUpdate;

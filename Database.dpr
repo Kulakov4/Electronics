@@ -241,7 +241,8 @@ uses
   DescriptionsInterface in 'Queryes\Descriptions\DescriptionsInterface.pas',
   ExtraChargeInterface in 'Queryes\ExtraCharge\ExtraChargeInterface.pas',
   ErrorType in 'Helpers\ErrorType.pas',
-  RecordCheck in 'Helpers\RecordCheck.pas';
+  RecordCheck in 'Helpers\RecordCheck.pas',
+  SubParametersInterface in 'Queryes\Parameters\SubParametersInterface.pas';
 
 {$R *.res}
 

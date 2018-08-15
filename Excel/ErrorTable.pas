@@ -11,8 +11,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Add(ARecordCheck: TRecordCheck);
-    procedure AddError(ARow, ACol: Integer; AError, ADescription: String);
-    procedure AddWarring(ARow, ACol: Integer; AWarring, ADescription: string);
   end;
 
 implementation
@@ -52,18 +50,6 @@ begin
   end;
   AppendRecord([ARecordCheck.Row, ARecordCheck.Col, S,
     ARecordCheck.ErrorMessage, ARecordCheck.Description]);
-end;
-
-procedure TErrorTable.AddError(ARow, ACol: Integer;
-  AError, ADescription: String);
-begin
-  AppendRecord([ARow, ACol, ErrorMessage, AError, ADescription]);
-end;
-
-procedure TErrorTable.AddWarring(ARow, ACol: Integer;
-  AWarring, ADescription: string);
-begin
-  AppendRecord([ARow, ACol, WarringMessage, AWarring, ADescription]);
 end;
 
 end.

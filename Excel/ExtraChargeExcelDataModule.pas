@@ -42,7 +42,8 @@ type
 implementation
 
 uses
-  FieldInfoUnit, System.RegularExpressions, System.Variants, ErrorType;
+  FieldInfoUnit, System.RegularExpressions, System.Variants, ErrorType,
+  RecordCheck;
 
 constructor TExtraChargeExcelTable.Create(AOwner: TComponent);
 begin
@@ -51,11 +52,16 @@ end;
 
 function TExtraChargeExcelTable.CheckRange: Boolean;
 var
-  AErrorMessage: string;
   AHigh: Integer;
   ALow: Integer;
+  ARecordCheck: TRecordCheck;
 begin
   Assert(ExtraChargeInt <> nil);
+
+  ARecordCheck.ErrorType := etError;
+  ARecordCheck.Row := ExcelRow.AsInteger;
+  ARecordCheck.Col := Range.Index + 1;
+  ARecordCheck.ErrorMessage := Range.AsString;
 
   // Ищем точно такой-же диапазон
   Result := not ExtraChargeInt.HaveDuplicate(Range.Value);
@@ -63,24 +69,17 @@ begin
   // Если нашли дубликат диапазона
   if not Result then
   begin
-    MarkAsError(etWarring);
-
-    Errors.AddWarring(ExcelRow.AsInteger, Range.Index + 1, Range.AsString,
-      'Такой диапазон уже существует');
+    ARecordCheck.Description := 'Такой диапазон уже существует';
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 
-  AErrorMessage := qExtraChargeSimple.CheckBounds(0, Range.AsString, ALow, AHigh );
-  Result := AErrorMessage.IsEmpty;
+  ARecordCheck.Description := qExtraChargeSimple.CheckBounds(0, Range.AsString, ALow, AHigh );
+  Result := ARecordCheck.Description.IsEmpty;
 
   // Если не нашли
   if not Result then
-  begin
-    MarkAsError(etError);
-
-    Errors.AddError(ExcelRow.AsInteger, Range.Index + 1, Range.AsString,
-      AErrorMessage);
-  end;
+    ProcessErrors(ARecordCheck);
 end;
 
 function TExtraChargeExcelTable.CheckRecord: Boolean;
