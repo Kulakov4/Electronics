@@ -18,7 +18,7 @@ type
   end;
 
 type
-  TUpdParamSubParamList = class(TList<TUpdParamSubParam>)
+  TUpdParamSubParamList = class(TObjectList<TUpdParamSubParam>)
   public
     function Search(AFamilyID, AParamSubParamID: Integer): Integer;
   end;

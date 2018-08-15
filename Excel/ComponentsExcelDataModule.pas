@@ -29,6 +29,7 @@ type
     procedure SetFieldsInfo; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function CheckRecord: Boolean; override;
     property IDFamily: TField read GetIDFamily;
     property FamilyName: TField read GetFamilyName;
@@ -182,6 +183,13 @@ begin
   FQuerySearchFamily := TQuerySearchFamily.Create(Self);
   FGoodSubGroup := TList<String>.Create;
   FBadSubGroup := TList<String>.Create;
+end;
+
+destructor TComponentsExcelTable.Destroy;
+begin
+  FreeAndNil(FGoodSubGroup);
+  FreeAndNil(FBadSubGroup);
+  inherited;
 end;
 
 function TComponentsExcelTable.CheckComponent: Boolean;
