@@ -2,11 +2,14 @@ unit DescriptionsInterface;
 
 interface
 
+uses
+  RecordCheck;
+
 type
-  TCheckDescriptionResult = (ƒублируетс€, —уществуетƒругое, Ќе—уществует);
+//  TCheckDescriptionResult = (ƒублируетс€, —уществуетƒругое, Ќе—уществует);
   IDescriptions = interface(IInterface)
     function Check(const AComponentName, ADescription: String; AProducerID:
-        Integer): TCheckDescriptionResult; stdcall;
+        Integer): TRecordCheck; stdcall;
 
   end;
 

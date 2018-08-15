@@ -56,7 +56,8 @@ implementation
 
 { %CLASSGROUP 'Vcl.Controls.TControl' }
 
-uses System.Math, System.Variants, FieldInfoUnit, ProgressInfo, ErrorType;
+uses System.Math, System.Variants, FieldInfoUnit, ProgressInfo, ErrorType,
+  RecordCheck;
 
 {$R *.dfm}
 
@@ -75,11 +76,15 @@ end;
 function TDescriptionsExcelTable.CheckDescription: Boolean;
 var
   AProducerID: Integer;
+  ARecordCheck: TRecordCheck;
   OK: Boolean;
-  r: TCheckDescriptionResult;
+  rc: TRecordCheck;
 begin
   Assert(ProducerInt <> nil);
   Assert(DescriptionsInt <> nil);
+
+  ARecordCheck.ErrorType := etError;
+  ARecordCheck.Row := ExcelRow.AsInteger;
 
   // Ищем производителя
   AProducerID := ProducerInt.GetProducerID(Producer.Value);
@@ -88,11 +93,11 @@ begin
   // Если не нашли
   if not Result then
   begin
-    MarkAsError(etError);
-
-    Errors.AddError(ExcelRow.AsInteger, Producer.Index + 1, Producer.AsString,
-      'Производитель с таким наименованием не найден в справочнике производителей');
-
+    ARecordCheck.Col := Producer.Index + 1;
+    ARecordCheck.ErrorMessage := Producer.AsString;
+    ARecordCheck.Description :=
+      'Производитель с таким наименованием не найден в справочнике производителей';
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 
@@ -110,55 +115,36 @@ begin
 
   if not Result then
   begin
+    // Если в Excel файле это встречается несколько раз
     if FClone.FieldByName(Description.FieldName).AsString = Description.AsString
     then
     begin
-      MarkAsError(etError);
-
-      Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
-        ComponentName.AsString, 'Такое описание уже есть в загружаемых данных');
+      ARecordCheck.Description :=
+        'Такое описание уже есть в загружаемых данных';
     end
     else
     begin
-      MarkAsError(etWarring);
-
-      Errors.AddWarring(ExcelRow.AsInteger, ComponentName.Index + 1,
-        ComponentName.AsString,
-        'Компонент с таким наименованием уже встречался в загружаемых данных');
+      ARecordCheck.ErrorType := etWarring;
+      ARecordCheck.Description :=
+        'Компонент с таким наименованием уже встречался в загружаемых данных';
     end;
+    ARecordCheck.Col := ComponentName.Index + 1;
+    ARecordCheck.ErrorMessage := ComponentName.AsString;
+    ProcessErrors(ARecordCheck);
     Exit;
   end;
 
   // Продолжаем проверку
 
-  r := DescriptionsInt.Check(ComponentName.Value, Description.Value,
+  rc := DescriptionsInt.Check(ComponentName.Value, Description.Value,
     IDProducer.Value);
 
-  Result := r = НеСуществует;
-
-  if Result then
+  if rc.ErrorType = etNone then
     Exit;
 
-  // Если нашли дубликат
-  if r = Дублируется then
-  begin
-    MarkAsError(etError);
-
-    Errors.AddError(ExcelRow.AsInteger, ComponentName.Index + 1,
-      ComponentName.AsString, 'Такое описание уже есть в справочнике');
-
-    Exit;
-  end;
-
-  if r = СуществуетДругое then
-  begin
-    MarkAsError(etWarring);
-
-    Errors.AddWarring(ExcelRow.AsInteger, ComponentName.Index + 1,
-      ComponentName.AsString,
-      'Компонент с таким наименованием имеет другое описание в справочнике');
-  end;
-
+  rc.Row := ExcelRow.AsInteger;
+  rc.Col := ComponentName.Index + 1;
+  ProcessErrors(rc);
 end;
 
 function TDescriptionsExcelTable.CheckRecord: Boolean;
