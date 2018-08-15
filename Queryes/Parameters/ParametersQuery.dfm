@@ -34,6 +34,8 @@ inherited QueryParameters: TQueryParameters
       
         'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
         'ategoryId and cp.ParamSubParamID = t.id '
+      'where'
+      '0=0'
       '/* ShowDuplicate'
       'and tablename in'
       '('

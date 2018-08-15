@@ -121,41 +121,48 @@ begin
   // Определяемся с типом параметра
   AIDParameterType := qParameterTypes.GetParameterTypeID
     (AParametersExcelTable.ParameterType.AsString);
-  // Если это не существующий ранее тип параметра
-  if AIDParameterType = 0 then
-    Exit;
 
-  // Возможно это полный дубликат
-  AFieldNames := Format('%s;%s;%s;%s;%s;%s;%s;%s', [qParameters.Value.FieldName,
-    qParameters.ValueT.FieldName, qParameters.CodeLetters.FieldName,
-    qParameters.MeasuringUnit.FieldName, qParameters.TableName.FieldName,
-    qParameters.Definition.FieldName, qParameters.IDParameterType.FieldName,
-    qParameters.IDParameterKind.FieldName]);
-
-  with AParametersExcelTable do
-    Arr := VarArrayOf([Value.AsString, ValueT.AsString, CodeLetters.AsString,
-      MeasuringUnit.AsString, TableName.AsString, Definition.AsString,
-      AIDParameterType, AParameterKindID]);
-
-  // Ищем дубликат
-  V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.PKFieldName,
-    [lxoCaseInsensitive]);
-
-  if not VarIsNull(V) then
+  // Если это существующий ранее тип параметра
+  if AIDParameterType > 0 then
   begin
-    // Запоминаем, что в этой строке ошибка
-    Result.ErrorType := etError;
-    Result.Row := AParametersExcelTable.ExcelRow.AsInteger;
-    Result.Col := AParametersExcelTable.TableName.Index + 1;
-    Result.ErrorMessage := AParametersExcelTable.TableName.AsString;
-    Result.Description :=
-      'Точно такой же параметр уже есть в справочнике параметров';
-    Exit;
+
+    // Возможно это полный дубликат
+    AFieldNames := Format('%s;%s;%s;%s;%s;%s;%s;%s',
+      [qParameters.Value.FieldName, qParameters.ValueT.FieldName,
+      qParameters.CodeLetters.FieldName, qParameters.MeasuringUnit.FieldName,
+      qParameters.TableName.FieldName, qParameters.Definition.FieldName,
+      qParameters.IDParameterType.FieldName,
+      qParameters.IDParameterKind.FieldName]);
+
+    with AParametersExcelTable do
+      Arr := VarArrayOf([Value.Value, ValueT.Value, CodeLetters.Value,
+        MeasuringUnit.Value, TableName.Value, Definition.Value,
+        AIDParameterType, AParameterKindID]);
+
+    // Ищем дубликат
+    V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.PKFieldName,
+      [lxoCaseInsensitive]);
+
+    if not VarIsNull(V) then
+    begin
+      // Запоминаем, что в этой строке ошибка
+      Result.ErrorType := etError;
+      Result.Row := AParametersExcelTable.ExcelRow.AsInteger;
+      Result.Col := AParametersExcelTable.TableName.Index + 1;
+      Result.ErrorMessage := AParametersExcelTable.TableName.AsString;
+      Result.Description :=
+        'Точно такой же параметр уже есть в справочнике параметров';
+      Exit;
+    end;
   end;
 
+  AFieldNames := Format('%s;%s', [qParameters.TableName.FieldName,
+    qParameters.IsCustomParameter.FieldName]);
+
+  Arr := VarArrayOf([AParametersExcelTable.TableName.Value, False]);
+
   // Ищем дубликат по табличному имени
-  V := qParameters.FDQuery.LookupEx(qParameters.TableName.FieldName,
-    AParametersExcelTable.TableName.AsString, qParameters.PKFieldName,
+  V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.PKFieldName,
     [lxoCaseInsensitive]);
 
   if not VarIsNull(V) then

@@ -839,7 +839,8 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Переходим на параметр и его тип
-  ParametersGrp.LocateAll(AParameterID);
+  if not ParametersGrp.LocateAll(AParameterID) then
+    Exit; // Если такой параметр не попал под условие текущего фильтра
 
   // Запись о типе - в цент
   PutInTheCenterFocusedRecord(MainView);
@@ -1055,6 +1056,11 @@ begin
   actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);
 
+  // Если у нас хоть один фильтр на параметрах, тип удалять нельзя
+  if (actFilterByTableName.Checked or actShowDuplicate.Checked) and (AView = MainView) then
+    actDeleteEx.Enabled := False;
+
+
   actLoadFromExcelDocument.Enabled := OK;
 
   actLoadFromExcelSheet.Enabled := OK;
@@ -1066,9 +1072,10 @@ begin
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actFilterByTableName.Enabled := OK and (AView <> nil) and
-    (AView.Level = cxGridLevel2) and ((AView.ViewData.RecordCount > 0) or
-    not FParametersGrp.qParameters.TableNameFilter.IsEmpty);
+  actFilterByTableName.Enabled := OK and
+    ((not FParametersGrp.qParameters.TableNameFilter.IsEmpty) or
+    ((AView <> nil) and (AView.Level = cxGridLevel2) and
+    (AView.ViewData.RowCount > 0)));
 
   S := '';
 
