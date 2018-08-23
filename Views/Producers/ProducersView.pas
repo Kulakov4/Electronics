@@ -60,11 +60,14 @@ type
     actAddType: TAction;
     dxBarButton1: TdxBarButton;
     clOrder: TcxGridDBBandedColumn;
+    actRefresh: TAction;
+    dxBarButton2: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
+    procedure actRefreshExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure cxGridDBBandedTableView2EditKeyDown
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
@@ -209,6 +212,12 @@ begin
     Exit;
 
   LoadFromExcel(AFileName);
+end;
+
+procedure TViewProducers.actRefreshExecute(Sender: TObject);
+begin
+  inherited;
+  ProducersGroup.RefreshData;
 end;
 
 procedure TViewProducers.actRollbackExecute(Sender: TObject);

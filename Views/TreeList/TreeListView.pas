@@ -278,7 +278,8 @@ begin
     Exit;
 
   // »щем
-  qTreeList.LocateByExternalID(AExternalID, [lxoPartialKey]);
+  if not qTreeList.LocateByExternalID(AExternalID, [lxoPartialKey]) then
+    TDialog.Create.CategoryNotExist(AExternalID);
 end;
 
 procedure TViewTreeList.cxbeiSearchKeyDown(Sender: TObject; var Key: Word;

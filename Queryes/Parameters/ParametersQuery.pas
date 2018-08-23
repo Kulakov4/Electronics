@@ -149,9 +149,9 @@ begin
   try
 
     // Запоминаем поля, которые мы только-что отредактировали на клиенте
-    RH.Attach(FDQuery, Format('%s;%s;%s;%s',
+    RH.Attach(FDQuery, Format('%s;%s;%s;%s;%s',
       [PKFieldName, IsCustomParameter.FieldName, Checked.FieldName,
-      ParamSubParamID.FieldName]));
+      ParamSubParamID.FieldName, Ord.FieldName]));
 
     // Ищем параметр "по умолчанию" с таким-же табличным именем
     i := qSearchParameter.SearchByTableName(TableName.AsString, True);
@@ -177,8 +177,9 @@ begin
 
     // Производим обновление полей на стороне клиента
     FetchFields([PK.FieldName, IsCustomParameter.FieldName,
-      ParamSubParamID.FieldName], [qSearchParameter.PK.Value,
-      AAIsCustomParameter, qSearchParameter.ParamSubParamID.Value],
+      ParamSubParamID.FieldName, '[' + Ord.FieldName + ']'], [qSearchParameter.PK.Value,
+      AAIsCustomParameter, qSearchParameter.ParamSubParamID.Value,
+      qSearchParameter.Order.Value],
       ARequest, AAction, AOptions);
   finally
     FreeAndNil(RH);

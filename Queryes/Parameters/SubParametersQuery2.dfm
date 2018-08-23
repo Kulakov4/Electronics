@@ -1,10 +1,14 @@
 inherited QuerySubParameters2: TQuerySubParameters2
+  Width = 220
+  ExplicitWidth = 220
   inherited Label1: TLabel
     Width = 100
     Caption = 'SubParameters'
     ExplicitWidth = 100
   end
   inherited FDQuery: TFDQuery
+    UpdateOptions.AssignedValues = [uvRefreshMode]
+    UpdateOptions.RefreshMode = rmAll
     SQL.Strings = (
       'select sp.*'
       '/* IFCHECKED '

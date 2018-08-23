@@ -45,6 +45,7 @@ inherited ViewChildCategories: TViewChildCategories
       object clOrd: TcxGridDBBandedColumn
         Caption = #1055#1086#1088#1103#1076#1086#1082
         DataBinding.FieldName = 'Ord'
+        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 4

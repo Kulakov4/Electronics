@@ -23,6 +23,8 @@ type
     function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
     procedure Commit; virtual;
+    procedure DisableControls;
+    procedure EnableControls;
     procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
@@ -92,6 +94,22 @@ begin
   Connection.Commit;
 end;
 
+procedure TQueryGroup2.DisableControls;
+var
+  I: Integer;
+begin
+  for I := QList.Count - 1 downto 0 do
+    QList[I].FDQuery.DisableControls;
+end;
+
+procedure TQueryGroup2.EnableControls;
+var
+  I: Integer;
+begin
+  for I := 0 to QList.Count - 1 do
+    QList[I].FDQuery.EnableControls;
+end;
+
 function TQueryGroup2.GetChangeCount: Integer;
 var
   Q: TQueryBaseEvents;
@@ -126,9 +144,8 @@ procedure TQueryGroup2.RefreshData;
 var
   I: Integer;
 begin
-  for I := QList.Count - 1 downto 0 do
-    QList[I].FDQuery.DisableControls;
-  try
+//  DisableControls;
+//  try
     for I := QList.Count - 1 downto 0 do
       QList[I].SaveBookmark;
 
@@ -137,10 +154,10 @@ begin
     for I := 0 to QList.Count - 1 do
       QList[I].RestoreBookmark;
 
-  finally
-    for I := 0 to QList.Count - 1 do
-      QList[I].FDQuery.EnableControls;
-  end;
+//  finally
+// !! FDQuery.EnableControls вызывает ошибку в cxGrid у дочернего представления
+//    EnableControls;
+//  end;
 end;
 
 procedure TQueryGroup2.ReOpen;

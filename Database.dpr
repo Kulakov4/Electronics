@@ -1,6 +1,19 @@
 program Database;
 
 uses
+  {$IFDEF EurekaLog}
+  EMemLeaks,
+  EResLeaks,
+  EDialogWinAPIMSClassic,
+  EDialogWinAPIEurekaLogDetailed,
+  EDialogWinAPIStepsToReproduce,
+  EDebugExports,
+  EDebugJCL,
+  EFixSafeCallException,
+  EMapWin32,
+  EAppVCL,
+  ExceptionLog7,
+  {$ENDIF EurekaLog}
   Vcl.Forms,
   DBRecordHolder in 'Helpers\DBRecordHolder.pas',
   ProjectConst in 'Helpers\ProjectConst.pas',
@@ -229,7 +242,8 @@ uses
   ExtraChargeInterface in 'Queryes\ExtraCharge\ExtraChargeInterface.pas',
   ErrorType in 'Helpers\ErrorType.pas',
   RecordCheck in 'Helpers\RecordCheck.pas',
-  SubParametersInterface in 'Queryes\Parameters\SubParametersInterface.pas';
+  SubParametersInterface in 'Queryes\Parameters\SubParametersInterface.pas',
+  ParametersView2 in 'Views\Parameters\ParametersView2.pas' {ViewParameters2: TFrame};
 
 {$R *.res}
 
@@ -240,6 +254,7 @@ begin
   Application.Run;
 
 end.
+
 
 
 

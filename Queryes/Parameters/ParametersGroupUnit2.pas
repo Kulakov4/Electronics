@@ -18,8 +18,6 @@ type
     FqParameterKinds: TQueryParameterKinds;
     FqParameters: TQueryParameters;
     FqParameterTypes: TQueryParameterTypes;
-    FqParamSubParams: TQueryParamSubParams;
-    FqSubParameters: TQuerySubParameters2;
     procedure DoBeforeDelete(Sender: TObject);
     function GetqParameterKinds: TQueryParameterKinds;
     procedure SetProductCategoryIDValue(const Value: Integer);
@@ -35,8 +33,6 @@ type
     property qParameterKinds: TQueryParameterKinds read GetqParameterKinds;
     property qParameters: TQueryParameters read FqParameters;
     property qParameterTypes: TQueryParameterTypes read FqParameterTypes;
-    property qParamSubParams: TQueryParamSubParams read FqParamSubParams;
-    property qSubParameters: TQuerySubParameters2 read FqSubParameters;
   end;
 
 implementation
@@ -52,15 +48,9 @@ begin
   FqParameterTypes := TQueryParameterTypes.Create(Self);
   // Параметры
   FqParameters := TQueryParameters.Create(Self);
-  // Связь с подпараметрами
-  FqParamSubParams := TQueryParamSubParams.Create(Self);
-  // Подпараметры
-  FqSubParameters := TQuerySubParameters2.Create(Self);
 
   QList.Add(qParameterTypes); // Тип каждого параметра
   QList.Add(qParameters); // Сами параметры
-  QList.Add(qSubParameters); // Подпараметры
-  QList.Add(qParamSubParams); // Связь между параметрами и подпараметрами
 
   // Для каскадного удаления
   TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete,
@@ -320,7 +310,6 @@ begin
 
   FProductCategoryIDValue := Value;
   qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
-  qParamSubParams.ProductCategoryIDValue := FProductCategoryIDValue;
 end;
 
 end.

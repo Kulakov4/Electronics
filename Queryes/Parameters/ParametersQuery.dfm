@@ -16,6 +16,7 @@ inherited QueryParameters: TQueryParameters
       end>
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode, uvUpdateNonBaseFields]
+    UpdateOptions.RefreshMode = rmAll
   end
   object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
@@ -35,7 +36,7 @@ inherited QueryParameters: TQueryParameters
         'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
         'ategoryId and cp.ParamSubParamID = t.id '
       'where'
-      '0=0'
+      '0=0 and IDParameterType is not null'
       '/* ShowDuplicate'
       'and tablename in'
       '('

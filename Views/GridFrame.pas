@@ -937,6 +937,7 @@ var
   AcxGridDBBandedTableView: TcxGridDBBandedTableView;
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
   AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
+  V: Variant;
 
 begin
   Assert(AcxGridSite <> nil);
@@ -954,10 +955,14 @@ begin
     AcxGridDBBandedTableView := AcxGridRecordCellHitTest.GridView as
       TcxGridDBBandedTableView;
 
-    // определяем порядок в точке переноса
-    ADragAndDropInfo.DropDrag.OrderValue :=
-      AcxGridRecordCellHitTest.GridRecord.Values
+    V := AcxGridRecordCellHitTest.GridRecord.Values
       [ADragAndDropInfo.OrderColumn.Index];
+
+    // Колонка "Порядок" должна содержать целое число!
+    Assert(not VarIsNull(V));
+
+    // определяем порядок в точке переноса
+    ADragAndDropInfo.DropDrag.OrderValue := V;
 
     // определяем код записи в точке переноса
     ADragAndDropInfo.DropDrag.Key := AcxGridRecordCellHitTest.GridRecord.Values
@@ -1310,6 +1315,10 @@ begin
     AColumn.Caption := ACaption;
   end;
 
+  // Если заголовки бэндов не отображаются
+  if not ABand.GridView.OptionsView.BandHeaders then
+    Exit;
+
   AIsBandViewInfoExist := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.
     Count > ABand.VisibleIndex;
 
@@ -1378,6 +1387,9 @@ begin
       // BandsViewInfo.Count > 0;
 
       AMaxBandHeight := 0;
+      // Если в настройках стоит отображать бэнды
+      // if AView.OptionsView.BandHeaders then
+      // begin
       // ACanvas := AView.ViewInfo.Canvas.Canvas;
       for i := 0 to AView.Bands.Count - 1 do
       begin
@@ -1437,10 +1449,11 @@ begin
         AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
           AMaxBandHeight);
         // end;
-      end;
+        // end;
 
-      if AMaxBandHeight > 0 then
-        AView.OptionsView.BandHeaderHeight := AMaxBandHeight;
+        if AMaxBandHeight > 0 then
+          AView.OptionsView.BandHeaderHeight := AMaxBandHeight;
+      end;
 
       if AView.Controller.LeftPos <> FLeftPos then
       begin

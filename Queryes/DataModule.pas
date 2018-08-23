@@ -9,7 +9,7 @@ uses
   ComponentsSearchGroupUnit2, CategoryParametersGroupUnit2,
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
-  ExtraChargeQuery;
+  ExtraChargeQuery, SubParametersQuery2;
 
 type
   TDM = class(TObject)
@@ -33,6 +33,7 @@ type
     FqProducts: TQueryProducts;
     FqProductsSearch: TQueryProductsSearch;
     FqStoreHouseList: TQueryStoreHouseList;
+    FqSubParameters: TQuerySubParameters2;
     FqTreeList: TQueryTreeList;
     FqVersion: TQueryVersion;
     FRefreshQList: TList;
@@ -57,6 +58,7 @@ type
     function GetqProducts: TQueryProducts;
     function GetqProductsSearch: TQueryProductsSearch;
     function GetqStoreHouseList: TQueryStoreHouseList;
+    function GetqSubParameters: TQuerySubParameters2;
     function GetqTreeList: TQueryTreeList;
     function GetqVersion: TQueryVersion;
     procedure InitDataSetValues;
@@ -88,6 +90,7 @@ type
     property qProducts: TQueryProducts read GetqProducts;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
+    property qSubParameters: TQuerySubParameters2 read GetqSubParameters;
     property qTreeList: TQueryTreeList read GetqTreeList;
     property qVersion: TQueryVersion read GetqVersion;
   end;
@@ -465,6 +468,13 @@ begin
   if FqStoreHouseList = nil then
     FqStoreHouseList := TQueryStoreHouseList.Create(FComponent);
   Result := FqStoreHouseList;
+end;
+
+function TDM.GetqSubParameters: TQuerySubParameters2;
+begin
+  if FqSubParameters = nil then
+    FqSubParameters := TQuerySubParameters2.Create(FComponent);
+  Result := FqSubParameters;
 end;
 
 function TDM.GetqTreeList: TQueryTreeList;

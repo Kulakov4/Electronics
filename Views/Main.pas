@@ -91,7 +91,6 @@ type
     actShowExtraCharge: TAction;
     dxBarButton1: TdxBarButton;
     ApplicationEvents: TApplicationEvents;
-    IdHTTP1: TIdHTTP;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);
@@ -360,10 +359,11 @@ begin
   if frmParameters = nil then
   begin
     TDM.Create.ParametersGroup.ReOpen;
+    TDM.Create.qSubParameters.RefreshQuery;
+
     frmParameters := TfrmParameters.Create(Self);
     frmParameters.ViewParameters.ParametersGrp := TDM.Create.ParametersGroup;
-    frmParameters.ViewSubParameters.QuerySubParameters :=
-      TDM.Create.ParametersGroup.qSubParameters;
+    frmParameters.ViewSubParameters.QuerySubParameters := TDM.Create.qSubParameters;
   end;
 
   frmParameters.Show;

@@ -24,7 +24,7 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxControls, dxSkinscxPCPainter, dxBarBuiltInMenu, cxPC,
-  SubParametersView;
+  SubParametersView, ParametersView2;
 
 type
   TfrmParameters = class(TfrmDictonary)
@@ -36,7 +36,7 @@ type
       var AllowChange: Boolean);
   private
     FViewSubParameters: TViewSubParameters;
-    FViewParameters: TViewParameters;
+    FViewParameters: TViewParameters2;
     { Private declarations }
   protected
     procedure ApplyUpdates; override;
@@ -46,7 +46,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     property ViewSubParameters: TViewSubParameters read FViewSubParameters;
-    property ViewParameters: TViewParameters read FViewParameters;
+    property ViewParameters: TViewParameters2 read FViewParameters;
     { Public declarations }
   end;
 
@@ -60,7 +60,7 @@ implementation
 constructor TfrmParameters.Create(AOwner: TComponent);
 begin
   inherited;
-  FViewParameters := TViewParameters.Create(Self);
+  FViewParameters := TViewParameters2.Create(Self);
   FViewParameters.Parent := cxtsParameters;
   FViewParameters.Align := alClient;
 

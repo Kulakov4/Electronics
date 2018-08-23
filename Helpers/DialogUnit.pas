@@ -43,6 +43,7 @@ type
     procedure AutoBindResultDialog(ACount: Integer);
     function ClearTreeDialog: Boolean;
     procedure BodyNotFoundDialog(const AValue: String);
+    procedure CategoryNotExist(const AExternalID: string);
     procedure MethodNotImplemended;
     procedure ComponentsDocFilesNotFound;
     procedure ParametricTableNotFound;
@@ -117,6 +118,13 @@ begin
   Application.MessageBox
     (PChar(Format('В справочнике корпусов не найден корпус %s', [AValue])),
     'Ошибка при заполнении корпуса', MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.CategoryNotExist(const AExternalID: string);
+begin
+  Application.MessageBox
+    (PChar(Format('Категория с идентификатором %s отсутствует', [AExternalID])),
+    'Ошибка', MB_OK + MB_ICONINFORMATION);
 end;
 
 procedure TDialog.MethodNotImplemended;

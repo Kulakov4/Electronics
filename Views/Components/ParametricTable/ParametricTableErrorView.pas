@@ -50,13 +50,14 @@ implementation
 
 {$R *.dfm}
 
-uses BaseQuery;
+uses BaseQuery, SubParametersQuery2;
 
 procedure TViewParametricTableError.actFixExecute(Sender: TObject);
 var
   AfrmParameters: TfrmParameters;
   OK: Boolean;
   AParametersGroup: TParametersGroup2;
+  AqSubParameters: TQuerySubParameters2;
   F: TField;
   ErrMsg: String;
   PKFieldName: String;
@@ -65,15 +66,16 @@ begin
   F := nil;
 
   AParametersGroup := TParametersGroup2.Create(nil);
+  AqSubParameters := TQuerySubParameters2.Create(nil);
   try
     AParametersGroup.ReOpen;
+    AqSubParameters.FDQuery.Open;
 
     AfrmParameters := TfrmParameters.Create(nil);
     try
       AfrmParameters.CloseAction := caHide;
       AfrmParameters.ViewParameters.ParametersGrp := AParametersGroup;
-      AfrmParameters.ViewSubParameters.QuerySubParameters :=
-        AParametersGroup.qSubParameters;
+      AfrmParameters.ViewSubParameters.QuerySubParameters := AqSubParameters;
 
       OK := True;
       case ParametricErrorTable.ErrorType.AsInteger of
@@ -107,9 +109,9 @@ begin
             AfrmParameters.cxPageControl.ActivePage :=
               AfrmParameters.cxtsSubParameters;
 
-            F := AParametersGroup.qSubParameters.Name;
+            F := AqSubParameters.Name;
             ErrMsg := 'Имя выбранного подпараметра не совпадает с заголовком в Excel файле';
-            PKFieldName := AParametersGroup.qSubParameters.PKFieldName;
+            PKFieldName := AqSubParameters.PKFieldName;
           end;
       else
         Assert(False);
@@ -136,6 +138,7 @@ begin
     end;
   finally
     FreeAndNil(AParametersGroup);
+    FreeAndNil(AqSubParameters);
   end;
 end;
 

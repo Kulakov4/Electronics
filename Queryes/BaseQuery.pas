@@ -477,6 +477,7 @@ begin
   for i := Low(AFieldNames) to High(AFieldNames) do
   begin
     V := AValues[i];
+    Assert(not VarIsNull(V));
     if VarIsStr(V) then
       S := QuotedStr(V)
     else

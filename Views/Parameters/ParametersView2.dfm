@@ -1,29 +1,18 @@
-inherited ViewParameters: TViewParameters
+inherited ViewParameters2: TViewParameters2
   inherited cxGrid: TcxGrid
-    Top = 56
-    Height = 416
-    ExplicitTop = 56
-    ExplicitHeight = 416
+    Top = 84
+    Height = 388
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
       OnDragOver = cxGridDBBandedTableViewDragOver
       OnStartDrag = cxGridDBBandedTableViewStartDrag
-      DataController.Summary.FooterSummaryItems = <
-        item
-          Kind = skCount
-          Column = clParameterType
-        end>
-      DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+      DataController.KeyFieldNames = 'ID'
       DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
-      OptionsCustomize.ColumnGrouping = False
-      OptionsCustomize.ColumnVertSizing = False
-      OptionsData.Appending = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
         VisibleForCustomization = False
-        Width = 30
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
@@ -31,17 +20,13 @@ inherited ViewParameters: TViewParameters
       object clParameterType: TcxGridDBBandedColumn
         Caption = #1058#1080#1087' '#1087#1072#1088#1072#1084#1077#1090#1088#1072
         DataBinding.FieldName = 'ParameterType'
-        PropertiesClassName = 'TcxTextEditProperties'
         Position.BandIndex = 0
         Position.ColIndex = 1
         Position.RowIndex = 0
       end
       object clOrd: TcxGridDBBandedColumn
-        Caption = #1055#1086#1088#1103#1076#1086#1082
-        DataBinding.FieldName = 'ord'
+        DataBinding.FieldName = 'Ord'
         Visible = False
-        SortIndex = 0
-        SortOrder = soAscending
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
@@ -52,34 +37,14 @@ inherited ViewParameters: TViewParameters
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableView2DragDrop
       OnDragOver = cxGridDBBandedTableView2DragOver
-      OnKeyDown = cxGridDBBandedTableViewKeyDown
-      OnMouseDown = cxGridDBBandedTableViewMouseDown
       OnStartDrag = cxGridDBBandedTableView2StartDrag
       Navigator.Buttons.CustomButtons = <>
-      OnEditKeyDown = cxGridDBBandedTableView2EditKeyDown
       DataController.DetailKeyFieldNames = 'IDParameterType'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
-      DataController.Summary.FooterSummaryItems = <
-        item
-          Kind = skCount
-          OnGetText = cxGridDBBandedTableView2TcxGridDBDataControllerTcxDataSummaryFooterSummaryItems0GetText
-          Column = clValue2
-        end>
+      DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
-      DataController.Summary.OnAfterSummary = cxGridDBBandedTableView2DataControllerSummaryAfterSummary
-      OptionsBehavior.CopyCaptionsToClipboard = False
-      OptionsBehavior.EditAutoHeight = eahRow
-      OptionsCustomize.ColumnGrouping = False
-      OptionsCustomize.ColumnVertSizing = False
-      OptionsData.Appending = True
-      OptionsSelection.MultiSelect = True
-      OptionsSelection.CellMultiSelect = True
-      OptionsSelection.InvertSelect = False
-      OptionsView.CellAutoHeight = True
-      OptionsView.ExpandButtonsForEmptyDetails = False
-      OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.HeaderAutoHeight = True
       OptionsView.BandHeaders = False
@@ -96,8 +61,6 @@ inherited ViewParameters: TViewParameters
       end
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Order'
-        SortIndex = 0
-        SortOrder = soAscending
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
@@ -106,31 +69,15 @@ inherited ViewParameters: TViewParameters
       object clChecked: TcxGridDBBandedColumn
         Caption = 'X'
         DataBinding.FieldName = 'Checked'
-        PropertiesClassName = 'TcxCheckBoxProperties'
-        Properties.Alignment = taCenter
-        Properties.ImmediatePost = True
-        Properties.ValueChecked = '1'
-        Properties.ValueUnchecked = '0'
-        BestFitMaxWidth = 20
-        HeaderAlignmentHorz = taCenter
-        Options.IncSearch = False
-        Options.AutoWidthSizable = False
-        Options.Grouping = False
-        Options.HorzSizing = False
-        Options.Moving = False
-        Options.Sorting = False
-        Width = 20
+        Visible = False
+        VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
       end
-      object clValue2: TcxGridDBBandedColumn
+      object clValue: TcxGridDBBandedColumn
         Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'Value'
-        PropertiesClassName = 'TcxTextEditProperties'
-        BestFitMaxWidth = 200
-        MinWidth = 100
-        Width = 313
         Position.BandIndex = 0
         Position.ColIndex = 3
         Position.RowIndex = 0
@@ -138,10 +85,6 @@ inherited ViewParameters: TViewParameters
       object clCodeLetters: TcxGridDBBandedColumn
         Caption = #1041#1091#1082#1074#1077#1085#1085#1086#1077' '#1086#1073#1086#1079#1085#1072#1095#1077#1085#1080#1077
         DataBinding.FieldName = 'CodeLetters'
-        PropertiesClassName = 'TcxTextEditProperties'
-        BestFitMaxWidth = 200
-        MinWidth = 60
-        Width = 148
         Position.BandIndex = 0
         Position.ColIndex = 4
         Position.RowIndex = 0
@@ -149,10 +92,6 @@ inherited ViewParameters: TViewParameters
       object clMeasuringUnit: TcxGridDBBandedColumn
         Caption = #1045#1076#1080#1085#1080#1094#1072' '#1080#1079#1084#1077#1088#1077#1085#1080#1103
         DataBinding.FieldName = 'MeasuringUnit'
-        PropertiesClassName = 'TcxTextEditProperties'
-        BestFitMaxWidth = 200
-        MinWidth = 100
-        Width = 122
         Position.BandIndex = 0
         Position.ColIndex = 5
         Position.RowIndex = 0
@@ -160,10 +99,6 @@ inherited ViewParameters: TViewParameters
       object clTableName: TcxGridDBBandedColumn
         Caption = #1058#1072#1073#1083#1080#1095#1085#1086#1077' '#1085#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
         DataBinding.FieldName = 'TableName'
-        PropertiesClassName = 'TcxTextEditProperties'
-        BestFitMaxWidth = 200
-        MinWidth = 100
-        Width = 168
         Position.BandIndex = 0
         Position.ColIndex = 6
         Position.RowIndex = 0
@@ -171,10 +106,6 @@ inherited ViewParameters: TViewParameters
       object clValueT: TcxGridDBBandedColumn
         Caption = #1055#1077#1088#1077#1074#1086#1076
         DataBinding.FieldName = 'ValueT'
-        PropertiesClassName = 'TcxTextEditProperties'
-        BestFitMaxWidth = 200
-        MinWidth = 100
-        Width = 514
         Position.BandIndex = 0
         Position.ColIndex = 7
         Position.RowIndex = 0
@@ -183,9 +114,6 @@ inherited ViewParameters: TViewParameters
         Caption = #1054#1087#1088#1077#1076#1077#1083#1077#1085#1080#1077
         DataBinding.FieldName = 'Definition'
         PropertiesClassName = 'TcxBlobEditProperties'
-        MinWidth = 60
-        Options.Sorting = False
-        Width = 85
         Position.BandIndex = 0
         Position.ColIndex = 8
         Position.RowIndex = 0
@@ -194,14 +122,12 @@ inherited ViewParameters: TViewParameters
         Caption = #1058#1080#1087
         DataBinding.FieldName = 'IDParameterType'
         PropertiesClassName = 'TcxLookupComboBoxProperties'
-        Properties.DropDownListStyle = lsEditList
+        Properties.DropDownSizeable = True
+        Properties.DropDownWidth = 300
         Properties.ListColumns = <>
         Properties.OnCloseUp = clIDParameterTypePropertiesCloseUp
         Properties.OnEditValueChanged = clIDParameterTypePropertiesEditValueChanged
         Properties.OnNewLookupDisplayText = clIDParameterTypePropertiesNewLookupDisplayText
-        MinWidth = 100
-        Options.Sorting = False
-        Width = 100
         Position.BandIndex = 0
         Position.ColIndex = 9
         Position.RowIndex = 0
@@ -209,10 +135,6 @@ inherited ViewParameters: TViewParameters
       object clIDParameterKind: TcxGridDBBandedColumn
         Caption = #1042#1080#1076' '#1087#1072#1088#1072#1084#1077#1090#1088#1072
         DataBinding.FieldName = 'IDParameterKind'
-        PropertiesClassName = 'TcxLookupComboBoxProperties'
-        Properties.ImmediatePost = True
-        Properties.ListColumns = <>
-        MinWidth = 80
         Position.BandIndex = 0
         Position.ColIndex = 10
         Position.RowIndex = 0
@@ -241,7 +163,7 @@ inherited ViewParameters: TViewParameters
     DockControlHeights = (
       0
       0
-      56
+      84
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -251,30 +173,34 @@ inherited ViewParameters: TViewParameters
         end
         item
           Visible = True
-          ItemName = 'dxbbAddType'
+          ItemName = 'dxBarButton3'
         end
         item
           Visible = True
-          ItemName = 'dxbbAddMainParameter'
+          ItemName = 'dxBarButton4'
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnDelete'
+          ItemName = 'dxBarButton5'
         end
         item
           Visible = True
-          ItemName = 'dxbrsbtmExportImport'
+          ItemName = 'dxBarSubItem1'
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnCommit'
+          ItemName = 'dxBarButton9'
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnRollBack'
+          ItemName = 'dxBarButton10'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end>
     end
-    object dxbrSearch: TdxBar [1]
+    object dxBarManagerBar1: TdxBar [1]
       Caption = 'Search'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
@@ -293,7 +219,7 @@ inherited ViewParameters: TViewParameters
         end
         item
           Visible = True
-          ItemName = 'dxbbSearch'
+          ItemName = 'dxBarButton2'
         end>
       OneOnRow = False
       Row = 1
@@ -301,7 +227,7 @@ inherited ViewParameters: TViewParameters
       Visible = True
       WholeRow = False
     end
-    object dxBarManagerBar1: TdxBar [2]
+    object dxBarManagerBar2: TdxBar [2]
       Caption = 'Duplicate'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
@@ -316,15 +242,11 @@ inherited ViewParameters: TViewParameters
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxBarButton1'
+          ItemName = 'dxBarButton11'
         end
         item
           Visible = True
-          ItemName = 'dxBarButton2'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton4'
+          ItemName = 'dxBarButton12'
         end>
       OneOnRow = False
       Row = 1
@@ -332,73 +254,48 @@ inherited ViewParameters: TViewParameters
       Visible = True
       WholeRow = False
     end
-    object dxbbAddType: TdxBarButton
-      Action = actAddParameterType
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
-    object dxbbAddMainParameter: TdxBarButton
-      Action = actAddMainParameter
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
-    object dxbrbtnDelete: TdxBarButton
-      Action = actDeleteEx
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
-    object dxbrsbtmExportImport: TdxBarSubItem
-      Caption = #1069#1082#1089#1087#1086#1088#1090'/'#1048#1084#1087#1086#1088#1090
-      Category = 0
-      Visible = ivAlways
-      ImageIndex = 6
+    object dxBarManagerBar3: TdxBar [3]
+      Caption = 'Test'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 0
+      DockedTop = 56
+      DockingStyle = dsTop
+      FloatLeft = 903
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      Images = DMRepository.cxImageList
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbrbtnLoadFromExcelDocument'
+          ItemName = 'dxBarButton13'
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnLoadFromExcelSheet'
+          ItemName = 'dxBarButton14'
         end
         item
           Visible = True
-          ItemName = 'dxbrbtnExportToExcel'
+          ItemName = 'dxBarButton15'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton16'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton17'
         end>
+      OneOnRow = True
+      Row = 2
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
     end
-    object dxbrbtnLoadFromExcelDocument: TdxBarButton
-      Action = actLoadFromExcelDocument
+    object dxBarButton1: TdxBarButton
+      Action = actRefresh
       Category = 0
-    end
-    object dxbrbtnLoadFromExcelSheet: TdxBarButton
-      Action = actLoadFromExcelSheet
-      Category = 0
-    end
-    object dxbrbtnExportToExcel: TdxBarButton
-      Action = actExportToExcelDocument
-      Category = 0
-    end
-    object dxbrbtnCommit: TdxBarButton
-      Action = actCommit
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
-    object dxbrbtnAddSubParameter: TdxBarButton
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088
-      Category = 0
-      Visible = ivNever
-      ImageIndex = 1
-      PaintStyle = psCaptionGlyph
-    end
-    object dxbrbtnRollBack: TdxBarButton
-      Action = actRollback
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
-    object dxbbSearch: TdxBarButton
-      Action = actSearch
-      Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object cxbeiSearch: TcxBarEditItem
       Caption = #1055#1086#1080#1089#1082':'
@@ -407,28 +304,99 @@ inherited ViewParameters: TViewParameters
       Visible = ivAlways
       ShowCaption = True
       PropertiesClassName = 'TcxTextEditProperties'
-      Properties.ValidationOptions = [evoRaiseException, evoAllowLoseFocus]
       Properties.OnEditValueChanged = cxbeiSearchPropertiesEditValueChanged
       Properties.OnValidate = cxbeiSearchPropertiesValidate
-      InternalEditValue = ''
-    end
-    object dxBarButton1: TdxBarButton
-      Action = actShowDuplicate
-      Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarButton2: TdxBarButton
-      Action = actFilterByTableName
+      Action = actSearch
       Category = 0
       PaintStyle = psCaptionGlyph
     end
     object dxBarButton3: TdxBarButton
-      Caption = 'actFocusLastRecord'
+      Action = actAddParameterType
       Category = 0
-      Visible = ivAlways
+      PaintStyle = psCaptionGlyph
     end
     object dxBarButton4: TdxBarButton
-      Action = actRefresh
+      Action = actAddParameter
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton5: TdxBarButton
+      Action = actDeleteEx
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarSubItem1: TdxBarSubItem
+      Caption = #1069#1082#1089#1087#1086#1088#1090'/'#1048#1084#1087#1086#1088#1090
+      Category = 0
+      Visible = ivAlways
+      ImageIndex = 6
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton6'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
+        end>
+    end
+    object dxBarButton6: TdxBarButton
+      Action = actLoadFromExcelDocument
+      Category = 0
+    end
+    object dxBarButton7: TdxBarButton
+      Action = actLoadFromExcelSheet
+      Category = 0
+    end
+    object dxBarButton8: TdxBarButton
+      Action = actExportToExcelDocument
+      Category = 0
+    end
+    object dxBarButton9: TdxBarButton
+      Action = actCommit
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton10: TdxBarButton
+      Action = actRollback
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton11: TdxBarButton
+      Action = actShowDuplicate
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton12: TdxBarButton
+      Action = actFilterByTableName
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
+    object dxBarButton13: TdxBarButton
+      Action = actDisableControls
+      Category = 0
+    end
+    object dxBarButton14: TdxBarButton
+      Action = actReopen
+      Category = 0
+    end
+    object dxBarButton15: TdxBarButton
+      Action = actEnableControls
+      Category = 0
+    end
+    object dxBarButton16: TdxBarButton
+      Action = actCheckDetailView
+      Category = 0
+    end
+    object dxBarButton17: TdxBarButton
+      Action = actApplyBestFit
       Category = 0
     end
   end
@@ -438,10 +406,24 @@ inherited ViewParameters: TViewParameters
       ImageIndex = 1
       OnExecute = actAddParameterTypeExecute
     end
-    object actAddMainParameter: TAction
+    object actAddParameter: TAction
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088
       ImageIndex = 1
-      OnExecute = actAddMainParameterExecute
+      OnExecute = actAddParameterExecute
+    end
+    object actCommit: TAction
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+      ImageIndex = 3
+      OnExecute = actCommitExecute
+    end
+    object actRollback: TAction
+      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      ImageIndex = 14
+      OnExecute = actRollbackExecute
+    end
+    object actRefresh: TAction
+      Caption = 'actRefresh'
+      OnExecute = actRefreshExecute
     end
     object actLoadFromExcelDocument: TAction
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
@@ -458,16 +440,6 @@ inherited ViewParameters: TViewParameters
       ImageIndex = 6
       OnExecute = actExportToExcelDocumentExecute
     end
-    object actCommit: TAction
-      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
-      ImageIndex = 3
-      OnExecute = actCommitExecute
-    end
-    object actRollback: TAction
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
-      ImageIndex = 14
-      OnExecute = actRollbackExecute
-    end
     object actSearch: TAction
       Caption = #1053#1072#1081#1090#1080
       ImageIndex = 9
@@ -483,24 +455,26 @@ inherited ViewParameters: TViewParameters
       ImageIndex = 9
       OnExecute = actFilterByTableNameExecute
     end
-    object actRefresh: TAction
-      Caption = 'actRefresh'
-      OnExecute = actRefreshExecute
+    object actDisableControls: TAction
+      Caption = 'actDisableControls'
+      OnExecute = actDisableControlsExecute
     end
-  end
-  inherited cxGridPopupMenu: TcxGridPopupMenu
-    PopupMenus = <
-      item
-        GridView = cxGridDBBandedTableView
-        HitTypes = [gvhtCell]
-        Index = 0
-        PopupMenu = pmGrid
-      end
-      item
-        GridView = cxGridDBBandedTableView2
-        HitTypes = [gvhtCell]
-        Index = 1
-        PopupMenu = pmGrid
-      end>
+    object actEnableControls: TAction
+      Caption = 'actEnableControls'
+      OnExecute = actEnableControlsExecute
+    end
+    object actReopen: TAction
+      Caption = 'actReopen'
+      OnExecute = actReopenExecute
+    end
+    object actCheckDetailView: TAction
+      Caption = 'actCheckDetailView'
+      OnExecute = actCheckDetailViewExecute
+    end
+    object actApplyBestFit: TAction
+      Caption = 'actApplyBestFit'
+      ImageIndex = 13
+      OnExecute = actApplyBestFitExecute
+    end
   end
 end

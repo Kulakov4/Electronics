@@ -283,21 +283,25 @@ var
   AfrmParameters: TfrmParameters;
   AParamsGrp: TParametersGroup2;
   AParamIDList: string;
+  AqSubParameters: TQuerySubParameters2;
 begin
   inherited;
   AParamIDList := '';
 
   AParamsGrp := TParametersGroup2.Create(Self);
+  AqSubParameters := TQuerySubParameters2.Create(Self);
   try
     // Настраиваем на отображение галочек из нашей категории
     AParamsGrp.ProductCategoryIDValue :=
       CatParamsGroup.qCategoryParameters.ParentValue;
+
     AParamsGrp.ReOpen;
+    AqSubParameters.FDQuery.Open;
+
     AfrmParameters := TfrmParameters.Create(Self);
     try
       AfrmParameters.ViewParameters.ParametersGrp := AParamsGrp;
-      AfrmParameters.ViewSubParameters.QuerySubParameters :=
-        AParamsGrp.qSubParameters;
+      AfrmParameters.ViewSubParameters.QuerySubParameters := AqSubParameters;
       AfrmParameters.ViewParameters.CheckedMode := True;
       if AfrmParameters.ShowModal = mrOK then
         AParamIDList := Format(',%s,',
@@ -308,6 +312,7 @@ begin
     end;
   finally
     FreeAndNil(AParamsGrp);
+    FreeAndNil(AqSubParameters);
   end;
 
   if not AParamIDList.IsEmpty then

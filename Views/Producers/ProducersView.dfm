@@ -170,6 +170,10 @@ inherited ViewProducers: TViewProducers
         item
           Visible = True
           ItemName = 'dxbrsbtmExportImport'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton2'
         end>
     end
     object dxbbAdd: TdxBarButton
@@ -221,6 +225,10 @@ inherited ViewProducers: TViewProducers
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton2: TdxBarButton
+      Action = actRefresh
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAddType: TAction
@@ -253,6 +261,10 @@ inherited ViewProducers: TViewProducers
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1087#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1077#1081
       ImageIndex = 6
       OnExecute = actLoadFromExcelDocumentExecute
+    end
+    object actRefresh: TAction
+      Caption = 'actRefresh'
+      OnExecute = actRefreshExecute
     end
   end
 end

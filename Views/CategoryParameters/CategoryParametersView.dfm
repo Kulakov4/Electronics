@@ -2,9 +2,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   Width = 1037
   ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
-    Top = 56
     Width = 1037
-    Height = 416
     ExplicitTop = 56
     ExplicitWidth = 1037
     ExplicitHeight = 416
@@ -239,11 +237,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
-    DockControlHeights = (
-      0
-      0
-      56
-      0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item
@@ -334,7 +327,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OneOnRow = True
       Row = 1
       UseOwnFont = False
-      Visible = True
+      Visible = False
       WholeRow = False
     end
     object dxBarButton1: TdxBarButton
