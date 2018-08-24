@@ -135,7 +135,6 @@ uses
   ProducersForm in 'Views\Producers\ProducersForm.pas' {frmProducers},
   BodyTypesView in 'Views\BodyTypes\BodyTypesView.pas' {ViewBodyTypes: TFrame},
   BodyTypesForm in 'Views\BodyTypes\BodyTypesForm.pas' {frmBodyTypes},
-  ParametersView in 'Views\Parameters\ParametersView.pas' {ViewParameters: TFrame},
   ParametersForm in 'Views\Parameters\ParametersForm.pas' {frmParameters},
   CategoryParametersView in 'Views\CategoryParameters\CategoryParametersView.pas' {ViewCategoryParameters: TFrame},
   DescriptionsView in 'Views\Descriptions\DescriptionsView.pas' {ViewDescriptions: TFrame},

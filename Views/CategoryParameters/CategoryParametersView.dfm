@@ -3,15 +3,12 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
     Width = 1037
-    ExplicitTop = 56
     ExplicitWidth = 1037
-    ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
-      OnFocusedRecordChanged = cxGridDBBandedTableViewFocusedRecordChanged
+      OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
       DataController.DataSource = dsParameters
       DataController.KeyFieldNames = 'VID'
-      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       OptionsData.DeletingConfirmation = False
       OptionsView.ColumnAutoWidth = False
       OptionsView.ExpandButtonsForEmptyDetails = False
@@ -20,6 +17,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       Styles.OnGetHeaderStyle = nil
       object clVID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'VID'
+        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -28,6 +26,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       object clID: TcxGridDBBandedColumn
         Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088
         DataBinding.FieldName = 'ID'
+        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False

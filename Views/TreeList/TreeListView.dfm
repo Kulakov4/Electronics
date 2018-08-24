@@ -18,6 +18,7 @@ inherited ViewTreeList: TViewTreeList
     OptionsBehavior.IncSearch = True
     OptionsBehavior.IncSearchItem = clValue
     OptionsData.SmartRefresh = True
+    OptionsView.ScrollBars = ssNone
     OptionsView.Headers = False
     OptionsView.ShowRoot = False
     OnClick = cxDBTreeListClick
@@ -39,6 +40,8 @@ inherited ViewTreeList: TViewTreeList
     end
     object clValue: TcxDBTreeListColumn
       DataBinding.FieldName = 'Value'
+      MinWidth = 100
+      Width = 100
       Position.ColIndex = 1
       Position.RowIndex = 0
       Position.BandIndex = 0
@@ -121,10 +124,10 @@ inherited ViewTreeList: TViewTreeList
       Category = 0
       Hint = #1055#1086#1080#1089#1082' '#1087#1086' '#1080#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088#1091
       Visible = ivAlways
-      OnKeyDown = cxbeiSearchKeyDown
       ShowCaption = True
       PropertiesClassName = 'TcxTextEditProperties'
       Properties.OnChange = cxbeiSearchPropertiesChange
+      Properties.OnEditValueChanged = cxbeiSearchPropertiesEditValueChanged
     end
     object dxBarButton2: TdxBarButton
       Action = actSearch

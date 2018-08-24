@@ -66,11 +66,14 @@ begin
 end;
 
 procedure TQueryWithMaster.MasterCascadeDelete;
+var
+  V: Variant;
 begin
   Assert(FMaster <> nil);
   Assert(FMaster.FDQuery.RecordCount > 0);
-
-  CascadeDelete(FMaster.PK.Value, DetailParameterName);
+  V := FMaster.PK.Value;
+  CascadeDelete(V, DetailParameterName);
+  FMaster.LocateByPK(V, True);
 end;
 
 procedure TQueryWithMaster.RefreshQuery;

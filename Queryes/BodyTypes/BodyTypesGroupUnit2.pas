@@ -59,7 +59,8 @@ end;
 procedure TBodyTypesGroup2.DoAfterDelete(Sender: TObject);
 begin
   Assert(qBodyKinds.OldPKValue > 0);
-  // Каскадно удаляем типы корпусов
+  // На сервере типы корпусов уже каскадно удалились
+  // Каскадно удаляем типы корпусов с клиента
   qBodyTypes2.CascadeDelete(qBodyKinds.OldPKValue,
     qBodyTypes2.IDBodyKind.FieldName, True);
 end;

@@ -130,8 +130,6 @@ type
     procedure cxGridDBBandedTableViewEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
-      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
     procedure cxGridDBBandedTableViewDragDrop(Sender, Source: TObject;
       X, Y: Integer);
     procedure cxGridDBBandedTableViewDragOver(Sender, Source: TObject;
@@ -216,6 +214,8 @@ begin
 
   (cxerpiJEDEC.Properties as TcxPopupEditProperties).PopupControl :=
     frmJEDECPopup;
+
+  ApplyBestFitForDetail := True;
 end;
 
 destructor TViewBodyTypes.Destroy;
@@ -664,7 +664,6 @@ procedure TViewBodyTypes.cxGridDBBandedTableView2EditKeyDown
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
@@ -672,14 +671,14 @@ procedure TViewBodyTypes.cxGridDBBandedTableView2KeyDown(Sender: TObject;
 var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2MouseDown(Sender: TObject;
 Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TViewBodyTypes.cxGridDBBandedTableView2StylesGetHeaderStyle
@@ -707,22 +706,6 @@ begin
 
   if OK then
     AStyle := DMRepository.cxHeaderStyle;
-end;
-
-procedure TViewBodyTypes.cxGridDBBandedTableViewDataControllerDetailExpanded
-  (ADataController: TcxCustomDataController; ARecordIndex: Integer);
-var
-  AcxGridMasterDataRow: TcxGridMasterDataRow;
-begin
-  if ARecordIndex < 0 then
-    Exit;
-
-  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
-    as TcxGridMasterDataRow;
-  (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
-    .ApplyBestFit();
-
-  ChooseTopRecord(MainView, ARecordIndex);
 end;
 
 procedure TViewBodyTypes.

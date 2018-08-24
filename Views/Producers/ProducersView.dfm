@@ -12,7 +12,6 @@ inherited ViewProducers: TViewProducers
           Column = clProducerType
         end>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
-      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       OptionsBehavior.CellHints = True
       OptionsView.HeaderAutoHeight = True
       object clID: TcxGridDBBandedColumn

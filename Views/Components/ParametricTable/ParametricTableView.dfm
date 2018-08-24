@@ -417,6 +417,10 @@ inherited ViewParametricTable: TViewParametricTable
       Caption = 'actUpdateColumnWidth'
       OnExecute = actUpdateColumnWidthExecute
     end
+    object actTestBandsID: TAction
+      Caption = 'actTestBandsID'
+      OnExecute = actTestBandsIDExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N6: TMenuItem
@@ -509,6 +513,9 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object N14: TMenuItem
       Action = actBandIDList
+    end
+    object actTestBandsID1: TMenuItem
+      Action = actTestBandsID
     end
   end
   object ColumnTimer: TTimer

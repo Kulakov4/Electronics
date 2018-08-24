@@ -61,8 +61,6 @@ type
     procedure actRenameExecute(Sender: TObject);
     procedure actDuplicateExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
-    procedure cxbeiSearchKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
     procedure cxDBTreeListClick(Sender: TObject);
     procedure cxDBTreeListCollapsed(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode);
@@ -76,6 +74,7 @@ type
     procedure cxSplitterAfterClose(Sender: TObject);
     procedure cxSplitterAfterOpen(Sender: TObject);
     procedure cxbeiSearchPropertiesChange(Sender: TObject);
+    procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
   private
     FqTreeList: TQueryTreeList;
     FViewDuplicateCategory: TViewDuplicateCategory;
@@ -140,6 +139,7 @@ procedure TViewTreeList.actClearExecute(Sender: TObject);
 begin
   inherited;
   cxbeiSearch.EditValue := Null;
+  UpdateView;
 end;
 
 procedure TViewTreeList.actDeleteExecute(Sender: TObject);
@@ -269,11 +269,9 @@ end;
 procedure TViewTreeList.actSearchExecute(Sender: TObject);
 var
   AExternalID: string;
-  S: String;
 begin
   inherited;
   AExternalID := VarToStrDef(cxbeiSearch.EditValue, '');
-  S := VarToStrDef(cxbeiSearch.CurEditValue, '');
   if AExternalID.IsEmpty then
     Exit;
 
@@ -282,20 +280,18 @@ begin
     TDialog.Create.CategoryNotExist(AExternalID);
 end;
 
-procedure TViewTreeList.cxbeiSearchKeyDown(Sender: TObject; var Key: Word;
-Shift: TShiftState);
-begin
-  inherited;
-  if Key <> 13 then
-    Exit;
-
-  actSearch.Execute;
-end;
-
 procedure TViewTreeList.cxbeiSearchPropertiesChange(Sender: TObject);
 begin
   inherited;
+  actSearch.Enabled := not VarToStrDef(cxbeiSearch.CurEditValue, '').IsEmpty;
+end;
+
+procedure TViewTreeList.cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
+begin
+  inherited;
+  // Сразу же сохраняем редактируемое значение
   (Sender as TcxTextEdit).PostEditValue;
+  actSearch.Execute;
 end;
 
 procedure TViewTreeList.cxDBTreeListClick(Sender: TObject);
@@ -405,7 +401,6 @@ begin
   if not actRename.Enabled then
     Exit;
 
-
   actRename.Enabled := True;
 
   with cxDBTreeList do
@@ -449,6 +444,8 @@ begin
 
   TNotifyEventWrap.Create(FqTreeList.qDuplicateCategory.OnDuplicateClick,
     DoOnDuplicateClick, FEventList);
+
+  UpdateView;
 end;
 
 procedure TViewTreeList.UpdateView;
@@ -465,7 +462,8 @@ begin
   actLoadTreeFromExcelDocument.Enabled := OK;
   actDuplicate.Enabled := OK;
   actClear.Enabled := OK;
-  actSearch.Enabled := OK;
+  actSearch.Enabled := OK and not VarToStrDef(cxbeiSearch.CurEditValue,
+    '').IsEmpty;
 end;
 
 end.

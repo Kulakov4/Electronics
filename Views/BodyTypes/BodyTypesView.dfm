@@ -22,7 +22,6 @@ inherited ViewBodyTypes: TViewBodyTypes
           Column = clBodyKind
         end>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
-      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       OptionsBehavior.CellHints = True
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'

@@ -70,7 +70,11 @@ type
     procedure StatusBarResize(Sender: TObject);
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
+      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
   private
+    FAfterKeyOrMouseDownPosted: Boolean;
+    FApplyBestFitForDetail: Boolean;
     FApplyBestFitMultiLine: Boolean;
     FApplyBestFitPosted: Boolean;
     FcxDataDetailCollapsingEvent: TcxDataDetailExpandingEvent;
@@ -102,9 +106,12 @@ type
     procedure DoCancelFocusRecord(Sender: TcxCustomGridTableView;
       ARecord: TcxCustomGridRecord; var AAllow: Boolean);
     procedure DoDeleteFromView(AView: TcxGridDBBandedTableView); virtual;
+    procedure DoOnDetailExpanded(ADataController: TcxCustomDataController;
+      ARecordIndex: Integer); virtual;
     procedure DoOnEditKeyDown(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
+    procedure DoOnKeyOrMouseDown;
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
     function GetFocusedTableView: TcxGridDBBandedTableView; virtual;
@@ -148,8 +155,6 @@ type
     function CalcBandHeight(ABand: TcxGridBand): Integer;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
-    procedure ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
-      AProcRef: TProcRef);
     procedure ClearSort(AView: TcxGridTableView);
     procedure DisableCollapsingAndExpanding;
     procedure DoDragDrop(AcxGridSite: TcxGridSite;
@@ -206,6 +211,8 @@ type
     procedure SetZeroBandWidth(AView: TcxGridDBBandedTableView);
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
+    property ApplyBestFitForDetail: Boolean read FApplyBestFitForDetail
+      write FApplyBestFitForDetail;
     property ApplyBestFitMultiLine: Boolean read FApplyBestFitMultiLine
       write FApplyBestFitMultiLine;
     property DeleteMessages: TDictionary<TcxGridLevel, String>
@@ -242,6 +249,7 @@ begin
 
   FDeleteMessages := TDictionary<TcxGridLevel, String>.Create;
   FSortSL := TList<String>.Create;
+  FApplyBestFitForDetail := False;
 end;
 
 destructor TfrmGrid.Destroy;
@@ -277,6 +285,7 @@ end;
 procedure TfrmGrid.AfterKeyOrMouseDown(var Message: TMessage);
 begin
   UpdateView;
+  FAfterKeyOrMouseDownPosted := False;
 end;
 
 procedure TfrmGrid.ApplyBestFitFocusedBand;
@@ -347,6 +356,9 @@ end;
 procedure TfrmGrid.BeginUpdate;
 begin
   Inc(FUpdateCount);
+  if FUpdateCount = 1 then
+    DisableCollapsingAndExpanding;
+
   cxGrid.BeginUpdate();
 end;
 
@@ -443,27 +455,6 @@ begin
   end;
 end;
 
-procedure TfrmGrid.ProcessWithCancelDetailExpanding(AView: TcxCustomGridView;
-  AProcRef: TProcRef);
-Var
-  E: TcxDataDetailExpandingEvent;
-begin
-  Assert(Assigned(AProcRef));
-  if AView = nil then
-  begin
-    AProcRef;
-    Exit;
-  end;
-
-  E := AView.DataController.OnDetailExpanding;
-  try
-    AView.DataController.OnDetailExpanding := DoCancelDetailExpanding;
-    AProcRef;
-  finally
-    AView.DataController.OnDetailExpanding := E;
-  end;
-end;
-
 procedure TfrmGrid.ClearSort(AView: TcxGridTableView);
 var
   i: Integer;
@@ -494,6 +485,13 @@ begin
   DoOnCustomDrawColumnHeader(AViewInfo, ACanvas);
 end;
 
+procedure TfrmGrid.cxGridDBBandedTableViewDataControllerDetailExpanded
+  (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+begin
+  inherited;
+  DoOnDetailExpanded(ADataController, ARecordIndex);
+end;
+
 procedure TfrmGrid.cxGridDBBandedTableViewEditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
@@ -504,13 +502,13 @@ end;
 procedure TfrmGrid.cxGridDBBandedTableViewKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TfrmGrid.cxGridDBBandedTableViewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TfrmGrid.cxGridDBBandedTableViewStylesGetHeaderStyle
@@ -528,6 +526,9 @@ end;
 
 procedure TfrmGrid.DisableCollapsingAndExpanding;
 begin
+  Assert(not Assigned(FcxDataDetailCollapsingEvent));
+  Assert(not Assigned(FcxDataDetailExpandingEvent));
+
   // Запрещаем сворачивать и разворачивать строки
   FcxDataDetailCollapsingEvent := MainView.DataController.OnDetailCollapsing;
   FcxDataDetailExpandingEvent := MainView.DataController.OnDetailExpanding;
@@ -549,15 +550,27 @@ begin
 end;
 
 procedure TfrmGrid.DoDeleteFromView(AView: TcxGridDBBandedTableView);
+var
+  V: Variant;
 begin
-  ProcessWithCancelDetailExpanding(AView.MasterGridView,
-    procedure()
-    begin
+  AView.BeginUpdate();
+  DisableCollapsingAndExpanding;
+  try
+    try
       if AView.Controller.SelectedRowCount > 0 then
+      begin
         AView.DataController.DeleteSelection
+      end
       else
         AView.DataController.DeleteFocused;
-    end);
+    except
+      On E: Exception do
+        TDialog.Create.ErrorMessageDialog(E.Message);
+    end;
+  finally
+    EnableCollapsingAndExpanding;
+    AView.EndUpdate;
+  end;
 
   if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
   then
@@ -594,11 +607,13 @@ begin
 end;
 
 procedure TfrmGrid.DoOnEditKeyDown(Sender: TcxCustomGridTableView;
-AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
-Shift: TShiftState);
+  AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
+  Shift: TShiftState);
 var
   AColumn: TcxGridDBBandedColumn;
 begin
+  DoOnKeyOrMouseDown;
+
   AColumn := AItem as TcxGridDBBandedColumn;
 
   if (Key = 13) and (FPostOnEnterFields.IndexOf(AColumn.DataBinding.FieldName)
@@ -630,11 +645,13 @@ procedure TfrmGrid.EndUpdate;
 begin
   Assert(FUpdateCount > 0);
   cxGrid.EndUpdate;
-  Dec(FUpdateCount)
+  Dec(FUpdateCount);
+  if FUpdateCount = 0 then
+    EnableCollapsingAndExpanding;
 end;
 
 procedure TfrmGrid.ExportViewToExcel(AView: TcxGridDBBandedTableView;
-AFileName: string; AGridProcRef: TGridProcRef = nil);
+  AFileName: string; AGridProcRef: TGridProcRef = nil);
 var
   Grid: TcxGrid;
   Level: TcxGridLevel;
@@ -789,8 +806,8 @@ begin
 end;
 
 procedure TfrmGrid.InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
-ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
-const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
+  ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+  const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
 var
   AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
 begin
@@ -811,7 +828,7 @@ begin
 end;
 
 procedure TfrmGrid.InitializeComboBoxColumn(AColumn: TcxGridDBBandedColumn;
-ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
+  ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
 var
   AcxComboBoxProperties: TcxComboBoxProperties;
 begin
@@ -874,8 +891,8 @@ begin
 end;
 
 procedure TfrmGrid.InitializeComboBoxColumn(AView: TcxGridDBBandedTableView;
-AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
-AField: TField);
+  AFieldName: string; ADropDownListStyle: TcxEditDropDownListStyle;
+  AField: TField);
 begin
   Assert(AView <> nil);
   Assert(not AFieldName.IsEmpty);
@@ -885,9 +902,9 @@ begin
 end;
 
 procedure TfrmGrid.InitializeLookupColumn(AView: TcxGridDBBandedTableView;
-const AFieldName: string; ADataSource: TDataSource;
-ADropDownListStyle: TcxEditDropDownListStyle; const AListFieldNames: string;
-const AKeyFieldNames: string = 'ID');
+  const AFieldName: string; ADataSource: TDataSource;
+  ADropDownListStyle: TcxEditDropDownListStyle; const AListFieldNames: string;
+  const AKeyFieldNames: string = 'ID');
 begin
   Assert(AView <> nil);
   Assert(not AFieldName.IsEmpty);
@@ -897,7 +914,7 @@ begin
 end;
 
 procedure TfrmGrid.OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
-var AllowPopup: Boolean);
+  var AllowPopup: Boolean);
 begin
 end;
 
@@ -931,7 +948,7 @@ begin
 end;
 
 procedure TfrmGrid.DoDragDrop(AcxGridSite: TcxGridSite;
-ADragAndDropInfo: TDragAndDropInfo; AQueryOrder: TQueryOrder; X, Y: Integer);
+  ADragAndDropInfo: TDragAndDropInfo; AQueryOrder: TQueryOrder; X, Y: Integer);
 var
   AcxCustomGridHitTest: TcxCustomGridHitTest;
   AcxGridDBBandedTableView: TcxGridDBBandedTableView;
@@ -993,7 +1010,7 @@ begin
 end;
 
 procedure TfrmGrid.DoDragOver(AcxGridSite: TcxGridSite; X, Y: Integer;
-var Accept: Boolean);
+  var Accept: Boolean);
 var
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
   AcxGridViewNoneHitTest: TcxGridViewNoneHitTest;
@@ -1035,8 +1052,30 @@ begin
   end
 end;
 
+procedure TfrmGrid.DoOnDetailExpanded(ADataController: TcxCustomDataController;
+  ARecordIndex: Integer);
+var
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
+  ARowIndex: Integer;
+  AView: TcxGridDBBandedTableView;
+begin
+  if (not ApplyBestFitForDetail) or (ARecordIndex < 0) then
+    Exit;
+
+  ARowIndex := ADataController.GetRowIndexByRecordIndex(ARecordIndex, False);
+
+  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Rows[ARowIndex]
+    as TcxGridMasterDataRow;
+
+  AView := AcxGridMasterDataRow.ActiveDetailGridView as
+    TcxGridDBBandedTableView;
+
+  MyApplyBestFitForView(AView);
+  ChooseTopRecord(MainView, ARecordIndex);
+end;
+
 procedure TfrmGrid.DoOnGetHeaderStyle(AColumn: TcxGridColumn;
-var AStyle: TcxStyle);
+  var AStyle: TcxStyle);
 begin
   if AColumn = nil then
     Exit;
@@ -1045,8 +1084,17 @@ begin
     AStyle := DMRepository.cxHeaderStyle;
 end;
 
+procedure TfrmGrid.DoOnKeyOrMouseDown;
+begin
+  if not FAfterKeyOrMouseDownPosted then
+  begin
+    FAfterKeyOrMouseDownPosted := True;
+    PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  end;
+end;
+
 procedure TfrmGrid.DoOnStartDrag(AcxGridSite: TcxGridSite;
-ADragAndDropInfo: TDragAndDropInfo);
+  ADragAndDropInfo: TDragAndDropInfo);
 var
   i: Integer;
 begin
@@ -1088,11 +1136,13 @@ begin
   // Разрешаем сворачивать и разворачивать строки
   MainView.DataController.OnDetailCollapsing := FcxDataDetailCollapsingEvent;
   MainView.DataController.OnDetailExpanding := FcxDataDetailExpandingEvent;
-  // MainView.OnCanFocusRecord := nil;
+
+  FcxDataDetailCollapsingEvent := nil;
+  FcxDataDetailExpandingEvent := nil;
 end;
 
 procedure TfrmGrid.FocusColumnEditor(AView: TcxGridDBBandedTableView;
-AFieldName: string);
+  AFieldName: string);
 var
   AColumn: TcxGridDBBandedColumn;
 begin
@@ -1183,7 +1233,7 @@ begin
 end;
 
 function TfrmGrid.GetSelectedRowIndexes(AView: TcxGridDBBandedTableView;
-AReverse: Boolean): TArray<Integer>;
+  AReverse: Boolean): TArray<Integer>;
 var
   i: Integer;
   m: TList<Integer>;
@@ -1226,7 +1276,7 @@ begin
 end;
 
 function TfrmGrid.GetSelectedIntValues(AView: TcxGridDBBandedTableView;
-AColumnIndex: Integer): TArray<Integer>;
+  AColumnIndex: Integer): TArray<Integer>;
 var
   i: Integer;
   L: TList<Integer>;
@@ -1246,8 +1296,8 @@ begin
 end;
 
 function TfrmGrid.GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
-AUp: Boolean; var AArray: TArray<Integer>;
-var ATargetRowIndex: Integer): Boolean;
+  AUp: Boolean; var AArray: TArray<Integer>;
+  var ATargetRowIndex: Integer): Boolean;
 begin
   AArray := GetSelectedRowIndexes(AView, not AUp);
 
@@ -1292,10 +1342,21 @@ begin
   Assert(ABand <> nil);
   // Предпологаем что дочерних бэндов нет!!!
   Assert(ABand.ChildBandCount = 0);
+  Result := 0;
+
+  AIsBandViewInfoExist := ABand.GridView.ViewInfo.HeaderViewInfo.BandsViewInfo.
+    Count > ABand.VisibleIndex;
+
+  if not AIsBandViewInfoExist then
+  begin
+    // Лучше даже не пытаться подбирать оптимальную ширину,
+    // т.к. все изменения будут сделаны без учёта текста заголовка колонок
+    Exit;
+  end;
+
 
   // Ширина бэнда будет подбираться автоматически
   ABand.Width := 0;
-  Result := 0;
 
   // Цикл по всем колонкам
   for j := 0 to ABand.ColumnCount - 1 do
@@ -1494,12 +1555,12 @@ begin
 end;
 
 procedure TfrmGrid.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
-var AllowPopup: Boolean);
+  var AllowPopup: Boolean);
 begin
 end;
 
 procedure TfrmGrid.OnGridColumnHeaderPopupMenu(AColumn: TcxGridDBBandedColumn;
-var AllowPopup: Boolean);
+  var AllowPopup: Boolean);
 begin
 end;
 
@@ -1541,7 +1602,7 @@ begin
 end;
 
 procedure TfrmGrid.ProcessGridPopupMenu(ASenderMenu: TComponent;
-AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
+  AHitTest: TcxCustomGridHitTest; X, Y: Integer; var AllowPopup: Boolean);
 var
   AcxGridBandHeaderHitTest: TcxGridBandHeaderHitTest;
   AcxGridRecordCellHitTest: TcxGridRecordCellHitTest;
@@ -1598,7 +1659,7 @@ begin
 end;
 
 function TfrmGrid.SameCol(AColumn1: TcxGridColumn;
-AColumn2: TcxGridDBBandedColumn): Boolean;
+  AColumn2: TcxGridDBBandedColumn): Boolean;
 begin
   Result := (AColumn1 is TcxGridDBBandedColumn) and
     ((AColumn1 as TcxGridDBBandedColumn).DataBinding.FieldName = AColumn2.
@@ -1635,7 +1696,7 @@ begin
 end;
 
 function TfrmGrid.Value(AView: TcxGridDBBandedTableView;
-AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
+  AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
 var
   V: Variant;
 begin

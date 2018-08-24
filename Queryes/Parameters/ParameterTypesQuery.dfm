@@ -1,7 +1,7 @@
 inherited QueryParameterTypes: TQueryParameterTypes
-  Width = 280
+  Width = 320
   Height = 82
-  ExplicitWidth = 280
+  ExplicitWidth = 320
   ExplicitHeight = 82
   inherited Label1: TLabel
     Width = 107
@@ -9,7 +9,8 @@ inherited QueryParameterTypes: TQueryParameterTypes
     ExplicitWidth = 107
   end
   inherited FDQuery: TFDQuery
-    UpdateObject = FDUpdateSQL
+    UpdateOptions.AssignedValues = [uvRefreshMode]
+    UpdateOptions.RefreshMode = rmAll
     object FDQueryID: TFDAutoIncField
       FieldName = 'ID'
       Origin = 'ID'
@@ -28,31 +29,6 @@ inherited QueryParameterTypes: TQueryParameterTypes
       Origin = 'Ord'
     end
   end
-  object FDUpdateSQL: TFDUpdateSQL
-    InsertSQL.Strings = (
-      'INSERT INTO PARAMETERTYPES'
-      '(PARAMETERTYPE, ORD)'
-      'VALUES (:NEW_PARAMETERTYPE, :NEW_ORD);'
-      'SELECT ID, ORD'
-      'FROM PARAMETERTYPES'
-      'WHERE ID = LAST_INSERT_ROWID()')
-    ModifySQL.Strings = (
-      'UPDATE PARAMETERTYPES'
-      'SET PARAMETERTYPE = :NEW_PARAMETERTYPE, ORD = :NEW_ORD'
-      'WHERE ID = :OLD_ID;'
-      'SELECT ID, ORD'
-      'FROM PARAMETERTYPES'
-      'WHERE ID = :NEW_ID')
-    DeleteSQL.Strings = (
-      'DELETE FROM PARAMETERTYPES'
-      'WHERE ID = :OLD_ID')
-    FetchRowSQL.Strings = (
-      'SELECT ID, PARAMETERTYPE, ORD'
-      'FROM PARAMETERTYPES'
-      'WHERE ID = :ID')
-    Left = 144
-    Top = 24
-  end
   object fdqBase: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (
@@ -63,8 +39,8 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    SELECT *'
       '    FROM Parameters'
       
-        '    WHERE IDParameterType = pt.ID an' +
-        'd IDParameterType is not null '
+        '    WHERE IDParameterType = pt.ID and IDParameterType is not nul' +
+        'l '
       '    /* ShowDuplicate    '
       '    AND tablename IN '
       '    ('
@@ -78,7 +54,7 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    ORDER BY IDParameterType, [Order]'
       ')'
       'ORDER BY Ord;')
-    Left = 216
+    Left = 136
     Top = 24
     ParamData = <
       item
@@ -87,5 +63,19 @@ inherited QueryParameterTypes: TQueryParameterTypes
         ParamType = ptInput
         Value = Null
       end>
+  end
+  object fdqDeleteNotUsedPT: TFDQuery
+    Connection = DMRepository.dbConnection
+    SQL.Strings = (
+      'delete'
+      'from ParameterTypes'
+      'where not exists'
+      '('
+      '    select p.id'
+      '    from Parameters p'
+      '    where p.IDParameterType = ParameterTypes.id'
+      ')')
+    Left = 240
+    Top = 24
   end
 end

@@ -48,7 +48,8 @@ end;
 procedure TDescriptionsGroup2.DoAfterDelete(Sender: TObject);
 begin
   Assert(qDescriptionTypes.OldPKValue > 0);
-  //  аскадно удал€ем производителей
+  // Ќа сервере краткие описани€ уже каскадно удалились
+  //  аскадно удал€ем краткие описани€ с клиента
   qDescriptions.CascadeDelete(qDescriptionTypes.OldPKValue,
     qDescriptions.IDComponentType.FieldName, True);
 end;

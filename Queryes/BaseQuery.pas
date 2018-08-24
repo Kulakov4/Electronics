@@ -289,16 +289,17 @@ begin
     if AFromClientOnly then
       FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
 
-    FDQuery.DisableControls;
-    try
+//    FDQuery.DisableControls;
+//    try
       // Пока есть записи подчинённые мастеру
       while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
       begin
         FDQuery.Delete;
       end;
-    finally
-      FDQuery.EnableControls;
-    end;
+//    finally
+//      Тут cxGrid мастера синхронизирует с подчинённым и перескакивает на другую запись
+//      FDQuery.EnableControls;
+//    end;
 
   finally
     if AFromClientOnly then

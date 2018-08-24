@@ -153,6 +153,7 @@ begin
   inherited;
   DeleteMessages.Add(cxGridLevel, sDoYouWantToDeleteFamily);
   DeleteMessages.Add(cxGridLevel2, sDoYouWantToDeleteComponent);
+  ApplyBestFitForDetail := False;
 end;
 
 procedure TViewComponentsParent.actAddFamilyExecute(Sender: TObject);
@@ -557,7 +558,6 @@ procedure TViewComponentsParent.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
   AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
@@ -742,21 +742,21 @@ begin
   t := MainView.Controller.TopRecordIndex;
   fri := MainView.Controller.FocusedRowIndex;
 
-  ProcessWithCancelDetailExpanding(MainView,
-    procedure()
+  DisableCollapsingAndExpanding;
+  try
+    AController.DeleteSelection;
+    // если удалили последнюю "дочернюю" запись
+    if (AView.DataController.RecordCount = 0) and (AView.MasterGridRecord <> nil)
+    then
     begin
-      AController.DeleteSelection;
-      // если удалили последнюю "дочернюю" запись
-      if (AView.DataController.RecordCount = 0) and
-        (AView.MasterGridRecord <> nil) then
-      begin
-        // Сворачиваем дочернее представление
-        (AView.MasterGridRecord as TcxMyGridMasterDataRow).MyCollapse(False);
-        MainView.Controller.TopRowIndex := t;
-        MainView.Controller.FocusedRowIndex := fri;
-      end;
-
-    end);
+      // Сворачиваем дочернее представление
+      (AView.MasterGridRecord as TcxMyGridMasterDataRow).MyCollapse(False);
+      MainView.Controller.TopRowIndex := t;
+      MainView.Controller.FocusedRowIndex := fri;
+    end;
+  finally
+    EnableCollapsingAndExpanding;
+  end;
 
   UpdateView;
 end;

@@ -1,14 +1,21 @@
 inherited ViewParameters2: TViewParameters2
   inherited cxGrid: TcxGrid
-    Top = 84
-    Height = 388
+    Top = 56
+    Height = 416
+    ExplicitTop = 84
+    ExplicitHeight = 388
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
       OnDragOver = cxGridDBBandedTableViewDragOver
       OnStartDrag = cxGridDBBandedTableViewStartDrag
       DataController.KeyFieldNames = 'ID'
-      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
+      DataController.Summary.FooterSummaryItems = <
+        item
+          Kind = skCount
+          Column = clParameterType
+        end>
+      DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
@@ -37,14 +44,25 @@ inherited ViewParameters2: TViewParameters2
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableView2DragDrop
       OnDragOver = cxGridDBBandedTableView2DragOver
+      OnKeyDown = cxGridDBBandedTableView2KeyDown
+      OnMouseDown = cxGridDBBandedTableView2MouseDown
       OnStartDrag = cxGridDBBandedTableView2StartDrag
       Navigator.Buttons.CustomButtons = <>
+      OnEditKeyDown = cxGridDBBandedTableView2EditKeyDown
       DataController.DetailKeyFieldNames = 'IDParameterType'
       DataController.KeyFieldNames = 'ID'
       DataController.MasterKeyFieldNames = 'ID'
       DataController.Summary.DefaultGroupSummaryItems = <>
-      DataController.Summary.FooterSummaryItems = <>
+      DataController.Summary.FooterSummaryItems = <
+        item
+          Kind = skCount
+          Column = clValue
+        end>
       DataController.Summary.SummaryGroups = <>
+      OptionsSelection.MultiSelect = True
+      OptionsSelection.CellMultiSelect = True
+      OptionsSelection.InvertSelect = False
+      OptionsView.Footer = True
       OptionsView.GroupByBox = False
       OptionsView.HeaderAutoHeight = True
       OptionsView.BandHeaders = False
@@ -61,6 +79,7 @@ inherited ViewParameters2: TViewParameters2
       end
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Order'
+        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1
@@ -69,8 +88,15 @@ inherited ViewParameters2: TViewParameters2
       object clChecked: TcxGridDBBandedColumn
         Caption = 'X'
         DataBinding.FieldName = 'Checked'
+        PropertiesClassName = 'TcxCheckBoxProperties'
+        Properties.ImmediatePost = True
+        Properties.ValueChecked = '1'
+        Properties.ValueUnchecked = '0'
+        Properties.OnEditValueChanged = clCheckedPropertiesEditValueChanged
         Visible = False
+        BestFitMaxWidth = 30
         VisibleForCustomization = False
+        Width = 25
         Position.BandIndex = 0
         Position.ColIndex = 2
         Position.RowIndex = 0
@@ -163,7 +189,7 @@ inherited ViewParameters2: TViewParameters2
     DockControlHeights = (
       0
       0
-      84
+      56
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -194,10 +220,6 @@ inherited ViewParameters2: TViewParameters2
         item
           Visible = True
           ItemName = 'dxBarButton10'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton1'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -286,15 +308,23 @@ inherited ViewParameters2: TViewParameters2
         item
           Visible = True
           ItemName = 'dxBarButton17'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton18'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end>
       OneOnRow = True
       Row = 2
       UseOwnFont = False
-      Visible = True
+      Visible = False
       WholeRow = False
     end
     object dxBarButton1: TdxBarButton
-      Action = actRefresh
+      Action = actExpand
       Category = 0
     end
     object cxbeiSearch: TcxBarEditItem
@@ -304,8 +334,8 @@ inherited ViewParameters2: TViewParameters2
       Visible = ivAlways
       ShowCaption = True
       PropertiesClassName = 'TcxTextEditProperties'
+      Properties.OnChange = cxbeiSearchPropertiesChange
       Properties.OnEditValueChanged = cxbeiSearchPropertiesEditValueChanged
-      Properties.OnValidate = cxbeiSearchPropertiesValidate
     end
     object dxBarButton2: TdxBarButton
       Action = actSearch
@@ -399,6 +429,10 @@ inherited ViewParameters2: TViewParameters2
       Action = actApplyBestFit
       Category = 0
     end
+    object dxBarButton18: TdxBarButton
+      Action = actDeleteParameterType
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAddParameterType: TAction
@@ -421,9 +455,9 @@ inherited ViewParameters2: TViewParameters2
       ImageIndex = 14
       OnExecute = actRollbackExecute
     end
-    object actRefresh: TAction
+    object actExpand: TAction
       Caption = 'actRefresh'
-      OnExecute = actRefreshExecute
+      OnExecute = actExpandExecute
     end
     object actLoadFromExcelDocument: TAction
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
@@ -475,6 +509,10 @@ inherited ViewParameters2: TViewParameters2
       Caption = 'actApplyBestFit'
       ImageIndex = 13
       OnExecute = actApplyBestFitExecute
+    end
+    object actDeleteParameterType: TAction
+      Caption = 'actDeleteParameterType'
+      OnExecute = actDeleteParameterTypeExecute
     end
   end
 end

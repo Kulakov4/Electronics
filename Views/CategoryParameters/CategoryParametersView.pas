@@ -112,12 +112,8 @@ type
     procedure cxGridDBBandedTableView2StylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
-      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
-    procedure cxGridDBBandedTableViewFocusedRecordChanged
-      (Sender: TcxCustomGridTableView;
-      APrevFocusedRecord, AFocusedRecord: TcxCustomGridRecord;
-      ANewItemRecordFocusingChanged: Boolean);
+    procedure cxGridDBBandedTableViewSelectionChanged(Sender:
+        TcxCustomGridTableView);
     procedure dxBarButton13Click(Sender: TObject);
     procedure dxBarButton14Click(Sender: TObject);
     procedure dxBarButton15Click(Sender: TObject);
@@ -141,6 +137,8 @@ type
     procedure DoAfterLoad(Sender: TObject);
     procedure DoBeforeUpdateData(Sender: TObject);
     procedure DoDeleteFromView(AView: TcxGridDBBandedTableView); override;
+    procedure DoOnDetailExpanded(ADataController: TcxCustomDataController;
+        ARecordIndex: Integer); override;
     procedure DoOnIsAttributeChange(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
@@ -172,6 +170,7 @@ begin
   DeleteMessages.Add(cxGridLevel2, sDoYouWantToDeleteCategorySubParameter);
 
   ApplyBestFitMultiLine := True;
+  ApplyBestFitForDetail := True;
   // dxBarManagerBar1.Visible := False;
 end;
 
@@ -316,7 +315,10 @@ begin
   end;
 
   if not AParamIDList.IsEmpty then
+  begin
     CatParamsGroup.AddOrDeleteParameters(AParamIDList, APosID);
+    MyApplyBestFitForView(MainView);
+  end;
 
   UpdateView;
 end;
@@ -352,14 +354,14 @@ procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown
   (Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableView2MouseDown
   (Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableView2StylesGetContentStyle
@@ -386,34 +388,6 @@ begin
   end;
 end;
 
-procedure TViewCategoryParameters.
-  cxGridDBBandedTableViewDataControllerDetailExpanded(ADataController
-  : TcxCustomDataController; ARecordIndex: Integer);
-var
-  AcxGridMasterDataRow: TcxGridMasterDataRow;
-  AView: TcxGridDBBandedTableView;
-begin
-  inherited;
-  if FLoading then
-    Exit;
-
-  if ARecordIndex < 0 then
-    Exit;
-
-  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
-    as TcxGridMasterDataRow;
-
-  AView := AcxGridMasterDataRow.ActiveDetailGridView as
-    TcxGridDBBandedTableView;
-
-  // if AView.DataController.RecordCount > 0 then
-  // PostMyApplyBestFitEventForView(AView);
-
-  // Почему оно false???
-  AView.OptionsView.HeaderAutoHeight := True;
-  MyApplyBestFitForView(AView);
-end;
-
 procedure TViewCategoryParameters.cxGridDBBandedTableViewEditValueChanged
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
 begin
@@ -422,11 +396,11 @@ begin
     cxGridDBBandedTableView.DataController.Post();
 end;
 
-procedure TViewCategoryParameters.cxGridDBBandedTableViewFocusedRecordChanged
-  (Sender: TcxCustomGridTableView; APrevFocusedRecord, AFocusedRecord
-  : TcxCustomGridRecord; ANewItemRecordFocusingChanged: Boolean);
+procedure TViewCategoryParameters.cxGridDBBandedTableViewSelectionChanged(
+    Sender: TcxCustomGridTableView);
 begin
-  inherited;;
+  inherited;
+  UpdateView;
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableViewStylesGetContentStyle
@@ -475,6 +449,7 @@ begin
   // dsParameters.DataSet := nil;
   // dsSubParameters.DataSet := nil;
   FLoading := True;
+  MainView.Controller.ClearSelection;
 end;
 
 procedure TViewCategoryParameters.DoDeleteFromView
@@ -495,6 +470,15 @@ begin
     CatParamsGroup.DeleteParameters(APKValues);
   if AView.Level = cxGridLevel2 then
     CatParamsGroup.DeleteSubParameters(APKValues);
+end;
+
+procedure TViewCategoryParameters.DoOnDetailExpanded(ADataController:
+    TcxCustomDataController; ARecordIndex: Integer);
+begin
+  if FLoading then
+    Exit;
+
+  inherited;
 end;
 
 procedure TViewCategoryParameters.DoOnIsAttributeChange(Sender: TObject);
@@ -753,9 +737,11 @@ begin
   actAddToCenter.Enabled := actAddToBegin.Enabled;
   actAddToEnd.Enabled := actAddToBegin.Enabled;
 
+  // Если не выделен ни один параметр (либо, выделено несколько),
+  // кнопка "Добавить подпараметр" - должна быть не активна.
   actAddSubParameter.Enabled := OK and
     (not FCatParamsGroup.qCategoryParameters.HaveAnyChanges) and
-    (MainView.DataController.RowCount > 0);
+    (MainView.Controller.SelectedRowCount = 1);
 
   actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted;
   actDown.Enabled := actUp.Enabled;

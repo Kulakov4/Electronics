@@ -94,6 +94,20 @@ inherited ViewProducts2: TViewProducts2
         Caption.AlignHorz = taCenter
         Caption.Text = #1050#1091#1088#1089#1099' '#1074#1072#1083#1102#1090
       end>
+    inherited clDiagram: TcxDBTreeListColumn
+      Properties.Buttons = <
+        item
+          Action = actOpenDiagram
+          Default = True
+          Kind = bkGlyph
+        end
+        item
+          Action = actLoadDiagram
+          Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+          Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+          Kind = bkEllipsis
+        end>
+    end
   end
   inherited StatusBar: TStatusBar
     Panels = <

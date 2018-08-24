@@ -16,8 +16,8 @@ type
     FDQueryID: TFDAutoIncField;
     FDQueryParameterType: TWideStringField;
     FDQueryOrd: TIntegerField;
-    FDUpdateSQL: TFDUpdateSQL;
     fdqBase: TFDQuery;
+    fdqDeleteNotUsedPT: TFDQuery;
   private
     FShowDuplicate: Boolean;
     FTableNameFilter: string;
@@ -66,6 +66,8 @@ end;
 
 procedure TQueryParameterTypes.DoBeforeOpen(Sender: TObject);
 begin
+  // Удаляем неиспользуемые типы параметров
+  fdqDeleteNotUsedPT.ExecSQL;
   FDQuery.ParamByName('TableName').AsString := FTableNameFilter;
 end;
 

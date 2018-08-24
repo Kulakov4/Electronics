@@ -21,6 +21,7 @@ object frmGrid: TfrmGrid
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
+      DataController.OnDetailExpanded = cxGridDBBandedTableViewDataControllerDetailExpanded
       OptionsBehavior.CopyCaptionsToClipboard = False
       OptionsCustomize.ColumnSorting = False
       OptionsSelection.MultiSelect = True

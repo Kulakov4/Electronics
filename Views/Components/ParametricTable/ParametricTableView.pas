@@ -96,6 +96,8 @@ type
     cxbeiTableName: TcxBarEditItem;
     actUpdateColumnWidth: TAction;
     dxBarButton2: TdxBarButton;
+    actTestBandsID: TAction;
+    actTestBandsID1: TMenuItem;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -114,6 +116,7 @@ type
     procedure actDropSubParameterExecute(Sender: TObject);
     procedure actRefreshExecute(Sender: TObject);
     procedure actShowCategoryParametersQueryExecute(Sender: TObject);
+    procedure actTestBandsIDExecute(Sender: TObject);
     procedure actUpdateColumnWidthExecute(Sender: TObject);
     procedure actUpdateDetailColumnWidth2Execute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
@@ -875,6 +878,21 @@ begin
   end;
 end;
 
+procedure TViewParametricTable.actTestBandsIDExecute(Sender: TObject);
+var
+  ABI: TBandInfo;
+begin
+  inherited;
+  for ABI in FBandsInfo do
+  begin
+    if not ABI.Band.Visible then
+      Continue;
+
+    if ABI.IDList.Count = 0 then
+      beep;
+  end;
+end;
+
 procedure TViewParametricTable.actUpdateColumnWidthExecute(Sender: TObject);
 var
   ACol: TcxGridDBBandedColumn;
@@ -1464,9 +1482,20 @@ begin
   // Ищем среди заранее созданных бэндов
   ABandInfo := FBandsInfo.SearchByIDParamSubParam
     (qCategoryParameters.ParamSubParamId.AsInteger);
-  // Ищем по идентификатору бэнда
-  if ABandInfo = nil then
+
+  if ABandInfo <> nil then
+  begin
+    // Если нашли среди заранее созданных бэндов
+    // Бэнд "по умолчанию" всегда связан с одним подпараметром "по умолчанию"
+    Assert(Length(AIDList) = 1);
+    // Запоминаем идентификатор этого бэнда
+    ABandInfo.IDList.AddRange(AIDList)
+  end
+  else
+  begin
+    // Ищем по идентификаторам бэнда
     ABandInfo := FBandsInfo.SearchByIDList(AIDList);
+  end;
 
   ANeedInitialize := (ABandInfo = nil) or
     (ABandInfo.DefaultCreated and not ABandInfo.Band.VisibleForCustomization);
@@ -2043,118 +2072,7 @@ begin
   try
     ANewIDList.AddRange(ANewIDListArr);
     UpdateBandsPosition;
-    (*
-      // Если колонка осталась в том же бэнде
-      if AOldBandInfo.IDList.IsSame(ANewIDList.ToArray) then
-      begin
-      AOldBandInfo.IDList.Assign(ANewIDList.ToArray);
-
-      // Оставляем колонку в старом бэнде
-      AColumn.Position.BandIndex := AOldBandInfo.Band.Index;
-
-      // Обновляем позиции бэндов
-      UpdateBandsPosition;
-
-      // Обновляем позиции колонок в этом бэнде!
-      UpdateColumnPosition(AOldBandInfo);
-      end
-      else
-      begin
-      // Если колонка после переноса попала в отдельный НОВЫЙ бэнд
-      // Добавляем новый бэнд
-      if ANewIDList.Count = 1 then
-      begin
-      Assert(ANewIDList[0] = ACI.IDCategoryParam);
-      // Старый бэнд состоял минимум из двух колонок
-      Assert(AOldBandInfo.IDList.Count >= 2);
-      // Наша колонка должна быть в составе старого бэнда!
-      Assert(AOldBandInfo.IDList.IndexOf(ACI.IDCategoryParam) >= 0);
-      // Удаляем идентификатор нашей колонки из идентификаторов старого бэнда
-      AOldBandInfo.IDList.Remove(ACI.IDCategoryParam);
-      {
-      // Создаём новый бэнд
-      ABandInfo := CreateBandInfoEx([MainView, GridView(cxGridLevel2)],
-      [ACI.IDCategoryParam]);
-      FBandsInfo.Add(ABandInfo);
-
-      qCategoryParameters.LocateByPK(ACI.IDCategoryParam, True);
-
-      // Инициализируем новый бэнд
-      InitializeBandInfo(ABandInfo as TBandInfoEx, ANewIDList.ToArray,
-      qCategoryParameters);
-
-      // Помещаем колонку в наш новый бэнд!
-      AColumn.Position.BandIndex := ABandInfo.Band.Index;
-      }
-      UpdateBandsPosition;
-      end
-      else
-      begin
-      // Единственная колонка бэнда после переноса приклеилась к существ. бэнду
-      if AOldBandInfo.IDList.Count = 1 then
-      begin
-      Assert(ACI.IDCategoryParam = AOldBandInfo.IDList[0]);
-      // Колонка должна приклеиться к существующему бэнду
-      Assert(ANewIDList.IndexOf(ACI.IDCategoryParam) >= 0);
-      Assert(ANewIDList.Count >= 2);
-
-      // Какой был идентификатор бэнда до приклеивания?
-      AIDList := TIDList.Create;
-      try
-      AIDList.AddRange(ANewIDList.ToArray);
-      AIDList.Remove(ACI.IDCategoryParam);
-
-      // Ищем бэнд, в который попала колонка
-      ABandInfo := FBandsInfo.SearchByIDList(AIDList.ToArray, True);
-      finally
-      FreeAndNil(AIDList);
-      end;
-      ABandInfo.IDList.Assign(ANewIDList.ToArray);
-
-      // Помещаем колонку в её бэнд!
-      AColumn.Position.BandIndex := ABandInfo.Band.Index;
-      // Обновляем позиции колонок в этом бэнде!
-      UpdateColumnPosition(ABandInfo);
-
-      // Нужно удалить старый бэнд - он остался без колонки
-      FBandsInfo.FreeBand(AOldBandInfo);
-      end
-      else
-      begin
-      // не единственная колонка после перемещения приклеилась к существ. бэнду
-      // Колонка должна приклеиться к существующему бэнду
-      Assert(AOldBandInfo.IDList.Count >= 2);
-      Assert(ANewIDList.Count >= 2);
-      Assert(AOldBandInfo.IDList.IndexOf(ACI.IDCategoryParam) >= 0);
-      Assert(ANewIDList.IndexOf(ACI.IDCategoryParam) >= 0);
-
-      // Какой был идентификатор бэнда до приклеивания?
-      AIDList := TIDList.Create;
-      try
-      AIDList.AddRange(ANewIDList.ToArray);
-      AIDList.Remove(ACI.IDCategoryParam);
-
-      // Ищем бэнд, в который попала колонка
-      ABandInfo := FBandsInfo.SearchByIDList(AIDList.ToArray, True);
-      finally
-      FreeAndNil(AIDList);
-      end;
-      ABandInfo.IDList.Assign(ANewIDList.ToArray);
-      AOldBandInfo.IDList.Remove(ACI.IDCategoryParam);
-
-      // Помещаем колонку в её бэнд!
-      AColumn.Position.BandIndex := ABandInfo.Band.Index;
-      // Обновляем позиции колонок в этом бэнде!
-      UpdateColumnPosition(ABandInfo);
-
-      // Ширины старого бэнда возможно уже не достаточно!
-      UpdateMinBandWindth(AOldBandInfo);
-      end;
-      end;
-
-      end;
-    *)
-  finally
+    finally
     FreeAndNil(ANewIDList);
   end;
 
@@ -2232,11 +2150,20 @@ var
   ABI: TBandInfo;
   ACaption: string;
   AID: Integer;
+  b: Boolean;
+  S: string;
 begin
   for ABI in FBandsInfo do
   begin
     if not ABI.Band.Visible then
       Continue;
+
+    if ABI.IDList.Count = 0 then
+    begin
+      S := ABI.Band.Caption;
+      b := ABI.DefaultCreated
+    end;
+
 
     // Ищем данные о заголовке бэнда
     Assert(ABI.IDList.Count > 0);

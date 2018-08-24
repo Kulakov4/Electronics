@@ -84,10 +84,12 @@ type
       X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure cxGridDBBandedTableViewStartDrag(Sender: TObject;
       var DragObject: TDragObject);
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
-      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word; Shift:
+        TShiftState);
+    procedure cxGridDBBandedTableViewMouseDown(Sender: TObject; Button:
+        TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
@@ -144,6 +146,7 @@ begin
 
   DeleteMessages.Add(cxGridLevel, 'Удалить тип?');
   DeleteMessages.Add(cxGridLevel2, 'Удалить производителя?');
+  ApplyBestFitForDetail := True;
 end;
 
 destructor TViewProducers.Destroy;
@@ -319,7 +322,6 @@ procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  PostMessage(Handle, WM_AfterKeyOrMouseDown, 0, 0);
   DoOnEditKeyDown(Sender, AItem, AEdit, Key, Shift);
 end;
 
@@ -328,21 +330,6 @@ procedure TViewProducers.cxGridDBBandedTableView2StylesGetHeaderStyle
 begin
   inherited;
   DoOnGetHeaderStyle(AColumn, AStyle);
-end;
-
-procedure TViewProducers.cxGridDBBandedTableViewDataControllerDetailExpanded
-  (ADataController: TcxCustomDataController; ARecordIndex: Integer);
-var
-  AcxGridMasterDataRow: TcxGridMasterDataRow;
-begin
-  inherited;
-  if ARecordIndex < 0 then
-    Exit;
-
-  AcxGridMasterDataRow := cxGridDBBandedTableView.ViewData.Records[ARecordIndex]
-    as TcxGridMasterDataRow;
-  (AcxGridMasterDataRow.ActiveDetailGridView as TcxGridDBBandedTableView)
-    .ApplyBestFit();
 end;
 
 procedure TViewProducers.
@@ -384,6 +371,20 @@ procedure TViewProducers.cxGridDBBandedTableViewDragOver(Sender,
 begin
   inherited;
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
+end;
+
+procedure TViewProducers.cxGridDBBandedTableViewKeyDown(Sender: TObject; var
+    Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  DoOnKeyOrMouseDown;
+end;
+
+procedure TViewProducers.cxGridDBBandedTableViewMouseDown(Sender: TObject;
+    Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  DoOnKeyOrMouseDown;
 end;
 
 procedure TViewProducers.cxGridDBBandedTableViewStartDrag(Sender: TObject;

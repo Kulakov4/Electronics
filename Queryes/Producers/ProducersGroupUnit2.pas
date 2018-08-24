@@ -43,7 +43,8 @@ end;
 procedure TProducersGroup2.DoAfterDelete(Sender: TObject);
 begin
   Assert(qProducerTypes.OldPKValue > 0);
-  // Каскадно удаляем производителей
+  // На сервере типы производителей уже каскадно удалились
+  // Каскадно удаляем производителей с клиента
   qProducers.CascadeDelete(qProducerTypes.OldPKValue,
     qProducers.ProducerTypeID.FieldName, True);
 end;

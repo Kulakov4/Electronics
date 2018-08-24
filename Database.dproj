@@ -492,10 +492,6 @@
         <DCCReference Include="Views\BodyTypes\BodyTypesForm.pas">
             <Form>frmBodyTypes</Form>
         </DCCReference>
-        <DCCReference Include="Views\Parameters\ParametersView.pas">
-            <Form>ViewParameters</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\Parameters\ParametersForm.pas">
             <Form>frmParameters</Form>
         </DCCReference>

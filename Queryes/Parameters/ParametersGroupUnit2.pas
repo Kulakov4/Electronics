@@ -24,7 +24,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
-    function Find(const AFieldName, S: string): TList<String>;
+    procedure DeleteParamType(AID: Integer);
+    function Find(const AFieldName, S: string): TArray<String>;
     procedure LoadDataFromExcelTable(AParametersExcelTable
       : TParametersExcelTable);
     function LocateAll(AParameterID: Integer): Boolean;
@@ -177,34 +178,54 @@ begin
     inherited;
 end;
 
-procedure TParametersGroup2.DoBeforeDelete(Sender: TObject);
+procedure TParametersGroup2.DeleteParamType(AID: Integer);
+var
+  ASQL: string;
 begin
-  // Каскадно удаляем параметры
-  qParameters.CascadeDelete(qParameterTypes.PK.Value,
-    qParameters.IDParameterType.FieldName);
+  ASQL := Format('delete from ParameterTypes where ID = %d', [AID]);
+  Connection.ExecSQL(ASQL);
 end;
 
-function TParametersGroup2.Find(const AFieldName, S: string): TList<String>;
+procedure TParametersGroup2.DoBeforeDelete(Sender: TObject);
+var
+  AIDParameterType: Integer;
+begin
+  AIDParameterType := qParameterTypes.PK.Value;
+  // Каскадно удаляем параметры
+  qParameters.CascadeDelete(AIDParameterType,
+    qParameters.IDParameterType.FieldName);
+
+  // cxGrid сместил запись, поэтому возвращаемся на место
+  qParameterTypes.LocateByPK(AIDParameterType, True);
+end;
+
+function TParametersGroup2.Find(const AFieldName, S: string): TArray<String>;
+var
+  L: TList<String>;
+  SS: string;
 begin
   Assert(not AFieldName.IsEmpty);
-  Result := TList<String>.Create();
+  L := TList<String>.Create();
 
   // Пытаемся искать среди параметров по какому-то полю
   if qParameters.LocateByField(AFieldName, S) then
   begin
     qParameterTypes.LocateByPK(qParameters.IDParameterType.Value, True);
+
     // запоминаем что надо искать на первом уровне
-    Result.Add(qParameterTypes.ParameterType.AsString);
+    L.Add(qParameterTypes.ParameterType.AsString);
     // запоминаем что надо искать на втором уровне
-    Result.Add(S);
+    L.Add(S);
   end
   else
     // Пытаемся искать среди типов параметров
     if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S)
     then
     begin
-      Result.Add(S);
+      L.Add(S);
     end;
+
+  Result := L.ToArray;
 end;
 
 function TParametersGroup2.GetqParameterKinds: TQueryParameterKinds;
