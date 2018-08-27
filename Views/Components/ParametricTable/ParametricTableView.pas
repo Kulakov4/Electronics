@@ -95,7 +95,6 @@ type
     actUpdateDetailColumnWidth2: TAction;
     cxbeiTableName: TcxBarEditItem;
     actUpdateColumnWidth: TAction;
-    dxBarButton2: TdxBarButton;
     actTestBandsID: TAction;
     actTestBandsID1: TMenuItem;
     procedure actAddSubParameterExecute(Sender: TObject);
@@ -1290,7 +1289,9 @@ begin
     TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen,
       DoAfterFamilyExOpen, FEventList);
 
-    InitializeDefaultCreatedBands([MainView, GridView(cxGridLevel2)]);
+    // Если бэнды по умолчанию ещё не инициализированы
+    if FBandsInfo.Count = 0 then
+      InitializeDefaultCreatedBands([MainView, GridView(cxGridLevel2)]);
 
     // если данные открыты и не требуют обновления
     if ComponentsExGroup.qFamilyEx.Actual then

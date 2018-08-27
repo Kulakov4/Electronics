@@ -262,10 +262,6 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton5'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton2'
         end>
     end
     object dxbrbtnApplyUpdates: TdxBarButton
@@ -312,10 +308,6 @@ inherited ViewParametricTable: TViewParametricTable
       Properties.ImmediatePost = True
       Properties.OnChange = cxbeiTableNamePropertiesChange
       InternalEditValue = 'True'
-    end
-    object dxBarButton2: TdxBarButton
-      Action = actShowCategoryParametersQuery
-      Category = 0
     end
   end
   inherited ActionList: TActionList
@@ -402,10 +394,12 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actShowCategoryParametersQuery: TAction
       Caption = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1086' '#1087#1072#1088#1072#1084#1077#1090#1088#1072#1093
+      Visible = False
       OnExecute = actShowCategoryParametersQueryExecute
     end
     object actBandIDList: TAction
       Caption = #1048#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088#1099
+      Visible = False
       OnExecute = actBandIDListExecute
     end
     object actUpdateDetailColumnWidth2: TAction
@@ -415,10 +409,12 @@ inherited ViewParametricTable: TViewParametricTable
     end
     object actUpdateColumnWidth: TAction
       Caption = 'actUpdateColumnWidth'
+      Visible = False
       OnExecute = actUpdateColumnWidthExecute
     end
     object actTestBandsID: TAction
       Caption = 'actTestBandsID'
+      Visible = False
       OnExecute = actTestBandsIDExecute
     end
   end
