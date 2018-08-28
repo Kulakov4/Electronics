@@ -92,10 +92,13 @@ type
     dxBarButton17: TdxBarButton;
     actDeleteParameterType: TAction;
     dxBarButton18: TdxBarButton;
+    actClearSelection: TAction;
+    dxBarButton19: TdxBarButton;
     procedure actAddParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
     procedure actCheckDetailViewExecute(Sender: TObject);
+    procedure actClearSelectionExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteParameterTypeExecute(Sender: TObject);
     procedure actDisableControlsExecute(Sender: TObject);
@@ -137,6 +140,8 @@ type
     procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary(
       ASender: TcxDataSummary);
+    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word; Shift:
+        TShiftState);
   private
     FCheckedMode: Boolean;
     FDetailView: TcxGridDBBandedTableView;
@@ -279,6 +284,19 @@ begin
 
   AIsOK := FDetailView.ViewInfo.HeaderViewInfo.BandsViewInfo.Count > 0;
   ShowMessage(BoolToStr(AIsOK, True));
+end;
+
+procedure TViewParameters2.actClearSelectionExecute(Sender: TObject);
+var
+  AView: TcxGridDBBandedTableView;
+begin
+  inherited;
+  MainView.Controller.ClearSelection;
+  MainView.Controller.EditingController.HideEdit(False);
+
+  AView := GetDBBandedTableView(1);
+  AView.Controller.EditingController.HideEdit(False);
+  AView.Controller.ClearSelection;
 end;
 
 procedure TViewParameters2.actCommitExecute(Sender: TObject);
@@ -659,6 +677,8 @@ procedure TViewParameters2.cxGridDBBandedTableView2KeyDown(Sender: TObject;
 begin
   inherited;
   DoOnKeyOrMouseDown;
+  if Key = 27 then
+    actClearSelection.Execute;
 end;
 
 procedure TViewParameters2.cxGridDBBandedTableView2MouseDown(Sender: TObject;
@@ -714,6 +734,14 @@ procedure TViewParameters2.cxGridDBBandedTableViewDragOver(Sender,
 begin
   inherited;
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
+end;
+
+procedure TViewParameters2.cxGridDBBandedTableViewKeyDown(Sender: TObject; var
+    Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key=27 then
+    actClearSelection.Execute;
 end;
 
 procedure TViewParameters2.cxGridDBBandedTableViewStartDrag(Sender: TObject;

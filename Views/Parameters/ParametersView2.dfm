@@ -2,8 +2,8 @@ inherited ViewParameters2: TViewParameters2
   inherited cxGrid: TcxGrid
     Top = 56
     Height = 416
-    ExplicitTop = 84
-    ExplicitHeight = 388
+    ExplicitTop = 56
+    ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
@@ -16,6 +16,8 @@ inherited ViewParameters2: TViewParameters2
           Column = clParameterType
         end>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+      OptionsBehavior.IncSearch = True
+      OptionsBehavior.ImmediateEditor = False
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
@@ -59,6 +61,8 @@ inherited ViewParameters2: TViewParameters2
           Column = clValue
         end>
       DataController.Summary.SummaryGroups = <>
+      OptionsBehavior.IncSearch = True
+      OptionsBehavior.ImmediateEditor = False
       OptionsSelection.MultiSelect = True
       OptionsSelection.CellMultiSelect = True
       OptionsSelection.InvertSelect = False
@@ -269,6 +273,10 @@ inherited ViewParameters2: TViewParameters2
         item
           Visible = True
           ItemName = 'dxBarButton12'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton19'
         end>
       OneOnRow = False
       Row = 1
@@ -433,6 +441,10 @@ inherited ViewParameters2: TViewParameters2
       Action = actDeleteParameterType
       Category = 0
     end
+    object dxBarButton19: TdxBarButton
+      Action = actClearSelection
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAddParameterType: TAction
@@ -513,6 +525,10 @@ inherited ViewParameters2: TViewParameters2
     object actDeleteParameterType: TAction
       Caption = 'actDeleteParameterType'
       OnExecute = actDeleteParameterTypeExecute
+    end
+    object actClearSelection: TAction
+      Caption = 'actClearSelection'
+      OnExecute = actClearSelectionExecute
     end
   end
 end

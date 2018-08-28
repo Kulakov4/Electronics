@@ -1,19 +1,6 @@
 program Database;
 
 uses
-  {$IFDEF EurekaLog}
-  EMemLeaks,
-  EResLeaks,
-  EDialogWinAPIMSClassic,
-  EDialogWinAPIEurekaLogDetailed,
-  EDialogWinAPIStepsToReproduce,
-  EDebugExports,
-  EDebugJCL,
-  EFixSafeCallException,
-  EMapWin32,
-  EAppVCL,
-  ExceptionLog7,
-  {$ENDIF EurekaLog}
   Vcl.Forms,
   DBRecordHolder in 'Helpers\DBRecordHolder.pas',
   ProjectConst in 'Helpers\ProjectConst.pas',
@@ -253,6 +240,7 @@ begin
   Application.Run;
 
 end.
+
 
 
 
