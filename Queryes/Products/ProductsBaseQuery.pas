@@ -1243,7 +1243,8 @@ begin
   for I := Low(AFields) to High(AFields) do
   begin
     AFields[I].FieldKind := fkInternalCalc;
-    (AFields[I] as TNumericField).DisplayFormat := '### ##0.00';
+//    (AFields[I] as TNumericField).DisplayFormat := '#.00';
+    (AFields[I] as TNumericField).DisplayFormat := '###,##0.00';
   end;
 end;
 
