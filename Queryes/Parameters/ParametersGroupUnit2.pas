@@ -202,7 +202,6 @@ end;
 function TParametersGroup2.Find(const AFieldName, S: string): TArray<String>;
 var
   L: TList<String>;
-  SS: string;
 begin
   Assert(not AFieldName.IsEmpty);
   L := TList<String>.Create();

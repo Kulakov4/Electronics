@@ -105,11 +105,14 @@ type
     N4: TMenuItem;
     actApplyBestFit: TAction;
     actExportToExcelDocument: TAction;
+    actColumnFilter: TAction;
+    actColumnFilter1: TMenuItem;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
     procedure actBandWidthExecute(Sender: TObject);
     procedure actColumnAutoWidthExecute(Sender: TObject);
+    procedure actColumnFilterExecute(Sender: TObject);
     procedure actColumnWidthExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
@@ -243,6 +246,7 @@ begin
   // Список полей при редактировании которых Enter - сохранение
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
+  PostOnEnterFields.Add(clPriceE.DataBinding.FieldName);
 
   // Где отображать кол-во выделенных записей
   FSelectedCountPanelIndex := 1;
@@ -363,6 +367,19 @@ begin
   AColumn := FcxTreeListColumnHeaderCellViewInfo.Column;
   AColumn.Caption.Text := ' ';
   AColumn.ApplyBestFit;
+end;
+
+procedure TViewProductsBase2.actColumnFilterExecute(Sender: TObject);
+var
+  AColumn: TcxTreeListColumn;
+  S: string;
+begin
+  inherited;
+  AColumn := FcxTreeListColumnHeaderCellViewInfo.Column;
+
+  S := Format('Column filtering = %s', [ BoolToStr(AColumn.Options.Filtering, True) ]);
+
+  ShowMessage(S);
 end;
 
 procedure TViewProductsBase2.actColumnWidthExecute(Sender: TObject);
@@ -1113,6 +1130,8 @@ end;
 
 procedure TViewProductsBase2.InitializeColumns;
 var
+  AColumn: TcxDBTreeListColumn;
+  ASortVariant: TSortVariant;
   i: Integer;
   j: Integer;
 begin
@@ -1126,7 +1145,10 @@ begin
     begin
       cxDBTreeList.Bands[i].Columns[j].Caption.MultiLine := True;
       cxDBTreeList.Bands[i].Columns[j].Caption.ShowEndEllipsis := False;
-      // cxDBTreeList.Bands[i].Columns[j].Options.Sorting := False;
+
+      AColumn := cxDBTreeList.Bands[i].Columns[j] as TcxDBTreeListColumn;
+      ASortVariant := GridSort.GetSortVariant(AColumn);
+      AColumn.Options.Sorting := ASortVariant <> nil;
     end;
   end;
 

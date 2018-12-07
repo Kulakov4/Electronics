@@ -796,6 +796,17 @@
             <Form>ViewParameters2</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Queryes\BaseFDQuery.pas">
+            <Form>QryBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\DSWrap.pas"/>
+        <DCCReference Include="Queryes\ExtraCharge\ExtraChargeQry.pas">
+            <Form>QryExtraCharge</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

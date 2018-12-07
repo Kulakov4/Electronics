@@ -229,7 +229,10 @@ uses
   ErrorType in 'Helpers\ErrorType.pas',
   RecordCheck in 'Helpers\RecordCheck.pas',
   SubParametersInterface in 'Queryes\Parameters\SubParametersInterface.pas',
-  ParametersView2 in 'Views\Parameters\ParametersView2.pas' {ViewParameters2: TFrame};
+  ParametersView2 in 'Views\Parameters\ParametersView2.pas' {ViewParameters2: TFrame},
+  BaseFDQuery in 'Queryes\BaseFDQuery.pas' {QryBase: TFrame},
+  DSWrap in 'Queryes\DSWrap.pas',
+  ExtraChargeQry in 'Queryes\ExtraCharge\ExtraChargeQry.pas' {QryExtraCharge: TFrame};
 
 {$R *.res}
 

@@ -872,6 +872,10 @@ inherited ViewProductsBase2: TViewProductsBase2
       ImageIndex = 6
       OnExecute = actExportToExcelDocumentExecute
     end
+    object actColumnFilter: TAction
+      Caption = #1056#1072#1079#1088#1077#1096#1105#1085' '#1083#1080' '#1092#1080#1083#1100#1090#1088
+      OnExecute = actColumnFilterExecute
+    end
   end
   inherited PopupMenu: TPopupMenu
     OnPopup = PopupMenuPopup
@@ -883,6 +887,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     end
     object N3: TMenuItem
       Action = actColumnAutoWidth
+    end
+    object actColumnFilter1: TMenuItem
+      Action = actColumnFilter
     end
   end
   object cxStyleRepository1: TcxStyleRepository

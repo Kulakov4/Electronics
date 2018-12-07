@@ -550,8 +550,6 @@ begin
 end;
 
 procedure TfrmGrid.DoDeleteFromView(AView: TcxGridDBBandedTableView);
-var
-  V: Variant;
 begin
   AView.BeginUpdate();
   DisableCollapsingAndExpanding;
