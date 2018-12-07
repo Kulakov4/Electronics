@@ -2151,7 +2151,6 @@ var
   ABI: TBandInfo;
   ACaption: string;
   AID: Integer;
-  b: Boolean;
   S: string;
 begin
   for ABI in FBandsInfo do
@@ -2162,7 +2161,6 @@ begin
     if ABI.IDList.Count = 0 then
     begin
       S := ABI.Band.Caption;
-      b := ABI.DefaultCreated
     end;
 
 

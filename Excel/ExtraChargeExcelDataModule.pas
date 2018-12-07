@@ -15,6 +15,7 @@ type
     function GetqExtraChargeSimple: TQueryExtraChargeSimple;
     function GetRange: TField;
     function GetWholeSale: TField;
+    function GetExtraChargeType: TField;
   protected
     function CheckRange: Boolean;
     procedure SetFieldsInfo; override;
@@ -26,6 +27,7 @@ type
         FExtraChargeInt;
     property Range: TField read GetRange;
     property WholeSale: TField read GetWholeSale;
+    property ExtraChargeType: TField read GetExtraChargeType;
   end;
 
   TExtraChargeExcelDM = class(TExcelDM)
@@ -52,8 +54,8 @@ end;
 
 function TExtraChargeExcelTable.CheckRange: Boolean;
 var
-  AHigh: Integer;
-  ALow: Integer;
+//  AHigh: Integer;
+//  ALow: Integer;
   ARecordCheck: TRecordCheck;
 begin
   Assert(ExtraChargeInt <> nil);
@@ -64,7 +66,7 @@ begin
   ARecordCheck.ErrorMessage := Range.AsString;
 
   // Ищем точно такой-же диапазон
-  Result := not ExtraChargeInt.HaveDuplicate(Range.Value);
+  Result := not ExtraChargeInt.HaveDuplicate(ExtraChargeType.Value, Range.Value);
 
   // Если нашли дубликат диапазона
   if not Result then
@@ -74,8 +76,8 @@ begin
     Exit;
   end;
 
-  ARecordCheck.Description := qExtraChargeSimple.CheckBounds(0, Range.AsString, ALow, AHigh );
-  Result := ARecordCheck.Description.IsEmpty;
+//  ARecordCheck.Description := qExtraChargeSimple.CheckBounds(0, Range.AsString, ALow, AHigh );
+//  Result := ARecordCheck.Description.IsEmpty;
 
   // Если не нашли
   if not Result then
@@ -87,7 +89,7 @@ begin
   Result := inherited;
   if Result then
   begin
-    // Проверяем что такой производитель существует
+    // Проверяем корректность диапазона
     Result := CheckRange;
   end;
 end;
@@ -110,12 +112,19 @@ begin
   Result := FieldByName('WholeSale');
 end;
 
+function TExtraChargeExcelTable.GetExtraChargeType: TField;
+begin
+  Result := FieldByName('ExtraChargeType');
+end;
+
 procedure TExtraChargeExcelTable.SetFieldsInfo;
 begin
   FieldsInfo.Add(TFieldInfo.Create('Range', True,
     'Диапазон не может быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('Wholesale', True,
     'Наценка не может быть пустой'));
+  FieldsInfo.Add(TFieldInfo.Create('ExtraChargeType', True,
+    'Тип оптовой наценки не может быть пустым'));
 end;
 
 function TExtraChargeExcelDM.CreateExcelTable: TCustomExcelTable;

@@ -9,7 +9,7 @@ uses
   ComponentsSearchGroupUnit2, CategoryParametersGroupUnit2,
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
-  ExtraChargeQuery, SubParametersQuery2;
+  ExtraChargeQuery, SubParametersQuery2, ExtraChargeGroupUnit;
 
 type
   TDM = class(TObject)
@@ -26,10 +26,10 @@ type
     FDataSetList: TList<TQueryBase>;
     FDescriptionsGroup: TDescriptionsGroup2;
     FEventList: TObjectList;
+    FExtraChargeGroup: TExtraChargeGroup;
     FParametersGroup: TParametersGroup2;
     FProducersGroup: TProducersGroup2;
     FqChildCategories: TQueryChildCategories;
-    FqExtraCharge: TQueryExtraCharge;
     FqProducts: TQueryProducts;
     FqProductsSearch: TQueryProductsSearch;
     FqStoreHouseList: TQueryStoreHouseList;
@@ -51,10 +51,10 @@ type
     function GetComponentsGroup: TComponentsGroup2;
     function GetComponentsSearchGroup: TComponentsSearchGroup2;
     function GetDescriptionsGroup: TDescriptionsGroup2;
+    function GetExtraChargeGroup: TExtraChargeGroup;
     function GetParametersGroup: TParametersGroup2;
     function GetProducersGroup: TProducersGroup2;
     function GetqChildCategories: TQueryChildCategories;
-    function GetqExtraCharge: TQueryExtraCharge;
     function GetqProducts: TQueryProducts;
     function GetqProductsSearch: TQueryProductsSearch;
     function GetqStoreHouseList: TQueryStoreHouseList;
@@ -83,10 +83,10 @@ type
     property ComponentsSearchGroup: TComponentsSearchGroup2
       read GetComponentsSearchGroup;
     property DescriptionsGroup: TDescriptionsGroup2 read GetDescriptionsGroup;
+    property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
     property ParametersGroup: TParametersGroup2 read GetParametersGroup;
     property ProducersGroup: TProducersGroup2 read GetProducersGroup;
     property qChildCategories: TQueryChildCategories read GetqChildCategories;
-    property qExtraCharge: TQueryExtraCharge read GetqExtraCharge;
     property qProducts: TQueryProducts read GetqProducts;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
@@ -417,6 +417,14 @@ begin
   Result := FDescriptionsGroup;
 end;
 
+function TDM.GetExtraChargeGroup: TExtraChargeGroup;
+begin
+  if FExtraChargeGroup = nil then
+    FExtraChargeGroup := TExtraChargeGroup.Create(FComponent);
+
+  Result := FExtraChargeGroup;
+end;
+
 function TDM.GetParametersGroup: TParametersGroup2;
 begin
   if FParametersGroup = nil then
@@ -438,13 +446,6 @@ begin
     FqChildCategories := TQueryChildCategories.Create(FComponent);
 
   Result := FqChildCategories;
-end;
-
-function TDM.GetqExtraCharge: TQueryExtraCharge;
-begin
-  if FqExtraCharge = nil then
-    FqExtraCharge := TQueryExtraCharge.Create(FComponent);
-  Result := FqExtraCharge;
 end;
 
 function TDM.GetqProducts: TQueryProducts;

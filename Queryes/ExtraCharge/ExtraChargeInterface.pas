@@ -4,7 +4,8 @@ interface
 
 type
   IExtraCharge = interface(IInterface)
-    function HaveDuplicate(const ARange: string): Boolean; stdcall;
+    function HaveDuplicate(const AExtraChargeTypeName, ARange: String): Boolean;
+        stdcall;
   end;
 
 implementation

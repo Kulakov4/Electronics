@@ -71,6 +71,7 @@ type
       AProductIDList: TArray<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
+    procedure DeleteAll;
     procedure DeleteByFilter(const AFilterExpression: string);
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
@@ -355,6 +356,17 @@ begin
     begin
       FieldDefs[i].CreateField(FDQuery);
     end;
+  end;
+end;
+
+procedure TQueryBase.DeleteAll;
+begin
+  FDQuery.DisableControls;
+  try
+    while not FDQuery.Eof do
+      FDQuery.Delete;
+  finally
+    FDQuery.EnableControls;
   end;
 end;
 

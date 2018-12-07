@@ -6,28 +6,19 @@ inherited ViewExtraCharge: TViewExtraCharge
       OptionsCustomize.ColumnVertSizing = False
       OptionsData.Appending = True
       OptionsView.ColumnAutoWidth = False
-      object clID: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ID'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 0
-        Position.RowIndex = 0
-      end
-      object clRange: TcxGridDBBandedColumn
-        Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' ('#1096#1090'.)'
-        DataBinding.FieldName = 'Range'
-        Position.BandIndex = 0
-        Position.ColIndex = 1
-        Position.RowIndex = 0
-      end
-      object clWholeSale: TcxGridDBBandedColumn
-        Caption = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072' (%)'
-        DataBinding.FieldName = 'WholeSale'
-        OnGetDisplayText = clWholeSaleGetDisplayText
-        Position.BandIndex = 0
-        Position.ColIndex = 2
-        Position.RowIndex = 0
+    end
+    object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
+      Navigator.Buttons.CustomButtons = <>
+      DataController.Summary.DefaultGroupSummaryItems = <>
+      DataController.Summary.FooterSummaryItems = <>
+      DataController.Summary.SummaryGroups = <>
+      Bands = <
+        item
+        end>
+    end
+    inherited cxGridLevel: TcxGridLevel
+      object cxGridLevel2: TcxGridLevel
+        GridView = cxGridDBBandedTableView2
       end
     end
   end

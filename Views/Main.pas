@@ -332,9 +332,10 @@ begin
   Application.Hint := '';
   if frmExtraCharge = nil then
   begin
-    TDM.Create.qExtraCharge.RefreshQuery;
+    TDM.Create.ExtraChargeGroup.ReOpen;
     frmExtraCharge := TfrmExtraCharge.Create(Self);
-    frmExtraCharge.ViewExtraCharge.qExtraCharge := TDM.Create.qExtraCharge;
+    frmExtraCharge.ViewExtraCharge.ExtraChargeGroup :=
+      TDM.Create.ExtraChargeGroup;
   end;
 
   frmExtraCharge.Show;
@@ -363,7 +364,8 @@ begin
 
     frmParameters := TfrmParameters.Create(Self);
     frmParameters.ViewParameters.ParametersGrp := TDM.Create.ParametersGroup;
-    frmParameters.ViewSubParameters.QuerySubParameters := TDM.Create.qSubParameters;
+    frmParameters.ViewSubParameters.QuerySubParameters :=
+      TDM.Create.qSubParameters;
   end;
 
   frmParameters.Show;

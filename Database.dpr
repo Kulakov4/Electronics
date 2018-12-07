@@ -232,7 +232,10 @@ uses
   ParametersView2 in 'Views\Parameters\ParametersView2.pas' {ViewParameters2: TFrame},
   BaseFDQuery in 'Queryes\BaseFDQuery.pas' {QryBase: TFrame},
   DSWrap in 'Queryes\DSWrap.pas',
-  ExtraChargeQry in 'Queryes\ExtraCharge\ExtraChargeQry.pas' {QryExtraCharge: TFrame};
+  ExtraChargeQry in 'Queryes\ExtraCharge\ExtraChargeQry.pas' {QryExtraCharge: TFrame},
+  ExtraChargeGroupUnit in 'Queryes\ExtraCharge\ExtraChargeGroupUnit.pas',
+  ExtraChargeQuery2 in 'Queryes\ExtraCharge\ExtraChargeQuery2.pas' {QueryExtraCharge2: TFrame},
+  ExtraChargeTypeQuery in 'Queryes\ExtraCharge\ExtraChargeTypeQuery.pas' {QueryExtraChargeType: TFrame};
 
 {$R *.res}
 

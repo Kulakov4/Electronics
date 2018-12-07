@@ -7,7 +7,7 @@ inherited QueryExtraChargeSimple: TQueryExtraChargeSimple
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from ExtraCharge'
+      'from ExtraCharge2'
       'where 0=0')
   end
 end

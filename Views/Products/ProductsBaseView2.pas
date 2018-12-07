@@ -1292,8 +1292,8 @@ begin
 end;
 
 procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
-var
-  p: TcxExtLookupComboBoxProperties;
+//var
+//  p: TcxExtLookupComboBoxProperties;
 begin
   if FqProductsBase = Value then
     Exit;
@@ -1317,6 +1317,7 @@ begin
   CreateCountEvents;
 
   // Привязываем представление оптовых надбавок
+{
   ViewExtraCharge.MainView.DataController.DataSource :=
     FqProductsBase.qExtraCharge.DataSource;
   p := cxbeiExtraCharge.Properties as TcxExtLookupComboBoxProperties;
@@ -1326,7 +1327,7 @@ begin
   p.DropDownAutoSize := True;
   // p.GridMode := True;
   p.DropDownSizeable := True;
-
+}
   LoadWholeSale;
 
   UpdateView;

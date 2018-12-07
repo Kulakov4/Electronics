@@ -27,13 +27,11 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, ExtraChargeQuery,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  ExtraChargeGroupUnit;
 
 type
   TViewExtraCharge = class(TfrmGrid)
-    clID: TcxGridDBBandedColumn;
-    clRange: TcxGridDBBandedColumn;
-    clWholeSale: TcxGridDBBandedColumn;
     actCommit: TAction;
     actRollback: TAction;
     actAdd: TAction;
@@ -48,6 +46,8 @@ type
     dxBarButton6: TdxBarButton;
     dxBarButton7: TdxBarButton;
     actClear: TAction;
+    cxGridLevel2: TcxGridLevel;
+    cxGridDBBandedTableView2: TcxGridDBBandedTableView;
     procedure actAddExecute(Sender: TObject);
     procedure actClearExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -57,17 +57,31 @@ type
     procedure clWholeSaleGetDisplayText(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AText: string);
   private
-    FqExtraCharge: TQueryExtraCharge;
+    FExtraChargeGroup: TExtraChargeGroup;
+
+    // TODO: FqExtraCharge
+    // FqExtraCharge: TQueryExtraCharge;
   const
     FolderKey: String = 'ExtraCharge';
-    procedure SetqExtraCharge(const Value: TQueryExtraCharge);
+    function GetclRange: TcxGridDBBandedColumn;
+    function GetclWholeSale: TcxGridDBBandedColumn;
+    function GetclName: TcxGridDBBandedColumn;
+    procedure SetExtraChargeGroup(const Value: TExtraChargeGroup);
+    // TODO: SetqExtraCharge
+    // procedure SetqExtraCharge(const Value: TQueryExtraCharge);
     procedure UpdateTotalCount;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
-    property qExtraCharge: TQueryExtraCharge read FqExtraCharge
-      write SetqExtraCharge;
+    property clRange: TcxGridDBBandedColumn read GetclRange;
+    property clWholeSale: TcxGridDBBandedColumn read GetclWholeSale;
+    property clName: TcxGridDBBandedColumn read GetclName;
+    property ExtraChargeGroup: TExtraChargeGroup read FExtraChargeGroup
+      write SetExtraChargeGroup;
+    // TODO: qExtraCharge
+    // property qExtraCharge: TQueryExtraCharge read FqExtraCharge
+    // write SetqExtraCharge;
     { Public declarations }
   end;
 
@@ -84,14 +98,8 @@ begin
   inherited;
   StatusBarEmptyPanelIndex := 1;
 
-  PostOnEnterFields.Add(clRange.DataBinding.FieldName);
-  PostOnEnterFields.Add(clWholeSale.DataBinding.FieldName);
-
-  DeleteMessages.Add(cxGridLevel, 'Удалить диапазон оптовой наценки?');
-
-  GridSort.Add(TSortVariant.Create(clWholeSale, [clWholeSale]));
-  ApplySort(MainView, clWholeSale);
-  ApplySort(MainView, clWholeSale);
+  DeleteMessages.Add(cxGridLevel, 'Удалить тип оптовой наценки?');
+  DeleteMessages.Add(cxGridLevel2, 'Удалить диапазон оптовой наценки?');
 
   UpdateView;
 end;
@@ -110,7 +118,8 @@ begin
   inherited;
   BeginUpdate;
   try
-    qExtraCharge.DeleteAll;
+    ExtraChargeGroup.qExtraChargeType.DeleteAll;
+    // qExtraCharge.DeleteAll;
   finally
     EndUpdate;
   end;
@@ -120,9 +129,9 @@ end;
 procedure TViewExtraCharge.actCommitExecute(Sender: TObject);
 begin
   inherited;
-  qExtraCharge.TryPost;
-  qExtraCharge.Monitor.TryCommit;
-
+  ExtraChargeGroup.Commit;
+  // qExtraCharge.TryPost;
+  // qExtraCharge.Monitor.TryCommit;
   UpdateView;
 end;
 
@@ -132,8 +141,8 @@ var
 begin
   Application.Hint := '';
   if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
-    TSettings.Create.GetFolderFoExcelFile(FolderKey),
-    'Таблица оптовой наценки', AFileName) then
+    TSettings.Create.GetFolderFoExcelFile(FolderKey), 'Таблица оптовой наценки',
+    AFileName) then
     Exit;
 
   ExportViewToExcel(MainView, AFileName);
@@ -154,11 +163,12 @@ begin
     TLoad.Create.LoadAndProcess(AFileName, TExtraChargeExcelDM, TfrmImportError,
       procedure(ASender: TObject)
       begin
-        qExtraCharge.LoadDataFromExcelTable(ASender as TExtraChargeExcelTable);
+        ExtraChargeGroup.LoadDataFromExcelTable
+          (ASender as TExtraChargeExcelTable);
       end,
       procedure(ASender: TObject)
       begin
-        (ASender as TExtraChargeExcelTable).ExtraChargeInt := qExtraCharge;
+        (ASender as TExtraChargeExcelTable).ExtraChargeInt := ExtraChargeGroup;
       end);
   finally
     EndUpdate;
@@ -172,6 +182,17 @@ begin
   cxGrid.BeginUpdate();
   try
     // Отменяем все сделанные изменения
+    ExtraChargeGroup.Rollback;
+
+    MainView.ViewData.Collapse(True);
+  finally
+    cxGrid.EndUpdate;
+  end;
+
+  {
+    cxGrid.BeginUpdate();
+    try
+    // Отменяем все сделанные изменения
     qExtraCharge.TryCancel;
     qExtraCharge.Monitor.TryRollback;
     // Обновляем данные, возвращаясь на ту же запись
@@ -179,13 +200,13 @@ begin
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord;
-  finally
+    finally
     cxGrid.EndUpdate;
-  end;
+    end;
 
-  // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord;
-
+    // Помещаем фокус в центр грида
+    PutInTheCenterFocusedRecord;
+  }
   // Обновляем представление
   UpdateView;
 end;
@@ -201,32 +222,100 @@ begin
   AText := AText + '%';
 end;
 
-procedure TViewExtraCharge.SetqExtraCharge(const Value: TQueryExtraCharge);
+function TViewExtraCharge.GetclRange: TcxGridDBBandedColumn;
 begin
-  if FqExtraCharge = Value then
+  Result := cxGridDBBandedTableView2.GetColumnByFieldName
+    (ExtraChargeGroup.qExtraCharge2.Range.FieldName);
+end;
+
+function TViewExtraCharge.GetclWholeSale: TcxGridDBBandedColumn;
+begin
+  Result := cxGridDBBandedTableView2.GetColumnByFieldName
+    (ExtraChargeGroup.qExtraCharge2.WholeSale.FieldName);
+end;
+
+function TViewExtraCharge.GetclName: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName
+    (ExtraChargeGroup.qExtraChargeType.Name.FieldName);
+end;
+
+procedure TViewExtraCharge.SetExtraChargeGroup(const Value: TExtraChargeGroup);
+begin
+  if FExtraChargeGroup = Value then
     Exit;
+  FExtraChargeGroup := Value;
 
-  FqExtraCharge := Value;
+  FEventList.Clear;
 
-  if FqExtraCharge = nil then
+  if FExtraChargeGroup = nil then
+  begin
+    MainView.DataController.DataSource := nil;
+    cxGridDBBandedTableView2.DataController.DataSource := nil;
+    GridSort.Clear;
+    PostOnEnterFields.Clear;
     Exit;
+  end;
 
-  MainView.DataController.DataSource := qExtraCharge.DataSource;
-  // ApplyBestFitMultiLine := True;
+  MainView.DataController.DataSource :=
+    FExtraChargeGroup.qExtraChargeType.DataSource;
+  cxGridDBBandedTableView2.DataController.DataSource :=
+    FExtraChargeGroup.qExtraCharge2.DataSource;
+
+  MainView.DataController.KeyFieldNames :=
+    FExtraChargeGroup.qExtraChargeType.PKFieldName;
+
+  // настраиваем отношение "главный-подчинённый"
+  with cxGridDBBandedTableView2.DataController do
+  begin
+    KeyFieldNames := FExtraChargeGroup.qExtraCharge2.PKFieldName;
+    MasterKeyFieldNames := FExtraChargeGroup.qExtraChargeType.PKFieldName;
+    DetailKeyFieldNames := FExtraChargeGroup.qExtraCharge2.
+      IDExtraChargeType.FieldName;
+  end;
+
+  MainView.DataController.CreateAllItems();
+  cxGridDBBandedTableView2.DataController.CreateAllItems();
+
+  PostOnEnterFields.Add(FExtraChargeGroup.qExtraCharge2.Range.FieldName);
+  PostOnEnterFields.Add(FExtraChargeGroup.qExtraCharge2.WholeSale.FieldName);
+
+  GridSort.Add(TSortVariant.Create(clWholeSale, [clWholeSale]));
+  ApplySort(cxGridDBBandedTableView2, clWholeSale);
+  ApplySort(cxGridDBBandedTableView2, clWholeSale);
+
   MyApplyBestFit;
   UpdateView;
 end;
+
+// TODO: SetqExtraCharge
+// procedure TViewExtraCharge.SetqExtraCharge(const Value: TQueryExtraCharge);
+// begin
+// if FqExtraCharge = Value then
+// Exit;
+//
+// FqExtraCharge := Value;
+//
+// if FqExtraCharge = nil then
+// Exit;
+//
+// MainView.DataController.DataSource := qExtraCharge.DataSource;
+/// / ApplyBestFitMultiLine := True;
+// MyApplyBestFit;
+// UpdateView;
+// end;
 
 procedure TViewExtraCharge.UpdateTotalCount;
 var
   S: string;
 begin
-  if qExtraCharge = nil then
+  if ExtraChargeGroup = nil then
     S := ''
   else
-    S := Format('Всего: %d', [qExtraCharge.FDQuery.RecordCount]);
+    S := Format('Всего: %d',
+      [ExtraChargeGroup.qExtraChargeType.FDQuery.RecordCount]);
 
-  // Общее число компонентов на в БД
+  // Общее число типов оптовых наценок в БД
   StatusBar.Panels[StatusBar.Panels.Count - 1].Text := S;
 end;
 
@@ -236,7 +325,9 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  OK := (qExtraCharge <> nil) and (qExtraCharge.FDQuery.Active);
+  OK := (ExtraChargeGroup <> nil) and
+    (ExtraChargeGroup.qExtraChargeType.FDQuery.Active) and
+    (ExtraChargeGroup.qExtraCharge2.FDQuery.Active);
 
   actAdd.Enabled := OK and (AView <> nil);
 
@@ -244,12 +335,12 @@ begin
   actDeleteEx.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount > 0);;
 
-  actCommit.Enabled := OK and (qExtraCharge.HaveAnyChanges);
+  actCommit.Enabled := OK and (ExtraChargeGroup.HaveAnyChanges);
 
   actRollback.Enabled := actCommit.Enabled;
 
   actExportToExcelDocument.Enabled := OK and
-    (qExtraCharge.FDQuery.RecordCount > 0);
+    (ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
 
   actClear.Enabled := OK and (MainView.DataController.RecordCount > 0);
 

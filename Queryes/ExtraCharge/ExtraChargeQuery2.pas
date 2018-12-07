@@ -1,4 +1,4 @@
-unit ExtraChargeQuery;
+unit ExtraChargeQuery2;
 
 interface
 
@@ -9,34 +9,33 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, ExtraChargeSimpleQuery,
-  ExtraChargeExcelDataModule;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ExtraChargeSimpleQuery;
 
 type
-  TQueryExtraCharge = class(TQueryWithDataSource)
-  strict private
+  TQueryExtraCharge2 = class(TQueryWithDataSource)
   private
     FqExtraChargeSimple: TQueryExtraChargeSimple;
+    procedure DoAfterOpen(Sender: TObject);
+    function GetIDExtraChargeType: TField;
     function GetqExtraChargeSimple: TQueryExtraChargeSimple;
     function GetRange: TField;
     function GetWholeSale: TField;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
-      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure DoAfterOpen(Sender: TObject);
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest; var
+        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest; var
+        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest; var
+        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoBeforeOpen(Sender: TObject);
-    property qExtraChargeSimple: TQueryExtraChargeSimple
-      read GetqExtraChargeSimple;
+    property qExtraChargeSimple: TQueryExtraChargeSimple read GetqExtraChargeSimple;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure DeleteAll;
-    procedure LoadDataFromExcelTable(AExcelTable: TExtraChargeExcelTable);
-    function LocateByRange(ARange: string): Boolean;
+    function LocateByRange(AIDExtraRangeType: Integer; ARange: string): Boolean;
+    function LookupByRange(AIDExtraRangeType: Integer;
+      const ARange: string): Variant;
+    property IDExtraChargeType: TField read GetIDExtraChargeType;
     property Range: TField read GetRange;
     property WholeSale: TField read GetWholeSale;
     { Public declarations }
@@ -45,11 +44,11 @@ type
 implementation
 
 uses
-  ProjectConst, NotifyEvents, ExceptionHelper;
+  ExceptionHelper;
 
 {$R *.dfm}
 
-constructor TQueryExtraCharge.Create(AOwner: TComponent);
+constructor TQueryExtraCharge2.Create(AOwner: TComponent);
 begin
   inherited;
   AutoTransaction := False;
@@ -58,9 +57,9 @@ begin
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryExtraCharge.ApplyDelete(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+procedure TQueryExtraCharge2.ApplyDelete(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -71,9 +70,9 @@ begin
   qExtraChargeSimple.FDQuery.Delete;
 end;
 
-procedure TQueryExtraCharge.ApplyInsert(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+procedure TQueryExtraCharge2.ApplyInsert(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 var
   AHight: Integer;
   ALow: Integer;
@@ -104,9 +103,9 @@ begin
     AOptions);
 end;
 
-procedure TQueryExtraCharge.ApplyUpdate(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
+procedure TQueryExtraCharge2.ApplyUpdate(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
 var
   AHight: Integer;
   ALow: Integer;
@@ -118,8 +117,7 @@ begin
   begin
     AAction := eaFail;
     // Потом будет создана исключительная ситуация
-    raise Exception.Create(MyExceptionMessage
-    );
+    raise Exception.Create(MyExceptionMessage);
 
     // Exit;
   end;
@@ -134,23 +132,14 @@ begin
   qExtraChargeSimple.TryPost;
 end;
 
-procedure TQueryExtraCharge.DeleteAll;
+procedure TQueryExtraCharge2.DoAfterOpen(Sender: TObject);
 begin
-  FDQuery.DisableControls;
-  try
-    while not FDQuery.Eof do
-      FDQuery.Delete;
-  finally
-    FDQuery.EnableControls;
-  end;
+  PK.Visible := False;
+  Range.DisplayLabel := 'Количество (шт.)';
+  WholeSale.DisplayLabel := 'Оптовая наценка (%)';
 end;
 
-procedure TQueryExtraCharge.DoAfterOpen(Sender: TObject);
-begin
-  Range.ReadOnly := False;
-end;
-
-procedure TQueryExtraCharge.DoBeforeOpen(Sender: TObject);
+procedure TQueryExtraCharge2.DoBeforeOpen(Sender: TObject);
 begin
   if FDQuery.FieldDefs.Count > 0 then
   begin
@@ -163,7 +152,12 @@ begin
   CreateDefaultFields(False);
 end;
 
-function TQueryExtraCharge.GetqExtraChargeSimple: TQueryExtraChargeSimple;
+function TQueryExtraCharge2.GetIDExtraChargeType: TField;
+begin
+  Result := Field('IDExtraChargeType');
+end;
+
+function TQueryExtraCharge2.GetqExtraChargeSimple: TQueryExtraChargeSimple;
 begin
   if FqExtraChargeSimple = nil then
     FqExtraChargeSimple := TQueryExtraChargeSimple.Create(Self);
@@ -171,44 +165,36 @@ begin
   Result := FqExtraChargeSimple;
 end;
 
-function TQueryExtraCharge.GetRange: TField;
+function TQueryExtraCharge2.GetRange: TField;
 begin
   Result := Field('Range');
 end;
 
-function TQueryExtraCharge.GetWholeSale: TField;
+function TQueryExtraCharge2.GetWholeSale: TField;
 begin
   Result := Field('WholeSale');
 end;
 
-procedure TQueryExtraCharge.LoadDataFromExcelTable
-  (AExcelTable: TExtraChargeExcelTable);
+function TQueryExtraCharge2.LocateByRange(AIDExtraRangeType: Integer;
+  ARange: string): Boolean;
+var
+  AFieldNames: string;
 begin
-  // FDQuery.DisableControls;
-  try
-    AExcelTable.First;
-    while not AExcelTable.Eof do
-    begin
-      // Если такой диапазон уже есть
-      if LocateByRange(AExcelTable.Range.Value) then
-        TryEdit
-      else
-        TryAppend;
-
-      Range.Value := AExcelTable.Range.Value;
-      WholeSale.Value := AExcelTable.WholeSale.Value;
-      TryPost;
-
-      AExcelTable.Next;
-    end;
-  finally
-    // FDQuery.EnableControls;
-  end;
+  AFieldNames := Format('%s;%s', [IDExtraChargeType.FieldName,
+    Range.FieldName]);
+  Result := FDQuery.LocateEx(AFieldNames,
+    VarArrayOf([AIDExtraRangeType, ARange]), []);
 end;
 
-function TQueryExtraCharge.LocateByRange(ARange: string): Boolean;
+function TQueryExtraCharge2.LookupByRange(AIDExtraRangeType: Integer;
+  const ARange: string): Variant;
+var
+  AFieldNames: string;
 begin
-  Result := FDQuery.LocateEx(Range.FieldName, ARange, []);
+  AFieldNames := Format('%s;%s', [IDExtraChargeType.FieldName,
+    Range.FieldName]);
+  Result := FDQuery.LookupEx(AFieldNames,
+    VarArrayOf([AIDExtraRangeType, ARange]), [lxoCaseInsensitive]);
 end;
 
 end.

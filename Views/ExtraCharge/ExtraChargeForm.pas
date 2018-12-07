@@ -75,7 +75,7 @@ end;
 
 function TfrmExtraCharge.HaveAnyChanges: Boolean;
 begin
-  Result := ViewExtraCharge.qExtraCharge.HaveAnyChanges;
+  Result := ViewExtraCharge.ExtraChargeGroup.HaveAnyChanges;
 end;
 
 end.

@@ -29,6 +29,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Add(ASortVariant: TSortVariant);
+    procedure Clear;
     function ContainsColumn(const AFieldName: string): Boolean;
     function GetSortVariant(AColumn: TcxGridColumn): TSortVariant; overload;
     function GetSortVariant(AColumn: TcxDBTreeListColumn)
@@ -104,6 +105,11 @@ begin
   Assert(ASortVariant <> nil);
 
   FSortDictionary.Add(ASortVariant.KeyFieldName, ASortVariant);
+end;
+
+procedure TGridSort.Clear;
+begin
+  FSortDictionary.Clear;
 end;
 
 function TGridSort.ContainsColumn(const AFieldName: string): Boolean;
