@@ -103,7 +103,7 @@ type
 implementation
 
 uses RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math,
-  StrHelper, TextRectHelper;
+  StrHelper, TextRectHelper, DBLookupComboBoxHelper;
 
 {$R *.dfm}
 
@@ -429,23 +429,12 @@ end;
 procedure TfrmTreeList.InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
   ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
   const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
-var
-  AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
 begin
   Assert(AColumn <> nil);
-  Assert(ADataSource <> nil);
-  Assert(not AListFieldNames.IsEmpty);
-  Assert(not AKeyFieldNames.IsEmpty);
-
-  Assert(AColumn <> nil);
-
   AColumn.PropertiesClass := TcxLookupComboBoxProperties;
-  AcxLookupComboBoxProperties :=
-    AColumn.Properties as TcxLookupComboBoxProperties;
-  AcxLookupComboBoxProperties.ListSource := ADataSource;
-  AcxLookupComboBoxProperties.ListFieldNames := AListFieldNames;
-  AcxLookupComboBoxProperties.KeyFieldNames := AKeyFieldNames;
-  AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
+
+  TDBLCB.InitProp(AColumn.Properties as TcxLookupComboBoxProperties,
+    ADataSource, AKeyFieldNames, AListFieldNames, ADropDownListStyle);
 end;
 
 procedure TfrmTreeList.InternalApplySort(ASortedColumns: TArray < TPair <

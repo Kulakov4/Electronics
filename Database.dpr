@@ -190,7 +190,6 @@ uses
   DuplicateCategoryQuery in 'Queryes\TreeList\DuplicateCategoryQuery.pas',
   DuplicateCategoryView in 'Views\TreeList\DuplicateCategoryView.pas' {ViewDuplicateCategory: TFrame},
   HttpUnit in 'Queryes\HTTP\HttpUnit.pas',
-  ExtraChargeQuery in 'Queryes\ExtraCharge\ExtraChargeQuery.pas' {QueryExtraCharge: TFrame},
   ExtraChargeView in 'Views\ExtraCharge\ExtraChargeView.pas' {ViewExtraCharge: TFrame},
   ExtraChargeForm in 'Views\ExtraCharge\ExtraChargeForm.pas' {frmExtraCharge},
   ExtraChargeSimpleQuery in 'Queryes\ExtraCharge\ExtraChargeSimpleQuery.pas' {QueryExtraChargeSimple: TFrame},
@@ -235,7 +234,9 @@ uses
   ExtraChargeQry in 'Queryes\ExtraCharge\ExtraChargeQry.pas' {QryExtraCharge: TFrame},
   ExtraChargeGroupUnit in 'Queryes\ExtraCharge\ExtraChargeGroupUnit.pas',
   ExtraChargeQuery2 in 'Queryes\ExtraCharge\ExtraChargeQuery2.pas' {QueryExtraCharge2: TFrame},
-  ExtraChargeTypeQuery in 'Queryes\ExtraCharge\ExtraChargeTypeQuery.pas' {QueryExtraChargeType: TFrame};
+  ExtraChargeTypeQuery in 'Queryes\ExtraCharge\ExtraChargeTypeQuery.pas' {QueryExtraChargeType: TFrame},
+  DBLookupComboBoxHelper in 'Helpers\DBLookupComboBoxHelper.pas',
+  ExtraChargeSimpleView in 'Views\ExtraCharge\ExtraChargeSimpleView.pas' {ViewExtraChargeSimple: TFrame};
 
 {$R *.res}
 

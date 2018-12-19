@@ -31,7 +31,8 @@ uses
   cxFilter, cxData, cxDataStorage, cxNavigator, cxDBData, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
   cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections,
-  cxDataControllerConditionalFormattingRulesManagerDialog;
+  cxDataControllerConditionalFormattingRulesManagerDialog,
+  ExtraChargeSimpleView;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -107,6 +108,7 @@ type
     actExportToExcelDocument: TAction;
     actColumnFilter: TAction;
     actColumnFilter1: TMenuItem;
+    cxbeiExtraChargeType: TcxBarEditItem;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -150,8 +152,6 @@ type
     procedure cxbeiDollarPropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure cxbeiEuroChange(Sender: TObject);
-    procedure cxbeiExtraChargePropertiesValidate(Sender: TObject;
-      var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure cxbeiWholeSalePropertiesDrawItem(AControl: TcxCustomComboBox;
       ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
       AState: TOwnerDrawState);
@@ -163,6 +163,8 @@ type
       ANode: TcxTreeListNode);
     procedure dxbcWholeSaleChange(Sender: TObject);
     procedure PopupMenuPopup(Sender: TObject);
+    procedure cxbeiExtraChargeTypePropertiesChange(Sender: TObject);
+    procedure cxbeiExtraChargePropertiesChange(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FcxTreeListBandHeaderCellViewInfo: TcxTreeListBandHeaderCellViewInfo;
@@ -171,7 +173,7 @@ type
     FNeedResyncAfterPost: Boolean;
     FqProductsBase: TQueryProductsBase;
     FReadOnlyColumns: TList<TcxDBTreeListColumn>;
-    FViewExtraCharge: TViewExtraCharge;
+    FViewExtraChargeSimple: TViewExtraChargeSimple;
 
   const
     KeyFolder: String = 'Products';
@@ -180,7 +182,11 @@ type
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
-    function GetViewExtraCharge: TViewExtraCharge;
+    function GetIDExtraChargeType: Integer;
+    function GetIDExtraCharge: Integer;
+    function GetViewExtraChargeSimple: TViewExtraChargeSimple;
+    procedure SetIDExtraCharge(const Value: Integer);
+    procedure SetIDExtraChargeType(const Value: Integer);
     procedure SetqProductsBase(const Value: TQueryProductsBase);
     procedure UpdateSelectedCount;
     { Private declarations }
@@ -210,7 +216,11 @@ type
     procedure UpdateFieldValue(AFields: TArray<TField>;
       AValues: TArray<Variant>);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
-    property ViewExtraCharge: TViewExtraCharge read GetViewExtraCharge;
+    property IDExtraChargeType: Integer read GetIDExtraChargeType write
+        SetIDExtraChargeType;
+    property IDExtraCharge: Integer read GetIDExtraCharge write SetIDExtraCharge;
+    property ViewExtraChargeSimple: TViewExtraChargeSimple
+      read GetViewExtraChargeSimple;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -233,7 +243,7 @@ implementation
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
-  HttpUnit, StrHelper, dxCore, CurrencyUnit;
+  HttpUnit, StrHelper, dxCore, CurrencyUnit, DBLookupComboBoxHelper;
 
 const
   clClickedColor = clRed;
@@ -377,7 +387,8 @@ begin
   inherited;
   AColumn := FcxTreeListColumnHeaderCellViewInfo.Column;
 
-  S := Format('Column filtering = %s', [ BoolToStr(AColumn.Options.Filtering, True) ]);
+  S := Format('Column filtering = %s',
+    [BoolToStr(AColumn.Options.Filtering, True)]);
 
   ShowMessage(S);
 end;
@@ -717,14 +728,29 @@ begin
   FqProductsBase.EuroCource := r;
 end;
 
-procedure TViewProductsBase2.cxbeiExtraChargePropertiesValidate(Sender: TObject;
-  var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
+procedure TViewProductsBase2.cxbeiExtraChargePropertiesChange(Sender: TObject);
 begin
   inherited;
-  // qProductsBase.SaveExtraCharge;
-  UpdateFieldValue([FqProductsBase.IDExtraCharge, FqProductsBase.WholeSale],
-    [qProductsBase.qExtraCharge.PK.Value,
-    qProductsBase.qExtraCharge.WholeSale.Value]);
+  (Sender as TcxExtLookupComboBox).PostEditValue;
+
+  // Ищем выбранную запись о диапазоне и оптовой наценке
+  qProductsBase.ExtraChargeGroup.qExtraCharge2.LocateByPK(IDExtraCharge);
+
+  UpdateFieldValue([FqProductsBase.IDExtraChargeType,
+    FqProductsBase.IDExtraCharge, FqProductsBase.WholeSale],
+    [IDExtraChargeType, IDExtraCharge,
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.WholeSale.Value]);
+end;
+
+procedure TViewProductsBase2.cxbeiExtraChargeTypePropertiesChange
+  (Sender: TObject);
+begin
+  inherited;
+  (Sender as TcxLookupComboBox).PostEditValue;
+
+  // Фильтруем оптовые наценки по типу
+  qProductsBase.ExtraChargeGroup.qExtraCharge2.FilterByType
+    (cxbeiExtraChargeType.EditValue);
 end;
 
 procedure TViewProductsBase2.cxbeiWholeSalePropertiesChange(Sender: TObject);
@@ -931,14 +957,24 @@ begin
   UpdateBarCombo(FqProductsBase.Retail.Value, dxbcRetail);
   UpdateBarCombo(FqProductsBase.WholeSale.Value, dxbcWholeSale);
 
+
+  if IDExtraChargeType <> qProductsBase.IDExtraChargeType.AsInteger then
+  begin
+    IDExtraChargeType := qProductsBase.IDExtraChargeType.AsInteger;
+    // Фильтруем оптовые наценки по типу
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.FilterByType(IDExtraChargeType);
+  end;
+
+  IDExtraCharge := qProductsBase.IDExtraCharge.AsInteger;
+
+  {
   if qProductsBase.IDExtraCharge.IsNull then
     cxbeiExtraCharge.EditValue := null
   else
   begin
-    // qProductsBase.qExtraCharge.LocateByPK
-    // (qProductsBase.IDExtraCharge.AsInteger, True);
     cxbeiExtraCharge.EditValue := qProductsBase.IDExtraCharge.Value;
   end;
+  }
 end;
 
 procedure TViewProductsBase2.DoBeforeLoad(Sender: TObject);
@@ -1071,6 +1107,16 @@ begin
   end;
 end;
 
+function TViewProductsBase2.GetIDExtraChargeType: Integer;
+begin
+  Result := cxbeiExtraChargeType.EditValue;
+end;
+
+function TViewProductsBase2.GetIDExtraCharge: Integer;
+begin
+  Result := cxbeiExtraCharge.EditValue;
+end;
+
 function TViewProductsBase2.GetNodeID(ANode: TcxDBTreeListNode)
   : TArray<Integer>;
 var
@@ -1121,11 +1167,12 @@ begin
   end;
 end;
 
-function TViewProductsBase2.GetViewExtraCharge: TViewExtraCharge;
+function TViewProductsBase2.GetViewExtraChargeSimple: TViewExtraChargeSimple;
 begin
-  if FViewExtraCharge = nil then
-    FViewExtraCharge := TViewExtraCharge.Create(Self);
-  Result := FViewExtraCharge;
+  if FViewExtraChargeSimple = nil then
+    FViewExtraChargeSimple := TViewExtraChargeSimple.Create(Self);
+
+  Result := FViewExtraChargeSimple;
 end;
 
 procedure TViewProductsBase2.InitializeColumns;
@@ -1210,16 +1257,17 @@ procedure TViewProductsBase2.LoadWholeSale;
 begin
   dxbcWholeSale.Items.BeginUpdate;
   try
-    qProductsBase.qExtraCharge.FDQuery.DisableControls;
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.DisableControls;
     try
-      qProductsBase.qExtraCharge.FDQuery.First;
-      while not qProductsBase.qExtraCharge.FDQuery.Eof do
+      qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.First;
+      while not qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.Eof do
       begin
-        dxbcWholeSale.Items.Add(qProductsBase.qExtraCharge.WholeSale.AsString);
-        qProductsBase.qExtraCharge.FDQuery.Next;
+        dxbcWholeSale.Items.Add
+          (qProductsBase.ExtraChargeGroup.qExtraCharge2.WholeSale.AsString);
+        qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.Next;
       end;
     finally
-      qProductsBase.qExtraCharge.FDQuery.EnableControls;
+      qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.EnableControls;
     end;
   finally
     dxbcWholeSale.Items.EndUpdate;
@@ -1291,9 +1339,19 @@ begin
 
 end;
 
+procedure TViewProductsBase2.SetIDExtraCharge(const Value: Integer);
+begin
+  cxbeiExtraCharge.EditValue := Value;
+end;
+
+procedure TViewProductsBase2.SetIDExtraChargeType(const Value: Integer);
+begin
+  cxbeiExtraChargeType.EditValue := Value;
+end;
+
 procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
-//var
-//  p: TcxExtLookupComboBoxProperties;
+// var
+// p: TcxExtLookupComboBoxProperties;
 begin
   if FqProductsBase = Value then
     Exit;
@@ -1316,18 +1374,25 @@ begin
   // подписываемся на события о смене количества и надбавки
   CreateCountEvents;
 
+  // Фильтруем оптовые надбавки по типу
+  FqProductsBase.ExtraChargeGroup.qExtraCharge2.FilterByType(0);
+
   // Привязываем представление оптовых надбавок
-{
-  ViewExtraCharge.MainView.DataController.DataSource :=
-    FqProductsBase.qExtraCharge.DataSource;
-  p := cxbeiExtraCharge.Properties as TcxExtLookupComboBoxProperties;
-  p.View := ViewExtraCharge.MainView;
-  p.ListFieldItem := ViewExtraCharge.clRange;
-  p.KeyFieldNames := FqProductsBase.qExtraCharge.PKFieldName;
-  p.DropDownAutoSize := True;
-  // p.GridMode := True;
-  p.DropDownSizeable := True;
-}
+  TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
+    TcxLookupComboBoxProperties,
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.DataSource,
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.PK.FieldName,
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.Name.FieldName,
+    lsFixedList);
+
+  ViewExtraChargeSimple.qExtraCharge :=
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2;
+  TExtDBLCB.InitProp(cxbeiExtraCharge.Properties as
+    TcxExtLookupComboBoxProperties, ViewExtraChargeSimple.MainView,
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.PKFieldName,
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.Range.FieldName, lsFixedList,
+    True, True);
+
   LoadWholeSale;
 
   UpdateView;

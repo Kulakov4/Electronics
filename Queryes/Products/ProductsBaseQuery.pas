@@ -13,7 +13,8 @@ uses
   SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents,
-  SearchComponentGroup, SearchFamily, ProducersGroupUnit2, ExtraChargeQuery;
+  SearchComponentGroup, SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2,
+  ExtraChargeGroupUnit;
 
 type
   TComponentNameParts = record
@@ -44,7 +45,7 @@ type
     FEuroCource: Double;
     FOnDollarCourceChange: TNotifyEventsEx;
     FOnEuroCourceChange: TNotifyEventsEx;
-    FqExtraCharge: TQueryExtraCharge;
+    FExtraChargeGroup: TExtraChargeGroup;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetAmount: TField;
@@ -82,7 +83,8 @@ type
     function GetPriceR2: TField;
     function GetProductID: TField;
     function GetProducersGroup: TProducersGroup2;
-    function GetqExtraCharge: TQueryExtraCharge;
+    function GetExtraChargeGroup: TExtraChargeGroup;
+    function GetIDExtraChargeType: TField;
     function GetqSearchComponentGroup: TQuerySearchComponentGroup;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetqSearchFamily: TQuerySearchFamily;
@@ -181,7 +183,8 @@ type
     property PriceE: TField read GetPriceE;
     property PriceE1: TField read GetPriceE1;
     property PriceE2: TField read GetPriceE2;
-    property qExtraCharge: TQueryExtraCharge read GetqExtraCharge;
+    property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
+    property IDExtraChargeType: TField read GetIDExtraChargeType;
     property ReleaseDate: TField read GetReleaseDate;
     property Retail: TField read GetRetail;
     property Seller: TField read GetSeller;
@@ -612,8 +615,9 @@ begin;
 
   FDQuery.FieldDefs.Update;
 
-  // Ссылка на выбранный диапазон
+  // Ссылка на выбранный диапазон оптовой наценки
   FDQuery.FieldDefs.Add('IDExtraCharge', ftInteger);
+  FDQuery.FieldDefs.Add('IDExtraChargeType', ftInteger);
 
   // Процент оптовой наценки
   FDQuery.FieldDefs.Add('wholesale', ftFloat);
@@ -637,6 +641,7 @@ begin;
 
   CreateDefaultFields(False);
   IDExtraCharge.FieldKind := fkInternalCalc;
+  IDExtraChargeType.FieldKind := fkInternalCalc;
   Wholesale.FieldKind := fkInternalCalc;
 //  Retail.FieldKind := fkInternalCalc;
 
@@ -1029,14 +1034,19 @@ begin
   Result := FProducersGroup;
 end;
 
-function TQueryProductsBase.GetqExtraCharge: TQueryExtraCharge;
+function TQueryProductsBase.GetExtraChargeGroup: TExtraChargeGroup;
 begin
-  if FqExtraCharge = nil then
+  if FExtraChargeGroup = nil then
   begin
-    FqExtraCharge := TQueryExtraCharge.Create(Self);
-    FqExtraCharge.RefreshQuery;
+    FExtraChargeGroup := TExtraChargeGroup.Create(Self);
+    FExtraChargeGroup.ReOpen;
   end;
-  Result := FqExtraCharge;
+  Result := FExtraChargeGroup;
+end;
+
+function TQueryProductsBase.GetIDExtraChargeType: TField;
+begin
+  Result := Field('IDExtraChargeType');
 end;
 
 function TQueryProductsBase.GetqSearchComponentGroup
@@ -1206,11 +1216,11 @@ end;
 
 procedure TQueryProductsBase.SaveExtraCharge;
 begin
-  Assert(qExtraCharge.FDQuery.RecordCount > 0);
+  Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
   TryEdit;
-  IDExtraCharge.AsInteger := qExtraCharge.PK.AsInteger;
+  IDExtraCharge.AsInteger := ExtraChargeGroup.qExtraCharge2.PK.AsInteger;
   // Меняем процент оптовой наценки
-  Wholesale.Value := qExtraCharge.Wholesale.Value;
+  Wholesale.Value := ExtraChargeGroup.qExtraCharge2.Wholesale.Value;
   TryPost;
 end;
 

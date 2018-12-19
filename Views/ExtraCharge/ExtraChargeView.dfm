@@ -12,6 +12,8 @@ inherited ViewExtraCharge: TViewExtraCharge
       DataController.Summary.DefaultGroupSummaryItems = <>
       DataController.Summary.FooterSummaryItems = <>
       DataController.Summary.SummaryGroups = <>
+      OptionsView.GroupByBox = False
+      OptionsView.BandHeaders = False
       Bands = <
         item
         end>

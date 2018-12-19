@@ -26,9 +26,8 @@ uses
   cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
-  cxGridDBBandedTableView, cxGrid, ExtraChargeQuery,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  ExtraChargeGroupUnit;
+  cxGridDBBandedTableView, cxGrid, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu, ExtraChargeGroupUnit;
 
 type
   TViewExtraCharge = class(TfrmGrid)

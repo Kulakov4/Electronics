@@ -82,10 +82,9 @@ begin
     else
     begin
       qExtraCharge2.TryAppend;
-      qExtraCharge2.IDExtraChargeType.AsInteger := qExtraChargeType.PK.AsInteger;
     end;
 
-
+    qExtraCharge2.IDExtraChargeType.AsInteger := qExtraChargeType.PK.AsInteger;
     qExtraCharge2.Range.Value := AExcelTable.Range.Value;
     qExtraCharge2.WholeSale.Value := AExcelTable.WholeSale.Value;
     TryPost;

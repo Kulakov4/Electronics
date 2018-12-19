@@ -22,16 +22,18 @@ type
     function GetWholeSale: TField;
     { Private declarations }
   protected
-    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest; var
-        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest; var
-        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest; var
-        AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure DoBeforeOpen(Sender: TObject);
-    property qExtraChargeSimple: TQueryExtraChargeSimple read GetqExtraChargeSimple;
+    property qExtraChargeSimple: TQueryExtraChargeSimple
+      read GetqExtraChargeSimple;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure FilterByType(AIDExtraRangeType: Integer);
     function LocateByRange(AIDExtraRangeType: Integer; ARange: string): Boolean;
     function LookupByRange(AIDExtraRangeType: Integer;
       const ARange: string): Variant;
@@ -57,9 +59,9 @@ begin
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryExtraCharge2.ApplyDelete(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryExtraCharge2.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -70,15 +72,16 @@ begin
   qExtraChargeSimple.FDQuery.Delete;
 end;
 
-procedure TQueryExtraCharge2.ApplyInsert(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryExtraCharge2.ApplyInsert(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AHight: Integer;
   ALow: Integer;
 begin
-  MyExceptionMessage := qExtraChargeSimple.CheckBounds(0, Range.AsString,
-    ALow, AHight);
+  MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
+    IDExtraChargeType.Value, Range.AsString, ALow, AHight);
+
   if not MyExceptionMessage.IsEmpty then
   begin
     // Потом будет создана исключительная ситуация
@@ -95,6 +98,7 @@ begin
   qExtraChargeSimple.L.AsInteger := ALow;
   qExtraChargeSimple.H.AsInteger := AHight;
   qExtraChargeSimple.WholeSale.Value := WholeSale.Value;
+  qExtraChargeSimple.IDExtraChargeType.Value := IDExtraChargeType.Value;
   qExtraChargeSimple.TryPost;
 
   Assert(qExtraChargeSimple.PK.AsInteger > 0);
@@ -103,16 +107,17 @@ begin
     AOptions);
 end;
 
-procedure TQueryExtraCharge2.ApplyUpdate(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryExtraCharge2.ApplyUpdate(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 var
   AHight: Integer;
   ALow: Integer;
 begin
   Assert(ASender = FDQuery);
   MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
-    Range.AsString, ALow, AHight);
+    IDExtraChargeType.AsInteger, Range.AsString, ALow, AHight);
+
   if not MyExceptionMessage.IsEmpty then
   begin
     AAction := eaFail;
@@ -129,12 +134,14 @@ begin
   qExtraChargeSimple.L.Value := ALow;
   qExtraChargeSimple.H.Value := AHight;
   qExtraChargeSimple.WholeSale.Value := WholeSale.Value;
+  qExtraChargeSimple.IDExtraChargeType.Value := IDExtraChargeType.Value;
   qExtraChargeSimple.TryPost;
 end;
 
 procedure TQueryExtraCharge2.DoAfterOpen(Sender: TObject);
 begin
   PK.Visible := False;
+  IDExtraChargeType.Visible := False;
   Range.DisplayLabel := 'Количество (шт.)';
   WholeSale.DisplayLabel := 'Оптовая наценка (%)';
 end;
@@ -150,6 +157,12 @@ begin
   FDQuery.FieldDefs.Update;
   FDQuery.FieldDefs.Find('Range').Size := 30;
   CreateDefaultFields(False);
+end;
+
+procedure TQueryExtraCharge2.FilterByType(AIDExtraRangeType: Integer);
+begin
+  FDQuery.Filter := Format('%s = %d', [IDExtraChargeType.FieldName, AIDExtraRangeType]);
+  FDQuery.Filtered := True;
 end;
 
 function TQueryExtraCharge2.GetIDExtraChargeType: TField;
@@ -193,8 +206,8 @@ var
 begin
   AFieldNames := Format('%s;%s', [IDExtraChargeType.FieldName,
     Range.FieldName]);
-  Result := FDQuery.LookupEx(AFieldNames,
-    VarArrayOf([AIDExtraRangeType, ARange]), [lxoCaseInsensitive]);
+  Result := FDQuery.LookupEx(AFieldNames, VarArrayOf([AIDExtraRangeType, ARange]
+    ), [lxoCaseInsensitive]);
 end;
 
 end.

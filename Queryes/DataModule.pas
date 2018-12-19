@@ -9,7 +9,7 @@ uses
   ComponentsSearchGroupUnit2, CategoryParametersGroupUnit2,
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
-  ExtraChargeQuery, SubParametersQuery2, ExtraChargeGroupUnit;
+  SubParametersQuery2, ExtraChargeGroupUnit;
 
 type
   TDM = class(TObject)

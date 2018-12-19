@@ -188,6 +188,10 @@ inherited ViewProducts2: TViewProducts2
           ItemName = 'dxbbRefreshCources'
         end
         item
+          Visible = True
+          ItemName = 'cxbeiExtraChargeType'
+        end
+        item
           UserDefine = [udWidth]
           UserWidth = 84
           Visible = True

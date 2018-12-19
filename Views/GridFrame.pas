@@ -234,7 +234,8 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink,
-  dxCore, DialogUnit, StrHelper, System.Types, TextRectHelper;
+  dxCore, DialogUnit, StrHelper, System.Types, TextRectHelper,
+  DBLookupComboBoxHelper;
 
 constructor TfrmGrid.Create(AOwner: TComponent);
 begin
@@ -806,23 +807,12 @@ end;
 procedure TfrmGrid.InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
   ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
   const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
-var
-  AcxLookupComboBoxProperties: TcxLookupComboBoxProperties;
 begin
-  Assert(AColumn <> nil);
-  Assert(ADataSource <> nil);
-  Assert(not AListFieldNames.IsEmpty);
-  Assert(not AKeyFieldNames.IsEmpty);
-
   Assert(AColumn <> nil);
 
   AColumn.PropertiesClass := TcxLookupComboBoxProperties;
-  AcxLookupComboBoxProperties :=
-    AColumn.Properties as TcxLookupComboBoxProperties;
-  AcxLookupComboBoxProperties.ListSource := ADataSource;
-  AcxLookupComboBoxProperties.ListFieldNames := AListFieldNames;
-  AcxLookupComboBoxProperties.KeyFieldNames := AKeyFieldNames;
-  AcxLookupComboBoxProperties.DropDownListStyle := ADropDownListStyle;
+  TDBLCB.InitProp(AColumn.Properties as TcxLookupComboBoxProperties,
+    ADataSource, AKeyFieldNames, AListFieldNames, ADropDownListStyle);
 end;
 
 procedure TfrmGrid.InitializeComboBoxColumn(AColumn: TcxGridDBBandedColumn;
@@ -1351,7 +1341,6 @@ begin
     // т.к. все изменени€ будут сделаны без учЄта текста заголовка колонок
     Exit;
   end;
-
 
   // Ўирина бэнда будет подбиратьс€ автоматически
   ABand.Width := 0;

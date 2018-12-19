@@ -657,6 +657,10 @@ inherited ViewProductsBase2: TViewProductsBase2
           ItemName = 'dxbbRefreshCources'
         end
         item
+          Visible = True
+          ItemName = 'cxbeiExtraChargeType'
+        end
+        item
           UserDefine = [udWidth]
           UserWidth = 84
           Visible = True
@@ -746,7 +750,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Visible = ivAlways
       ShowCaption = True
       PropertiesClassName = 'TcxExtLookupComboBoxProperties'
-      Properties.OnValidate = cxbeiExtraChargePropertiesValidate
+      Properties.OnChange = cxbeiExtraChargePropertiesChange
     end
     object dxbcWholeSale: TdxBarCombo
       Caption = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
@@ -759,6 +763,16 @@ inherited ViewProductsBase2: TViewProductsBase2
       Items.Strings = (
         '')
       ItemIndex = -1
+    end
+    object cxbeiExtraChargeType: TcxBarEditItem
+      Caption = #1057#1090#1086#1080#1084#1086#1089#1090#1100
+      Category = 0
+      Hint = #1057#1090#1086#1080#1084#1086#1089#1090#1100
+      Visible = ivAlways
+      ShowCaption = True
+      PropertiesClassName = 'TcxLookupComboBoxProperties'
+      Properties.ListColumns = <>
+      Properties.OnChange = cxbeiExtraChargeTypePropertiesChange
     end
   end
   inherited ActionList: TActionList

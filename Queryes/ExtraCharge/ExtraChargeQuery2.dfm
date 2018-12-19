@@ -5,6 +5,8 @@ inherited QueryExtraCharge2: TQueryExtraCharge2
     ExplicitWidth = 88
   end
   inherited FDQuery: TFDQuery
+    UpdateOptions.AssignedValues = [uvCheckReadOnly]
+    UpdateOptions.CheckReadOnly = False
     SQL.Strings = (
       
         'select ID, IDExtraChargeType, cast(L || '#39'-'#39' || H as VARCHAR(30))' +
