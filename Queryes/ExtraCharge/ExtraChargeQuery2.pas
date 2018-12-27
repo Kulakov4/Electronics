@@ -9,7 +9,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ExtraChargeSimpleQuery;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ExtraChargeSimpleQuery,
+  System.Generics.Collections;
 
 type
   TQueryExtraCharge2 = class(TQueryWithDataSource)
@@ -34,6 +35,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure FilterByType(AIDExtraRangeType: Integer);
+    function GetWholeSaleList: TArray<String>;
     function LocateByRange(AIDExtraRangeType: Integer; ARange: string): Boolean;
     function LookupByRange(AIDExtraRangeType: Integer;
       const ARange: string): Variant;
@@ -161,7 +163,8 @@ end;
 
 procedure TQueryExtraCharge2.FilterByType(AIDExtraRangeType: Integer);
 begin
-  FDQuery.Filter := Format('%s = %d', [IDExtraChargeType.FieldName, AIDExtraRangeType]);
+  FDQuery.Filter := Format('%s = %d', [IDExtraChargeType.FieldName,
+    AIDExtraRangeType]);
   FDQuery.Filtered := True;
 end;
 
@@ -186,6 +189,30 @@ end;
 function TQueryExtraCharge2.GetWholeSale: TField;
 begin
   Result := Field('WholeSale');
+end;
+
+function TQueryExtraCharge2.GetWholeSaleList: TArray<String>;
+var
+  L: TList<String>;
+begin
+  L := TList<String>.Create();
+  try
+    FDQuery.DisableControls;
+    try
+      FDQuery.First;
+      while not FDQuery.Eof do
+      begin
+        L.Add(WholeSale.AsString);
+        FDQuery.Next;
+      end;
+    finally
+      FDQuery.EnableControls;
+    end;
+    FDQuery.First;
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
+  end;
 end;
 
 function TQueryExtraCharge2.LocateByRange(AIDExtraRangeType: Integer;

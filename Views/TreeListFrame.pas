@@ -90,6 +90,7 @@ type
     procedure EndUpdate; virtual;
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
       : Variant;
+    procedure FocusFirstNode;
     procedure MyApplyBestFit;
     procedure RefreshData;
     procedure UpdateView; virtual;
@@ -398,6 +399,18 @@ begin
   ANode := cxDBTreeList.FocusedNode;
   Assert(ANode <> nil);
   Result := ANode.Values[AcxDBTreeListColumn.ItemIndex];
+end;
+
+procedure TfrmTreeList.FocusFirstNode;
+var
+  ANode: TcxTreeListNode;
+begin
+  cxDBTreeList.ClearSelection();
+  ANode := cxDBTreeList.Root.getFirstChild;
+  if ANode <> nil then
+  begin
+    ANode.Focused := True;
+  end;
 end;
 
 procedure TfrmTreeList.InitializeColumns;

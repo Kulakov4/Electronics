@@ -1,11 +1,11 @@
 inherited ViewProductsBase2: TViewProductsBase2
-  Width = 1092
+  Width = 1177
   Height = 598
-  ExplicitWidth = 1092
+  ExplicitWidth = 1177
   ExplicitHeight = 598
   inherited cxDBTreeList: TcxDBTreeList
     Top = 56
-    Width = 1092
+    Width = 1177
     Height = 523
     Bands = <
       item
@@ -124,7 +124,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
     ExplicitTop = 56
-    ExplicitWidth = 1092
+    ExplicitWidth = 1177
     ExplicitHeight = 523
     object clID: TcxDBTreeListColumn
       Visible = False
@@ -616,11 +616,12 @@ inherited ViewProductsBase2: TViewProductsBase2
   end
   inherited StatusBar: TStatusBar
     Top = 579
-    Width = 1092
+    Width = 1177
     ExplicitTop = 579
-    ExplicitWidth = 1092
+    ExplicitWidth = 1177
   end
   inherited dxBarManager: TdxBarManager
+    ShowHint = False
     PixelsPerInch = 96
     DockControlHeights = (
       0
@@ -658,6 +659,10 @@ inherited ViewProductsBase2: TViewProductsBase2
         end
         item
           Visible = True
+          ItemName = 'dxBarButton11'
+        end
+        item
+          Visible = True
           ItemName = 'cxbeiExtraChargeType'
         end
         item
@@ -669,6 +674,10 @@ inherited ViewProductsBase2: TViewProductsBase2
         item
           Visible = True
           ItemName = 'dxbcWholeSale'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbcMinWholeSale'
         end
         item
           UserDefine = [udWidth]
@@ -683,12 +692,13 @@ inherited ViewProductsBase2: TViewProductsBase2
       WholeRow = False
     end
     object dxbcRetail: TdxBarCombo
-      Caption = #1056#1086#1079#1085#1080#1095#1085#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
+      Caption = #1056#1086#1079#1085'. '#1085#1072#1094#1077#1085#1082#1072
       Category = 0
-      Hint = #1056#1086#1079#1085#1080#1095#1085#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
+      Hint = #1056#1086#1079#1085'. '#1085#1072#1094#1077#1085#1082#1072
       Visible = ivAlways
       OnChange = dxbcRetailChange
       ShowCaption = True
+      Width = 70
       Text = '100'
       OnDrawItem = dxbcRetailDrawItem
       Items.Strings = (
@@ -744,7 +754,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Properties.OnValidate = cxbeiDollarPropertiesValidate
     end
     object cxbeiExtraCharge: TcxBarEditItem
-      Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
+      Caption = #1050#1086#1083'-'#1074#1086
       Category = 0
       Hint = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086', '#1096#1090'.'
       Visible = ivAlways
@@ -753,12 +763,13 @@ inherited ViewProductsBase2: TViewProductsBase2
       Properties.OnChange = cxbeiExtraChargePropertiesChange
     end
     object dxbcWholeSale: TdxBarCombo
-      Caption = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
+      Caption = #1054#1087#1090'. '#1085#1072#1094#1077#1085#1082#1072
       Category = 0
       Hint = #1054#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
       Visible = ivAlways
       OnChange = dxbcWholeSaleChange
       ShowCaption = True
+      Width = 70
       OnDrawItem = dxbcRetailDrawItem
       Items.Strings = (
         '')
@@ -773,6 +784,31 @@ inherited ViewProductsBase2: TViewProductsBase2
       PropertiesClassName = 'TcxLookupComboBoxProperties'
       Properties.ListColumns = <>
       Properties.OnChange = cxbeiExtraChargeTypePropertiesChange
+    end
+    object dxbcMinWholeSale: TdxBarCombo
+      Caption = #1052#1080#1085'. '#1086#1087#1090'. '#1085#1072#1094#1077#1085#1082#1072
+      Category = 0
+      Hint = #1052#1080#1085#1080#1084#1072#1083#1100#1085#1072#1103' '#1086#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
+      Visible = ivAlways
+      OnChange = dxbcMinWholeSaleChange
+      ShowCaption = True
+      Width = 70
+      Text = '10'
+      OnDrawItem = dxbcRetailDrawItem
+      Items.Strings = (
+        '8'
+        '9'
+        '10'
+        '11'
+        '12'
+        '13'
+        '14'
+        '15')
+      ItemIndex = 2
+    end
+    object dxBarButton11: TdxBarButton
+      Action = actClearPrice
+      Category = 0
     end
   end
   inherited ActionList: TActionList
@@ -889,6 +925,11 @@ inherited ViewProductsBase2: TViewProductsBase2
     object actColumnFilter: TAction
       Caption = #1056#1072#1079#1088#1077#1096#1105#1085' '#1083#1080' '#1092#1080#1083#1100#1090#1088
       OnExecute = actColumnFilterExecute
+    end
+    object actClearPrice: TAction
+      Caption = #1054#1073#1085#1086#1074#1083#1077#1085#1080#1077' '#1079#1085#1072#1095#1077#1085#1080#1081
+      ImageIndex = 10
+      OnExecute = actClearPriceExecute
     end
   end
   inherited PopupMenu: TPopupMenu

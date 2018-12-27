@@ -1,5 +1,8 @@
 inherited ViewProducts2: TViewProducts2
+  Width = 1206
+  ExplicitWidth = 1206
   inherited cxDBTreeList: TcxDBTreeList
+    Width = 1206
     Bands = <
       item
         Caption.AlignHorz = taCenter
@@ -94,6 +97,7 @@ inherited ViewProducts2: TViewProducts2
         Caption.AlignHorz = taCenter
         Caption.Text = #1050#1091#1088#1089#1099' '#1074#1072#1083#1102#1090
       end>
+    ExplicitWidth = 1206
     inherited clDiagram: TcxDBTreeListColumn
       Properties.Buttons = <
         item
@@ -110,6 +114,7 @@ inherited ViewProducts2: TViewProducts2
     end
   end
   inherited StatusBar: TStatusBar
+    Width = 1206
     Panels = <
       item
         Width = 100
@@ -123,6 +128,7 @@ inherited ViewProducts2: TViewProducts2
       item
         Width = 100
       end>
+    ExplicitWidth = 1206
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
@@ -189,6 +195,10 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
+          ItemName = 'dxBarButton11'
+        end
+        item
+          Visible = True
           ItemName = 'cxbeiExtraChargeType'
         end
         item
@@ -200,6 +210,10 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxbcWholeSale'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbcMinWholeSale'
         end
         item
           Visible = True
@@ -279,15 +293,15 @@ inherited ViewProducts2: TViewProducts2
       Visible = ivAlways
       PropertiesClassName = 'TcxDateEditProperties'
     end
-    object dxBarButton7: TdxBarButton
+    object dxBarButton7: TdxBarButton [20]
       Action = actApplyBestFit
       Category = 0
     end
-    object dxBarButton8: TdxBarButton
+    object dxBarButton8: TdxBarButton [21]
       Action = actFullScreen
       Category = 0
     end
-    object dxBarButton10: TdxBarButton
+    object dxBarButton10: TdxBarButton [22]
       Action = actFilterAndExportToExcelDocument
       Category = 0
     end
@@ -297,13 +311,13 @@ inherited ViewProducts2: TViewProducts2
       Caption = #1040#1074#1090#1086#1096#1080#1088#1080#1085#1072' '#1082#1086#1083#1086#1085#1086#1082
       OnExecute = actColumnsAutoWidth2Execute
     end
-    object actFullScreen: TAction
+    object actFullScreen: TAction [23]
       Caption = #1055#1086#1083#1085#1086#1101#1082#1088#1072#1085#1085#1099#1081' '#1088#1077#1078#1080#1084
       Hint = #1055#1086#1083#1085#1086#1101#1082#1088#1072#1085#1085#1099#1081' '#1088#1077#1078#1080#1084
       ImageIndex = 35
       OnExecute = actFullScreenExecute
     end
-    object actFilterAndExportToExcelDocument: TAction
+    object actFilterAndExportToExcelDocument: TAction [24]
       Caption = #1042#1099#1076#1077#1083#1077#1085#1085#1099#1077' '#1089#1090#1088#1086#1082#1080' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
       Hint = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1085#1099#1077' '#1089#1090#1088#1086#1082#1080' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
       ImageIndex = 6

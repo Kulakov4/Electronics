@@ -58,6 +58,7 @@ type
     function GetLoadDate: TField;
     function GetDiagram: TField;
     function GetDocumentNumber: TField;
+    function GetMinWholeSale: TField;
     function GetDrawing: TField;
     function GetIDComponentGroup: TField;
     function GetIDCurrency: TField;
@@ -133,6 +134,7 @@ type
     procedure AddProduct(AIDComponentGroup: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    procedure ClearInternalCalcFields;
     procedure DeleteNode(AID: Integer);
     procedure DeleteNotUsedProducts(AProductIDS: TList<Integer>);
     procedure LoadDocFile(const AFileName: String;
@@ -176,6 +178,7 @@ type
     property Dollar: TField read GetDollar;
     property OnDollarCourceChange: TNotifyEventsEx read FOnDollarCourceChange;
     property OnEuroCourceChange: TNotifyEventsEx read FOnEuroCourceChange;
+    property MinWholeSale: TField read GetMinWholeSale;
     property OriginCountry: TField read GetOriginCountry;
     property OriginCountryCode: TField read GetOriginCountryCode;
     property PackagePins: TField read GetPackagePins;
@@ -240,7 +243,7 @@ begin
   FNotGroupClone := AddClone('IsGroup=0');
 
   FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
-  FOnEuroCourceChange := TNotifyEventsEx.Create(Self);  
+  FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
 end;
 
 destructor TQueryProductsBase.Destroy;
@@ -337,21 +340,21 @@ procedure TQueryProductsBase.ApplyInsert(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 var
-//  AErrorMessage: String;
+  // AErrorMessage: String;
   ARH: TRecordHolder;
   rc: Integer;
 begin
   Assert(ASender = FDQuery);
 
   // Ещё раз проверяем, всё ли заполнено правильно
-{  
-  AErrorMessage := CheckRecord;
-  if not AErrorMessage.IsEmpty then
-  begin
+  {
+    AErrorMessage := CheckRecord;
+    if not AErrorMessage.IsEmpty then
+    begin
     AAction := eaFail;
     raise Exception.Create(AErrorMessage);
-  end;
-}
+    end;
+  }
   // Если надо сохранить только группу
   if IsGroup.AsInteger = 1 then
   begin
@@ -492,12 +495,12 @@ begin
   begin
     Result := 'Необходимо задать количество';
     Exit;
-  end;    
+  end;
 
   if Amount.AsInteger = 0 then
   begin
     Result := 'Количество не может быть равно нулю';
-    Exit;  
+    Exit;
   end;
 
   k := 0;
@@ -532,6 +535,34 @@ begin
   begin
     Result := 'Не задан курс евро';
     Exit;
+  end;
+end;
+
+procedure TQueryProductsBase.ClearInternalCalcFields;
+var
+  WasSave: Boolean;
+begin
+  WasSave := not HaveAnyNotCommitedChanges;
+  FDQuery.DisableControls;
+  try
+    FDQuery.First;
+    while not FDQuery.Eof do
+    begin
+      TryEdit;
+      IDExtraCharge.Clear;
+      IDExtraChargeType.Clear;
+      Wholesale.Clear;
+      TryPost;
+
+      // Если до очистки у нас всё было сохранене
+      if WasSave then
+        // никаких изменений в БД не должно произойти
+        ApplyUpdates;
+
+      FDQuery.Next;
+    end;
+  finally
+    FDQuery.EnableControls;
   end;
 end;
 
@@ -622,7 +653,7 @@ begin;
   // Процент оптовой наценки
   FDQuery.FieldDefs.Add('wholesale', ftFloat);
   // Процент РОЗНИЧНОЙ наценки
-  //  FDQuery.FieldDefs.Add('Retail', ftInteger);
+  // FDQuery.FieldDefs.Add('Retail', ftInteger);
 
   // Закупочная цена
   FDQuery.FieldDefs.Add('PriceR', ftFloat);
@@ -643,7 +674,7 @@ begin;
   IDExtraCharge.FieldKind := fkInternalCalc;
   IDExtraChargeType.FieldKind := fkInternalCalc;
   Wholesale.FieldKind := fkInternalCalc;
-//  Retail.FieldKind := fkInternalCalc;
+  // Retail.FieldKind := fkInternalCalc;
 
   TunePriceFields([PriceD, PriceR, PriceE, PriceD1, PriceR1, PriceE1, PriceD2,
     PriceR2, PriceE2]);
@@ -739,8 +770,8 @@ begin
   if qSearchProduct.SearchByValue(Value.AsString, IDProducer.AsInteger) > 0 then
   begin
     // Заполняем пустые поля из найденного продукта
-    UpdateFields([Datasheet, Diagram, Drawing, Image, DescriptionID,
-      ProductID], [qSearchProduct.Datasheet.Value, qSearchProduct.Diagram.Value,
+    UpdateFields([Datasheet, Diagram, Drawing, Image, DescriptionID, ProductID],
+      [qSearchProduct.Datasheet.Value, qSearchProduct.Diagram.Value,
       qSearchProduct.Drawing.Value, qSearchProduct.Image.Value,
       qSearchProduct.DescriptionID.Value, qSearchProduct.PK.Value], True);
   end;
@@ -748,7 +779,7 @@ begin
   // Если тип валюты задан - ничего не предпринимаем
   if not IDCurrency.IsNull then
     Exit;
-   
+
   // Отключаем пока рассчёт вычисляемых полей
   DisableCalc;
   try
@@ -788,24 +819,47 @@ begin
 end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
+var
+  ADCource: Double;
+  AECource: Double;
+  AWholeSale: Double;
 begin
   inherited;
 
   if (FCalcStatus > 0) or (IDCurrency.AsInteger = 0) or (Price.IsNull) then
     Exit;
 
+  // Определяемся с курсом Доллара
+  ADCource := 0;
+  // Если задан курс на сегодняшний день
+  if DollarCource > 0 then
+    ADCource := DollarCource
+  else
+    // Если известен курс на день покупки
+    if Dollar.AsFloat > 0 then
+      ADCource := Dollar.AsFloat;
+
+  // Определяемся с курсом Евро
+  AECource := 0;
+  if EuroCource > 0 then
+    AECource := EuroCource
+  else
+    // Если известен курс на день покупки
+    if Euro.AsFloat > 0 then
+      AECource := Euro.AsFloat;
+
   if IDCurrency.AsInteger = 1 then
   begin
     // Если исходная цена была в рублях
     PriceR.Value := Price.Value;
 
-    if DollarCource > 0 then
-      PriceD.Value := Price.Value / DollarCource
+    if ADCource > 0 then
+      PriceD.Value := Price.Value / ADCource
     else
       PriceD.Value := null;
 
-    if EuroCource > 0 then
-      PriceE.Value := Price.Value / EuroCource
+    if AECource > 0 then
+      PriceE.Value := Price.Value / AECource
     else
       PriceE.Value := null;
   end;
@@ -813,15 +867,15 @@ begin
   if IDCurrency.AsInteger = 2 then
   begin
     // Если исходная цена была в долларах
-    if DollarCource > 0 then
-      PriceR.Value := Price.Value * DollarCource
+    if ADCource > 0 then
+      PriceR.Value := Price.Value * ADCource
     else
       PriceR.Value := null;
 
     PriceD.Value := Price.Value;
 
-    if (DollarCource > 0) and (EuroCource > 0) then
-      PriceE.Value := Price.Value * DollarCource / EuroCource
+    if (ADCource > 0) and (AECource > 0) then
+      PriceE.Value := Price.Value * ADCource / AECource
     else
       PriceE.Value := null;
   end;
@@ -829,13 +883,13 @@ begin
   if IDCurrency.AsInteger = 3 then
   begin
     // Если исходная цена была в евро
-    if EuroCource > 0 then
-      PriceR.Value := Price.Value * EuroCource
+    if AECource > 0 then
+      PriceR.Value := Price.Value * AECource
     else
       PriceR.Value := null;
 
-    if (DollarCource > 0) and (EuroCource > 0) then
-      PriceD.Value := Price.Value * EuroCource / DollarCource
+    if (ADCource > 0) and (AECource > 0) then
+      PriceD.Value := Price.Value * AECource / ADCource
     else
       PriceD.Value := null;
 
@@ -847,10 +901,16 @@ begin
   PriceD1.Value := PriceD.Value * (1 + Retail.Value / 100);
   PriceE1.Value := PriceE.Value * (1 + Retail.Value / 100);
 
+  AWholeSale := Wholesale.AsFloat;
+
+  // Если оптовая наценка не задана берём минимальную оптовую наценку
+  if AWholeSale = 0 then
+    AWholeSale := MinWholeSale.Value;
+
   // Оптовая цена
-  PriceR2.Value := PriceR.Value * (1 + Wholesale.Value / 100);
-  PriceD2.Value := PriceD.Value * (1 + Wholesale.Value / 100);
-  PriceE2.Value := PriceE.Value * (1 + Wholesale.Value / 100);
+  PriceR2.Value := PriceR.Value * (1 + AWholeSale / 100);
+  PriceD2.Value := PriceD.Value * (1 + AWholeSale / 100);
+  PriceE2.Value := PriceE.Value * (1 + AWholeSale / 100);
 end;
 
 function TQueryProductsBase.GetAmount: TField;
@@ -901,6 +961,11 @@ end;
 function TQueryProductsBase.GetDocumentNumber: TField;
 begin
   Result := Field('DocumentNumber');
+end;
+
+function TQueryProductsBase.GetMinWholeSale: TField;
+begin
+  Result := Field('MinWholeSale');
 end;
 
 function TQueryProductsBase.GetDrawing: TField;
@@ -1253,7 +1318,7 @@ begin
   for I := Low(AFields) to High(AFields) do
   begin
     AFields[I].FieldKind := fkInternalCalc;
-//    (AFields[I] as TNumericField).DisplayFormat := '#.00';
+    // (AFields[I] as TNumericField).DisplayFormat := '#.00';
     (AFields[I] as TNumericField).DisplayFormat := '###,##0.00';
   end;
 end;

@@ -251,32 +251,32 @@ inherited ViewProductsSearch2: TViewProductsSearch2
           ItemName = 'dxBarButton8'
         end>
     end
-    object dxBarButton1: TdxBarButton
+    object dxBarButton1: TdxBarButton [10]
       Action = actPasteFromBuffer
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton2: TdxBarButton
+    object dxBarButton2: TdxBarButton [11]
       Action = actClear
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton3: TdxBarButton
+    object dxBarButton3: TdxBarButton [12]
       Action = actSearch
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton4: TdxBarButton
+    object dxBarButton4: TdxBarButton [13]
       Action = actCommit
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton5: TdxBarButton
+    object dxBarButton5: TdxBarButton [14]
       Action = actRollback
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarSubItem1: TdxBarSubItem
+    object dxBarSubItem1: TdxBarSubItem [15]
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0
       Visible = ivAlways
@@ -287,15 +287,15 @@ inherited ViewProductsSearch2: TViewProductsSearch2
           ItemName = 'dxBarButton6'
         end>
     end
-    object dxBarButton6: TdxBarButton
+    object dxBarButton6: TdxBarButton [16]
       Action = actExportToExcelDocument
       Category = 0
     end
-    object dxBarButton7: TdxBarButton
+    object dxBarButton7: TdxBarButton [17]
       Action = actOpenInParametricTable
       Category = 0
     end
-    object dxBarButton8: TdxBarButton
+    object dxBarButton8: TdxBarButton [18]
       Action = actApplyBestFit
       Category = 0
     end

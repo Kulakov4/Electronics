@@ -58,7 +58,13 @@ type
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
-    procedure cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
+    procedure cxbeiWholeSalePropertiesDrawItem(AControl: TcxCustomComboBox;
+      ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
+      AState: TOwnerDrawState);
+    procedure cxbeiWholeSalePropertiesEditValueChanged(Sender: TObject);
+    procedure cxBarEditItem1PropertiesDrawItem(AControl: TcxCustomComboBox;
+      ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
+      AState: TOwnerDrawState);
   private
     procedure DoBeforeLoad(ASender: TObject);
     function GetqProducts: TQueryProducts;
@@ -164,6 +170,39 @@ begin
   Result := TViewProducts2.Create(nil);
 end;
 
+procedure TViewProducts2.cxBarEditItem1PropertiesDrawItem(
+  AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
+  const ARect: TRect; AState: TOwnerDrawState);
+var
+  S: string;
+begin
+  inherited;
+  if odSelected in AState then
+  begin
+    Brush.Color := clRed;
+    Font.Color := clHighlightText;
+  end
+  else
+  begin
+    Brush.Color := clWindow;
+    Font.Color := clWindowText;
+  end;
+
+  ACanvas.FillRect(ARect);
+  if odFocused in AState then
+    DrawFocusRect(ACanvas.Handle, ARect);
+
+  if AIndex >= 0 then
+    S := AControl.Properties.Items[AIndex]
+  else
+    S := AControl.Text;
+  if S <> '' then
+    S := S + '%';
+
+  ACanvas.TextOut(ARect.Left, ARect.Top, S);
+
+end;
+
 procedure TViewProducts2.cxBarEditItem1PropertiesValidate(Sender: TObject;
   var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
 var
@@ -178,9 +217,19 @@ begin
   Error := true;
 end;
 
-procedure TViewProducts2.cxbeiWholeSalePropertiesCloseUp(Sender: TObject);
+procedure TViewProducts2.cxbeiWholeSalePropertiesDrawItem(
+  AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
+  const ARect: TRect; AState: TOwnerDrawState);
 begin
-  inherited;;
+  inherited;
+  ;
+end;
+
+procedure TViewProducts2.cxbeiWholeSalePropertiesEditValueChanged(
+  Sender: TObject);
+begin
+  inherited;
+  ;
 end;
 
 procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
@@ -235,6 +284,8 @@ begin
   begin
     TNotifyEventWrap.Create(qProducts.BeforeLoad, DoBeforeLoad, FEventList);
   end;
+
+
 end;
 
 procedure TViewProducts2.TimerTimer(Sender: TObject);
