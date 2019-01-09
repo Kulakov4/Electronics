@@ -93,6 +93,10 @@ type
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
     function GetReleaseDate: TField;
     function GetRetail: TField;
+    function GetSaleCount: TField;
+    function GetSaleR: TField;
+    function GetSaleD: TField;
+    function GetSaleE: TField;
     function GetSeller: TField;
     function GetStorage: TField;
     function GetStoragePlace: TField;
@@ -190,6 +194,10 @@ type
     property IDExtraChargeType: TField read GetIDExtraChargeType;
     property ReleaseDate: TField read GetReleaseDate;
     property Retail: TField read GetRetail;
+    property SaleCount: TField read GetSaleCount;
+    property SaleR: TField read GetSaleR;
+    property SaleD: TField read GetSaleD;
+    property SaleE: TField read GetSaleE;
     property Seller: TField read GetSeller;
     property Storage: TField read GetStorage;
     property StoragePlace: TField read GetStoragePlace;
@@ -551,7 +559,8 @@ begin
       TryEdit;
       IDExtraCharge.Clear;
       IDExtraChargeType.Clear;
-      Wholesale.Clear;
+      Wholesale.Clear; // Оптовая наценка
+      SaleCount.Clear; // Кол-во продаж
       TryPost;
 
       // Если до очистки у нас всё было сохранене
@@ -670,14 +679,24 @@ begin;
   FDQuery.FieldDefs.Add('PriceD2', ftFloat);
   FDQuery.FieldDefs.Add('PriceE2', ftFloat);
 
+  // Количество продажи
+  FDQuery.FieldDefs.Add('SaleCount', ftFloat);
+  // Продажная цена
+  FDQuery.FieldDefs.Add('SaleR', ftFloat);
+  FDQuery.FieldDefs.Add('SaleD', ftFloat);
+  FDQuery.FieldDefs.Add('SaleE', ftFloat);
+
   CreateDefaultFields(False);
+
+  // Внутриние вычисляемые поля
   IDExtraCharge.FieldKind := fkInternalCalc;
   IDExtraChargeType.FieldKind := fkInternalCalc;
   Wholesale.FieldKind := fkInternalCalc;
+  SaleCount.FieldKind := fkInternalCalc;
   // Retail.FieldKind := fkInternalCalc;
 
   TunePriceFields([PriceD, PriceR, PriceE, PriceD1, PriceR1, PriceE1, PriceD2,
-    PriceR2, PriceE2]);
+    PriceR2, PriceE2, SaleR, SaleD, SaleE]);
 end;
 
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
@@ -848,9 +867,9 @@ begin
     if Euro.AsFloat > 0 then
       AECource := Euro.AsFloat;
 
+  // Если исходная цена была в рублях
   if IDCurrency.AsInteger = 1 then
   begin
-    // Если исходная цена была в рублях
     PriceR.Value := Price.Value;
 
     if ADCource > 0 then
@@ -864,9 +883,9 @@ begin
       PriceE.Value := null;
   end;
 
+  // Если исходная цена была в долларах
   if IDCurrency.AsInteger = 2 then
   begin
-    // Если исходная цена была в долларах
     if ADCource > 0 then
       PriceR.Value := Price.Value * ADCource
     else
@@ -880,9 +899,9 @@ begin
       PriceE.Value := null;
   end;
 
+  // Если исходная цена была в евро
   if IDCurrency.AsInteger = 3 then
   begin
-    // Если исходная цена была в евро
     if AECource > 0 then
       PriceR.Value := Price.Value * AECource
     else
@@ -911,6 +930,31 @@ begin
   PriceR2.Value := PriceR.Value * (1 + AWholeSale / 100);
   PriceD2.Value := PriceD.Value * (1 + AWholeSale / 100);
   PriceE2.Value := PriceE.Value * (1 + AWholeSale / 100);
+
+  // Если указано количество продаж
+  if SaleCount.AsFloat > 0 then
+  begin
+    if SaleCount.AsFloat <= 1 then
+    begin
+      // Собираемся продать 1 шт. - используем розничную цену
+      SaleR.Value := PriceR1.Value;
+      SaleD.Value := PriceD1.Value;
+      SaleE.Value := PriceE1.Value;
+    end
+    else
+    begin
+      // Иначе - оптовую цену
+      SaleR.Value := PriceR2.AsFloat * SaleCount.AsFloat;
+      SaleD.Value := PriceD2.AsFloat * SaleCount.AsFloat;
+      SaleE.Value := PriceE2.AsFloat * SaleCount.AsFloat;
+    end;
+  end
+  else
+  begin
+    SaleR.Value := NULL;
+    SaleD.Value := NULL;
+    SaleE.Value := NULL;
+  end;
 end;
 
 function TQueryProductsBase.GetAmount: TField;
@@ -1164,6 +1208,26 @@ end;
 function TQueryProductsBase.GetRetail: TField;
 begin
   Result := Field('Retail');
+end;
+
+function TQueryProductsBase.GetSaleCount: TField;
+begin
+  Result := Field('SaleCount');
+end;
+
+function TQueryProductsBase.GetSaleR: TField;
+begin
+  Result := Field('SaleR');
+end;
+
+function TQueryProductsBase.GetSaleD: TField;
+begin
+  Result := Field('SaleD');
+end;
+
+function TQueryProductsBase.GetSaleE: TField;
+begin
+  Result := Field('SaleE');
 end;
 
 function TQueryProductsBase.GetSeller: TField;

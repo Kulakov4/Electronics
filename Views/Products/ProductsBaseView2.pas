@@ -112,6 +112,10 @@ type
     dxbcMinWholeSale: TdxBarCombo;
     actClearPrice: TAction;
     dxBarButton11: TdxBarButton;
+    clSaleCount: TcxDBTreeListColumn;
+    clSaleR: TcxDBTreeListColumn;
+    clSaleD: TcxDBTreeListColumn;
+    clSaleE: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -259,6 +263,7 @@ begin
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceE.DataBinding.FieldName);
+  PostOnEnterFields.Add(clSaleCount.DataBinding.FieldName);
 
   // Где отображать кол-во выделенных записей
   FSelectedCountPanelIndex := 1;
@@ -296,6 +301,9 @@ begin
   FReadOnlyColumns.Add(clLoadDate);
   FReadOnlyColumns.Add(clDollar);
   FReadOnlyColumns.Add(clEuro);
+  FReadOnlyColumns.Add(clSaleR);
+  FReadOnlyColumns.Add(clSaleD);
+  FReadOnlyColumns.Add(clSaleE);
 end;
 
 destructor TViewProductsBase2.Destroy;
@@ -1215,7 +1223,7 @@ begin
   V1 := cxDBTreeList.FocusedNode.Values[clValue.ItemIndex];
   V2 := qProductsBase.Value.Value;
 
-  Result := VarIsNull(V1) and VarIsNull(V2);
+  Result := (not VarIsNull(V1)) and (not VarIsNull(V2));
   if not Result then
     Exit;
   S1 := V1;
@@ -1330,6 +1338,8 @@ begin
   // если ввели какое-то недопустимое значение или 0
   if AValue = 0 then
     UpdateBarComboText(AdxBarCombo, NULL);
+
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.SetIDExtraCharge(const Value: Integer);

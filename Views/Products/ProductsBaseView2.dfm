@@ -102,6 +102,14 @@ inherited ViewProductsBase2: TViewProductsBase2
       item
         Caption.AlignHorz = taCenter
         Caption.Text = #1050#1091#1088#1089#1099' '#1074#1072#1083#1102#1090
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1050#1086#1083'-'#1074#1086' '#1087#1088#1086#1076#1072#1078#1080
+      end
+      item
+        Caption.AlignHorz = taCenter
+        Caption.Text = #1057#1090#1086#1080#1084#1086#1089#1090#1100
       end>
     DataController.ParentField = 'IDComponentGroup'
     DataController.KeyField = 'ID'
@@ -111,6 +119,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     OptionsCustomizing.ColumnMoving = False
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
+    OptionsView.Footer = True
     OptionsView.GridLines = tlglBoth
     OptionsView.HeaderAutoHeight = True
     OptionsView.PaintStyle = tlpsCategorized
@@ -611,6 +620,62 @@ inherited ViewProductsBase2: TViewProductsBase2
       Position.RowIndex = 0
       Position.BandIndex = 22
       Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clSaleCount: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = ' '
+      DataBinding.FieldName = 'SaleCount'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 23
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          Kind = skSum
+        end>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clSaleR: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = #8381
+      DataBinding.FieldName = 'SaleR'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 24
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          Kind = skSum
+        end>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clSaleD: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = '$'
+      DataBinding.FieldName = 'SaleD'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 24
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          Kind = skSum
+        end>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clSaleE: TcxDBTreeListColumn
+      Caption.AlignHorz = taCenter
+      Caption.Text = #8364
+      DataBinding.FieldName = 'SaleE'
+      Position.ColIndex = 2
+      Position.RowIndex = 0
+      Position.BandIndex = 24
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          Kind = skSum
+        end>
       Summary.GroupFooterSummaryItems = <>
     end
   end
