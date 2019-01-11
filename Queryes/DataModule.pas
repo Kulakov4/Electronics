@@ -9,7 +9,7 @@ uses
   ComponentsSearchGroupUnit2, CategoryParametersGroupUnit2,
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
-  SubParametersQuery2, ExtraChargeGroupUnit;
+  SubParametersQuery2, ExtraChargeGroupUnit, BillQuery;
 
 type
   TDM = class(TObject)
@@ -32,6 +32,7 @@ type
     FqChildCategories: TQueryChildCategories;
     FqProducts: TQueryProducts;
     FqProductsSearch: TQueryProductsSearch;
+    FQryBill: TQryBill;
     FqStoreHouseList: TQueryStoreHouseList;
     FqSubParameters: TQuerySubParameters2;
     FqTreeList: TQueryTreeList;
@@ -57,6 +58,7 @@ type
     function GetqChildCategories: TQueryChildCategories;
     function GetqProducts: TQueryProducts;
     function GetqProductsSearch: TQueryProductsSearch;
+    function GetQryBill: TQryBill;
     function GetqStoreHouseList: TQueryStoreHouseList;
     function GetqSubParameters: TQuerySubParameters2;
     function GetqTreeList: TQueryTreeList;
@@ -89,6 +91,7 @@ type
     property qChildCategories: TQueryChildCategories read GetqChildCategories;
     property qProducts: TQueryProducts read GetqProducts;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
+    property QryBill: TQryBill read GetQryBill;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     property qSubParameters: TQuerySubParameters2 read GetqSubParameters;
     property qTreeList: TQueryTreeList read GetqTreeList;
@@ -462,6 +465,14 @@ begin
     FqProductsSearch := TQueryProductsSearch.Create(FComponent);
 
   Result := FqProductsSearch;
+end;
+
+function TDM.GetQryBill: TQryBill;
+begin
+  if FQryBill = nil then
+    FQryBill := TQryBill.Create(FComponent);
+
+  Result := FQryBill;
 end;
 
 function TDM.GetqStoreHouseList: TQueryStoreHouseList;

@@ -728,6 +728,10 @@ inherited ViewProductsBase2: TViewProductsBase2
         end
         item
           Visible = True
+          ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
           ItemName = 'cxbeiExtraChargeType'
         end
         item
@@ -875,6 +879,10 @@ inherited ViewProductsBase2: TViewProductsBase2
       Action = actClearPrice
       Category = 0
     end
+    object dxBarButton1: TdxBarButton
+      Action = actCreateBill
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -992,9 +1000,16 @@ inherited ViewProductsBase2: TViewProductsBase2
       OnExecute = actColumnFilterExecute
     end
     object actClearPrice: TAction
-      Caption = #1054#1073#1085#1086#1074#1083#1077#1085#1080#1077' '#1079#1085#1072#1095#1077#1085#1080#1081
+      Caption = #1054#1095#1080#1089#1090#1082#1072' '#1079#1085#1072#1095#1077#1085#1080#1081
+      Hint = #1054#1095#1080#1089#1090#1082#1072' '#1079#1085#1072#1095#1077#1085#1080#1081
       ImageIndex = 10
       OnExecute = actClearPriceExecute
+    end
+    object actCreateBill: TAction
+      Caption = #1057#1086#1079#1076#1072#1090#1100' '#1089#1095#1105#1090
+      Hint = #1057#1086#1079#1076#1072#1090#1100' '#1089#1095#1105#1090
+      ImageIndex = 45
+      OnExecute = actCreateBillExecute
     end
   end
   inherited PopupMenu: TPopupMenu

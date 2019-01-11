@@ -170,6 +170,8 @@ begin
     FDQuery.Append;
     Value.AsString := '';
     FDQuery.Post;
+    FDQuery.ApplyUpdates();
+    FDQuery.CommitUpdates;
   end;
 
   FDQuery.First;

@@ -16,6 +16,9 @@ uses
   SearchComponentGroup, SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2,
   ExtraChargeGroupUnit;
 
+const
+  WM_OnCommitUpdates = WM_USER + 169;
+
 type
   TComponentNameParts = record
     Name: String;
@@ -30,9 +33,13 @@ type
   end;
 
   TQueryProductsBase = class(TQueryWithDataSource)
+    procedure DataSourceDataChange(Sender: TObject; Field: TField);
+    procedure FDQueryAfterApplyUpdates(DataSet: TFDDataSet; AErrors: Integer);
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
+    FBasket: TFDMemTable;
     FCalcStatus: Integer;
+    FDataChange: Boolean;
     FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
     FProducersGroup: TProducersGroup2;
@@ -46,6 +53,7 @@ type
     FOnDollarCourceChange: TNotifyEventsEx;
     FOnEuroCourceChange: TNotifyEventsEx;
     FExtraChargeGroup: TExtraChargeGroup;
+    FOnCommitUpdatePosted: Boolean;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetAmount: TField;
@@ -118,8 +126,11 @@ type
     function CheckRecord: String;
     procedure DisableCalc;
     procedure DoBeforePost(Sender: TObject); virtual;
+    procedure DoOnCommitUpdates(var Message: TMessage);
+      message WM_OnCommitUpdates;
     procedure EnableCalc;
     function GetExportFileName: string; virtual; abstract;
+    function GetHaveAnyChanges: Boolean; override;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
@@ -182,6 +193,7 @@ type
     property Dollar: TField read GetDollar;
     property OnDollarCourceChange: TNotifyEventsEx read FOnDollarCourceChange;
     property OnEuroCourceChange: TNotifyEventsEx read FOnEuroCourceChange;
+    property Basket: TFDMemTable read FBasket;
     property MinWholeSale: TField read GetMinWholeSale;
     property OriginCountry: TField read GetOriginCountry;
     property OriginCountryCode: TField read GetOriginCountryCode;
@@ -244,7 +256,12 @@ begin
   // FDollarCource := TSettings.Create.DollarCource;
 
   // По умолчанию мы не в режиме автоматических транзакций
-  AutoTransaction := False;
+  // AutoTransaction := False;
+
+  // Будем кэшировать все изменения
+  FDQuery.CachedUpdates := True;
+  FDQuery.UpdateOptions.AutoIncFields := PKFieldName;
+  FDQuery.UpdateOptions.KeyFields := PKFieldName;
 
   FCalcStatus := 0;
 
@@ -252,10 +269,15 @@ begin
 
   FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
   FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
+
+  FBasket := AddClone('SaleCount > 0');
 end;
 
 destructor TQueryProductsBase.Destroy;
 begin
+  DropClone(FBasket);
+  FBasket := nil;
+
   FreeAndNil(FOnDollarCourceChange);
   FreeAndNil(FOnEuroCourceChange);
 
@@ -456,29 +478,54 @@ end;
 
 procedure TQueryProductsBase.ApplyUpdates;
 begin
+  Assert(FDQuery.CachedUpdates);
+  Assert(not FDQuery.Connection.InTransaction);
+
   TryPost;
+  // тут должны быть несохранённые изменения
+  Assert(FDQuery.ChangeCount > 0);
+
+  FDQuery.Connection.StartTransaction;
+
+  FDQuery.ApplyUpdates();
+  FDQuery.CommitUpdates;
+
   FDQuery.Connection.Commit;
+  FDataChange := False;
 end;
 
 procedure TQueryProductsBase.CancelUpdates;
 begin
-  // отменяем все сделанные изменения на стороне клиента
+  Assert(FDQuery.CachedUpdates);
+  Assert(not FDQuery.Connection.InTransaction);
+  FDataChange := False;
+
+
+  // отменяем сделанные изменения в текущей записи на стороне клиента
   TryCancel;
+
+
+  // Если в других записях тоже нет изменений
+  if FDQuery.ChangeCount = 0 then
+    Exit;
 
   SaveBookmark;
   FDQuery.DisableControls;
   try
-    FDQuery.Connection.Rollback;
-    // Убеждаемся что мы не в транзакции
-    Assert(not FDQuery.Connection.InTransaction);
-    RefreshQuery;
+    // Тут вызываем собственно отмену всех изменений и извещаем всех об этом
+    inherited;
+    {
+      FDQuery.Connection.Rollback;
+      // Убеждаемся что мы не в транзакции
+      Assert(not FDQuery.Connection.InTransaction);
+      RefreshQuery;
+    }
     ProducersGroup.ReOpen;
 
     RestoreBookmark;
   finally
     FDQuery.EnableControls;
   end;
-
 end;
 
 function TQueryProductsBase.CheckRecord: String;
@@ -572,6 +619,39 @@ begin
     end;
   finally
     FDQuery.EnableControls;
+  end;
+end;
+
+procedure TQueryProductsBase.DataSourceDataChange(Sender: TObject;
+  Field: TField);
+var
+  ADS: TDataSource;
+begin
+  inherited;
+  Assert(FDQuery.CachedUpdates);
+
+  // Если уже есть несохранённые изменения
+  if (FDQuery.ChangeCount > 0) or (FDataChange) then
+    Exit;
+
+  ADS := Sender as TDataSource;
+
+  // Если сейчас происходит редактирование или вставка
+  if (ADS.DataSet.State in [dsInsert, dsEdit]) and (Field <> nil) then
+  begin
+    // Если изменилось только поле Кол-во продаж
+    if Field.FieldName = SaleCount.FieldName then
+    begin
+      if not FOnCommitUpdatePosted then
+      begin
+        FOnCommitUpdatePosted := True;
+        PostMessage(Handle, WM_OnCommitUpdates, 0, 0);
+        beep;
+      end;
+      // FDQuery.CommitUpdates;
+    end
+    else
+      FDataChange := True; // Изменилось какое-то другое поле
   end;
 end;
 
@@ -697,6 +777,7 @@ begin;
 
   TunePriceFields([PriceD, PriceR, PriceE, PriceD1, PriceR1, PriceE1, PriceD2,
     PriceR2, PriceE2, SaleR, SaleD, SaleE]);
+
 end;
 
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
@@ -829,12 +910,26 @@ begin
   end;
 end;
 
+procedure TQueryProductsBase.DoOnCommitUpdates(var Message: TMessage);
+begin
+  inherited;
+  ApplyUpdates;
+  FOnCommitUpdatePosted := False;
+end;
+
 procedure TQueryProductsBase.EnableCalc;
 begin
   Assert(FCalcStatus > 0);
   Dec(FCalcStatus);
   if FCalcStatus = 0 then
     FDQueryCalcFields(FDQuery);
+end;
+
+procedure TQueryProductsBase.FDQueryAfterApplyUpdates(DataSet: TFDDataSet;
+  AErrors: Integer);
+begin
+  inherited;
+  FDataChange := False;
 end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
@@ -951,9 +1046,9 @@ begin
   end
   else
   begin
-    SaleR.Value := NULL;
-    SaleD.Value := NULL;
-    SaleE.Value := NULL;
+    SaleR.Value := null;
+    SaleD.Value := null;
+    SaleE.Value := null;
   end;
 end;
 
@@ -1151,6 +1246,15 @@ begin
     FExtraChargeGroup.ReOpen;
   end;
   Result := FExtraChargeGroup;
+end;
+
+// Есть-ли изменения не сохранённые в БД
+function TQueryProductsBase.GetHaveAnyChanges: Boolean;
+begin
+  // У нас все изменения кэшируются на стороне клиента
+  Assert(FDQuery.CachedUpdates);
+
+  Result := FDataChange;
 end;
 
 function TQueryProductsBase.GetIDExtraChargeType: TField;

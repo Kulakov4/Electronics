@@ -116,6 +116,8 @@ type
     clSaleR: TcxDBTreeListColumn;
     clSaleD: TcxDBTreeListColumn;
     clSaleE: TcxDBTreeListColumn;
+    actCreateBill: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -125,6 +127,7 @@ type
     procedure actColumnFilterExecute(Sender: TObject);
     procedure actColumnWidthExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
+    procedure actCreateBillExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadDatasheetExecute(Sender: TObject);
@@ -249,7 +252,8 @@ implementation
 uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
-  HttpUnit, StrHelper, dxCore, CurrencyUnit, DBLookupComboBoxHelper;
+  HttpUnit, StrHelper, dxCore, CurrencyUnit, DBLookupComboBoxHelper,
+  DataModule, MaxBillNumberQuery;
 
 const
   clClickedColor = clRed;
@@ -439,6 +443,34 @@ begin
   // Мы просто завершаем транзакцию
   FqProductsBase.ApplyUpdates;
   UpdateView;
+end;
+
+procedure TViewProductsBase2.actCreateBillExecute(Sender: TObject);
+begin
+  inherited;
+  TDM.Create.QryBill.TryAppend;
+  try
+    FqProductsBase.Basket.DisableControls;
+    try
+      FqProductsBase.Basket.First;
+      while not FqProductsBase.Basket.Eof do
+      begin
+        TDM.Create.QryBill.Number.AsInteger := TQryMaxBillNumber.Get_Max_Number;
+        // Дата счёта - текущая дата
+        TDM.Create.QryBill.BillDate.AsDateTime := Date;
+        TDM.Create.QryBill.Dollar.Value := FqProductsBase.DollarCource;
+        TDM.Create.QryBill.Euro.Value := FqProductsBase.EuroCource;
+        FqProductsBase.Basket.Next;
+      end;
+    finally
+      FqProductsBase.Basket.EnableControls;
+    end;
+
+    TDM.Create.QryBill.TryPost;
+  except
+    TDM.Create.QryBill.TryCancel;
+    raise;
+  end;
 end;
 
 procedure TViewProductsBase2.actDeleteExecute(Sender: TObject);
@@ -1468,6 +1500,9 @@ begin
     cxbeiDollar.EditValue := qProductsBase.DollarCource;
   if qProductsBase.EuroCource > 0 then
     cxbeiEuro.EditValue := qProductsBase.EuroCource;
+
+  actCreateBill.Enabled := OK and (qProductsBase.Basket.RecordCount > 0) and
+    (FqProductsBase.DollarCource > 0) and (FqProductsBase.EuroCource > 0);
 end;
 
 procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);

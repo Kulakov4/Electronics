@@ -236,7 +236,9 @@ uses
   ExtraChargeQuery2 in 'Queryes\ExtraCharge\ExtraChargeQuery2.pas' {QueryExtraCharge2: TFrame},
   ExtraChargeTypeQuery in 'Queryes\ExtraCharge\ExtraChargeTypeQuery.pas' {QueryExtraChargeType: TFrame},
   DBLookupComboBoxHelper in 'Helpers\DBLookupComboBoxHelper.pas',
-  ExtraChargeSimpleView in 'Views\ExtraCharge\ExtraChargeSimpleView.pas' {ViewExtraChargeSimple: TFrame};
+  ExtraChargeSimpleView in 'Views\ExtraCharge\ExtraChargeSimpleView.pas' {ViewExtraChargeSimple: TFrame},
+  BillQuery in 'Queryes\Bill\BillQuery.pas' {QryBill: TFrame},
+  MaxBillNumberQuery in 'Queryes\Bill\MaxBillNumberQuery.pas' {QryMaxBillNumber: TFrame};
 
 {$R *.res}
 
