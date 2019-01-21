@@ -238,7 +238,8 @@ uses
   DBLookupComboBoxHelper in 'Helpers\DBLookupComboBoxHelper.pas',
   ExtraChargeSimpleView in 'Views\ExtraCharge\ExtraChargeSimpleView.pas' {ViewExtraChargeSimple: TFrame},
   BillQuery in 'Queryes\Bill\BillQuery.pas' {QryBill: TFrame},
-  MaxBillNumberQuery in 'Queryes\Bill\MaxBillNumberQuery.pas' {QryMaxBillNumber: TFrame};
+  MaxBillNumberQuery in 'Queryes\Bill\MaxBillNumberQuery.pas' {QryMaxBillNumber: TFrame},
+  BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QueryBillContent: TFrame};
 
 {$R *.res}
 

@@ -9,7 +9,7 @@ uses
   ComponentsSearchGroupUnit2, CategoryParametersGroupUnit2,
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
-  SubParametersQuery2, ExtraChargeGroupUnit, BillQuery;
+  SubParametersQuery2, ExtraChargeGroupUnit, BillQuery, BillContentQuery;
 
 type
   TDM = class(TObject)
@@ -29,6 +29,7 @@ type
     FExtraChargeGroup: TExtraChargeGroup;
     FParametersGroup: TParametersGroup2;
     FProducersGroup: TProducersGroup2;
+    FqBillContent: TQueryBillContent;
     FqChildCategories: TQueryChildCategories;
     FqProducts: TQueryProducts;
     FqProductsSearch: TQueryProductsSearch;
@@ -55,6 +56,7 @@ type
     function GetExtraChargeGroup: TExtraChargeGroup;
     function GetParametersGroup: TParametersGroup2;
     function GetProducersGroup: TProducersGroup2;
+    function GetqBillContent: TQueryBillContent;
     function GetqChildCategories: TQueryChildCategories;
     function GetqProducts: TQueryProducts;
     function GetqProductsSearch: TQueryProductsSearch;
@@ -88,6 +90,7 @@ type
     property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
     property ParametersGroup: TParametersGroup2 read GetParametersGroup;
     property ProducersGroup: TProducersGroup2 read GetProducersGroup;
+    property qBillContent: TQueryBillContent read GetqBillContent;
     property qChildCategories: TQueryChildCategories read GetqChildCategories;
     property qProducts: TQueryProducts read GetqProducts;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
@@ -443,6 +446,17 @@ begin
   Result := FProducersGroup;
 end;
 
+function TDM.GetqBillContent: TQueryBillContent;
+begin
+  if FqBillContent = nil then
+  begin
+    FqBillContent := TQueryBillContent.Create(FComponent);
+    FqBillContent.TryOpen;
+  end;
+
+  Result := FqBillContent;
+end;
+
 function TDM.GetqChildCategories: TQueryChildCategories;
 begin
   if FqChildCategories = nil then
@@ -470,7 +484,10 @@ end;
 function TDM.GetQryBill: TQryBill;
 begin
   if FQryBill = nil then
+  begin
     FQryBill := TQryBill.Create(FComponent);
+    FQryBill.TryOpen;
+  end;
 
   Result := FQryBill;
 end;

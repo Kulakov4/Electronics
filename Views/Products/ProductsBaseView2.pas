@@ -117,7 +117,7 @@ type
     clSaleD: TcxDBTreeListColumn;
     clSaleE: TcxDBTreeListColumn;
     actCreateBill: TAction;
-    dxBarButton1: TdxBarButton;
+    dxbbCreateBill: TdxBarButton;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -446,30 +446,36 @@ begin
 end;
 
 procedure TViewProductsBase2.actCreateBillExecute(Sender: TObject);
+var
+  AStoreHouseProductID: Integer;
 begin
   inherited;
-  TDM.Create.QryBill.TryAppend;
-  try
-    FqProductsBase.Basket.DisableControls;
-    try
-      FqProductsBase.Basket.First;
-      while not FqProductsBase.Basket.Eof do
-      begin
-        TDM.Create.QryBill.Number.AsInteger := TQryMaxBillNumber.Get_Max_Number;
-        // Дата счёта - текущая дата
-        TDM.Create.QryBill.BillDate.AsDateTime := Date;
-        TDM.Create.QryBill.Dollar.Value := FqProductsBase.DollarCource;
-        TDM.Create.QryBill.Euro.Value := FqProductsBase.EuroCource;
-        FqProductsBase.Basket.Next;
-      end;
-    finally
-      FqProductsBase.Basket.EnableControls;
-    end;
+  // Добавляем новый счёт
+  TDM.Create.QryBill.AddBill(FqProductsBase.DollarCource,
+    FqProductsBase.EuroCource);
 
-    TDM.Create.QryBill.TryPost;
-  except
-    TDM.Create.QryBill.TryCancel;
-    raise;
+  FqProductsBase.Basket.DisableControls;
+  try
+    FqProductsBase.Basket.First;
+    while not FqProductsBase.Basket.Eof do
+    begin
+      // Идентификатор связи товар-склад у нас отрицательный
+      AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
+        (FqProductsBase.PKFieldName).AsInteger;
+      Assert(AStoreHouseProductID > 0);
+
+      TDM.Create.qBillContent.TryAppend;
+      TDM.Create.qBillContent.BillID.AsInteger :=
+        TDM.Create.QryBill.PK.AsInteger;
+
+      TDM.Create.qBillContent.StoreHouseProductID.AsInteger :=
+        AStoreHouseProductID;
+
+      TDM.Create.qBillContent.TryPost;
+      FqProductsBase.Basket.Next;
+    end;
+  finally
+    FqProductsBase.Basket.EnableControls;
   end;
 end;
 
@@ -643,6 +649,7 @@ begin
   except
     TDialog.Create.ErrorMessageDialog('Курсы валют не обновлены');
   end;
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.actRollbackExecute(Sender: TObject);
@@ -1501,8 +1508,8 @@ begin
   if qProductsBase.EuroCource > 0 then
     cxbeiEuro.EditValue := qProductsBase.EuroCource;
 
-  actCreateBill.Enabled := OK and (qProductsBase.Basket.RecordCount > 0) and
-    (FqProductsBase.DollarCource > 0) and (FqProductsBase.EuroCource > 0);
+  actCreateBill.Enabled := OK and (qProductsBase.Basket.RecordCount > 0)
+  { and (FqProductsBase.DollarCource > 0) and (FqProductsBase.EuroCource > 0) };
 end;
 
 procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);

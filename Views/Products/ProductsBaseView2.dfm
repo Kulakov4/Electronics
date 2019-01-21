@@ -728,7 +728,7 @@ inherited ViewProductsBase2: TViewProductsBase2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton1'
+          ItemName = 'dxbbCreateBill'
         end
         item
           Visible = True
@@ -879,7 +879,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Action = actClearPrice
       Category = 0
     end
-    object dxBarButton1: TdxBarButton
+    object dxbbCreateBill: TdxBarButton
       Action = actCreateBill
       Category = 0
     end

@@ -20,6 +20,7 @@ type
     function GetEuro: TField;
     { Private declarations }
   public
+    procedure AddBill(const ADollarCource, AEuroCource: Double);
     property Number: TField read GetNumber;
     property BillDate: TField read GetBillDate;
     property ShipmentDate: TField read GetShipmentDate;
@@ -30,7 +31,26 @@ type
 
 implementation
 
+uses
+  MaxBillNumberQuery;
+
 {$R *.dfm}
+
+procedure TQryBill.AddBill(const ADollarCource, AEuroCource: Double);
+begin
+  TryAppend;
+  try
+    Number.AsInteger := TQryMaxBillNumber.Get_Max_Number;
+    // Дата счёта - текущая дата
+    BillDate.AsDateTime := Date;
+    Dollar.Value := ADollarCource;
+    Euro.Value := AEuroCource;
+    TryPost;
+  except
+    TryCancel;
+    raise;
+  end;
+end;
 
 function TQryBill.GetNumber: TField;
 begin

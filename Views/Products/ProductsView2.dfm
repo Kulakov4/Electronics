@@ -4,6 +4,38 @@ inherited ViewProducts2: TViewProducts2
   inherited cxDBTreeList: TcxDBTreeList
     Width = 1206
     ExplicitWidth = 1206
+    inherited clSaleCount: TcxDBTreeListColumn
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleCount
+          Kind = skSum
+        end>
+    end
+    inherited clSaleR: TcxDBTreeListColumn
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleR
+          Kind = skSum
+        end>
+    end
+    inherited clSaleD: TcxDBTreeListColumn
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleD
+          Kind = skSum
+        end>
+    end
+    inherited clSaleE: TcxDBTreeListColumn
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleE
+          Kind = skSum
+        end>
+    end
   end
   inherited StatusBar: TStatusBar
     Width = 1206
@@ -88,6 +120,10 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxBarButton11'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbCreateBill'
         end
         item
           Visible = True
