@@ -13,7 +13,6 @@ uses
 
 type
   TQueryDescriptions = class(TQueryWithDataSource, IDescriptions)
-    fdqBase: TFDQuery;
     FDQueryID: TFDAutoIncField;
     FDQueryComponentName: TWideStringField;
     FDQueryDescription: TWideMemoField;
@@ -54,7 +53,7 @@ constructor TQueryDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
   // Копируем базовый запрос и параметры
-  AssignFrom(fdqBase);
+  //AssignFrom(fdqBase);
 
   AutoTransaction := False;
 end;
@@ -119,7 +118,8 @@ begin
   begin
     FShowDuplicate := Value;
 
-    ASQL := fdqBase.SQL.Text;
+    // Получаем первоначальный запрос
+    ASQL := SQL;
     if FShowDuplicate then
     begin
       ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);

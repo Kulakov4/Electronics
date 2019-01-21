@@ -16,6 +16,24 @@ inherited QueryBodyKinds: TQueryBodyKinds
       end>
     IndexName = 'idxOrder'
     UpdateObject = FDUpdateSQL
+    SQL.Strings = (
+      'select bk.*'
+      'from BodyKinds bk'
+      '/* ShowDuplicate'
+      'join Bodies b on b.IDBodyKind = bk.id'
+      'join BodyData bd on bd.IDBody = b.id'
+      
+        'join BodyVariations2 bv on bv.IDBodyData = bd.ID and bv.variatio' +
+        'n in'
+      '    ('
+      '        select Variation'
+      '        from BodyVariations2'
+      '        where variation <> '#39#39
+      '        group by Variation'
+      '        having count(*) > 1    '
+      '    )'
+      'ShowDuplicate */    '
+      'order by bk.Ord')
   end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (
@@ -37,28 +55,6 @@ inherited QueryBodyKinds: TQueryBodyKinds
       'FROM BODYKINDS'
       'WHERE ID = :ID')
     Left = 144
-    Top = 24
-  end
-  object fdqBase: TFDQuery
-    SQL.Strings = (
-      'select bk.*'
-      'from BodyKinds bk'
-      '/* ShowDuplicate'
-      'join Bodies b on b.IDBodyKind = bk.id'
-      'join BodyData bd on bd.IDBody = b.id'
-      
-        'join BodyVariations2 bv on bv.IDBodyData = bd.ID and bv.variatio' +
-        'n in'
-      '    ('
-      '        select Variation'
-      '        from BodyVariations2'
-      '        where variation <> '#39#39
-      '        group by Variation'
-      '        having count(*) > 1    '
-      '    )'
-      'ShowDuplicate */    '
-      'order by bk.Ord')
-    Left = 216
     Top = 24
   end
 end

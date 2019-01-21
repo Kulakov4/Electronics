@@ -14,7 +14,6 @@ uses
 type
   TQueryBodyKinds = class(TQueryOrder)
     FDUpdateSQL: TFDUpdateSQL;
-    fdqBase: TFDQuery;
   private
     FShowDuplicate: Boolean;
     function GetBodyKind: TField;
@@ -41,7 +40,7 @@ constructor TQueryBodyKinds.Create(AOwner: TComponent);
 begin
   inherited;
   // Копируем базовый запрос и параметры
-  AssignFrom(fdqBase);
+//  AssignFrom(fdqBase);
 
   AutoTransaction := False;
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
@@ -78,7 +77,8 @@ begin
   begin
     FShowDuplicate := Value;
 
-    ASQL := fdqBase.SQL.Text;
+    // Получаем первоначальный запрос
+    ASQL := SQL;
     if FShowDuplicate then
     begin
       ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);

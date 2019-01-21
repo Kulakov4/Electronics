@@ -19,8 +19,6 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode]
     UpdateOptions.RefreshMode = rmAll
-  end
-  object fdqBase: TFDQuery
     SQL.Strings = (
       'select'
       '    GROUP_CONCAT(bv.ID, '#39', '#39') IDS,'
@@ -71,7 +69,5 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
       '    Body,'
       '    IDBodyKind'
       'order by IDBodyKind, Body, BodyData')
-    Left = 331
-    Top = 25
   end
 end

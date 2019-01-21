@@ -11,26 +11,6 @@ inherited QueryParameterTypes: TQueryParameterTypes
   inherited FDQuery: TFDQuery
     UpdateOptions.AssignedValues = [uvRefreshMode]
     UpdateOptions.RefreshMode = rmAll
-    object FDQueryID: TFDAutoIncField
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
-    end
-    object FDQueryParameterType: TWideStringField
-      DisplayLabel = #1058#1080#1087
-      FieldName = 'ParameterType'
-      Origin = 'ParameterType'
-      Required = True
-      Size = 200
-    end
-    object FDQueryOrd: TIntegerField
-      FieldName = 'Ord'
-      Origin = 'Ord'
-    end
-  end
-  object fdqBase: TFDQuery
-    Connection = DMRepository.dbConnection
     SQL.Strings = (
       'SELECT pt.*'
       'FROM ParameterTypes pt'
@@ -54,15 +34,28 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '    ORDER BY IDParameterType, [Order]'
       ')'
       'ORDER BY Ord;')
-    Left = 136
-    Top = 24
     ParamData = <
       item
         Name = 'TABLENAME'
-        DataType = ftWideString
         ParamType = ptInput
-        Value = Null
       end>
+    object FDQueryID: TFDAutoIncField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object FDQueryParameterType: TWideStringField
+      DisplayLabel = #1058#1080#1087
+      FieldName = 'ParameterType'
+      Origin = 'ParameterType'
+      Required = True
+      Size = 200
+    end
+    object FDQueryOrd: TIntegerField
+      FieldName = 'Ord'
+      Origin = 'Ord'
+    end
   end
   object fdqDeleteNotUsedPT: TFDQuery
     Connection = DMRepository.dbConnection

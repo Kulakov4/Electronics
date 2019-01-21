@@ -16,7 +16,6 @@ type
     FDQueryID: TFDAutoIncField;
     FDQueryParameterType: TWideStringField;
     FDQueryOrd: TIntegerField;
-    fdqBase: TFDQuery;
     fdqDeleteNotUsedPT: TFDQuery;
   private
     FShowDuplicate: Boolean;
@@ -50,7 +49,7 @@ begin
   inherited;
 
   // Копируем базовый запрос и параметры
-  AssignFrom(fdqBase);
+//  AssignFrom(fdqBase);
 
   AutoTransaction := False;
 
@@ -105,7 +104,8 @@ begin
   begin
     FShowDuplicate := Value;
 
-    ASQL := fdqBase.SQL.Text;
+    // Получаем первоначальный запрос
+    ASQL := SQL;
     if FShowDuplicate then
     begin
       ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);

@@ -25,8 +25,10 @@ type
     FDetailParameterName: string;
     FFDUpdateSQL: TFDUpdateSQL;
     FMaxUpdateRecCount: Integer;
+    FSQL: string;
     FUpdateRecCount: Integer;
   class var
+    procedure AssignFrom(AFDQuery: TFDQuery);
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
@@ -57,12 +59,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterConstruction; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>);
       overload; virtual;
     procedure AppendRows(AFieldNames, AValues: TArray<String>);
       overload; virtual;
     procedure ApplyUpdates; virtual;
-    procedure AssignFrom(AFDQuery: TFDQuery);
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Variant;
       const ADetailKeyFieldName: String;
@@ -126,6 +128,7 @@ type
     property ParentValue: Integer read GetParentValue;
     property PK: TField read GetPK;
     property PKFieldName: String read FPKFieldName;
+    property SQL: string read FSQL;
     { Public declarations }
   published
   end;
@@ -160,6 +163,13 @@ begin
   FreeAndNil(FBeforeLoad);
   FreeAndNil(FAfterLoad);
   inherited;
+end;
+
+procedure TQueryBase.AfterConstruction;
+begin
+  inherited;
+  // Сохраняем первоначальный SQL
+  FSQL := FDQuery.SQL.Text;
 end;
 
 procedure TQueryBase.AppendRows(AFieldName: string; AValues: TArray<String>);

@@ -10,12 +10,6 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
   end
   inherited FDQuery: TFDQuery
     UpdateObject = FDUpdateSQL
-  end
-  inherited DataSource: TDataSource
-    Top = 25
-  end
-  object fdqBase: TFDQuery
-    Connection = DMRepository.dbConnection
     SQL.Strings = (
       'select dct.*'
       'from DescriptionComponentTypes dct'
@@ -36,7 +30,8 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
       ')'
       'ShowDuplicate */'
       'order by dct.Ord')
-    Left = 216
+  end
+  inherited DataSource: TDataSource
     Top = 25
   end
   object FDUpdateSQL: TFDUpdateSQL

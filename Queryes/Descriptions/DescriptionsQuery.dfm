@@ -17,6 +17,19 @@ inherited QueryDescriptions: TQueryDescriptions
         Fields = 'IDComponentType;ComponentName'
       end>
     IndexName = 'idxOrder'
+    SQL.Strings = (
+      'select d.*'
+      'from descriptions2 d'
+      '/* ShowDuplicate'
+      'where '
+      '    d.ComponentName in'
+      '    ('
+      '        select ComponentName'
+      '        from descriptions2 '
+      '        group by ComponentName'
+      '        having count(*) > 1'
+      '    )'
+      'ShowDuplicate */')
     object FDQueryID: TFDAutoIncField
       FieldName = 'ID'
       Origin = 'ID'
@@ -43,22 +56,5 @@ inherited QueryDescriptions: TQueryDescriptions
       Origin = 'IDProducer'
       Required = True
     end
-  end
-  object fdqBase: TFDQuery
-    SQL.Strings = (
-      'select d.*'
-      'from descriptions2 d'
-      '/* ShowDuplicate'
-      'where '
-      '    d.ComponentName in'
-      '    ('
-      '        select ComponentName'
-      '        from descriptions2 '
-      '        group by ComponentName'
-      '        having count(*) > 1'
-      '    )'
-      'ShowDuplicate */')
-    Left = 144
-    Top = 24
   end
 end

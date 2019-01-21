@@ -13,7 +13,6 @@ uses
 
 type
   TQueryDescriptionTypes = class(TQueryOrder)
-    fdqBase: TFDQuery;
     FDUpdateSQL: TFDUpdateSQL;
   private
     FShowDuplicate: Boolean;
@@ -41,7 +40,7 @@ constructor TQueryDescriptionTypes.Create(AOwner: TComponent);
 begin
   inherited;
   // Копируем базовый запрос и параметры
-  AssignFrom(fdqBase);
+//  AssignFrom(fdqBase);
 
   AutoTransaction := False;
 
@@ -84,7 +83,8 @@ begin
   begin
     FShowDuplicate := Value;
 
-    ASQL := fdqBase.SQL.Text;
+    // Получаем первоначальный запрос
+    ASQL := SQL;
     if FShowDuplicate then
     begin
       ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);

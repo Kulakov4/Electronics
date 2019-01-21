@@ -19,7 +19,6 @@ const
 
 type
   TQueryBodyTypes2 = class(TQueryBodyTypesBase)
-    fdqBase: TFDQuery;
     procedure FDQueryBodyType1Change(Sender: TField);
     procedure FDQueryBodyType2Change(Sender: TField);
   private
@@ -62,7 +61,7 @@ constructor TQueryBodyTypes2.Create(AOwner: TComponent);
 begin
   inherited;
   // Копируем базовый запрос и параметры
-  AssignFrom(fdqBase);
+//  AssignFrom(fdqBase);
 
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
 end;
@@ -404,7 +403,8 @@ begin
   begin
     FShowDuplicate := Value;
 
-    ASQL := fdqBase.SQL.Text;
+    // Получаем базовый запрос
+    ASQL := SQL;
     if FShowDuplicate then
     begin
       ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);

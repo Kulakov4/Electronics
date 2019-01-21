@@ -17,9 +17,6 @@ inherited QueryParameters: TQueryParameters
     IndexName = 'idxOrder'
     UpdateOptions.AssignedValues = [uvRefreshMode, uvUpdateNonBaseFields]
     UpdateOptions.RefreshMode = rmAll
-  end
-  object fdqBase: TFDQuery
-    Connection = DMRepository.dbConnection
     SQL.Strings = (
       'select p.*, IFNULL(cp.id, 0) > 0 Checked, t.ID ParamSubParamID'
       'from Parameters p'
@@ -49,20 +46,14 @@ inherited QueryParameters: TQueryParameters
       'ShowDuplicate */'
       'and ( ( p.TableName = :TableName ) or ( :TableName = '#39#39' ) )'
       'order by p.IDParameterType, p.[Order]')
-    Left = 136
-    Top = 24
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'
-        DataType = ftInteger
         ParamType = ptInput
-        Value = 0
       end
       item
         Name = 'TABLENAME'
-        DataType = ftWideString
         ParamType = ptInput
-        Value = ''
       end>
   end
   object fdqDeleteFromCategoryParams: TFDQuery
