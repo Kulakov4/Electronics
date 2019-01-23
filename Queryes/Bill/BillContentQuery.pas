@@ -18,6 +18,7 @@ type
     function GetSaleCount: TField;
     { Private declarations }
   public
+    procedure AddContent(ABillID, AStoreHouseProductID, ASaleCount: Integer);
     property BillID: TField read GetBillID;
     property StoreHouseProductID: TField read GetStoreHouseProductID;
     property SaleCount: TField read GetSaleCount;
@@ -27,6 +28,25 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TQueryBillContent.AddContent(ABillID, AStoreHouseProductID,
+    ASaleCount: Integer);
+begin
+  Assert(ABillID > 0);
+  Assert(AStoreHouseProductID > 0);
+  Assert(ASaleCount > 0);
+
+  TryAppend;
+  try
+    BillID.AsInteger := ABillID;
+    StoreHouseProductID.AsInteger := AStoreHouseProductID;
+    SaleCount.Value := ASaleCount;
+    TryPost;
+  except
+    TryCancel;
+    raise;
+  end;
+end;
 
 function TQueryBillContent.GetBillID: TField;
 begin

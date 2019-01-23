@@ -20,7 +20,7 @@ type
     function GetEuro: TField;
     { Private declarations }
   public
-    procedure AddBill(const ADollarCource, AEuroCource: Double);
+    function AddBill(const ADollarCource, AEuroCource: Double): Integer;
     property Number: TField read GetNumber;
     property BillDate: TField read GetBillDate;
     property ShipmentDate: TField read GetShipmentDate;
@@ -36,7 +36,7 @@ uses
 
 {$R *.dfm}
 
-procedure TQryBill.AddBill(const ADollarCource, AEuroCource: Double);
+function TQryBill.AddBill(const ADollarCource, AEuroCource: Double): Integer;
 begin
   TryAppend;
   try
@@ -46,6 +46,8 @@ begin
     Dollar.Value := ADollarCource;
     Euro.Value := AEuroCource;
     TryPost;
+    Result := PK.Value;
+    Assert(Result > 0);
   except
     TryCancel;
     raise;

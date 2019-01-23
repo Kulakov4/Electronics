@@ -447,35 +447,37 @@ end;
 
 procedure TViewProductsBase2.actCreateBillExecute(Sender: TObject);
 var
+  ABillID: Integer;
   AStoreHouseProductID: Integer;
 begin
   inherited;
   // Добавляем новый счёт
-  TDM.Create.QryBill.AddBill(FqProductsBase.DollarCource,
+  ABillID := TDM.Create.QryBill.AddBill(FqProductsBase.DollarCource,
     FqProductsBase.EuroCource);
-
-  FqProductsBase.Basket.DisableControls;
   try
-    FqProductsBase.Basket.First;
-    while not FqProductsBase.Basket.Eof do
-    begin
-      // Идентификатор связи товар-склад у нас отрицательный
-      AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
-        (FqProductsBase.PKFieldName).AsInteger;
-      Assert(AStoreHouseProductID > 0);
+    FqProductsBase.Basket.DisableControls;
+    try
+      FqProductsBase.Basket.First;
+      while not FqProductsBase.Basket.Eof do
+      begin
+        // Идентификатор связи товар-склад у нас отрицательный
+        AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
+          (FqProductsBase.PKFieldName).AsInteger;
 
-      TDM.Create.qBillContent.TryAppend;
-      TDM.Create.qBillContent.BillID.AsInteger :=
-        TDM.Create.QryBill.PK.AsInteger;
+        TDM.Create.qBillContent.AddContent(ABillID,
+          AStoreHouseProductID, FqProductsBase.Basket.FieldByName
+          (FqProductsBase.SaleCount.FieldName).Value);
 
-      TDM.Create.qBillContent.StoreHouseProductID.AsInteger :=
-        AStoreHouseProductID;
-
-      TDM.Create.qBillContent.TryPost;
-      FqProductsBase.Basket.Next;
+        FqProductsBase.Basket.Next;
+      end;
+    finally
+      FqProductsBase.Basket.EnableControls;
     end;
-  finally
-    FqProductsBase.Basket.EnableControls;
+
+  except
+    // Удаляем добавленный счёт
+    TDM.Create.QryBill.Delete(ABillID);
+    raise;
   end;
 end;
 

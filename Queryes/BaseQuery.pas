@@ -73,6 +73,7 @@ type
       AProductIDList: TArray<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
+    function Delete(APKValue: Variant): Boolean;
     procedure DeleteAll;
     procedure DeleteByFilter(const AFilterExpression: string);
     procedure FetchFields(const AFieldNames: TArray<String>;
@@ -300,17 +301,17 @@ begin
     if AFromClientOnly then
       FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
 
-//    FDQuery.DisableControls;
-//    try
-      // Пока есть записи подчинённые мастеру
-      while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
-      begin
-        FDQuery.Delete;
-      end;
-//    finally
-//      Тут cxGrid мастера синхронизирует с подчинённым и перескакивает на другую запись
-//      FDQuery.EnableControls;
-//    end;
+    // FDQuery.DisableControls;
+    // try
+    // Пока есть записи подчинённые мастеру
+    while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
+    begin
+      FDQuery.Delete;
+    end;
+    // finally
+    // Тут cxGrid мастера синхронизирует с подчинённым и перескакивает на другую запись
+    // FDQuery.EnableControls;
+    // end;
 
   finally
     if AFromClientOnly then
@@ -367,6 +368,15 @@ begin
       FieldDefs[i].CreateField(FDQuery);
     end;
   end;
+end;
+
+function TQueryBase.Delete(APKValue: Variant): Boolean;
+begin
+  Result := LocateByPK(APKValue);
+  if not Result then
+    Exit;
+
+  FDQuery.Delete; // Удаляем запись, если нашли
 end;
 
 procedure TQueryBase.DeleteAll;
@@ -825,12 +835,10 @@ end;
 function TQueryBase.LocateByPK(APKValue: Variant;
   TestResult: Boolean = False): Boolean;
 begin
+  Assert(not VarIsNull(APKValue));
   Result := FDQuery.LocateEx(FPKFieldName, APKValue);
   if TestResult then
   begin
-    if not Result then
-      beep;
-
     Assert(Result);
   end;
 end;
