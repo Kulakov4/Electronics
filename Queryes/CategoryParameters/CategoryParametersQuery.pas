@@ -8,28 +8,40 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap,
+  OrderQuery;
 
 type
+  TCategoryParamsW = class(TDSWrap)
+  private
+    FIsAttribute: TFieldWrap;
+    FID: TFieldWrap;
+    FOrd: TFieldWrap;
+    FIsEnabled: TFieldWrap;
+    FParamSubParamID: TFieldWrap;
+    FPosID: TFieldWrap;
+    FProductCategoryID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property IsAttribute: TFieldWrap read FIsAttribute;
+    property ID: TFieldWrap read FID;
+    property Ord: TFieldWrap read FOrd;
+    property IsEnabled: TFieldWrap read FIsEnabled;
+    property ParamSubParamID: TFieldWrap read FParamSubParamID;
+    property PosID: TFieldWrap read FPosID;
+    property ProductCategoryID: TFieldWrap read FProductCategoryID;
+  end;
+
   TQueryCategoryParams = class(TQueryBase)
   private
-    function GetIsAttribute: TField;
-    function GetOrd: TField;
-    function GetIsEnabled: TField;
-    function GetPosID: TField;
-    function GetParamSubParamID: TField;
-    function GetProductCategoryID: TField;
+    FW: TCategoryParamsW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     procedure AppendOrEdit(AProductCategoryID, AParamSubParamID, AOrd: Integer);
     function SearchBy(AProductCategoryID, AParamSubParamID: Integer)
       : Integer; overload;
-    property IsAttribute: TField read GetIsAttribute;
-    property Ord: TField read GetOrd;
-    property IsEnabled: TField read GetIsEnabled;
-    property PosID: TField read GetPosID;
-    property ParamSubParamID: TField read GetParamSubParamID;
-    property ProductCategoryID: TField read GetProductCategoryID;
+    property W: TCategoryParamsW read FW;
     { Public declarations }
   end;
 
@@ -40,73 +52,58 @@ uses
 
 {$R *.dfm}
 
+constructor TQueryCategoryParams.Create(AOwner: TComponent);
+begin
+  inherited;
+  FW := TCategoryParamsW.Create(FDQuery);
+end;
+
 procedure TQueryCategoryParams.AppendOrEdit(AProductCategoryID,
   AParamSubParamID, AOrd: Integer);
 begin
   if SearchBy(AProductCategoryID, AParamSubParamID) <> 0 then
-    TryEdit
+    W.TryEdit
   else
   begin
-    TryAppend;
-    ProductCategoryID.AsInteger := AProductCategoryID;
-    ParamSubParamID.AsInteger := AParamSubParamID;
-    IsEnabled.AsInteger := 1;
-    PosID.AsInteger := 1; // В середину
+    W.TryAppend;
+    W.ProductCategoryID.F.AsInteger := AProductCategoryID;
+    W.ParamSubParamID.F.AsInteger := AParamSubParamID;
+    W.IsEnabled.F.AsInteger := 1;
+    W.PosID.F.AsInteger := 1; // В середину
   end;
 
   // если хотим изменить порядок
-  if (AOrd > 0) and (Ord.AsInteger = 0) then
-    Ord.AsInteger := AOrd;
+  if (AOrd > 0) and (W.Ord.F.AsInteger = 0) then
+    W.Ord.F.AsInteger := AOrd;
 
   // Обязательно делаем параметр видимым
-  IsAttribute.Value := 1;
+  W.IsAttribute.F.Value := 1;
 
-  TryPost;
-end;
-
-function TQueryCategoryParams.GetIsAttribute: TField;
-begin
-  Result := Field('IsAttribute');
-end;
-
-function TQueryCategoryParams.GetOrd: TField;
-begin
-  Result := Field('Ord');
-end;
-
-function TQueryCategoryParams.GetIsEnabled: TField;
-begin
-  Result := Field('IsEnabled');
-end;
-
-function TQueryCategoryParams.GetPosID: TField;
-begin
-  Result := Field('PosID');
-end;
-
-function TQueryCategoryParams.GetParamSubParamID: TField;
-begin
-  // TODO -cMM: TQueryCategoryParams.GetParamSubParamID default body inserted
-  Result := Field('ParamSubParamID');
-end;
-
-function TQueryCategoryParams.GetProductCategoryID: TField;
-begin
-  Result := Field('ProductCategoryID');
+  W.TryPost;
 end;
 
 function TQueryCategoryParams.SearchBy(AProductCategoryID, AParamSubParamID
   : Integer): Integer;
 begin
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    '0=0 and ProductCategoryID = :ProductCategoryID and ParamSubParamID = :ParamSubParamID',
-    '0=0');
+  Assert(AProductCategoryID > 0);
+  Assert(AParamSubParamID > 0);
 
-  SetParamType('ProductCategoryID');
-  SetParamType('ParamSubParamID');
+  // Ищем
+  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.FieldName,
+    AProductCategoryID), TParamRec.Create(W.ParamSubParamID.FieldName,
+    AParamSubParamID)]);
+end;
 
-  Result := Search(['ProductCategoryID', 'ParamSubParamID'],
-    [AProductCategoryID, AParamSubParamID]);
+constructor TCategoryParamsW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FOrd := TFieldWrap.Create(Self, 'Ord');
+  FIsAttribute := TFieldWrap.Create(Self, 'IsAttribute');
+  FIsEnabled := TFieldWrap.Create(Self, 'IsEnabled');
+  FParamSubParamID := TFieldWrap.Create(Self, 'ParamSubParamID');
+  FPosID := TFieldWrap.Create(Self, 'PosID');
+  FProductCategoryID := TFieldWrap.Create(Self, 'ProductCategoryID');
 end;
 
 end.

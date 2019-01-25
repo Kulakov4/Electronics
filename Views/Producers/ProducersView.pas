@@ -200,7 +200,7 @@ begin
       AColumn: TcxGridDBBandedColumn;
     begin
       AColumn := AView.GetColumnByFieldName
-        (ProducersGroup.qProducers.Cnt.FieldName);
+        (ProducersGroup.qProducers.W.Cnt.FieldName);
       if AColumn <> nil then
         AColumn.Visible := false;
     end);
@@ -260,9 +260,9 @@ begin
 
   // Ищем параметр
   ProducersGroup.qProducers.LocateByPK(ADetailID);
-  ProducersGroup.qProducers.TryEdit;
-  ProducersGroup.qProducers.ProducerTypeID.AsInteger := AMasterID;
-  ProducersGroup.qProducers.TryPost;
+  ProducersGroup.qProducers.W.TryEdit;
+  ProducersGroup.qProducers.W.ProducerTypeID.F.AsInteger := AMasterID;
+  ProducersGroup.qProducers.W.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   Assert(ARow <> nil);
@@ -293,8 +293,8 @@ begin
     AMasterID := ProducersGroup.qProducerTypes.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
-    ProducersGroup.qProducers.ProducerTypeID.AsInteger := AMasterID;
-    ProducersGroup.qProducers.TryPost;
+    ProducersGroup.qProducers.W.ProducerTypeID.F.AsInteger := AMasterID;
+    ProducersGroup.qProducers.W.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
     PostMessage(Handle, WM_AFTER_SET_NEW_VALUE, ADetailID, 0);
@@ -518,7 +518,7 @@ begin
 
       InitializeLookupColumn(clProducerTypeID,
         FProducersGroup.qProducerTypes.DataSource, lsEditList,
-        FProducersGroup.qProducerTypes.ProducerType.FieldName);
+        FProducersGroup.qProducerTypes.W.ProducerType.FieldName);
 
       MainView.ViewData.Collapse(True);
     end

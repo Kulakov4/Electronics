@@ -9,34 +9,45 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit,
-  ProducerInterface;
+  ProducerInterface, DSWrap;
 
 type
-  TQueryProducers = class(TQueryWithDataSource, IProducer)
-    procedure FDQueryCntGetText(Sender: TField; var Text: string;
-      DisplayText: Boolean);
-  strict private
-    function Exist(const AProducerName: String): Boolean; stdcall;
-    function GetProducerID(const AProducerName: String): Integer; stdcall;
+  TProducersW = class(TDSWrap)
+    procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
+        Boolean);
   private
-    procedure DoBeforeScroll(Sender: TObject);
-    procedure DoBeforeOpen(Sender: TObject);
-// TODO: DropUnuses
-//  procedure DropUnuses;
-    function GetCnt: TField;
-    function GetName: TField;
-    function GetProducerTypeID: TField;
-    { Private declarations }
+    FCnt: TFieldWrap;
+    FID: TFieldWrap;
+    FName: TFieldWrap;
+    FProducerParamSubParamID: TParamWrap;
+    FProducerTypeID: TFieldWrap;
   protected
     procedure DoAfterOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string; AProducerTypeID: Integer);
+    property Cnt: TFieldWrap read FCnt;
+    property ID: TFieldWrap read FID;
+    property Name: TFieldWrap read FName;
+    property ProducerParamSubParamID: TParamWrap read FProducerParamSubParamID;
+    property ProducerTypeID: TFieldWrap read FProducerTypeID;
+  end;
+
+  TQueryProducers = class(TQueryWithDataSource, IProducer)
+  strict private
+    function Exist(const AProducerName: String): Boolean; stdcall;
+    function GetProducerID(const AProducerName: String): Integer; stdcall;
+  private
+    FW: TProducersW;
+    procedure DoBeforeScroll(Sender: TObject);
+    procedure DoBeforeOpen(Sender: TObject);
+    { Private declarations }
+  protected
+  public
+    constructor Create(AOwner: TComponent); override;
     procedure CancelUpdates; override;
     function Locate(AValue: string; TestResult: Boolean = False): Boolean;
-    property Cnt: TField read GetCnt;
-    property Name: TField read GetName;
-    property ProducerTypeID: TField read GetProducerTypeID;
+    property W: TProducersW read FW;
     { Public declarations }
   end;
 
@@ -49,24 +60,12 @@ uses RepositoryDataModule, DefaultParameters, ProducerTypesQuery;
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
   inherited;
-
+  FW := TProducersW.Create(FDQuery);
 
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll, FEventList);
 
   AutoTransaction := False;
-end;
-
-procedure TQueryProducers.AddNewValue(const AValue: string; AProducerTypeID:
-    Integer);
-begin
-  Assert(AProducerTypeID > 0);
-
-  FDQuery.Append;
-  ProducerTypeID.AsInteger := AProducerTypeID;
-  Name.AsString := AValue;
-  FDQuery.Post;
 end;
 
 procedure TQueryProducers.CancelUpdates;
@@ -77,14 +76,6 @@ begin
   RefreshQuery;
 end;
 
-procedure TQueryProducers.DoAfterOpen(Sender: TObject);
-begin
-  // Кол-во - только для чтения
-  Cnt.ReadOnly := True;
-  Cnt.OnGetText := FDQueryCntGetText;
-  Name.DisplayLabel := 'Производитель';
-end;
-
 procedure TQueryProducers.DoBeforeScroll(Sender: TObject);
 begin
   ;
@@ -93,7 +84,7 @@ end;
 procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
-  FDQuery.ParamByName('ProducerParamSubParamID').AsInteger :=
+  FDQuery.ParamByName( W.ProducerParamSubParamID.ParamName ).AsInteger :=
     TDefaultParameters.ProducerParamSubParamID;
 end;
 
@@ -102,48 +93,66 @@ begin
   Result := GetProducerID(AProducerName) > 0;
 end;
 
-procedure TQueryProducers.FDQueryCntGetText(Sender: TField; var Text: string;
-  DisplayText: Boolean);
-begin
-  if (not Sender.IsNull) and (Sender.AsFloat > 0) then
-    Text := String.Format('%.0n', [Sender.AsFloat])
-  else
-    Text := '';
-end;
-
-function TQueryProducers.GetCnt: TField;
-begin
-  Result := Field('Cnt');
-end;
-
-function TQueryProducers.GetName: TField;
-begin
-  Result := Field('Name');
-end;
-
 function TQueryProducers.GetProducerID(const AProducerName: String): Integer;
 var
   V: Variant;
 begin
   Assert(not AProducerName.IsEmpty);
   Result := 0;
-  V := FDQuery.LookupEx(Name.FieldName, AProducerName, PK.FieldName);
+  V := FDQuery.LookupEx(W.Name.FieldName, AProducerName, W.PK.FieldName);
   if not VarIsNull(V) then
     Result := V;
-end;
-
-function TQueryProducers.GetProducerTypeID: TField;
-begin
-  Result := Field('ProducerTypeID');
 end;
 
 function TQueryProducers.Locate(AValue: string; TestResult: Boolean = False):
     Boolean;
 begin
-  Result := FDQuery.LocateEx(Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
+  Result := FDQuery.LocateEx(W.Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
   if TestResult then
     Assert(Result);
 
+end;
+
+constructor TProducersW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FCnt := TFieldWrap.Create(Self, 'Cnt');
+  FName := TFieldWrap.Create(Self, 'Name', 'Производитель');
+  FProducerTypeID := TFieldWrap.Create(Self, 'ProducerTypeID');
+
+  // Параметры SQL запроса
+  FProducerParamSubParamID := TParamWrap.Create(Self, 'ProducerParamSubParamID');
+
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
+end;
+
+procedure TProducersW.AddNewValue(const AValue: string; AProducerTypeID:
+    Integer);
+begin
+  Assert(AProducerTypeID > 0);
+
+  TryAppend;
+  ProducerTypeID.F.AsInteger := AProducerTypeID;
+  Name.F.AsString := AValue;
+  TryPost;
+end;
+
+procedure TProducersW.DoAfterOpen(Sender: TObject);
+begin
+  // Кол-во - только для чтения
+  Cnt.F.ReadOnly := True;
+  Cnt.F.OnGetText := FDQueryCntGetText;
+//  Name.DisplayLabel := 'Производитель';
+end;
+
+procedure TProducersW.FDQueryCntGetText(Sender: TField; var Text: string;
+    DisplayText: Boolean);
+begin
+  if (not Sender.IsNull) and (Sender.AsFloat > 0) then
+    Text := String.Format('%.0n', [Sender.AsFloat])
+  else
+    Text := '';
 end;
 
 end.

@@ -10,17 +10,33 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ExtraChargeSimpleQuery,
-  System.Generics.Collections;
+  System.Generics.Collections, DSWrap;
 
 type
+  TExtraChargeW = class(TDSWrap)
+  private
+    FIDExtraChargeType: TFieldWrap;
+    FID: TFieldWrap;
+    FRange: TFieldWrap;
+    FWholeSale: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure FilterByType(AIDExtraRangeType: Integer);
+    function GetWholeSaleList: TArray<String>;
+    function LocateByRange(AIDExtraRangeType: Integer; ARange: string): Boolean;
+    function LookupByRange(AIDExtraRangeType: Integer;
+      const ARange: string): Variant;
+    property IDExtraChargeType: TFieldWrap read FIDExtraChargeType;
+    property ID: TFieldWrap read FID;
+    property Range: TFieldWrap read FRange;
+    property WholeSale: TFieldWrap read FWholeSale;
+  end;
+
   TQueryExtraCharge2 = class(TQueryWithDataSource)
   private
     FqExtraChargeSimple: TQueryExtraChargeSimple;
-    procedure DoAfterOpen(Sender: TObject);
-    function GetIDExtraChargeType: TField;
+    FW: TExtraChargeW;
     function GetqExtraChargeSimple: TQueryExtraChargeSimple;
-    function GetRange: TField;
-    function GetWholeSale: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -34,14 +50,7 @@ type
       read GetqExtraChargeSimple;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure FilterByType(AIDExtraRangeType: Integer);
-    function GetWholeSaleList: TArray<String>;
-    function LocateByRange(AIDExtraRangeType: Integer; ARange: string): Boolean;
-    function LookupByRange(AIDExtraRangeType: Integer;
-      const ARange: string): Variant;
-    property IDExtraChargeType: TField read GetIDExtraChargeType;
-    property Range: TField read GetRange;
-    property WholeSale: TField read GetWholeSale;
+    property W: TExtraChargeW read FW;
     { Public declarations }
   end;
 
@@ -55,10 +64,10 @@ uses
 constructor TQueryExtraCharge2.Create(AOwner: TComponent);
 begin
   inherited;
+  FW := TExtraChargeW.Create(FDQuery);
   AutoTransaction := False;
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
 procedure TQueryExtraCharge2.ApplyDelete(ASender: TDataSet;
@@ -82,7 +91,7 @@ var
   ALow: Integer;
 begin
   MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
-    IDExtraChargeType.Value, Range.AsString, ALow, AHight);
+    W.IDExtraChargeType.F.Value, W.Range.F.AsString, ALow, AHight);
 
   if not MyExceptionMessage.IsEmpty then
   begin
@@ -96,12 +105,12 @@ begin
     qExtraChargeSimple.SearchByID(0);
 
   // Добавляем запись
-  qExtraChargeSimple.TryAppend;
-  qExtraChargeSimple.L.AsInteger := ALow;
-  qExtraChargeSimple.H.AsInteger := AHight;
-  qExtraChargeSimple.WholeSale.Value := WholeSale.Value;
-  qExtraChargeSimple.IDExtraChargeType.Value := IDExtraChargeType.Value;
-  qExtraChargeSimple.TryPost;
+  qExtraChargeSimple.W.TryAppend;
+  qExtraChargeSimple.W.L.F.AsInteger := ALow;
+  qExtraChargeSimple.W.H.F.AsInteger := AHight;
+  qExtraChargeSimple.W.WholeSale.F.Value := W.WholeSale.F.Value;
+  qExtraChargeSimple.W.IDExtraChargeType.F.Value := W.IDExtraChargeType.F.Value;
+  qExtraChargeSimple.W.TryPost;
 
   Assert(qExtraChargeSimple.PK.AsInteger > 0);
 
@@ -118,7 +127,7 @@ var
 begin
   Assert(ASender = FDQuery);
   MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
-    IDExtraChargeType.AsInteger, Range.AsString, ALow, AHight);
+    W.IDExtraChargeType.F.AsInteger, W.Range.F.AsString, ALow, AHight);
 
   if not MyExceptionMessage.IsEmpty then
   begin
@@ -132,20 +141,12 @@ begin
   // Ищем обновляемую запись
   qExtraChargeSimple.SearchByID(PK.AsInteger, 1);
 
-  qExtraChargeSimple.TryEdit;
-  qExtraChargeSimple.L.Value := ALow;
-  qExtraChargeSimple.H.Value := AHight;
-  qExtraChargeSimple.WholeSale.Value := WholeSale.Value;
-  qExtraChargeSimple.IDExtraChargeType.Value := IDExtraChargeType.Value;
-  qExtraChargeSimple.TryPost;
-end;
-
-procedure TQueryExtraCharge2.DoAfterOpen(Sender: TObject);
-begin
-  PK.Visible := False;
-  IDExtraChargeType.Visible := False;
-  Range.DisplayLabel := 'Количество (шт.)';
-  WholeSale.DisplayLabel := 'Оптовая наценка (%)';
+  qExtraChargeSimple.W.TryEdit;
+  qExtraChargeSimple.W.L.F.Value := ALow;
+  qExtraChargeSimple.W.H.F.Value := AHight;
+  qExtraChargeSimple.W.WholeSale.F.Value := W.WholeSale.F.Value;
+  qExtraChargeSimple.W.IDExtraChargeType.F.Value := W.IDExtraChargeType.F.Value;
+  qExtraChargeSimple.W.TryPost;
 end;
 
 procedure TQueryExtraCharge2.DoBeforeOpen(Sender: TObject);
@@ -157,20 +158,8 @@ begin
   end;
 
   FDQuery.FieldDefs.Update;
-  FDQuery.FieldDefs.Find('Range').Size := 30;
+  FDQuery.FieldDefs.Find(W.Range.FieldName).Size := 30;
   CreateDefaultFields(False);
-end;
-
-procedure TQueryExtraCharge2.FilterByType(AIDExtraRangeType: Integer);
-begin
-  FDQuery.Filter := Format('%s = %d', [IDExtraChargeType.FieldName,
-    AIDExtraRangeType]);
-  FDQuery.Filtered := True;
-end;
-
-function TQueryExtraCharge2.GetIDExtraChargeType: TField;
-begin
-  Result := Field('IDExtraChargeType');
 end;
 
 function TQueryExtraCharge2.GetqExtraChargeSimple: TQueryExtraChargeSimple;
@@ -181,60 +170,66 @@ begin
   Result := FqExtraChargeSimple;
 end;
 
-function TQueryExtraCharge2.GetRange: TField;
+constructor TExtraChargeW.Create(AOwner: TComponent);
 begin
-  Result := Field('Range');
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FIDExtraChargeType := TFieldWrap.Create(Self, 'IDExtraChargeType');
+  FRange := TFieldWrap.Create(Self, 'Range', 'Количество (шт.)');
+  FWholeSale := TFieldWrap.Create(Self, 'WholeSale', 'Оптовая наценка (%)');
 end;
 
-function TQueryExtraCharge2.GetWholeSale: TField;
+procedure TExtraChargeW.FilterByType(AIDExtraRangeType: Integer);
 begin
-  Result := Field('WholeSale');
+  DataSet.Filter := Format('%s = %d', [IDExtraChargeType.FieldName,
+    AIDExtraRangeType]);
+  DataSet.Filtered := True;
 end;
 
-function TQueryExtraCharge2.GetWholeSaleList: TArray<String>;
+function TExtraChargeW.GetWholeSaleList: TArray<String>;
 var
   L: TList<String>;
 begin
   L := TList<String>.Create();
   try
-    FDQuery.DisableControls;
+    DataSet.DisableControls;
     try
-      FDQuery.First;
-      while not FDQuery.Eof do
+      DataSet.First;
+      while not DataSet.Eof do
       begin
-        L.Add(WholeSale.AsString);
-        FDQuery.Next;
+        L.Add(WholeSale.F.AsString);
+        DataSet.Next;
       end;
     finally
-      FDQuery.EnableControls;
+      DataSet.EnableControls;
     end;
-    FDQuery.First;
+    DataSet.First;
     Result := L.ToArray;
   finally
     FreeAndNil(L);
   end;
 end;
 
-function TQueryExtraCharge2.LocateByRange(AIDExtraRangeType: Integer;
+function TExtraChargeW.LocateByRange(AIDExtraRangeType: Integer;
   ARange: string): Boolean;
 var
   AFieldNames: string;
 begin
   AFieldNames := Format('%s;%s', [IDExtraChargeType.FieldName,
     Range.FieldName]);
-  Result := FDQuery.LocateEx(AFieldNames,
+  Result := FDDataSet.LocateEx(AFieldNames,
     VarArrayOf([AIDExtraRangeType, ARange]), []);
 end;
 
-function TQueryExtraCharge2.LookupByRange(AIDExtraRangeType: Integer;
+function TExtraChargeW.LookupByRange(AIDExtraRangeType: Integer;
   const ARange: string): Variant;
 var
   AFieldNames: string;
 begin
   AFieldNames := Format('%s;%s', [IDExtraChargeType.FieldName,
     Range.FieldName]);
-  Result := FDQuery.LookupEx(AFieldNames, VarArrayOf([AIDExtraRangeType, ARange]
-    ), [lxoCaseInsensitive]);
+  Result := FDDataSet.LookupEx(AFieldNames,
+    VarArrayOf([AIDExtraRangeType, ARange]), [lxoCaseInsensitive]);
 end;
 
 end.

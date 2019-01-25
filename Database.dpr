@@ -230,7 +230,6 @@ uses
   SubParametersInterface in 'Queryes\Parameters\SubParametersInterface.pas',
   ParametersView2 in 'Views\Parameters\ParametersView2.pas' {ViewParameters2: TFrame},
   BaseFDQuery in 'Queryes\BaseFDQuery.pas' {QryBase: TFrame},
-  DSWrap in 'Queryes\DSWrap.pas',
   ExtraChargeQry in 'Queryes\ExtraCharge\ExtraChargeQry.pas' {QryExtraCharge: TFrame},
   ExtraChargeGroupUnit in 'Queryes\ExtraCharge\ExtraChargeGroupUnit.pas',
   ExtraChargeQuery2 in 'Queryes\ExtraCharge\ExtraChargeQuery2.pas' {QueryExtraCharge2: TFrame},
@@ -239,7 +238,9 @@ uses
   ExtraChargeSimpleView in 'Views\ExtraCharge\ExtraChargeSimpleView.pas' {ViewExtraChargeSimple: TFrame},
   BillQuery in 'Queryes\Bill\BillQuery.pas' {QryBill: TFrame},
   MaxBillNumberQuery in 'Queryes\Bill\MaxBillNumberQuery.pas' {QryMaxBillNumber: TFrame},
-  BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QueryBillContent: TFrame};
+  BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QueryBillContent: TFrame},
+  BillQuery2 in 'Queryes\Bill\BillQuery2.pas' {QryBill2: TFrame},
+  DSWrap in 'Queryes\DSWrap.pas';
 
 {$R *.res}
 

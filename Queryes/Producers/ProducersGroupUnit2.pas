@@ -46,7 +46,7 @@ begin
   // На сервере типы производителей уже каскадно удалились
   // Каскадно удаляем производителей с клиента
   qProducers.CascadeDelete(qProducerTypes.OldPKValue,
-    qProducers.ProducerTypeID.FieldName, True);
+    qProducers.W.ProducerTypeID.FieldName, True);
 end;
 
 function TProducersGroup2.Find(const AFieldName, S: string): TList<String>;
@@ -57,15 +57,15 @@ begin
   // Пытаемся искать среди производителей по какому-то полю
   if qProducers.LocateByField(AFieldName, S) then
   begin
-    qProducerTypes.LocateByPK(qProducers.ProducerTypeID.Value, True);
+    qProducerTypes.LocateByPK(qProducers.W.ProducerTypeID.F.Value, True);
     // запоминаем что надо искать на первом уровне
-    Result.Add(qProducerTypes.ProducerType.AsString);
+    Result.Add(qProducerTypes.W.ProducerType.F.AsString);
     // запоминаем что надо искать на втором уровне
     Result.Add(S);
   end
   else
     // Пытаемся искать среди типов параметров
-    if qProducerTypes.LocateByField(qProducerTypes.ProducerType.FieldName, S) then
+    if qProducerTypes.LocateByField(qProducerTypes.W.ProducerType.FieldName, S) then
     begin
       Result.Add(S);
     end;
@@ -107,12 +107,12 @@ begin
 
       // Если производитель с таким именем уже есть
       if qProducers.Locate(AProducersExcelTable.Name.AsString.Trim) then
-        qProducers.TryEdit
+        qProducers.W.TryEdit
       else
-        qProducers.TryAppend;
+        qProducers.W.TryAppend;
 
       // Связываем производителя с его типом
-      qProducers.ProducerTypeID.AsInteger := qProducerTypes.PK.AsInteger;
+      qProducers.W.ProducerTypeID.F.AsInteger := qProducerTypes.PK.AsInteger;
 
       for I := 0 to AProducersExcelTable.FieldCount - 1 do
       begin
@@ -145,7 +145,7 @@ begin
     Exit;
 
   qProducerTypes.LocateOrAppend(AProducerType);
-  qProducers.AddNewValue(AValue, qProducerTypes.PK.AsInteger);
+  qProducers.W.AddNewValue(AValue, qProducerTypes.PK.AsInteger);
 end;
 
 procedure TProducersGroup2.SetqProducers(const Value: TQueryProducers);

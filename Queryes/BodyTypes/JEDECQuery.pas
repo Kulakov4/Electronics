@@ -7,16 +7,27 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TJEDECW = class(TDSWrap)
+  private
+    FJEDEC: TFieldWrap;
+    FID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property JEDEC: TFieldWrap read FJEDEC;
+    property ID: TFieldWrap read FID;
+  end;
+
   TQueryJEDEC = class(TQueryBase)
   private
-    function GetJEDEC: TField;
+    FW: TJEDECW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AJedec: string): Boolean;
-    property JEDEC: TField read GetJEDEC;
+    property W: TJEDECW read FW;
     { Public declarations }
   end;
 
@@ -24,21 +35,29 @@ implementation
 
 {$R *.dfm}
 
-function TQueryJEDEC.GetJEDEC: TField;
+constructor TQueryJEDEC.Create(AOwner: TComponent);
 begin
-  Result := Field('JEDEC');
+  inherited;
+  FW := TJEDECW.Create(FDQuery);
 end;
 
 function TQueryJEDEC.LocateOrAppend(const AJedec: string): Boolean;
 begin
   Assert(not AJedec.IsEmpty);
 
-  Result := LocateByField( JEDEC.FieldName, AJedec, [lxoCaseInsensitive] );
+  Result := LocateByField( W.JEDEC.FieldName, AJedec, [lxoCaseInsensitive] );
   if Result then Exit;
 
-  TryAppend;
-  JEDEC.AsString := AJedec;
-  TryPost;
+  W.TryAppend;
+  W.JEDEC.F.AsString := AJedec;
+  W.TryPost;
+end;
+
+constructor TJEDECW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FJEDEC := TFieldWrap.Create(Self, 'JEDEC');
 end;
 
 end.

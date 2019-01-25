@@ -9,19 +9,28 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, DSWrap;
 
 type
+  TExtraChargeType = class(TDSWrap)
+  private
+    FName: TFieldWrap;
+    FID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure LocateOrAppend(const AName: String);
+    function Lookup(const AExtraChargeTypeName: String): Variant;
+    property Name: TFieldWrap read FName;
+    property ID: TFieldWrap read FID;
+  end;
+
   TQueryExtraChargeType = class(TQueryWithDataSource)
   private
-    procedure DoAfterOpen(Sender: TObject);
-    function GetName: TField;
+    FW: TExtraChargeType;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    function Lookup(const AExtraChargeTypeName: String): Variant;
-    procedure LocateOrAppend(const AName: String);
-    property Name: TField read GetName;
+    property W: TExtraChargeType read FW;
     { Public declarations }
   end;
 
@@ -32,36 +41,31 @@ implementation
 constructor TQueryExtraChargeType.Create(AOwner: TComponent);
 begin
   inherited;
+  FW := TExtraChargeType.Create(FDQuery);
   AutoTransaction := False;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryExtraChargeType.DoAfterOpen(Sender: TObject);
+constructor TExtraChargeType.Create(AOwner: TComponent);
 begin
-  PK.Visible := False;
-  Name.DisplayLabel := 'Наименование';
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FName := TFieldWrap.Create(Self, 'Name', 'Наименование');
 end;
 
-function TQueryExtraChargeType.Lookup(const AExtraChargeTypeName
-  : String): Variant;
+procedure TExtraChargeType.LocateOrAppend(const AName: String);
 begin
-  Result := FDQuery.LookupEx(Name.FieldName, AExtraChargeTypeName, PKFieldName,
-    [lxoCaseInsensitive]);
-end;
-
-function TQueryExtraChargeType.GetName: TField;
-begin
-  Result := Field('Name');
-end;
-
-procedure TQueryExtraChargeType.LocateOrAppend(const AName: String);
-begin
-  if not FDQuery.LocateEx(Name.FieldName, AName, [lxoCaseInsensitive]) then
+  if not FDDataSet.LocateEx(Name.FieldName, AName, [lxoCaseInsensitive]) then
   begin
     TryAppend;
-    Name.AsString := AName;
+    Name.F.AsString := AName;
     TryPost;
   end;
+end;
+
+function TExtraChargeType.Lookup(const AExtraChargeTypeName: String): Variant;
+begin
+  Result := FDDataSet.LookupEx(Name.FieldName, AExtraChargeTypeName,
+    PKFieldName, [lxoCaseInsensitive]);
 end;
 
 end.

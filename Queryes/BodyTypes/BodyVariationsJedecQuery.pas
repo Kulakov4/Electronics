@@ -9,15 +9,27 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  BodyVariationJedecQuery, BaseEventsQuery;
+  BodyVariationJedecQuery, BaseEventsQuery, DSWrap;
 
 type
+  TBodyVariationsJedecW = class(TDSWrap)
+  private
+    FIDBodyVariation: TParamWrap;
+    FIDJEDEC: TFieldWrap;
+    FJEDEC: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure LoadJEDEC(const AFileName: String);
+    property IDBodyVariation: TParamWrap read FIDBodyVariation;
+    property IDJEDEC: TFieldWrap read FIDJEDEC;
+    property JEDEC: TFieldWrap read FJEDEC;
+  end;
+
   TQueryBodyVariationsJedec = class(TQueryBaseEvents)
   private
     FIDBodyVariations: TArray<Integer>;
     FqBodyVariationJedec: TQueryBodyVariationJedec;
-    function GetIDJEDEC: TField;
-    function GetJEDEC: TField;
+    FW: TBodyVariationsJedecW;
     function GetqBodyVariationJedec: TQueryBodyVariationJedec;
     { Private declarations }
   protected
@@ -32,10 +44,8 @@ type
       read GetqBodyVariationJedec;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure LoadJEDEC(const AFileName: String);
     function SearchByIDBodyVariations(AIDBodyVariations: string): Integer;
-    property IDJEDEC: TField read GetIDJEDEC;
-    property JEDEC: TField read GetJEDEC;
+    property W: TBodyVariationsJedecW read FW;
     { Public declarations }
   end;
 
@@ -49,6 +59,8 @@ uses
 constructor TQueryBodyVariationsJedec.Create(AOwner: TComponent);
 begin
   inherited;
+  FW := TBodyVariationsJedecW.Create(FDQuery);
+
   // На сервер ничего сохранять не будем!
   FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
 
@@ -66,7 +78,8 @@ var
 begin
   for AIDBodyVariation in FIDBodyVariations do
   begin
-    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, IDJEDEC.AsInteger, 1);
+    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation,
+      W.IDJEDEC.F.AsInteger, 1);
     qBodyVariationJedec.FDQuery.Delete;
   end;
 end;
@@ -84,12 +97,13 @@ begin
     if not qBodyVariationJedec.FDQuery.Active then
       qBodyVariationJedec.SearchByIDBodyVariation(AIDBodyVariation);
 
-    qBodyVariationJedec.TryAppend;
-    qBodyVariationJedec.IDBodyVariation.Value := AIDBodyVariation;
-    qBodyVariationJedec.IDJEDEC.Value := IDJEDEC.Value;
-    qBodyVariationJedec.TryPost;
+    qBodyVariationJedec.W.TryAppend;
+    qBodyVariationJedec.W.IDBodyVariation.F.Value := AIDBodyVariation;
+    qBodyVariationJedec.W.IDJEDEC.F.Value := W.IDJEDEC.F.Value;
+    qBodyVariationJedec.W.TryPost;
   end;
-  FetchFields(['IDJEDEC'], [IDJEDEC.Value], ARequest, AAction, AOptions);
+  FetchFields([W.IDJEDEC.FieldName], [W.IDJEDEC.F.Value], ARequest, AAction,
+    AOptions);
 end;
 
 procedure TQueryBodyVariationsJedec.ApplyUpdate(ASender: TDataSet;
@@ -102,26 +116,16 @@ begin
 
   for AIDBodyVariation in FIDBodyVariations do
   begin
-    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, IDJEDEC.OldValue, 1);
-    qBodyVariationJedec.TryEdit;
-    qBodyVariationJedec.IDJEDEC.Value := IDJEDEC.Value;
-    qBodyVariationJedec.TryPost;
+    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, W.IDJEDEC.F.OldValue, 1);
+    qBodyVariationJedec.W.TryEdit;
+    qBodyVariationJedec.W.IDJEDEC.F.Value := W.IDJEDEC.F.Value;
+    qBodyVariationJedec.W.TryPost;
   end;
 end;
 
 procedure TQueryBodyVariationsJedec.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsReadOnly(False);
-end;
-
-function TQueryBodyVariationsJedec.GetIDJEDEC: TField;
-begin
-  Result := Field('IDJEDEC');
-end;
-
-function TQueryBodyVariationsJedec.GetJEDEC: TField;
-begin
-  Result := Field('JEDEC');
 end;
 
 function TQueryBodyVariationsJedec.GetqBodyVariationJedec
@@ -135,27 +139,16 @@ begin
   Result := FqBodyVariationJedec;
 end;
 
-procedure TQueryBodyVariationsJedec.LoadJEDEC(const AFileName: String);
-var
-  S: string;
-begin
-  Assert(not AFileName.IsEmpty);
-  Assert( FDQuery.RecordCount > 0 );
-
-  // В БД храним имя файла без расширения и всё
-  S := TPath.GetFileNameWithoutExtension(AFileName);
-
-  TryEdit;
-  JEDEC.AsString := S;
-  TryPost;
-end;
-
 function TQueryBodyVariationsJedec.SearchByIDBodyVariations(AIDBodyVariations
   : string): Integer;
 var
+  ANewSQL: string;
+  ANewValue: string;
+  ATemplate: string;
   I: Integer;
   L: TList<Integer>;
   m: TArray<String>;
+  p: Integer;
 begin
   Assert(not AIDBodyVariations.IsEmpty);
 
@@ -171,14 +164,48 @@ begin
     FreeAndNil(L);
   end;
 
+  ANewSQL := SQL; // Восстанавливаем первоначальный SQL
+
+  ATemplate := Format('%d=%d', [0, 0]);
+  p := ANewSQL.IndexOf(ATemplate);
+  Assert(p >= 0);
+
+  ANewValue := Format('%s in (%s)', [W.IDBodyVariation.ParamName, AIDBodyVariations]);
+
+  ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
+
   // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    Format('where IDBodyVariation in (%s)', [AIDBodyVariations]), 'where');
+  FDQuery.SQL.Text := ANewSQL;
 
   // Ищем
   RefreshQuery;
 
   Result := FDQuery.RecordCount;
+end;
+
+constructor TBodyVariationsJedecW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FIDJEDEC := TFieldWrap.Create(Self, 'IDJEDEC', '', True);
+  FJEDEC := TFieldWrap.Create(Self, 'JEDEC');
+
+  // Параметры SQL запроса
+  FIDBodyVariation := TParamWrap.Create(Self, 'IDBodyVariation');
+end;
+
+procedure TBodyVariationsJedecW.LoadJEDEC(const AFileName: String);
+var
+  S: string;
+begin
+  Assert(not AFileName.IsEmpty);
+  Assert(DataSet.RecordCount > 0);
+
+  // В БД храним имя файла без расширения и всё
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+
+  TryEdit;
+  JEDEC.F.AsString := S;
+  TryPost;
 end;
 
 end.

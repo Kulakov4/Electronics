@@ -8,7 +8,7 @@ inherited QueryCategoryParams: TQueryCategoryParams
     SQL.Strings = (
       'select *'
       'from CategoryParams2'
-      'where 0=0')
+      'where 0=0 and 1=1')
     Top = 24
   end
 end

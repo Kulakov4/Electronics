@@ -8,6 +8,6 @@ inherited QueryExtraChargeSimple: TQueryExtraChargeSimple
     SQL.Strings = (
       'select *'
       'from ExtraCharge2'
-      'where 0=0')
+      'where 0=0 and 1=1')
   end
 end

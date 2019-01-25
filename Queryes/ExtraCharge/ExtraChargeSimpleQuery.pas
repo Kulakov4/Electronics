@@ -8,27 +8,38 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TExtraChargeSimpleW = class(TDSWrap)
+  private
+    FH: TFieldWrap;
+    FID: TFieldWrap;
+    FIDExtraChargeType: TFieldWrap;
+    FL: TFieldWrap;
+    FWholeSale: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property H: TFieldWrap read FH;
+    property ID: TFieldWrap read FID;
+    property IDExtraChargeType: TFieldWrap read FIDExtraChargeType;
+    property L: TFieldWrap read FL;
+    property WholeSale: TFieldWrap read FWholeSale;
+  end;
+
   TQueryExtraChargeSimple = class(TQueryBase)
   private
-    function GetL: TField;
-    function GetH: TField;
-    function GetIDExtraChargeType: TField;
-    function GetWholeSale: TField;
+    FW: TExtraChargeSimpleW;
     { Private declarations }
   protected
   public
-    function CheckBounds(AID, AIDExtraRangeType: Integer; ARange: string; out ALow,
-        AHight: Integer): string;
+    constructor Create(AOwner: TComponent); override;
+    function CheckBounds(AID, AIDExtraRangeType: Integer; ARange: string;
+      out ALow, AHight: Integer): string;
     function SearchByID(AID: Integer; TestResult: Integer = -1): Integer;
-    function SearchValueInRange(const AValue: Integer; AIDExtraRangeType, AID:
-        Integer): Integer;
-    property L: TField read GetL;
-    property H: TField read GetH;
-    property IDExtraChargeType: TField read GetIDExtraChargeType;
-    property WholeSale: TField read GetWholeSale;
+    function SearchValueInRange(const AValue: Integer;
+      AIDExtraRangeType, AID: Integer): Integer;
+    property W: TExtraChargeSimpleW read FW;
     { Public declarations }
   end;
 
@@ -39,8 +50,14 @@ uses
 
 {$R *.dfm}
 
+constructor TQueryExtraChargeSimple.Create(AOwner: TComponent);
+begin
+  inherited;
+  FW := TExtraChargeSimpleW.Create(FDQuery);
+end;
+
 function TQueryExtraChargeSimple.CheckBounds(AID, AIDExtraRangeType: Integer;
-    ARange: string; out ALow, AHight: Integer): string;
+  ARange: string; out ALow, AHight: Integer): string;
 var
   m: TArray<String>;
   rc: Integer;
@@ -72,31 +89,11 @@ begin
   if rc > 0 then
   begin
     Result := Format('Диапазон %d-%d пересекается с диапазоном %d-%d',
-      [ALow, AHight, L.AsInteger, H.AsInteger]);
+      [ALow, AHight, W.L.F.AsInteger, W.H.F.AsInteger]);
     Exit;
   end;
 
   Result := '';
-end;
-
-function TQueryExtraChargeSimple.GetL: TField;
-begin
-  Result := Field('L');
-end;
-
-function TQueryExtraChargeSimple.GetH: TField;
-begin
-  Result := Field('H');
-end;
-
-function TQueryExtraChargeSimple.GetIDExtraChargeType: TField;
-begin
-  Result := Field('IDExtraChargeType');
-end;
-
-function TQueryExtraChargeSimple.GetWholeSale: TField;
-begin
-  Result := Field('WholeSale');
 end;
 
 function TQueryExtraChargeSimple.SearchByID(AID: Integer;
@@ -104,28 +101,65 @@ function TQueryExtraChargeSimple.SearchByID(AID: Integer;
 begin
   Assert(AID >= 0);
 
-  // Меняем условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where ID=:ID', 'where');
-  SetParamType('ID');
-
   // Ищем
-  Result := Search(['ID'], [AID], TestResult);
+  Result := SearchEx([TParamRec.Create(W.PK.FieldName, AID)], TestResult);
 end;
 
 function TQueryExtraChargeSimple.SearchValueInRange(const AValue: Integer;
-    AIDExtraRangeType, AID: Integer): Integer;
+  AIDExtraRangeType, AID: Integer): Integer;
+var
+  AFormatStr: string;
+  ANewSQL: string;
+  ANewValue: string;
+  S1: string;
+  S2: string;
+  S3: string;
+  S4: string;
+  ATemplate: string;
+  AValueParamName: string;
+  p: Integer;
 begin
-  // Меняем условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    'where (:Value >= L) and (:Value <= H) and ' +
-    '(IDExtraChargeType = :IDExtraChargeType) and (ID <> :ID)', 'where ');
-  SetParamType('Value');
-  SetParamType('IDExtraChargeType');
-  SetParamType('ID');
+  Assert(AID >= 0);
+  Assert(AIDExtraRangeType >= 0);
+
+  AValueParamName := 'Value';
+
+  ANewSQL := SQL; // Восстанавливаем первоначальный SQL
+
+  ATemplate := Format('%d=%d', [0, 0]);
+  p := ANewSQL.IndexOf(ATemplate);
+  Assert(p >= 0);
+
+  S1 := Format(':%s >= %s', [AValueParamName, W.L.FieldName]);
+  S2 := Format(':%s <= %s', [AValueParamName, W.H.FieldName]);
+  S3 := Format('%s = :%s', [W.IDExtraChargeType.FieldName,
+    W.IDExtraChargeType.FieldName]);
+  S4 := Format('%s <> :%s', [W.PK.FieldName, W.PK.FieldName]);
+
+  ANewValue := Format('(%s) and (%s) and (%s) and (%s)', [S1, S2, S3, S4]);
+
+  ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
+
+  // Меняем SQL запрос
+  FDQuery.SQL.Text := ANewSQL;
+
+  SetParamType(AValueParamName);
+  SetParamType(W.IDExtraChargeType.FieldName);
+  SetParamType(W.PK.FieldName);
 
   // Ищем
-  Result := Search(['Value', 'IDExtraChargeType', 'ID'],
-    [AValue, AIDExtraRangeType, AID]);
+  Result := Search([AValueParamName, W.IDExtraChargeType.FieldName,
+    W.PK.FieldName], [AValue, AIDExtraRangeType, AID]);
+end;
+
+constructor TExtraChargeSimpleW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FH := TFieldWrap.Create(Self, 'H');
+  FL := TFieldWrap.Create(Self, 'L');
+  FIDExtraChargeType := TFieldWrap.Create(Self, 'IDExtraChargeType');
+  FWholeSale := TFieldWrap.Create(Self, 'WholeSale');
 end;
 
 end.

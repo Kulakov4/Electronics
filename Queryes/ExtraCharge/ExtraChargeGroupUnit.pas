@@ -48,7 +48,7 @@ begin
   // На сервере оптовые наценки уже каскадно удалились
   // Каскадно удаляем оптовые наценки с клиента
   FqExtraCharge2.CascadeDelete(FqExtraChargeType.OldPKValue,
-    FqExtraCharge2.IDExtraChargeType.FieldName, True);
+    FqExtraCharge2.W.IDExtraChargeType.FieldName, True);
 end;
 
 function TExtraChargeGroup.HaveDuplicate(const AExtraChargeTypeName, ARange:
@@ -59,11 +59,11 @@ begin
   Result := False;
 
   // Сначала ищем такой тип оптовой наценки
-  V := qExtraChargeType.Lookup(AExtraChargeTypeName);
+  V := qExtraChargeType.W.Lookup(AExtraChargeTypeName);
   if VarIsNull(V) then Exit;
 
 
-  V := qExtraCharge2.LookupByRange(V, ARange);
+  V := qExtraCharge2.W.LookupByRange(V, ARange);
   Result := not VarIsNull(V);
 end;
 
@@ -74,20 +74,20 @@ begin
   while not AExcelTable.Eof do
   begin
     // Ищем или добавляем тип оптовой наценки
-    qExtraChargeType.LocateOrAppend(AExcelTable.ExtraChargeType.AsString);
+    qExtraChargeType.W.LocateOrAppend(AExcelTable.ExtraChargeType.AsString);
 
     // Если такой диапазон уже есть
-    if qExtraCharge2.LocateByRange(qExtraChargeType.PK.AsInteger, AExcelTable.Range.Value) then
-      qExtraCharge2.TryEdit
+    if qExtraCharge2.W.LocateByRange(qExtraChargeType.PK.AsInteger, AExcelTable.Range.Value) then
+      qExtraCharge2.W.TryEdit
     else
     begin
-      qExtraCharge2.TryAppend;
+      qExtraCharge2.W.TryAppend;
     end;
 
-    qExtraCharge2.IDExtraChargeType.AsInteger := qExtraChargeType.PK.AsInteger;
-    qExtraCharge2.Range.Value := AExcelTable.Range.Value;
-    qExtraCharge2.WholeSale.Value := AExcelTable.WholeSale.Value;
-    TryPost;
+    qExtraCharge2.W.IDExtraChargeType.F.AsInteger := qExtraChargeType.PK.AsInteger;
+    qExtraCharge2.W.Range.F.Value := AExcelTable.Range.Value;
+    qExtraCharge2.W.WholeSale.F.Value := AExcelTable.WholeSale.Value;
+    qExtraCharge2.W.TryPost;
 
     AExcelTable.Next;
   end;

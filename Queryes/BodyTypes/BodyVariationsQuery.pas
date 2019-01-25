@@ -8,27 +8,39 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TBodyVariationW = class(TDSWrap)
+  private
+    FIDBodyData: TFieldWrap;
+    FID: TFieldWrap;
+    FImage: TFieldWrap;
+    FLandPattern: TFieldWrap;
+    FOutlineDrawing: TFieldWrap;
+    FVariation: TFieldWrap;
+  protected
+    property IDBodyData: TFieldWrap read FIDBodyData;
+    property ID: TFieldWrap read FID;
+    property Image: TFieldWrap read FImage;
+    property LandPattern: TFieldWrap read FLandPattern;
+    property OutlineDrawing: TFieldWrap read FOutlineDrawing;
+    property Variation: TFieldWrap read FVariation;
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
   TQueryBodyVariations = class(TQueryBase)
     FDUpdateSQL: TFDUpdateSQL;
   private
-    function GetIDBodyData: TField;
-    function GetImage: TField;
-    function GetLandPattern: TField;
-    function GetOutlineDrawing: TField;
-    function GetVariation: TField;
+    FW: TBodyVariationW;
     { Private declarations }
   protected
-    property IDBodyData: TField read GetIDBodyData;
-    property Image: TField read GetImage;
-    property LandPattern: TField read GetLandPattern;
-    property OutlineDrawing: TField read GetOutlineDrawing;
-    property Variation: TField read GetVariation;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure LocateOrAppend(AIDBodyData: Integer; const AOutlineDrawing,
         ALandPattern, AVariation, AImage: string);
+    property W: TBodyVariationW read FW;
     { Public declarations }
   end;
 
@@ -36,29 +48,10 @@ implementation
 
 {$R *.dfm}
 
-function TQueryBodyVariations.GetIDBodyData: TField;
+constructor TQueryBodyVariations.Create(AOwner: TComponent);
 begin
-  Result := Field('IDBodyData');
-end;
-
-function TQueryBodyVariations.GetImage: TField;
-begin
-  Result := Field('Image');
-end;
-
-function TQueryBodyVariations.GetLandPattern: TField;
-begin
-  Result := Field('LandPattern');
-end;
-
-function TQueryBodyVariations.GetOutlineDrawing: TField;
-begin
-  Result := Field('OutlineDrawing');
-end;
-
-function TQueryBodyVariations.GetVariation: TField;
-begin
-  Result := Field('Variation');
+  inherited;
+  FW := TBodyVariationW.Create(FDQuery);
 end;
 
 procedure TQueryBodyVariations.LocateOrAppend(AIDBodyData: Integer; const
@@ -68,19 +61,30 @@ var
 begin
   Assert(AIDBodyData > 0);
 
-  AFieldNames := Format('%s;%s', [IDBodyData.FieldName, Variation.FieldName]);
+  AFieldNames := Format('%s;%s', [W.IDBodyData.FieldName, W.Variation.FieldName]);
   if not FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDBodyData, AVariation]),
     [lxoCaseInsensitive]) then
-    TryAppend
+    W.TryAppend
   else
-    TryEdit;
+    W.TryEdit;
 
-  IDBodyData.Value := AIDBodyData;
-  OutlineDrawing.Value := AOutlineDrawing;
-  LandPattern.Value := ALandPattern;
-  Variation.Value := AVariation;
-  Image.Value := AImage;
-  TryPost;
+  W.IDBodyData.F.Value := AIDBodyData;
+  W.OutlineDrawing.F.Value := AOutlineDrawing;
+  W.LandPattern.F.Value := ALandPattern;
+  W.Variation.F.Value := AVariation;
+  W.Image.F.Value := AImage;
+  W.TryPost;
+end;
+
+constructor TBodyVariationW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FIDBodyData := TFieldWrap.Create(Self, 'IDBodyData');
+  FImage := TFieldWrap.Create(Self, 'Image');
+  FLandPattern := TFieldWrap.Create(Self, 'LandPattern');
+  FOutlineDrawing := TFieldWrap.Create(Self, 'OutlineDrawing');
+  FVariation := TFieldWrap.Create(Self, 'Variation');
 end;
 
 end.

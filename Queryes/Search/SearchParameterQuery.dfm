@@ -18,7 +18,7 @@ inherited QuerySearchParameter: TQuerySearchParameter
       
         'join SubParameters sp on psp.IdSubParameter = sp.id and sp.IsDef' +
         'ault = 1'
-      'where 0=0')
+      'where 0=0 and 1=1')
   end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (

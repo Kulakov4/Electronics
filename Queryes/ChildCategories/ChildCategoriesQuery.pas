@@ -9,20 +9,34 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  SearchCategoryQuery, OrderQuery;
+  SearchCategoryQuery, OrderQuery, DSWrap;
 
 type
+  TChildCategoriesW = class(TOrderW)
+  private
+    FExternalID: TFieldWrap;
+    FID: TFieldWrap;
+    FParentExternalId: TFieldWrap;
+    FParentID: TFieldWrap;
+    FValue: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ExternalID: TFieldWrap read FExternalID;
+    property ID: TFieldWrap read FID;
+    property ParentExternalId: TFieldWrap read FParentExternalId;
+    property ParentID: TFieldWrap read FParentID;
+    property Value: TFieldWrap read FValue;
+  end;
+
   TQueryChildCategories = class(TQueryOrder)
     FDUpdateSQL: TFDUpdateSQL;
   private
     FqSearchCategory: TQuerySearchCategory;
-    function GetExternalID: TField;
-    function GetParentExternalId: TField;
-    function GetParentID: TField;
+    FW: TChildCategoriesW;
     function GetqSearchCategory: TQuerySearchCategory;
-    function GetValue: TField;
     { Private declarations }
   protected
+    function CreateDataSetWrap: TOrderW; override;
     procedure DoAfterOpen(Sender: TObject);
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
@@ -31,10 +45,7 @@ type
     function CheckPossibility(const AParentID: Integer;
       const AValue: String): Boolean;
     function GetLevel: Integer;
-    property ExternalID: TField read GetExternalID;
-    property ParentExternalId: TField read GetParentExternalId;
-    property ParentID: TField read GetParentID;
-    property Value: TField read GetValue;
+    property W: TChildCategoriesW read FW;
     { Public declarations }
   end;
 
@@ -48,7 +59,9 @@ uses
 constructor TQueryChildCategories.Create(AOwner: TComponent);
 begin
   inherited;
-  DetailParameterName := 'ParentId';
+  Assert(OrderW <> nil);
+  FW := OrderW as TChildCategoriesW;
+  DetailParameterName := W.ParentID.FieldName;
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
@@ -66,15 +79,14 @@ begin
 
   FDQuery.DisableControls;
   try
-    TryPost;
+    W.TryPost;
     AExternalID := qSearchCategory.CalculateExternalId( AParentID, ALevel );
-//    AExternalID := CalculateExternalId(AParentID, ALevel);
 
-    TryAppend;
-    Value.AsString := AValue;
-    ParentID.AsInteger := AParentID;
-    ExternalID.AsString := AExternalID;
-    TryPost;
+    W.TryAppend;
+    W.Value.F.AsString := AValue;
+    W.ParentID.F.AsInteger := AParentID;
+    W.ExternalID.F.AsString := AExternalID;
+    W.TryPost;
   finally
     FDQuery.EnableControls;
   end;
@@ -88,17 +100,17 @@ begin
   Result := qSearchCategory.SearchByParentAndValue(AParentID, AValue) = 0;
 end;
 
-procedure TQueryChildCategories.DoAfterOpen(Sender: TObject);
+function TQueryChildCategories.CreateDataSetWrap: TOrderW;
 begin
-  ParentExternalId.Required := False;
-
-  // ѕор€док будет заполн€тьс€ на стороне сервера
-  Ord.Required := False;
+  Result := TChildCategoriesW.Create(FDQuery);
 end;
 
-function TQueryChildCategories.GetExternalID: TField;
+procedure TQueryChildCategories.DoAfterOpen(Sender: TObject);
 begin
-  Result := Field('ExternalID');
+  W.ParentExternalId.F.Required := False;
+
+  // ѕор€док будет заполн€тьс€ на стороне сервера
+  OrderW.Ord.F.Required := False;
 end;
 
 function TQueryChildCategories.GetLevel: Integer;
@@ -118,16 +130,6 @@ begin
   end;
 end;
 
-function TQueryChildCategories.GetParentExternalId: TField;
-begin
-  Result := Field('ParentExternalId');
-end;
-
-function TQueryChildCategories.GetParentID: TField;
-begin
-  Result := Field('ParentID');
-end;
-
 function TQueryChildCategories.GetqSearchCategory: TQuerySearchCategory;
 begin
   if FqSearchCategory = nil then
@@ -136,9 +138,15 @@ begin
   Result := FqSearchCategory;
 end;
 
-function TQueryChildCategories.GetValue: TField;
+constructor TChildCategoriesW.Create(AOwner: TComponent);
 begin
-  Result := Field('Value');
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FOrd := TFieldWrap.Create(Self, 'Ord');
+  FExternalID := TFieldWrap.Create(Self, 'ExternalID');
+  FParentExternalID := TFieldWrap.Create(Self, 'ParentExternalID');
+  FParentID := TFieldWrap.Create(Self, 'ParentID');
+  FValue := TFieldWrap.Create(Self, 'Value');
 end;
 
 end.

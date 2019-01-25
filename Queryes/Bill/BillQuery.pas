@@ -8,24 +8,35 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TBillW = class(TDSWrap)
+  private
+    FID: TFieldWrap;
+    FNumber: TFieldWrap;
+    FBillDate: TFieldWrap;
+    FShipmentDate: TFieldWrap;
+    FDollar: TFieldWrap;
+    FEuro: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ID: TFieldWrap read FID;
+    property Number: TFieldWrap read FNumber;
+    property BillDate: TFieldWrap read FBillDate;
+    property ShipmentDate: TFieldWrap read FShipmentDate;
+    property Dollar: TFieldWrap read FDollar;
+    property Euro: TFieldWrap read FEuro;
+  end;
+
   TQryBill = class(TQueryWithDataSource)
   private
-    function GetNumber: TField;
-    function GetBillDate: TField;
-    function GetShipmentDate: TField;
-    function GetDollar: TField;
-    function GetEuro: TField;
+    FW: TBillW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     function AddBill(const ADollarCource, AEuroCource: Double): Integer;
-    property Number: TField read GetNumber;
-    property BillDate: TField read GetBillDate;
-    property ShipmentDate: TField read GetShipmentDate;
-    property Dollar: TField read GetDollar;
-    property Euro: TField read GetEuro;
+    property W: TBillW read FW;
     { Public declarations }
   end;
 
@@ -36,47 +47,38 @@ uses
 
 {$R *.dfm}
 
+constructor TQryBill.Create(AOwner: TComponent);
+begin
+  inherited;
+  FW := TBillW.Create(FDQuery);
+end;
+
 function TQryBill.AddBill(const ADollarCource, AEuroCource: Double): Integer;
 begin
   TryAppend;
   try
-    Number.AsInteger := TQryMaxBillNumber.Get_Max_Number;
-    // Дата счёта - текущая дата
-    BillDate.AsDateTime := Date;
-    Dollar.Value := ADollarCource;
-    Euro.Value := AEuroCource;
-    TryPost;
-    Result := PK.Value;
+    W.Number.F.Value := TQryMaxBillNumber.Get_Max_Number + 1;
+    W.BillDate.F.Value := Date;     // Дата счёта - текущая дата
+    W.Dollar.F.Value := ADollarCource;
+    W.Euro.F.Value := AEuroCource;
+    W.TryPost;
+    Result := W.PK.Value;
     Assert(Result > 0);
   except
-    TryCancel;
+    W.TryCancel;
     raise;
   end;
 end;
 
-function TQryBill.GetNumber: TField;
+constructor TBillW.Create(AOwner: TComponent);
 begin
-  Result := Field('Number');
-end;
-
-function TQryBill.GetBillDate: TField;
-begin
-  Result := Field('BillDate');
-end;
-
-function TQryBill.GetShipmentDate: TField;
-begin
-  Result := Field('ShipmentDate');
-end;
-
-function TQryBill.GetDollar: TField;
-begin
-  Result := Field('Dollar');
-end;
-
-function TQryBill.GetEuro: TField;
-begin
-  Result := Field('Euro');
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FNumber := TFieldWrap.Create(Self, 'Number', 'Номер');
+  FBillDate := TFieldWrap.Create(Self, 'BillDate', 'Дата');
+  FShipmentDate := TFieldWrap.Create(Self, 'ShipmentDate', 'Дата отгрузки');
+  FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс доллара');
+  FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс евро');
 end;
 
 end.

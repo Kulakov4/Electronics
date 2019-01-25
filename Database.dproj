@@ -797,7 +797,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\DSWrap.pas"/>
         <DCCReference Include="Queryes\ExtraCharge\ExtraChargeQry.pas">
             <Form>QryExtraCharge</Form>
             <FormType>dfm</FormType>
@@ -835,6 +834,12 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Queryes\Bill\BillQuery2.pas">
+            <Form>QryBill2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\DSWrap.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

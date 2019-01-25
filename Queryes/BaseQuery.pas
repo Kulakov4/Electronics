@@ -14,6 +14,17 @@ uses
 // WM_NEED_POST = WM_USER + 558;
 
 type
+  TParamRec = record
+    FieldName: String;
+    Value: Variant;
+    DataType: TFieldType;
+    CaseInsensitive: Boolean;
+  public
+    constructor Create(const AFieldName: String; const AValue: Variant;
+      const ADataType: TFieldType = ftInteger;
+      const ACaseInsensitive: Boolean = False; const AOperation: String = '=');
+  end;
+
   TQueryBase = class(TFrame)
     FDQuery: TFDQuery;
     Label1: TLabel;
@@ -33,6 +44,7 @@ type
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
     function GetPK: TField;
+    procedure TryAppend;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -106,6 +118,8 @@ type
     function Search(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; TestResult: Integer = -1)
       : Integer; overload;
+    function SearchEx(AParams: TArray<TParamRec>;
+      TestResult: Integer = -1): Integer;
     procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
@@ -115,7 +129,6 @@ type
     function TryEdit: Boolean;
     procedure TryPost; virtual;
     procedure TryCancel;
-    procedure TryAppend;
     procedure TryOpen;
     procedure UpdateFields(AFields: TArray<TField>; AValues: TArray<Variant>;
       AUpdateNullFieldsOnly: Boolean);
@@ -883,6 +896,62 @@ begin
     Assert(Result = TestResult);
 end;
 
+function TQueryBase.SearchEx(AParams: TArray<TParamRec>;
+  TestResult: Integer = -1): Integer;
+var
+  AFieldNames: TList<String>;
+  AFormatStr: string;
+  ANewValue: string;
+  ANewSQL: string;
+  ATemplate: string;
+  AValues: TList<Variant>;
+  i: Integer;
+  p: Integer;
+begin
+  Assert(Length(AParams) > 0);
+
+  ANewSQL := SQL; // Восстанавливаем первоначальный SQL
+
+  for i := Low(AParams) to High(AParams) do
+  begin
+    ATemplate := Format('%d=%d', [i, i]);
+    p := ANewSQL.IndexOf(ATemplate);
+    Assert(p >= 0);
+
+    // Если поиск нечувствительный к регистру
+    if AParams[i].CaseInsensitive then
+      AFormatStr := 'upper(%s)=upper(:%s)'
+    else
+      AFormatStr := '%s=:%s';
+
+    ANewValue := Format(AFormatStr, [AParams[i].FieldName,
+      AParams[i].FieldName]);
+    ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
+  end;
+
+  // Меняем SQL запрос
+  FDQuery.SQL.Text := ANewSQL;
+
+  AFieldNames := TList<String>.Create;
+  AValues := TList<Variant>.Create;
+  try
+    // Создаём параметры SQL запроса
+    for i := Low(AParams) to High(AParams) do
+    begin
+      SetParamType(AParams[i].FieldName, ptInput, AParams[i].DataType);
+
+      AFieldNames.Add(AParams[i].FieldName);
+      AValues.Add(AParams[i].Value);
+    end;
+
+    // Выполняем поиск
+    Result := Search(AFieldNames.ToArray, AValues.ToArray, TestResult);
+  finally
+    FreeAndNil(AFieldNames);
+    FreeAndNil(AValues);
+  end;
+end;
+
 procedure TQueryBase.SetConditionSQL(const ABaseSQL, AConditionSQL,
   AMark: string; ANotifyEventRef: TNotifyEventRef = nil);
 begin
@@ -1048,6 +1117,23 @@ begin
   finally
     FreeAndNil(AChangedFields);
   end;
+end;
+
+constructor TParamRec.Create(const AFieldName: String; const AValue: Variant;
+  const ADataType: TFieldType = ftInteger;
+  const ACaseInsensitive: Boolean = False; const AOperation: String = '=');
+begin
+  inherited;
+  Assert(not AFieldName.IsEmpty);
+  Assert(not VarIsNull(AValue));
+
+  FieldName := AFieldName;
+  Value := AValue;
+  DataType := ADataType;
+  CaseInsensitive := ACaseInsensitive;
+
+  if ACaseInsensitive then
+    Assert(ADataType = ftWideString);
 end;
 
 end.

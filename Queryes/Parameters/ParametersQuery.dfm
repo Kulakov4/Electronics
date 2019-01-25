@@ -30,10 +30,10 @@ inherited QueryParameters: TQueryParameters
       ') t on t.IdParameter = p.Id'
       ''
       
-        'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
-        'ategoryId and cp.ParamSubParamID = t.id '
+        'LEFT JOIN CategoryParams2 cp on 0=0 and cp.ParamSubParamID = t.i' +
+        'd '
       'where'
-      '0=0 and IDParameterType is not null'
+      '2=2 and IDParameterType is not null'
       '/* ShowDuplicate'
       'and tablename in'
       '('
@@ -44,17 +44,8 @@ inherited QueryParameters: TQueryParameters
       '    having count(*) > 1'
       ')'
       'ShowDuplicate */'
-      'and ( ( p.TableName = :TableName ) or ( :TableName = '#39#39' ) )'
+      'and 1=1 '
       'order by p.IDParameterType, p.[Order]')
-    ParamData = <
-      item
-        Name = 'PRODUCTCATEGORYID'
-        ParamType = ptInput
-      end
-      item
-        Name = 'TABLENAME'
-        ParamType = ptInput
-      end>
   end
   object fdqDeleteFromCategoryParams: TFDQuery
     Connection = DMRepository.dbConnection

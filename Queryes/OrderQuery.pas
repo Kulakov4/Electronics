@@ -9,27 +9,33 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DragHelper, System.Generics.Collections;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DragHelper, System.Generics.Collections,
+  DSWrap;
 
 type
+  TOrderW = class(TDSWrap)
+  protected
+      FOrd: TFieldWrap;
+  public
+    property Ord: TFieldWrap read FOrd;
+  end;
+
   TQueryOrder = class(TQueryWithDataSource)
   private
+    FOrderW: TOrderW;
     FRecOrderList: TList<TRecOrder>;
     { Private declarations }
   protected
+    function CreateDataSetWrap: TOrderW; virtual; abstract;
     procedure DoOnUpdateOrder(ARecOrder: TRecOrder);
-    function GetOrd: TField; virtual;
     procedure UpdateOrder;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure MoveDSRecord(AStartDrag: TStartDrag; ADropDrag: TDropDrag);
-    property Ord: TField read GetOrd;
+    property OrderW: TOrderW read FOrderW;
     { Public declarations }
   end;
-
-var
-  QueryOrder: TQueryOrder;
 
 implementation
 
@@ -40,6 +46,9 @@ uses System.Math, System.Generics.Defaults;
 constructor TQueryOrder.Create(AOwner: TComponent);
 begin
   inherited;
+  FOrderW := CreateDataSetWrap;
+  Assert(FOrderW <> nil);
+  Assert(FOrderW.Ord <> nil);
   FRecOrderList := TList<TRecOrder>.Create;
 end;
 
@@ -51,12 +60,7 @@ end;
 
 procedure TQueryOrder.DoOnUpdateOrder(ARecOrder: TRecOrder);
 begin
-  Ord.Value := ARecOrder.Order;
-end;
-
-function TQueryOrder.GetOrd: TField;
-begin
-  Result := Field('Ord');
+  OrderW.Ord.F.Value := ARecOrder.Order;
 end;
 
 procedure TQueryOrder.MoveDSRecord(AStartDrag: TStartDrag;
@@ -86,11 +90,11 @@ begin
   try
     // Важно!!! Клоны должны быть отсортированы так же как строки на экране
     AClone.CloneCursor(FDQuery);
-    AClone.IndexFieldNames := Ord.FieldName;
+    AClone.IndexFieldNames := OrderW.Ord.FieldName;
     AClone.First;
 
     AClone2.CloneCursor(FDQuery);
-    AClone2.IndexFieldNames := Ord.FieldName;
+    AClone2.IndexFieldNames := OrderW.Ord.FieldName;
     AClone2.First;
 
     // Если был перенос вверх
@@ -98,8 +102,8 @@ begin
     // Если был перенос вниз
     IsDown := not IsUp;
 
-    AOrderField := AClone.FieldByName(Ord.FieldName);
-    AOrderField2 := AClone2.FieldByName(Ord.FieldName);
+    AOrderField := AClone.FieldByName(OrderW.Ord.FieldName);
+    AOrderField2 := AClone2.FieldByName(OrderW.Ord.FieldName);
     AKeyField := AClone.FieldByName(PKFieldName);
 
     while not AClone.Eof do

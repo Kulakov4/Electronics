@@ -9,20 +9,31 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  System.Generics.Collections;
+  System.Generics.Collections, DSWrap;
 
 type
+  TBodyW = class(TDSWrap)
+  private
+    FBody: TFieldWrap;
+    FID: TFieldWrap;
+    FIDBodyKind: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Body: TFieldWrap read FBody;
+    property ID: TFieldWrap read FID;
+    property IDBodyKind: TFieldWrap read FIDBodyKind;
+  end;
+
   TQueryBodies = class(TQueryBase)
     FDUpdateSQL: TFDUpdateSQL;
   private
-    function GetBody: TField;
-    function GetIDBodyKind: TField;
+    FW: TBodyW;
     { Private declarations }
   protected
   public
+    constructor Create(AOwner: TComponent); override;
     procedure LocateOrAppend(const ABody: string; AIDBodyKind: Integer);
-    property Body: TField read GetBody;
-    property IDBodyKind: TField read GetIDBodyKind;
+    property W: TBodyW read FW;
     { Public declarations }
   end;
 
@@ -32,14 +43,10 @@ implementation
 
 uses StrHelper;
 
-function TQueryBodies.GetBody: TField;
+constructor TQueryBodies.Create(AOwner: TComponent);
 begin
-  Result := Field('Body');
-end;
-
-function TQueryBodies.GetIDBodyKind: TField;
-begin
-  Result := Field('IDBodyKind');
+  inherited;
+  FW := TBodyW.Create(FDQuery);
 end;
 
 procedure TQueryBodies.LocateOrAppend(const ABody: string;
@@ -50,16 +57,24 @@ begin
   Assert(not ABody.IsEmpty);
   Assert(AIDBodyKind > 0);
 
-  AFieldNames := Format('%s;%s', [IDBodyKind.FieldName, Body.FieldName]);
+  AFieldNames := Format('%s;%s', [W.IDBodyKind.FieldName, W.Body.FieldName]);
 
   if not FDQuery.LocateEx(AFieldNames, VarArrayOf([AIDBodyKind, ABody]),
     [lxoCaseInsensitive]) then
   begin
-    TryAppend;
-    Body.Value := ABody;
-    IDBodyKind.Value := AIDBodyKind;
-    TryPost;
+    W.TryAppend;
+    W.Body.F.Value := ABody;
+    W.IDBodyKind.F.Value := AIDBodyKind;
+    W.TryPost;
   end;
+end;
+
+constructor TBodyW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FBody := TFieldWrap.Create(Self, 'Body');
+  FIDBodyKind := TFieldWrap.Create(Self, 'IDBodyKind');
 end;
 
 end.

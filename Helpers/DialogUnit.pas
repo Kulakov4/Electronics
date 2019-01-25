@@ -53,6 +53,7 @@ type
     function CreateFolderDialog(const AValue: String): Integer;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
+    procedure DollarOrEuroCourceUnknown;
     procedure ProducerNotFound(const AProducer: string);
     function ShowDialog(AOpenDialogClass: TOpenDialogClass;
       const AInitialDir, AInitialFileName: string;
@@ -183,6 +184,12 @@ end;
 procedure TDialog.ExcelFilesNotFoundDialog;
 begin
   Application.MessageBox(PChar('Не найдено ни одного Excel файла'),
+    PChar(sError), MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.DollarOrEuroCourceUnknown;
+begin
+  Application.MessageBox(PChar('Не известен текущий курс Доллара или Евро'),
     PChar(sError), MB_OK + MB_ICONSTOP);
 end;
 

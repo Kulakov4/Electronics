@@ -120,7 +120,7 @@ begin
     end;
 
     AProducerID := AProducersGroup.qProducers.PK.AsInteger;
-    AProducerName := AProducersGroup.qProducers.Name.AsString;
+    AProducerName := AProducersGroup.qProducers.W.Name.F.AsString;
 
     // Сохраняем в настройках выбранного производителя
     TSettings.Create.Producer := AProducerName;

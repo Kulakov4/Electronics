@@ -59,7 +59,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sDatasheetParamTableName, True);
-    FDatasheetParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FDatasheetParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FDatasheetParamSubParamID > 0);
   end;
 
@@ -73,7 +73,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sDescriptionParamTableName, True);
-    FDescriptionParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FDescriptionParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FDescriptionParamSubParamID > 0);
   end;
 
@@ -87,7 +87,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sDiagramParamTableName, True);
-    FDiagramParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FDiagramParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FDiagramParamSubParamID > 0);
   end;
 
@@ -101,7 +101,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sDrawingParamTableName, True);
-    FDrawingParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FDrawingParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FDrawingParamSubParamID > 0);
   end;
 
@@ -115,7 +115,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sImageParamTableName, True);
-    FImageParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FImageParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FImageParamSubParamID > 0);
   end;
 
@@ -129,7 +129,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sPackagePinsParamTableName, True);
-    FPackagePinsParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FPackagePinsParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FPackagePinsParamSubParamID > 0);
   end;
 
@@ -144,7 +144,7 @@ begin
   begin
     // Èùåì ïàğàìåòğ ëèáî äîáàâëÿåì åãî
     qSearchParameter.SearchOrAppend(sProducerParamTableName, True);
-    FProducerParamSubParamID := qSearchParameter.ParamSubParamID.AsInteger;
+    FProducerParamSubParamID := qSearchParameter.W.ParamSubParamID.F.AsInteger;
     Assert(FProducerParamSubParamID > 0);
   end;
 

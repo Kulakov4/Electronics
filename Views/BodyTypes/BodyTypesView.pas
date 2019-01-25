@@ -401,7 +401,7 @@ var
   S: String;
 begin
   inherited;
-  m := BodyTypesGroup.qBodyTypes2.JEDEC.AsString.Split([';']);
+  m := BodyTypesGroup.qBodyTypes2.W.JEDEC.F.AsString.Split([';']);
   for S in m do
   begin
     AJedec := S.Trim;
@@ -594,11 +594,11 @@ begin
 
   AJedec := FfrmJEDECPopup.ViewBodyVariationJEDEC.JEDECList;
 
-  if AJedec = BodyTypesGroup.qBodyTypes2.JEDEC.AsString then
+  if AJedec = BodyTypesGroup.qBodyTypes2.W.JEDEC.F.AsString then
     Exit;
 
-  BodyTypesGroup.qBodyTypes2.TryEdit;
-  BodyTypesGroup.qBodyTypes2.JEDEC.AsString := AJedec;
+  BodyTypesGroup.qBodyTypes2.W.TryEdit;
+  BodyTypesGroup.qBodyTypes2.W.JEDEC.F.AsString := AJedec;
   BodyTypesGroup.TryPost;
   ApplyBestFitJEDEC;
 end;
@@ -607,7 +607,7 @@ procedure TViewBodyTypes.cxerpiJEDECPropertiesInitPopup(Sender: TObject);
 begin
   inherited;
   frmJEDECPopup.ViewBodyVariationJEDEC.Init
-    (BodyTypesGroup.qBodyTypes2.IDS.AsString,
+    (BodyTypesGroup.qBodyTypes2.W.IDS.F.AsString,
     BodyTypesGroup.qBodyTypes2.qJedec);
 end;
 
@@ -848,7 +848,7 @@ begin
   actOpenJEDECAll.Visible := actAddJEDECFile.Visible;
   actLoadJEDEC.Visible := actAddJEDECFile.Visible;
 
-  actOpenJEDECAll.Enabled := not BodyTypesGroup.qBodyTypes2.JEDEC.
+  actOpenJEDECAll.Enabled := not BodyTypesGroup.qBodyTypes2.W.JEDEC.F.
     AsString.IsEmpty;
 end;
 
@@ -890,7 +890,7 @@ begin
 
       InitializeLookupColumn(clIDProducer,
         FBodyTypesGroup.qProducers.DataSource, lsEditFixedList,
-        FBodyTypesGroup.qProducers.Name.FieldName);
+        FBodyTypesGroup.qProducers.W.Name.F.FieldName);
 
       TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.AfterOpen,
         DoAfterDataChange, FEventList);

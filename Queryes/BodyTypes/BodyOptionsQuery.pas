@@ -7,16 +7,27 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TBodyOptionsW = class(TDSWrap)
+  private
+    FOption: TFieldWrap;
+    FID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Option: TFieldWrap read FOption;
+    property ID: TFieldWrap read FID;
+  end;
+
   TQueryBodyOptions = class(TQueryBase)
   private
-    function GetOption: TField;
+    FW: TBodyOptionsW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AOption: string): Boolean;
-    property Option: TField read GetOption;
+    property W: TBodyOptionsW read FW;
     { Public declarations }
   end;
 
@@ -24,21 +35,29 @@ implementation
 
 {$R *.dfm}
 
-function TQueryBodyOptions.GetOption: TField;
+constructor TQueryBodyOptions.Create(AOwner: TComponent);
 begin
-  Result := Field('Option');
+  inherited;
+  FW := TBodyOptionsW.Create(FDQuery);
 end;
 
 function TQueryBodyOptions.LocateOrAppend(const AOption: string): Boolean;
 begin
   Assert(not AOption.IsEmpty);
 
-  Result := LocateByField( Option.FieldName, AOption, [lxoCaseInsensitive] );
+  Result := LocateByField( W.Option.FieldName, AOption, [lxoCaseInsensitive] );
   if Result then Exit;
 
-  TryAppend;
-  Option.AsString := AOption;
-  TryPost;
+  W.TryAppend;
+  W.Option.F.AsString := AOption;
+  W.TryPost;
+end;
+
+constructor TBodyOptionsW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FOption := TFieldWrap.Create(Self, 'Option');
 end;
 
 end.

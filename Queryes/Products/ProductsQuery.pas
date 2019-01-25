@@ -87,12 +87,12 @@ begin
       DisableCalc;
       try
         // 1) Ищем такую группу компонентов на текущем складе
-        V := LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
+        V := W.LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
         if VarIsNull(V) then
         begin
           FDQuery.Append;
-          IsGroup.AsInteger := 1; // Будем добавлять группу
-          Value.AsString := AExcelTable.ComponentGroup.AsString;
+          W.IsGroup.F.AsInteger := 1; // Будем добавлять группу
+          W.Value.F.AsString := AExcelTable.ComponentGroup.AsString;
           FDQuery.Post;
           AIDComponentGroup := PK.Value;
         end
@@ -114,42 +114,42 @@ begin
         end;
 
         // Дополнительно заполняем
-        IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
-        IDComponentGroup.AsInteger := AIDComponentGroup;
-        IsGroup.AsInteger := 0;
+        W.IDProducer.F.AsInteger := ProducersGroup.qProducers.PK.Value;
+        W.IDComponentGroup.F.AsInteger := AIDComponentGroup;
+        W.IsGroup.F.AsInteger := 0;
 
         // Если цена задана в рублях
         if not AExcelTable.PriceR.IsNull then
         begin
           // Тип валюты - рубли
-          IDCurrency.AsInteger := 1;
-          Price.Value := AExcelTable.PriceR.Value;
+          W.IDCurrency.F.AsInteger := 1;
+          W.Price.F.Value := AExcelTable.PriceR.Value;
         end;
 
         // Если цена задана в долларах
         if not AExcelTable.PriceD.IsNull then
         begin
           // Тип валюты - доллар
-          IDCurrency.AsInteger := 2;
-          Price.Value := AExcelTable.PriceD.Value;
+          W.IDCurrency.F.AsInteger := 2;
+          W.Price.F.Value := AExcelTable.PriceD.Value;
         end;
 
         // Если цена задана в евро
         if not AExcelTable.PriceE.IsNull then
         begin
           // Тип валюты - евро
-          IDCurrency.AsInteger := 3;
-          Price.Value := AExcelTable.PriceE.Value;
+          W.IDCurrency.F.AsInteger := 3;
+          W.Price.F.Value := AExcelTable.PriceE.Value;
         end;
 
         // Дата загрузки должна заполняться при загрузке
-        Assert(not LoadDate.IsNull);
+        Assert(not W.LoadDate.F.IsNull);
 
         // Курс Доллара должен заполняться при загрузке
-        Assert(not Dollar.IsNull);
+        Assert(not W.Dollar.F.IsNull);
 
         // Курс Евро должен заполняться при загрузке
-        Assert(not Euro.IsNull);
+        Assert(not W.Euro.F.IsNull);
 
       finally
         // Разрешаем обновиться автовычисляемым полям
@@ -183,10 +183,10 @@ begin
       raise Exception.CreateFmt('Производитель "%s" не найден в справочнике',
         [AProducers[I]]);
 
-    TryAppend;
-    Value.AsString := AValues[I];
-    IDProducer.AsInteger := ProducersGroup.qProducers.PK.Value;
-    TryPost;
+    W.TryAppend;
+    W.Value.F.AsString := AValues[I];
+    W.IDProducer.F.AsInteger := ProducersGroup.qProducers.PK.Value;
+    W.TryPost;
   end;
 end;
 
@@ -202,7 +202,7 @@ begin
 
   // 1) Ищем группу компонентов на текущем складе
 
-  AKeyFields := Format('%s;%s', [IsGroup.FieldName, Value.FieldName]);
+  AKeyFields := Format('%s;%s', [W.IsGroup.FieldName, W.Value.FieldName]);
   V := FDQuery.LookupEx(AKeyFields,
     VarArrayOf([1, AProductsExcelTable.ComponentGroup.Value]), PKFieldName);
 
@@ -224,13 +224,13 @@ begin
 
   // Ищем на складе
   AKeyFields := Format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s',
-    [IsGroup.FieldName, IDComponentGroup.FieldName, Value.FieldName,
-    IDProducer.FieldName, PackagePins.FieldName, ReleaseDate.FieldName,
-    Amount.FieldName, Packaging.FieldName, Price.FieldName,
-    OriginCountryCode.FieldName, OriginCountry.FieldName, BatchNumber.FieldName,
-    CustomsDeclarationNumber.FieldName, Storage.FieldName,
-    StoragePlace.FieldName, Seller.FieldName, DocumentNumber.FieldName,
-    Barcode.FieldName]);
+    [W.IsGroup.FieldName, W.IDComponentGroup.FieldName, W.Value.FieldName,
+    W.IDProducer.FieldName, W.PackagePins.FieldName, W.ReleaseDate.FieldName,
+    W.Amount.FieldName, W.Packaging.FieldName, W.Price.FieldName,
+    W.OriginCountryCode.FieldName, W.OriginCountry.FieldName, W.BatchNumber.FieldName,
+    W.CustomsDeclarationNumber.FieldName, W.Storage.FieldName,
+    W.StoragePlace.FieldName, W.Seller.FieldName, W.DocumentNumber.FieldName,
+    W.Barcode.FieldName]);
 
   V := FDQuery.LookupEx(AKeyFields,
     VarArrayOf([0, AIDComponentGroup, AProductsExcelTable.Value.AsString,
@@ -265,15 +265,13 @@ end;
 procedure TQueryProducts.DoAfterInsert(Sender: TObject);
 begin
   // Заполняем код склада
-  StorehouseId.AsInteger := ParentValue;
+  W.StorehouseId.F.AsInteger := ParentValue;
 end;
 
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   FNeedUpdateCount := True;
   FNeedDecTotalCount := false;
-  // FDQuery.FieldByName('Amount').OnGetText := HideNullGetText;
-  // FDQuery.FieldByName('Price').OnGetText := HideNullGetTex
 end;
 
 procedure TQueryProducts.DoAfterPost(Sender: TObject);
@@ -285,7 +283,7 @@ end;
 
 procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
 begin
-  FNeedDecTotalCount := not IsGroup.IsNull and (IsGroup.AsInteger = 0);
+  FNeedDecTotalCount := not W.IsGroup.F.IsNull and (W.IsGroup.F.AsInteger = 0);
 end;
 
 function TQueryProducts.GetExportFileName: string;
@@ -344,9 +342,9 @@ begin
   try
     for I := Low(AIDArray) to High(AIDArray) do
     begin
-      ATempTable.TryAppend;
-      ATempTable.ID.AsInteger := AIDArray[I];
-      ATempTable.TryPost;
+      ATempTable.W.TryAppend;
+      ATempTable.W.ID.F.AsInteger := AIDArray[I];
+      ATempTable.W.TryPost;
     end;
 
     // ASQL := Replace(FDQuery.SQL.Text, 'Id in (-6)', 'StorehouseId = :vStorehouseId');

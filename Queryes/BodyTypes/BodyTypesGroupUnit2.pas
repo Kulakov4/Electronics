@@ -62,7 +62,7 @@ begin
   // На сервере типы корпусов уже каскадно удалились
   // Каскадно удаляем типы корпусов с клиента
   qBodyTypes2.CascadeDelete(qBodyKinds.OldPKValue,
-    qBodyTypes2.IDBodyKind.FieldName, True);
+    qBodyTypes2.W.IDBodyKind.FieldName, True);
 end;
 
 function TBodyTypesGroup2.GetqBodyKinds: TQueryBodyKinds;
@@ -122,14 +122,14 @@ begin
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
 
-      QueryBodyTypesSimple.TryAppend;
-      QueryBodyTypesSimple.IDProducer.AsInteger := AProducerID;
-      QueryBodyTypesSimple.IDBodyKind.Value := qBodyKinds.PK.Value;
-      QueryBodyTypesSimple.Variations.AsString :=
+      QueryBodyTypesSimple.W.TryAppend;
+      QueryBodyTypesSimple.W.IDProducer.F.AsInteger := AProducerID;
+      QueryBodyTypesSimple.W.IDBodyKind.F.Value := qBodyKinds.PK.Value;
+      QueryBodyTypesSimple.W.Variations.F.AsString :=
         ABodyTypesExcelTable.Variation.AsString;
-      QueryBodyTypesSimple.JEDEC.AsString :=
+      QueryBodyTypesSimple.W.JEDEC.F.AsString :=
         ABodyTypesExcelTable.JEDEC.AsString;
-      QueryBodyTypesSimple.Options.AsString :=
+      QueryBodyTypesSimple.W.Options.F.AsString :=
         ABodyTypesExcelTable.Options.AsString;
 
       for AField in ABodyTypesExcelTable.Fields do

@@ -142,8 +142,8 @@ var
   m: TArray<String>;
 begin
   inherited;
-  m := qBodyVariationsJedec.GetFieldValues(qBodyVariationsJedec.JEDEC.FieldName,
-    ',').Trim([',']).Split([',']);
+  m := qBodyVariationsJedec.GetFieldValues
+    (qBodyVariationsJedec.W.JEDEC.FieldName, ',').Trim([',']).Split([',']);
 
   for AJedec in m do
   begin
@@ -154,7 +154,7 @@ end;
 procedure TViewBodyVariationJEDEC.actOpenJEDECExecute(Sender: TObject);
 begin
   inherited;
-  TJEDECDocument.OpenJEDEC(Handle, qBodyVariationsJedec.JEDEC.AsString);
+  TJEDECDocument.OpenJEDEC(Handle, qBodyVariationsJedec.W.JEDEC.F.AsString);
 end;
 
 procedure TViewBodyVariationJEDEC.DoOnHaveAnyChange(Sender: TObject);
@@ -163,22 +163,9 @@ begin
 end;
 
 function TViewBodyVariationJEDEC.GetJEDECList: string;
-// var
-// i: Integer;
-// S: String;
 begin
   Result := qBodyVariationsJedec.GetFieldValues
-    (qBodyVariationsJedec.JEDEC.FieldName, '; ').Trim([';', ' ']);
-  {
-    S := '';
-    for i := 0 to MainView.DataController.RowCount - 1 do
-    begin
-    S := S + IfThen(not S.IsEmpty, '; ', '');
-    S := S + VarToStr( MainView.ViewData.Rows[i].DisplayTexts[clIDJEDEC.Index] );
-    end;
-
-    Result := S;
-  }
+    (qBodyVariationsJedec.W.JEDEC.FieldName, '; ').Trim([';', ' ']);
 end;
 
 function TViewBodyVariationJEDEC.GetqBodyVariationsJedec
@@ -251,7 +238,7 @@ begin
   if not TDialog.Create.ShowDialog(TMyOpenPictureDialog, S, '', AFileName) then
     Exit;
 
-  FqBodyVariationsJedec.LoadJEDEC(AFileName);
+  FqBodyVariationsJedec.W.LoadJEDEC(AFileName);
 end;
 
 end.

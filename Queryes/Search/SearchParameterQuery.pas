@@ -8,43 +8,55 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TSearchParameterW = class(TDSWrap)
+  private
+    FCodeLetters: TFieldWrap;
+    FID: TFieldWrap;
+    FDefinition: TFieldWrap;
+    FIDParameterKind: TFieldWrap;
+    FIDParameterType: TFieldWrap;
+    FIsCustomParameter: TFieldWrap;
+    FMeasuringUnit: TFieldWrap;
+    FOrder: TFieldWrap;
+    FParamSubParamID: TFieldWrap;
+    FTableName: TFieldWrap;
+    FValue: TFieldWrap;
+    FValueT: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property CodeLetters: TFieldWrap read FCodeLetters;
+    property ID: TFieldWrap read FID;
+    property Definition: TFieldWrap read FDefinition;
+    property IDParameterKind: TFieldWrap read FIDParameterKind;
+    property IDParameterType: TFieldWrap read FIDParameterType;
+    property IsCustomParameter: TFieldWrap read FIsCustomParameter;
+    property MeasuringUnit: TFieldWrap read FMeasuringUnit;
+    property Order: TFieldWrap read FOrder;
+    property ParamSubParamID: TFieldWrap read FParamSubParamID;
+    property TableName: TFieldWrap read FTableName;
+    property Value: TFieldWrap read FValue;
+    property ValueT: TFieldWrap read FValueT;
+  end;
+
   TQuerySearchParameter = class(TQueryBase)
     FDUpdateSQL: TFDUpdateSQL;
     procedure FDQueryAfterOpen(DataSet: TDataSet);
   private
-    function GetCodeLetters: TField;
-    function GetDefinition: TField;
-    function GetIDParameterKind: TField;
-    function GetIDParameterType: TField;
-    function GetIsCustomParameter: TField;
-    function GetMeasuringUnit: TField;
-    function GetOrder: TField;
-    function GetParamSubParamID: TField;
-    function GetTableName: TField;
-    function GetValue: TField;
-    function GetValueT: TField;
+    FW: TSearchParameterW;
     { Private declarations }
   public
-    function SearchByTableName(const ATableName: String; AIsCustomParameter: Boolean)
-      : Integer; overload;
+    constructor Create(AOwner: TComponent); override;
+    function SearchByTableName(const ATableName: String;
+      AIsCustomParameter: Boolean): Integer; overload;
     function SearchByTableName(const ATableName: String): Integer; overload;
-    function SearchByID(AID: Integer; ATestResult: Boolean = False): Integer;
-        overload;
-    procedure SearchOrAppend(const ATableName: String; AIsCustomParameter: Boolean);
-    property CodeLetters: TField read GetCodeLetters;
-    property Definition: TField read GetDefinition;
-    property IDParameterKind: TField read GetIDParameterKind;
-    property IDParameterType: TField read GetIDParameterType;
-    property IsCustomParameter: TField read GetIsCustomParameter;
-    property MeasuringUnit: TField read GetMeasuringUnit;
-    property Order: TField read GetOrder;
-    property ParamSubParamID: TField read GetParamSubParamID;
-    property TableName: TField read GetTableName;
-    property Value: TField read GetValue;
-    property ValueT: TField read GetValueT;
+    function SearchByID(AID: Integer; ATestResult: Boolean = False)
+      : Integer; overload;
+    procedure SearchOrAppend(const ATableName: String;
+      AIsCustomParameter: Boolean);
+    property W: TSearchParameterW read FW;
     { Public declarations }
   end;
 
@@ -54,65 +66,16 @@ implementation
 
 uses ProjectConst, StrHelper, System.Math;
 
+constructor TQuerySearchParameter.Create(AOwner: TComponent);
+begin
+  inherited;
+  FW := TSearchParameterW.Create(FDQuery);
+end;
+
 procedure TQuerySearchParameter.FDQueryAfterOpen(DataSet: TDataSet);
 begin
   inherited;
   SetFieldsRequired(False);
-end;
-
-function TQuerySearchParameter.GetCodeLetters: TField;
-begin
-  Result := Field('CodeLetters');
-end;
-
-function TQuerySearchParameter.GetDefinition: TField;
-begin
-  Result := Field('Definition');
-end;
-
-function TQuerySearchParameter.GetIDParameterKind: TField;
-begin
-  Result := Field('IDParameterKind');
-end;
-
-function TQuerySearchParameter.GetIDParameterType: TField;
-begin
-  Result := Field('IDParameterType');
-end;
-
-function TQuerySearchParameter.GetIsCustomParameter: TField;
-begin
-  Result := Field('IsCustomParameter');
-end;
-
-function TQuerySearchParameter.GetMeasuringUnit: TField;
-begin
-  Result := Field('MeasuringUnit');
-end;
-
-function TQuerySearchParameter.GetOrder: TField;
-begin
-  Result := Field('Order');
-end;
-
-function TQuerySearchParameter.GetParamSubParamID: TField;
-begin
-  Result := Field('ParamSubParamID');
-end;
-
-function TQuerySearchParameter.GetTableName: TField;
-begin
-  Result := Field('TableName');
-end;
-
-function TQuerySearchParameter.GetValue: TField;
-begin
-  Result := Field('Value');
-end;
-
-function TQuerySearchParameter.GetValueT: TField;
-begin
-  Result := Field('ValueT');
 end;
 
 function TQuerySearchParameter.SearchByTableName(const ATableName: String;
@@ -122,65 +85,66 @@ var
 begin
   Assert(not ATableName.IsEmpty);
 
-  // ћен€ем условие
-  ACondition := 'where upper(TableName) = upper(:TableName) and IsCustomParameter=:IsCustomParameter';
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('TableName', ptInput, ftWideString);
-  SetParamType('IsCustomParameter');
-
-  // »щем
-  Result := Search(['TableName', 'IsCustomParameter'], [ATableName, IfThen(AIsCustomParameter, 1, 0)]);
+  // »щем без учЄта регистра
+  Result := SearchEx([TParamRec.Create(W.TableName.FieldName, ATableName,
+    ftWideString, True), TParamRec.Create(W.IsCustomParameter.FieldName,
+    IfThen(AIsCustomParameter, 1, 0))]);
 end;
 
-function TQuerySearchParameter.SearchByTableName(const ATableName: String):
-    Integer;
+function TQuerySearchParameter.SearchByTableName(const ATableName
+  : String): Integer;
 var
   ACondition: string;
 begin
   Assert(not ATableName.IsEmpty);
 
-  // ћен€ем условие
-  ACondition := 'where upper(TableName) = upper(:TableName)';
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('TableName', ptInput, ftWideString);
-
-  // »щем
-  Result := Search(['TableName'], [ATableName]);
+  // »щем без учЄта регистра
+  Result := SearchEx([TParamRec.Create(W.TableName.FieldName, ATableName,
+    ftWideString, True)]);
 end;
 
-function TQuerySearchParameter.SearchByID(AID: Integer; ATestResult: Boolean =
-    False): Integer;
+function TQuerySearchParameter.SearchByID(AID: Integer;
+  ATestResult: Boolean = False): Integer;
 var
   ACondition: string;
 begin
   Assert(AID > 0);
 
-  // ћен€ем условие
-  ACondition := 'where p.ID = :ID';
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, ACondition, 'where');
-  SetParamType('ID');
-
   // »щем
-  Result := Search(['ID'], [AID]);
-
-  if ATestResult then
-    Assert(Result = 1);
+  Result := SearchEx([TParamRec.Create(W.PK.FieldName, AID)], IfThen(ATestResult, 1, -1));
 end;
 
 procedure TQuerySearchParameter.SearchOrAppend(const ATableName: String;
-    AIsCustomParameter: Boolean);
+  AIsCustomParameter: Boolean);
 var
   k: Integer;
 begin
   k := SearchByTableName(ATableName, AIsCustomParameter);
   if k = 0 then
   begin
-    TryAppend;
-    TableName.AsString := ATableName;
-    IsCustomParameter.AsBoolean := AIsCustomParameter;
-    TryPost;
-    Assert(PK.AsInteger > 0);
+    W.TryAppend;
+    W.TableName.F.AsString := ATableName;
+    W.IsCustomParameter.F.AsBoolean := AIsCustomParameter;
+    W.TryPost;
+    Assert(W.PK.AsInteger > 0);
   end;
+end;
+
+constructor TSearchParameterW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FCodeLetters := TFieldWrap.Create(Self, 'CodeLetters');
+  FDefinition := TFieldWrap.Create(Self, 'Definition');
+  FIDParameterKind := TFieldWrap.Create(Self, 'IDParameterKind');
+  FIDParameterType := TFieldWrap.Create(Self, 'IDParameterType');
+  FIsCustomParameter := TFieldWrap.Create(Self, 'IsCustomParameter');
+  FMeasuringUnit := TFieldWrap.Create(Self, 'MeasuringUnit');
+  FOrder := TFieldWrap.Create(Self, 'Order');
+  FParamSubParamID := TFieldWrap.Create(Self, 'ParamSubParamID');
+  FTableName := TFieldWrap.Create(Self, 'TableName');
+  FValue := TFieldWrap.Create(Self, 'Value');
+  FValueT := TFieldWrap.Create(Self, 'ValueT');
 end;
 
 end.

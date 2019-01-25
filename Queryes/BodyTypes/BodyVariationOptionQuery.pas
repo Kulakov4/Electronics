@@ -7,20 +7,31 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TBodyVariationOptionW = class(TDSWrap)
+  private
+    FIDBodyOption: TFieldWrap;
+    FID: TFieldWrap;
+    FIDBodyVariation: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property IDBodyOption: TFieldWrap read FIDBodyOption;
+    property ID: TFieldWrap read FID;
+    property IDBodyVariation: TFieldWrap read FIDBodyVariation;
+  end;
+
   TQueryBodyVariationOption = class(TQueryBase)
   private
-    function GetIDBodyOption: TField;
-    function GetIDBodyVariation: TField;
+    FW: TBodyVariationOptionW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     function SearchByIDBodyVariation(AIDBodyVariation: Integer): Integer;
     procedure UpdateOption(AIDBodyVariation: Integer; AOptionIDArr:
         TArray<Integer>);
-    property IDBodyOption: TField read GetIDBodyOption;
-    property IDBodyVariation: TField read GetIDBodyVariation;
+    property W: TBodyVariationOptionW read FW;
     { Public declarations }
   end;
 
@@ -31,14 +42,10 @@ uses
 
 {$R *.dfm}
 
-function TQueryBodyVariationOption.GetIDBodyOption: TField;
+constructor TQueryBodyVariationOption.Create(AOwner: TComponent);
 begin
-  Result := Field('IDBodyOption');
-end;
-
-function TQueryBodyVariationOption.GetIDBodyVariation: TField;
-begin
-  Result := Field('IDBodyVariation');
+  inherited;
+  FW := TBodyVariationOptionW.Create(FDQuery);
 end;
 
 function TQueryBodyVariationOption.SearchByIDBodyVariation(AIDBodyVariation : Integer):
@@ -47,16 +54,10 @@ var
   AFieldName: string;
 begin
   Assert(AIDBodyVariation > 0);
-  AFieldName := 'IDBodyVariation';
-  //AFieldName := IDBodyVariation.FieldName;
-
-  // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, Format('where %s = :%s',
-    [AFieldName, AFieldName]), 'where');
-  SetParamType(AFieldName);
 
   // Ищем
-  Result := Search([AFieldName], [AIDBodyVariation]);
+  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FieldName,
+    AIDBodyVariation)]);
 end;
 
 procedure TQueryBodyVariationOption.UpdateOption(AIDBodyVariation: Integer;
@@ -73,7 +74,7 @@ begin
   while not FDQuery.Eof do
   begin
     // Ищем в массиве такого кода нет - нужно удалить его из БД
-    if not TArray.BinarySearch(AOptionIDArr, IDBodyOption.AsInteger, i) then
+    if not TArray.BinarySearch(AOptionIDArr, W.IDBodyOption.F.AsInteger, i) then
       FDQuery.Delete
     else
       FDQuery.Next;
@@ -82,14 +83,22 @@ begin
   // Теперь добавим недостающее
   for i := Low(AOptionIDArr) to High(AOptionIDArr) do
   begin
-    if not LocateByField(IDBodyOption.FieldName, AOptionIDArr[i], []) then
+    if not LocateByField(W.IDBodyOption.FieldName, AOptionIDArr[i], []) then
     begin
-      TryAppend;
-      IDBodyVariation.AsInteger := AIDBodyVariation;
-      IDBodyOption.AsInteger := AOptionIDArr[i];
-      TryPost;
+      W.TryAppend;
+      W.IDBodyVariation.F.AsInteger := AIDBodyVariation;
+      W.IDBodyOption.F.AsInteger := AOptionIDArr[i];
+      W.TryPost;
     end;
   end;
+end;
+
+constructor TBodyVariationOptionW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FIDBodyOption := TFieldWrap.Create(Self, 'IDBodyOption');
+  FIDBodyVariation := TFieldWrap.Create(Self, 'IDBodyVariation');
 end;
 
 end.

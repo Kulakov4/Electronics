@@ -13,6 +13,6 @@ inherited QueryBodyVariationsJedec: TQueryBodyVariationsJedec
       'select Distinct IDJEDEC, Color, J.JEDEC'
       'from BodyVariationJEDEC bvj'
       'join JEDEC j on bvj.IDJEDEC = j.ID'
-      'where IDBodyVariation in (0)')
+      'where 0=0')
   end
 end

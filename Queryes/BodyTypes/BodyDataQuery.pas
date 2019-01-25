@@ -9,22 +9,33 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  System.Generics.Collections;
+  System.Generics.Collections, DSWrap;
 
 type
+  TBodyDataW = class(TDSWrap)
+  private
+    FBodyData: TFieldWrap;
+    FID: TFieldWrap;
+    FIDBody: TFieldWrap;
+    FIDProducer: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property BodyData: TFieldWrap read FBodyData;
+    property ID: TFieldWrap read FID;
+    property IDBody: TFieldWrap read FIDBody;
+    property IDProducer: TFieldWrap read FIDProducer;
+  end;
+
   TQueryBodyData = class(TQueryBase)
     FDUpdateSQL: TFDUpdateSQL;
   private
-    function GetBodyData: TField;
-    function GetIDBody: TField;
-    function GetIDProducer: TField;
+    FW: TBodyDataW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     procedure LocateOrAppend(const ABodyData: string;
       AIDProducer, AIDBody: Integer);
-    property BodyData: TField read GetBodyData;
-    property IDBody: TField read GetIDBody;
-    property IDProducer: TField read GetIDProducer;
+    property W: TBodyDataW read FW;
     { Public declarations }
   end;
 
@@ -34,19 +45,10 @@ implementation
 
 uses StrHelper;
 
-function TQueryBodyData.GetBodyData: TField;
+constructor TQueryBodyData.Create(AOwner: TComponent);
 begin
-  Result := Field('BodyData');
-end;
-
-function TQueryBodyData.GetIDBody: TField;
-begin
-  Result := Field('IDBody');
-end;
-
-function TQueryBodyData.GetIDProducer: TField;
-begin
-  Result := Field('IDProducer');
+  inherited;
+  FW := TBodyDataW.Create(FDQuery);
 end;
 
 procedure TQueryBodyData.LocateOrAppend(const ABodyData: string;
@@ -58,18 +60,27 @@ begin
   Assert(AIDProducer > 0);
   Assert(AIDBody > 0);
 
-  AFieldNames := Format('%s;%s;%s', [IDBody.FieldName, BodyData.FieldName,
-    IDProducer.FieldName]);
+  AFieldNames := Format('%s;%s;%s', [W.IDBody.FieldName, W.BodyData.FieldName,
+    W.IDProducer.FieldName]);
 
   if not FDQuery.LocateEx(AFieldNames,
     VarArrayOf([AIDBody, ABodyData, AIDProducer]), [lxoCaseInsensitive]) then
   begin
-    TryAppend;
-    BodyData.Value := ABodyData;
-    IDBody.Value := AIDBody;
-    IDProducer.Value := AIDProducer;
-    TryPost;
+    W.TryAppend;
+    W.BodyData.F.Value := ABodyData;
+    W.IDBody.F.Value := AIDBody;
+    W.IDProducer.F.Value := AIDProducer;
+    W.TryPost;
   end;
+end;
+
+constructor TBodyDataW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FBodyData := TFieldWrap.Create(Self, 'BodyData');
+  FIDBody := TFieldWrap.Create(Self, 'IDBody');
+  FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
 end;
 
 end.

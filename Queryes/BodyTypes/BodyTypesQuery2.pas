@@ -112,8 +112,8 @@ var
   L: TStringList;
   m: TArray<String>;
 begin
-  QueryBodies.LocateOrAppend(Body.Value, IDBodyKind.Value);
-  QueryBodyData.LocateOrAppend(BodyData.Value, IDProducer.Value,
+  QueryBodies.LocateOrAppend(W.Body.F.Value, W.IDBodyKind.F.Value);
+  QueryBodyData.LocateOrAppend(W.BodyData.F.Value, W.IDProducer.F.Value,
     QueryBodies.PK.Value);
 
   AIDSS := '';
@@ -122,7 +122,7 @@ begin
   try
     L.Delimiter := ',';
     L.StrictDelimiter := True;
-    L.DelimitedText := Variations.AsString.Trim;
+    L.DelimitedText := W.Variations.F.AsString.Trim;
 
     // Убираем пустые строки
     for I := L.Count - 1 downto 0 do
@@ -138,13 +138,13 @@ begin
       L.Add('');
     end;
 
-    AOLDIDS := ',' + IDS.AsString.Replace(' ', '') + ',';
+    AOLDIDS := ',' + W.IDS.F.AsString.Replace(' ', '') + ',';
 
     // Цикл по всем вариантам корпуса
     for I := 0 to L.Count - 1 do
     begin
       QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
-        OutlineDrawing.AsString, LandPattern.AsString, L[I], Image.AsString);
+        W.OutlineDrawing.F.AsString, W.LandPattern.F.AsString, L[I], W.Image.F.AsString);
 
       AID := QueryBodyVariations.PK.AsString;
       Assert(not AID.IsEmpty);
@@ -169,15 +169,15 @@ begin
         QueryBodyVariations.LocateByPKAndDelete(AID);
     end;
 
-    IDS.Value := AIDSS;
+    W.IDS.F.Value := AIDSS;
 
     // Заполняем части наименования
     SetMySplitDataValues(QueryBodies.FDQuery, 'BODY');
     // Заполняем части корпусных данных
     SetMySplitDataValues(QueryBodyData.FDQuery, 'BODYDATA');
 
-    IDBodyData.Value := QueryBodyData.PK.Value;
-    IDBody.Value := QueryBodies.PK.Value;
+    W.IDBodyData.F.Value := QueryBodyData.PK.Value;
+    W.IDBody.F.Value := QueryBodies.PK.Value;
 
   finally
     FreeAndNil(L);
@@ -254,7 +254,7 @@ end;
 
 procedure TQueryBodyTypes2.DoBeforeDelete(Sender: TObject);
 begin
-  FIDS := IDS.AsString
+  FIDS := W.IDS.F.AsString
 end;
 
 procedure TQueryBodyTypes2.FDQueryBodyType1Change(Sender: TField);
@@ -377,14 +377,14 @@ begin
   Assert(not AFileName.IsEmpty);
 
   S := '';
-  if Add and (not JEDEC.AsString.IsEmpty) then
-    S := JEDEC.AsString + '; ';
+  if Add and (not W.JEDEC.F.AsString.IsEmpty) then
+    S := W.JEDEC.F.AsString + '; ';
 
   // В БД храним имя файла без расширения и всё
   S := S + TPath.GetFileNameWithoutExtension(AFileName);
 
   OK := TryEdit;
-  JEDEC.AsString := S;
+  W.JEDEC.F.AsString := S;
   if OK then
     TryPost;
 end;

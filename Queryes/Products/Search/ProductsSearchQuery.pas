@@ -104,7 +104,7 @@ begin
   if Mode = SearchMode then
   begin
     // Удаляем пустую строку
-    if Value.AsString.IsEmpty then
+    if W.Value.F.AsString.IsEmpty then
       FDQuery.Delete;
 
     inherited;
@@ -152,7 +152,7 @@ procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
 begin
   Inc(FX);
   PK.Value := -FX;
-  IsGroup.AsInteger := 0;
+  W.IsGroup.F.AsInteger := 0;
 end;
 
 procedure TQueryProductsSearch.DoAfterOpen(Sender: TObject);
@@ -168,7 +168,7 @@ begin
   for I := FDQuery.RecordCount to FEmptyAmount - 1 do
   begin
     FDQuery.Append;
-    Value.AsString := '';
+    W.Value.F.AsString := '';
     FDQuery.Post;
     FDQuery.ApplyUpdates();
     FDQuery.CommitUpdates;
@@ -301,7 +301,7 @@ begin
     ClearSearchResult;
 
     // Добавляем те записи, которые будем искать на складе
-    AppendRows(Value.FieldName, AValues.ToArray);
+    AppendRows(W.Value.FieldName, AValues.ToArray);
 
     // Осуществляем поиск
     DoSearch(False);

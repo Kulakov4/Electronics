@@ -9,6 +9,7 @@ uses
 
 type
   TFieldWrap = class;
+  TParamWrap = class;
 
   TDSWrap = class(TComponent)
   private
@@ -23,7 +24,7 @@ type
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
     FEventList: TObjectList;
-    FFieldsWrap: TObjectList<TFieldWrap>;
+    FFieldsWrap: TObjectList<TParamWrap>;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
@@ -70,6 +71,7 @@ type
     procedure RefreshQuery; virtual;
     procedure RestoreBookmark; virtual;
     function SaveBookmark: Boolean;
+    procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsVisible(AVisible: Boolean);
     procedure SetParameters(const AParamNames: TArray<String>;
@@ -95,17 +97,25 @@ type
     property RecordCount: Integer read GetRecordCount;
   end;
 
-  TFieldWrap = class(TObject)
+  TParamWrap = class(TObject)
   private
     FDataSetWrap: TDSWrap;
+    FParamName: string;
+  public
+    constructor Create(ADataSetWrap: TDSWrap; const AParamName: string);
+    property DataSetWrap: TDSWrap read FDataSetWrap;
+    property ParamName: string read FParamName;
+  end;
+
+  TFieldWrap = class(TParamWrap)
+  private
     FDefaultValue: Variant;
     FDisplayLabel: string;
     FFieldName: string;
     function GetF: TField;
   public
-    constructor Create(ADataSetWrap: TDSWrap; const AFieldName: string;
-      const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
-    property DataSetWrap: TDSWrap read FDataSetWrap;
+    constructor Create(ADataSetWrap: TDSWrap; const AFieldName: string; const
+        ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
     property DefaultValue: Variant read FDefaultValue write FDefaultValue;
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
@@ -126,7 +136,7 @@ begin
       ('Ошибка при создании TDSWrap. Владелец должен быть TDataSet.');
 
   FDataSet := AOwner as TDataSet;
-  FFieldsWrap := TObjectList<TFieldWrap>.Create;
+  FFieldsWrap := TObjectList<TParamWrap>.Create;
   FEventList := TObjectList.Create;
 end;
 
@@ -458,6 +468,15 @@ begin
     FRecHolder.Attach(DataSet);
 end;
 
+procedure TDSWrap.SetFieldsReadOnly(AReadOnly: Boolean);
+var
+  AField: TField;
+begin
+  inherited;
+  for AField in FDataSet.Fields do
+    AField.ReadOnly := AReadOnly;
+end;
+
 procedure TDSWrap.SetFieldsRequired(ARequired: Boolean);
 var
   AField: TField;
@@ -571,14 +590,20 @@ end;
 procedure TDSWrap.UpdateFields;
 var
   F: TField;
+  PW: TParamWrap;
   FW: TFieldWrap;
 begin
   // Прячем все поля
   SetFieldsVisible(False);
 
   // Показываем только те, у которых есть DisplayLabel
-  for FW in FFieldsWrap do
+  for PW in FFieldsWrap do
   begin
+    if not (PW is TFieldWrap) then
+      continue;
+
+    FW := PW as TFieldWrap;
+    
     F := FDataSet.FindField(FW.FieldName);
     if F = nil then
       Continue;
@@ -592,20 +617,15 @@ begin
 end;
 
 constructor TFieldWrap.Create(ADataSetWrap: TDSWrap; const AFieldName: string;
-  const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
+    const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
 begin
-  inherited Create;
+  inherited Create(ADataSetWrap, AFieldName);
   Assert(ADataSetWrap <> nil);
   Assert(not AFieldName.IsEmpty);
-
-  FDataSetWrap := ADataSetWrap;
-  FDataSetWrap.FFieldsWrap.Add(Self);
 
   FFieldName := AFieldName;
 
   FDisplayLabel := ADisplayLabel;
-  // if FDisplayLabel.IsEmpty then
-  // FDisplayLabel := FFieldName;
 
   if APrimaryKey then
     ADataSetWrap.PKFieldName := FFieldName;
@@ -616,6 +636,19 @@ end;
 function TFieldWrap.GetF: TField;
 begin
   Result := FDataSetWrap.Field(FFieldName);
+end;
+
+constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AParamName: string);
+begin
+  inherited Create;
+
+  Assert(ADataSetWrap <> nil);
+  Assert(not AParamName.IsEmpty);
+
+  FDataSetWrap := ADataSetWrap;
+  FDataSetWrap.FFieldsWrap.Add(Self);
+
+  FParamName := AParamName;
 end;
 
 end.

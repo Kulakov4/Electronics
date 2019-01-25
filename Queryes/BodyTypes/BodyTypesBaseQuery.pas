@@ -11,12 +11,52 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, BodiesQuery, BodyDataQuery,
   BodyVariationsQuery, BodyOptionsQuery, BodyVariationJedecQuery,
-  BodyVariationOptionQuery, JEDECQuery;
+  BodyVariationOptionQuery, JEDECQuery, DSWrap;
 
 const
   WM_AFTER_CASCADE_DELETE = WM_USER + 574;
 
 type
+  TBodyTypeBaseW = class(TDSWrap)
+  private
+    FBody: TFieldWrap;
+    FBodyData: TFieldWrap;
+    FIDBody: TFieldWrap;
+    FIDBodyData: TFieldWrap;
+    FIDBodyKind: TFieldWrap;
+    FIDProducer: TFieldWrap;
+    FIDS: TFieldWrap;
+    FImage: TFieldWrap;
+    FJEDEC: TFieldWrap;
+    FLandPattern: TFieldWrap;
+    FOptions: TFieldWrap;
+    FOutlineDrawing: TFieldWrap;
+    FVariations: TFieldWrap;
+    procedure DoAfterOpen(Sender: TObject);
+  protected
+    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField; var Text:
+        String; DisplayText: Boolean);
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Body: TFieldWrap read FBody;
+    property BodyData: TFieldWrap read FBodyData;
+    property IDBody: TFieldWrap read FIDBody;
+    property IDBodyData: TFieldWrap read FIDBodyData;
+    property IDBodyKind: TFieldWrap read FIDBodyKind;
+    property IDProducer: TFieldWrap read FIDProducer;
+    property IDS: TFieldWrap read FIDS;
+    // TODO: LocateOrAppend
+    // procedure LocateOrAppend(AIDParentBodyType: Integer;
+    // const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
+    // AImage: string);
+    property Image: TFieldWrap read FImage;
+    property JEDEC: TFieldWrap read FJEDEC;
+    property LandPattern: TFieldWrap read FLandPattern;
+    property Options: TFieldWrap read FOptions;
+    property OutlineDrawing: TFieldWrap read FOutlineDrawing;
+    property Variations: TFieldWrap read FVariations;
+  end;
+
   TQueryBodyTypesBase = class(TQueryWithDataSource)
     fdqUnusedBodies: TFDQuery;
     fdqUnusedBodyData: TFDQuery;
@@ -29,19 +69,7 @@ type
     FqBodyVariationJedec: TQueryBodyVariationJedec;
     FqBodyVariationOption: TQueryBodyVariationOption;
     FqJedec: TQueryJEDEC;
-    procedure DoAfterOpen(Sender: TObject);
-    function GetBody: TField;
-    function GetBodyData: TField;
-    function GetIDBody: TField;
-    function GetIDBodyData: TField;
-    function GetIDBodyKind: TField;
-    function GetIDProducer: TField;
-    function GetIDS: TField;
-    function GetImage: TField;
-    function GetJEDEC: TField;
-    function GetLandPattern: TField;
-    function GetOptions: TField;
-    function GetOutlineDrawing: TField;
+    FW: TBodyTypeBaseW;
     function GetqBodyOptions: TQueryBodyOptions;
     function GetqBodyVariationJedec: TQueryBodyVariationJedec;
     function GetqBodyVariationOption: TQueryBodyVariationOption;
@@ -49,12 +77,9 @@ type
     function GetQueryBodies: TQueryBodies;
     function GetQueryBodyData: TQueryBodyData;
     function GetQueryBodyVariations: TQueryBodyVariations;
-    function GetVariations: TField;
     { Private declarations }
   protected
     procedure DropUnusedBodies;
-    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField;
-      var Text: String; DisplayText: Boolean);
     procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage);
       message WM_AFTER_CASCADE_DELETE;
     procedure SetMySplitDataValues(AQuery: TFDQuery;
@@ -76,24 +101,8 @@ type
       const ADetailKeyFieldName: String;
       AFromClientOnly: Boolean = False); override;
     procedure RefreshLinkedData;
-    property Body: TField read GetBody;
-    property BodyData: TField read GetBodyData;
-    property IDBody: TField read GetIDBody;
-    property IDBodyData: TField read GetIDBodyData;
-    property IDBodyKind: TField read GetIDBodyKind;
-    property IDProducer: TField read GetIDProducer;
-    property IDS: TField read GetIDS;
-    // TODO: LocateOrAppend
-    // procedure LocateOrAppend(AIDParentBodyType: Integer;
-    // const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
-    // AImage: string);
-    property Image: TField read GetImage;
-    property JEDEC: TField read GetJEDEC;
-    property LandPattern: TField read GetLandPattern;
-    property Options: TField read GetOptions;
-    property OutlineDrawing: TField read GetOutlineDrawing;
     property qJedec: TQueryJEDEC read GetqJedec;
-    property Variations: TField read GetVariations;
+    property W: TBodyTypeBaseW read FW;
     { Public declarations }
   end;
 
@@ -107,7 +116,9 @@ constructor TQueryBodyTypesBase.Create(AOwner: TComponent);
 begin
   inherited;
   FPKFieldName := 'IDS';
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+
+  FW := TBodyTypeBaseW.Create(FDQuery);
+
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   AutoTransaction := False;
 end;
@@ -122,21 +133,6 @@ begin
     FMessagePosted := True;
     PostMessage(Handle, WM_AFTER_CASCADE_DELETE, 0, 0);
   end;
-end;
-
-procedure TQueryBodyTypesBase.DoAfterOpen(Sender: TObject);
-begin
-  SetFieldsRequired(False);
-  IDProducer.Required := True;
-  Body.Required := True;
-  BodyData.Required := True;
-  OutlineDrawing.OnGetText := OnGetFileNameWithoutExtensionGetText;
-  LandPattern.OnGetText := OnGetFileNameWithoutExtensionGetText;
-  Image.OnGetText := OnGetFileNameWithoutExtensionGetText;
-
-  // Подписываемся на событие об изменении значения поля
-  // BodyType1.OnChange := FDQueryBodyType1Change;
-  // BodyType2.OnChange := FDQueryBodyType2Change;
 end;
 
 procedure TQueryBodyTypesBase.DropUnusedBodies;
@@ -168,66 +164,6 @@ begin
     end;
 
   end;
-end;
-
-function TQueryBodyTypesBase.GetBody: TField;
-begin
-  Result := Field('Body');
-end;
-
-function TQueryBodyTypesBase.GetBodyData: TField;
-begin
-  Result := Field('BodyData');
-end;
-
-function TQueryBodyTypesBase.GetIDBody: TField;
-begin
-  Result := Field('IDBody');
-end;
-
-function TQueryBodyTypesBase.GetIDBodyData: TField;
-begin
-  Result := Field('IDBodyData');
-end;
-
-function TQueryBodyTypesBase.GetIDBodyKind: TField;
-begin
-  Result := Field('IDBodyKind');
-end;
-
-function TQueryBodyTypesBase.GetIDProducer: TField;
-begin
-  Result := Field('IDProducer');
-end;
-
-function TQueryBodyTypesBase.GetIDS: TField;
-begin
-  Result := Field('IDS');
-end;
-
-function TQueryBodyTypesBase.GetImage: TField;
-begin
-  Result := Field('Image');
-end;
-
-function TQueryBodyTypesBase.GetJEDEC: TField;
-begin
-  Result := Field('JEDEC');
-end;
-
-function TQueryBodyTypesBase.GetLandPattern: TField;
-begin
-  Result := Field('LandPattern');
-end;
-
-function TQueryBodyTypesBase.GetOptions: TField;
-begin
-  Result := Field('Options');
-end;
-
-function TQueryBodyTypesBase.GetOutlineDrawing: TField;
-begin
-  Result := Field('OutlineDrawing');
 end;
 
 function TQueryBodyTypesBase.GetqBodyOptions: TQueryBodyOptions;
@@ -301,18 +237,6 @@ begin
   Result := FQueryBodyVariations;
 end;
 
-function TQueryBodyTypesBase.GetVariations: TField;
-begin
-  Result := Field('Variations');
-end;
-
-procedure TQueryBodyTypesBase.OnGetFileNameWithoutExtensionGetText
-  (Sender: TField; var Text: String; DisplayText: Boolean);
-begin
-  if not Sender.AsString.IsEmpty then
-    Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
-end;
-
 procedure TQueryBodyTypesBase.ProcessAfterCascadeDeleteMessage
   (var Message: TMessage);
 begin
@@ -363,17 +287,17 @@ end;
 procedure TQueryBodyTypesBase.UpdateJEDEC;
 var
   AJEDEC: string;
-  I: Integer;
+  i: Integer;
   JEDECArr: TArray<String>;
   JEDECIDList: TList<Integer>;
 begin
   // Дополнительно обновляем список JEDEC
   JEDECIDList := TList<Integer>.Create;
   try
-    JEDECArr := JEDEC.AsString.Split([';']);
-    for I := Low(JEDECArr) to High(JEDECArr) do
+    JEDECArr := W.JEDEC.F.AsString.Split([';']);
+    for i := Low(JEDECArr) to High(JEDECArr) do
     begin
-      AJEDEC := JEDECArr[I].Trim;
+      AJEDEC := JEDECArr[i].Trim;
       if AJEDEC.IsEmpty then
         Continue;
 
@@ -399,7 +323,7 @@ begin
   // Дополнительно обновляем список вариантов (options)
   OptionIDList := TList<Integer>.Create;
   try
-    OptionArr := Options.AsString.Split([';']);
+    OptionArr := W.Options.F.AsString.Split([';']);
     for i := Low(OptionArr) to High(OptionArr) do
     begin
       AOption := OptionArr[i].Trim;
@@ -416,6 +340,44 @@ begin
   finally
     FreeAndNil(OptionIDList);
   end;
+end;
+
+constructor TBodyTypeBaseW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FIDS := TFieldWrap.Create(Self, 'IDS', '', True);
+  FBody := TFieldWrap.Create(Self, 'Body');
+  FBodyData := TFieldWrap.Create(Self, 'BodyData');
+  FIDBody := TFieldWrap.Create(Self, 'IDBody');
+  FIDBodyData := TFieldWrap.Create(Self, 'IDBodyData');
+  FIDBodyKind := TFieldWrap.Create(Self, 'IDBodyKind');
+  FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
+  FImage := TFieldWrap.Create(Self, 'Image');
+  FJEDEC := TFieldWrap.Create(Self, 'JEDEC');
+  FLandPattern := TFieldWrap.Create(Self, 'LandPattern');
+  FOptions := TFieldWrap.Create(Self, 'Options');
+  FOutlineDrawing := TFieldWrap.Create(Self, 'OutlineDrawing');
+  FVariations := TFieldWrap.Create(Self, 'Variations');
+
+  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
+end;
+
+procedure TBodyTypeBaseW.DoAfterOpen(Sender: TObject);
+begin
+  SetFieldsRequired(False);
+  IDProducer.F.Required := True;
+  Body.F.Required := True;
+  BodyData.F.Required := True;
+  OutlineDrawing.F.OnGetText := OnGetFileNameWithoutExtensionGetText;
+  LandPattern.F.OnGetText := OnGetFileNameWithoutExtensionGetText;
+  Image.F.OnGetText := OnGetFileNameWithoutExtensionGetText;
+end;
+
+procedure TBodyTypeBaseW.OnGetFileNameWithoutExtensionGetText(Sender: TField;
+    var Text: String; DisplayText: Boolean);
+begin
+  if not Sender.AsString.IsEmpty then
+    Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
 end;
 
 end.

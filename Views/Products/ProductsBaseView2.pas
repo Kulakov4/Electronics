@@ -451,6 +451,14 @@ var
   AStoreHouseProductID: Integer;
 begin
   inherited;
+
+  if (FqProductsBase.DollarCource = 0) or (FqProductsBase.EuroCource = 0) then
+  begin
+    TDialog.Create.DollarOrEuroCourceUnknown;
+    Exit;
+  end;
+
+
   // Добавляем новый счёт
   ABillID := TDM.Create.QryBill.AddBill(FqProductsBase.DollarCource,
     FqProductsBase.EuroCource);
