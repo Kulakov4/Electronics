@@ -10,22 +10,40 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, SubParametersExcelDataModule,
-  System.StrUtils, OrderQuery, SubParametersInterface;
+  System.StrUtils, OrderQuery, SubParametersInterface, DSWrap;
 
 type
+  TSubParametersW = class(TOrderW)
+  private
+    FChecked: TFieldWrap;
+    FID: TFieldWrap;
+    FIdParameter: TParamWrap;
+    FIsDefault: TFieldWrap;
+    FName: TFieldWrap;
+    FProductCategoryId: TParamWrap;
+    FTranslation: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Checked: TFieldWrap read FChecked;
+    property ID: TFieldWrap read FID;
+    property IdParameter: TParamWrap read FIdParameter;
+    property IsDefault: TFieldWrap read FIsDefault;
+    property Name: TFieldWrap read FName;
+    property ProductCategoryId: TParamWrap read FProductCategoryId;
+    property Translation: TFieldWrap read FTranslation;
+  end;
+
   TQuerySubParameters2 = class(TQueryOrder, ISubParameters)
   strict private
     function GetSubParameterID(const AName: string): Integer; stdcall;
   private
+    FW: TSubParametersW;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoBeforeCheckedOpen(Sender: TObject);
-    function GetChecked: TField;
     function GetCheckedMode: Boolean;
-    function GetIsDefault: TField;
-    function GetName: TField;
-    function GetTranslation: TField;
     { Private declarations }
   protected
+    function CreateDataSetWrap: TOrderW; override;
     procedure DoAfterCheckedOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
@@ -35,36 +53,39 @@ type
     function Search(const AName: String): Integer; overload;
     function SearchByID(AID: Integer; TestResult: Boolean = False)
       : Integer; overload;
-    property Checked: TField read GetChecked;
     property CheckedMode: Boolean read GetCheckedMode;
-    property IsDefault: TField read GetIsDefault;
-    property Name: TField read GetName;
-    property Translation: TField read GetTranslation;
+    property W: TSubParametersW read FW;
     { Public declarations }
   end;
 
 implementation
 
 uses
-  NotifyEvents, StrHelper;
+  NotifyEvents, StrHelper, BaseQuery;
 
 {$R *.dfm}
 
 constructor TQuerySubParameters2.Create(AOwner: TComponent);
 begin
   inherited;
+  FW := OrderW as TSubParametersW;
   AutoTransaction := False;
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, FEventList);
+end;
+
+function TQuerySubParameters2.CreateDataSetWrap: TOrderW;
+begin
+  Result := TSubParametersW.Create(FDQuery);
 end;
 
 procedure TQuerySubParameters2.DoAfterInsert(Sender: TObject);
 begin
-  IsDefault.AsInteger := 0;
+  W.IsDefault.F.AsInteger := W.IsDefault.DefaultValue;
 end;
 
 procedure TQuerySubParameters2.DoAfterCheckedOpen(Sender: TObject);
 begin
-  Checked.ReadOnly := False;
+  W.Checked.F.ReadOnly := False;
 end;
 
 procedure TQuerySubParameters2.DoBeforeCheckedOpen(Sender: TObject);
@@ -75,13 +96,8 @@ begin
     FDQuery.FieldDefs.Update;
     // Создаём поля по умолчанию
     CreateDefaultFields(False);
-    Checked.FieldKind := fkInternalCalc;
+    W.Checked.F.FieldKind := fkInternalCalc;
   end;
-end;
-
-function TQuerySubParameters2.GetChecked: TField;
-begin
-  Result := Field('Checked');
 end;
 
 function TQuerySubParameters2.GetCheckedMode: Boolean;
@@ -97,7 +113,7 @@ begin
   Assert(not AFieldName.IsEmpty);
 
   Result := '';
-  AClone := AddClone(Format('%s = %d', [Checked.FieldName, 1]));
+  AClone := AddClone(Format('%s = %d', [W.Checked.FieldName, 1]));
   try
     while not AClone.Eof do
     begin
@@ -110,30 +126,15 @@ begin
   end;
 end;
 
-function TQuerySubParameters2.GetIsDefault: TField;
-begin
-  Result := Field('IsDefault');
-end;
-
-function TQuerySubParameters2.GetName: TField;
-begin
-  Result := Field('Name');
-end;
-
 function TQuerySubParameters2.GetSubParameterID(const AName: string): Integer;
 var
   V: Variant;
 begin
   Result := 0;
-  V := FDQuery.LookupEx(Name.FullName, AName, PKFieldName,
+  V := FDQuery.LookupEx(W.Name.FullName, AName, PKFieldName,
     [lxoCaseInsensitive]);
   if not VarIsNull(V) then
     Result := V;
-end;
-
-function TQuerySubParameters2.GetTranslation: TField;
-begin
-  Result := Field('Translation');
 end;
 
 procedure TQuerySubParameters2.LoadDataFromExcelTable
@@ -179,43 +180,53 @@ procedure TQuerySubParameters2.OpenWithChecked(AIDParameter, AProductCategoryId
 begin
   Assert(AIDParameter > 0);
   Assert(AProductCategoryId > 0);
-  FDQuery.SQL.Text := FDQuery.SQL.Text.Replace('/* IFCHECKED',
-    '/* IFCHECKED */');
-  SetParamType('IdParameter');
-  SetParamType('ProductCategoryId');
+
+  // Делаем замену в исходном запросе
+  FDQuery.SQL.Text := SQL.Replace('/* IFCHECKED', '/* IFCHECKED */');
+
+  SetParamType(W.IdParameter.ParamName);
+  SetParamType(W.ProductCategoryId.ParamName);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeCheckedOpen, FEventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterCheckedOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterCheckedOpen, W.EventList);
 
   // Переходим в режим кэширования записей
   FDQuery.CachedUpdates := True;
   AutoTransaction := True;
 
-  Load(['IdParameter', 'ProductCategoryId'],
+  Load([W.IdParameter.ParamName, W.ProductCategoryId.ParamName],
     [AIDParameter, AProductCategoryId]);
 end;
 
 function TQuerySubParameters2.Search(const AName: String): Integer;
 begin
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    'and 0=0 and upper(Name) = upper(:Name)', 'and 0=0');
+  Assert(not AName.IsEmpty);
 
-  SetParamType('Name', ptInput, ftString);
-
-  Result := Search(['Name'], [AName]);
+  Result := SearchEx([TParamRec.Create(W.Name.FullName, AName,
+    ftWideString, True)]);
 end;
 
 function TQuerySubParameters2.SearchByID(AID: Integer;
   TestResult: Boolean = False): Integer;
 begin
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'and 0=0 and sp.ID = :ID',
-    'and 0=0');
+  Result := SearchEx([TParamRec.Create(W.ID.FullName, AID)],
+    IfThen(TestResult, 1, -1));
+end;
 
-  SetParamType('ID');
+constructor TSubParametersW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'sp.ID', '', True);
+  FOrd := TFieldWrap.Create(Self, 'Ord');
+  FChecked := TFieldWrap.Create(Self, 'Checked');
+  FIsDefault := TFieldWrap.Create(Self, 'IsDefault');
+  FName := TFieldWrap.Create(Self, 'Name');
+  FTranslation := TFieldWrap.Create(Self, 'Translation');
 
-  Result := Search(['ID'], [AID]);
+  FIsDefault.DefaultValue := 0;
 
-  if TestResult then
-    Assert(Result = 1);
+  // Параметры SQL запроса
+  FIdParameter := TParamWrap.Create(Self, 'IdParameter');
+  FProductCategoryId := TParamWrap.Create(Self, 'ProductCategoryId');
 end;
 
 end.

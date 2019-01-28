@@ -8,10 +8,9 @@ uses
   DBRecordHolder;
 
 type
-  TFieldWrap = class;
-  TParamWrap = class;
+  TFieldWrap2 = class;
 
-  TDSWrap = class(TComponent)
+  TDSWrap2 = class(TComponent)
   private
     FAfterOpen: TNotifyEventsEx;
     FAfterClose: TNotifyEventsEx;
@@ -24,7 +23,7 @@ type
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
     FEventList: TObjectList;
-    FFieldsWrap: TObjectList<TParamWrap>;
+    FFieldsWrap: TObjectList<TFieldWrap>;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
@@ -50,7 +49,7 @@ type
     procedure BeforeDataSetPost(DataSet: TDataSet);
     procedure BeforeDataSetDelete(DataSet: TDataSet);
     procedure AfterDataSetPost(DataSet: TDataSet);
-    procedure UpdateFields;
+    procedure UpdateFields; virtual;
     property FDDataSet: TFDDataSet read GetFDDataSet;
     property RecHolder: TRecordHolder read FRecHolder;
   public
@@ -59,7 +58,6 @@ type
     function AddClone(const AFilter: String): TFDMemTable;
     procedure AfterConstruction; override;
     procedure ClearFilter;
-    procedure DeleteAll;
     procedure DropClone(AClone: TFDMemTable);
     function Field(const AFieldName: string): TField;
     function HaveAnyChanges: Boolean;
@@ -71,7 +69,6 @@ type
     procedure RefreshQuery; virtual;
     procedure RestoreBookmark; virtual;
     function SaveBookmark: Boolean;
-    procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsVisible(AVisible: Boolean);
     procedure SetParameters(const AParamNames: TArray<String>;
@@ -81,6 +78,7 @@ type
     function TryEdit: Boolean;
     function TryLocate(AFields: TArray<String>;
       AValues: TArray<Variant>): Integer;
+    function Locate(AFields: TArray<String>; AValues: TArray<Variant>): Boolean;
     procedure TryOpen;
     procedure TryPost;
     property Active: Boolean read GetActive;
@@ -98,33 +96,23 @@ type
     property RecordCount: Integer read GetRecordCount;
   end;
 
-  TParamWrap = class(TObject)
+  TFieldWrap2 = class(TObject)
   private
     FDataSetWrap: TDSWrap;
-    FParamName: string;
-  public
-    constructor Create(ADataSetWrap: TDSWrap; const AParamName: string);
-    property DataSetWrap: TDSWrap read FDataSetWrap;
-    property ParamName: string read FParamName;
-  end;
-
-  TFieldWrap = class(TParamWrap)
-  private
     FDefaultValue: Variant;
     FDisplayLabel: string;
     FFieldName: string;
-    FTableName: string;
+    FVisible: Boolean;
     function GetF: TField;
-    function GetFullName: string;
   public
     constructor Create(ADataSetWrap: TDSWrap; const AFieldName: string;
       const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
+    property DataSetWrap: TDSWrap read FDataSetWrap;
     property DefaultValue: Variant read FDefaultValue write FDefaultValue;
-    property DisplayLabel: string read FDisplayLabel;
+    property DisplayLabel: string read FDisplayLabel write FDisplayLabel;
     property F: TField read GetF;
     property FieldName: string read FFieldName;
-    property FullName: string read GetFullName;
-    property TableName: string read FTableName;
+    property Visible: Boolean read FVisible write FVisible;
   end;
 
 implementation
@@ -132,7 +120,7 @@ implementation
 uses
   FireDAC.Stan.Param, System.Variants, System.StrUtils;
 
-constructor TDSWrap.Create(AOwner: TComponent);
+constructor TDSWrap2.Create(AOwner: TComponent);
 begin
   inherited;
 
@@ -141,11 +129,11 @@ begin
       ('Ошибка при создании TDSWrap. Владелец должен быть TDataSet.');
 
   FDataSet := AOwner as TDataSet;
-  FFieldsWrap := TObjectList<TParamWrap>.Create;
+  FFieldsWrap := TObjectList<TFieldWrap>.Create;
   FEventList := TObjectList.Create;
 end;
 
-destructor TDSWrap.Destroy;
+destructor TDSWrap2.Destroy;
 begin
   FreeAndNil(FFieldsWrap);
   FreeAndNil(FEventList);
@@ -157,7 +145,7 @@ begin
   inherited;
 end;
 
-function TDSWrap.AddClone(const AFilter: String): TFDMemTable;
+function TDSWrap2.AddClone(const AFilter: String): TFDMemTable;
 begin
   // Создаём список клонов
   if FClones = nil then
@@ -183,7 +171,7 @@ begin
   FClones.Add(Result); // Владельцем будет список
 end;
 
-procedure TDSWrap.AfterConstruction;
+procedure TDSWrap2.AfterConstruction;
 begin
   inherited;
   if FFieldsWrap.Count = 0 then
@@ -194,47 +182,47 @@ begin
     UpdateFields;
 end;
 
-procedure TDSWrap.AfterDataSetOpen(DataSet: TDataSet);
+procedure TDSWrap2.AfterDataSetOpen(DataSet: TDataSet);
 begin
   FAfterOpen.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.BeforeDataSetPost(DataSet: TDataSet);
+procedure TDSWrap2.BeforeDataSetPost(DataSet: TDataSet);
 begin
   FBeforePost.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.AfterDataSetScroll(DataSet: TDataSet);
+procedure TDSWrap2.AfterDataSetScroll(DataSet: TDataSet);
 begin
   FAfterScroll.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.AfterDataSetClose(DataSet: TDataSet);
+procedure TDSWrap2.AfterDataSetClose(DataSet: TDataSet);
 begin
   FAfterClose.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.AfterDataSetInsert(DataSet: TDataSet);
+procedure TDSWrap2.AfterDataSetInsert(DataSet: TDataSet);
 begin
   FAfterInsert.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.BeforeDataSetDelete(DataSet: TDataSet);
+procedure TDSWrap2.BeforeDataSetDelete(DataSet: TDataSet);
 begin
   FBeforeDelete.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.AfterDataSetPost(DataSet: TDataSet);
+procedure TDSWrap2.AfterDataSetPost(DataSet: TDataSet);
 begin
   FAfterPost.CallEventHandlers(Self);
 end;
 
-procedure TDSWrap.ClearFilter;
+procedure TDSWrap2.ClearFilter;
 begin
   FDataSet.Filtered := False;
 end;
 
-procedure TDSWrap.CloneAfterClose(Sender: TObject);
+procedure TDSWrap2.CloneAfterClose(Sender: TObject);
 var
   AClone: TFDMemTable;
 begin
@@ -243,7 +231,7 @@ begin
     AClone.Close;
 end;
 
-procedure TDSWrap.CloneAfterOpen(Sender: TObject);
+procedure TDSWrap2.CloneAfterOpen(Sender: TObject);
 var
   AClone: TFDMemTable;
 begin
@@ -254,7 +242,7 @@ begin
   end;
 end;
 
-procedure TDSWrap.CloneCursor(AClone: TFDMemTable);
+procedure TDSWrap2.CloneCursor(AClone: TFDMemTable);
 var
   AFilter: String;
 begin
@@ -270,23 +258,12 @@ begin
   AClone.Filtered := True;
 end;
 
-procedure TDSWrap.DeleteAll;
-begin
-  FDDataSet.DisableControls;
-  try
-    while not FDDataSet.Eof do
-      FDDataSet.Delete;
-  finally
-    FDDataSet.EnableControls;
-  end;
-end;
-
-procedure TDSWrap.DoAfterOpen___(Sender: TObject);
+procedure TDSWrap2.DoAfterOpen___(Sender: TObject);
 begin
   UpdateFields;
 end;
 
-procedure TDSWrap.DropClone(AClone: TFDMemTable);
+procedure TDSWrap2.DropClone(AClone: TFDMemTable);
 begin
   Assert(AClone <> nil);
   Assert(FClones <> nil);
@@ -302,17 +279,17 @@ begin
   end;
 end;
 
-function TDSWrap.Field(const AFieldName: string): TField;
+function TDSWrap2.Field(const AFieldName: string): TField;
 begin
   Result := FDataSet.FieldByName(AFieldName);
 end;
 
-function TDSWrap.GetActive: Boolean;
+function TDSWrap2.GetActive: Boolean;
 begin
   Result := FDataSet.Active;
 end;
 
-function TDSWrap.GetAfterOpen: TNotifyEventsEx;
+function TDSWrap2.GetAfterOpen: TNotifyEventsEx;
 begin
   if FAfterOpen = nil then
   begin
@@ -324,7 +301,7 @@ begin
   Result := FAfterOpen;
 end;
 
-function TDSWrap.GetAfterClose: TNotifyEventsEx;
+function TDSWrap2.GetAfterClose: TNotifyEventsEx;
 begin
   if FAfterClose = nil then
   begin
@@ -336,7 +313,7 @@ begin
   Result := FAfterClose;
 end;
 
-function TDSWrap.GetAfterInsert: TNotifyEventsEx;
+function TDSWrap2.GetAfterInsert: TNotifyEventsEx;
 begin
   if FAfterInsert = nil then
   begin
@@ -348,7 +325,7 @@ begin
   Result := FAfterInsert;
 end;
 
-function TDSWrap.GetBeforePost: TNotifyEventsEx;
+function TDSWrap2.GetBeforePost: TNotifyEventsEx;
 begin
   if FBeforePost = nil then
   begin
@@ -360,7 +337,7 @@ begin
   Result := FBeforePost;
 end;
 
-function TDSWrap.GetAfterScroll: TNotifyEventsEx;
+function TDSWrap2.GetAfterScroll: TNotifyEventsEx;
 begin
   if FAfterScroll = nil then
   begin
@@ -371,7 +348,7 @@ begin
   Result := FAfterScroll;
 end;
 
-function TDSWrap.GetBeforeDelete: TNotifyEventsEx;
+function TDSWrap2.GetBeforeDelete: TNotifyEventsEx;
 begin
   if FBeforeDelete = nil then
   begin
@@ -383,7 +360,7 @@ begin
   Result := FBeforeDelete;
 end;
 
-function TDSWrap.GetAfterPost: TNotifyEventsEx;
+function TDSWrap2.GetAfterPost: TNotifyEventsEx;
 begin
   if FAfterPost = nil then
   begin
@@ -395,12 +372,12 @@ begin
   Result := FAfterPost;
 end;
 
-function TDSWrap.GetFDDataSet: TFDDataSet;
+function TDSWrap2.GetFDDataSet: TFDDataSet;
 begin
   Result := FDataSet as TFDDataSet;
 end;
 
-function TDSWrap.GetPK: TField;
+function TDSWrap2.GetPK: TField;
 begin
   if FPKFieldName.IsEmpty then
     raise Exception.Create('Имя первичного ключа не задано');
@@ -408,17 +385,17 @@ begin
   Result := Field(FPKFieldName);
 end;
 
-function TDSWrap.GetRecordCount: Integer;
+function TDSWrap2.GetRecordCount: Integer;
 begin
   Result := FDataSet.RecordCount;
 end;
 
-function TDSWrap.HaveAnyChanges: Boolean;
+function TDSWrap2.HaveAnyChanges: Boolean;
 begin
   Result := FDataSet.State in [dsEdit, dsinsert];
 end;
 
-function TDSWrap.Load(const AParamNames: TArray<String>;
+function TDSWrap2.Load(const AParamNames: TArray<String>;
   const AParamValues: TArray<Variant>; ATestResult: Integer = -1): Integer;
 begin
   FDataSet.DisableControls;
@@ -435,7 +412,7 @@ begin
     Assert(Result = ATestResult);
 end;
 
-function TDSWrap.LocateByPK(APKValue: Variant;
+function TDSWrap2.LocateByPK(APKValue: Variant;
   TestResult: Boolean = False): Boolean;
 begin
   Assert(not FPKFieldName.IsEmpty);
@@ -446,7 +423,7 @@ begin
   end;
 end;
 
-procedure TDSWrap.RefreshQuery;
+procedure TDSWrap2.RefreshQuery;
 begin
   FDataSet.DisableControls;
   try
@@ -457,12 +434,12 @@ begin
   end;
 end;
 
-procedure TDSWrap.RestoreBookmark;
+procedure TDSWrap2.RestoreBookmark;
 begin
 
 end;
 
-function TDSWrap.SaveBookmark: Boolean;
+function TDSWrap2.SaveBookmark: Boolean;
 begin
   Result := DataSet.Active and not DataSet.IsEmpty;
   if not Result then
@@ -474,16 +451,7 @@ begin
     FRecHolder.Attach(DataSet);
 end;
 
-procedure TDSWrap.SetFieldsReadOnly(AReadOnly: Boolean);
-var
-  AField: TField;
-begin
-  inherited;
-  for AField in FDataSet.Fields do
-    AField.ReadOnly := AReadOnly;
-end;
-
-procedure TDSWrap.SetFieldsRequired(ARequired: Boolean);
+procedure TDSWrap2.SetFieldsRequired(ARequired: Boolean);
 var
   AField: TField;
 begin
@@ -492,7 +460,7 @@ begin
     AField.Required := ARequired;
 end;
 
-procedure TDSWrap.SetFieldsVisible(AVisible: Boolean);
+procedure TDSWrap2.SetFieldsVisible(AVisible: Boolean);
 var
   F: TField;
 begin
@@ -500,7 +468,7 @@ begin
     F.Visible := AVisible;
 end;
 
-procedure TDSWrap.SetParameters(const AParamNames: TArray<String>;
+procedure TDSWrap2.SetParameters(const AParamNames: TArray<String>;
   const AParamValues: TArray<Variant>);
 var
   i: Integer;
@@ -514,7 +482,7 @@ begin
   end;
 end;
 
-procedure TDSWrap.TryAppend;
+procedure TDSWrap2.TryAppend;
 begin
   Assert(FDataSet.Active);
 
@@ -522,7 +490,7 @@ begin
     FDataSet.Append;
 end;
 
-procedure TDSWrap.TryCancel;
+procedure TDSWrap2.TryCancel;
 begin
   Assert(FDataSet.Active);
 
@@ -530,7 +498,7 @@ begin
     FDataSet.Cancel;
 end;
 
-function TDSWrap.TryEdit: Boolean;
+function TDSWrap2.TryEdit: Boolean;
 begin
   Assert(FDataSet.Active);
 
@@ -543,7 +511,7 @@ begin
   Result := True;
 end;
 
-function TDSWrap.TryLocate(AFields: TArray<String>;
+function TDSWrap2.TryLocate(AFields: TArray<String>;
   AValues: TArray<Variant>): Integer;
 var
   AKeyFields: string;
@@ -580,13 +548,42 @@ begin
   Result := 0;
 end;
 
-procedure TDSWrap.TryOpen;
+function TDSWrap2.Locate(AFields: TArray<String>;
+  AValues: TArray<Variant>): Boolean;
+var
+  AKeyFields: string;
+  ALength: Integer;
+  Arr: Variant;
+  J: Integer;
+  OK: Boolean;
+begin
+  Assert(Length(AFields) > 0);
+  Assert(Length(AValues) > 0);
+  Assert(Length(AFields) = Length(AValues));
+  ALength := Length(AValues);
+
+  AKeyFields := '';
+  // Создаём вариантный массив
+  Arr := VarArrayCreate([0, ALength - 1], varVariant);
+
+  for J := 0 to ALength - 1 do
+  begin
+    AKeyFields := AKeyFields + IfThen(AKeyFields.IsEmpty, '', ';') + AFields[J];
+    Arr[J] := AValues[J];
+  end;
+
+  Result := FDDataSet.LocateEx(AKeyFields, Arr, []);
+
+  VarClear(Arr);
+end;
+
+procedure TDSWrap2.TryOpen;
 begin
   if not FDataSet.Active then
     FDataSet.Open;
 end;
 
-procedure TDSWrap.TryPost;
+procedure TDSWrap2.TryPost;
 begin
   Assert(FDataSet.Active);
 
@@ -594,56 +591,44 @@ begin
     FDataSet.Post;
 end;
 
-procedure TDSWrap.UpdateFields;
+procedure TDSWrap2.UpdateFields;
 var
   F: TField;
-  PW: TParamWrap;
   FW: TFieldWrap;
 begin
   // Прячем все поля
   SetFieldsVisible(False);
 
   // Показываем только те, у которых есть DisplayLabel
-  for PW in FFieldsWrap do
+  for FW in FFieldsWrap do
   begin
-    if not(PW is TFieldWrap) then
-      continue;
-
-    FW := PW as TFieldWrap;
-
     F := FDataSet.FindField(FW.FieldName);
     if F = nil then
-      continue;
+      Continue;
+
+    F.Visible := FW.Visible;
 
     if not FW.DisplayLabel.IsEmpty then
-    begin
       F.DisplayLabel := FW.DisplayLabel;
-      F.Visible := True;
-    end;
   end;
 end;
 
-constructor TFieldWrap.Create(ADataSetWrap: TDSWrap; const AFieldName: string;
+constructor TFieldWrap2.Create(ADataSetWrap: TDSWrap; const AFieldName: string;
   const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
-var
-  p: Integer;
 begin
-  inherited Create(ADataSetWrap, AFieldName);
+  inherited Create;
   Assert(ADataSetWrap <> nil);
   Assert(not AFieldName.IsEmpty);
 
-  p := AFieldName.IndexOf('.');
+  FDataSetWrap := ADataSetWrap;
+  FDataSetWrap.FFieldsWrap.Add(Self);
 
-  // Если имя поля содержит точку - всё что до точки - имя таблицы
-  if p > 0 then
-  begin
-    FTableName := AFieldName.Substring(0, p);
-    FFieldName := AFieldName.Substring(p + 1);
-  end
-  else
-    FFieldName := AFieldName;
+  FFieldName := AFieldName;
 
   FDisplayLabel := ADisplayLabel;
+  FVisible := not FDisplayLabel.IsEmpty;
+  // if FDisplayLabel.IsEmpty then
+  // FDisplayLabel := FFieldName;
 
   if APrimaryKey then
     ADataSetWrap.PKFieldName := FFieldName;
@@ -651,28 +636,9 @@ begin
   FDefaultValue := NULL;
 end;
 
-function TFieldWrap.GetF: TField;
+function TFieldWrap2.GetF: TField;
 begin
   Result := FDataSetWrap.Field(FFieldName);
-end;
-
-function TFieldWrap.GetFullName: string;
-begin
-  Result := IfThen(not TableName.IsEmpty, TableName + '.' + FieldName,
-    FieldName);
-end;
-
-constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AParamName: string);
-begin
-  inherited Create;
-
-  Assert(ADataSetWrap <> nil);
-  Assert(not AParamName.IsEmpty);
-
-  FDataSetWrap := ADataSetWrap;
-  FDataSetWrap.FFieldsWrap.Add(Self);
-
-  FParamName := AParamName;
 end;
 
 end.

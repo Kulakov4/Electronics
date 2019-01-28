@@ -19,8 +19,9 @@ type
     Value: Variant;
     DataType: TFieldType;
     CaseInsensitive: Boolean;
+    FullName: String;
   public
-    constructor Create(const AFieldName: String; const AValue: Variant;
+    constructor Create(const AFullName: String; const AValue: Variant;
       const ADataType: TFieldType = ftInteger;
       const ACaseInsensitive: Boolean = False; const AOperation: String = '=');
   end;
@@ -149,7 +150,8 @@ type
 
 implementation
 
-uses System.Math, RepositoryDataModule, StrHelper, MapFieldsUnit;
+uses System.Math, RepositoryDataModule, StrHelper, MapFieldsUnit,
+  System.StrUtils;
 
 {$R *.dfm}
 { TfrmDataModule }
@@ -899,7 +901,7 @@ end;
 function TQueryBase.SearchEx(AParams: TArray<TParamRec>;
   TestResult: Integer = -1): Integer;
 var
-  AFieldNames: TList<String>;
+  AParamNames: TList<String>;
   AFormatStr: string;
   ANewValue: string;
   ANewSQL: string;
@@ -924,15 +926,16 @@ begin
     else
       AFormatStr := '%s=:%s';
 
-    ANewValue := Format(AFormatStr, [AParams[i].FieldName,
+    ANewValue := Format(AFormatStr, [AParams[i].FullName,
       AParams[i].FieldName]);
+
     ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
   end;
 
   // Меняем SQL запрос
   FDQuery.SQL.Text := ANewSQL;
 
-  AFieldNames := TList<String>.Create;
+  AParamNames := TList<String>.Create;
   AValues := TList<Variant>.Create;
   try
     // Создаём параметры SQL запроса
@@ -940,14 +943,14 @@ begin
     begin
       SetParamType(AParams[i].FieldName, ptInput, AParams[i].DataType);
 
-      AFieldNames.Add(AParams[i].FieldName);
+      AParamNames.Add(AParams[i].FieldName);
       AValues.Add(AParams[i].Value);
     end;
 
     // Выполняем поиск
-    Result := Search(AFieldNames.ToArray, AValues.ToArray, TestResult);
+    Result := Search(AParamNames.ToArray, AValues.ToArray, TestResult);
   finally
-    FreeAndNil(AFieldNames);
+    FreeAndNil(AParamNames);
     FreeAndNil(AValues);
   end;
 end;
@@ -1119,15 +1122,19 @@ begin
   end;
 end;
 
-constructor TParamRec.Create(const AFieldName: String; const AValue: Variant;
+constructor TParamRec.Create(const AFullName: String; const AValue: Variant;
   const ADataType: TFieldType = ftInteger;
   const ACaseInsensitive: Boolean = False; const AOperation: String = '=');
+var
+  p: Integer;
 begin
   inherited;
-  Assert(not AFieldName.IsEmpty);
+  Assert(not AFullName.IsEmpty);
   Assert(not VarIsNull(AValue));
 
-  FieldName := AFieldName;
+  FullName := AFullName;
+  p := FullName.IndexOf('.');
+  FieldName := IfThen(p > 0, AFullName.Substring(p + 1), AFullName);
   Value := AValue;
   DataType := ADataType;
   CaseInsensitive := ACaseInsensitive;

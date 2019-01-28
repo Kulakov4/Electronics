@@ -29,6 +29,7 @@ type
     FValue: TFieldWrap;
     FValueT: TFieldWrap;
   protected
+    procedure DoAfterInsert(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
@@ -375,6 +376,7 @@ begin
   FIDParameterType := TFieldWrap.Create(Self, 'IDParameterType');
   FIsCustomParameter := TFieldWrap.Create(Self, 'IsCustomParameter');
   FIsCustomParameter.DefaultValue := False;
+
   FMeasuringUnit := TFieldWrap.Create(Self, 'MeasuringUnit');
   FParamSubParamID := TFieldWrap.Create(Self, 'ParamSubParamID');
   FTableName := TFieldWrap.Create(Self, 'TableName');
@@ -384,6 +386,12 @@ begin
   // Параметры запроса
   FProductCategoryID := TParamWrap.Create(Self, 'ProductCategoryID');
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, EventList);
+  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, EventList);
+end;
+
+procedure TParameterW.DoAfterInsert(Sender: TObject);
+begin
+  FIsCustomParameter.F.Value := FIsCustomParameter.DefaultValue;
 end;
 
 procedure TParameterW.DoBeforePost(Sender: TObject);
