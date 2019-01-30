@@ -95,7 +95,7 @@ begin
 
   cxDBTreeList.BeginUpdate;
   try
-    qProductsSearch.AppendRows(qProductsSearch.Value.FieldName,
+    qProductsSearch.AppendRows(qProductsSearch.W.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
 

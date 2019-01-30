@@ -89,8 +89,8 @@ begin
   Assert(AParamSubParamID > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.FieldName,
-    AProductCategoryID), TParamRec.Create(W.ParamSubParamID.FieldName,
+  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.FullName,
+    AProductCategoryID), TParamRec.Create(W.ParamSubParamID.FullName,
     AParamSubParamID)]);
 end;
 

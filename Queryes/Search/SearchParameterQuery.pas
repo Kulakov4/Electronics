@@ -80,38 +80,32 @@ end;
 
 function TQuerySearchParameter.SearchByTableName(const ATableName: String;
   AIsCustomParameter: Boolean): Integer;
-var
-  ACondition: string;
 begin
   Assert(not ATableName.IsEmpty);
 
   // »щем без учЄта регистра
-  Result := SearchEx([TParamRec.Create(W.TableName.FieldName, ATableName,
-    ftWideString, True), TParamRec.Create(W.IsCustomParameter.FieldName,
+  Result := SearchEx([TParamRec.Create(W.TableName.FullName, ATableName,
+    ftWideString, True), TParamRec.Create(W.IsCustomParameter.FullName,
     IfThen(AIsCustomParameter, 1, 0))]);
 end;
 
 function TQuerySearchParameter.SearchByTableName(const ATableName
   : String): Integer;
-var
-  ACondition: string;
 begin
   Assert(not ATableName.IsEmpty);
 
   // »щем без учЄта регистра
-  Result := SearchEx([TParamRec.Create(W.TableName.FieldName, ATableName,
+  Result := SearchEx([TParamRec.Create(W.TableName.FullName, ATableName,
     ftWideString, True)]);
 end;
 
 function TQuerySearchParameter.SearchByID(AID: Integer;
   ATestResult: Boolean = False): Integer;
-var
-  ACondition: string;
 begin
   Assert(AID > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.PK.FieldName, AID)], IfThen(ATestResult, 1, -1));
+  Result := SearchEx([TParamRec.Create(W.PK.FullName, AID)], IfThen(ATestResult, 1, -1));
 end;
 
 procedure TQuerySearchParameter.SearchOrAppend(const ATableName: String;

@@ -76,10 +76,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function GetCheckedValues(const AFieldName: String): string;
     function Lookup(AValue: string): Integer;
-    function SearchBy(const AProductCategoryID: Integer;
-      const ATableName: string): Integer;
-    function SearchByProductCategoryID(const AProductCategoryID
-      : Integer): Integer;
+    function SearchByTableName(const ATableName: string): Integer;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     property W: TParameterW read FW;
     { Public declarations }
@@ -263,6 +260,10 @@ end;
 
 procedure TQueryParameters.DoBeforeOpen(Sender: TObject);
 begin
+  // Это постоянный параметр. Если галочки не нужны, то его значение = 0
+  SetParameters([W.ProductCategoryID.FieldName],
+    [W.ProductCategoryID.DefaultValue]);
+
   if FDQuery.FieldCount = 0 then
   begin
     // Обновляем описания полей
@@ -322,24 +323,12 @@ begin
     Result := V;
 end;
 
-function TQueryParameters.SearchBy(const AProductCategoryID: Integer;
-  const ATableName: string): Integer;
+function TQueryParameters.SearchByTableName(const ATableName: string): Integer;
 begin
   Assert(not ATableName.IsEmpty);
-  Assert(AProductCategoryID > 0);
 
-  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.ParamName,
-    AProductCategoryID), TParamRec.Create(W.TableName.FieldName, ATableName,
+  Result := SearchEx([TParamRec.Create(W.TableName.FullName, ATableName,
     ftWideString)]);
-end;
-
-function TQueryParameters.SearchByProductCategoryID(const AProductCategoryID
-  : Integer): Integer;
-begin
-  Assert(AProductCategoryID > 0);
-
-  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.ParamName,
-    AProductCategoryID)]);
 end;
 
 procedure TQueryParameters.SetShowDuplicate(const Value: Boolean);
@@ -384,7 +373,9 @@ begin
   FValueT := TFieldWrap.Create(Self, 'ValueT');
 
   // Параметры запроса
-  FProductCategoryID := TParamWrap.Create(Self, 'ProductCategoryID');
+  FProductCategoryID := TParamWrap.Create(Self, 'cp.ProductCategoryID');
+  FProductCategoryID.DefaultValue := 0;
+
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, EventList);
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, EventList);
 end;

@@ -64,14 +64,14 @@ begin
   begin
     qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.Value, True);
     // запоминаем что надо искать на первом уровне
-    Result.Add(qDescriptionTypes.ComponentType.AsString);
+    Result.Add(qDescriptionTypes.W.ComponentType.F.AsString);
     // запоминаем что надо искать на втором уровне
     Result.Add(S);
   end
   else
     // Пытаемся искать среди типов кратких описаний
     if qDescriptionTypes.LocateByField
-      (qDescriptionTypes.ComponentType.FieldName, S) then
+      (qDescriptionTypes.W.ComponentType.FieldName, S) then
     begin
       Result.Add(S);
     end;
@@ -117,7 +117,7 @@ begin
     ADescriptionsExcelTable.CallOnProcessEvent;
     while not ADescriptionsExcelTable.Eof do
     begin
-      qDescriptionTypes.LocateOrAppend
+      qDescriptionTypes.W.LocateOrAppend
         (ADescriptionsExcelTable.ComponentType.AsString);
 
       qDescriptions.FDQuery.Append;

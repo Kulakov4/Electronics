@@ -10,8 +10,6 @@ inherited QueryProductsSearch: TQueryProductsSearch
   end
   inherited FDQuery: TFDQuery
     UpdateOptions.AssignedValues = [uvRefreshDelete]
-  end
-  object fdqBase: TFDQuery
     SQL.Strings = (
       'select *'
       'from'
@@ -52,7 +50,7 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '    NULL Description,'
       '    0 Checked'
       'from StorehouseProducts sp '
-      'join Products2 p on sp.ProductId = p.id --join1'
+      'join Products2 p on sp.ProductId = p.id and (1=1)'
       'join ComponentGroups cg on sp.IDComponentGroup = cg.id'
       'union'
       'select'
@@ -91,13 +89,11 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '       d.Description,'
       '       case when pr.ID is null then 0 else 1 end Checked'
       'from StorehouseProducts sp'
-      'join Products2 p on sp.ProductId = p.id --join2'
+      'join Products2 p on sp.ProductId = p.id and (2=2)'
       'left join Products pr on p.Value = pr.Value'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       ')'
-      '--where ID = 0'
+      'where 0=0'
       'order by IsGroup desc, Value')
-    Left = 145
-    Top = 25
   end
 end

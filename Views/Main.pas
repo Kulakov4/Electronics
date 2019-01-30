@@ -393,7 +393,7 @@ end;
 
 procedure TfrmMain.btnFocusRootClick(Sender: TObject);
 begin
-  TDM.Create.qTreeList.LocateToRoot;
+  TDM.Create.qTreeList.W.LocateToRoot;
 end;
 
 function TfrmMain.CheckDataBasePath: Boolean;
@@ -651,7 +651,7 @@ end;
 procedure TfrmMain.DoOnProductCategoriesChange(Sender: TObject);
 begin
   ComponentsFrame.cxtsCategoryComponents.Enabled :=
-    not TDM.Create.qTreeList.IsRootFocused;
+    not TDM.Create.qTreeList.W.IsRootFocused;
 
   Assert(TDM.Create.qTreeList.PK.AsInteger > 0);
   Assert(FQuerySearchCategoriesPath <> nil);
@@ -800,7 +800,7 @@ begin
   rc := TSearchSubCategories.Search(TDM.Create.qTreeList.PK.Value);
   // Если у нашей категории есть подкатегории
   if rc > 0 then
-    ACategoryPath := TDM.Create.qTreeList.Value.AsString
+    ACategoryPath := TDM.Create.qTreeList.W.Value.F.AsString
   else
   begin
     // Если в цепочке категорий мы последнее звено
@@ -839,7 +839,7 @@ begin
     I := ASubGroup.Length;
 
   AExternalID := ASubGroup.Substring(0, I);
-  TDM.Create.qTreeList.LocateByExternalID(AExternalID);
+  TDM.Create.qTreeList.W.LocateByExternalID(AExternalID);
 
   // Ждём, пока группа компонентов обновит свои данные!
   Application.ProcessMessages;
@@ -872,14 +872,14 @@ var
 begin
   if (TDM.Created) and (TDM.Create.qTreeList.FDQuery.RecordCount > 0) then
   begin
-    if not TDM.Create.qTreeList.IsRootFocused and not FCategoryPath.IsEmpty then
+    if not TDM.Create.qTreeList.W.IsRootFocused and not FCategoryPath.IsEmpty then
     begin
       S := MinimizeName(FCategoryPath, Canvas, Width - 200);
       S := S.Trim(['\']).Replace('\', '-');
 
     end
     else
-      S := TDM.Create.qTreeList.Value.AsString;
+      S := TDM.Create.qTreeList.W.Value.F.AsString;
 
     AFS.DecimalSeparator := '.';
     Caption := Format('%s %0.1f - %s',

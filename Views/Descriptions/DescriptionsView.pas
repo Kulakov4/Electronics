@@ -297,7 +297,7 @@ begin
   inherited;
 
   // Добавляем новый тип описания
-  DescriptionsGroup.qDescriptionTypes.LocateOrAppend(FNewValue);
+  DescriptionsGroup.qDescriptionTypes.W.LocateOrAppend(FNewValue);
   FNewValue := '';
 
   AMasterID := DescriptionsGroup.qDescriptionTypes.PK.AsInteger;
@@ -615,12 +615,12 @@ begin
 
     InitializeLookupColumn(clIDComponentType,
       FDescriptionsGroup.qDescriptionTypes.DataSource, lsEditList,
-      FDescriptionsGroup.qDescriptionTypes.ComponentType.FieldName);
+      FDescriptionsGroup.qDescriptionTypes.W.ComponentType.FieldName);
 
     // Производителя выбираем ТОЛЬКО из списка
     InitializeLookupColumn(clIDProducer,
       FDescriptionsGroup.qProducers.DataSource, lsFixedList,
-      FDescriptionsGroup.qProducers.Name.FieldName);
+      FDescriptionsGroup.qProducers.W.Name.FieldName);
 
     // Пусть монитор сообщает нам об изменениях в БД
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.Monitor.

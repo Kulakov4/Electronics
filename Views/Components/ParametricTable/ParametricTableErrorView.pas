@@ -91,7 +91,7 @@ begin
             AfrmParameters.cxPageControl.ActivePage :=
               AfrmParameters.cxtsParameters;
 
-            F := AParametersGroup.qParameters.TableName;
+            F := AParametersGroup.qParameters.W.TableName.F;
             ErrMsg := 'Табличное имя выбранного параметра не совпадает с заголовком в Excel файле';
             PKFieldName := AParametersGroup.qParameters.PKFieldName;
 
@@ -109,7 +109,7 @@ begin
             AfrmParameters.cxPageControl.ActivePage :=
               AfrmParameters.cxtsSubParameters;
 
-            F := AqSubParameters.Name;
+            F := AqSubParameters.W.Name.F;
             ErrMsg := 'Имя выбранного подпараметра не совпадает с заголовком в Excel файле';
             PKFieldName := AqSubParameters.PKFieldName;
           end;

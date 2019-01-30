@@ -53,28 +53,23 @@ end;
 
 function TQueryBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation,
   AIDJEDEC: Integer; TestResult: Integer = -1): Integer;
-var
-  AFieldName1: string;
-  AFieldName2: string;
 begin
   Assert(AIDBodyVariation > 0);
   Assert(AIDJEDEC > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FieldName,
-    AIDBodyVariation), TParamRec.Create(W.IDJEDEC.FieldName, AIDJEDEC)],
+  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FullName,
+    AIDBodyVariation), TParamRec.Create(W.IDJEDEC.FullName, AIDJEDEC)],
     TestResult);
 end;
 
 function TQueryBodyVariationJedec.SearchByIDBodyVariation(AIDBodyVariation
   : Integer): Integer;
-var
-  AFieldName: string;
 begin
   Assert(AIDBodyVariation > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FieldName,
+  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FullName,
     AIDBodyVariation)]);
 end;
 

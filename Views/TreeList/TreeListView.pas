@@ -132,7 +132,7 @@ begin
   if AValue.IsEmpty then
     Exit;
 
-  qTreeList.AddChildCategory(AValue, GetLevel(cxDBTreeList.FocusedNode));
+  qTreeList.W.AddChildCategory(AValue, GetLevel(cxDBTreeList.FocusedNode));
 end;
 
 procedure TViewTreeList.actClearExecute(Sender: TObject);
@@ -149,7 +149,7 @@ begin
   if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
     Exit;
 
-  qTreeList.Delete
+  qTreeList.W.Delete
 end;
 
 procedure TViewTreeList.actExportTreeToExcelDocumentExecute(Sender: TObject);
@@ -196,7 +196,7 @@ begin
       end);
 
     // Получаем добавленные категории
-    AQueryRecursiveTree.HideNotAdded;
+    AQueryRecursiveTree.W.HideNotAdded;
     // Если есть категории, которые были добавлены
     if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
     begin
@@ -210,7 +210,7 @@ begin
       end;
     end;
 
-    AQueryRecursiveTree.HideNotDeleted;
+    AQueryRecursiveTree.W.HideNotDeleted;
     // Если есть категории, которые надо удалить
     if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
     begin
@@ -249,12 +249,12 @@ begin
   inherited;
   qTreeList.TryPost;
 
-  Value := InputBox(sDatabase, sPleaseWrite, qTreeList.Value.AsString);
-  if (Value <> '') and (qTreeList.CheckPossibility(qTreeList.ParentId.AsInteger,
+  Value := InputBox(sDatabase, sPleaseWrite, qTreeList.W.Value.F.AsString);
+  if (Value <> '') and (qTreeList.W.CheckPossibility(qTreeList.W.ParentId.F.AsInteger,
     Value)) then
   begin
     qTreeList.TryEdit;
-    qTreeList.Value.AsString := Value;
+    qTreeList.W.Value.F.AsString := Value;
     qTreeList.TryPost;
   end;
 end;
@@ -276,7 +276,7 @@ begin
     Exit;
 
   // Ищем
-  if not qTreeList.LocateByExternalID(AExternalID, [lxoPartialKey]) then
+  if not qTreeList.W.LocateByExternalID(AExternalID, [lxoPartialKey]) then
     TDialog.Create.CategoryNotExist(AExternalID);
 end;
 
@@ -410,14 +410,14 @@ begin
 
     if HitTest.HitAtBackground then
     begin
-      qTreeList.LocateToRoot;
+      qTreeList.W.LocateToRoot;
       actRename.Enabled := False;
       OptionsData.Editing := False;
     end;
 
     if HitTest.HitAtNode then
     begin
-      if qTreeList.IsRootFocused then
+      if qTreeList.W.IsRootFocused then
       begin
         actRename.Enabled := False;
         OptionsData.Editing := False;
@@ -438,7 +438,7 @@ begin
 
   cxDBTreeList.DataController.DataSource := qTreeList.DataSource;
   cxDBTreeList.DataController.KeyField := qTreeList.PKFieldName;
-  cxDBTreeList.DataController.ParentField := qTreeList.ParentId.FieldName;
+  cxDBTreeList.DataController.ParentField := qTreeList.W.ParentId.FieldName;
 
   ViewDuplicateCategory.qDuplicateCategory := FqTreeList.qDuplicateCategory;
 

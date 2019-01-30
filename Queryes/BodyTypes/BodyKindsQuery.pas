@@ -9,26 +9,39 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit, OrderQuery;
+  QueryWithDataSourceUnit, OrderQuery, DSWrap;
 
 type
-  TQueryBodyKinds = class(TQueryOrder)
-    FDUpdateSQL: TFDUpdateSQL;
+  TBodyKindW = class(TOrderW)
   private
-    FShowDuplicate: Boolean;
-    function GetBodyKind: TField;
-    procedure SetShowDuplicate(const Value: Boolean);
-    { Private declarations }
-  protected
-    procedure DoAfterOpen(Sender: TObject);
+    FBodyKind: TFieldWrap;
+    FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
-    property BodyKind: TField read GetBodyKind;
+    property BodyKind: TFieldWrap read FBodyKind;
+    property ID: TFieldWrap read FID;
+  end;
+
+  TQueryBodyKinds = class(TQueryOrder)
+    FDUpdateSQL: TFDUpdateSQL;
+  private
+    FShowDuplicate: Boolean;
+    FW: TBodyKindW;
+    procedure SetShowDuplicate(const Value: Boolean);
+    { Private declarations }
+  protected
+    function CreateDataSetWrap: TOrderW; override;
+    procedure DoAfterOpen(Sender: TObject);
+  public
+    constructor Create(AOwner: TComponent); override;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
+    property W: TBodyKindW read FW;
     { Public declarations }
   end;
+
+
 
 implementation
 
@@ -39,34 +52,20 @@ uses NotifyEvents, StrHelper;
 constructor TQueryBodyKinds.Create(AOwner: TComponent);
 begin
   inherited;
-  //  опируем базовый запрос и параметры
-//  AssignFrom(fdqBase);
+  FW := OrderW as TBodyKindW;
 
   AutoTransaction := False;
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryBodyKinds.AddNewValue(const AValue: string);
+function TQueryBodyKinds.CreateDataSetWrap: TOrderW;
 begin
-  FDQuery.Append;
-  BodyKind.AsString := AValue;
-  FDQuery.Post;
+  Result := TBodyKindW.Create(FDQuery);
 end;
 
 procedure TQueryBodyKinds.DoAfterOpen(Sender: TObject);
 begin
   SetFieldsRequired(False);
-end;
-
-function TQueryBodyKinds.GetBodyKind: TField;
-begin
-  Result := Field('BodyKind');
-end;
-
-procedure TQueryBodyKinds.LocateOrAppend(AValue: string);
-begin
-  if not FDQuery.LocateEx(BodyKind.FieldName, AValue, [lxoCaseInsensitive]) then
-    AddNewValue(AValue);
 end;
 
 procedure TQueryBodyKinds.SetShowDuplicate(const Value: Boolean);
@@ -89,6 +88,27 @@ begin
     FDQuery.SQL.Text := ASQL;
     FDQuery.Open;
   end;
+end;
+
+constructor TBodyKindW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FOrd := TFieldWrap.Create(Self, 'Ord');
+  FBodyKind := TFieldWrap.Create(Self, 'BodyKind');
+end;
+
+procedure TBodyKindW.AddNewValue(const AValue: string);
+begin
+  TryAppend;
+  BodyKind.F.AsString := AValue;
+  TryPost;
+end;
+
+procedure TBodyKindW.LocateOrAppend(AValue: string);
+begin
+  if not FDDataSet.LocateEx(BodyKind.FieldName, AValue, [lxoCaseInsensitive]) then
+    AddNewValue(AValue);
 end;
 
 end.

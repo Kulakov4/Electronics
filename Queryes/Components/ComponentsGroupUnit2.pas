@@ -446,7 +446,7 @@ begin
         Continue;
       end;
 
-      AQueryTreeList.FilterByExternalID(m[0]);
+      AQueryTreeList.W.FilterByExternalID(m[0]);
       if AQueryTreeList.FDQuery.RecordCount = 0 then
       begin
         AutomaticLoadErrorTable.LocateOrAppendData(AFileName, NULL, '',
@@ -455,7 +455,7 @@ begin
       end;
 
       AutomaticLoadErrorTable.LocateOrAppendData(AFileName, NULL,
-        AQueryTreeList.Value.AsString, 'Идёт обработка этого файла...', '');
+        AQueryTreeList.W.Value.F.AsString, 'Идёт обработка этого файла...', '');
 
       // загружаем компоненты из нужной нам категории
       qComponents.Load(AQueryTreeList.PK.Value);
@@ -471,7 +471,7 @@ begin
           begin
             e := ASender as TExcelDMEvent;
             AutomaticLoadErrorTable.LocateOrAppendData(AFileName, e.SheetIndex,
-              AQueryTreeList.Value.AsString,
+              AQueryTreeList.W.Value.F.AsString,
               Format('Загружаем данные с листа %d...', [e.SheetIndex]), '');
           end);
 
@@ -481,7 +481,7 @@ begin
             e: TFolderLoadEvent;
           begin
             e := TFolderLoadEvent.Create(AFileName, AutomaticLoadErrorTable,
-              AQueryTreeList.Value.AsString, ASender as TExcelDMEvent,
+              AQueryTreeList.W.Value.F.AsString, ASender as TExcelDMEvent,
               AProducer);
             DoOnTotalProgress(e);
             FreeAndNil(e);
@@ -494,7 +494,7 @@ begin
             e: TFolderLoadEvent;
           begin
             e := TFolderLoadEvent.Create(AFileName, AutomaticLoadErrorTable,
-              AQueryTreeList.Value.AsString, ASender as TExcelDMEvent,
+              AQueryTreeList.W.Value.F.AsString, ASender as TExcelDMEvent,
               AProducer);
             DoAfterLoadSheet(e);
             FreeAndNil(e);
@@ -507,7 +507,7 @@ begin
           on e: Exception do
           begin
             AutomaticLoadErrorTable.LocateOrAppendData(AFileName, NULL,
-              AQueryTreeList.Value.AsString, e.Message, 'Ошибка');
+              AQueryTreeList.W.Value.F.AsString, e.Message, 'Ошибка');
             Continue;
           end;
         end;

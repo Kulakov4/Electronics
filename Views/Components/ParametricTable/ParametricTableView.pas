@@ -534,7 +534,7 @@ begin
           // Ищем информацию о колонке
           ACI := FColumnsInfo.Search(AColumn, True);
           qCategoryParameters.LocateByPK(ACI.IDCategoryParam);
-          AParamSubParamId := qCategoryParameters.ParamSubParamId.AsInteger;
+          AParamSubParamId := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
 
           // Получаем значение очередной колонки сфокусированной записи
           V := FocusedTableView.Controller.FocusedRecord.Values[AColumn.Index];
@@ -717,7 +717,7 @@ begin
     begin
       // Имя поля получаем из словаря всех имён полей параметров
       AFieldName := ComponentsExGroup.AllParameterFields
-        [qCategoryParameters.ParamSubParamId.AsInteger];
+        [qCategoryParameters.W.ParamSubParamId.F.AsInteger];
 
       AColumn := AView.GetColumnByFieldName(AFieldName);
 
@@ -1482,7 +1482,7 @@ begin
   // Поиск среди ранее созданных бэндов
   // Ищем среди заранее созданных бэндов
   ABandInfo := FBandsInfo.SearchByIDParamSubParam
-    (qCategoryParameters.ParamSubParamId.AsInteger);
+    (qCategoryParameters.W.ParamSubParamId.F.AsInteger);
 
   if ABandInfo <> nil then
   begin
@@ -1528,7 +1528,7 @@ var
 begin
   Assert(ABandInfo <> nil);
 
-  AParamSubParamId := qCategoryParameters.ParamSubParamId.AsInteger;
+  AParamSubParamId := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
 
   // Ищем, возможно такая колонка уже есть?
   ACI := FColumnsInfo.Search(qCategoryParameters.PK.AsInteger);
@@ -1553,12 +1553,12 @@ begin
           AColumn.Position.BandIndex := ABand.Index;
           AColumn.MinWidth := 40;
           AColumn.Caption :=
-            DeleteDouble(qCategoryParameters.Name.AsString, ' ');
+            DeleteDouble(qCategoryParameters.W.Name.F.AsString, ' ');
           if AColumn.Caption.IsEmpty then
             AColumn.Caption := ' ';
           AColumn.HeaderAlignmentHorz := taCenter;
           AColumn.AlternateCaption :=
-            DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
+            DeleteDouble(qCategoryParameters.W.Translation.F.AsString, ' ');
 
           // Такое поле должно быть в датасете
           Assert(ComponentsExGroup.AllParameterFields.ContainsKey
@@ -1608,8 +1608,8 @@ begin
       end;
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
-        qCategoryParameters.PK.AsInteger, qCategoryParameters.Ord.AsInteger,
-        ABandInfo.DefaultCreated, qCategoryParameters.IsDefault.AsInteger = 1));
+        qCategoryParameters.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
+        ABandInfo.DefaultCreated, qCategoryParameters.W.IsDefault.F.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
     end;
@@ -1768,9 +1768,9 @@ begin
   Assert(qryCategoryParameters.FDQuery.RecordCount > 0);
 
   if UseTableName then
-    Result := qCategoryParameters.TableName.AsString
+    Result := qCategoryParameters.W.TableName.F.AsString
   else
-    Result := qCategoryParameters.Value.AsString;
+    Result := qCategoryParameters.W.Value.F.AsString;
 
   Result := DeleteDouble(Result, ' ');
 end;
@@ -1784,16 +1784,16 @@ begin
   qCategoryParameters.LocateByPK(AIDCategoryParam, True);
 
   // Обновляем признак того, что это подпараметр по умолчанию
-  ACI.IsDefault := qCategoryParameters.IsDefault.AsInteger = 1;
+  ACI.IsDefault := qCategoryParameters.W.IsDefault.F.AsInteger = 1;
 
   for AColumn in ACI.Columns do
   begin
-    AColumn.Caption := DeleteDouble(qCategoryParameters.Name.AsString, ' ');
+    AColumn.Caption := DeleteDouble(qCategoryParameters.W.Name.F.AsString, ' ');
     if AColumn.Caption.IsEmpty then
       AColumn.Caption := AColumn.Caption + ' ';
 
     AColumn.AlternateCaption :=
-      DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
+      DeleteDouble(qCategoryParameters.W.Translation.F.AsString, ' ');
   end;
 end;
 
@@ -1820,18 +1820,18 @@ begin
   Assert(qCategoryParameters.FDQuery.RecordCount > 0);
 
   ABandInfo.IDList.Assign(AIDList); // Идентификатор бэнда
-  ABandInfo.IsDefault := qCategoryParameters.IsDefault.AsInteger = 1;
+  ABandInfo.IsDefault := qCategoryParameters.W.IsDefault.F.AsInteger = 1;
   // Параметр "по умолчанию" всегда в отдельно бэнде
-  if qCategoryParameters.IsDefault.AsInteger = 1 then
-    ABandInfo.IDParamSubParam := qCategoryParameters.ParamSubParamId.AsInteger;
+  if qCategoryParameters.W.IsDefault.F.AsInteger = 1 then
+    ABandInfo.IDParamSubParam := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
 
   // Связан ли он с подпараметром по умолчанию
-  ABandInfo.IDParameter := qCategoryParameters.IDParameter.AsInteger;
+  ABandInfo.IDParameter := qCategoryParameters.W.IDParameter.F.AsInteger;
   // Параметр, с которым связан бэнд
   // Подпараметр по "умолчанию"
-  ABandInfo.DefaultVisible := qCategoryParameters.IsAttribute.AsInteger = 1;
-  ABandInfo.IDParameterKind := qCategoryParameters.IDParameterKind.AsInteger;
-  ABandInfo.pos := qCategoryParameters.PosID.AsInteger;
+  ABandInfo.DefaultVisible := qCategoryParameters.W.IsAttribute.F.AsInteger = 1;
+  ABandInfo.IDParameterKind := qCategoryParameters.W.IDParameterKind.F.AsInteger;
+  ABandInfo.pos := qCategoryParameters.W.PosID.F.AsInteger;
 
   // Инициализируем сами бэнды
   for ABand in ABandInfo.Bands do
@@ -1843,7 +1843,7 @@ begin
     ABand.Caption := GetBandCaption(qCategoryParameters);
 
     ABand.AlternateCaption :=
-      DeleteDouble(qCategoryParameters.ValueT.AsString, ' ');
+      DeleteDouble(qCategoryParameters.W.ValueT.F.AsString, ' ');
     if ABandInfo.DefaultCreated then
       ABand.Position.ColIndex := 1000; // Помещаем бэнд в конец
 
@@ -1965,7 +1965,7 @@ begin
   end;
 
   // Просим сделать соответствующие изменения в БД
-  ComponentsExGroup.CatParamsGroup.qCategoryParameters.Move(A);
+  ComponentsExGroup.CatParamsGroup.qCategoryParameters.W.Move(A);
 
   // Если не удалось сохранить эти изменения
   if not ComponentsExGroup.CatParamsGroup.ApplyOrCancelUpdates then
@@ -2062,7 +2062,7 @@ begin
   end;
 
   // Просим сделать соответствующие изменения в БД
-  qCategoryParameters.Move(A);
+  qCategoryParameters.W.Move(A);
 
   // actShowCategoryParametersQuery.Execute;
 
@@ -2216,7 +2216,7 @@ begin
     while not qCategoryParameters.FDQuery.Eof do
     begin
       // Если следующая запись относится к той же группе
-      if qCategoryParameters.NextEx then
+      if qCategoryParameters.W.NextEx then
         AIDList.Add(qCategoryParameters.PK.AsInteger)
       else
       begin

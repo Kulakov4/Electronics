@@ -266,12 +266,12 @@ begin
   // Поиск среди ранее созданных бэндов
   // Ищем среди заранее созданных бэндов
   ABandInfo := FBandsInfo.SearchByIDParamSubParam
-    (qCategoryParameters.ParamSubParamId.AsInteger);
+    (qCategoryParameters.W.ParamSubParamId.F.AsInteger);
   // Ищем по идентификатору бэнда
   if ABandInfo = nil then
     ABandInfo := FBandsInfo.SearchByIDList(AIDList);
 
-  AParamSubParamID := qCategoryParameters.ParamSubParamId.AsInteger;
+  AParamSubParamID := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
 
   // Нужна ли инициализация бэнда
   NeedInitialize := (ABandInfo = nil) or
@@ -303,19 +303,19 @@ begin
   if NeedInitialize then
   begin
     ABandInfo.IDList.Assign(AIDList); // Идентификаторы колонок бэнда
-    ABandInfo.IsDefault := qCategoryParameters.IsDefault.AsInteger = 1;
+    ABandInfo.IsDefault := qCategoryParameters.W.IsDefault.F.AsInteger = 1;
     // Параметр "по умолчанию" всегда в отдельно бэнде
-    if qCategoryParameters.IsDefault.AsInteger = 1 then
-      ABandInfo.IDParamSubParam := qCategoryParameters.ParamSubParamId.
+    if qCategoryParameters.W.IsDefault.F.AsInteger = 1 then
+      ABandInfo.IDParamSubParam := qCategoryParameters.W.ParamSubParamId.F.
         AsInteger;
 
     // Связан ли он с подпараметром по умолчанию
-    ABandInfo.IDParameter := qCategoryParameters.IDParameter.AsInteger;
+    ABandInfo.IDParameter := qCategoryParameters.W.IDParameter.F.AsInteger;
     // Параметр, с которым связан бэнд
     // Подпараметр по "умолчанию"
-    ABandInfo.DefaultVisible := qCategoryParameters.IsAttribute.AsInteger = 1;
-    ABandInfo.IDParameterKind := qCategoryParameters.IDParameterKind.AsInteger;
-    ABandInfo.Pos := qCategoryParameters.PosID.AsInteger;
+    ABandInfo.DefaultVisible := qCategoryParameters.W.IsAttribute.F.AsInteger = 1;
+    ABandInfo.IDParameterKind := qCategoryParameters.W.IDParameterKind.F.AsInteger;
+    ABandInfo.Pos := qCategoryParameters.W.PosID.F.AsInteger;
 
     // Инициализируем сами бэнды
     for ABand in (ABandInfo as TBandInfoEx).Bands do
@@ -325,7 +325,7 @@ begin
       ABand.VisibleForCustomization := True;
       ABand.Caption := GetBandCaption(qCategoryParameters);
       ABand.AlternateCaption :=
-        DeleteDouble(qCategoryParameters.ValueT.AsString, ' ');
+        DeleteDouble(qCategoryParameters.W.ValueT.F.AsString, ' ');
       if ABandInfo.DefaultCreated then
         ABand.Position.ColIndex := 1000; // Помещаем бэнд в конец
     end;
@@ -355,12 +355,12 @@ begin
           AColumn.Position.BandIndex := ABand.Index;
           AColumn.MinWidth := 40;
           AColumn.Caption :=
-            DeleteDouble(qCategoryParameters.Name.AsString, ' ');
+            DeleteDouble(qCategoryParameters.W.Name.F.AsString, ' ');
           if AColumn.Caption.IsEmpty then
             AColumn.Caption := ' ';
           AColumn.HeaderAlignmentHorz := taCenter;
           AColumn.AlternateCaption :=
-            DeleteDouble(qCategoryParameters.Translation.AsString, ' ');
+            DeleteDouble(qCategoryParameters.W.Translation.F.AsString, ' ');
 
           // Такое поле должно быть в датасете
           Assert(AnalogGroup.AllParameterFields.ContainsKey(AParamSubParamID));
@@ -405,8 +405,8 @@ begin
       end;
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
-        qCategoryParameters.PK.AsInteger, qCategoryParameters.Ord.AsInteger,
-        ABandInfo.DefaultCreated, qCategoryParameters.IsDefault.AsInteger = 1));
+        qCategoryParameters.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
+        ABandInfo.DefaultCreated, qCategoryParameters.W.IsDefault.F.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
     end;
@@ -553,9 +553,9 @@ begin
   Assert(qryCategoryParameters.FDQuery.RecordCount > 0);
 
   if UseTableName then
-    Result := qCategoryParameters.TableName.AsString
+    Result := qCategoryParameters.W.TableName.F.AsString
   else
-    Result := qCategoryParameters.Value.AsString;
+    Result := qCategoryParameters.W.Value.F.AsString;
 
   Result := DeleteDouble(Result, ' ');
 end;

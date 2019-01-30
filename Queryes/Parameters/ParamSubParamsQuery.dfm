@@ -20,16 +20,14 @@ inherited QueryParamSubParams: TQueryParamSubParams
       'from ParamSubParams psp'
       'join SubParameters sp on psp.IdSubParameter = sp.Id'
       
-        'LEFT JOIN CategoryParams2 cp on cp.ProductCategoryId = :ProductC' +
-        'ategoryId and cp.ParamSubParamID = psp.id '
-      'where sp.IsDefault = 0 and 0=0'
+        'LEFT JOIN CategoryParams2 cp on cp.ParamSubParamID = psp.id and ' +
+        'cp.ProductCategoryId = :ProductCategoryId'
+      'where sp.IsDefault = 0 and 0=0 and 1=1'
       'order by psp.IdParameter')
     ParamData = <
       item
         Name = 'PRODUCTCATEGORYID'
-        DataType = ftInteger
         ParamType = ptInput
-        Value = 0
       end>
   end
   object FDUpdateSQL: TFDUpdateSQL

@@ -6,7 +6,7 @@ uses
   QueryGroupUnit2, System.Classes, ParameterKindsQuery, ParametersQuery,
   ParameterTypesQuery, ParamSubParamsQuery, SubParametersQuery2,
   System.Generics.Collections, ParametersExcelDataModule, NotifyEvents,
-  RecordCheck;
+  RecordCheck, DSWrap;
 
 type
   TParametersGroup2 = class(TQueryGroup2, IParametersGroup)
@@ -110,7 +110,7 @@ begin
   end;
 
   // ќпредел€емс€ с типом параметра
-  AIDParameterType := qParameterTypes.GetParameterTypeID
+  AIDParameterType := qParameterTypes.W.GetParameterTypeID
     (AParametersExcelTable.ParameterType.AsString);
 
   // ≈сли это существующий ранее тип параметра
@@ -119,11 +119,12 @@ begin
 
     // ¬озможно это полный дубликат
     AFieldNames := Format('%s;%s;%s;%s;%s;%s;%s;%s',
-      [qParameters.Value.FieldName, qParameters.ValueT.FieldName,
-      qParameters.CodeLetters.FieldName, qParameters.MeasuringUnit.FieldName,
-      qParameters.TableName.FieldName, qParameters.Definition.FieldName,
-      qParameters.IDParameterType.FieldName,
-      qParameters.IDParameterKind.FieldName]);
+      [qParameters.W.Value.FieldName, qParameters.W.ValueT.FieldName,
+      qParameters.W.CodeLetters.FieldName,
+      qParameters.W.MeasuringUnit.FieldName, qParameters.W.TableName.FieldName,
+      qParameters.W.Definition.FieldName,
+      qParameters.W.IDParameterType.FieldName,
+      qParameters.W.IDParameterKind.FieldName]);
 
     with AParametersExcelTable do
       Arr := VarArrayOf([Value.Value, ValueT.Value, CodeLetters.Value,
@@ -147,8 +148,8 @@ begin
     end;
   end;
 
-  AFieldNames := Format('%s;%s', [qParameters.TableName.FieldName,
-    qParameters.IsCustomParameter.FieldName]);
+  AFieldNames := Format('%s;%s', [qParameters.W.TableName.FieldName,
+    qParameters.W.IsCustomParameter.FieldName]);
 
   Arr := VarArrayOf([AParametersExcelTable.TableName.Value, False]);
 
@@ -193,7 +194,7 @@ begin
   AIDParameterType := qParameterTypes.PK.Value;
   //  аскадно удал€ем параметры
   qParameters.CascadeDelete(AIDParameterType,
-    qParameters.IDParameterType.FieldName);
+    qParameters.W.IDParameterType.FieldName);
 
   // cxGrid сместил запись, поэтому возвращаемс€ на место
   qParameterTypes.LocateByPK(AIDParameterType, True);
@@ -209,16 +210,16 @@ begin
   // ѕытаемс€ искать среди параметров по какому-то полю
   if qParameters.LocateByField(AFieldName, S) then
   begin
-    qParameterTypes.LocateByPK(qParameters.IDParameterType.Value, True);
+    qParameterTypes.LocateByPK(qParameters.W.IDParameterType.F.Value, True);
 
     // запоминаем что надо искать на первом уровне
-    L.Add(qParameterTypes.ParameterType.AsString);
+    L.Add(qParameterTypes.W.ParameterType.F.AsString);
     // запоминаем что надо искать на втором уровне
     L.Add(S);
   end
   else
     // ѕытаемс€ искать среди типов параметров
-    if qParameterTypes.LocateByField(qParameterTypes.ParameterType.FieldName, S)
+    if qParameterTypes.LocateByField(qParameterTypes.W.ParameterType.FieldName, S)
     then
     begin
       L.Add(S);
@@ -259,7 +260,7 @@ begin
     while not AParametersExcelTable.Eof do
     begin
       AParameterType := AParametersExcelTable.ParameterType.AsString;
-      qParameterTypes.LocateOrAppend(AParameterType);
+      qParameterTypes.W.LocateOrAppend(AParameterType);
 
       AParameterKindID :=
         StrToIntDef(AParametersExcelTable.ParameterKindID.AsString, -1);
@@ -293,8 +294,9 @@ begin
           end;
         end;
 
-        qParameters.IDParameterType.AsInteger := qParameterTypes.PK.AsInteger;
-        qParameters.IDParameterKind.AsInteger := AParameterKindID;
+        qParameters.W.IDParameterType.F.AsInteger :=
+          qParameterTypes.PK.AsInteger;
+        qParameters.W.IDParameterKind.F.AsInteger := AParameterKindID;
 
         qParameters.FDQuery.Post;
       except
@@ -320,7 +322,7 @@ begin
     Exit;
 
   // »щем тип параметра
-  qParameterTypes.LocateByPK(qParameters.IDParameterType.AsInteger, True);
+  qParameterTypes.LocateByPK(qParameters.W.IDParameterType.F.AsInteger, True);
 end;
 
 procedure TParametersGroup2.SetProductCategoryIDValue(const Value: Integer);
@@ -329,7 +331,10 @@ begin
     Exit;
 
   FProductCategoryIDValue := Value;
-  qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
+//  qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
+
+  // «начение посто€нного параметра
+  qParameters.W.ProductCategoryID.DefaultValue := FProductCategoryIDValue;
 end;
 
 end.

@@ -21,6 +21,7 @@ type
     FEuro: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    function AddBill(const ADollarCource, AEuroCource: Double): Integer;
     property ID: TFieldWrap read FID;
     property Number: TFieldWrap read FNumber;
     property BillDate: TFieldWrap read FBillDate;
@@ -35,7 +36,6 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    function AddBill(const ADollarCource, AEuroCource: Double): Integer;
     property W: TBillW read FW;
     { Public declarations }
   end;
@@ -53,23 +53,6 @@ begin
   FW := TBillW.Create(FDQuery);
 end;
 
-function TQryBill.AddBill(const ADollarCource, AEuroCource: Double): Integer;
-begin
-  TryAppend;
-  try
-    W.Number.F.Value := TQryMaxBillNumber.Get_Max_Number + 1;
-    W.BillDate.F.Value := Date;     // Дата счёта - текущая дата
-    W.Dollar.F.Value := ADollarCource;
-    W.Euro.F.Value := AEuroCource;
-    W.TryPost;
-    Result := W.PK.Value;
-    Assert(Result > 0);
-  except
-    W.TryCancel;
-    raise;
-  end;
-end;
-
 constructor TBillW.Create(AOwner: TComponent);
 begin
   inherited;
@@ -79,6 +62,23 @@ begin
   FShipmentDate := TFieldWrap.Create(Self, 'ShipmentDate', 'Дата отгрузки');
   FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс доллара');
   FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс евро');
+end;
+
+function TBillW.AddBill(const ADollarCource, AEuroCource: Double): Integer;
+begin
+  TryAppend;
+  try
+    Number.F.Value := TQryMaxBillNumber.Get_Max_Number + 1;
+    BillDate.F.Value := Date;     // Дата счёта - текущая дата
+    Dollar.F.Value := ADollarCource;
+    Euro.F.Value := AEuroCource;
+    TryPost;
+    Result := PK.Value;
+    Assert(Result > 0);
+  except
+    TryCancel;
+    raise;
+  end;
 end;
 
 end.

@@ -1292,7 +1292,7 @@ begin
   FStorage := TFieldWrap.Create(Self, 'Storage');
   FStoragePlace := TFieldWrap.Create(Self, 'StoragePlace');
   FStorehouseId := TFieldWrap.Create(Self, 'StorehouseId');
-  FValue := TFieldWrap.Create(Self, 'Value');
+  FValue := TFieldWrap.Create(Self, 'p.Value');
   FWholesale := TFieldWrap.Create(Self, 'Wholesale');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);

@@ -115,12 +115,12 @@ begin
   if FqChildCategories.FDQuery.RecordCount = 0 then
     Exit;
 
-  AValue := InputBox(sDatabase, sPleaseWrite, FqChildCategories.Value.AsString);
+  AValue := InputBox(sDatabase, sPleaseWrite, FqChildCategories.W.Value.F.AsString);
   if (AValue <> '') and FqChildCategories.CheckPossibility
-    (FqChildCategories.ParentID.AsInteger, AValue) then
+    (FqChildCategories.W.ParentID.F.AsInteger, AValue) then
   begin
     FqChildCategories.TryEdit;
-    FqChildCategories.Value.AsString := AValue;
+    FqChildCategories.W.Value.F.AsString := AValue;
     FqChildCategories.TryPost;
   end;
 

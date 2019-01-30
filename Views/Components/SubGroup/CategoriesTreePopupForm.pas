@@ -24,7 +24,7 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue;
+  dxSkinXmas2008Blue, cxDataControllerConditionalFormattingRulesManagerDialog;
 
 const
   WM_AFTER_FORM_SHOW = WM_USER + 1;
@@ -75,7 +75,7 @@ procedure TfrmCategoriesTreePopup.ClearFilter;
 begin
   cxBarEditItem.SetFocus();
   cxBarEditItem.EditValue := '';
-  QueryTreeList.FilterByExternalID('');
+  QueryTreeList.W.FilterByExternalID('');
 end;
 
 procedure TfrmCategoriesTreePopup.cxBarEditItemPropertiesChange
@@ -84,7 +84,7 @@ var
   S: string;
 begin
   S := VarToStrDef(cxBarEditItem.CurEditValue, '');
-  QueryTreeList.FilterByExternalID(S);
+  QueryTreeList.W.FilterByExternalID(S);
 end;
 
 procedure TfrmCategoriesTreePopup.cxBarEditItemPropertiesEditValueChanged

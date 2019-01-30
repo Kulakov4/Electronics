@@ -120,7 +120,7 @@ begin
         AProducerID := (ABodyTypesExcelTable as TBodyTypesExcelTable2).IDProducer.AsInteger;
 
       // ищем или добавляем корень - вид корпуса
-      qBodyKinds.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
+      qBodyKinds.W.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
 
       QueryBodyTypesSimple.W.TryAppend;
       QueryBodyTypesSimple.W.IDProducer.F.AsInteger := AProducerID;

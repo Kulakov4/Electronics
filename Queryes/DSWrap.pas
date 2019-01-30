@@ -63,6 +63,7 @@ type
     procedure DropClone(AClone: TFDMemTable);
     function Field(const AFieldName: string): TField;
     function HaveAnyChanges: Boolean;
+    function IsParamExist(const AParamName: String): Boolean;
     function Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; ATestResult: Integer = -1)
       : Integer; overload;
@@ -101,30 +102,28 @@ type
   TParamWrap = class(TObject)
   private
     FDataSetWrap: TDSWrap;
-    FParamName: string;
+    FDefaultValue: Variant;
+    FFieldName: string;
+    FFullName: string;
+    FTableName: string;
   public
-    constructor Create(ADataSetWrap: TDSWrap; const AParamName: string);
+    constructor Create(ADataSetWrap: TDSWrap; const AFullName: String);
     property DataSetWrap: TDSWrap read FDataSetWrap;
-    property ParamName: string read FParamName;
+    property DefaultValue: Variant read FDefaultValue write FDefaultValue;
+    property FullName: string read FFullName;
+    property FieldName: string read FFieldName;
+    property TableName: string read FTableName;
   end;
 
   TFieldWrap = class(TParamWrap)
   private
-    FDefaultValue: Variant;
     FDisplayLabel: string;
-    FFieldName: string;
-    FTableName: string;
     function GetF: TField;
-    function GetFullName: string;
   public
-    constructor Create(ADataSetWrap: TDSWrap; const AFieldName: string;
-      const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
-    property DefaultValue: Variant read FDefaultValue write FDefaultValue;
+    constructor Create(ADataSetWrap: TDSWrap; const AFullName: String; const
+        ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
-    property FieldName: string read FFieldName;
-    property FullName: string read GetFullName;
-    property TableName: string read FTableName;
   end;
 
 implementation
@@ -418,6 +417,15 @@ begin
   Result := FDataSet.State in [dsEdit, dsinsert];
 end;
 
+function TDSWrap.IsParamExist(const AParamName: String): Boolean;
+var
+  AFDParam: TFDParam;
+begin
+  Assert(not AParamName.IsEmpty);
+  AFDParam := FDDataSet.FindParam(AParamName);
+  Result := AFDParam <> nil;
+end;
+
 function TDSWrap.Load(const AParamNames: TArray<String>;
   const AParamValues: TArray<Variant>; ATestResult: Integer = -1): Integer;
 begin
@@ -623,32 +631,18 @@ begin
   end;
 end;
 
-constructor TFieldWrap.Create(ADataSetWrap: TDSWrap; const AFieldName: string;
-  const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
-var
-  p: Integer;
+constructor TFieldWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String;
+    const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
 begin
-  inherited Create(ADataSetWrap, AFieldName);
-  Assert(ADataSetWrap <> nil);
-  Assert(not AFieldName.IsEmpty);
-
-  p := AFieldName.IndexOf('.');
-
-  // Если имя поля содержит точку - всё что до точки - имя таблицы
-  if p > 0 then
-  begin
-    FTableName := AFieldName.Substring(0, p);
-    FFieldName := AFieldName.Substring(p + 1);
-  end
-  else
-    FFieldName := AFieldName;
+  inherited Create(ADataSetWrap, AFullName);
 
   FDisplayLabel := ADisplayLabel;
 
   if APrimaryKey then
+  begin
+    Assert(ADataSetWrap.PKFieldName = '');
     ADataSetWrap.PKFieldName := FFieldName;
-
-  FDefaultValue := NULL;
+  end;
 end;
 
 function TFieldWrap.GetF: TField;
@@ -656,23 +650,33 @@ begin
   Result := FDataSetWrap.Field(FFieldName);
 end;
 
-function TFieldWrap.GetFullName: string;
-begin
-  Result := IfThen(not TableName.IsEmpty, TableName + '.' + FieldName,
-    FieldName);
-end;
-
-constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AParamName: string);
+constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String);
+var
+  p: Integer;
 begin
   inherited Create;
 
   Assert(ADataSetWrap <> nil);
-  Assert(not AParamName.IsEmpty);
+  Assert(not AFullName.IsEmpty);
 
   FDataSetWrap := ADataSetWrap;
   FDataSetWrap.FFieldsWrap.Add(Self);
 
-  FParamName := AParamName;
+  FTableName := '';
+
+  p := AFullName.IndexOf('.');
+
+  // Если имя поля содержит точку - всё что до точки - имя таблицы
+  if p > 0 then
+  begin
+    FTableName := AFullName.Substring(0, p);
+    FFieldName := AFullName.Substring(p + 1);
+  end
+  else
+    FFieldName := AFullName;
+
+  // Значение для поля "по умолчанию"
+  FDefaultValue := NULL;
 end;
 
 end.

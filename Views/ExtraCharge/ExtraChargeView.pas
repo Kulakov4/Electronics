@@ -224,19 +224,19 @@ end;
 function TViewExtraCharge.GetclRange: TcxGridDBBandedColumn;
 begin
   Result := cxGridDBBandedTableView2.GetColumnByFieldName
-    (ExtraChargeGroup.qExtraCharge2.Range.FieldName);
+    (ExtraChargeGroup.qExtraCharge2.W.Range.FieldName);
 end;
 
 function TViewExtraCharge.GetclWholeSale: TcxGridDBBandedColumn;
 begin
   Result := cxGridDBBandedTableView2.GetColumnByFieldName
-    (ExtraChargeGroup.qExtraCharge2.WholeSale.FieldName);
+    (ExtraChargeGroup.qExtraCharge2.W.WholeSale.FieldName);
 end;
 
 function TViewExtraCharge.GetclName: TcxGridDBBandedColumn;
 begin
   Result := MainView.GetColumnByFieldName
-    (ExtraChargeGroup.qExtraChargeType.Name.FieldName);
+    (ExtraChargeGroup.qExtraChargeType.W.Name.FieldName);
 end;
 
 procedure TViewExtraCharge.SetExtraChargeGroup(const Value: TExtraChargeGroup);
@@ -269,15 +269,15 @@ begin
   begin
     KeyFieldNames := FExtraChargeGroup.qExtraCharge2.PKFieldName;
     MasterKeyFieldNames := FExtraChargeGroup.qExtraChargeType.PKFieldName;
-    DetailKeyFieldNames := FExtraChargeGroup.qExtraCharge2.
+    DetailKeyFieldNames := FExtraChargeGroup.qExtraCharge2.W.
       IDExtraChargeType.FieldName;
   end;
 
   MainView.DataController.CreateAllItems();
   cxGridDBBandedTableView2.DataController.CreateAllItems();
 
-  PostOnEnterFields.Add(FExtraChargeGroup.qExtraCharge2.Range.FieldName);
-  PostOnEnterFields.Add(FExtraChargeGroup.qExtraCharge2.WholeSale.FieldName);
+  PostOnEnterFields.Add(FExtraChargeGroup.qExtraCharge2.W.Range.FieldName);
+  PostOnEnterFields.Add(FExtraChargeGroup.qExtraCharge2.W.WholeSale.FieldName);
 
   GridSort.Add(TSortVariant.Create(clWholeSale, [clWholeSale]));
   ApplySort(cxGridDBBandedTableView2, clWholeSale);

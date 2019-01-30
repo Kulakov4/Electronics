@@ -200,10 +200,10 @@ begin
   // Нужно добавить или удалить параметры
 
   // Список идентификаторов параметров нашей категории, которые не имеют подпараметров!
-  qCategoryParameters.FilterByIsDefault(1);
+  qCategoryParameters.W.FilterByIsDefault(1);
   try
     S := Format(',%s,',
-      [qCategoryParameters.GetFieldValues(qCategoryParameters.IDParameter.
+      [qCategoryParameters.GetFieldValues(qCategoryParameters.W.IDParameter.
       FieldName)]);
   finally
     qCategoryParameters.FDQuery.Filtered := False;
@@ -217,7 +217,7 @@ begin
     if AParamIDList.IndexOf(',' + AIDParam + ',') < 0 then
     begin
       // Надо найти параметр без подпараметров
-      qCategoryParameters.LocateDefault(AIDParam.ToInteger, True);
+      qCategoryParameters.W.LocateDefault(AIDParam.ToInteger, True);
       DeleteParameters([qCategoryParameters.PK.AsInteger]);
     end;
   end;
@@ -260,7 +260,7 @@ begin
 
   // Ищем связку категория-параметр
   qCategoryParameters.LocateByPK(AID, True);
-  AIDParameter := qCategoryParameters.IDParameter.AsInteger;
+  AIDParameter := qCategoryParameters.W.IDParameter.F.AsInteger;
 
   // получаем все подпараметры нашего параметра
   // Они могут быть расположены в разных группах!!!
@@ -285,7 +285,7 @@ begin
     begin
       // Мы знаем код параметра и код подпараметра для удаления
       // Ищем запись об удаляемом подпараметре
-      qCategoryParameters.Locate(AIDParameter, S.ToInteger, True);
+      qCategoryParameters.W.Locate(AIDParameter, S.ToInteger, True);
       // Удаляем такой подпараметр
       DeleteSubParameters([qCategoryParameters.PK.AsInteger]);
     end;
@@ -299,7 +299,7 @@ procedure TCategoryParametersGroup2.AppendParameter(AParamSubParamId, AOrd,
     ATableName, AValueT, AParameterType, AName, ATranslation: String;
     AIsDefault: Integer);
 begin
-  FqCategoryParameters.AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID,
+  FqCategoryParameters.W.AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID,
     AIDParameter, AIDSubParameter, AValue, ATableName, AValueT, AParameterType,
     AName, ATranslation, AIsDefault);
 end;
@@ -320,12 +320,12 @@ begin
 
   // Нужно добавить подпараметр к параметру, если у него его ещё не было
   rc := qParamSubParams.SearchBySubParam
-    (qCategoryParameters.IDParameter.AsInteger, ASubParamID);
+    (qCategoryParameters.W.IDParameter.F.AsInteger, ASubParamID);
   // Если у этого параметра нет такого подпараметра
   if rc = 0 then
   begin
-    qParamSubParams.AppendSubParameter
-      (qCategoryParameters.IDParameter.AsInteger, ASubParamID);
+    qParamSubParams.W.AppendSubParameter
+      (qCategoryParameters.W.IDParameter.F.AsInteger, ASubParamID);
 
     Assert(qParamSubParams.FDQuery.RecordCount > 0);
   end;
@@ -337,32 +337,32 @@ begin
   AClone := qCategoryParameters.CreateSubParamsClone;
   try
     // Если этот параметр ещё не имеет подпараметров
-    if (AClone.RecordCount = 1) and (qCategoryParameters.IsDefault.AsInteger = 1)
+    if (AClone.RecordCount = 1) and (qCategoryParameters.W.IsDefault.F.AsInteger = 1)
     then
     begin
       // Надо заменить подпараметр по умолчанию на добавляемый подпараметр
-      qCategoryParameters.TryEdit;
-      qCategoryParameters.ParamSubParamID.AsInteger := qParamSubParams.PK.Value;
-      qCategoryParameters.Name.Value := qParamSubParams.Name.Value;
-      qCategoryParameters.Translation.Value :=
-        qParamSubParams.Translation.Value;
-      qCategoryParameters.IsDefault.AsInteger := 0;
-      qCategoryParameters.TryPost;
+      qCategoryParameters.W.TryEdit;
+      qCategoryParameters.W.ParamSubParamID.F.AsInteger := qParamSubParams.PK.Value;
+      qCategoryParameters.W.Name.F.Value := qParamSubParams.W.Name.F.Value;
+      qCategoryParameters.W.Translation.F.Value :=
+        qParamSubParams.W.Translation.F.Value;
+      qCategoryParameters.W.IsDefault.F.AsInteger := 0;
+      qCategoryParameters.W.TryPost;
     end
     else
     begin
       // Добавлять подпараметр будем в конец!
       AClone.Last;
       // новое значение порядка
-      AOrder := AClone.FieldByName(qCategoryParameters.Ord.FieldName)
+      AOrder := AClone.FieldByName(qCategoryParameters.W.Ord.FieldName)
         .AsInteger + 1;
-      APosID := qCategoryParameters.PosID.AsInteger;
+      APosID := qCategoryParameters.W.PosID.F.AsInteger;
       // увеличим значение порядка всех параметров/подпараметров на 1.
       // Они сместятся вниз!
       qCategoryParameters.IncOrder(AOrder);
 
       // Добавляем подпараметр
-      qCategoryParameters.AppendR(qSearchParamSubParam.PK.Value, AOrder, 1,
+      qCategoryParameters.W.AppendR(qSearchParamSubParam.PK.Value, AOrder, 1,
         APosID, qSearchParamSubParam.IDParameter.Value,
         qSearchParamSubParam.IDSubParameter.Value,
         qSearchParamSubParam.Value.Value, qSearchParamSubParam.TableName.Value,
@@ -486,19 +486,19 @@ begin
       begin
         // Выбираем информацию о том, какой подпараметр "по умолчанию" у нашего параметра
         qSearchParamDefSubParam.SearchByID
-          (qCategoryParameters.IDParameter.AsInteger, 1);
+          (qCategoryParameters.W.IDParameter.F.AsInteger, 1);
 
-        qCategoryParameters.TryEdit;
+        qCategoryParameters.W.TryEdit;
         // Меняем ссылку на связанный с параметром подпараметр
-        qCategoryParameters.ParamSubParamID.Value :=
+        qCategoryParameters.W.ParamSubParamID.F.Value :=
           qSearchParamDefSubParam.ParamSubParamID.Value;
-        qCategoryParameters.IDSubParameter.Value :=
+        qCategoryParameters.W.IDSubParameter.F.Value :=
           qSearchParamDefSubParam.IDSubParameter.Value;
-        qCategoryParameters.IsDefault.AsInteger := 1;
-        qCategoryParameters.Name.Value := qSearchParamDefSubParam.Name.Value;
-        qCategoryParameters.Translation.Value :=
+        qCategoryParameters.W.IsDefault.F.AsInteger := 1;
+        qCategoryParameters.W.Name.F.Value := qSearchParamDefSubParam.Name.Value;
+        qCategoryParameters.W.Translation.F.Value :=
           qSearchParamDefSubParam.Translation.Value;
-        qCategoryParameters.TryPost;
+        qCategoryParameters.W.TryPost;
       end
       else
       begin
@@ -670,12 +670,12 @@ begin
           FFDQCategoryParameters.ID.AsInteger :=
             qCategoryParameters.PK.AsInteger;
           FFDQCategoryParameters.IsAttribute.Value :=
-            qCategoryParameters.IsAttribute.Value;
-          FFDQCategoryParameters.Ord.Value := qCategoryParameters.Ord.Value;
+            qCategoryParameters.W.IsAttribute.F.Value;
+          FFDQCategoryParameters.Ord.Value := qCategoryParameters.W.Ord.F.Value;
           FFDQCategoryParameters.Post;
         end;
 
-        if qCategoryParameters.IsDefault.AsInteger = 0 then
+        if qCategoryParameters.W.IsDefault.F.AsInteger = 0 then
         begin
           FFDQCategorySubParameters.LoadRecFrom
             (qCategoryParameters.FDQuery, nil);
@@ -722,7 +722,7 @@ begin
         while not AClone.Eof do
         begin
           L.Add(AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger,
-            AClone.FieldByName(qCategoryParameters.Ord.FieldName).AsInteger);
+            AClone.FieldByName(qCategoryParameters.W.Ord.FieldName).AsInteger);
           AClone.Next;
         end;
       finally
@@ -730,7 +730,7 @@ begin
       end;
     end;
 
-    qCategoryParameters.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
+    qCategoryParameters.W.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
   finally
     FreeAndNil(L);
   end;
@@ -760,7 +760,7 @@ begin
         ACount := L.Count; // Количество переносимых записей
 
       qCategoryParameters.LocateByPK(AID, True);
-      L.Add(qCategoryParameters.PK.Value, qCategoryParameters.Ord.Value);
+      L.Add(qCategoryParameters.PK.Value, qCategoryParameters.W.Ord.F.Value);
     end;
 
     AClone := qCategoryParameters.CreateSubParamsClone;
@@ -768,7 +768,7 @@ begin
       // Идентификатор первого подпараметра
       AID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
       // Просим произвести перенос
-      qCategoryParameters.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
+      qCategoryParameters.W.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
       ANewID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
     finally
       qCategoryParameters.DropClone(AClone);
@@ -826,7 +826,7 @@ begin
     end;
 
     // Просим изменить положение всех этих записей
-    qCategoryParameters.SetPos(AIDList.ToArray, APosID);
+    qCategoryParameters.W.SetPos(AIDList.ToArray, APosID);
 
   finally
     FreeAndNil(AIDList);

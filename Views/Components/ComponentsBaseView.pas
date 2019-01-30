@@ -495,7 +495,7 @@ begin
 
   // Производителя выбираем ТОЛЬКО из списка
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,
-    lsEditFixedList, BaseComponentsGroup.Producers.Name);
+    lsEditFixedList, BaseComponentsGroup.Producers.W.Name.F);
 end;
 
 procedure TViewComponentsBase.OnGridRecordCellPopupMenu

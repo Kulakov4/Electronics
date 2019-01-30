@@ -9,24 +9,34 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit, DragHelper, OrderQuery;
+  QueryWithDataSourceUnit, DragHelper, OrderQuery, DSWrap;
 
 type
-  TQueryDescriptionTypes = class(TQueryOrder)
-    FDUpdateSQL: TFDUpdateSQL;
+  TDescriptionTypeW = class(TOrderW)
   private
-    FShowDuplicate: Boolean;
-    function GetComponentType: TField;
-    procedure SetShowDuplicate(const Value: Boolean);
-    { Private declarations }
-  protected
-    procedure DoAfterOpen(Sender: TObject);
+    FComponentType: TFieldWrap;
+    FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     procedure LocateOrAppend(AValue: string);
-    property ComponentType: TField read GetComponentType;
+    property ComponentType: TFieldWrap read FComponentType;
+    property ID: TFieldWrap read FID;
+  end;
+
+  TQueryDescriptionTypes = class(TQueryOrder)
+    FDUpdateSQL: TFDUpdateSQL;
+  private
+    FShowDuplicate: Boolean;
+    FW: TDescriptionTypeW;
+    procedure SetShowDuplicate(const Value: Boolean);
+    { Private declarations }
+  protected
+    function CreateDataSetWrap: TOrderW; override;
+  public
+    constructor Create(AOwner: TComponent); override;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
+    property W: TDescriptionTypeW read FW;
     { Public declarations }
   end;
 
@@ -39,40 +49,15 @@ uses StrHelper, RepositoryDataModule, NotifyEvents;
 constructor TQueryDescriptionTypes.Create(AOwner: TComponent);
 begin
   inherited;
-  // Копируем базовый запрос и параметры
-//  AssignFrom(fdqBase);
+  FW := OrderW as TDescriptionTypeW;
 
   AutoTransaction := False;
 
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryDescriptionTypes.AddNewValue(const AValue: string);
+function TQueryDescriptionTypes.CreateDataSetWrap: TOrderW;
 begin
-  FDQuery.Append;
-  ComponentType.AsString := AValue;
-  FDQuery.Post;
-end;
-
-procedure TQueryDescriptionTypes.DoAfterOpen(Sender: TObject);
-begin
-  ComponentType.DisplayLabel := 'Тип компонентов';
-end;
-
-function TQueryDescriptionTypes.GetComponentType: TField;
-begin
-  Result := Field('ComponentType');
-end;
-
-procedure TQueryDescriptionTypes.LocateOrAppend(AValue: string);
-var
-  OK: Boolean;
-begin
-  Assert(not AValue.IsEmpty);
-  OK := FDQuery.LocateEx('ComponentType', AValue, []);
-
-  if not OK then
-    AddNewValue(AValue);
+  Result := TDescriptionTypeW.Create(FDQuery);
 end;
 
 procedure TQueryDescriptionTypes.SetShowDuplicate(const Value: Boolean);
@@ -95,6 +80,32 @@ begin
     FDQuery.SQL.Text := ASQL;
     FDQuery.Open;
   end;
+end;
+
+constructor TDescriptionTypeW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FOrd := TFieldWrap.Create(Self, 'Ord');
+  FComponentType := TFieldWrap.Create(Self, 'ComponentType', 'Тип компонентов');
+end;
+
+procedure TDescriptionTypeW.AddNewValue(const AValue: string);
+begin
+  TryAppend;
+  ComponentType.F.AsString := AValue;
+  TryPost;
+end;
+
+procedure TDescriptionTypeW.LocateOrAppend(AValue: string);
+var
+  OK: Boolean;
+begin
+  Assert(not AValue.IsEmpty);
+  OK := FDDataSet.LocateEx(ComponentType.FieldName, AValue, []);
+
+  if not OK then
+    AddNewValue(AValue);
 end;
 
 end.

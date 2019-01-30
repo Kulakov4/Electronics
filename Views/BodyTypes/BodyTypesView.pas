@@ -884,7 +884,7 @@ begin
 
       InitializeLookupColumn(clIDBodyKind,
         FBodyTypesGroup.qBodyKinds.DataSource, lsEditFixedList,
-        FBodyTypesGroup.qBodyKinds.BodyKind.FieldName);
+        FBodyTypesGroup.qBodyKinds.W.BodyKind.FieldName);
 
       FBodyTypesGroup.qProducers.RefreshQuery;
 

@@ -12,7 +12,7 @@ uses
   FireDAC.Comp.Client, Vcl.StdCtrls, OrderQuery, DSWrap;
 
 type
-  TProducerTypeW = class(TDSWrap)
+  TProducerTypeW = class(TOrderW)
   private
     FProducerType: TFieldWrap;
     FID: TFieldWrap;
@@ -27,6 +27,8 @@ type
   private
     FW: TProducerTypeW;
     { Private declarations }
+  protected
+    function CreateDataSetWrap: TOrderW; override;
   public
     constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AValue: string): Boolean;
@@ -43,8 +45,13 @@ uses NotifyEvents;
 constructor TQueryProducerTypes.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TProducerTypeW.Create(FDQuery);
+  FW := OrderW as TProducerTypeW;
   AutoTransaction := False;
+end;
+
+function TQueryProducerTypes.CreateDataSetWrap: TOrderW;
+begin
+  Result := TProducerTypeW.Create(FDQuery);
 end;
 
 function TQueryProducerTypes.LocateOrAppend(const AValue: string): Boolean;
@@ -65,6 +72,7 @@ begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FProducerType := TFieldWrap.Create(Self, 'ProducerType', '“ËÔ');
+  FOrd := TFieldWrap.Create(Self, 'Ord');  
 end;
 
 end.

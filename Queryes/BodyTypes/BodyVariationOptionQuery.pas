@@ -50,13 +50,11 @@ end;
 
 function TQueryBodyVariationOption.SearchByIDBodyVariation(AIDBodyVariation : Integer):
     Integer;
-var
-  AFieldName: string;
 begin
   Assert(AIDBodyVariation > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FieldName,
+  Result := SearchEx([TParamRec.Create(W.IDBodyVariation.FullName,
     AIDBodyVariation)]);
 end;
 

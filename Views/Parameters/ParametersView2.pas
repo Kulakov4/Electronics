@@ -138,10 +138,10 @@ type
     procedure clCheckedPropertiesEditValueChanged(Sender: TObject);
     procedure cxbeiSearchPropertiesChange(Sender: TObject);
     procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
-    procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary(
-      ASender: TcxDataSummary);
-    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word; Shift:
-        TShiftState);
+    procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+      (ASender: TcxDataSummary);
+    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     FCheckedMode: Boolean;
     FDetailView: TcxGridDBBandedTableView;
@@ -350,7 +350,7 @@ begin
   AID := ParametersGrp.qParameters.PK.Value;
 
   S := IfThen(actFilterByTableName.Checked,
-    ParametersGrp.qParameters.TableName.AsString, '');
+    ParametersGrp.qParameters.W.TableName.F.AsString, '');
 
   BeginUpdate();
   try
@@ -359,9 +359,9 @@ begin
     // ParametersGrp.qSubParameters.TryPost;
 
     // Фильтруем параметры по табличному имени
-    ParametersGrp.qParameters.TableNameFilter := S;
+    ParametersGrp.qParameters.SearchByTableName(S);
     // Фильтруем типы параметров по табличному имени
-    ParametersGrp.qParameterTypes.TableNameFilter := S;
+    ParametersGrp.qParameterTypes.SearchByTableName(S);
   finally
     EndUpdate;
   end;
@@ -482,7 +482,7 @@ begin
   inherited;
   Assert(not FNewParameterType.IsEmpty);
   // Добавляем новый тип параметра
-  FParametersGrp.qParameterTypes.LocateOrAppend(FNewParameterType);
+  FParametersGrp.qParameterTypes.W.LocateOrAppend(FNewParameterType);
   FNewParameterType := '';
 
   AMasterID := FParametersGrp.qParameterTypes.PK.AsInteger;
@@ -490,9 +490,9 @@ begin
 
   // Ищем параметр
   FParametersGrp.qParameters.LocateByPK(ADetailID);
-  FParametersGrp.qParameters.TryEdit;
-  FParametersGrp.qParameters.IDParameterType.AsInteger := AMasterID;
-  FParametersGrp.qParameters.TryPost;
+  FParametersGrp.qParameters.W.TryEdit;
+  FParametersGrp.qParameters.W.IDParameterType.F.AsInteger := AMasterID;
+  FParametersGrp.qParameters.W.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   Assert(ARow <> nil);
@@ -552,8 +552,8 @@ begin
     AMasterID := FParametersGrp.qParameterTypes.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
-    FParametersGrp.qParameters.IDParameterType.AsInteger := AMasterID;
-    FParametersGrp.qParameters.TryPost;
+    FParametersGrp.qParameters.W.IDParameterType.F.AsInteger := AMasterID;
+    FParametersGrp.qParameters.W.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
     PostMessage(Handle, WM_NEED_CHANGE_PARAMETER_TYPE, ADetailID, 0);
@@ -630,8 +630,8 @@ begin
   actSearch.Enabled := not VarToStrDef(cxbeiSearch.CurEditValue, '').IsEmpty;
 end;
 
-procedure TViewParameters2.cxbeiSearchPropertiesEditValueChanged(
-  Sender: TObject);
+procedure TViewParameters2.cxbeiSearchPropertiesEditValueChanged
+  (Sender: TObject);
 begin
   inherited;
   // Сохраняем то, что мы там наредактировали
@@ -698,8 +698,9 @@ begin
   FHRTimer.StartTimer
 end;
 
-procedure TViewParameters2.cxGridDBBandedTableViewDataControllerSummaryAfterSummary(
-  ASender: TcxDataSummary);
+procedure TViewParameters2.
+  cxGridDBBandedTableViewDataControllerSummaryAfterSummary
+  (ASender: TcxDataSummary);
 var
   AIndex: Integer;
   S: string;
@@ -736,11 +737,11 @@ begin
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
-procedure TViewParameters2.cxGridDBBandedTableViewKeyDown(Sender: TObject; var
-    Key: Word; Shift: TShiftState);
+procedure TViewParameters2.cxGridDBBandedTableViewKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
 begin
   inherited;
-  if Key=27 then
+  if Key = 27 then
     actClearSelection.Execute;
 end;
 
@@ -912,7 +913,7 @@ begin
 
     InitializeLookupColumn(clIDParameterType,
       FParametersGrp.qParameterTypes.DataSource, lsEditList,
-      FParametersGrp.qParameterTypes.ParameterType.FieldName);
+      FParametersGrp.qParameterTypes.W.ParameterType.FieldName);
 
     InitializeLookupColumn(clIDParameterKind,
       FParametersGrp.qParameterKinds.DataSource, lsEditFixedList,
@@ -988,7 +989,8 @@ begin
   actRollback.Enabled := actCommit.Enabled;
 
   actFilterByTableName.Enabled := OK and
-    ((not FParametersGrp.qParameters.TableNameFilter.IsEmpty) or
+    ((not FParametersGrp.qParameters.W.IsParamExist
+    (FParametersGrp.qParameters.W.TableName.FieldName)) or
     ((AView <> nil) and (AView.Level = cxGridLevel2) and
     (AView.ViewData.RowCount > 0)));
 
@@ -1018,7 +1020,7 @@ begin
   actShowDuplicate.Caption := IfThen(actShowDuplicate.Checked, 'Показать всё',
     'Все дубликаты');
 
-  actSearch.Enabled := not VarToStrDef( cxbeiSearch.CurEditValue, '').IsEmpty;
+  actSearch.Enabled := not VarToStrDef(cxbeiSearch.CurEditValue, '').IsEmpty;
 
   UpdateTotalCount;
 end;

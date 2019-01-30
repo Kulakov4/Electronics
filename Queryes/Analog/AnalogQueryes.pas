@@ -257,10 +257,10 @@ begin
     CatParamsGroup.qCategoryParameters.SearchAnalog(AProductCategoryID);
     while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
     begin
-      AParamSubParamID := CatParamsGroup.qCategoryParameters.
-        ParamSubParamID.AsInteger;
-      AIDParameterKind := CatParamsGroup.qCategoryParameters.
-        IDParameterKind.AsInteger;
+      AParamSubParamID := CatParamsGroup.qCategoryParameters.W.
+        ParamSubParamID.F.AsInteger;
+      AIDParameterKind := CatParamsGroup.qCategoryParameters.W.
+        IDParameterKind.F.AsInteger;
       // Имя поля в таблице определяющей выбранные значения для поиска аналога
       Assert(AAllParameterFields.ContainsKey(AParamSubParamID));
       AFieldName := AAllParameterFields[AParamSubParamID];

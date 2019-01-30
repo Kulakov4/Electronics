@@ -61,7 +61,7 @@ begin
   Assert(AID > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.PK.FieldName, AID)],
+  Result := SearchEx([TParamRec.Create(W.PK.FullName, AID)],
     IfThen(ATestResult, 1, -1));
 end;
 
@@ -71,7 +71,7 @@ begin
   Assert(not AComponentGroup.IsEmpty);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.ComponentGroup.FieldName,
+  Result := SearchEx([TParamRec.Create(W.ComponentGroup.FullName,
     AComponentGroup, ftWideString, True)]);
 end;
 

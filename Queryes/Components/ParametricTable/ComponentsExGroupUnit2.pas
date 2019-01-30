@@ -145,7 +145,7 @@ begin
   while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
     AParamSubParamID := CatParamsGroup.qCategoryParameters.
-      ParamSubParamId.AsInteger;
+      W.ParamSubParamId.F.AsInteger;
     AFieldName := AllParameterFields[AParamSubParamID];
     AField := AQueryCustomComponents.Field(AFieldName);
 
@@ -215,7 +215,7 @@ begin
   while not FCatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
     AParamSubParamID := FCatParamsGroup.qCategoryParameters.
-      ParamSubParamId.AsInteger;
+      W.ParamSubParamId.F.AsInteger;
     // Если для такого параметра в SQL запросе поля не существует
     if not AData.ParameterFields.ContainsKey(AParamSubParamID) then
     begin
@@ -247,7 +247,7 @@ begin
   while not FCatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
     AParamSubParamID := FCatParamsGroup.qCategoryParameters.
-      ParamSubParamId.AsInteger;
+      W.ParamSubParamId.F.AsInteger;
     if not AData.ParameterFields.ContainsKey(AParamSubParamID) then
     begin
       AFieldName := FAllParameterFields[AParamSubParamID];
@@ -431,7 +431,7 @@ begin
   for ARecHolder in qCategoryParameters.DeletedSubParams do
   begin
     AParamSubParamID := ARecHolder.Field
-      [qCategoryParameters.ParamSubParamId.FieldName];
+      [qCategoryParameters.W.ParamSubParamId.FieldName];
 //    AProductCategoryID := ARecHolder.Field
 //      [qCategoryParameters.ProductCategoryID.FieldName];
     OK := FAllParameterFields.ContainsKey(AParamSubParamID);
@@ -450,17 +450,17 @@ begin
   for ARecHolder in qCategoryParameters.EditedSubParams do
   begin
     AParamSubParamID := ARecHolder.Field
-      [qCategoryParameters.ParamSubParamId.FieldName];
+      [qCategoryParameters.W.ParamSubParamId.FieldName];
     AID := ARecHolder.Field[qCategoryParameters.PKFieldName];
     qCategoryParameters.LocateByPK(AID, True);
-    Assert(AParamSubParamID <> qCategoryParameters.ParamSubParamId.AsInteger);
+    Assert(AParamSubParamID <> qCategoryParameters.W.ParamSubParamId.F.AsInteger);
 
     OK := FAllParameterFields.ContainsKey(AParamSubParamID);
     Assert(OK);
     AFieldName := FAllParameterFields[AParamSubParamID];
 
     FAllParameterFields.Remove(AParamSubParamID);
-    FAllParameterFields.Add(qCategoryParameters.ParamSubParamId.AsInteger,
+    FAllParameterFields.Add(qCategoryParameters.W.ParamSubParamId.F.AsInteger,
       AFieldName);
 
     // Переносим данные с со старого подпараметра на новый
@@ -474,7 +474,7 @@ begin
   begin
     Assert(FFreeFields.Count > 0);
     AParamSubParamID := ARecHolder.Field
-      [qCategoryParameters.ParamSubParamId.FieldName];
+      [qCategoryParameters.W.ParamSubParamId.FieldName];
     // Такого подпараметра ещё не должно быть
     OK := FAllParameterFields.ContainsKey(AParamSubParamID);
     Assert(not OK);

@@ -295,7 +295,7 @@ begin
     TQueryTreeList);
 
   // Переходим в дереве категорий на загружаемую категорию
-  if not qTreeList.LocateByExternalID(m[0]) then
+  if not qTreeList.W.LocateByExternalID(m[0]) then
   begin
     TDialog.Create.ErrorMessageDialog(Format('Категория %s не найдена',
       [m[0]]));
@@ -925,7 +925,7 @@ begin
 
           // Если нужно связать параметр с подпараметром
           if rc = 0 then
-            qParamSubParams.AppendSubParameter(qSearchParameter.PK.AsInteger,
+            qParamSubParams.W.AppendSubParameter(qSearchParameter.PK.AsInteger,
               qSubParameters.PK.AsInteger);
 
           // Запоминаем описание поля связанного с подпараметром

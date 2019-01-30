@@ -116,7 +116,8 @@ begin
 
   for AIDBodyVariation in FIDBodyVariations do
   begin
-    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation, W.IDJEDEC.F.OldValue, 1);
+    qBodyVariationJedec.SearchByIDJEDEC(AIDBodyVariation,
+      W.IDJEDEC.F.OldValue, 1);
     qBodyVariationJedec.W.TryEdit;
     qBodyVariationJedec.W.IDJEDEC.F.Value := W.IDJEDEC.F.Value;
     qBodyVariationJedec.W.TryPost;
@@ -170,7 +171,8 @@ begin
   p := ANewSQL.IndexOf(ATemplate);
   Assert(p >= 0);
 
-  ANewValue := Format('%s in (%s)', [W.IDBodyVariation.ParamName, AIDBodyVariations]);
+  ANewValue := Format('%s in (%s)', [W.IDBodyVariation.FieldName,
+    AIDBodyVariations]);
 
   ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
 
@@ -190,7 +192,7 @@ begin
   FJEDEC := TFieldWrap.Create(Self, 'JEDEC');
 
   // Параметры SQL запроса
-  FIDBodyVariation := TParamWrap.Create(Self, 'IDBodyVariation');
+  FIDBodyVariation := TParamWrap.Create(Self, 'bvj.IDBodyVariation');
 end;
 
 procedure TBodyVariationsJedecW.LoadJEDEC(const AFileName: String);

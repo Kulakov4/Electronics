@@ -9,35 +9,44 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, DSWrap;
 
 type
+  TParamSubParamW = class(TDSWrap)
+  private
+    FChecked: TFieldWrap;
+    FID: TFieldWrap;
+    FIDParameter: TFieldWrap;
+    FIDSubParameter: TFieldWrap;
+    FName: TFieldWrap;
+    FProductCategoryId: TParamWrap;
+    FTranslation: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure AppendSubParameter(AParamID, ASubParamID: Integer);
+    property Checked: TFieldWrap read FChecked;
+    property ID: TFieldWrap read FID;
+    property IDParameter: TFieldWrap read FIDParameter;
+    property IDSubParameter: TFieldWrap read FIDSubParameter;
+    property Name: TFieldWrap read FName;
+    property ProductCategoryId: TParamWrap read FProductCategoryId;
+    property Translation: TFieldWrap read FTranslation;
+  end;
+
   TQueryParamSubParams = class(TQueryWithDataSource)
     FDUpdateSQL: TFDUpdateSQL;
   private
-    FProductCategoryIDValue: Integer;
+    FW: TParamSubParamW;
     procedure DoAfterOpen(Sender: TObject);
-    function GetChecked: TField;
-    function GetIDParameter: TField;
-    function GetIDSubParameter: TField;
-    function GetName: TField;
-    function GetTranslation: TField;
     { Private declarations }
   protected
     procedure DoBeforeOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AppendSubParameter(AParamID, ASubParamID: Integer);
     function GetCheckedValues(const AFieldName: String): string;
     function SearchBySubParam(AParamID, ASubParamID: Integer): Integer;
-    property Checked: TField read GetChecked;
-    property IDParameter: TField read GetIDParameter;
-    property IDSubParameter: TField read GetIDSubParameter;
-    property Name: TField read GetName;
-    property ProductCategoryIDValue: Integer read FProductCategoryIDValue
-      write FProductCategoryIDValue;
-    property Translation: TField read GetTranslation;
+    property W: TParamSubParamW read FW;
     { Public declarations }
   end;
 
@@ -45,36 +54,27 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, System.StrUtils, StrHelper;
+uses RepositoryDataModule, System.StrUtils, StrHelper, BaseQuery;
 
 constructor TQueryParamSubParams.Create(AOwner: TComponent);
 begin
   inherited;
+  FW := TParamSubParamW.Create(FDQuery);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 
-procedure TQueryParamSubParams.AppendSubParameter(AParamID, ASubParamID:
-    Integer);
-begin
-  Assert(AParamID > 0);
-  Assert(ASubParamID > 0);
-
-  TryAppend;
-  IDParameter.Value := AParamID;
-  IDSubParameter.Value := ASubParamID;
-  TryPost;
-end;
-
 procedure TQueryParamSubParams.DoAfterOpen(Sender: TObject);
 begin
-  Checked.ReadOnly := False;
+  W.Checked.F.ReadOnly := False;
 end;
 
 procedure TQueryParamSubParams.DoBeforeOpen(Sender: TObject);
 begin
-  SetParameters(['ProductCategoryID'], [FProductCategoryIDValue]);
+  // Этот параметр - постоянный
+  SetParameters([W.ProductCategoryId.FieldName],
+    [W.ProductCategoryId.DefaultValue]);
 
   if FDQuery.FieldCount = 0 then
   begin
@@ -82,24 +82,19 @@ begin
     FDQuery.FieldDefs.Update;
     // Создаём поля по умолчанию
     CreateDefaultFields(False);
-    Checked.FieldKind := fkInternalCalc;
+    W.Checked.F.FieldKind := fkInternalCalc;
   end;
 
 end;
 
 procedure TQueryParamSubParams.DoBeforePost(Sender: TObject);
 begin
-  if IDSubParameter.IsNull then
+  if W.IDSubParameter.F.IsNull then
     // Ничего не сохраняем на сервере
     FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord
   else
     // Всё сохраняем на сервере
     FDQuery.OnUpdateRecord := nil;
-end;
-
-function TQueryParamSubParams.GetChecked: TField;
-begin
-  Result := Field('Checked');
 end;
 
 function TQueryParamSubParams.GetCheckedValues(const AFieldName
@@ -110,7 +105,7 @@ begin
   Assert(not AFieldName.IsEmpty);
 
   Result := '';
-  AClone := AddClone(Format('%s = %d', [Checked.FieldName, 1]));
+  AClone := AddClone(Format('%s = %d', [W.Checked.FieldName, 1]));
   try
     while not AClone.Eof do
     begin
@@ -123,38 +118,39 @@ begin
   end;
 end;
 
-function TQueryParamSubParams.GetIDParameter: TField;
-begin
-  Result := Field('IDParameter');
-end;
-
-function TQueryParamSubParams.GetIDSubParameter: TField;
-begin
-  Result := Field('IdSubParameter');
-end;
-
-function TQueryParamSubParams.GetName: TField;
-begin
-  Result := Field('Name');
-end;
-
-function TQueryParamSubParams.GetTranslation: TField;
-begin
-  Result := Field('Translation');
-end;
-
 function TQueryParamSubParams.SearchBySubParam(AParamID,
   ASubParamID: Integer): Integer;
 begin
   Assert(AParamID > 0);
   Assert(ASubParamID > 0);
 
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    'and 0=0 and psp.IdParameter = :IdParameter and idSubParameter = :idSubParameter',
-    'and 0=0');
-  SetParamType('IdParameter');
-  SetParamType('idSubParameter');
-  Result := Search(['IdParameter', 'idSubParameter'], [AParamID, ASubParamID]);
+  Result := SearchEx([TParamRec.Create(W.IDParameter.FullName, AParamID),
+    TParamRec.Create(W.IDSubParameter.FullName, ASubParamID)])
+end;
+
+constructor TParamSubParamW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FIDParameter := TFieldWrap.Create(Self, 'psp.IDParameter');
+  FIDSubParameter := TFieldWrap.Create(Self, 'psp.IDSubParameter');
+  FName := TFieldWrap.Create(Self, 'Name');
+  FTranslation := TFieldWrap.Create(Self, 'Translation');
+
+  // Параметры SQL запроса
+  FProductCategoryId := TParamWrap.Create(Self, 'cp.ProductCategoryId');
+  FProductCategoryId.DefaultValue := 0;
+end;
+
+procedure TParamSubParamW.AppendSubParameter(AParamID, ASubParamID: Integer);
+begin
+  Assert(AParamID > 0);
+  Assert(ASubParamID > 0);
+
+  TryAppend;
+  IDParameter.F.Value := AParamID;
+  IDSubParameter.F.Value := ASubParamID;
+  TryPost;
 end;
 
 end.

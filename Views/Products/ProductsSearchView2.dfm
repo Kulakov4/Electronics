@@ -198,15 +198,39 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     end
     inherited clSaleCount: TcxDBTreeListColumn
       Position.BandIndex = 24
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleCount
+          Kind = skSum
+        end>
     end
     inherited clSaleR: TcxDBTreeListColumn
       Position.BandIndex = 25
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleR
+          Kind = skSum
+        end>
     end
     inherited clSaleD: TcxDBTreeListColumn
       Position.BandIndex = 25
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleD
+          Kind = skSum
+        end>
     end
     inherited clSaleE: TcxDBTreeListColumn
       Position.BandIndex = 25
+      Summary.FooterSummaryItems = <
+        item
+          AlignHorz = taLeftJustify
+          CalculatedColumn = clSaleE
+          Kind = skSum
+        end>
     end
     object clStorehouseId: TcxDBTreeListColumn
       Caption.Text = ' '

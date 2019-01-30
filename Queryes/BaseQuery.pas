@@ -11,8 +11,6 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   NotifyEvents, System.Contnrs, System.Generics.Collections, DBRecordHolder;
 
-// WM_NEED_POST = WM_USER + 558;
-
 type
   TParamRec = record
     FieldName: String;
@@ -20,6 +18,7 @@ type
     DataType: TFieldType;
     CaseInsensitive: Boolean;
     FullName: String;
+    Operation: String;
   public
     constructor Create(const AFullName: String; const AValue: Variant;
       const ADataType: TFieldType = ftInteger;
@@ -40,7 +39,6 @@ type
     FSQL: string;
     FUpdateRecCount: Integer;
   class var
-    procedure AssignFrom(AFDQuery: TFDQuery);
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
@@ -121,12 +119,12 @@ type
       : Integer; overload;
     function SearchEx(AParams: TArray<TParamRec>;
       TestResult: Integer = -1): Integer;
-    procedure SetConditionSQL(const ABaseSQL, AConditionSQL, AMark: string;
-      ANotifyEventRef: TNotifyEventRef = nil);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
-    procedure SetParamType(const AParamName: String;
-      AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger);
+    function SetParamType(const AParamName: String; AParamType: TParamType =
+        ptInput; ADataType: TFieldType = ftInteger): TFDParam;
+    function SetParamTypeEx(const AParamName: String; AValue: Variant; AParamType:
+        TParamType = ptInput; ADataType: TFieldType = ftInteger): TFDParam;
     function TryEdit: Boolean;
     procedure TryPost; virtual;
     procedure TryCancel;
@@ -258,18 +256,6 @@ begin
     if FDQuery.ApplyUpdates() = 0 then
       FDQuery.CommitUpdates;
   end
-end;
-
-procedure TQueryBase.AssignFrom(AFDQuery: TFDQuery);
-begin
-  Assert(AFDQuery <> nil);
-  Assert(AFDQuery <> FDQuery);
-  Assert(not AFDQuery.SQL.Text.IsEmpty);
-
-  // Копируем базовый запрос
-  FDQuery.SQL.Text := AFDQuery.SQL.Text;
-  // Копируем параметры
-  FDQuery.Params.Assign(AFDQuery.Params);
 end;
 
 // Есть-ли изменения не сохранённые в БД
@@ -922,11 +908,11 @@ begin
 
     // Если поиск нечувствительный к регистру
     if AParams[i].CaseInsensitive then
-      AFormatStr := 'upper(%s)=upper(:%s)'
+      AFormatStr := 'upper(%s) %s upper(:%s)'
     else
-      AFormatStr := '%s=:%s';
+      AFormatStr := '%s %s :%s';
 
-    ANewValue := Format(AFormatStr, [AParams[i].FullName,
+    ANewValue := Format(AFormatStr, [AParams[i].FullName, AParams[i].Operation,
       AParams[i].FieldName]);
 
     ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
@@ -955,25 +941,6 @@ begin
   end;
 end;
 
-procedure TQueryBase.SetConditionSQL(const ABaseSQL, AConditionSQL,
-  AMark: string; ANotifyEventRef: TNotifyEventRef = nil);
-begin
-  Assert(not ABaseSQL.IsEmpty);
-  Assert(not AConditionSQL.IsEmpty);
-  Assert(not AMark.IsEmpty);
-
-  FDQuery.DisableControls;
-  try
-    FDQuery.Close;
-    FDQuery.SQL.Text := Replace(ABaseSQL, AConditionSQL, AMark);
-    if Assigned(ANotifyEventRef) then
-      ANotifyEventRef(Self);
-    FDQuery.Open;
-  finally
-    FDQuery.EnableControls;
-  end;
-end;
-
 procedure TQueryBase.SetFieldsRequired(ARequired: Boolean);
 var
   AField: TField;
@@ -992,15 +959,22 @@ begin
     AField.ReadOnly := AReadOnly;
 end;
 
-procedure TQueryBase.SetParamType(const AParamName: String;
-  AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger);
-var
-  AFDParam: TFDParam;
+function TQueryBase.SetParamType(const AParamName: String; AParamType:
+    TParamType = ptInput; ADataType: TFieldType = ftInteger): TFDParam;
 begin
-  AFDParam := FDQuery.FindParam(AParamName);
-  Assert(AFDParam <> nil);
-  AFDParam.ParamType := AParamType;
-  AFDParam.DataType := ADataType;
+  Result := FDQuery.FindParam(AParamName);
+  Assert(Result <> nil);
+  Result.ParamType := AParamType;
+  Result.DataType := ADataType;
+end;
+
+function TQueryBase.SetParamTypeEx(const AParamName: String; AValue: Variant;
+    AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger):
+    TFDParam;
+begin
+  Assert(not VarIsNull(AValue));
+  Result := SetParamType(AParamName, AParamType, ADataType);
+  Result.Value := AValue;
 end;
 
 function TQueryBase.TryEdit: Boolean;
@@ -1138,6 +1112,7 @@ begin
   Value := AValue;
   DataType := ADataType;
   CaseInsensitive := ACaseInsensitive;
+  Operation := AOperation;
 
   if ACaseInsensitive then
     Assert(ADataType = ftWideString);

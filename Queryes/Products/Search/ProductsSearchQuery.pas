@@ -14,7 +14,6 @@ uses
 
 type
   TQueryProductsSearch = class(TQueryProductsBase)
-    fdqBase: TFDQuery;
   strict private
   private
     FClone: TFDMemTable;
@@ -49,10 +48,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterConstruction; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
     procedure DoSearch(ALike: Boolean);
     procedure Search(AValues: TList<String>); overload;
+    procedure SetSQLForSearch;
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
     property Mode: TContentMode read FMode;
@@ -75,11 +76,11 @@ begin
   // В режиме поиска - транзакции автоматом
   AutoTransaction := True;
 
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where ID = 0', '--where');
+  // FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where ID = 0', '--where');
 
   // Создаём два клона
-  FGetModeClone := AddClone('ID > 0');
-  FClone := AddClone('Value <> null');
+  FGetModeClone := AddClone(Format('%s > 0', [W.PKFieldName]));
+  FClone := AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
@@ -93,6 +94,14 @@ begin
   FreeAndNil(FOnBeginUpdate);
   FreeAndNil(FOnEndUpdate);
   inherited;
+end;
+
+procedure TQueryProductsSearch.AfterConstruction;
+begin
+  // Сохраняем первоначальный SQL
+  inherited;
+
+  SetSQLForSearch;
 end;
 
 procedure TQueryProductsSearch.AppendRows(AFieldName: string;
@@ -145,7 +154,8 @@ end;
 
 procedure TQueryProductsSearch.ClearSearchResult;
 begin
-  SetConditionSQL(fdqBase.SQL.Text, 'where ID = 0', '--where');
+  SetSQLForSearch;
+  W.RefreshQuery;
 end;
 
 procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
@@ -192,18 +202,15 @@ end;
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
 var
   AConditionSQL: string;
-  AMark1: string;
-  AMark2: string;
+  ANewSQL: string;
   m: TArray<String>;
+  p: Integer;
   s: string;
 begin
   TryPost;
 
-  AMark1 := '--join1';
-  AMark2 := '--join2';
-
   // Формируем через запятую список из значений поля Value
-  s := GetFieldValues('Value').Trim([',']);
+  s := GetFieldValues(W.Value.FieldName).Trim([',']);
 
   // Если поиск по пустой строке
   if s = '' then
@@ -217,31 +224,33 @@ begin
     for s in m do
     begin
       AConditionSQL := IfThen(AConditionSQL.IsEmpty, '', ' or ');
-      AConditionSQL := AConditionSQL + Format('p.Value like %s',
-        [QuotedStr(s + '%')]);
+      AConditionSQL := AConditionSQL + Format('%s like %s',
+        [W.Value.FieldName, QuotedStr(s + '%')]);
     end;
 
-    if not AConditionSQL.IsEmpty then
-      AConditionSQL := Format(' and (%s)', [AConditionSQL]);
+//    if not AConditionSQL.IsEmpty then
+//      AConditionSQL := Format(' and (%s)', [AConditionSQL]);
   end
   else
   begin
-    AConditionSQL :=
-      ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
+    AConditionSQL := Format('instr('',''||:%s||'','', '',''||%s||'','') > 0',
+      [W.Value.FieldName, W.Value.FullName]);
+    // ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
   end;
 
+  p := SQL.IndexOf('1=1');
+  Assert(p > 0);
+  ANewSQL := SQL.Replace('1=1', AConditionSQL);
+  p := ANewSQL.IndexOf('2=2');
+  Assert(p > 0);
+  ANewSQL := ANewSQL.Replace('2=2', AConditionSQL);
+
   FDQuery.Close;
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, AConditionSQL, AMark1);
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, AConditionSQL, AMark2);
+  FDQuery.SQL.Text := ANewSQL;
 
   if not ALike then
   begin
-    with FDQuery.ParamByName('Value') do
-    begin
-      DataType := ftWideString;
-      ParamType := ptInput;
-      AsString := s;
-    end;
+    SetParamTypeEx(W.Value.FieldName, S, ptInput, ftWideString);
   end;
 
   FDQuery.Open;
@@ -308,6 +317,16 @@ begin
   finally
     FOnEndUpdate.CallEventHandlers(Self);
   end;
+end;
+
+procedure TQueryProductsSearch.SetSQLForSearch;
+var
+  p: Integer;
+begin
+  // Меняем запрос чтобы изначально не выбиралось ни одной записи
+  p := SQL.IndexOf('0=0');
+  Assert(p > 0);
+  FDQuery.SQL.Text := SQL.Replace('0=0', Format('%s=0', [W.ID.FieldName]));
 end;
 
 end.

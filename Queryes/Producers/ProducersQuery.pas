@@ -84,7 +84,7 @@ end;
 procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
-  FDQuery.ParamByName( W.ProducerParamSubParamID.ParamName ).AsInteger :=
+  FDQuery.ParamByName( W.ProducerParamSubParamID.FieldName ).AsInteger :=
     TDefaultParameters.ProducerParamSubParamID;
 end;
 

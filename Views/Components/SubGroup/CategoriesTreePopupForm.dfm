@@ -2,7 +2,7 @@ inherited frmCategoriesTreePopup: TfrmCategoriesTreePopup
   Caption = 'frmCategoriesTreePopup'
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   object cxdbtlCaterories: TcxDBTreeList
     Left = 0
     Top = 26
@@ -25,6 +25,7 @@ inherited frmCategoriesTreePopup: TfrmCategoriesTreePopup
     object cxdbtlCateroriesId: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'Id'
+      Width = 100
       Position.ColIndex = 0
       Position.RowIndex = 0
       Position.BandIndex = 0
@@ -44,6 +45,7 @@ inherited frmCategoriesTreePopup: TfrmCategoriesTreePopup
     object cxdbtlCateroriesParentId: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'ParentId'
+      Width = 100
       Position.ColIndex = 2
       Position.RowIndex = 0
       Position.BandIndex = 0
@@ -77,6 +79,7 @@ inherited frmCategoriesTreePopup: TfrmCategoriesTreePopup
     UseSystemFont = True
     Left = 80
     Top = 88
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0

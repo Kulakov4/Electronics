@@ -320,7 +320,7 @@ end;
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
 begin
   inherited;
-  qProductsBase.AddCategory;
+  qProductsBase.W.AddCategory;
 
   // cxDBTreeList.ApplyBestFit;
   cxDBTreeList.SetFocus;
@@ -348,7 +348,7 @@ begin
       AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
     end;
 
-    qProductsBase.AddProduct(AID);
+    qProductsBase.W.AddProduct(AID);
 
     // cxDBTreeList.ApplyBestFit;
     cxDBTreeList.SetFocus;
@@ -458,9 +458,8 @@ begin
     Exit;
   end;
 
-
   // Добавляем новый счёт
-  ABillID := TDM.Create.QryBill.AddBill(FqProductsBase.DollarCource,
+  ABillID := TDM.Create.QryBill.W.AddBill(FqProductsBase.DollarCource,
     FqProductsBase.EuroCource);
   try
     FqProductsBase.Basket.DisableControls;
@@ -472,9 +471,9 @@ begin
         AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
           (FqProductsBase.PKFieldName).AsInteger;
 
-        TDM.Create.qBillContent.AddContent(ABillID,
-          AStoreHouseProductID, FqProductsBase.Basket.FieldByName
-          (FqProductsBase.SaleCount.FieldName).Value);
+        TDM.Create.qBillContent.W.AddContent(ABillID, AStoreHouseProductID,
+          FqProductsBase.Basket.FieldByName
+          (FqProductsBase.W.SaleCount.FieldName).Value);
 
         FqProductsBase.Basket.Next;
       end;
@@ -627,13 +626,13 @@ begin
   inherited;
   Assert(qProductsBase.FDQuery.RecordCount > 0);
 
-  if qProductsBase.Value.AsString.Trim.IsEmpty then
+  if qProductsBase.W.Value.F.AsString.Trim.IsEmpty then
   begin
     TDialog.Create.ErrorMessageDialog('Не задано наименование');
     Exit;
   end;
 
-  if qProductsBase.IDProducer.AsInteger = 0 then
+  if qProductsBase.W.IDProducer.F.AsInteger = 0 then
   begin
     TDialog.Create.ErrorMessageDialog('Не задан производитель');
     Exit;
@@ -643,7 +642,7 @@ begin
   begin
     TDialog.Create.ErrorMessageDialog
       (Format('Компонент %s не найден в теоретической базе',
-      [qProductsBase.Value.AsString]));
+      [qProductsBase.W.Value.F.AsString]));
     Exit;
   end;
 
@@ -809,14 +808,14 @@ begin
   qProductsBase.ExtraChargeGroup.qExtraCharge2.LocateByPK(IDExtraCharge);
 
   // Сохраняем выбранный диапазон и значение оптовой наценки
-  UpdateFieldValue([FqProductsBase.IDExtraChargeType,
-    FqProductsBase.IDExtraCharge, FqProductsBase.WholeSale],
+  UpdateFieldValue([FqProductsBase.W.IDExtraChargeType.F,
+    FqProductsBase.W.IDExtraCharge.F, FqProductsBase.W.WholeSale.F],
     [IDExtraChargeType, IDExtraCharge,
-    qProductsBase.ExtraChargeGroup.qExtraCharge2.WholeSale.Value]);
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value]);
 
   // Выбираем это значение в выпадающем списке
   UpdateBarComboText(dxbcWholeSale,
-    qProductsBase.ExtraChargeGroup.qExtraCharge2.WholeSale.Value);
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value);
 end;
 
 procedure TViewProductsBase2.cxbeiExtraChargeTypePropertiesChange
@@ -829,7 +828,7 @@ begin
   (Sender as TcxLookupComboBox).PostEditValue;
 
   // Фильтруем оптовые наценки по типу
-  qProductsBase.ExtraChargeGroup.qExtraCharge2.FilterByType
+  qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
     (cxbeiExtraChargeType.EditValue);
 
   // Помещаем пустое значение в качестве выбранного
@@ -838,7 +837,7 @@ begin
     dxbcWholeSale.ItemIndex := -1;
 
     // Получаем список оптовых наценок
-    A := qProductsBase.ExtraChargeGroup.qExtraCharge2.GetWholeSaleList;
+    A := qProductsBase.ExtraChargeGroup.qExtraCharge2.W.GetWholeSaleList;
 
     // Заполняем выпадающий список оптовых наценок
     dxbcWholeSale.Items.Clear;
@@ -926,21 +925,21 @@ begin
   inherited;
 
   // Отображаем розничную наценку у текущей записи
-  UpdateBarComboText(dxbcRetail, FqProductsBase.Retail.Value);
+  UpdateBarComboText(dxbcRetail, FqProductsBase.W.Retail.F.Value);
   // Отображаем оптовую наценку у текущей записи
-  UpdateBarComboText(dxbcWholeSale, FqProductsBase.WholeSale.Value);
+  UpdateBarComboText(dxbcWholeSale, FqProductsBase.W.WholeSale.F.Value);
   // Отображаем минимальную оптовую наценку у текущей записи
-  UpdateBarComboText(dxbcMinWholeSale, FqProductsBase.MinWholeSale.Value);
+  UpdateBarComboText(dxbcMinWholeSale, FqProductsBase.W.MinWholeSale.F.Value);
 
-  if IDExtraChargeType <> qProductsBase.IDExtraChargeType.AsInteger then
+  if IDExtraChargeType <> qProductsBase.W.IDExtraChargeType.F.AsInteger then
   begin
-    IDExtraChargeType := qProductsBase.IDExtraChargeType.AsInteger;
+    IDExtraChargeType := qProductsBase.W.IDExtraChargeType.F.AsInteger;
     // Фильтруем оптовые наценки по типу
-    qProductsBase.ExtraChargeGroup.qExtraCharge2.FilterByType
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
       (IDExtraChargeType);
   end;
 
-  IDExtraCharge := qProductsBase.IDExtraCharge.AsInteger;
+  IDExtraCharge := qProductsBase.W.IDExtraCharge.F.AsInteger;
 
   UpdateView;
 end;
@@ -1060,13 +1059,13 @@ procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
 begin
   inherited;
   SaveBarComboValue(Sender as TdxBarCombo,
-    FqProductsBase.MinWholeSale.FieldName);
+    FqProductsBase.W.MinWholeSale.FieldName);
 end;
 
 procedure TViewProductsBase2.dxbcRetailChange(Sender: TObject);
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo, FqProductsBase.Retail.FieldName);
+  SaveBarComboValue(Sender as TdxBarCombo, FqProductsBase.W.Retail.FieldName);
 end;
 
 procedure TViewProductsBase2.dxbcRetailDrawItem(Sender: TdxBarCustomCombo;
@@ -1104,7 +1103,8 @@ end;
 procedure TViewProductsBase2.dxbcWholeSaleChange(Sender: TObject);
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo, FqProductsBase.WholeSale.FieldName);
+  SaveBarComboValue(Sender as TdxBarCombo,
+    FqProductsBase.W.WholeSale.FieldName);
 end;
 
 procedure TViewProductsBase2.EndUpdate;
@@ -1230,7 +1230,7 @@ begin
 
   InitializeLookupColumn(clIDProducer,
     FqProductsBase.ProducersGroup.qProducers.DataSource, lsEditFixedList,
-    FqProductsBase.ProducersGroup.qProducers.Name.FieldName);
+    FqProductsBase.ProducersGroup.qProducers.W.Name.FieldName);
 end;
 
 procedure TViewProductsBase2.InternalRefreshData;
@@ -1270,7 +1270,7 @@ begin
     Exit;
 
   V1 := cxDBTreeList.FocusedNode.Values[clValue.ItemIndex];
-  V2 := qProductsBase.Value.Value;
+  V2 := qProductsBase.W.Value.F.Value;
 
   Result := (not VarIsNull(V1)) and (not VarIsNull(V2));
   if not Result then
@@ -1289,8 +1289,8 @@ begin
       qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.First;
       while not qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.Eof do
       begin
-        dxbcWholeSale.Items.Add
-          (qProductsBase.ExtraChargeGroup.qExtraCharge2.WholeSale.AsString);
+        dxbcWholeSale.Items.Add(qProductsBase.ExtraChargeGroup.qExtraCharge2.W.
+          WholeSale.F.AsString);
         qProductsBase.ExtraChargeGroup.qExtraCharge2.FDQuery.Next;
       end;
     finally
@@ -1427,14 +1427,14 @@ begin
   CreateCountEvents;
 
   // Фильтруем оптовые надбавки по типу
-  FqProductsBase.ExtraChargeGroup.qExtraCharge2.FilterByType(0);
+  FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType(0);
 
   // Привязываем представление оптовых надбавок
   TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
     TcxLookupComboBoxProperties,
     FqProductsBase.ExtraChargeGroup.qExtraChargeType.DataSource,
     FqProductsBase.ExtraChargeGroup.qExtraChargeType.PK.FieldName,
-    FqProductsBase.ExtraChargeGroup.qExtraChargeType.Name.FieldName,
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.Name.FieldName,
     lsFixedList);
 
   ViewExtraChargeSimple.qExtraCharge :=
@@ -1442,7 +1442,7 @@ begin
   TExtDBLCB.InitProp(cxbeiExtraCharge.Properties as
     TcxExtLookupComboBoxProperties, ViewExtraChargeSimple.MainView,
     FqProductsBase.ExtraChargeGroup.qExtraCharge2.PKFieldName,
-    FqProductsBase.ExtraChargeGroup.qExtraCharge2.Range.FieldName, lsFixedList,
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName, lsFixedList,
     True, True);
 
   LoadWholeSale;

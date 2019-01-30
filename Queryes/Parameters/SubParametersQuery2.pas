@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  NotifyEvents, StrHelper, BaseQuery;
+  NotifyEvents, StrHelper, BaseQuery, System.Math;
 
 {$R *.dfm}
 
@@ -149,7 +149,7 @@ begin
     AExcelTable.CallOnProcessEvent;
     while not AExcelTable.Eof do
     begin
-      TryAppend;
+      W.TryAppend;
       try
         for I := 0 to AExcelTable.FieldCount - 1 do
         begin
@@ -160,9 +160,9 @@ begin
           end;
         end;
 
-        TryPost;
+        W.TryPost;
       except
-        TryCancel;
+        W.TryCancel;
         raise;
       end;
 
@@ -184,8 +184,8 @@ begin
   // Делаем замену в исходном запросе
   FDQuery.SQL.Text := SQL.Replace('/* IFCHECKED', '/* IFCHECKED */');
 
-  SetParamType(W.IdParameter.ParamName);
-  SetParamType(W.ProductCategoryId.ParamName);
+  SetParamType(W.IdParameter.FieldName);
+  SetParamType(W.ProductCategoryId.FieldName);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeCheckedOpen, FEventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterCheckedOpen, W.EventList);
 
@@ -193,7 +193,7 @@ begin
   FDQuery.CachedUpdates := True;
   AutoTransaction := True;
 
-  Load([W.IdParameter.ParamName, W.ProductCategoryId.ParamName],
+  Load([W.IdParameter.FieldName, W.ProductCategoryId.FieldName],
     [AIDParameter, AProductCategoryId]);
 end;
 
@@ -225,8 +225,8 @@ begin
   FIsDefault.DefaultValue := 0;
 
   // Параметры SQL запроса
-  FIdParameter := TParamWrap.Create(Self, 'IdParameter');
-  FProductCategoryId := TParamWrap.Create(Self, 'ProductCategoryId');
+  FIdParameter := TParamWrap.Create(Self, 'psp.IdParameter');
+  FProductCategoryId := TParamWrap.Create(Self, 'cp.ProductCategoryId');
 end;
 
 end.

@@ -18,8 +18,8 @@ function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String;
   const ADelimiter: Char = ','): Boolean;
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
-function Replace(const S: String; const ANewValue: String; const AMark: String;
-  const AEndChar: Char = #13): string;
+//function Replace(const S: String; const ANewValue: String; const AMark: String;
+//  const AEndChar: Char = #13): string;
 // Разбивает строку на строку и число
 function MySplit(const S: string): TList<TMySplit>;
 

@@ -11,11 +11,68 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, RecursiveParametersQuery,
   DragHelper, System.Generics.Collections, DBRecordHolder,
-  SearchParamSubParamQuery, System.Generics.Defaults;
+  SearchParamSubParamQuery, System.Generics.Defaults, DSWrap;
 
 type
   TRecHolderList = class(TObjectList<TRecordHolder>)
   public
+  end;
+
+  TCategoryParameters2W = class(TDSWrap)
+  private
+    FCategoryID: TFieldWrap;
+    FID: TFieldWrap;
+    FIDParameter: TFieldWrap;
+    FIDParameterKind: TFieldWrap;
+    FIdSubParameter: TFieldWrap;
+    FIsAttribute: TFieldWrap;
+    FIsDefault: TFieldWrap;
+    FIsEnabled: TFieldWrap;
+    FName: TFieldWrap;
+    FOrd: TFieldWrap;
+    FParameterType: TFieldWrap;
+    FParamSubParamId: TFieldWrap;
+    FPosID: TFieldWrap;
+    FProductCategoryID: TFieldWrap;
+    FTableName: TFieldWrap;
+    FTranslation: TFieldWrap;
+    FValue: TFieldWrap;
+    FValueT: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID,
+      AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
+      AParameterType, AName: String; const ATranslation: Variant;
+      AIsDefault: Integer);
+    procedure FilterByIsDefault(AIsDefault: Integer);
+    procedure FilterByPosition(APosID: Integer);
+    function Locate(AIDParameter, APosID, AOrder: Integer; TestResult: Boolean =
+        False): Boolean; overload;
+    function Locate(AIDParameter, AIDSubParameter: Integer; TestResult: Boolean =
+        False): Boolean; overload;
+    procedure LocateDefault(AIDParameter: Integer; TestResult: Boolean = False);
+    procedure Move(AData: TArray < TPair < Integer, Integer >>);
+    function NextEx: Boolean;
+    procedure SetPos(APosID: Integer); overload;
+    procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
+    property CategoryID: TFieldWrap read FCategoryID;
+    property ID: TFieldWrap read FID;
+    property IDParameter: TFieldWrap read FIDParameter;
+    property IDParameterKind: TFieldWrap read FIDParameterKind;
+    property IdSubParameter: TFieldWrap read FIdSubParameter;
+    property IsAttribute: TFieldWrap read FIsAttribute;
+    property IsDefault: TFieldWrap read FIsDefault;
+    property IsEnabled: TFieldWrap read FIsEnabled;
+    property Name: TFieldWrap read FName;
+    property Ord: TFieldWrap read FOrd;
+    property ParameterType: TFieldWrap read FParameterType;
+    property ParamSubParamId: TFieldWrap read FParamSubParamId;
+    property PosID: TFieldWrap read FPosID;
+    property ProductCategoryID: TFieldWrap read FProductCategoryID;
+    property TableName: TFieldWrap read FTableName;
+    property Translation: TFieldWrap read FTranslation;
+    property Value: TFieldWrap read FValue;
+    property ValueT: TFieldWrap read FValueT;
   end;
 
   TQueryCategoryParameters2 = class(TQueryWithDataSource)
@@ -29,33 +86,17 @@ type
     FPKDictionary: TDictionary<Integer, Integer>;
     FQueryRecursiveParameters: TQueryRecursiveParameters;
     FRefreshQry: TQueryCategoryParameters2;
+    FW: TCategoryParameters2W;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
-    function GetCategoryID: TField;
     function GetHaveInserted: Boolean;
-    function GetIDParameter: TField;
-    function GetIDParameterKind: TField;
-    function GetIdSubParameter: TField;
-    function GetIsAttribute: TField;
-    function GetIsDefault: TField;
-    function GetIsEnabled: TField;
-    function GetName: TField;
-    function GetOrd: TField;
-    function GetParameterType: TField;
-    function GetParamSubParamId: TField;
-    function GetPosID: TField;
-    function GetProductCategoryID: TField;
     function GetQueryRecursiveParameters: TQueryRecursiveParameters;
     function GetRefreshQry: TQueryCategoryParameters2;
-    function GetTableName: TField;
-    function GetTranslation: TField;
-    function GetValue: TField;
-    function GetValueT: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -67,52 +108,21 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure FilterByPosition(APosID: Integer);
-    procedure AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID,
-      AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
-      AParameterType, AName: String; const ATranslation: Variant;
-      AIsDefault: Integer);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure ClearSubParamsRecHolders;
     function CreateSubParamsClone: TFDMemTable;
-    procedure FilterByIsDefault(AIsDefault: Integer);
     function GetAllIDSubParamList: string;
     procedure IncOrder(AStartOrder: Integer);
-    function Locate(AIDParameter, APosID, AOrder: Integer;
-      TestResult: Boolean = False): Boolean; overload;
-    function Locate(AIDParameter, AIDSubParameter: Integer;
-      TestResult: Boolean = False): Boolean; overload;
-    procedure LocateDefault(AIDParameter: Integer; TestResult: Boolean = False);
-    procedure Move(AData: TArray < TPair < Integer, Integer >> );
-    function NextEx: Boolean;
     function NextOrder: Integer;
     function SearchAnalog(AProductCategoryID: Integer): Integer;
     procedure SetIsAttribute(AID, AIsAttribute: Integer);
-    procedure SetPos(APosID: Integer); overload;
-    procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
-    property CategoryID: TField read GetCategoryID;
     property DeletedSubParams: TRecHolderList read FDeletedSubParams;
     property EditedSubParams: TRecHolderList read FEditedSubParams;
     property HaveInserted: Boolean read GetHaveInserted;
-    property IDParameter: TField read GetIDParameter;
-    property IDParameterKind: TField read GetIDParameterKind;
-    property IdSubParameter: TField read GetIdSubParameter;
     property InsertedSubParams: TRecHolderList read FInsertedSubParams;
-    property IsAttribute: TField read GetIsAttribute;
-    property IsDefault: TField read GetIsDefault;
-    property IsEnabled: TField read GetIsEnabled;
-    property Name: TField read GetName;
-    property Ord: TField read GetOrd;
-    property ParameterType: TField read GetParameterType;
-    property ParamSubParamId: TField read GetParamSubParamId;
     property PKDictionary: TDictionary<Integer, Integer> read FPKDictionary;
-    property PosID: TField read GetPosID;
-    property ProductCategoryID: TField read GetProductCategoryID;
-    property TableName: TField read GetTableName;
-    property Translation: TField read GetTranslation;
-    property Value: TField read GetValue;
-    property ValueT: TField read GetValueT;
+    property W: TCategoryParameters2W read FW;
     property On_ApplyUpdates: TNotifyEventsEx read FOn_ApplyUpdates;
     { Public declarations }
   end;
@@ -128,7 +138,9 @@ uses
 constructor TQueryCategoryParameters2.Create(AOwner: TComponent);
 begin
   inherited;
-  DetailParameterName := 'ProductCategoryID';
+  FW := TCategoryParameters2W.Create(FDQuery);
+  DetailParameterName := W.ProductCategoryID.FieldName;
+
   // Будем сохранять в БД изменения рекурсивно
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
@@ -163,49 +175,21 @@ begin
   inherited;
 end;
 
-procedure TQueryCategoryParameters2.FilterByPosition(APosID: Integer);
-begin
-  Assert(APosID >= 0);
-  FDQuery.Filter := Format('%s=%d', [PosID.FieldName, APosID]);
-  FDQuery.Filtered := True;
-end;
-
-procedure TQueryCategoryParameters2.AppendR(AParamSubParamId, AOrd,
-  AIsAttribute, APosID, AIDParameter, AIDSubParameter: Integer;
-  const AValue, ATableName, AValueT, AParameterType, AName: String;
-  const ATranslation: Variant; AIsDefault: Integer);
-begin
-  TryAppend;
-  ParamSubParamId.Value := AParamSubParamId;
-  Ord.Value := AOrd;
-  IsAttribute.Value := AIsAttribute;
-  PosID.Value := APosID;
-  IDParameter.Value := AIDParameter;
-  IdSubParameter.Value := AIDSubParameter;
-  Value.Value := AValue;
-  TableName.Value := ATableName;
-  ValueT.Value := AValueT;
-  ParameterType.Value := AParameterType;
-  Name.Value := AName;
-  Translation.Value := ATranslation;
-  IsDefault.Value := AIsDefault;
-  TryPost;
-end;
-
-procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
   // Рекурсивно удаляем из категорий сам параметр
-  QueryRecursiveParameters.ExecDeleteSQL(ParamSubParamId.OldValue,
-    CategoryID.OldValue);
+  QueryRecursiveParameters.ExecDeleteSQL(W.ParamSubParamId.F.OldValue,
+    W.CategoryID.F.OldValue);
 
   // Запоминаем, какаой подпараметр мы удалили
   FDeletedSubParams.Add(TRecordHolder.Create(FDQuery));
 
   // Удаляем данные удалённого параметра
-  TqUpdateParameterValuesParamSubParam.DoDelete(ParamSubParamId.AsInteger,
-    ProductCategoryID.AsInteger);
+  TqUpdateParameterValuesParamSubParam.DoDelete(W.ParamSubParamId.F.AsInteger,
+    W.ProductCategoryID.F.AsInteger);
 end;
 
 procedure TQueryCategoryParameters2.ApplyInsert(ASender: TDataSet;
@@ -215,12 +199,12 @@ begin
   Assert(ASender = FDQuery);
 
   // Рекурсивно вставляем записи в БД
-  QueryRecursiveParameters.ExecInsertSQL(PosID.Value, Ord.Value,
-    ParamSubParamId.Value, CategoryID.Value);
+  QueryRecursiveParameters.ExecInsertSQL(W.PosID.F.Value, W.Ord.F.Value,
+    W.ParamSubParamId.F.Value, W.CategoryID.F.Value);
 
   // Выбираем вставленную запись чтобы узнать её идентификатор
-  RefreshQry.Load([DetailParameterName, 'ParamSubParamID'],
-    [CategoryID.Value, ParamSubParamId.Value]);
+  RefreshQry.Load([DetailParameterName, W.ParamSubParamId.FieldName],
+    [W.CategoryID.F.Value, W.ParamSubParamId.F.Value]);
 
   // Должна быть выбрана только одна запись
   // Иначе - нарушено ограничение уникальности
@@ -247,36 +231,38 @@ var
 begin
   Assert(ASender = FDQuery);
 
-  if ((PosID.OldValue <> PosID.Value) or (Ord.OldValue <> Ord.Value)) then
+  if ((W.PosID.F.OldValue <> W.PosID.F.Value) or
+    (W.Ord.F.OldValue <> W.Ord.F.Value)) then
   begin
     // Одновременно с изменением позиции или порядка ничего больше не должно меняться
-    Assert(IsAttribute.OldValue = IsAttribute.Value);
-    Assert(ParamSubParamId.OldValue = ParamSubParamId.Value);
+    Assert(W.IsAttribute.F.OldValue = W.IsAttribute.F.Value);
+    Assert(W.ParamSubParamId.F.OldValue = W.ParamSubParamId.F.Value);
 
-    QueryRecursiveParameters.ExecUpdateOrdSQL(PosID.OldValue, PosID.Value,
-      Ord.OldValue, Ord.Value, ParamSubParamId.AsInteger, CategoryID.AsInteger);
+    QueryRecursiveParameters.ExecUpdateOrdSQL(W.PosID.F.OldValue,
+      W.PosID.F.Value, W.Ord.F.OldValue, W.Ord.F.Value,
+      W.ParamSubParamId.F.AsInteger, W.CategoryID.F.AsInteger);
   end;
 
   // Если изменилось что-то другое
-  if (IsAttribute.OldValue <> IsAttribute.Value) or
-    (ParamSubParamId.OldValue <> ParamSubParamId.Value) then
+  if (W.IsAttribute.F.OldValue <> W.IsAttribute.F.Value) or
+    (W.ParamSubParamId.F.OldValue <> W.ParamSubParamId.F.Value) then
   begin
-    Assert(PosID.OldValue = PosID.Value);
-    Assert(Ord.OldValue = Ord.Value);
+    Assert(W.PosID.F.OldValue = W.PosID.F.Value);
+    Assert(W.Ord.F.OldValue = W.Ord.F.Value);
 
-    QueryRecursiveParameters.ExecUpdateSQL(PosID.OldValue, PosID.Value,
-      Ord.OldValue, Ord.Value, IsAttribute.OldValue, IsAttribute.Value,
-      ParamSubParamId.OldValue, ParamSubParamId.AsInteger,
-      CategoryID.AsInteger);
+    QueryRecursiveParameters.ExecUpdateSQL(W.PosID.F.OldValue, W.PosID.F.Value,
+      W.Ord.F.OldValue, W.Ord.F.Value, W.IsAttribute.F.OldValue,
+      W.IsAttribute.F.Value, W.ParamSubParamId.F.OldValue,
+      W.ParamSubParamId.F.AsInteger, W.CategoryID.F.AsInteger);
 
     ARecHolder := TRecordHolder.Create(FDQuery);
-    ARecHolder.Field[ParamSubParamId.FieldName] := ParamSubParamId.OldValue;
+    ARecHolder.Field[W.ParamSubParamId.FieldName] :=
+      W.ParamSubParamId.F.OldValue;
     FEditedSubParams.Add(ARecHolder);
 
     // Переносим данные с со старого подпараметра на новый
-    TqUpdateParameterValuesParamSubParam.DoUpdate(ParamSubParamId.AsInteger,
-      ParamSubParamId.OldValue, ProductCategoryID.AsInteger);
-
+    TqUpdateParameterValuesParamSubParam.DoUpdate(W.ParamSubParamId.F.AsInteger,
+      W.ParamSubParamId.F.OldValue, W.ProductCategoryID.F.AsInteger);
   end;
 end;
 
@@ -315,8 +301,8 @@ begin
   // Возвращает клон, содержащий либо сам параметр, либо его подпараметры
   Assert(FDQuery.RecordCount > 0);
 
-  AIDParameter := IDParameter.AsInteger;
-  AIsDefault := IsDefault.AsInteger;
+  AIDParameter := W.IDParameter.F.AsInteger;
+  AIsDefault := W.IsDefault.F.AsInteger;
 
   // Список идентификаторов, стоящих рядом и принадлежащих одному параметру
   AIDList := TList<Integer>.Create;
@@ -325,23 +311,23 @@ begin
     try
       SaveBookmark;
       // Сначала пытаемся двигаться вверх по набору данных
-      while (IDParameter.AsInteger = AIDParameter) and
-        (IsDefault.AsInteger = AIsDefault) and (not FDQuery.Bof) do
+      while (W.IDParameter.F.AsInteger = AIDParameter) and
+        (W.IsDefault.F.AsInteger = AIsDefault) and (not FDQuery.Bof) do
         FDQuery.Prior;
 
       if not FDQuery.Bof then
       begin
-        Assert((IDParameter.AsInteger <> AIDParameter) or
-          (IsDefault.AsInteger <> AIsDefault));
+        Assert((W.IDParameter.F.AsInteger <> AIDParameter) or
+          (W.IsDefault.F.AsInteger <> AIsDefault));
 
         FDQuery.Next;
       end;
 
-      Assert((IDParameter.AsInteger = AIDParameter) and
-        (IsDefault.AsInteger = AIsDefault));
+      Assert((W.IDParameter.F.AsInteger = AIDParameter) and
+        (W.IsDefault.F.AsInteger = AIsDefault));
       // Теперь пытаемся двигаться вниз, по набору данных
-      while (IDParameter.AsInteger = AIDParameter) and
-        (IsDefault.AsInteger = AIsDefault) and (not FDQuery.Eof) do
+      while (W.IDParameter.F.AsInteger = AIDParameter) and
+        (W.IsDefault.F.AsInteger = AIsDefault) and (not FDQuery.Eof) do
       begin
         AIDList.Add(PK.AsInteger);
         FDQuery.Next;
@@ -370,8 +356,8 @@ end;
 
 procedure TQueryCategoryParameters2.DoAfterInsert(Sender: TObject);
 begin
-  IsEnabled.AsInteger := 1;
-  IsAttribute.AsInteger := 1;
+  W.IsEnabled.F.AsInteger := 1;
+  W.IsAttribute.F.AsInteger := 1;
 end;
 
 procedure TQueryCategoryParameters2.DoAfterOpen(Sender: TObject);
@@ -382,7 +368,7 @@ end;
 
 procedure TQueryCategoryParameters2.DoBeforePost(Sender: TObject);
 begin
-  ProductCategoryID.AsInteger := ParentValue;
+  W.ProductCategoryID.F.AsInteger := ParentValue;
 end;
 
 procedure TQueryCategoryParameters2.DoOnUpdateRecordException
@@ -403,13 +389,6 @@ begin
   raise E;
 end;
 
-procedure TQueryCategoryParameters2.FilterByIsDefault(AIsDefault: Integer);
-begin
-  Assert(AIsDefault >= 0);
-  FDQuery.Filter := Format('%s=%d', [IsDefault.FieldName, AIsDefault]);
-  FDQuery.Filtered := True;
-end;
-
 function TQueryCategoryParameters2.GetAllIDSubParamList: string;
 var
   AClone: TFDMemTable;
@@ -418,14 +397,14 @@ begin
   Result := '';
 
   // Все подпараметры, кроме подпараметра "по умолчанию"
-  AFilter := Format('%s = (%d) and %s = 0', [IDParameter.FieldName,
-    IDParameter.AsInteger, IsDefault.FieldName]);
+  AFilter := Format('%s = (%d) and %s = 0', [W.IDParameter.FieldName,
+    W.IDParameter.F.AsInteger, W.IsDefault.FieldName]);
   AClone := AddClone(AFilter);
   try
     while not AClone.Eof do
     begin
       Result := Result + IfThen(Result.IsEmpty, '', ',') +
-        AClone.FieldByName(IdSubParameter.FieldName).AsString;
+        AClone.FieldByName(W.IdSubParameter.FieldName).AsString;
       AClone.Next;
     end;
   finally
@@ -433,75 +412,10 @@ begin
   end;
 end;
 
-function TQueryCategoryParameters2.GetCategoryID: TField;
-begin
-  Result := Field('ProductCategoryID');
-end;
-
 function TQueryCategoryParameters2.GetHaveInserted: Boolean;
 begin
   FInsertedClone.FilterChanges := [rtInserted];
   Result := FDQuery.Active and (FInsertedClone.RecordCount > 0);
-end;
-
-function TQueryCategoryParameters2.GetIDParameter: TField;
-begin
-  Result := Field('IdParameter');
-end;
-
-function TQueryCategoryParameters2.GetIDParameterKind: TField;
-begin
-  Result := Field('IDParameterKind');
-end;
-
-function TQueryCategoryParameters2.GetIdSubParameter: TField;
-begin
-  Result := Field('IdSubParameter');
-end;
-
-function TQueryCategoryParameters2.GetIsAttribute: TField;
-begin
-  Result := Field('IsAttribute');
-end;
-
-function TQueryCategoryParameters2.GetIsDefault: TField;
-begin
-  Result := Field('IsDefault');
-end;
-
-function TQueryCategoryParameters2.GetIsEnabled: TField;
-begin
-  Result := Field('IsEnabled');
-end;
-
-function TQueryCategoryParameters2.GetName: TField;
-begin
-  Result := Field('Name');
-end;
-
-function TQueryCategoryParameters2.GetOrd: TField;
-begin
-  Result := Field('Ord');
-end;
-
-function TQueryCategoryParameters2.GetParameterType: TField;
-begin
-  Result := Field('ParameterType');
-end;
-
-function TQueryCategoryParameters2.GetParamSubParamId: TField;
-begin
-  Result := Field('ParamSubParamID');
-end;
-
-function TQueryCategoryParameters2.GetPosID: TField;
-begin
-  Result := Field('PosID');
-end;
-
-function TQueryCategoryParameters2.GetProductCategoryID: TField;
-begin
-  Result := Field('ProductCategoryID');
 end;
 
 function TQueryCategoryParameters2.GetQueryRecursiveParameters
@@ -527,26 +441,6 @@ begin
   Result := FRefreshQry;
 end;
 
-function TQueryCategoryParameters2.GetTableName: TField;
-begin
-  Result := Field('Tablename');
-end;
-
-function TQueryCategoryParameters2.GetTranslation: TField;
-begin
-  Result := Field('Translation');
-end;
-
-function TQueryCategoryParameters2.GetValue: TField;
-begin
-  Result := Field('Value');
-end;
-
-function TQueryCategoryParameters2.GetValueT: TField;
-begin
-  Result := Field('ValueT');
-end;
-
 procedure TQueryCategoryParameters2.IncOrder(AStartOrder: Integer);
 var
   A: TArray<TPair<Integer, Integer>>;
@@ -557,12 +451,12 @@ var
 begin
   D := TDictionary<Integer, Integer>.Create;
   try
-    AClone := AddClone(Format('%s >= %d', [Ord.FieldName, AStartOrder]));
+    AClone := AddClone(Format('%s >= %d', [W.Ord.FieldName, AStartOrder]));
     try
       while not AClone.Eof do
       begin
         D.Add(AClone.FieldByName(PKFieldName).AsInteger,
-          AClone.FieldByName(Ord.FieldName).AsInteger);
+          AClone.FieldByName(W.Ord.FieldName).AsInteger);
         AClone.Next;
       end;
     finally
@@ -589,93 +483,8 @@ begin
 
   SaveBookmark;
   // Просим произвести изменения в БД
-  Move(A);
+  W.Move(A);
   RestoreBookmark;
-end;
-
-function TQueryCategoryParameters2.Locate(AIDParameter, APosID, AOrder: Integer;
-TestResult: Boolean = False): Boolean;
-var
-  AFieldNames: string;
-begin
-  Assert(AIDParameter > 0);
-  Assert(APosID >= 0);
-  Assert(AOrder > 0);
-
-  AFieldNames := Format('%s;%s;%s', [IDParameter.FieldName, PosID.FieldName,
-    Ord.FieldName]);
-
-  Result := FDQuery.LocateEx(AFieldNames,
-    VarArrayOf([AIDParameter, APosID, AOrder]));
-
-  if TestResult then
-    Assert(Result);
-end;
-
-function TQueryCategoryParameters2.Locate(AIDParameter, AIDSubParameter
-  : Integer; TestResult: Boolean = False): Boolean;
-var
-  AFieldNames: string;
-begin
-  Assert(AIDParameter > 0);
-  Assert(AIDSubParameter >= 0);
-
-  AFieldNames := Format('%s;%s', [IDParameter.FieldName,
-    IdSubParameter.FieldName]);
-
-  Result := FDQuery.LocateEx(AFieldNames,
-    VarArrayOf([AIDParameter, AIDSubParameter]));
-
-  if TestResult then
-    Assert(Result);
-end;
-
-procedure TQueryCategoryParameters2.LocateDefault(AIDParameter: Integer;
-TestResult: Boolean = False);
-var
-  AFieldName: string;
-begin
-  Assert(AIDParameter > 0);
-  AFieldName := Format('%s;%s', [IDParameter.FieldName, IsDefault.FieldName]);
-  FDQuery.LocateEx(AFieldName, VarArrayOf([AIDParameter, 1]));
-end;
-
-procedure TQueryCategoryParameters2.Move(AData: TArray < TPair < Integer,
-  Integer >> );
-var
-  APair: TPair<Integer, Integer>;
-begin
-  FDQuery.DisableControls;
-  try
-    for APair in AData do
-    begin
-      // Переходим на нужную запись
-      LocateByPK(APair.Key, True);
-      // Меняем порядок записи
-      TryEdit;
-      Ord.AsInteger := APair.Value;
-      TryPost;
-    end;
-  finally
-    FDQuery.EnableControls;
-  end;
-end;
-
-function TQueryCategoryParameters2.NextEx: Boolean;
-var
-  AIDParameter: Integer;
-  AIsDefault: Integer;
-begin
-  Assert(not FDQuery.Eof);
-
-  AIDParameter := IDParameter.AsInteger;
-  AIsDefault := IsDefault.AsInteger;
-
-  FDQuery.Next;
-
-  // Мы всё ещё в той же группе?
-  Result := (IDParameter.AsInteger = AIDParameter) and
-    (IsDefault.AsInteger = AIsDefault) and (not FDQuery.Eof);
 end;
 
 function TQueryCategoryParameters2.NextOrder: Integer;
@@ -693,8 +502,8 @@ begin
 
   // Добавляем в запрос условие
   FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    Format('and (p.IDParameterKind <> %d)',
-    [Integer(Неиспользуется)]), 'and 0=0');
+    Format('and (p.IDParameterKind <> %d)', [Integer(Неиспользуется)]),
+    'and 0=0');
 
   // Ищем
   Result := Search(['ProductCategoryID'], [AProductCategoryID]);
@@ -713,7 +522,7 @@ begin
     while not AClone.Eof do
     begin
       AClone.Edit;
-      AClone.FieldByName(IsAttribute.FieldName).AsInteger := AIsAttribute;
+      AClone.FieldByName(W.IsAttribute.FieldName).AsInteger := AIsAttribute;
       AClone.Post;
 
       AClone.Next;
@@ -723,18 +532,161 @@ begin
   end;
 end;
 
-procedure TQueryCategoryParameters2.SetPos(APosID: Integer);
+constructor TCategoryParameters2W.Create(AOwner: TComponent);
 begin
-  Assert(FDQuery.RecordCount > 0);
-  Assert((APosID >= 0) and (APosID <= 2));
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FCategoryID := TFieldWrap.Create(Self, 'CategoryID');
+  FIDParameter := TFieldWrap.Create(Self, 'IDParameter');
+  FIdSubParameter := TFieldWrap.Create(Self, 'IdSubParameter');
+  FIsAttribute := TFieldWrap.Create(Self, 'IsAttribute');
+  FIsDefault := TFieldWrap.Create(Self, 'IsDefault');
+  FIsEnabled := TFieldWrap.Create(Self, 'IsEnabled');
+  FName := TFieldWrap.Create(Self, 'Name');
+  FOrd := TFieldWrap.Create(Self, 'Ord');
+  FParameterType := TFieldWrap.Create(Self, 'ParameterType');
+  FParamSubParamId := TFieldWrap.Create(Self, 'ParamSubParamId');
+  FPosID := TFieldWrap.Create(Self, 'PosID');
+  FProductCategoryID := TFieldWrap.Create(Self, 'ProductCategoryID');
+  FTableName := TFieldWrap.Create(Self, 'TableName');
+  FTranslation := TFieldWrap.Create(Self, 'Translation');
+  FValue := TFieldWrap.Create(Self, 'Value');
+  FValueT := TFieldWrap.Create(Self, 'ValueT');
+end;
 
-  TryEdit;
-  PosID.AsInteger := APosID;
+procedure TCategoryParameters2W.AppendR(AParamSubParamId, AOrd, AIsAttribute,
+  APosID, AIDParameter, AIDSubParameter: Integer;
+const AValue, ATableName, AValueT, AParameterType, AName: String;
+const ATranslation: Variant; AIsDefault: Integer);
+begin
+  TryAppend;
+  ParamSubParamId.F.Value := AParamSubParamId;
+  Ord.F.Value := AOrd;
+  IsAttribute.F.Value := AIsAttribute;
+  PosID.F.Value := APosID;
+  IDParameter.F.Value := AIDParameter;
+  IdSubParameter.F.Value := AIDSubParameter;
+  Value.F.Value := AValue;
+  TableName.F.Value := ATableName;
+  ValueT.F.Value := AValueT;
+  ParameterType.F.Value := AParameterType;
+  Name.F.Value := AName;
+  Translation.F.Value := ATranslation;
+  IsDefault.F.Value := AIsDefault;
   TryPost;
 end;
 
-procedure TQueryCategoryParameters2.SetPos(AIDArray: TArray<Integer>;
-APosID: Integer);
+procedure TCategoryParameters2W.FilterByIsDefault(AIsDefault: Integer);
+begin
+  Assert(AIsDefault >= 0);
+  DataSet.Filter := Format('%s=%d', [IsDefault.FieldName, AIsDefault]);
+  DataSet.Filtered := True;
+end;
+
+procedure TCategoryParameters2W.FilterByPosition(APosID: Integer);
+begin
+  Assert(APosID >= 0);
+  DataSet.Filter := Format('%s=%d', [PosID.FieldName, APosID]);
+  DataSet.Filtered := True;
+end;
+
+function TCategoryParameters2W.Locate(AIDParameter, APosID, AOrder: Integer;
+    TestResult: Boolean = False): Boolean;
+var
+  AFieldNames: string;
+begin
+  Assert(AIDParameter > 0);
+  Assert(APosID >= 0);
+  Assert(AOrder > 0);
+
+  AFieldNames := Format('%s;%s;%s', [IDParameter.FieldName, PosID.FieldName,
+    Ord.FieldName]);
+
+  Result := FDDataSet.LocateEx(AFieldNames,
+    VarArrayOf([AIDParameter, APosID, AOrder]));
+
+  if TestResult then
+    Assert(Result);
+end;
+
+function TCategoryParameters2W.Locate(AIDParameter, AIDSubParameter : Integer;
+    TestResult: Boolean = False): Boolean;
+var
+  AFieldNames: string;
+begin
+  Assert(AIDParameter > 0);
+  Assert(AIDSubParameter >= 0);
+
+  AFieldNames := Format('%s;%s', [IDParameter.FieldName,
+    IdSubParameter.FieldName]);
+
+  Result := FDDataSet.LocateEx(AFieldNames,
+    VarArrayOf([AIDParameter, AIDSubParameter]));
+
+  if TestResult then
+    Assert(Result);
+end;
+
+procedure TCategoryParameters2W.LocateDefault(AIDParameter: Integer;
+    TestResult: Boolean = False);
+var
+  AFieldName: string;
+begin
+  Assert(AIDParameter > 0);
+  AFieldName := Format('%s;%s', [IDParameter.FieldName, IsDefault.FieldName]);
+  FDDataSet.LocateEx(AFieldName, VarArrayOf([AIDParameter, 1]));
+end;
+
+procedure TCategoryParameters2W.Move(AData: TArray < TPair < Integer, Integer
+    >>);
+var
+  APair: TPair<Integer, Integer>;
+begin
+  DataSet.DisableControls;
+  try
+    for APair in AData do
+    begin
+      // Переходим на нужную запись
+      LocateByPK(APair.Key, True);
+      // Меняем порядок записи
+      TryEdit;
+      Ord.F.AsInteger := APair.Value;
+      TryPost;
+    end;
+  finally
+    DataSet.EnableControls;
+  end;
+end;
+
+function TCategoryParameters2W.NextEx: Boolean;
+var
+  AIDParameter: Integer;
+  AIsDefault: Integer;
+begin
+  Assert(not DataSet.Eof);
+
+  AIDParameter := IDParameter.F.AsInteger;
+  AIsDefault := IsDefault.F.AsInteger;
+
+  DataSet.Next;
+
+  // Мы всё ещё в той же группе?
+  Result := (IDParameter.F.AsInteger = AIDParameter) and
+    (IsDefault.F.AsInteger = AIsDefault) and (not DataSet.Eof);
+end;
+
+procedure TCategoryParameters2W.SetPos(APosID: Integer);
+begin
+  Assert(DataSet.RecordCount > 0);
+  Assert((APosID >= 0) and (APosID <= 2));
+
+  TryEdit;
+  PosID.F.AsInteger := APosID;
+  TryPost;
+end;
+
+procedure TCategoryParameters2W.SetPos(AIDArray: TArray<Integer>; APosID:
+    Integer);
 var
   AID: Integer;
 begin

@@ -525,7 +525,7 @@ end;
 procedure TDM.InitDataSetValues;
 begin
   // Добавляем корень дерева
-  qTreeList.AddRoot;
+  qTreeList.W.AddRoot;
 
   // Инициализируем список полей
   // qFieldTypes.InitDataSetValues;
