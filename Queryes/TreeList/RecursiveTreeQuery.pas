@@ -135,7 +135,7 @@ begin
           W.Added.F.AsInteger := 1;
         end
         else
-          TryEdit;
+          W.TryEdit;
 
       end;
 
@@ -163,9 +163,9 @@ begin
     FDQuery.First;
     while not FDQuery.eof do
     begin
-      TryEdit;
+      W.TryEdit;
       W.Deleted.F.AsInteger := 1;
-      TryPost;
+      W.TryPost;
       FDQuery.Next;
     end;
 

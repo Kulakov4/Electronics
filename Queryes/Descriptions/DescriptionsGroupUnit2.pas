@@ -51,7 +51,7 @@ begin
   // На сервере краткие описания уже каскадно удалились
   // Каскадно удаляем краткие описания с клиента
   qDescriptions.CascadeDelete(qDescriptionTypes.OldPKValue,
-    qDescriptions.IDComponentType.FieldName, True);
+    qDescriptions.W.IDComponentType.FieldName, True);
 end;
 
 function TDescriptionsGroup2.Find(const AFieldName, S: string): TList<String>;
@@ -62,7 +62,7 @@ begin
   // Пытаемся искать среди кратких описаний по какому-то полю
   if qDescriptions.LocateByField(AFieldName, S) then
   begin
-    qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.Value, True);
+    qDescriptionTypes.LocateByPK(qDescriptions.W.IDComponentType.F.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qDescriptionTypes.W.ComponentType.F.AsString);
     // запоминаем что надо искать на втором уровне
@@ -129,8 +129,8 @@ begin
         if AField <> nil then
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
-      qDescriptions.IDComponentType.Value := qDescriptionTypes.PK.Value;
-      qDescriptions.IDProducer.Value :=
+      qDescriptions.W.IDComponentType.F.Value := qDescriptionTypes.PK.Value;
+      qDescriptions.W.IDProducer.F.Value :=
         ADescriptionsExcelTable.IDProducer.Value;
       qDescriptions.FDQuery.Post;
 
@@ -152,7 +152,7 @@ begin
   qDescriptionTypes.FDQuery.DisableControls;
   try
     qDescriptions.LocateByPK(AIDDescription);
-    qDescriptionTypes.LocateByPK(qDescriptions.IDComponentType.AsInteger);
+    qDescriptionTypes.LocateByPK(qDescriptions.W.IDComponentType.F.AsInteger);
   finally
     qDescriptionTypes.FDQuery.EnableControls;
     qDescriptions.FDQuery.EnableControls;

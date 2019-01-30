@@ -60,12 +60,13 @@ type
     procedure AfterConstruction; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); overload;
         virtual;
-    procedure AppendRows(AFieldNames, AValues: TArray<String>); overload; virtual;
+    procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
     procedure DeleteAll;
     procedure DropClone(AClone: TFDMemTable);
     function Field(const AFieldName: string): TField;
     function HaveAnyChanges: Boolean;
+    function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     function IsParamExist(const AParamName: String): Boolean;
     function Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; ATestResult: Integer = -1)
@@ -87,6 +88,7 @@ type
       AValues: TArray<Variant>): Integer;
     procedure TryOpen;
     procedure TryPost;
+    function UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
     property Active: Boolean read GetActive;
     property AfterOpen: TNotifyEventsEx read GetAfterOpen;
     property AfterClose: TNotifyEventsEx read GetAfterClose;
@@ -246,34 +248,30 @@ begin
   end;
 end;
 
-procedure TDSWrap.AppendRows(AFieldNames, AValues: TArray<String>);
+procedure TDSWrap.ClearFields(AFieldList: TArray<String>; AIDList:
+    TArray<Integer>);
 var
-  AValue: string;
-  i: Integer;
-  m: TArray<String>;
+  AFieldName: String;
+  AID: Integer;
 begin
-  Assert(Length(AFieldNames) > 0);
+  Assert(Length(AFieldList) > 0);
+  Assert(Length(AIDList) > 0);
 
-  // Добавляем в список родительские компоненты
-  for AValue in AValues do
-  begin
-    // Делим строку на части по табуляции
-    m := AValue.Split([#9]);
-
-    if Length(m) = Length(AFieldNames) then
+  DataSet.DisableControls;
+  try
+    SaveBookmark;
+    for AID in AIDList do
     begin
-      TryAppend;
-
-      // Заполняем все поля
-      for i := Low(AFieldNames) to High(AFieldNames) do
-      begin
-        Field(AFieldNames[i]).Value := m[i];
-      end;
-
+      if not LocateByPK(AID) then
+        Continue;
+      TryEdit;
+      for AFieldName in AFieldList do
+        Field(AFieldName).Value := NULL;
       TryPost;
-    end
-    else
-      raise Exception.Create('Несоответствие количества полей');
+    end;
+    RestoreBookmark;
+  finally
+    DataSet.EnableControls;
   end;
 end;
 
@@ -464,6 +462,44 @@ end;
 function TDSWrap.HaveAnyChanges: Boolean;
 begin
   Result := FDataSet.State in [dsEdit, dsinsert];
+end;
+
+function TDSWrap.InsertRecord(ARecordHolder: TRecordHolder): Integer;
+var
+  AFieldHolder: TFieldHolder;
+  f: TField;
+begin
+  Assert(ARecordHolder <> nil);
+
+  TryAppend;
+  try
+    for f in DataSet.Fields do
+    begin
+      // Первичный ключ заполнять не будем
+      if f.FieldName.ToUpper = PKFieldName.ToUpper then
+        Continue;
+
+      // Ищем такое поле в коллекции вставляемых значений
+      AFieldHolder := ARecordHolder.Find(f.FieldName);
+
+      // Если нашли
+      if (AFieldHolder <> nil) and not VarIsNull(AFieldHolder.Value) then
+      begin
+        f.Value := AFieldHolder.Value;
+      end;
+
+    end;
+
+    TryPost;
+    // Первичный ключ должен получить значение
+    Assert(not PK.IsNull);
+
+    Result := PK.AsInteger;
+  except
+    TryCancel;
+    raise;
+  end;
+
 end;
 
 function TDSWrap.IsParamExist(const AParamName: String): Boolean;
@@ -677,6 +713,57 @@ begin
       F.DisplayLabel := FW.DisplayLabel;
       F.Visible := True;
     end;
+  end;
+end;
+
+function TDSWrap.UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
+var
+  AChangedFields: TDictionary<String, Variant>;
+  AFieldHolder: TFieldHolder;
+  AFieldName: string;
+  f: TField;
+begin
+  Assert(ARecordHolder <> nil);
+
+  // Создаём словарь тех полей что нужно будет обновить
+  AChangedFields := TDictionary<String, Variant>.Create;
+  try
+
+    for f in DataSet.Fields do
+    begin
+      // Первичный ключ обновлять не будем
+      if f.FieldName.ToUpper = PKFieldName.ToUpper then
+        Continue;
+
+      // Ищем такое поле в коллекции обновляемых значений
+      AFieldHolder := ARecordHolder.Find(f.FieldName);
+
+      // Запоминаем в словаре какое поле нужно будет обновить
+      if (AFieldHolder <> nil) and (f.Value <> AFieldHolder.Value) then
+        AChangedFields.Add(f.FieldName, AFieldHolder.Value);
+    end;
+
+    Result := AChangedFields.Count > 0;
+
+    // Если есть те поля, которые нужно обновлять
+    if Result then
+    begin
+      TryEdit;
+      try
+        // Цикл по всем изменившимся полям
+        for AFieldName in AChangedFields.Keys do
+        begin
+          Field(AFieldName).Value := AChangedFields[AFieldName];
+        end;
+        TryPost;
+      except
+        TryCancel;
+        raise;
+      end;
+    end;
+
+  finally
+    FreeAndNil(AChangedFields);
   end;
 end;
 

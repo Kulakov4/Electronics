@@ -194,7 +194,7 @@ begin
   Value := InputBox(sDatabase, sPleaseWrite, '');
   if Value <> '' then
   begin
-    TDM.Create.qStoreHouseList.LocateOrAppend(Value);
+    TDM.Create.qStoreHouseList.W.LocateOrAppend(Value);
     clStorehouseListTitle.ApplyBestFit();
   end;
 end;
@@ -230,12 +230,12 @@ begin
   begin
     TDM.Create.qStoreHouseList.TryPost;
     Value := InputBox(sDatabase, sPleaseWrite,
-      TDM.Create.qStoreHouseList.Title.AsString);
+      TDM.Create.qStoreHouseList.W.Title.F.AsString);
     if (Value <> '') then
     begin
-      TDM.Create.qStoreHouseList.TryEdit;
-      TDM.Create.qStoreHouseList.Title.AsString := Value;
-      TDM.Create.qStoreHouseList.TryPost;
+      TDM.Create.qStoreHouseList.W.TryEdit;
+      TDM.Create.qStoreHouseList.W.Title.F.AsString := Value;
+      TDM.Create.qStoreHouseList.W.TryPost;
       clStorehouseListTitle.ApplyBestFit();
     end;
   end;

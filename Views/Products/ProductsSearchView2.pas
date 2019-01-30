@@ -156,7 +156,7 @@ begin
 
   InitializeLookupColumn(clStorehouseId,
     qProductsSearch.qStoreHouseList.DataSource, lsEditFixedList,
-    qProductsSearch.qStoreHouseList.Abbreviation.FieldName);
+    qProductsSearch.qStoreHouseList.W.Abbreviation.FieldName);
 end;
 
 procedure TViewProductsSearch2.Search(ALike: Boolean);

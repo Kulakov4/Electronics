@@ -23,7 +23,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxTextEdit, cxMemo, cxDBEdit, CustomComponentsQuery,
   dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
-  BaseQuery, QueryWithDataSourceUnit, Data.DB;
+  BaseQuery, QueryWithDataSourceUnit, Data.DB, DescriptionsQueryWrap;
 
 type
   TfrmDescriptionPopup = class(TfrmPopupForm)
@@ -35,25 +35,20 @@ type
     dxBarButton1: TdxBarButton;
     actClear: TAction;
     dxBarButton2: TdxBarButton;
+    DataSource: TDataSource;
     procedure actClearExecute(Sender: TObject);
     procedure actSelectExecute(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
-    FQuery: TQueryWithDataSource;
-    function GetDescription: TField;
-    function GetDescriptionComponentName: TField;
-    function GetDescriptionID: TField;
-    procedure SetQuery(const Value: TQueryWithDataSource);
+    FDescriptionW: TDescriptionW;
+    procedure SetDescriptionW(const Value: TDescriptionW);
     { Private declarations }
   protected
     procedure UpdateView;
   public
     constructor Create(AOwner: TComponent); override;
-    property Description: TField read GetDescription;
-    property DescriptionComponentName: TField read GetDescriptionComponentName;
-    property DescriptionID: TField read GetDescriptionID;
-    property Query: TQueryWithDataSource read FQuery write SetQuery;
+    property DescriptionW: TDescriptionW read FDescriptionW write SetDescriptionW;
     { Public declarations }
   end;
 
@@ -65,18 +60,18 @@ uses DescriptionsForm, DataModule;
 
 constructor TfrmDescriptionPopup.Create(AOwner: TComponent);
 begin
-  inherited;
-;
+  inherited;;
 end;
 
 procedure TfrmDescriptionPopup.actClearExecute(Sender: TObject);
 begin
   inherited;
-  FQuery.TryEdit;
-  DescriptionComponentName.Value := NULL;
-  Description.Value := NULL;
-  DescriptionID.Value := NULL;
-  FQuery.TryPost;
+
+  FDescriptionW.TryEdit;
+  FDescriptionW.DescriptionComponentName.F.Value := NULL;
+  FDescriptionW.Description.F.Value := NULL;
+  FDescriptionW.DescriptionID.F.Value := NULL;
+  FDescriptionW.TryPost;
 
   UpdateView;
 end;
@@ -90,21 +85,27 @@ begin
 
   AfrmDescriptions := TfrmDescriptions.Create(Self);
   try
-    AfrmDescriptions.ViewDescriptions.DescriptionsGroup := TDM.Create.DescriptionsGroup;
+    AfrmDescriptions.ViewDescriptions.DescriptionsGroup :=
+      TDM.Create.DescriptionsGroup;
 
-    if not DescriptionComponentName.AsString.IsEmpty then
-      AfrmDescriptions.ViewDescriptions.Locate(DescriptionComponentName.AsString);
+    if not FDescriptionW.DescriptionComponentName.F.AsString.IsEmpty then
+      AfrmDescriptions.ViewDescriptions.Locate
+        (FDescriptionW.DescriptionComponentName.F.AsString);
 
     if AfrmDescriptions.ShowModal = mrOk then
     begin
-      FQuery.TryEdit;
-      DescriptionComponentName.Value :=
-        TDM.Create.DescriptionsGroup.qDescriptions.ComponentName.Value;
-      Description.Value :=
-        TDM.Create.DescriptionsGroup.qDescriptions.Description.Value;
-      DescriptionID.Value :=
-        TDM.Create.DescriptionsGroup.qDescriptions.PK.Value;
-      FQuery.TryPost;
+      FDescriptionW.TryEdit;
+
+      FDescriptionW.DescriptionComponentName.F.Value :=
+        TDM.Create.DescriptionsGroup.qDescriptions.W.ComponentName.F.Value;
+
+      FDescriptionW.Description.F.Value := TDM.Create.DescriptionsGroup.qDescriptions.
+        W.Description.F.Value;
+
+      FDescriptionW.DescriptionID.F.Value := TDM.Create.DescriptionsGroup.
+        qDescriptions.PK.Value;
+
+      FDescriptionW.TryPost;
     end;
   finally
     FreeAndNil(AfrmDescriptions);
@@ -114,8 +115,7 @@ end;
 
 procedure TfrmDescriptionPopup.FormHide(Sender: TObject);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
 procedure TfrmDescriptionPopup.FormShow(Sender: TObject);
@@ -124,34 +124,18 @@ begin
   UpdateView;
 end;
 
-function TfrmDescriptionPopup.GetDescription: TField;
+procedure TfrmDescriptionPopup.SetDescriptionW(const Value: TDescriptionW);
 begin
-  Result := FQuery.Field('Description');
-end;
+  if FDescriptionW = Value then
+    Exit;
 
-function TfrmDescriptionPopup.GetDescriptionComponentName: TField;
-begin
-  Result := FQuery.Field('DescriptionComponentName');
-end;
+  FDescriptionW := Value;
 
-function TfrmDescriptionPopup.GetDescriptionID: TField;
-begin
-  Result := FQuery.Field('DescriptionID');
-end;
-
-procedure TfrmDescriptionPopup.SetQuery(const Value: TQueryWithDataSource);
-begin
-  if FQuery = Value then Exit;
-
-  FQuery := Value;
-
-  if FQuery <> nil then
+  if FDescriptionW <> nil then
   begin
-    Assert(FQuery.FDQuery.Active);
-    cxdbmDescriptions.DataBinding.DataSource :=
-      FQuery.DataSource;
+    Assert(FDescriptionW.DataSet.Active);
     cxdbmDescriptions.DataBinding.DataField :=
-      Description.FieldName;
+      FDescriptionW.Description.FieldName;
   end;
 
   UpdateView;
@@ -159,8 +143,9 @@ end;
 
 procedure TfrmDescriptionPopup.UpdateView;
 begin
-  actSelect.Enabled := (FQuery <> nil);
-  actClear.Enabled := (FQuery <> nil) and (not DescriptionID.IsNull);
+  actSelect.Enabled := (FDescriptionW <> nil);
+  actClear.Enabled := (FDescriptionW <> nil) and
+    (not FDescriptionW.DescriptionID.F.IsNull);
 end;
 
 end.

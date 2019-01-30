@@ -75,8 +75,6 @@ type
     procedure CascadeDelete(const AIDMaster: Variant;
       const ADetailKeyFieldName: String;
       AFromClientOnly: Boolean = False); virtual;
-    procedure ClearFields(AFieldList: TArray<String>;
-      AProductIDList: TArray<Integer>);
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     function Delete(APKValue: Variant): Boolean;
@@ -93,7 +91,6 @@ type
       ADelimiter: String = ','): String;
     function GetFieldValuesAsIntArray(AFieldName: string): TArray<Integer>;
     procedure IncUpdateRecCount;
-    function InsertRecord(ARecordHolder: TRecordHolder): Integer;
     procedure Load(AIDParent: Integer; AForcibly: Boolean = False);
       overload; virtual;
     procedure Load(const AParamNames: TArray<String>;
@@ -120,14 +117,13 @@ type
         ptInput; ADataType: TFieldType = ftInteger): TFDParam;
     function SetParamTypeEx(const AParamName: String; AValue: Variant; AParamType:
         TParamType = ptInput; ADataType: TFieldType = ftInteger): TFDParam;
-    procedure TryAppend;
-    function TryEdit: Boolean;
+// TODO: TryEdit
+//  function TryEdit: Boolean;
     procedure TryPost; virtual;
     procedure TryCancel;
     procedure TryOpen;
     procedure UpdateFields(AFields: TArray<TField>; AValues: TArray<Variant>;
       AUpdateNullFieldsOnly: Boolean);
-    function UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
     property BeforeLoad: TNotifyEventsEx read FBeforeLoad;
     property CashedRecordBalance: Integer read GetCashedRecordBalance;
@@ -271,33 +267,6 @@ begin
 
   // Формируем фильтр и удаляем
   // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
-end;
-
-procedure TQueryBase.ClearFields(AFieldList: TArray<String>;
-  AProductIDList: TArray<Integer>);
-var
-  AFieldName: String;
-  AID: Integer;
-begin
-  Assert(Length(AFieldList) > 0);
-  Assert(Length(AProductIDList) > 0);
-
-  FDQuery.DisableControls;
-  try
-    SaveBookmark;
-    for AID in AProductIDList do
-    begin
-      if not LocateByPK(AID) then
-        Continue;
-      TryEdit;
-      for AFieldName in AFieldList do
-        Field(AFieldName).Value := NULL;
-      TryPost;
-    end;
-    RestoreBookmark;
-  finally
-    FDQuery.EnableControls;
-  end;
 end;
 
 procedure TQueryBase.ClearUpdateRecCount;
@@ -691,44 +660,6 @@ begin
   end;
 end;
 
-function TQueryBase.InsertRecord(ARecordHolder: TRecordHolder): Integer;
-var
-  AFieldHolder: TFieldHolder;
-  f: TField;
-begin
-  Assert(ARecordHolder <> nil);
-
-  TryAppend;
-  try
-    for f in FDQuery.Fields do
-    begin
-      // Первичный ключ заполнять не будем
-      if f.FieldName.ToUpper = PKFieldName.ToUpper then
-        Continue;
-
-      // Ищем такое поле в коллекции вставляемых значений
-      AFieldHolder := ARecordHolder.Find(f.FieldName);
-
-      // Если нашли
-      if (AFieldHolder <> nil) and not VarIsNull(AFieldHolder.Value) then
-      begin
-        f.Value := AFieldHolder.Value;
-      end;
-
-    end;
-
-    TryPost;
-    // Первичный ключ должен получить значение
-    Assert(not PK.IsNull);
-
-    Result := PK.AsInteger;
-  except
-    TryCancel;
-    raise;
-  end;
-
-end;
-
 procedure TQueryBase.Load(AIDParent: Integer; AForcibly: Boolean = False);
 begin
   Assert(DetailParameterName <> '');
@@ -922,26 +853,19 @@ begin
   Result.Value := AValue;
 end;
 
-procedure TQueryBase.TryAppend;
-begin
-  Assert(FDQuery.Active);
-
-  if not(FDQuery.State in [dsEdit, dsinsert]) then
-    FDQuery.Append;
-end;
-
-function TQueryBase.TryEdit: Boolean;
-begin
-  Assert(FDQuery.Active);
-
-  Result := False;
-  if FDQuery.State in [dsEdit, dsInsert] then
-    Exit;
-
-  Assert(FDQuery.RecordCount > 0);
-  FDQuery.Edit;
-  Result := True;
-end;
+// TODO: TryEdit
+//function TQueryBase.TryEdit: Boolean;
+//begin
+//Assert(FDQuery.Active);
+//
+//Result := False;
+//if FDQuery.State in [dsEdit, dsInsert] then
+//  Exit;
+//
+//Assert(FDQuery.RecordCount > 0);
+//FDQuery.Edit;
+//Result := True;
+//end;
 
 procedure TQueryBase.TryPost;
 begin
@@ -987,57 +911,6 @@ begin
     if ((not AUpdateNullFieldsOnly) or (f.IsNull or f.AsString.Trim.IsEmpty))
       and (not VarIsNull(V) and (not VarToStr(V).Trim.IsEmpty)) then
       f.Value := V;
-  end;
-end;
-
-function TQueryBase.UpdateRecord(ARecordHolder: TRecordHolder): Boolean;
-var
-  AChangedFields: TDictionary<String, Variant>;
-  AFieldHolder: TFieldHolder;
-  AFieldName: string;
-  f: TField;
-begin
-  Assert(ARecordHolder <> nil);
-
-  // Создаём словарь тех полей что нужно будет обновить
-  AChangedFields := TDictionary<String, Variant>.Create;
-  try
-
-    for f in FDQuery.Fields do
-    begin
-      // Первичный ключ обновлять не будем
-      if f.FieldName.ToUpper = PKFieldName.ToUpper then
-        Continue;
-
-      // Ищем такое поле в коллекции обновляемых значений
-      AFieldHolder := ARecordHolder.Find(f.FieldName);
-
-      // Запоминаем в словаре какое поле нужно будет обновить
-      if (AFieldHolder <> nil) and (f.Value <> AFieldHolder.Value) then
-        AChangedFields.Add(f.FieldName, AFieldHolder.Value);
-    end;
-
-    Result := AChangedFields.Count > 0;
-
-    // Если есть те поля, которые нужно обновлять
-    if Result then
-    begin
-      TryEdit;
-      try
-        // Цикл по всем изменившимся полям
-        for AFieldName in AChangedFields.Keys do
-        begin
-          Field(AFieldName).Value := AChangedFields[AFieldName];
-        end;
-        TryPost;
-      except
-        TryCancel;
-        raise;
-      end;
-    end;
-
-  finally
-    FreeAndNil(AChangedFields);
   end;
 end;
 

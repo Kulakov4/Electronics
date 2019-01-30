@@ -340,7 +340,7 @@ begin
   inherited;
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
-  FfrmDescriptionPopup.Query := BaseComponentsGroup.QueryBaseFamily;
+  FfrmDescriptionPopup.DescriptionW := BaseComponentsGroup.QueryBaseFamily.W;
 end;
 
 procedure TViewComponentsBase.clSubGroup2GetProperties
@@ -373,9 +373,9 @@ begin
 
   BaseComponentsGroup.QueryBaseFamily.FDQuery.DisableControls;
   try
-    BaseComponentsGroup.QueryBaseFamily.TryEdit;
+    BaseComponentsGroup.QueryBaseFamily.W.TryEdit;
     BaseComponentsGroup.QueryBaseFamily.W.SubGroup.F.AsString := ParamValue;
-    BaseComponentsGroup.QueryBaseFamily.TryPost;
+    BaseComponentsGroup.QueryBaseFamily.W.TryPost;
   finally
     BaseComponentsGroup.QueryBaseFamily.FDQuery.EnableControls;
   end;

@@ -735,7 +735,7 @@ begin
   inherited;
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
-  FfrmDescriptionPopup.Query := qProductsBase;
+  FfrmDescriptionPopup.DescriptionW := qProductsBase.W;
 end;
 
 procedure TViewProductsBase2.CreateCountEvents;

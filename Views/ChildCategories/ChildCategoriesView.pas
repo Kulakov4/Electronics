@@ -119,9 +119,9 @@ begin
   if (AValue <> '') and FqChildCategories.CheckPossibility
     (FqChildCategories.W.ParentID.F.AsInteger, AValue) then
   begin
-    FqChildCategories.TryEdit;
+    FqChildCategories.W.TryEdit;
     FqChildCategories.W.Value.F.AsString := AValue;
-    FqChildCategories.TryPost;
+    FqChildCategories.W.TryPost;
   end;
 
 end;

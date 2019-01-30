@@ -111,12 +111,12 @@ begin
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    IsEdited := not QueryBaseFamily.TryEdit;
+    IsEdited := not QueryBaseFamily.W.TryEdit;
     QueryBaseFamily.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
 
     // Сохраняем только если запись уже была сохранена до редактирования
     if not IsEdited then
-      QueryBaseFamily.TryPost;
+      QueryBaseFamily.W.TryPost;
   end;
 end;
 

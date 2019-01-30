@@ -305,9 +305,9 @@ begin
 
   // Ищем параметр
   DescriptionsGroup.qDescriptions.LocateByPK(ADetailID);
-  DescriptionsGroup.qDescriptions.TryEdit;
-  DescriptionsGroup.qDescriptions.IDComponentType.AsInteger := AMasterID;
-  DescriptionsGroup.qDescriptions.TryPost;
+  DescriptionsGroup.qDescriptions.W.TryEdit;
+  DescriptionsGroup.qDescriptions.W.IDComponentType.F.AsInteger := AMasterID;
+  DescriptionsGroup.qDescriptions.W.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   Assert(ARow <> nil);
@@ -338,8 +338,8 @@ begin
     AMasterID := DescriptionsGroup.qDescriptionTypes.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
-    DescriptionsGroup.qDescriptions.IDComponentType.AsInteger := AMasterID;
-    DescriptionsGroup.qDescriptions.TryPost;
+    DescriptionsGroup.qDescriptions.W.IDComponentType.F.AsInteger := AMasterID;
+    DescriptionsGroup.qDescriptions.W.TryPost;
 
     // Посылаем сообщение о том что значение внешнего ключа надо будет изменить
     PostMessage(Handle, WM_AFTER_SET_NEW_VALUE, ADetailID, 0);

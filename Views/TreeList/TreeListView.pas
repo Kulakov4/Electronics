@@ -253,9 +253,9 @@ begin
   if (Value <> '') and (qTreeList.W.CheckPossibility(qTreeList.W.ParentId.F.AsInteger,
     Value)) then
   begin
-    qTreeList.TryEdit;
+    qTreeList.W.TryEdit;
     qTreeList.W.Value.F.AsString := Value;
-    qTreeList.TryPost;
+    qTreeList.W.TryPost;
   end;
 end;
 

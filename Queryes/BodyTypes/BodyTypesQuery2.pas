@@ -363,7 +363,7 @@ begin
 
   // В БД храним имя файла без расширения и всё
   S := TPath.GetFileNameWithoutExtension(AFileName);
-  OK := TryEdit;
+  OK := W.TryEdit;
   Field(ADocFieldInfo.FieldName).AsString := S;
   if OK then
     TryPost;
@@ -383,10 +383,10 @@ begin
   // В БД храним имя файла без расширения и всё
   S := S + TPath.GetFileNameWithoutExtension(AFileName);
 
-  OK := TryEdit;
+  OK := W.TryEdit;
   W.JEDEC.F.AsString := S;
   if OK then
-    TryPost;
+    W.TryPost;
 end;
 
 procedure TQueryBodyTypes2.LocateOrAppend(AIDBodyKind: Integer;

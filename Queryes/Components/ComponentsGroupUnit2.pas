@@ -295,9 +295,9 @@ begin
           // Если что-то изменилось
           if qFamily.W.SubGroup.F.AsString <> S then
           begin
-            qFamily.TryEdit;
+            qFamily.W.TryEdit;
             qFamily.W.SubGroup.F.AsString := S;
-            qFamily.TryPost
+            qFamily.W.TryPost
           end;
         end;
 

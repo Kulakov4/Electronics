@@ -14,7 +14,7 @@ uses
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents,
   SearchComponentGroup, SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2,
-  ExtraChargeGroupUnit, DSWrap;
+  ExtraChargeGroupUnit, DSWrap, DescriptionsQueryWrap;
 
 const
   WM_OnCommitUpdates = WM_USER + 169;
@@ -32,7 +32,7 @@ type
     ComponentName: String;
   end;
 
-  TProductW = class(TDSWrap)
+  TProductW = class(TDescriptionW)
   private
     FAmount: TFieldWrap;
     FID: TFieldWrap;
@@ -41,7 +41,6 @@ type
     FChecked: TFieldWrap;
     FCustomsDeclarationNumber: TFieldWrap;
     FDatasheet: TFieldWrap;
-    FDescriptionID: TFieldWrap;
     FDiagram: TFieldWrap;
     FDocumentNumber: TFieldWrap;
     FDollar: TFieldWrap;
@@ -102,7 +101,6 @@ type
     property CustomsDeclarationNumber: TFieldWrap
       read FCustomsDeclarationNumber;
     property Datasheet: TFieldWrap read FDatasheet;
-    property DescriptionID: TFieldWrap read FDescriptionID;
     property Diagram: TFieldWrap read FDiagram;
     property DocumentNumber: TFieldWrap read FDocumentNumber;
     property Dollar: TFieldWrap read FDollar;
@@ -392,7 +390,7 @@ begin
     if W.ProductID.F.IsNull then
     begin
       // Добавляем в базу сам продукт
-      qSearchProduct.InsertRecord(ARH);
+      qSearchProduct.W.InsertRecord(ARH);
       // Запоминаем код продукта
       ARH.Field[W.ProductID.FieldName] := qSearchProduct.PK.Value;
     end;
@@ -401,7 +399,7 @@ begin
     if not qSearchStorehouseProduct.FDQuery.Active then
       qSearchStorehouseProduct.SearchByID(1);
 
-    qSearchStorehouseProduct.InsertRecord(ARH);
+    qSearchStorehouseProduct.W.InsertRecord(ARH);
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
     // Запоминаем первичный ключ
@@ -439,7 +437,7 @@ begin
       TFieldHolder.Create(ARH, qSearchComponentGroup.W.ComponentGroup.FieldName,
         W.Value.F.AsString);
 
-      qSearchComponentGroup.UpdateRecord(ARH);
+      qSearchComponentGroup.W.UpdateRecord(ARH);
     end
     else
     begin
@@ -448,11 +446,11 @@ begin
       qSearchStorehouseProduct.SearchByID(-PK.Value);
 
       // Обновляем информацию о компоненте на складе
-      qSearchStorehouseProduct.UpdateRecord(ARH);
+      qSearchStorehouseProduct.W.UpdateRecord(ARH);
 
       // Обновляем информацию о самом компоненте
       qSearchProduct.SearchByID(W.ProductID.F.AsInteger);
-      qSearchProduct.UpdateRecord(ARH);
+      qSearchProduct.W.UpdateRecord(ARH);
     end;
   finally
     FreeAndNil(ARH);
@@ -1050,7 +1048,7 @@ begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
     ABrowseState := FDQuery.State = dsBrowse;
-    TryEdit;
+    W.TryEdit;
     FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
     if ABrowseState then
       TryPost;
@@ -1182,10 +1180,10 @@ begin
   end
   else
   begin
-    TryEdit;
+    W.TryEdit;
     for I := Low(AFields) to High(AFields) do
       AFields[I].Value := AValues[I];
-    TryPost;
+    W.TryPost;
 
     AUpdatedIDList.Add(AID);
   end;
@@ -1258,7 +1256,6 @@ begin
   FCustomsDeclarationNumber := TFieldWrap.Create(Self,
     'CustomsDeclarationNumber');
   FDatasheet := TFieldWrap.Create(Self, 'Datasheet');
-  FDescriptionID := TFieldWrap.Create(Self, 'DescriptionID');
   FDiagram := TFieldWrap.Create(Self, 'Diagram');
   FDocumentNumber := TFieldWrap.Create(Self, 'DocumentNumber');
   FDollar := TFieldWrap.Create(Self, 'Dollar');

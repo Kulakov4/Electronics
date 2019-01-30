@@ -305,7 +305,7 @@ begin
   Assert(Master <> nil);
   AQueryStoreHouseList := Master as TQueryStoreHouseList;
   Assert(AQueryStoreHouseList.FDQuery.RecordCount > 0);
-  Result := Format('%s %s.xls', [AQueryStoreHouseList.Abbreviation.AsString,
+  Result := Format('%s %s.xls', [AQueryStoreHouseList.W.Abbreviation.F.AsString,
     FormatDateTime('dd.mm.yyyy', Date)]);
   Assert(not Result.IsEmpty);
 end;
@@ -327,7 +327,7 @@ var
 begin
   Assert(Master <> nil);
   AQueryStoreHouseList := Master as TQueryStoreHouseList;
-  Result := AQueryStoreHouseList.Title.AsString;
+  Result := AQueryStoreHouseList.W.Title.F.AsString;
 end;
 
 function TQueryProducts.GetTotalCount: Integer;

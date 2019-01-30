@@ -39,7 +39,7 @@ begin
       qAllFamily.Load(['ID'], [ADocBindExcelTable.IDProduct.AsInteger]);
       if qAllFamily.FDQuery.RecordCount = 1 then
       begin
-        qAllFamily.TryEdit;
+        qAllFamily.W.TryEdit;
         // Если спецификация задана
         if not ADocBindExcelTable.Datasheet.AsString.IsEmpty then
         begin
@@ -55,7 +55,7 @@ begin
             TPath.Combine(qAllFamily.W.Producer.F.AsString,
             ADocBindExcelTable.Diagram.AsString);
         end;
-        qAllFamily.TryPost;
+        qAllFamily.W.TryPost;
         Inc(i);
         // Уже много записей обновили в рамках одной транзакции
         if i >= 1000 then

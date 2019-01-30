@@ -9,25 +9,33 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit;
+  QueryWithDataSourceUnit, DSWrap;
 
 type
-  TQueryStoreHouseList = class(TQueryWithDataSource)
-    FDUpdateSQL: TFDUpdateSQL;
-    procedure FDQueryBeforeOpen(DataSet: TDataSet);
+  TStoreHouseListW = class(TDSWrap)
   private
-    procedure DoAfterOpen(Sender: TObject);
-    procedure DoBeforePost(Sender: TObject);
-    function GetAbbreviation: TField;
-    function GetTitle: TField;
-    { Private declarations }
+    FAbbreviation: TFieldWrap;
+    FTitle: TFieldWrap;
+    FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
     function LocateByAbbreviation(const AAbbreviation: string): Boolean;
     function LocateOrAppend(const AValue: string): Boolean;
-    property Abbreviation: TField read GetAbbreviation;
-    property Title: TField read GetTitle;
+    property Abbreviation: TFieldWrap read FAbbreviation;
+    property Title: TFieldWrap read FTitle;
+    property ID: TFieldWrap read FID;
+  end;
+
+  TQueryStoreHouseList = class(TQueryWithDataSource)
+    FDUpdateSQL: TFDUpdateSQL;
+  private
+    FW: TStoreHouseListW;
+    procedure DoBeforePost(Sender: TObject);
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TStoreHouseListW read FW;
     { Public declarations }
   end;
 
@@ -41,61 +49,50 @@ uses NotifyEvents, RepositoryDataModule, StrHelper;
 constructor TQueryStoreHouseList.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  FW := TStoreHouseListW.Create(FDQuery);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
-end;
-
-procedure TQueryStoreHouseList.AddNewValue(const AValue: string);
-begin
-  FDQuery.Append;
-  Title.AsString := AValue;
-  FDQuery.Post;
-end;
-
-procedure TQueryStoreHouseList.DoAfterOpen(Sender: TObject);
-begin
-  Abbreviation.DisplayLabel := 'Склад';
 end;
 
 procedure TQueryStoreHouseList.DoBeforePost(Sender: TObject);
 begin
-  if Title.AsString.Trim.IsEmpty then
+  if W.Title.F.AsString.Trim.IsEmpty then
     raise Exception.Create('Не задано наименование склада');
 
   // Если сокращённое наименование не задано
-  if (FDQuery.State = dsInsert) and Abbreviation.IsNull then
+  if (FDQuery.State = dsInsert) and W.Abbreviation.F.IsNull then
   begin
-    Abbreviation.AsString := DeleteDouble(Title.AsString, ' ').Replace(' ', '');
+    W.Abbreviation.F.AsString := DeleteDouble(W.Title.F.AsString, ' ')
+      .Replace(' ', '');
   end;
 
 end;
 
-procedure TQueryStoreHouseList.FDQueryBeforeOpen(DataSet: TDataSet);
-begin;
+constructor TStoreHouseListW.Create(AOwner: TComponent);
+begin
   inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FAbbreviation := TFieldWrap.Create(Self, 'Abbreviation', 'Склад');
+  FTitle := TFieldWrap.Create(Self, 'Title');
 end;
 
-function TQueryStoreHouseList.GetAbbreviation: TField;
+procedure TStoreHouseListW.AddNewValue(const AValue: string);
 begin
-  Result := Field('Abbreviation');
+  TryAppend;
+  Title.F.AsString := AValue;
+  TryPost;
 end;
 
-function TQueryStoreHouseList.GetTitle: TField;
-begin
-  Result := Field('Title');
-end;
-
-function TQueryStoreHouseList.LocateByAbbreviation(const AAbbreviation
+function TStoreHouseListW.LocateByAbbreviation(const AAbbreviation
   : string): Boolean;
 begin
   Assert(not AAbbreviation.IsEmpty);
-  Result := FDQuery.Locate(Abbreviation.FieldName, AAbbreviation, []);
+  Result := FDDataSet.Locate(Abbreviation.FieldName, AAbbreviation, []);
 end;
 
-function TQueryStoreHouseList.LocateOrAppend(const AValue: string): Boolean;
+function TStoreHouseListW.LocateOrAppend(const AValue: string): Boolean;
 begin
   // Ищем склад по имени без учёта регистра
-  Result := FDQuery.LocateEx(Title.FieldName, AValue, [lxoCaseInsensitive]);
+  Result := FDDataSet.LocateEx(Title.FieldName, AValue, [lxoCaseInsensitive]);
   if not Result then
     AddNewValue(AValue);
 

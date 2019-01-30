@@ -239,7 +239,8 @@ uses
   MaxBillNumberQuery in 'Queryes\Bill\MaxBillNumberQuery.pas' {QryMaxBillNumber: TFrame},
   BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QueryBillContent: TFrame},
   BillQuery2 in 'Queryes\Bill\BillQuery2.pas' {QryBill2: TFrame},
-  DSWrap in 'Queryes\DSWrap.pas';
+  DSWrap in 'Queryes\DSWrap.pas',
+  DescriptionsQueryWrap in 'Queryes\DescriptionsQueryWrap.pas';
 
 {$R *.res}
 

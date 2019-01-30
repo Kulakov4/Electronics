@@ -10,15 +10,13 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
   SearchComponentCategoryQuery, SearchProductParameterValuesQuery,
-  System.Generics.Collections, QueryWithDataSourceUnit, DBRecordHolder, DSWrap;
+  System.Generics.Collections, QueryWithDataSourceUnit, DBRecordHolder, DSWrap,
+  DescriptionsQueryWrap;
 
 type
-  TCustomComponentsW = class(TDSWrap)
+  TCustomComponentsW = class(TDescriptionW)
   private
     FDatasheet: TFieldWrap;
-    FDescription: TFieldWrap;
-    FDescriptionComponentName: TFieldWrap;
-    FDescriptionID: TFieldWrap;
     FDiagram: TFieldWrap;
     FDrawing: TFieldWrap;
     FID: TFieldWrap;
@@ -47,9 +45,6 @@ type
     procedure SetProducer(AIDComponent: Integer; const AProducer: String);
     procedure UpdateParamValue(const AProductIDFieldName: string);
     property Datasheet: TFieldWrap read FDatasheet;
-    property Description: TFieldWrap read FDescription;
-    property DescriptionComponentName: TFieldWrap read FDescriptionComponentName;
-    property DescriptionID: TFieldWrap read FDescriptionID;
     property Diagram: TFieldWrap read FDiagram;
     property Drawing: TFieldWrap read FDrawing;
     property ID: TFieldWrap read FID;
@@ -233,10 +228,6 @@ begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FDatasheet := TFieldWrap.Create(Self, 'Datasheet');
-  FDescription := TFieldWrap.Create(Self, 'Description');
-  FDescriptionComponentName := TFieldWrap.Create(Self,
-    'DescriptionComponentName');
-  FDescriptionID := TFieldWrap.Create(Self, 'DescriptionID');
   FDiagram := TFieldWrap.Create(Self, 'Diagram');
   FDrawing := TFieldWrap.Create(Self, 'Drawing');
   FIDDatasheet := TFieldWrap.Create(Self, 'IDDatasheet');

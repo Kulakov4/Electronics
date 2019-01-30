@@ -7,6 +7,7 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
     Left = 0
     Top = 28
     Align = alClient
+    DataBinding.DataSource = DataSource
     TabOrder = 0
     Height = 272
     Width = 395
@@ -81,5 +82,9 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
       Hint = #1054#1095#1080#1089#1090#1080#1090#1100
       OnExecute = actClearExecute
     end
+  end
+  object DataSource: TDataSource
+    Left = 264
+    Top = 80
   end
 end

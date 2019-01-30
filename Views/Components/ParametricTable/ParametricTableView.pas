@@ -732,7 +732,7 @@ begin
 
     BeginUpdate;
     try
-      FocusedQuery.ClearFields(AFieldList.ToArray, m);
+      FocusedQuery.W.ClearFields(AFieldList.ToArray, m);
     finally
       EndUpdate;
     end;

@@ -9,9 +9,25 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  DescriptionsInterface, RecordCheck;
+  DescriptionsInterface, RecordCheck, DSWrap;
 
 type
+  TDescriptionW = class(TDSWrap)
+  private
+    FComponentName: TFieldWrap;
+    FDescription: TFieldWrap;
+    FIDComponentType: TFieldWrap;
+    FIDProducer: TFieldWrap;
+    FID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ComponentName: TFieldWrap read FComponentName;
+    property Description: TFieldWrap read FDescription;
+    property IDComponentType: TFieldWrap read FIDComponentType;
+    property IDProducer: TFieldWrap read FIDProducer;
+    property ID: TFieldWrap read FID;
+  end;
+
   TQueryDescriptions = class(TQueryWithDataSource, IDescriptions)
     FDQueryID: TFDAutoIncField;
     FDQueryComponentName: TWideStringField;
@@ -24,22 +40,16 @@ type
   private
     FCheckClone: TFDMemTable;
     FShowDuplicate: Boolean;
+    FW: TDescriptionW;
     function GetCheckClone: TFDMemTable;
-    function GetComponentName: TField;
-    function GetDescription: TField;
-    function GetIDComponentType: TField;
-    function GetIDProducer: TField;
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
     property CheckClone: TFDMemTable read GetCheckClone;
   public
     constructor Create(AOwner: TComponent); override;
-    property ComponentName: TField read GetComponentName;
-    property Description: TField read GetDescription;
-    property IDComponentType: TField read GetIDComponentType;
-    property IDProducer: TField read GetIDProducer;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
+    property W: TDescriptionW read FW;
     { Public declarations }
   end;
 
@@ -52,8 +62,7 @@ uses RepositoryDataModule, NotifyEvents, StrHelper, ErrorType;
 constructor TQueryDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
-  // Копируем базовый запрос и параметры
-  //AssignFrom(fdqBase);
+  FW := TDescriptionW.Create(FDQuery);
 
   AutoTransaction := False;
 end;
@@ -64,12 +73,12 @@ begin
   Result.ErrorType := etNone;
 
   // Ищем компонент
-  if not CheckClone.LocateEx(ComponentName.FieldName, AComponentName,
+  if not CheckClone.LocateEx(W.ComponentName.FieldName, AComponentName,
     [lxoCaseInsensitive]) then
     Exit;
 
   // Сравниваем описания
-  if Description.AsString = ADescription then
+  if W.Description.F.AsString = ADescription then
   begin
     Result.ErrorType := etError;
     Result.Description := 'Такое описание уже есть в справочнике';
@@ -88,26 +97,6 @@ begin
     FCheckClone := AddClone('');
 
   Result := FCheckClone;
-end;
-
-function TQueryDescriptions.GetComponentName: TField;
-begin
-  Result := Field('ComponentName');
-end;
-
-function TQueryDescriptions.GetDescription: TField;
-begin
-  Result := Field('Description');
-end;
-
-function TQueryDescriptions.GetIDComponentType: TField;
-begin
-  Result := Field('IDComponentType');
-end;
-
-function TQueryDescriptions.GetIDProducer: TField;
-begin
-  Result := Field('IDProducer');
 end;
 
 procedure TQueryDescriptions.SetShowDuplicate(const Value: Boolean);
@@ -130,6 +119,16 @@ begin
     FDQuery.SQL.Text := ASQL;
     FDQuery.Open;
   end;
+end;
+
+constructor TDescriptionW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FComponentName := TFieldWrap.Create(Self, 'ComponentName');
+  FDescription := TFieldWrap.Create(Self, 'Description');
+  FIDComponentType := TFieldWrap.Create(Self, 'IDComponentType');
+  FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
 end;
 
 end.

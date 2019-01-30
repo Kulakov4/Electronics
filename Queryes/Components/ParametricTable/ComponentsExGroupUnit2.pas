@@ -377,9 +377,9 @@ begin
           AValue := AValue + #13#10;
         AValue := AValue + ANewValue;
 
-        qryComponents.TryEdit;
+        qryComponents.W.TryEdit;
         AField.AsString := AValue;
-        qryComponents.TryPost;
+        qryComponents.W.TryPost;
       end;
 
       qProductParameters.FDQuery.Next;
