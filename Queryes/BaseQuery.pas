@@ -43,7 +43,6 @@ type
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
     function GetPK: TField;
-    procedure TryAppend;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -71,10 +70,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
-    procedure AppendRows(AFieldName: string; AValues: TArray<String>);
-      overload; virtual;
-    procedure AppendRows(AFieldNames, AValues: TArray<String>);
-      overload; virtual;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure CascadeDelete(const AIDMaster: Variant;
@@ -125,6 +120,7 @@ type
         ptInput; ADataType: TFieldType = ftInteger): TFDParam;
     function SetParamTypeEx(const AParamName: String; AValue: Variant; AParamType:
         TParamType = ptInput; ADataType: TFieldType = ftInteger): TFDParam;
+    procedure TryAppend;
     function TryEdit: Boolean;
     procedure TryPost; virtual;
     procedure TryCancel;
@@ -184,52 +180,6 @@ begin
   inherited;
   // Сохраняем первоначальный SQL
   FSQL := FDQuery.SQL.Text;
-end;
-
-procedure TQueryBase.AppendRows(AFieldName: string; AValues: TArray<String>);
-var
-  AValue: string;
-begin
-  Assert(not AFieldName.IsEmpty);
-
-  // Добавляем в список родительские компоненты
-  for AValue in AValues do
-  begin
-    TryAppend;
-    Field(AFieldName).AsString := AValue;
-    TryPost;
-  end;
-end;
-
-procedure TQueryBase.AppendRows(AFieldNames, AValues: TArray<String>);
-var
-  AValue: string;
-  i: Integer;
-  m: TArray<String>;
-begin
-  Assert(Length(AFieldNames) > 0);
-
-  // Добавляем в список родительские компоненты
-  for AValue in AValues do
-  begin
-    // Делим строку на части по табуляции
-    m := AValue.Split([#9]);
-
-    if Length(m) = Length(AFieldNames) then
-    begin
-      TryAppend;
-
-      // Заполняем все поля
-      for i := Low(AFieldNames) to High(AFieldNames) do
-      begin
-        FDQuery.ParamByName(AFieldNames[i]).Value := m[i];
-      end;
-
-      TryPost;
-    end
-    else
-      raise Exception.Create('Несоответствие количества полей');
-  end;
 end;
 
 procedure TQueryBase.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -972,6 +922,14 @@ begin
   Result.Value := AValue;
 end;
 
+procedure TQueryBase.TryAppend;
+begin
+  Assert(FDQuery.Active);
+
+  if not(FDQuery.State in [dsEdit, dsinsert]) then
+    FDQuery.Append;
+end;
+
 function TQueryBase.TryEdit: Boolean;
 begin
   Assert(FDQuery.Active);
@@ -999,14 +957,6 @@ begin
 
   if FDQuery.State in [dsEdit, dsInsert] then
     FDQuery.Cancel;
-end;
-
-procedure TQueryBase.TryAppend;
-begin
-  Assert(FDQuery.Active);
-
-  if not(FDQuery.State in [dsEdit, dsInsert]) then
-    FDQuery.Append;
 end;
 
 procedure TQueryBase.TryOpen;

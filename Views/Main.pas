@@ -829,9 +829,10 @@ var
 begin
   Assert(TDM.Create.ComponentsSearchGroup.qFamilySearch.FDQuery.
     RecordCount > 0);
-  AFamilyCaption := TDM.Create.ComponentsSearchGroup.qFamilySearch.
-    Value.AsString;
-  ASubGroup := TDM.Create.ComponentsSearchGroup.qFamilySearch.subGroup.AsString;
+  AFamilyCaption := TDM.Create.ComponentsSearchGroup.qFamilySearch.W.Value.
+    F.AsString;
+  ASubGroup := TDM.Create.ComponentsSearchGroup.qFamilySearch.W.subGroup.
+    F.AsString;
   Assert(not ASubGroup.IsEmpty);
   // Получаем первую - главную категорию семейства
   I := ASubGroup.IndexOf(',');
@@ -844,7 +845,7 @@ begin
   // Ждём, пока группа компонентов обновит свои данные!
   Application.ProcessMessages;
 
-  TDM.Create.ComponentsGroup.qFamily.LocateValue(AFamilyCaption);
+  TDM.Create.ComponentsGroup.qFamily.FamilyW.LocateValue(AFamilyCaption);
 
   // Переключаемся на вкладку "Компоненты"
   ComponentsFrame.cxpcComponents.ActivePage :=
@@ -872,7 +873,8 @@ var
 begin
   if (TDM.Created) and (TDM.Create.qTreeList.FDQuery.RecordCount > 0) then
   begin
-    if not TDM.Create.qTreeList.W.IsRootFocused and not FCategoryPath.IsEmpty then
+    if not TDM.Create.qTreeList.W.IsRootFocused and not FCategoryPath.IsEmpty
+    then
     begin
       S := MinimizeName(FCategoryPath, Canvas, Width - 200);
       S := S.Trim(['\']).Replace('\', '-');

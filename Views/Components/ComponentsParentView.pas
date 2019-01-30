@@ -438,7 +438,7 @@ begin
 
       HavDetails := (BaseComponentsGroup.QueryBaseComponents.FDQuery.RecordCount
         > 0) and (BaseComponentsGroup.QueryBaseComponents.Exists(AID) or
-        (BaseComponentsGroup.QueryBaseComponents.ParentProductID.
+        (BaseComponentsGroup.QueryBaseComponents.W.ParentProductID.F.
         AsInteger = AID));
 
       // ((F <> nil) and (F.AsInteger = AID))

@@ -58,6 +58,9 @@ type
     destructor Destroy; override;
     function AddClone(const AFilter: String): TFDMemTable;
     procedure AfterConstruction; override;
+    procedure AppendRows(AFieldName: string; AValues: TArray<String>); overload;
+        virtual;
+    procedure AppendRows(AFieldNames, AValues: TArray<String>); overload; virtual;
     procedure ClearFilter;
     procedure DeleteAll;
     procedure DropClone(AClone: TFDMemTable);
@@ -226,6 +229,52 @@ end;
 procedure TDSWrap.AfterDataSetPost(DataSet: TDataSet);
 begin
   FAfterPost.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.AppendRows(AFieldName: string; AValues: TArray<String>);
+var
+  AValue: string;
+begin
+  Assert(not AFieldName.IsEmpty);
+
+  // Добавляем в список родительские компоненты
+  for AValue in AValues do
+  begin
+    TryAppend;
+    Field(AFieldName).AsString := AValue;
+    TryPost;
+  end;
+end;
+
+procedure TDSWrap.AppendRows(AFieldNames, AValues: TArray<String>);
+var
+  AValue: string;
+  i: Integer;
+  m: TArray<String>;
+begin
+  Assert(Length(AFieldNames) > 0);
+
+  // Добавляем в список родительские компоненты
+  for AValue in AValues do
+  begin
+    // Делим строку на части по табуляции
+    m := AValue.Split([#9]);
+
+    if Length(m) = Length(AFieldNames) then
+    begin
+      TryAppend;
+
+      // Заполняем все поля
+      for i := Low(AFieldNames) to High(AFieldNames) do
+      begin
+        Field(AFieldNames[i]).Value := m[i];
+      end;
+
+      TryPost;
+    end
+    else
+      raise Exception.Create('Несоответствие количества полей');
+  end;
 end;
 
 procedure TDSWrap.ClearFilter;

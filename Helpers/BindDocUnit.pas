@@ -44,15 +44,15 @@ begin
         if not ADocBindExcelTable.Datasheet.AsString.IsEmpty then
         begin
           // Файл документации должен лежать в папке с именем производителя
-          qAllFamily.Datasheet.AsString :=
-            TPath.Combine(qAllFamily.Producer.AsString,
+          qAllFamily.W.Datasheet.F.AsString :=
+            TPath.Combine(qAllFamily.W.Producer.F.AsString,
             ADocBindExcelTable.Datasheet.AsString);
         end;
         // Если функциональная диаграмма задана
         if not ADocBindExcelTable.Diagram.AsString.IsEmpty then
         begin
-          qAllFamily.Diagram.AsString :=
-            TPath.Combine(qAllFamily.Producer.AsString,
+          qAllFamily.W.Diagram.F.AsString :=
+            TPath.Combine(qAllFamily.W.Producer.F.AsString,
             ADocBindExcelTable.Diagram.AsString);
         end;
         qAllFamily.TryPost;

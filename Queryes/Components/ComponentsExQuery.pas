@@ -92,7 +92,7 @@ begin
 
   l := TList<String>.Create();
   try
-    l.Add(Value.AsString);
+    l.Add(W.Value.F.AsString);
     // Извещаем всех что нужно осуществить поиск этого компонента на складах
     FOnLocate.CallEventHandlers(l);
   finally

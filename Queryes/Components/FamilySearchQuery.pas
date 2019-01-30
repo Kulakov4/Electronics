@@ -12,6 +12,13 @@ uses
   SearchInterfaceUnit, CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery;
 
 type
+  TFamilySearchW = class(TCustomComponentsW)
+  private
+    FMode: TContentMode;
+  public
+    procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
+    property Mode: TContentMode read FMode;
+  end;
 
   TQueryFamilySearch = class(TQueryBaseFamily)
   strict private
@@ -20,12 +27,11 @@ type
   var
     FGetModeClone: TFDMemTable;
     FClone: TFDMemTable;
-    FMode: TContentMode;
     procedure DoAfterOpen(Sender: TObject);
     function GetCurrentMode: TContentMode;
+    function GetFamilySearchW: TFamilySearchW;
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
-    function GetsubGroup: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -34,16 +40,15 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDataSetWrap: TCustomComponentsW; override;
     function GetHaveAnyChanges: Boolean; override;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
     procedure Search(const AIDList: string); stdcall;
+    property FamilySearchW: TFamilySearchW read GetFamilySearchW;
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
-    property Mode: TContentMode read FMode;
-    property subGroup: TField read GetsubGroup;
     { Public declarations }
   end;
 
@@ -69,28 +74,10 @@ begin
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-procedure TQueryFamilySearch.AppendRows(AFieldName: string;
-  AValues: TArray<String>);
-begin
-  // Если вставлять нечего
-  if Length(AValues) = 0 then
-    Exit;
-
-  if Mode = SearchMode then
-  begin
-    // Удаляем пустую строку
-    if Value.AsString.IsEmpty then
-      FDQuery.Delete;
-
-    inherited;
-  end;
-
-end;
-
 procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
-  if Mode = RecordsMode then
+  if FamilySearchW.Mode = RecordsMode then
     inherited;
 end;
 
@@ -105,7 +92,7 @@ procedure TQueryFamilySearch.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
-  if Mode = RecordsMode then
+  if FamilySearchW.Mode = RecordsMode then
     inherited;
 end;
 
@@ -115,11 +102,16 @@ begin
   Search('');
 end;
 
+function TQueryFamilySearch.CreateDataSetWrap: TCustomComponentsW;
+begin
+  Result := TFamilySearchW.Create(FDQuery);
+end;
+
 procedure TQueryFamilySearch.DoAfterOpen(Sender: TObject);
 var
   I: Integer;
 begin
-  subGroup.ReadOnly := False;
+  W.SubGroup.F.ReadOnly := False;
 
   // Добавляем пустую запись для поиска, если она необходима
   AutoTransaction := True;
@@ -132,12 +124,12 @@ begin
   FDQuery.First;
 
   // Вычисляем в какой режим мы перешли
-  FMode := GetCurrentMode;
+  FamilySearchW.FMode := GetCurrentMode;
 
   // Выбираем нужный режим транзакции
-  AutoTransaction := Mode = SearchMode;
+  AutoTransaction := FamilySearchW.Mode = SearchMode;
 
-  if Mode = RecordsMode then
+  if FamilySearchW.Mode = RecordsMode then
     SetFieldsReadOnly(False);
 end;
 
@@ -149,12 +141,17 @@ begin
     Result := SearchMode;
 end;
 
+function TQueryFamilySearch.GetFamilySearchW: TFamilySearchW;
+begin
+  Result := W as TFamilySearchW;
+end;
+
 // Есть-ли изменения не сохранённые в БД
 function TQueryFamilySearch.GetHaveAnyChanges: Boolean;
 begin
   Result := False;
 
-  case Mode of
+  case FamilySearchW.Mode of
     RecordsMode:
       Result := inherited;
     SearchMode:
@@ -166,7 +163,7 @@ end;
 
 function TQueryFamilySearch.GetIsClearEnabled: Boolean;
 begin
-  Result := (Mode = RecordsMode);
+  Result := (FamilySearchW.Mode = RecordsMode);
 
   if not Result then
   begin
@@ -176,12 +173,7 @@ end;
 
 function TQueryFamilySearch.GetIsSearchEnabled: Boolean;
 begin
-  Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
-end;
-
-function TQueryFamilySearch.GetsubGroup: TField;
-begin
-  Result := Field('subGroup');
+  Result := (FamilySearchW.Mode = SearchMode) and (FClone.RecordCount > 0);
 end;
 
 procedure TQueryFamilySearch.Search(const AIDList: string);
@@ -190,6 +182,24 @@ begin
   Load(['IDList'], [AIDList]);
 
   // При открытии будет добавлена пустая запись
+end;
+
+procedure TFamilySearchW.AppendRows(AFieldName: string; AValues:
+    TArray<String>);
+begin
+  // Если вставлять нечего
+  if Length(AValues) = 0 then
+    Exit;
+
+  if Mode = SearchMode then
+  begin
+    // Удаляем пустую строку
+    if Value.F.AsString.IsEmpty then
+      DataSet.Delete;
+
+    inherited;
+  end;
+
 end;
 
 end.

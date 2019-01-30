@@ -56,7 +56,7 @@ end;
 function TComponentsSearchGroup2.ApplyUpdates: Boolean;
 begin
   // Если находимся в режиме отображения найденных записей
-  if qFamilySearch.Mode = RecordsMode then
+  if qFamilySearch.FamilySearchW.Mode = RecordsMode then
   begin
     Result := Inherited;
   end
@@ -108,7 +108,7 @@ var
 begin
   qFamilySearch.TryPost;
   // Получаем список значений по которым будем осуществлять поиск
-  s := qFamilySearch.GetFieldValues(qFamilySearch.Value.FieldName)
+  s := qFamilySearch.GetFieldValues(qFamilySearch.W.Value.F.FieldName)
     .Trim([',']).ToUpper;
 
   if S.IsEmpty then

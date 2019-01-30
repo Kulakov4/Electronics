@@ -91,7 +91,7 @@ begin
   end;
 
   // ќбрабатываем обновление значений параметров
-  UpdateParamValue(PKFieldName);
+  W.UpdateParamValue(PKFieldName);
 
   ASubGroup := FDQuery.FindField('SubGroup');
   // ≈сли в запросе выбираютс€ внешние коды категорий

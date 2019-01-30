@@ -67,8 +67,8 @@ type
       var AllowPopup: Boolean); override;
   public
     procedure UpdateView; override;
-    property ComponentsSearchGroup: TComponentsSearchGroup2 read
-        GetComponentsSearchGroup write SetComponentsSearchGroup;
+    property ComponentsSearchGroup: TComponentsSearchGroup2
+      read GetComponentsSearchGroup write SetComponentsSearchGroup;
     { Public declarations }
   end;
 
@@ -109,8 +109,8 @@ begin
 
   MainView.BeginUpdate();
   try
-    ComponentsSearchGroup.qFamilySearch.AppendRows
-      (ComponentsSearchGroup.qFamilySearch.Value.FieldName,
+    ComponentsSearchGroup.qFamilySearch.W.AppendRows
+      (ComponentsSearchGroup.qFamilySearch.W.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
   finally
@@ -133,7 +133,7 @@ begin
     Exit;
 
   if (ComponentsSearchGroup <> nil) and
-    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) then
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = RecordsMode) then
     AProperties := cxerpiSubGroup.Properties
   else
     AProperties := cxerlSubGroup.Properties;
@@ -143,7 +143,7 @@ procedure TViewComponentsSearch.clValueGetProperties
   (Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
   var AProperties: TcxCustomEditProperties);
 begin
-  if ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode then
+  if ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = RecordsMode then
     inherited
   else
     AProperties := cxertiValue.Properties;
@@ -178,8 +178,8 @@ begin
   end;
 end;
 
-function TViewComponentsSearch.GetComponentsSearchGroup:
-    TComponentsSearchGroup2;
+function TViewComponentsSearch.GetComponentsSearchGroup
+  : TComponentsSearchGroup2;
 begin
   Result := BaseComponentsGroup as TComponentsSearchGroup2;
 end;
@@ -191,7 +191,7 @@ begin
 
   // Вставлять семейства можно только в режиме поиска
   actPasteFamily.Visible := actPasteFamily.Visible and
-    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = SearchMode);
   actPasteFamily.Caption := 'Вставить из буфера обмена';
 
   actPasteComponents.Visible := False;
@@ -212,8 +212,8 @@ begin
   PostMyApplyBestFitEvent;
 end;
 
-procedure TViewComponentsSearch.SetComponentsSearchGroup(const Value:
-    TComponentsSearchGroup2);
+procedure TViewComponentsSearch.SetComponentsSearchGroup
+  (const Value: TComponentsSearchGroup2);
 begin
   if BaseComponentsGroup <> Value then
   begin
@@ -242,26 +242,26 @@ begin
     IsSearchEnabled;
 
   actCommit.Enabled := OK and ComponentsSearchGroup.HaveAnyChanges and
-    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode);
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
   actDeleteFromAllCategories.Enabled := OK and
-    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and (AView <> nil)
-    and (AView.Controller.SelectedRowCount > 0);
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = RecordsMode) and
+    (AView <> nil) and (AView.Controller.SelectedRowCount > 0);
 
   actPasteFromBuffer.Enabled := OK and
-    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode){ and
-    (not Clipboard.AsText.Trim.IsEmpty)};
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = SearchMode) { and
+    (not Clipboard.AsText.Trim.IsEmpty) };
 
   MainView.OptionsData.Appending := OK and
-    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = SearchMode);
 
   MainView.OptionsData.Inserting := OK and
-    (ComponentsSearchGroup.qFamilySearch.Mode = SearchMode);
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = SearchMode);
 
   actOpenCategory.Enabled := OK and
-    (ComponentsSearchGroup.qFamilySearch.Mode = RecordsMode) and
+    (ComponentsSearchGroup.qFamilySearch.FamilySearchW.Mode = RecordsMode) and
     (MainView.Controller.SelectedRowCount > 0);
 
   // AReadOnly := ComponentsSearchGroup.qFamilySearch.Mode = SearchMode;

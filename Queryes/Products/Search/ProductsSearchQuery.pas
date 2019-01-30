@@ -13,12 +13,19 @@ uses
   StoreHouseListQuery, NotifyEvents, System.Generics.Collections;
 
 type
+  TProductSearchW = class(TProductW)
+  private
+    FMode: TContentMode;
+  public
+    procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
+    property Mode: TContentMode read FMode;
+  end;
+
   TQueryProductsSearch = class(TQueryProductsBase)
   strict private
   private
     FClone: TFDMemTable;
     FGetModeClone: TFDMemTable;
-    FMode: TContentMode;
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
     FqStoreHouseList: TQueryStoreHouseList;
@@ -31,6 +38,7 @@ type
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
+    function GetProductSearchW: TProductSearchW;
     function GetqStoreHouseList: TQueryStoreHouseList;
     { Private declarations }
   protected
@@ -40,6 +48,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDataSetWrap: TProductW; override;
     procedure DoBeforePost(Sender: TObject); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
@@ -49,16 +58,15 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
-    procedure AppendRows(AFieldName: string; AValues: TArray<String>); override;
     procedure ClearSearchResult;
     procedure DoSearch(ALike: Boolean);
     procedure Search(AValues: TList<String>); overload;
     procedure SetSQLForSearch;
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
-    property Mode: TContentMode read FMode;
     property OnBeginUpdate: TNotifyEventsEx read FOnBeginUpdate;
     property OnEndUpdate: TNotifyEventsEx read FOnEndUpdate;
+    property ProductSearchW: TProductSearchW read GetProductSearchW;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     { Public declarations }
   end;
@@ -102,28 +110,11 @@ begin
   SetSQLForSearch;
 end;
 
-procedure TQueryProductsSearch.AppendRows(AFieldName: string;
-  AValues: TArray<String>);
-begin
-  if Length(AValues) = 0 then
-    Exit;
-
-  if Mode = SearchMode then
-  begin
-    // Удаляем пустую строку
-    if W.Value.F.AsString.IsEmpty then
-      FDQuery.Delete;
-
-    inherited;
-  end;
-
-end;
-
 procedure TQueryProductsSearch.ApplyDelete(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
-  if Mode = RecordsMode then
+  if ProductSearchW.Mode = RecordsMode then
     inherited;
 end;
 
@@ -138,7 +129,7 @@ procedure TQueryProductsSearch.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
-  if Mode = RecordsMode then
+  if ProductSearchW.Mode = RecordsMode then
     inherited;
 end;
 
@@ -154,6 +145,11 @@ procedure TQueryProductsSearch.ClearSearchResult;
 begin
   SetSQLForSearch;
   W.RefreshQuery;
+end;
+
+function TQueryProductsSearch.CreateDataSetWrap: TProductW;
+begin
+  Result := TProductSearchW.Create(FDQuery);
 end;
 
 procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
@@ -185,10 +181,10 @@ begin
   FDQuery.First;
 
   // Вычисляем в какой режим мы перешли
-  FMode := GetCurrentMode;
+  ProductSearchW.FMode := GetCurrentMode;
 
   // Выбираем нужный режим транзакции
-  AutoTransaction := Mode = SearchMode;
+  AutoTransaction := ProductSearchW.Mode = SearchMode;
 end;
 
 procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
@@ -265,7 +261,7 @@ function TQueryProductsSearch.GetHaveAnyChanges: Boolean;
 begin
   Result := False;
 
-  case Mode of
+  case ProductSearchW.Mode of
     RecordsMode:
       Result := inherited;
     SearchMode:
@@ -277,7 +273,7 @@ end;
 
 function TQueryProductsSearch.GetIsClearEnabled: Boolean;
 begin
-  Result := (Mode = RecordsMode);
+  Result := (ProductSearchW.Mode = RecordsMode);
 
   if not Result then
   begin
@@ -287,7 +283,12 @@ end;
 
 function TQueryProductsSearch.GetIsSearchEnabled: Boolean;
 begin
-  Result := (Mode = SearchMode) and (FClone.RecordCount > 0);
+  Result := (ProductSearchW.Mode = SearchMode) and (FClone.RecordCount > 0);
+end;
+
+function TQueryProductsSearch.GetProductSearchW: TProductSearchW;
+begin
+  Result := W as TProductSearchW;
 end;
 
 function TQueryProductsSearch.GetqStoreHouseList: TQueryStoreHouseList;
@@ -308,7 +309,7 @@ begin
     ClearSearchResult;
 
     // Добавляем те записи, которые будем искать на складе
-    AppendRows(W.Value.FieldName, AValues.ToArray);
+    ProductSearchW.AppendRows(W.Value.FieldName, AValues.ToArray);
 
     // Осуществляем поиск
     DoSearch(False);
@@ -325,6 +326,23 @@ begin
   p := SQL.IndexOf('0=0');
   Assert(p > 0);
   FDQuery.SQL.Text := SQL.Replace('0=0', Format('%s=0', [W.ID.FieldName]));
+end;
+
+procedure TProductSearchW.AppendRows(AFieldName: string; AValues:
+    TArray<String>);
+begin
+  if Length(AValues) = 0 then
+    Exit;
+
+  if Mode = SearchMode then
+  begin
+    // Удаляем пустую строку
+    if Value.F.AsString.IsEmpty then
+      DataSet.Delete;
+
+    inherited;
+  end;
+
 end;
 
 end.

@@ -151,8 +151,8 @@ begin
   AcxPopupEditproperties := clDescription.Properties as TcxPopupEditproperties;
   AcxPopupEditproperties.PopupControl := FfrmDescriptionPopup;
 
-  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide,
-    DoOnDescriptionPopupHide, FEventList);
+  TNotifyEventWrap.Create(FfrmDescriptionPopup.OnHide, DoOnDescriptionPopupHide,
+    FEventList);
 
   GridSort.Add(TSortVariant.Create(clValue, [clValue]));
   GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
@@ -227,8 +227,8 @@ begin
   AView.Focused := True;
 
   // Просим добавить дочерние компоненты
-  BaseComponentsGroup.QueryBaseComponents.AppendRows
-    (BaseComponentsGroup.QueryBaseComponents.Value.FieldName, m);
+  BaseComponentsGroup.QueryBaseComponents.W.AppendRows
+    (BaseComponentsGroup.QueryBaseComponents.W.Value.FieldName, m);
 
   UpdateView;
 
@@ -248,7 +248,7 @@ begin
   AIDList := GetSelectedIntValues(FocusedTableView, clID.Index);
 
   for AID in AIDList do
-    GetFocusedQuery.SetPackagePins(AID, m[0]);
+    GetFocusedQuery.W.SetPackagePins(AID, m[0]);
 
   UpdateView;
 end;
@@ -262,8 +262,8 @@ begin
     Exit;
 
   // Просим добавить родительские компоненты
-  BaseComponentsGroup.QueryBaseFamily.AppendRows
-    (BaseComponentsGroup.QueryBaseFamily.Value.FieldName, m);
+  BaseComponentsGroup.QueryBaseFamily.W.AppendRows
+    (BaseComponentsGroup.QueryBaseFamily.W.Value.FieldName, m);
 
   PutInTheCenterFocusedRecord(MainView);
 
@@ -299,7 +299,7 @@ begin
   BeginUpdate;
   try
     for AID in AIDList do
-      GetFocusedQuery.SetProducer(AID, AProducer);
+      GetFocusedQuery.W.SetProducer(AID, AProducer);
   finally
     EndUpdate;
   end;
@@ -368,13 +368,13 @@ begin
   Assert(qSubGroups.FDQuery.Active);
   ParamValue := qSubGroups.GetFieldValues('ExternalID', ',').Trim([',']);
 
-  if BaseComponentsGroup.QueryBaseFamily.SubGroup.AsString = ParamValue then
+  if BaseComponentsGroup.QueryBaseFamily.W.SubGroup.F.AsString = ParamValue then
     Exit;
 
   BaseComponentsGroup.QueryBaseFamily.FDQuery.DisableControls;
   try
     BaseComponentsGroup.QueryBaseFamily.TryEdit;
-    BaseComponentsGroup.QueryBaseFamily.SubGroup.AsString := ParamValue;
+    BaseComponentsGroup.QueryBaseFamily.W.SubGroup.F.AsString := ParamValue;
     BaseComponentsGroup.QueryBaseFamily.TryPost;
   finally
     BaseComponentsGroup.QueryBaseFamily.FDQuery.EnableControls;
@@ -389,7 +389,7 @@ var
   AMainExternalID: string;
   S: string;
 begin
-  S := BaseComponentsGroup.QueryBaseFamily.SubGroup.AsString;
+  S := BaseComponentsGroup.QueryBaseFamily.W.SubGroup.F.AsString;
 
   // Удаляем все пробелы из строки. Должны остаться только цифры и запятые
   S := S.Replace(' ', '', [rfReplaceAll]);
@@ -465,7 +465,7 @@ begin
   if AView = nil then
     Exit;
 
-  AColumn := AView.GetColumnByFieldName(FocusedQuery.Producer.FieldName);
+  AColumn := AView.GetColumnByFieldName(FocusedQuery.W.Producer.FieldName);
   Assert(AColumn <> nil);
 
   Result := AView.Controller.FocusedRecord.DisplayTexts[AColumn.Index];
@@ -536,9 +536,9 @@ procedure TViewComponentsBase.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 begin
   Application.Hint := '';
   TDocument.Open(Handle, ADocFieldInfo.Folder,
-    BaseComponentsGroup.QueryBaseFamily.FDQuery.FieldByName(ADocFieldInfo.FieldName)
-    .AsString, ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
-    sBodyTypesFilesExt);
+    BaseComponentsGroup.QueryBaseFamily.FDQuery.FieldByName
+    (ADocFieldInfo.FieldName).AsString, ADocFieldInfo.ErrorMessage,
+    ADocFieldInfo.EmptyErrorMessage, sBodyTypesFilesExt);
 end;
 
 procedure TViewComponentsBase.UploadDoc(ADocFieldInfo: TDocFieldInfo);

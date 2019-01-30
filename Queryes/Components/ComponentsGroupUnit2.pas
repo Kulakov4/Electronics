@@ -68,7 +68,6 @@ type
         GetQueryEmptyFamilyCount;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AppendRows(AValues: TArray<String>);
     procedure Commit; override;
     procedure DoAfterLoadSheet(e: TFolderLoadEvent);
     procedure DoOnTotalProgress(e: TFolderLoadEvent);
@@ -115,21 +114,6 @@ end;
 procedure TComponentsGroup2.AfterComponentPostOrDelete(Sender: TObject);
 begin
   FNeedUpdateCount := True;
-end;
-
-procedure TComponentsGroup2.AppendRows(AValues: TArray<String>);
-var
-  AValue: string;
-begin
-  TryPost;
-
-  // Добавляем в список родительские компоненты
-  for AValue in AValues do
-  begin
-    qFamily.FDQuery.Append;
-    qFamily.Value.AsString := AValue;
-    qFamily.TryPost;
-  end;
 end;
 
 procedure TComponentsGroup2.Commit;
@@ -190,8 +174,8 @@ procedure TComponentsGroup2.DoBeforeDetailPost(Sender: TObject);
 begin
   Assert(qFamily.FDQuery.RecordCount > 0);
 
-  if qComponents.ParentProductID.IsNull then
-    qComponents.ParentProductID.Value := qFamily.PK.Value;
+  if qComponents.W.ParentProductID.F.IsNull then
+    qComponents.W.ParentProductID.F.Value := qFamily.PK.Value;
 end;
 
 procedure TComponentsGroup2.DoOnTotalProgress(e: TFolderLoadEvent);
@@ -289,7 +273,7 @@ begin
       while not AComponentsExcelTable.Eof do
       begin
         // Добавляем компонент в базу данных
-        qFamily.LocateOrAppend(AComponentsExcelTable.FamilyName.AsString,
+        qFamily.FamilyW.LocateOrAppend(AComponentsExcelTable.FamilyName.AsString,
           AProducer);
 
         // Если в Excel файле указаны дополнительные подгруппы
@@ -298,7 +282,7 @@ begin
           // Получаем все коды категорий отдельно
           m := AComponentsExcelTable.SubGroup.AsString.Replace(' ', '',
             [rfReplaceAll]).Split([',']);
-          S := ',' + qFamily.SubGroup.AsString + ',';
+          S := ',' + qFamily.W.SubGroup.F.AsString + ',';
           for I := Low(m) to High(m) do
           begin
             // Если такой категории в списке ещё не было
@@ -309,10 +293,10 @@ begin
           S := S.Trim([',']);
 
           // Если что-то изменилось
-          if qFamily.SubGroup.AsString <> S then
+          if qFamily.W.SubGroup.F.AsString <> S then
           begin
             qFamily.TryEdit;
-            qFamily.SubGroup.AsString := S;
+            qFamily.W.SubGroup.F.AsString := S;
             qFamily.TryPost
           end;
         end;
@@ -320,7 +304,7 @@ begin
         // Добавляем дочерний компонент
         if not AComponentsExcelTable.ComponentName.AsString.IsEmpty then
         begin
-          qComponents.LocateOrAppend(qFamily.PK.Value,
+          qComponents.ComponentsW.LocateOrAppend(qFamily.PK.Value,
             AComponentsExcelTable.ComponentName.AsString);
         end;
 

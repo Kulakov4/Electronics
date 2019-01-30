@@ -95,7 +95,7 @@ begin
 
   cxDBTreeList.BeginUpdate;
   try
-    qProductsSearch.AppendRows(qProductsSearch.W.Value.FieldName,
+    qProductsSearch.W.AppendRows(qProductsSearch.W.Value.FieldName,
       TClb.Create.GetRowsAsArray);
     UpdateView;
 
@@ -118,7 +118,7 @@ end;
 procedure TViewProductsSearch2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
   AColumn: TcxTreeListColumn);
 begin
-  if qProductsSearch.Mode = SearchMode then
+  if qProductsSearch.ProductSearchW.Mode = SearchMode then
   begin
     if cxDBTreeList.LockUpdate > 0 then
       Exit;
@@ -199,11 +199,13 @@ begin
   actSearch.Enabled := qProductsSearch.IsSearchEnabled;
 
   actCommit.Enabled := Ok and qProductsSearch.HaveAnyChanges and
-    (qProductsSearch.Mode = RecordsMode);
+    (qProductsSearch.ProductSearchW.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actPasteFromBuffer.Enabled := Ok and (qProductsSearch.Mode = SearchMode);
+  actPasteFromBuffer.Enabled := Ok and
+    (qProductsSearch.ProductSearchW.
+    Mode = SearchMode);
 
 
   // cxGridDBBandedTableView.OptionsData.Appending :=
@@ -216,7 +218,7 @@ begin
   actExportToExcelDocument.Hint := 'Экспортировать в документ Excel';
   actExportToExcelDocument.Enabled := Ok and
     (qProductsSearch.FDQuery.RecordCount > 0) and
-    (qProductsSearch.Mode = RecordsMode);
+    (qProductsSearch.ProductSearchW.Mode = RecordsMode);
 end;
 
 end.

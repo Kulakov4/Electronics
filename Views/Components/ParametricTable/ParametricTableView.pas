@@ -1314,7 +1314,7 @@ var
 begin
   Assert(not AFamily.IsEmpty);
   AColumn := MainView.GetColumnByFieldName
-    (ComponentsExGroup.qFamilyEx.Value.FieldName);
+    (ComponentsExGroup.qFamilyEx.W.Value.FieldName);
   Assert(AColumn <> nil);
 
   FLockDetailFilterChange := True;
@@ -1339,7 +1339,7 @@ begin
   Assert(not AComponent.IsEmpty);
 
   AColumn := GridView(cxGridLevel2).GetColumnByFieldName
-    (ComponentsExGroup.qComponentsEx.Value.FieldName);
+    (ComponentsExGroup.qComponentsEx.W.Value.FieldName);
   Assert(AColumn <> nil);
 
   FLockDetailFilterChange := True;

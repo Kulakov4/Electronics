@@ -71,8 +71,8 @@ var
 begin
   Assert(ASender = FDQuery);
   // Если такого компонента ещё нет
-  if qSearchComponent.SearchComponent(ParentProductID.AsInteger,
-    Value.AsString) = 0 then
+  if qSearchComponent.SearchComponent(W.ParentProductID.F.AsInteger,
+    W.Value.F.AsString) = 0 then
   begin
     ARH := TRecordHolder.Create(ASender);
     try
@@ -145,7 +145,7 @@ begin
     Exit;
 
 //  Assert(FClone.Active);
-  V := FClone.LookupEx(ParentProductID.FieldName, AMasterID, PKFieldName );
+  V := FClone.LookupEx(W.ParentProductID.FieldName, AMasterID, PKFieldName );
   Result := not VarIsNull(V);
 end;
 
