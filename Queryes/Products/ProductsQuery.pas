@@ -40,6 +40,7 @@ type
       read GetqStoreHouseProductsCount;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     procedure LoadDataFromExcelTable(AExcelTable: TProductsExcelTable);
     procedure AppendRows(AValues: TList<String>;
       const AProducers: TList<String>); overload;
@@ -62,12 +63,23 @@ begin
   inherited Create(AOwner);
   FNeedUpdateCount := True;
 
-  DetailParameterName := 'vStoreHouseID';
+  DetailParameterName := W.StorehouseId.FieldName;
   TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
   TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
+end;
+
+procedure TQueryProducts.AfterConstruction;
+begin
+  // Сохраняем первоначальный SQL
+  inherited;
+
+  // Добавляем в SQL запрос параметр - идентификатор склада
+  FDQuery.SQL.Text := ReplaceInSQL(SQL,
+    Format('%s = :%s', [W.StorehouseId.FullName, W.StorehouseId.FieldName]), 0);
+  SetParamType(W.StorehouseId.FieldName);
 end;
 
 procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable
@@ -227,10 +239,10 @@ begin
     [W.IsGroup.FieldName, W.IDComponentGroup.FieldName, W.Value.FieldName,
     W.IDProducer.FieldName, W.PackagePins.FieldName, W.ReleaseDate.FieldName,
     W.Amount.FieldName, W.Packaging.FieldName, W.Price.FieldName,
-    W.OriginCountryCode.FieldName, W.OriginCountry.FieldName, W.BatchNumber.FieldName,
-    W.CustomsDeclarationNumber.FieldName, W.Storage.FieldName,
-    W.StoragePlace.FieldName, W.Seller.FieldName, W.DocumentNumber.FieldName,
-    W.Barcode.FieldName]);
+    W.OriginCountryCode.FieldName, W.OriginCountry.FieldName,
+    W.BatchNumber.FieldName, W.CustomsDeclarationNumber.FieldName,
+    W.Storage.FieldName, W.StoragePlace.FieldName, W.Seller.FieldName,
+    W.DocumentNumber.FieldName, W.Barcode.FieldName]);
 
   V := FDQuery.LookupEx(AKeyFields,
     VarArrayOf([0, AIDComponentGroup, AProductsExcelTable.Value.AsString,
@@ -332,7 +344,6 @@ end;
 
 function TQueryProducts.SearchByID(AIDArray: TArray<Integer>): Integer;
 var
-  ASQL: string;
   ATempTable: TQueryIDTempTable;
   I: Integer;
 begin
@@ -347,21 +358,14 @@ begin
       ATempTable.W.TryPost;
     end;
 
-    // ASQL := Replace(FDQuery.SQL.Text, 'Id in (-6)', 'StorehouseId = :vStorehouseId');
-
-    ASQL := Replace(FDQuery.SQL.Text, Format('Id in (%s)',
-      [ATempTable.FDQuery.SQL.Text]), 'StorehouseId = :vStorehouseId');
+    FDQuery.SQL.Text := ReplaceInSQL(SQL,
+      Format('%s in (%s)', [W.ID.FullName, ATempTable.FDQuery.SQL.Text]), 0);
   finally
     FreeAndNil(ATempTable);
   end;
 
-  // V := FDQuery.Params.ParamByName(DetailParameterName).Value;
-
-  FDQuery.SQL.Text := ASQL;
   RefreshQuery;
   Result := FDQuery.RecordCount;
-
-  // Result := Search([DetailParameterName], [V]);
 end;
 
 end.

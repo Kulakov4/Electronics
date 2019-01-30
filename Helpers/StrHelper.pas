@@ -18,10 +18,9 @@ function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String;
   const ADelimiter: Char = ','): Boolean;
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
-//function Replace(const S: String; const ANewValue: String; const AMark: String;
-//  const AEndChar: Char = #13): string;
 // Разбивает строку на строку и число
 function MySplit(const S: string): TList<TMySplit>;
+function ReplaceInSQL(const ASQL: String; const AStipulation: String; ANumber: Integer): String;
 
 function GetWords(const S: String): String;
 function ReplaceNotKeyboadChars(const S: String): String;
@@ -29,6 +28,25 @@ function ReplaceNotKeyboadChars(const S: String): String;
 implementation
 
 uses System.SysUtils, System.RegularExpressions;
+
+function ReplaceInSQL(const ASQL: String; const AStipulation: String; ANumber: Integer): String;
+var
+  ATemplate: string;
+  lp: Integer;
+  p: Integer;
+begin
+  Assert(not ASQL.IsEmpty);
+  Assert(not AStipulation.IsEmpty);
+
+  ATemplate := Format('%d=%d', [ANumber, ANumber]);
+  p := ASQL.IndexOf(ATemplate);
+  Assert(p >= 0);
+  lp := ASQL.LastIndexOf(ATemplate);
+  // Только одно вхождение !
+  Assert(lp = p);
+
+  Result := ASQL.Replace(ATemplate, AStipulation);
+end;
 
 function NameForm(X: Integer; const s1: String; const s2: String;
   const s5: String): String;
@@ -76,28 +94,6 @@ function ReplaceNotKeyboadChars(const S: String): String;
 begin
   Result := S.Replace(chr($02C2), '<');
   Result := Result.Replace(chr($02C3), '>');
-end;
-
-function Replace(const S: String; const ANewValue: String; const AMark: String;
-  const AEndChar: Char): string;
-var
-  i: Integer;
-  j: Integer;
-begin
-  Assert(not S.IsEmpty);
-  // Assert(not ANewValue.IsEmpty);
-  Assert(not AMark.IsEmpty);
-
-  // Ищем место в SQL запросе
-  i := S.IndexOf(AMark);
-  Assert(i > 0);
-  j := S.IndexOf(AEndChar, i);
-
-  // если конечного символа не нашли, то меняем до конца строки
-  if j < 0 then
-    j := S.Length;
-
-  Result := S.Substring(0, i) + ANewValue + S.Substring(j);
 end;
 
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;

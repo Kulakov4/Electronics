@@ -331,9 +331,9 @@ begin
       while qSearchStorehouseProduct.FDQuery.RecordCount > 0 do
       begin
         // Запоминаем, что этот продукт мы удалили со склада
-        if AProductIDS.IndexOf(qSearchStorehouseProduct.ProductID.AsInteger) < 0
+        if AProductIDS.IndexOf(qSearchStorehouseProduct.W.ProductID.F.AsInteger) < 0
         then
-          AProductIDS.Add(qSearchStorehouseProduct.ProductID.AsInteger);
+          AProductIDS.Add(qSearchStorehouseProduct.W.ProductID.F.AsInteger);
 
         qSearchStorehouseProduct.FDQuery.Delete;
       end;
@@ -737,7 +737,7 @@ begin
     begin
       // Ищем в справочнике такого производителя
       ProducersGroup.qProducers.Locate
-        (qSearchComponentOrFamily.Producer.AsString, True);
+        (qSearchComponentOrFamily.W.Producer.F.AsString, True);
 
       // Заполняем поле "Код производителя"
       W.IDProducer.F.Value := ProducersGroup.qProducers.PK.Value;
@@ -750,14 +750,14 @@ begin
     // Запоминаем, что этот компонент есть в теоретической базе
     W.Checked.F.AsInteger := 1;
     // Ищем соответствующее семейство компонентов
-    qSearchFamily.SearchByID(qSearchComponentOrFamily.ParentProductID.
+    qSearchFamily.SearchByID(qSearchComponentOrFamily.W.ParentProductID.F.
       AsInteger, 1);
 
     // Заполняем пустые поля из найденного компонента
     UpdateFields([W.Datasheet.F, W.Diagram.F, W.Drawing.F, W.Image.F,
-      W.DescriptionID.F], [qSearchFamily.Datasheet.Value,
-      qSearchFamily.Diagram.Value, qSearchFamily.Drawing.Value,
-      qSearchFamily.Image.Value, qSearchFamily.DescriptionID.Value], True);
+      W.DescriptionID.F], [qSearchFamily.W.Datasheet.F.Value,
+      qSearchFamily.W.Diagram.F.Value, qSearchFamily.W.Drawing.F.Value,
+      qSearchFamily.W.Image.F.Value, qSearchFamily.W.DescriptionID.F.Value], True);
   end;
 
   // Если производитель не задан
@@ -767,7 +767,7 @@ begin
     rc := qSearchProduct.SearchByValue(W.Value.F.AsString);
     if rc > 0 then
       // Заполняем код производителя
-      W.IDProducer.F.Value := qSearchProduct.IDProducer.Value
+      W.IDProducer.F.Value := qSearchProduct.W.IDProducer.F.Value
     else
       raise Exception.Create('Необходимо задать производителя');
   end;
@@ -779,10 +779,10 @@ begin
   begin
     // Заполняем пустые поля из найденного продукта
     UpdateFields([W.Datasheet.F, W.Diagram.F, W.Drawing.F, W.Image.F,
-      W.DescriptionID.F, W.ProductID.F], [qSearchProduct.Datasheet.Value,
-      qSearchProduct.Diagram.Value, qSearchProduct.Drawing.Value,
-      qSearchProduct.Image.Value, qSearchProduct.DescriptionID.Value,
-      qSearchProduct.PK.Value], True);
+      W.DescriptionID.F, W.ProductID.F], [qSearchProduct.W.Datasheet.F.Value,
+      qSearchProduct.W.Diagram.F.Value, qSearchProduct.W.Drawing.F.Value,
+      qSearchProduct.W.Image.F.Value, qSearchProduct.W.DescriptionID.F.Value,
+      qSearchProduct.W.PK.Value], True);
   end;
 
   // Если тип валюты задан - ничего не предпринимаем
@@ -1072,20 +1072,20 @@ begin
   begin
     // Ищем соответствующее семейство компонентов
     rc := qSearchFamily.SearchByID
-      (qSearchComponentOrFamily.ParentProductID.AsInteger);
+      (qSearchComponentOrFamily.W.ParentProductID.F.AsInteger);
 
   end;
   Result := rc > 0;
 
   if Result then
   begin
-    m := qSearchFamily.CategoryIDList.AsString.Split([',']);
+    m := qSearchFamily.W.CategoryIDList.F.AsString.Split([',']);
     Assert(Length(m) > 0);
 
     AIDCategory := String.ToInteger(m[0]);
 
-    LR := TLocateObject.Create(AIDCategory, qSearchFamily.Value.AsString,
-      qSearchComponentOrFamily.Value.AsString);
+    LR := TLocateObject.Create(AIDCategory, qSearchFamily.W.Value.F.AsString,
+      qSearchComponentOrFamily.W.Value.F.AsString);
     try
       OnLocate.CallEventHandlers(LR);
     finally

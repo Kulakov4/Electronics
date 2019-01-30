@@ -31,9 +31,8 @@ uses
   DragHelper, HRTimer, cxContainer, cxTextEdit, cxDBEdit,
   Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort,
   CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems,
-  JEDECPopupForm, BodyVariationsJedecQuery, BodyVariationJedecGroupQuery,
-  BodyTypesGroupUnit2, cxDataControllerConditionalFormattingRulesManagerDialog,
-  dxBarBuiltInMenu;
+  JEDECPopupForm, BodyVariationsJedecQuery, BodyTypesGroupUnit2,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 type
   TViewBodyTypes = class(TfrmGrid)

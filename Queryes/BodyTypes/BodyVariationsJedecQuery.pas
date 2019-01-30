@@ -143,13 +143,10 @@ end;
 function TQueryBodyVariationsJedec.SearchByIDBodyVariations(AIDBodyVariations
   : string): Integer;
 var
-  ANewSQL: string;
-  ANewValue: string;
-  ATemplate: string;
+  AStipulation: string;
   I: Integer;
   L: TList<Integer>;
   m: TArray<String>;
-  p: Integer;
 begin
   Assert(not AIDBodyVariations.IsEmpty);
 
@@ -165,19 +162,11 @@ begin
     FreeAndNil(L);
   end;
 
-  ANewSQL := SQL; // Восстанавливаем первоначальный SQL
-
-  ATemplate := Format('%d=%d', [0, 0]);
-  p := ANewSQL.IndexOf(ATemplate);
-  Assert(p >= 0);
-
-  ANewValue := Format('%s in (%s)', [W.IDBodyVariation.FieldName,
+  AStipulation := Format('%s in (%s)', [W.IDBodyVariation.FieldName,
     AIDBodyVariations]);
 
-  ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
-
   // Меняем в запросе условие
-  FDQuery.SQL.Text := ANewSQL;
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
 
   // Ищем
   RefreshQuery;

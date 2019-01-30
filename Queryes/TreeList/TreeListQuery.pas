@@ -119,7 +119,7 @@ begin
   FOldAutoSearchDuplicate := AutoSearchDuplicate;
   FNeedRestoreAutoSearch := True;
   AutoSearchDuplicate := False;
-  LocateByPK(qDuplicateCategory.ID.AsInteger);
+  LocateByPK(qDuplicateCategory.W.ID.F.AsInteger);
 end;
 
 procedure TQueryTreeList.SetAutoSearchDuplicate(const Value: Boolean);

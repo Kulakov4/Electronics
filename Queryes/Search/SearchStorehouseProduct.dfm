@@ -8,6 +8,6 @@ inherited QuerySearchStorehouseProduct: TQuerySearchStorehouseProduct
     SQL.Strings = (
       'select *'
       'from storehouseproducts'
-      'where 0=0')
+      'where (0=0) and (1=1)')
   end
 end

@@ -764,10 +764,6 @@
             <Form>QueryBodyVariationsJedec</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\BodyTypes\BodyVariationJedecGroupQuery.pas">
-            <Form>QueryBodyVariationJEDECGroup</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Helpers\OpenJedecUnit.pas"/>
         <DCCReference Include="Queryes\Producers\ProducerInterface.pas"/>
         <DCCReference Include="Helpers\CurrencyInterface.pas"/>

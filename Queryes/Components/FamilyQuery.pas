@@ -158,19 +158,19 @@ begin
     // «аполн€ем пол€ из найденного семейства
     UpdateFields([IDProducer, IDDatasheet, Datasheet, IDDiagram, Diagram,
       IDDrawing, Drawing, IDImage, Image, DescriptionID,
-      DescriptionComponentName, Description], [qSearchFamily.IDProducer.Value,
-      qSearchFamily.IDDatasheet.Value, qSearchFamily.Datasheet.Value,
-      qSearchFamily.IDDiagram.Value, qSearchFamily.Diagram.Value,
-      qSearchFamily.IDDrawing.Value, qSearchFamily.Drawing.Value,
-      qSearchFamily.IDImage.Value, qSearchFamily.Image.Value,
-      qSearchFamily.DescriptionID.Value,
-      qSearchFamily.DescriptionComponentName.Value,
-      qSearchFamily.Description.Value], False);
+      DescriptionComponentName, Description], [qSearchFamily.W.IDProducer.F.Value,
+      qSearchFamily.W.IDDatasheet.F.Value, qSearchFamily.W.Datasheet.F.Value,
+      qSearchFamily.W.IDDiagram.F.Value, qSearchFamily.W.Diagram.F.Value,
+      qSearchFamily.W.IDDrawing.F.Value, qSearchFamily.W.Drawing.F.Value,
+      qSearchFamily.W.IDImage.F.Value, qSearchFamily.W.Image.F.Value,
+      qSearchFamily.W.DescriptionID.F.Value,
+      qSearchFamily.W.DescriptionComponentName.F.Value,
+      qSearchFamily.W.Description.F.Value], False);
 
     // ≈сли семейство было найдено в другой категории
-    if SubGroup.AsString <> qSearchFamily.SubGroup.AsString then
+    if SubGroup.AsString <> qSearchFamily.W.SubGroup.F.AsString then
       SubGroup.AsString := CombineSubgroup(SubGroup.AsString,
-        qSearchFamily.SubGroup.AsString);
+        qSearchFamily.W.SubGroup.F.AsString);
   end;
 end;
 

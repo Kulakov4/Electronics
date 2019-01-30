@@ -212,7 +212,7 @@ begin
     ARecordCheck.ErrorMessage := FamilyName.AsString;
     ARecordCheck.Description :=
       Format('Семейство компонентов с таким именем уже занесёно в БД в категорию %s',
-      [FQuerySearchFamily.SubGroup.AsString]);
+      [FQuerySearchFamily.W.SubGroup.F.AsString]);
 
     ProcessErrors(ARecordCheck);
   end;

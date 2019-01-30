@@ -7,17 +7,29 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, StrHelper;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, StrHelper,
+  DSWrap;
 
 type
+  TSearchProductByParamValuesW = class(TDSWrap)
+  private
+    FFamilyID: TFieldWrap;
+    FProductId: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property FamilyID: TFieldWrap read FFamilyID;
+    property ProductId: TFieldWrap read FProductId;
+  end;
+
   TqSearchProductByParamValues = class(TQueryBase)
   private
-    function GetProductId: TField;
+    FW: TSearchProductByParamValuesW;
     { Private declarations }
   public
-    function GetSQL(AParamSubParamID: Integer; const AParamValues: String): String;
+    constructor Create(AOwner: TComponent); override;
     procedure Execute(AProductCategoryId: Integer);
-    property ProductId: TField read GetProductId;
+    function GetSQL(AParamSubParamID: Integer; const AParamValues: String): String;
+    property W: TSearchProductByParamValuesW read FW;
     { Public declarations }
   end;
 
@@ -25,9 +37,10 @@ implementation
 
 {$R *.dfm}
 
-function TqSearchProductByParamValues.GetProductId: TField;
+constructor TqSearchProductByParamValues.Create(AOwner: TComponent);
 begin
-  Result := Field('ProductId');
+  inherited;
+  FW := TSearchProductByParamValuesW.Create(FDQuery);
 end;
 
 function TqSearchProductByParamValues.GetSQL(AParamSubParamID: Integer; const
@@ -36,9 +49,9 @@ begin
   Assert(AParamSubParamID > 0);
   Assert(not AParamValues.IsEmpty);
 
-  Result := Replace(FDQuery.SQL.Text, AParamSubParamID.ToString, '(0)');
-  Result := Replace(Result, AParamSubParamID.ToString, '(1)');
-  Result := Replace(Result, Format('(%s)', [AParamValues]), '(2)');
+  Result := FDQuery.SQL.Text.Replace('(0)', AParamSubParamID.ToString);
+  Result := Result.Replace('(1)', AParamSubParamID.ToString);
+  Result := Result.Replace('(2)', Format('(%s)', [AParamValues]));
 end;
 
 procedure TqSearchProductByParamValues.Execute(AProductCategoryId: Integer);
@@ -46,6 +59,13 @@ begin
   Assert(AProductCategoryId > 0);
   FDQuery.ParamByName('ProductCategoryId').Value := AProductCategoryId;
   FDQuery.ExecSQL;
+end;
+
+constructor TSearchProductByParamValuesW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FFamilyID := TFieldWrap.Create(Self, 'FamilyID');
+  FProductId := TFieldWrap.Create(Self, 'ProductId');
 end;
 
 end.

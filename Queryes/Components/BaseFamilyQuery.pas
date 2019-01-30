@@ -145,7 +145,7 @@ begin
   Assert(not DetailParameterName.IsEmpty);
 
   qSearchCategory.SearchByID(FDQuery.ParamByName(DetailParameterName).AsInteger, 1);
-  Result := qSearchCategory.ExternalID.AsString;
+  Result := qSearchCategory.W.ExternalID.F.AsString;
 end;
 
 function TQueryBaseFamily.GetqSearchCategory: TQuerySearchCategory;

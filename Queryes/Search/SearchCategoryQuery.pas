@@ -16,25 +16,30 @@ type
     FExternalID: TFieldWrap;
     FID: TFieldWrap;
     FParentId: TFieldWrap;
+    FValue: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     property ExternalID: TFieldWrap read FExternalID;
     property ID: TFieldWrap read FID;
     property ParentId: TFieldWrap read FParentId;
+    property Value: TFieldWrap read FValue;
   end;
 
   TQuerySearchCategory = class(TQueryBase)
   private
     FW: TSearchCategoryW;
-    function CalculateExternalId(ParentId, ALevel: Integer): string;
-    function SearchByExternalID(const AExternalID: String): Integer;
-    function SearchByID(const AID: Integer; TestResult: Integer = -1): Integer;
     function SearchByLevel(ALevel: Integer): Integer;
-    function SearchBySubgroup(const ASubgroup: String): Integer;
     function SearchSubCategories(const AParentID: Integer): Integer;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
+    function CalculateExternalId(ParentId, ALevel: Integer): string;
+    function SearchByExternalID(const AExternalID: String): Integer;
+    function SearchBySubgroup(const ASubgroup: String): Integer;
+    function SearchByID(const AID: Integer; TestResult: Integer = -1): Integer;
+    function SearchByParentAndValue(const AParentID: Integer; const AValue:
+        String): Integer;
+    function SearchDuplicate(const AID: Integer; TestResult: Integer = -1): Integer;
     property W: TSearchCategoryW read FW;
     { Public declarations }
   end;
@@ -58,8 +63,18 @@ begin
   FW := TSearchCategoryW.Create(FDQuery);
 end;
 
-function TQuerySearchCategory.CalculateExternalId(ParentId, ALevel: Integer):
-    string;
+function TQuerySearchCategory.SearchByParentAndValue(const AParentID: Integer;
+    const AValue: String): Integer;
+begin
+  Assert(AParentID > 0);
+  Assert(not AValue.IsEmpty);
+
+  Result := SearchEx([TParamRec.Create(W.ParentId.FullName, AParentID),
+    TParamRec.Create(W.Value.FullName, AValue, ftWideString, True)]);
+end;
+
+function TQuerySearchCategory.CalculateExternalId(ParentId,
+  ALevel: Integer): string;
 var
   AID: Integer;
   AInteger: Integer;
@@ -93,8 +108,8 @@ begin
   Result := Format('%.2d%.3d', [ALevel, AID]);
 end;
 
-function TQuerySearchCategory.SearchByExternalID(const AExternalID: String):
-    Integer;
+function TQuerySearchCategory.SearchByExternalID(const AExternalID
+  : String): Integer;
 begin
   Assert(not AExternalID.IsEmpty);
 
@@ -102,47 +117,36 @@ begin
     ftWideString)]);
 end;
 
-function TQuerySearchCategory.SearchBySubgroup(const ASubgroup: String):
-    Integer;
+function TQuerySearchCategory.SearchBySubgroup(const ASubgroup: String)
+  : Integer;
 var
-  ANewSQL: string;
-  ANewValue: string;
+  AStipulation: string;
   AParamName: string;
-  ATemplate: string;
-  p: Integer;
 begin
   Assert(not ASubgroup.IsEmpty);
 
-  ANewSQL := SQL; // Восстанавливаем первоначальный SQL
   AParamName := 'SubGroup';
 
-  ATemplate := Format('%d=%d', [0, 0]);
-  p := ANewSQL.IndexOf(ATemplate);
-  Assert(p >= 0);
-
-  ANewValue :=
-    Format('where instr('',''||:%s||'','', '',''||%s||'','') > 0',
+  AStipulation := Format('instr('',''||:%s||'','', '',''||%s||'','') > 0',
     [AParamName, W.ExternalID.FullName]);
 
-  ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
-
   // Меняем SQL запрос
-  FDQuery.SQL.Text := ANewSQL;
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
 
   SetParamType(AParamName, ptInput, ftWideString);
   Result := Search([AParamName], [ASubgroup]);
 end;
 
-function TQuerySearchCategory.SearchByID(const AID: Integer; TestResult:
-    Integer = -1): Integer;
+function TQuerySearchCategory.SearchByID(const AID: Integer;
+  TestResult: Integer = -1): Integer;
 begin
   Assert(AID > 0);
 
   Result := SearchEx([TParamRec.Create(W.ID.FullName, AID)], TestResult);
 end;
 
-function TQuerySearchCategory.SearchSubCategories(const AParentID: Integer):
-    Integer;
+function TQuerySearchCategory.SearchSubCategories(const AParentID
+  : Integer): Integer;
 begin
   Assert(AParentID > 0);
 
@@ -156,7 +160,25 @@ begin
   Assert(ALevel > 0);
   ALevelStr := Format('%.2d%%', [ALevel]);
 
-  Result := SearchEx([TParamRec.Create(W.ExternalID.FullName, ALevelStr, ftWideString, False, 'like')]);
+  Result := SearchEx([TParamRec.Create(W.ExternalID.FullName, ALevelStr,
+    ftWideString, False, 'like')]);
+end;
+
+function TQuerySearchCategory.SearchDuplicate(const AID: Integer; TestResult:
+    Integer = -1): Integer;
+var
+  AStipulation: string;
+begin
+  Assert(AID > 0);
+
+  AStipulation := Format('%s = (select %s from ProductCategories where %s = :%s)',
+    [W.Value.FullName, W.Value.FieldName, W.ID.FieldName, W.ID.FieldName]);
+
+  // Меняем SQL запрос
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
+
+  SetParamType(W.ID.FieldName);
+  Result := Search([W.ID.FieldName], [AID], TestResult);
 end;
 
 class function TSearchSubCategories.Search(const AParentID: Integer): Integer;
@@ -177,6 +199,7 @@ begin
   FID := TFieldWrap.Create(Self, 'pc.ID', '', True);
   FExternalID := TFieldWrap.Create(Self, 'pc.ExternalID');
   FParentId := TFieldWrap.Create(Self, 'pc.ParentId');
+  FValue := TFieldWrap.Create(Self, 'pc.Value');
 end;
 
 end.

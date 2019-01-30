@@ -8,31 +8,45 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
-  TQuerySearchComponentOrFamily = class(TQueryBase)
-    fdqBase: TFDQuery;
+  TSearchComponentOrFamilyW = class(TDSWrap)
   private
-    function GetParentProductID: TField;
-    function GetProducer: TField;
-    function GetValue: TField;
+    FParentProductID: TFieldWrap;
+    FID: TFieldWrap;
+    FProducer: TFieldWrap;
+    FProducerParamSubParamID: TParamWrap;
+    FProducerParam: TParamWrap;
+    FValue: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ParentProductID: TFieldWrap read FParentProductID;
+    property ID: TFieldWrap read FID;
+    property Producer: TFieldWrap read FProducer;
+    property ProducerParamSubParamID: TParamWrap read FProducerParamSubParamID;
+    property ProducerParam: TParamWrap read FProducerParam;
+    property Value: TFieldWrap read FValue;
+  end;
+
+  TQuerySearchComponentOrFamily = class(TQueryBase)
+  private
+    FW: TSearchComponentOrFamilyW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
+    function SearchByValue(const AComponentName: string): Integer;
+    function SearchByValueLike(const AComponentNames: string): Integer;
+    function SearchByValues(const AComponentNames: string): Integer;
+    function SearchComponent(const AComponentName: string): Integer; overload;
+    function SearchComponent(AParentID: Integer; const AComponentName: string)
+      : Integer; overload;
     function SearchComponentWithProducer(const AComponentName,
       AProducer: string): Integer; overload;
     function SearchComponentWithProducer(const AComponentName: string)
       : Integer; overload;
-    function SearchByValueLike(const AComponentNames: string): Integer;
-    function SearchByValues(const AComponentNames: string): Integer;
-    function SearchByValue(const AComponentName: string): Integer;
     function SearchFamily(const AFamilyName: string): Integer;
-    function SearchComponent(AParentID: Integer; const AComponentName: string):
-        Integer; overload;
-    function SearchComponent(const AComponentName: string): Integer; overload;
-    property ParentProductID: TField read GetParentProductID;
-    property Producer: TField read GetProducer;
-    property Value: TField read GetValue;
+    property W: TSearchComponentOrFamilyW read FW;
     { Public declarations }
   end;
 
@@ -42,91 +56,91 @@ implementation
 
 uses StrHelper, System.Strutils, DefaultParameters;
 
-function TQuerySearchComponentOrFamily.GetParentProductID: TField;
+constructor TQuerySearchComponentOrFamily.Create(AOwner: TComponent);
 begin
-  Result := Field('ParentProductID');
-end;
-
-function TQuerySearchComponentOrFamily.GetProducer: TField;
-begin
-  Result := Field('Producer');
-end;
-
-function TQuerySearchComponentOrFamily.GetValue: TField;
-begin
-  Result := Field('Value');
+  inherited;
+  FW := TSearchComponentOrFamilyW.Create(FDQuery);
 end;
 
 function TQuerySearchComponentOrFamily.SearchComponentWithProducer
   (const AComponentName, AProducer: string): Integer;
 var
-  ACondition: string;
-  S: string;
+  AStipulation: string;
+  ASQL: string;
 begin
   Assert(not AComponentName.IsEmpty);
   Assert(not AProducer.IsEmpty);
 
   // Добавляем Производителя
-  S := fdqBase.SQL.Text;
-  S := S.Replace('/* Producer', '', [rfReplaceAll]);
-  S := S.Replace('Producer */', '', [rfReplaceAll]);
-  S := Replace(S, 'pv.Value = :Producer', '1=1');
-  // Меняем условие
-  ACondition := 'upper(p.Value) = upper(:Value)';
+  ASQL := SQL;
+  ASQL := ASQL.Replace('/* Producer', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('Producer */', '', [rfReplaceAll]);
+  ASQL := ReplaceInSQL(ASQL, Format('pv.Value = :%s',
+    [W.ProducerParam.FieldName]), 2);
 
-  FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
-  SetParamType('Value', ptInput, ftWideString);
-  SetParamType('ProducerParamSubParamID');
-  SetParamType('Producer', ptInput, ftWideString);
+  // условие
+  AStipulation := Format('upper(%s) = upper(:%s)',
+    [W.Value.FullName, W.Value.FieldName]);
+
+  FDQuery.SQL.Text := ReplaceInSQL(ASQL, AStipulation, 0);
+
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
+  SetParamType(W.ProducerParamSubParamID.FieldName);
+  SetParamType(W.ProducerParam.FieldName, ptInput, ftWideString);
 
   // Ищем
-  Result := Search(['Value', 'ProducerParamSubParamID', 'Producer'],
-    [AComponentName, TDefaultParameters.ProducerParamSubParamID, AProducer]);
+  Result := Search([W.Value.FieldName, W.ProducerParamSubParamID.FieldName,
+    W.ProducerParam.FieldName], [AComponentName,
+    TDefaultParameters.ProducerParamSubParamID, AProducer]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchComponentWithProducer
   (const AComponentName: string): Integer;
 var
-  ACondition: string;
-  S: string;
+  AStipulation: string;
+  ASQL: string;
 begin
   Assert(not AComponentName.IsEmpty);
 
   // Добавляем Производителя
-  S := fdqBase.SQL.Text;
-  S := S.Replace('/* Producer', '', [rfReplaceAll]);
-  S := S.Replace('Producer */', '', [rfReplaceAll]);
-  // Меняем условие
-  ACondition := 'upper(p.Value) = upper(:Value)';
-  FDQuery.SQL.Text := Replace(S, ACondition, '0=0');
+  ASQL := SQL;
+  ASQL := ASQL.Replace('/* Producer', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('Producer */', '', [rfReplaceAll]);
 
-  SetParamType('ProducerParamSubParamID');
-  SetParamType('Value', ptInput, ftWideString);
+  // Меняем условие
+  AStipulation := Format('upper(%s) = upper(:%s)',
+    [W.Value.FullName, W.Value.FieldName]);
+  FDQuery.SQL.Text := ReplaceInSQL(ASQL, AStipulation, 0);
+
+  SetParamType(W.ProducerParamSubParamID.FieldName);
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
 
   // Ищем
-  Result := Search(['Value', 'ProducerParamSubParamID'],
+  Result := Search([W.Value.FieldName, W.ProducerParamSubParamID.FieldName],
     [AComponentName, TDefaultParameters.ProducerParamSubParamID]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchByValueLike(const AComponentNames
   : string): Integer;
 var
-  ACondition: string;
+  AStipulation: string;
   m: TArray<String>;
   S: String;
 begin
   Assert(not AComponentNames.IsEmpty);
   m := AComponentNames.Split([',']);
 
-  ACondition := '';
+  AStipulation := '';
   // Формируем несколько условий
   for S in m do
   begin
-    ACondition := IfThen(ACondition.IsEmpty, '', ' or ');
-    ACondition := ACondition + Format('p.Value like %s', [QuotedStr(S + '%')]);
+    AStipulation := IfThen(AStipulation.IsEmpty, '', ' or ');
+    AStipulation := AStipulation + Format('%s like %s',
+      [W.Value.FullName, QuotedStr(S + '%')]);
   end;
 
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
+  // Делаем замену в первоначальном SQL запросе
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
 
   Result := Search([], []);
 end;
@@ -134,83 +148,91 @@ end;
 function TQuerySearchComponentOrFamily.SearchByValues(const AComponentNames
   : string): Integer;
 var
-  ACondition: string;
+  AStipulation: string;
 begin
   Assert(not AComponentNames.IsEmpty);
 
-  ACondition := 'instr('',''||:Value||'','', '',''||p.Value||'','') > 0';
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
-  SetParamType('Value', ptInput, ftWideString);
+  AStipulation := Format('instr('',''||:%s||'','', '',''||%s||'','') > 0',
+    [W.Value.FieldName, W.Value.FullName]);
 
-  Result := Search(['Value'], [AComponentNames]);
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
+
+  Result := Search([W.Value.FieldName], [AComponentNames]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchByValue(const AComponentName
   : string): Integer;
-var
-  ACondition: string;
 begin
   Assert(not AComponentName.IsEmpty);
 
-  // Меняем условие
-  ACondition := 'upper(p.Value) = upper(:Value)';
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
-  SetParamType('Value', ptInput, ftWideString);
-
-  // Ищем
-  Result := Search(['Value'], [AComponentName]);
+  Result := SearchEx([TParamRec.Create(W.Value.FullName, AComponentName,
+    ftWideString, True)]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchFamily(const AFamilyName
   : string): Integer;
 var
-  ACondition: string;
+  ANewSQL: string;
 begin
   Assert(not AFamilyName.IsEmpty);
 
-  // Меняем условие
-  ACondition :=
-    '(upper(p.Value) = upper(:Value)) and (ParentProductID is null)';
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
-  SetParamType('Value', ptInput, ftWideString);
+  // Делаем замену в первоначальном SQL запросе
+  ANewSQL := ReplaceInSQL(SQL, Format('%s is null',
+    [W.ParentProductID.FullName]), 0);
+
+  FDQuery.SQL.Text := ReplaceInSQL(ANewSQL, Format('upper(%s) = upper(:%s)',
+    [W.Value.FullName, W.Value.FieldName]), 1);
+
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
 
   // Ищем
-  Result := Search(['Value'], [AFamilyName]);
+  Result := Search([W.Value.FieldName], [AFamilyName]);
 end;
 
 function TQuerySearchComponentOrFamily.SearchComponent(AParentID: Integer;
-    const AComponentName: string): Integer;
-var
-  ACondition: string;
+  const AComponentName: string): Integer;
 begin
   Assert(AParentID > 0);
   Assert(not AComponentName.IsEmpty);
 
-  // Добавляем условие
-  ACondition :=
-    'upper(p.Value) = upper(:Value) and ParentProductID = :ParentProductID';
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
-  SetParamType('Value', ptInput, ftWideString);
-  SetParamType('ParentProductID');
-
-  // Ищем
-  Result := Search(['ParentProductID', 'Value'], [AParentID, AComponentName]);
+  Result := SearchEx([TParamRec.Create(W.Value.FullName, AComponentName,
+    ftWideString, True), TParamRec.Create(W.ParentProductID.FullName,
+    AParentID)]);
 end;
 
-function TQuerySearchComponentOrFamily.SearchComponent(const AComponentName:
-    string): Integer;
+function TQuerySearchComponentOrFamily.SearchComponent(const AComponentName
+  : string): Integer;
 var
-  ACondition: string;
+  ANewSQL: string;
 begin
   Assert(not AComponentName.IsEmpty);
-  // Добавляем условие
-  ACondition :=
-    '( upper(p.Value) = upper(:Value) ) and ( not (ParentProductID is null) )';
-  FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, ACondition, '0=0');
-  SetParamType('Value', ptInput, ftWideString);
+
+  // Делаем замену в первоначальном SQL запросе
+  ANewSQL := ReplaceInSQL(SQL, Format('not (%s is null)',
+    [W.ParentProductID.FullName]), 0);
+
+  FDQuery.SQL.Text := ReplaceInSQL(ANewSQL, Format('upper(%s) = upper(:%s)',
+    [W.Value.FullName, W.Value.FieldName]), 1);
+
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
 
   // Ищем
-  Result := Search(['Value'], [AComponentName]);
+  Result := Search([W.Value.FieldName], [AComponentName]);
+end;
+
+constructor TSearchComponentOrFamilyW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'p.ID', '', True);
+  FParentProductID := TFieldWrap.Create(Self, 'p.ParentProductID');
+  FProducer := TFieldWrap.Create(Self, 'Producer');
+  FValue := TFieldWrap.Create(Self, 'p.Value');
+
+  FProducerParamSubParamID := TParamWrap.Create(Self,
+    'ProducerParamSubParamID');
+
+  FProducerParam := TParamWrap.Create(Self, 'Producer');
 end;
 
 end.

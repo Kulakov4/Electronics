@@ -108,26 +108,17 @@ end;
 function TQueryExtraChargeSimple.SearchValueInRange(const AValue: Integer;
   AIDExtraRangeType, AID: Integer): Integer;
 var
-  ANewSQL: string;
-  ANewValue: string;
+  AStipulation: string;
   S1: string;
   S2: string;
   S3: string;
   S4: string;
-  ATemplate: string;
   AValueParamName: string;
-  p: Integer;
 begin
   Assert(AID >= 0);
   Assert(AIDExtraRangeType >= 0);
 
   AValueParamName := 'Value';
-
-  ANewSQL := SQL; // Восстанавливаем первоначальный SQL
-
-  ATemplate := Format('%d=%d', [0, 0]);
-  p := ANewSQL.IndexOf(ATemplate);
-  Assert(p >= 0);
 
   S1 := Format(':%s >= %s', [AValueParamName, W.L.FieldName]);
   S2 := Format(':%s <= %s', [AValueParamName, W.H.FieldName]);
@@ -135,12 +126,10 @@ begin
     W.IDExtraChargeType.FieldName]);
   S4 := Format('%s <> :%s', [W.PK.FieldName, W.PK.FieldName]);
 
-  ANewValue := Format('(%s) and (%s) and (%s) and (%s)', [S1, S2, S3, S4]);
-
-  ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
+  AStipulation := Format('(%s) and (%s) and (%s) and (%s)', [S1, S2, S3, S4]);
 
   // Меняем SQL запрос
-  FDQuery.SQL.Text := ANewSQL;
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
 
   SetParamType(AValueParamName);
   SetParamType(W.IDExtraChargeType.FieldName);

@@ -8,29 +8,42 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TSearchProductW = class(TDSWrap)
+  private
+    FDatasheet: TFieldWrap;
+    FValue: TFieldWrap;
+    FDescriptionID: TFieldWrap;
+    FDiagram: TFieldWrap;
+    FDrawing: TFieldWrap;
+    FID: TFieldWrap;
+    FIDProducer: TFieldWrap;
+    FImage: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Datasheet: TFieldWrap read FDatasheet;
+    property Value: TFieldWrap read FValue;
+    property DescriptionID: TFieldWrap read FDescriptionID;
+    property Diagram: TFieldWrap read FDiagram;
+    property Drawing: TFieldWrap read FDrawing;
+    property ID: TFieldWrap read FID;
+    property IDProducer: TFieldWrap read FIDProducer;
+    property Image: TFieldWrap read FImage;
+  end;
+
   TQuerySearchProduct = class(TQueryBase)
   private
-    function GetDatasheet: TField;
-    function GetDescriptionID: TField;
-    function GetDiagram: TField;
-    function GetDrawing: TField;
-    function GetIDProducer: TField;
-    function GetImage: TField;
+    FW: TSearchProductW;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     function SearchByID(AID: Integer): Integer;
-    function SearchByValue(const AValue: string; const AIDProducer: Integer):
-        Integer; overload;
     function SearchByValue(const AValue: string): Integer; overload;
-    property Datasheet: TField read GetDatasheet;
-    property DescriptionID: TField read GetDescriptionID;
-    property Diagram: TField read GetDiagram;
-    property Drawing: TField read GetDrawing;
-    property IDProducer: TField read GetIDProducer;
-    property Image: TField read GetImage;
+    function SearchByValue(const AValue: string; const AIDProducer: Integer)
+      : Integer; overload;
+    property W: TSearchProductW read FW;
     { Public declarations }
   end;
 
@@ -40,74 +53,49 @@ implementation
 
 uses StrHelper;
 
-function TQuerySearchProduct.GetDatasheet: TField;
+constructor TQuerySearchProduct.Create(AOwner: TComponent);
 begin
-  Result := Field('Datasheet');
-end;
-
-function TQuerySearchProduct.GetDescriptionID: TField;
-begin
-  Result := Field('DescriptionID');
-end;
-
-function TQuerySearchProduct.GetDiagram: TField;
-begin
-  Result := Field('Diagram');
-end;
-
-function TQuerySearchProduct.GetDrawing: TField;
-begin
-  Result := Field('Drawing');
-end;
-
-function TQuerySearchProduct.GetIDProducer: TField;
-begin
-  Result := Field('IDProducer');
-end;
-
-function TQuerySearchProduct.GetImage: TField;
-begin
-  Result := Field('Image');
+  inherited;
+  FW := TSearchProductW.Create(FDQuery);
 end;
 
 function TQuerySearchProduct.SearchByID(AID: Integer): Integer;
 begin
   Assert(AID > 0);
 
-  // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where ID = :ID', 'where');
-  SetParamType('ID');
-
-  // Ищем
-  Result := Search(['ID'], [AID]);
+  Result := SearchEx([TParamRec.Create(W.ID.FullName, AID)]);
 end;
 
-function TQuerySearchProduct.SearchByValue(const AValue: string; const
-    AIDProducer: Integer): Integer;
+function TQuerySearchProduct.SearchByValue(const AValue: string;
+  const AIDProducer: Integer): Integer;
 begin
   Assert(not AValue.IsEmpty);
   Assert(AIDProducer > 0);
 
   // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-  'where (Value = :Value) and (IDProducer=:IDProducer)', 'where');
-  SetParamType('Value', ptInput, ftWideString);
-  SetParamType('IDProducer');
-
-  // Ищем
-  Result := Search(['Value', 'IDProducer'], [AValue, AIDProducer]);
+  Result := SearchEx([TParamRec.Create(W.Value.FullName, AValue, ftWideString),
+    TParamRec.Create(W.IDProducer.FullName, AIDProducer)])
 end;
 
 function TQuerySearchProduct.SearchByValue(const AValue: string): Integer;
 begin
   Assert(not AValue.IsEmpty);
 
-  // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where Value = :Value', 'where');
-  SetParamType('Value', ptInput, ftWideString);
+  Result := SearchEx([TParamRec.Create(W.Value.FullName, AValue,
+    ftWideString)]);
+end;
 
-  // Ищем
-  Result := Search(['Value'], [AValue]);
+constructor TSearchProductW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FDatasheet := TFieldWrap.Create(Self, 'Datasheet');
+  FDescriptionID := TFieldWrap.Create(Self, 'DescriptionID');
+  FDiagram := TFieldWrap.Create(Self, 'Diagram');
+  FDrawing := TFieldWrap.Create(Self, 'Drawing');
+  FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
+  FImage := TFieldWrap.Create(Self, 'Image');
+  FValue := TFieldWrap.Create(Self, 'Value');
 end;
 
 end.

@@ -46,12 +46,12 @@ type
       AIsDefault: Integer);
     procedure FilterByIsDefault(AIsDefault: Integer);
     procedure FilterByPosition(APosID: Integer);
-    function Locate(AIDParameter, APosID, AOrder: Integer; TestResult: Boolean =
-        False): Boolean; overload;
-    function Locate(AIDParameter, AIDSubParameter: Integer; TestResult: Boolean =
-        False): Boolean; overload;
+    function Locate(AIDParameter, APosID, AOrder: Integer;
+      TestResult: Boolean = False): Boolean; overload;
+    function Locate(AIDParameter, AIDSubParameter: Integer;
+      TestResult: Boolean = False): Boolean; overload;
     procedure LocateDefault(AIDParameter: Integer; TestResult: Boolean = False);
-    procedure Move(AData: TArray < TPair < Integer, Integer >>);
+    procedure Move(AData: TArray < TPair < Integer, Integer >> );
     function NextEx: Boolean;
     procedure SetPos(APosID: Integer); overload;
     procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
@@ -108,6 +108,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterConstruction; override;
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure ClearSubParamsRecHolders;
@@ -131,7 +132,7 @@ implementation
 
 uses
   MaxCategoryParameterOrderQuery, System.StrUtils, StrHelper,
-  ParameterKindEnum, UpdateParameterValuesParamSubParamQuery;
+  ParameterKindEnum, UpdateParameterValuesParamSubParamQuery, BaseQuery;
 
 {$R *.dfm}
 
@@ -173,6 +174,16 @@ begin
   FreeAndNil(FInsertedSubParams);
   FreeAndNil(FPKDictionary);
   inherited;
+end;
+
+procedure TQueryCategoryParameters2.AfterConstruction;
+begin
+  inherited; // Сохраняем первоначальный SQL
+
+  // Добавляем в запрос параметр
+  FDQuery.SQL.Text := ReplaceInSQL(SQL,
+    Format('%s = :%s', [W.ProductCategoryID.FullName,
+    W.ProductCategoryID.FieldName]), 0);
 end;
 
 procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet;
@@ -500,13 +511,9 @@ function TQueryCategoryParameters2.SearchAnalog(AProductCategoryID
 begin
   Assert(AProductCategoryID > 0);
 
-  // Добавляем в запрос условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text,
-    Format('and (p.IDParameterKind <> %d)', [Integer(Неиспользуется)]),
-    'and 0=0');
-
-  // Ищем
-  Result := Search(['ProductCategoryID'], [AProductCategoryID]);
+  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.FullName,
+    AProductCategoryID), TParamRec.Create(W.IDParameterKind.FullName,
+    Integer(Неиспользуется), ftInteger, False, '<>')]);
 end;
 
 procedure TQueryCategoryParameters2.SetIsAttribute(AID, AIsAttribute: Integer);
@@ -591,7 +598,7 @@ begin
 end;
 
 function TCategoryParameters2W.Locate(AIDParameter, APosID, AOrder: Integer;
-    TestResult: Boolean = False): Boolean;
+TestResult: Boolean = False): Boolean;
 var
   AFieldNames: string;
 begin
@@ -609,8 +616,8 @@ begin
     Assert(Result);
 end;
 
-function TCategoryParameters2W.Locate(AIDParameter, AIDSubParameter : Integer;
-    TestResult: Boolean = False): Boolean;
+function TCategoryParameters2W.Locate(AIDParameter, AIDSubParameter: Integer;
+TestResult: Boolean = False): Boolean;
 var
   AFieldNames: string;
 begin
@@ -628,7 +635,7 @@ begin
 end;
 
 procedure TCategoryParameters2W.LocateDefault(AIDParameter: Integer;
-    TestResult: Boolean = False);
+TestResult: Boolean = False);
 var
   AFieldName: string;
 begin
@@ -637,8 +644,8 @@ begin
   FDDataSet.LocateEx(AFieldName, VarArrayOf([AIDParameter, 1]));
 end;
 
-procedure TCategoryParameters2W.Move(AData: TArray < TPair < Integer, Integer
-    >>);
+procedure TCategoryParameters2W.Move(AData: TArray < TPair < Integer,
+  Integer >> );
 var
   APair: TPair<Integer, Integer>;
 begin
@@ -685,8 +692,8 @@ begin
   TryPost;
 end;
 
-procedure TCategoryParameters2W.SetPos(AIDArray: TArray<Integer>; APosID:
-    Integer);
+procedure TCategoryParameters2W.SetPos(AIDArray: TArray<Integer>;
+APosID: Integer);
 var
   AID: Integer;
 begin

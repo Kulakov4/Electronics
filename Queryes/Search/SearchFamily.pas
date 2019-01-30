@@ -8,52 +8,63 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
-  TQuerySearchFamily = class(TQueryBase)
-    fdqBase: TFDQuery;
+  TSearchFamilyW = class(TDSWrap)
   private
-    function GetCategoryIDList: TField;
-    function GetComponentGroup: TField;
-    function GetDatasheet: TField;
-    function GetDescriptionComponentName: TField;
-    function GetDescription: TField;
-    function GetDiagram: TField;
-    function GetDescriptionID: TField;
-    function GetDrawing: TField;
-    function GetIDProducer: TField;
-    function GetIDDatasheet: TField;
-    function GetIDDiagram: TField;
-    function GetIDDrawing: TField;
-    function GetIDImage: TField;
-    function GetImage: TField;
-    function GetSubgroup: TField;
-    function GetValue: TField;
+    FCategoryIDList: TFieldWrap;
+    FID: TFieldWrap;
+    FComponentGroup: TFieldWrap;
+    FDatasheet: TFieldWrap;
+    FDescription: TFieldWrap;
+    FDescriptionComponentName: TFieldWrap;
+    FDescriptionID: TFieldWrap;
+    FDiagram: TFieldWrap;
+    FDrawing: TFieldWrap;
+    FIDDatasheet: TFieldWrap;
+    FIDDiagram: TFieldWrap;
+    FIDDrawing: TFieldWrap;
+    FIDImage: TFieldWrap;
+    FIDProducer: TFieldWrap;
+    FImage: TFieldWrap;
+    FSubgroup: TFieldWrap;
+    FValue: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property CategoryIDList: TFieldWrap read FCategoryIDList;
+    property ID: TFieldWrap read FID;
+    property ComponentGroup: TFieldWrap read FComponentGroup;
+    property Datasheet: TFieldWrap read FDatasheet;
+    property Description: TFieldWrap read FDescription;
+    property DescriptionComponentName: TFieldWrap
+      read FDescriptionComponentName;
+    property DescriptionID: TFieldWrap read FDescriptionID;
+    property Diagram: TFieldWrap read FDiagram;
+    property Drawing: TFieldWrap read FDrawing;
+    property IDDatasheet: TFieldWrap read FIDDatasheet;
+    property IDDiagram: TFieldWrap read FIDDiagram;
+    property IDDrawing: TFieldWrap read FIDDrawing;
+    property IDImage: TFieldWrap read FIDImage;
+    property IDProducer: TFieldWrap read FIDProducer;
+    property Image: TFieldWrap read FImage;
+    property Subgroup: TFieldWrap read FSubgroup;
+    property Value: TFieldWrap read FValue;
+  end;
+
+  TQuerySearchFamily = class(TQueryBase)
+  private
+    FW: TSearchFamilyW;
     { Private declarations }
   protected
   public
+    constructor Create(AOwner: TComponent); override;
     function SearchByID(const AIDComponent: Integer; TestResult: Integer = -1)
       : Integer; overload;
     function SearchByValue(const AValue: string): Integer;
     function SearchByValueAndProducer(const AValue, AProducer: string): Integer;
     function SearchByValueSimple(const AValue: string): Integer;
-    property CategoryIDList: TField read GetCategoryIDList;
-    property ComponentGroup: TField read GetComponentGroup;
-    property Datasheet: TField read GetDatasheet;
-    property DescriptionComponentName: TField read GetDescriptionComponentName;
-    property Description: TField read GetDescription;
-    property Diagram: TField read GetDiagram;
-    property DescriptionID: TField read GetDescriptionID;
-    property Drawing: TField read GetDrawing;
-    property IDProducer: TField read GetIDProducer;
-    property IDDatasheet: TField read GetIDDatasheet;
-    property IDDiagram: TField read GetIDDiagram;
-    property IDDrawing: TField read GetIDDrawing;
-    property IDImage: TField read GetIDImage;
-    property Image: TField read GetImage;
-    property Subgroup: TField read GetSubgroup;
-    property Value: TField read GetValue;
+    property W: TSearchFamilyW read FW;
     { Public declarations }
   end;
 
@@ -63,110 +74,38 @@ implementation
 
 uses DefaultParameters, StrHelper;
 
-function TQuerySearchFamily.GetCategoryIDList: TField;
+constructor TQuerySearchFamily.Create(AOwner: TComponent);
 begin
-  Result := Field('CategoryIDList');
-end;
-
-function TQuerySearchFamily.GetComponentGroup: TField;
-begin
-  Result := Field('ComponentGroup');
-end;
-
-function TQuerySearchFamily.GetDatasheet: TField;
-begin
-  Result := Field('Datasheet');
-end;
-
-function TQuerySearchFamily.GetDescriptionComponentName: TField;
-begin
-  Result := Field('DescriptionComponentName');
-end;
-
-function TQuerySearchFamily.GetDescription: TField;
-begin
-  Result := Field('Description');
-end;
-
-function TQuerySearchFamily.GetDiagram: TField;
-begin
-  Result := Field('Diagram');
-end;
-
-function TQuerySearchFamily.GetDescriptionID: TField;
-begin
-  Result := Field('DescriptionID');
-end;
-
-function TQuerySearchFamily.GetDrawing: TField;
-begin
-  Result := Field('Drawing');
-end;
-
-function TQuerySearchFamily.GetIDProducer: TField;
-begin
-  Result := Field('IDProducer');
-end;
-
-function TQuerySearchFamily.GetIDDatasheet: TField;
-begin
-  Result := Field('IDDatasheet');
-end;
-
-function TQuerySearchFamily.GetIDDiagram: TField;
-begin
-  Result := Field('IDDiagram');
-end;
-
-function TQuerySearchFamily.GetIDDrawing: TField;
-begin
-  Result := Field('IDDrawing');
-end;
-
-function TQuerySearchFamily.GetIDImage: TField;
-begin
-  Result := Field('IDImage');
-end;
-
-function TQuerySearchFamily.GetImage: TField;
-begin
-  Result := Field('Image');
-end;
-
-function TQuerySearchFamily.GetSubgroup: TField;
-begin
-  Result := Field('Subgroup');
-end;
-
-function TQuerySearchFamily.GetValue: TField;
-begin
-  Result := Field('Value');
+  inherited;
+  FW := TSearchFamilyW.Create(FDQuery);
 end;
 
 function TQuerySearchFamily.SearchByID(const AIDComponent: Integer;
   TestResult: Integer = -1): Integer;
 var
-  S: String;
+  ASQL: String;
 begin
   Assert(AIDComponent > 0);
 
-  // Добавляем условие
-  S := Replace(fdqBase.SQL.Text, 'p.ID = :ID', '0=0');
+  ASQL := SQL;
 
   // Добавляем поле ComponentGroup
-  S := S.Replace('/* ComponentGroup', '', [rfReplaceAll]);
-  S := S.Replace('ComponentGroup */', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('/* ComponentGroup', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ComponentGroup */', '', [rfReplaceAll]);
 
   // Добавляем значения параметров
-  S := S.Replace('/* ParametersValues', '', [rfReplaceAll]);
-  S := S.Replace('ParametersValues */', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('/* ParametersValues', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ParametersValues */', '', [rfReplaceAll]);
 
   // Добавляем описание
-  S := S.Replace('/* Description', '', [rfReplaceAll]);
-  S := S.Replace('Description */', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('/* Description', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('Description */', '', [rfReplaceAll]);
 
-  FDQuery.SQL.Text := S;
-  SetParamType('ID');
+  // Добавляем условие
+  FDQuery.SQL.Text := ReplaceInSQL(ASQL,
+    Format('%s = :%s', [W.ID.FullName, W.ID.FieldName]), 0);
+
+  SetParamType(W.ID.FieldName);
   SetParamType('ProducerParamSubParamID');
   SetParamType('PackagePinsParamSubParamID');
   SetParamType('DatasheetParamSubParamID');
@@ -174,7 +113,7 @@ begin
   SetParamType('DrawingParamSubParamID');
   SetParamType('ImageParamSubParamID');
 
-  Result := Search(['ID', 'ProducerParamSubParamID',
+  Result := Search([W.ID.FieldName, 'ProducerParamSubParamID',
     'PackagePinsParamSubParamID', 'DatasheetParamSubParamID',
     'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParamSubParamID'],
     [AIDComponent, TDefaultParameters.ProducerParamSubParamID,
@@ -187,18 +126,19 @@ end;
 
 function TQuerySearchFamily.SearchByValue(const AValue: string): Integer;
 var
-  S: String;
+  ASQL: String;
 begin
   Assert(not AValue.IsEmpty);
 
-  // Добавляем условие
-  S := Replace(fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0');
-  // Добавляем значения параметров
-  S := S.Replace('/* ParametersValues', '', [rfReplaceAll]);
-  S := S.Replace('ParametersValues */', '', [rfReplaceAll]);
+  ASQL := SQL;
 
-  FDQuery.SQL.Text := S;
-  SetParamType('Value', ptInput, ftWideString);
+  // Добавляем значения параметров
+  ASQL := ASQL.Replace('/* ParametersValues', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ParametersValues */', '', [rfReplaceAll]);
+
+  FDQuery.SQL.Text := ReplaceInSQL(ASQL, Format('upper(%s) = upper(:%s)',
+    [W.Value.FullName, W.Value.FieldName]), 0);
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
   SetParamType('ProducerParamSubParamID');
   SetParamType('PackagePinsParamSubParamID');
   SetParamType('DatasheetParamSubParamID');
@@ -206,7 +146,7 @@ begin
   SetParamType('DrawingParamSubParamID');
   SetParamType('ImageParamSubParamID');
 
-  Result := Search(['Value', 'ProducerParamSubParamID',
+  Result := Search([W.Value.FieldName, 'ProducerParamSubParamID',
     'PackagePinsParamSubParamID', 'DatasheetParamSubParamID',
     'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParamSubParamID'],
     [AValue, TDefaultParameters.ProducerParamSubParamID,
@@ -217,26 +157,32 @@ begin
     TDefaultParameters.ImageParamSubParamID]);
 end;
 
-function TQuerySearchFamily.SearchByValueAndProducer(const AValue, AProducer:
-    string): Integer;
+function TQuerySearchFamily.SearchByValueAndProducer(const AValue,
+  AProducer: string): Integer;
 var
-  S: String;
+  ASQL: String;
 begin
   Assert(not AValue.IsEmpty);
   Assert(not AProducer.IsEmpty);
 
-  // Добавляем условие по наименованию семейства и его производителю
-  S := Replace(fdqBase.SQL.Text, '(upper(p.Value) = upper(:Value)) and (upper(pv.Value) = upper(:Producer))', '0=0');
+  ASQL := SQL;
+
   // Добавляем значения параметров
-  S := S.Replace('/* ParametersValues', '', [rfReplaceAll]);
-  S := S.Replace('ParametersValues */', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('/* ParametersValues', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ParametersValues */', '', [rfReplaceAll]);
 
   // Добавляем краткое описание
-  S := S.Replace('/* Description', '', [rfReplaceAll]);
-  S := S.Replace('Description */', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('/* Description', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('Description */', '', [rfReplaceAll]);
 
-  FDQuery.SQL.Text := S;
-  SetParamType('Value', ptInput, ftWideString);
+  // Добавляем условие по наименованию семейства и его производителю
+  ASQL := ReplaceInSQL(ASQL, Format('upper(%s) = upper(:%s)',
+    [W.Value.FullName, W.Value.FieldName]), 0);
+
+  FDQuery.SQL.Text := ReplaceInSQL(ASQL,
+    'upper(pv.Value) = upper(:Producer)', 0);
+  SetParamType(W.Value.FieldName, ptInput, ftWideString);
+  SetParamType('Producer', ptInput, ftWideString);
   SetParamType('ProducerParamSubParamID');
   SetParamType('PackagePinsParamSubParamID');
   SetParamType('DatasheetParamSubParamID');
@@ -244,7 +190,7 @@ begin
   SetParamType('DrawingParamSubParamID');
   SetParamType('ImageParamSubParamID');
 
-  Result := Search(['Value', 'Producer', 'ProducerParamSubParamID',
+  Result := Search([W.Value.FieldName, 'Producer', 'ProducerParamSubParamID',
     'PackagePinsParamSubParamID', 'DatasheetParamSubParamID',
     'DiagramParamSubParamID', 'DrawingParamSubParamID', 'ImageParamSubParamID'],
     [AValue, AProducer, TDefaultParameters.ProducerParamSubParamID,
@@ -256,18 +202,34 @@ begin
 end;
 
 function TQuerySearchFamily.SearchByValueSimple(const AValue: string): Integer;
-var
-  S: String;
 begin
   Assert(not AValue.IsEmpty);
 
-  // Добавляем условие
-  S := Replace(fdqBase.SQL.Text, 'upper(p.Value) = upper(:Value)', '0=0');
+  Result := SearchEx([TParamRec.Create(W.Value.FullName, AValue,
+    ftWideString, True)]);
+end;
 
-  FDQuery.SQL.Text := S;
-  SetParamType('Value', ptInput, ftWideString);
-
-  Result := Search(['Value'], [AValue]);
+constructor TSearchFamilyW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'p.ID', '', True);
+  FCategoryIDList := TFieldWrap.Create(Self, 'CategoryIDList');
+  FComponentGroup := TFieldWrap.Create(Self, 'ComponentGroup');
+  FDatasheet := TFieldWrap.Create(Self, 'Datasheet');
+  FDescription := TFieldWrap.Create(Self, 'Description');
+  FDescriptionComponentName := TFieldWrap.Create(Self,
+    'DescriptionComponentName');
+  FDescriptionID := TFieldWrap.Create(Self, 'DescriptionID');
+  FDiagram := TFieldWrap.Create(Self, 'Diagram');
+  FDrawing := TFieldWrap.Create(Self, 'Drawing');
+  FIDDatasheet := TFieldWrap.Create(Self, 'IDDatasheet');
+  FIDDiagram := TFieldWrap.Create(Self, 'IDDiagram');
+  FIDDrawing := TFieldWrap.Create(Self, 'IDDrawing');
+  FIDImage := TFieldWrap.Create(Self, 'IDImage');
+  FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
+  FImage := TFieldWrap.Create(Self, 'Image');
+  FSubgroup := TFieldWrap.Create(Self, 'Subgroup');
+  FValue := TFieldWrap.Create(Self, 'p.Value');
 end;
 
 end.

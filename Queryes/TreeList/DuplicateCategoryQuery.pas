@@ -4,16 +4,25 @@ interface
 
 uses
   FireDAC.Comp.Client, System.Classes, Data.DB, SearchCategoryQuery,
-  NotifyEvents;
+  NotifyEvents, DSWrap;
 
 type
+  TDuplicateCategoryW = class(TDSWrap)
+  private
+    FCaption: TFieldWrap;
+    FID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Caption: TFieldWrap read FCaption;
+    property ID: TFieldWrap read FID;
+  end;
+
   TQueryDuplicateCategory = class(TFDMemTable)
   private
     FOnDuplicateClick: TNotifyEventsEx;
     FAfterSearch: TNotifyEventsEx;
     FqSearchCategory: TQuerySearchCategory;
-    function GetCaption: TField;
-    function GetID: TField;
+    FW: TDuplicateCategoryW;
     function GetqSearchCategory: TQuerySearchCategory;
   protected
     procedure LoadData(AQuerySearchCategory: TQuerySearchCategory);
@@ -22,10 +31,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Search(const AID: Integer);
-    property Caption: TField read GetCaption;
-    property ID: TField read GetID;
     property OnDuplicateClick: TNotifyEventsEx read FOnDuplicateClick;
     property AfterSearch: TNotifyEventsEx read FAfterSearch;
+    property W: TDuplicateCategoryW read FW;
   end;
 
 implementation
@@ -36,8 +44,9 @@ uses
 constructor TQueryDuplicateCategory.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('ID', ftInteger, 0, True);
-  FieldDefs.Add('Caption', ftWideString, 50, True);
+  FW := TDuplicateCategoryW.Create(Self);
+  FieldDefs.Add(W.ID.FieldName, ftInteger, 0, True);
+  FieldDefs.Add(W.Caption.FieldName, ftWideString, 50, True);
 
   CreateDataSet;
 
@@ -50,16 +59,6 @@ begin
   FreeAndNil(FAfterSearch);
   FreeAndNil(FOnDuplicateClick);
   inherited;
-end;
-
-function TQueryDuplicateCategory.GetCaption: TField;
-begin
-  Result := FieldByName('Caption');
-end;
-
-function TQueryDuplicateCategory.GetID: TField;
-begin
-  Result := FieldByName('ID');
 end;
 
 function TQueryDuplicateCategory.GetqSearchCategory: TQuerySearchCategory;
@@ -84,8 +83,8 @@ begin
   begin
     Inc(i);
     Append;
-    ID.Value := AQuerySearchCategory.PK.Value;
-    Caption.AsString := Format('%d совпадение', [i]);
+    W.ID.F.Value := AQuerySearchCategory.PK.Value;
+    W.Caption.F.AsString := Format('%d совпадение', [i]);
     Post;
 
     AQuerySearchCategory.FDQuery.Next;
@@ -101,9 +100,16 @@ begin
   Assert(rc > 0);
 
   LoadData(qSearchCategory);
-  Locate(ID.FieldName, AID);
+  Locate(W.ID.FieldName, AID);
 
   FAfterSearch.CallEventHandlers(Self);
+end;
+
+constructor TDuplicateCategoryW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FCaption := TFieldWrap.Create(Self, 'Caption');
 end;
 
 end.

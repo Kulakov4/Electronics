@@ -76,8 +76,6 @@ begin
   // В режиме поиска - транзакции автоматом
   AutoTransaction := True;
 
-  // FDQuery.SQL.Text := Replace(fdqBase.SQL.Text, 'where ID = 0', '--where');
-
   // Создаём два клона
   FGetModeClone := AddClone(Format('%s > 0', [W.PKFieldName]));
   FClone := AddClone(Format('%s <> null', [W.Value.FieldName]));

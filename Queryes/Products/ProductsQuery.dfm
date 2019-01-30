@@ -93,14 +93,6 @@ inherited QueryProducts: TQueryProducts
       'left join Products pr on p.Value = pr.Value'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       ')'
-      'where StorehouseId = :vStorehouseId'
-      'and 0=0')
-    ParamData = <
-      item
-        Name = 'VSTOREHOUSEID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
+      'where (0=0)')
   end
 end

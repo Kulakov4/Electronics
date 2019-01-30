@@ -3,22 +3,39 @@ unit SearchStorehouseProduct;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TSearchStoreHouseProductW = class(TDSWrap)
+  private
+    FProductID: TFieldWrap;
+    FID: TFieldWrap;
+    FIDComponentGroup: TFieldWrap;
+    FStorehouseID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ProductID: TFieldWrap read FProductID;
+    property ID: TFieldWrap read FID;
+    property IDComponentGroup: TFieldWrap read FIDComponentGroup;
+    property StorehouseID: TFieldWrap read FStorehouseID;
+  end;
+
   TQuerySearchStorehouseProduct = class(TQueryBase)
   private
-    function GetProductID: TField;
+    FW: TSearchStoreHouseProductW;
     { Private declarations }
   public
-    function SearchByGroupID(AStorehouseID, AIDComponentGroup: Integer): Integer;
+    constructor Create(AOwner: TComponent); override;
+    function SearchByGroupID(AStorehouseID, AIDComponentGroup: Integer)
+      : Integer;
     function SearchByID(AID: Integer): Integer;
     function SearchByProductID(AProductID: Integer): Integer;
-    property ProductID: TField read GetProductID;
+    property W: TSearchStoreHouseProductW read FW;
     { Public declarations }
   end;
 
@@ -28,49 +45,44 @@ implementation
 
 uses StrHelper;
 
-function TQuerySearchStorehouseProduct.GetProductID: TField;
+constructor TQuerySearchStorehouseProduct.Create(AOwner: TComponent);
 begin
-  Result := Field('ProductID');
+  inherited;
+  FW := TSearchStoreHouseProductW.Create(FDQuery);
 end;
 
 function TQuerySearchStorehouseProduct.SearchByGroupID(AStorehouseID,
-    AIDComponentGroup: Integer): Integer;
+  AIDComponentGroup: Integer): Integer;
 begin
   Assert(AStorehouseID > 0);
   Assert(AIDComponentGroup > 0);
 
-  // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where (StorehouseID = :StorehouseID) and (IDComponentGroup=:IDComponentGroup)', 'where');
-  SetParamType('StorehouseID');
-  SetParamType('IDComponentGroup');
-
-  // Ищем
-  Result := Search(['StorehouseID', 'IDComponentGroup'], [AStorehouseID, AIDComponentGroup]);
+  Result := SearchEx([TParamRec.Create(W.StorehouseID.FullName, AStorehouseID),
+    TParamRec.Create(W.IDComponentGroup.FullName, AIDComponentGroup)]);
 end;
 
 function TQuerySearchStorehouseProduct.SearchByID(AID: Integer): Integer;
 begin
   Assert(AID > 0);
 
-  // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where ID=:ID', 'where');
-  SetParamType('ID');
-
-  // Ищем
-  Result := Search(['ID'], [AID]);
+  Result := SearchEx([TParamRec.Create(W.ID.FullName, AID)]);
 end;
 
-function TQuerySearchStorehouseProduct.SearchByProductID(AProductID: Integer):
-    Integer;
+function TQuerySearchStorehouseProduct.SearchByProductID
+  (AProductID: Integer): Integer;
 begin
   Assert(AProductID > 0);
 
-  // Меняем в запросе условие
-  FDQuery.SQL.Text := Replace(FDQuery.SQL.Text, 'where ProductID = :ProductID', 'where');
-  SetParamType('ProductID');
+  Result := SearchEx([TParamRec.Create(W.ProductID.FullName, AProductID)]);
+end;
 
-  // Ищем
-  Result := Search(['ProductID'], [AProductID]);
+constructor TSearchStoreHouseProductW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FProductID := TFieldWrap.Create(Self, 'ProductID');
+  FStorehouseID := TFieldWrap.Create(Self, 'StorehouseID');
+  FIDComponentGroup := TFieldWrap.Create(Self, 'IDComponentGroup');
 end;
 
 end.

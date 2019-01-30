@@ -891,10 +891,8 @@ var
   AFormatStr: string;
   ANewValue: string;
   ANewSQL: string;
-  ATemplate: string;
   AValues: TList<Variant>;
   i: Integer;
-  p: Integer;
 begin
   Assert(Length(AParams) > 0);
 
@@ -902,10 +900,6 @@ begin
 
   for i := Low(AParams) to High(AParams) do
   begin
-    ATemplate := Format('%d=%d', [i, i]);
-    p := ANewSQL.IndexOf(ATemplate);
-    Assert(p >= 0);
-
     // Если поиск нечувствительный к регистру
     if AParams[i].CaseInsensitive then
       AFormatStr := 'upper(%s) %s upper(:%s)'
@@ -915,7 +909,8 @@ begin
     ANewValue := Format(AFormatStr, [AParams[i].FullName, AParams[i].Operation,
       AParams[i].FieldName]);
 
-    ANewSQL := ANewSQL.Replace(ATemplate, ANewValue);
+    // Делаем замену в SQL запросе
+    ANewSQL := ReplaceInSQL(ANewSQL, ANewValue, i);
   end;
 
   // Меняем SQL запрос

@@ -4,7 +4,7 @@ inherited QuerySearchComponentOrFamily: TQuerySearchComponentOrFamily
     Caption = 'SearchComponent'
     ExplicitWidth = 118
   end
-  object fdqBase: TFDQuery
+  inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '
       '    p.*'
@@ -18,10 +18,8 @@ inherited QuerySearchComponentOrFamily: TQuerySearchComponentOrFamily
       
         '  join ParameterValues2 pv on pv.ProductID = f.Id and pv.ParamSu' +
         'bParamId = :ProducerParamSubParamID'
-      '  and 1=1 --and pv.Value = :Producer  '
+      '  and 2=2 --and pv.Value = :Producer  '
       'Producer */  '
-      'where 0=0')
-    Left = 72
-    Top = 25
+      'where (0=0) and (1=1)')
   end
 end

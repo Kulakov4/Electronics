@@ -123,10 +123,10 @@ begin
   AParentID := FDQuery.ParamByName(DetailParameterName).AsInteger;
   qSearchCategory.SearchByID(AParentID, 1);
   // Пока мы не добрались до корня дерева
-  while not qSearchCategory.ParentID.IsNull do
+  while not qSearchCategory.W.ParentID.F.IsNull do
   begin
     Inc(Result);
-    qSearchCategory.SearchByID(qSearchCategory.ParentID.AsInteger, 1);
+    qSearchCategory.SearchByID(qSearchCategory.W.ParentID.F.AsInteger, 1);
   end;
 end;
 

@@ -116,7 +116,7 @@ begin
     Edit;
     IDComponent.AsInteger := qSearchComponentOrFamily.PK.AsInteger;
     IDParentComponent.AsInteger :=
-      qSearchComponentOrFamily.ParentProductID.AsInteger;
+      qSearchComponentOrFamily.W.ParentProductID.F.AsInteger;
     Post;
   end
   else

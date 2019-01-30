@@ -8,6 +8,6 @@ inherited QuerySearchCategory: TQuerySearchCategory
     SQL.Strings = (
       'select *'
       'from productcategories pc'
-      'where 0=0')
+      'where 0=0 and 1=1')
   end
 end

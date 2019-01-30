@@ -6,7 +6,7 @@ inherited QuerySearchFamily: TQuerySearchFamily
     Caption = 'SearchFamily'
     ExplicitWidth = 84
   end
-  object fdqBase: TFDQuery
+  inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select '
       '    p.*'
@@ -59,10 +59,7 @@ inherited QuerySearchFamily: TQuerySearchFamily
       '/* Description'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       'Description */'
-      'where 0=0  --p.ID = :ID '
-      'and p.ParentProductId is null'
+      'where p.ParentProductId is null and (0=0) and (1=1)'
       'GROUP BY p.Id')
-    Left = 64
-    Top = 25
   end
 end

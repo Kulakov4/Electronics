@@ -207,7 +207,6 @@ uses
   BodyVariationOptionQuery in 'Queryes\BodyTypes\BodyVariationOptionQuery.pas' {QueryBodyVariationOption: TFrame},
   BodyVariationJedecView in 'Views\BodyTypes\BodyVariationJedecView.pas' {ViewBodyVariationJEDEC: TFrame},
   BodyVariationsJedecQuery in 'Queryes\BodyTypes\BodyVariationsJedecQuery.pas' {QueryBodyVariationsJedec: TFrame},
-  BodyVariationJedecGroupQuery in 'Queryes\BodyTypes\BodyVariationJedecGroupQuery.pas' {QueryBodyVariationJEDECGroup: TFrame},
   OpenJedecUnit in 'Helpers\OpenJedecUnit.pas',
   ProducerInterface in 'Queryes\Producers\ProducerInterface.pas',
   CurrencyInterface in 'Helpers\CurrencyInterface.pas',
