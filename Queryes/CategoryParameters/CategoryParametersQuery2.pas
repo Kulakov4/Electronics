@@ -146,7 +146,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Создаём клон
-  FInsertedClone := AddClone('');
+  FInsertedClone := W.AddClone('');
   FInsertedClone.FilterChanges := [rtInserted];
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
@@ -361,7 +361,7 @@ begin
   end;
 
   AFilter := Format('%s in (%s)', [PKFieldName, S]);
-  Result := AddClone(AFilter);
+  Result := W.AddClone(AFilter);
 
 end;
 
@@ -410,7 +410,7 @@ begin
   // Все подпараметры, кроме подпараметра "по умолчанию"
   AFilter := Format('%s = (%d) and %s = 0', [W.IDParameter.FieldName,
     W.IDParameter.F.AsInteger, W.IsDefault.FieldName]);
-  AClone := AddClone(AFilter);
+  AClone := W.AddClone(AFilter);
   try
     while not AClone.Eof do
     begin
@@ -419,7 +419,7 @@ begin
       AClone.Next;
     end;
   finally
-    DropClone(AClone);
+    W.DropClone(AClone);
   end;
 end;
 
@@ -462,7 +462,7 @@ var
 begin
   D := TDictionary<Integer, Integer>.Create;
   try
-    AClone := AddClone(Format('%s >= %d', [W.Ord.FieldName, AStartOrder]));
+    AClone := W.AddClone(Format('%s >= %d', [W.Ord.FieldName, AStartOrder]));
     try
       while not AClone.Eof do
       begin
@@ -471,7 +471,7 @@ begin
         AClone.Next;
       end;
     finally
-      DropClone(AClone);
+      W.DropClone(AClone);
     end;
     A := D.ToArray;
   finally
@@ -535,7 +535,7 @@ begin
       AClone.Next;
     end;
   finally
-    DropClone(AClone);
+    W.DropClone(AClone);
   end;
 end;
 

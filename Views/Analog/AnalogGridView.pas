@@ -446,7 +446,7 @@ begin
       AClone.Next;
     end;
   finally
-    qCategoryParameters.DropClone(AClone);
+    qCategoryParameters.W.DropClone(AClone);
     FreeAndNil(AIDList);
   end;
 

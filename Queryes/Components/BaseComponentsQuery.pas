@@ -132,7 +132,7 @@ begin
 
   if FClone = nil then
   begin
-    FClone := AddClone('');
+    FClone := W.AddClone('');
     // Создаём индекс
     AFDIndex := FClone.Indexes.Add;
     AFDIndex.Fields := 'ParentProductID';

@@ -67,8 +67,8 @@ begin
   AutoTransaction := True;
 
   // Создаём два клона
-  FGetModeClone := AddClone('ID > 0');
-  FClone := AddClone('Value <> null');
+  FGetModeClone := W.AddClone(Format('%s > 0', [W.ID.FieldName]));
+  FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   // Подписываемся на событие
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);

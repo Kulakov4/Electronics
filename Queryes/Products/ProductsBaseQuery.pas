@@ -277,23 +277,23 @@ begin
 
   FCalcStatus := 0;
 
-  FNotGroupClone := AddClone('IsGroup=0');
+  FNotGroupClone := W.AddClone(Format('%s = 0', [W.IsGroup.FieldName]));
 
   FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
   FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
 
-  FBasket := AddClone('SaleCount > 0');
+  FBasket := W.AddClone(Format('%s > 0', [W.SaleCount.FieldName]));
 end;
 
 destructor TQueryProductsBase.Destroy;
 begin
-  DropClone(FBasket);
+  W.DropClone(FBasket);
   FBasket := nil;
 
   FreeAndNil(FOnDollarCourceChange);
   FreeAndNil(FOnEuroCourceChange);
 
-  DropClone(FNotGroupClone);
+  W.DropClone(FNotGroupClone);
   FNotGroupClone := nil;
 
   FreeAndNil(FOnLocate);
@@ -588,7 +588,7 @@ begin
     // Если нужно удалить группу
     if W.IsGroup.F.AsInteger = 1 then
     begin
-      AClone := AddClone(Format('%s=%d', [W.IDComponentGroup.FieldName,
+      AClone := W.AddClone(Format('%s=%d', [W.IDComponentGroup.FieldName,
         W.PK.AsInteger]));
       try
         // Удаляем все компоненты группы
@@ -596,7 +596,7 @@ begin
           DeleteNode(AClone.FieldByName('ID').AsInteger);
 
       finally
-        DropClone(AClone);
+        W.DropClone(AClone);
       end;
 
       // Снова переходим на группу
@@ -1164,7 +1164,7 @@ begin
   // Если пытаемся применить коэффициент к группе
   if W.IsGroup.F.AsInteger = 1 then
   begin
-    AClone := AddClone(Format('%s=%d', [W.IDComponentGroup.FieldName,
+    AClone := W.AddClone(Format('%s=%d', [W.IDComponentGroup.FieldName,
       PK.AsInteger]));
     try
       AClone.First;
@@ -1175,7 +1175,7 @@ begin
         AClone.Next;
       end;
     finally
-      DropClone(AClone);
+      W.DropClone(AClone);
     end;
   end
   else

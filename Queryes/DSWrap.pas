@@ -25,6 +25,7 @@ type
     FDataSet: TDataSet;
     FEventList: TObjectList;
     FFieldsWrap: TObjectList<TParamWrap>;
+    FIsRecordModifedClone: TFDMemTable;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
@@ -60,6 +61,7 @@ type
     procedure AfterConstruction; override;
     procedure AppendRows(AFieldName: string; AValues: TArray<String>); overload;
         virtual;
+    procedure CancelUpdates; virtual;
     procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
     procedure DeleteAll;
@@ -67,6 +69,7 @@ type
     function Field(const AFieldName: string): TField;
     function HaveAnyChanges: Boolean;
     function InsertRecord(ARecordHolder: TRecordHolder): Integer;
+    function IsRecordModifed(APKValue: Variant): Boolean;
     function IsParamExist(const AParamName: String): Boolean;
     function Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; ATestResult: Integer = -1)
@@ -150,7 +153,17 @@ begin
 end;
 
 destructor TDSWrap.Destroy;
+var
+  I: Integer;
 begin
+  // Удалим все клоны
+  if FClones <> nil then
+  begin
+    for I := FClones.Count - 1 downto 0 do
+      DropClone(FClones[i]);
+  end;
+  Assert(FClones = nil);
+
   FreeAndNil(FFieldsWrap);
   FreeAndNil(FEventList);
   if FAfterOpen <> nil then
@@ -246,6 +259,16 @@ begin
     Field(AFieldName).AsString := AValue;
     TryPost;
   end;
+end;
+
+procedure TDSWrap.CancelUpdates;
+begin
+  // отменяем все сделанные изменения на стороне клиента
+  TryCancel;
+  if FDDataSet.CachedUpdates then
+  begin
+    FDDataSet.CancelUpdates;
+  end
 end;
 
 procedure TDSWrap.ClearFields(AFieldList: TArray<String>; AIDList:
@@ -500,6 +523,30 @@ begin
     raise;
   end;
 
+end;
+
+function TDSWrap.IsRecordModifed(APKValue: Variant): Boolean;
+var
+  AFDDataSet: TFDDataSet;
+  OK: Boolean;
+begin
+  // Если проверяем текущую запись
+  if PK.Value = APKValue then
+    AFDDataSet := FDDataSet
+  else
+  begin
+    // Для проверки другой записи надо создать клон
+    if FIsRecordModifedClone = nil then
+    begin
+      // Создаём клон
+      FIsRecordModifedClone := AddClone('');
+    end;
+    OK := FIsRecordModifedClone.LocateEx(PKFieldName, APKValue);
+    Assert(OK);
+    AFDDataSet := FIsRecordModifedClone;
+  end;
+
+  Result := AFDDataSet.UpdateStatus in [usModified, usInserted]
 end;
 
 function TDSWrap.IsParamExist(const AParamName: String): Boolean;

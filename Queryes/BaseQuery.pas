@@ -54,8 +54,6 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure DeleteSelfDetail(AIDMaster: Variant); virtual;
-    // TODO: DoOnNeedPost
-    // procedure DoOnNeedPost(var Message: TMessage); message WM_NEED_POST;
     procedure DoOnQueryUpdateRecord(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
@@ -113,12 +111,12 @@ type
       TestResult: Integer = -1): Integer;
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
-    function SetParamType(const AParamName: String; AParamType: TParamType =
-        ptInput; ADataType: TFieldType = ftInteger): TFDParam;
-    function SetParamTypeEx(const AParamName: String; AValue: Variant; AParamType:
-        TParamType = ptInput; ADataType: TFieldType = ftInteger): TFDParam;
-// TODO: TryEdit
-//  function TryEdit: Boolean;
+    function SetParamType(const AParamName: String;
+      AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
+      : TFDParam;
+    function SetParamTypeEx(const AParamName: String; AValue: Variant;
+      AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
+      : TFDParam;
     procedure TryPost; virtual;
     procedure TryCancel;
     procedure TryOpen;
@@ -835,8 +833,9 @@ begin
     AField.ReadOnly := AReadOnly;
 end;
 
-function TQueryBase.SetParamType(const AParamName: String; AParamType:
-    TParamType = ptInput; ADataType: TFieldType = ftInteger): TFDParam;
+function TQueryBase.SetParamType(const AParamName: String;
+  AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
+  : TFDParam;
 begin
   Result := FDQuery.FindParam(AParamName);
   Assert(Result <> nil);
@@ -845,27 +844,13 @@ begin
 end;
 
 function TQueryBase.SetParamTypeEx(const AParamName: String; AValue: Variant;
-    AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger):
-    TFDParam;
+  AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
+  : TFDParam;
 begin
   Assert(not VarIsNull(AValue));
   Result := SetParamType(AParamName, AParamType, ADataType);
   Result.Value := AValue;
 end;
-
-// TODO: TryEdit
-//function TQueryBase.TryEdit: Boolean;
-//begin
-//Assert(FDQuery.Active);
-//
-//Result := False;
-//if FDQuery.State in [dsEdit, dsInsert] then
-//  Exit;
-//
-//Assert(FDQuery.RecordCount > 0);
-//FDQuery.Edit;
-//Result := True;
-//end;
 
 procedure TQueryBase.TryPost;
 begin

@@ -94,7 +94,7 @@ end;
 function TQueryDescriptions.GetCheckClone: TFDMemTable;
 begin
   if FCheckClone = nil then
-    FCheckClone := AddClone('');
+    FCheckClone := W.AddClone('');
 
   Result := FCheckClone;
 end;

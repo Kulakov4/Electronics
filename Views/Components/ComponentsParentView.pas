@@ -406,7 +406,7 @@ begin
 
   // ¬ режиме редактировани€ - доступ в зависимости от состо€ни€
   AReadOnly := (not VarIsNull(V)) and
-    (not BaseComponentsGroup.QueryBaseComponents.IsModifed(V));
+    (not BaseComponentsGroup.QueryBaseComponents.W.IsRecordModifed(V));
 
   if AReadOnly then
     AProperties := cxertiValueRO.Properties
@@ -480,7 +480,7 @@ begin
     HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
 
     // “олько дл€ чтени€ те записи, которые не модифицировались
-    AReadOnly := not BaseComponentsGroup.QueryBaseFamily.IsModifed(AID);
+    AReadOnly := not BaseComponentsGroup.QueryBaseFamily.W.IsRecordModifed(AID);
   end;
 
   if HavDetails then

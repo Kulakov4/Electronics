@@ -22,7 +22,8 @@ type
     procedure HideNullGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
   private
-    FIsModifedClone: TFDMemTable;
+// TODO: FIsModifedClone
+//  FIsModifedClone: TFDMemTable;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     procedure InitializeFields;
@@ -30,7 +31,8 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
-    function IsModifed(APKValue: Variant): Boolean;
+// TODO: IsModifed
+//  function IsModifed(APKValue: Variant): Boolean;
     { Public declarations }
   end;
 
@@ -109,28 +111,29 @@ begin
   end;
 end;
 
-function TQueryWithDataSource.IsModifed(APKValue: Variant): Boolean;
-var
-  AFDDataSet: TFDDataSet;
-  OK: Boolean;
-begin
-  // Если проверяем текущую запись
-  if PK.Value = APKValue then
-    AFDDataSet := FDQuery
-  else
-  begin
-    // Для проверки другой записи надо создать клон
-    if FIsModifedClone = nil then
-    begin
-      // Создаём клон
-      FIsModifedClone := AddClone('');
-    end;
-    OK := FIsModifedClone.LocateEx(PKFieldName, APKValue);
-    Assert(OK);
-    AFDDataSet := FIsModifedClone;
-  end;
-
-  Result := AFDDataSet.UpdateStatus in [usModified, usInserted]
-end;
+// TODO: IsModifed
+//function TQueryWithDataSource.IsModifed(APKValue: Variant): Boolean;
+//var
+//AFDDataSet: TFDDataSet;
+//OK: Boolean;
+//begin
+//// Если проверяем текущую запись
+//if PK.Value = APKValue then
+//  AFDDataSet := FDQuery
+//else
+//begin
+//  // Для проверки другой записи надо создать клон
+//  if FIsModifedClone = nil then
+//  begin
+//    // Создаём клон
+//    FIsModifedClone := AddClone('');
+//  end;
+//  OK := FIsModifedClone.LocateEx(PKFieldName, APKValue);
+//  Assert(OK);
+//  AFDDataSet := FIsModifedClone;
+//end;
+//
+//Result := AFDDataSet.UpdateStatus in [usModified, usInserted]
+//end;
 
 end.

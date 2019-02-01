@@ -373,7 +373,7 @@ begin
 
     end;
   finally
-    qCategoryParameters.DropClone(AClone);
+    qCategoryParameters.W.DropClone(AClone);
   end;
 end;
 
@@ -463,7 +463,7 @@ begin
       while not AClone.Eof do
         AClone.Delete;
     finally
-      qCategoryParameters.DropClone(AClone);
+      qCategoryParameters.W.DropClone(AClone);
     end;
   end;
   LoadData;
@@ -517,7 +517,7 @@ begin
         end;
       end;
     finally
-      qCategoryParameters.DropClone(AClone);
+      qCategoryParameters.W.DropClone(AClone);
     end;
   end;
 
@@ -570,7 +570,7 @@ begin
       end;
       Result := L.ToArray;
     finally
-      qCategoryParameters.DropClone(AClone);
+      qCategoryParameters.W.DropClone(AClone);
     end;
   finally
     FreeAndNil(L);
@@ -726,7 +726,7 @@ begin
           AClone.Next;
         end;
       finally
-        qCategoryParameters.DropClone(AClone);
+        qCategoryParameters.W.DropClone(AClone);
       end;
     end;
 
@@ -771,7 +771,7 @@ begin
       qCategoryParameters.W.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
       ANewID := AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger;
     finally
-      qCategoryParameters.DropClone(AClone);
+      qCategoryParameters.W.DropClone(AClone);
     end;
 
     // Если в ходе перемещения, на первое место встал другой подпараметр
@@ -818,7 +818,7 @@ begin
             AClone.Next;
           end;
         finally
-          qCategoryParameters.DropClone(AClone);
+          qCategoryParameters.W.DropClone(AClone);
         end;
       end
       else

@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, System.Contnrs, System.Generics.Collections;
+  NotifyEvents, System.Contnrs, System.Generics.Collections, DSWrap;
 
 const
   WM_DS_BEFORE_SCROLL = WM_USER + 555;
@@ -56,8 +56,8 @@ type
     FAfterCancelUpdates: TNotifyEventsEx;
     FAfterPostI: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
-    FCloneEvents: TObjectList;
-    FClones: TObjectList<TFDMemTable>;
+    FDSWrap: TDSWrap;
+//    FCloneEvents: TObjectList;
     FHaveAnyNotCommitedChanges: Boolean;
     FOldPKValue: Variant;
     FOldState: TDataSetState;
@@ -66,15 +66,19 @@ type
     FResiveBeforeScrollMessage: Boolean;
     FUseAfterPostMessage: Boolean;
     class var FMonitor: TQueryMonitor;
-    procedure CloneCursor(AClone: TFDMemTable);
-    procedure DoAfterClose(Sender: TObject);
-    procedure DoAfterOpen(Sender: TObject);
+// TODO: CloneCursor
+//  procedure CloneCursor(AClone: TFDMemTable);
+// TODO: DoAfterClose
+//  procedure DoAfterClose(Sender: TObject);
+// TODO: DoAfterOpen
+//  procedure DoAfterOpen(Sender: TObject);
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
     { Private declarations }
   protected
     FAutoTransactionEventList: TObjectList;
     FMasterEventList: TObjectList;
+    function CreateDSWrap: TDSWrap; virtual; abstract;
     procedure DoAfterCommit(Sender: TObject);
     procedure DoAfterRollback(Sender: TObject);
     function GetHaveAnyNotCommitedChanges: Boolean; override;
@@ -87,9 +91,11 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function AddClone(const AFilter: String): TFDMemTable;
+// TODO: AddClone
+//  function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
-    procedure DropClone(AClone: TFDMemTable);
+// TODO: DropClone
+//  procedure DropClone(AClone: TFDMemTable);
     procedure SmartRefresh; virtual;
     property AfterClose: TNotifyEventsEx read FAfterClose;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
@@ -165,6 +171,9 @@ constructor TQueryBaseEvents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  // Создаём обёртку вокруг себя
+  FDSWrap := CreateDSWrap;
+
   FOldState := dsInactive;
 
   // Создаём события
@@ -219,9 +228,10 @@ begin
 end;
 
 destructor TQueryBaseEvents.Destroy;
-var
-  I: Integer;
+//var
+//  I: Integer;
 begin
+{
   // Удалим все клоны
   if FClones <> nil then
   begin
@@ -229,7 +239,7 @@ begin
       DropClone(FClones[i]);
   end;
   Assert(FClones = nil);
-
+}
   FreeAndNil(FBeforeScroll);
   FreeAndNil(FBeforeScrollI);
   FreeAndNil(FAfterScroll);
@@ -272,31 +282,32 @@ begin
   inherited;
 end;
 
-function TQueryBaseEvents.AddClone(const AFilter: String): TFDMemTable;
-begin
-  // Создаём список клонов
-  if FClones = nil then
-  begin
-    FClones := TObjectList<TFDMemTable>.Create;
-
-    // Список подписчиков
-    FCloneEvents := TObjectList.Create;
-
-    // Будем клонировать курсоры
-    TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
-    // Будем закрывать курсоры
-    TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
-  end;
-
-  Result := TFDMemTable.Create(nil); // Владельцем будет список
-  Result.Filter := AFilter;
-
-  // Клонируем
-  if FDQuery.Active then
-    CloneCursor(Result);
-
-  FClones.Add(Result); // Владельцем будет список
-end;
+// TODO: AddClone
+//function TQueryBaseEvents.AddClone(const AFilter: String): TFDMemTable;
+//begin
+//// Создаём список клонов
+//if FClones = nil then
+//begin
+//  FClones := TObjectList<TFDMemTable>.Create;
+//
+//  // Список подписчиков
+//  FCloneEvents := TObjectList.Create;
+//
+//  // Будем клонировать курсоры
+//  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
+//  // Будем закрывать курсоры
+//  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
+//end;
+//
+//Result := TFDMemTable.Create(nil); // Владельцем будет список
+//Result.Filter := AFilter;
+//
+//// Клонируем
+//if FDQuery.Active then
+//  CloneCursor(Result);
+//
+//FClones.Add(Result); // Владельцем будет список
+//end;
 
 procedure TQueryBaseEvents.CancelUpdates;
 begin
@@ -308,30 +319,32 @@ begin
   end;
 end;
 
-procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
-var
-  AFilter: String;
-begin
-  // Assert(not AClone.Filter.IsEmpty);
-  AFilter := AClone.Filter;
-  AClone.CloneCursor(FDQuery);
+// TODO: CloneCursor
+//procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
+//var
+//AFilter: String;
+//begin
+//// Assert(not AClone.Filter.IsEmpty);
+//AFilter := AClone.Filter;
+//AClone.CloneCursor(FDQuery);
+//
+//// Если фильтр накладывать не надо
+//if (AFilter.IsEmpty) then
+//  Exit;
+//
+//AClone.Filter := AFilter;
+//AClone.Filtered := True;
+//end;
 
-  // Если фильтр накладывать не надо
-  if (AFilter.IsEmpty) then
-    Exit;
-
-  AClone.Filter := AFilter;
-  AClone.Filtered := True;
-end;
-
-procedure TQueryBaseEvents.DoAfterClose(Sender: TObject);
-var
-  AClone: TFDMemTable;
-begin
-  // Закрываем клоны
-  for AClone in FClones do
-    AClone.Close;
-end;
+// TODO: DoAfterClose
+//procedure TQueryBaseEvents.DoAfterClose(Sender: TObject);
+//var
+//AClone: TFDMemTable;
+//begin
+//// Закрываем клоны
+//for AClone in FClones do
+//  AClone.Close;
+//end;
 
 procedure TQueryBaseEvents.DoAfterCommit(Sender: TObject);
 begin
@@ -344,16 +357,17 @@ begin
   end;
 end;
 
-procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
-var
-  AClone: TFDMemTable;
-begin
-  // клонируем курсоры
-  for AClone in FClones do
-  begin
-    CloneCursor(AClone);
-  end;
-end;
+// TODO: DoAfterOpen
+//procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
+//var
+//AClone: TFDMemTable;
+//begin
+//// клонируем курсоры
+//for AClone in FClones do
+//begin
+//  CloneCursor(AClone);
+//end;
+//end;
 
 procedure TQueryBaseEvents.DoAfterRollback(Sender: TObject);
 begin
@@ -368,22 +382,23 @@ begin
     FDQuery.Connection.StartTransaction;
 end;
 
-procedure TQueryBaseEvents.DropClone(AClone: TFDMemTable);
-begin
-  Assert(AClone <> nil);
-  Assert(FClones <> nil);
-
-  FClones.Remove(AClone);
-
-  if FClones.Count = 0 then
-  begin
-    // Отписываемся
-    FreeAndNil(FCloneEvents);
-    // Разрушаем список
-    FreeAndNil(FClones);
-  end;
-
-end;
+// TODO: DropClone
+//procedure TQueryBaseEvents.DropClone(AClone: TFDMemTable);
+//begin
+//Assert(AClone <> nil);
+//Assert(FClones <> nil);
+//
+//FClones.Remove(AClone);
+//
+//if FClones.Count = 0 then
+//begin
+//  // Отписываемся
+//  FreeAndNil(FCloneEvents);
+//  // Разрушаем список
+//  FreeAndNil(FClones);
+//end;
+//
+//end;
 
 procedure TQueryBaseEvents.FDQueryAfterCancel(DataSet: TDataSet);
 begin

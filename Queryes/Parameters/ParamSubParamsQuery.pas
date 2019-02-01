@@ -105,7 +105,7 @@ begin
   Assert(not AFieldName.IsEmpty);
 
   Result := '';
-  AClone := AddClone(Format('%s = %d', [W.Checked.FieldName, 1]));
+  AClone := W.AddClone(Format('%s = %d', [W.Checked.FieldName, 1]));
   try
     while not AClone.Eof do
     begin
@@ -114,7 +114,7 @@ begin
       AClone.Next;
     end;
   finally
-    DropClone(AClone);
+    W.DropClone(AClone);
   end;
 end;
 
