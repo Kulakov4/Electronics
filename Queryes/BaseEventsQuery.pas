@@ -23,7 +23,6 @@ type
     procedure FDQueryAfterCancel(DataSet: TDataSet);
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
-    procedure FDQueryAfterInsert(DataSet: TDataSet);
     procedure FDQueryAfterOpen(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
     procedure FDQueryAfterScroll(DataSet: TDataSet);
@@ -38,7 +37,6 @@ type
     FBeforeClose: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
-    FAfterInsert: TNotifyEventsEx;
     FAfterOpen: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
     FAfterScroll: TNotifyEventsEx;
@@ -98,7 +96,6 @@ type
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
-    property AfterInsert: TNotifyEventsEx read FAfterInsert;
     property AfterOpen: TNotifyEventsEx read FAfterOpen;
     property AfterPost: TNotifyEventsEx read FAfterPost;
     property AfterScroll: TNotifyEventsEx read FAfterScroll;
@@ -179,7 +176,6 @@ begin
   FAfterScroll := TNotifyEventsEx.Create(Self);
 
   FBeforeInsert := TNotifyEventsEx.Create(Self);
-  FAfterInsert := TNotifyEventsEx.Create(Self);
 
   FBeforeDelete := TNotifyEventsEx.Create(Self);
   FAfterDelete := TNotifyEventsEx.Create(Self);
@@ -224,24 +220,13 @@ begin
 end;
 
 destructor TQueryBaseEvents.Destroy;
-//var
-//  I: Integer;
 begin
-{
-  // Удалим все клоны
-  if FClones <> nil then
-  begin
-    for I := FClones.Count - 1 downto 0 do
-      DropClone(FClones[i]);
-  end;
-  Assert(FClones = nil);
-}
+
   FreeAndNil(FBeforeScroll);
   FreeAndNil(FBeforeScrollI);
   FreeAndNil(FAfterScroll);
 
   FreeAndNil(FBeforeInsert);
-  FreeAndNil(FAfterInsert);
 
   FreeAndNil(FBeforeDelete);
   FreeAndNil(FAfterDelete);
@@ -415,12 +400,6 @@ procedure TQueryBaseEvents.FDQueryAfterEdit(DataSet: TDataSet);
 begin
   inherited;
   FAfterEdit.CallEventHandlers(Self);
-end;
-
-procedure TQueryBaseEvents.FDQueryAfterInsert(DataSet: TDataSet);
-begin
-  inherited;
-  FAfterInsert.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterOpen(DataSet: TDataSet);
@@ -652,7 +631,7 @@ begin
   FQueries.Add(AQuery);
 
   TNotifyEventWrap.Create(AQuery.AfterEdit, DoAfterEditOrInsert, FEventList);
-  TNotifyEventWrap.Create(AQuery.AfterInsert, DoAfterEditOrInsert, FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterInsert, DoAfterEditOrInsert, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancel, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterPostI, DoAfterCancelOrPost, FEventList);

@@ -274,7 +274,7 @@ begin
         FQuerySubGroups.DataSource;
 
       // Подписываемся на события
-      TNotifyEventWrap.Create(FQuerySubGroups.AfterInsert, DoAfterInsert,
+      TNotifyEventWrap.Create(FQuerySubGroups.W.AfterInsert, DoAfterInsert,
         FEventList);
       TNotifyEventWrap.Create(FQuerySubGroups.AfterScroll, DoAfterScroll,
         FEventList);

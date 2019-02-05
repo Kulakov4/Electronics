@@ -89,7 +89,7 @@ begin
   FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);
   FOnEndUpdate := TNotifyEventsEx.Create(Self);

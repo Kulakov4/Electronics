@@ -53,7 +53,7 @@ constructor TQueryFamily.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   DetailParameterName := 'vProductCategoryId';
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
 end;

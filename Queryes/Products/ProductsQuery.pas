@@ -64,7 +64,7 @@ begin
   FNeedUpdateCount := True;
 
   DetailParameterName := W.StorehouseId.FieldName;
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);

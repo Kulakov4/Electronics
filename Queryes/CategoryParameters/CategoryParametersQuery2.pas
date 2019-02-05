@@ -152,7 +152,7 @@ begin
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 
   FDeletedSubParams := TRecHolderList.Create;
   FEditedSubParams := TRecHolderList.Create;
