@@ -32,7 +32,7 @@ uses NotifyEvents, DefaultParameters;
 constructor TQueryAllFamily.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 end;
 
 procedure TQueryAllFamily.DoAfterOpen(Sender: TObject);

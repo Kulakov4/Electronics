@@ -61,7 +61,7 @@ begin
   inherited;
   FW := FDSWrap as TChildCategoriesW;
   DetailParameterName := W.ParentID.FieldName;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 end;
 
 procedure TQueryChildCategories.AddCategory(const AValue: String);

@@ -97,7 +97,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Подписываемся на события
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 
   AutoTransaction := False;

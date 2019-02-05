@@ -112,7 +112,10 @@ begin
   else
     InitParameterFields;
 
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  // Не проверять необходимость заполнения полей на клиенте
+  FDQuery.UpdateOptions.CheckRequired := False;
+
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 
   // Будем сами управлять транзакцией
   AutoTransaction := false;
@@ -185,8 +188,6 @@ begin
     F := Field(AFieldName);
     Assert(F <> nil);
   end;
-
-  SetFieldsRequired(false);
 end;
 
 procedure TQueryCustomComponents.DoAfterEdit(Sender: TObject);

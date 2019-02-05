@@ -90,7 +90,7 @@ begin
 
   TNotifyEventWrap.Create(qFamilyEx.BeforeOpen, DoBeforeOpen, EventList);
   TNotifyEventWrap.Create(qComponentsEx.BeforeOpen, DoBeforeOpen, EventList);
-  TNotifyEventWrap.Create(qFamilyEx.AfterOpen, DoAfterOpen, EventList);
+  TNotifyEventWrap.Create(qFamilyEx.W.AfterOpen, DoAfterOpen, EventList);
 
   FClientCount := 1;
   DecClient; // Искусственно блокируем обновление

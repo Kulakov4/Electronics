@@ -68,7 +68,7 @@ begin
   FPKFieldName := 'IDJEDEC';
   // Будем накапливать изменения, чтобы понять, есть-ли изменения
   FDQuery.CachedUpdates := True;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 end;
 
 procedure TQueryBodyVariationsJedec.ApplyDelete(ASender: TDataSet;

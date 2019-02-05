@@ -62,7 +62,7 @@ begin
   inherited;
   FW := FDSWrap as TParamSubParamW;
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 

@@ -626,10 +626,10 @@ begin
     TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.Monitor.
       OnHaveAnyChanges, DoOnHaveAnyChanges, FEventList);
 
-    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionTypes.AfterOpen,
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptionTypes.W.AfterOpen,
       DoOnHaveAnyChanges, FEventList);
 
-    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.AfterOpen,
+    TNotifyEventWrap.Create(FDescriptionsGroup.qDescriptions.W.AfterOpen,
       DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;

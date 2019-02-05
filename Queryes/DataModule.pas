@@ -156,7 +156,7 @@ begin
   // ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   // ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
-  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.AfterOpen,
+  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.W.AfterOpen,
     DoAfterTreeListFirstOpen, FEventList);
   TNotifyEventWrap.Create(qTreeList.BeforeClose, DoBeforeTreeListClose,
     FEventList);

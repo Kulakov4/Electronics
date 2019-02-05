@@ -88,7 +88,7 @@ begin
   FGetModeClone := W.AddClone(Format('%s > 0', [W.PKFieldName]));
   FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);

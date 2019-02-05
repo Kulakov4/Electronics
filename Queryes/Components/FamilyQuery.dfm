@@ -70,7 +70,7 @@ inherited QueryFamily: TQueryFamily
       
         'LEFT JOIN ParameterValues2 pv6 ON pv6.ProductID = p.Id AND pv6.P' +
         'aramSubParamId = :ImageParamSubParamID'
-      'where ppc.ProductCategoryId = :vProductCategoryId'
+      'where ppc.ProductCategoryId = :ProductCategoryId'
       ') t')
     ParamData = <
       item
@@ -110,7 +110,7 @@ inherited QueryFamily: TQueryFamily
         Value = Null
       end
       item
-        Name = 'VPRODUCTCATEGORYID'
+        Name = 'PRODUCTCATEGORYID'
         DataType = ftInteger
         ParamType = ptInput
         Value = Null

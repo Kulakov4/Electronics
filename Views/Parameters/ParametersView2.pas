@@ -924,10 +924,10 @@ begin
       (FParametersGrp.qParameterTypes.Monitor.OnHaveAnyChanges,
       DoOnHaveAnyChanges, FEventList);
 
-    TNotifyEventWrap.Create(FParametersGrp.qParameterTypes.AfterOpen,
+    TNotifyEventWrap.Create(FParametersGrp.qParameterTypes.W.AfterOpen,
       DoOnHaveAnyChanges, FEventList);
 
-    TNotifyEventWrap.Create(FParametersGrp.qParameters.AfterOpen,
+    TNotifyEventWrap.Create(FParametersGrp.qParameters.W.AfterOpen,
       DoOnHaveAnyChanges, FEventList);
 
     UpdateAutoTransaction;

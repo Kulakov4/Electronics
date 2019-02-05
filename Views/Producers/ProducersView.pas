@@ -510,10 +510,10 @@ begin
         (FProducersGroup.qProducers.Monitor.OnHaveAnyChanges,
         DoOnHaveAnyChanges, FEventList);
 
-      TNotifyEventWrap.Create(FProducersGroup.qProducerTypes.AfterOpen,
+      TNotifyEventWrap.Create(FProducersGroup.qProducerTypes.W.AfterOpen,
         DoOnHaveAnyChanges, FEventList);
 
-      TNotifyEventWrap.Create(FProducersGroup.qProducers.AfterOpen,
+      TNotifyEventWrap.Create(FProducersGroup.qProducers.W.AfterOpen,
         DoOnHaveAnyChanges, FEventList);
 
       InitializeLookupColumn(clProducerTypeID,

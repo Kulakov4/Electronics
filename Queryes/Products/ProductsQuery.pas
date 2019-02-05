@@ -65,7 +65,7 @@ begin
 
   DetailParameterName := W.StorehouseId.FieldName;
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
   TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);

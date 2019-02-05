@@ -45,7 +45,7 @@ begin
   inherited;
 
   // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(Wrap.AfterOpen, DoAfterOpen, Wrap.EventList);
 
   // Во всех строковых полях будем удалять начальные и конечные пробелы
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);

@@ -252,7 +252,7 @@ begin
   TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterPost,
     DoOnUpdateFamilyCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterOpen,
+  TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterOpen,
     DoOnUpdateFamilyCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterDelete,
@@ -261,7 +261,7 @@ begin
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterPost,
     DoOnUpdateComponentslCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterOpen,
+  TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterOpen,
     DoOnUpdateComponentslCount, FEventList);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterDelete,

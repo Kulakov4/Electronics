@@ -15,6 +15,7 @@ inherited QueryBodyKinds: TQueryBodyKinds
         Fields = 'Ord'
       end>
     IndexName = 'idxOrder'
+    UpdateOptions.AssignedValues = [uvCheckRequired]
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select bk.*'

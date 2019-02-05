@@ -150,7 +150,7 @@ begin
   FInsertedClone := W.AddClone('');
   FInsertedClone.FilterChanges := [rtInserted];
 
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 

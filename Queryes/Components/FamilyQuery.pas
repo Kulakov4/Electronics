@@ -52,9 +52,10 @@ uses NotifyEvents, System.IOUtils, SettingsController, DBRecordHolder,
 constructor TQueryFamily.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  DetailParameterName := 'vProductCategoryId';
+
+  DetailParameterName := 'ProductCategoryId';
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
 end;
 

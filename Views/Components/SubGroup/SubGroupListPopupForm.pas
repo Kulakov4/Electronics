@@ -278,7 +278,7 @@ begin
         FEventList);
       TNotifyEventWrap.Create(FQuerySubGroups.AfterScroll, DoAfterScroll,
         FEventList);
-      TNotifyEventWrap.Create(FQuerySubGroups.AfterOpen, DoAfterScroll,
+      TNotifyEventWrap.Create(FQuerySubGroups.W.AfterOpen, DoAfterScroll,
         FEventList);
       TNotifyEventWrap.Create(frmCategoriesTreePopup.OnClosePopup,
         DoOnClosePopup, FEventList);

@@ -23,7 +23,6 @@ type
     procedure FDQueryAfterCancel(DataSet: TDataSet);
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
-    procedure FDQueryAfterOpen(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
     procedure FDQueryAfterScroll(DataSet: TDataSet);
     procedure FDQueryBeforeClose(DataSet: TDataSet);
@@ -37,7 +36,6 @@ type
     FBeforeClose: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
-    FAfterOpen: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
     FAfterScroll: TNotifyEventsEx;
     FAutoTransaction: Boolean;
@@ -96,7 +94,6 @@ type
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
-    property AfterOpen: TNotifyEventsEx read FAfterOpen;
     property AfterPost: TNotifyEventsEx read FAfterPost;
     property AfterScroll: TNotifyEventsEx read FAfterScroll;
     property AutoTransaction: Boolean read FAutoTransaction
@@ -118,6 +115,7 @@ type
     class property Monitor: TQueryMonitor read FMonitor;
     property UseAfterPostMessage: Boolean read FUseAfterPostMessage
       write FUseAfterPostMessage;
+    property Wrap: TDSWrap read FDSWrap;
     { Public declarations }
   end;
 
@@ -181,7 +179,6 @@ begin
   FAfterDelete := TNotifyEventsEx.Create(Self);
 
   FBeforeOpen := TNotifyEventsEx.Create(Self);
-  FAfterOpen := TNotifyEventsEx.Create(Self);
 
   FBeforeClose := TNotifyEventsEx.Create(Self);
 
@@ -232,7 +229,6 @@ begin
   FreeAndNil(FAfterDelete);
 
   FreeAndNil(FBeforeOpen);
-  FreeAndNil(FAfterOpen);
 
   FreeAndNil(FBeforeClose);
 
@@ -400,12 +396,6 @@ procedure TQueryBaseEvents.FDQueryAfterEdit(DataSet: TDataSet);
 begin
   inherited;
   FAfterEdit.CallEventHandlers(Self);
-end;
-
-procedure TQueryBaseEvents.FDQueryAfterOpen(DataSet: TDataSet);
-begin
-  inherited;
-  FAfterOpen.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterPost(DataSet: TDataSet);

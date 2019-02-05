@@ -891,9 +891,9 @@ begin
         FBodyTypesGroup.qProducers.DataSource, lsEditFixedList,
         FBodyTypesGroup.qProducers.W.Name.F.FieldName);
 
-      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.AfterOpen,
+      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.W.AfterOpen,
         DoAfterDataChange, FEventList);
-      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyTypes2.AfterOpen,
+      TNotifyEventWrap.Create(FBodyTypesGroup.qBodyTypes2.W.AfterOpen,
         DoAfterDataChange, FEventList);
 
       // Просим монитор сообщать нам об изменении в БД

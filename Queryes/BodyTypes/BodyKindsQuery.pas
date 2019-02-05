@@ -33,7 +33,6 @@ type
     { Private declarations }
   protected
     function CreateDSWrap: TDSWrap; override;
-    procedure DoAfterOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
@@ -55,17 +54,14 @@ begin
   FW := FDSWrap as TBodyKindW;
 
   AutoTransaction := False;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+
+  // Не проверять необходимость заполнения полей на клиенте
+  FDQuery.UpdateOptions.CheckRequired := False;
 end;
 
 function TQueryBodyKinds.CreateDSWrap: TDSWrap;
 begin
   Result := TBodyKindW.Create(FDQuery);
-end;
-
-procedure TQueryBodyKinds.DoAfterOpen(Sender: TObject);
-begin
-  SetFieldsRequired(False);
 end;
 
 procedure TQueryBodyKinds.SetShowDuplicate(const Value: Boolean);

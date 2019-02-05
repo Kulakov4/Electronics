@@ -72,7 +72,7 @@ begin
   FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   // Подписываемся на событие
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 end;
 
 procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;

@@ -1286,7 +1286,7 @@ begin
     TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.BeforeOpen,
       DoBeforeFamilyExOpen, FEventList);
 
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.AfterOpen,
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.AfterOpen,
       DoAfterFamilyExOpen, FEventList);
 
     // Если бэнды по умолчанию ещё не инициализированы

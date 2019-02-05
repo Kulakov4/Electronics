@@ -741,7 +741,7 @@ end;
 procedure TViewProductsBase2.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(qProductsBase.AfterOpen, DoAfterOpen, FCountEvents);
+  TNotifyEventWrap.Create(qProductsBase.W.AfterOpen, DoAfterOpen, FCountEvents);
 
   TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost, FCountEvents);
 
