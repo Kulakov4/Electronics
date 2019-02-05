@@ -35,7 +35,6 @@ type
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
-    FAfterPostI: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     // FCloneEvents: TObjectList;
     FHaveAnyNotCommitedChanges: Boolean;
@@ -83,7 +82,6 @@ type
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
-    property AfterPostI: TNotifyEventsEx read FAfterPostI;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property OldPKValue: Variant read FOldPKValue;
@@ -156,7 +154,6 @@ begin
   FBeforeDelete := TNotifyEventsEx.Create(Self);
   FBeforePost := TNotifyEventsEx.Create(Self);
   FAfterPost := TNotifyEventsEx.Create(Self);
-  FAfterPostI := TNotifyEventsEx.Create(Self);
 
   FBeforeEdit := TNotifyEventsEx.Create(Self);
   FAfterCommit := TNotifyEventsEx.Create(Self);
@@ -194,7 +191,6 @@ begin
   FreeAndNil(FBeforeDelete);
   FreeAndNil(FBeforePost);
   FreeAndNil(FAfterPost);
-  FreeAndNil(FAfterPostI);
 
   FreeAndNil(FBeforeEdit);
 
@@ -306,7 +302,7 @@ begin
     FAfterPost.CallEventHandlers(Self);
 
   // Извещаем тех, кто кочет получить сообщение немедленно
-  FAfterPostI.CallEventHandlers(Self);
+  // FAfterPostI.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeDelete(DataSet: TDataSet);
@@ -445,7 +441,8 @@ begin
     FEventList);
   TNotifyEventWrap.Create(AQuery.FDSWrap.AfterCancel, DoAfterCancelOrPost,
     FEventList);
-  TNotifyEventWrap.Create(AQuery.AfterPostI, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterPost, DoAfterCancelOrPost,
+    FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
     FEventList);
 end;
