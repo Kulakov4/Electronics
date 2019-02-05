@@ -32,7 +32,6 @@ type
   private
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
-    FBookmark: Variant;
     FDetailParameterName: string;
     FFDUpdateSQL: TFDUpdateSQL;
     FMaxUpdateRecCount: Integer;
@@ -102,8 +101,6 @@ type
       : Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
-    function RestoreBookmark: Boolean;
-    procedure SaveBookmark;
     function Search(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; TestResult: Integer = -1)
       : Integer; overload;
@@ -738,19 +735,6 @@ begin
   finally
     FDQuery.EnableControls;
   end;
-end;
-
-function TQueryBase.RestoreBookmark: Boolean;
-begin
-  Result := False;
-  if VarIsNull(FBookmark) then
-    Exit;
-  Result := LocateByPK(FBookmark);
-end;
-
-procedure TQueryBase.SaveBookmark;
-begin
-  FBookmark := PK.Value;
 end;
 
 function TQueryBase.Search(const AParamNames: TArray<String>;

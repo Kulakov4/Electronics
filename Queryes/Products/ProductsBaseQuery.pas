@@ -490,20 +490,14 @@ begin
   if FDQuery.ChangeCount = 0 then
     Exit;
 
-  SaveBookmark;
+  W.SaveBookmark;
   FDQuery.DisableControls;
   try
     // Тут вызываем собственно отмену всех изменений и извещаем всех об этом
     inherited;
-    {
-      FDQuery.Connection.Rollback;
-      // Убеждаемся что мы не в транзакции
-      Assert(not FDQuery.Connection.InTransaction);
-      RefreshQuery;
-    }
     ProducersGroup.ReOpen;
 
-    RestoreBookmark;
+    W.RestoreBookmark;
   finally
     FDQuery.EnableControls;
   end;

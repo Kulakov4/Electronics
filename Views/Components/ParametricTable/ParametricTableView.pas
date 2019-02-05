@@ -2256,11 +2256,11 @@ begin
             ABI := CreateBandInfoEx([MainView, GridView(cxGridLevel2)], A);
             FBandsInfo.Add(ABI);
 
-            qCategoryParameters.SaveBookmark;
+            qCategoryParameters.W.SaveBookmark;
             qCategoryParameters.LocateByPK(A[0], True);
             // Инициализируем новый бэнд
             InitializeBandInfo(ABI as TBandInfoEx, A, qCategoryParameters);
-            qCategoryParameters.RestoreBookmark;
+            qCategoryParameters.W.RestoreBookmark;
           end;
         end;
 

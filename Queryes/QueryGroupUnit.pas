@@ -138,12 +138,12 @@ begin
     QList[I].FDQuery.DisableControls;
   try
     for I := QList.Count - 1 downto 0 do
-      QList[I].SaveBookmark;
+      QList[I].Wrap.SaveBookmark;
 
     ReOpen;
 
     for I := 0 to QList.Count - 1 do
-      QList[I].RestoreBookmark;
+      QList[I].Wrap.RestoreBookmark;
 
   finally
     for I := 0 to QList.Count - 1 do

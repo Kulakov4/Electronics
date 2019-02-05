@@ -326,7 +326,7 @@ begin
   try
     FDQuery.DisableControls;
     try
-      SaveBookmark;
+      W.SaveBookmark;
       // Сначала пытаемся двигаться вверх по набору данных
       while (W.IDParameter.F.AsInteger = AIDParameter) and
         (W.IsDefault.F.AsInteger = AIsDefault) and (not FDQuery.Bof) do
@@ -351,7 +351,7 @@ begin
       end;
 
       // Возвращаемся на то же место
-      RestoreBookmark;
+      W.RestoreBookmark;
     finally
       FDQuery.EnableControls;
     end;
@@ -498,10 +498,10 @@ begin
   for I := Low(A) to High(A) do
     A[I].Value := A[I].Value + 1;
 
-  SaveBookmark;
+  W.SaveBookmark;
   // Просим произвести изменения в БД
   W.Move(A);
-  RestoreBookmark;
+  W.RestoreBookmark;
 end;
 
 function TQueryCategoryParameters2.NextOrder: Integer;
