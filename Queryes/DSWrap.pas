@@ -26,6 +26,7 @@ type
     FAfterCancel: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
     FBeforeOpen: TNotifyEventsEx;
+    FBeforeClose: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
@@ -57,6 +58,7 @@ type
     function GetAfterCancel: TNotifyEventsEx;
     function GetAfterScrollM: TNotifyEventsEx;
     function GetBeforeOpen: TNotifyEventsEx;
+    function GetBeforeClose: TNotifyEventsEx;
     function GetFDDataSet: TFDDataSet;
     function GetHandle: HWND;
     function GetPK: TField;
@@ -68,6 +70,7 @@ type
     procedure BeforeDataSetDelete(DataSet: TDataSet);
     procedure AfterDataSetPost(DataSet: TDataSet);
     procedure BeforeDataSetOpen(DataSet: TDataSet);
+    procedure BeforeDataSetClose(DataSet: TDataSet);
     procedure UpdateFields;
     property FDDataSet: TFDDataSet read GetFDDataSet;
     property Handle: HWND read GetHandle;
@@ -124,6 +127,7 @@ type
     property AfterCancel: TNotifyEventsEx read GetAfterCancel;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
     property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
+    property BeforeClose: TNotifyEventsEx read GetBeforeClose;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
     property PK: TField read GetPK;
@@ -312,6 +316,11 @@ end;
 procedure TDSWrap.BeforeDataSetOpen(DataSet: TDataSet);
 begin
   FBeforeOpen.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.BeforeDataSetClose(DataSet: TDataSet);
+begin
+  FBeforeClose.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.CancelUpdates;
@@ -564,6 +573,19 @@ begin
   end;
 
   Result := FBeforeOpen;
+end;
+
+function TDSWrap.GetBeforeClose: TNotifyEventsEx;
+begin
+  if FBeforeClose = nil then
+  begin
+    Assert(not Assigned(FDataSet.BeforeClose));
+    FBeforeClose := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeClose);
+    FDataSet.BeforeClose := BeforeDataSetClose;
+  end;
+
+  Result := FBeforeClose;
 end;
 
 function TDSWrap.GetFDDataSet: TFDDataSet;

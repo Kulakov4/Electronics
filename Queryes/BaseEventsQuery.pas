@@ -22,14 +22,12 @@ type
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
-    procedure FDQueryBeforeClose(DataSet: TDataSet);
     procedure FDQueryBeforeDelete(DataSet: TDataSet);
     procedure FDQueryBeforeEdit(DataSet: TDataSet);
     procedure FDQueryBeforeInsert(DataSet: TDataSet);
     procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
-    FBeforeClose: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
@@ -78,7 +76,6 @@ type
 // TODO: AddClone
 //  function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
-    property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
     property AfterPost: TNotifyEventsEx read FAfterPost;
@@ -161,8 +158,6 @@ begin
   FBeforeDelete := TNotifyEventsEx.Create(Self);
   FAfterDelete := TNotifyEventsEx.Create(Self);
 
-  FBeforeClose := TNotifyEventsEx.Create(Self);
-
   FBeforePost := TNotifyEventsEx.Create(Self);
   FAfterPost := TNotifyEventsEx.Create(Self);
   FAfterPostI := TNotifyEventsEx.Create(Self);
@@ -204,8 +199,6 @@ begin
 
   FreeAndNil(FBeforeDelete);
   FreeAndNil(FAfterDelete);
-
-  FreeAndNil(FBeforeClose);
 
   FreeAndNil(FBeforePost);
   FreeAndNil(FAfterPost);
@@ -389,12 +382,6 @@ begin
 
   // Извещаем тех, кто кочет получить сообщение немедленно
   FAfterPostI.CallEventHandlers(Self);
-end;
-
-procedure TQueryBaseEvents.FDQueryBeforeClose(DataSet: TDataSet);
-begin
-  inherited;
-  FBeforeClose.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeDelete(DataSet: TDataSet);

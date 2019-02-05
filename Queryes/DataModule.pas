@@ -158,7 +158,7 @@ begin
 
   FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.W.AfterOpen,
     DoAfterTreeListFirstOpen, FEventList);
-  TNotifyEventWrap.Create(qTreeList.BeforeClose, DoBeforeTreeListClose,
+  TNotifyEventWrap.Create(qTreeList.W.BeforeClose, DoBeforeTreeListClose,
     FEventList);
 
 
