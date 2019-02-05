@@ -45,6 +45,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoBeforeOpen(Sender: TObject);
     property qExtraChargeSimple: TQueryExtraChargeSimple
       read GetqExtraChargeSimple;
@@ -64,7 +65,7 @@ uses
 constructor TQueryExtraCharge2.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TExtraChargeW.Create(FDQuery);
+  FW := FDSWrap as TExtraChargeW;
   AutoTransaction := False;
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
@@ -147,6 +148,11 @@ begin
   qExtraChargeSimple.W.WholeSale.F.Value := W.WholeSale.F.Value;
   qExtraChargeSimple.W.IDExtraChargeType.F.Value := W.IDExtraChargeType.F.Value;
   qExtraChargeSimple.W.TryPost;
+end;
+
+function TQueryExtraCharge2.CreateDSWrap: TDSWrap;
+begin
+  Result := TExtraChargeW.Create(FDQuery);
 end;
 
 procedure TQueryExtraCharge2.DoBeforeOpen(Sender: TObject);

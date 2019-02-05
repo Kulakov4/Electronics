@@ -40,6 +40,7 @@ type
     procedure DoAfterOpen(Sender: TObject);
     { Private declarations }
   protected
+    function CreateDSWrap: TDSWrap; override;
     procedure DoBeforeOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
   public
@@ -59,10 +60,15 @@ uses RepositoryDataModule, System.StrUtils, StrHelper, BaseQuery;
 constructor TQueryParamSubParams.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TParamSubParamW.Create(FDQuery);
+  FW := FDSWrap as TParamSubParamW;
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+end;
+
+function TQueryParamSubParams.CreateDSWrap: TDSWrap;
+begin
+  Result := TParamSubParamW.Create(FDQuery);
 end;
 
 procedure TQueryParamSubParams.DoAfterOpen(Sender: TObject);

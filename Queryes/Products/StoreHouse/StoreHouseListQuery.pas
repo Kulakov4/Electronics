@@ -33,6 +33,8 @@ type
     FW: TStoreHouseListW;
     procedure DoBeforePost(Sender: TObject);
     { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     property W: TStoreHouseListW read FW;
@@ -49,8 +51,13 @@ uses NotifyEvents, RepositoryDataModule, StrHelper;
 constructor TQueryStoreHouseList.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FW := TStoreHouseListW.Create(FDQuery);
+  FW := FDSWrap as TStoreHouseListW;
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+end;
+
+function TQueryStoreHouseList.CreateDSWrap: TDSWrap;
+begin
+  Result := TStoreHouseListW.Create(FDQuery);
 end;
 
 procedure TQueryStoreHouseList.DoBeforePost(Sender: TObject);

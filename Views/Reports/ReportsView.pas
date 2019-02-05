@@ -229,11 +229,11 @@ begin
     if FQueryReports <> nil then
     begin
       FFilterFields.Clear;
-      FFilterFields.Add(QueryReports.Описание.FieldName);
-      FFilterFields.Add(QueryReports.Спецификация.FieldName);
-      FFilterFields.Add(QueryReports.Схема.FieldName);
-      FFilterFields.Add(QueryReports.Чертёж.FieldName);
-      FFilterFields.Add(QueryReports.Изображение.FieldName);
+      FFilterFields.Add(QueryReports.W.Описание.FieldName);
+      FFilterFields.Add(QueryReports.W.Спецификация.FieldName);
+      FFilterFields.Add(QueryReports.W.Схема.FieldName);
+      FFilterFields.Add(QueryReports.W.Чертёж.FieldName);
+      FFilterFields.Add(QueryReports.W.Изображение.FieldName);
 
       MainView.DataController.DataSource := FQueryReports.DataSource;
     end;

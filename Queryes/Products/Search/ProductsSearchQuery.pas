@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
-  StoreHouseListQuery, NotifyEvents, System.Generics.Collections;
+  StoreHouseListQuery, NotifyEvents, System.Generics.Collections, DSWrap;
 
 type
   TProductSearchW = class(TProductW)
@@ -48,7 +48,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    function CreateDataSetWrap: TProductW; override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoBeforePost(Sender: TObject); override;
     function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
@@ -147,7 +147,7 @@ begin
   W.RefreshQuery;
 end;
 
-function TQueryProductsSearch.CreateDataSetWrap: TProductW;
+function TQueryProductsSearch.CreateDSWrap: TDSWrap;
 begin
   Result := TProductSearchW.Create(FDQuery);
 end;

@@ -32,7 +32,7 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
@@ -49,13 +49,13 @@ uses StrHelper, RepositoryDataModule, NotifyEvents;
 constructor TQueryDescriptionTypes.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := OrderW as TDescriptionTypeW;
+  FW := FDSWrap as TDescriptionTypeW;
 
   AutoTransaction := False;
 
 end;
 
-function TQueryDescriptionTypes.CreateDataSetWrap: TOrderW;
+function TQueryDescriptionTypes.CreateDSWrap: TDSWrap;
 begin
   Result := TDescriptionTypeW.Create(FDQuery);
 end;

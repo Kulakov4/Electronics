@@ -8,20 +8,6 @@ inherited QueryParametersValue: TQueryParametersValue
     SQL.Strings = (
       'select *'
       'from ParameterValues2 pv'
-      'where pv.ProductId = :ProductId'
-      'and pv.ParamSubParamId = :ParamSubParamId')
-    ParamData = <
-      item
-        Name = 'PRODUCTID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = 1
-      end
-      item
-        Name = 'PARAMSUBPARAMID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
+      'where (0=0) and (1=1)')
   end
 end

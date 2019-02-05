@@ -45,6 +45,7 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
+    function CreateDSWrap: TDSWrap; override;
     property CheckClone: TFDMemTable read GetCheckClone;
   public
     constructor Create(AOwner: TComponent); override;
@@ -62,7 +63,7 @@ uses RepositoryDataModule, NotifyEvents, StrHelper, ErrorType;
 constructor TQueryDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TDescriptionW.Create(FDQuery);
+  FW := FDSWrap as TDescriptionW;
 
   AutoTransaction := False;
 end;
@@ -89,6 +90,11 @@ begin
     Result.Description :=
       ' омпонент с таким наименованием имеет другое описание в справочнике';
   end;
+end;
+
+function TQueryDescriptions.CreateDSWrap: TDSWrap;
+begin
+  Result := TDescriptionW.Create(FDQuery);
 end;
 
 function TQueryDescriptions.GetCheckClone: TFDMemTable;

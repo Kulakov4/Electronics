@@ -9,17 +9,29 @@ uses
   FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, BaseQuery;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, BaseQuery,
+  DSWrap;
 
 type
-  TQueryParameterPos = class(TQueryWithDataSource)
+  TParameterPosW = class(TDSWrap)
   private
-    procedure DoAfterOpen(Sender: TObject);
-    function GetPos: TField;
-    { Private declarations }
+    FPos: TFieldWrap;
+    FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
-    property Pos: TField read GetPos;
+    property Pos: TFieldWrap read FPos;
+    property ID: TFieldWrap read FID;
+  end;
+
+  TQueryParameterPos = class(TQueryWithDataSource)
+  private
+    FW: TParameterPosW;
+    { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TParameterPosW read FW;
     { Public declarations }
   end;
 
@@ -32,17 +44,19 @@ uses NotifyEvents;
 constructor TQueryParameterPos.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
+  FW := FDSWrap as TParameterPosW;
 end;
 
-procedure TQueryParameterPos.DoAfterOpen(Sender: TObject);
+function TQueryParameterPos.CreateDSWrap: TDSWrap;
 begin
-  Pos.DisplayLabel := 'Расположение';
+  Result := inherited CreateDSWrap;
 end;
 
-function TQueryParameterPos.GetPos: TField;
+constructor TParameterPosW.Create(AOwner: TComponent);
 begin
-  Result := Field('Pos');
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FPos := TFieldWrap.Create(Self, 'Pos', 'Расположение');
 end;
 
 end.

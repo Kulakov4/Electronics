@@ -53,6 +53,7 @@ type
     procedure SetAutoSearchDuplicate(const Value: Boolean);
     { Private declarations }
   protected
+    function CreateDSWrap: TDSWrap; override;
     procedure DoAfterScroll(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
@@ -77,7 +78,7 @@ uses System.Generics.Collections, ProjectConst;
 constructor TQueryTreeList.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TTreeListW.Create(FDQuery);
+  FW := FDSWrap as TTreeListW;
   FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(AfterScroll, DoAfterScroll, FEventList);
@@ -88,6 +89,11 @@ begin
   FreeAndNil(FAfterSmartRefresh);
 
   inherited;
+end;
+
+function TQueryTreeList.CreateDSWrap: TDSWrap;
+begin
+  Result := TTreeListW.Create(FDQuery);
 end;
 
 procedure TQueryTreeList.DoAfterScroll(Sender: TObject);

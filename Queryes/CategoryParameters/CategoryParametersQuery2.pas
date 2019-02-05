@@ -101,6 +101,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoOnUpdateRecordException(AException: Exception); override;
     property QueryRecursiveParameters: TQueryRecursiveParameters
       read GetQueryRecursiveParameters;
@@ -139,7 +140,7 @@ uses
 constructor TQueryCategoryParameters2.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TCategoryParameters2W.Create(FDQuery);
+  FW := FDSWrap as TCategoryParameters2W;
   DetailParameterName := W.ProductCategoryID.FieldName;
 
   // Будем сохранять в БД изменения рекурсивно
@@ -298,6 +299,11 @@ begin
   FInsertedSubParams.Clear;
   FDeletedSubParams.Clear;
   FEditedSubParams.Clear;
+end;
+
+function TQueryCategoryParameters2.CreateDSWrap: TDSWrap;
+begin
+  Result := TCategoryParameters2W.Create(FDQuery);
 end;
 
 function TQueryCategoryParameters2.CreateSubParamsClone: TFDMemTable;

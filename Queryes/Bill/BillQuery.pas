@@ -34,6 +34,8 @@ type
   private
     FW: TBillW;
     { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     property W: TBillW read FW;
@@ -50,7 +52,12 @@ uses
 constructor TQryBill.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TBillW.Create(FDQuery);
+  FW := FDSWrap as TBillW;
+end;
+
+function TQryBill.CreateDSWrap: TDSWrap;
+begin
+  Result := TBillW.Create(FDQuery);
 end;
 
 constructor TBillW.Create(AOwner: TComponent);

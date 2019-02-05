@@ -9,28 +9,36 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ParametricExcelDataModule,
-  BaseQuery;
+  BaseQuery, DSWrap;
 
 type
-  TQueryParametersValue = class(TQueryBaseEvents)
+  TParameterValueW = class(TDSWrap)
   private
-    procedure DoAfterInsert(Sender: TObject);
-    function GetProductId: TField;
-    function GetProductIDParam: TFDParam;
-    function GetParamSubParamId: TField;
-    function GetParamSubParamIdParam: TFDParam;
-    function GetValue: TField;
-    { Private declarations }
+    FParamSubParamId: TFieldWrap;
+    FID: TFieldWrap;
+    FProductId: TFieldWrap;
+    FValue: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
-    procedure Load(AIDComponent, AParamSubParamID: Integer); overload;
     procedure LocateOrAppend(AValue: string);
-    property ProductId: TField read GetProductId;
-    property ProductIDParam: TFDParam read GetProductIDParam;
-    property ParamSubParamId: TField read GetParamSubParamId;
-    property ParamSubParamIdParam: TFDParam read GetParamSubParamIdParam;
-    property Value: TField read GetValue;
+    property ParamSubParamId: TFieldWrap read FParamSubParamId;
+    property ID: TFieldWrap read FID;
+    property ProductId: TFieldWrap read FProductId;
+    property Value: TFieldWrap read FValue;
+  end;
+
+  TQueryParametersValue = class(TQueryBaseEvents)
+  private
+    FW: TParameterValueW;
+    procedure DoAfterInsert(Sender: TObject);
+    { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure Search(AIDComponent, AParamSubParamID: Integer); overload;
+    property W: TParameterValueW read FW;
     { Public declarations }
   end;
 
@@ -43,60 +51,53 @@ uses NotifyEvents;
 constructor TQueryParametersValue.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create(AfterInsert, DoAfterInsert, FEventList);
+  FW := FDSWrap as TParameterValueW;
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 end;
 
-procedure TQueryParametersValue.AddNewValue(const AValue: string);
+function TQueryParametersValue.CreateDSWrap: TDSWrap;
 begin
-  FDQuery.Append;
-  Value.AsString := AValue;
-  FDQuery.Post;
+  Result := TParameterValueW.Create(FDQuery);
 end;
 
 procedure TQueryParametersValue.DoAfterInsert(Sender: TObject);
 begin
-  ParamSubParamId.AsInteger := ParamSubParamIdParam.AsInteger;
-  ProductId.AsInteger := ProductIDParam.AsInteger;
+  W.ParamSubParamId.F.AsInteger :=
+    FDQuery.ParamByName(W.ParamSubParamId.FieldName).AsInteger;
+  W.ProductId.F.AsInteger := FDQuery.ParamByName(W.ProductId.FieldName)
+    .AsInteger;
 end;
 
-function TQueryParametersValue.GetProductId: TField;
-begin
-  Result := Field('ProductId');
-end;
-
-function TQueryParametersValue.GetProductIDParam: TFDParam;
-begin
-  Result := FDQuery.ParamByName('ProductID');
-end;
-
-function TQueryParametersValue.GetParamSubParamId: TField;
-begin
-  Result := Field('ParamSubParamId');
-end;
-
-function TQueryParametersValue.GetParamSubParamIdParam: TFDParam;
-begin
-  Result := FDQuery.ParamByName('ParamSubParamId');
-end;
-
-function TQueryParametersValue.GetValue: TField;
-begin
-  Result := Field('Value');
-end;
-
-procedure TQueryParametersValue.Load(AIDComponent, AParamSubParamID: Integer);
+procedure TQueryParametersValue.Search(AIDComponent, AParamSubParamID: Integer);
 begin
   Assert(AIDComponent > 0);
   Assert(AParamSubParamID > 0);
-  Load([ProductIDParam.Name, ParamSubParamIdParam.Name],
-    [AIDComponent, AParamSubParamID]);
+
+  SearchEx([TParamRec.Create(W.ProductId.FullName, AIDComponent),
+    TParamRec.Create(W.ParamSubParamId.FullName, AParamSubParamID)]);
 end;
 
-procedure TQueryParametersValue.LocateOrAppend(AValue: string);
+constructor TParameterValueW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'pv.ID', '', True);
+  FParamSubParamId := TFieldWrap.Create(Self, 'pv.ParamSubParamId');
+  FProductId := TFieldWrap.Create(Self, 'pv.ProductId');
+  FValue := TFieldWrap.Create(Self, 'pv.Value');
+end;
+
+procedure TParameterValueW.AddNewValue(const AValue: string);
+begin
+  TryAppend;
+  Value.F.AsString := AValue;
+  TryPost;
+end;
+
+procedure TParameterValueW.LocateOrAppend(AValue: string);
 var
   OK: Boolean;
 begin
-  OK := FDQuery.LocateEx(Value.FieldName, AValue, []);
+  OK := FDDataSet.LocateEx(Value.FieldName, AValue, []);
 
   if not OK then
     AddNewValue(AValue);

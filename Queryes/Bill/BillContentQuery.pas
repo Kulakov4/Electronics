@@ -30,6 +30,8 @@ type
   private
     FW: TBillContentW;
     { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     property W: TBillContentW read FW;
@@ -43,7 +45,12 @@ implementation
 constructor TQueryBillContent.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TBillContentW.Create(FDQuery);
+  FW := FDSWrap as TBillContentW;
+end;
+
+function TQueryBillContent.CreateDSWrap: TDSWrap;
+begin
+  Result := TBillContentW.Create(FDQuery);
 end;
 
 constructor TBillContentW.Create(AOwner: TComponent);

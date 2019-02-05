@@ -659,7 +659,7 @@ begin
     dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
 
     InitializeLookupColumn(clPosID, QueryParameterPos.DataSource, lsFixedList,
-      QueryParameterPos.Pos.FieldName);
+      QueryParameterPos.W.Pos.FieldName);
 
     (clPosID.Properties as TcxLookupComboBoxProperties).ReadOnly := True;
 

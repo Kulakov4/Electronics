@@ -39,6 +39,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoAfterOpen(Sender: TObject);
     property qBodyVariationJedec: TQueryBodyVariationJedec
       read GetqBodyVariationJedec;
@@ -59,7 +60,7 @@ uses
 constructor TQueryBodyVariationsJedec.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TBodyVariationsJedecW.Create(FDQuery);
+  FW := FDSWrap as TBodyVariationsJedecW;
 
   // На сервер ничего сохранять не будем!
   FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
@@ -122,6 +123,11 @@ begin
     qBodyVariationJedec.W.IDJEDEC.F.Value := W.IDJEDEC.F.Value;
     qBodyVariationJedec.W.TryPost;
   end;
+end;
+
+function TQueryBodyVariationsJedec.CreateDSWrap: TDSWrap;
+begin
+  Result := TBodyVariationsJedecW.Create(FDQuery);
 end;
 
 procedure TQueryBodyVariationsJedec.DoAfterOpen(Sender: TObject);

@@ -69,7 +69,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
     property CheckClone: TFDMemTable read GetCheckClone;
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
@@ -92,10 +92,7 @@ uses DBRecordHolder, System.StrUtils, StrHelper,
 constructor TQueryParameters.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := OrderW as TParameterW;
-
-  //  опируем базовый запрос и параметры
-  // AssignFrom(fdqBase);
+  FW := FDSWrap as TParameterW;
 
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
@@ -246,7 +243,7 @@ begin
   end
 end;
 
-function TQueryParameters.CreateDataSetWrap: TOrderW;
+function TQueryParameters.CreateDSWrap: TDSWrap;
 begin
   Result := TParameterW.Create(FDQuery);
 end;

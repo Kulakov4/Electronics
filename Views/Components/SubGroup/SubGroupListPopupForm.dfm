@@ -1,8 +1,6 @@
 inherited frmSubgroupListPopup: TfrmSubgroupListPopup
   Caption = 'frmSubgroupListPopup'
   OnShow = FormShow
-  ExplicitWidth = 411
-  ExplicitHeight = 339
   PixelsPerInch = 96
   TextHeight = 16
   object cxGrid1: TcxGrid
@@ -51,6 +49,7 @@ inherited frmSubgroupListPopup: TfrmSubgroupListPopup
   object cxEditRepository: TcxEditRepository
     Left = 48
     Top = 72
+    PixelsPerInch = 96
     object cxEditRepositoryLabel: TcxEditRepositoryLabel
     end
     object cxEditRepositoryPopupItem: TcxEditRepositoryPopupItem
@@ -74,6 +73,7 @@ inherited frmSubgroupListPopup: TfrmSubgroupListPopup
     UseSystemFont = True
     Left = 40
     Top = 136
+    PixelsPerInch = 96
     DockControlHeights = (
       0
       0
@@ -161,6 +161,7 @@ inherited frmSubgroupListPopup: TfrmSubgroupListPopup
     end
   end
   object cxImageList: TcxImageList
+    SourceDPI = 96
     FormatVersion = 1
     DesignInfo = 5767384
     ImageInfo = <

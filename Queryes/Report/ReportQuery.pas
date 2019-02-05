@@ -8,25 +8,35 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit;
+  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit, DSWrap;
 
 type
-  TQueryReports = class(TQueryWithDataSource)
+  TReportW = class(TDSWrap)
   private
-    procedure DoBeforeOpen(Sender: TObject);
-    function GetИзображение: TField;
-    function GetОписание: TField;
-    function GetСпецификация: TField;
-    function GetСхема: TField;
-    function GetЧертёж: TField;
-    { Private declarations }
+    FИзображение: TFieldWrap;
+    FОписание: TFieldWrap;
+    FСпецификация: TFieldWrap;
+    FСхема: TFieldWrap;
+    FЧертёж: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
-    property Изображение: TField read GetИзображение;
-    property Описание: TField read GetОписание;
-    property Спецификация: TField read GetСпецификация;
-    property Схема: TField read GetСхема;
-    property Чертёж: TField read GetЧертёж;
+    property Изображение: TFieldWrap read FИзображение;
+    property Описание: TFieldWrap read FОписание;
+    property Спецификация: TFieldWrap read FСпецификация;
+    property Схема: TFieldWrap read FСхема;
+    property Чертёж: TFieldWrap read FЧертёж;
+  end;
+
+  TQueryReports = class(TQueryWithDataSource)
+  private
+    FW: TReportW;
+    procedure DoBeforeOpen(Sender: TObject);
+    { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TReportW read FW;
     { Public declarations }
   end;
 
@@ -40,6 +50,11 @@ constructor TQueryReports.Create(AOwner: TComponent);
 begin
   inherited;
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+end;
+
+function TQueryReports.CreateDSWrap: TDSWrap;
+begin
+  Result := TReportW.Create(FDQuery);
 end;
 
 procedure TQueryReports.DoBeforeOpen(Sender: TObject);
@@ -65,29 +80,14 @@ begin
 
 end;
 
-function TQueryReports.GetИзображение: TField;
+constructor TReportW.Create(AOwner: TComponent);
 begin
-  Result := Field('Изображение');
-end;
-
-function TQueryReports.GetОписание: TField;
-begin
-  Result := Field('Описание');
-end;
-
-function TQueryReports.GetСпецификация: TField;
-begin
-  Result := Field('Спецификация');
-end;
-
-function TQueryReports.GetСхема: TField;
-begin
-  Result := Field('Схема');
-end;
-
-function TQueryReports.GetЧертёж: TField;
-begin
-  Result := Field('Чертёж');
+  inherited;
+  FИзображение := TFieldWrap.Create(Self, 'Изображение');
+  FОписание := TFieldWrap.Create(Self, 'Описание');
+  FСпецификация := TFieldWrap.Create(Self, 'Спецификация');
+  FСхема := TFieldWrap.Create(Self, 'Схема');
+  FЧертёж := TFieldWrap.Create(Self, 'Чертёж');
 end;
 
 end.

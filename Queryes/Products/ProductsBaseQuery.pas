@@ -187,7 +187,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    function CreateDataSetWrap: TProductW; virtual;
+    function CreateDSWrap: TDSWrap; override;
     procedure DisableCalc;
     procedure DoBeforePost(Sender: TObject); virtual;
     procedure DoOnCommitUpdates(var Message: TMessage);
@@ -255,7 +255,7 @@ uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := CreateDataSetWrap;
+  FW := FDSWrap as TProductW;
   FOnLocate := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
@@ -538,7 +538,7 @@ begin
   end;
 end;
 
-function TQueryProductsBase.CreateDataSetWrap: TProductW;
+function TQueryProductsBase.CreateDSWrap: TDSWrap;
 begin
   Result := TProductW.Create(FDQuery);
 end;

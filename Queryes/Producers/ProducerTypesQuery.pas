@@ -28,7 +28,7 @@ type
     FW: TProducerTypeW;
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AValue: string): Boolean;
@@ -45,11 +45,11 @@ uses NotifyEvents;
 constructor TQueryProducerTypes.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := OrderW as TProducerTypeW;
+  FW := FDSWrap as TProducerTypeW;
   AutoTransaction := False;
 end;
 
-function TQueryProducerTypes.CreateDataSetWrap: TOrderW;
+function TQueryProducerTypes.CreateDSWrap: TDSWrap;
 begin
   Result := TProducerTypeW.Create(FDQuery);
 end;

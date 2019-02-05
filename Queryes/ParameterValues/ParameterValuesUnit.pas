@@ -160,11 +160,11 @@ begin
             AIDComponent := AExcelTable.IDComponent.AsInteger;
 
             // Ищем все значения для какой либо связки параметра с подпараметром
-            AQueryParametersValue.Load(AIDComponent, AParamSubParamID);
+            AQueryParametersValue.Search(AIDComponent, AParamSubParamID);
             AExcelTable.CallOnProcessEvent;
 
             // Добавляем значение в таблицу значений связки параметра с подпараметром
-            AQueryParametersValue.LocateOrAppend(AValue);
+            AQueryParametersValue.W.LocateOrAppend(AValue);
             AExcelTable.CallOnProcessEvent;
           end;
         end;
@@ -187,8 +187,8 @@ begin
         if Q.SearchEx(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID) = 1 then
         begin
           // Добавляем значение параметра для семейства
-          AQueryParametersValue.Load(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
-          AQueryParametersValue.LocateOrAppend(Q.Value.AsString);
+          AQueryParametersValue.Search(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
+          AQueryParametersValue.W.LocateOrAppend(Q.Value.AsString);
         end;
         Inc(i);
         API.ProcessRecords := i;

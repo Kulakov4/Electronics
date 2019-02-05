@@ -36,7 +36,7 @@ type
     function GetqSearchCategory: TQuerySearchCategory;
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoAfterOpen(Sender: TObject);
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
@@ -59,8 +59,7 @@ uses
 constructor TQueryChildCategories.Create(AOwner: TComponent);
 begin
   inherited;
-  Assert(OrderW <> nil);
-  FW := OrderW as TChildCategoriesW;
+  FW := FDSWrap as TChildCategoriesW;
   DetailParameterName := W.ParentID.FieldName;
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
@@ -100,7 +99,7 @@ begin
   Result := qSearchCategory.SearchByParentAndValue(AParentID, AValue) = 0;
 end;
 
-function TQueryChildCategories.CreateDataSetWrap: TOrderW;
+function TQueryChildCategories.CreateDSWrap: TDSWrap;
 begin
   Result := TChildCategoriesW.Create(FDQuery);
 end;

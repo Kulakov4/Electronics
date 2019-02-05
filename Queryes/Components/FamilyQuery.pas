@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, {Sequence,} RepositoryDataModule,
   System.Generics.Collections, ExcelDataModule, SearchComponentCategoryQuery,
-  CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery;
+  CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery, DSWrap;
 
 type
   TFamilyW = class(TCustomComponentsW)
@@ -31,7 +31,7 @@ type
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CheckRecord: String;
-    function CreateDataSetWrap: TCustomComponentsW; override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoAfterOpen(Sender: TObject);
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
@@ -119,7 +119,7 @@ begin
   end;
 end;
 
-function TQueryFamily.CreateDataSetWrap: TCustomComponentsW;
+function TQueryFamily.CreateDSWrap: TDSWrap;
 begin
   Result := TFamilyW.Create(FDQuery);
 end;

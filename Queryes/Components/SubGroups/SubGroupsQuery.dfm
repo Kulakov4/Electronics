@@ -7,24 +7,9 @@ inherited frmQuerySubGroups: TfrmQuerySubGroups
   inherited FDQuery: TFDQuery
     CachedUpdates = True
     SQL.Strings = (
-      
-        'select pc.*, case when pc.ExternalID = :MainExternalID then 1 el' +
-        'se 0 end IsMain'
+      'select pc.*, case when 0=0 then 1 else 0 end IsMain'
       'from ProductCategories pc'
-      'where instr(:Value, '#39','#39' || pc.ExternalID || '#39','#39') > 0 '
+      'where 1=1 '
       'order by IsMain desc, pc.ExternalId')
-    ParamData = <
-      item
-        Name = 'MAINEXTERNALID'
-        DataType = ftString
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'VALUE'
-        DataType = ftString
-        ParamType = ptInput
-        Value = Null
-      end>
   end
 end

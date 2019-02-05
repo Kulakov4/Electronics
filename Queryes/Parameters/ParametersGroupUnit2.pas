@@ -77,7 +77,7 @@ begin
   if AParameterKindID = -100 then
   begin
     // Ищем в справочнике видов параметров
-    AParameterKindID := qParameterKinds.GetIDByParameterKind
+    AParameterKindID := qParameterKinds.W.GetIDByParameterKind
       (AParametersExcelTable.ParameterKindID.AsString);
 
     if AParameterKindID = 0 then
@@ -234,7 +234,7 @@ begin
   begin
     FqParameterKinds := TQueryParameterKinds.Create(Self);
     FqParameterKinds.FDQuery.Open;
-    FqParameterKinds.ParameterKind.DisplayLabel := 'Вид параметра';
+//    FqParameterKinds.W.ParameterKind.F.DisplayLabel := 'Вид параметра';
   end;
   Result := FqParameterKinds;
 end;
@@ -269,7 +269,7 @@ begin
       begin
         // Если нашли такой вид параметра в справочнике
         if qParameterKinds.LocateByField
-          (qParameterKinds.ParameterKind.FieldName,
+          (qParameterKinds.W.ParameterKind.FieldName,
           AParametersExcelTable.ParameterKindID.AsString) then
           AParameterKindID := qParameterKinds.PK.AsInteger
         else

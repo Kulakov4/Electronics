@@ -79,6 +79,7 @@ type
     function GetQueryBodyVariations: TQueryBodyVariations;
     { Private declarations }
   protected
+    function CreateDSWrap: TDSWrap; override;
     procedure DropUnusedBodies;
     procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage);
       message WM_AFTER_CASCADE_DELETE;
@@ -117,7 +118,7 @@ begin
   inherited;
   FPKFieldName := 'IDS';
 
-  FW := TBodyTypeBaseW.Create(FDQuery);
+  FW := FDSWrap as TBodyTypeBaseW;
 
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   AutoTransaction := False;
@@ -133,6 +134,11 @@ begin
     FMessagePosted := True;
     PostMessage(Handle, WM_AFTER_CASCADE_DELETE, 0, 0);
   end;
+end;
+
+function TQueryBodyTypesBase.CreateDSWrap: TDSWrap;
+begin
+  Result := TBodyTypeBaseW.Create(FDQuery);
 end;
 
 procedure TQueryBodyTypesBase.DropUnusedBodies;

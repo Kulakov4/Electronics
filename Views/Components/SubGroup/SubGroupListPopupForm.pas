@@ -27,7 +27,8 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, System.ImageList;
+  dxSkinXmas2008Blue, System.ImageList,
+  cxDataControllerConditionalFormattingRulesManagerDialog, cxImageList;
 
 const
   WM_ON_CLOSE_POPUP = WM_USER + 98;
@@ -299,7 +300,7 @@ end;
 procedure TfrmSubgroupListPopup.UpdateReadOnly;
 begin
   cxGrid1DBTableView1.OptionsData.Deleting := (QuerySubGroups <> nil) and
-    not QuerySubGroups.IsRecordReadOnly;
+    not QuerySubGroups.W.IsRecordReadOnly;
   cxGrid1DBTableView1.OptionsData.Editing :=
     cxGrid1DBTableView1.OptionsData.Deleting;
   actAdd.Enabled := (QuerySubGroups <> nil);

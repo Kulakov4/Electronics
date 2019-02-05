@@ -26,7 +26,7 @@ type
     function GetComponentsW: TComponentsW;
     { Private declarations }
   protected
-    function CreateDataSetWrap: TCustomComponentsW; override;
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     property ComponentsW: TComponentsW read GetComponentsW;
@@ -46,7 +46,7 @@ begin
   DetailParameterName := 'vProductCategoryId';
 end;
 
-function TQueryComponents.CreateDataSetWrap: TCustomComponentsW;
+function TQueryComponents.CreateDSWrap: TDSWrap;
 begin
   Result := TComponentsW.Create(FDQuery);
 end;

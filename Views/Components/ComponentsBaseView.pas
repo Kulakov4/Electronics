@@ -397,7 +397,7 @@ begin
   Assert(S.Length > 0);
   AMainExternalID := BaseComponentsGroup.QueryBaseFamily.CategoryExternalID;
 
-  qSubGroups.Load(AMainExternalID, Format(',%s,', [S]));
+  qSubGroups.Search(AMainExternalID, Format(',%s,', [S]));
   frmSubgroupListPopup.QuerySubGroups := qSubGroups;
 end;
 

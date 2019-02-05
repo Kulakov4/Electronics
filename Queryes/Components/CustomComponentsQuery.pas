@@ -73,7 +73,7 @@ type
     { Private declarations }
   protected
     FRecordHolder: TRecordHolder;
-    function CreateDataSetWrap: TCustomComponentsW; virtual;
+    function CreateDSWrap: TDSWrap; override;
     procedure InitParameterFields; virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -98,7 +98,7 @@ constructor TQueryCustomComponents.Create(AOwner: TComponent);
 begin
   inherited;
 
-  FW := CreateDataSetWrap;
+  FW := FDSWrap as TCustomComponentsW;
 
   // —писок полей, которые €вл€ютс€ параметрами
   FParameterFields := TDictionary<Integer, String>.Create;
@@ -163,7 +163,7 @@ begin
   Result := Result.Trim([',']);
 end;
 
-function TQueryCustomComponents.CreateDataSetWrap: TCustomComponentsW;
+function TQueryCustomComponents.CreateDSWrap: TDSWrap;
 begin
   Result := TCustomComponentsW.Create(FDQuery);
 end;

@@ -32,7 +32,7 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoAfterOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
@@ -52,13 +52,13 @@ uses NotifyEvents, StrHelper;
 constructor TQueryBodyKinds.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := OrderW as TBodyKindW;
+  FW := FDSWrap as TBodyKindW;
 
   AutoTransaction := False;
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FEventList);
 end;
 
-function TQueryBodyKinds.CreateDataSetWrap: TOrderW;
+function TQueryBodyKinds.CreateDSWrap: TDSWrap;
 begin
   Result := TBodyKindW.Create(FDQuery);
 end;

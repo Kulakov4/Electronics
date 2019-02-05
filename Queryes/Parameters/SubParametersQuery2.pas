@@ -43,7 +43,7 @@ type
     function GetCheckedMode: Boolean;
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
     procedure DoAfterCheckedOpen(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
@@ -68,12 +68,12 @@ uses
 constructor TQuerySubParameters2.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := OrderW as TSubParametersW;
+  FW := FDSWrap as TSubParametersW;
   AutoTransaction := False;
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, FEventList);
 end;
 
-function TQuerySubParameters2.CreateDataSetWrap: TOrderW;
+function TQuerySubParameters2.CreateDSWrap: TDSWrap;
 begin
   Result := TSubParametersW.Create(FDQuery);
 end;

@@ -21,7 +21,6 @@ type
 
   TQueryBaseEvents = class(TQueryBase)
     procedure FDQueryAfterCancel(DataSet: TDataSet);
-    procedure FDQueryAfterClose(DataSet: TDataSet);
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
     procedure FDQueryAfterInsert(DataSet: TDataSet);
@@ -36,7 +35,6 @@ type
     procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
-    FAfterClose: TNotifyEventsEx;
     FBeforeClose: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
@@ -56,7 +54,6 @@ type
     FAfterCancelUpdates: TNotifyEventsEx;
     FAfterPostI: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
-    FDSWrap: TDSWrap;
 //    FCloneEvents: TObjectList;
     FHaveAnyNotCommitedChanges: Boolean;
     FOldPKValue: Variant;
@@ -77,6 +74,7 @@ type
     { Private declarations }
   protected
     FAutoTransactionEventList: TObjectList;
+    FDSWrap: TDSWrap;
     FMasterEventList: TObjectList;
     function CreateDSWrap: TDSWrap; virtual; abstract;
     procedure DoAfterCommit(Sender: TObject);
@@ -97,7 +95,6 @@ type
 // TODO: DropClone
 //  procedure DropClone(AClone: TFDMemTable);
     procedure SmartRefresh; virtual;
-    property AfterClose: TNotifyEventsEx read FAfterClose;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
@@ -191,7 +188,6 @@ begin
   FAfterOpen := TNotifyEventsEx.Create(Self);
 
   FBeforeClose := TNotifyEventsEx.Create(Self);
-  FAfterClose := TNotifyEventsEx.Create(Self);
 
   FBeforePost := TNotifyEventsEx.Create(Self);
   FAfterPost := TNotifyEventsEx.Create(Self);
@@ -254,7 +250,6 @@ begin
   FreeAndNil(FAfterOpen);
 
   FreeAndNil(FBeforeClose);
-  FreeAndNil(FAfterClose);
 
   FreeAndNil(FBeforePost);
   FreeAndNil(FAfterPost);
@@ -404,12 +399,6 @@ procedure TQueryBaseEvents.FDQueryAfterCancel(DataSet: TDataSet);
 begin
   inherited;
   FAfterCancel.CallEventHandlers(Self);
-end;
-
-procedure TQueryBaseEvents.FDQueryAfterClose(DataSet: TDataSet);
-begin
-  inherited;
-  FAfterClose.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterDelete(DataSet: TDataSet);

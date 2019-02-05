@@ -9,7 +9,8 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  SearchInterfaceUnit, CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery;
+  SearchInterfaceUnit, CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery,
+  DSWrap;
 
 type
   TFamilySearchW = class(TCustomComponentsW)
@@ -40,7 +41,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    function CreateDataSetWrap: TCustomComponentsW; override;
+    function CreateDSWrap: TDSWrap; override;
     function GetHaveAnyChanges: Boolean; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -102,7 +103,7 @@ begin
   Search('');
 end;
 
-function TQueryFamilySearch.CreateDataSetWrap: TCustomComponentsW;
+function TQueryFamilySearch.CreateDSWrap: TDSWrap;
 begin
   Result := TFamilySearchW.Create(FDQuery);
 end;

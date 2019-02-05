@@ -917,7 +917,7 @@ begin
 
     InitializeLookupColumn(clIDParameterKind,
       FParametersGrp.qParameterKinds.DataSource, lsEditFixedList,
-      FParametersGrp.qParameterKinds.ParameterKind.FieldName);
+      FParametersGrp.qParameterKinds.W.ParameterKind.FieldName);
 
     // Пусть монитор сообщает нам обо всех изменениях в БД
     TNotifyEventWrap.Create

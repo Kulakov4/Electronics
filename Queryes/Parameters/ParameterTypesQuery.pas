@@ -39,7 +39,7 @@ type
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; override;
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     function SearchByTableName(const ATableName: string): Integer;
@@ -57,14 +57,14 @@ uses RepositoryDataModule, NotifyEvents, StrHelper, BaseQuery;
 constructor TQueryParameterTypes.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := OrderW as TParameterTypeW;
+  FW := FDSWrap as TParameterTypeW;
 
   AutoTransaction := False;
 
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
 end;
 
-function TQueryParameterTypes.CreateDataSetWrap: TOrderW;
+function TQueryParameterTypes.CreateDSWrap: TDSWrap;
 begin
   Result := TParameterTypeW.Create(FDQuery);
 end;

@@ -22,18 +22,17 @@ type
 
   TQueryOrder = class(TQueryWithDataSource)
   private
-    FOrderW: TOrderW;
     FRecOrderList: TList<TRecOrder>;
+    function GetOrderW: TOrderW;
     { Private declarations }
   protected
-    function CreateDataSetWrap: TOrderW; virtual; abstract;
     procedure DoOnUpdateOrder(ARecOrder: TRecOrder);
     procedure UpdateOrder;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure MoveDSRecord(AStartDrag: TStartDrag; ADropDrag: TDropDrag);
-    property OrderW: TOrderW read FOrderW;
+    property OrderW: TOrderW read GetOrderW;
     { Public declarations }
   end;
 
@@ -46,9 +45,6 @@ uses System.Math, System.Generics.Defaults;
 constructor TQueryOrder.Create(AOwner: TComponent);
 begin
   inherited;
-  FOrderW := CreateDataSetWrap;
-  Assert(FOrderW <> nil);
-  Assert(FOrderW.Ord <> nil);
   FRecOrderList := TList<TRecOrder>.Create;
 end;
 
@@ -61,6 +57,13 @@ end;
 procedure TQueryOrder.DoOnUpdateOrder(ARecOrder: TRecOrder);
 begin
   OrderW.Ord.F.Value := ARecOrder.Order;
+end;
+
+function TQueryOrder.GetOrderW: TOrderW;
+begin
+  Assert(FDSWrap <> nil);
+  Result := FDSWrap as TOrderW;
+  Assert(Result.Ord <> nil);
 end;
 
 procedure TQueryOrder.MoveDSRecord(AStartDrag: TStartDrag;

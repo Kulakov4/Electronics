@@ -47,6 +47,8 @@ type
     FW: TRecursiveTreeW;
     procedure MarkAllAsDeleted;
     { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure DeleteAll;
@@ -64,7 +66,12 @@ uses NotifyEvents;
 constructor TQueryRecursiveTree.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TRecursiveTreeW.Create(FDQuery);
+  FW := FDSWrap as TRecursiveTreeW;
+end;
+
+function TQueryRecursiveTree.CreateDSWrap: TDSWrap;
+begin
+  Result := TRecursiveTreeW.Create(FDQuery);
 end;
 
 procedure TQueryRecursiveTree.DeleteAll;

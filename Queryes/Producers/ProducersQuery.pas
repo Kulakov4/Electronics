@@ -43,6 +43,7 @@ type
     procedure DoBeforeOpen(Sender: TObject);
     { Private declarations }
   protected
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure CancelUpdates; override;
@@ -60,7 +61,7 @@ uses RepositoryDataModule, DefaultParameters, ProducerTypesQuery;
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TProducersW.Create(FDQuery);
+  FW := FDSWrap as TProducersW;
 
   TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
   TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll, FEventList);
@@ -74,6 +75,11 @@ begin
   TryCancel;
   FDQuery.Connection.Rollback;
   RefreshQuery;
+end;
+
+function TQueryProducers.CreateDSWrap: TDSWrap;
+begin
+  Result := TProducersW.Create(FDQuery);
 end;
 
 procedure TQueryProducers.DoBeforeScroll(Sender: TObject);

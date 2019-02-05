@@ -28,6 +28,8 @@ type
   private
     FW: TExtraChargeType;
     { Private declarations }
+  protected
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     property W: TExtraChargeType read FW;
@@ -41,8 +43,13 @@ implementation
 constructor TQueryExtraChargeType.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TExtraChargeType.Create(FDQuery);
+  FW := FDSWrap as TExtraChargeType;
   AutoTransaction := False;
+end;
+
+function TQueryExtraChargeType.CreateDSWrap: TDSWrap;
+begin
+  Result := TExtraChargeType.Create(FDQuery);
 end;
 
 constructor TExtraChargeType.Create(AOwner: TComponent);
