@@ -23,6 +23,7 @@ type
     FAfterScroll: TNotifyEventsEx;
     FBeforeDelete: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
+    FAfterCancel: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
     FBeforeOpen: TNotifyEventsEx;
     FCloneEvents: TObjectList;
@@ -40,6 +41,7 @@ type
     procedure AfterDataSetClose(DataSet: TDataSet);
     procedure AfterDataSetOpen(DataSet: TDataSet);
     procedure AfterDataSetInsert(DataSet: TDataSet);
+    procedure AfterDataSetCancel(DataSet: TDataSet);
     procedure CloneAfterClose(Sender: TObject);
     procedure CloneAfterOpen(Sender: TObject);
     procedure CloneCursor(AClone: TFDMemTable);
@@ -52,6 +54,7 @@ type
     function GetAfterScroll: TNotifyEventsEx;
     function GetBeforeDelete: TNotifyEventsEx;
     function GetAfterPost: TNotifyEventsEx;
+    function GetAfterCancel: TNotifyEventsEx;
     function GetAfterScrollM: TNotifyEventsEx;
     function GetBeforeOpen: TNotifyEventsEx;
     function GetFDDataSet: TFDDataSet;
@@ -118,6 +121,7 @@ type
     property AfterScroll: TNotifyEventsEx read GetAfterScroll;
     property BeforeDelete: TNotifyEventsEx read GetBeforeDelete;
     property AfterPost: TNotifyEventsEx read GetAfterPost;
+    property AfterCancel: TNotifyEventsEx read GetAfterCancel;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
     property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
     property DataSet: TDataSet read FDataSet;
@@ -273,6 +277,11 @@ end;
 procedure TDSWrap.AfterDataSetInsert(DataSet: TDataSet);
 begin
   FAfterInsert.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.AfterDataSetCancel(DataSet: TDataSet);
+begin
+  FAfterCancel.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.BeforeDataSetDelete(DataSet: TDataSet);
@@ -513,6 +522,19 @@ begin
   end;
 
   Result := FAfterPost;
+end;
+
+function TDSWrap.GetAfterCancel: TNotifyEventsEx;
+begin
+  if FAfterCancel = nil then
+  begin
+    Assert(not Assigned(FDataSet.AfterCancel));
+    FAfterCancel := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterCancel);
+    FDataSet.AfterCancel := AfterDataSetCancel;
+  end;
+
+  Result := FAfterCancel;
 end;
 
 function TDSWrap.GetAfterScrollM: TNotifyEventsEx;

@@ -19,7 +19,6 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure FDQueryAfterCancel(DataSet: TDataSet);
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
@@ -41,7 +40,6 @@ type
     FBeforePost: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
-    FAfterCancel: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
     FAfterPostI: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
@@ -92,7 +90,6 @@ type
     property BeforePost: TNotifyEventsEx read FBeforePost;
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
-    property AfterCancel: TNotifyEventsEx read FAfterCancel;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property AfterPostI: TNotifyEventsEx read FAfterPostI;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
@@ -173,8 +170,6 @@ begin
   FBeforeEdit := TNotifyEventsEx.Create(Self);
   FAfterEdit := TNotifyEventsEx.Create(Self);
 
-  FAfterCancel := TNotifyEventsEx.Create(Self);
-
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
   FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
@@ -218,8 +213,6 @@ begin
 
   FreeAndNil(FBeforeEdit);
   FreeAndNil(FAfterEdit);
-
-  FreeAndNil(FAfterCancel);
 
   FreeAndNil(FAfterCommit);
 
@@ -355,12 +348,6 @@ end;
 //end;
 //
 //end;
-
-procedure TQueryBaseEvents.FDQueryAfterCancel(DataSet: TDataSet);
-begin
-  inherited;
-  FAfterCancel.CallEventHandlers(Self);
-end;
 
 procedure TQueryBaseEvents.FDQueryAfterDelete(DataSet: TDataSet);
 begin
@@ -541,7 +528,7 @@ begin
   TNotifyEventWrap.Create(AQuery.AfterEdit, DoAfterEditOrInsert, FEventList);
   TNotifyEventWrap.Create(AQuery.FDSWrap.AfterInsert, DoAfterEditOrInsert, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
-  TNotifyEventWrap.Create(AQuery.AfterCancel, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterCancel, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterPostI, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
     FEventList);
