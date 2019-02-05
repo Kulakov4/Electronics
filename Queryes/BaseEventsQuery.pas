@@ -13,7 +13,6 @@ uses
 
 const
   WM_DS_BEFORE_SCROLL = WM_USER + 555;
-  WM_DS_AFTER_SCROLL = WM_USER + 556;
   WM_DS_AFTER_POST = WM_USER + 557;
 
 type
@@ -24,7 +23,6 @@ type
     procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
-    procedure FDQueryAfterScroll(DataSet: TDataSet);
     procedure FDQueryBeforeClose(DataSet: TDataSet);
     procedure FDQueryBeforeDelete(DataSet: TDataSet);
     procedure FDQueryBeforeEdit(DataSet: TDataSet);
@@ -37,7 +35,6 @@ type
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
-    FAfterScroll: TNotifyEventsEx;
     FAutoTransaction: Boolean;
     FBeforeDelete: TNotifyEventsEx;
     FBeforeEdit: TNotifyEventsEx;
@@ -55,7 +52,6 @@ type
     FOldPKValue: Variant;
     FOldState: TDataSetState;
     FResiveAfterPostMessage: Boolean;
-    FResiveAfterScrollMessage: Boolean;
     FResiveBeforeScrollMessage: Boolean;
     FUseAfterPostMessage: Boolean;
     class var FMonitor: TQueryMonitor;
@@ -78,8 +74,6 @@ type
     function GetHaveAnyNotCommitedChanges: Boolean; override;
     procedure ProcessAfterPostMessage(var Message: TMessage);
       message WM_DS_AFTER_POST;
-    procedure ProcessAfterScrollMessage(var Message: TMessage);
-      message WM_DS_AFTER_SCROLL;
     procedure ProcessBeforeScrollMessage(var Message: TMessage);
       message WM_DS_BEFORE_SCROLL;
   public
@@ -92,7 +86,6 @@ type
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
     property AfterPost: TNotifyEventsEx read FAfterPost;
-    property AfterScroll: TNotifyEventsEx read FAfterScroll;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
     property BeforeDelete: TNotifyEventsEx read FBeforeDelete;
@@ -168,7 +161,6 @@ begin
   // Создаём события
   FBeforeScroll := TNotifyEventsEx.Create(Self);
   FBeforeScrollI := TNotifyEventsEx.Create(Self);
-  FAfterScroll := TNotifyEventsEx.Create(Self);
 
   FBeforeInsert := TNotifyEventsEx.Create(Self);
 
@@ -192,7 +184,6 @@ begin
 
   FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
 
-  FResiveAfterScrollMessage := True;
   FResiveBeforeScrollMessage := True;
   FResiveAfterPostMessage := True;
 
@@ -218,7 +209,6 @@ begin
 
   FreeAndNil(FBeforeScroll);
   FreeAndNil(FBeforeScrollI);
-  FreeAndNil(FAfterScroll);
 
   FreeAndNil(FBeforeInsert);
 
@@ -421,18 +411,6 @@ begin
   FAfterPostI.CallEventHandlers(Self);
 end;
 
-procedure TQueryBaseEvents.FDQueryAfterScroll(DataSet: TDataSet);
-begin
-  inherited;
-  // Если предыдущее сообщение о скроле уже получили
-  if FResiveAfterScrollMessage then
-  begin
-    FResiveAfterScrollMessage := False;
-    // Отправляем новое сообщение
-    PostMessage(Handle, WM_DS_AFTER_SCROLL, 0, 0);
-  end;
-end;
-
 procedure TQueryBaseEvents.FDQueryBeforeClose(DataSet: TDataSet);
 begin
   inherited;
@@ -496,12 +474,6 @@ procedure TQueryBaseEvents.ProcessAfterPostMessage(var Message: TMessage);
 begin
   FAfterPost.CallEventHandlers(Self);
   FResiveAfterPostMessage := True;
-end;
-
-procedure TQueryBaseEvents.ProcessAfterScrollMessage(var Message: TMessage);
-begin
-  FAfterScroll.CallEventHandlers(Self);
-  FResiveAfterScrollMessage := True;
 end;
 
 procedure TQueryBaseEvents.ProcessBeforeScrollMessage(var Message: TMessage);

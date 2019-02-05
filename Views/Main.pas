@@ -617,12 +617,8 @@ begin
       ComponentsFrame.ViewChildCategories.qChildCategories :=
         TDM.Create.qChildCategories;
 
-      {
-        ComponentsFrame.tvFunctionalGroup.DataController.DataSource :=
-        DM2.qChildCategories.DataSource;
-      }
       FOnProductCategoriesChange := TNotifyEventWrap.Create
-        (TDM.Create.qTreeList.AfterScroll, DoOnProductCategoriesChange,
+        (TDM.Create.qTreeList.W.AfterScrollM, DoOnProductCategoriesChange,
         FEventList);
 
       // Искусственно вызываем событие

@@ -31,6 +31,7 @@ type
     FFieldsWrap: TObjectList<TParamWrap>;
     FHandle: HWND;
     FIsRecordModifedClone: TFDMemTable;
+    FNEList: TList<TNotifyEventsEx>;
     FPKFieldName: string;
     FPostASM: Boolean;
     FRecHolder: TRecordHolder;
@@ -165,6 +166,7 @@ begin
   FDataSet := AOwner as TDataSet;
   FFieldsWrap := TObjectList<TParamWrap>.Create;
   FEventList := TObjectList.Create;
+  FNEList := TList<TNotifyEventsEx>.Create;
 end;
 
 destructor TDSWrap.Destroy;
@@ -179,13 +181,16 @@ begin
   end;
   Assert(FClones = nil);
 
+  for i := FNEList.Count - 1 downto 0 do
+  begin
+    FNEList[i].Destroy;
+    FNEList.Delete(i);
+  end;
+  Assert(FNEList.Count = 0);
+  FreeAndNil(FNEList);
+
   FreeAndNil(FFieldsWrap);
   FreeAndNil(FEventList);
-  if FAfterOpen <> nil then
-    FreeAndNil(FAfterOpen);
-
-  if FAfterScroll <> nil then
-    FreeAndNil(FAfterScroll);
 
   if FHandle <> 0 then
     DeallocateHWnd(FHandle);
@@ -417,6 +422,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.AfterOpen));
     FAfterOpen := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterOpen);
     FDataSet.AfterOpen := AfterDataSetOpen;
   end;
 
@@ -429,6 +435,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.AfterClose));
     FAfterClose := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterClose);
     FDataSet.AfterClose := AfterDataSetClose;
   end;
 
@@ -441,6 +448,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.AfterInsert));
     FAfterInsert := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterInsert);
     FDataSet.AfterInsert := AfterDataSetInsert;
   end;
 
@@ -453,6 +461,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.BeforePost));
     FBeforePost := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforePost);
     FDataSet.BeforePost := BeforeDataSetPost;
   end;
 
@@ -465,6 +474,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.AfterScroll));
     FAfterScroll := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterScroll);
     FDataSet.AfterScroll := AfterDataSetScroll;
   end;
   Result := FAfterScroll;
@@ -476,6 +486,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.BeforeDelete));
     FBeforeDelete := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeDelete);
     FDataSet.BeforeDelete := BeforeDataSetDelete;
   end;
 
@@ -488,6 +499,7 @@ begin
   begin
     Assert(not Assigned(FDataSet.AfterPost));
     FAfterPost := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterPost);
     FDataSet.AfterPost := AfterDataSetPost;
   end;
 
@@ -504,6 +516,7 @@ begin
     // Assert(FDataSet.AfterScroll = AfterDataSetScroll);
 
     FAfterScrollM := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterScrollM);
     FDataSet.AfterScroll := AfterDataSetScroll;
   end;
   Result := FAfterScrollM;

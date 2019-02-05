@@ -10,6 +10,5 @@ inherited QueryBaseEvents: TQueryBaseEvents
     BeforeDelete = FDQueryBeforeDelete
     AfterDelete = FDQueryAfterDelete
     BeforeScroll = FDQueryBeforeScroll
-    AfterScroll = FDQueryAfterScroll
   end
 end

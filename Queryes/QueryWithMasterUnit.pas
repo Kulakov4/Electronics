@@ -114,7 +114,7 @@ begin
     if FMaster <> nil then
     begin
       // Подписываемся на события нового мастера
-      TNotifyEventWrap.Create(FMaster.AfterScroll, DoAfterMasterScroll,
+      TNotifyEventWrap.Create(FMaster.Wrap.AfterScrollM, DoAfterMasterScroll,
         FMasterEventList);
     end;
 

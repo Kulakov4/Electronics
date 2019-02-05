@@ -79,7 +79,7 @@ constructor TQueryTreeList.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TTreeListW;
-  TNotifyEventWrap.Create(AfterScroll, DoAfterScroll, FEventList);
+  TNotifyEventWrap.Create(W.AfterScrollM, DoAfterScroll, FEventList);
 end;
 
 function TQueryTreeList.CreateDSWrap: TDSWrap;
