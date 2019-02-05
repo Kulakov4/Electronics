@@ -277,7 +277,7 @@ end;
 procedure TDM.DoAfterChildCategoriesPostOrDelete(Sender: TObject);
 begin
   // обновляем дерево с подавление AfterScroll
-  qTreeList.SmartRefresh;
+  qTreeList.W.SmartRefresh;
 end;
 
 procedure TDM.DoAfterCommit(Sender: TObject);
@@ -290,7 +290,7 @@ begin
   I := FRefreshQList.IndexOf(ParametersGroup);
   if I >= 0 then
   begin
-    CategoryParametersGroup.qCategoryParameters.SmartRefresh;
+    CategoryParametersGroup.qCategoryParameters.W.SmartRefresh;
     FRefreshQList.Delete(I);
   end;
 

@@ -88,9 +88,6 @@ type
 // TODO: AddClone
 //  function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
-// TODO: DropClone
-//  procedure DropClone(AClone: TFDMemTable);
-    procedure SmartRefresh; virtual;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
@@ -542,44 +539,6 @@ begin
     end;
 
   end;
-end;
-
-procedure TQueryBaseEvents.SmartRefresh;
-var
-  OK: Boolean;
-begin
-  // Обновление данных, при котором не возникает события AfterScroll
-  FDQuery.DisableControls;
-  try
-    SaveBookmark;
-
-    // Как будто предыдущее сообщение AfterScroll ещё не получили
-    FResiveAfterScrollMessage := False;
-
-    // Заново выполняем запрос
-    RefreshQuery;
-
-    OK := RestoreBookmark;
-
-    // Если старой записи не существует
-    if not OK then
-    begin
-      // Как будто предыдущее сообщение AfterScroll ещё уже получили
-      FResiveAfterScrollMessage := True;
-
-      // Искусственно вызываем событие AfterScroll
-      FDQueryAfterScroll(FDQuery);
-    end;
-
-  finally
-    // Тут визуальные компоненты DevExpress начнут загрузку данных и будут делать Scroll
-    FDQuery.EnableControls;
-  end;
-
-  if OK then
-    // Как будто предыдущее сообщение AfterScroll ещё уже получили
-    FResiveAfterScrollMessage := True;
-
 end;
 
 constructor TQueryMonitor.Create;

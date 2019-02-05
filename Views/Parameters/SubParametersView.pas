@@ -190,7 +190,7 @@ begin
     FQuerySubParameters.FDQuery.Connection.Rollback;
     Assert(not FQuerySubParameters.FDQuery.Connection.InTransaction);
 
-    FQuerySubParameters.SmartRefresh;
+    FQuerySubParameters.W.SmartRefresh;
 
     // Переносим фокус на первую выделенную запись
     FocusSelectedRecord(MainView);

@@ -5,7 +5,10 @@ interface
 uses
   System.Classes, Data.DB, System.SysUtils, System.Generics.Collections,
   FireDAC.Comp.Client, FireDAC.Comp.DataSet, NotifyEvents, System.Contnrs,
-  DBRecordHolder;
+  DBRecordHolder, Winapi.Messages, Winapi.Windows;
+
+const
+  WM_DS_AFTER_SCROLL = WM_USER + 500;
 
 type
   TFieldWrap = class;
@@ -20,13 +23,16 @@ type
     FAfterScroll: TNotifyEventsEx;
     FBeforeDelete: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
+    FAfterScrollM: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
     FEventList: TObjectList;
     FFieldsWrap: TObjectList<TParamWrap>;
+    FHandle: HWND;
     FIsRecordModifedClone: TFDMemTable;
     FPKFieldName: string;
+    FPostASM: Boolean;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
     procedure AfterDataSetClose(DataSet: TDataSet);
@@ -44,23 +50,28 @@ type
     function GetAfterScroll: TNotifyEventsEx;
     function GetBeforeDelete: TNotifyEventsEx;
     function GetAfterPost: TNotifyEventsEx;
+    function GetAfterScrollM: TNotifyEventsEx;
     function GetFDDataSet: TFDDataSet;
+    function GetHandle: HWND;
     function GetPK: TField;
     function GetRecordCount: Integer;
+    procedure ProcessAfterScrollMessage;
+    procedure WndProc(var Msg: TMessage);
   protected
     procedure BeforeDataSetPost(DataSet: TDataSet);
     procedure BeforeDataSetDelete(DataSet: TDataSet);
     procedure AfterDataSetPost(DataSet: TDataSet);
     procedure UpdateFields;
     property FDDataSet: TFDDataSet read GetFDDataSet;
+    property Handle: HWND read GetHandle;
     property RecHolder: TRecordHolder read FRecHolder;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function AddClone(const AFilter: String): TFDMemTable;
     procedure AfterConstruction; override;
-    procedure AppendRows(AFieldName: string; AValues: TArray<String>); overload;
-        virtual;
+    procedure AppendRows(AFieldName: string; AValues: TArray<String>);
+      overload; virtual;
     procedure CancelUpdates; virtual;
     procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
@@ -77,13 +88,16 @@ type
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
       : Boolean;
     procedure RefreshQuery; virtual;
-    procedure RestoreBookmark; virtual;
+    function RestoreBookmark: Boolean; virtual;
     function SaveBookmark: Boolean;
     procedure SetFieldsReadOnly(AReadOnly: Boolean);
     procedure SetFieldsRequired(ARequired: Boolean);
     procedure SetFieldsVisible(AVisible: Boolean);
     procedure SetParameters(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>);
+    // TODO: DropClone
+    // procedure DropClone(AClone: TFDMemTable);
+    procedure SmartRefresh; virtual;
     procedure TryAppend;
     procedure TryCancel;
     function TryEdit: Boolean;
@@ -100,6 +114,7 @@ type
     property AfterScroll: TNotifyEventsEx read GetAfterScroll;
     property BeforeDelete: TNotifyEventsEx read GetBeforeDelete;
     property AfterPost: TNotifyEventsEx read GetAfterPost;
+    property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
     property PK: TField read GetPK;
@@ -128,8 +143,8 @@ type
     FDisplayLabel: string;
     function GetF: TField;
   public
-    constructor Create(ADataSetWrap: TDSWrap; const AFullName: String; const
-        ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
+    constructor Create(ADataSetWrap: TDSWrap; const AFullName: String;
+      const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
   end;
@@ -160,7 +175,7 @@ begin
   if FClones <> nil then
   begin
     for I := FClones.Count - 1 downto 0 do
-      DropClone(FClones[i]);
+      DropClone(FClones[I]);
   end;
   Assert(FClones = nil);
 
@@ -171,6 +186,10 @@ begin
 
   if FAfterScroll <> nil then
     FreeAndNil(FAfterScroll);
+
+  if FHandle <> 0 then
+    DeallocateHWnd(FHandle);
+
   inherited;
 end;
 
@@ -223,7 +242,18 @@ end;
 
 procedure TDSWrap.AfterDataSetScroll(DataSet: TDataSet);
 begin
-  FAfterScroll.CallEventHandlers(Self);
+  // Если сообщение AfterScroll ещё не посылали и есть подписчики
+  if (FAfterScrollM <> nil) and (FAfterScrollM.Count > 0) and (not FPostASM)
+  then
+  begin
+    FPostASM := True;
+    // Отправляем новое сообщение
+    PostMessage(Handle, WM_DS_AFTER_SCROLL, 0, 0);
+  end;
+
+  // Извещаем тех, кто кочет получить сообщение немедленно
+  if FAfterScroll <> nil then
+    FAfterScroll.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.AfterDataSetClose(DataSet: TDataSet);
@@ -271,8 +301,8 @@ begin
   end
 end;
 
-procedure TDSWrap.ClearFields(AFieldList: TArray<String>; AIDList:
-    TArray<Integer>);
+procedure TDSWrap.ClearFields(AFieldList: TArray<String>;
+  AIDList: TArray<Integer>);
 var
   AFieldName: String;
   AID: Integer;
@@ -464,9 +494,32 @@ begin
   Result := FAfterPost;
 end;
 
+function TDSWrap.GetAfterScrollM: TNotifyEventsEx;
+begin
+  if FAfterScrollM = nil then
+  begin
+    if FAfterScroll = nil then
+      Assert(not Assigned(FDataSet.AfterScroll));
+    // else
+    // Assert(FDataSet.AfterScroll = AfterDataSetScroll);
+
+    FAfterScrollM := TNotifyEventsEx.Create(Self);
+    FDataSet.AfterScroll := AfterDataSetScroll;
+  end;
+  Result := FAfterScrollM;
+end;
+
 function TDSWrap.GetFDDataSet: TFDDataSet;
 begin
   Result := FDataSet as TFDDataSet;
+end;
+
+function TDSWrap.GetHandle: HWND;
+begin
+  if FHandle = 0 then
+    FHandle := System.Classes.AllocateHWnd(WndProc);
+
+  Result := FHandle;
 end;
 
 function TDSWrap.GetPK: TField;
@@ -475,6 +528,17 @@ begin
     raise Exception.Create('Имя первичного ключа не задано');
 
   Result := Field(FPKFieldName);
+end;
+
+procedure TDSWrap.WndProc(var Msg: TMessage);
+begin
+  with Msg do
+    case Msg of
+      WM_DS_AFTER_SCROLL:
+        ProcessAfterScrollMessage;
+    else
+      DefWindowProc(FHandle, Msg, wParam, lParam);
+    end;
 end;
 
 function TDSWrap.GetRecordCount: Integer;
@@ -490,25 +554,25 @@ end;
 function TDSWrap.InsertRecord(ARecordHolder: TRecordHolder): Integer;
 var
   AFieldHolder: TFieldHolder;
-  f: TField;
+  F: TField;
 begin
   Assert(ARecordHolder <> nil);
 
   TryAppend;
   try
-    for f in DataSet.Fields do
+    for F in DataSet.Fields do
     begin
       // Первичный ключ заполнять не будем
-      if f.FieldName.ToUpper = PKFieldName.ToUpper then
+      if F.FieldName.ToUpper = PKFieldName.ToUpper then
         Continue;
 
       // Ищем такое поле в коллекции вставляемых значений
-      AFieldHolder := ARecordHolder.Find(f.FieldName);
+      AFieldHolder := ARecordHolder.Find(F.FieldName);
 
       // Если нашли
       if (AFieldHolder <> nil) and not VarIsNull(AFieldHolder.Value) then
       begin
-        f.Value := AFieldHolder.Value;
+        F.Value := AFieldHolder.Value;
       end;
 
     end;
@@ -586,6 +650,13 @@ begin
   end;
 end;
 
+procedure TDSWrap.ProcessAfterScrollMessage;
+begin
+  Assert(FAfterScrollM <> nil);
+  FAfterScrollM.CallEventHandlers(Self);
+  FPostASM := False;
+end;
+
 procedure TDSWrap.RefreshQuery;
 begin
   FDataSet.DisableControls;
@@ -597,9 +668,15 @@ begin
   end;
 end;
 
-procedure TDSWrap.RestoreBookmark;
+function TDSWrap.RestoreBookmark: Boolean;
 begin
+  Result := False;
 
+  // Если есть сохранённая запись, к которой надо вернуться
+  // И известен первичный ключ
+  if (FRecHolder <> nil) and (not PKFieldName.IsEmpty) and
+    (not VarIsNull(FRecHolder.Field[PKFieldName])) then
+    Result := LocateByPK(FRecHolder.Field[PKFieldName]);
 end;
 
 function TDSWrap.SaveBookmark: Boolean;
@@ -643,15 +720,52 @@ end;
 procedure TDSWrap.SetParameters(const AParamNames: TArray<String>;
   const AParamValues: TArray<Variant>);
 var
-  i: Integer;
+  I: Integer;
 begin
   Assert(Low(AParamNames) = Low(AParamValues));
   Assert(High(AParamNames) = High(AParamValues));
 
-  for i := Low(AParamNames) to High(AParamNames) do
+  for I := Low(AParamNames) to High(AParamNames) do
   begin
-    FDDataSet.ParamByName(AParamNames[i]).Value := AParamValues[i];
+    FDDataSet.ParamByName(AParamNames[I]).Value := AParamValues[I];
   end;
+end;
+
+procedure TDSWrap.SmartRefresh;
+var
+  OK: Boolean;
+begin
+  // Обновление данных, при котором не возникает события AfterScroll
+  FDDataSet.DisableControls;
+  try
+    SaveBookmark;
+
+    // Как будто предыдущее сообщение AfterScroll уже послали
+    FPostASM := True;
+
+    // Заново выполняем запрос
+    RefreshQuery;
+
+    OK := RestoreBookmark;
+
+    // Если старой записи не существует
+    if not OK then
+    begin
+      // Как будто предыдущее сообщение AfterScroll ещё не посылали
+      FPostASM := False;
+
+      // Искусственно вызываем событие AfterScroll
+      AfterDataSetScroll(DataSet);
+    end;
+
+  finally
+    // Тут визуальные компоненты DevExpress начнут загрузку данных и будут делать Scroll
+    FDDataSet.EnableControls;
+  end;
+
+  if OK then
+    // Как будто предыдущее сообщение AfterScroll ещё послали
+    FPostASM := False;
 end;
 
 procedure TDSWrap.TryAppend;
@@ -747,13 +861,13 @@ begin
   for PW in FFieldsWrap do
   begin
     if not(PW is TFieldWrap) then
-      continue;
+      Continue;
 
     FW := PW as TFieldWrap;
 
     F := FDataSet.FindField(FW.FieldName);
     if F = nil then
-      continue;
+      Continue;
 
     if not FW.DisplayLabel.IsEmpty then
     begin
@@ -768,7 +882,7 @@ var
   AChangedFields: TDictionary<String, Variant>;
   AFieldHolder: TFieldHolder;
   AFieldName: string;
-  f: TField;
+  F: TField;
 begin
   Assert(ARecordHolder <> nil);
 
@@ -776,18 +890,18 @@ begin
   AChangedFields := TDictionary<String, Variant>.Create;
   try
 
-    for f in DataSet.Fields do
+    for F in DataSet.Fields do
     begin
       // Первичный ключ обновлять не будем
-      if f.FieldName.ToUpper = PKFieldName.ToUpper then
+      if F.FieldName.ToUpper = PKFieldName.ToUpper then
         Continue;
 
       // Ищем такое поле в коллекции обновляемых значений
-      AFieldHolder := ARecordHolder.Find(f.FieldName);
+      AFieldHolder := ARecordHolder.Find(F.FieldName);
 
       // Запоминаем в словаре какое поле нужно будет обновить
-      if (AFieldHolder <> nil) and (f.Value <> AFieldHolder.Value) then
-        AChangedFields.Add(f.FieldName, AFieldHolder.Value);
+      if (AFieldHolder <> nil) and (F.Value <> AFieldHolder.Value) then
+        AChangedFields.Add(F.FieldName, AFieldHolder.Value);
     end;
 
     Result := AChangedFields.Count > 0;
@@ -815,7 +929,7 @@ begin
 end;
 
 constructor TFieldWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String;
-    const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
+  const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
 begin
   inherited Create(ADataSetWrap, AFullName);
 

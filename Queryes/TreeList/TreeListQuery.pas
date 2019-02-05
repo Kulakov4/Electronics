@@ -14,6 +14,7 @@ uses
 type
   TTreeListW = class(TDSWrap)
   private
+    FAfterSmartRefresh: TNotifyEventsEx;
     FExternalID: TFieldWrap;
     FID: TFieldWrap;
     FParentId: TFieldWrap;
@@ -25,6 +26,7 @@ type
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AddChildCategory(const AValue: string; ALevel: Integer);
     procedure AddRoot;
     function CheckPossibility(const AParentID: Integer;
@@ -34,6 +36,8 @@ type
     function LocateByExternalID(AExternalID: string; AOptions:
         TFDDataSetLocateOptions = []): Boolean;
     procedure LocateToRoot;
+    procedure SmartRefresh; override;
+    property AfterSmartRefresh: TNotifyEventsEx read FAfterSmartRefresh;
     property ExternalID: TFieldWrap read FExternalID;
     property ID: TFieldWrap read FID;
     property IsRootFocused: Boolean read GetIsRootFocused;
@@ -43,7 +47,6 @@ type
 
   TQueryTreeList = class(TQueryWithDataSource)
   private
-    FAfterSmartRefresh: TNotifyEventsEx;
     FAutoSearchDuplicate: Boolean;
     FNeedRestoreAutoSearch: Boolean;
     FOldAutoSearchDuplicate: Boolean;
@@ -57,10 +60,7 @@ type
     procedure DoAfterScroll(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     procedure GotoDuplicate;
-    procedure SmartRefresh; override;
-    property AfterSmartRefresh: TNotifyEventsEx read FAfterSmartRefresh;
     property AutoSearchDuplicate: Boolean read FAutoSearchDuplicate
       write SetAutoSearchDuplicate;
     property qDuplicateCategory: TQueryDuplicateCategory
@@ -79,16 +79,7 @@ constructor TQueryTreeList.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TTreeListW;
-  FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
-
   TNotifyEventWrap.Create(AfterScroll, DoAfterScroll, FEventList);
-end;
-
-destructor TQueryTreeList.Destroy;
-begin
-  FreeAndNil(FAfterSmartRefresh);
-
-  inherited;
 end;
 
 function TQueryTreeList.CreateDSWrap: TDSWrap;
@@ -139,18 +130,6 @@ begin
     qDuplicateCategory.Search(PK.AsInteger);
 end;
 
-procedure TQueryTreeList.SmartRefresh;
-var
-  rc: Integer;
-begin
-  rc := FDQuery.RecordCount;
-  inherited;
-
-  // Если была одна запись а стало больше
-  if (rc = 1) and (FDQuery.RecordCount > 1) then
-    FAfterSmartRefresh.CallEventHandlers(Self);
-end;
-
 constructor TTreeListW.Create(AOwner: TComponent);
 begin
   inherited;
@@ -158,6 +137,14 @@ begin
   FExternalID := TFieldWrap.Create(Self, 'ExternalID');
   FParentId := TFieldWrap.Create(Self, 'ParentId');
   FValue := TFieldWrap.Create(Self, 'Value');
+
+  FAfterSmartRefresh := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TTreeListW.Destroy;
+begin
+  FreeAndNil(FAfterSmartRefresh);
+  inherited;
 end;
 
 procedure TTreeListW.AddChildCategory(const AValue: string; ALevel: Integer);
@@ -257,6 +244,18 @@ end;
 procedure TTreeListW.LocateToRoot;
 begin
   FDDataSet.LocateEx(ParentId.FieldName, NULL, []);
+end;
+
+procedure TTreeListW.SmartRefresh;
+var
+  rc: Integer;
+begin
+  rc := DataSet.RecordCount;
+  inherited;
+
+  // Если была одна запись а стало больше
+  if (rc = 1) and (DataSet.RecordCount > 1) then
+    FAfterSmartRefresh.CallEventHandlers(Self);
 end;
 
 end.

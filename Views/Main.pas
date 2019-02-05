@@ -610,7 +610,7 @@ begin
 
       ViewTreeList.qTreeList := TDM.Create.qTreeList;
 
-      TNotifyEventWrap.Create(TDM.Create.qTreeList.AfterSmartRefresh,
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
         DoAfterTreeListSmartRefresh, FEventList);
 
       // Привязываем подкатегории к данным (функциональная группа)
