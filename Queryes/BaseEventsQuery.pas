@@ -19,7 +19,6 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure FDQueryAfterEdit(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
     procedure FDQueryBeforeDelete(DataSet: TDataSet);
     procedure FDQueryBeforeEdit(DataSet: TDataSet);
@@ -27,7 +26,6 @@ type
     procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
-    FAfterEdit: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
     FAutoTransaction: Boolean;
     FBeforeDelete: TNotifyEventsEx;
@@ -39,7 +37,7 @@ type
     FAfterCancelUpdates: TNotifyEventsEx;
     FAfterPostI: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
-//    FCloneEvents: TObjectList;
+    // FCloneEvents: TObjectList;
     FHaveAnyNotCommitedChanges: Boolean;
     FOldPKValue: Variant;
     FOldState: TDataSetState;
@@ -48,12 +46,12 @@ type
     FUseAfterPostMessage: Boolean;
     class var FMonitor: TQueryMonitor;
     procedure DoAfterDelete(Sender: TObject);
-// TODO: CloneCursor
-//  procedure CloneCursor(AClone: TFDMemTable);
-// TODO: DoAfterClose
-//  procedure DoAfterClose(Sender: TObject);
-// TODO: DoAfterOpen
-//  procedure DoAfterOpen(Sender: TObject);
+    // TODO: CloneCursor
+    // procedure CloneCursor(AClone: TFDMemTable);
+    // TODO: DoAfterClose
+    // procedure DoAfterClose(Sender: TObject);
+    // TODO: DoAfterOpen
+    // procedure DoAfterOpen(Sender: TObject);
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
     { Private declarations }
@@ -72,10 +70,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-// TODO: AddClone
-//  function AddClone(const AFilter: String): TFDMemTable;
+    // TODO: AddClone
+    // function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
-    property AfterEdit: TNotifyEventsEx read FAfterEdit;
     property AfterPost: TNotifyEventsEx read FAfterPost;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
@@ -145,7 +142,8 @@ begin
   // Создаём обёртку вокруг себя
   FDSWrap := CreateDSWrap;
 
-  TNotifyEventWrap.Create(FDSWrap.AfterDelete, DoAfterDelete, FDSWrap.EventList);
+  TNotifyEventWrap.Create(FDSWrap.AfterDelete, DoAfterDelete,
+    FDSWrap.EventList);
 
   FOldState := dsInactive;
 
@@ -161,8 +159,6 @@ begin
   FAfterPostI := TNotifyEventsEx.Create(Self);
 
   FBeforeEdit := TNotifyEventsEx.Create(Self);
-  FAfterEdit := TNotifyEventsEx.Create(Self);
-
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
   FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
@@ -201,7 +197,6 @@ begin
   FreeAndNil(FAfterPostI);
 
   FreeAndNil(FBeforeEdit);
-  FreeAndNil(FAfterEdit);
 
   FreeAndNil(FAfterCommit);
 
@@ -221,31 +216,31 @@ begin
 end;
 
 // TODO: AddClone
-//function TQueryBaseEvents.AddClone(const AFilter: String): TFDMemTable;
-//begin
-//// Создаём список клонов
-//if FClones = nil then
-//begin
-//  FClones := TObjectList<TFDMemTable>.Create;
+// function TQueryBaseEvents.AddClone(const AFilter: String): TFDMemTable;
+// begin
+/// / Создаём список клонов
+// if FClones = nil then
+// begin
+// FClones := TObjectList<TFDMemTable>.Create;
 //
-//  // Список подписчиков
-//  FCloneEvents := TObjectList.Create;
+// // Список подписчиков
+// FCloneEvents := TObjectList.Create;
 //
-//  // Будем клонировать курсоры
-//  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
-//  // Будем закрывать курсоры
-//  TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
-//end;
+// // Будем клонировать курсоры
+// TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
+// // Будем закрывать курсоры
+// TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
+// end;
 //
-//Result := TFDMemTable.Create(nil); // Владельцем будет список
-//Result.Filter := AFilter;
+// Result := TFDMemTable.Create(nil); // Владельцем будет список
+// Result.Filter := AFilter;
 //
-//// Клонируем
-//if FDQuery.Active then
-//  CloneCursor(Result);
+/// / Клонируем
+// if FDQuery.Active then
+// CloneCursor(Result);
 //
-//FClones.Add(Result); // Владельцем будет список
-//end;
+// FClones.Add(Result); // Владельцем будет список
+// end;
 
 procedure TQueryBaseEvents.CancelUpdates;
 begin
@@ -286,12 +281,6 @@ begin
   // начинаем транзакцию, если она ещё не началась
   if (not AutoTransaction) and (not FDQuery.Connection.InTransaction) then
     FDQuery.Connection.StartTransaction;
-end;
-
-procedure TQueryBaseEvents.FDQueryAfterEdit(DataSet: TDataSet);
-begin
-  inherited;
-  FAfterEdit.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterPost(DataSet: TDataSet);
@@ -448,10 +437,14 @@ begin
 
   FQueries.Add(AQuery);
 
-  TNotifyEventWrap.Create(AQuery.AfterEdit, DoAfterEditOrInsert, FEventList);
-  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterInsert, DoAfterEditOrInsert, FEventList);
-  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterDelete, DoAfterDelete, FEventList);
-  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterCancel, DoAfterCancelOrPost, FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterEdit, DoAfterEditOrInsert,
+    FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterInsert, DoAfterEditOrInsert,
+    FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterDelete, DoAfterDelete,
+    FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterCancel, DoAfterCancelOrPost,
+    FEventList);
   TNotifyEventWrap.Create(AQuery.AfterPostI, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
     FEventList);
@@ -612,7 +605,8 @@ end;
 function TQueryMonitor.GetConnection: TFDCustomConnection;
 begin
   Result := nil;
-  if FQueries.Count = 0 then Exit;
+  if FQueries.Count = 0 then
+    Exit;
 
   Result := FQueries.Last.FDQuery.Connection;
 end;
@@ -633,7 +627,6 @@ begin
 
   if i >= 0 then
     beep;
-
 
   Assert(i = -1);
 

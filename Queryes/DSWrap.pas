@@ -25,6 +25,7 @@ type
     FAfterPost: TNotifyEventsEx;
     FAfterCancel: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
+    FAfterEdit: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
     FBeforeOpen: TNotifyEventsEx;
     FBeforeClose: TNotifyEventsEx;
@@ -70,8 +71,10 @@ type
     procedure BeforeDataSetDelete(DataSet: TDataSet);
     procedure AfterDataSetPost(DataSet: TDataSet);
     procedure AfterDataSetDelete(DataSet: TDataSet);
+    procedure AfterDataSetEdit(DataSet: TDataSet);
     procedure BeforeDataSetClose(DataSet: TDataSet);
     procedure BeforeDataSetOpen(DataSet: TDataSet);
+    function GetAfterEdit: TNotifyEventsEx;
     procedure WndProc(var Msg: TMessage);
   protected
     procedure UpdateFields;
@@ -129,6 +132,7 @@ type
     property AfterPost: TNotifyEventsEx read GetAfterPost;
     property AfterCancel: TNotifyEventsEx read GetAfterCancel;
     property AfterDelete: TNotifyEventsEx read GetAfterDelete;
+    property AfterEdit: TNotifyEventsEx read GetAfterEdit;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
     property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
@@ -305,6 +309,11 @@ end;
 procedure TDSWrap.AfterDataSetDelete(DataSet: TDataSet);
 begin
   FAfterDelete.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.AfterDataSetEdit(DataSet: TDataSet);
+begin
+  FAfterEdit.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.AppendRows(AFieldName: string; AValues: TArray<String>);
@@ -566,6 +575,19 @@ begin
   end;
 
   Result := FAfterDelete;
+end;
+
+function TDSWrap.GetAfterEdit: TNotifyEventsEx;
+begin
+  if FAfterEdit = nil then
+  begin
+    Assert(not Assigned(FDataSet.AfterEdit));
+    FAfterEdit := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterEdit);
+    FDataSet.AfterEdit := AfterDataSetEdit;
+  end;
+
+  Result := FAfterEdit;
 end;
 
 function TDSWrap.GetAfterScrollM: TNotifyEventsEx;

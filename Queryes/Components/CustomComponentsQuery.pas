@@ -124,7 +124,7 @@ begin
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 
   // Если надо, будем запоминать значения перед сохранением
-  TNotifyEventWrap.Create(AfterEdit, DoAfterEdit, FEventList);
+  TNotifyEventWrap.Create(W.AfterEdit, DoAfterEdit, W.EventList);
 end;
 
 destructor TQueryCustomComponents.Destroy;
