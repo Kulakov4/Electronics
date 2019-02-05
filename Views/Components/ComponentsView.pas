@@ -168,7 +168,7 @@ end;
 procedure TViewComponents.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterPost,
+  TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterPostM,
     DoOnUpdateFamilyCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterOpen,
@@ -177,7 +177,7 @@ begin
   TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterDelete,
     DoOnUpdateFamilyCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterPost,
+  TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterPostM,
     DoOnUpdateComponentsCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterOpen,

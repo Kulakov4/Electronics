@@ -743,7 +743,8 @@ begin
   // Подписываемся на события чтобы отслеживать кол-во
   TNotifyEventWrap.Create(qProductsBase.W.AfterOpen, DoAfterOpen, FCountEvents);
 
-  TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost, FCountEvents);
+  TNotifyEventWrap.Create(qProductsBase.W.AfterPostM, DoAfterPost,
+    FCountEvents);
 
   TNotifyEventWrap.Create(qProductsBase.W.AfterDelete, DoAfterDelete,
     FCountEvents);
@@ -1442,8 +1443,8 @@ begin
   TExtDBLCB.InitProp(cxbeiExtraCharge.Properties as
     TcxExtLookupComboBoxProperties, ViewExtraChargeSimple.MainView,
     FqProductsBase.ExtraChargeGroup.qExtraCharge2.PKFieldName,
-    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName, lsFixedList,
-    True, True);
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName,
+    lsFixedList, True, True);
 
   LoadWholeSale;
 

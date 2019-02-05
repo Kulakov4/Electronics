@@ -9,6 +9,7 @@ uses
 
 const
   WM_DS_AFTER_SCROLL = WM_USER + 500;
+  WM_DS_AFTER_POST = WM_USER + 501;
 
 type
   TFieldWrap = class;
@@ -27,6 +28,7 @@ type
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
+    FAfterPostM: TNotifyEventsEx;
     FBeforeOpen: TNotifyEventsEx;
     FBeforeClose: TNotifyEventsEx;
     FCloneEvents: TObjectList;
@@ -38,6 +40,7 @@ type
     FIsRecordModifedClone: TFDMemTable;
     FNEList: TList<TNotifyEventsEx>;
     FPKFieldName: string;
+    FPostAPM: Boolean;
     FPostASM: Boolean;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
@@ -75,6 +78,8 @@ type
     procedure BeforeDataSetClose(DataSet: TDataSet);
     procedure BeforeDataSetOpen(DataSet: TDataSet);
     function GetAfterEdit: TNotifyEventsEx;
+    function GetAfterPostM: TNotifyEventsEx;
+    procedure ProcessAfterPostMessage;
     procedure WndProc(var Msg: TMessage);
   protected
     procedure UpdateFields;
@@ -134,6 +139,7 @@ type
     property AfterDelete: TNotifyEventsEx read GetAfterDelete;
     property AfterEdit: TNotifyEventsEx read GetAfterEdit;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
+    property AfterPostM: TNotifyEventsEx read GetAfterPostM;
     property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
     property DataSet: TDataSet read FDataSet;
@@ -303,6 +309,15 @@ end;
 
 procedure TDSWrap.AfterDataSetPost(DataSet: TDataSet);
 begin
+  // Если сообщение AfterScroll ещё не посылали и есть подписчики
+  if (FAfterPostM <> nil) and (FAfterPostM.Count > 0) and (not FPostAPM)
+  then
+  begin
+    FPostAPM := True;
+    // Отправляем новое сообщение
+    PostMessage(Handle, WM_DS_AFTER_POST, 0, 0);
+  end;
+
   FAfterPost.CallEventHandlers(Self);
 end;
 
@@ -606,6 +621,20 @@ begin
   Result := FAfterScrollM;
 end;
 
+function TDSWrap.GetAfterPostM: TNotifyEventsEx;
+begin
+  if FAfterPostM = nil then
+  begin
+    if FAfterPost = nil then
+      Assert(not Assigned(FDataSet.AfterPost));
+
+    FAfterPostM := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterPostM);
+    FDataSet.AfterPost := AfterDataSetPost;
+  end;
+  Result := FAfterPostM;
+end;
+
 function TDSWrap.GetBeforeOpen: TNotifyEventsEx;
 begin
   if FBeforeOpen = nil then
@@ -659,6 +688,8 @@ begin
     case Msg of
       WM_DS_AFTER_SCROLL:
         ProcessAfterScrollMessage;
+      WM_DS_AFTER_POST:
+        ProcessAfterPostMessage;
     else
       DefWindowProc(FHandle, Msg, wParam, lParam);
     end;
@@ -778,6 +809,13 @@ begin
   Assert(FAfterScrollM <> nil);
   FAfterScrollM.CallEventHandlers(Self);
   FPostASM := False;
+end;
+
+procedure TDSWrap.ProcessAfterPostMessage;
+begin
+  Assert(FAfterPostM <> nil);
+  FAfterPostM.CallEventHandlers(Self);
+  FPostAPM := False;
 end;
 
 procedure TDSWrap.RefreshQuery;

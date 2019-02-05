@@ -165,7 +165,7 @@ begin
   qChildCategories.Master := qTreeList;
 
   // ѕри редактировании дочерней категории нужно будет обновл€ть дерево
-  TNotifyEventWrap.Create(qChildCategories.AfterPost,
+  TNotifyEventWrap.Create(qChildCategories.W.AfterPostM,
     DoAfterChildCategoriesPostOrDelete, FEventList);
   TNotifyEventWrap.Create(qChildCategories.W.AfterDelete,
     DoAfterChildCategoriesPostOrDelete, FEventList);
@@ -196,7 +196,7 @@ begin
     DoAfterProducerCommit, FEventList);
 
   // „тобы выпадающий список складов обновл€лс€ вместе со списком складов
-  TNotifyEventWrap.Create(qStoreHouseList.AfterPost, DoAfterStoreHousePost,
+  TNotifyEventWrap.Create(qStoreHouseList.W.AfterPostM, DoAfterStoreHousePost,
     FEventList);
 
   // ѕробы при перетаскивании бэндов в параметрической таблице мен€лс€ пор€док параметров

@@ -101,11 +101,11 @@ begin
 
   TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost,
     EventList);
-  TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete,
+  TNotifyEventWrap.Create(qFamily.W.AfterPostM, AfterComponentPostOrDelete,
     EventList);
   TNotifyEventWrap.Create(qFamily.W.AfterDelete, AfterComponentPostOrDelete,
     EventList);
-  TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete,
+  TNotifyEventWrap.Create(qComponents.W.AfterPostM, AfterComponentPostOrDelete,
     EventList);
   TNotifyEventWrap.Create(qComponents.W.AfterDelete, AfterComponentPostOrDelete,
     EventList);
