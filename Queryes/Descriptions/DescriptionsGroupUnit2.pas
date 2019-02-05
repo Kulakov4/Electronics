@@ -41,7 +41,7 @@ begin
   QList.Add(qProducers);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qDescriptionTypes.AfterDelete, DoAfterDelete,
+  TNotifyEventWrap.Create(qDescriptionTypes.W.AfterDelete, DoAfterDelete,
     EventList);
 end;
 

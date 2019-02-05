@@ -64,11 +64,10 @@ type
     procedure actShowParametricTableExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
-    procedure dxBarButton2Click(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
-    procedure DoOnUpdateComponentslCount(Sender: TObject);
+    procedure DoOnUpdateComponentsCount(Sender: TObject);
     procedure DoOnUpdateFamilyCount(Sender: TObject);
     function GetComponentsGroup: TComponentsGroup2;
     procedure SetComponentsGroup(const Value: TComponentsGroup2);
@@ -138,7 +137,7 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponents.DoOnUpdateComponentslCount(Sender: TObject);
+procedure TViewComponents.DoOnUpdateComponentsCount(Sender: TObject);
 begin
   // Выводим кол-во дочерних наименований
   StatusBar.Panels[1].Text :=
@@ -155,86 +154,6 @@ begin
 
     UpdateTotalComponentCount;
   end;
-end;
-
-procedure TViewComponents.dxBarButton2Click(Sender: TObject);
-(*
-var
-  ABand: TcxGridBand;
-  AColumn: TcxGridDBBandedColumn;
-  AView: TcxGridDBBandedTableView;
-  I: Integer;
-  w1: Integer;
-  w2: Integer;
-  S: String;
-  x: Integer;
-*)
-begin
-  inherited;
-(*
-
-
-  S := '';
-
-  AView := MainView;
-
-  for I := 0 to AView.Bands.Count - 1 do
-  begin
-    ABand := AView.Bands[i];
-    if not ABand.Visible then
-      Continue;
-
-    S := Format('%s'#13#10'%d', [S, ABand.Index]);
-    S := Format('%s, Width1 = %d', [S, AView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex].Width]);
-    S := Format('%s, Width2 = %d', [S, ABand.Width]);
-  end;
-
-
-{
-  for I := 0 to AView.VisibleColumnCount - 1 do
-  begin
-    AColumn := AView.VisibleColumns[i] as TcxGridDBBandedColumn;
-    S := Format('%s'#13#10'%s', [S, AColumn.DataBinding.FieldName]);
-    S := Format('%s, Width1 = %d', [S, AView.ViewInfo.HeaderViewInfo.Items[AColumn.VisibleIndex].Width]);
-    S := Format('%s, Width2 = %d', [S, AView.GetColumnByFieldName(AColumn.DataBinding.FieldName).Width]);
-  end;
-}
-  S := S.Trim([#13, #10]);
-
-  AView := cxGridDBBandedTableView2;
-
-  for I := 0 to AView.Bands.Count - 1 do
-  begin
-    ABand := AView.Bands[i];
-    if not ABand.Visible then
-      Continue;
-
-    S := Format('%s'#13#10'%d', [S, ABand.Index]);
-//    S := Format('%s, Width1 = %d', [S, AView.ViewInfo.HeaderViewInfo.BandsViewInfo.Items[ABand.VisibleIndex].Width]);
-    S := Format('%s, Width2 = %d', [S, ABand.Width]);
-  end;
-
-{
-  x := AView.ViewInfo.HeaderViewInfo.Count;
-  if x > 0 then Exit;
-
-
-  for I := 0 to AView.VisibleColumnCount - 1 do
-  begin
-    AColumn := AView.VisibleColumns[i] as TcxGridDBBandedColumn;
-    S := Format('%s'#13#10'%s', [S, AColumn.DataBinding.FieldName]);
-//    S := Format('%s, Width1 = %d', [S, AView.ViewInfo.HeaderViewInfo.Items[AColumn.VisibleIndex].Width]);
-    S := Format('%s, Width2 = %d', [S, AView.GetColumnByFieldName(AColumn.DataBinding.FieldName).Width]);
-  end;
-}
-  S := S.Trim([#13, #10]);
-
-  ShowMessage(S);
-
-//  w1 := AView.GetColumnByFieldName(clSubGroup.DataBinding.FieldName).Width;
-//  w2 := clSubGroup2.Width;
-//  dxBarButton2.Caption := Format('%s', [S]);
-*)
 end;
 
 procedure TViewComponents.BeginUpdate;
@@ -255,19 +174,19 @@ begin
   TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterOpen,
     DoOnUpdateFamilyCount, FCountEvents);
 
-  TNotifyEventWrap.Create(ComponentsGroup.qFamily.AfterDelete,
+  TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterDelete,
     DoOnUpdateFamilyCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterPost,
-    DoOnUpdateComponentslCount, FCountEvents);
+    DoOnUpdateComponentsCount, FCountEvents);
 
   TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterOpen,
-    DoOnUpdateComponentslCount, FEventList);
+    DoOnUpdateComponentsCount, FEventList);
 
-  TNotifyEventWrap.Create(ComponentsGroup.qComponents.AfterDelete,
-    DoOnUpdateComponentslCount, FCountEvents);
+  TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterDelete,
+    DoOnUpdateComponentsCount, FCountEvents);
 
-  DoOnUpdateComponentslCount(nil);
+  DoOnUpdateComponentsCount(nil);
   DoOnUpdateFamilyCount(nil);
   UpdateTotalComponentCount;
 end;

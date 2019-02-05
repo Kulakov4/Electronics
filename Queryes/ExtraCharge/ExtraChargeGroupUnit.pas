@@ -38,7 +38,7 @@ begin
   QList.Add(qExtraChargeType);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(FqExtraChargeType.AfterDelete, DoAfterDelete,
+  TNotifyEventWrap.Create(FqExtraChargeType.W.AfterDelete, DoAfterDelete,
     EventList);
 end;
 

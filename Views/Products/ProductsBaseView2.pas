@@ -745,7 +745,7 @@ begin
 
   TNotifyEventWrap.Create(qProductsBase.AfterPost, DoAfterPost, FCountEvents);
 
-  TNotifyEventWrap.Create(qProductsBase.AfterDelete, DoAfterDelete,
+  TNotifyEventWrap.Create(qProductsBase.W.AfterDelete, DoAfterDelete,
     FCountEvents);
 
   UpdateProductCount;

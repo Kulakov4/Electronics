@@ -46,7 +46,7 @@ begin
   Assert(ComponentCount > 0);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qBodyKinds.AfterDelete, DoAfterDelete, EventList);
+  TNotifyEventWrap.Create(qBodyKinds.W.AfterDelete, DoAfterDelete, EventList);
 end;
 
 destructor TBodyTypesGroup2.Destroy;

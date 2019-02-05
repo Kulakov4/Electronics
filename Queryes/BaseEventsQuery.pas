@@ -19,7 +19,6 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure FDQueryAfterDelete(DataSet: TDataSet);
     procedure FDQueryAfterEdit(DataSet: TDataSet);
     procedure FDQueryAfterPost(DataSet: TDataSet);
     procedure FDQueryBeforeDelete(DataSet: TDataSet);
@@ -28,7 +27,6 @@ type
     procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
-    FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
     FAutoTransaction: Boolean;
@@ -49,6 +47,7 @@ type
     FResiveBeforeScrollMessage: Boolean;
     FUseAfterPostMessage: Boolean;
     class var FMonitor: TQueryMonitor;
+    procedure DoAfterDelete(Sender: TObject);
 // TODO: CloneCursor
 //  procedure CloneCursor(AClone: TFDMemTable);
 // TODO: DoAfterClose
@@ -76,7 +75,6 @@ type
 // TODO: AddClone
 //  function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
-    property AfterDelete: TNotifyEventsEx read FAfterDelete;
     property AfterEdit: TNotifyEventsEx read FAfterEdit;
     property AfterPost: TNotifyEventsEx read FAfterPost;
     property AutoTransaction: Boolean read FAutoTransaction
@@ -147,6 +145,8 @@ begin
   // Создаём обёртку вокруг себя
   FDSWrap := CreateDSWrap;
 
+  TNotifyEventWrap.Create(FDSWrap.AfterDelete, DoAfterDelete, FDSWrap.EventList);
+
   FOldState := dsInactive;
 
   // Создаём события
@@ -156,8 +156,6 @@ begin
   FBeforeInsert := TNotifyEventsEx.Create(Self);
 
   FBeforeDelete := TNotifyEventsEx.Create(Self);
-  FAfterDelete := TNotifyEventsEx.Create(Self);
-
   FBeforePost := TNotifyEventsEx.Create(Self);
   FAfterPost := TNotifyEventsEx.Create(Self);
   FAfterPostI := TNotifyEventsEx.Create(Self);
@@ -198,8 +196,6 @@ begin
   FreeAndNil(FBeforeInsert);
 
   FreeAndNil(FBeforeDelete);
-  FreeAndNil(FAfterDelete);
-
   FreeAndNil(FBeforePost);
   FreeAndNil(FAfterPost);
   FreeAndNil(FAfterPostI);
@@ -261,33 +257,6 @@ begin
   end;
 end;
 
-// TODO: CloneCursor
-//procedure TQueryBaseEvents.CloneCursor(AClone: TFDMemTable);
-//var
-//AFilter: String;
-//begin
-//// Assert(not AClone.Filter.IsEmpty);
-//AFilter := AClone.Filter;
-//AClone.CloneCursor(FDQuery);
-//
-//// Если фильтр накладывать не надо
-//if (AFilter.IsEmpty) then
-//  Exit;
-//
-//AClone.Filter := AFilter;
-//AClone.Filtered := True;
-//end;
-
-// TODO: DoAfterClose
-//procedure TQueryBaseEvents.DoAfterClose(Sender: TObject);
-//var
-//AClone: TFDMemTable;
-//begin
-//// Закрываем клоны
-//for AClone in FClones do
-//  AClone.Close;
-//end;
-
 procedure TQueryBaseEvents.DoAfterCommit(Sender: TObject);
 begin
   if FHaveAnyNotCommitedChanges then
@@ -299,17 +268,12 @@ begin
   end;
 end;
 
-// TODO: DoAfterOpen
-//procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
-//var
-//AClone: TFDMemTable;
-//begin
-//// клонируем курсоры
-//for AClone in FClones do
-//begin
-//  CloneCursor(AClone);
-//end;
-//end;
+procedure TQueryBaseEvents.DoAfterDelete(Sender: TObject);
+begin
+  // Если транзакция ещё не завершилась
+  if FDQuery.Connection.InTransaction then
+    FHaveAnyNotCommitedChanges := True;
+end;
 
 procedure TQueryBaseEvents.DoAfterRollback(Sender: TObject);
 begin
@@ -322,34 +286,6 @@ begin
   // начинаем транзакцию, если она ещё не началась
   if (not AutoTransaction) and (not FDQuery.Connection.InTransaction) then
     FDQuery.Connection.StartTransaction;
-end;
-
-// TODO: DropClone
-//procedure TQueryBaseEvents.DropClone(AClone: TFDMemTable);
-//begin
-//Assert(AClone <> nil);
-//Assert(FClones <> nil);
-//
-//FClones.Remove(AClone);
-//
-//if FClones.Count = 0 then
-//begin
-//  // Отписываемся
-//  FreeAndNil(FCloneEvents);
-//  // Разрушаем список
-//  FreeAndNil(FClones);
-//end;
-//
-//end;
-
-procedure TQueryBaseEvents.FDQueryAfterDelete(DataSet: TDataSet);
-begin
-  inherited;
-  // Если транзакция ещё не завершилась
-  if FDQuery.Connection.InTransaction then
-    FHaveAnyNotCommitedChanges := True;
-
-  FAfterDelete.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryAfterEdit(DataSet: TDataSet);
@@ -514,7 +450,7 @@ begin
 
   TNotifyEventWrap.Create(AQuery.AfterEdit, DoAfterEditOrInsert, FEventList);
   TNotifyEventWrap.Create(AQuery.FDSWrap.AfterInsert, DoAfterEditOrInsert, FEventList);
-  TNotifyEventWrap.Create(AQuery.AfterDelete, DoAfterDelete, FEventList);
+  TNotifyEventWrap.Create(AQuery.FDSWrap.AfterDelete, DoAfterDelete, FEventList);
   TNotifyEventWrap.Create(AQuery.FDSWrap.AfterCancel, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterPostI, DoAfterCancelOrPost, FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,

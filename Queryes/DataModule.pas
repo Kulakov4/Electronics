@@ -161,48 +161,46 @@ begin
   TNotifyEventWrap.Create(qTreeList.W.BeforeClose, DoBeforeTreeListClose,
     FEventList);
 
+  // Связываем запросы отношением главный-подчинённый
+  qChildCategories.Master := qTreeList;
 
-    // Связываем запросы отношением главный-подчинённый
-    qChildCategories.Master := qTreeList;
-
-    // При редактировании дочерней категории нужно будет обновлять дерево
-    TNotifyEventWrap.Create(qChildCategories.AfterPost,
+  // При редактировании дочерней категории нужно будет обновлять дерево
+  TNotifyEventWrap.Create(qChildCategories.AfterPost,
     DoAfterChildCategoriesPostOrDelete, FEventList);
-    TNotifyEventWrap.Create(qChildCategories.AfterDelete,
+  TNotifyEventWrap.Create(qChildCategories.W.AfterDelete,
     DoAfterChildCategoriesPostOrDelete, FEventList);
 
-    qProducts.Master := qStoreHouseList;
+  qProducts.Master := qStoreHouseList;
 
-    // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
-    ComponentsGroup.qComponents.Master := qTreeList;
-    ComponentsGroup.qFamily.Master := qTreeList;
+  // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
+  ComponentsGroup.qComponents.Master := qTreeList;
+  ComponentsGroup.qFamily.Master := qTreeList;
 
-    // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
-    ComponentsExGroup.qComponentsEx.Master := qTreeList;
-    ComponentsExGroup.qFamilyEx.Master := qTreeList;
+  // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
+  ComponentsExGroup.qComponentsEx.Master := qTreeList;
+  ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-    CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
+  CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
 
-
-    TNotifyEventWrap.Create(DMRepository.BeforeCommit, DoBeforeCommit,
+  TNotifyEventWrap.Create(DMRepository.BeforeCommit, DoBeforeCommit,
     FEventList);
 
-    TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommit, FEventList);
+  TNotifyEventWrap.Create(DMRepository.AfterCommit, DoAfterCommit, FEventList);
 
-    TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters.
+  TNotifyEventWrap.Create(CategoryParametersGroup.qCategoryParameters.
     On_ApplyUpdates, DoOnCategoryParametersApplyUpdates, FEventList);
 
-    // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
-    // справочника производителей
-    TNotifyEventWrap.Create(ProducersGroup.qProducers.AfterCommit,
+  // Чтобы производители у продуктов на складе обновлялись вместе с обновлением
+  // справочника производителей
+  TNotifyEventWrap.Create(ProducersGroup.qProducers.AfterCommit,
     DoAfterProducerCommit, FEventList);
 
-    // Чтобы выпадающий список складов обновлялся вместе со списком складов
-    TNotifyEventWrap.Create(qStoreHouseList.AfterPost, DoAfterStoreHousePost,
+  // Чтобы выпадающий список складов обновлялся вместе со списком складов
+  TNotifyEventWrap.Create(qStoreHouseList.AfterPost, DoAfterStoreHousePost,
     FEventList);
 
-    // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
-    TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
+  // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
+  TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
     DoOnParamOrderChange, FEventList);
 end;
 

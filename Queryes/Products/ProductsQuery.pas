@@ -68,7 +68,7 @@ begin
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(AfterPost, DoAfterPost, FEventList);
   TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
-  TNotifyEventWrap.Create(AfterDelete, DoAfterDelete, FEventList);
+  TNotifyEventWrap.Create(W.AfterDelete, DoAfterDelete, W.EventList);
 end;
 
 procedure TQueryProducts.AfterConstruction;

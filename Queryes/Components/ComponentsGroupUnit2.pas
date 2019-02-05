@@ -103,11 +103,11 @@ begin
     EventList);
   TNotifyEventWrap.Create(qFamily.AfterPost, AfterComponentPostOrDelete,
     EventList);
-  TNotifyEventWrap.Create(qFamily.AfterDelete, AfterComponentPostOrDelete,
+  TNotifyEventWrap.Create(qFamily.W.AfterDelete, AfterComponentPostOrDelete,
     EventList);
   TNotifyEventWrap.Create(qComponents.AfterPost, AfterComponentPostOrDelete,
     EventList);
-  TNotifyEventWrap.Create(qComponents.AfterDelete, AfterComponentPostOrDelete,
+  TNotifyEventWrap.Create(qComponents.W.AfterDelete, AfterComponentPostOrDelete,
     EventList);
 end;
 
