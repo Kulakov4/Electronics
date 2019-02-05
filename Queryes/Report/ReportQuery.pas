@@ -49,7 +49,7 @@ uses NotifyEvents, DefaultParameters;
 constructor TQueryReports.Create(AOwner: TComponent);
 begin
   inherited;
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
 function TQueryReports.CreateDSWrap: TDSWrap;

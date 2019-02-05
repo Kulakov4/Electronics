@@ -98,7 +98,7 @@ begin
 
   // Подписываемся на события
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 
   AutoTransaction := False;
 end;

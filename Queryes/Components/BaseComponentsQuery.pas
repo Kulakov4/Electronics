@@ -45,7 +45,7 @@ uses NotifyEvents, DBRecordHolder, DefaultParameters;
 constructor TQueryBaseComponents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
 procedure TQueryBaseComponents.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;

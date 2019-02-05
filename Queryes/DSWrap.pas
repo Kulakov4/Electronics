@@ -24,6 +24,7 @@ type
     FBeforeDelete: TNotifyEventsEx;
     FAfterPost: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
+    FBeforeOpen: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
@@ -52,6 +53,7 @@ type
     function GetBeforeDelete: TNotifyEventsEx;
     function GetAfterPost: TNotifyEventsEx;
     function GetAfterScrollM: TNotifyEventsEx;
+    function GetBeforeOpen: TNotifyEventsEx;
     function GetFDDataSet: TFDDataSet;
     function GetHandle: HWND;
     function GetPK: TField;
@@ -62,6 +64,7 @@ type
     procedure BeforeDataSetPost(DataSet: TDataSet);
     procedure BeforeDataSetDelete(DataSet: TDataSet);
     procedure AfterDataSetPost(DataSet: TDataSet);
+    procedure BeforeDataSetOpen(DataSet: TDataSet);
     procedure UpdateFields;
     property FDDataSet: TFDDataSet read GetFDDataSet;
     property Handle: HWND read GetHandle;
@@ -116,6 +119,7 @@ type
     property BeforeDelete: TNotifyEventsEx read GetBeforeDelete;
     property AfterPost: TNotifyEventsEx read GetAfterPost;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
+    property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
     property PK: TField read GetPK;
@@ -294,6 +298,11 @@ begin
     Field(AFieldName).AsString := AValue;
     TryPost;
   end;
+end;
+
+procedure TDSWrap.BeforeDataSetOpen(DataSet: TDataSet);
+begin
+  FBeforeOpen.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.CancelUpdates;
@@ -520,6 +529,19 @@ begin
     FDataSet.AfterScroll := AfterDataSetScroll;
   end;
   Result := FAfterScrollM;
+end;
+
+function TDSWrap.GetBeforeOpen: TNotifyEventsEx;
+begin
+  if FBeforeOpen = nil then
+  begin
+    Assert(not Assigned(FDataSet.BeforeOpen));
+    FBeforeOpen := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeOpen);
+    FDataSet.BeforeOpen := BeforeDataSetOpen;
+  end;
+
+  Result := FBeforeOpen;
 end;
 
 function TDSWrap.GetFDDataSet: TFDDataSet;

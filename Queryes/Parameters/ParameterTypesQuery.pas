@@ -61,7 +61,7 @@ begin
 
   AutoTransaction := False;
 
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
 function TQueryParameterTypes.CreateDSWrap: TDSWrap;

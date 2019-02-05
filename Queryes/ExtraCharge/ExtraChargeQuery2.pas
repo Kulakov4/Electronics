@@ -68,7 +68,7 @@ begin
   FW := FDSWrap as TExtraChargeW;
   AutoTransaction := False;
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
 procedure TQueryExtraCharge2.ApplyDelete(ASender: TDataSet;

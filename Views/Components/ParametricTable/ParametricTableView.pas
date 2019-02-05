@@ -1283,7 +1283,7 @@ begin
   begin
     FMark := ComponentsExGroup.Mark;
 
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.BeforeOpen,
+    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.BeforeOpen,
       DoBeforeFamilyExOpen, FEventList);
 
     TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.AfterOpen,

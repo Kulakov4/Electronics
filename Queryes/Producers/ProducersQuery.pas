@@ -63,7 +63,7 @@ begin
   inherited;
   FW := FDSWrap as TProducersW;
 
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
   TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll, FEventList);
 
   AutoTransaction := False;

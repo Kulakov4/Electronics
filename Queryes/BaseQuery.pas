@@ -28,7 +28,6 @@ type
   TQueryBase = class(TFrame)
     FDQuery: TFDQuery;
     Label1: TLabel;
-    procedure FDQueryBeforeOpen(DataSet: TDataSet);
   private
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
@@ -396,10 +395,6 @@ end;
 procedure TQueryBase.DoOnUpdateRecordException(AException: Exception);
 begin
   raise AException;
-end;
-
-procedure TQueryBase.FDQueryBeforeOpen(DataSet: TDataSet);
-begin;
 end;
 
 procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;

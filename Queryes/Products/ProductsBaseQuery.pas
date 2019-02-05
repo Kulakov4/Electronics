@@ -258,7 +258,7 @@ begin
   FW := FDSWrap as TProductW;
   FOnLocate := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
   TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
 
   // Будем сами обновлять запись

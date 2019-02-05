@@ -88,8 +88,8 @@ begin
   QList.Add(qComponentsEx);
   QList.Add(qFamilyEx);
 
-  TNotifyEventWrap.Create(qFamilyEx.BeforeOpen, DoBeforeOpen, EventList);
-  TNotifyEventWrap.Create(qComponentsEx.BeforeOpen, DoBeforeOpen, EventList);
+  TNotifyEventWrap.Create(qFamilyEx.W.BeforeOpen, DoBeforeOpen, EventList);
+  TNotifyEventWrap.Create(qComponentsEx.W.BeforeOpen, DoBeforeOpen, EventList);
   TNotifyEventWrap.Create(qFamilyEx.W.AfterOpen, DoAfterOpen, EventList);
 
   FClientCount := 1;

@@ -27,7 +27,6 @@ type
     procedure FDQueryBeforeDelete(DataSet: TDataSet);
     procedure FDQueryBeforeEdit(DataSet: TDataSet);
     procedure FDQueryBeforeInsert(DataSet: TDataSet);
-    procedure FDQueryBeforeOpen(DataSet: TDataSet);
     procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
@@ -39,7 +38,6 @@ type
     FBeforeDelete: TNotifyEventsEx;
     FBeforeEdit: TNotifyEventsEx;
     FBeforeInsert: TNotifyEventsEx;
-    FBeforeOpen: TNotifyEventsEx;
     FBeforePost: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
@@ -91,7 +89,6 @@ type
     property BeforeDelete: TNotifyEventsEx read FBeforeDelete;
     property BeforeEdit: TNotifyEventsEx read FBeforeEdit;
     property BeforeInsert: TNotifyEventsEx read FBeforeInsert;
-    property BeforeOpen: TNotifyEventsEx read FBeforeOpen;
     property BeforePost: TNotifyEventsEx read FBeforePost;
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
@@ -167,8 +164,6 @@ begin
   FBeforeDelete := TNotifyEventsEx.Create(Self);
   FAfterDelete := TNotifyEventsEx.Create(Self);
 
-  FBeforeOpen := TNotifyEventsEx.Create(Self);
-
   FBeforeClose := TNotifyEventsEx.Create(Self);
 
   FBeforePost := TNotifyEventsEx.Create(Self);
@@ -214,8 +209,6 @@ begin
 
   FreeAndNil(FBeforeDelete);
   FreeAndNil(FAfterDelete);
-
-  FreeAndNil(FBeforeOpen);
 
   FreeAndNil(FBeforeClose);
 
@@ -436,12 +429,6 @@ procedure TQueryBaseEvents.FDQueryBeforeInsert(DataSet: TDataSet);
 begin
   inherited;
   FBeforeInsert.CallEventHandlers(Self);
-end;
-
-procedure TQueryBaseEvents.FDQueryBeforeOpen(DataSet: TDataSet);
-begin
-  inherited;
-  FBeforeOpen.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforePost(DataSet: TDataSet);

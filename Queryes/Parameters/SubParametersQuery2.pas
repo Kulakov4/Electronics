@@ -90,19 +90,19 @@ end;
 
 procedure TQuerySubParameters2.DoBeforeCheckedOpen(Sender: TObject);
 begin
-  if FDQuery.FieldCount = 0 then
-  begin
-    // Обновляем описания полей
-    FDQuery.FieldDefs.Update;
-    // Создаём поля по умолчанию
-    CreateDefaultFields(False);
-    W.Checked.F.FieldKind := fkInternalCalc;
-  end;
+  if FDQuery.FieldCount > 0 then
+    Exit;
+
+  // Обновляем описания полей
+  FDQuery.FieldDefs.Update;
+  // Создаём поля по умолчанию
+  CreateDefaultFields(False);
+  W.Checked.F.FieldKind := fkInternalCalc;
 end;
 
 function TQuerySubParameters2.GetCheckedMode: Boolean;
 begin
-  Result := FDQuery.FindField('Checked') <> nil;
+  Result := FDQuery.FindField(W.Checked.FieldName) <> nil;
 end;
 
 function TQuerySubParameters2.GetCheckedValues(const AFieldName
@@ -186,7 +186,7 @@ begin
 
   SetParamType(W.IdParameter.FieldName);
   SetParamType(W.ProductCategoryId.FieldName);
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeCheckedOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeCheckedOpen, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterCheckedOpen, W.EventList);
 
   // Переходим в режим кэширования записей

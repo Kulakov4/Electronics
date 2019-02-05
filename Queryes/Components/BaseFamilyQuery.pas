@@ -54,7 +54,7 @@ uses DBRecordHolder, System.Generics.Collections, DefaultParameters,
 constructor TQueryBaseFamily.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  TNotifyEventWrap.Create(BeforeOpen, DoBeforeOpen, FEventList);
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
 procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
