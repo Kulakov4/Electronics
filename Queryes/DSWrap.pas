@@ -39,6 +39,7 @@ type
     FHandle: HWND;
     FIsRecordModifedClone: TFDMemTable;
     FNEList: TList<TNotifyEventsEx>;
+    FDeletedPKValue: Variant;
     FPKFieldName: string;
     FPostAPM: Boolean;
     FPostASM: Boolean;
@@ -144,6 +145,7 @@ type
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
+    property DeletedPKValue: Variant read FDeletedPKValue;
     property PK: TField read GetPK;
     property PKFieldName: string read FPKFieldName write FPKFieldName;
     property RecordCount: Integer read GetRecordCount;
@@ -304,6 +306,9 @@ end;
 
 procedure TDSWrap.BeforeDataSetDelete(DataSet: TDataSet);
 begin
+  if not PKFieldName.IsEmpty then
+    FDeletedPKValue := Field(FPKFieldName).Value;
+
   FBeforeDelete.CallEventHandlers(Self);
 end;
 

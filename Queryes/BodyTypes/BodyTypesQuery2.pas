@@ -14,15 +14,11 @@ uses
   DocFieldInfo, System.IOUtils, JEDECQuery, System.Generics.Collections,
   BodyVariationJedecQuery, BodyOptionsQuery, BodyVariationOptionQuery;
 
-const
-  WM_arInsert = WM_USER + 139;
-
 type
   TQueryBodyTypes2 = class(TQueryBodyTypesBase)
     procedure FDQueryBodyType1Change(Sender: TField);
     procedure FDQueryBodyType2Change(Sender: TField);
   private
-    FIDS: string;
     FShowDuplicate: Boolean;
     procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
@@ -34,10 +30,7 @@ type
     procedure ApplyInsertOrUpdate;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure DoAfterInsertMessage(var Message: TMessage); message WM_arInsert;
-    procedure DoBeforeDelete(Sender: TObject);
   public
-    constructor Create(AOwner: TComponent); override;
     function ConstructBodyKind(const APackage: String): string;
     function ConstructBodyType(const APackage: string): string;
     procedure LoadDocFile(const AFileName: String;
@@ -57,15 +50,6 @@ implementation
 uses NotifyEvents, DBRecordHolder, RepositoryDataModule, System.StrUtils,
   StrHelper;
 
-constructor TQueryBodyTypes2.Create(AOwner: TComponent);
-begin
-  inherited;
-  // Копируем базовый запрос и параметры
-//  AssignFrom(fdqBase);
-
-  TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, FEventList);
-end;
-
 procedure TQueryBodyTypes2.ApplyDelete(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
@@ -76,7 +60,7 @@ var
   S: string;
 begin
   Assert(ASender = FDQuery);
-  AIDS := FIDS;
+  AIDS := W.DeletedPKValue;
 
   // Почему-то иногда AID = 0
   if AIDS.IsEmpty then
@@ -172,9 +156,9 @@ begin
     W.IDS.F.Value := AIDSS;
 
     // Заполняем части наименования
-    SetMySplitDataValues(QueryBodies.FDQuery, 'BODY');
+    SetMySplitDataValues(QueryBodies.FDQuery, W.Body.FieldName);
     // Заполняем части корпусных данных
-    SetMySplitDataValues(QueryBodyData.FDQuery, 'BODYDATA');
+    SetMySplitDataValues(QueryBodyData.FDQuery, W.BodyData.FieldName);
 
     W.IDBodyData.F.Value := QueryBodyData.PK.Value;
     W.IDBody.F.Value := QueryBodies.PK.Value;
@@ -237,24 +221,6 @@ begin
       Result := Format('%s/%s', [Result, S]);
     end;
   end;
-end;
-
-procedure TQueryBodyTypes2.DoAfterInsertMessage(var Message: TMessage);
-var
-  AID: Integer;
-begin
-  AID := Message.WParam;
-
-  if LocateByPK(AID) then
-  begin
-    FDQuery.Edit;
-    FDQuery.Post;
-  end;
-end;
-
-procedure TQueryBodyTypes2.DoBeforeDelete(Sender: TObject);
-begin
-  FIDS := W.IDS.F.AsString
 end;
 
 procedure TQueryBodyTypes2.FDQueryBodyType1Change(Sender: TField);

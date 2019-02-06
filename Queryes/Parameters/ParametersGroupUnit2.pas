@@ -54,7 +54,7 @@ begin
   QList.Add(qParameters); // Сами параметры
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qParameterTypes.BeforeDelete, DoBeforeDelete,
+  TNotifyEventWrap.Create(qParameterTypes.W.BeforeDelete, DoBeforeDelete,
     EventList);
 end;
 

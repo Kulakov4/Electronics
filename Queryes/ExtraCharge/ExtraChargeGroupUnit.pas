@@ -44,10 +44,10 @@ end;
 
 procedure TExtraChargeGroup.DoAfterDelete(Sender: TObject);
 begin
-  Assert(FqExtraChargeType.OldPKValue > 0);
+  Assert(FqExtraChargeType.W.DeletedPKValue > 0);
   // На сервере оптовые наценки уже каскадно удалились
   // Каскадно удаляем оптовые наценки с клиента
-  FqExtraCharge2.CascadeDelete(FqExtraChargeType.OldPKValue,
+  FqExtraCharge2.CascadeDelete(FqExtraChargeType.W.DeletedPKValue,
     FqExtraCharge2.W.IDExtraChargeType.FieldName, True);
 end;
 

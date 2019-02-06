@@ -19,14 +19,12 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure FDQueryBeforeDelete(DataSet: TDataSet);
     procedure FDQueryBeforeEdit(DataSet: TDataSet);
     procedure FDQueryBeforeInsert(DataSet: TDataSet);
     procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
     FAutoTransaction: Boolean;
-    FBeforeDelete: TNotifyEventsEx;
     FBeforeEdit: TNotifyEventsEx;
     FBeforeInsert: TNotifyEventsEx;
     FBeforePost: TNotifyEventsEx;
@@ -35,7 +33,6 @@ type
     FAfterCancelUpdates: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
-    FOldPKValue: Variant;
     FOldState: TDataSetState;
     FResiveBeforeScrollMessage: Boolean;
     class var FMonitor: TQueryMonitor;
@@ -62,7 +59,6 @@ type
     procedure CancelUpdates; override;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
-    property BeforeDelete: TNotifyEventsEx read FBeforeDelete;
     property BeforeEdit: TNotifyEventsEx read FBeforeEdit;
     property BeforeInsert: TNotifyEventsEx read FBeforeInsert;
     property BeforePost: TNotifyEventsEx read FBeforePost;
@@ -71,7 +67,6 @@ type
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
-    property OldPKValue: Variant read FOldPKValue;
     property OldState: TDataSetState read FOldState;
     class property Monitor: TQueryMonitor read FMonitor;
     property Wrap: TDSWrap read FDSWrap;
@@ -139,7 +134,6 @@ begin
 
   FBeforeInsert := TNotifyEventsEx.Create(Self);
 
-  FBeforeDelete := TNotifyEventsEx.Create(Self);
   FBeforePost := TNotifyEventsEx.Create(Self);
 
   FBeforeEdit := TNotifyEventsEx.Create(Self);
@@ -172,7 +166,6 @@ begin
 
   FreeAndNil(FBeforeInsert);
 
-  FreeAndNil(FBeforeDelete);
   FreeAndNil(FBeforePost);
 
   FreeAndNil(FBeforeEdit);
@@ -269,15 +262,6 @@ begin
     FDQuery.Connection.StartTransaction;
 end;
 
-procedure TQueryBaseEvents.FDQueryBeforeDelete(DataSet: TDataSet);
-begin
-  inherited;
-  // Запоминаем удаляемое значение первичного ключа
-  FOldPKValue := PK.Value;
-
-  FBeforeDelete.CallEventHandlers(Self);
-end;
-
 procedure TQueryBaseEvents.FDQueryBeforeEdit(DataSet: TDataSet);
 begin
   inherited;
@@ -340,7 +324,7 @@ begin
 
       TNotifyEventWrap.Create(BeforeInsert, TryStartTransaction,
         FAutoTransactionEventList);
-      TNotifyEventWrap.Create(BeforeDelete, TryStartTransaction,
+      TNotifyEventWrap.Create(Wrap.BeforeDelete, TryStartTransaction,
         FAutoTransactionEventList);
       TNotifyEventWrap.Create(BeforeEdit, TryStartTransaction,
         FAutoTransactionEventList);
