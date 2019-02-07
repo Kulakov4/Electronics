@@ -25,7 +25,6 @@ type
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
-    FBeforeScrollI: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
     FResiveBeforeScrollMessage: Boolean;
     class var FMonitor: TQueryMonitor;
@@ -55,7 +54,6 @@ type
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
-    property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     class property Monitor: TQueryMonitor read FMonitor;
     property Wrap: TDSWrap read FDSWrap;
@@ -119,7 +117,6 @@ begin
 
   // Создаём события
   FBeforeScroll := TNotifyEventsEx.Create(Self);
-  FBeforeScrollI := TNotifyEventsEx.Create(Self);
 
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
@@ -146,8 +143,6 @@ destructor TQueryBaseEvents.Destroy;
 begin
 
   FreeAndNil(FBeforeScroll);
-  FreeAndNil(FBeforeScrollI);
-
   FreeAndNil(FAfterCommit);
 
   FreeAndNil(FAfterCancelUpdates);
@@ -243,8 +238,6 @@ end;
 procedure TQueryBaseEvents.FDQueryBeforeScroll(DataSet: TDataSet);
 begin
   inherited;
-  FBeforeScrollI.CallEventHandlers(Self);
-
   // Если предыдущее сообщение о скроле уже получили
   if FResiveBeforeScrollMessage then
   begin

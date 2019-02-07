@@ -33,6 +33,7 @@ type
     FBeforeClose: TNotifyEventsEx;
     FBeforeEdit: TNotifyEventsEx;
     FBeforeInsert: TNotifyEventsEx;
+    FBeforeScroll: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
@@ -83,10 +84,12 @@ type
     procedure BeforeDataSetOpen(DataSet: TDataSet);
     procedure BeforeDataSetEdit(DataSet: TDataSet);
     procedure BeforeDataSetInsert(DataSet: TDataSet);
+    procedure BeforeDataSetScroll(DataSet: TDataSet);
     function GetAfterEdit: TNotifyEventsEx;
     function GetAfterPostM: TNotifyEventsEx;
     function GetBeforeEdit: TNotifyEventsEx;
     function GetBeforeInsert: TNotifyEventsEx;
+    function GetBeforeScroll: TNotifyEventsEx;
     procedure ProcessAfterPostMessage;
     procedure WndProc(var Msg: TMessage);
   protected
@@ -152,6 +155,7 @@ type
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
     property BeforeEdit: TNotifyEventsEx read GetBeforeEdit;
     property BeforeInsert: TNotifyEventsEx read GetBeforeInsert;
+    property BeforeScroll: TNotifyEventsEx read GetBeforeScroll;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
     property DeletedPKValue: Variant read FDeletedPKValue;
@@ -381,6 +385,11 @@ end;
 procedure TDSWrap.BeforeDataSetInsert(DataSet: TDataSet);
 begin
   FBeforeInsert.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.BeforeDataSetScroll(DataSet: TDataSet);
+begin
+  FBeforeScroll.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.CancelUpdates;
@@ -712,6 +721,19 @@ begin
   end;
 
   Result := FBeforeInsert;
+end;
+
+function TDSWrap.GetBeforeScroll: TNotifyEventsEx;
+begin
+  if FBeforeScroll = nil then
+  begin
+    Assert(not Assigned(FDataSet.BeforeScroll));
+    FBeforeScroll := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeScroll);
+    FDataSet.BeforeScroll := BeforeDataSetScroll;
+  end;
+
+  Result := FBeforeScroll;
 end;
 
 function TDSWrap.GetFDDataSet: TFDDataSet;

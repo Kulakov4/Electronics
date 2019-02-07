@@ -39,7 +39,6 @@ type
     function GetProducerID(const AProducerName: String): Integer; stdcall;
   private
     FW: TProducersW;
-    procedure DoBeforeScroll(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     { Private declarations }
   protected
@@ -64,7 +63,6 @@ begin
   FW := FDSWrap as TProducersW;
 
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
-  TNotifyEventWrap.Create(BeforeScrollI, DoBeforeScroll, FEventList);
 
   AutoTransaction := False;
 end;
@@ -80,11 +78,6 @@ end;
 function TQueryProducers.CreateDSWrap: TDSWrap;
 begin
   Result := TProducersW.Create(FDQuery);
-end;
-
-procedure TQueryProducers.DoBeforeScroll(Sender: TObject);
-begin
-  ;
 end;
 
 procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
