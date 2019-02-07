@@ -19,11 +19,9 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure FDQueryBeforeInsert(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
     FAutoTransaction: Boolean;
-    FBeforeInsert: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
@@ -54,7 +52,6 @@ type
     procedure CancelUpdates; override;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
-    property BeforeInsert: TNotifyEventsEx read FBeforeInsert;
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
@@ -124,8 +121,6 @@ begin
   FBeforeScroll := TNotifyEventsEx.Create(Self);
   FBeforeScrollI := TNotifyEventsEx.Create(Self);
 
-  FBeforeInsert := TNotifyEventsEx.Create(Self);
-
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
   FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
@@ -152,8 +147,6 @@ begin
 
   FreeAndNil(FBeforeScroll);
   FreeAndNil(FBeforeScrollI);
-
-  FreeAndNil(FBeforeInsert);
 
   FreeAndNil(FAfterCommit);
 
@@ -247,12 +240,6 @@ begin
     FDQuery.Connection.StartTransaction;
 end;
 
-procedure TQueryBaseEvents.FDQueryBeforeInsert(DataSet: TDataSet);
-begin
-  inherited;
-  FBeforeInsert.CallEventHandlers(Self);
-end;
-
 procedure TQueryBaseEvents.FDQueryBeforeScroll(DataSet: TDataSet);
 begin
   inherited;
@@ -294,7 +281,7 @@ begin
       TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterRollback,
         FAutoTransactionEventList);
 
-      TNotifyEventWrap.Create(BeforeInsert, TryStartTransaction,
+      TNotifyEventWrap.Create(Wrap.BeforeInsert, TryStartTransaction,
         FAutoTransactionEventList);
       TNotifyEventWrap.Create(Wrap.BeforeDelete, TryStartTransaction,
         FAutoTransactionEventList);
