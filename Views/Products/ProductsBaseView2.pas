@@ -1230,7 +1230,7 @@ begin
   Assert(FqProductsBase <> nil);
 
   InitializeLookupColumn(clIDProducer,
-    FqProductsBase.ProducersGroup.qProducers.DataSource, lsEditFixedList,
+    FqProductsBase.ProducersGroup.qProducers.W.DataSource, lsEditFixedList,
     FqProductsBase.ProducersGroup.qProducers.W.Name.FieldName);
 end;
 
@@ -1414,7 +1414,7 @@ begin
   if FqProductsBase = nil then
     Exit;
 
-  cxDBTreeList.DataController.DataSource := FqProductsBase.DataSource;
+  cxDBTreeList.DataController.DataSource := FqProductsBase.W.DataSource;
 
   InitializeColumns;
   TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad, FEventList);
@@ -1433,7 +1433,7 @@ begin
   // Привязываем представление оптовых надбавок
   TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
     TcxLookupComboBoxProperties,
-    FqProductsBase.ExtraChargeGroup.qExtraChargeType.DataSource,
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.DataSource,
     FqProductsBase.ExtraChargeGroup.qExtraChargeType.PK.FieldName,
     FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.Name.FieldName,
     lsFixedList);

@@ -13,9 +13,4 @@ inherited QueryProductsBase: TQueryProductsBase
     AfterApplyUpdates = FDQueryAfterApplyUpdates
     Left = 17
   end
-  inherited DataSource: TDataSource
-    OnDataChange = DataSourceDataChange
-    Left = 80
-    Top = 25
-  end
 end

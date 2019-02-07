@@ -907,16 +907,16 @@ begin
   if FParametersGrp <> nil then
   begin
     cxGridDBBandedTableView.DataController.DataSource :=
-      FParametersGrp.qParameterTypes.DataSource;
+      FParametersGrp.qParameterTypes.W.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FParametersGrp.qParameters.DataSource;
+      FParametersGrp.qParameters.W.DataSource;
 
     InitializeLookupColumn(clIDParameterType,
-      FParametersGrp.qParameterTypes.DataSource, lsEditList,
+      FParametersGrp.qParameterTypes.W.DataSource, lsEditList,
       FParametersGrp.qParameterTypes.W.ParameterType.FieldName);
 
     InitializeLookupColumn(clIDParameterKind,
-      FParametersGrp.qParameterKinds.DataSource, lsEditFixedList,
+      FParametersGrp.qParameterKinds.W.DataSource, lsEditFixedList,
       FParametersGrp.qParameterKinds.W.ParameterKind.FieldName);
 
     // Пусть монитор сообщает нам обо всех изменениях в БД

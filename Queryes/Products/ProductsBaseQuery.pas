@@ -261,6 +261,9 @@ begin
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
   TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 
+  // Обрабатываем событие у источника данных
+  W.DataSource.OnDataChange := DataSourceDataChange;
+
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 

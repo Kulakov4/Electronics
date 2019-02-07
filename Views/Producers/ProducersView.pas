@@ -502,9 +502,9 @@ begin
     if FProducersGroup <> nil then
     begin
       MainView.DataController.DataSource :=
-        FProducersGroup.qProducerTypes.DataSource;
+        FProducersGroup.qProducerTypes.W.DataSource;
       GridView(cxGridLevel2).DataController.DataSource :=
-        FProducersGroup.qProducers.DataSource;
+        FProducersGroup.qProducers.W.DataSource;
 
       TNotifyEventWrap.Create
         (FProducersGroup.qProducers.Monitor.OnHaveAnyChanges,
@@ -517,7 +517,7 @@ begin
         DoOnHaveAnyChanges, FEventList);
 
       InitializeLookupColumn(clProducerTypeID,
-        FProducersGroup.qProducerTypes.DataSource, lsEditList,
+        FProducersGroup.qProducerTypes.W.DataSource, lsEditList,
         FProducersGroup.qProducerTypes.W.ProducerType.FieldName);
 
       MainView.ViewData.Collapse(True);

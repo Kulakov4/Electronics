@@ -46,6 +46,7 @@ type
     FNEList: TList<TNotifyEventsEx>;
     FDeletedPKValue: Variant;
     FBeforePostState: TDataSetState;
+    FDataSource: TDataSource;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
     FPostedMessage: TList<Integer>;
@@ -92,6 +93,7 @@ type
     function GetBeforeEdit: TNotifyEventsEx;
     function GetBeforeInsert: TNotifyEventsEx;
     function GetBeforeScroll: TNotifyEventsEx;
+    function GetDataSource: TDataSource;
     procedure ProcessAfterPostMessage;
     procedure ProcessBeforeScrollMessage;
     procedure WndProc(var Msg: TMessage);
@@ -164,6 +166,7 @@ type
     property EventList: TObjectList read FEventList;
     property DeletedPKValue: Variant read FDeletedPKValue;
     property BeforePostState: TDataSetState read FBeforePostState;
+    property DataSource: TDataSource read GetDataSource;
     property PK: TField read GetPK;
     property PKFieldName: string read FPKFieldName write FPKFieldName;
     property RecordCount: Integer read GetRecordCount;
@@ -766,6 +769,16 @@ begin
   end;
 
   Result := FBeforeScroll;
+end;
+
+function TDSWrap.GetDataSource: TDataSource;
+begin
+  if FDataSource = nil then
+  begin
+    FDataSource := TDataSource.Create(Self);
+    FDataSource.DataSet := DataSet;
+  end;
+  Result := FDataSource;
 end;
 
 function TDSWrap.GetFDDataSet: TFDDataSet;

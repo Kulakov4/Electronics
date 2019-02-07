@@ -257,9 +257,9 @@ begin
   end;
 
   MainView.DataController.DataSource :=
-    FExtraChargeGroup.qExtraChargeType.DataSource;
+    FExtraChargeGroup.qExtraChargeType.W.DataSource;
   cxGridDBBandedTableView2.DataController.DataSource :=
-    FExtraChargeGroup.qExtraCharge2.DataSource;
+    FExtraChargeGroup.qExtraCharge2.W.DataSource;
 
   MainView.DataController.KeyFieldNames :=
     FExtraChargeGroup.qExtraChargeType.PKFieldName;

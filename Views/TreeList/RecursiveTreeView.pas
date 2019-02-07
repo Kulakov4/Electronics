@@ -81,7 +81,7 @@ begin
 
     if FQueryRecursiveTree <> nil then
     begin
-      MainView.DataController.DataSource := FQueryRecursiveTree.DataSource;
+      MainView.DataController.DataSource := FQueryRecursiveTree.W.DataSource;
     end;
 
   end;

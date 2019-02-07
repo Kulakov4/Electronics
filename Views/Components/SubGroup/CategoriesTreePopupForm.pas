@@ -120,7 +120,7 @@ begin
     if FQueryTreeList <> nil then
     begin
       // Привязываем вью к данным
-      cxdbtlCaterories.DataController.DataSource := FQueryTreeList.DataSource;
+      cxdbtlCaterories.DataController.DataSource := FQueryTreeList.W.DataSource;
     end;
   end;
 end;

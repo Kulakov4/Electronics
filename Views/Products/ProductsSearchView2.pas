@@ -155,7 +155,7 @@ begin
   Assert(qProductsSearch <> nil);
 
   InitializeLookupColumn(clStorehouseId,
-    qProductsSearch.qStoreHouseList.DataSource, lsEditFixedList,
+    qProductsSearch.qStoreHouseList.W.DataSource, lsEditFixedList,
     qProductsSearch.qStoreHouseList.W.Abbreviation.FieldName);
 end;
 

@@ -609,17 +609,17 @@ begin
   begin
     // привязываем представление к данным
     cxGridDBBandedTableView.DataController.DataSource :=
-      FDescriptionsGroup.qDescriptionTypes.DataSource;
+      FDescriptionsGroup.qDescriptionTypes.W.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FDescriptionsGroup.qDescriptions.DataSource;
+      FDescriptionsGroup.qDescriptions.W.DataSource;
 
     InitializeLookupColumn(clIDComponentType,
-      FDescriptionsGroup.qDescriptionTypes.DataSource, lsEditList,
+      FDescriptionsGroup.qDescriptionTypes.W.DataSource, lsEditList,
       FDescriptionsGroup.qDescriptionTypes.W.ComponentType.FieldName);
 
     // Производителя выбираем ТОЛЬКО из списка
     InitializeLookupColumn(clIDProducer,
-      FDescriptionsGroup.qProducers.DataSource, lsFixedList,
+      FDescriptionsGroup.qProducers.W.DataSource, lsFixedList,
       FDescriptionsGroup.qProducers.W.Name.FieldName);
 
     // Пусть монитор сообщает нам об изменениях в БД

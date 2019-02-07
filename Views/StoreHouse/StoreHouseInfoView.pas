@@ -74,11 +74,12 @@ begin
 
     if FQueryStoreHouseList <> nil then
     begin
-      cxdbmTitle.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
+      cxdbmTitle.DataBinding.DataSource := FQueryStoreHouseList.W.DataSource;
       cxdbteAbbreviation.DataBinding.DataSource :=
-        FQueryStoreHouseList.DataSource;
-      cxTeResponsible.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
-      cxdbmAddress.DataBinding.DataSource := FQueryStoreHouseList.DataSource;
+        FQueryStoreHouseList.W.DataSource;
+      cxTeResponsible.DataBinding.DataSource :=
+        FQueryStoreHouseList.W.DataSource;
+      cxdbmAddress.DataBinding.DataSource := FQueryStoreHouseList.W.DataSource;
     end
     else
     begin

@@ -271,7 +271,7 @@ begin
     begin
       // Привязываем вью к данным
       cxGrid1DBTableView1.DataController.DataSource :=
-        FQuerySubGroups.DataSource;
+        FQuerySubGroups.W.DataSource;
 
       // Подписываемся на события
       TNotifyEventWrap.Create(FQuerySubGroups.W.AfterInsert, DoAfterInsert,

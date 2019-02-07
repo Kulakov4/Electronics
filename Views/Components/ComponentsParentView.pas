@@ -639,9 +639,9 @@ begin
   begin
     // Привязываем вью к данным
     MainView.DataController.DataSource :=
-      BaseComponentsGroup.QueryBaseFamily.DataSource;
+      BaseComponentsGroup.QueryBaseFamily.W.DataSource;
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FBaseComponentsGroup.QueryBaseComponents.DataSource;
+      FBaseComponentsGroup.QueryBaseComponents.W.DataSource;
 
     // Подписываемся на события
     if FBaseComponentsGroup.QueryBaseComponents.Master <> nil then

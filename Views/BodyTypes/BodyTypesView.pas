@@ -299,7 +299,7 @@ begin
   try
     Q.RefreshQuery;
 
-    cxGridDBBandedTableView2.DataController.DataSource := Q.DataSource;
+    cxGridDBBandedTableView2.DataController.DataSource := Q.W.DataSource;
     try
       if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
         TSettings.Create.GetFolderFoExcelFile(FolderKey), 'Типы корпусов',
@@ -323,7 +323,7 @@ begin
         end);
     finally
       cxGridDBBandedTableView2.DataController.DataSource :=
-        BodyTypesGroup.qBodyTypes2.DataSource;
+        BodyTypesGroup.qBodyTypes2.W.DataSource;
     end;
   finally
     FreeAndNil(Q);
@@ -877,18 +877,18 @@ begin
     if FBodyTypesGroup <> nil then
     begin
       MainView.DataController.DataSource :=
-        FBodyTypesGroup.qBodyKinds.DataSource;
+        FBodyTypesGroup.qBodyKinds.W.DataSource;
       cxGridDBBandedTableView2.DataController.DataSource :=
-        FBodyTypesGroup.qBodyTypes2.DataSource;
+        FBodyTypesGroup.qBodyTypes2.W.DataSource;
 
       InitializeLookupColumn(clIDBodyKind,
-        FBodyTypesGroup.qBodyKinds.DataSource, lsEditFixedList,
+        FBodyTypesGroup.qBodyKinds.W.DataSource, lsEditFixedList,
         FBodyTypesGroup.qBodyKinds.W.BodyKind.FieldName);
 
       FBodyTypesGroup.qProducers.RefreshQuery;
 
       InitializeLookupColumn(clIDProducer,
-        FBodyTypesGroup.qProducers.DataSource, lsEditFixedList,
+        FBodyTypesGroup.qProducers.W.DataSource, lsEditFixedList,
         FBodyTypesGroup.qProducers.W.Name.F.FieldName);
 
       TNotifyEventWrap.Create(FBodyTypesGroup.qBodyKinds.W.AfterOpen,

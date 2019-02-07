@@ -434,20 +434,12 @@ end;
 
 procedure TViewCategoryParameters.DoAfterUpdateData(Sender: TObject);
 begin
-  // dsParameters.DataSet := FCatParamsGroup.qCatParams;
-  // dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
-  // EndUpdate;
   UpdateView;
-  // MainView.ViewData.Collapse(True);
   FLoading := False;
 end;
 
 procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
 begin
-  // Набор данных, отображаемый в гриде будет вручную загружаться
-  // BeginUpdate;
-  // dsParameters.DataSet := nil;
-  // dsSubParameters.DataSet := nil;
   FLoading := True;
   MainView.Controller.ClearSelection;
 end;
@@ -658,7 +650,7 @@ begin
     dsParameters.DataSet := FCatParamsGroup.qCatParams;
     dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
 
-    InitializeLookupColumn(clPosID, QueryParameterPos.DataSource, lsFixedList,
+    InitializeLookupColumn(clPosID, QueryParameterPos.W.DataSource, lsFixedList,
       QueryParameterPos.W.Pos.FieldName);
 
     (clPosID.Properties as TcxLookupComboBoxProperties).ReadOnly := True;

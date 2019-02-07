@@ -436,7 +436,7 @@ begin
   if FqTreeList = nil then
     Exit;
 
-  cxDBTreeList.DataController.DataSource := qTreeList.DataSource;
+  cxDBTreeList.DataController.DataSource := qTreeList.W.DataSource;
   cxDBTreeList.DataController.KeyField := qTreeList.PKFieldName;
   cxDBTreeList.DataController.ParentField := qTreeList.W.ParentId.FieldName;
 

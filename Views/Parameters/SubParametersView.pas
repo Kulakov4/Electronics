@@ -373,7 +373,7 @@ begin
   if FQuerySubParameters = nil then
     Exit;
 
-  MainView.DataController.DataSource := FQuerySubParameters.DataSource;
+  MainView.DataController.DataSource := FQuerySubParameters.W.DataSource;
   MainView.DataController.KeyFieldNames := FQuerySubParameters.PKFieldName;
 
   CheckedMode := FQuerySubParameters.CheckedMode;

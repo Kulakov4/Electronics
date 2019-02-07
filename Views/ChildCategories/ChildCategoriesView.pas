@@ -197,7 +197,7 @@ begin
 
   if FqChildCategories <> nil then
   begin
-    MainView.DataController.DataSource := qChildCategories.DataSource;
+    MainView.DataController.DataSource := qChildCategories.W.DataSource;
   end;
 end;
 

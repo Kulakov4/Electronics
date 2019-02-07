@@ -235,7 +235,7 @@ begin
       FFilterFields.Add(QueryReports.W.Чертёж.FieldName);
       FFilterFields.Add(QueryReports.W.Изображение.FieldName);
 
-      MainView.DataController.DataSource := FQueryReports.DataSource;
+      MainView.DataController.DataSource := FQueryReports.W.DataSource;
     end;
   end;
 end;

@@ -13,7 +13,6 @@ uses
 
 type
   TQueryWithDataSource = class(TQueryWithMaster)
-    DataSource: TDataSource;
   private
   protected
   public
@@ -22,7 +21,5 @@ type
 implementation
 
 {$R *.dfm}
-
-
 
 end.

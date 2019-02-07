@@ -585,7 +585,7 @@ begin
 
       // Привязываем список складов к данным
       tvStorehouseList.DataController.DataSource :=
-        TDM.Create.qStoreHouseList.DataSource;
+        TDM.Create.qStoreHouseList.W.DataSource;
 
       clStorehouseListTitle.ApplyBestFit();
 
