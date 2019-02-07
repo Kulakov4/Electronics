@@ -31,6 +31,7 @@ type
     FAfterPostM: TNotifyEventsEx;
     FBeforeOpen: TNotifyEventsEx;
     FBeforeClose: TNotifyEventsEx;
+    FBeforeEdit: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
     FDataSet: TDataSet;
@@ -78,8 +79,10 @@ type
     procedure AfterDataSetEdit(DataSet: TDataSet);
     procedure BeforeDataSetClose(DataSet: TDataSet);
     procedure BeforeDataSetOpen(DataSet: TDataSet);
+    procedure BeforeDataSetEdit(DataSet: TDataSet);
     function GetAfterEdit: TNotifyEventsEx;
     function GetAfterPostM: TNotifyEventsEx;
+    function GetBeforeEdit: TNotifyEventsEx;
     procedure ProcessAfterPostMessage;
     procedure WndProc(var Msg: TMessage);
   protected
@@ -143,6 +146,7 @@ type
     property AfterPostM: TNotifyEventsEx read GetAfterPostM;
     property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
+    property BeforeEdit: TNotifyEventsEx read GetBeforeEdit;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
     property DeletedPKValue: Variant read FDeletedPKValue;
@@ -359,6 +363,11 @@ end;
 procedure TDSWrap.BeforeDataSetClose(DataSet: TDataSet);
 begin
   FBeforeClose.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.BeforeDataSetEdit(DataSet: TDataSet);
+begin
+  FBeforeEdit.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.CancelUpdates;
@@ -664,6 +673,19 @@ begin
   end;
 
   Result := FBeforeClose;
+end;
+
+function TDSWrap.GetBeforeEdit: TNotifyEventsEx;
+begin
+  if FBeforeEdit = nil then
+  begin
+    Assert(not Assigned(FDataSet.BeforeEdit));
+    FBeforeEdit := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeEdit);
+    FDataSet.BeforeEdit := BeforeDataSetEdit;
+  end;
+
+  Result := FBeforeEdit;
 end;
 
 function TDSWrap.GetFDDataSet: TFDDataSet;
