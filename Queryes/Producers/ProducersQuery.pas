@@ -8,8 +8,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, QueryWithDataSourceUnit,
-  ProducerInterface, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ProducerInterface, DSWrap,
+  BaseEventsQuery;
 
 type
   TProducersW = class(TDSWrap)
@@ -33,7 +33,7 @@ type
     property ProducerTypeID: TFieldWrap read FProducerTypeID;
   end;
 
-  TQueryProducers = class(TQueryWithDataSource, IProducer)
+  TQueryProducers = class(TQueryBaseEvents, IProducer)
   strict private
     function Exist(const AProducerName: String): Boolean; stdcall;
     function GetProducerID(const AProducerName: String): Integer; stdcall;

@@ -4,11 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PopupForm, cxGraphics, cxControls,
-  cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, dxSkinsCore,
-  dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee,
-  dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PopupForm,
+  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxContainer,
+  cxEdit, dxSkinsCore, dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel,
+  dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
   dxSkinDevExpressStyle, dxSkinFoggy, dxSkinGlassOceans, dxSkinHighContrast,
   dxSkiniMaginary, dxSkinLilian, dxSkinLiquidSky, dxSkinLondonLiquidSky,
   dxSkinMcSkin, dxSkinMetropolis, dxSkinMetropolisDark, dxSkinMoneyTwins,
@@ -23,7 +22,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxTextEdit, cxMemo, cxDBEdit, CustomComponentsQuery,
   dxSkinsdxBarPainter, System.Actions, Vcl.ActnList, cxClasses, dxBar,
-  BaseQuery, QueryWithDataSourceUnit, Data.DB, DescriptionsQueryWrap;
+  BaseQuery, Data.DB, DescriptionsQueryWrap;
 
 type
   TfrmDescriptionPopup = class(TfrmPopupForm)
@@ -48,7 +47,8 @@ type
     procedure UpdateView;
   public
     constructor Create(AOwner: TComponent); override;
-    property DescriptionW: TDescriptionW read FDescriptionW write SetDescriptionW;
+    property DescriptionW: TDescriptionW read FDescriptionW
+      write SetDescriptionW;
     { Public declarations }
   end;
 
@@ -99,11 +99,11 @@ begin
       FDescriptionW.DescriptionComponentName.F.Value :=
         TDM.Create.DescriptionsGroup.qDescriptions.W.ComponentName.F.Value;
 
-      FDescriptionW.Description.F.Value := TDM.Create.DescriptionsGroup.qDescriptions.
-        W.Description.F.Value;
+      FDescriptionW.Description.F.Value :=
+        TDM.Create.DescriptionsGroup.qDescriptions.W.Description.F.Value;
 
-      FDescriptionW.DescriptionID.F.Value := TDM.Create.DescriptionsGroup.
-        qDescriptions.PK.Value;
+      FDescriptionW.DescriptionID.F.Value :=
+        TDM.Create.DescriptionsGroup.qDescriptions.PK.Value;
 
       FDescriptionW.TryPost;
     end;

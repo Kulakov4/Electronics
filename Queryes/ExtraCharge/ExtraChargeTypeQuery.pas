@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, DSWrap, BaseEventsQuery;
 
 type
   TExtraChargeType = class(TDSWrap)
@@ -24,7 +23,7 @@ type
     property ID: TFieldWrap read FID;
   end;
 
-  TQueryExtraChargeType = class(TQueryWithDataSource)
+  TQueryExtraChargeType = class(TQueryBaseEvents)
   private
     FW: TExtraChargeType;
     { Private declarations }

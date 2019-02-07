@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, DragHelper, System.Generics.Collections,
-  QueryWithDataSourceUnit, OrderQuery, DSWrap;
+  OrderQuery, DSWrap;
 
 type
   TParameterTypeW = class(TOrderW)

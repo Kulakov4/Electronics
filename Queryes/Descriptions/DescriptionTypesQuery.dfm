@@ -31,9 +31,6 @@ inherited QueryDescriptionTypes: TQueryDescriptionTypes
       'ShowDuplicate */'
       'order by dct.Ord')
   end
-  inherited DataSource: TDataSource
-    Top = 25
-  end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (
       'INSERT INTO DESCRIPTIONCOMPONENTTYPES'

@@ -59,6 +59,4 @@ inherited QueryCustomComponents: TQueryCustomComponents
         'WHERE ID = :ID')
     end
   end
-  inherited FDQuery: TFDQuery [2]
-  end
 end

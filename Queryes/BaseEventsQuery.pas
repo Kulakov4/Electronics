@@ -24,16 +24,26 @@ type
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
+    FLock: Boolean;
+    FLock1: Boolean;
+    FMaster: TQueryBaseEvents;
+    FNeedLoad: Boolean;
+    FNeedRefresh: Boolean;
     class var FMonitor: TQueryMonitor;
     procedure DoAfterDelete(Sender: TObject);
+    procedure DoAfterMasterScroll(Sender: TObject);
 // TODO: FIsModifedClone
 //  FIsModifedClone: TFDMemTable;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
+    function GetActual: Boolean;
     procedure InitializeFields;
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
+    procedure SetLock(const Value: Boolean);
+    procedure SetLock1(const Value: Boolean);
+    procedure SetMaster(const Value: TQueryBaseEvents);
     { Private declarations }
   protected
     FAutoTransactionEventList: TObjectList;
@@ -49,12 +59,25 @@ type
     // TODO: AddClone
     // function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
+    procedure Load; overload;
+    procedure MasterCascadeDelete;
+    procedure RefreshQuery; override;
+    // TODO: PostPostMessage
+    // procedure PostPostMessage;
+    procedure TryLoad;
+    procedure TryPost; override;
+    procedure TryRefresh;
+    property Actual: Boolean read GetActual;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
+    property Lock: Boolean read FLock write SetLock;
+    property Lock1: Boolean read FLock1 write SetLock1;
+    property Master: TQueryBaseEvents read FMaster write SetMaster;
     class property Monitor: TQueryMonitor read FMonitor;
+    property NeedRefresh: Boolean read FNeedRefresh;
     property Wrap: TDSWrap read FDSWrap;
     { Public declarations }
   end;
@@ -95,7 +118,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, QueryGroupUnit;
+uses RepositoryDataModule, QueryGroupUnit, System.Math;
 
 { TfrmDataModule }
 
@@ -159,33 +182,6 @@ begin
   inherited;
 end;
 
-// TODO: AddClone
-// function TQueryBaseEvents.AddClone(const AFilter: String): TFDMemTable;
-// begin
-/// / Создаём список клонов
-// if FClones = nil then
-// begin
-// FClones := TObjectList<TFDMemTable>.Create;
-//
-// // Список подписчиков
-// FCloneEvents := TObjectList.Create;
-//
-// // Будем клонировать курсоры
-// TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, FCloneEvents);
-// // Будем закрывать курсоры
-// TNotifyEventWrap.Create(AfterClose, DoAfterClose, FCloneEvents);
-// end;
-//
-// Result := TFDMemTable.Create(nil); // Владельцем будет список
-// Result.Filter := AFilter;
-//
-/// / Клонируем
-// if FDQuery.Active then
-// CloneCursor(Result);
-//
-// FClones.Add(Result); // Владельцем будет список
-// end;
-
 procedure TQueryBaseEvents.CancelUpdates;
 begin
   inherited;
@@ -218,6 +214,11 @@ begin
   // Если транзакция ещё не завершилась
   if FDQuery.Connection.InTransaction then
     FHaveAnyNotCommitedChanges := True;
+end;
+
+procedure TQueryBaseEvents.DoAfterMasterScroll(Sender: TObject);
+begin
+  TryLoad;
 end;
 
 procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
@@ -263,6 +264,11 @@ begin
   end;
 end;
 
+function TQueryBaseEvents.GetActual: Boolean;
+begin
+  Result := FDQuery.Active and not NeedRefresh;
+end;
+
 procedure TQueryBaseEvents.TryStartTransaction(Sender: TObject);
 begin
   // начинаем транзакцию, если она ещё не началась
@@ -299,6 +305,34 @@ begin
   end;
 end;
 
+procedure TQueryBaseEvents.Load;
+var
+  AIDParent: Integer;
+begin
+  FNeedLoad := False;
+  Assert(FMaster <> nil);
+  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
+    FMaster.PK.AsInteger, -1);
+  Load(AIDParent);
+end;
+
+procedure TQueryBaseEvents.MasterCascadeDelete;
+var
+  V: Variant;
+begin
+  Assert(FMaster <> nil);
+  Assert(FMaster.FDQuery.RecordCount > 0);
+  V := FMaster.PK.Value;
+  CascadeDelete(V, DetailParameterName);
+  FMaster.LocateByPK(V, True);
+end;
+
+procedure TQueryBaseEvents.RefreshQuery;
+begin
+  FNeedRefresh := False;
+  inherited;
+end;
+
 procedure TQueryBaseEvents.SetAutoTransaction(const Value: Boolean);
 begin
   if FAutoTransaction <> Value then
@@ -328,6 +362,92 @@ begin
     end;
 
   end;
+end;
+
+procedure TQueryBaseEvents.SetLock(const Value: Boolean);
+begin
+  if FLock <> Value then
+  begin
+    FLock := Value;
+
+    if (not FLock) then
+    begin
+      // если мастер изменился, нам пора обновиться
+      if FNeedLoad then
+      begin
+        Load;
+        FNeedRefresh := False; // Обновлять больше не нужно
+      end
+      else if FNeedRefresh then
+        RefreshQuery;
+    end;
+  end;
+end;
+
+procedure TQueryBaseEvents.SetLock1(const Value: Boolean);
+begin
+  if FLock1 <> Value then
+  begin
+    FLock1 := Value;
+
+    if (not FLock1) then
+    begin
+      // если мастер изменился, нам пора обновиться
+      if FNeedLoad then
+      begin
+        Load;
+        FNeedRefresh := False; // Обновлять больше не нужно
+      end
+      else if FNeedRefresh then
+        RefreshQuery;
+    end;
+  end;
+end;
+
+procedure TQueryBaseEvents.SetMaster(const Value: TQueryBaseEvents);
+begin
+  if FMaster <> Value then
+  begin
+    // Отписываемся от всех событий старого мастера
+    FMasterEventList.Clear;
+
+    FMaster := Value;
+
+    if FMaster <> nil then
+    begin
+      // Подписываемся на события нового мастера
+      TNotifyEventWrap.Create(FMaster.Wrap.AfterScrollM, DoAfterMasterScroll,
+        FMasterEventList);
+    end;
+
+  end;
+end;
+
+procedure TQueryBaseEvents.TryLoad;
+begin
+  // Будем обновляться, т.к. мы подчинены мастеру
+  if not Lock then
+    Load
+  else
+    FNeedLoad := True;
+end;
+
+procedure TQueryBaseEvents.TryPost;
+begin
+  // если заблокировано и не активно
+  if Lock and (not FDQuery.Active) then
+    Exit;
+
+  inherited;
+end;
+
+procedure TQueryBaseEvents.TryRefresh;
+begin
+  // Будем обновляться, т.к. мы подчинены мастеру
+  if not Lock then
+    RefreshQuery
+  else
+    FNeedRefresh := True;
 end;
 
 constructor TQueryMonitor.Create;

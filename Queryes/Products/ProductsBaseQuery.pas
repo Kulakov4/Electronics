@@ -4,17 +4,16 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  ApplyQueryFrame, DocFieldInfo, SearchProductParameterValuesQuery,
-  SearchProductQuery, QueryWithDataSourceUnit, CustomComponentsQuery,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, DocFieldInfo,
+  SearchProductParameterValuesQuery, SearchProductQuery, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
-  SearchStorehouseProduct, ProducersQuery, NotifyEvents,
-  SearchComponentGroup, SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2,
-  ExtraChargeGroupUnit, DSWrap, DescriptionsQueryWrap;
+  SearchStorehouseProduct, ProducersQuery, NotifyEvents, SearchComponentGroup,
+  SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2, ExtraChargeGroupUnit,
+  DSWrap, DescriptionsQueryWrap, BaseEventsQuery;
 
 const
   WM_OnCommitUpdates = WM_USER + 169;
@@ -144,7 +143,7 @@ type
     property Wholesale: TFieldWrap read FWholesale;
   end;
 
-  TQueryProductsBase = class(TQueryWithDataSource)
+  TQueryProductsBase = class(TQueryBaseEvents)
     procedure DataSourceDataChange(Sender: TObject; Field: TField);
     procedure FDQueryAfterApplyUpdates(DataSet: TFDDataSet; AErrors: Integer);
     procedure FDQueryCalcFields(DataSet: TDataSet);
@@ -333,8 +332,8 @@ begin
       while qSearchStorehouseProduct.FDQuery.RecordCount > 0 do
       begin
         // Запоминаем, что этот продукт мы удалили со склада
-        if AProductIDS.IndexOf(qSearchStorehouseProduct.W.ProductID.F.AsInteger) < 0
-        then
+        if AProductIDS.IndexOf
+          (qSearchStorehouseProduct.W.ProductID.F.AsInteger) < 0 then
           AProductIDS.Add(qSearchStorehouseProduct.W.ProductID.F.AsInteger);
 
         qSearchStorehouseProduct.FDQuery.Delete;
@@ -693,7 +692,7 @@ var
   rc: Integer;
 begin
   // Если не происходит вставка новой записи
-  if not (FDQuery.State in [dsInsert]) then
+  if not(FDQuery.State in [dsInsert]) then
     Exit;
 
   Assert(not W.IsGroup.F.IsNull);
@@ -758,7 +757,8 @@ begin
     UpdateFields([W.Datasheet.F, W.Diagram.F, W.Drawing.F, W.Image.F,
       W.DescriptionID.F], [qSearchFamily.W.Datasheet.F.Value,
       qSearchFamily.W.Diagram.F.Value, qSearchFamily.W.Drawing.F.Value,
-      qSearchFamily.W.Image.F.Value, qSearchFamily.W.DescriptionID.F.Value], True);
+      qSearchFamily.W.Image.F.Value,
+      qSearchFamily.W.DescriptionID.F.Value], True);
   end;
 
   // Если производитель не задан
@@ -850,7 +850,8 @@ var
 begin
   inherited;
 
-  if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull) then
+  if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull)
+  then
     Exit;
 
   // Определяемся с курсом Доллара
@@ -1066,8 +1067,8 @@ begin
     // Ищем производителя по коду
     ProducersGroup.qProducers.LocateByPK(W.IDProducer.F.AsInteger, True);
 
-    rc := qSearchComponentOrFamily.SearchComponentWithProducer(W.Value.F.AsString,
-      ProducersGroup.qProducers.W.Name.F.AsString);
+    rc := qSearchComponentOrFamily.SearchComponentWithProducer
+      (W.Value.F.AsString, ProducersGroup.qProducers.W.Name.F.AsString);
   end;
   if rc > 0 then
   begin

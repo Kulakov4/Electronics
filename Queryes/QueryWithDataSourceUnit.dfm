@@ -1,2 +1,0 @@
-inherited QueryWithDataSource: TQueryWithDataSource
-end

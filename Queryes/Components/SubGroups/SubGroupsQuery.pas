@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit, DSWrap;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
 
 type
   TSubGroupW = class(TDSWrap)
@@ -26,7 +25,7 @@ type
     property IsRecordReadOnly: Boolean read GetIsRecordReadOnly;
   end;
 
-  TfrmQuerySubGroups = class(TQueryWithDataSource)
+  TfrmQuerySubGroups = class(TQueryBaseEvents)
   private
     FW: TSubGroupW;
     procedure DoAfterDBEvents(Sender: TObject);
@@ -74,8 +73,7 @@ var
 begin
   AMainExternalID := 'MainExternalID';
 
-  AStipulation := Format('%s = :%s',
-    [W.ExternalID.FullName, AMainExternalID]);
+  AStipulation := Format('%s = :%s', [W.ExternalID.FullName, AMainExternalID]);
 
   // Меняем SQL запрос
   ASQL := ReplaceInSQL(SQL, AStipulation, 0);
@@ -109,8 +107,8 @@ end;
 
 function TSubGroupW.GetIsRecordReadOnly: Boolean;
 begin
-  Result := (DataSet.RecordCount > 0) and
-    (not IsMain.F.IsNull) and  (IsMain.F.AsInteger = 1);
+  Result := (DataSet.RecordCount > 0) and (not IsMain.F.IsNull) and
+    (IsMain.F.AsInteger = 1);
 end;
 
 end.

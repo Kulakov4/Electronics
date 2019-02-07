@@ -3,12 +3,12 @@ unit BillContentQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
 
 type
   TBillContentW = class(TDSWrap)
@@ -26,7 +26,7 @@ type
     property StoreHouseProductID: TFieldWrap read FStoreHouseProductID;
   end;
 
-  TQueryBillContent = class(TQueryWithDataSource)
+  TQueryBillContent = class(TQueryBaseEvents)
   private
     FW: TBillContentW;
     { Private declarations }
@@ -62,8 +62,8 @@ begin
   FStoreHouseProductID := TFieldWrap.Create(Self, 'StoreHouseProductID');
 end;
 
-procedure TBillContentW.AddContent(ABillID, AStoreHouseProductID, ASaleCount:
-    Integer);
+procedure TBillContentW.AddContent(ABillID, AStoreHouseProductID,
+  ASaleCount: Integer);
 begin
   Assert(ABillID > 0);
   Assert(AStoreHouseProductID > 0);

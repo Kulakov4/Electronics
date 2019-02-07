@@ -13,9 +13,6 @@ inherited QueryProducerTypes: TQueryProducerTypes
       'from ProducerTypes'
       'order by Ord')
   end
-  inherited DataSource: TDataSource
-    Top = 25
-  end
   object FDUpdateSQL: TFDUpdateSQL
     InsertSQL.Strings = (
       'INSERT INTO PRODUCERTYPES'

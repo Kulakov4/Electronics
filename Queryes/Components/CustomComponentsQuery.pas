@@ -10,8 +10,8 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
   SearchComponentCategoryQuery, SearchProductParameterValuesQuery,
-  System.Generics.Collections, QueryWithDataSourceUnit, DBRecordHolder, DSWrap,
-  DescriptionsQueryWrap;
+  System.Generics.Collections, DBRecordHolder, DSWrap,
+  DescriptionsQueryWrap, BaseEventsQuery;
 
 type
   TCustomComponentsW = class(TDescriptionW)
@@ -32,13 +32,15 @@ type
     FQuerySearchProductParameterValues: TQuerySearchProductParameterValues;
     FSubGroup: TFieldWrap;
     FValue: TFieldWrap;
-    function GetQuerySearchProductParameterValues:
-        TQuerySearchProductParameterValues;
+    function GetQuerySearchProductParameterValues
+      : TQuerySearchProductParameterValues;
   protected
-    procedure ProcessParamValue(AIDComponent: Integer; AIDProductParameterValue:
-        TField; const AValue: Variant; AParamSubParamID: Integer);
-    property QuerySearchProductParameterValues: TQuerySearchProductParameterValues
-        read GetQuerySearchProductParameterValues;
+    procedure ProcessParamValue(AIDComponent: Integer;
+      AIDProductParameterValue: TField; const AValue: Variant;
+      AParamSubParamID: Integer);
+    property QuerySearchProductParameterValues
+      : TQuerySearchProductParameterValues
+      read GetQuerySearchProductParameterValues;
   public
     constructor Create(AOwner: TComponent); override;
     procedure SetPackagePins(AIDComponent: Integer; APackagePins: string);
@@ -61,7 +63,7 @@ type
     property Value: TFieldWrap read FValue;
   end;
 
-  TQueryCustomComponents = class(TQueryWithDataSource)
+  TQueryCustomComponents = class(TQueryBaseEvents)
     qProducts: TfrmApplyQuery;
   private
     FParameterFields: TDictionary<Integer, String>;
@@ -82,8 +84,8 @@ type
     property ParameterFields: TDictionary<Integer, String>
       read FParameterFields;
     property RecordHolder: TRecordHolder read FRecordHolder;
-    property SaveValuesAfterEdit: Boolean read FSaveValuesAfterEdit write
-        FSaveValuesAfterEdit;
+    property SaveValuesAfterEdit: Boolean read FSaveValuesAfterEdit
+      write FSaveValuesAfterEdit;
     property W: TCustomComponentsW read FW;
     { Public declarations }
   end;
@@ -118,7 +120,7 @@ begin
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 
   // Будем сами управлять транзакцией
-  AutoTransaction := false;
+  AutoTransaction := False;
 
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
@@ -208,7 +210,8 @@ begin
   // FParameterFields.Add(TDefaultParameters.PackagePinsParameterID, 'PackagePins');
 
   // Поле Datasheet (техническая спецификация)
-  FParameterFields.Add(TDefaultParameters.DatasheetParamSubParamID, 'Datasheet');
+  FParameterFields.Add(TDefaultParameters.DatasheetParamSubParamID,
+    'Datasheet');
 
   // Поле Diagram (структурная схема)
   FParameterFields.Add(TDefaultParameters.DiagramParamSubParamID, 'Diagram');
@@ -244,8 +247,8 @@ begin
   FValue := TFieldWrap.Create(Self, 'Value');
 end;
 
-function TCustomComponentsW.GetQuerySearchProductParameterValues:
-    TQuerySearchProductParameterValues;
+function TCustomComponentsW.GetQuerySearchProductParameterValues
+  : TQuerySearchProductParameterValues;
 begin
   if FQuerySearchProductParameterValues = nil then
   begin
@@ -256,8 +259,8 @@ begin
 end;
 
 procedure TCustomComponentsW.ProcessParamValue(AIDComponent: Integer;
-    AIDProductParameterValue: TField; const AValue: Variant; AParamSubParamID:
-    Integer);
+  AIDProductParameterValue: TField; const AValue: Variant;
+  AParamSubParamID: Integer);
 var
   i: Integer;
   k: Integer;
@@ -266,7 +269,8 @@ begin
   Assert(AParamSubParamID > 0);
 
   // Ищем значение производителя для нашего компонента
-  rc := QuerySearchProductParameterValues.Search(AParamSubParamID, AIDComponent);
+  rc := QuerySearchProductParameterValues.Search(AParamSubParamID,
+    AIDComponent);
 
   // Если новое значение параметра пустое
   if VarIsStr(AValue) and VarToStr(AValue).IsEmpty then
@@ -339,7 +343,7 @@ begin
 end;
 
 procedure TCustomComponentsW.SetPackagePins(AIDComponent: Integer;
-    APackagePins: string);
+  APackagePins: string);
 begin
   Assert(AIDComponent > 0);
 
@@ -352,8 +356,8 @@ begin
   TryPost;
 end;
 
-procedure TCustomComponentsW.SetProducer(AIDComponent: Integer; const
-    AProducer: String);
+procedure TCustomComponentsW.SetProducer(AIDComponent: Integer;
+  const AProducer: String);
 begin
   Assert(AIDComponent > 0);
 
@@ -366,8 +370,8 @@ begin
   TryPost;
 end;
 
-procedure TCustomComponentsW.UpdateParamValue(const AProductIDFieldName:
-    string);
+procedure TCustomComponentsW.UpdateParamValue(const AProductIDFieldName
+  : string);
 var
   AIDComponent: TField;
   i: Integer;

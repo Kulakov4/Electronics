@@ -4,12 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit, TreeExcelDataModule, DSWrap;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, TreeExcelDataModule, DSWrap,
+  BaseEventsQuery;
 
 type
   TRecursiveTreeW = class(TDSWrap)
@@ -26,12 +26,12 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure HideNotAdded;
     procedure HideNotDeleted;
-    function LocateByExternalID(const AExternalID: string; TestResult: Boolean =
-        False): Boolean; overload;
-    function LocateByExternalID(AParentExternalID: Variant; const AExternalID:
-        string): Boolean; overload;
-    function LocateByValue(AParentExternalID: Variant; const AValue: string):
-        Boolean;
+    function LocateByExternalID(const AExternalID: string;
+      TestResult: Boolean = False): Boolean; overload;
+    function LocateByExternalID(AParentExternalID: Variant;
+      const AExternalID: string): Boolean; overload;
+    function LocateByValue(AParentExternalID: Variant;
+      const AValue: string): Boolean;
     property Added: TFieldWrap read FAdded;
     property Deleted: TFieldWrap read FDeleted;
     property ExternalID: TFieldWrap read FExternalID;
@@ -41,7 +41,7 @@ type
     property Value: TFieldWrap read FValue;
   end;
 
-  TQueryRecursiveTree = class(TQueryWithDataSource)
+  TQueryRecursiveTree = class(TQueryBaseEvents)
     FDUpdateSQL: TFDUpdateSQL;
   private
     FW: TRecursiveTreeW;
@@ -91,8 +91,8 @@ begin
   end;
 end;
 
-procedure TQueryRecursiveTree.LoadDataFromExcelTable(ATreeExcelTable:
-    TTreeExcelTable);
+procedure TQueryRecursiveTree.LoadDataFromExcelTable(ATreeExcelTable
+  : TTreeExcelTable);
 var
   AParentID: Variant;
 begin
@@ -188,7 +188,8 @@ begin
   FAdded := TFieldWrap.Create(Self, 'Added');
   FDeleted := TFieldWrap.Create(Self, 'Deleted');
   FExternalID := TFieldWrap.Create(Self, 'ExternalID', 'Идентификатор');
-  FParentExternalID := TFieldWrap.Create(Self, 'ParentExternalID', 'Родительский идентификатор');
+  FParentExternalID := TFieldWrap.Create(Self, 'ParentExternalID',
+    'Родительский идентификатор');
   FParentID := TFieldWrap.Create(Self, 'ParentID');
   FValue := TFieldWrap.Create(Self, 'Value', 'Наименование');
 
@@ -219,7 +220,7 @@ begin
 end;
 
 function TRecursiveTreeW.LocateByExternalID(const AExternalID: string;
-    TestResult: Boolean = False): Boolean;
+  TestResult: Boolean = False): Boolean;
 begin
   Assert(not AExternalID.IsEmpty);
 
@@ -230,8 +231,8 @@ begin
     Assert(Result);
 end;
 
-function TRecursiveTreeW.LocateByExternalID(AParentExternalID: Variant; const
-    AExternalID: string): Boolean;
+function TRecursiveTreeW.LocateByExternalID(AParentExternalID: Variant;
+  const AExternalID: string): Boolean;
 var
   AKeyFields: string;
 begin
@@ -244,8 +245,8 @@ begin
     VarArrayOf([AParentExternalID, AExternalID]), []);
 end;
 
-function TRecursiveTreeW.LocateByValue(AParentExternalID: Variant; const
-    AValue: string): Boolean;
+function TRecursiveTreeW.LocateByValue(AParentExternalID: Variant;
+  const AValue: string): Boolean;
 var
   AKeyFields: string;
 begin
@@ -253,8 +254,8 @@ begin
 
   // Ищем в ветви дерева наименование
   AKeyFields := Format('%s;%s', [ParentExternalID.FieldName, Value.FieldName]);
-  Result := FDDataSet.LocateEx(AKeyFields, VarArrayOf([AParentExternalID, AValue]
-    ), [lxoCaseInsensitive]);
+  Result := FDDataSet.LocateEx(AKeyFields,
+    VarArrayOf([AParentExternalID, AValue]), [lxoCaseInsensitive]);
 end;
 
 end.

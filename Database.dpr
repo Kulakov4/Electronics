@@ -19,8 +19,6 @@ uses
   MapFieldsUnit in 'Helpers\MapFieldsUnit.pas',
   BaseQuery in 'Queryes\BaseQuery.pas' {QueryBase: TFrame},
   BaseEventsQuery in 'Queryes\BaseEventsQuery.pas' {QueryBaseEvents: TFrame},
-  QueryWithMasterUnit in 'Queryes\QueryWithMasterUnit.pas' {QueryWithMaster: TFrame},
-  QueryWithDataSourceUnit in 'Queryes\QueryWithDataSourceUnit.pas' {QueryWithDataSource: TFrame},
   ProgressInfo in 'Helpers\ProgressInfo.pas',
   ProcRefUnit in 'Helpers\ProcRefUnit.pas',
   TableWithProgress in 'Helpers\TableWithProgress.pas',

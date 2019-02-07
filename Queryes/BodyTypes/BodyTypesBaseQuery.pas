@@ -4,14 +4,13 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, BodiesQuery, BodyDataQuery,
   BodyVariationsQuery, BodyOptionsQuery, BodyVariationJedecQuery,
-  BodyVariationOptionQuery, JEDECQuery, DSWrap;
+  BodyVariationOptionQuery, JEDECQuery, DSWrap, BaseEventsQuery;
 
 const
   WM_AFTER_CASCADE_DELETE = WM_USER + 574;
@@ -57,7 +56,7 @@ type
     property Variations: TFieldWrap read FVariations;
   end;
 
-  TQueryBodyTypesBase = class(TQueryWithDataSource)
+  TQueryBodyTypesBase = class(TQueryBaseEvents)
     fdqUnusedBodies: TFDQuery;
     fdqUnusedBodyData: TFDQuery;
   private

@@ -8,8 +8,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  SearchCategoryQuery, NotifyEvents, DuplicateCategoryQuery, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, SearchCategoryQuery, NotifyEvents,
+  DuplicateCategoryQuery, DSWrap, BaseEventsQuery;
 
 type
   TTreeListW = class(TDSWrap)
@@ -33,8 +33,8 @@ type
       const AValue: String): Boolean;
     procedure Delete;
     procedure FilterByExternalID(AExternalID: string);
-    function LocateByExternalID(AExternalID: string; AOptions:
-        TFDDataSetLocateOptions = []): Boolean;
+    function LocateByExternalID(AExternalID: string;
+      AOptions: TFDDataSetLocateOptions = []): Boolean;
     procedure LocateToRoot;
     procedure SmartRefresh; override;
     property AfterSmartRefresh: TNotifyEventsEx read FAfterSmartRefresh;
@@ -45,7 +45,7 @@ type
     property Value: TFieldWrap read FValue;
   end;
 
-  TQueryTreeList = class(TQueryWithDataSource)
+  TQueryTreeList = class(TQueryBaseEvents)
   private
     FAutoSearchDuplicate: Boolean;
     FNeedRestoreAutoSearch: Boolean;
@@ -234,8 +234,8 @@ begin
   Result := FqSearchCategory;
 end;
 
-function TTreeListW.LocateByExternalID(AExternalID: string; AOptions:
-    TFDDataSetLocateOptions = []): Boolean;
+function TTreeListW.LocateByExternalID(AExternalID: string;
+  AOptions: TFDDataSetLocateOptions = []): Boolean;
 begin
   Assert(not AExternalID.IsEmpty);
   Result := FDDataSet.LocateEx(ExternalID.FieldName, AExternalID, AOptions);

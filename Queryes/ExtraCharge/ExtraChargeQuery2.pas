@@ -4,13 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, ExtraChargeSimpleQuery,
-  System.Generics.Collections, DSWrap;
+  System.Generics.Collections, DSWrap, BaseEventsQuery;
 
 type
   TExtraChargeW = class(TDSWrap)
@@ -32,7 +31,7 @@ type
     property WholeSale: TFieldWrap read FWholeSale;
   end;
 
-  TQueryExtraCharge2 = class(TQueryWithDataSource)
+  TQueryExtraCharge2 = class(TQueryBaseEvents)
   private
     FqExtraChargeSimple: TQueryExtraChargeSimple;
     FW: TExtraChargeW;

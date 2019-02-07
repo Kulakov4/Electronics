@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  BodyTypesExcelDataModule, QueryWithDataSourceUnit,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, BodyTypesExcelDataModule,
   BodiesQuery, BodyDataQuery, BodyVariationsQuery, BodyTypesBaseQuery,
   DocFieldInfo, System.IOUtils, JEDECQuery, System.Generics.Collections,
   BodyVariationJedecQuery, BodyOptionsQuery, BodyVariationOptionQuery;
@@ -128,7 +127,8 @@ begin
     for I := 0 to L.Count - 1 do
     begin
       QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
-        W.OutlineDrawing.F.AsString, W.LandPattern.F.AsString, L[I], W.Image.F.AsString);
+        W.OutlineDrawing.F.AsString, W.LandPattern.F.AsString, L[I],
+        W.Image.F.AsString);
 
       AID := QueryBodyVariations.PK.AsString;
       Assert(not AID.IsEmpty);

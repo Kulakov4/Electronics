@@ -3,12 +3,12 @@ unit BillQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
 
 type
   TBillW = class(TDSWrap)
@@ -30,7 +30,7 @@ type
     property Euro: TFieldWrap read FEuro;
   end;
 
-  TQryBill = class(TQueryWithDataSource)
+  TQryBill = class(TQueryBaseEvents)
   private
     FW: TBillW;
     { Private declarations }
@@ -76,7 +76,7 @@ begin
   TryAppend;
   try
     Number.F.Value := TQryMaxBillNumber.Get_Max_Number + 1;
-    BillDate.F.Value := Date;     // Дата счёта - текущая дата
+    BillDate.F.Value := Date; // Дата счёта - текущая дата
     Dollar.F.Value := ADollarCource;
     Euro.F.Value := AEuroCource;
     TryPost;

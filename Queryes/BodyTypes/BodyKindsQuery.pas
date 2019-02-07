@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  QueryWithDataSourceUnit, OrderQuery, DSWrap;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, OrderQuery, DSWrap;
 
 type
   TBodyKindW = class(TOrderW)
@@ -39,8 +38,6 @@ type
     property W: TBodyKindW read FW;
     { Public declarations }
   end;
-
-
 
 implementation
 
@@ -103,7 +100,8 @@ end;
 
 procedure TBodyKindW.LocateOrAppend(AValue: string);
 begin
-  if not FDDataSet.LocateEx(BodyKind.FieldName, AValue, [lxoCaseInsensitive]) then
+  if not FDDataSet.LocateEx(BodyKind.FieldName, AValue, [lxoCaseInsensitive])
+  then
     AddNewValue(AValue);
 end;
 

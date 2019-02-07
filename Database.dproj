@@ -136,14 +136,6 @@
             <Form>QueryBaseEvents</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\QueryWithMasterUnit.pas">
-            <Form>QueryWithMaster</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\QueryWithDataSourceUnit.pas">
-            <Form>QueryWithDataSource</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Helpers\ProgressInfo.pas"/>
         <DCCReference Include="Helpers\ProcRefUnit.pas"/>
         <DCCReference Include="Helpers\TableWithProgress.pas"/>

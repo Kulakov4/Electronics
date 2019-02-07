@@ -6,9 +6,6 @@ inherited QueryBodyTypesBase: TQueryBodyTypesBase
     Caption = 'BodyTypesBase'
     ExplicitWidth = 101
   end
-  inherited DataSource: TDataSource
-    Top = 25
-  end
   object fdqUnusedBodies: TFDQuery
     Connection = DMRepository.dbConnection
     SQL.Strings = (

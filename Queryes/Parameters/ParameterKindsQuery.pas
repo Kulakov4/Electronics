@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, QueryWithDataSourceUnit,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
 
 type
   TParameterKindW = class(TDSWrap)
@@ -23,7 +22,7 @@ type
     property ID: TFieldWrap read FID;
   end;
 
-  TQueryParameterKinds = class(TQueryWithDataSource)
+  TQueryParameterKinds = class(TQueryBaseEvents)
   private
     FW: TParameterKindW;
     { Private declarations }
@@ -60,8 +59,8 @@ begin
   FParameterKind := TFieldWrap.Create(Self, 'ParameterKind', 'Тип параметра');
 end;
 
-function TParameterKindW.GetIDByParameterKind(const AParameterKind: String):
-    Integer;
+function TParameterKindW.GetIDByParameterKind(const AParameterKind
+  : String): Integer;
 var
   V: Variant;
 begin

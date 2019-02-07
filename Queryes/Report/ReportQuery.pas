@@ -8,7 +8,7 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
 
 type
   TReportW = class(TDSWrap)
@@ -27,7 +27,7 @@ type
     property 族痱告: TFieldWrap read F族痱告;
   end;
 
-  TQueryReports = class(TQueryWithDataSource)
+  TQueryReports = class(TQueryBaseEvents)
   private
     FW: TReportW;
     procedure DoBeforeOpen(Sender: TObject);

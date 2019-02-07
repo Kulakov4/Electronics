@@ -8,8 +8,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, QueryWithDataSourceUnit,
-  DescriptionsInterface, RecordCheck, DSWrap;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DescriptionsInterface, RecordCheck, DSWrap,
+  BaseEventsQuery;
 
 type
   TDescriptionW = class(TDSWrap)
@@ -28,7 +28,7 @@ type
     property ID: TFieldWrap read FID;
   end;
 
-  TQueryDescriptions = class(TQueryWithDataSource, IDescriptions)
+  TQueryDescriptions = class(TQueryBaseEvents, IDescriptions)
     FDQueryID: TFDAutoIncField;
     FDQueryComponentName: TWideStringField;
     FDQueryDescription: TWideMemoField;
