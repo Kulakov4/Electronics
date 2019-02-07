@@ -15,6 +15,10 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
+    procedure DefaultOnGetText(Sender: TField; var Text: string; DisplayText:
+        Boolean);
+    procedure HideNullGetText(Sender: TField; var Text: string; DisplayText:
+        Boolean);
   private
     FAutoTransaction: Boolean;
     FAfterCommit: TNotifyEventsEx;
@@ -22,7 +26,12 @@ type
     FHaveAnyNotCommitedChanges: Boolean;
     class var FMonitor: TQueryMonitor;
     procedure DoAfterDelete(Sender: TObject);
+// TODO: FIsModifedClone
+//  FIsModifedClone: TFDMemTable;
+    procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
+    procedure DoBeforePost(Sender: TObject);
+    procedure InitializeFields;
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
     { Private declarations }
@@ -103,6 +112,11 @@ begin
   TNotifyEventWrap.Create(FDSWrap.AfterPost, DoAfterPost,
     FDSWrap.EventList);
 
+  // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
+  TNotifyEventWrap.Create(Wrap.AfterOpen, DoAfterOpen, Wrap.EventList);
+
+  // Во всех строковых полях будем удалять начальные и конечные пробелы
+  TNotifyEventWrap.Create(Wrap.BeforePost, DoBeforePost, Wrap.EventList);
 
 
   // Создаём события
@@ -182,6 +196,12 @@ begin
   end;
 end;
 
+procedure TQueryBaseEvents.DefaultOnGetText(Sender: TField; var Text: string;
+    DisplayText: Boolean);
+begin
+  Text := VarToStr(Sender.Value);
+end;
+
 procedure TQueryBaseEvents.DoAfterCommit(Sender: TObject);
 begin
   if FHaveAnyNotCommitedChanges then
@@ -200,6 +220,18 @@ begin
     FHaveAnyNotCommitedChanges := True;
 end;
 
+procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
+var
+  i: Integer;
+begin
+  // Костыль с некоторыми типами полей
+  InitializeFields;
+
+  // делаем выравнивание всех полей по левому краю
+  for i := 0 to FDQuery.FieldCount - 1 do
+    FDQuery.Fields[i].Alignment := taLeftJustify;
+end;
+
 procedure TQueryBaseEvents.DoAfterPost(Sender: TObject);
 begin
   // Если транзакция ещё не завершилась
@@ -213,6 +245,24 @@ begin
   FHaveAnyNotCommitedChanges := False;
 end;
 
+procedure TQueryBaseEvents.DoBeforePost(Sender: TObject);
+var
+  i: Integer;
+  S: string;
+begin
+  // Убираем начальные и конечные пробелы в строковых полях
+  for i := 0 to FDQuery.FieldCount - 1 do
+  begin
+    if (FDQuery.Fields[i] is TStringField) and
+      (not FDQuery.Fields[i].ReadOnly and not FDQuery.Fields[i].IsNull) then
+    begin
+      S := FDQuery.Fields[i].AsString.Trim;
+      if FDQuery.Fields[i].AsString <> S then
+        FDQuery.Fields[i].AsString := S;
+    end;
+  end;
+end;
+
 procedure TQueryBaseEvents.TryStartTransaction(Sender: TObject);
 begin
   // начинаем транзакцию, если она ещё не началась
@@ -223,6 +273,30 @@ end;
 function TQueryBaseEvents.GetHaveAnyNotCommitedChanges: Boolean;
 begin
   Result := FHaveAnyNotCommitedChanges;
+end;
+
+procedure TQueryBaseEvents.HideNullGetText(Sender: TField; var Text: string;
+    DisplayText: Boolean);
+begin
+  if VarIsNull(Sender.Value) or (Sender.Value = 0) then
+    Text := ''
+  else
+    Text := Sender.Value;
+end;
+
+procedure TQueryBaseEvents.InitializeFields;
+var
+  i: Integer;
+begin
+  for i := 0 to FDQuery.Fields.Count - 1 do
+  begin
+    // TWideMemoField - событие OnGetText
+    if FDQuery.Fields[i] is TWideMemoField then
+      FDQuery.Fields[i].OnGetText := DefaultOnGetText;
+
+    if FDQuery.Fields[i] is TFDAutoIncField then
+      FDQuery.Fields[i].ProviderFlags := [pfInWhere, pfInKey];
+  end;
 end;
 
 procedure TQueryBaseEvents.SetAutoTransaction(const Value: Boolean);
