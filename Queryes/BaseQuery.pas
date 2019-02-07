@@ -51,7 +51,6 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
-    procedure DeleteSelfDetail(AIDMaster: Variant); virtual;
     procedure DoOnQueryUpdateRecord(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
@@ -68,7 +67,6 @@ type
     procedure ClearUpdateRecCount;
     function Delete(APKValue: Variant): Boolean;
     procedure DeleteAll;
-    procedure DeleteByFilter(const AFilterExpression: string);
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
@@ -84,9 +82,6 @@ type
       overload; virtual;
     procedure Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>); overload;
-    function LocateByField(const AFieldName: string; const AValue: Variant;
-      AOptions: TFDDataSetLocateOptions = [lxoCaseInsensitive, lxoPartialKey]
-      ): Boolean;
     procedure SetParameters(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>);
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
@@ -244,55 +239,6 @@ begin
   finally
     FDQuery.EnableControls;
   end;
-end;
-
-procedure TQueryBase.DeleteByFilter(const AFilterExpression: string);
-Var
-  AClone: TFDMemTable;
-begin
-  Assert(not AFilterExpression.IsEmpty);
-
-  // Создаём клона
-  AClone := TFDMemTable.Create(Self);
-  try
-    // Клонируем курсор
-    AClone.CloneCursor(FDQuery);
-    // Накладываем фильтр
-    AClone.Filter := AFilterExpression;
-    // Включаем фильтр
-    AClone.Filtered := True;
-
-    if AClone.RecordCount > 0 then
-    begin
-      FDQuery.DisableControls;
-      try
-
-        // Удаляем все отфильтрованные записи
-        while AClone.RecordCount > 0 do
-        begin
-          // Сначала удаляем подчинённые себе записи
-          DeleteSelfDetail(AClone.FieldByName(FPKFieldName).Value);
-
-          if LocateByPK(AClone.FieldByName(FPKFieldName).Value) then
-          begin
-            // Потом сам
-            FDQuery.Delete;
-          end;
-        end;
-      finally
-        FDQuery.EnableControls;
-      end;
-    end;
-
-  finally
-    FreeAndNil(AClone);
-  end;
-
-end;
-
-procedure TQueryBase.DeleteSelfDetail(AIDMaster: Variant);
-begin
-  // По умолчанию нет подчинённых своих-же записей
 end;
 
 procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
@@ -614,15 +560,6 @@ begin
   finally
     FDQuery.EnableControls;
   end;
-end;
-
-function TQueryBase.LocateByField(const AFieldName: string;
-  const AValue: Variant;
-  AOptions: TFDDataSetLocateOptions = [lxoCaseInsensitive, lxoPartialKey]
-  ): Boolean;
-begin
-  Assert(not AFieldName.IsEmpty);
-  Result := FDQuery.LocateEx(AFieldName, AValue, AOptions);
 end;
 
 procedure TQueryBase.SetParameters(const AParamNames: TArray<String>;

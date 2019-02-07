@@ -16,6 +16,7 @@ type
     FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    function LocateOrAppend(const AJedec: string): Boolean;
     property JEDEC: TFieldWrap read FJEDEC;
     property ID: TFieldWrap read FID;
   end;
@@ -26,7 +27,6 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    function LocateOrAppend(const AJedec: string): Boolean;
     property W: TJEDECW read FW;
     { Public declarations }
   end;
@@ -41,23 +41,23 @@ begin
   FW := TJEDECW.Create(FDQuery);
 end;
 
-function TQueryJEDEC.LocateOrAppend(const AJedec: string): Boolean;
-begin
-  Assert(not AJedec.IsEmpty);
-
-  Result := LocateByField( W.JEDEC.FieldName, AJedec, [lxoCaseInsensitive] );
-  if Result then Exit;
-
-  W.TryAppend;
-  W.JEDEC.F.AsString := AJedec;
-  W.TryPost;
-end;
-
 constructor TJEDECW.Create(AOwner: TComponent);
 begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FJEDEC := TFieldWrap.Create(Self, 'JEDEC');
+end;
+
+function TJEDECW.LocateOrAppend(const AJedec: string): Boolean;
+begin
+  Assert(not AJedec.IsEmpty);
+
+  Result := JEDEC.Locate( AJedec, [lxoCaseInsensitive] );
+  if Result then Exit;
+
+  TryAppend;
+  JEDEC.F.AsString := AJedec;
+  TryPost;
 end;
 
 end.

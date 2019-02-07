@@ -208,7 +208,8 @@ begin
   L := TList<String>.Create();
 
   // Пытаемся искать среди параметров по какому-то полю
-  if qParameters.LocateByField(AFieldName, S) then
+  if qParameters.W.LocateByF(AFieldName, S, [lxoCaseInsensitive, lxoPartialKey])
+  then
   begin
     qParameterTypes.LocateByPK(qParameters.W.IDParameterType.F.Value, True);
 
@@ -219,8 +220,8 @@ begin
   end
   else
     // Пытаемся искать среди типов параметров
-    if qParameterTypes.LocateByField(qParameterTypes.W.ParameterType.FieldName, S)
-    then
+    if qParameterTypes.W.LocateByF(qParameterTypes.W.ParameterType.FieldName, S,
+      [lxoCaseInsensitive, lxoPartialKey]) then
     begin
       L.Add(S);
     end;
@@ -234,7 +235,7 @@ begin
   begin
     FqParameterKinds := TQueryParameterKinds.Create(Self);
     FqParameterKinds.FDQuery.Open;
-//    FqParameterKinds.W.ParameterKind.F.DisplayLabel := 'Вид параметра';
+    // FqParameterKinds.W.ParameterKind.F.DisplayLabel := 'Вид параметра';
   end;
   Result := FqParameterKinds;
 end;
@@ -268,9 +269,9 @@ begin
       if AParameterKindID = -1 then
       begin
         // Если нашли такой вид параметра в справочнике
-        if qParameterKinds.LocateByField
-          (qParameterKinds.W.ParameterKind.FieldName,
-          AParametersExcelTable.ParameterKindID.AsString) then
+        if qParameterKinds.W.ParameterKind.Locate
+          (AParametersExcelTable.ParameterKindID.AsString, [lxoCaseInsensitive])
+        then
           AParameterKindID := qParameterKinds.PK.AsInteger
         else
           AParameterKindID := Integer(Неиспользуется);
@@ -331,7 +332,7 @@ begin
     Exit;
 
   FProductCategoryIDValue := Value;
-//  qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
+  // qParameters.ProductCategoryIDValue := FProductCategoryIDValue;
 
   // Значение постоянного параметра
   qParameters.W.ProductCategoryID.DefaultValue := FProductCategoryIDValue;

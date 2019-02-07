@@ -20,18 +20,19 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure LoadDataFromExcelTable(ADescriptionsExcelTable :
-        TDescriptionsExcelTable);
+    procedure LoadDataFromExcelTable(ADescriptionsExcelTable
+      : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
-    property qDescriptionTypes: TQueryDescriptionTypes read GetqDescriptionTypes;
+    property qDescriptionTypes: TQueryDescriptionTypes
+      read GetqDescriptionTypes;
     property qProducers: TQueryProducers read GetqProducers;
   end;
 
 implementation
 
 uses
-  System.SysUtils, Data.DB;
+  System.SysUtils, Data.DB, FireDAC.Comp.DataSet;
 
 constructor TDescriptionsGroup2.Create(AOwner: TComponent);
 begin
@@ -60,7 +61,8 @@ begin
   Result := TList<String>.Create();
 
   // Пытаемся искать среди кратких описаний по какому-то полю
-  if qDescriptions.LocateByField(AFieldName, S) then
+  if qDescriptions.W.LocateByF(AFieldName, S,
+    [lxoCaseInsensitive, lxoPartialKey]) then
   begin
     qDescriptionTypes.LocateByPK(qDescriptions.W.IDComponentType.F.Value, True);
     // запоминаем что надо искать на первом уровне
@@ -70,8 +72,9 @@ begin
   end
   else
     // Пытаемся искать среди типов кратких описаний
-    if qDescriptionTypes.LocateByField
-      (qDescriptionTypes.W.ComponentType.FieldName, S) then
+    if qDescriptionTypes.W.LocateByF
+      (qDescriptionTypes.W.ComponentType.FieldName, S,
+      [lxoCaseInsensitive, lxoPartialKey]) then
     begin
       Result.Add(S);
     end;
@@ -103,8 +106,8 @@ begin
   Result := FqProducers;
 end;
 
-procedure TDescriptionsGroup2.LoadDataFromExcelTable(ADescriptionsExcelTable :
-    TDescriptionsExcelTable);
+procedure TDescriptionsGroup2.LoadDataFromExcelTable(ADescriptionsExcelTable
+  : TDescriptionsExcelTable);
 var
   AField: TField;
   I: Integer;

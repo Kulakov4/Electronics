@@ -98,9 +98,9 @@ type
   protected
     FNEList: TList<TNotifyEventsEx>;
     FPostedMessage: TList<Integer>;
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-        TFDUpdateRowOptions);
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
+      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+      AOptions: TFDUpdateRowOptions);
     procedure UpdateFields;
     procedure WndProc(var Msg: TMessage); virtual;
     property FDDataSet: TFDDataSet read GetFDDataSet;
@@ -114,8 +114,9 @@ type
     procedure AppendRows(AFieldName: string; AValues: TArray<String>);
       overload; virtual;
     procedure CancelUpdates; virtual;
-    procedure CascadeDelete(const AIDMaster: Variant; const ADetailKeyFieldName:
-        String; AFromClientOnly: Boolean = False); virtual;
+    procedure CascadeDelete(const AIDMaster: Variant;
+      const ADetailKeyFieldName: String;
+      AFromClientOnly: Boolean = False); virtual;
     procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
     procedure CreateDefaultFields(AUpdate: Boolean);
@@ -129,6 +130,8 @@ type
     function Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; ATestResult: Integer = -1)
       : Integer; overload;
+    function LocateByF(AFieldName: string; AValue: Variant; AOptions:
+        TFDDataSetLocateOptions): Boolean;
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
       : Boolean;
     procedure RefreshQuery; virtual;
@@ -202,6 +205,8 @@ type
   public
     constructor Create(ADataSetWrap: TDSWrap; const AFullName: String;
       const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
+    function Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions =
+        [lxoCaseInsensitive, lxoPartialKey]): Boolean;
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
   end;
@@ -430,8 +435,8 @@ begin
   end
 end;
 
-procedure TDSWrap.CascadeDelete(const AIDMaster: Variant; const
-    ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+procedure TDSWrap.CascadeDelete(const AIDMaster: Variant;
+  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
 var
   E: TFDUpdateRecordEvent;
 begin
@@ -532,16 +537,16 @@ end;
 
 procedure TDSWrap.CreateDefaultFields(AUpdate: Boolean);
 var
-  i: Integer;
+  I: Integer;
 begin
   Assert(not DataSet.Active);
   with DataSet do
   begin
     if AUpdate then
       FieldDefs.Update;
-    for i := 0 to FieldDefs.Count - 1 do
+    for I := 0 to FieldDefs.Count - 1 do
     begin
-      FieldDefs[i].CreateField(DataSet);
+      FieldDefs[I].CreateField(DataSet);
     end;
   end;
 end;
@@ -578,9 +583,9 @@ begin
   end;
 end;
 
-procedure TDSWrap.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TDSWrap.FDQueryUpdateRecordOnClient(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   AAction := eaApplied;
 end;
@@ -977,6 +982,13 @@ begin
     Assert(Result = ATestResult);
 end;
 
+function TDSWrap.LocateByF(AFieldName: string; AValue: Variant; AOptions:
+    TFDDataSetLocateOptions): Boolean;
+begin
+  Assert(not AFieldName.IsEmpty);
+  Result := FDDataSet.LocateEx(AFieldName, AValue, AOptions);
+end;
+
 function TDSWrap.LocateByPK(APKValue: Variant;
   TestResult: Boolean = False): Boolean;
 begin
@@ -990,49 +1002,49 @@ end;
 
 procedure TDSWrap.ProcessAfterScrollMessage;
 var
-  i: Integer;
+  I: Integer;
 begin
   // Если наш объект уже разрушился
   if FPostedMessage = nil then
     Exit;
-  i := FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL);
-  Assert(i >= 0);
+  I := FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL);
+  Assert(I >= 0);
 
   Assert(FAfterScrollM <> nil);
   FAfterScrollM.CallEventHandlers(Self);
-  FPostedMessage.Delete(i);
+  FPostedMessage.Delete(I);
 end;
 
 procedure TDSWrap.ProcessAfterPostMessage;
 var
-  i: Integer;
+  I: Integer;
 begin
   // Если наш объект уже разрушился
   if FPostedMessage = nil then
     Exit;
 
-  i := FPostedMessage.IndexOf(WM_DS_AFTER_POST);
-  Assert(i >= 0);
+  I := FPostedMessage.IndexOf(WM_DS_AFTER_POST);
+  Assert(I >= 0);
 
   Assert(FAfterPostM <> nil);
   FAfterPostM.CallEventHandlers(Self);
-  FPostedMessage.Delete(i);
+  FPostedMessage.Delete(I);
 end;
 
 procedure TDSWrap.ProcessBeforeScrollMessage;
 var
-  i: Integer;
+  I: Integer;
 begin
   // Если наш объект уже разрушился
   if FPostedMessage = nil then
     Exit;
 
-  i := FPostedMessage.IndexOf(WM_DS_BEFORE_SCROLL);
-  Assert(i >= 0);
+  I := FPostedMessage.IndexOf(WM_DS_BEFORE_SCROLL);
+  Assert(I >= 0);
 
   Assert(FBeforeScrollM <> nil);
   FBeforeScrollM.CallEventHandlers(Self);
-  FPostedMessage.Delete(i);
+  FPostedMessage.Delete(I);
 end;
 
 procedure TDSWrap.RefreshQuery;
@@ -1111,7 +1123,7 @@ end;
 
 procedure TDSWrap.SmartRefresh;
 var
-  i: Integer;
+  I: Integer;
   OK: Boolean;
 begin
   // Обновление данных, при котором не возникает события AfterScroll
@@ -1119,11 +1131,10 @@ begin
   try
     SaveBookmark;
 
-    i := FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL);
-    Assert(i < 0);
+    I := FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL);
+    Assert(I < 0);
     // Как будто предыдущее сообщение AfterScroll уже послали
     FPostedMessage.Add(WM_DS_AFTER_SCROLL);
-
 
     // Заново выполняем запрос
     RefreshQuery;
@@ -1327,6 +1338,12 @@ end;
 function TFieldWrap.GetF: TField;
 begin
   Result := FDataSetWrap.Field(FFieldName);
+end;
+
+function TFieldWrap.Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions =
+    [lxoCaseInsensitive, lxoPartialKey]): Boolean;
+begin
+  Result := FDataSetWrap.FDDataSet.LocateEx(FieldName, AValue, AOptions);
 end;
 
 constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String);

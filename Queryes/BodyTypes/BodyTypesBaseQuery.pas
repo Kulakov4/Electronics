@@ -294,7 +294,7 @@ begin
       if AJEDEC.IsEmpty then
         Continue;
 
-      qJedec.LocateOrAppend(AJEDEC);
+      qJedec.W.LocateOrAppend(AJEDEC);
       JEDECIDList.Add(qJedec.PK.AsInteger)
     end;
 
@@ -323,7 +323,7 @@ begin
       if AOption.IsEmpty then
         Continue;
 
-      qBodyOptions.LocateOrAppend(AOption);
+      qBodyOptions.W.LocateOrAppend(AOption);
       OptionIDList.Add(qBodyOptions.PK.AsInteger)
     end;
 

@@ -16,6 +16,7 @@ type
     FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    function LocateOrAppend(const AOption: string): Boolean;
     property Option: TFieldWrap read FOption;
     property ID: TFieldWrap read FID;
   end;
@@ -26,7 +27,6 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    function LocateOrAppend(const AOption: string): Boolean;
     property W: TBodyOptionsW read FW;
     { Public declarations }
   end;
@@ -41,23 +41,23 @@ begin
   FW := TBodyOptionsW.Create(FDQuery);
 end;
 
-function TQueryBodyOptions.LocateOrAppend(const AOption: string): Boolean;
-begin
-  Assert(not AOption.IsEmpty);
-
-  Result := LocateByField( W.Option.FieldName, AOption, [lxoCaseInsensitive] );
-  if Result then Exit;
-
-  W.TryAppend;
-  W.Option.F.AsString := AOption;
-  W.TryPost;
-end;
-
 constructor TBodyOptionsW.Create(AOwner: TComponent);
 begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FOption := TFieldWrap.Create(Self, 'Option');
+end;
+
+function TBodyOptionsW.LocateOrAppend(const AOption: string): Boolean;
+begin
+  Assert(not AOption.IsEmpty);
+
+  Result := Option.Locate(AOption, [lxoCaseInsensitive]);
+  if Result then Exit;
+
+  TryAppend;
+  Option.F.AsString := AOption;
+  TryPost;
 end;
 
 end.

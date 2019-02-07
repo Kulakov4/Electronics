@@ -19,7 +19,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
-    procedure LoadDataFromExcelTable(AProducersExcelTable: TProducersExcelTable);
+    procedure LoadDataFromExcelTable(AProducersExcelTable
+      : TProducersExcelTable);
     procedure LocateOrAppend(AValue: string; const AProducerType: String);
     property qProducers: TQueryProducers read GetqProducers write SetqProducers;
     property qProducerTypes: TQueryProducerTypes read GetqProducerTypes;
@@ -28,7 +29,7 @@ type
 implementation
 
 uses
-  System.SysUtils, Data.DB;
+  System.SysUtils, Data.DB, FireDAC.Comp.DataSet;
 
 constructor TProducersGroup2.Create(AOwner: TComponent);
 begin
@@ -37,7 +38,8 @@ begin
   QList.Add(qProducers);
 
   // Для каскадного удаления
-  TNotifyEventWrap.Create(qProducerTypes.W.AfterDelete, DoAfterDelete, EventList);
+  TNotifyEventWrap.Create(qProducerTypes.W.AfterDelete, DoAfterDelete,
+    EventList);
 end;
 
 procedure TProducersGroup2.DoAfterDelete(Sender: TObject);
@@ -55,7 +57,8 @@ begin
   Result := TList<String>.Create();
 
   // Пытаемся искать среди производителей по какому-то полю
-  if qProducers.LocateByField(AFieldName, S) then
+  if qProducers.W.LocateByF(AFieldName, S, [lxoCaseInsensitive, lxoPartialKey])
+  then
   begin
     qProducerTypes.LocateByPK(qProducers.W.ProducerTypeID.F.Value, True);
     // запоминаем что надо искать на первом уровне
@@ -65,11 +68,11 @@ begin
   end
   else
     // Пытаемся искать среди типов параметров
-    if qProducerTypes.LocateByField(qProducerTypes.W.ProducerType.FieldName, S) then
+    if qProducerTypes.W.LocateByF(qProducerTypes.W.ProducerType.FieldName, S,
+      [lxoCaseInsensitive, lxoPartialKey]) then
     begin
       Result.Add(S);
     end;
-
 end;
 
 function TProducersGroup2.GetqProducers: TQueryProducers;
@@ -88,8 +91,8 @@ begin
   Result := FqProducerTypes;
 end;
 
-procedure TProducersGroup2.LoadDataFromExcelTable(AProducersExcelTable:
-    TProducersExcelTable);
+procedure TProducersGroup2.LoadDataFromExcelTable(AProducersExcelTable
+  : TProducersExcelTable);
 var
   AField: TField;
   I: Integer;
@@ -134,8 +137,8 @@ begin
   end;
 end;
 
-procedure TProducersGroup2.LocateOrAppend(AValue: string; const AProducerType:
-    String);
+procedure TProducersGroup2.LocateOrAppend(AValue: string;
+  const AProducerType: String);
 var
   OK: Boolean;
 begin

@@ -3,7 +3,8 @@ unit BodyVariationOptionQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
@@ -29,8 +30,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function SearchByIDBodyVariation(AIDBodyVariation: Integer): Integer;
-    procedure UpdateOption(AIDBodyVariation: Integer; AOptionIDArr:
-        TArray<Integer>);
+    procedure UpdateOption(AIDBodyVariation: Integer;
+      AOptionIDArr: TArray<Integer>);
     property W: TBodyVariationOptionW read FW;
     { Public declarations }
   end;
@@ -48,8 +49,8 @@ begin
   FW := TBodyVariationOptionW.Create(FDQuery);
 end;
 
-function TQueryBodyVariationOption.SearchByIDBodyVariation(AIDBodyVariation : Integer):
-    Integer;
+function TQueryBodyVariationOption.SearchByIDBodyVariation(AIDBodyVariation
+  : Integer): Integer;
 begin
   Assert(AIDBodyVariation > 0);
 
@@ -59,7 +60,7 @@ begin
 end;
 
 procedure TQueryBodyVariationOption.UpdateOption(AIDBodyVariation: Integer;
-    AOptionIDArr: TArray<Integer>);
+  AOptionIDArr: TArray<Integer>);
 var
   i: Integer;
 begin
@@ -81,7 +82,7 @@ begin
   // Теперь добавим недостающее
   for i := Low(AOptionIDArr) to High(AOptionIDArr) do
   begin
-    if not LocateByField(W.IDBodyOption.FieldName, AOptionIDArr[i], []) then
+    if not W.IDBodyOption.Locate(AOptionIDArr[i], []) then
     begin
       W.TryAppend;
       W.IDBodyVariation.F.AsInteger := AIDBodyVariation;

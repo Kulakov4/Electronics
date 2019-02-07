@@ -96,7 +96,7 @@ begin
   // Теперь добавим недостающее
   for i := Low(AJedecIDArr) to High(AJedecIDArr) do
   begin
-    if not LocateByField(W.IDJEDEC.FieldName, AJedecIDArr[i], []) then
+    if not W.IDJEDEC.Locate(AJedecIDArr[i], []) then
     begin
       W.TryAppend;
       W.IDBodyVariation.F.AsInteger := AIDBodyVariation;
