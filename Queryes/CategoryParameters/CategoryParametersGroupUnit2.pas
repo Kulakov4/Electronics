@@ -259,7 +259,7 @@ begin
   // Нужно добавить или удалить подпараметры
 
   // Ищем связку категория-параметр
-  qCategoryParameters.LocateByPK(AID, True);
+  qCategoryParameters.W.LocateByPK(AID, True);
   AIDParameter := qCategoryParameters.W.IDParameter.F.AsInteger;
 
   // получаем все подпараметры нашего параметра
@@ -316,7 +316,7 @@ begin
   Assert(ASubParamID > 0);
 
   // Ищем связку категория-параметр
-  qCategoryParameters.LocateByPK(AID, True);
+  qCategoryParameters.W.LocateByPK(AID, True);
 
   // Нужно добавить подпараметр к параметру, если у него его ещё не было
   rc := qParamSubParams.SearchBySubParam
@@ -455,7 +455,7 @@ var
 begin
   for AID in APKValues do
   begin
-    qCategoryParameters.LocateByPK(AID);
+    qCategoryParameters.W.LocateByPK(AID);
     // Получаем все подпараметры, относящиеся к текущей записи
     AClone := qCategoryParameters.CreateSubParamsClone;
     try
@@ -478,7 +478,7 @@ var
 begin
   for AID in APKValues do
   begin
-    qCategoryParameters.LocateByPK(AID, True);
+    qCategoryParameters.W.LocateByPK(AID, True);
     AClone := qCategoryParameters.CreateSubParamsClone;
     try
       // Если этот параметр имел единстенный подпараметр
@@ -559,7 +559,7 @@ begin
 
   L := TList<Integer>.Create;
   try
-    qCategoryParameters.LocateByPK(AID, True);
+    qCategoryParameters.W.LocateByPK(AID, True);
     AClone := qCategoryParameters.CreateSubParamsClone;
     try
       // Составляем список идентификаторов текущего бэнда
@@ -716,7 +716,7 @@ begin
       if AID = TargetID then
         ACount := L.Count; // Количество переносимых записей
 
-      qCategoryParameters.LocateByPK(AID, True);
+      qCategoryParameters.W.LocateByPK(AID, True);
       AClone := qCategoryParameters.CreateSubParamsClone;
       try
         while not AClone.Eof do
@@ -759,7 +759,7 @@ begin
       if AID = TargetID then
         ACount := L.Count; // Количество переносимых записей
 
-      qCategoryParameters.LocateByPK(AID, True);
+      qCategoryParameters.W.LocateByPK(AID, True);
       L.Add(qCategoryParameters.PK.Value, qCategoryParameters.W.Ord.F.Value);
     end;
 
@@ -806,7 +806,7 @@ begin
   try
     for AID in AIDArray do
     begin
-      qCategoryParameters.LocateByPK(AID);
+      qCategoryParameters.W.LocateByPK(AID);
       if AWithSubParams then
       begin
         AClone := qCategoryParameters.CreateSubParamsClone;

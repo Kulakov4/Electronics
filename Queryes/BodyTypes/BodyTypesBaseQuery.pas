@@ -152,7 +152,7 @@ begin
 
     while not fdqUnusedBodyData.Eof do
     begin
-      QueryBodyData.LocateByPKAndDelete(fdqUnusedBodyData['ID']);
+      QueryBodyData.W.LocateByPKAndDelete(fdqUnusedBodyData['ID']);
       fdqUnusedBodyData.Next;
     end;
 
@@ -164,7 +164,7 @@ begin
 
     while not fdqUnusedBodies.Eof do
     begin
-      QueryBodies.LocateByPKAndDelete(fdqUnusedBodies['ID']);
+      QueryBodies.W.LocateByPKAndDelete(fdqUnusedBodies['ID']);
       fdqUnusedBodies.Next;
     end;
 

@@ -483,7 +483,7 @@ begin
 
   except
     // Удаляем добавленный счёт
-    TDM.Create.QryBill.Delete(ABillID);
+    TDM.Create.QryBill.W.LocateByPKAndDelete(ABillID);
     raise;
   end;
 end;
@@ -806,7 +806,7 @@ begin
   (Sender as TcxExtLookupComboBox).PostEditValue;
 
   // Ищем выбранную запись о диапазоне и оптовой наценке
-  qProductsBase.ExtraChargeGroup.qExtraCharge2.LocateByPK(IDExtraCharge);
+  qProductsBase.ExtraChargeGroup.qExtraCharge2.W.LocateByPK(IDExtraCharge);
 
   // Сохраняем выбранный диапазон и значение оптовой наценки
   UpdateFieldValue([FqProductsBase.W.IDExtraChargeType.F,

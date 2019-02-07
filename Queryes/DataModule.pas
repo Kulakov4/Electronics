@@ -335,7 +335,7 @@ begin
     Exit;
 
   // ѕытаемс€ перейти на ту-же запись
-  qTreeList.LocateByPK(ACategoryID);
+  qTreeList.W.LocateByPK(ACategoryID);
 end;
 
 procedure TDM.DoBeforeCommit(Sender: TObject);

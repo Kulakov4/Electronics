@@ -351,7 +351,7 @@ begin
       else
         qryComponents := qComponentsEx;
 
-      qryComponents.LocateByPK(qProductParameters.ProductID.Value, True);
+      qryComponents.W.LocateByPK(qProductParameters.ProductID.Value, True);
 
       AParamSubParamID := qProductParameters.ParamSubParamId.AsInteger;
 
@@ -454,7 +454,7 @@ begin
     AParamSubParamID := ARecHolder.Field
       [qCategoryParameters.W.ParamSubParamId.FieldName];
     AID := ARecHolder.Field[qCategoryParameters.PKFieldName];
-    qCategoryParameters.LocateByPK(AID, True);
+    qCategoryParameters.W.LocateByPK(AID, True);
     Assert(AParamSubParamID <> qCategoryParameters.W.ParamSubParamId.F.AsInteger);
 
     OK := FAllParameterFields.ContainsKey(AParamSubParamID);

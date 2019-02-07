@@ -37,7 +37,7 @@ begin
   Assert(ASender = FDQuery);
 
   // Удаляем вариант корпуса
-  QueryBodyVariations.LocateByPKAndDelete(PK.Value);
+  QueryBodyVariations.W.LocateByPKAndDelete(PK.Value);
 
   // Удаляем неиспользуемые корпуса
   DropUnusedBodies;

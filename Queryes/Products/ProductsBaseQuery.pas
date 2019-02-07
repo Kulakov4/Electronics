@@ -579,7 +579,7 @@ begin
   // FDQuery.DisableControls;
   try
     // Ищем запись которую надо удалить
-    LocateByPK(AID, True);
+    W.LocateByPK(AID, True);
 
     // Если нужно удалить группу
     if W.IsGroup.F.AsInteger = 1 then
@@ -596,7 +596,7 @@ begin
       end;
 
       // Снова переходим на группу
-      LocateByPK(AID, True);
+      W.LocateByPK(AID, True);
     end;
     FDQuery.Delete;
   finally
@@ -722,7 +722,7 @@ begin
   if W.IDProducer.F.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    ProducersGroup.qProducers.LocateByPK(W.IDProducer.F.AsInteger, True);
+    ProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
 
     // Ищем компонент в теоретической базе данных
     rc := qSearchComponentOrFamily.SearchComponentWithProducer
@@ -1065,7 +1065,7 @@ begin
   if W.IDProducer.F.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    ProducersGroup.qProducers.LocateByPK(W.IDProducer.F.AsInteger, True);
+    ProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
 
     rc := qSearchComponentOrFamily.SearchComponentWithProducer
       (W.Value.F.AsString, ProducersGroup.qProducers.W.Name.F.AsString);
@@ -1157,7 +1157,7 @@ begin
   if AUpdatedIDList.IndexOf(AID) >= 0 then
     Exit;
 
-  LocateByPK(AID, True);
+  W.LocateByPK(AID, True);
 
   // Если пытаемся применить коэффициент к группе
   if W.IsGroup.F.AsInteger = 1 then

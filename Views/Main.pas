@@ -664,7 +664,7 @@ var
 begin
   LO := (Sender as TLocateObject);
 
-  if not TDM.Create.qTreeList.LocateByPK(LO.IDCategory) then
+  if not TDM.Create.qTreeList.W.LocateByPK(LO.IDCategory) then
   begin
     TDialog.Create.ErrorMessageDialog(Format('Категория с кодом %d не найдена',
       [LO.IDCategory]));

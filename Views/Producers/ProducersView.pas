@@ -259,7 +259,7 @@ begin
   ADetailID := Message.WParam;
 
   // »щем параметр
-  ProducersGroup.qProducers.LocateByPK(ADetailID);
+  ProducersGroup.qProducers.W.LocateByPK(ADetailID);
   ProducersGroup.qProducers.W.TryEdit;
   ProducersGroup.qProducers.W.ProducerTypeID.F.AsInteger := AMasterID;
   ProducersGroup.qProducers.W.TryPost;

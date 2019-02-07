@@ -70,7 +70,7 @@ begin
   begin
     AID := S.Trim.ToInteger();
     // Удаляем вариант корпуса
-    QueryBodyVariations.LocateByPKAndDelete(AID);
+    QueryBodyVariations.W.LocateByPKAndDelete(AID);
   end;
 
   // Удаляем неиспользуемые корпуса
@@ -150,7 +150,7 @@ begin
     begin
       m := AOLDIDS.Split([',']);
       for AID in m do
-        QueryBodyVariations.LocateByPKAndDelete(AID);
+        QueryBodyVariations.W.LocateByPKAndDelete(AID);
     end;
 
     W.IDS.F.Value := AIDSS;

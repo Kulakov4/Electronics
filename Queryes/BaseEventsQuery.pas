@@ -321,7 +321,7 @@ begin
   Assert(FMaster.FDQuery.RecordCount > 0);
   V := FMaster.PK.Value;
   Wrap.CascadeDelete(V, DetailParameterName);
-  FMaster.LocateByPK(V, True);
+  FMaster.Wrap.LocateByPK(V, True);
 end;
 
 procedure TQueryBaseEvents.RefreshQuery;

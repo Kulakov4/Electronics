@@ -65,7 +65,6 @@ type
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure ClearUpdateRecCount;
-    function Delete(APKValue: Variant): Boolean;
     procedure DeleteAll;
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
@@ -84,9 +83,6 @@ type
       const AParamValues: TArray<Variant>); overload;
     procedure SetParameters(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>);
-    function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
-      : Boolean;
-    procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     function Search(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; TestResult: Integer = -1)
@@ -219,15 +215,6 @@ end;
 procedure TQueryBase.ClearUpdateRecCount;
 begin
   FUpdateRecCount := 0;
-end;
-
-function TQueryBase.Delete(APKValue: Variant): Boolean;
-begin
-  Result := LocateByPK(APKValue);
-  if not Result then
-    Exit;
-
-  FDQuery.Delete; // Удаляем запись, если нашли
 end;
 
 procedure TQueryBase.DeleteAll;
@@ -574,23 +561,6 @@ begin
   begin
     FDQuery.ParamByName(AParamNames[i]).Value := AParamValues[i];
   end;
-end;
-
-function TQueryBase.LocateByPK(APKValue: Variant;
-  TestResult: Boolean = False): Boolean;
-begin
-  Assert(not VarIsNull(APKValue));
-  Result := FDQuery.LocateEx(FPKFieldName, APKValue);
-  if TestResult then
-  begin
-    Assert(Result);
-  end;
-end;
-
-procedure TQueryBase.LocateByPKAndDelete(APKValue: Variant);
-begin
-  LocateByPK(APKValue, True);
-  FDQuery.Delete;
 end;
 
 procedure TQueryBase.RefreshQuery;

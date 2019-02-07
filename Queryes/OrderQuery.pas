@@ -204,7 +204,7 @@ begin
       // Теперь поменяем порядок
       for I := 0 to FRecOrderList.Count - 1 do
       begin
-        LocateByPK(FRecOrderList[I].Key, True);
+        Wrap.LocateByPK(FRecOrderList[I].Key, True);
 
         FDQuery.Edit;
         DoOnUpdateOrder(FRecOrderList[I]);

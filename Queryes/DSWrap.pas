@@ -130,10 +130,11 @@ type
     function Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; ATestResult: Integer = -1)
       : Integer; overload;
-    function LocateByF(AFieldName: string; AValue: Variant; AOptions:
-        TFDDataSetLocateOptions): Boolean;
+    function LocateByF(AFieldName: string; AValue: Variant;
+      AOptions: TFDDataSetLocateOptions): Boolean;
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
       : Boolean;
+    procedure LocateByPKAndDelete(APKValue: Variant);
     procedure RefreshQuery; virtual;
     function RestoreBookmark: Boolean; virtual;
     function SaveBookmark: Boolean;
@@ -205,8 +206,8 @@ type
   public
     constructor Create(ADataSetWrap: TDSWrap; const AFullName: String;
       const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
-    function Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions =
-        [lxoCaseInsensitive, lxoPartialKey]): Boolean;
+    function Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions; TestResult:
+        Boolean = False): Boolean;
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
   end;
@@ -982,8 +983,8 @@ begin
     Assert(Result = ATestResult);
 end;
 
-function TDSWrap.LocateByF(AFieldName: string; AValue: Variant; AOptions:
-    TFDDataSetLocateOptions): Boolean;
+function TDSWrap.LocateByF(AFieldName: string; AValue: Variant;
+  AOptions: TFDDataSetLocateOptions): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := FDDataSet.LocateEx(AFieldName, AValue, AOptions);
@@ -998,6 +999,12 @@ begin
   begin
     Assert(Result);
   end;
+end;
+
+procedure TDSWrap.LocateByPKAndDelete(APKValue: Variant);
+begin
+  LocateByPK(APKValue, True);
+  DataSet.Delete;
 end;
 
 procedure TDSWrap.ProcessAfterScrollMessage;
@@ -1340,10 +1347,14 @@ begin
   Result := FDataSetWrap.Field(FFieldName);
 end;
 
-function TFieldWrap.Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions =
-    [lxoCaseInsensitive, lxoPartialKey]): Boolean;
+function TFieldWrap.Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions;
+    TestResult: Boolean = False): Boolean;
 begin
   Result := FDataSetWrap.FDDataSet.LocateEx(FieldName, AValue, AOptions);
+  if TestResult then
+  begin
+    Assert(Result);
+  end;
 end;
 
 constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String);

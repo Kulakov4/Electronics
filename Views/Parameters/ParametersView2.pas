@@ -489,7 +489,7 @@ begin
   ADetailID := Message.WParam;
 
   // »щем параметр
-  FParametersGrp.qParameters.LocateByPK(ADetailID);
+  FParametersGrp.qParameters.W.LocateByPK(ADetailID);
   FParametersGrp.qParameters.W.TryEdit;
   FParametersGrp.qParameters.W.IDParameterType.F.AsInteger := AMasterID;
   FParametersGrp.qParameters.W.TryPost;

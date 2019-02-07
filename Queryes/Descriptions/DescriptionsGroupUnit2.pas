@@ -64,7 +64,7 @@ begin
   if qDescriptions.W.LocateByF(AFieldName, S,
     [lxoCaseInsensitive, lxoPartialKey]) then
   begin
-    qDescriptionTypes.LocateByPK(qDescriptions.W.IDComponentType.F.Value, True);
+    qDescriptionTypes.W.LocateByPK(qDescriptions.W.IDComponentType.F.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qDescriptionTypes.W.ComponentType.F.AsString);
     // запоминаем что надо искать на втором уровне
@@ -154,8 +154,8 @@ begin
   qDescriptions.FDQuery.DisableControls;
   qDescriptionTypes.FDQuery.DisableControls;
   try
-    qDescriptions.LocateByPK(AIDDescription);
-    qDescriptionTypes.LocateByPK(qDescriptions.W.IDComponentType.F.AsInteger);
+    qDescriptions.W.LocateByPK(AIDDescription);
+    qDescriptionTypes.W.LocateByPK(qDescriptions.W.IDComponentType.F.AsInteger);
   finally
     qDescriptionTypes.FDQuery.EnableControls;
     qDescriptions.FDQuery.EnableControls;

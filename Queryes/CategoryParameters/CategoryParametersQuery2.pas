@@ -528,7 +528,7 @@ begin
   Assert(AID > 0);
   Assert(AIsAttribute in [0, 1]);
 
-  LocateByPK(AID, True);
+  W.LocateByPK(AID, True);
   AClone := CreateSubParamsClone;
   try
     while not AClone.Eof do

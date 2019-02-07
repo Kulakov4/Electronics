@@ -533,7 +533,7 @@ begin
           AColumn := ABand.Columns[P] as TcxGridDBBandedColumn;
           // Ищем информацию о колонке
           ACI := FColumnsInfo.Search(AColumn, True);
-          qCategoryParameters.LocateByPK(ACI.IDCategoryParam);
+          qCategoryParameters.W.LocateByPK(ACI.IDCategoryParam);
           AParamSubParamId := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
 
           // Получаем значение очередной колонки сфокусированной записи
@@ -1623,7 +1623,7 @@ var
 begin
   Assert(AIDCategoryParam > 0);
 
-  qCategoryParameters.LocateByPK(AIDCategoryParam, True);
+  qCategoryParameters.W.LocateByPK(AIDCategoryParam, True);
 
   AIDList := TList<Integer>.Create;
   // Получаем все подпараметры текущего бэнда
@@ -1641,7 +1641,7 @@ begin
     while not AClone.Eof do
     begin
       // Переходим на очередной подпараметр
-      qCategoryParameters.LocateByPK
+      qCategoryParameters.W.LocateByPK
         (AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger, True);
 
       // Создаём колонку
@@ -1781,7 +1781,7 @@ var
   AColumn: TcxGridDBBandedColumn;
 begin
   ACI := FColumnsInfo.Search(AIDCategoryParam, True) as TColumnInfoEx;
-  qCategoryParameters.LocateByPK(AIDCategoryParam, True);
+  qCategoryParameters.W.LocateByPK(AIDCategoryParam, True);
 
   // Обновляем признак того, что это подпараметр по умолчанию
   ACI.IsDefault := qCategoryParameters.W.IsDefault.F.AsInteger = 1;
@@ -2168,7 +2168,7 @@ begin
     Assert(ABI.IDList.Count > 0);
     // Берём первый подпараметр
     AID := ABI.IDList[0];
-    qCategoryParameters.LocateByPK(AID, True);
+    qCategoryParameters.W.LocateByPK(AID, True);
 
     // Меняем заголовок бэнда
     ACaption := GetBandCaption(qCategoryParameters);
@@ -2257,7 +2257,7 @@ begin
             FBandsInfo.Add(ABI);
 
             qCategoryParameters.W.SaveBookmark;
-            qCategoryParameters.LocateByPK(A[0], True);
+            qCategoryParameters.W.LocateByPK(A[0], True);
             // Инициализируем новый бэнд
             InitializeBandInfo(ABI as TBandInfoEx, A, qCategoryParameters);
             qCategoryParameters.W.RestoreBookmark;
@@ -2358,7 +2358,7 @@ begin
       ABI := FBandsInfo.SearchByID(ANewIDList[0], True);
       ABI.IDList.Assign(ANewIDList);
 
-      qCategoryParameters.LocateByPK(AIDCategoryParam, True);
+      qCategoryParameters.W.LocateByPK(AIDCategoryParam, True);
       // Создаём колонку для бэнда
       CreateColumn(ABI, qCategoryParameters);
     end;

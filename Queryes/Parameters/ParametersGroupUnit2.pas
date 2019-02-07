@@ -197,7 +197,7 @@ begin
     qParameters.W.IDParameterType.FieldName);
 
   // cxGrid сместил запись, поэтому возвращаемся на место
-  qParameterTypes.LocateByPK(AIDParameterType, True);
+  qParameterTypes.W.LocateByPK(AIDParameterType, True);
 end;
 
 function TParametersGroup2.Find(const AFieldName, S: string): TArray<String>;
@@ -211,7 +211,7 @@ begin
   if qParameters.W.LocateByF(AFieldName, S, [lxoCaseInsensitive, lxoPartialKey])
   then
   begin
-    qParameterTypes.LocateByPK(qParameters.W.IDParameterType.F.Value, True);
+    qParameterTypes.W.LocateByPK(qParameters.W.IDParameterType.F.Value, True);
 
     // запоминаем что надо искать на первом уровне
     L.Add(qParameterTypes.W.ParameterType.F.AsString);
@@ -279,7 +279,7 @@ begin
       else
       begin
         // Ищем такой вид параметра в справочнике
-        if not qParameterKinds.LocateByPK(AParameterKindID) then
+        if not qParameterKinds.W.LocateByPK(AParameterKindID) then
           AParameterKindID := Integer(Неиспользуется);
       end;
 
@@ -318,12 +318,12 @@ end;
 function TParametersGroup2.LocateAll(AParameterID: Integer): Boolean;
 begin
   // Сначала ищем параметр
-  Result := qParameters.LocateByPK(AParameterID);
+  Result := qParameters.W.LocateByPK(AParameterID);
   if not Result then
     Exit;
 
   // Ищем тип параметра
-  qParameterTypes.LocateByPK(qParameters.W.IDParameterType.F.AsInteger, True);
+  qParameterTypes.W.LocateByPK(qParameters.W.IDParameterType.F.AsInteger, True);
 end;
 
 procedure TParametersGroup2.SetProductCategoryIDValue(const Value: Integer);

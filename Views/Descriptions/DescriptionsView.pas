@@ -304,7 +304,7 @@ begin
   ADetailID := Message.WParam;
 
   // »щем параметр
-  DescriptionsGroup.qDescriptions.LocateByPK(ADetailID);
+  DescriptionsGroup.qDescriptions.W.LocateByPK(ADetailID);
   DescriptionsGroup.qDescriptions.W.TryEdit;
   DescriptionsGroup.qDescriptions.W.IDComponentType.F.AsInteger := AMasterID;
   DescriptionsGroup.qDescriptions.W.TryPost;

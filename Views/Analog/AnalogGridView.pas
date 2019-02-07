@@ -420,7 +420,7 @@ var
 begin
   Assert(AIDCategoryParam > 0);
 
-  qCategoryParameters.LocateByPK(AIDCategoryParam, True);
+  qCategoryParameters.W.LocateByPK(AIDCategoryParam, True);
 
   AIDList := TList<Integer>.Create;
   // Получаем все подпараметры текущего бэнда
@@ -437,7 +437,7 @@ begin
     while not AClone.Eof do
     begin
       // Переходим на очередной подпараметр
-      qCategoryParameters.LocateByPK
+      qCategoryParameters.W.LocateByPK
         (AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger, True);
 
       // Создаём колонку
@@ -648,7 +648,7 @@ begin
     Assert(ABI.IDList.Count > 0);
     // Берём первый подпараметр
     AID := ABI.IDList[0];
-    qCategoryParameters.LocateByPK(AID, True);
+    qCategoryParameters.W.LocateByPK(AID, True);
 
     // Меняем заголовок бэнда
     ACaption := GetBandCaption(qCategoryParameters);

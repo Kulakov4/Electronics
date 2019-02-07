@@ -60,7 +60,7 @@ begin
   if qProducers.W.LocateByF(AFieldName, S, [lxoCaseInsensitive, lxoPartialKey])
   then
   begin
-    qProducerTypes.LocateByPK(qProducers.W.ProducerTypeID.F.Value, True);
+    qProducerTypes.W.LocateByPK(qProducers.W.ProducerTypeID.F.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qProducerTypes.W.ProducerType.F.AsString);
     // запоминаем что надо искать на втором уровне
