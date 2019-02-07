@@ -204,6 +204,7 @@ begin
   AFDQuery.Fields.Clear;
   AFDQuery.FieldDefs.Clear;
 
+  // Обновляем описания полей
   AFDQuery.FieldDefs.Update;
 
   FFieldIndex := 0;
@@ -241,7 +242,8 @@ begin
     FFreeFields.Add(AFieldName);
   end;
 
-  AData.CreateDefaultFields(False);
+  // Создаём поля
+  AData.W.CreateDefaultFields(False);
 
   FCatParamsGroup.qCategoryParameters.FDQuery.First;
   while not FCatParamsGroup.qCategoryParameters.FDQuery.Eof do

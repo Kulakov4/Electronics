@@ -118,6 +118,7 @@ type
         String; AFromClientOnly: Boolean = False); virtual;
     procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
+    procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteAll;
     procedure DropClone(AClone: TFDMemTable);
     function Field(const AFieldName: string): TField;
@@ -527,6 +528,22 @@ begin
 
   AClone.Filter := AFilter;
   AClone.Filtered := True;
+end;
+
+procedure TDSWrap.CreateDefaultFields(AUpdate: Boolean);
+var
+  i: Integer;
+begin
+  Assert(not DataSet.Active);
+  with DataSet do
+  begin
+    if AUpdate then
+      FieldDefs.Update;
+    for i := 0 to FieldDefs.Count - 1 do
+    begin
+      FieldDefs[i].CreateField(DataSet);
+    end;
+  end;
 end;
 
 procedure TDSWrap.DeleteAll;

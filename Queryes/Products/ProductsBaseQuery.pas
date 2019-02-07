@@ -672,7 +672,7 @@ begin;
   FDQuery.FieldDefs.Add(W.SaleD.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.SaleE.FieldName, ftFloat);
 
-  CreateDefaultFields(False);
+  W.CreateDefaultFields(False);
 
   // Внутриние вычисляемые поля
   W.IDExtraCharge.F.FieldKind := fkInternalCalc;

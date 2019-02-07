@@ -164,7 +164,7 @@ begin
 
   FDQuery.FieldDefs.Update;
   FDQuery.FieldDefs.Find(W.Range.FieldName).Size := 30;
-  CreateDefaultFields(False);
+  W.CreateDefaultFields(False);
 end;
 
 function TQueryExtraCharge2.GetqExtraChargeSimple: TQueryExtraChargeSimple;

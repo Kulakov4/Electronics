@@ -66,7 +66,6 @@ type
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure ClearUpdateRecCount;
-    procedure CreateDefaultFields(AUpdate: Boolean);
     function Delete(APKValue: Variant): Boolean;
     procedure DeleteAll;
     procedure DeleteByFilter(const AFilterExpression: string);
@@ -225,22 +224,6 @@ end;
 procedure TQueryBase.ClearUpdateRecCount;
 begin
   FUpdateRecCount := 0;
-end;
-
-procedure TQueryBase.CreateDefaultFields(AUpdate: Boolean);
-var
-  i: Integer;
-begin
-  Assert(not FDQuery.Active);
-  with FDQuery do
-  begin
-    if AUpdate then
-      FieldDefs.Update;
-    for i := 0 to FieldDefs.Count - 1 do
-    begin
-      FieldDefs[i].CreateField(FDQuery);
-    end;
-  end;
 end;
 
 function TQueryBase.Delete(APKValue: Variant): Boolean;

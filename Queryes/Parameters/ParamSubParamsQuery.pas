@@ -83,10 +83,8 @@ begin
 
   if FDQuery.FieldCount = 0 then
   begin
-    // Обновляем описания полей
-    FDQuery.FieldDefs.Update;
-    // Создаём поля по умолчанию
-    CreateDefaultFields(False);
+    // Обновляем описания полей и создаём поля по умолчанию
+    W.CreateDefaultFields(True);
     W.Checked.F.FieldKind := fkInternalCalc;
   end;
 
