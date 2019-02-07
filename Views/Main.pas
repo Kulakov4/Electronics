@@ -173,7 +173,8 @@ uses
   ProductsBaseQuery, RecursiveTreeView,
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
   LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
-  ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule;
+  ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule,
+  FireDAC.Comp.DataSet;
 
 {$R *.dfm}
 
@@ -841,7 +842,8 @@ begin
   // Ждём, пока группа компонентов обновит свои данные!
   Application.ProcessMessages;
 
-  TDM.Create.ComponentsGroup.qFamily.FamilyW.LocateValue(AFamilyCaption);
+  TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.Locate(AFamilyCaption,
+    [lxoCaseInsensitive]);
 
   // Переключаемся на вкладку "Компоненты"
   ComponentsFrame.cxpcComponents.ActivePage :=

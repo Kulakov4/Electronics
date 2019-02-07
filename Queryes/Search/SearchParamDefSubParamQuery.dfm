@@ -21,13 +21,6 @@ inherited QuerySearchParamDefSubParam: TQuerySearchParamDefSubParam
         'sDefault = 1'
       ') t on t.IdParameter = p.Id'
       'join ParameterTypes pt on p.IDParameterType = pt.ID'
-      'where p.Id = :ID')
-    ParamData = <
-      item
-        Name = 'ID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
+      'where 0=0')
   end
 end

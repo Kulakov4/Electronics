@@ -9,22 +9,36 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, ProgressInfo, HandlingQueryUnit;
+  NotifyEvents, ProgressInfo, HandlingQueryUnit, DSWrap;
 
 type
+  TSearchDescriptionW = class(TDSWrap)
+  private
+    FDescrID: TFieldWrap;
+    FID: TFieldWrap;
+    FDescriptionID: TFieldWrap;
+    FProductCategoryId: TParamWrap;
+  protected
+  public
+    constructor Create(AOwner: TComponent); override;
+    property DescrID: TFieldWrap read FDescrID;
+    property ID: TFieldWrap read FID;
+    property DescriptionID: TFieldWrap read FDescriptionID;
+    property ProductCategoryId: TParamWrap read FProductCategoryId;
+  end;
+
   TQuerySearchDescriptions = class(THandlingQuery)
     FDUpdateSQL: TFDUpdateSQL;
-    fdqBase: TFDQuery;
   private
-    function GetDescrID: TField;
-    function GetDescriptionID: TField;
+    FW: TSearchDescriptionW;
     { Private declarations }
+  protected
+    property W: TSearchDescriptionW read FW;
   public
+    constructor Create(AOwner: TComponent); override;
     function Search(const AIDCategory: Integer): Integer; overload;
     procedure SearchAll;
     procedure UpdateComponentDescriptions(ASender: TObject);
-    property DescrID: TField read GetDescrID;
-    property DescriptionID: TField read GetDescriptionID;
     { Public declarations }
   end;
 
@@ -34,14 +48,10 @@ implementation
 
 uses ProgressBarForm, StrHelper;
 
-function TQuerySearchDescriptions.GetDescrID: TField;
+constructor TQuerySearchDescriptions.Create(AOwner: TComponent);
 begin
-  Result := Field('DescrID');
-end;
-
-function TQuerySearchDescriptions.GetDescriptionID: TField;
-begin
-  Result := Field('DescriptionID');
+  inherited;
+  FW := TSearchDescriptionW.Create(FDQuery);
 end;
 
 function TQuerySearchDescriptions.Search(const AIDCategory: Integer): Integer;
@@ -50,7 +60,7 @@ var
 begin
   Assert(AIDCategory > 0);
 
-  ASQL := fdqBase.SQL.Text;
+  ASQL := SQL;
   // Раскомментируем в запросе JOIN
   ASQL := ASQL.Replace('/* ProductCategory', '', [rfReplaceAll]);
   ASQL := ASQL.Replace('ProductCategory */', '', [rfReplaceAll]);
@@ -58,14 +68,14 @@ begin
   // Формируем запрос
   FDQuery.SQL.Text := ASQL;
 
-  SetParamType('ProductCategoryId');
-  Result := Search(['ProductCategoryId'], [AIDCategory]);
+  SetParamType(W.ProductCategoryId.FieldName);
+  Result := Search([W.ProductCategoryId.FieldName], [AIDCategory]);
 end;
 
 procedure TQuerySearchDescriptions.SearchAll;
 begin
-  // Копируем базовый запрос
-  FDQuery.SQL.Text := fdqBase.SQL.Text;
+  // Возвращаем базовый запрос
+  FDQuery.SQL.Text := SQL;
   RefreshQuery;
 end;
 
@@ -88,11 +98,11 @@ begin
   while not FDQuery.Eof do
   begin
     // Связываем компоненты со своими описаниями
-    if DescriptionID.AsInteger <> DescrID.AsInteger then
+    if W.DescriptionID.F.AsInteger <> W.DescrID.F.AsInteger then
     begin
-      FDQuery.Edit;
-      DescriptionID.AsInteger := DescrID.AsInteger;
-      FDQuery.Post;
+      W.TryEdit;
+      W.DescriptionID.F.AsInteger := W.DescrID.F.AsInteger;
+      W.TryPost;
       Inc(i);
       // Уже много записей обновили в рамках одной транзакции
       if i >= 1000 then
@@ -108,6 +118,16 @@ begin
 
   FDQuery.Connection.Commit;
 
+end;
+
+constructor TSearchDescriptionW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'p.ID', '', True);
+  FDescrID := TFieldWrap.Create(Self, 'DescrID');
+  FDescriptionID := TFieldWrap.Create(Self, 'p.DescriptionID');
+
+  FProductCategoryId := TParamWrap.Create(Self, 'ppc.ProductCategoryId');
 end;
 
 end.

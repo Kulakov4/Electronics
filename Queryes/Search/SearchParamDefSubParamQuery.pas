@@ -3,96 +3,85 @@ unit SearchParamDefSubParamQuery;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
-  TQuerySearchParamDefSubParam = class(TQueryBase)
+  TParamDefSubParamW = class(TDSWrap)
   private
-    function GetIdSubParameter: TField;
-    function GetIsDefault: TField;
-    function GetName: TField;
-    function GetParameterType: TField;
-    function GetParamSubParamID: TField;
-    function GetTableName: TField;
-    function GetTranslation: TField;
-    function GetValue: TField;
-    function GetValueT: TField;
-    { Private declarations }
+    FID: TFieldWrap;
+    FIDSubParameter: TFieldWrap;
+    FIsDefault: TFieldWrap;
+    FName: TFieldWrap;
+    FParameterType: TFieldWrap;
+    FParamSubParamID: TFieldWrap;
+    FTableName: TFieldWrap;
+    FTranslation: TFieldWrap;
+    FValue: TFieldWrap;
+    FValueT: TFieldWrap;
   public
-    function SearchByID(AParameterID: Integer; TestResult: Integer = -1): Integer;
-    property IdSubParameter: TField read GetIdSubParameter;
-    property IsDefault: TField read GetIsDefault;
-    property Name: TField read GetName;
-    property ParameterType: TField read GetParameterType;
-    property ParamSubParamID: TField read GetParamSubParamID;
-    property TableName: TField read GetTableName;
-    property Translation: TField read GetTranslation;
-    property Value: TField read GetValue;
-    property ValueT: TField read GetValueT;
-    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ID: TFieldWrap read FID;
+    property IDSubParameter: TFieldWrap read FIDSubParameter;
+    property IsDefault: TFieldWrap read FIsDefault;
+    property Name: TFieldWrap read FName;
+    property ParameterType: TFieldWrap read FParameterType;
+    property ParamSubParamID: TFieldWrap read FParamSubParamID;
+    property TableName: TFieldWrap read FTableName;
+    property Translation: TFieldWrap read FTranslation;
+    property Value: TFieldWrap read FValue;
+    property ValueT: TFieldWrap read FValueT;
   end;
 
-var
-  QuerySearchParamDefSubParam: TQuerySearchParamDefSubParam;
+  TQuerySearchParamDefSubParam = class(TQueryBase)
+  private
+    FW: TParamDefSubParamW;
+    { Private declarations }
+  protected
+  public
+    constructor Create(AOwner: TComponent); override;
+    function SearchByID(AParameterID: Integer;
+      TestResult: Integer = -1): Integer;
+    property W: TParamDefSubParamW read FW;
+    { Public declarations }
+  end;
 
 implementation
 
 {$R *.dfm}
 
-function TQuerySearchParamDefSubParam.GetIdSubParameter: TField;
+constructor TQuerySearchParamDefSubParam.Create(AOwner: TComponent);
 begin
-  Result := Field('IdSubParameter');
-end;
-
-function TQuerySearchParamDefSubParam.GetIsDefault: TField;
-begin
-  Result := Field('IsDefault');
-end;
-
-function TQuerySearchParamDefSubParam.GetName: TField;
-begin
-  Result := Field('Name');
-end;
-
-function TQuerySearchParamDefSubParam.GetParameterType: TField;
-begin
-  Result := Field('ParameterType');
-end;
-
-function TQuerySearchParamDefSubParam.GetParamSubParamID: TField;
-begin
-  Result := Field('ParamSubParamID');
-end;
-
-function TQuerySearchParamDefSubParam.GetTableName: TField;
-begin
-  Result := Field('TableName');
-end;
-
-function TQuerySearchParamDefSubParam.GetTranslation: TField;
-begin
-  Result := Field('Translation');
-end;
-
-function TQuerySearchParamDefSubParam.GetValue: TField;
-begin
-  Result := Field('Value');
-end;
-
-function TQuerySearchParamDefSubParam.GetValueT: TField;
-begin
-  Result := Field('ValueT');
+  inherited;
+  FW := TParamDefSubParamW.Create(FDQuery);
 end;
 
 function TQuerySearchParamDefSubParam.SearchByID(AParameterID: Integer;
-    TestResult: Integer = -1): Integer;
+  TestResult: Integer = -1): Integer;
 begin
   Assert(AParameterID > 0);
-  Result := Search(['ID'], [AParameterID], TestResult);
+
+  Result := SearchEx([TParamRec.Create(W.ID.FullName, AParameterID)],
+    TestResult);
+end;
+
+constructor TParamDefSubParamW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'p.ID', '', True);
+  FIDSubParameter := TFieldWrap.Create(Self, 'IDSubParameter');
+  FIsDefault := TFieldWrap.Create(Self, 'IsDefault');
+  FName := TFieldWrap.Create(Self, 'Name');
+  FParameterType := TFieldWrap.Create(Self, 'ParameterType');
+  FParamSubParamID := TFieldWrap.Create(Self, 'ParamSubParamID');
+  FTableName := TFieldWrap.Create(Self, 'TableName');
+  FTranslation := TFieldWrap.Create(Self, 'Translation');
+  FValue := TFieldWrap.Create(Self, 'Value', 'Наименование');
+  FValueT := TFieldWrap.Create(Self, 'ValueT');
 end;
 
 end.

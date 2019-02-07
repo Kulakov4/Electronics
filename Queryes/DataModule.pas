@@ -567,10 +567,10 @@ begin
   AErrorMessage := '';
   try
     qVersion.RefreshQuery;
-    if qVersion.Version.AsInteger <> DBVersion then
+    if qVersion.W.Version.F.AsInteger <> DBVersion then
     begin
       AErrorMessage := Format('Неверная версия базы данных (надо %d, имеем %d)',
-        [DBVersion, qVersion.Version.AsInteger]);
+        [DBVersion, qVersion.W.Version.F.AsInteger]);
     end;
   except
     // При проверке версии БД произошла какая-то ошибка

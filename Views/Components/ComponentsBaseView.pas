@@ -551,7 +551,7 @@ begin
   // Файл должен лежать в каталоге = производителю
   AProducer := ProducerDisplayText;
 
-  APath := BaseComponentsGroup.QueryBaseFamily.Field
+  APath := BaseComponentsGroup.QueryBaseFamily.W.Field
     (ADocFieldInfo.FieldName).AsString;
   // Если файл документации ранее был уже задан
   if APath <> '' then

@@ -270,7 +270,7 @@ begin
   F := AQuery.FindField(Format('%s%d', [AFieldPrefix, i]));
   while F <> nil do
   begin
-    Field(F.FieldName).Value := F.Value;
+    W.Field(F.FieldName).Value := F.Value;
     Inc(i);
     F := QueryBodies.FDQuery.FindField(Format('%s%d', [AFieldPrefix, i]));
   end;

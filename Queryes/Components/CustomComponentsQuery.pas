@@ -29,18 +29,17 @@ type
     FPackagePins: TFieldWrap;
     FParentProductID: TFieldWrap;
     FProducer: TFieldWrap;
-    FQuerySearchProductParameterValues: TQuerySearchProductParameterValues;
+    FqSearchProductParameterValues: TQuerySearchProductParameterValues;
     FSubGroup: TFieldWrap;
     FValue: TFieldWrap;
-    function GetQuerySearchProductParameterValues
+    function GetqSearchProductParameterValues
       : TQuerySearchProductParameterValues;
   protected
     procedure ProcessParamValue(AIDComponent: Integer;
       AIDProductParameterValue: TField; const AValue: Variant;
       AParamSubParamID: Integer);
-    property QuerySearchProductParameterValues
-      : TQuerySearchProductParameterValues
-      read GetQuerySearchProductParameterValues;
+    property qSearchProductParameterValues: TQuerySearchProductParameterValues
+      read GetqSearchProductParameterValues;
   public
     constructor Create(AOwner: TComponent); override;
     procedure SetPackagePins(AIDComponent: Integer; APackagePins: string);
@@ -187,7 +186,7 @@ begin
   // Проверяем что все поля, которые являются параметрами существуют
   for AFieldName in FParameterFields.Values do
   begin
-    F := Field(AFieldName);
+    F := W.Field(AFieldName);
     Assert(F <> nil);
   end;
 end;
@@ -247,15 +246,15 @@ begin
   FValue := TFieldWrap.Create(Self, 'Value');
 end;
 
-function TCustomComponentsW.GetQuerySearchProductParameterValues
+function TCustomComponentsW.GetqSearchProductParameterValues
   : TQuerySearchProductParameterValues;
 begin
-  if FQuerySearchProductParameterValues = nil then
+  if FqSearchProductParameterValues = nil then
   begin
-    FQuerySearchProductParameterValues :=
+    FqSearchProductParameterValues :=
       TQuerySearchProductParameterValues.Create(Self);
   end;
-  Result := FQuerySearchProductParameterValues;
+  Result := FqSearchProductParameterValues;
 end;
 
 procedure TCustomComponentsW.ProcessParamValue(AIDComponent: Integer;
@@ -269,15 +268,14 @@ begin
   Assert(AParamSubParamID > 0);
 
   // Ищем значение производителя для нашего компонента
-  rc := QuerySearchProductParameterValues.Search(AParamSubParamID,
-    AIDComponent);
+  rc := qSearchProductParameterValues.Search(AParamSubParamID, AIDComponent);
 
   // Если новое значение параметра пустое
   if VarIsStr(AValue) and VarToStr(AValue).IsEmpty then
   begin
     // Удаляем все значения выбранного параметра связанные с нашим компонентом
-    while not QuerySearchProductParameterValues.FDQuery.Eof do
-      QuerySearchProductParameterValues.FDQuery.Delete;
+    while not qSearchProductParameterValues.FDQuery.Eof do
+      qSearchProductParameterValues.FDQuery.Delete;
 
     if AIDProductParameterValue <> nil then
       AIDProductParameterValue.Value := NULL;
@@ -294,13 +292,13 @@ begin
         for i := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
         begin
           // Добавляем новое значение
-          QuerySearchProductParameterValues.AppendValue(AValue[i]);
+          qSearchProductParameterValues.AppendValue(AValue[i]);
         end;
         k := 1 + VarArrayHighBound(AValue, 1) - VarArrayLowBound(AValue, 1);
       end
       else
         // Добавляем новое значение
-        QuerySearchProductParameterValues.AppendValue(AValue);
+        qSearchProductParameterValues.AppendValue(AValue);
     end
     else
     begin
@@ -309,36 +307,35 @@ begin
       begin
         for i := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
         begin
-          if QuerySearchProductParameterValues.FDQuery.Eof then
+          if qSearchProductParameterValues.FDQuery.Eof then
             // Добавляем новое значение
-            QuerySearchProductParameterValues.AppendValue(AValue[i])
+            qSearchProductParameterValues.AppendValue(AValue[i])
           else
             // Если старое значение не равно новому
-            QuerySearchProductParameterValues.EditValue(AValue[i]);
+            qSearchProductParameterValues.W.EditValue(AValue[i]);
 
-          QuerySearchProductParameterValues.FDQuery.Next;
+          qSearchProductParameterValues.FDQuery.Next;
         end;
         k := 1 + VarArrayHighBound(AValue, 1) - VarArrayLowBound(AValue, 1);
       end
       else
       begin
-        QuerySearchProductParameterValues.EditValue(AValue);
+        qSearchProductParameterValues.W.EditValue(AValue);
       end;
 
       // Удаляем "лишние" записи
-      while QuerySearchProductParameterValues.FDQuery.RecordCount > k do
+      while qSearchProductParameterValues.FDQuery.RecordCount > k do
       begin
-        QuerySearchProductParameterValues.FDQuery.Last;
-        QuerySearchProductParameterValues.FDQuery.Delete;
+        qSearchProductParameterValues.FDQuery.Last;
+        qSearchProductParameterValues.FDQuery.Delete;
       end;
     end;
 
-    Assert(QuerySearchProductParameterValues.FDQuery.RecordCount = k);
-    Assert(QuerySearchProductParameterValues.PK.AsInteger > 0);
+    Assert(qSearchProductParameterValues.FDQuery.RecordCount = k);
+    Assert(qSearchProductParameterValues.PK.AsInteger > 0);
 
     if AIDProductParameterValue <> nil then
-      AIDProductParameterValue.Value :=
-        QuerySearchProductParameterValues.PK.Value;
+      AIDProductParameterValue.Value := qSearchProductParameterValues.PK.Value;
   end;
 end;
 

@@ -37,6 +37,7 @@ type
     FSQL: string;
     FUpdateRecCount: Integer;
   class var
+    function Field(const AFieldName: String): TField;
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
@@ -71,7 +72,6 @@ type
     procedure FetchFields(ARecordHolder: TRecordHolder;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
-    function Field(const AFieldName: String): TField;
     function GetFieldValues(AFieldName: string;
       ADelimiter: String = ','): String;
     function GetFieldValuesAsIntArray(AFieldName: string): TArray<Integer>;

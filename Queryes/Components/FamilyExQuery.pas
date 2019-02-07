@@ -15,7 +15,6 @@ type
   TQueryFamilyEx = class(TQueryFamily)
   private
     FOn_ApplyUpdate: TNotifyEventsEx;
-    function GetAnalog: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -27,7 +26,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property Analog: TField read GetAnalog;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
   end;
@@ -72,10 +70,5 @@ begin
   On_ApplyUpdate.CallEventHandlers(Self);
 end;
 
-
-function TQueryFamilyEx.GetAnalog: TField;
-begin
-  Result := Field('Analog');
-end;
 
 end.

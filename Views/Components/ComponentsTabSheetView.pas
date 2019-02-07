@@ -133,12 +133,15 @@ type
     constructor Create(AOwner: TComponent); override;
     property qSearchDaughterCategories: TQuerySearchDaughterCategories
       read GetqSearchDaughterCategories;
-    property ViewCategoryParameters: TViewCategoryParameters read
-        FViewCategoryParameters;
-    property ViewChildCategories: TViewChildCategories read FViewChildCategories;
+    property ViewCategoryParameters: TViewCategoryParameters
+      read FViewCategoryParameters;
+    property ViewChildCategories: TViewChildCategories
+      read FViewChildCategories;
     property ViewComponents: TViewComponents read FViewComponents;
-    property ViewComponentsSearch: TViewComponentsSearch read FViewComponentsSearch;
-    property ViewParametricTable: TViewParametricTable read FViewParametricTable;
+    property ViewComponentsSearch: TViewComponentsSearch
+      read FViewComponentsSearch;
+    property ViewParametricTable: TViewParametricTable
+      read FViewParametricTable;
     { Public declarations }
   end;
 
@@ -171,7 +174,7 @@ begin
   FViewCategoryParameters.Place(cxtsCategoryParameters);
 
   FViewParametricTable := TViewParametricTable.Create(Self);
-  FViewParametricTable.Place( cxtsParametricTable );
+  FViewParametricTable.Place(cxtsParametricTable);
 end;
 
 procedure TComponentsFrame.actAutoBindingDescriptionsExecute(Sender: TObject);
@@ -380,7 +383,8 @@ end;
 procedure TComponentsFrame.cxpcComponentsPageChanging(Sender: TObject;
   NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
- if ViewParametricTable = nil then Exit;
+  if ViewParametricTable = nil then
+    Exit;
 
   // если переходим на вкладку "Параметрическая таблица"
   if (cxpcComponents.ActivePage <> cxtsParametricTable) and
@@ -756,7 +760,8 @@ begin
   end;
 
   if not OK then
-    TDialog.Create.ErrorMessageDialog('Нет параметров, значения которых можно загрузить');
+    TDialog.Create.ErrorMessageDialog
+      ('Нет параметров, значения которых можно загрузить');
 
   Result := OK;
 end;
@@ -952,7 +957,8 @@ begin
 
         // Ищем подпараметр "по умолчанию" для параметра без подпараметров
         qSearchParamDefSubParam.SearchByID(qSearchParameter.PK.AsInteger, 1);
-        AParamSubParamID := qSearchParamDefSubParam.ParamSubParamID.AsInteger;
+        AParamSubParamID := qSearchParamDefSubParam.W.ParamSubParamID.
+          F.AsInteger;
 
         // Проверяем, не встечался ли такой подпараметр ранее
         if CheckUniqueSubParam(AParamSubParamID, AIDList, AStringTreeNode,

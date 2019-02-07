@@ -11,16 +11,24 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, ApplyQueryFrame, Vcl.StdCtrls,
   SearchComponentCategoryQuery, SearchProductParameterValuesQuery,
-  SearchCategoryQuery, SearchFamily;
+  SearchCategoryQuery, SearchFamily, DSWrap;
 
 type
+  TBaseFamilyW = class(TCustomComponentsW)
+  private
+    FExternalID: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ExternalID: TFieldWrap read FExternalID;
+  end;
+
   TQueryBaseFamily = class(TQueryCustomComponents)
   private
+    FBaseFamilyW: TBaseFamilyW;
     FqSearchCategory: TQuerySearchCategory;
     FqSearchFamily: TQuerySearchFamily;
     FQuerySearchComponentCategory: TQuerySearchComponentCategory;
     procedure DoBeforeOpen(Sender: TObject);
-    function GetExternalID: TField;
     function GetCategoryExternalID: string;
     function GetqSearchCategory: TQuerySearchCategory;
     function GetqSearchFamily: TQuerySearchFamily;
@@ -31,6 +39,7 @@ type
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDSWrap: TDSWrap; override;
     procedure UpdateCategory(AIDComponent: Integer; const ASubGroup: String);
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
     property qSearchFamily: TQuerySearchFamily read GetqSearchFamily;
@@ -38,7 +47,6 @@ type
       read GetQuerySearchComponentCategory;
   public
     constructor Create(AOwner: TComponent); override;
-    property ExternalID: TField read GetExternalID;
     property CategoryExternalID: string read GetCategoryExternalID;
     { Public declarations }
   end;
@@ -54,6 +62,7 @@ uses DBRecordHolder, System.Generics.Collections, DefaultParameters,
 constructor TQueryBaseFamily.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FBaseFamilyW := FDSWrap as TBaseFamilyW;
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
@@ -104,6 +113,11 @@ begin
   inherited;
 end;
 
+function TQueryBaseFamily.CreateDSWrap: TDSWrap;
+begin
+  Result := TBaseFamilyW.Create(FDQuery);
+end;
+
 procedure TQueryBaseFamily.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
@@ -127,18 +141,13 @@ begin
 
 end;
 
-function TQueryBaseFamily.GetExternalID: TField;
-begin
-  Result := Field('ExternalID');
-end;
-
 function TQueryBaseFamily.GetCategoryExternalID: string;
 begin
   Assert(FDQuery.Active);
 
-  if not ExternalID.AsString.IsEmpty then
+  if not FBaseFamilyW.ExternalID.F.AsString.IsEmpty then
   begin
-    Result := ExternalID.AsString;
+    Result := FBaseFamilyW.ExternalID.F.AsString;
     Exit;
   end;
 
@@ -196,6 +205,12 @@ begin
       qSearchCategory.FDQuery.Next;
     end;
   end;
+end;
+
+constructor TBaseFamilyW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FExternalID := TFieldWrap.Create(Self, 'ExternalID');
 end;
 
 end.

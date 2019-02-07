@@ -12,23 +12,16 @@ uses
 type
   TQryMaxBillNumber = class(TQueryBase)
   private
-    function GetMaxNumber: TField;
     { Private declarations }
   protected
   public
     class function Get_Max_Number: Integer; static;
-    property MaxNumber: TField read GetMaxNumber;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
-
-function TQryMaxBillNumber.GetMaxNumber: TField;
-begin
-  Result := Field('MaxNumber');
-end;
 
 class function TQryMaxBillNumber.Get_Max_Number: Integer;
 var
@@ -37,7 +30,7 @@ begin
   Q := TQryMaxBillNumber.Create(nil);
   try
     Q.FDQuery.Open;
-    Result := Q.MaxNumber.AsInteger;
+    Result := Q.FDQuery.FieldByName('MaxNumber').AsInteger;
   finally
     FreeAndNil(Q);
   end;

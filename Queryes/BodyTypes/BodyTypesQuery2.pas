@@ -330,7 +330,7 @@ begin
   // В БД храним имя файла без расширения и всё
   S := TPath.GetFileNameWithoutExtension(AFileName);
   OK := W.TryEdit;
-  Field(ADocFieldInfo.FieldName).AsString := S;
+  W.Field(ADocFieldInfo.FieldName).AsString := S;
   if OK then
     TryPost;
 end;

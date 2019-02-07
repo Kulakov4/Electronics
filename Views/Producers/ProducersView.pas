@@ -27,8 +27,8 @@ uses
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  SearchProducerTypesQuery, cxMemo, ProducersGroupUnit2, cxDBLookupComboBox,
-  DragHelper, HRTimer, ColumnsBarButtonsHelper, System.Generics.Collections,
+  cxMemo, ProducersGroupUnit2, cxDBLookupComboBox, DragHelper, HRTimer,
+  ColumnsBarButtonsHelper, System.Generics.Collections,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
 
 const
@@ -86,22 +86,18 @@ type
       var DragObject: TDragObject);
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
-    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word; Shift:
-        TShiftState);
-    procedure cxGridDBBandedTableViewMouseDown(Sender: TObject; Button:
-        TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure cxGridDBBandedTableViewKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure cxGridDBBandedTableViewMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     FDragAndDropInfo: TDragAndDropInfo;
     FEditValueChanged: Boolean;
     FHRTimer: THRTimer;
     FNewValue: string;
     FProducersGroup: TProducersGroup2;
-    FQuerySearchProducerTypes: TQuerySearchProducerTypes;
-
   const
     FolderKey = 'Producers';
-    function GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
-    procedure MyInitializeComboBoxColumn;
     procedure SetProducersGroup(const Value: TProducersGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
@@ -109,12 +105,9 @@ type
     procedure AfterSetNewValue(var Message: TMessage);
       message WM_AFTER_SET_NEW_VALUE;
     procedure CreateColumnsBarButtons; override;
-    procedure DoAfterPost(Sender: TObject);
     procedure DoOnHaveAnyChanges(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(const AFileName: String);
-    property QuerySearchProducerTypes: TQuerySearchProducerTypes
-      read GetQuerySearchProducerTypes;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -373,15 +366,15 @@ begin
   DoDragOver(Sender as TcxGridSite, X, Y, Accept);
 end;
 
-procedure TViewProducers.cxGridDBBandedTableViewKeyDown(Sender: TObject; var
-    Key: Word; Shift: TShiftState);
+procedure TViewProducers.cxGridDBBandedTableViewKeyDown(Sender: TObject;
+var Key: Word; Shift: TShiftState);
 begin
   inherited;
   DoOnKeyOrMouseDown;
 end;
 
 procedure TViewProducers.cxGridDBBandedTableViewMouseDown(Sender: TObject;
-    Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   DoOnKeyOrMouseDown;
@@ -396,11 +389,6 @@ begin
   // «апускаем таймер чтобы рассчитать врем€ переноса записей
   FHRTimer := THRTimer.Create(True);
 
-end;
-
-procedure TViewProducers.DoAfterPost(Sender: TObject);
-begin
-  MyInitializeComboBoxColumn;
 end;
 
 procedure TViewProducers.DoOnHaveAnyChanges(Sender: TObject);
@@ -419,14 +407,6 @@ begin
     if (Result <> nil) and (not Result.Focused) then
       Result := nil;
   end;
-end;
-
-function TViewProducers.GetQuerySearchProducerTypes: TQuerySearchProducerTypes;
-begin
-  if FQuerySearchProducerTypes = nil then
-    FQuerySearchProducerTypes := TQuerySearchProducerTypes.Create(Self);
-
-  Result := FQuerySearchProducerTypes;
 end;
 
 procedure TViewProducers.LoadFromExcel(const AFileName: String);
@@ -482,16 +462,6 @@ begin
     FreeAndNil(List);
     EndUpdate;
   end;
-end;
-
-procedure TViewProducers.MyInitializeComboBoxColumn;
-begin
-  // »щем возможные значени€ типа производител€ дл€ выпадающего списка
-  QuerySearchProducerTypes.RefreshQuery;
-
-  // »нициализируем Combobox колонки
-  InitializeComboBoxColumn(clProducerType, lsEditList,
-    QuerySearchProducerTypes.ProducerType);
 end;
 
 procedure TViewProducers.SetProducersGroup(const Value: TProducersGroup2);

@@ -8,25 +8,42 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
+  TVersionW = class(TDSWrap)
+  private
+    FVersion: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Version: TFieldWrap read FVersion;
+  end;
+
   TQueryVersion = class(TQueryBase)
   private
-    function GetVersion: TField;
+    FW: TVersionW;
     { Private declarations }
+  protected
   public
-    property Version: TField read GetVersion;
+    constructor Create(AOwner: TComponent); override;
+    property W: TVersionW read FW;
     { Public declarations }
   end;
 
 implementation
 
-{$R *.dfm}
-
-function TQueryVersion.GetVersion: TField;
+constructor TVersionW.Create(AOwner: TComponent);
 begin
-  Result := Field('Version');
+  inherited;
+  FVersion := TFieldWrap.Create(Self, 'Version', '', True);
 end;
+
+constructor TQueryVersion.Create(AOwner: TComponent);
+begin
+  inherited;
+  FW := TVersionW.Create(FDQuery);
+end;
+
+{$R *.dfm}
 
 end.

@@ -236,10 +236,6 @@
             <Form>QuerySearchParameter</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\Search\SearchProducerTypesQuery.pas">
-            <Form>QuerySearchProducerTypes</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Search\SearchProductDescriptionQuery.pas">
             <Form>QuerySearchProductDescription</Form>
             <DesignClass>TFrame</DesignClass>

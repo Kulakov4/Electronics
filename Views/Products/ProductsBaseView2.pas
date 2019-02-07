@@ -1383,7 +1383,7 @@ begin
   if AValue < 0 then
     AValue := 0;
 
-  UpdateFieldValue([FqProductsBase.Field(AFieldName)], [AValue]);
+  UpdateFieldValue([FqProductsBase.W.Field(AFieldName)], [AValue]);
 
   // если ввели какое-то недопустимое значение или 0
   if AValue = 0 then

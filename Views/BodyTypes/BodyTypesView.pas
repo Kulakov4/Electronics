@@ -864,7 +864,7 @@ begin
   AFolders := AFolders + ADocFieldInfo.Folder;
 
   TDocument.Open(Handle, AFolders,
-    BodyTypesGroup.qBodyTypes2.Field(ADocFieldInfo.FieldName).AsString,
+    BodyTypesGroup.qBodyTypes2.W.Field(ADocFieldInfo.FieldName).AsString,
     ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
     sBodyTypesFilesExt);
 end;
@@ -969,7 +969,7 @@ var
 begin
   Application.Hint := '';
   Assert(BodyTypesGroup <> nil);
-  S := BodyTypesGroup.qBodyTypes2.Field(ADocFieldInfo.FieldName).AsString;
+  S := BodyTypesGroup.qBodyTypes2.W.Field(ADocFieldInfo.FieldName).AsString;
 
   // Файл должен лежать в каталоге = производителю
   AProducer := ProducerDisplayText;

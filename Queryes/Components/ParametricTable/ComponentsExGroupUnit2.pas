@@ -147,7 +147,7 @@ begin
     AParamSubParamID := CatParamsGroup.qCategoryParameters.
       W.ParamSubParamId.F.AsInteger;
     AFieldName := AllParameterFields[AParamSubParamID];
-    AField := AQueryCustomComponents.Field(AFieldName);
+    AField := AQueryCustomComponents.W.Field(AFieldName);
 
 
     // AField.OldValue <> AField.Value почему-то не работает
@@ -346,14 +346,14 @@ begin
     while not qProductParameters.FDQuery.Eof do
     begin
 
-      if qProductParameters.ParentProductID.IsNull then
+      if qProductParameters.W.ParentProductID.F.IsNull then
         qryComponents := qFamilyEx
       else
         qryComponents := qComponentsEx;
 
-      qryComponents.W.LocateByPK(qProductParameters.ProductID.Value, True);
+      qryComponents.W.LocateByPK(qProductParameters.W.ProductID.F.Value, True);
 
-      AParamSubParamID := qProductParameters.ParamSubParamId.AsInteger;
+      AParamSubParamID := qProductParameters.W.ParamSubParamId.F.AsInteger;
 
       // Возможно значение подпараметра в БД есть, а сам подпараметр отвязали
       // Или для такого параметра в SQL запросе поля СУЩЕСТВУЕТ
@@ -365,14 +365,14 @@ begin
       end;
 
       AFieldName := AllParameterFields[AParamSubParamID];
-      S := qProductParameters.Value.AsString.Trim;
+      S := qProductParameters.W.Value.F.AsString.Trim;
       if not S.IsEmpty then
       begin
         AField := qryComponents.FDQuery.FindField(AFieldName);
         Assert(AField <> nil);
         // Добавляем ограничители, чтобы потом можно было фильтровать
         ANewValue := Format('%s%s%s',
-          [FMark, qProductParameters.Value.AsString.Trim, FMark]);
+          [FMark, qProductParameters.W.Value.F.AsString.Trim, FMark]);
 
         AValue := AField.AsString.Trim;
         if AValue <> '' then
@@ -499,7 +499,7 @@ begin
   Assert(AParamSubParamID > 0);
 
   // Фильтруем значения параметров
-  qProductParameters.ApplyFilter(AComponentID, AParamSubParamID);
+  qProductParameters.W.ApplyFilter(AComponentID, AParamSubParamID);
 
   qProductParameters.FDQuery.First;
 
@@ -518,11 +518,11 @@ begin
       else
       begin
         qProductParameters.FDQuery.Append;
-        qProductParameters.ParamSubParamId.AsInteger := AParamSubParamID;
-        qProductParameters.ProductID.AsInteger := AComponentID;
+        qProductParameters.W.ParamSubParamId.F.AsInteger := AParamSubParamID;
+        qProductParameters.W.ProductID.F.AsInteger := AComponentID;
       end;
 
-      qProductParameters.Value.AsString := AValue;
+      qProductParameters.W.Value.F.AsString := AValue;
       qProductParameters.TryPost;
       qProductParameters.FDQuery.Next;
     end;

@@ -188,7 +188,7 @@ begin
         begin
           // ƒобавл€ем значение параметра дл€ семейства
           AQueryParametersValue.Search(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
-          AQueryParametersValue.W.LocateOrAppend(Q.Value.AsString);
+          AQueryParametersValue.W.LocateOrAppend(Q.W.Value.F.AsString);
         end;
         Inc(i);
         API.ProcessRecords := i;

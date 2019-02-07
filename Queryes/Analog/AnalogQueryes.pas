@@ -280,7 +280,7 @@ begin
       ASortList.Clear;
       while not FqUniqueParameterValues.FDQuery.Eof do
       begin
-        ASortList.Add(FqUniqueParameterValues.Value.AsString);
+        ASortList.Add(FqUniqueParameterValues.W.Value.F.AsString);
         FqUniqueParameterValues.FDQuery.Next;
       end;
       // Сортируем

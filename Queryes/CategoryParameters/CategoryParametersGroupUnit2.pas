@@ -8,7 +8,6 @@ uses
   SearchParamDefSubParamQuery, SearchParamSubParamQuery,
   UpdateNegativeOrdQuery, FireDAC.Comp.Client, Data.DB;
 
-
 type
   TCategoryFDMemTable = class(TFDMemTable)
   private
@@ -114,17 +113,17 @@ type
     function GetqUpdNegativeOrd: TQueryUpdNegativeOrd;
   protected
     procedure AppendParameter(AParamSubParamId, AOrd, AIsAttribute, APosID,
-        AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
-        AParameterType, AName, ATranslation: String; AIsDefault: Integer);
+      AIDParameter, AIDSubParameter: Integer; const AValue, ATableName, AValueT,
+      AParameterType, AName, ATranslation: String; AIsDefault: Integer);
     procedure AppendSubParameter(AID, ASubParamID: Integer);
     procedure DoOnIsAttributeChange(Sender: TField);
     function GetHaveAnyChanges: Boolean; override;
     function GetVirtualID(AID: Integer; AUseDic: Boolean): Integer;
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
-    property qSearchParamDefSubParam: TQuerySearchParamDefSubParam read
-        GetqSearchParamDefSubParam;
-    property qSearchParamSubParam: TQuerySearchParamSubParam read
-        GetqSearchParamSubParam;
+    property qSearchParamDefSubParam: TQuerySearchParamDefSubParam
+      read GetqSearchParamDefSubParam;
+    property qSearchParamSubParam: TQuerySearchParamSubParam
+      read GetqSearchParamSubParam;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -137,20 +136,20 @@ type
     procedure DeleteSubParameters(APKValues: array of Integer);
     function GetIDList(AID: Integer): TArray<Integer>;
     procedure LoadData;
-    procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer; AUp:
-        Boolean);
-    procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer; AUp:
-        Boolean);
+    procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer;
+      AUp: Boolean);
+    procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
+      AUp: Boolean);
     procedure RefreshData; override;
-    procedure SetPos(AIDArray: TArray<Integer>; AWithSubParams: Boolean; APosID:
-        Integer);
+    procedure SetPos(AIDArray: TArray<Integer>; AWithSubParams: Boolean;
+      APosID: Integer);
     procedure UpdateData;
     property AfterUpdateData: TNotifyEventsEx read FAfterUpdateData;
     property BeforeUpdateData: TNotifyEventsEx read FBeforeUpdateData;
     property IsAllQuerysActive: Boolean read GetIsAllQuerysActive;
     property OnIsAttributeChange: TNotifyEventsEx read FOnIsAttributeChange;
-    property qCategoryParameters: TQueryCategoryParameters2 read
-        FqCategoryParameters;
+    property qCategoryParameters: TQueryCategoryParameters2
+      read FqCategoryParameters;
     property qCatParams: TQryCategoryParameters read FqCatParams;
     property qCatSubParams: TQryCategorySubParameters read FqCatSubParams;
     property qUpdNegativeOrd: TQueryUpdNegativeOrd read GetqUpdNegativeOrd;
@@ -172,7 +171,8 @@ begin
   FqCatParams.IsAttribute.OnChange := DoOnIsAttributeChange;
   FqCatSubParams := TQryCategorySubParameters.Create(Self);
 
-  TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad, EventList);
+  TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad,
+    EventList);
 
   FBeforeUpdateData := TNotifyEventsEx.Create(Self);
   FAfterUpdateData := TNotifyEventsEx.Create(Self);
@@ -191,7 +191,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.AddOrDeleteParameters(AParamIDList: string;
-    APosID: Integer);
+  APosID: Integer);
 var
   AIDParam: String;
   m: TArray<String>;
@@ -233,14 +233,14 @@ begin
       qSearchParamDefSubParam.SearchByID(AIDParam.ToInteger, 1);
 
       // Добавляем параметр
-      AppendParameter(qSearchParamDefSubParam.ParamSubParamID.Value,
+      AppendParameter(qSearchParamDefSubParam.W.ParamSubParamID.F.Value,
         qCategoryParameters.NextOrder, 1, APosID,
         qSearchParamDefSubParam.PK.Value,
-        qSearchParamDefSubParam.IDSubParameter.Value,
-        qSearchParamDefSubParam.Value.Value,
-        qSearchParamDefSubParam.TableName.Value,
-        qSearchParamDefSubParam.ValueT.Value,
-        qSearchParamDefSubParam.ParameterType.Value, '', '', 1);
+        qSearchParamDefSubParam.W.IDSubParameter.F.Value,
+        qSearchParamDefSubParam.W.Value.F.Value,
+        qSearchParamDefSubParam.W.TableName.F.Value,
+        qSearchParamDefSubParam.W.ValueT.F.Value,
+        qSearchParamDefSubParam.W.ParameterType.F.Value, '', '', 1);
     end;
   end;
 
@@ -248,7 +248,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.AddOrDeleteSubParameters(AID: Integer;
-    ASubParamIDList: string);
+  ASubParamIDList: string);
 var
   AIDParameter: Integer;
   m: TArray<String>;
@@ -295,17 +295,17 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.AppendParameter(AParamSubParamId, AOrd,
-    AIsAttribute, APosID, AIDParameter, AIDSubParameter: Integer; const AValue,
-    ATableName, AValueT, AParameterType, AName, ATranslation: String;
-    AIsDefault: Integer);
+  AIsAttribute, APosID, AIDParameter, AIDSubParameter: Integer;
+  const AValue, ATableName, AValueT, AParameterType, AName,
+  ATranslation: String; AIsDefault: Integer);
 begin
   FqCategoryParameters.W.AppendR(AParamSubParamId, AOrd, AIsAttribute, APosID,
     AIDParameter, AIDSubParameter, AValue, ATableName, AValueT, AParameterType,
     AName, ATranslation, AIsDefault);
 end;
 
-procedure TCategoryParametersGroup2.AppendSubParameter(AID, ASubParamID:
-    Integer);
+procedure TCategoryParametersGroup2.AppendSubParameter(AID,
+  ASubParamID: Integer);
 var
   AClone: TFDMemTable;
   AOrder: Integer;
@@ -337,12 +337,13 @@ begin
   AClone := qCategoryParameters.CreateSubParamsClone;
   try
     // Если этот параметр ещё не имеет подпараметров
-    if (AClone.RecordCount = 1) and (qCategoryParameters.W.IsDefault.F.AsInteger = 1)
-    then
+    if (AClone.RecordCount = 1) and
+      (qCategoryParameters.W.IsDefault.F.AsInteger = 1) then
     begin
       // Надо заменить подпараметр по умолчанию на добавляемый подпараметр
       qCategoryParameters.W.TryEdit;
-      qCategoryParameters.W.ParamSubParamID.F.AsInteger := qParamSubParams.PK.Value;
+      qCategoryParameters.W.ParamSubParamID.F.AsInteger :=
+        qParamSubParams.PK.Value;
       qCategoryParameters.W.Name.F.Value := qParamSubParams.W.Name.F.Value;
       qCategoryParameters.W.Translation.F.Value :=
         qParamSubParams.W.Translation.F.Value;
@@ -363,13 +364,15 @@ begin
 
       // Добавляем подпараметр
       qCategoryParameters.W.AppendR(qSearchParamSubParam.PK.Value, AOrder, 1,
-        APosID, qSearchParamSubParam.IDParameter.Value,
-        qSearchParamSubParam.IDSubParameter.Value,
-        qSearchParamSubParam.Value.Value, qSearchParamSubParam.TableName.Value,
-        qSearchParamSubParam.ValueT.Value,
-        qSearchParamSubParam.ParameterType.Value,
-        qSearchParamSubParam.Name.Value, qSearchParamSubParam.Translation.Value,
-        qSearchParamSubParam.IsDefault.Value);
+        APosID, qSearchParamSubParam.W.IDParameter.F.Value,
+        qSearchParamSubParam.W.IDSubParameter.F.Value,
+        qSearchParamSubParam.W.Value.F.Value,
+        qSearchParamSubParam.W.TableName.F.Value,
+        qSearchParamSubParam.W.ValueT.F.Value,
+        qSearchParamSubParam.W.ParameterType.F.Value,
+        qSearchParamSubParam.W.Name.F.Value,
+        qSearchParamSubParam.W.Translation.F.Value,
+        qSearchParamSubParam.W.IsDefault.F.Value);
 
     end;
   finally
@@ -380,7 +383,7 @@ end;
 function TCategoryParametersGroup2.ApplyOrCancelUpdates: Boolean;
 begin
   Result := ApplyUpdates;
-//  Result := False;
+  // Result := False;
   // Если не удалось сохранить изменения
   if not Result then
     CancelUpdates;
@@ -447,8 +450,8 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup2.DeleteParameters(APKValues: array of
-    Integer);
+procedure TCategoryParametersGroup2.DeleteParameters
+  (APKValues: array of Integer);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -469,8 +472,8 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup2.DeleteSubParameters(APKValues: array of
-    Integer);
+procedure TCategoryParametersGroup2.DeleteSubParameters
+  (APKValues: array of Integer);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -491,13 +494,14 @@ begin
         qCategoryParameters.W.TryEdit;
         // Меняем ссылку на связанный с параметром подпараметр
         qCategoryParameters.W.ParamSubParamID.F.Value :=
-          qSearchParamDefSubParam.ParamSubParamID.Value;
+          qSearchParamDefSubParam.W.ParamSubParamID.F.Value;
         qCategoryParameters.W.IDSubParameter.F.Value :=
-          qSearchParamDefSubParam.IDSubParameter.Value;
+          qSearchParamDefSubParam.W.IDSubParameter.F.Value;
         qCategoryParameters.W.IsDefault.F.AsInteger := 1;
-        qCategoryParameters.W.Name.F.Value := qSearchParamDefSubParam.Name.Value;
+        qCategoryParameters.W.Name.F.Value :=
+          qSearchParamDefSubParam.W.Name.F.Value;
         qCategoryParameters.W.Translation.F.Value :=
-          qSearchParamDefSubParam.Translation.Value;
+          qSearchParamDefSubParam.W.Translation.F.Value;
         qCategoryParameters.W.TryPost;
       end
       else
@@ -533,10 +537,12 @@ end;
 
 procedure TCategoryParametersGroup2.DoOnIsAttributeChange(Sender: TField);
 begin
-  if qCatParams.InUpdate then Exit;
+  if qCatParams.InUpdate then
+    Exit;
 
   // Выполняем изменения в плоском наборе данных
-  qCategoryParameters.SetIsAttribute(qCatParams.ID.AsInteger, qCatParams.IsAttribute.AsInteger);
+  qCategoryParameters.SetIsAttribute(qCatParams.ID.AsInteger,
+    qCatParams.IsAttribute.AsInteger);
 
   LoadData;
 
@@ -590,16 +596,16 @@ begin
   Result := FqParamSubParams;
 end;
 
-function TCategoryParametersGroup2.GetqSearchParamDefSubParam:
-    TQuerySearchParamDefSubParam;
+function TCategoryParametersGroup2.GetqSearchParamDefSubParam
+  : TQuerySearchParamDefSubParam;
 begin
   if FqSearchParamDefSubParam = nil then
     FqSearchParamDefSubParam := TQuerySearchParamDefSubParam.Create(Self);
   Result := FqSearchParamDefSubParam;
 end;
 
-function TCategoryParametersGroup2.GetqSearchParamSubParam:
-    TQuerySearchParamSubParam;
+function TCategoryParametersGroup2.GetqSearchParamSubParam
+  : TQuerySearchParamSubParam;
 begin
   if FqSearchParamSubParam = nil then
     FqSearchParamSubParam := TQuerySearchParamSubParam.Create(Self);
@@ -614,8 +620,8 @@ begin
   Result := FqUpdNegativeOrd;
 end;
 
-function TCategoryParametersGroup2.GetVirtualID(AID: Integer; AUseDic:
-    Boolean): Integer;
+function TCategoryParametersGroup2.GetVirtualID(AID: Integer;
+  AUseDic: Boolean): Integer;
 begin
   Assert(not AUseDic or (AUseDic and (FIDDic.Count > 0)));
 
@@ -697,7 +703,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.MoveParameters(IDList: TList<Integer>;
-    TargetID: Integer; AUp: Boolean);
+  TargetID: Integer; AUp: Boolean);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -738,7 +744,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.MoveSubParameters(IDList: TList<Integer>;
-    TargetID: Integer; AUp: Boolean);
+  TargetID: Integer; AUp: Boolean);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -796,7 +802,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.SetPos(AIDArray: TArray<Integer>;
-    AWithSubParams: Boolean; APosID: Integer);
+  AWithSubParams: Boolean; APosID: Integer);
 var
   AClone: TFDMemTable;
   AID: Integer;
@@ -1004,7 +1010,7 @@ begin
 
   DisableControls;
   try
-    FInUpdate := True;  // Ставим флаг сигнализирующий о том, что мы обновляемся
+    FInUpdate := True; // Ставим флаг сигнализирующий о том, что мы обновляемся
     AID := ID.AsInteger;
     ASource.First;
     while not ASource.Eof do

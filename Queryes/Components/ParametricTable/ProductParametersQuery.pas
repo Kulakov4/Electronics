@@ -8,23 +8,34 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
+  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap;
 
 type
-  TQueryProductParameters = class(TQueryBase)
+  TProductParametersW = class(TDSWrap)
   private
-    function GetParamSubParamID: TField;
-    function GetParentProductID: TField;
-    function GetProductID: TField;
-    function GetValue: TField;
-    { Private declarations }
+    FParamSubParamID: TFieldWrap;
+    FID: TFieldWrap;
+    FParentProductID: TFieldWrap;
+    FProductID: TFieldWrap;
+    FValue: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure ApplyFilter(AProductID: Integer; const AParamSubParamID: Integer);
-    property ParamSubParamID: TField read GetParamSubParamID;
-    property ParentProductID: TField read GetParentProductID;
-    property ProductID: TField read GetProductID;
-    property Value: TField read GetValue;
+    property ParamSubParamID: TFieldWrap read FParamSubParamID;
+    property ID: TFieldWrap read FID;
+    property ParentProductID: TFieldWrap read FParentProductID;
+    property ProductID: TFieldWrap read FProductID;
+    property Value: TFieldWrap read FValue;
+  end;
+
+  TQueryProductParameters = class(TQueryBase)
+  private
+    FW: TProductParametersW;
+    { Private declarations }
+  protected
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TProductParametersW read FW;
     { Public declarations }
   end;
 
@@ -36,37 +47,28 @@ constructor TQueryProductParameters.Create(AOwner: TComponent);
 begin
   inherited;
   DetailParameterName := 'ProductCategoryId';
+  FW := TProductParametersW.Create(FDQuery);
 end;
 
-procedure TQueryProductParameters.ApplyFilter(AProductID: Integer; const
+constructor TProductParametersW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'pv.ID', '', True);
+  FParamSubParamID := TFieldWrap.Create(Self, 'pv.ParamSubParamID');
+  FParentProductID := TFieldWrap.Create(Self, 'p.ParentProductId');
+  FProductID := TFieldWrap.Create(Self, 'pv.ProductId');
+  FValue := TFieldWrap.Create(Self, 'pv.Value');
+end;
+
+procedure TProductParametersW.ApplyFilter(AProductID: Integer; const
     AParamSubParamID: Integer);
 begin
   Assert(AProductID > 0);
   Assert(AParamSubParamID > 0);
 
-  FDQuery.Filter := Format('(%s=%d) and (%s=%d)',
+  DataSet.Filter := Format('(%s=%d) and (%s=%d)',
     [ProductID.FieldName, AProductID, ParamSubParamID.FieldName, AParamSubParamID]);
-  FDQuery.Filtered := True;
-end;
-
-function TQueryProductParameters.GetParamSubParamID: TField;
-begin
-  Result := Field('ParamSubParamID');
-end;
-
-function TQueryProductParameters.GetParentProductID: TField;
-begin
-  Result := Field('ParentProductID');
-end;
-
-function TQueryProductParameters.GetProductID: TField;
-begin
-  Result := Field('ProductID');
-end;
-
-function TQueryProductParameters.GetValue: TField;
-begin
-  Result := Field('Value');
+  DataSet.Filtered := True;
 end;
 
 end.

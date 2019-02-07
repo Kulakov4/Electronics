@@ -9,14 +9,13 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, ApplyQueryFrame, NotifyEvents,
-  ComponentsQuery, System.Generics.Collections;
+  ComponentsQuery, System.Generics.Collections, DSWrap;
 
 type
   TQueryComponentsEx = class(TQueryComponents)
   private
     FOnLocate: TNotifyEventsEx;
     FOn_ApplyUpdate: TNotifyEventsEx;
-    function GetAnalog: TField;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -25,14 +24,22 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure LocateInStorehouse;
-    property Analog: TField read GetAnalog;
     property OnLocate: TNotifyEventsEx read FOnLocate;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
+  end;
+
+  TComponentsExW = class(TComponentsW)
+  private
+    FAnalog: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Analog: TFieldWrap read FAnalog;
   end;
 
 implementation
@@ -78,9 +85,9 @@ begin
   On_ApplyUpdate.CallEventHandlers(Self);
 end;
 
-function TQueryComponentsEx.GetAnalog: TField;
+function TQueryComponentsEx.CreateDSWrap: TDSWrap;
 begin
-  Result := Field('Analog');
+  Result := TComponentsExW.Create(FDQuery);
 end;
 
 procedure TQueryComponentsEx.LocateInStorehouse;
@@ -98,6 +105,12 @@ begin
   finally
     FreeAndNil(l);
   end;
+end;
+
+constructor TComponentsExW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FAnalog := TFieldWrap.Create(Self, 'Analog');
 end;
 
 end.

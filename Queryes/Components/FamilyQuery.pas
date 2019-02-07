@@ -13,12 +13,11 @@ uses
   CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery, DSWrap;
 
 type
-  TFamilyW = class(TCustomComponentsW)
+  TFamilyW = class(TBaseFamilyW)
   protected
     procedure AddNewValue(const AValue, AProducer: string);
   public
     function LocateOrAppend(const AValue, AProducer: string): Boolean;
-    function LocateValue(const AValue: string): Boolean;
   end;
 
   TQueryFamily = class(TQueryBaseFamily)
@@ -203,16 +202,10 @@ end;
 function TFamilyW.LocateOrAppend(const AValue, AProducer: string): Boolean;
 begin
   // Ищем компонент по имени без учёта регистра
-  Result := FDDataSet.LocateEx(Value.FieldName, AValue, [lxoCaseInsensitive]);
+  Result := Value.Locate(AValue, [lxoCaseInsensitive]);
   if not Result then
     AddNewValue(AValue, AProducer);
 
-end;
-
-function TFamilyW.LocateValue(const AValue: string): Boolean;
-begin
-  // Ищем компонент по имени без учёта регистра
-  Result := FDDataSet.LocateEx(Value.FieldName, AValue, [lxoCaseInsensitive]);
 end;
 
 end.

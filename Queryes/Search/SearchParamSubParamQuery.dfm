@@ -24,13 +24,6 @@ inherited QuerySearchParamSubParam: TQuerySearchParamSubParam
       'join Parameters p on psp.IdParameter = p.Id'
       'join ParameterTypes pt on p.IDParameterType = pt.ID'
       'join SubParameters sp on psp.IdSubParameter = sp.Id'
-      'where psp.Id = :ID')
-    ParamData = <
-      item
-        Name = 'ID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
+      'where 0=0')
   end
 end
