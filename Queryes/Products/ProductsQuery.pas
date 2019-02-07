@@ -289,7 +289,7 @@ end;
 procedure TQueryProducts.DoAfterPost(Sender: TObject);
 begin
   // Если завершилось добавление записи и общее кол-во известно и не нуждается в обновлении
-  if (OldState = dsInsert) and (not FNeedUpdateCount) then
+  if (W.BeforePostState = dsInsert) and (not FNeedUpdateCount) then
     Inc(FTotalCount);
 end;
 

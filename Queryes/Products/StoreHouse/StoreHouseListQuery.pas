@@ -52,7 +52,7 @@ constructor TQueryStoreHouseList.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FW := FDSWrap as TStoreHouseListW;
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 end;
 
 function TQueryStoreHouseList.CreateDSWrap: TDSWrap;

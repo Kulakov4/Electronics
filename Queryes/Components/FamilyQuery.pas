@@ -56,7 +56,7 @@ begin
   DetailParameterName := 'ProductCategoryId';
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 end;
 
 procedure TQueryFamily.ApplyInsert(ASender: TDataSet;

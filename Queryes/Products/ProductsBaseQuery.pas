@@ -259,7 +259,7 @@ begin
   FOnLocate := TNotifyEventsEx.Create(Self);
 
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
@@ -690,7 +690,7 @@ var
   rc: Integer;
 begin
   // Если не происходит вставка новой записи
-  if not(FDQuery.State in [dsInsert]) then
+  if not (FDQuery.State in [dsInsert]) then
     Exit;
 
   Assert(not W.IsGroup.F.IsNull);

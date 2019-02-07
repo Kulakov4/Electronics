@@ -99,7 +99,7 @@ begin
   QList.Add(qComponents);
   QList.Add(qFamily);
 
-  TNotifyEventWrap.Create(qComponents.BeforePost, DoBeforeDetailPost,
+  TNotifyEventWrap.Create(qComponents.W.BeforePost, DoBeforeDetailPost,
     EventList);
   TNotifyEventWrap.Create(qFamily.W.AfterPostM, AfterComponentPostOrDelete,
     EventList);

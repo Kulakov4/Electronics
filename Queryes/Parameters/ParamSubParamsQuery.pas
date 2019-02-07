@@ -61,7 +61,7 @@ constructor TQueryParamSubParams.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TParamSubParamW;
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;

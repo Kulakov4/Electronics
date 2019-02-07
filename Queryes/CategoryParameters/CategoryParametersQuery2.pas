@@ -151,7 +151,7 @@ begin
   FInsertedClone.FilterChanges := [rtInserted];
 
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 
   FDeletedSubParams := TRecHolderList.Create;

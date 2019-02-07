@@ -20,18 +20,15 @@ type
 
   TQueryBaseEvents = class(TQueryBase)
     procedure FDQueryBeforeInsert(DataSet: TDataSet);
-    procedure FDQueryBeforePost(DataSet: TDataSet);
     procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
     FAutoTransaction: Boolean;
     FBeforeInsert: TNotifyEventsEx;
-    FBeforePost: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
     FBeforeScrollI: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
-    FOldState: TDataSetState;
     FResiveBeforeScrollMessage: Boolean;
     class var FMonitor: TQueryMonitor;
     procedure DoAfterDelete(Sender: TObject);
@@ -58,13 +55,11 @@ type
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
     property BeforeInsert: TNotifyEventsEx read FBeforeInsert;
-    property BeforePost: TNotifyEventsEx read FBeforePost;
     property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property BeforeScrollI: TNotifyEventsEx read FBeforeScrollI;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
-    property OldState: TDataSetState read FOldState;
     class property Monitor: TQueryMonitor read FMonitor;
     property Wrap: TDSWrap read FDSWrap;
     { Public declarations }
@@ -123,15 +118,13 @@ begin
   TNotifyEventWrap.Create(FDSWrap.AfterPost, DoAfterPost,
     FDSWrap.EventList);
 
-  FOldState := dsInactive;
+
 
   // Создаём события
   FBeforeScroll := TNotifyEventsEx.Create(Self);
   FBeforeScrollI := TNotifyEventsEx.Create(Self);
 
   FBeforeInsert := TNotifyEventsEx.Create(Self);
-
-  FBeforePost := TNotifyEventsEx.Create(Self);
 
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
@@ -161,8 +154,6 @@ begin
   FreeAndNil(FBeforeScrollI);
 
   FreeAndNil(FBeforeInsert);
-
-  FreeAndNil(FBeforePost);
 
   FreeAndNil(FAfterCommit);
 
@@ -260,13 +251,6 @@ procedure TQueryBaseEvents.FDQueryBeforeInsert(DataSet: TDataSet);
 begin
   inherited;
   FBeforeInsert.CallEventHandlers(Self);
-end;
-
-procedure TQueryBaseEvents.FDQueryBeforePost(DataSet: TDataSet);
-begin
-  inherited;
-  FOldState := FDQuery.State;
-  FBeforePost.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.FDQueryBeforeScroll(DataSet: TDataSet);

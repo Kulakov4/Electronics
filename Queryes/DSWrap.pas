@@ -41,6 +41,7 @@ type
     FIsRecordModifedClone: TFDMemTable;
     FNEList: TList<TNotifyEventsEx>;
     FDeletedPKValue: Variant;
+    FBeforePostState: TDataSetState;
     FPKFieldName: string;
     FPostAPM: Boolean;
     FPostASM: Boolean;
@@ -150,6 +151,7 @@ type
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
     property DeletedPKValue: Variant read FDeletedPKValue;
+    property BeforePostState: TDataSetState read FBeforePostState;
     property PK: TField read GetPK;
     property PKFieldName: string read FPKFieldName write FPKFieldName;
     property RecordCount: Integer read GetRecordCount;
@@ -199,6 +201,7 @@ begin
   FFieldsWrap := TObjectList<TParamWrap>.Create;
   FEventList := TObjectList.Create;
   FNEList := TList<TNotifyEventsEx>.Create;
+  FBeforePostState := FDataSet.State;
 end;
 
 destructor TDSWrap.Destroy;
@@ -274,6 +277,7 @@ end;
 
 procedure TDSWrap.BeforeDataSetPost(DataSet: TDataSet);
 begin
+  FBeforePostState := DataSet.State;
   FBeforePost.CallEventHandlers(Self);
 end;
 

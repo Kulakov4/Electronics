@@ -48,7 +48,7 @@ begin
   TNotifyEventWrap.Create(Wrap.AfterOpen, DoAfterOpen, Wrap.EventList);
 
   // Во всех строковых полях будем удалять начальные и конечные пробелы
-  TNotifyEventWrap.Create(BeforePost, DoBeforePost, FEventList);
+  TNotifyEventWrap.Create(Wrap.BeforePost, DoBeforePost, Wrap.EventList);
 end;
 
 procedure TQueryWithDataSource.DefaultOnGetText(Sender: TField;
