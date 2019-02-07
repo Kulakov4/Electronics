@@ -11,22 +11,15 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   NotifyEvents, System.Contnrs, System.Generics.Collections, DSWrap;
 
-const
-  WM_DS_BEFORE_SCROLL = WM_USER + 555;
-  WM_DS_AFTER_POST = WM_USER + 557;
-
 type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure FDQueryBeforeScroll(DataSet: TDataSet);
   private
     FAutoTransaction: Boolean;
-    FBeforeScroll: TNotifyEventsEx;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
-    FResiveBeforeScrollMessage: Boolean;
     class var FMonitor: TQueryMonitor;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
@@ -41,8 +34,6 @@ type
     procedure DoAfterCommit(Sender: TObject);
     procedure DoAfterRollback(Sender: TObject);
     function GetHaveAnyNotCommitedChanges: Boolean; override;
-    procedure ProcessBeforeScrollMessage(var Message: TMessage);
-      message WM_DS_BEFORE_SCROLL;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -51,7 +42,6 @@ type
     procedure CancelUpdates; override;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
-    property BeforeScroll: TNotifyEventsEx read FBeforeScroll;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
@@ -116,13 +106,9 @@ begin
 
 
   // Создаём события
-  FBeforeScroll := TNotifyEventsEx.Create(Self);
-
   FAfterCommit := TNotifyEventsEx.Create(Self);
 
   FAfterCancelUpdates := TNotifyEventsEx.Create(Self);
-
-  FResiveBeforeScrollMessage := True;
 
   // По умолчанию транзакции сами начинаются и заканчиваются
   FAutoTransaction := True;
@@ -142,7 +128,6 @@ end;
 destructor TQueryBaseEvents.Destroy;
 begin
 
-  FreeAndNil(FBeforeScroll);
   FreeAndNil(FAfterCommit);
 
   FreeAndNil(FAfterCancelUpdates);
@@ -235,27 +220,9 @@ begin
     FDQuery.Connection.StartTransaction;
 end;
 
-procedure TQueryBaseEvents.FDQueryBeforeScroll(DataSet: TDataSet);
-begin
-  inherited;
-  // Если предыдущее сообщение о скроле уже получили
-  if FResiveBeforeScrollMessage then
-  begin
-    FResiveBeforeScrollMessage := False;
-    // Отправляем новое сообщение
-    PostMessage(Handle, WM_DS_BEFORE_SCROLL, 0, 0);
-  end;
-end;
-
 function TQueryBaseEvents.GetHaveAnyNotCommitedChanges: Boolean;
 begin
   Result := FHaveAnyNotCommitedChanges;
-end;
-
-procedure TQueryBaseEvents.ProcessBeforeScrollMessage(var Message: TMessage);
-begin
-  FBeforeScroll.CallEventHandlers(Self);
-  FResiveBeforeScrollMessage := True;
 end;
 
 procedure TQueryBaseEvents.SetAutoTransaction(const Value: Boolean);

@@ -10,6 +10,7 @@ uses
 const
   WM_DS_AFTER_SCROLL = WM_USER + 500;
   WM_DS_AFTER_POST = WM_USER + 501;
+  WM_DS_BEFORE_SCROLL = WM_USER + 502;
 
 type
   TFieldWrap = class;
@@ -29,6 +30,7 @@ type
     FAfterEdit: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
     FAfterPostM: TNotifyEventsEx;
+    FBeforeScrollM: TNotifyEventsEx;
     FBeforeOpen: TNotifyEventsEx;
     FBeforeClose: TNotifyEventsEx;
     FBeforeEdit: TNotifyEventsEx;
@@ -45,9 +47,8 @@ type
     FDeletedPKValue: Variant;
     FBeforePostState: TDataSetState;
     FPKFieldName: string;
-    FPostAPM: Boolean;
-    FPostASM: Boolean;
     FRecHolder: TRecordHolder;
+    FPostedMessage: TList<Integer>;
     procedure AfterDataSetScroll(DataSet: TDataSet);
     procedure AfterDataSetClose(DataSet: TDataSet);
     procedure AfterDataSetOpen(DataSet: TDataSet);
@@ -87,10 +88,12 @@ type
     procedure BeforeDataSetScroll(DataSet: TDataSet);
     function GetAfterEdit: TNotifyEventsEx;
     function GetAfterPostM: TNotifyEventsEx;
+    function GetBeforeScrollM: TNotifyEventsEx;
     function GetBeforeEdit: TNotifyEventsEx;
     function GetBeforeInsert: TNotifyEventsEx;
     function GetBeforeScroll: TNotifyEventsEx;
     procedure ProcessAfterPostMessage;
+    procedure ProcessBeforeScrollMessage;
     procedure WndProc(var Msg: TMessage);
   protected
     procedure UpdateFields;
@@ -151,6 +154,7 @@ type
     property AfterEdit: TNotifyEventsEx read GetAfterEdit;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
     property AfterPostM: TNotifyEventsEx read GetAfterPostM;
+    property BeforeScrollM: TNotifyEventsEx read GetBeforeScrollM;
     property BeforeOpen: TNotifyEventsEx read GetBeforeOpen;
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
     property BeforeEdit: TNotifyEventsEx read GetBeforeEdit;
@@ -210,6 +214,7 @@ begin
   FEventList := TObjectList.Create;
   FNEList := TList<TNotifyEventsEx>.Create;
   FBeforePostState := FDataSet.State;
+  FPostedMessage := TList<Integer>.Create;
 end;
 
 destructor TDSWrap.Destroy;
@@ -224,10 +229,10 @@ begin
   end;
   Assert(FClones = nil);
 
-  for i := FNEList.Count - 1 downto 0 do
+  for I := FNEList.Count - 1 downto 0 do
   begin
-    FNEList[i].Destroy;
-    FNEList.Delete(i);
+    FNEList[I].Destroy;
+    FNEList.Delete(I);
   end;
   Assert(FNEList.Count = 0);
   FreeAndNil(FNEList);
@@ -237,6 +242,8 @@ begin
 
   if FHandle <> 0 then
     DeallocateHWnd(FHandle);
+
+  FreeAndNil(FPostedMessage);
 
   inherited;
 end;
@@ -292,10 +299,10 @@ end;
 procedure TDSWrap.AfterDataSetScroll(DataSet: TDataSet);
 begin
   // Если сообщение AfterScroll ещё не посылали и есть подписчики
-  if (FAfterScrollM <> nil) and (FAfterScrollM.Count > 0) and (not FPostASM)
-  then
+  if (FAfterScrollM <> nil) and (FAfterScrollM.Count > 0) and
+    (FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL) < 0) then
   begin
-    FPostASM := True;
+    FPostedMessage.Add(WM_DS_AFTER_SCROLL);
     // Отправляем новое сообщение
     PostMessage(Handle, WM_DS_AFTER_SCROLL, 0, 0);
   end;
@@ -331,10 +338,10 @@ end;
 procedure TDSWrap.AfterDataSetPost(DataSet: TDataSet);
 begin
   // Если сообщение AfterScroll ещё не посылали и есть подписчики
-  if (FAfterPostM <> nil) and (FAfterPostM.Count > 0) and (not FPostAPM)
-  then
+  if (FAfterPostM <> nil) and (FAfterPostM.Count > 0) and
+    (FPostedMessage.IndexOf(WM_DS_AFTER_POST) < 0) then
   begin
-    FPostAPM := True;
+    FPostedMessage.Add(WM_DS_AFTER_POST);
     // Отправляем новое сообщение
     PostMessage(Handle, WM_DS_AFTER_POST, 0, 0);
   end;
@@ -389,7 +396,18 @@ end;
 
 procedure TDSWrap.BeforeDataSetScroll(DataSet: TDataSet);
 begin
-  FBeforeScroll.CallEventHandlers(Self);
+  // Если сообщение BeforeScroll ещё не посылали и есть подписчики
+  if (FBeforeScrollM <> nil) and (FBeforeScrollM.Count > 0) and
+    (FPostedMessage.IndexOf(WM_DS_BEFORE_SCROLL) < 0) then
+  begin
+    FPostedMessage.Add(WM_DS_BEFORE_SCROLL);
+    // Отправляем новое сообщение
+    PostMessage(Handle, WM_DS_BEFORE_SCROLL, 0, 0);
+  end;
+
+  // Извещаем тех, кто кочет получить сообщение немедленно
+  if FBeforeScroll <> nil then
+    FBeforeScroll.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.CancelUpdates;
@@ -671,6 +689,20 @@ begin
   Result := FAfterPostM;
 end;
 
+function TDSWrap.GetBeforeScrollM: TNotifyEventsEx;
+begin
+  if FBeforeScrollM = nil then
+  begin
+    if FBeforeScroll = nil then
+      Assert(not Assigned(FDataSet.BeforeScroll));
+
+    FBeforeScrollM := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeScrollM);
+    FDataSet.BeforeScroll := BeforeDataSetScroll;
+  end;
+  Result := FBeforeScrollM;
+end;
+
 function TDSWrap.GetBeforeOpen: TNotifyEventsEx;
 begin
   if FBeforeOpen = nil then
@@ -761,6 +793,8 @@ procedure TDSWrap.WndProc(var Msg: TMessage);
 begin
   with Msg do
     case Msg of
+      WM_DS_BEFORE_SCROLL:
+        ProcessBeforeScrollMessage;
       WM_DS_AFTER_SCROLL:
         ProcessAfterScrollMessage;
       WM_DS_AFTER_POST:
@@ -880,17 +914,50 @@ begin
 end;
 
 procedure TDSWrap.ProcessAfterScrollMessage;
+var
+  i: Integer;
 begin
+  // Если наш объект уже разрушился
+  if FPostedMessage = nil then
+    Exit;
+  i := FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL);
+  Assert(i >= 0);
+
   Assert(FAfterScrollM <> nil);
   FAfterScrollM.CallEventHandlers(Self);
-  FPostASM := False;
+  FPostedMessage.Delete(i);
 end;
 
 procedure TDSWrap.ProcessAfterPostMessage;
+var
+  i: Integer;
 begin
+  // Если наш объект уже разрушился
+  if FPostedMessage = nil then
+    Exit;
+
+  i := FPostedMessage.IndexOf(WM_DS_AFTER_POST);
+  Assert(i >= 0);
+
   Assert(FAfterPostM <> nil);
   FAfterPostM.CallEventHandlers(Self);
-  FPostAPM := False;
+  FPostedMessage.Delete(i);
+end;
+
+procedure TDSWrap.ProcessBeforeScrollMessage;
+var
+  i: Integer;
+begin
+  // Если наш объект уже разрушился
+  if FPostedMessage = nil then
+    Exit;
+
+  i := FPostedMessage.IndexOf(WM_DS_BEFORE_SCROLL);
+  Assert(i >= 0);
+
+  Assert(FBeforeScrollM <> nil);
+  FBeforeScrollM.CallEventHandlers(Self);
+  FPostedMessage.Delete(i);
 end;
 
 procedure TDSWrap.RefreshQuery;
@@ -969,6 +1036,7 @@ end;
 
 procedure TDSWrap.SmartRefresh;
 var
+  i: Integer;
   OK: Boolean;
 begin
   // Обновление данных, при котором не возникает события AfterScroll
@@ -976,8 +1044,11 @@ begin
   try
     SaveBookmark;
 
+    i := FPostedMessage.IndexOf(WM_DS_AFTER_SCROLL);
+    Assert(i < 0);
     // Как будто предыдущее сообщение AfterScroll уже послали
-    FPostASM := True;
+    FPostedMessage.Add(WM_DS_AFTER_SCROLL);
+
 
     // Заново выполняем запрос
     RefreshQuery;
@@ -988,7 +1059,7 @@ begin
     if not OK then
     begin
       // Как будто предыдущее сообщение AfterScroll ещё не посылали
-      FPostASM := False;
+      FPostedMessage.Remove(WM_DS_AFTER_SCROLL);
 
       // Искусственно вызываем событие AfterScroll
       AfterDataSetScroll(DataSet);
@@ -1001,7 +1072,7 @@ begin
 
   if OK then
     // Как будто предыдущее сообщение AfterScroll ещё послали
-    FPostASM := False;
+    FPostedMessage.Remove(WM_DS_AFTER_SCROLL);
 end;
 
 procedure TDSWrap.TryAppend;
