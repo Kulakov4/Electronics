@@ -117,8 +117,7 @@ begin
   inherited;
   BeginUpdate;
   try
-    ExtraChargeGroup.qExtraChargeType.DeleteAll;
-    // qExtraCharge.DeleteAll;
+    ExtraChargeGroup.qExtraChargeType.W.DeleteAll;
   finally
     EndUpdate;
   end;
@@ -129,8 +128,6 @@ procedure TViewExtraCharge.actCommitExecute(Sender: TObject);
 begin
   inherited;
   ExtraChargeGroup.Commit;
-  // qExtraCharge.TryPost;
-  // qExtraCharge.Monitor.TryCommit;
   UpdateView;
 end;
 

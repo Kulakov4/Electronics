@@ -65,7 +65,6 @@ type
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure ClearUpdateRecCount;
-    procedure DeleteAll;
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
@@ -215,17 +214,6 @@ end;
 procedure TQueryBase.ClearUpdateRecCount;
 begin
   FUpdateRecCount := 0;
-end;
-
-procedure TQueryBase.DeleteAll;
-begin
-  FDQuery.DisableControls;
-  try
-    while not FDQuery.Eof do
-      FDQuery.Delete;
-  finally
-    FDQuery.EnableControls;
-  end;
 end;
 
 procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;

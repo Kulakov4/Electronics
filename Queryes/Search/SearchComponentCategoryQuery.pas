@@ -83,7 +83,7 @@ procedure TQuerySearchComponentCategory.SearchAndDelete(AIDComponent: Integer;
   const ASubGroup: String);
 begin
   if Search(AIDComponent, ASubGroup) > 0 then
-    DeleteAll;
+    W.DeleteAll;
 end;
 
 procedure TQuerySearchComponentCategory.LocateOrAddValue(AIDComponent,
