@@ -63,7 +63,7 @@ begin
   FW := FDSWrap as TBodyVariationsJedecW;
 
   // Ќа сервер ничего сохран€ть не будем!
-  FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
+  FDQuery.OnUpdateRecord := W.FDQueryUpdateRecordOnClient;
 
   FPKFieldName := 'IDJEDEC';
   // Ѕудем накапливать изменени€, чтобы пон€ть, есть-ли изменени€

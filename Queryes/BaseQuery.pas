@@ -56,9 +56,6 @@ type
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
     procedure DoOnUpdateRecordException(AException: Exception); virtual;
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
-      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-      AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
@@ -68,9 +65,6 @@ type
     procedure AfterConstruction; override;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
-    procedure CascadeDelete(const AIDMaster: Variant;
-      const ADetailKeyFieldName: String;
-      AFromClientOnly: Boolean = False); virtual;
     procedure ClearUpdateRecCount;
     procedure CreateDefaultFields(AUpdate: Boolean);
     function Delete(APKValue: Variant): Boolean;
@@ -228,41 +222,6 @@ begin
   end
 end;
 
-procedure TQueryBase.CascadeDelete(const AIDMaster: Variant;
-  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
-var
-  E: TFDUpdateRecordEvent;
-begin
-  Assert(AIDMaster > 0);
-
-  E := FDQuery.OnUpdateRecord;
-  try
-    // Если каскадное удаление уже реализовано на стороне сервера
-    // Просто удалим эти записи с клиента ничего не сохраняя на стороне сервера
-    if AFromClientOnly then
-      FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
-
-    // FDQuery.DisableControls;
-    // try
-    // Пока есть записи подчинённые мастеру
-    while FDQuery.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
-    begin
-      FDQuery.Delete;
-    end;
-    // finally
-    // Тут cxGrid мастера синхронизирует с подчинённым и перескакивает на другую запись
-    // FDQuery.EnableControls;
-    // end;
-
-  finally
-    if AFromClientOnly then
-      FDQuery.OnUpdateRecord := E;
-  end;
-
-  // Формируем фильтр и удаляем
-  // DeleteByFilter(Format('%s = %d', [ADetailKeyFieldName, AIDMaster]));
-end;
-
 procedure TQueryBase.ClearUpdateRecCount;
 begin
   FUpdateRecCount := 0;
@@ -395,13 +354,6 @@ end;
 procedure TQueryBase.DoOnUpdateRecordException(AException: Exception);
 begin
   raise AException;
-end;
-
-procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
-  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
-  AOptions: TFDUpdateRowOptions);
-begin
-  AAction := eaApplied;
 end;
 
 procedure TQueryBase.FetchFields(const AFieldNames: TArray<String>;

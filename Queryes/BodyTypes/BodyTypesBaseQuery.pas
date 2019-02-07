@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, BodiesQuery, BodyDataQuery,
   BodyVariationsQuery, BodyOptionsQuery, BodyVariationJedecQuery,
-  BodyVariationOptionQuery, JEDECQuery, DSWrap, BaseEventsQuery;
+  BodyVariationOptionQuery, JEDECQuery, DSWrap, BaseEventsQuery, NotifyEvents;
 
 const
   WM_AFTER_CASCADE_DELETE = WM_USER + 574;
@@ -18,6 +18,7 @@ const
 type
   TBodyTypeBaseW = class(TDSWrap)
   private
+    FAfterCascadeDelete: TNotifyEventsEx;
     FBody: TFieldWrap;
     FBodyData: TFieldWrap;
     FIDBody: TFieldWrap;
@@ -32,11 +33,17 @@ type
     FOutlineDrawing: TFieldWrap;
     FVariations: TFieldWrap;
     procedure DoAfterOpen(Sender: TObject);
+    procedure ProcessAfterCascadeDeleteMessage;
   protected
-    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField; var Text:
-        String; DisplayText: Boolean);
+    procedure OnGetFileNameWithoutExtensionGetText(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    procedure WndProc(var Msg: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure CascadeDelete(const AIDMaster: Variant;
+      const ADetailKeyFieldName: String;
+      AFromClientOnly: Boolean = False); override;
+    property AfterCascadeDelete: TNotifyEventsEx read FAfterCascadeDelete;
     property Body: TFieldWrap read FBody;
     property BodyData: TFieldWrap read FBodyData;
     property IDBody: TFieldWrap read FIDBody;
@@ -63,12 +70,12 @@ type
     FQueryBodies: TQueryBodies;
     FQueryBodyData: TQueryBodyData;
     FQueryBodyVariations: TQueryBodyVariations;
-    FMessagePosted: Boolean;
     FqBodyOptions: TQueryBodyOptions;
     FqBodyVariationJedec: TQueryBodyVariationJedec;
     FqBodyVariationOption: TQueryBodyVariationOption;
     FqJedec: TQueryJEDEC;
     FW: TBodyTypeBaseW;
+    procedure DoAfterCascadeDelete(Sender: TObject);
     function GetqBodyOptions: TQueryBodyOptions;
     function GetqBodyVariationJedec: TQueryBodyVariationJedec;
     function GetqBodyVariationOption: TQueryBodyVariationOption;
@@ -80,8 +87,6 @@ type
   protected
     function CreateDSWrap: TDSWrap; override;
     procedure DropUnusedBodies;
-    procedure ProcessAfterCascadeDeleteMessage(var Message: TMessage);
-      message WM_AFTER_CASCADE_DELETE;
     procedure SetMySplitDataValues(AQuery: TFDQuery;
       const AFieldPrefix: String);
     procedure UpdateJEDEC;
@@ -97,9 +102,6 @@ type
       read GetQueryBodyVariations;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CascadeDelete(const AIDMaster: Variant;
-      const ADetailKeyFieldName: String;
-      AFromClientOnly: Boolean = False); override;
     procedure RefreshLinkedData;
     property qJedec: TQueryJEDEC read GetqJedec;
     property W: TBodyTypeBaseW read FW;
@@ -110,7 +112,7 @@ implementation
 
 {$R *.dfm}
 
-uses NotifyEvents, System.IOUtils, System.Generics.Collections;
+uses System.IOUtils, System.Generics.Collections;
 
 constructor TQueryBodyTypesBase.Create(AOwner: TComponent);
 begin
@@ -119,25 +121,23 @@ begin
 
   FW := FDSWrap as TBodyTypeBaseW;
 
+  TNotifyEventWrap.Create(W.AfterCascadeDelete, DoAfterCascadeDelete, W.EventList);
+
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
   AutoTransaction := False;
-end;
-
-procedure TQueryBodyTypesBase.CascadeDelete(const AIDMaster: Variant;
-  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
-begin
-  inherited;
-
-  if not FMessagePosted then
-  begin
-    FMessagePosted := True;
-    PostMessage(Handle, WM_AFTER_CASCADE_DELETE, 0, 0);
-  end;
 end;
 
 function TQueryBodyTypesBase.CreateDSWrap: TDSWrap;
 begin
   Result := TBodyTypeBaseW.Create(FDQuery);
+end;
+
+procedure TQueryBodyTypesBase.DoAfterCascadeDelete(Sender: TObject);
+begin
+  // Ќа сервере из этих таблиц каскадно удалились данные.
+  // ќбновим содержимое этих таблиц на клиенте
+
+  RefreshLinkedData;
 end;
 
 procedure TQueryBodyTypesBase.DropUnusedBodies;
@@ -240,18 +240,6 @@ begin
     FQueryBodyVariations.FDQuery.Open;
   end;
   Result := FQueryBodyVariations;
-end;
-
-procedure TQueryBodyTypesBase.ProcessAfterCascadeDeleteMessage
-  (var Message: TMessage);
-begin
-  inherited;
-
-  // Ќа сервере из этих таблиц каскадно удалились данные.
-  // ќбновим содержимое этих таблиц на клиенте
-
-  RefreshLinkedData;
-  FMessagePosted := False;
 end;
 
 procedure TQueryBodyTypesBase.RefreshLinkedData;
@@ -365,6 +353,22 @@ begin
   FVariations := TFieldWrap.Create(Self, 'Variations');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
+
+  // —оздаЄм ещЄ одно событие
+  FAfterCascadeDelete := TNotifyEventsEx.Create(Self);
+  FNEList.Add(FAfterCascadeDelete);
+end;
+
+procedure TBodyTypeBaseW.CascadeDelete(const AIDMaster: Variant;
+  const ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+begin
+  inherited;
+
+  if FPostedMessage.IndexOf(WM_AFTER_CASCADE_DELETE) < 0 then
+  begin
+    FPostedMessage.Add(WM_AFTER_CASCADE_DELETE);
+    PostMessage(Handle, WM_AFTER_CASCADE_DELETE, 0, 0);
+  end;
 end;
 
 procedure TBodyTypeBaseW.DoAfterOpen(Sender: TObject);
@@ -379,10 +383,31 @@ begin
 end;
 
 procedure TBodyTypeBaseW.OnGetFileNameWithoutExtensionGetText(Sender: TField;
-    var Text: String; DisplayText: Boolean);
+  var Text: String; DisplayText: Boolean);
 begin
   if not Sender.AsString.IsEmpty then
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
+end;
+
+procedure TBodyTypeBaseW.ProcessAfterCascadeDeleteMessage;
+var
+  i: Integer;
+begin
+  i := FPostedMessage.IndexOf(WM_AFTER_CASCADE_DELETE);
+  Assert(i >= 0);
+  // ещаем всех что каскадное обновление закончено
+  FAfterCascadeDelete.CallEventHandlers(Self);
+  FPostedMessage.Delete(i);
+end;
+
+procedure TBodyTypeBaseW.WndProc(var Msg: TMessage);
+begin
+  case Msg.Msg of
+    WM_AFTER_CASCADE_DELETE:
+      ProcessAfterCascadeDeleteMessage;
+  else
+    inherited;
+  end;
 end;
 
 end.

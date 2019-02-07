@@ -45,7 +45,7 @@ begin
   Assert(qProducerTypes.W.DeletedPKValue > 0);
   // Ќа сервере типы производителей уже каскадно удалились
   //  аскадно удал€ем производителей с клиента
-  qProducers.CascadeDelete(qProducerTypes.W.DeletedPKValue,
+  qProducers.W.CascadeDelete(qProducerTypes.W.DeletedPKValue,
     qProducers.W.ProducerTypeID.FieldName, True);
 end;
 

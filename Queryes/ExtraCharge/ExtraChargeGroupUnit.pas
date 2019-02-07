@@ -47,7 +47,7 @@ begin
   Assert(FqExtraChargeType.W.DeletedPKValue > 0);
   // На сервере оптовые наценки уже каскадно удалились
   // Каскадно удаляем оптовые наценки с клиента
-  FqExtraCharge2.CascadeDelete(FqExtraChargeType.W.DeletedPKValue,
+  FqExtraCharge2.W.CascadeDelete(FqExtraChargeType.W.DeletedPKValue,
     FqExtraCharge2.W.IDExtraChargeType.FieldName, True);
 end;
 

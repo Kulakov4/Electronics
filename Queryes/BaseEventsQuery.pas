@@ -25,7 +25,6 @@ type
     FAfterCancelUpdates: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
     FLock: Boolean;
-    FLock1: Boolean;
     FMaster: TQueryBaseEvents;
     FNeedLoad: Boolean;
     FNeedRefresh: Boolean;
@@ -42,7 +41,6 @@ type
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
     procedure SetLock(const Value: Boolean);
-    procedure SetLock1(const Value: Boolean);
     procedure SetMaster(const Value: TQueryBaseEvents);
     { Private declarations }
   protected
@@ -74,7 +72,6 @@ type
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property Lock: Boolean read FLock write SetLock;
-    property Lock1: Boolean read FLock1 write SetLock1;
     property Master: TQueryBaseEvents read FMaster write SetMaster;
     class property Monitor: TQueryMonitor read FMonitor;
     property NeedRefresh: Boolean read FNeedRefresh;
@@ -323,7 +320,7 @@ begin
   Assert(FMaster <> nil);
   Assert(FMaster.FDQuery.RecordCount > 0);
   V := FMaster.PK.Value;
-  CascadeDelete(V, DetailParameterName);
+  Wrap.CascadeDelete(V, DetailParameterName);
   FMaster.LocateByPK(V, True);
 end;
 
@@ -371,26 +368,6 @@ begin
     FLock := Value;
 
     if (not FLock) then
-    begin
-      // если мастер изменился, нам пора обновиться
-      if FNeedLoad then
-      begin
-        Load;
-        FNeedRefresh := False; // Обновлять больше не нужно
-      end
-      else if FNeedRefresh then
-        RefreshQuery;
-    end;
-  end;
-end;
-
-procedure TQueryBaseEvents.SetLock1(const Value: Boolean);
-begin
-  if FLock1 <> Value then
-  begin
-    FLock1 := Value;
-
-    if (not FLock1) then
     begin
       // если мастер изменился, нам пора обновиться
       if FNeedLoad then

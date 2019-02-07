@@ -5,7 +5,8 @@ interface
 uses
   System.Classes, Data.DB, System.SysUtils, System.Generics.Collections,
   FireDAC.Comp.Client, FireDAC.Comp.DataSet, NotifyEvents, System.Contnrs,
-  DBRecordHolder, Winapi.Messages, Winapi.Windows;
+  DBRecordHolder, Winapi.Messages, Winapi.Windows, FireDAC.Stan.Option,
+  FireDAC.Stan.Intf;
 
 const
   WM_DS_AFTER_SCROLL = WM_USER + 500;
@@ -43,13 +44,11 @@ type
     FFieldsWrap: TObjectList<TParamWrap>;
     FHandle: HWND;
     FIsRecordModifedClone: TFDMemTable;
-    FNEList: TList<TNotifyEventsEx>;
     FDeletedPKValue: Variant;
     FBeforePostState: TDataSetState;
     FDataSource: TDataSource;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
-    FPostedMessage: TList<Integer>;
     procedure AfterDataSetScroll(DataSet: TDataSet);
     procedure AfterDataSetClose(DataSet: TDataSet);
     procedure AfterDataSetOpen(DataSet: TDataSet);
@@ -96,9 +95,14 @@ type
     function GetDataSource: TDataSource;
     procedure ProcessAfterPostMessage;
     procedure ProcessBeforeScrollMessage;
-    procedure WndProc(var Msg: TMessage);
   protected
+    FNEList: TList<TNotifyEventsEx>;
+    FPostedMessage: TList<Integer>;
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+        TFDUpdateRowOptions);
     procedure UpdateFields;
+    procedure WndProc(var Msg: TMessage); virtual;
     property FDDataSet: TFDDataSet read GetFDDataSet;
     property Handle: HWND read GetHandle;
     property RecHolder: TRecordHolder read FRecHolder;
@@ -110,6 +114,8 @@ type
     procedure AppendRows(AFieldName: string; AValues: TArray<String>);
       overload; virtual;
     procedure CancelUpdates; virtual;
+    procedure CascadeDelete(const AIDMaster: Variant; const ADetailKeyFieldName:
+        String; AFromClientOnly: Boolean = False); virtual;
     procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
     procedure DeleteAll;
@@ -423,6 +429,38 @@ begin
   end
 end;
 
+procedure TDSWrap.CascadeDelete(const AIDMaster: Variant; const
+    ADetailKeyFieldName: String; AFromClientOnly: Boolean = False);
+var
+  E: TFDUpdateRecordEvent;
+begin
+  Assert(AIDMaster > 0);
+
+  E := FDDataSet.OnUpdateRecord;
+  try
+    // Если каскадное удаление уже реализовано на стороне сервера
+    // Просто удалим эти записи с клиента ничего не сохраняя на стороне сервера
+    if AFromClientOnly then
+      FDDataSet.OnUpdateRecord := FDQueryUpdateRecordOnClient;
+
+    // FDQuery.DisableControls;
+    // try
+    // Пока есть записи подчинённые мастеру
+    while FDDataSet.LocateEx(ADetailKeyFieldName, AIDMaster, []) do
+    begin
+      FDDataSet.Delete;
+    end;
+    // finally
+    // Тут cxGrid мастера синхронизирует с подчинённым и перескакивает на другую запись
+    // FDQuery.EnableControls;
+    // end;
+
+  finally
+    if AFromClientOnly then
+      FDDataSet.OnUpdateRecord := E;
+  end;
+end;
+
 procedure TDSWrap.ClearFields(AFieldList: TArray<String>;
   AIDList: TArray<Integer>);
 var
@@ -521,6 +559,13 @@ begin
     // Разрушаем список
     FreeAndNil(FClones);
   end;
+end;
+
+procedure TDSWrap.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
+begin
+  AAction := eaApplied;
 end;
 
 function TDSWrap.Field(const AFieldName: string): TField;

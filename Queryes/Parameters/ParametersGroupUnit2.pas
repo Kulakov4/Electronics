@@ -193,7 +193,7 @@ var
 begin
   AIDParameterType := qParameterTypes.PK.Value;
   //  аскадно удал€ем параметры
-  qParameters.CascadeDelete(AIDParameterType,
+  qParameters.W.CascadeDelete(AIDParameterType,
     qParameters.W.IDParameterType.FieldName);
 
   // cxGrid сместил запись, поэтому возвращаемс€ на место

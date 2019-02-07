@@ -50,7 +50,7 @@ begin
   Assert(qDescriptionTypes.W.DeletedPKValue > 0);
   // Ќа сервере краткие описани€ уже каскадно удалились
   //  аскадно удал€ем краткие описани€ с клиента
-  qDescriptions.CascadeDelete(qDescriptionTypes.W.DeletedPKValue,
+  qDescriptions.W.CascadeDelete(qDescriptionTypes.W.DeletedPKValue,
     qDescriptions.W.IDComponentType.FieldName, True);
 end;
 
