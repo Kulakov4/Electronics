@@ -142,8 +142,7 @@ var
   m: TArray<String>;
 begin
   inherited;
-  m := qBodyVariationsJedec.GetFieldValues
-    (qBodyVariationsJedec.W.JEDEC.FieldName, ',').Trim([',']).Split([',']);
+  m := qBodyVariationsJedec.W.JEDEC.AllValues(',').Split([',']);
 
   for AJedec in m do
   begin
@@ -164,8 +163,7 @@ end;
 
 function TViewBodyVariationJEDEC.GetJEDECList: string;
 begin
-  Result := qBodyVariationsJedec.GetFieldValues
-    (qBodyVariationsJedec.W.JEDEC.FieldName, '; ').Trim([';', ' ']);
+  Result := qBodyVariationsJedec.W.JEDEC.AllValues('; ');
 end;
 
 function TViewBodyVariationJEDEC.GetqBodyVariationsJedec

@@ -204,7 +204,7 @@ begin
   TryPost;
 
   // ‘ормируем через зап€тую список из значений пол€ Value
-  s := GetFieldValues(W.Value.FieldName).Trim([',']);
+  s := W.Value.AllValues;
 
   // ≈сли поиск по пустой строке
   if s = '' then

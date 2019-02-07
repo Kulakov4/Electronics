@@ -21,6 +21,8 @@ type
     FValue: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure ApplyFamilyFilter;
+    procedure ApplyProductFilter;
     property ParentProductID: TFieldWrap read FParentProductID;
     property ID: TFieldWrap read FID;
     property Producer: TFieldWrap read FProducer;
@@ -233,6 +235,18 @@ begin
     'ProducerParamSubParamID');
 
   FProducerParam := TParamWrap.Create(Self, 'Producer');
+end;
+
+procedure TSearchComponentOrFamilyW.ApplyFamilyFilter;
+begin
+  DataSet.Filter := Format('%s = NULL', [ParentProductID.FieldName]);
+  DataSet.Filtered := True;
+end;
+
+procedure TSearchComponentOrFamilyW.ApplyProductFilter;
+begin
+  DataSet.Filter := Format('%s <> NULL', [ParentProductID.FieldName]);
+  DataSet.Filtered := True;
 end;
 
 end.

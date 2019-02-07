@@ -366,7 +366,7 @@ var
   ParamValue: string;
 begin
   Assert(qSubGroups.FDQuery.Active);
-  ParamValue := qSubGroups.GetFieldValues('ExternalID', ',').Trim([',']);
+  ParamValue := qSubGroups.W.ExternalID.AllValues(',');
 
   if BaseComponentsGroup.QueryBaseFamily.W.SubGroup.F.AsString = ParamValue then
     Exit;

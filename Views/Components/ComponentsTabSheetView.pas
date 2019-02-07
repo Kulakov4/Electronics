@@ -425,7 +425,7 @@ end;
 
 procedure TComponentsFrame.DoAfterLoadSheet(ASender: TObject);
 var
-  A: TArray<Integer>;
+  AAAAA: TArray<Integer>;
   ADataOnly: Boolean;
   AfrmError: TfrmCustomError;
   AParametricExcelTable: TParametricExcelTable;
@@ -482,14 +482,14 @@ begin
     // Должна быть хотя-бы одна категория, в которую будем добавлять параметры
     Assert(qSearchDaughterCategories.FDQuery.RecordCount >= 1);
 
-    A := qSearchDaughterCategories.GetFieldValuesAsIntArray
+    AAAAA := qSearchDaughterCategories.GetFieldValuesAsIntArray
       (qSearchDaughterCategories.PKFieldName);
 
     // 1 Добавляем параметры в категорию
     e.ExcelTable.Process(
       procedure(ASender: TObject)
       begin
-        TParameterValues.LoadParameters(A,
+        TParameterValues.LoadParameters(AAAAA,
           e.ExcelTable as TParametricExcelTable);
       end,
 
@@ -534,27 +534,6 @@ begin
   finally
     FreeAndNil(ne);
   end;
-  {
-    e.ExcelTable.Process(
-    procedure(ASender: TObject)
-    begin
-    TParameterValues.LoadParameterValues(e.ExcelTable as TParametricExcelTable);
-    end,
-
-    // Обработчик события
-    procedure(ASender: TObject)
-    Var
-    API: TProgressInfo;
-    begin
-    API := ASender as TProgressInfo;
-    // Запоминаем прогресс записи листа
-    FWriteProgress.PIList[e.SheetIndex - 1].Assign(API);
-    // Обновляем общий прогресс записи
-    FWriteProgress.UpdateTotalProgress;
-
-    TryUpdateWriteStatistic(FWriteProgress.TotalProgress);
-    end);
-  }
 end;
 
 procedure TComponentsFrame.DoOnTotalReadProgress(ASender: TObject);

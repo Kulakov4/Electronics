@@ -202,14 +202,13 @@ begin
   // Список идентификаторов параметров нашей категории, которые не имеют подпараметров!
   qCategoryParameters.W.FilterByIsDefault(1);
   try
-    S := Format(',%s,',
-      [qCategoryParameters.GetFieldValues(qCategoryParameters.W.IDParameter.
-      FieldName)]);
+    S := qCategoryParameters.W.IDParameter.AllValues(',');
   finally
     qCategoryParameters.FDQuery.Filtered := False;
   end;
 
-  m := S.Trim([',']).Split([',']);
+  m := S.Split([',']);
+  S := Format(',%s,', [S]);
   // Цикл по параметрам для категории
   for AIDParam in m do
   begin

@@ -206,8 +206,9 @@ type
   public
     constructor Create(ADataSetWrap: TDSWrap; const AFullName: String;
       const ADisplayLabel: string = ''; APrimaryKey: Boolean = False);
-    function Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions; TestResult:
-        Boolean = False): Boolean;
+    function Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions;
+      TestResult: Boolean = False): Boolean;
+    function AllValues(const ADelimiter: String = ','): String;
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
   end;
@@ -1348,12 +1349,43 @@ begin
 end;
 
 function TFieldWrap.Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions;
-    TestResult: Boolean = False): Boolean;
+  TestResult: Boolean = False): Boolean;
 begin
   Result := FDataSetWrap.FDDataSet.LocateEx(FieldName, AValue, AOptions);
   if TestResult then
   begin
     Assert(Result);
+  end;
+end;
+
+function TFieldWrap.AllValues(const ADelimiter: String = ','): String;
+var
+  AClone: TFDMemTable;
+  AValue: string;
+begin
+  Assert(not ADelimiter.IsEmpty);
+
+  Result := '';
+
+  // Создаём клона
+  AClone := TFDMemTable.Create(DataSetWrap);
+  try
+    AClone.CloneCursor(DataSetWrap.FDDataSet);
+    AClone.First;
+    while not AClone.Eof do
+    begin
+
+      AValue := AClone.FieldByName(FieldName).AsString;
+
+      if (AValue <> '') then
+      begin
+        Result := IfThen(Result.IsEmpty, '', Result + ADelimiter) + AValue;
+      end;
+
+      AClone.Next;
+    end;
+  finally
+    FreeAndNil(AClone);
   end;
 end;
 

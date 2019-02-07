@@ -16,8 +16,8 @@ type
     function GetqComponentsSearch: TQueryComponentsSearch;
     function GetqFamilySearch: TQueryFamilySearch;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
-    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
-        GetqSearchComponentOrFamily;
+    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
+      read GetqSearchComponentOrFamily;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -25,7 +25,8 @@ type
     procedure ClearSearchResult;
     procedure OpenCategory;
     procedure Search(ALike: Boolean);
-    property qComponentsSearch: TQueryComponentsSearch read GetqComponentsSearch;
+    property qComponentsSearch: TQueryComponentsSearch
+      read GetqComponentsSearch;
     property qFamilySearch: TQueryFamilySearch read GetqFamilySearch;
     property OnOpenCategory: TNotifyEventsEx read FOnOpenCategory;
   end;
@@ -85,8 +86,8 @@ begin
   Result := FqFamilySearch;
 end;
 
-function TComponentsSearchGroup2.GetqSearchComponentOrFamily:
-    TQuerySearchComponentOrFamily;
+function TComponentsSearchGroup2.GetqSearchComponentOrFamily
+  : TQuerySearchComponentOrFamily;
 begin
   if FqSearchComponentOrFamily = nil then
     FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
@@ -108,12 +109,10 @@ var
 begin
   qFamilySearch.TryPost;
   // Получаем список значений по которым будем осуществлять поиск
-  s := qFamilySearch.GetFieldValues(qFamilySearch.W.Value.F.FieldName)
-    .Trim([',']).ToUpper;
+  s := qFamilySearch.W.Value.AllValues(',').ToUpper;
 
-  if S.IsEmpty then
+  if s.IsEmpty then
     Exit;
-
 
   { необходимо получить все идентификаторы которые есть по значениям. Далее, определить что это, обычная или родительская запись
     и запомнить эти идентификаторы }
@@ -123,19 +122,17 @@ begin
   else
     qSearchComponentOrFamily.SearchByValues(s);
 
-  // Фильтруем - оставляем только главные компоненты
-  qSearchComponentOrFamily.FDQuery.Filter := 'ParentProductId = NULL';
-  qSearchComponentOrFamily.FDQuery.Filtered := True;
+  // Фильтруем - оставляем только семейства
+  qSearchComponentOrFamily.W.ApplyFamilyFilter;
 
-  s := qSearchComponentOrFamily.GetFieldValues('ID').Trim([',']);
+  s := qSearchComponentOrFamily.W.ID.AllValues(',');
   sParent := s;
 
-  // Фильтруем - оставляем только дочерние компоненты
-  qSearchComponentOrFamily.FDQuery.Filter := 'ParentProductId <> NULL';
-  qSearchComponentOrFamily.FDQuery.Filtered := True;
+  // Фильтруем - оставляем только компоненты
+  qSearchComponentOrFamily.W.ApplyProductFilter;
 
-  sParent2 := qSearchComponentOrFamily.GetFieldValues('ParentProductId').Trim([',']);
-  sDetail := qSearchComponentOrFamily.GetFieldValues('Id').Trim([',']);
+  sParent2 := qSearchComponentOrFamily.W.ParentProductID.AllValues(',');
+  sDetail := qSearchComponentOrFamily.W.ID.AllValues(',');
 
   if not sParent2.IsEmpty then
     sParent := Format('%s,%s', [sParent, sParent2]);

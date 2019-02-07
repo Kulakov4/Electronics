@@ -72,8 +72,6 @@ type
     procedure FetchFields(ARecordHolder: TRecordHolder;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
-    function GetFieldValues(AFieldName: string;
-      ADelimiter: String = ','): String;
     function GetFieldValuesAsIntArray(AFieldName: string): TArray<Integer>;
     procedure IncUpdateRecCount;
     procedure Load(AIDParent: Integer; AForcibly: Boolean = False);
@@ -416,36 +414,6 @@ begin
     FFDUpdateSQL.DataSet := FDQuery;
   end;
   Result := FFDUpdateSQL;
-end;
-
-function TQueryBase.GetFieldValues(AFieldName: string;
-  ADelimiter: String = ','): String;
-var
-  AClone: TFDMemTable;
-  AValue: string;
-begin
-  Result := ADelimiter;
-
-  // Создаём клона
-  AClone := TFDMemTable.Create(Self);
-  try
-    AClone.CloneCursor(FDQuery);
-    AClone.First;
-    while not AClone.Eof do
-    begin
-
-      AValue := AClone.FieldByName(AFieldName).AsString;
-
-      if (AValue <> '') then
-      begin
-        Result := Result + AValue + ADelimiter;
-      end;
-
-      AClone.Next;
-    end;
-  finally
-    FreeAndNil(AClone);
-  end;
 end;
 
 function TQueryBase.GetFieldValuesAsIntArray(AFieldName: string)
