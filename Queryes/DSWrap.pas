@@ -209,6 +209,7 @@ type
     function Locate(AValue: Variant; AOptions: TFDDataSetLocateOptions;
       TestResult: Boolean = False): Boolean;
     function AllValues(const ADelimiter: String = ','): String;
+    function AsIntArray: TArray<Integer>;
     property DisplayLabel: string read FDisplayLabel;
     property F: TField read GetF;
   end;
@@ -1387,6 +1388,17 @@ begin
   finally
     FreeAndNil(AClone);
   end;
+end;
+
+function TFieldWrap.AsIntArray: TArray<Integer>;
+var
+  A: TArray<String>;
+  I: Integer;
+begin
+  A := AllValues(',').Split([',']);
+  SetLength(Result, Length(A));
+  for I := Low(A) to High(A) do
+    Result[i] := A[i].ToInteger();
 end;
 
 constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String);

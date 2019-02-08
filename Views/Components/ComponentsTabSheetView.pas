@@ -425,7 +425,7 @@ end;
 
 procedure TComponentsFrame.DoAfterLoadSheet(ASender: TObject);
 var
-  AAAAA: TArray<Integer>;
+  A: TArray<Integer>;
   ADataOnly: Boolean;
   AfrmError: TfrmCustomError;
   AParametricExcelTable: TParametricExcelTable;
@@ -482,14 +482,13 @@ begin
     // ƒолжна быть хот€-бы одна категори€, в которую будем добавл€ть параметры
     Assert(qSearchDaughterCategories.FDQuery.RecordCount >= 1);
 
-    AAAAA := qSearchDaughterCategories.GetFieldValuesAsIntArray
-      (qSearchDaughterCategories.PKFieldName);
+    A := qSearchDaughterCategories.W.ID.AsIntArray;
 
     // 1 ƒобавл€ем параметры в категорию
     e.ExcelTable.Process(
       procedure(ASender: TObject)
       begin
-        TParameterValues.LoadParameters(AAAAA,
+        TParameterValues.LoadParameters(A,
           e.ExcelTable as TParametricExcelTable);
       end,
 
