@@ -51,7 +51,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure CancelUpdates; override;
+    procedure ApplyUpdates; virtual;
+    procedure CancelUpdates; virtual;
     procedure Load; overload;
     procedure MasterCascadeDelete;
     procedure TryLoad;
@@ -169,14 +170,27 @@ begin
   inherited;
 end;
 
-procedure TQueryBaseEvents.CancelUpdates;
+procedure TQueryBaseEvents.ApplyUpdates;
 begin
-  inherited;
-  // Дополнительно сообщаем о том, что изменения отменены
+  Wrap.TryPost;
   if FDQuery.CachedUpdates then
   begin
+    // Если все изменения прошли без ошибок
+    if FDQuery.ApplyUpdates() = 0 then
+      FDQuery.CommitUpdates;
+  end
+end;
+
+procedure TQueryBaseEvents.CancelUpdates;
+begin
+  // отменяем все сделанные изменения на стороне клиента
+  Wrap.TryCancel;
+  if FDQuery.CachedUpdates then
+  begin
+    FDQuery.CancelUpdates;
+    // Дополнительно сообщаем о том, что изменения отменены
     FAfterCancelUpdates.CallEventHandlers(Self);
-  end;
+  end
 end;
 
 procedure TQueryBaseEvents.DefaultOnGetText(Sender: TField; var Text: string;

@@ -41,8 +41,6 @@ type
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
     function GetPK: TField;
-    procedure TryCancel;
-    procedure TryPost;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -64,8 +62,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
-    procedure ApplyUpdates; virtual;
-    procedure CancelUpdates; virtual;
     procedure ClearUpdateRecCount;
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
@@ -162,17 +158,6 @@ procedure TQueryBase.ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
 begin
 end;
 
-procedure TQueryBase.ApplyUpdates;
-begin
-  TryPost;
-  if FDQuery.CachedUpdates then
-  begin
-    // Если все изменения прошли без ошибок
-    if FDQuery.ApplyUpdates() = 0 then
-      FDQuery.CommitUpdates;
-  end
-end;
-
 // Есть-ли изменения не сохранённые в БД
 function TQueryBase.GetHaveAnyChanges: Boolean;
 begin
@@ -191,16 +176,6 @@ begin
     Result := FDQuery.Connection.InTransaction and GetHaveAnyNotCommitedChanges;
   end;
 
-end;
-
-procedure TQueryBase.CancelUpdates;
-begin
-  // отменяем все сделанные изменения на стороне клиента
-  TryCancel;
-  if FDQuery.CachedUpdates then
-  begin
-    FDQuery.CancelUpdates;
-  end
 end;
 
 procedure TQueryBase.ClearUpdateRecCount;
@@ -372,27 +347,9 @@ begin
     finally
       FreeAndNil(AClone);
     end;
-    (*
-      // Узнать баланс кэша можно только в состоянии просмотра
-      Assert(FDQuery.State = dsBrowse);
-      FDQuery.DisableControls;
-      try
-      // Добавляем кол-во добавленных
-      FDQuery.FilterChanges := [rtInserted];
-      Result := FDQuery.RecordCount;
-      // Вычитаем кол-во удалённых
-      FDQuery.FilterChanges := [rtDeleted];
-      Result := Result - FDQuery.RecordCount;
-
-      FDQuery.FilterChanges := [rtUnmodified, rtModified, rtInserted];
-      finally
-      FDQuery.EnableControls;
-      end;
-    *)
   end
   else
     Result := IfThen(FDQuery.State in [dsInsert], 1, 0);
-
 end;
 
 function TQueryBase.GetFDUpdateSQL: TFDUpdateSQL;
@@ -558,22 +515,6 @@ begin
   Assert(not VarIsNull(AValue));
   Result := SetParamType(AParamName, AParamType, ADataType);
   Result.Value := AValue;
-end;
-
-procedure TQueryBase.TryCancel;
-begin
-  Assert(FDQuery.Active);
-
-  if FDQuery.State in [dsEdit, dsinsert] then
-    FDQuery.Cancel;
-end;
-
-procedure TQueryBase.TryPost;
-begin
-  Assert(FDQuery.Active);
-
-  if FDQuery.State in [dsEdit, dsInsert] then
-    FDQuery.Post;
 end;
 
 procedure TQueryBase.UpdateFields(AFields: TArray<TField>;
