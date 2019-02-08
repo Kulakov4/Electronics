@@ -514,16 +514,16 @@ begin
     begin
       Inc(k);
       if not(qProductParameters.FDQuery.Eof) then
-        qProductParameters.FDQuery.Edit
+        qProductParameters.W.TryEdit
       else
       begin
-        qProductParameters.FDQuery.Append;
+        qProductParameters.W.TryAppend;
         qProductParameters.W.ParamSubParamId.F.AsInteger := AParamSubParamID;
         qProductParameters.W.ProductID.F.AsInteger := AComponentID;
       end;
 
       qProductParameters.W.Value.F.AsString := AValue;
-      qProductParameters.TryPost;
+      qProductParameters.W.TryPost;
       qProductParameters.FDQuery.Next;
     end;
   end;

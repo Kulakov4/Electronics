@@ -107,7 +107,7 @@ var
   sParent: string;
   sParent2: string;
 begin
-  qFamilySearch.TryPost;
+  qFamilySearch.W.TryPost;
   // Получаем список значений по которым будем осуществлять поиск
   s := qFamilySearch.W.Value.AllValues(',').ToUpper;
 

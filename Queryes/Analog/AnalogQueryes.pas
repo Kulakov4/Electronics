@@ -3,12 +3,10 @@ unit AnalogQueryes;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  QueryGroupUnit, Vcl.ExtCtrls, TableWithProgress, Data.DB,
-  System.Generics.Collections, UniqueParameterValuesQuery, System.StrUtils,
-  FireDAC.Comp.Client, DBRecordHolder, StrHelper,
-  SearchProductByParamValuesQuery, System.Math, CategoryParametersGroupUnit2;
+  CategoryParametersGroupUnit2, DBRecordHolder,
+  FireDAC.Comp.Client, QueryGroupUnit2, System.Classes,
+  UniqueParameterValuesQuery, Data.DB, System.Generics.Collections,
+  TableWithProgress;
 
 type
   TParameterValuesTable = class(TTableWithProgress)
@@ -56,7 +54,8 @@ type
     function FindByParamSubParamID(AParamSubParamID: Integer): TParamValues;
   end;
 
-  TAnalogGroup = class(TQueryGroup)
+type
+  TAnalogGroup = class(TQueryGroup2)
   private
     FAllParameterFields: TDictionary<Integer, String>;
     FCatParamsGroup: TCategoryParametersGroup2;
@@ -95,9 +94,40 @@ type
 
 implementation
 
-{$R *.dfm}
+uses
+  ParameterKindEnum, System.SysUtils, SearchProductByParamValuesQuery,
+  System.Variants, NaturalSort, System.Math, System.StrUtils;
 
-uses ParameterKindEnum, NaturalSort;
+function TParamValuesList.FindByParamSubParamID(AParamSubParamID: Integer)
+  : TParamValues;
+begin
+  for Result in Self do
+  begin
+    if Result.ParamSubParamID = AParamSubParamID then
+      Exit;
+  end;
+
+  Result := nil;
+end;
+
+constructor TParamValues.Create(AParamSubParamID, AParameterKindID: Integer);
+begin
+  // Assert(not ACaption.IsEmpty);
+  Assert(AParamSubParamID > 0);
+  Assert(AParameterKindID >= Integer(Неиспользуется));
+  Assert(AParameterKindID <= Integer(Строковый_частичный));
+
+  FParamSubParamID := AParamSubParamID;
+  // FCaption := ACaption;
+  FParameterKindID := AParameterKindID;
+  FTable := TParameterValuesTable.Create(nil);
+end;
+
+destructor TParamValues.Destroy;
+begin
+  FreeAndNil(FTable);
+  inherited;
+end;
 
 constructor TAnalogGroup.Create(AOwner: TComponent);
 begin
@@ -595,37 +625,6 @@ begin
   finally
     EnableControls;
   end;
-end;
-
-constructor TParamValues.Create(AParamSubParamID, AParameterKindID: Integer);
-begin
-  // Assert(not ACaption.IsEmpty);
-  Assert(AParamSubParamID > 0);
-  Assert(AParameterKindID >= Integer(Неиспользуется));
-  Assert(AParameterKindID <= Integer(Строковый_частичный));
-
-  FParamSubParamID := AParamSubParamID;
-  // FCaption := ACaption;
-  FParameterKindID := AParameterKindID;
-  FTable := TParameterValuesTable.Create(nil);
-end;
-
-destructor TParamValues.Destroy;
-begin
-  FreeAndNil(FTable);
-  inherited;
-end;
-
-function TParamValuesList.FindByParamSubParamID(AParamSubParamID: Integer)
-  : TParamValues;
-begin
-  for Result in Self do
-  begin
-    if Result.ParamSubParamID = AParamSubParamID then
-      Exit;
-  end;
-
-  Result := nil;
 end;
 
 end.

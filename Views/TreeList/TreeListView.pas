@@ -126,7 +126,7 @@ var
   AValue: String;
 begin
   inherited;
-  qTreeList.TryPost;
+  qTreeList.W.TryPost;
 
   AValue := InputBox(sDatabase, sPleaseWrite, '');
   if AValue.IsEmpty then
@@ -145,7 +145,7 @@ end;
 procedure TViewTreeList.actDeleteExecute(Sender: TObject);
 begin
   inherited;
-  qTreeList.TryPost;
+  qTreeList.W.TryPost;
   if not TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
     Exit;
 
@@ -247,7 +247,7 @@ var
   Value: string;
 begin
   inherited;
-  qTreeList.TryPost;
+  qTreeList.W.TryPost;
 
   Value := InputBox(sDatabase, sPleaseWrite, qTreeList.W.Value.F.AsString);
   if (Value <> '') and (qTreeList.W.CheckPossibility(qTreeList.W.ParentId.F.AsInteger,

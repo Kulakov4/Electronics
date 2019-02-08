@@ -239,7 +239,7 @@ begin
   UpdateView;
 
   if CheckedMode then // В этом случае транзакция не начата
-    QuerySubParameters.TryPost
+    QuerySubParameters.W.TryPost
   else
     actCommit.Execute; // завершаем транзакцию
 end;

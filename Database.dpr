@@ -36,7 +36,6 @@ uses
   BodyTypesBaseQuery in 'Queryes\BodyTypes\BodyTypesBaseQuery.pas' {QueryBodyTypesBase: TFrame},
   BodyTypesSimpleQuery in 'Queryes\BodyTypes\BodyTypesSimpleQuery.pas' {QueryBodyTypesSimple: TFrame},
   BodyTypesQuery2 in 'Queryes\BodyTypes\BodyTypesQuery2.pas' {QueryBodyTypes2: TFrame},
-  QueryGroupUnit in 'Queryes\QueryGroupUnit.pas' {QueryGroup: TFrame},
   OrderQuery in 'Queryes\OrderQuery.pas' {QueryOrder: TFrame},
   BodyKindsQuery in 'Queryes\BodyTypes\BodyKindsQuery.pas' {QueryBodyKinds: TFrame},
   ProducerTypesQuery in 'Queryes\Producers\ProducerTypesQuery.pas' {QueryProducerTypes: TFrame},
@@ -148,7 +147,6 @@ uses
   Main in 'Views\Main.pas' {frmMain},
   HintWindowEx in 'Helpers\HintWindowEx.pas',
   AnalogForm in 'Views\Analog\AnalogForm.pas' {frmAnalog},
-  AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas' {AnalogGroup: TFrame},
   UniqueParameterValuesQuery in 'Queryes\Analog\UniqueParameterValuesQuery.pas' {QueryUniqueParameterValues: TFrame},
   GridViewEx in 'Views\GridViewEx.pas' {ViewGridEx: TFrame},
   AnalogGridView in 'Views\Analog\AnalogGridView.pas' {ViewAnalogGrid: TFrame},
@@ -237,7 +235,8 @@ uses
   BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QueryBillContent: TFrame},
   BillQuery2 in 'Queryes\Bill\BillQuery2.pas' {QryBill2: TFrame},
   DSWrap in 'Queryes\DSWrap.pas',
-  DescriptionsQueryWrap in 'Queryes\DescriptionsQueryWrap.pas';
+  DescriptionsQueryWrap in 'Queryes\DescriptionsQueryWrap.pas',
+  AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas';
 
 {$R *.res}
 

@@ -96,7 +96,7 @@ var
   AValue: String;
 begin
   inherited;
-  qChildCategories.TryPost;
+  qChildCategories.W.TryPost;
 
   AValue := InputBox(sDatabase, sPleaseWrite, '');
 
@@ -111,7 +111,7 @@ var
   AValue: string;
 begin
   inherited;
-  FqChildCategories.TryPost;
+  FqChildCategories.W.TryPost;
   if FqChildCategories.FDQuery.RecordCount = 0 then
     Exit;
 

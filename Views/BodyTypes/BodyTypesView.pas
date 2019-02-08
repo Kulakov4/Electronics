@@ -230,7 +230,7 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем вид корпуса
-  BodyTypesGroup.qBodyKinds.TryPost;
+  BodyTypesGroup.qBodyKinds.W.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   ARow.Expand(false);
@@ -457,8 +457,8 @@ begin
   d := not BodyTypesGroup.qBodyTypes2.ShowDuplicate;
   cxGrid.BeginUpdate();
   try
-    BodyTypesGroup.qBodyTypes2.TryPost;
-    BodyTypesGroup.qBodyKinds.TryPost;
+    BodyTypesGroup.qBodyTypes2.W.TryPost;
+    BodyTypesGroup.qBodyKinds.W.TryPost;
 
     BodyTypesGroup.qBodyTypes2.ShowDuplicate := d;
     BodyTypesGroup.qBodyKinds.ShowDuplicate := d;

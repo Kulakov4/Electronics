@@ -215,7 +215,7 @@ begin
     Exit;
 
   // Сначала сохраняем семейство компонентов
-  BaseComponentsGroup.QueryBaseFamily.TryPost;
+  BaseComponentsGroup.QueryBaseFamily.W.TryPost;
 
   ARow := GetRow(0) as TcxMyGridMasterDataRow;
   Assert(ARow <> nil);
@@ -491,7 +491,7 @@ end;
 procedure TViewComponentsBase.MyInitializeComboBoxColumn;
 begin
   Assert(BaseComponentsGroup.Producers <> nil);
-  BaseComponentsGroup.Producers.TryOpen;
+  BaseComponentsGroup.Producers.W.TryOpen;
 
   // Производителя выбираем ТОЛЬКО из списка
   InitializeComboBoxColumn(MainView, clProducer.DataBinding.FieldName,

@@ -4,12 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  NotifyEvents, System.Contnrs, System.Generics.Collections, DSWrap;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, BaseQuery,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, System.Contnrs,
+  System.Generics.Collections, DSWrap;
 
 type
   TQueryMonitor = class;
@@ -55,7 +55,8 @@ type
     procedure Load; overload;
     procedure MasterCascadeDelete;
     procedure TryLoad;
-    procedure TryPost; override;
+    // TODO: TryPost
+    // procedure TryPost; override;
     procedure TryRefresh;
     property Actual: Boolean read GetActual;
     property AutoTransaction: Boolean read FAutoTransaction
@@ -106,7 +107,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, QueryGroupUnit, System.Math;
+uses RepositoryDataModule, QueryGroupUnit2, System.Math;
 
 { TfrmDataModule }
 
@@ -396,14 +397,15 @@ begin
     FNeedLoad := True;
 end;
 
-procedure TQueryBaseEvents.TryPost;
-begin
-  // если заблокировано и не активно
-  if Lock and (not FDQuery.Active) then
-    Exit;
-
-  inherited;
-end;
+// TODO: TryPost
+// procedure TQueryBaseEvents.TryPost;
+// begin
+/// / если заблокировано и не активно
+// if Lock and (not FDQuery.Active) then
+// Exit;
+//
+// inherited;
+// end;
 
 procedure TQueryBaseEvents.TryRefresh;
 begin
@@ -538,7 +540,7 @@ end;
 procedure TQueryMonitor.ApplyUpdates;
 var
   ACount: Integer;
-  AQueryGroup: TQueryGroup;
+  AQueryGroup: TQueryGroup2;
   k: Integer;
   Q: TQueryBaseEvents;
 begin
@@ -551,9 +553,9 @@ begin
   while (FChangedQueries.Count > 0) and (k < ACount) do
   begin
     Q := FChangedQueries[0];
-    if (Q.Owner <> nil) and (Q.Owner is TQueryGroup) then
+    if (Q.Owner <> nil) and (Q.Owner is TQueryGroup2) then
     begin
-      AQueryGroup := Q.Owner as TQueryGroup;
+      AQueryGroup := Q.Owner as TQueryGroup2;
       // Просим группу сохранить свои изменения
       AQueryGroup.ApplyUpdates;
       Inc(k);
@@ -573,7 +575,7 @@ end;
 procedure TQueryMonitor.CancelUpdates;
 var
   ACount: Integer;
-  AQueryGroup: TQueryGroup;
+  AQueryGroup: TQueryGroup2;
   k: Integer;
   Q: TQueryBaseEvents;
 begin
@@ -586,9 +588,9 @@ begin
   while (FChangedQueries.Count > 0) and (k < ACount) do
   begin
     Q := FChangedQueries[0];
-    if (Q.Owner <> nil) and (Q.Owner is TQueryGroup) then
+    if (Q.Owner <> nil) and (Q.Owner is TQueryGroup2) then
     begin
-      AQueryGroup := Q.Owner as TQueryGroup;
+      AQueryGroup := Q.Owner as TQueryGroup2;
       // Просим группу Отменить свои изменения
       AQueryGroup.CancelUpdates;
       Inc(k);

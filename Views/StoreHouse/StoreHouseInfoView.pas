@@ -38,14 +38,10 @@ type
   private
     FQueryStoreHouseList: TQueryStoreHouseList;
     procedure SetQueryStoreHouseList(const Value: TQueryStoreHouseList);
-    { Private declarations }
   protected
   public
-    // TODO: SaveChanges
-    // procedure SaveChanges;
     property QueryStoreHouseList: TQueryStoreHouseList read FQueryStoreHouseList
       write SetQueryStoreHouseList;
-    { Public declarations }
   end;
 
 implementation
@@ -55,15 +51,8 @@ implementation
 procedure TViewStorehouseInfo.FrameClick(Sender: TObject);
 begin
   if QueryStoreHouseList <> nil then
-    QueryStoreHouseList.TryPost;
+    QueryStoreHouseList.W.TryPost;
 end;
-
-// TODO: SaveChanges
-// procedure TfrStorehouseInfo.SaveChanges;
-// begin
-// if datamoduleMain.dsStorehouseList.DataSet.State in [dsEdit, dsInsert] then
-// datamoduleMain.dsStorehouseList.DataSet.Post;
-// end;
 
 procedure TViewStorehouseInfo.SetQueryStoreHouseList
   (const Value: TQueryStoreHouseList);

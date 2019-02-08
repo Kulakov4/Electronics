@@ -245,7 +245,7 @@ var
 begin
   inherited;
   // Сначала сохраняем тип параметра
-  FParametersGrp.qParameterTypes.TryPost;
+  FParametersGrp.qParameterTypes.W.TryPost;
 
   ARow := GetRow(0) as TcxGridMasterDataRow;
   ARow.Expand(False);
@@ -354,8 +354,8 @@ begin
 
   BeginUpdate();
   try
-    ParametersGrp.qParameterTypes.TryPost;
-    ParametersGrp.qParameters.TryPost;
+    ParametersGrp.qParameterTypes.W.TryPost;
+    ParametersGrp.qParameters.W.TryPost;
     // ParametersGrp.qSubParameters.TryPost;
 
     // Фильтруем параметры по табличному имени
@@ -454,8 +454,8 @@ begin
 
   BeginUpdate();
   try
-    ParametersGrp.qParameterTypes.TryPost;
-    ParametersGrp.qParameters.TryPost;
+    ParametersGrp.qParameterTypes.W.TryPost;
+    ParametersGrp.qParameters.W.TryPost;
     ParametersGrp.qParameterTypes.ShowDuplicate := d;
     ParametersGrp.qParameters.ShowDuplicate := d;
   finally

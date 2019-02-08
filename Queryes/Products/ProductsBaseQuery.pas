@@ -466,7 +466,7 @@ begin
   Assert(FDQuery.CachedUpdates);
   Assert(not FDQuery.Connection.InTransaction);
 
-  TryPost;
+  W.TryPost;
   // тут должны быть несохранённые изменения
   Assert(FDQuery.ChangeCount > 0);
 
@@ -1038,18 +1038,17 @@ end;
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
   ADocFieldInfo: TDocFieldInfo);
 var
-  ABrowseState: Boolean;
+  OK: Boolean;
   S: String;
 begin
   if not AFileName.IsEmpty then
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    ABrowseState := FDQuery.State = dsBrowse;
-    W.TryEdit;
+    OK := W.TryEdit;
     FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
-    if ABrowseState then
-      TryPost;
+    if OK then
+      W.TryPost;
   end;
 end;
 

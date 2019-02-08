@@ -173,7 +173,7 @@ begin
   if (Key = 13) and
     (AColumn.DataBinding.FieldName = clValue.DataBinding.FieldName) then
   begin
-    ComponentsSearchGroup.qFamilySearch.TryPost;
+    ComponentsSearchGroup.qFamilySearch.W.TryPost;
     Search(True);
   end;
 end;

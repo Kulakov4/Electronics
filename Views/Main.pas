@@ -190,7 +190,7 @@ procedure TfrmMain.actAddStorehouseExecute(Sender: TObject);
 var
   Value: string;
 begin
-  TDM.Create.qStoreHouseList.TryPost;
+  TDM.Create.qStoreHouseList.W.TryPost;
 
   Value := InputBox(sDatabase, sPleaseWrite, '');
   if Value <> '' then
@@ -202,7 +202,7 @@ end;
 
 procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
 begin
-  TDM.Create.qStoreHouseList.TryPost;
+  TDM.Create.qStoreHouseList.W.TryPost;
   if TDM.Create.qStoreHouseList.FDQuery.RecordCount > 0 then
   begin
     if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
@@ -229,7 +229,7 @@ var
 begin
   if tvStorehouseList.Controller.SelectedRecordCount > 0 then
   begin
-    TDM.Create.qStoreHouseList.TryPost;
+    TDM.Create.qStoreHouseList.W.TryPost;
     Value := InputBox(sDatabase, sPleaseWrite,
       TDM.Create.qStoreHouseList.W.Title.F.AsString);
     if (Value <> '') then

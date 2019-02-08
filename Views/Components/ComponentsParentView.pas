@@ -186,7 +186,7 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем семейство компонентов
-  BaseComponentsGroup.QueryBaseFamily.TryPost;
+  BaseComponentsGroup.QueryBaseFamily.W.TryPost;
 
   // Разворачиваем представление 2-го уровня
   AView := ExpandDetail;

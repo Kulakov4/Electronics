@@ -449,7 +449,7 @@ begin
   if FqBillContent = nil then
   begin
     FqBillContent := TQueryBillContent.Create(FComponent);
-    FqBillContent.TryOpen;
+    FqBillContent.FDQuery.Open;
   end;
 
   Result := FqBillContent;
@@ -484,7 +484,7 @@ begin
   if FQryBill = nil then
   begin
     FQryBill := TQryBill.Create(FComponent);
-    FQryBill.TryOpen;
+    FQryBill.FDQuery.Open;
   end;
 
   Result := FQryBill;

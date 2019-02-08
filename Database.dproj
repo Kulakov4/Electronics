@@ -183,10 +183,6 @@
             <Form>QueryBodyTypes2</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Queryes\QueryGroupUnit.pas">
-            <Form>QueryGroup</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\OrderQuery.pas">
             <Form>QueryOrder</Form>
             <DesignClass>TFrame</DesignClass>
@@ -577,10 +573,6 @@
         <DCCReference Include="Views\Analog\AnalogForm.pas">
             <Form>frmAnalog</Form>
         </DCCReference>
-        <DCCReference Include="Queryes\Analog\AnalogQueryes.pas">
-            <Form>AnalogGroup</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Analog\UniqueParameterValuesQuery.pas">
             <Form>QueryUniqueParameterValues</Form>
             <DesignClass>TFrame</DesignClass>
@@ -825,6 +817,7 @@
         </DCCReference>
         <DCCReference Include="Queryes\DSWrap.pas"/>
         <DCCReference Include="Queryes\DescriptionsQueryWrap.pas"/>
+        <DCCReference Include="Queryes\Analog\AnalogQueryes.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -1,2 +1,0 @@
-inherited AnalogGroup: TAnalogGroup
-end

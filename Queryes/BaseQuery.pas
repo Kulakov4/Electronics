@@ -42,6 +42,7 @@ type
     function GetParentValue: Integer;
     function GetPK: TField;
     procedure TryCancel;
+    procedure TryPost;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -90,8 +91,6 @@ type
     function SetParamTypeEx(const AParamName: String; AValue: Variant;
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
       : TFDParam;
-    procedure TryPost; virtual;
-    procedure TryOpen;
     procedure UpdateFields(AFields: TArray<TField>; AValues: TArray<Variant>;
       AUpdateNullFieldsOnly: Boolean);
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
@@ -561,26 +560,20 @@ begin
   Result.Value := AValue;
 end;
 
+procedure TQueryBase.TryCancel;
+begin
+  Assert(FDQuery.Active);
+
+  if FDQuery.State in [dsEdit, dsinsert] then
+    FDQuery.Cancel;
+end;
+
 procedure TQueryBase.TryPost;
 begin
   Assert(FDQuery.Active);
 
   if FDQuery.State in [dsEdit, dsInsert] then
     FDQuery.Post;
-end;
-
-procedure TQueryBase.TryCancel;
-begin
-  Assert(FDQuery.Active);
-
-  if FDQuery.State in [dsEdit, dsInsert] then
-    FDQuery.Cancel;
-end;
-
-procedure TQueryBase.TryOpen;
-begin
-  if not FDQuery.Active then
-    FDQuery.Open;
 end;
 
 procedure TQueryBase.UpdateFields(AFields: TArray<TField>;

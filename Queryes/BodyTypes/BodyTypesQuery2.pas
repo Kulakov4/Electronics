@@ -332,7 +332,7 @@ begin
   OK := W.TryEdit;
   W.Field(ADocFieldInfo.FieldName).AsString := S;
   if OK then
-    TryPost;
+    W.TryPost;
 end;
 
 procedure TQueryBodyTypes2.LoadJEDEC(const AFileName: String; Add: Boolean);

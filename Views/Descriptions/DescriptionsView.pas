@@ -267,8 +267,8 @@ begin
   d := not DescriptionsGroup.qDescriptions.ShowDuplicate;
   cxGrid.BeginUpdate();
   try
-    DescriptionsGroup.qDescriptions.TryPost;
-    DescriptionsGroup.qDescriptionTypes.TryPost;
+    DescriptionsGroup.qDescriptions.W.TryPost;
+    DescriptionsGroup.qDescriptionTypes.W.TryPost;
 
     DescriptionsGroup.qDescriptions.ShowDuplicate := d;
     DescriptionsGroup.qDescriptionTypes.ShowDuplicate := d;

@@ -187,7 +187,7 @@ var
   I: Integer;
 begin
   for I := 0 to QList.Count - 1 do
-    QList[I].TryPost;
+    QList[I].Wrap.TryPost;
 end;
 
 end.

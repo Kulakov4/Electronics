@@ -139,7 +139,7 @@ begin
           F.Value := AField.Value;
       end;
 
-      QueryBodyTypesSimple.TryPost;
+      QueryBodyTypesSimple.W.TryPost;
       QueryBodyTypesSimple.IncUpdateRecCount;
 
       ABodyTypesExcelTable.Next;

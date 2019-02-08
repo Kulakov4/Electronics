@@ -125,7 +125,7 @@ begin
           AField.Value := AProducersExcelTable.Fields[I].Value;
       end;
 
-      qProducers.TryPost;
+      qProducers.W.TryPost;
 
       AProducersExcelTable.Next;
       AProducersExcelTable.CallOnProcessEvent;

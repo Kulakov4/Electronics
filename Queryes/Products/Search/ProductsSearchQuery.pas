@@ -201,7 +201,7 @@ var
   p: Integer;
   s: string;
 begin
-  TryPost;
+  W.TryPost;
 
   // ‘ормируем через зап€тую список из значений пол€ Value
   s := W.Value.AllValues;
