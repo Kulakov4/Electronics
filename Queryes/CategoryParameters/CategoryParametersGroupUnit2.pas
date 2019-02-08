@@ -796,7 +796,7 @@ end;
 
 procedure TCategoryParametersGroup2.RefreshData;
 begin
-  qCategoryParameters.RefreshQuery;
+  qCategoryParameters.W.RefreshQuery;
   LoadData;
 end;
 

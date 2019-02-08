@@ -544,7 +544,7 @@ begin
   if FQueryParameterPos = nil then
   begin
     FQueryParameterPos := TQueryParameterPos.Create(Self);
-    FQueryParameterPos.RefreshQuery;
+    FQueryParameterPos.FDQuery.Open;
   end;
   Result := FQueryParameterPos;
 end;

@@ -361,7 +361,7 @@ begin
   if frmParameters = nil then
   begin
     TDM.Create.ParametersGroup.ReOpen;
-    TDM.Create.qSubParameters.RefreshQuery;
+    TDM.Create.qSubParameters.W.RefreshQuery;
 
     frmParameters := TfrmParameters.Create(Self);
     frmParameters.ViewParameters.ParametersGrp := TDM.Create.ParametersGroup;

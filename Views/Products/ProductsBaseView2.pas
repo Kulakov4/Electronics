@@ -1237,7 +1237,7 @@ end;
 procedure TViewProductsBase2.InternalRefreshData;
 begin
   Assert(qProductsBase <> nil);
-  qProductsBase.RefreshQuery;
+  qProductsBase.W.RefreshQuery;
   cxDBTreeList.FullCollapse;
 end;
 

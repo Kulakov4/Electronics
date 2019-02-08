@@ -245,13 +245,13 @@ end;
 procedure TQueryBodyTypesBase.RefreshLinkedData;
 begin
   if FQueryBodies <> nil then
-    FQueryBodies.RefreshQuery;
+    FQueryBodies.W.RefreshQuery;
 
   if FQueryBodyData <> nil then
-    FQueryBodyData.RefreshQuery;
+    FQueryBodyData.W.RefreshQuery;
 
   if FQueryBodyVariations <> nil then
-    FQueryBodyVariations.RefreshQuery;
+    FQueryBodyVariations.W.RefreshQuery;
 end;
 
 procedure TQueryBodyTypesBase.SetMySplitDataValues(AQuery: TFDQuery;

@@ -107,7 +107,7 @@ var
 begin
   ABodyTypesExcelTable.DisableControls;
   try
-    QueryBodyTypesSimple.RefreshQuery;
+    QueryBodyTypesSimple.W.RefreshQuery;
 
     ABodyTypesExcelTable.First;
     ABodyTypesExcelTable.CallOnProcessEvent;
@@ -149,7 +149,7 @@ begin
     QueryBodyTypesSimple.FDQuery.Connection.Commit;
 
     // Обновляем данные в сгруппированном запросе
-    qBodyTypes2.RefreshQuery;
+    qBodyTypes2.W.RefreshQuery;
   finally
     ABodyTypesExcelTable.EnableControls;
   end;

@@ -42,6 +42,7 @@ type
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
     function GetPK: TField;
+    procedure RefreshQuery; virtual;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -79,7 +80,6 @@ type
       const AParamValues: TArray<Variant>); overload;
     procedure SetParameters(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>);
-    procedure RefreshQuery; virtual;
     function Search(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; TestResult: Integer = -1)
       : Integer; overload;

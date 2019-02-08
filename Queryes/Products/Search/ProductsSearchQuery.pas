@@ -296,7 +296,7 @@ begin
   if FqStoreHouseList = nil then
   begin
     FqStoreHouseList := TQueryStoreHouseList.Create(Self);
-    FqStoreHouseList.RefreshQuery;
+    FqStoreHouseList.FDQuery.Open;
   end;
   Result := FqStoreHouseList;
 end;

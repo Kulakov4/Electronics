@@ -175,7 +175,7 @@ begin
   FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
 
   // »щем
-  RefreshQuery;
+  W.RefreshQuery;
 
   Result := FDQuery.RecordCount;
 end;

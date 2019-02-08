@@ -164,7 +164,7 @@ begin
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   AViewRecursiveTree := TViewRecursiveTree.Create(Self);
   try
-    AQueryRecursiveTree.RefreshQuery;
+    AQueryRecursiveTree.W.RefreshQuery;
     AViewRecursiveTree.QueryRecursiveTree := AQueryRecursiveTree;
     AViewRecursiveTree.actExportToExcelDocument.Execute;
   finally
@@ -188,7 +188,7 @@ begin
 
   AQueryRecursiveTree := TQueryRecursiveTree.Create(Self);
   try
-    AQueryRecursiveTree.RefreshQuery;
+    AQueryRecursiveTree.FDQuery.Open;
     TLoad.Create.LoadAndProcess(AFileName, TTreeExcelDM, TfrmCustomError,
       procedure(ASender: TObject)
       begin
@@ -235,7 +235,7 @@ begin
   // Перечитываем дерево из БД
   cxDBTreeList.BeginUpdate;
   try
-    qTreeList.RefreshQuery;
+    qTreeList.W.RefreshQuery;
   finally
     cxDBTreeList.EndUpdate;
     cxDBTreeList.FocusedNode.Expand(False);

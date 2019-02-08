@@ -364,7 +364,7 @@ begin
     FreeAndNil(ATempTable);
   end;
 
-  RefreshQuery;
+  W.RefreshQuery;
   Result := FDQuery.RecordCount;
 end;
 

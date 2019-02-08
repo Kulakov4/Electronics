@@ -297,7 +297,7 @@ begin
   Application.Hint := '';
   Q := TQueryBodyTypesSimple.Create(Self);
   try
-    Q.RefreshQuery;
+    Q.FDQuery.Open;
 
     cxGridDBBandedTableView2.DataController.DataSource := Q.W.DataSource;
     try
@@ -885,7 +885,7 @@ begin
         FBodyTypesGroup.qBodyKinds.W.DataSource, lsEditFixedList,
         FBodyTypesGroup.qBodyKinds.W.BodyKind.FieldName);
 
-      FBodyTypesGroup.qProducers.RefreshQuery;
+      FBodyTypesGroup.qProducers.W.RefreshQuery;
 
       InitializeLookupColumn(clIDProducer,
         FBodyTypesGroup.qProducers.W.DataSource, lsEditFixedList,

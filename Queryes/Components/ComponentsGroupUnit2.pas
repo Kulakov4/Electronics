@@ -397,7 +397,7 @@ begin
 
   AQueryTreeList := TQueryTreeList.Create(Self);
   try
-    AQueryTreeList.RefreshQuery;
+    AQueryTreeList.FDQuery.Open;
 
     for AFullFileName in AFileNames do
     begin

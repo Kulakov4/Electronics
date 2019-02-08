@@ -15,10 +15,10 @@ type
   TQueryMonitor = class;
 
   TQueryBaseEvents = class(TQueryBase)
-    procedure DefaultOnGetText(Sender: TField; var Text: string; DisplayText:
-        Boolean);
-    procedure HideNullGetText(Sender: TField; var Text: string; DisplayText:
-        Boolean);
+    procedure DefaultOnGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure HideNullGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
   private
     FAutoTransaction: Boolean;
     FAfterCommit: TNotifyEventsEx;
@@ -27,12 +27,9 @@ type
     FLock: Boolean;
     FMaster: TQueryBaseEvents;
     FNeedLoad: Boolean;
-    FNeedRefresh: Boolean;
     class var FMonitor: TQueryMonitor;
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterMasterScroll(Sender: TObject);
-// TODO: FIsModifedClone
-//  FIsModifedClone: TFDMemTable;
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
@@ -54,14 +51,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    // TODO: AddClone
-    // function AddClone(const AFilter: String): TFDMemTable;
     procedure CancelUpdates; override;
     procedure Load; overload;
     procedure MasterCascadeDelete;
-    procedure RefreshQuery; override;
-    // TODO: PostPostMessage
-    // procedure PostPostMessage;
     procedure TryLoad;
     procedure TryPost; override;
     procedure TryRefresh;
@@ -74,7 +66,6 @@ type
     property Lock: Boolean read FLock write SetLock;
     property Master: TQueryBaseEvents read FMaster write SetMaster;
     class property Monitor: TQueryMonitor read FMonitor;
-    property NeedRefresh: Boolean read FNeedRefresh;
     property Wrap: TDSWrap read FDSWrap;
     { Public declarations }
   end;
@@ -129,15 +120,13 @@ begin
   TNotifyEventWrap.Create(FDSWrap.AfterDelete, DoAfterDelete,
     FDSWrap.EventList);
 
-  TNotifyEventWrap.Create(FDSWrap.AfterPost, DoAfterPost,
-    FDSWrap.EventList);
+  TNotifyEventWrap.Create(FDSWrap.AfterPost, DoAfterPost, FDSWrap.EventList);
 
   // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
   TNotifyEventWrap.Create(Wrap.AfterOpen, DoAfterOpen, Wrap.EventList);
 
   // Во всех строковых полях будем удалять начальные и конечные пробелы
   TNotifyEventWrap.Create(Wrap.BeforePost, DoBeforePost, Wrap.EventList);
-
 
   // Создаём события
   FAfterCommit := TNotifyEventsEx.Create(Self);
@@ -190,7 +179,7 @@ begin
 end;
 
 procedure TQueryBaseEvents.DefaultOnGetText(Sender: TField; var Text: string;
-    DisplayText: Boolean);
+  DisplayText: Boolean);
 begin
   Text := VarToStr(Sender.Value);
 end;
@@ -263,7 +252,7 @@ end;
 
 function TQueryBaseEvents.GetActual: Boolean;
 begin
-  Result := FDQuery.Active and not NeedRefresh;
+  Result := FDQuery.Active and not Wrap.NeedRefresh;
 end;
 
 procedure TQueryBaseEvents.TryStartTransaction(Sender: TObject);
@@ -279,7 +268,7 @@ begin
 end;
 
 procedure TQueryBaseEvents.HideNullGetText(Sender: TField; var Text: string;
-    DisplayText: Boolean);
+  DisplayText: Boolean);
 begin
   if VarIsNull(Sender.Value) or (Sender.Value = 0) then
     Text := ''
@@ -324,12 +313,6 @@ begin
   FMaster.Wrap.LocateByPK(V, True);
 end;
 
-procedure TQueryBaseEvents.RefreshQuery;
-begin
-  FNeedRefresh := False;
-  inherited;
-end;
-
 procedure TQueryBaseEvents.SetAutoTransaction(const Value: Boolean);
 begin
   if FAutoTransaction <> Value then
@@ -367,16 +350,20 @@ begin
   begin
     FLock := Value;
 
+    // Если не заблокировано
     if (not FLock) then
     begin
       // если мастер изменился, нам пора обновиться
       if FNeedLoad then
       begin
         Load;
-        FNeedRefresh := False; // Обновлять больше не нужно
+        Wrap.NeedRefresh := False; // Обновлять больше не нужно
       end
-      else if FNeedRefresh then
-        RefreshQuery;
+      else
+      begin
+        if Wrap.NeedRefresh then
+          Wrap.RefreshQuery;
+      end;
     end;
   end;
 end;
@@ -422,9 +409,9 @@ procedure TQueryBaseEvents.TryRefresh;
 begin
   // Будем обновляться, т.к. мы подчинены мастеру
   if not Lock then
-    RefreshQuery
+    Wrap.RefreshQuery
   else
-    FNeedRefresh := True;
+    Wrap.NeedRefresh := True;
 end;
 
 constructor TQueryMonitor.Create;

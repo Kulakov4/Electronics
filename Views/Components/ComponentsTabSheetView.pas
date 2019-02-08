@@ -225,7 +225,7 @@ begin
       mrAll:
         begin
           AQueryAllFamily := TQueryAllFamily.Create(Self);
-          AQueryAllFamily.RefreshQuery;
+          AQueryAllFamily.FDQuery.Open;
           AFDQuery := AQueryAllFamily.FDQuery;
         end;
       mrOk:
@@ -363,7 +363,7 @@ begin
   try
     AQueryReports := TQueryReports.Create(Self);
     try
-      AQueryReports.RefreshQuery;
+      AQueryReports.FDQuery.Open;
 
       frmReports.ViewReports.QueryReports := AQueryReports;
 

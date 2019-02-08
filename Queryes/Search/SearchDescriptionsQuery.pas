@@ -76,7 +76,7 @@ procedure TQuerySearchDescriptions.SearchAll;
 begin
   // Возвращаем базовый запрос
   FDQuery.SQL.Text := SQL;
-  RefreshQuery;
+  W.RefreshQuery;
 end;
 
 procedure TQuerySearchDescriptions.UpdateComponentDescriptions

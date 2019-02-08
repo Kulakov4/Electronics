@@ -47,6 +47,7 @@ type
     FDeletedPKValue: Variant;
     FBeforePostState: TDataSetState;
     FDataSource: TDataSource;
+    FNeedRefresh: Boolean;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
@@ -178,6 +179,7 @@ type
     property DeletedPKValue: Variant read FDeletedPKValue;
     property BeforePostState: TDataSetState read FBeforePostState;
     property DataSource: TDataSource read GetDataSource;
+    property NeedRefresh: Boolean read FNeedRefresh write FNeedRefresh;
     property PK: TField read GetPK;
     property PKFieldName: string read FPKFieldName write FPKFieldName;
     property RecordCount: Integer read GetRecordCount;
@@ -1062,6 +1064,7 @@ begin
   try
     FDataSet.Close;
     FDataSet.Open();
+    FNeedRefresh := False;
   finally
     FDataSet.EnableControls;
   end;

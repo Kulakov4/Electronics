@@ -309,17 +309,17 @@ begin
   // ѕросим обновить данные о производител€х в других местах
   qProductsSearch.ProducersGroup.ReOpen;
   qProducts.ProducersGroup.ReOpen;
-  DescriptionsGroup.qProducers.RefreshQuery;
+  DescriptionsGroup.qProducers.W.RefreshQuery;
 
-  ComponentsGroup.Producers.RefreshQuery;
-  ComponentsSearchGroup.Producers.RefreshQuery;
+  ComponentsGroup.Producers.W.RefreshQuery;
+  ComponentsSearchGroup.Producers.W.RefreshQuery;
 end;
 
 procedure TDM.DoAfterStoreHousePost(Sender: TObject);
 begin
   // ѕроизошло сохранение скалада
   // ќбновл€ем выпадающий список складов
-  qProductsSearch.qStoreHouseList.RefreshQuery;
+  qProductsSearch.qStoreHouseList.W.RefreshQuery;
 end;
 
 procedure TDM.DoAfterTreeListFirstOpen(Sender: TObject);
@@ -566,7 +566,7 @@ begin
 
   AErrorMessage := '';
   try
-    qVersion.RefreshQuery;
+    qVersion.W.RefreshQuery;
     if qVersion.W.Version.F.AsInteger <> DBVersion then
     begin
       AErrorMessage := Format('Ќеверна€ верси€ базы данных (надо %d, имеем %d)',

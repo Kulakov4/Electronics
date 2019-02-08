@@ -72,7 +72,7 @@ begin
   // отменяем все сделанные изменения на стороне клиента
   TryCancel;
   FDQuery.Connection.Rollback;
-  RefreshQuery;
+  W.RefreshQuery;
 end;
 
 function TQueryProducers.CreateDSWrap: TDSWrap;
