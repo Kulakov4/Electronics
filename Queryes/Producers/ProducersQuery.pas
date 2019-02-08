@@ -70,7 +70,7 @@ end;
 procedure TQueryProducers.CancelUpdates;
 begin
   // отменяем все сделанные изменения на стороне клиента
-  TryCancel;
+  W.TryCancel;
   FDQuery.Connection.Rollback;
   W.RefreshQuery;
 end;

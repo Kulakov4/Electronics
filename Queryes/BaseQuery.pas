@@ -37,12 +37,11 @@ type
     FSQL: string;
     FUpdateRecCount: Integer;
   class var
-    function Field(const AFieldName: String): TField;
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
     function GetPK: TField;
-    procedure RefreshQuery; virtual;
+    procedure TryCancel;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -92,7 +91,6 @@ type
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
       : TFDParam;
     procedure TryPost; virtual;
-    procedure TryCancel;
     procedure TryOpen;
     procedure UpdateFields(AFields: TArray<TField>; AValues: TArray<Variant>;
       AUpdateNullFieldsOnly: Boolean);
@@ -345,11 +343,6 @@ begin
   FDUpdateSQL.Apply(ARequest, AAction, AOptions);
 end;
 
-function TQueryBase.Field(const AFieldName: String): TField;
-begin
-  Result := FDQuery.FieldByName(AFieldName);
-end;
-
 function TQueryBase.GetCashedRecordBalance: Integer;
 var
   AClone: TFDMemTable;
@@ -426,7 +419,7 @@ end;
 
 function TQueryBase.GetPK: TField;
 begin
-  Result := Field(FPKFieldName);
+  Result := FDQuery.FieldByName(FPKFieldName);
 end;
 
 procedure TQueryBase.IncUpdateRecCount;
@@ -484,17 +477,6 @@ begin
   for i := Low(AParamNames) to High(AParamNames) do
   begin
     FDQuery.ParamByName(AParamNames[i]).Value := AParamValues[i];
-  end;
-end;
-
-procedure TQueryBase.RefreshQuery;
-begin
-  FDQuery.DisableControls;
-  try
-    FDQuery.Close;
-    FDQuery.Open();
-  finally
-    FDQuery.EnableControls;
   end;
 end;
 

@@ -486,7 +486,7 @@ begin
   FDataChange := False;
 
   // отменяем сделанные изменения в текущей записи на стороне клиента
-  TryCancel;
+  W.TryCancel;
 
   // Если в других записях тоже нет изменений
   if FDQuery.ChangeCount = 0 then
