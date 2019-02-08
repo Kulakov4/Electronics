@@ -119,7 +119,7 @@ begin
       Exit;
     end;
 
-    AProducerID := AProducersGroup.qProducers.PK.AsInteger;
+    AProducerID := AProducersGroup.qProducers.W.PK.AsInteger;
     AProducerName := AProducersGroup.qProducers.W.Name.F.AsString;
 
     // Сохраняем в настройках выбранного производителя

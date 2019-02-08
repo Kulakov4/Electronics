@@ -311,7 +311,7 @@ end;
 procedure TViewParameters2.actDeleteParameterTypeExecute(Sender: TObject);
 begin
   inherited;
-  ParametersGrp.DeleteParamType(ParametersGrp.qParameterTypes.PK.AsInteger);
+  ParametersGrp.DeleteParamType(ParametersGrp.qParameterTypes.W.PK.AsInteger);
 end;
 
 procedure TViewParameters2.actDisableControlsExecute(Sender: TObject);
@@ -347,7 +347,7 @@ var
   S: string;
 begin
   actFilterByTableName.Checked := not actFilterByTableName.Checked;
-  AID := ParametersGrp.qParameters.PK.Value;
+  AID := ParametersGrp.qParameters.W.PK.Value;
 
   S := IfThen(actFilterByTableName.Checked,
     ParametersGrp.qParameters.W.TableName.F.AsString, '');
@@ -447,7 +447,7 @@ begin
   inherited;
 
   Application.Hint := '';
-  AID := ParametersGrp.qParameters.PK.Value;
+  AID := ParametersGrp.qParameters.W.PK.Value;
 
   d := not ParametersGrp.qParameters.ShowDuplicate;
   actShowDuplicate.Checked := d;
@@ -485,7 +485,7 @@ begin
   FParametersGrp.qParameterTypes.W.LocateOrAppend(FNewParameterType);
   FNewParameterType := '';
 
-  AMasterID := FParametersGrp.qParameterTypes.PK.AsInteger;
+  AMasterID := FParametersGrp.qParameterTypes.W.PK.AsInteger;
   ADetailID := Message.WParam;
 
   // Ищем параметр
@@ -548,8 +548,8 @@ var
 begin
   if not FNewParameterType.IsEmpty then
   begin
-    ADetailID := FParametersGrp.qParameters.PK.AsInteger;
-    AMasterID := FParametersGrp.qParameterTypes.PK.AsInteger;
+    ADetailID := FParametersGrp.qParameters.W.PK.AsInteger;
+    AMasterID := FParametersGrp.qParameterTypes.W.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
     FParametersGrp.qParameters.W.IDParameterType.F.AsInteger := AMasterID;

@@ -220,13 +220,13 @@ begin
   // Должна быть выбрана только одна запись
   // Иначе - нарушено ограничение уникальности
   Assert(RefreshQry.FDQuery.RecordCount = 1);
-  Assert(RefreshQry.PK.AsInteger > 0);
+  Assert(RefreshQry.W.PK.AsInteger > 0);
 
   // Запоминаем, какой был первичный ключ, и какой он стал
-  FPKDictionary.Add(PK.AsInteger, RefreshQry.PK.AsInteger);
+  FPKDictionary.Add(W.PK.AsInteger, RefreshQry.W.PK.AsInteger);
 
   // Заполняем первычный ключ у вставленной записи
-  FetchFields([PK.FieldName], [RefreshQry.PK.Value], ARequest, AAction,
+  FetchFields([W.PKFieldName], [RefreshQry.W.PK.Value], ARequest, AAction,
     AOptions);
   // AID.AsInteger := RefreshQry.PK.Value;
 
@@ -345,7 +345,7 @@ begin
       while (W.IDParameter.F.AsInteger = AIDParameter) and
         (W.IsDefault.F.AsInteger = AIsDefault) and (not FDQuery.Eof) do
       begin
-        AIDList.Add(PK.AsInteger);
+        AIDList.Add(W.PK.AsInteger);
         FDQuery.Next;
       end;
 
@@ -365,7 +365,7 @@ begin
     FreeAndNil(AIDList);
   end;
 
-  AFilter := Format('%s in (%s)', [PKFieldName, S]);
+  AFilter := Format('%s in (%s)', [W.PKFieldName, S]);
   Result := W.AddClone(AFilter);
 
 end;
@@ -471,7 +471,7 @@ begin
     try
       while not AClone.Eof do
       begin
-        D.Add(AClone.FieldByName(PKFieldName).AsInteger,
+        D.Add(AClone.FieldByName(W.PKFieldName).AsInteger,
           AClone.FieldByName(W.Ord.FieldName).AsInteger);
         AClone.Next;
       end;

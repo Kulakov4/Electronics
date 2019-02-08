@@ -108,14 +108,14 @@ procedure TQueryParameters.ApplyDelete(ASender: TDataSet;
 begin
   Assert(ASender = FDQuery);
 
-  if PK.AsInteger <= 0 then
+  if W.PK.AsInteger <= 0 then
     Exit;
 
   // ≈сли пытаемс€ удалить параметр "по умолчанию"
   if W.IsCustomParameter.F.AsBoolean then
   begin
     // ѕеремещаем параметр "ѕо умолчанию" в "пустую" категорию
-    qSearchParameter.SearchByID(PK.AsInteger, True);
+    qSearchParameter.SearchByID(W.PK.AsInteger, True);
     qSearchParameter.W.TryEdit;
     qSearchParameter.W.IDParameterType.F.Value := NULL;
     qSearchParameter.W.TryPost;
@@ -127,7 +127,7 @@ begin
   end
   else
   begin
-    qSearchParameter.SearchByID(PK.AsInteger, True);
+    qSearchParameter.SearchByID(W.PK.AsInteger, True);
     qSearchParameter.FDQuery.Delete;
   end;
 end;
@@ -151,13 +151,13 @@ begin
 
     // «апоминаем пол€, которые мы только-что отредактировали на клиенте
     RH.Attach(FDQuery, Format('%s;%s;%s;%s;%s',
-      [PKFieldName, W.IsCustomParameter.FieldName, W.Checked.FieldName,
+      [W.PKFieldName, W.IsCustomParameter.FieldName, W.Checked.FieldName,
       W.ParamSubParamID.FieldName, W.Ord.FieldName]));
 
     // »щем параметр "по умолчанию" с таким-же табличным именем
     i := qSearchParameter.SearchByTableName(W.TableName.F.AsString, True);
     // ≈сли нашли параметр по умолчанию и с другим кодом
-    if (i > 0) and (PK.AsInteger <> qSearchParameter.PK.AsInteger) then
+    if (i > 0) and (W.PK.AsInteger <> qSearchParameter.W.PK.AsInteger) then
     begin
       qSearchParameter.W.TryEdit;
       AIsCustomParameter := True;
@@ -198,7 +198,7 @@ var
 begin
   Assert(ASender = FDQuery);
 
-  Assert(PK.AsInteger > 0);
+  Assert(W.PK.AsInteger > 0);
 
   Assert(not W.TableName.F.AsString.IsEmpty);
 
@@ -206,13 +206,13 @@ begin
   try
     //  опируем пол€ в буфер
     RH.Attach(FDQuery, Format('%s;%s;%s;%s',
-      [PKFieldName, W.IsCustomParameter.FieldName, W.Checked.FieldName,
+      [W.PKFieldName, W.IsCustomParameter.FieldName, W.Checked.FieldName,
       W.ParamSubParamID.FieldName]));
 
     // »щем параметр "по умолчанию" с таким-же табличным именем
     i := qSearchParameter.SearchByTableName(W.TableName.F.AsString, True);
     AIsCustomEdited := (i > 0) and
-      (PK.AsInteger <> qSearchParameter.W.PK.AsInteger);
+      (W.PK.AsInteger <> qSearchParameter.W.PK.AsInteger);
 
     // ≈сли мы редактировали не параметр по умолчанию
     if not AIsCustomEdited then
@@ -237,7 +237,7 @@ begin
     qSearchParameter.FDQuery.Delete;
 
     // ћен€ем идентификатор той записи, что сейчас на клиенте
-    FetchFields([PK.FieldName, W.IsCustomParameter.FieldName], [AID, 1],
+    FetchFields([W.PKFieldName, W.IsCustomParameter.FieldName], [AID, 1],
       ARequest, AAction, AOptions);
   end
 end;
@@ -309,7 +309,7 @@ function TQueryParameters.Lookup(AValue: string): Integer;
 var
   V: Variant;
 begin
-  V := FDQuery.LookupEx(W.Value.FieldName, AValue, PKFieldName,
+  V := FDQuery.LookupEx(W.Value.FieldName, AValue, W.PKFieldName,
     [lxoCaseInsensitive]);
   if VarIsNull(V) then
     Result := 0

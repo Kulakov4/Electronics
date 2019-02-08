@@ -132,7 +132,7 @@ begin
         if AField <> nil then
           AField.Value := ADescriptionsExcelTable.Fields[I].Value;
       end;
-      qDescriptions.W.IDComponentType.F.Value := qDescriptionTypes.PK.Value;
+      qDescriptions.W.IDComponentType.F.Value := qDescriptionTypes.W.PK.Value;
       qDescriptions.W.IDProducer.F.Value :=
         ADescriptionsExcelTable.IDProducer.Value;
       qDescriptions.FDQuery.Post;

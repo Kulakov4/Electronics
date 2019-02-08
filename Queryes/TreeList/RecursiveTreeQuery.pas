@@ -131,7 +131,7 @@ begin
         begin
           // »щем родительскую запись по внешнему идентификатору
           W.LocateByExternalID(ATreeExcelTable.ParentExternalID.AsString, True);
-          AParentID := PK.Value;
+          AParentID := W.PK.Value;
 
           W.TryAppend;
           W.ExternalID.F.AsString := ATreeExcelTable.ExternalID.AsString;

@@ -159,7 +159,7 @@ begin
     then
     begin
       // Обновляем значение параметра на сервере
-      UpdateParameterValue(AQueryCustomComponents.PK.AsInteger,
+      UpdateParameterValue(AQueryCustomComponents.W.PK.AsInteger,
         AParamSubParamID, AField.AsString);
     end;
     // Переходим к следующему подпараметру
@@ -453,7 +453,7 @@ begin
   begin
     AParamSubParamID := ARecHolder.Field
       [qCategoryParameters.W.ParamSubParamId.FieldName];
-    AID := ARecHolder.Field[qCategoryParameters.PKFieldName];
+    AID := ARecHolder.Field[qCategoryParameters.W.PKFieldName];
     qCategoryParameters.W.LocateByPK(AID, True);
     Assert(AParamSubParamID <> qCategoryParameters.W.ParamSubParamId.F.AsInteger);
 

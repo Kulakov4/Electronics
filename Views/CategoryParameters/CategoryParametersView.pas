@@ -305,7 +305,7 @@ begin
       if AfrmParameters.ShowModal = mrOK then
         AParamIDList := Format(',%s,',
           [AParamsGrp.qParameters.GetCheckedValues
-          (AParamsGrp.qParameters.PKFieldName)]);
+          (AParamsGrp.qParameters.W.PKFieldName)]);
     finally
       FreeAndNil(AfrmParameters);
     end;

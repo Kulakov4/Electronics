@@ -203,7 +203,7 @@ begin
   begin
     // Запоминаем код родительского компонента
     Edit;
-    IDFamily.Value := FQuerySearchFamily.PK.Value;
+    IDFamily.Value := FQuerySearchFamily.W.PK.Value;
     Post;
 
     ARecordCheck.ErrorType := etWarring;

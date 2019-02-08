@@ -50,14 +50,13 @@ end;
 
 procedure TQueryBaseComponents.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
-var
-  AID: Integer;
 begin
-  AID := ASender.FieldByName(PKFieldName).AsInteger;
-  if AID > 0 then
+  Assert(ASender = FDQuery);
+
+  if W.ID.F.AsInteger > 0 then
   begin
     // Удаляем сам дочерний компонент
-    qProducts.DeleteRecord(AID);
+    qProducts.DeleteRecord(W.ID.F.AsInteger);
   end;
 
   inherited;
@@ -82,18 +81,18 @@ begin
     end;
 
     // Запоминаем сгенерированный первичный ключ
-    FetchFields([PK.FieldName], [qProducts.PKValue], ARequest, AAction,
+    FetchFields([W.PKFieldName], [qProducts.PKValue], ARequest, AAction,
       AOptions);
   end
   else
   begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
-    FetchFields([PK.FieldName], [qSearchComponent.PK.Value], ARequest, AAction,
+    FetchFields([W.PKFieldName], [qSearchComponent.W.PK.Value], ARequest, AAction,
       AOptions);
   end;
 
-  Assert(PK.AsInteger > 0);
+  Assert(W.PK.AsInteger > 0);
 
   inherited;
 end;
@@ -144,8 +143,7 @@ begin
   if not FClone.Active then
     Exit;
 
-//  Assert(FClone.Active);
-  V := FClone.LookupEx(W.ParentProductID.FieldName, AMasterID, PKFieldName );
+  V := FClone.LookupEx(W.ParentProductID.FieldName, AMasterID, W.PKFieldName );
   Result := not VarIsNull(V);
 end;
 

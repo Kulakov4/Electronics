@@ -103,7 +103,7 @@ begin
         TDM.Create.DescriptionsGroup.qDescriptions.W.Description.F.Value;
 
       FDescriptionW.DescriptionID.F.Value :=
-        TDM.Create.DescriptionsGroup.qDescriptions.PK.Value;
+        TDM.Create.DescriptionsGroup.qDescriptions.W.PK.Value;
 
       FDescriptionW.TryPost;
     end;

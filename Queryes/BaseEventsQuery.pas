@@ -313,7 +313,7 @@ begin
   FNeedLoad := False;
   Assert(FMaster <> nil);
   AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
-    FMaster.PK.AsInteger, -1);
+    FMaster.Wrap.PK.AsInteger, -1);
   Load(AIDParent);
 end;
 
@@ -323,7 +323,7 @@ var
 begin
   Assert(FMaster <> nil);
   Assert(FMaster.FDQuery.RecordCount > 0);
-  V := FMaster.PK.Value;
+  V := FMaster.Wrap.PK.Value;
   Wrap.CascadeDelete(V, DetailParameterName);
   FMaster.Wrap.LocateByPK(V, True);
 end;

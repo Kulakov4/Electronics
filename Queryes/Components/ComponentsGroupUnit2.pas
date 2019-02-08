@@ -175,7 +175,7 @@ begin
   Assert(qFamily.FDQuery.RecordCount > 0);
 
   if qComponents.W.ParentProductID.F.IsNull then
-    qComponents.W.ParentProductID.F.Value := qFamily.PK.Value;
+    qComponents.W.ParentProductID.F.Value := qFamily.W.PK.Value;
 end;
 
 procedure TComponentsGroup2.DoOnTotalProgress(e: TFolderLoadEvent);
@@ -304,7 +304,7 @@ begin
         // Добавляем дочерний компонент
         if not AComponentsExcelTable.ComponentName.AsString.IsEmpty then
         begin
-          qComponents.ComponentsW.LocateOrAppend(qFamily.PK.Value,
+          qComponents.ComponentsW.LocateOrAppend(qFamily.W.PK.Value,
             AComponentsExcelTable.ComponentName.AsString);
         end;
 
@@ -442,8 +442,8 @@ begin
         AQueryTreeList.W.Value.F.AsString, 'Идёт обработка этого файла...', '');
 
       // загружаем компоненты из нужной нам категории
-      qComponents.Load(AQueryTreeList.PK.Value);
-      qFamily.Load(AQueryTreeList.PK.Value);
+      qComponents.Load(AQueryTreeList.W.PK.Value);
+      qFamily.Load(AQueryTreeList.W.PK.Value);
 
       AComponentsExcelDM := TComponentsExcelDM.Create(Self);
       try
@@ -506,8 +506,8 @@ begin
   end;
 
   // загружаем компоненты из нужной нам категории
-  qComponents.Load(qComponents.Master.PK.Value);
-  qFamily.Load(qComponents.Master.PK.Value);
+  qComponents.Load(qComponents.Master.Wrap.PK.Value);
+  qFamily.Load(qComponents.Master.Wrap.PK.Value);
 end;
 
 constructor TFolderLoadEvent.Create(const AFileName: string;

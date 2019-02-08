@@ -355,7 +355,7 @@ begin
   if qTreeList.FDQuery.RecordCount = 0 then
     Exit;
 
-  TSettings.Create.CategoryID := qTreeList.PK.AsInteger;
+  TSettings.Create.CategoryID := qTreeList.W.PK.AsInteger;
 end;
 
 procedure TDM.DoOnCategoryParametersApplyUpdates(Sender: TObject);

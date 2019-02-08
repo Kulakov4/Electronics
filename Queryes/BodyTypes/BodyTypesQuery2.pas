@@ -97,7 +97,7 @@ var
 begin
   QueryBodies.LocateOrAppend(W.Body.F.Value, W.IDBodyKind.F.Value);
   QueryBodyData.LocateOrAppend(W.BodyData.F.Value, W.IDProducer.F.Value,
-    QueryBodies.PK.Value);
+    QueryBodies.W.PK.Value);
 
   AIDSS := '';
   // Анализируем варианты корпусов
@@ -126,11 +126,11 @@ begin
     // Цикл по всем вариантам корпуса
     for I := 0 to L.Count - 1 do
     begin
-      QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
+      QueryBodyVariations.LocateOrAppend(QueryBodyData.W.PK.Value,
         W.OutlineDrawing.F.AsString, W.LandPattern.F.AsString, L[I],
         W.Image.F.AsString);
 
-      AID := QueryBodyVariations.PK.AsString;
+      AID := QueryBodyVariations.W.PK.AsString;
       Assert(not AID.IsEmpty);
 
       // Удаляем этот идентификатор из старых
@@ -160,8 +160,8 @@ begin
     // Заполняем части корпусных данных
     SetMySplitDataValues(QueryBodyData.FDQuery, W.BodyData.FieldName);
 
-    W.IDBodyData.F.Value := QueryBodyData.PK.Value;
-    W.IDBody.F.Value := QueryBodies.PK.Value;
+    W.IDBodyData.F.Value := QueryBodyData.W.PK.Value;
+    W.IDBody.F.Value := QueryBodies.W.PK.Value;
 
   finally
     FreeAndNil(L);

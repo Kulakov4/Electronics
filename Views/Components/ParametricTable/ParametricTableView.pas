@@ -1531,7 +1531,7 @@ begin
   AParamSubParamId := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
 
   // Ищем, возможно такая колонка уже есть?
-  ACI := FColumnsInfo.Search(qCategoryParameters.PK.AsInteger);
+  ACI := FColumnsInfo.Search(qCategoryParameters.W.PK.AsInteger);
   if ACI <> nil then
   begin
     // Эта колонка должна принадлежать этому бэнду
@@ -1608,7 +1608,7 @@ begin
       end;
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
-        qCategoryParameters.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
+        qCategoryParameters.W.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
         ABandInfo.DefaultCreated, qCategoryParameters.W.IsDefault.F.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
@@ -1632,7 +1632,7 @@ begin
     // Составляем список идентификаторов текущего бэнда
     while not AClone.Eof do
     begin
-      AIDList.Add(AClone.FieldByName(qCategoryParameters.PKFieldName)
+      AIDList.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName)
         .AsInteger);
       AClone.Next;
     end;
@@ -1642,7 +1642,7 @@ begin
     begin
       // Переходим на очередной подпараметр
       qCategoryParameters.W.LocateByPK
-        (AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger, True);
+        (AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger, True);
 
       // Создаём колонку
       CreateColumn([MainView, GridView(cxGridLevel2)], AIDList.ToArray,
@@ -2211,13 +2211,13 @@ begin
   AIDList := TList<Integer>.Create;
   try
     qCategoryParameters.FDQuery.First;
-    AIDList.Add(qCategoryParameters.PK.AsInteger);
+    AIDList.Add(qCategoryParameters.W.PK.AsInteger);
 
     while not qCategoryParameters.FDQuery.Eof do
     begin
       // Если следующая запись относится к той же группе
       if qCategoryParameters.W.NextEx then
-        AIDList.Add(qCategoryParameters.PK.AsInteger)
+        AIDList.Add(qCategoryParameters.W.PK.AsInteger)
       else
       begin
         AIsEof := qCategoryParameters.FDQuery.Eof;
@@ -2280,7 +2280,7 @@ begin
           break;
 
         AIDList.Clear;
-        AIDList.Add(qCategoryParameters.PK.AsInteger);
+        AIDList.Add(qCategoryParameters.W.PK.AsInteger);
       end;
     end;
 
@@ -2332,14 +2332,14 @@ begin
   // Удаляем колонки
   for ARecHolder in qCategoryParameters.DeletedSubParams do
   begin
-    AIDCategoryParam := ARecHolder.Field[qCategoryParameters.PKFieldName];
+    AIDCategoryParam := ARecHolder.Field[qCategoryParameters.W.PKFieldName];
     DropColumn(AIDCategoryParam);
   end;
 
   // Обновляем колонки
   for ARecHolder in qCategoryParameters.EditedSubParams do
   begin
-    AIDCategoryParam := ARecHolder.Field[qCategoryParameters.PKFieldName];
+    AIDCategoryParam := ARecHolder.Field[qCategoryParameters.W.PKFieldName];
     UpdateColumn(AIDCategoryParam);
   end;
 
@@ -2348,7 +2348,7 @@ begin
   try
     for ARecHolder in qCategoryParameters.InsertedSubParams do
     begin
-      AIDCategoryParam := ARecHolder.Field[qCategoryParameters.PKFieldName];
+      AIDCategoryParam := ARecHolder.Field[qCategoryParameters.W.PKFieldName];
 
       // Новые идентификаторы
       ANewIDList := ComponentsExGroup.CatParamsGroup.GetIDList

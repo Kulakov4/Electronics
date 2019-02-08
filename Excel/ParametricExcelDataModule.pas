@@ -114,7 +114,7 @@ begin
   if Result then
   begin
     Edit;
-    IDComponent.AsInteger := qSearchComponentOrFamily.PK.AsInteger;
+    IDComponent.AsInteger := qSearchComponentOrFamily.W.PK.AsInteger;
     IDParentComponent.AsInteger :=
       qSearchComponentOrFamily.W.ParentProductID.F.AsInteger;
     Post;

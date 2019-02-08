@@ -93,7 +93,7 @@ begin
 
             F := AParametersGroup.qParameters.W.TableName.F;
             ErrMsg := 'Табличное имя выбранного параметра не совпадает с заголовком в Excel файле';
-            PKFieldName := AParametersGroup.qParameters.PKFieldName;
+            PKFieldName := AParametersGroup.qParameters.W.PKFieldName;
 
             if ParametricErrorTable.ErrorType.AsInteger = Integer
               (petParamDuplicate) then
@@ -111,7 +111,7 @@ begin
 
             F := AqSubParameters.W.Name.F;
             ErrMsg := 'Имя выбранного подпараметра не совпадает с заголовком в Excel файле';
-            PKFieldName := AqSubParameters.PKFieldName;
+            PKFieldName := AqSubParameters.W.PKFieldName;
           end;
       else
         Assert(False);

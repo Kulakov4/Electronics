@@ -155,7 +155,7 @@ end;
 procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
 begin
   Inc(FX);
-  PK.Value := -FX;
+  W.PK.Value := -FX;
   W.IsGroup.F.AsInteger := 0;
 end;
 

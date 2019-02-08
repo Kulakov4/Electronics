@@ -68,7 +68,7 @@ begin
   Assert(ASender = FDQuery);
 
   // Если такого семейства ещё нет
-  if PK.AsInteger <= 0 then
+  if W.PK.AsInteger <= 0 then
   begin
     ARH := TRecordHolder.Create(ASender);
     try
@@ -78,20 +78,20 @@ begin
     end;
 
     // Запоминаем сгенерированный первичный ключ
-    FetchFields([PK.FieldName], [qProducts.PKValue], ARequest, AAction,
+    FetchFields([W.PKFieldName], [qProducts.PKValue], ARequest, AAction,
       AOptions);
 
   end;
 
-  Assert(PK.AsInteger > 0);
+  Assert(W.PK.AsInteger > 0);
 
   // Обрабатываем значения параметров
-  W.UpdateParamValue(PKFieldName);
+  W.UpdateParamValue(W.PKFieldName);
 
-  Assert(PK.AsInteger > 0);
+  Assert(W.PK.AsInteger > 0);
 
   // Обновляем категории нашего компонента
-  UpdateCategory(PK.AsInteger, W.SubGroup.F.AsString);
+  UpdateCategory(W.PK.AsInteger, W.SubGroup.F.AsString);
 
   inherited;
 end;
@@ -156,7 +156,7 @@ begin
     W.Producer.F.AsString) > 0 then
   begin
     // Запоминаем найденный первичный ключ
-    PK.Value := qSearchFamily.PK.Value;
+    W.PK.Value := qSearchFamily.W.PK.Value;
 
     // Заполняем поля из найденного семейства
     UpdateFields([W.IDProducer.F, W.IDDatasheet.F, W.Datasheet.F, W.IDDiagram.F,

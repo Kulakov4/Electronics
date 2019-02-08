@@ -115,7 +115,7 @@ begin
         qProducers.W.TryAppend;
 
       // Связываем производителя с его типом
-      qProducers.W.ProducerTypeID.F.AsInteger := qProducerTypes.PK.AsInteger;
+      qProducers.W.ProducerTypeID.F.AsInteger := qProducerTypes.W.PK.AsInteger;
 
       for I := 0 to AProducersExcelTable.FieldCount - 1 do
       begin
@@ -148,7 +148,7 @@ begin
     Exit;
 
   qProducerTypes.LocateOrAppend(AProducerType);
-  qProducers.W.AddNewValue(AValue, qProducerTypes.PK.AsInteger);
+  qProducers.W.AddNewValue(AValue, qProducerTypes.W.PK.AsInteger);
 end;
 
 procedure TProducersGroup2.SetqProducers(const Value: TQueryProducers);

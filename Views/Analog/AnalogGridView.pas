@@ -332,7 +332,7 @@ begin
   end;
 
   // Ищем, возможно такая колонка уже есть?
-  ACI := FColumnsInfo.Search(qCategoryParameters.PK.AsInteger);
+  ACI := FColumnsInfo.Search(qCategoryParameters.W.PK.AsInteger);
   if ACI <> nil then
   begin
     // Эта колонка должна принадлежать этому бэнду
@@ -405,7 +405,7 @@ begin
       end;
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
-        qCategoryParameters.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
+        qCategoryParameters.W.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
         ABandInfo.DefaultCreated, qCategoryParameters.W.IsDefault.F.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
@@ -429,7 +429,7 @@ begin
     // Составляем список идентификаторов текущего бэнда
     while not AClone.Eof do
     begin
-      AIDList.Add(AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger);
+      AIDList.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger);
       AClone.Next;
     end;
 
@@ -438,7 +438,7 @@ begin
     begin
       // Переходим на очередной подпараметр
       qCategoryParameters.W.LocateByPK
-        (AClone.FieldByName(qCategoryParameters.PKFieldName).AsInteger, True);
+        (AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger, True);
 
       // Создаём колонку
       CreateColumn([MainView], AIDList.ToArray, qCategoryParameters);

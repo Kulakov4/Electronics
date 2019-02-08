@@ -374,7 +374,7 @@ begin
     Exit;
 
   MainView.DataController.DataSource := FQuerySubParameters.W.DataSource;
-  MainView.DataController.KeyFieldNames := FQuerySubParameters.PKFieldName;
+  MainView.DataController.KeyFieldNames := FQuerySubParameters.W.PKFieldName;
 
   CheckedMode := FQuerySubParameters.CheckedMode;
 

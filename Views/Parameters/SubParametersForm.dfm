@@ -27,11 +27,7 @@ inherited frmSubParameters: TfrmSubParameters
         ExplicitWidth = 788
       end
       inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          54
-          0)
+        PixelsPerInch = 96
       end
       inherited cxGridPopupMenu: TcxGridPopupMenu
         PopupMenus = <

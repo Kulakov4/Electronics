@@ -40,11 +40,9 @@ type
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
-    function GetPK: TField;
     { Private declarations }
   protected
     FEventList: TObjectList;
-    FPKFieldName: String;
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -96,8 +94,6 @@ type
       write FDetailParameterName;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property ParentValue: Integer read GetParentValue;
-    property PK: TField read GetPK;
-    property PKFieldName: String read FPKFieldName;
     property SQL: string read FSQL;
     { Public declarations }
   published
@@ -117,8 +113,6 @@ begin
 
   // Создаём список своих подписчиков на события
   FEventList := TObjectList.Create;
-
-  FPKFieldName := 'ID';
 
   // Создаём события
   FBeforeLoad := TNotifyEventsEx.Create(Self);
@@ -371,11 +365,6 @@ function TQueryBase.GetParentValue: Integer;
 begin
   Assert(DetailParameterName <> '');
   Result := FDQuery.Params.ParamByName(DetailParameterName).AsInteger;
-end;
-
-function TQueryBase.GetPK: TField;
-begin
-  Result := FDQuery.FieldByName(FPKFieldName);
 end;
 
 procedure TQueryBase.IncUpdateRecCount;

@@ -259,13 +259,13 @@ begin
     FExtraChargeGroup.qExtraCharge2.W.DataSource;
 
   MainView.DataController.KeyFieldNames :=
-    FExtraChargeGroup.qExtraChargeType.PKFieldName;
+    FExtraChargeGroup.qExtraChargeType.W.PKFieldName;
 
   // настраиваем отношение "главный-подчинённый"
   with cxGridDBBandedTableView2.DataController do
   begin
-    KeyFieldNames := FExtraChargeGroup.qExtraCharge2.PKFieldName;
-    MasterKeyFieldNames := FExtraChargeGroup.qExtraChargeType.PKFieldName;
+    KeyFieldNames := FExtraChargeGroup.qExtraCharge2.W.PKFieldName;
+    MasterKeyFieldNames := FExtraChargeGroup.qExtraChargeType.W.PKFieldName;
     DetailKeyFieldNames := FExtraChargeGroup.qExtraCharge2.W.
       IDExtraChargeType.FieldName;
   end;

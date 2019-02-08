@@ -332,10 +332,10 @@ begin
     end;
 
     Assert(qSearchProductParameterValues.FDQuery.RecordCount = k);
-    Assert(qSearchProductParameterValues.PK.AsInteger > 0);
+    Assert(qSearchProductParameterValues.W.PK.AsInteger > 0);
 
     if AIDProductParameterValue <> nil then
-      AIDProductParameterValue.Value := qSearchProductParameterValues.PK.Value;
+      AIDProductParameterValue.Value := qSearchProductParameterValues.W.PK.Value;
   end;
 end;
 

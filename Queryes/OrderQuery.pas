@@ -106,7 +106,7 @@ begin
 
     AOrderField := AClone.FieldByName(OrderW.Ord.FieldName);
     AOrderField2 := AClone2.FieldByName(OrderW.Ord.FieldName);
-    AKeyField := AClone.FieldByName(PKFieldName);
+    AKeyField := AClone.FieldByName(Wrap.PKFieldName);
 
     while not AClone.Eof do
     begin
@@ -126,7 +126,7 @@ begin
       if Sign <> 0 then
       begin
 
-        OK := AClone2.LocateEx(PKFieldName, AKeyField.Value, []);
+        OK := AClone2.LocateEx(Wrap.PKFieldName, AKeyField.Value, []);
         Assert(OK);
         // Находим смещение
         ANewRecNo := AClone2.RecNo + Sign * Length(AStartDrag.Keys);
@@ -148,7 +148,7 @@ begin
     // if IsDown then
     // ANewOrderValue := ADropDrag.OrderValue - Length(AStartDrag.Keys) + 1;
 
-    OK := AClone2.LocateEx(PKFieldName, ADropDrag.Key, []);
+    OK := AClone2.LocateEx(Wrap.PKFieldName, ADropDrag.Key, []);
     Assert(OK);
 
     if IsUp then
@@ -199,7 +199,7 @@ begin
 
   FDQuery.DisableControls;
   try
-    APKValue := PK.Value;
+    APKValue := Wrap.PK.Value;
     try
       // Теперь поменяем порядок
       for I := 0 to FRecOrderList.Count - 1 do
@@ -215,7 +215,7 @@ begin
         FRecOrderList[I].Free;
       FRecOrderList.Clear;
     finally
-      FDQuery.Locate(PKFieldName, APKValue, []);
+      FDQuery.Locate(Wrap.PKFieldName, APKValue, []);
     end;
   finally
     FDQuery.EnableControls;

@@ -300,7 +300,7 @@ begin
   DescriptionsGroup.qDescriptionTypes.W.LocateOrAppend(FNewValue);
   FNewValue := '';
 
-  AMasterID := DescriptionsGroup.qDescriptionTypes.PK.AsInteger;
+  AMasterID := DescriptionsGroup.qDescriptionTypes.W.PK.AsInteger;
   ADetailID := Message.WParam;
 
   // Ищем параметр
@@ -334,8 +334,8 @@ var
 begin
   if not FNewValue.IsEmpty then
   begin
-    ADetailID := DescriptionsGroup.qDescriptions.PK.AsInteger;
-    AMasterID := DescriptionsGroup.qDescriptionTypes.PK.AsInteger;
+    ADetailID := DescriptionsGroup.qDescriptions.W.PK.AsInteger;
+    AMasterID := DescriptionsGroup.qDescriptionTypes.W.PK.AsInteger;
 
     // Возвращаем пока старое значение внешнего ключа
     DescriptionsGroup.qDescriptions.W.IDComponentType.F.AsInteger := AMasterID;

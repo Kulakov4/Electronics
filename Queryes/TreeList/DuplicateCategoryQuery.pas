@@ -83,7 +83,7 @@ begin
   begin
     Inc(i);
     Append;
-    W.ID.F.Value := AQuerySearchCategory.PK.Value;
+    W.ID.F.Value := AQuerySearchCategory.W.PK.Value;
     W.Caption.F.AsString := Format('%d совпадение', [i]);
     Post;
 

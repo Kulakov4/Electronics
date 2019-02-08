@@ -37,7 +37,7 @@ begin
   Assert(ASender = FDQuery);
 
   // Удаляем вариант корпуса
-  QueryBodyVariations.W.LocateByPKAndDelete(PK.Value);
+  QueryBodyVariations.W.LocateByPKAndDelete(W.PK.Value);
 
   // Удаляем неиспользуемые корпуса
   DropUnusedBodies;
@@ -58,12 +58,12 @@ var
 begin
   QueryBodies.LocateOrAppend(W.Body.F.Value, W.IDBodyKind.F.Value);
   QueryBodyData.LocateOrAppend(W.BodyData.F.Value, W.IDProducer.F.Value,
-    QueryBodies.PK.Value);
+    QueryBodies.W.PK.Value);
 
-  QueryBodyVariations.LocateOrAppend(QueryBodyData.PK.Value,
+  QueryBodyVariations.LocateOrAppend(QueryBodyData.W.PK.Value,
     W.OutlineDrawing.F.AsString, W.LandPattern.F.AsString,
     W.Variations.F.AsString, W.Image.F.AsString);
-  AID := QueryBodyVariations.PK.Value;
+  AID := QueryBodyVariations.W.PK.Value;
   Assert(AID > 0);
 
   W.IDS.F.Value := AID;

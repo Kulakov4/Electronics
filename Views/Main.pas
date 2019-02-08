@@ -650,10 +650,10 @@ begin
   ComponentsFrame.cxtsCategoryComponents.Enabled :=
     not TDM.Create.qTreeList.W.IsRootFocused;
 
-  Assert(TDM.Create.qTreeList.PK.AsInteger > 0);
+  Assert(TDM.Create.qTreeList.W.PK.AsInteger > 0);
   Assert(FQuerySearchCategoriesPath <> nil);
   FCategoryPath := FQuerySearchCategoriesPath.GetFullPath
-    (TDM.Create.qTreeList.PK.AsInteger);
+    (TDM.Create.qTreeList.W.PK.AsInteger);
 
   UpdateCaption;
 
@@ -794,7 +794,7 @@ begin
   TDM.Create.ComponentsExGroup.AddClient;
 
   // Ќам надо узнать, есть-ли у текущей категории подкатегории
-  rc := TSearchSubCategories.Search(TDM.Create.qTreeList.PK.Value);
+  rc := TSearchSubCategories.Search(TDM.Create.qTreeList.W.PK.Value);
   // ≈сли у нашей категории есть подкатегории
   if rc > 0 then
     ACategoryPath := TDM.Create.qTreeList.W.Value.F.AsString
@@ -802,7 +802,7 @@ begin
   begin
     // ≈сли в цепочке категорий мы последнее звено
     ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-      (TDM.Create.qTreeList.PK.Value, 2, '-');
+      (TDM.Create.qTreeList.W.PK.Value, 2, '-');
   end;
   frmParametricTable.CategoryPath := ACategoryPath;
 end;

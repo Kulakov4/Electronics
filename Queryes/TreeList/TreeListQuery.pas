@@ -100,7 +100,7 @@ begin
     Exit;
   end;
 
-  qDuplicateCategory.Search(PK.AsInteger);
+  qDuplicateCategory.Search(W.PK.AsInteger);
 end;
 
 function TQueryTreeList.GetqDuplicateCategory: TQueryDuplicateCategory;
@@ -127,7 +127,7 @@ begin
   FAutoSearchDuplicate := Value;
 
   if FAutoSearchDuplicate then
-    qDuplicateCategory.Search(PK.AsInteger);
+    qDuplicateCategory.Search(W.PK.AsInteger);
 end;
 
 constructor TTreeListW.Create(AOwner: TComponent);

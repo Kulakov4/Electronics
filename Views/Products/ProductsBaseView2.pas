@@ -469,7 +469,7 @@ begin
       begin
         // Идентификатор связи товар-склад у нас отрицательный
         AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
-          (FqProductsBase.PKFieldName).AsInteger;
+          (FqProductsBase.W.PKFieldName).AsInteger;
 
         TDM.Create.qBillContent.W.AddContent(ABillID, AStoreHouseProductID,
           FqProductsBase.Basket.FieldByName
@@ -1434,7 +1434,7 @@ begin
   TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
     TcxLookupComboBoxProperties,
     FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.DataSource,
-    FqProductsBase.ExtraChargeGroup.qExtraChargeType.PK.FieldName,
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.PK.FieldName,
     FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.Name.FieldName,
     lsFixedList);
 
@@ -1442,7 +1442,7 @@ begin
     FqProductsBase.ExtraChargeGroup.qExtraCharge2;
   TExtDBLCB.InitProp(cxbeiExtraCharge.Properties as
     TcxExtLookupComboBoxProperties, ViewExtraChargeSimple.MainView,
-    FqProductsBase.ExtraChargeGroup.qExtraCharge2.PKFieldName,
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.PKFieldName,
     FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName,
     lsFixedList, True, True);
 

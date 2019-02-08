@@ -128,7 +128,7 @@ var
   V: Variant;
 begin
   Result := 0;
-  V := FDQuery.LookupEx(W.Name.FullName, AName, PKFieldName,
+  V := FDQuery.LookupEx(W.Name.FullName, AName, W.PKFieldName,
     [lxoCaseInsensitive]);
   if not VarIsNull(V) then
     Result := V;

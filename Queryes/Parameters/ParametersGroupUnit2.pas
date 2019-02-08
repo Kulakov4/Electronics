@@ -132,8 +132,8 @@ begin
         AIDParameterType, AParameterKindID]);
 
     // Ищем дубликат
-    V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.PKFieldName,
-      [lxoCaseInsensitive]);
+    V := qParameters.FDQuery.LookupEx(AFieldNames, Arr,
+      qParameters.W.PKFieldName, [lxoCaseInsensitive]);
 
     if not VarIsNull(V) then
     begin
@@ -154,7 +154,7 @@ begin
   Arr := VarArrayOf([AParametersExcelTable.TableName.Value, False]);
 
   // Ищем дубликат по табличному имени
-  V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.PKFieldName,
+  V := qParameters.FDQuery.LookupEx(AFieldNames, Arr, qParameters.W.PKFieldName,
     [lxoCaseInsensitive]);
 
   if not VarIsNull(V) then
@@ -191,7 +191,7 @@ procedure TParametersGroup2.DoBeforeDelete(Sender: TObject);
 var
   AIDParameterType: Integer;
 begin
-  AIDParameterType := qParameterTypes.PK.Value;
+  AIDParameterType := qParameterTypes.W.PK.Value;
   // Каскадно удаляем параметры
   qParameters.W.CascadeDelete(AIDParameterType,
     qParameters.W.IDParameterType.FieldName);
@@ -272,7 +272,7 @@ begin
         if qParameterKinds.W.ParameterKind.Locate
           (AParametersExcelTable.ParameterKindID.AsString, [lxoCaseInsensitive])
         then
-          AParameterKindID := qParameterKinds.PK.AsInteger
+          AParameterKindID := qParameterKinds.W.PK.AsInteger
         else
           AParameterKindID := Integer(Неиспользуется);
       end
@@ -296,7 +296,7 @@ begin
         end;
 
         qParameters.W.IDParameterType.F.AsInteger :=
-          qParameterTypes.PK.AsInteger;
+          qParameterTypes.W.PK.AsInteger;
         qParameters.W.IDParameterKind.F.AsInteger := AParameterKindID;
 
         qParameters.FDQuery.Post;

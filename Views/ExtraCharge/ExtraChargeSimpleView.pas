@@ -59,7 +59,7 @@ begin
   end;
 
   MainView.DataController.DataSource := qExtraCharge.W.DataSource;
-  MainView.DataController.KeyFieldNames := qExtraCharge.PKFieldName;
+  MainView.DataController.KeyFieldNames := qExtraCharge.W.PKFieldName;
   MainView.DataController.CreateAllItems();
   MyApplyBestFit;
 end;

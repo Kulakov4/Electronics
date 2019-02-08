@@ -80,7 +80,7 @@ begin
     if Result then
     begin
       // Получаем идентификаторы отмеченных галочками подпараметров
-      ACheckedID := qSubParameters.GetCheckedValues(qSubParameters.PKFieldName);
+      ACheckedID := qSubParameters.GetCheckedValues(qSubParameters.W.PKFieldName);
     end;
 
     // Когда поставили галочку, в данных как-бы произошли изменения

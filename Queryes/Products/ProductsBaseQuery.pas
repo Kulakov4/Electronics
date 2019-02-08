@@ -274,8 +274,8 @@ begin
 
   // Будем кэшировать все изменения
   FDQuery.CachedUpdates := True;
-  FDQuery.UpdateOptions.AutoIncFields := PKFieldName;
-  FDQuery.UpdateOptions.KeyFields := PKFieldName;
+  FDQuery.UpdateOptions.AutoIncFields := W.PKFieldName;
+  FDQuery.UpdateOptions.KeyFields := W.PKFieldName;
 
   FCalcStatus := 0;
 
@@ -317,9 +317,9 @@ begin
     // Если это группа
     if W.IsGroup.F.AsInteger = 1 then
     begin
-      Assert(PK.Value > 0);
+      Assert(W.PK.Value > 0);
       // Ищем такую группу
-      if qSearchComponentGroup.SearchByID(PK.Value) = 0 then
+      if qSearchComponentGroup.SearchByID(W.PK.Value) = 0 then
         Exit;
 
       // Группу удалять не надо. Надо удалить с текущего склада все компоненты этой группы
@@ -343,8 +343,8 @@ begin
     end
     else
     begin
-      Assert(PK.Value < 0);
-      if qSearchStorehouseProduct.SearchByID(-PK.Value) = 0 then
+      Assert(W.PK.Value < 0);
+      if qSearchStorehouseProduct.SearchByID(-W.PK.Value) = 0 then
         Exit;
 
       AProductIDS.Add(W.ProductID.F.AsInteger);
@@ -380,7 +380,7 @@ begin
       qSearchComponentGroup.Append(W.Value.F.AsString);
 
     // Заполняем первичный ключ
-    FetchFields([PK.FieldName], [qSearchComponentGroup.PK.Value], ARequest,
+    FetchFields([W.PK.FieldName], [qSearchComponentGroup.W.PK.Value], ARequest,
       AAction, AOptions);
     // PK.Value := qSearchComponentGroup.PK.Value;
     Exit;
@@ -394,7 +394,7 @@ begin
       // Добавляем в базу сам продукт
       qSearchProduct.W.InsertRecord(ARH);
       // Запоминаем код продукта
-      ARH.Field[W.ProductID.FieldName] := qSearchProduct.PK.Value;
+      ARH.Field[W.ProductID.FieldName] := qSearchProduct.W.PK.Value;
     end;
 
     // Помещаем наш компонент на склад
@@ -405,7 +405,7 @@ begin
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
     // Запоминаем первичный ключ
-    ARH.Field[PK.FieldName] := -qSearchStorehouseProduct.PK.Value;
+    ARH.Field[W.PK.FieldName] := -qSearchStorehouseProduct.W.PK.Value;
     // FetchFields([PK.FieldName], [-qSearchStorehouseProduct.PK.Value], ARequest,
     // AAction, AOptions);
 
@@ -429,9 +429,9 @@ begin
   try
     if W.IsGroup.F.AsInteger = 1 then
     begin
-      Assert(PK.Value > 0);
+      Assert(W.PK.Value > 0);
       // Ищем такую группу
-      if qSearchComponentGroup.SearchByID(PK.Value) = 0 then
+      if qSearchComponentGroup.SearchByID(W.PK.Value) = 0 then
         Exit;
 
       // Будем обновлять одно поле
@@ -443,9 +443,9 @@ begin
     end
     else
     begin
-      Assert(PK.Value < 0);
+      Assert(W.PK.Value < 0);
       // Ищем по идентификатору связки склад-продукт
-      qSearchStorehouseProduct.SearchByID(-PK.Value);
+      qSearchStorehouseProduct.SearchByID(-W.PK.Value);
 
       // Обновляем информацию о компоненте на складе
       qSearchStorehouseProduct.W.UpdateRecord(ARH);
@@ -740,7 +740,7 @@ begin
         (qSearchComponentOrFamily.W.Producer.F.AsString, True);
 
       // Заполняем поле "Код производителя"
-      W.IDProducer.F.Value := ProducersGroup.qProducers.PK.Value;
+      W.IDProducer.F.Value := ProducersGroup.qProducers.W.PK.Value;
     end;
   end;
 
@@ -1100,7 +1100,7 @@ procedure TQueryProductsBase.SaveExtraCharge;
 begin
   Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
   W.TryEdit;
-  W.IDExtraCharge.F.AsInteger := ExtraChargeGroup.qExtraCharge2.PK.AsInteger;
+  W.IDExtraCharge.F.AsInteger := ExtraChargeGroup.qExtraCharge2.W.PK.AsInteger;
   // Меняем процент оптовой наценки
   W.Wholesale.F.Value := ExtraChargeGroup.qExtraCharge2.W.Wholesale.F.Value;
   W.TryPost;
@@ -1162,7 +1162,7 @@ begin
   if W.IsGroup.F.AsInteger = 1 then
   begin
     AClone := W.AddClone(Format('%s=%d', [W.IDComponentGroup.FieldName,
-      PK.AsInteger]));
+      W.PK.AsInteger]));
     try
       AClone.First;
       while not AClone.Eof do

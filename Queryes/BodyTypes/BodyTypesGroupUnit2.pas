@@ -124,7 +124,7 @@ begin
 
       QueryBodyTypesSimple.W.TryAppend;
       QueryBodyTypesSimple.W.IDProducer.F.AsInteger := AProducerID;
-      QueryBodyTypesSimple.W.IDBodyKind.F.Value := qBodyKinds.PK.Value;
+      QueryBodyTypesSimple.W.IDBodyKind.F.Value := qBodyKinds.W.PK.Value;
       QueryBodyTypesSimple.W.Variations.F.AsString :=
         ABodyTypesExcelTable.Variation.AsString;
       QueryBodyTypesSimple.W.JEDEC.F.AsString :=

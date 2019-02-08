@@ -117,8 +117,6 @@ uses System.IOUtils, System.Generics.Collections;
 constructor TQueryBodyTypesBase.Create(AOwner: TComponent);
 begin
   inherited;
-  FPKFieldName := 'IDS';
-
   FW := FDSWrap as TBodyTypeBaseW;
 
   TNotifyEventWrap.Create(W.AfterCascadeDelete, DoAfterCascadeDelete, W.EventList);
@@ -295,11 +293,11 @@ begin
         Continue;
 
       qJedec.W.LocateOrAppend(AJEDEC);
-      JEDECIDList.Add(qJedec.PK.AsInteger)
+      JEDECIDList.Add(qJedec.W.PK.AsInteger)
     end;
 
     // Обновляем JEDEC для текущего варианта корпуса
-    qBodyVariationJedec.UpdateJEDEC(QueryBodyVariations.PK.AsInteger,
+    qBodyVariationJedec.UpdateJEDEC(QueryBodyVariations.W.PK.AsInteger,
       JEDECIDList.ToArray);
   finally
     FreeAndNil(JEDECIDList);
@@ -324,11 +322,11 @@ begin
         Continue;
 
       qBodyOptions.W.LocateOrAppend(AOption);
-      OptionIDList.Add(qBodyOptions.PK.AsInteger)
+      OptionIDList.Add(qBodyOptions.W.PK.AsInteger)
     end;
 
     // Обновляем OPTIONS для текущего варианта корпуса
-    qBodyVariationOption.UpdateOption(QueryBodyVariations.PK.AsInteger,
+    qBodyVariationOption.UpdateOption(QueryBodyVariations.W.PK.AsInteger,
       OptionIDList.ToArray);
   finally
     FreeAndNil(OptionIDList);

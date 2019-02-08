@@ -77,14 +77,14 @@ begin
     qExtraChargeType.W.LocateOrAppend(AExcelTable.ExtraChargeType.AsString);
 
     // Если такой диапазон уже есть
-    if qExtraCharge2.W.LocateByRange(qExtraChargeType.PK.AsInteger, AExcelTable.Range.Value) then
+    if qExtraCharge2.W.LocateByRange(qExtraChargeType.W.PK.AsInteger, AExcelTable.Range.Value) then
       qExtraCharge2.W.TryEdit
     else
     begin
       qExtraCharge2.W.TryAppend;
     end;
 
-    qExtraCharge2.W.IDExtraChargeType.F.AsInteger := qExtraChargeType.PK.AsInteger;
+    qExtraCharge2.W.IDExtraChargeType.F.AsInteger := qExtraChargeType.W.PK.AsInteger;
     qExtraCharge2.W.Range.F.Value := AExcelTable.Range.Value;
     qExtraCharge2.W.WholeSale.F.Value := AExcelTable.WholeSale.Value;
     qExtraCharge2.W.TryPost;

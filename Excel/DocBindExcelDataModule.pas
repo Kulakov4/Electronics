@@ -54,7 +54,7 @@ begin
   if Result then
   begin
     Edit;
-    IDProduct.AsInteger := qSearchComponentOrFamily.PK.Value;
+    IDProduct.AsInteger := qSearchComponentOrFamily.W.PK.Value;
     Post;
   end
   else

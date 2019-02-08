@@ -437,7 +437,7 @@ begin
     Exit;
 
   cxDBTreeList.DataController.DataSource := qTreeList.W.DataSource;
-  cxDBTreeList.DataController.KeyField := qTreeList.PKFieldName;
+  cxDBTreeList.DataController.KeyField := qTreeList.W.PKFieldName;
   cxDBTreeList.DataController.ParentField := qTreeList.W.ParentId.FieldName;
 
   ViewDuplicateCategory.qDuplicateCategory := FqTreeList.qDuplicateCategory;

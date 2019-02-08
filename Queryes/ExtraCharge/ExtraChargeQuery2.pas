@@ -77,7 +77,7 @@ begin
   Assert(ASender = FDQuery);
 
   // »щем удал€емую запись
-  qExtraChargeSimple.SearchByID(PK.AsInteger, 1);
+  qExtraChargeSimple.SearchByID(W.PK.AsInteger, 1);
 
   // ”дал€ем эту запись
   qExtraChargeSimple.FDQuery.Delete;
@@ -90,7 +90,7 @@ var
   AHight: Integer;
   ALow: Integer;
 begin
-  MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
+  MyExceptionMessage := qExtraChargeSimple.CheckBounds(W.PK.AsInteger,
     W.IDExtraChargeType.F.Value, W.Range.F.AsString, ALow, AHight);
 
   if not MyExceptionMessage.IsEmpty then
@@ -112,9 +112,9 @@ begin
   qExtraChargeSimple.W.IDExtraChargeType.F.Value := W.IDExtraChargeType.F.Value;
   qExtraChargeSimple.W.TryPost;
 
-  Assert(qExtraChargeSimple.PK.AsInteger > 0);
+  Assert(qExtraChargeSimple.W.PK.AsInteger > 0);
 
-  FetchFields([PKFieldName], [qExtraChargeSimple.PK.Value], ARequest, AAction,
+  FetchFields([W.PKFieldName], [qExtraChargeSimple.W.PK.Value], ARequest, AAction,
     AOptions);
 end;
 
@@ -126,7 +126,7 @@ var
   ALow: Integer;
 begin
   Assert(ASender = FDQuery);
-  MyExceptionMessage := qExtraChargeSimple.CheckBounds(PK.AsInteger,
+  MyExceptionMessage := qExtraChargeSimple.CheckBounds(W.PK.AsInteger,
     W.IDExtraChargeType.F.AsInteger, W.Range.F.AsString, ALow, AHight);
 
   if not MyExceptionMessage.IsEmpty then
@@ -139,7 +139,7 @@ begin
   end;
 
   // »щем обновл€емую запись
-  qExtraChargeSimple.SearchByID(PK.AsInteger, 1);
+  qExtraChargeSimple.SearchByID(W.PK.AsInteger, 1);
 
   qExtraChargeSimple.W.TryEdit;
   qExtraChargeSimple.W.L.F.Value := ALow;

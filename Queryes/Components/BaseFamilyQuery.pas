@@ -70,13 +70,13 @@ procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateReq
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
-  if PK.AsInteger > 0 then
+  if W.PK.AsInteger > 0 then
   begin
     // Удаляем компонент из всех категорий
-    UpdateCategory(PK.AsInteger, '');
+    UpdateCategory(W.PK.AsInteger, '');
 
     // Удаляем сам компонент
-    qProducts.DeleteRecord(PK.AsInteger);
+    qProducts.DeleteRecord(W.PK.AsInteger);
   end;
 
   inherited;
@@ -100,14 +100,14 @@ begin
   end;
 
   // Обрабатываем обновление значений параметров
-  W.UpdateParamValue(PKFieldName);
+  W.UpdateParamValue(W.PKFieldName);
 
   ASubGroup := FDQuery.FindField('SubGroup');
   // Если в запросе выбираются внешние коды категорий
   if ASubGroup <> nil then
   begin
     // Обновляем категории нашего компонента
-    UpdateCategory(PK.AsInteger, ASubGroup.AsString);
+    UpdateCategory(W.PK.AsInteger, ASubGroup.AsString);
   end;
 
   inherited;
@@ -200,7 +200,7 @@ begin
     begin
       // Если компонент не находится в этой категории то добавляем его в эту категорию
       QuerySearchComponentCategory.LocateOrAddValue(AIDComponent,
-        qSearchCategory.PK.Value);
+        qSearchCategory.W.PK.Value);
 
       qSearchCategory.FDQuery.Next;
     end;

@@ -106,7 +106,7 @@ begin
           W.IsGroup.F.AsInteger := 1; // Будем добавлять группу
           W.Value.F.AsString := AExcelTable.ComponentGroup.AsString;
           FDQuery.Post;
-          AIDComponentGroup := PK.Value;
+          AIDComponentGroup := W.PK.Value;
         end
         else
           AIDComponentGroup := V;
@@ -126,7 +126,7 @@ begin
         end;
 
         // Дополнительно заполняем
-        W.IDProducer.F.AsInteger := ProducersGroup.qProducers.PK.Value;
+        W.IDProducer.F.AsInteger := ProducersGroup.qProducers.W.PK.Value;
         W.IDComponentGroup.F.AsInteger := AIDComponentGroup;
         W.IsGroup.F.AsInteger := 0;
 
@@ -197,7 +197,7 @@ begin
 
     W.TryAppend;
     W.Value.F.AsString := AValues[I];
-    W.IDProducer.F.AsInteger := ProducersGroup.qProducers.PK.Value;
+    W.IDProducer.F.AsInteger := ProducersGroup.qProducers.W.PK.Value;
     W.TryPost;
   end;
 end;
@@ -216,7 +216,7 @@ begin
 
   AKeyFields := Format('%s;%s', [W.IsGroup.FieldName, W.Value.FieldName]);
   V := FDQuery.LookupEx(AKeyFields,
-    VarArrayOf([1, AProductsExcelTable.ComponentGroup.Value]), PKFieldName);
+    VarArrayOf([1, AProductsExcelTable.ComponentGroup.Value]), W.PKFieldName);
 
   // Если такой группы компонентов на складе ещё не было
   Result := not VarIsNull(V);
@@ -232,7 +232,7 @@ begin
   if not Result then
     Exit;
 
-  AIDProducer := ProducersGroup.qProducers.PK.AsInteger;
+  AIDProducer := ProducersGroup.qProducers.W.PK.AsInteger;
 
   // Ищем на складе
   AKeyFields := Format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s',
@@ -258,7 +258,7 @@ begin
     AProductsExcelTable.StoragePlace.AsString,
     AProductsExcelTable.Seller.AsString,
     AProductsExcelTable.DocumentNumber.AsString,
-    AProductsExcelTable.Barcode.AsString]), PKFieldName);
+    AProductsExcelTable.Barcode.AsString]), W.PKFieldName);
 
   Result := not VarIsNull(V);
 end;

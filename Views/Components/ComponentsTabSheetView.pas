@@ -902,17 +902,17 @@ begin
           end;
 
           // Ищем, есть ли у нашего параметра такой подпараметр
-          rc := qParamSubParams.SearchBySubParam(qSearchParameter.PK.AsInteger,
-            qSubParameters.PK.AsInteger);
+          rc := qParamSubParams.SearchBySubParam(qSearchParameter.W.PK.AsInteger,
+            qSubParameters.W.PK.AsInteger);
           Assert(rc <= 1);
 
           // Если нужно связать параметр с подпараметром
           if rc = 0 then
-            qParamSubParams.W.AppendSubParameter(qSearchParameter.PK.AsInteger,
-              qSubParameters.PK.AsInteger);
+            qParamSubParams.W.AppendSubParameter(qSearchParameter.W.PK.AsInteger,
+              qSubParameters.W.PK.AsInteger);
 
           // Запоминаем описание поля связанного с подпараметром
-          AParamSubParamID := qParamSubParams.PK.AsInteger;
+          AParamSubParamID := qParamSubParams.W.PK.AsInteger;
 
           // Проверяем ссылку на подпараметр на уникальность
           if CheckUniqueSubParam(AParamSubParamID, AIDList, AStringTreeNode,
@@ -934,7 +934,7 @@ begin
         end;
 
         // Ищем подпараметр "по умолчанию" для параметра без подпараметров
-        qSearchParamDefSubParam.SearchByID(qSearchParameter.PK.AsInteger, 1);
+        qSearchParamDefSubParam.SearchByID(qSearchParameter.W.PK.AsInteger, 1);
         AParamSubParamID := qSearchParamDefSubParam.W.ParamSubParamID.
           F.AsInteger;
 
@@ -1001,7 +1001,7 @@ begin
       end;
 
       // Ищем все дочерние категории
-      rc := qSearchDaughterCategories.SearchEx(qSearchCategory.PK.AsInteger);
+      rc := qSearchDaughterCategories.SearchEx(qSearchCategory.W.PK.AsInteger);
       Assert(rc > 1);
     end;
 
