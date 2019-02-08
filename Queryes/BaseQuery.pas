@@ -85,8 +85,6 @@ type
       : Integer; overload;
     function SearchEx(AParams: TArray<TParamRec>;
       TestResult: Integer = -1): Integer;
-    procedure SetFieldsRequired(ARequired: Boolean);
-    procedure SetFieldsReadOnly(AReadOnly: Boolean);
     function SetParamType(const AParamName: String;
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
       : TFDParam;
@@ -560,24 +558,6 @@ begin
     FreeAndNil(AParamNames);
     FreeAndNil(AValues);
   end;
-end;
-
-procedure TQueryBase.SetFieldsRequired(ARequired: Boolean);
-var
-  AField: TField;
-begin
-  inherited;
-  for AField in FDQuery.Fields do
-    AField.Required := ARequired;
-end;
-
-procedure TQueryBase.SetFieldsReadOnly(AReadOnly: Boolean);
-var
-  AField: TField;
-begin
-  inherited;
-  for AField in FDQuery.Fields do
-    AField.ReadOnly := AReadOnly;
 end;
 
 function TQueryBase.SetParamType(const AParamName: String;

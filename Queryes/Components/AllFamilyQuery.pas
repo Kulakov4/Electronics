@@ -37,7 +37,7 @@ end;
 
 procedure TQueryAllFamily.DoAfterOpen(Sender: TObject);
 begin
-  SetFieldsReadOnly(False);
+  W.SetFieldsReadOnly(False);
 end;
 
 procedure TQueryAllFamily.InitParameterFields;

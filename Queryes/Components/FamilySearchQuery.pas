@@ -131,7 +131,7 @@ begin
   AutoTransaction := FamilySearchW.Mode = SearchMode;
 
   if FamilySearchW.Mode = RecordsMode then
-    SetFieldsReadOnly(False);
+    W.SetFieldsReadOnly(False);
 end;
 
 function TQueryFamilySearch.GetCurrentMode: TContentMode;

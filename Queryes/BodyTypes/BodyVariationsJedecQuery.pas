@@ -132,7 +132,7 @@ end;
 
 procedure TQueryBodyVariationsJedec.DoAfterOpen(Sender: TObject);
 begin
-  SetFieldsReadOnly(False);
+  W.SetFieldsReadOnly(False);
 end;
 
 function TQueryBodyVariationsJedec.GetqBodyVariationJedec

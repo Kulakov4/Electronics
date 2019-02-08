@@ -378,7 +378,7 @@ end;
 
 procedure TQueryCategoryParameters2.DoAfterOpen(Sender: TObject);
 begin
-  SetFieldsReadOnly(False);
+  W.SetFieldsReadOnly(False);
   FMaxOrder := 0;
 end;
 

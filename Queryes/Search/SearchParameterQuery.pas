@@ -43,7 +43,6 @@ type
 
   TQuerySearchParameter = class(TQueryBase)
     FDUpdateSQL: TFDUpdateSQL;
-    procedure FDQueryAfterOpen(DataSet: TDataSet);
   private
     FW: TSearchParameterW;
     { Private declarations }
@@ -70,12 +69,7 @@ constructor TQuerySearchParameter.Create(AOwner: TComponent);
 begin
   inherited;
   FW := TSearchParameterW.Create(FDQuery);
-end;
-
-procedure TQuerySearchParameter.FDQueryAfterOpen(DataSet: TDataSet);
-begin
-  inherited;
-  SetFieldsRequired(False);
+  FDQuery.UpdateOptions.CheckRequired := False;
 end;
 
 function TQuerySearchParameter.SearchByTableName(const ATableName: String;

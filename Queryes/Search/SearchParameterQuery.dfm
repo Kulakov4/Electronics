@@ -7,7 +7,6 @@ inherited QuerySearchParameter: TQuerySearchParameter
     ExplicitWidth = 114
   end
   inherited FDQuery: TFDQuery
-    AfterOpen = FDQueryAfterOpen
     UpdateOptions.AssignedValues = [uvRefreshMode]
     UpdateOptions.RefreshMode = rmAll
     UpdateObject = FDUpdateSQL

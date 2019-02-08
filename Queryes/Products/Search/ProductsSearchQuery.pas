@@ -163,8 +163,8 @@ procedure TQueryProductsSearch.DoAfterOpen(Sender: TObject);
 var
   I: Integer;
 begin
-  SetFieldsRequired(False);
-  SetFieldsReadOnly(False);
+  W.SetFieldsRequired(False);
+  W.SetFieldsReadOnly(False);
 
   // Добавляем пустую запись для поиска, если она необходима
   AutoTransaction := True;
