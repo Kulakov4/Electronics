@@ -13,7 +13,7 @@ uses
   DSWrap;
 
 type
-  TFamilySearchW = class(TCustomComponentsW)
+  TFamilySearchW = class(TBaseFamilyW)
   private
     FMode: TContentMode;
   public

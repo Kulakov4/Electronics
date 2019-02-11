@@ -14,10 +14,14 @@ uses
 
 type
   TFamilyW = class(TBaseFamilyW)
+  private
+    FProductCategoryId: TParamWrap;
   protected
     procedure AddNewValue(const AValue, AProducer: string);
   public
+    constructor Create(AOwner: TComponent); override;
     function LocateOrAppend(const AValue, AProducer: string): Boolean;
+    property ProductCategoryId: TParamWrap read FProductCategoryId;
   end;
 
   TQueryFamily = class(TQueryBaseFamily)
@@ -52,7 +56,7 @@ constructor TQueryFamily.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  DetailParameterName := 'ProductCategoryId';
+  DetailParameterName :=  FamilyW.ProductCategoryId.FieldName;
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
@@ -187,6 +191,12 @@ procedure TQueryFamily.OnDatasheetGetText(Sender: TField; var Text: String;
 begin
   if not Sender.AsString.IsEmpty then
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
+end;
+
+constructor TFamilyW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FProductCategoryId := TParamWrap.Create(Self, 'ProductCategoryID');
 end;
 
 procedure TFamilyW.AddNewValue(const AValue, AProducer: string);

@@ -44,6 +44,7 @@ type
     FAutoTransactionEventList: TObjectList;
     FDSWrap: TDSWrap;
     FMasterEventList: TObjectList;
+    class var FFile: TextFile;
     function CreateDSWrap: TDSWrap; virtual; abstract;
     procedure DoAfterCommit(Sender: TObject);
     procedure DoAfterRollback(Sender: TObject);
@@ -118,6 +119,7 @@ begin
 
   // Создаём обёртку вокруг себя
   FDSWrap := CreateDSWrap;
+  FDSWrap.Obj := Self;
 
   TNotifyEventWrap.Create(FDSWrap.AfterDelete, DoAfterDelete,
     FDSWrap.EventList);
@@ -143,7 +145,11 @@ begin
   FMasterEventList := TObjectList.Create;
 
   if FMonitor = nil then
+  begin
     FMonitor := TQueryMonitor.Create;
+    AssignFile(FFile, 'c:\public\sql.txt');
+    rewrite(FFile);
+  end;
 
   // Добавляем себя в список всех запросов
   FMonitor.Add(Self);
@@ -163,7 +169,10 @@ begin
 
   // Если монитор больше не нужен
   if FMonitor.IsEmpty then
+  begin
     FreeAndNil(FMonitor);
+    CloseFile(FFile);
+  end;
 
   FreeAndNil(FMasterEventList); // отписываемся от всех событий Мастера
   FreeAndNil(FAutoTransactionEventList);
@@ -226,6 +235,12 @@ procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
 var
   i: Integer;
 begin
+  // Записываем SQL запрос в файл
+  for i := 0 to FDQuery.SQL.Count - 1 do
+    Writeln(FFile, FDQuery.SQL[i]);
+  Writeln(FFile, '');
+  Flush(FFile);
+
   // Костыль с некоторыми типами полей
   InitializeFields;
 
@@ -361,26 +376,27 @@ end;
 
 procedure TQueryBaseEvents.SetLock(const Value: Boolean);
 begin
-  if FLock <> Value then
-  begin
-    FLock := Value;
+  if FLock = Value then
+    Exit;
 
-    // Если не заблокировано
-    if (not FLock) then
+  FLock := Value;
+
+  // Если не заблокировано
+  if (not FLock) then
+  begin
+    // если мастер изменился, нам пора обновиться
+    if FNeedLoad then
     begin
-      // если мастер изменился, нам пора обновиться
-      if FNeedLoad then
-      begin
-        Load;
-        Wrap.NeedRefresh := False; // Обновлять больше не нужно
-      end
-      else
-      begin
-        if Wrap.NeedRefresh then
-          Wrap.RefreshQuery;
-      end;
+      Load;
+      Wrap.NeedRefresh := False; // Обновлять больше не нужно
+    end
+    else
+    begin
+      if Wrap.NeedRefresh then
+        Wrap.RefreshQuery;
     end;
   end;
+
 end;
 
 procedure TQueryBaseEvents.SetMaster(const Value: TQueryBaseEvents);
@@ -498,7 +514,7 @@ var
   i: Integer;
   Q: TQueryBaseEvents;
 begin
-  Q := Sender as TQueryBaseEvents;
+  Q := (Sender as TDSWrap).Obj as TQueryBaseEvents;
 
   // Если нет несохранённных изменений
   if not Q.HaveAnyChanges then
@@ -517,7 +533,7 @@ var
   i: Integer;
   Q: TQueryBaseEvents;
 begin
-  Q := Sender as TQueryBaseEvents;
+  Q := (Sender as TDSWrap).Obj as TQueryBaseEvents;
 
   if not Q.HaveAnyChanges then
     Exit;
@@ -533,7 +549,7 @@ var
   i: Integer;
   Q: TQueryBaseEvents;
 begin
-  Q := Sender as TQueryBaseEvents;
+  Q := (Sender as TDSWrap).Obj as TQueryBaseEvents;
 
   i := FChangedQueries.IndexOf(Q);
 

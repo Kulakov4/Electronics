@@ -68,7 +68,7 @@ inherited QueryFamilyEx: TQueryFamilyEx
         'LEFT JOIN ParameterValues2 pv6 ON pv6.ProductID = p.Id AND pv6.P' +
         'aramSubParamId = :ImageParamSubParamID'
       'LEFT JOIN FamilyAnalog fa on fa.FamilyId = p.Id'
-      'where ppc.ProductCategoryId = :vProductCategoryId'
+      'where ppc.ProductCategoryId = :ProductCategoryId'
       ') t')
   end
 end

@@ -140,6 +140,8 @@ constructor TQueryCategoryParameters2.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TCategoryParameters2W;
+
+  // Этот параметр будет постоянным!
   DetailParameterName := W.ProductCategoryID.FieldName;
 
   // Будем сохранять в БД изменения рекурсивно
@@ -161,9 +163,8 @@ begin
 
   FOn_ApplyUpdates := TNotifyEventsEx.Create(Self);
 
-  // Не будем сами начинать транзакцию!!!
   // Работаем в режиме кэширования записей
-  // AutoTransaction := True;
+  FDQuery.CachedUpdates := True;
 end;
 
 destructor TQueryCategoryParameters2.Destroy;
@@ -184,6 +185,7 @@ begin
   FDQuery.SQL.Text := ReplaceInSQL(SQL,
     Format('%s = :%s', [W.ProductCategoryID.FullName,
     W.ProductCategoryID.FieldName]), 0);
+  SetParamType(W.ProductCategoryID.FieldName);
 end;
 
 procedure TQueryCategoryParameters2.ApplyDelete(ASender: TDataSet;
@@ -550,6 +552,7 @@ begin
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FCategoryID := TFieldWrap.Create(Self, 'CategoryID');
   FIDParameter := TFieldWrap.Create(Self, 'IDParameter');
+  FIDParameterKind := TFieldWrap.Create(Self, 'IDParameterKind');
   FIdSubParameter := TFieldWrap.Create(Self, 'IdSubParameter');
   FIsAttribute := TFieldWrap.Create(Self, 'IsAttribute');
   FIsDefault := TFieldWrap.Create(Self, 'IsDefault');

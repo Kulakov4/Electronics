@@ -60,8 +60,12 @@ uses DBRecordHolder, System.Generics.Collections, DefaultParameters,
 { TfrmQueryComponents }
 
 constructor TQueryBaseFamily.Create(AOwner: TComponent);
+var
+  S: String;
 begin
   inherited Create(AOwner);
+  S := FDSWrap.ClassName;
+
   FBaseFamilyW := FDSWrap as TBaseFamilyW;
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
@@ -138,7 +142,6 @@ begin
 
   FDQuery.ParamByName('ImageParamSubParamID').AsInteger :=
     TDefaultParameters.ImageParamSubParamID;
-
 end;
 
 function TQueryBaseFamily.GetCategoryExternalID: string;

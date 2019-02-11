@@ -47,7 +47,7 @@ end;
 
 function TQueryParameterPos.CreateDSWrap: TDSWrap;
 begin
-  Result := inherited CreateDSWrap;
+  Result := TParameterPosW.Create(FDQuery);
 end;
 
 constructor TParameterPosW.Create(AOwner: TComponent);

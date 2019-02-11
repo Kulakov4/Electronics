@@ -48,6 +48,7 @@ type
     FBeforePostState: TDataSetState;
     FDataSource: TDataSource;
     FNeedRefresh: Boolean;
+    FObj: TObject;
     FPKFieldName: string;
     FRecHolder: TRecordHolder;
     procedure AfterDataSetScroll(DataSet: TDataSet);
@@ -180,6 +181,7 @@ type
     property BeforePostState: TDataSetState read FBeforePostState;
     property DataSource: TDataSource read GetDataSource;
     property NeedRefresh: Boolean read FNeedRefresh write FNeedRefresh;
+    property Obj: TObject read FObj write FObj;
     property PK: TField read GetPK;
     property PKFieldName: string read FPKFieldName write FPKFieldName;
     property RecordCount: Integer read GetRecordCount;
@@ -1416,7 +1418,7 @@ begin
   FDataSetWrap := ADataSetWrap;
   FDataSetWrap.FFieldsWrap.Add(Self);
 
-  FTableName := '';
+  FFullName := AFullName;
 
   p := AFullName.IndexOf('.');
 
@@ -1427,7 +1429,10 @@ begin
     FFieldName := AFullName.Substring(p + 1);
   end
   else
+  begin
+    FTableName := '';
     FFieldName := AFullName;
+  end;
 
   // Значение для поля "по умолчанию"
   FDefaultValue := NULL;
