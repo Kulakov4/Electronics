@@ -23,8 +23,6 @@ object ProductsFrame: TProductsFrame
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1082#1083#1072#1076#1077
       ImageIndex = 0
       OnShow = tsStorehouseInfoShow
-      ExplicitLeft = 3
-      ExplicitTop = 25
     end
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099

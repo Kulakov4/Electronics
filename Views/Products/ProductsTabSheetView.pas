@@ -47,9 +47,9 @@ type
     procedure tsStorehouseInfoShow(Sender: TObject);
     procedure tsStorehouseProductsShow(Sender: TObject);
     procedure tsStorehouseSearchShow(Sender: TObject);
-  private
-  const
+  private const
     FolderKey: String = 'Products';
+
   var
     FViewProducts: TViewProducts2;
     FViewProductsSearch: TViewProductsSearch2;
@@ -98,15 +98,16 @@ end;
 procedure TProductsFrame.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
-//  m: TArray<String>;
-//  qStoreHouseList: TQueryStoreHouseList;
-//  S: string;
+  // m: TArray<String>;
+  // qStoreHouseList: TQueryStoreHouseList;
+  // S: string;
 begin
   Application.Hint := '';
 
   if ViewProducts.qProducts.Master.FDQuery.RecordCount = 0 then
   begin
-    TDialog.Create.ErrorMessageDialog('Нет информации о текущем складе.'#13#10'Действие отменено');
+    TDialog.Create.ErrorMessageDialog
+      ('Нет информации о текущем складе.'#13#10'Действие отменено');
     Exit;
   end;
 
@@ -115,14 +116,14 @@ begin
     Exit;
 
   ViewProducts.LoadFromExcelDocument(AFileName);
-//  S := TPath.GetFileNameWithoutExtension(AFileName);
+  // S := TPath.GetFileNameWithoutExtension(AFileName);
 
-//  m := S.Split([' ']);
-//  if Length(m) <= 1 then
-//    TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
+  // m := S.Split([' ']);
+  // if Length(m) <= 1 then
+  // TDialog.Create.ErrorMessageDialog('Имя файла не содержит пробел');
 
   // Всё что до пробела - сокращённое название склада
-//  S := m[0];
+  // S := m[0];
 
   // Ищем склад с таким сокращением
   // qStoreHouseList := ViewProductsBase2.ProductBaseGroup.qProducts.Master as TQueryStoreHouseList;
@@ -137,17 +138,29 @@ end;
 
 procedure TProductsFrame.tsStorehouseInfoShow(Sender: TObject);
 begin
+  // Привязываем информацию о складе к данным
+  if ViewStorehouseInfo.QueryStoreHouseList = nil then
+    ViewStorehouseInfo.QueryStoreHouseList := TDM.Create.qStoreHouseList;
+
   TDM.Create.qStoreHouseList.W.TryOpen;
 end;
 
 procedure TProductsFrame.tsStorehouseProductsShow(Sender: TObject);
 begin
+  // Привязываем текущий склад к данным
+  if ViewProducts.qProducts = nil then
+    ViewProducts.qProducts := TDM.Create.qProducts;
+
   TDM.Create.qStoreHouseList.W.TryOpen;
-//  TDM.Create.qProducts.W.TryOpen;
+  // TDM.Create.qProducts.W.TryOpen;
 end;
 
 procedure TProductsFrame.tsStorehouseSearchShow(Sender: TObject);
 begin
+  // Привязываем поиск по складам к данным
+  if ViewProductsSearch.qProductsSearch = nil then
+    ViewProductsSearch.qProductsSearch := TDM.Create.qProductsSearch;
+
   TDM.Create.qProductsSearch.W.TryOpen;
 end;
 

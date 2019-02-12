@@ -39,7 +39,7 @@ object frmMain: TfrmMain
     Height = 564
     Align = alLeft
     TabOrder = 1
-    Properties.ActivePage = cxtsComponents
+    Properties.ActivePage = cxtsStorehouses
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcLeftChange
     ClientRectBottom = 560
@@ -109,7 +109,6 @@ object frmMain: TfrmMain
     object cxtsRStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
-      OnShow = cxtsRStorehousesShow
     end
   end
   object cxspltrMain: TcxSplitter

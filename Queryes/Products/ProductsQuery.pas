@@ -63,6 +63,8 @@ constructor TQueryProducts.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  W.Name := 'QueryProductsWrap';
+
 //  FDQuery.AutoCalcFields := False;
 
   FNeedUpdateCount := True;

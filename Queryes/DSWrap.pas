@@ -1069,8 +1069,8 @@ begin
     else
       FDataSet.Open;
 
-//    FDataSet.Close;
-//    FDataSet.Open();
+    // FDataSet.Close;
+    // FDataSet.Open();
     FNeedRefresh := False;
   finally
     FDataSet.EnableControls;
@@ -1263,29 +1263,53 @@ end;
 procedure TDSWrap.UpdateFields;
 var
   F: TField;
+  FList: TList<TField>;
   PW: TParamWrap;
   FW: TFieldWrap;
 begin
-  // Прячем все поля
-  SetFieldsVisible(False);
+  if Name = 'QueryProductsWrap' then
+    beep(1000, 1);
 
-  // Показываем только те, у которых есть DisplayLabel
-  for PW in FFieldsWrap do
-  begin
-    if not(PW is TFieldWrap) then
-      Continue;
+  DataSet.DisableControls;
+  try
+    FList := TList<TField>.Create;
+    try
 
-    FW := PW as TFieldWrap;
+      // Показываем только те, у которых есть DisplayLabel
+      for PW in FFieldsWrap do
+      begin
+        if not(PW is TFieldWrap) then
+          Continue;
 
-    F := FDataSet.FindField(FW.FieldName);
-    if F = nil then
-      Continue;
+        FW := PW as TFieldWrap;
 
-    if not FW.DisplayLabel.IsEmpty then
-    begin
-      F.DisplayLabel := FW.DisplayLabel;
-      F.Visible := True;
+        F := FDataSet.FindField(FW.FieldName);
+        if F = nil then
+          Continue;
+
+        FList.Add(F);
+
+        if not FW.DisplayLabel.IsEmpty then
+        begin
+          F.DisplayLabel := FW.DisplayLabel;
+          F.Visible := True;
+        end
+        else
+          F.Visible := False;
+      end;
+
+      // Остальные поля прячем
+      for F in DataSet.Fields do
+      begin
+        if Flist.IndexOf(F) < 0 then
+          F.Visible := False;
+      end;
+
+    finally
+      FreeAndNil(FList);
     end;
+  finally
+    DataSet.EnableControls;
   end;
 end;
 
@@ -1408,7 +1432,7 @@ begin
   A := AllValues(',').Split([',']);
   SetLength(Result, Length(A));
   for I := Low(A) to High(A) do
-    Result[i] := A[i].ToInteger();
+    Result[I] := A[I].ToInteger();
 end;
 
 constructor TParamWrap.Create(ADataSetWrap: TDSWrap; const AFullName: String);

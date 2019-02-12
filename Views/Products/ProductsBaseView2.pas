@@ -34,6 +34,9 @@ uses
   cxDataControllerConditionalFormattingRulesManagerDialog,
   ExtraChargeSimpleView;
 
+const
+  WM_SELECTION_CHANGED = WM_USER + 600;
+
 type
   TViewProductsBase2 = class(TfrmTreeList)
     actCommit: TAction;
@@ -178,8 +181,10 @@ type
     FcxTreeListColumnHeaderCellViewInfo: TcxTreeListColumnHeaderCellViewInfo;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FNeedResyncAfterPost: Boolean;
+    FPostSelectionChanged: Boolean;
     FqProductsBase: TQueryProductsBase;
     FReadOnlyColumns: TList<TcxDBTreeListColumn>;
+    FSelectionCount: Integer;
     FViewExtraChargeSimple: TViewExtraChargeSimple;
 
   const
@@ -192,6 +197,8 @@ type
     function GetIDExtraChargeType: Integer;
     function GetIDExtraCharge: Integer;
     function GetViewExtraChargeSimple: TViewExtraChargeSimple;
+    procedure ProcessSelectionChanged(var Message: TMessage); message
+        WM_SELECTION_CHANGED;
     procedure SaveBarComboValue(AdxBarCombo: TdxBarCombo;
       const AFieldName: String);
     procedure SetIDExtraCharge(const Value: Integer);
@@ -987,7 +994,10 @@ end;
 procedure TViewProductsBase2.cxDBTreeListSelectionChanged(Sender: TObject);
 begin
   inherited;
-  UpdateSelectedCount;
+  if FPostSelectionChanged then Exit;
+
+  PostMessage(Handle, WM_SELECTION_CHANGED, 0, 0);
+  FPostSelectionChanged := True;
 end;
 
 procedure TViewProductsBase2.DoAfterDelete(Sender: TObject);
@@ -1112,7 +1122,9 @@ procedure TViewProductsBase2.EndUpdate;
 begin
   inherited;
   if FUpdateCount = 0 then
+  begin
     CreateCountEvents;
+  end;
 end;
 
 procedure TViewProductsBase2.ExportToExcelDocument(const AFileName: String);
@@ -1348,6 +1360,13 @@ begin
   actColumnWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
 end;
 
+procedure TViewProductsBase2.ProcessSelectionChanged(var Message: TMessage);
+begin
+  inherited;
+  UpdateSelectedCount;
+  FPostSelectionChanged := False;
+end;
+
 function TViewProductsBase2.RateToPerñent(ARate: Double): Double;
 begin
   if ARate <= 0 then
@@ -1494,6 +1513,7 @@ end;
 
 procedure TViewProductsBase2.UpdateSelectedCount;
 begin
+  FSelectionCount := cxDBTreeList.SelectionCount;
   StatusBar.Panels[FSelectedCountPanelIndex].Text :=
     Format('%d', [cxDBTreeList.SelectionCount]);
 end;

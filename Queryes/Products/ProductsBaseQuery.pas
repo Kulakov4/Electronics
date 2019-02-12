@@ -149,6 +149,7 @@ type
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
     FBasket: TFDMemTable;
+    FCalcExecCount: Integer;
     FCalcStatus: Integer;
     FDataChange: Boolean;
     FNotGroupClone: TFDMemTable;
@@ -226,6 +227,7 @@ type
     property OnDollarCourceChange: TNotifyEventsEx read FOnDollarCourceChange;
     property OnEuroCourceChange: TNotifyEventsEx read FOnEuroCourceChange;
     property Basket: TFDMemTable read FBasket;
+    property CalcExecCount: Integer read FCalcExecCount write FCalcExecCount;
     property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
     property W: TProductW read FW;
     property OnLocate: TNotifyEventsEx read FOnLocate;
@@ -636,16 +638,12 @@ begin
 end;
 
 procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
-var
-  S: string;
 begin;
   if FDQuery.FieldDefs.Count > 0 then
   begin
     FDQuery.FieldDefs.Clear;
     FDQuery.Fields.Clear;
   end;
-
-  S := FDQuery.SQL.Text;
 
   FDQuery.FieldDefs.Update;
 
@@ -682,7 +680,7 @@ begin;
 
   W.CreateDefaultFields(False);
 
-  // Внутриние вычисляемые поля
+  // Внутренние вычисляемые поля
   W.IDExtraCharge.F.FieldKind := fkInternalCalc;
   W.IDExtraChargeType.F.FieldKind := fkInternalCalc;
   W.Wholesale.F.FieldKind := fkInternalCalc;
@@ -863,6 +861,8 @@ begin
   if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull)
   then
     Exit;
+
+  Inc(FCalcExecCount);
 
   // Определяемся с курсом Доллара
   ADCource := 0;
@@ -1195,49 +1195,6 @@ begin
     AUpdatedIDList.Add(AID);
   end;
 end;
-
-// TODO: SplitComponentName
-// function TQueryProductsBase.SplitComponentName(const S: string)
-// : TComponentNameParts;
-// var
-// Count: Integer;
-// StartIndex: Integer;
-// begin
-/// / Предполагаем что компонент начинается с буквы, за которыми следуют цифры
-// Result.Name := S;
-// Result.Number := 0;
-// Result.Ending := '';
-//
-// Count := 1;
-//
-/// / Пока в начале строки не находим цифру
-// while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 0,
-// Count) = -1 do
-// begin
-// Inc(Count);
-//
-// // Если в строке вообще нет цифр
-// if Count > S.Length then
-// Exit;
-// end;
-//
-// Result.Name := S.Substring(0, Count - 1);
-// StartIndex := Count - 1;
-//
-/// / Пока в строке находим цифру
-// while S.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-// StartIndex) = StartIndex do
-// Inc(StartIndex);
-//
-// Dec(StartIndex);
-//
-/// / Если нашли хотя-бы одну цифру
-// if StartIndex >= Count then
-// begin
-// Result.Number := StrToInt(S.Substring(Count - 1, StartIndex - Count));
-// Result.Ending := S.Substring(StartIndex + 1);
-// end;
-// end;
 
 constructor TLocateObject.Create(const AIDCategory: Integer;
   const AFamilyName, AComponentName: string);

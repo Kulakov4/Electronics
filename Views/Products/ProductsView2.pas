@@ -51,10 +51,13 @@ type
     dxBarButton8: TdxBarButton;
     actFilterAndExportToExcelDocument: TAction;
     dxBarButton10: TdxBarButton;
+    actCalcCount: TAction;
+    dxBarButton12: TdxBarButton;
     procedure actColumnsAutoWidth2Execute(Sender: TObject);
     procedure actExportToExcelDocument2Execute(Sender: TObject);
     procedure actFilterAndExportToExcelDocumentExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
+    procedure actCalcCountExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
@@ -163,6 +166,12 @@ begin
     frmProducts.ViewProducts2.qProducts := qProducts;
   end;
   frmProducts.Show;
+end;
+
+procedure TViewProducts2.actCalcCountExecute(Sender: TObject);
+begin
+  inherited;
+  ShowMessage(qProducts.CalcExecCount.ToString);
 end;
 
 function TViewProducts2.CreateProductView: TViewProductsBase2;
