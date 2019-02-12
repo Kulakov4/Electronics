@@ -1414,40 +1414,47 @@ begin
   if FqProductsBase = nil then
     Exit;
 
-  cxDBTreeList.DataController.DataSource := FqProductsBase.W.DataSource;
+  BeginUpdate;
+  try
+    cxDBTreeList.DataController.DataSource := FqProductsBase.W.DataSource;
 
-  InitializeColumns;
-  TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad, FEventList);
-  TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
-  TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
-    DoOnDollarCourceChange, FEventList);
-  TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,
-    DoOnEuroCourceChange, FEventList);
+    InitializeColumns;
+    TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad,
+      FEventList);
+    TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
+    TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
+      DoOnDollarCourceChange, FEventList);
+    TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,
+      DoOnEuroCourceChange, FEventList);
 
-  // подписываемся на события о смене количества и надбавки
-  CreateCountEvents;
+    // подписываемся на события о смене количества и надбавки
+    CreateCountEvents;
 
-  // Фильтруем оптовые надбавки по типу
-  FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType(0);
+    // Фильтруем оптовые надбавки по типу
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType(0);
 
-  // Привязываем представление оптовых надбавок
-  TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
-    TcxLookupComboBoxProperties,
-    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.DataSource,
-    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.PK.FieldName,
-    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.Name.FieldName,
-    lsFixedList);
+    // Привязываем представление оптовых надбавок
+    TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
+      TcxLookupComboBoxProperties,
+      FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.DataSource,
+      FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.PK.FieldName,
+      FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.Name.FieldName,
+      lsFixedList);
 
-  ViewExtraChargeSimple.qExtraCharge :=
-    FqProductsBase.ExtraChargeGroup.qExtraCharge2;
-  TExtDBLCB.InitProp(cxbeiExtraCharge.Properties as
-    TcxExtLookupComboBoxProperties, ViewExtraChargeSimple.MainView,
-    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.PKFieldName,
-    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName,
-    lsFixedList, True, True);
+    ViewExtraChargeSimple.qExtraCharge :=
+      FqProductsBase.ExtraChargeGroup.qExtraCharge2;
+    TExtDBLCB.InitProp
+      (cxbeiExtraCharge.Properties as TcxExtLookupComboBoxProperties,
+      ViewExtraChargeSimple.MainView,
+      FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.PKFieldName,
+      FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName,
+      lsFixedList, True, True);
 
-  LoadWholeSale;
+    LoadWholeSale;
 
+  finally
+    EndUpdate;
+  end;
   UpdateView;
   MyApplyBestFit;
 end;

@@ -84,6 +84,7 @@ type
       var AllowChange: Boolean);
     procedure cxtsCategoryComponentsShow(Sender: TObject);
     procedure cxtsCategoryParametersShow(Sender: TObject);
+    procedure cxtsCategoryShow(Sender: TObject);
     procedure cxtsComponentsSearchShow(Sender: TObject);
   private
     FfrmProgressBar: TfrmProgressBar3;
@@ -410,16 +411,43 @@ end;
 
 procedure TComponentsFrame.cxtsCategoryComponentsShow(Sender: TObject);
 begin
+  // Привязываем представления к данным
+  ViewComponents.ComponentsGroup := TDM.Create.ComponentsGroup;
+
+  TDM.Create.ComponentsGroup.TryOpen;
+
   ViewComponents.PostMyApplyBestFitEvent;
 end;
 
 procedure TComponentsFrame.cxtsCategoryParametersShow(Sender: TObject);
 begin
+  // Параметры в виде списка
+  ViewCategoryParameters.CatParamsGroup :=
+    TDM.Create.CategoryParametersGroup;
+
+  TDM.Create.CategoryParametersGroup.TryOpen;
+
   ViewCategoryParameters.MyApplyBestFit;
+end;
+
+procedure TComponentsFrame.cxtsCategoryShow(Sender: TObject);
+begin
+  // Привязываем подкатегории к данным (функциональная группа)
+  ViewChildCategories.qChildCategories := TDM.Create.qChildCategories;
+
+  TDM.Create.qChildCategories.W.TryOpen;
+
+  ViewChildCategories.MainView.ApplyBestFit;
 end;
 
 procedure TComponentsFrame.cxtsComponentsSearchShow(Sender: TObject);
 begin
+  // Привязываем представление к данным
+  ViewComponentsSearch.ComponentsSearchGroup :=
+    TDM.Create.ComponentsSearchGroup;
+
+  TDM.Create.ComponentsSearchGroup.TryOpen;
+
   ViewComponentsSearch.MyApplyBestFit;
 end;
 
@@ -902,14 +930,14 @@ begin
           end;
 
           // Ищем, есть ли у нашего параметра такой подпараметр
-          rc := qParamSubParams.SearchBySubParam(qSearchParameter.W.PK.AsInteger,
-            qSubParameters.W.PK.AsInteger);
+          rc := qParamSubParams.SearchBySubParam
+            (qSearchParameter.W.PK.AsInteger, qSubParameters.W.PK.AsInteger);
           Assert(rc <= 1);
 
           // Если нужно связать параметр с подпараметром
           if rc = 0 then
-            qParamSubParams.W.AppendSubParameter(qSearchParameter.W.PK.AsInteger,
-              qSubParameters.W.PK.AsInteger);
+            qParamSubParams.W.AppendSubParameter
+              (qSearchParameter.W.PK.AsInteger, qSubParameters.W.PK.AsInteger);
 
           // Запоминаем описание поля связанного с подпараметром
           AParamSubParamID := qParamSubParams.W.PK.AsInteger;

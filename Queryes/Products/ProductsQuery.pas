@@ -25,6 +25,7 @@ type
     FTotalCount: Integer;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
+    procedure DoBeforeOpen(Sender: TObject);
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
     function GetqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
@@ -61,9 +62,15 @@ uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
 constructor TQueryProducts.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+
+//  FDQuery.AutoCalcFields := False;
+
   FNeedUpdateCount := True;
 
   DetailParameterName := W.StorehouseId.FieldName;
+
+  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
+
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(W.AfterPostM, DoAfterPost, W.EventList);
@@ -296,6 +303,11 @@ end;
 procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
 begin
   FNeedDecTotalCount := not W.IsGroup.F.IsNull and (W.IsGroup.F.AsInteger = 0);
+end;
+
+procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
+begin
+//  beep;
 end;
 
 function TQueryProducts.GetExportFileName: string;

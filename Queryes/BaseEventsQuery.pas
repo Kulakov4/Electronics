@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, NotifyEvents, System.Contnrs,
-  System.Generics.Collections, DSWrap;
+  System.Generics.Collections, DSWrap, HRTimer;
 
 type
   TQueryMonitor = class;
@@ -24,6 +24,7 @@ type
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
     FHaveAnyNotCommitedChanges: Boolean;
+    FHRTimer: THRTimer;
     FLock: Boolean;
     FMaster: TQueryBaseEvents;
     FNeedLoad: Boolean;
@@ -32,6 +33,7 @@ type
     procedure DoAfterMasterScroll(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
+    procedure DoBeforeOpen(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetActual: Boolean;
     procedure InitializeFields;
@@ -126,6 +128,9 @@ begin
 
   TNotifyEventWrap.Create(FDSWrap.AfterPost, DoAfterPost, FDSWrap.EventList);
 
+  // Будем засекать время выполнения запроса
+  TNotifyEventWrap.Create(Wrap.BeforeOpen, DoBeforeOpen, Wrap.EventList);
+
   // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
   TNotifyEventWrap.Create(Wrap.AfterOpen, DoAfterOpen, Wrap.EventList);
 
@@ -144,6 +149,8 @@ begin
   FAutoTransactionEventList := TObjectList.Create;
   FMasterEventList := TObjectList.Create;
 
+  FHRTimer := THRTimer.Create(False);
+
   if FMonitor = nil then
   begin
     FMonitor := TQueryMonitor.Create;
@@ -158,7 +165,7 @@ end;
 
 destructor TQueryBaseEvents.Destroy;
 begin
-
+  FreeAndNil(FHRTimer);
   FreeAndNil(FAfterCommit);
 
   FreeAndNil(FAfterCancelUpdates);
@@ -234,11 +241,25 @@ end;
 procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
 var
   i: Integer;
+  t: Double;
 begin
+  t := FHRTimer.ReadTimer;
+  Writeln(FFile, Format('Time = %f (%s)', [t, Label1.Caption]));
   // Записываем SQL запрос в файл
   for i := 0 to FDQuery.SQL.Count - 1 do
     Writeln(FFile, FDQuery.SQL[i]);
+  if FDQuery.ParamCount > 0 then
+  begin
+    Writeln(FFile, '');
+    for i := 0 to FDQuery.Params.Count - 1 do
+    begin
+      Writeln(FFile, Format(':%s = %s', [FDQuery.Params[i].Name,
+        FDQuery.Params[i].AsString]));
+    end;
+  end;
   Writeln(FFile, '');
+  Writeln(FFile, '');
+
   Flush(FFile);
 
   // Костыль с некоторыми типами полей
@@ -260,6 +281,11 @@ procedure TQueryBaseEvents.DoAfterRollback(Sender: TObject);
 begin
   // Помечаем что у нас нет не закоммитенных изменений
   FHaveAnyNotCommitedChanges := False;
+end;
+
+procedure TQueryBaseEvents.DoBeforeOpen(Sender: TObject);
+begin
+  FHRTimer.StartTimer;
 end;
 
 procedure TQueryBaseEvents.DoBeforePost(Sender: TObject);

@@ -39,9 +39,6 @@ type
     FqTreeList: TQueryTreeList;
     FqVersion: TQueryVersion;
     FRefreshQList: TList;
-    FTreeListAfterFirstOpen: TNotifyEventWrap;
-    // FRecommendedReplacement: TRecommendedReplacementThread;
-    // FTempThread: TTempThread;
     procedure CloseConnection;
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
@@ -65,7 +62,6 @@ type
     function GetqSubParameters: TQuerySubParameters2;
     function GetqTreeList: TQueryTreeList;
     function GetqVersion: TQueryVersion;
-    procedure InitDataSetValues;
     procedure OpenConnection;
   protected
     procedure DoAfterChildCategoriesPostOrDelete(Sender: TObject);
@@ -129,35 +125,37 @@ begin
 
   with FDataSetList do
   begin
-    Add(qTreeList);
+    // Add(qTreeList);
 
-    Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
-    Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
+//    Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
+//    Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
 
-    Add(ProducersGroup.qProducerTypes); // Типы производителей
-    Add(ProducersGroup.qProducers); // Производители
+//    Add(ProducersGroup.qProducerTypes); // Типы производителей
+//    Add(ProducersGroup.qProducers); // Производители
 
     // Поиск на складе и редактирование найденного
-    Add(qProductsSearch);
+    // Add(qProductsSearch);
 
-    Add(qStoreHouseList); // Склады - главное
+    // Add(qStoreHouseList); // Склады - главное
 
     // Поиск среди семейств
-    Add(ComponentsSearchGroup.qFamilySearch);
+//    Add(ComponentsSearchGroup.qFamilySearch);
 
     // Поиск среди компонентов (подчинённое)
-    Add(ComponentsSearchGroup.qComponentsSearch);
+//    Add(ComponentsSearchGroup.qComponentsSearch);
 
     // вкладка параметры - список параметров
-    Add(CategoryParametersGroup.qCategoryParameters);
+  //  Add(CategoryParametersGroup.qCategoryParameters);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
   // ComponentsGroup.Producers := ProducersGroup.qProducers;
   // ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
   // ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
-  FTreeListAfterFirstOpen := TNotifyEventWrap.Create(qTreeList.W.AfterOpen,
+  Assert(not qTreeList.FDQuery.Active);
+  TNotifyEventWrap.Create(qTreeList.W.AfterOpen,
     DoAfterTreeListFirstOpen, FEventList);
+
   TNotifyEventWrap.Create(qTreeList.W.BeforeClose, DoBeforeTreeListClose,
     FEventList);
 
@@ -519,16 +517,6 @@ begin
   Result := FqVersion;
 end;
 
-{ Заполнение БД необходимыми полями }
-procedure TDM.InitDataSetValues;
-begin
-  // Добавляем корень дерева
-  qTreeList.W.AddRoot;
-
-  // Инициализируем список полей
-  // qFieldTypes.InitDataSetValues;
-end;
-
 class function TDM.NewInstance: TObject;
 begin
   if not Assigned(Instance) then
@@ -593,12 +581,6 @@ begin
       FDataSetList[I].FDQuery.Open;
     end;
   end;
-
-  // Отписываемся от события
-  Assert(FTreeListAfterFirstOpen <> nil);
-  FreeAndNil(FTreeListAfterFirstOpen);
-
-  InitDataSetValues();
 end;
 
 initialization

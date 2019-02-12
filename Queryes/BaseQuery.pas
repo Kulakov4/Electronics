@@ -390,9 +390,11 @@ begin
   begin
     FBeforeLoad.CallEventHandlers(FDQuery);
 
-    FDQuery.Close;
     FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
-    FDQuery.Open();
+    if FDQuery.Active then
+      FDQuery.Refresh
+    else
+      FDQuery.Open;
 
     FAfterLoad.CallEventHandlers(FDQuery);
   end;

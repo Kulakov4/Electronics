@@ -14,14 +14,13 @@ uses
 type
   TQueryBaseComponents = class(TQueryCustomComponents)
   private
-    FClone: TFDMemTable;
     FqSearchComponent: TQuerySearchComponentOrFamily;
     procedure DoBeforeOpen(Sender: TObject);
     function GetqSearchComponent: TQuerySearchComponentOrFamily;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -30,7 +29,7 @@ type
       read GetqSearchComponent;
   public
     constructor Create(AOwner: TComponent); override;
-    function Exists(AMasterID: Integer): Boolean;
+    function Exists(AParentProductID: Integer): Boolean;
     { Public declarations }
   end;
 
@@ -48,8 +47,9 @@ begin
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
-procedure TQueryBaseComponents.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryBaseComponents.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
 
@@ -88,8 +88,8 @@ begin
   begin
     // Если такой компонент уже есть
     // Запоминаем найденный первичный ключ
-    FetchFields([W.PKFieldName], [qSearchComponent.W.PK.Value], ARequest, AAction,
-      AOptions);
+    FetchFields([W.PKFieldName], [qSearchComponent.W.PK.Value], ARequest,
+      AAction, AOptions);
   end;
 
   Assert(W.PK.AsInteger > 0);
@@ -119,40 +119,20 @@ begin
     TDefaultParameters.PackagePinsParamSubParamID;
 end;
 
-function TQueryBaseComponents.Exists(AMasterID: Integer): Boolean;
-var
-  V: Variant;
-  AFDIndex: TFDIndex;
-begin
-  Result := False;
-
-  if (not FDQuery.Active) or (FDQuery.RecordCount = 0) then
-    Exit;
-
-  if FClone = nil then
-  begin
-    FClone := W.AddClone('');
-    // Создаём индекс
-    AFDIndex := FClone.Indexes.Add;
-    AFDIndex.Fields := 'ParentProductID';
-    AFDIndex.Name := 'idxParentProductID';
-    AFDIndex.Active := True;
-    FClone.IndexName := AFDIndex.Name;
-  end;
-
-  if not FClone.Active then
-    Exit;
-
-  V := FClone.LookupEx(W.ParentProductID.FieldName, AMasterID, W.PKFieldName );
-  Result := not VarIsNull(V);
-end;
-
 function TQueryBaseComponents.GetqSearchComponent
   : TQuerySearchComponentOrFamily;
 begin
   if FqSearchComponent = nil then
     FqSearchComponent := TQuerySearchComponentOrFamily.Create(Self);
   Result := FqSearchComponent;
+end;
+
+function TQueryBaseComponents.Exists(AParentProductID: Integer): Boolean;
+begin
+  Result := (FDQuery.RecordCount > 0) and
+    ((W.ParentProductID.F.AsInteger = AParentProductID) or
+    not VarIsNull(FDQuery.LookupEx(W.ParentProductID.FieldName, AParentProductID,
+    W.PKFieldName)));
 end;
 
 end.

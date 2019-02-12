@@ -52,6 +52,7 @@ type
     FOldAutoSearchDuplicate: Boolean;
     FqDuplicateCategory: TQueryDuplicateCategory;
     FW: TTreeListW;
+    procedure DoAfterOpen(Sender: TObject);
     function GetqDuplicateCategory: TQueryDuplicateCategory;
     procedure SetAutoSearchDuplicate(const Value: Boolean);
     { Private declarations }
@@ -79,12 +80,18 @@ constructor TQueryTreeList.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TTreeListW;
-  TNotifyEventWrap.Create(W.AfterScrollM, DoAfterScroll, FEventList);
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
+  TNotifyEventWrap.Create(W.AfterScrollM, DoAfterScroll, W.EventList);
 end;
 
 function TQueryTreeList.CreateDSWrap: TDSWrap;
 begin
   Result := TTreeListW.Create(FDQuery);
+end;
+
+procedure TQueryTreeList.DoAfterOpen(Sender: TObject);
+begin
+  W.AddRoot;
 end;
 
 procedure TQueryTreeList.DoAfterScroll(Sender: TObject);

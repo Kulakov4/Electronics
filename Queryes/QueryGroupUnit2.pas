@@ -28,6 +28,7 @@ type
     procedure RefreshData; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
+    procedure TryOpen;
     procedure TryPost; virtual;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
@@ -144,20 +145,20 @@ procedure TQueryGroup2.RefreshData;
 var
   I: Integer;
 begin
-//  DisableControls;
-//  try
-    for I := QList.Count - 1 downto 0 do
-      QList[I].Wrap.SaveBookmark;
+  // DisableControls;
+  // try
+  for I := QList.Count - 1 downto 0 do
+    QList[I].Wrap.SaveBookmark;
 
-    ReOpen;
+  ReOpen;
 
-    for I := 0 to QList.Count - 1 do
-      QList[I].Wrap.RestoreBookmark;
+  for I := 0 to QList.Count - 1 do
+    QList[I].Wrap.RestoreBookmark;
 
-//  finally
-// !! FDQuery.EnableControls вызывает ошибку в cxGrid у дочернего представления
-//    EnableControls;
-//  end;
+  // finally
+  // !! FDQuery.EnableControls вызывает ошибку в cxGrid у дочернего представления
+  // EnableControls;
+  // end;
 end;
 
 procedure TQueryGroup2.ReOpen;
@@ -180,6 +181,14 @@ begin
   Connection.Rollback;
 
   RefreshData;
+end;
+
+procedure TQueryGroup2.TryOpen;
+var
+  I: Integer;
+begin
+  for I := 0 to QList.Count - 1 do
+    QList[I].Wrap.TryOpen;
 end;
 
 procedure TQueryGroup2.TryPost;

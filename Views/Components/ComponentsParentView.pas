@@ -419,7 +419,6 @@ procedure TViewComponentsParent.clValueGetProperties
   var AProperties: TcxCustomEditProperties);
 var
   AID: Integer;
-  // F: TField;
   HavDetails: Boolean;
   V: Variant;
 begin
@@ -433,15 +432,7 @@ begin
     if not VarIsNull(V) then
     begin
       AID := V;
-      // Почему-то иногда поле не найдено
-      // F := BaseComponentsGroup.QueryBaseComponents.FDQuery.FindField('ParentProductID');
-
-      HavDetails := (BaseComponentsGroup.QueryBaseComponents.FDQuery.RecordCount
-        > 0) and (BaseComponentsGroup.QueryBaseComponents.Exists(AID) or
-        (BaseComponentsGroup.QueryBaseComponents.W.ParentProductID.F.
-        AsInteger = AID));
-
-      // ((F <> nil) and (F.AsInteger = AID))
+      HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
     end;
   end;
 
@@ -973,7 +964,8 @@ begin
 
   if Ok and (AView <> nil) and (AView.Level = cxGridLevel) then
   begin
-    if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) then
+    if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) and
+      ((BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.Active)) then
     begin
       S := BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.FieldByName
         ('Value').AsString;

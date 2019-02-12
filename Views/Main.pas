@@ -120,6 +120,7 @@ type
     procedure OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
     procedure cxtsComponentsShow(Sender: TObject);
+    procedure cxtsRStorehousesShow(Sender: TObject);
     procedure cxtsStorehousesShow(Sender: TObject);
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
@@ -127,7 +128,6 @@ type
     FComponentsFrame: TComponentsFrame;
     FEventList: TObjectList;
     FHintWindowEx: THintWindowEx;
-    FOnProductCategoriesChange: TNotifyEventWrap;
     FProductsFrame: TProductsFrame;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FViewTreeList: TViewTreeList;
@@ -557,74 +557,73 @@ begin
         FEventList);
       TNotifyEventWrap.Create(TDM.Create.qProductsSearch.OnLocate,
         DoOnProductLocate, FEventList);
-
+(*
       // Привязываем представления к данным
       ComponentsFrame.ViewComponents.ComponentsGroup :=
         TDM.Create.ComponentsGroup;
-
+*)
       // Подписываемся на событие о отображении параметрической таблицы
       TNotifyEventWrap.Create
         (ComponentsFrame.ViewComponents.OnShowParametricTableEvent,
         DoOnShowParametricTable, FEventList);
-
+(*
       ComponentsFrame.ViewComponentsSearch.ComponentsSearchGroup :=
         TDM.Create.ComponentsSearchGroup;
+*)
 
       // Подписываемся на событие чтобы открывать найденную категорию
       TNotifyEventWrap.Create(TDM.Create.ComponentsSearchGroup.OnOpenCategory,
         DoOnOpenCategory, FEventList);
-
+(*
       // Параметры в виде списка
       ComponentsFrame.ViewCategoryParameters.CatParamsGroup :=
         TDM.Create.CategoryParametersGroup;
-
+*)
       ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
         TDM.Create.ComponentsExGroup;
 
       // Блокируем это представление до тех пор, пока вкладка не станет активной
       ComponentsFrame.ViewParametricTable.Lock;
 
-      // Привязываем список складов к данным
-      tvStorehouseList.DataController.DataSource :=
+      (*
+        // Привязываем список складов к данным
+        tvStorehouseList.DataController.DataSource :=
         TDM.Create.qStoreHouseList.W.DataSource;
 
-      clStorehouseListTitle.ApplyBestFit();
+        clStorehouseListTitle.ApplyBestFit();
 
-      // Привязываем информацию о складе к данным
-      ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
+        // Привязываем информацию о складе к данным
+        ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
         TDM.Create.qStoreHouseList;
 
-      // Привязываем текущий склад к данным
-      ProductsFrame.ViewProducts.qProducts := TDM.Create.qProducts;
+        // Привязываем текущий склад к данным
+        ProductsFrame.ViewProducts.qProducts := TDM.Create.qProducts;
 
-      // Привязываем поиск по складам к данным
-      ProductsFrame.ViewProductsSearch.qProductsSearch :=
+        // Привязываем поиск по складам к данным
+        ProductsFrame.ViewProductsSearch.qProductsSearch :=
         TDM.Create.qProductsSearch;
 
+        ViewTreeList.qTreeList := TDM.Create.qTreeList;
 
-      // ViewStoreHouse.StoreHouseGroup := DM2.StoreHouseGroup;
-      // ViewStoreHouse.QueryProductsSearch := DM2.qProductsSearch;
-
-      // привязываем дерево катогорий к данным
-      // AClone := DM2.qTreeList.AddClone('');
-      // DM2.qTreeList.DataSource.DataSet := AClone;
-
-      ViewTreeList.qTreeList := TDM.Create.qTreeList;
+      *)
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
         DoAfterTreeListSmartRefresh, FEventList);
 
+(*
       // Привязываем подкатегории к данным (функциональная группа)
       ComponentsFrame.ViewChildCategories.qChildCategories :=
         TDM.Create.qChildCategories;
+*)
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterScrollM,
+        DoOnProductCategoriesChange, FEventList);
 
-      FOnProductCategoriesChange := TNotifyEventWrap.Create
-        (TDM.Create.qTreeList.W.AfterScrollM, DoOnProductCategoriesChange,
-        FEventList);
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterOpen,
+        DoOnProductCategoriesChange, FEventList);
 
       // Искусственно вызываем событие
-      DoOnProductCategoriesChange(nil);
-
+      if TDM.Create.qTreeList.FDQuery.Active then
+        DoOnProductCategoriesChange(nil);
     end;
   end;
 
@@ -771,14 +770,47 @@ end;
 
 procedure TfrmMain.cxtsComponentsShow(Sender: TObject);
 begin
+  TDM.Create.qTreeList.W.TryOpen;
+
+  if ViewTreeList.qTreeList = nil then
+    ViewTreeList.qTreeList := TDM.Create.qTreeList;
+
   // Справа активизируем вкладку "Компоненты"
   cxpcRight.ActivePage := cxtsRComponents;
+end;
+
+procedure TfrmMain.cxtsRStorehousesShow(Sender: TObject);
+begin
+  // Привязываем список складов к данным
+  if tvStorehouseList.DataController.DataSource = nil then
+  begin
+    tvStorehouseList.DataController.DataSource :=
+      TDM.Create.qStoreHouseList.W.DataSource;
+
+    clStorehouseListTitle.ApplyBestFit();
+  end;
+
+  // Привязываем информацию о складе к данным
+  if ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList = nil then
+    ProductsFrame.ViewStorehouseInfo.QueryStoreHouseList :=
+      TDM.Create.qStoreHouseList;
+
+  // Привязываем текущий склад к данным
+  if ProductsFrame.ViewProducts.qProducts = nil then
+    ProductsFrame.ViewProducts.qProducts := TDM.Create.qProducts;
+
+  // Привязываем поиск по складам к данным
+  if ProductsFrame.ViewProductsSearch.qProductsSearch = nil then
+    ProductsFrame.ViewProductsSearch.qProductsSearch :=
+      TDM.Create.qProductsSearch;
 end;
 
 procedure TfrmMain.cxtsStorehousesShow(Sender: TObject);
 begin
   // Справа активизируем вкладку "Склады"
   cxpcRight.ActivePage := cxtsRStorehouses;
+
+  TDM.Create.qStoreHouseList.W.TryOpen;
 end;
 
 procedure TfrmMain.DoAfterTreeListSmartRefresh(Sender: TObject);

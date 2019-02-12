@@ -1064,8 +1064,13 @@ procedure TDSWrap.RefreshQuery;
 begin
   FDataSet.DisableControls;
   try
-    FDataSet.Close;
-    FDataSet.Open();
+    if FDataSet.Active then
+      FDataSet.Refresh
+    else
+      FDataSet.Open;
+
+//    FDataSet.Close;
+//    FDataSet.Open();
     FNeedRefresh := False;
   finally
     FDataSet.EnableControls;

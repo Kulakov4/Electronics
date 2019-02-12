@@ -13,7 +13,7 @@ object ProductsFrame: TProductsFrame
     Height = 607
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = tsStorehouseSearch
+    Properties.ActivePage = tsStorehouseInfo
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 603
     ClientRectLeft = 4
@@ -22,14 +22,19 @@ object ProductsFrame: TProductsFrame
     object tsStorehouseInfo: TcxTabSheet
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1082#1083#1072#1076#1077
       ImageIndex = 0
+      OnShow = tsStorehouseInfoShow
+      ExplicitLeft = 3
+      ExplicitTop = 25
     end
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
+      OnShow = tsStorehouseProductsShow
     end
     object tsStorehouseSearch: TcxTabSheet
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 2
+      OnShow = tsStorehouseSearchShow
     end
   end
   object dxBarManager: TdxBarManager

@@ -166,6 +166,7 @@ type
     FExtraChargeGroup: TExtraChargeGroup;
     FOnCommitUpdatePosted: Boolean;
     FW: TProductW;
+    procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetProducersGroup: TProducersGroup2;
     function GetExtraChargeGroup: TExtraChargeGroup;
@@ -256,6 +257,8 @@ begin
   inherited;
   FW := FDSWrap as TProductW;
   FOnLocate := TNotifyEventsEx.Create(Self);
+
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
 
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
   TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
@@ -627,6 +630,11 @@ begin
   Inc(FCalcStatus);
 end;
 
+procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
+begin
+//  EnableCalc;
+end;
+
 procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
 var
   S: string;
@@ -684,6 +692,8 @@ begin;
   TunePriceFields([W.PriceD.F, W.PriceR.F, W.PriceE.F, W.PriceD1.F, W.PriceR1.F,
     W.PriceE1.F, W.PriceD2.F, W.PriceR2.F, W.PriceE2.F, W.SaleR.F, W.SaleD.F,
     W.SaleE.F]);
+
+//  DisableCalc;
 end;
 
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);

@@ -44,6 +44,9 @@ type
     dxBarButton2: TdxBarButton;
     procedure actBindDescriptionsExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
+    procedure tsStorehouseInfoShow(Sender: TObject);
+    procedure tsStorehouseProductsShow(Sender: TObject);
+    procedure tsStorehouseSearchShow(Sender: TObject);
   private
   const
     FolderKey: String = 'Products';
@@ -65,7 +68,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, DialogUnit2, System.IOUtils, DialogUnit,
-  StoreHouseListQuery, AutoBinding;
+  StoreHouseListQuery, AutoBinding, DataModule;
 
 constructor TProductsFrame.Create(AOwner: TComponent);
 begin
@@ -130,6 +133,22 @@ begin
   // else
   // TDialog.Create.ErrorMessageDialog
   // (Format('Склад с сокращённым названием "%s" не найден', [S]));
+end;
+
+procedure TProductsFrame.tsStorehouseInfoShow(Sender: TObject);
+begin
+  TDM.Create.qStoreHouseList.W.TryOpen;
+end;
+
+procedure TProductsFrame.tsStorehouseProductsShow(Sender: TObject);
+begin
+  TDM.Create.qStoreHouseList.W.TryOpen;
+//  TDM.Create.qProducts.W.TryOpen;
+end;
+
+procedure TProductsFrame.tsStorehouseSearchShow(Sender: TObject);
+begin
+  TDM.Create.qProductsSearch.W.TryOpen;
 end;
 
 end.
