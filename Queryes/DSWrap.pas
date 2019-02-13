@@ -1267,8 +1267,8 @@ var
   PW: TParamWrap;
   FW: TFieldWrap;
 begin
-  if Name = 'QueryProductsWrap' then
-    beep(1000, 1);
+//  if Name = 'QueryProductsWrap' then
+//    beep(1000, 1);
 
   DataSet.DisableControls;
   try

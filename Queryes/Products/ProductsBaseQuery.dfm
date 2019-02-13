@@ -9,6 +9,7 @@ inherited QueryProductsBase: TQueryProductsBase
     ExplicitWidth = 128
   end
   inherited FDQuery: TFDQuery
+    OnCalcFields = FDQueryCalcFields
     AfterApplyUpdates = FDQueryAfterApplyUpdates
     Left = 17
   end
