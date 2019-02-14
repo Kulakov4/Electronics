@@ -24,7 +24,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxBarBuiltInMenu, GridFrame,
   StoreHouseInfoView, cxPC, dxSkinsdxBarPainter, System.Actions, Vcl.ActnList,
   cxClasses, dxBar, TreeListFrame, ProductsBaseView2, ProductsView2,
-  ProductsSearchView2, cxTL, cxStyles;
+  ProductsSearchView2, cxTL, cxStyles, ProductsBasketView;
 
 type
   TProductsFrame = class(TFrame)
@@ -42,8 +42,12 @@ type
     dxBarSubItem3: TdxBarSubItem;
     actBindDescriptions: TAction;
     dxBarButton2: TdxBarButton;
+    tsBasket: TcxTabSheet;
     procedure actBindDescriptionsExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
+    procedure cxpcStorehousePageChanging(Sender: TObject; NewPage: TcxTabSheet; var
+        AllowChange: Boolean);
+    procedure tsBasketShow(Sender: TObject);
     procedure tsStorehouseInfoShow(Sender: TObject);
     procedure tsStorehouseProductsShow(Sender: TObject);
     procedure tsStorehouseSearchShow(Sender: TObject);
@@ -52,12 +56,14 @@ type
 
   var
     FViewProducts: TViewProducts2;
+    FViewProductsBasket: TViewProductsBasket;
     FViewProductsSearch: TViewProductsSearch2;
     FViewStorehouseInfo: TViewStorehouseInfo;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     property ViewProducts: TViewProducts2 read FViewProducts;
+    property ViewProductsBasket: TViewProductsBasket read FViewProductsBasket;
     property ViewProductsSearch: TViewProductsSearch2 read FViewProductsSearch;
     property ViewStorehouseInfo: TViewStorehouseInfo read FViewStorehouseInfo;
     { Public declarations }
@@ -85,7 +91,11 @@ begin
 
   FViewProductsSearch := TViewProductsSearch2.Create(Self);
   FViewProductsSearch.Parent := tsStorehouseSearch;
+  FViewProductsSearch.Align := alClient;
 
+  FViewProductsBasket := TViewProductsBasket.Create(Self);
+  FViewProductsBasket.Parent := tsBasket;
+  FViewProductsBasket.Align := alClient;
 end;
 
 procedure TProductsFrame.actBindDescriptionsExecute(Sender: TObject);
@@ -134,6 +144,39 @@ begin
   // else
   // TDialog.Create.ErrorMessageDialog
   // (Format('Склад с сокращённым названием "%s" не найден', [S]));
+end;
+
+procedure TProductsFrame.cxpcStorehousePageChanging(Sender: TObject; NewPage:
+    TcxTabSheet; var AllowChange: Boolean);
+begin
+  // Если уходим с вкладки "Товары"
+  if cxpcStorehouse.ActivePage = tsStorehouseProducts then
+    ViewProducts.BeginUpdate;
+
+  // Если переходим на вкладку "Товары"
+  if (NewPage = tsStorehouseProducts) and (ViewProducts.UpdateCount > 0) then
+    ViewProducts.EndUpdate;
+
+  // Если уходим с вкладки "Корзина"
+  if cxpcStorehouse.ActivePage = tsBasket then
+    ViewProductsBasket.BeginUpdate;
+
+  // Если переходим на вкладку "Корзина"
+  if (NewPage = tsStorehouseProducts) and (ViewProductsBasket.UpdateCount > 0) then
+    ViewProductsBasket.EndUpdate;
+end;
+
+procedure TProductsFrame.tsBasketShow(Sender: TObject);
+begin
+  // Привязываем текущий склад к данным
+  if ViewProductsBasket.qProducts = nil then
+    ViewProductsBasket.qProducts := TDM.Create.qProducts;
+
+  TDM.Create.qStoreHouseList.W.TryOpen;
+  // TDM.Create.qProducts.W.TryOpen;
+
+
+  ViewProductsBasket.MyApplyBestFit;
 end;
 
 procedure TProductsFrame.tsStorehouseInfoShow(Sender: TObject);

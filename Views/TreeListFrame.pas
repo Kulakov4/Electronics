@@ -56,12 +56,12 @@ type
     FPostOnEnterFields: TList<String>;
     FSortVariant: TSortVariant;
     FStatusBarEmptyPanelIndex: Integer;
+    FUpdateCount: Cardinal;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
     FColumnsBarButtons: TTLColumnsBarButtons;
     FEventList: TObjectList;
-    FUpdateCount: Cardinal;
     procedure CreateColumnsBarButtons; virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InitializeColumns; virtual;
@@ -91,6 +91,7 @@ type
     function FocusedNodeValue(AcxDBTreeListColumn: TcxDBTreeListColumn)
       : Variant;
     procedure FocusFirstNode;
+    function GetSelectedValues(const AFieldName: String): TArray<Variant>;
     procedure MyApplyBestFit;
     procedure RefreshData;
     procedure UpdateView; virtual;
@@ -98,6 +99,7 @@ type
     property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
       write SetStatusBarEmptyPanelIndex;
+    property UpdateCount: Cardinal read FUpdateCount;
     { Public declarations }
   end;
 
@@ -410,6 +412,30 @@ begin
   if ANode <> nil then
   begin
     ANode.Focused := True;
+  end;
+end;
+
+function TfrmTreeList.GetSelectedValues(const AFieldName: String):
+    TArray<Variant>;
+var
+  AColumn: TcxDBTreeListColumn;
+  AList: TList<Variant>;
+  i: Integer;
+begin
+  Assert(not AFieldName.IsEmpty);
+  AColumn := cxDBTreeList.GetColumnByFieldName(AFieldName);
+  Assert(AColumn <> nil);
+
+  AList := TList<Variant>.Create;
+  try
+    for i := 0 to cxDBTreeList.SelectionCount - 1 do
+    begin
+      AList.Add(cxDBTreeList.Selections[i].Values[AColumn.ItemIndex]);
+    end;
+
+    Result := AList.ToArray;
+  finally
+    FreeAndNil(AList);
   end;
 end;
 

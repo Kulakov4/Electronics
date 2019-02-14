@@ -51,6 +51,7 @@ type
     procedure ErrorMessageDialog(const AErrorMessage: String);
     class function NewInstance: TObject; override;
     function CreateFolderDialog(const AValue: String): Integer;
+    function ClearBasketDialog: Boolean;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
     procedure DollarOrEuroCourceUnknown;
@@ -179,6 +180,13 @@ function TDialog.CreateFolderDialog(const AValue: String): Integer;
 begin
   Result := Application.MessageBox(PChar(Format('%s', [AValue])),
     'Папка не существует', MB_YESNO + MB_ICONQUESTION);
+end;
+
+function TDialog.ClearBasketDialog: Boolean;
+begin
+  Result := Application.MessageBox
+    (PWideChar('Вы действительно хотите очистить корзину?'), 'Очистка корзины',
+    MB_YESNO + MB_ICONQUESTION) = IDYES;
 end;
 
 procedure TDialog.ExcelFilesNotFoundDialog;

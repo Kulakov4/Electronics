@@ -26,7 +26,7 @@ uses
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   Vcl.Menus, Vcl.ComCtrls, cxDropDownEdit,
   ProductsSearchQuery, cxDBExtLookupComboBox,
-  cxDataControllerConditionalFormattingRulesManagerDialog;
+  cxDataControllerConditionalFormattingRulesManagerDialog, ProductsBaseQuery;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)
@@ -55,6 +55,7 @@ type
     { Private declarations }
   protected
     function CreateProductView: TViewProductsBase2; override;
+    function GetW: TProductW; override;
     procedure InitializeColumns; override;
   public
     procedure FocusValueColumn;
@@ -146,6 +147,11 @@ end;
 function TViewProductsSearch2.GetqProductsSearch: TQueryProductsSearch;
 begin
   Result := qProductsBase as TQueryProductsSearch;
+end;
+
+function TViewProductsSearch2.GetW: TProductW;
+begin
+  Result := qProductsSearch.W;
 end;
 
 procedure TViewProductsSearch2.InitializeColumns;

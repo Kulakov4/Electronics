@@ -236,7 +236,8 @@ uses
   BillQuery2 in 'Queryes\Bill\BillQuery2.pas' {QryBill2: TFrame},
   DSWrap in 'Queryes\DSWrap.pas',
   DescriptionsQueryWrap in 'Queryes\DescriptionsQueryWrap.pas',
-  AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas';
+  AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas',
+  ProductsBasketView in 'Views\Products\ProductsBasketView.pas' {ViewProductsBasket: TFrame};
 
 {$R *.res}
 

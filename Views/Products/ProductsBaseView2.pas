@@ -32,7 +32,7 @@ uses
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
   cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections,
   cxDataControllerConditionalFormattingRulesManagerDialog,
-  ExtraChargeSimpleView;
+  ExtraChargeSimpleView, DSWrap, HRTimer;
 
 const
   WM_SELECTION_CHANGED = WM_USER + 600;
@@ -193,12 +193,13 @@ type
     procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
+    procedure DoBeforeLoad(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetIDExtraChargeType: Integer;
     function GetIDExtraCharge: Integer;
     function GetViewExtraChargeSimple: TViewExtraChargeSimple;
-    procedure ProcessSelectionChanged(var Message: TMessage); message
-        WM_SELECTION_CHANGED;
+    procedure ProcessSelectionChanged(var Message: TMessage);
+      message WM_SELECTION_CHANGED;
     procedure SaveBarComboValue(AdxBarCombo: TdxBarCombo;
       const AFieldName: String);
     procedure SetIDExtraCharge(const Value: Integer);
@@ -207,16 +208,17 @@ type
     procedure UpdateSelectedCount;
     { Private declarations }
   protected
+    FHRTimer: THRTimer;
     FSelectedCountPanelIndex: Integer;
     procedure UpdateBarComboText(AdxBarCombo: TdxBarCombo; AValue: Variant);
     procedure CreateCountEvents;
     function CreateProductView: TViewProductsBase2; virtual; abstract;
-    procedure DoBeforeLoad(Sender: TObject);
     procedure DoOnCourceChange(Sender: TObject);
     procedure DoOnDollarCourceChange(Sender: TObject);
     procedure DoOnEuroCourceChange(Sender: TObject);
     procedure ExportToExcelDocument(const AFileName: String);
     function GetNodeID(ANode: TcxDBTreeListNode): TArray<Integer>;
+    function GetW: TProductW; virtual; abstract;
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
@@ -237,6 +239,7 @@ type
       write SetIDExtraCharge;
     property ViewExtraChargeSimple: TViewExtraChargeSimple
       read GetViewExtraChargeSimple;
+    property W: TProductW read GetW;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -270,6 +273,8 @@ var
   AcxPopupEditproperties: TcxPopupEditproperties;
 begin
   inherited;
+  FHRTimer := THRTimer.Create(False);
+
   // Список полей при редактировании которых Enter - сохранение
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
@@ -320,6 +325,7 @@ end;
 destructor TViewProductsBase2.Destroy;
 begin
   inherited;
+  FreeAndNil(FHRTimer);
   FreeAndNil(FReadOnlyColumns);
   FreeAndNil(FCountEvents);
 end;
@@ -327,7 +333,7 @@ end;
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
 begin
   inherited;
-  qProductsBase.W.AddCategory;
+  W.AddCategory;
 
   // cxDBTreeList.ApplyBestFit;
   cxDBTreeList.SetFocus;
@@ -355,7 +361,7 @@ begin
       AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
     end;
 
-    qProductsBase.W.AddProduct(AID);
+    W.AddProduct(AID);
 
     // cxDBTreeList.ApplyBestFit;
     cxDBTreeList.SetFocus;
@@ -476,11 +482,10 @@ begin
       begin
         // Идентификатор связи товар-склад у нас отрицательный
         AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
-          (FqProductsBase.W.PKFieldName).AsInteger;
+          (W.PKFieldName).AsInteger;
 
         TDM.Create.qBillContent.W.AddContent(ABillID, AStoreHouseProductID,
-          FqProductsBase.Basket.FieldByName
-          (FqProductsBase.W.SaleCount.FieldName).Value);
+          FqProductsBase.Basket.FieldByName(W.SaleCount.FieldName).Value);
 
         FqProductsBase.Basket.Next;
       end;
@@ -498,8 +503,7 @@ end;
 procedure TViewProductsBase2.actDeleteExecute(Sender: TObject);
 var
   AID: Integer;
-  AIDS: TList<Integer>;
-  i: Integer;
+  APKArray: TArray<Variant>;
   S: string;
 begin
   inherited;
@@ -515,26 +519,17 @@ begin
   if not(TDialog.Create.DeleteRecordsDialog(S)) then
     Exit;
 
-  AIDS := TList<Integer>.Create;
+  // Заполняем список идентификаторов узлов, которые будем удалять
+  APKArray := GetSelectedValues(W.PKFieldName);
+
+  cxDBTreeList.BeginUpdate;
   try
-    // Заполняем список идентификаторов узлов, которые будем удалять
-    for i := 0 to cxDBTreeList.SelectionCount - 1 do
-    begin
-      AIDS.Add(cxDBTreeList.Selections[i].Values[clID.ItemIndex]);
-    end;
-
-    cxDBTreeList.BeginUpdate;
-    try
-      for AID in AIDS do
-        qProductsBase.DeleteNode(AID);
-      // Это почему-то не работает
-      // cxDBTreeList.DataController.DeleteFocused;
-    finally
-      cxDBTreeList.EndUpdate;
-    end;
-
+    for AID in APKArray do
+      qProductsBase.DeleteNode(AID);
+    // Это почему-то не работает
+    // cxDBTreeList.DataController.DeleteFocused;
   finally
-    FreeAndNil(AIDS);
+    cxDBTreeList.EndUpdate;
   end;
   UpdateView;
 end;
@@ -633,13 +628,13 @@ begin
   inherited;
   Assert(qProductsBase.FDQuery.RecordCount > 0);
 
-  if qProductsBase.W.Value.F.AsString.Trim.IsEmpty then
+  if W.Value.F.AsString.Trim.IsEmpty then
   begin
     TDialog.Create.ErrorMessageDialog('Не задано наименование');
     Exit;
   end;
 
-  if qProductsBase.W.IDProducer.F.AsInteger = 0 then
+  if W.IDProducer.F.AsInteger = 0 then
   begin
     TDialog.Create.ErrorMessageDialog('Не задан производитель');
     Exit;
@@ -649,7 +644,7 @@ begin
   begin
     TDialog.Create.ErrorMessageDialog
       (Format('Компонент %s не найден в теоретической базе',
-      [qProductsBase.W.Value.F.AsString]));
+      [W.Value.F.AsString]));
     Exit;
   end;
 
@@ -684,8 +679,11 @@ end;
 procedure TViewProductsBase2.BeginUpdate;
 begin
   // Отписываемся от событий о смене кол-ва
-  if FUpdateCount = 0 then
+  if UpdateCount = 0 then
+  begin
     FCountEvents.Clear;
+    W.DataSet.DisableControls;
+  end;
 
   inherited;
 end;
@@ -742,20 +740,19 @@ begin
   inherited;
   Assert(FfrmDescriptionPopup <> nil);
   // Привязываем выпадающую форму к данным
-  FfrmDescriptionPopup.DescriptionW := qProductsBase.W;
+  FfrmDescriptionPopup.DescriptionW := W;
 end;
 
 procedure TViewProductsBase2.CreateCountEvents;
 begin
-  // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(qProductsBase.W.AfterOpen, DoAfterOpen, FCountEvents);
+  {
+    // Подписываемся на события чтобы отслеживать кол-во
+    TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, FCountEvents);
 
-  TNotifyEventWrap.Create(qProductsBase.W.AfterPostM, DoAfterPost,
-    FCountEvents);
+    TNotifyEventWrap.Create(W.AfterPostM, DoAfterPost, FCountEvents);
 
-  TNotifyEventWrap.Create(qProductsBase.W.AfterDelete, DoAfterDelete,
-    FCountEvents);
-
+    TNotifyEventWrap.Create(W.AfterDelete, DoAfterDelete, FCountEvents);
+  }
   UpdateProductCount;
 end;
 
@@ -816,8 +813,7 @@ begin
   qProductsBase.ExtraChargeGroup.qExtraCharge2.W.LocateByPK(IDExtraCharge);
 
   // Сохраняем выбранный диапазон и значение оптовой наценки
-  UpdateFieldValue([FqProductsBase.W.IDExtraChargeType.F,
-    FqProductsBase.W.IDExtraCharge.F, FqProductsBase.W.WholeSale.F],
+  UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
     [IDExtraChargeType, IDExtraCharge,
     qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value]);
 
@@ -933,21 +929,21 @@ begin
   inherited;
 
   // Отображаем розничную наценку у текущей записи
-  UpdateBarComboText(dxbcRetail, FqProductsBase.W.Retail.F.Value);
+  UpdateBarComboText(dxbcRetail, W.Retail.F.Value);
   // Отображаем оптовую наценку у текущей записи
-  UpdateBarComboText(dxbcWholeSale, FqProductsBase.W.WholeSale.F.Value);
+  UpdateBarComboText(dxbcWholeSale, W.WholeSale.F.Value);
   // Отображаем минимальную оптовую наценку у текущей записи
-  UpdateBarComboText(dxbcMinWholeSale, FqProductsBase.W.MinWholeSale.F.Value);
+  UpdateBarComboText(dxbcMinWholeSale, W.MinWholeSale.F.Value);
 
-  if IDExtraChargeType <> qProductsBase.W.IDExtraChargeType.F.AsInteger then
+  if IDExtraChargeType <> W.IDExtraChargeType.F.AsInteger then
   begin
-    IDExtraChargeType := qProductsBase.W.IDExtraChargeType.F.AsInteger;
+    IDExtraChargeType := W.IDExtraChargeType.F.AsInteger;
     // Фильтруем оптовые наценки по типу
     qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
       (IDExtraChargeType);
   end;
 
-  IDExtraCharge := qProductsBase.W.IDExtraCharge.F.AsInteger;
+  IDExtraCharge := W.IDExtraCharge.F.AsInteger;
 
   UpdateView;
 end;
@@ -994,7 +990,8 @@ end;
 procedure TViewProductsBase2.cxDBTreeListSelectionChanged(Sender: TObject);
 begin
   inherited;
-  if FPostSelectionChanged then Exit;
+  if FPostSelectionChanged then
+    Exit;
 
   PostMessage(Handle, WM_SELECTION_CHANGED, 0, 0);
   FPostSelectionChanged := True;
@@ -1069,14 +1066,13 @@ end;
 procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo,
-    FqProductsBase.W.MinWholeSale.FieldName);
+  SaveBarComboValue(Sender as TdxBarCombo, W.MinWholeSale.FieldName);
 end;
 
 procedure TViewProductsBase2.dxbcRetailChange(Sender: TObject);
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo, FqProductsBase.W.Retail.FieldName);
+  SaveBarComboValue(Sender as TdxBarCombo, W.Retail.FieldName);
 end;
 
 procedure TViewProductsBase2.dxbcRetailDrawItem(Sender: TdxBarCustomCombo;
@@ -1114,16 +1110,16 @@ end;
 procedure TViewProductsBase2.dxbcWholeSaleChange(Sender: TObject);
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo,
-    FqProductsBase.W.WholeSale.FieldName);
+  SaveBarComboValue(Sender as TdxBarCombo, W.WholeSale.FieldName);
 end;
 
 procedure TViewProductsBase2.EndUpdate;
 begin
   inherited;
-  if FUpdateCount = 0 then
+  if UpdateCount = 0 then
   begin
     CreateCountEvents;
+    W.DataSet.EnableControls;
   end;
 end;
 
@@ -1249,7 +1245,7 @@ end;
 procedure TViewProductsBase2.InternalRefreshData;
 begin
   Assert(qProductsBase <> nil);
-  qProductsBase.W.RefreshQuery;
+  W.RefreshQuery;
   cxDBTreeList.FullCollapse;
 end;
 
@@ -1283,7 +1279,7 @@ begin
     Exit;
 
   V1 := cxDBTreeList.FocusedNode.Values[clValue.ItemIndex];
-  V2 := qProductsBase.W.Value.F.Value;
+  V2 := W.Value.F.Value;
 
   Result := (not VarIsNull(V1)) and (not VarIsNull(V2));
   if not Result then
@@ -1402,7 +1398,7 @@ begin
   if AValue < 0 then
     AValue := 0;
 
-  UpdateFieldValue([FqProductsBase.W.Field(AFieldName)], [AValue]);
+  UpdateFieldValue([W.Field(AFieldName)], [AValue]);
 
   // если ввели какое-то недопустимое значение или 0
   if AValue = 0 then
@@ -1422,8 +1418,6 @@ begin
 end;
 
 procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
-// var
-// p: TcxExtLookupComboBoxProperties;
 begin
   if FqProductsBase = Value then
     Exit;
@@ -1435,9 +1429,10 @@ begin
 
   BeginUpdate;
   try
-    cxDBTreeList.DataController.DataSource := FqProductsBase.W.DataSource;
+    cxDBTreeList.DataController.DataSource := W.DataSource;
 
     InitializeColumns;
+
     TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad,
       FEventList);
     TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
@@ -1498,8 +1493,6 @@ begin
     for i := 0 to cxDBTreeList.SelectionCount - 1 do
     begin
       ANode := cxDBTreeList.Selections[i] as TcxDBTreeListNode;
-      // if ANode.IsGroupNode then
-      // Continue;
 
       FqProductsBase.UpdateFieldValue(ANode.Values[clID.ItemIndex], AFields,
         AValues, AUpdatedIDList);
@@ -1523,7 +1516,8 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
+  OK := (cxDBTreeList.DataController.DataSource <> nil) and
+    (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
     (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
     (qProductsBase.Master.FDQuery.RecordCount > 0);
 
@@ -1538,6 +1532,7 @@ begin
   actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil);
 
   actDelete.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
+    (cxDBTreeList.SelectionCount > 0) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
   // Отображаем текущие курсы валют

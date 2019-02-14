@@ -85,6 +85,7 @@ type
   protected
     function CheckRecord(ADollarCource: Double;
       const AEuroCource: Double): String;
+    procedure InitFields;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
   public
@@ -92,6 +93,7 @@ type
     procedure AddCategory;
     procedure AddProduct(AIDComponentGroup: Integer);
     function LookupComponentGroup(const AComponentGroup: string): Variant;
+    procedure TunePriceFields(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
     property ID: TFieldWrap read FID;
     property Barcode: TFieldWrap read FBarcode;
@@ -167,7 +169,6 @@ type
     FExtraChargeGroup: TExtraChargeGroup;
     FOnCommitUpdatePosted: Boolean;
     FW: TProductW;
-    procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
     function GetProducersGroup: TProducersGroup2;
     function GetExtraChargeGroup: TExtraChargeGroup;
@@ -210,13 +211,13 @@ type
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure ClearInternalCalcFields;
+    procedure DeleteFromBasket(APKArray: TArray<Integer>);
     procedure DeleteNode(AID: Integer);
     procedure DeleteNotUsedProducts(AProductIDS: TList<Integer>);
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
     procedure SaveExtraCharge;
-    procedure TunePriceFields(const AFields: Array of TField);
     procedure UpdateFieldValue(AID: Integer; AFields: TArray<TField>;
       AValues: TArray<Variant>; AUpdatedIDList: TList<Integer>);
     property ExportFileName: string read GetExportFileName;
@@ -260,13 +261,11 @@ begin
   FW := FDSWrap as TProductW;
   FOnLocate := TNotifyEventsEx.Create(Self);
 
-  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
-
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
   TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 
   // Обрабатываем событие у источника данных
-  W.DataSource.OnDataChange := DataSourceDataChange;
+//  W.DataSource.OnDataChange := DataSourceDataChange;
 
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
@@ -577,6 +576,30 @@ begin
   end;
 end;
 
+procedure TQueryProductsBase.DeleteFromBasket(APKArray: TArray<Integer>);
+var
+  APK: Integer;
+begin
+  Assert(Length(APKArray) > 0);
+
+  FDQuery.DisableControls;
+  try
+    for APK in APKArray do
+    begin
+      W.LocateByPK(APK, True);
+//      ShowMessage('12');
+      W.TryEdit;                      // Долго !!!
+//      ShowMessage('13');
+      W.SaleCount.F.Value := NULL;
+//      ShowMessage('14');
+      W.TryPost;                      // Долго !!!
+//      ShowMessage('15');
+    end;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
 procedure TQueryProductsBase.DeleteNode(AID: Integer);
 var
   AClone: TFDMemTable;
@@ -632,11 +655,6 @@ begin
   Inc(FCalcStatus);
 end;
 
-procedure TQueryProductsBase.DoAfterOpen(Sender: TObject);
-begin
-//  EnableCalc;
-end;
-
 procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
 begin;
   if FDQuery.FieldDefs.Count > 0 then
@@ -672,7 +690,7 @@ begin;
   FDQuery.FieldDefs.Add(W.PriceE2.FieldName, ftFloat);
 
   // Количество продажи
-  FDQuery.FieldDefs.Add(W.SaleCount.FieldName, ftFloat);
+  // FDQuery.FieldDefs.Add(W.SaleCount.FieldName, ftFloat);
   // Продажная цена
   FDQuery.FieldDefs.Add(W.SaleR.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.SaleD.FieldName, ftFloat);
@@ -684,14 +702,12 @@ begin;
   W.IDExtraCharge.F.FieldKind := fkInternalCalc;
   W.IDExtraChargeType.F.FieldKind := fkInternalCalc;
   W.Wholesale.F.FieldKind := fkInternalCalc;
-  W.SaleCount.F.FieldKind := fkInternalCalc;
+  // W.SaleCount.F.FieldKind := fkInternalCalc;
   // Retail.FieldKind := fkInternalCalc;
 
-  TunePriceFields([W.PriceD.F, W.PriceR.F, W.PriceE.F, W.PriceD1.F, W.PriceR1.F,
-    W.PriceE1.F, W.PriceD2.F, W.PriceR2.F, W.PriceE2.F, W.SaleR.F, W.SaleD.F,
-    W.SaleE.F]);
+  W.InitFields;
 
-//  DisableCalc;
+  // DisableCalc;
 end;
 
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
@@ -891,12 +907,12 @@ begin
     if ADCource > 0 then
       W.PriceD.F.Value := W.Price.F.Value / ADCource
     else
-      W.PriceD.F.Value := null;
+      W.PriceD.F.Value := NULL;
 
     if AECource > 0 then
       W.PriceE.F.Value := W.Price.F.Value / AECource
     else
-      W.PriceE.F.Value := null;
+      W.PriceE.F.Value := NULL;
   end;
 
   // Если исходная цена была в долларах
@@ -905,14 +921,14 @@ begin
     if ADCource > 0 then
       W.PriceR.F.Value := W.Price.F.Value * ADCource
     else
-      W.PriceR.F.Value := null;
+      W.PriceR.F.Value := NULL;
 
     W.PriceD.F.Value := W.Price.F.Value;
 
     if (ADCource > 0) and (AECource > 0) then
       W.PriceE.F.Value := W.Price.F.Value * ADCource / AECource
     else
-      W.PriceE.F.Value := null;
+      W.PriceE.F.Value := NULL;
   end;
 
   // Если исходная цена была в евро
@@ -921,12 +937,12 @@ begin
     if AECource > 0 then
       W.PriceR.F.Value := W.Price.F.Value * AECource
     else
-      W.PriceR.F.Value := null;
+      W.PriceR.F.Value := NULL;
 
     if (ADCource > 0) and (AECource > 0) then
       W.PriceD.F.Value := W.Price.F.Value * AECource / ADCource
     else
-      W.PriceD.F.Value := null;
+      W.PriceD.F.Value := NULL;
 
     W.PriceE.F.Value := W.Price.F.Value;
   end;
@@ -967,9 +983,9 @@ begin
   end
   else
   begin
-    W.SaleR.F.Value := null;
-    W.SaleD.F.Value := null;
-    W.SaleE.F.Value := null;
+    W.SaleR.F.Value := NULL;
+    W.SaleD.F.Value := NULL;
+    W.SaleE.F.Value := NULL;
   end;
 end;
 
@@ -1136,20 +1152,6 @@ begin
   end;
 end;
 
-procedure TQueryProductsBase.TunePriceFields(const AFields: Array of TField);
-var
-  I: Integer;
-begin
-  Assert(High(AFields) > 0);
-
-  for I := Low(AFields) to High(AFields) do
-  begin
-    AFields[I].FieldKind := fkInternalCalc;
-    // (AFields[I] as TNumericField).DisplayFormat := '#.00';
-    (AFields[I] as TNumericField).DisplayFormat := '###,##0.00';
-  end;
-end;
-
 procedure TQueryProductsBase.UpdateFieldValue(AID: Integer;
   AFields: TArray<TField>; AValues: TArray<Variant>;
   AUpdatedIDList: TList<Integer>);
@@ -1263,6 +1265,8 @@ begin
   FWholesale := TFieldWrap.Create(Self, 'Wholesale');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
+  if DataSet.Active then
+    InitFields;
 end;
 
 procedure TProductW.AddCategory;
@@ -1353,10 +1357,21 @@ begin
   SetFieldsRequired(False);
   SetFieldsReadOnly(False);
 
+  InitFields;
+end;
+
+procedure TProductW.InitFields;
+var
+  OK: Boolean;
+begin
+  OK := Assigned(Datasheet.F.OnGetText);
   Datasheet.F.OnGetText := OnDatasheetGetText;
   Diagram.F.OnGetText := OnDatasheetGetText;
   Drawing.F.OnGetText := OnDatasheetGetText;
   Image.F.OnGetText := OnDatasheetGetText;
+
+  TunePriceFields([PriceD.F, PriceR.F, PriceE.F, PriceD1.F, PriceR1.F,
+    PriceE1.F, PriceD2.F, PriceR2.F, PriceE2.F, SaleR.F, SaleD.F, SaleE.F]);
 end;
 
 function TProductW.LookupComponentGroup(const AComponentGroup: string): Variant;
@@ -1377,6 +1392,20 @@ procedure TProductW.OnDatasheetGetText(Sender: TField; var Text: String;
 begin
   if not Sender.AsString.IsEmpty then
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
+end;
+
+procedure TProductW.TunePriceFields(const AFields: Array of TField);
+var
+  I: Integer;
+begin
+  Assert(High(AFields) > 0);
+
+  for I := Low(AFields) to High(AFields) do
+  begin
+    AFields[I].FieldKind := fkInternalCalc;
+    // (AFields[I] as TNumericField).DisplayFormat := '#.00';
+    (AFields[I] as TNumericField).DisplayFormat := '###,##0.00';
+  end;
 end;
 
 end.

@@ -30,7 +30,8 @@ uses
   cxDBExtLookupComboBox, cxFilter, cxData, cxDataStorage, cxEdit, cxNavigator,
   Data.DB, cxDBData, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGridCustomView, cxGrid,
-  cxCalendar, cxDataControllerConditionalFormattingRulesManagerDialog;
+  cxCalendar, cxDataControllerConditionalFormattingRulesManagerDialog,
+  ProductsBaseQuery;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -53,11 +54,13 @@ type
     dxBarButton10: TdxBarButton;
     actCalcCount: TAction;
     dxBarButton12: TdxBarButton;
+    actTryEdit: TAction;
     procedure actColumnsAutoWidth2Execute(Sender: TObject);
     procedure actExportToExcelDocument2Execute(Sender: TObject);
     procedure actFilterAndExportToExcelDocumentExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
     procedure actCalcCountExecute(Sender: TObject);
+    procedure actTryEditExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
     procedure TimerTimer(Sender: TObject);
@@ -75,6 +78,7 @@ type
     { Private declarations }
   protected
     function CreateProductView: TViewProductsBase2; override;
+    function GetW: TProductW; override;
     procedure UpdateProductCount; override;
   public
     procedure LoadFromExcelDocument(const AFileName: String);
@@ -174,6 +178,18 @@ begin
   ShowMessage(qProducts.CalcExecCount.ToString);
 end;
 
+procedure TViewProducts2.actTryEditExecute(Sender: TObject);
+begin
+  inherited;
+  qProducts.Basket.DisableControls;
+  ShowMessage(BoolToStr(qProducts.Basket.ControlsDisabled, True));
+
+  FHRTimer.StartTimer;
+//  ShowMessage('0');
+  W.TryEdit;
+  ShowMessage(Format('Время: %f', [FHRTimer.ReadTimer]));
+end;
+
 function TViewProducts2.CreateProductView: TViewProductsBase2;
 begin
   Result := TViewProducts2.Create(nil);
@@ -252,6 +268,11 @@ end;
 function TViewProducts2.GetqProducts: TQueryProducts;
 begin
   Result := qProductsBase as TQueryProducts;
+end;
+
+function TViewProducts2.GetW: TProductW;
+begin
+  Result := qProducts.W;
 end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);

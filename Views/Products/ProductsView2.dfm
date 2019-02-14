@@ -238,7 +238,7 @@ inherited ViewProducts2: TViewProducts2
       Category = 0
     end
     object dxBarButton12: TdxBarButton
-      Action = actCalcCount
+      Action = actTryEdit
       Category = 0
     end
   end
@@ -262,6 +262,10 @@ inherited ViewProducts2: TViewProducts2
     object actCalcCount: TAction
       Caption = 'actCalcCount'
       OnExecute = actCalcCountExecute
+    end
+    object actTryEdit: TAction
+      Caption = 'actTryEdit'
+      OnExecute = actTryEditExecute
     end
   end
   inherited cxStyleRepository1: TcxStyleRepository

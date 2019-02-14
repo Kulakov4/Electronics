@@ -15,6 +15,7 @@ object ProductsFrame: TProductsFrame
     TabOrder = 0
     Properties.ActivePage = tsStorehouseInfo
     Properties.CustomButtons.Buttons = <>
+    OnPageChanging = cxpcStorehousePageChanging
     ClientRectBottom = 603
     ClientRectLeft = 4
     ClientRectRight = 994
@@ -33,6 +34,11 @@ object ProductsFrame: TProductsFrame
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 2
       OnShow = tsStorehouseSearchShow
+    end
+    object tsBasket: TcxTabSheet
+      Caption = #1050#1086#1088#1079#1080#1085#1072
+      ImageIndex = 3
+      OnShow = tsBasketShow
     end
   end
   object dxBarManager: TdxBarManager

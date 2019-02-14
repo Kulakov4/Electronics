@@ -368,7 +368,9 @@ begin
     PostMessage(Handle, WM_DS_AFTER_POST, 0, 0);
   end;
 
-  FAfterPost.CallEventHandlers(Self);
+  // Извещаем тех, кто хочет получить сообщение немедленно
+  if FAfterPost <> nil then
+    FAfterPost.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.AfterDataSetDelete(DataSet: TDataSet);
