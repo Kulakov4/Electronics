@@ -43,6 +43,7 @@ type
   protected
     function GetW: TProductW; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
     property qProducts: TQueryProducts read GetqProducts write SetqProducts;
     { Public declarations }
@@ -55,6 +56,12 @@ uses
 
 {$R *.dfm}
 
+constructor TViewProductsBasket.Create(AOwner: TComponent);
+begin
+  inherited;
+  Name := 'ViewProductsBasket';
+end;
+
 procedure TViewProductsBasket.actBasketClearExecute(Sender: TObject);
 var
   ADS: TDataSource;
@@ -65,12 +72,12 @@ begin
 
   Arr := W.ID.AsIntArray;
 
-  ADS := cxDBTreeList.DataController.DataSource;
-  cxDBTreeList.DataController.DataSource := nil;
+  // Отвязываем полностью cxDBTreeList от данных!!!
+  W.DataSource.Enabled := False;
   try
     qProducts.DeleteFromBasket(Arr);
   finally
-    cxDBTreeList.DataController.DataSource := ADS;
+    W.DataSource.Enabled := True;
   end;
 end;
 
@@ -93,13 +100,14 @@ end;
 
 function TViewProductsBasket.GetW: TProductW;
 begin
+{
   if FProductW = nil then
   begin
     Assert(qProductsBase <> nil);
     FProductW := TProductW.Create(qProductsBase.Basket);
   end;
-
-  Result := FProductW;
+}
+  Result := qProducts.W;
 end;
 
 procedure TViewProductsBasket.SetqProducts(const Value: TQueryProducts);
@@ -111,6 +119,8 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
+
+  MyApplyBestFit;
 end;
 
 procedure TViewProductsBasket.UpdateView;
@@ -119,9 +129,7 @@ var
 begin
   inherited;
   OK := (cxDBTreeList.DataController.DataSource <> nil) and
-    (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
-    (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
-    (qProductsBase.Master.FDQuery.RecordCount > 0);
+    (qProductsBase <> nil) and (qProductsBase.FDQuery.Active);
 
   actBasketDelete.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.SelectionCount > 0) and

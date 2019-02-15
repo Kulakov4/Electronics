@@ -32,6 +32,7 @@ type
     FqBillContent: TQueryBillContent;
     FqChildCategories: TQueryChildCategories;
     FqProducts: TQueryProducts;
+    FqProductsBasket: TQueryProducts;
     FqProductsSearch: TQueryProductsSearch;
     FQryBill: TQryBill;
     FqStoreHouseList: TQueryStoreHouseList;
@@ -56,6 +57,7 @@ type
     function GetqBillContent: TQueryBillContent;
     function GetqChildCategories: TQueryChildCategories;
     function GetqProducts: TQueryProducts;
+    function GetqProductsBasket: TQueryProducts;
     function GetqProductsSearch: TQueryProductsSearch;
     function GetQryBill: TQryBill;
     function GetqStoreHouseList: TQueryStoreHouseList;
@@ -89,6 +91,7 @@ type
     property qBillContent: TQueryBillContent read GetqBillContent;
     property qChildCategories: TQueryChildCategories read GetqChildCategories;
     property qProducts: TQueryProducts read GetqProducts;
+    property qProductsBasket: TQueryProducts read GetqProductsBasket;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
     property QryBill: TQryBill read GetQryBill;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
@@ -467,6 +470,14 @@ begin
     FqProducts := TQueryProducts.Create(FComponent);
 
   Result := FqProducts;
+end;
+
+function TDM.GetqProductsBasket: TQueryProducts;
+begin
+  if FqProductsBasket = nil then
+    FqProductsBasket := TQueryProducts.Create(FComponent);
+
+  Result := FqProductsBasket;
 end;
 
 function TDM.GetqProductsSearch: TQueryProductsSearch;

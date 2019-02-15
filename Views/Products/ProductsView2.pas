@@ -55,11 +55,20 @@ type
     actCalcCount: TAction;
     dxBarButton12: TdxBarButton;
     actTryEdit: TAction;
+    actDisContrl: TAction;
+    actEnContrl: TAction;
+    actIsContolDis: TAction;
+    dxBarButton13: TdxBarButton;
+    dxBarButton14: TdxBarButton;
+    dxBarButton15: TdxBarButton;
     procedure actColumnsAutoWidth2Execute(Sender: TObject);
     procedure actExportToExcelDocument2Execute(Sender: TObject);
     procedure actFilterAndExportToExcelDocumentExecute(Sender: TObject);
     procedure actFullScreenExecute(Sender: TObject);
     procedure actCalcCountExecute(Sender: TObject);
+    procedure actDisContrlExecute(Sender: TObject);
+    procedure actEnContrlExecute(Sender: TObject);
+    procedure actIsContolDisExecute(Sender: TObject);
     procedure actTryEditExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
@@ -81,6 +90,7 @@ type
     function GetW: TProductW; override;
     procedure UpdateProductCount; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure LoadFromExcelDocument(const AFileName: String);
     procedure UpdateView; override;
     property qProducts: TQueryProducts read GetqProducts write SetqProducts;
@@ -94,6 +104,12 @@ implementation
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
   NotifyEvents, ProgressInfo, LoadFromExcelFileHelper,
   CustomErrorForm, HttpUnit, ProductsViewForm, DialogUnit, CurrencyUnit;
+
+constructor TViewProducts2.Create(AOwner: TComponent);
+begin
+  inherited;
+  Name := 'ViewProducts2';
+end;
 
 procedure TViewProducts2.actColumnsAutoWidth2Execute(Sender: TObject);
 begin
@@ -178,12 +194,27 @@ begin
   ShowMessage(qProducts.CalcExecCount.ToString);
 end;
 
-procedure TViewProducts2.actTryEditExecute(Sender: TObject);
+procedure TViewProducts2.actDisContrlExecute(Sender: TObject);
 begin
   inherited;
   qProducts.Basket.DisableControls;
-  ShowMessage(BoolToStr(qProducts.Basket.ControlsDisabled, True));
+end;
 
+procedure TViewProducts2.actEnContrlExecute(Sender: TObject);
+begin
+  inherited;
+  qProducts.Basket.EnableControls;
+end;
+
+procedure TViewProducts2.actIsContolDisExecute(Sender: TObject);
+begin
+  inherited;
+  ShowMessage(BoolToStr(qProducts.Basket.ControlsDisabled, True));
+end;
+
+procedure TViewProducts2.actTryEditExecute(Sender: TObject);
+begin
+  inherited;
   FHRTimer.StartTimer;
 //  ShowMessage('0');
   W.TryEdit;

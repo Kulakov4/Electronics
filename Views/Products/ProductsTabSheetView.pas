@@ -45,8 +45,8 @@ type
     tsBasket: TcxTabSheet;
     procedure actBindDescriptionsExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
-    procedure cxpcStorehousePageChanging(Sender: TObject; NewPage: TcxTabSheet; var
-        AllowChange: Boolean);
+    procedure cxpcStorehousePageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
     procedure tsBasketShow(Sender: TObject);
     procedure tsStorehouseInfoShow(Sender: TObject);
     procedure tsStorehouseProductsShow(Sender: TObject);
@@ -146,36 +146,42 @@ begin
   // (Format('Склад с сокращённым названием "%s" не найден', [S]));
 end;
 
-procedure TProductsFrame.cxpcStorehousePageChanging(Sender: TObject; NewPage:
-    TcxTabSheet; var AllowChange: Boolean);
+procedure TProductsFrame.cxpcStorehousePageChanging(Sender: TObject;
+  NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
-  // Если уходим с вкладки "Товары"
-  if cxpcStorehouse.ActivePage = tsStorehouseProducts then
-    ViewProducts.BeginUpdate;
+  Exit;
+  {
+    // Если уходим с вкладки "Товары"
+    if cxpcStorehouse.ActivePage = tsStorehouseProducts then
+    ViewProducts.cxDBTreeList.DataController.DataSource.Enabled := False;
+    // ViewProducts.BeginUpdate;
 
-  // Если переходим на вкладку "Товары"
-  if (NewPage = tsStorehouseProducts) and (ViewProducts.UpdateCount > 0) then
-    ViewProducts.EndUpdate;
+    // Если переходим на вкладку "Товары"
+    if (NewPage = tsStorehouseProducts) and (ViewProducts <> nil) and
+    (ViewProducts.cxDBTreeList.DataController.DataSource <> nil) then
+    ViewProducts.cxDBTreeList.DataController.DataSource.Enabled := True;
+    // ViewProducts.EndUpdate;
 
-  // Если уходим с вкладки "Корзина"
-  if cxpcStorehouse.ActivePage = tsBasket then
-    ViewProductsBasket.BeginUpdate;
+    // Если уходим с вкладки "Корзина"
+    if (cxpcStorehouse.ActivePage = tsBasket) and (ViewProductsBasket <> nil) and
+    (ViewProductsBasket.cxDBTreeList.DataController.DataSource <> nil) then
+    ViewProductsBasket.cxDBTreeList.DataController.DataSource.Enabled := False;
+    // ViewProductsBasket.BeginUpdate;
 
-  // Если переходим на вкладку "Корзина"
-  if (NewPage = tsStorehouseProducts) and (ViewProductsBasket.UpdateCount > 0) then
-    ViewProductsBasket.EndUpdate;
+    // Если переходим на вкладку "Корзина"
+    if (NewPage = tsBasket) and (ViewProductsBasket <> nil) and
+    (ViewProductsBasket.cxDBTreeList.DataController.DataSource <> nil) then
+    ViewProductsBasket.cxDBTreeList.DataController.DataSource.Enabled := True;
+  }
 end;
 
 procedure TProductsFrame.tsBasketShow(Sender: TObject);
 begin
   // Привязываем текущий склад к данным
   if ViewProductsBasket.qProducts = nil then
-    ViewProductsBasket.qProducts := TDM.Create.qProducts;
+    ViewProductsBasket.qProducts := TDM.Create.qProductsBasket;
 
-  TDM.Create.qStoreHouseList.W.TryOpen;
-  // TDM.Create.qProducts.W.TryOpen;
-
-
+  TDM.Create.qProductsBasket.SearchForBasket;
   ViewProductsBasket.MyApplyBestFit;
 end;
 

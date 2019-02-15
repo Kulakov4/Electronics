@@ -13,7 +13,7 @@ object ProductsFrame: TProductsFrame
     Height = 607
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = tsStorehouseInfo
+    Properties.ActivePage = tsStorehouseProducts
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcStorehousePageChanging
     ClientRectBottom = 603

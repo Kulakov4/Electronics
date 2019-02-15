@@ -53,6 +53,9 @@ type
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
     procedure DoOnUpdateRecordException(AException: Exception); virtual;
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+        TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
@@ -61,6 +64,7 @@ type
     destructor Destroy; override;
     procedure AfterConstruction; override;
     procedure ClearUpdateRecCount;
+    procedure DeleteFromClient;
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;
@@ -177,6 +181,20 @@ begin
   FUpdateRecCount := 0;
 end;
 
+procedure TQueryBase.DeleteFromClient;
+var
+  E: TFDUpdateRecordEvent;
+begin
+  Assert(FDQuery.RecordCount > 0);
+  E := FDQuery.OnUpdateRecord;
+  try
+    FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
+    FDQuery.Delete;
+  finally
+    FDQuery.OnUpdateRecord := E;
+  end;
+end;
+
 procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
@@ -219,6 +237,14 @@ end;
 procedure TQueryBase.DoOnUpdateRecordException(AException: Exception);
 begin
   raise AException;
+end;
+
+procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
+    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
+    TFDUpdateRowOptions);
+begin
+  inherited;
+  AAction := eaApplied;
 end;
 
 procedure TQueryBase.FetchFields(const AFieldNames: TArray<String>;

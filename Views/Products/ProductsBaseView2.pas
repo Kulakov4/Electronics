@@ -193,6 +193,7 @@ type
     procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
+    procedure DoAfterScroll(Sender: TObject);
     procedure DoBeforeLoad(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetIDExtraChargeType: Integer;
@@ -682,7 +683,7 @@ begin
   if UpdateCount = 0 then
   begin
     FCountEvents.Clear;
-    W.DataSet.DisableControls;
+//    W.DataSet.DisableControls;
   end;
 
   inherited;
@@ -1004,6 +1005,8 @@ end;
 
 procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
 begin
+  // Привязываем дерево к данным !!!
+  W.DataSource.Enabled := True;
   cxDBTreeList.EndUpdate;
   cxDBTreeList.FullCollapse;
 
@@ -1028,9 +1031,17 @@ begin
   MyApplyBestFit;
 end;
 
+procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
+var
+  rn: Integer;
+begin
+  rn := W.DataSet.RecNo;
+end;
+
 procedure TViewProductsBase2.DoBeforeLoad(Sender: TObject);
 begin
   cxDBTreeList.BeginUpdate;
+  W.DataSource.Enabled := False;  // Полностью отвязываем дерево от данных !!!
 end;
 
 procedure TViewProductsBase2.DoOnCourceChange(Sender: TObject);
@@ -1119,7 +1130,7 @@ begin
   if UpdateCount = 0 then
   begin
     CreateCountEvents;
-    W.DataSet.EnableControls;
+//    W.DataSet.EnableControls;
   end;
 end;
 
@@ -1432,6 +1443,8 @@ begin
     cxDBTreeList.DataController.DataSource := W.DataSource;
 
     InitializeColumns;
+
+    TNotifyEventWrap.Create(W.AfterScroll, DoAfterScroll,  FEventList);
 
     TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad,
       FEventList);

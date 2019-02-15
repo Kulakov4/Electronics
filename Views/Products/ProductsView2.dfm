@@ -97,6 +97,18 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxBarButton12'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton13'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton14'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton15'
         end>
     end
     inherited dxBarManagerBar2: TdxBar
@@ -241,6 +253,18 @@ inherited ViewProducts2: TViewProducts2
       Action = actTryEdit
       Category = 0
     end
+    object dxBarButton13: TdxBarButton
+      Action = actDisContrl
+      Category = 0
+    end
+    object dxBarButton14: TdxBarButton
+      Action = actEnContrl
+      Category = 0
+    end
+    object dxBarButton15: TdxBarButton
+      Action = actIsContolDis
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actColumnsAutoWidth2: TAction [16]
@@ -266,6 +290,18 @@ inherited ViewProducts2: TViewProducts2
     object actTryEdit: TAction
       Caption = 'actTryEdit'
       OnExecute = actTryEditExecute
+    end
+    object actDisContrl: TAction
+      Caption = 'actDisContrl'
+      OnExecute = actDisContrlExecute
+    end
+    object actEnContrl: TAction
+      Caption = 'actEnContrl'
+      OnExecute = actEnContrlExecute
+    end
+    object actIsContolDis: TAction
+      Caption = 'actIsContolDis'
+      OnExecute = actIsContolDisExecute
     end
   end
   inherited cxStyleRepository1: TcxStyleRepository

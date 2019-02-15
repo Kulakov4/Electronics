@@ -23,6 +23,8 @@ type
     FNeedUpdateCount: Boolean;
     FqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     FTotalCount: Integer;
+  class var
+    XXX: Integer;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
@@ -46,6 +48,7 @@ type
     procedure AppendRows(AValues: TList<String>;
       const AProducers: TList<String>); overload;
     function SearchByID(AIDArray: TArray<Integer>): Integer;
+    function SearchForBasket: Integer;
     property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
@@ -54,7 +57,8 @@ type
 implementation
 
 uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
-  ParameterValuesUnit, StoreHouseListQuery, IDTempTableQuery, StrHelper;
+  ParameterValuesUnit, StoreHouseListQuery, IDTempTableQuery, StrHelper,
+  BaseQuery;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }
@@ -62,10 +66,12 @@ uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
 constructor TQueryProducts.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  Inc(XXX);
+  Name := Format('QueryProducts_%d', [XXX]);
 
   W.Name := 'QueryProductsWrap';
 
-//  FDQuery.AutoCalcFields := False;
+  // FDQuery.AutoCalcFields := False;
 
   FNeedUpdateCount := True;
 
@@ -309,7 +315,7 @@ end;
 
 procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
 begin
-//  beep;
+  // beep;
 end;
 
 function TQueryProducts.GetExportFileName: string;
@@ -380,6 +386,13 @@ begin
 
   W.RefreshQuery;
   Result := FDQuery.RecordCount;
+end;
+
+function TQueryProducts.SearchForBasket: Integer;
+begin
+  Result := SearchEx([TParamRec.Create(W.SaleCount.FullName, 0, ftFloat,
+    false, '>')]);
+  W.ApplyBasketFilter;
 end;
 
 end.

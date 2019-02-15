@@ -92,6 +92,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AddCategory;
     procedure AddProduct(AIDComponentGroup: Integer);
+    procedure ApplyBasketFilter;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure TunePriceFields(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
@@ -587,13 +588,9 @@ begin
     for APK in APKArray do
     begin
       W.LocateByPK(APK, True);
-//      ShowMessage('12');
-      W.TryEdit;                      // Долго !!!
-//      ShowMessage('13');
+      W.TryEdit;
       W.SaleCount.F.Value := NULL;
-//      ShowMessage('14');
-      W.TryPost;                      // Долго !!!
-//      ShowMessage('15');
+      W.TryPost;
     end;
   finally
     FDQuery.EnableControls;
@@ -1284,6 +1281,12 @@ begin
   Value.F.AsString := 'Новая запись';
   IsGroup.F.AsInteger := 0;
   IDComponentGroup.F.AsInteger := AIDComponentGroup;
+end;
+
+procedure TProductW.ApplyBasketFilter;
+begin
+  DataSet.Filter := Format('%s > 0', [SaleCount.FieldName]);
+  DataSet.Filtered := True;
 end;
 
 function TProductW.CheckRecord(ADollarCource: Double;
