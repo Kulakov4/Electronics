@@ -64,7 +64,6 @@ end;
 
 procedure TViewProductsBasket.actBasketClearExecute(Sender: TObject);
 var
-  ADS: TDataSource;
   Arr: TArray<Integer>;
 begin
   if not TDialog.Create.ClearBasketDialog then

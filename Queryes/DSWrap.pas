@@ -29,6 +29,7 @@ type
     FAfterCancel: TNotifyEventsEx;
     FAfterDelete: TNotifyEventsEx;
     FAfterEdit: TNotifyEventsEx;
+    FAfterRefresh: TNotifyEventsEx;
     FAfterScrollM: TNotifyEventsEx;
     FAfterPostM: TNotifyEventsEx;
     FBeforeScrollM: TNotifyEventsEx;
@@ -36,6 +37,7 @@ type
     FBeforeClose: TNotifyEventsEx;
     FBeforeEdit: TNotifyEventsEx;
     FBeforeInsert: TNotifyEventsEx;
+    FBeforeRefresh: TNotifyEventsEx;
     FBeforeScroll: TNotifyEventsEx;
     FCloneEvents: TObjectList;
     FClones: TObjectList<TFDMemTable>;
@@ -83,16 +85,20 @@ type
     procedure AfterDataSetPost(DataSet: TDataSet);
     procedure AfterDataSetDelete(DataSet: TDataSet);
     procedure AfterDataSetEdit(DataSet: TDataSet);
+    procedure AfterDataSetRefresh(DataSet: TDataSet);
+    procedure BeforeDataSetRefresh(DataSet: TDataSet);
     procedure BeforeDataSetClose(DataSet: TDataSet);
     procedure BeforeDataSetOpen(DataSet: TDataSet);
     procedure BeforeDataSetEdit(DataSet: TDataSet);
     procedure BeforeDataSetInsert(DataSet: TDataSet);
     procedure BeforeDataSetScroll(DataSet: TDataSet);
     function GetAfterEdit: TNotifyEventsEx;
+    function GetAfterRefresh: TNotifyEventsEx;
     function GetAfterPostM: TNotifyEventsEx;
     function GetBeforeScrollM: TNotifyEventsEx;
     function GetBeforeEdit: TNotifyEventsEx;
     function GetBeforeInsert: TNotifyEventsEx;
+    function GetBeforeRefresh: TNotifyEventsEx;
     function GetBeforeScroll: TNotifyEventsEx;
     function GetDataSource: TDataSource;
     procedure ProcessAfterPostMessage;
@@ -167,6 +173,7 @@ type
     property AfterCancel: TNotifyEventsEx read GetAfterCancel;
     property AfterDelete: TNotifyEventsEx read GetAfterDelete;
     property AfterEdit: TNotifyEventsEx read GetAfterEdit;
+    property AfterRefresh: TNotifyEventsEx read GetAfterRefresh;
     property AfterScrollM: TNotifyEventsEx read GetAfterScrollM;
     property AfterPostM: TNotifyEventsEx read GetAfterPostM;
     property BeforeScrollM: TNotifyEventsEx read GetBeforeScrollM;
@@ -174,6 +181,7 @@ type
     property BeforeClose: TNotifyEventsEx read GetBeforeClose;
     property BeforeEdit: TNotifyEventsEx read GetBeforeEdit;
     property BeforeInsert: TNotifyEventsEx read GetBeforeInsert;
+    property BeforeRefresh: TNotifyEventsEx read GetBeforeRefresh;
     property BeforeScroll: TNotifyEventsEx read GetBeforeScroll;
     property DataSet: TDataSet read FDataSet;
     property EventList: TObjectList read FEventList;
@@ -381,6 +389,16 @@ end;
 procedure TDSWrap.AfterDataSetEdit(DataSet: TDataSet);
 begin
   FAfterEdit.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.AfterDataSetRefresh(DataSet: TDataSet);
+begin
+  FAfterRefresh.CallEventHandlers(Self);
+end;
+
+procedure TDSWrap.BeforeDataSetRefresh(DataSet: TDataSet);
+begin
+  FBeforeRefresh.CallEventHandlers(Self);
 end;
 
 procedure TDSWrap.AppendRows(AFieldName: string; AValues: TArray<String>);
@@ -738,6 +756,19 @@ begin
   Result := FAfterEdit;
 end;
 
+function TDSWrap.GetAfterRefresh: TNotifyEventsEx;
+begin
+  if FAfterRefresh = nil then
+  begin
+    Assert(not Assigned(FDataSet.AfterRefresh));
+    FAfterRefresh := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FAfterRefresh);
+    FDataSet.AfterRefresh := AfterDataSetRefresh;
+  end;
+
+  Result := FAfterRefresh;
+end;
+
 function TDSWrap.GetAfterScrollM: TNotifyEventsEx;
 begin
   if FAfterScrollM = nil then
@@ -832,6 +863,19 @@ begin
   end;
 
   Result := FBeforeInsert;
+end;
+
+function TDSWrap.GetBeforeRefresh: TNotifyEventsEx;
+begin
+  if FBeforeRefresh = nil then
+  begin
+    Assert(not Assigned(FDataSet.BeforeRefresh));
+    FBeforeRefresh := TNotifyEventsEx.Create(Self);
+    FNEList.Add(FBeforeRefresh);
+    FDataSet.BeforeRefresh := BeforeDataSetRefresh;
+  end;
+
+  Result := FBeforeRefresh;
 end;
 
 function TDSWrap.GetBeforeScroll: TNotifyEventsEx;
@@ -1071,8 +1115,6 @@ begin
     else
       FDataSet.Open;
 
-    // FDataSet.Close;
-    // FDataSet.Open();
     FNeedRefresh := False;
   finally
     FDataSet.EnableControls;

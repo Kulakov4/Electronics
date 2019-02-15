@@ -20,12 +20,14 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AddClient;
     function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
     procedure Commit; virtual;
     procedure DisableControls;
     procedure EnableControls;
     procedure RefreshData; virtual;
+    procedure RemoveClient;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
     procedure TryOpen;
@@ -54,6 +56,14 @@ begin
   FreeAndNil(FEventList);
   FreeAndNil(FQList);
   inherited;
+end;
+
+procedure TQueryGroup2.AddClient;
+var
+  I: Integer;
+begin
+  for I := 0 to QList.Count - 1 do
+    QList[I].AddClient;
 end;
 
 function TQueryGroup2.ApplyUpdates: Boolean;
@@ -159,6 +169,14 @@ begin
   // !! FDQuery.EnableControls вызывает ошибку в cxGrid у дочернего представления
   // EnableControls;
   // end;
+end;
+
+procedure TQueryGroup2.RemoveClient;
+var
+  I: Integer;
+begin
+  for I := 0 to QList.Count - 1 do
+    QList[I].RemoveClient;
 end;
 
 procedure TQueryGroup2.ReOpen;

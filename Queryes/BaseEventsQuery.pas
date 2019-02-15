@@ -23,6 +23,7 @@ type
     FAutoTransaction: Boolean;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
+    FClientCount: Integer;
     FHaveAnyNotCommitedChanges: Boolean;
     FHRTimer: THRTimer;
     FLock: Boolean;
@@ -54,10 +55,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AddClient;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure Load; overload;
     procedure MasterCascadeDelete;
+    procedure RemoveClient;
     procedure TryLoad;
     // TODO: TryPost
     // procedure TryPost; override;
@@ -67,6 +70,7 @@ type
       write SetAutoTransaction;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
+    property ClientCount: Integer read FClientCount;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
     property Lock: Boolean read FLock write SetLock;
     property Master: TQueryBaseEvents read FMaster write SetMaster;
@@ -186,6 +190,26 @@ begin
   inherited;
 end;
 
+procedure TQueryBaseEvents.AddClient;
+begin
+  Assert(FClientCount >= 0);
+  Inc(FClientCount);
+
+  if FClientCount > 1 then
+    Exit;
+
+  // если мастер изменился, нам пора обновиться
+  if FNeedLoad then
+  begin
+    Load;
+    Wrap.NeedRefresh := False; // Обновлять больше не нужно
+  end
+  else if Wrap.NeedRefresh then
+    Wrap.RefreshQuery
+  else
+    Wrap.TryOpen;
+end;
+
 procedure TQueryBaseEvents.ApplyUpdates;
 begin
   Wrap.TryPost;
@@ -234,12 +258,12 @@ begin
 end;
 
 procedure TQueryBaseEvents.DoAfterMasterScroll(Sender: TObject);
-var
-  S: String;
+// var
+// S: String;
 begin
-  S := Name;
-//  if S.StartsWith('QueryProducts_') then
-//    beep;
+  // S := Name;
+  // if S.StartsWith('QueryProducts_') then
+  // beep;
 
   TryLoad;
 end;
@@ -375,6 +399,12 @@ begin
   FMaster.Wrap.LocateByPK(V, True);
 end;
 
+procedure TQueryBaseEvents.RemoveClient;
+begin
+  Assert(FClientCount > 0);
+  Dec(FClientCount);
+end;
+
 procedure TQueryBaseEvents.SetAutoTransaction(const Value: Boolean);
 begin
   if FAutoTransaction <> Value then
@@ -451,28 +481,60 @@ begin
 end;
 
 procedure TQueryBaseEvents.TryLoad;
+var
+  AIDParent: Integer;
+  AParamValueChange: Boolean;
 begin
   // Будем обновляться, т.к. мы подчинены мастеру
-  if not Lock then
+  (*
+    if not Lock then
     Load
-  else
+    else
     FNeedLoad := True;
-end;
+  *)
 
-// TODO: TryPost
-// procedure TQueryBaseEvents.TryPost;
-// begin
-/// / если заблокировано и не активно
-// if Lock and (not FDQuery.Active) then
-// Exit;
-//
-// inherited;
-// end;
+  Assert(DetailParameterName <> '');
+
+  Assert(FMaster <> nil);
+
+  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
+    FMaster.Wrap.PK.AsInteger, -1);
+
+  // Если значение параметра изменилось
+  AParamValueChange := FDQuery.Params.ParamByName(DetailParameterName).AsInteger
+    <> AIDParent;
+
+  if AParamValueChange then
+    FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
+
+  // Если наш запрос пока ещё никто не использует
+  if FClientCount = 0 then
+  begin
+    FNeedLoad := True;
+    Exit;
+  end;
+
+  // Если наш запрос кто-то использует - выполняем запрос !!!
+  BeforeLoad.CallEventHandlers(FDQuery);
+
+  if FDQuery.Active then
+    FDQuery.Refresh
+  else
+    FDQuery.Open;
+
+  AfterLoad.CallEventHandlers(FDQuery);
+end;
 
 procedure TQueryBaseEvents.TryRefresh;
 begin
-  // Будем обновляться, т.к. мы подчинены мастеру
-  if not Lock then
+  (*
+    if not Lock then
+    Wrap.RefreshQuery
+    else
+    Wrap.NeedRefresh := True;
+  *)
+
+  if FClientCount > 0 then
     Wrap.RefreshQuery
   else
     Wrap.NeedRefresh := True;

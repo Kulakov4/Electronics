@@ -190,11 +190,11 @@ type
   const
     KeyFolder: String = 'Products';
     procedure DoAfterDelete(Sender: TObject);
-    procedure DoAfterLoad(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
+    procedure DoAfterOpenOrRefresh(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoAfterScroll(Sender: TObject);
-    procedure DoBeforeLoad(Sender: TObject);
+    procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetIDExtraChargeType: Integer;
     function GetIDExtraCharge: Integer;
@@ -1003,19 +1003,19 @@ begin
   UpdateProductCount;
 end;
 
-procedure TViewProductsBase2.DoAfterLoad(Sender: TObject);
+procedure TViewProductsBase2.DoAfterOpen(Sender: TObject);
+begin
+  UpdateProductCount;
+  UpdateView;
+end;
+
+procedure TViewProductsBase2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
   // Привязываем дерево к данным !!!
   W.DataSource.Enabled := True;
   cxDBTreeList.EndUpdate;
   cxDBTreeList.FullCollapse;
 
-  UpdateView;
-end;
-
-procedure TViewProductsBase2.DoAfterOpen(Sender: TObject);
-begin
-  UpdateProductCount;
   UpdateView;
 end;
 
@@ -1038,7 +1038,7 @@ begin
   rn := W.DataSet.RecNo;
 end;
 
-procedure TViewProductsBase2.DoBeforeLoad(Sender: TObject);
+procedure TViewProductsBase2.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
   cxDBTreeList.BeginUpdate;
   W.DataSource.Enabled := False;  // Полностью отвязываем дерево от данных !!!
@@ -1444,11 +1444,20 @@ begin
 
     InitializeColumns;
 
-    TNotifyEventWrap.Create(W.AfterScroll, DoAfterScroll,  FEventList);
+    TNotifyEventWrap.Create(W.AfterScroll, DoAfterScroll, FEventList);
 
-    TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad,
-      FEventList);
-    TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
+    TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpenOrRefresh, FEventList);
+    TNotifyEventWrap.Create(W.BeforeRefresh, DoBeforeOpenOrRefresh, FEventList);
+
+    TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpenOrRefresh, FEventList);
+    TNotifyEventWrap.Create(W.AfterRefresh, DoAfterOpenOrRefresh, FEventList);
+
+
+
+//    TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad,
+//      FEventList);
+//    TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
+
     TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
       DoOnDollarCourceChange, FEventList);
     TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,

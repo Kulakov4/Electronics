@@ -1364,10 +1364,7 @@ begin
 end;
 
 procedure TProductW.InitFields;
-var
-  OK: Boolean;
 begin
-  OK := Assigned(Datasheet.F.OnGetText);
   Datasheet.F.OnGetText := OnDatasheetGetText;
   Diagram.F.OnGetText := OnDatasheetGetText;
   Drawing.F.OnGetText := OnDatasheetGetText;

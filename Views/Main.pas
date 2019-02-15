@@ -114,13 +114,13 @@ type
       State: TDragState; var Accept: Boolean);
     procedure btnFocusRootClick(Sender: TObject);
     procedure cxpcLeftChange(Sender: TObject);
+    procedure cxpcLeftPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormResize(Sender: TObject);
     procedure OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
-    procedure cxtsComponentsShow(Sender: TObject);
-    procedure cxtsStorehousesShow(Sender: TObject);
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
     FCategoryPath: string;
@@ -439,6 +439,52 @@ begin
     ComponentsFrame.ViewComponents.CheckAndSaveChanges;
 end;
 
+procedure TfrmMain.cxpcLeftPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+  var AllowChange: Boolean);
+begin
+  // Если произошёл переход на вкладку "Компоненты"
+  if NewPage = cxtsComponents then
+  begin
+    TDM.Create.qTreeList.AddClient;
+
+    if ViewTreeList.qTreeList = nil then
+      ViewTreeList.qTreeList := TDM.Create.qTreeList;
+
+    // Справа активизируем вкладку "Компоненты"
+    cxpcRight.ActivePage := cxtsRComponents;
+  end;
+
+  // Если произошёл переход на вкладку "Склады"
+  if NewPage = cxtsComponents then
+  begin
+    TDM.Create.qStoreHouseList.AddClient;
+
+    // Привязываем список складов к данным
+    if tvStorehouseList.DataController.DataSource = nil then
+    begin
+      tvStorehouseList.DataController.DataSource :=
+        TDM.Create.qStoreHouseList.W.DataSource;
+
+      clStorehouseListTitle.ApplyBestFit();
+    end;
+
+    // Справа активизируем вкладку "Склады"
+    cxpcRight.ActivePage := cxtsRStorehouses;
+  end;
+
+  // Если уходим с вкладки компоненты
+  if cxpcLeft.ActivePage = cxtsComponents then
+  begin
+    TDM.Create.qTreeList.RemoveClient;
+  end;
+
+  // Если уходим с вкладки склады
+  if cxpcLeft.ActivePage = cxtsComponents then
+  begin
+    TDM.Create.qStoreHouseList.RemoveClient;
+  end;
+end;
+
 procedure TfrmMain.DoOnComponentLocate(Sender: TObject);
 var
   l: TList<String>;
@@ -577,7 +623,7 @@ begin
       // Блокируем это представление до тех пор, пока вкладка не станет активной
       ComponentsFrame.ViewParametricTable.Lock;
 
-       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
         DoAfterTreeListSmartRefresh, FEventList);
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterScrollM,
@@ -731,34 +777,6 @@ procedure TfrmMain.dbtlCategoriesDragOver(Sender, Source: TObject;
   X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := True;
-end;
-
-procedure TfrmMain.cxtsComponentsShow(Sender: TObject);
-begin
-  TDM.Create.qTreeList.W.TryOpen;
-
-  if ViewTreeList.qTreeList = nil then
-    ViewTreeList.qTreeList := TDM.Create.qTreeList;
-
-  // Справа активизируем вкладку "Компоненты"
-  cxpcRight.ActivePage := cxtsRComponents;
-end;
-
-procedure TfrmMain.cxtsStorehousesShow(Sender: TObject);
-begin
-  // Привязываем список складов к данным
-  if tvStorehouseList.DataController.DataSource = nil then
-  begin
-    tvStorehouseList.DataController.DataSource :=
-      TDM.Create.qStoreHouseList.W.DataSource;
-
-    clStorehouseListTitle.ApplyBestFit();
-  end;
-
-  TDM.Create.qStoreHouseList.W.TryOpen;
-
-  // Справа активизируем вкладку "Склады"
-  cxpcRight.ActivePage := cxtsRStorehouses;
 end;
 
 procedure TfrmMain.DoAfterTreeListSmartRefresh(Sender: TObject);

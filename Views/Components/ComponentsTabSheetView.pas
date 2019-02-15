@@ -82,10 +82,6 @@ type
     procedure actReportExecute(Sender: TObject);
     procedure cxpcComponentsPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
-    procedure cxtsCategoryComponentsShow(Sender: TObject);
-    procedure cxtsCategoryParametersShow(Sender: TObject);
-    procedure cxtsCategoryShow(Sender: TObject);
-    procedure cxtsComponentsSearchShow(Sender: TObject);
   private
     FfrmProgressBar: TfrmProgressBar3;
     FqParamSubParams: TQueryParamSubParams;
@@ -387,6 +383,75 @@ begin
   if ViewParametricTable = nil then
     Exit;
 
+  // Если переходим на вкладку категория
+  if NewPage = cxtsCategory then
+  begin
+    TDM.Create.qChildCategories.AddClient;
+
+    // Привязываем подкатегории к данным (функциональная группа)
+    ViewChildCategories.qChildCategories := TDM.Create.qChildCategories;
+
+    ViewChildCategories.MainView.ApplyBestFit;
+  end;
+
+  // Если уходим со вкладки Категория
+  if cxpcComponents.ActivePage = cxtsCategory then
+  begin
+    TDM.Create.qChildCategories.RemoveClient;
+  end;
+
+  // Если переходим на вкладку Содержимое
+  if NewPage = cxtsCategoryComponents then
+  begin
+    TDM.Create.ComponentsGroup.AddClient;
+
+    // Привязываем представления к данным
+    ViewComponents.ComponentsGroup := TDM.Create.ComponentsGroup;
+
+    ViewComponents.PostMyApplyBestFitEvent;
+  end;
+
+  // Если уходим со вкладки Содержимое
+  if cxpcComponents.ActivePage = cxtsCategory then
+  begin
+    TDM.Create.ComponentsGroup.RemoveClient;
+  end;
+
+  // Если переходим на вкладку Параметры
+  if NewPage = cxtsCategoryParameters then
+  begin
+    TDM.Create.CategoryParametersGroup.AddClient;
+
+    // Параметры в виде списка
+    ViewCategoryParameters.CatParamsGroup := TDM.Create.CategoryParametersGroup;
+
+    ViewCategoryParameters.MyApplyBestFit;
+  end;
+
+  // Если уходим со вкладки Параметры
+  if cxpcComponents.ActivePage = cxtsCategory then
+  begin
+    TDM.Create.CategoryParametersGroup.RemoveClient;
+  end;
+
+  // Если переходим на вкладку Поиск
+  if NewPage = cxtsComponentsSearch then
+  begin
+    TDM.Create.ComponentsSearchGroup.AddClient;
+
+    // Привязываем представление к данным
+    ViewComponentsSearch.ComponentsSearchGroup :=
+      TDM.Create.ComponentsSearchGroup;
+
+    ViewComponentsSearch.MyApplyBestFit;
+  end;
+
+  // Если уходим со вкладки Поиск
+  if cxpcComponents.ActivePage = cxtsComponentsSearch then
+  begin
+    TDM.Create.ComponentsSearchGroup.RemoveClient;
+  end;
+
   // если переходим на вкладку "Параметрическая таблица"
   if (cxpcComponents.ActivePage <> cxtsParametricTable) and
     (NewPage = cxtsParametricTable) then
@@ -407,48 +472,6 @@ begin
 
     ViewParametricTable.Lock;
   end;
-end;
-
-procedure TComponentsFrame.cxtsCategoryComponentsShow(Sender: TObject);
-begin
-  // Привязываем представления к данным
-  ViewComponents.ComponentsGroup := TDM.Create.ComponentsGroup;
-
-  TDM.Create.ComponentsGroup.TryOpen;
-
-  ViewComponents.PostMyApplyBestFitEvent;
-end;
-
-procedure TComponentsFrame.cxtsCategoryParametersShow(Sender: TObject);
-begin
-  // Параметры в виде списка
-  ViewCategoryParameters.CatParamsGroup :=
-    TDM.Create.CategoryParametersGroup;
-
-  TDM.Create.CategoryParametersGroup.TryOpen;
-
-  ViewCategoryParameters.MyApplyBestFit;
-end;
-
-procedure TComponentsFrame.cxtsCategoryShow(Sender: TObject);
-begin
-  // Привязываем подкатегории к данным (функциональная группа)
-  ViewChildCategories.qChildCategories := TDM.Create.qChildCategories;
-
-  TDM.Create.qChildCategories.W.TryOpen;
-
-  ViewChildCategories.MainView.ApplyBestFit;
-end;
-
-procedure TComponentsFrame.cxtsComponentsSearchShow(Sender: TObject);
-begin
-  // Привязываем представление к данным
-  ViewComponentsSearch.ComponentsSearchGroup :=
-    TDM.Create.ComponentsSearchGroup;
-
-  TDM.Create.ComponentsSearchGroup.TryOpen;
-
-  ViewComponentsSearch.MyApplyBestFit;
 end;
 
 procedure TComponentsFrame.DoAfterLoadSheet(ASender: TObject);
