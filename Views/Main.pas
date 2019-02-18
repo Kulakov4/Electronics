@@ -442,6 +442,9 @@ end;
 procedure TfrmMain.cxpcLeftPageChanging(Sender: TObject; NewPage: TcxTabSheet;
   var AllowChange: Boolean);
 begin
+  if ViewTreeList = nil then
+    Exit;
+
   // Если произошёл переход на вкладку "Компоненты"
   if NewPage = cxtsComponents then
   begin
@@ -455,7 +458,7 @@ begin
   end;
 
   // Если произошёл переход на вкладку "Склады"
-  if NewPage = cxtsComponents then
+  if NewPage = cxtsStorehouses then
   begin
     TDM.Create.qStoreHouseList.AddClient;
 
@@ -536,7 +539,7 @@ begin
   Assert(not DMRepository.dbConnection.Connected);
 
   cxpcRight.Properties.HideTabs := True;
-  cxpcLeft.ActivePage := cxtsComponents;
+  cxpcLeft.ActivePage := nil;
 
   // Создаём фрейм с компонентами
   FComponentsFrame := TComponentsFrame.Create(Self);
@@ -554,9 +557,6 @@ begin
   ViewTreeList.Align := alClient;
   // Устанавливаем обработчик события
   ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
-
-  ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
-  ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
 
   Assert(not DMRepository.dbConnection.Connected);
 
@@ -631,6 +631,11 @@ begin
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterOpen,
         DoOnProductCategoriesChange, FEventList);
+
+      cxpcLeft.ActivePage := cxtsComponents;
+      ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
+//      ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
+
 
       // Искусственно вызываем событие
       if TDM.Create.qTreeList.FDQuery.Active then
@@ -807,7 +812,7 @@ end;
 
 procedure TfrmMain.DoBeforeParametricTableDeactivate(Sender: TObject);
 begin
-  TDM.Create.ComponentsExGroup.DecClient;
+  TDM.Create.ComponentsExGroup.RemoveClient;
 end;
 
 procedure TfrmMain.DoOnHaveAnyChanges(Sender: TObject);

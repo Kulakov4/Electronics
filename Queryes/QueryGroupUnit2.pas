@@ -20,14 +20,14 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AddClient;
+    procedure AddClient; virtual;
     function ApplyUpdates: Boolean; virtual;
     procedure CancelUpdates; virtual;
     procedure Commit; virtual;
     procedure DisableControls;
     procedure EnableControls;
     procedure RefreshData; virtual;
-    procedure RemoveClient;
+    procedure RemoveClient; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
     procedure TryOpen;

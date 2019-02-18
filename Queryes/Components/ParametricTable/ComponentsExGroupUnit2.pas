@@ -18,7 +18,6 @@ type
     FAllParameterFields: TDictionary<Integer, String>;
     FApplyUpdateEvents: TObjectList;
     FCatParamsGroup: TCategoryParametersGroup2;
-    FClientCount: Integer;
     FFieldIndex: Integer;
     FFreeFields: TList<String>;
     FMark: string;
@@ -53,8 +52,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AddClient;
-    procedure DecClient;
+    procedure AddClient; override;
+    procedure RemoveClient; override;
     function GetIDParameter(const AFieldName: String): Integer;
     procedure TryRefresh;
     procedure UpdateFields;
@@ -95,9 +94,6 @@ begin
   TNotifyEventWrap.Create(qComponentsEx.W.BeforeOpen, DoBeforeOpen, EventList);
   TNotifyEventWrap.Create(qFamilyEx.W.AfterOpen, DoAfterOpen, EventList);
 
-  FClientCount := 1;
-  DecClient; // Искусственно блокируем обновление
-
   FOnParamOrderChange := TNotifyEventsEx.Create(Self);
   FFreeFields := TList<String>.Create;
 end;
@@ -114,17 +110,10 @@ end;
 
 procedure TComponentsExGroup2.AddClient;
 begin
-  Inc(FClientCount);
-
-  // Если нужно разблокировать датасеты
-  if (FClientCount > 0) then
-  begin
-    // Сначала обновим компоненты,
-    // чтобы при обновлении семейств знать сколько компонентов входит в семейство
-    qComponentsEx.Lock := False;
-    qFamilyEx.Lock := False;
-  end;
-
+  // Сначала обновим компоненты,
+  // чтобы при обновлении семейств знать сколько компонентов входит в семейство
+  qComponentsEx.AddClient;
+  qFamilyEx.AddClient;
 end;
 
 procedure TComponentsExGroup2.ApplyUpdate(AQueryCustomComponents
@@ -171,16 +160,10 @@ begin
   end;
 end;
 
-procedure TComponentsExGroup2.DecClient;
+procedure TComponentsExGroup2.RemoveClient;
 begin
-  Dec(FClientCount);
-  Assert(FClientCount >= 0);
-
-  if FClientCount = 0 then
-  begin
-    qComponentsEx.Lock := True;
-    qFamilyEx.Lock := True;
-  end;
+  qComponentsEx.RemoveClient;
+  qFamilyEx.RemoveClient;
 end;
 
 procedure TComponentsExGroup2.DoAfterOpen(Sender: TObject);

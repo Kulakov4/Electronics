@@ -39,9 +39,11 @@ object frmMain: TfrmMain
     Height = 564
     Align = alLeft
     TabOrder = 1
+    Properties.ActivePage = cxtsStorehouses
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcLeftChange
     OnPageChanging = cxpcLeftPageChanging
+    ExplicitLeft = 2
     ClientRectBottom = 560
     ClientRectLeft = 4
     ClientRectRight = 269
@@ -49,8 +51,6 @@ object frmMain: TfrmMain
     object cxtsComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitLeft = 5
-      ExplicitTop = 28
     end
     object cxtsStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
@@ -62,6 +62,8 @@ object frmMain: TfrmMain
         Height = 533
         Align = alClient
         TabOrder = 0
+        ExplicitLeft = -2
+        ExplicitTop = -2
         object tvStorehouseList: TcxGridDBTableView
           PopupMenu = pmLeftStoreHouse
           Navigator.Buttons.CustomButtons = <>
@@ -105,14 +107,10 @@ object frmMain: TfrmMain
     object cxtsRComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitLeft = 5
-      ExplicitTop = 28
     end
     object cxtsRStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
-      ExplicitLeft = 5
-      ExplicitTop = 28
     end
   end
   object cxspltrMain: TcxSplitter

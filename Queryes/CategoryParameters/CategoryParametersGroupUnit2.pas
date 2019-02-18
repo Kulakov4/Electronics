@@ -127,6 +127,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AddClient; override;
     procedure AddOrDeleteParameters(AParamIDList: string; APosID: Integer);
     procedure AddOrDeleteSubParameters(AID: Integer; ASubParamIDList: string);
     function ApplyOrCancelUpdates: Boolean;
@@ -141,6 +142,7 @@ type
     procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
       AUp: Boolean);
     procedure RefreshData; override;
+    procedure RemoveClient; override;
     procedure SetPos(AIDArray: TArray<Integer>; AWithSubParams: Boolean;
       APosID: Integer);
     procedure UpdateData;
@@ -188,6 +190,11 @@ begin
   FreeAndNil(FAfterUpdateData);
   FreeAndNil(FOnIsAttributeChange);
   inherited;
+end;
+
+procedure TCategoryParametersGroup2.AddClient;
+begin
+  FqCategoryParameters.AddClient;
 end;
 
 procedure TCategoryParametersGroup2.AddOrDeleteParameters(AParamIDList: string;
@@ -798,6 +805,11 @@ procedure TCategoryParametersGroup2.RefreshData;
 begin
   qCategoryParameters.W.RefreshQuery;
   LoadData;
+end;
+
+procedure TCategoryParametersGroup2.RemoveClient;
+begin
+  FqCategoryParameters.RemoveClient;
 end;
 
 procedure TCategoryParametersGroup2.SetPos(AIDArray: TArray<Integer>;

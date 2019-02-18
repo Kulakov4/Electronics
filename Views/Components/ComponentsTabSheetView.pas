@@ -156,7 +156,7 @@ uses RepositoryDataModule, SettingsController, ProducersForm, DialogUnit,
 constructor TComponentsFrame.Create(AOwner: TComponent);
 begin
   inherited;
-  cxpcComponents.ActivePage := cxtsCategory;
+  cxpcComponents.ActivePage := nil;
 
   FViewChildCategories := TViewChildCategories.Create(Self);
   FViewChildCategories.Place(cxtsCategory);
@@ -412,7 +412,7 @@ begin
   end;
 
   // Если уходим со вкладки Содержимое
-  if cxpcComponents.ActivePage = cxtsCategory then
+  if cxpcComponents.ActivePage = cxtsCategoryComponents then
   begin
     TDM.Create.ComponentsGroup.RemoveClient;
   end;
@@ -429,7 +429,7 @@ begin
   end;
 
   // Если уходим со вкладки Параметры
-  if cxpcComponents.ActivePage = cxtsCategory then
+  if cxpcComponents.ActivePage = cxtsCategoryParameters then
   begin
     TDM.Create.CategoryParametersGroup.RemoveClient;
   end;
@@ -468,7 +468,7 @@ begin
     (NewPage <> cxtsParametricTable) then
   begin
     if ViewParametricTable.ComponentsExGroup <> nil then
-      ViewParametricTable.ComponentsExGroup.DecClient;
+      ViewParametricTable.ComponentsExGroup.RemoveClient;
 
     ViewParametricTable.Lock;
   end;

@@ -24,23 +24,25 @@ type
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
     FClientCount: Integer;
+    FDebug: Boolean;
     FHaveAnyNotCommitedChanges: Boolean;
     FHRTimer: THRTimer;
-    FLock: Boolean;
     FMaster: TQueryBaseEvents;
     FNeedLoad: Boolean;
     class var FMonitor: TQueryMonitor;
+
+  const
+    FDebugFileName: string = 'C:\Public\SQL.txt';
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterMasterScroll(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
-    procedure DoBeforeOpen(Sender: TObject);
+    procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetActual: Boolean;
     procedure InitializeFields;
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
-    procedure SetLock(const Value: Boolean);
     procedure SetMaster(const Value: TQueryBaseEvents);
     { Private declarations }
   protected
@@ -50,8 +52,10 @@ type
     class var FFile: TextFile;
     function CreateDSWrap: TDSWrap; virtual; abstract;
     procedure DoAfterCommit(Sender: TObject);
+    procedure DoAfterRefresh(Sender: TObject);
     procedure DoAfterRollback(Sender: TObject);
     function GetHaveAnyNotCommitedChanges: Boolean; override;
+    procedure SaveDebugLog;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -71,8 +75,8 @@ type
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property ClientCount: Integer read FClientCount;
+    property Debug: Boolean read FDebug write FDebug;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
-    property Lock: Boolean read FLock write SetLock;
     property Master: TQueryBaseEvents read FMaster write SetMaster;
     class property Monitor: TQueryMonitor read FMonitor;
     property Wrap: TDSWrap read FDSWrap;
@@ -123,6 +127,8 @@ constructor TQueryBaseEvents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  FDebug := True;
+
   // Создаём обёртку вокруг себя
   FDSWrap := CreateDSWrap;
   FDSWrap.Obj := Self;
@@ -133,7 +139,12 @@ begin
   TNotifyEventWrap.Create(FDSWrap.AfterPost, DoAfterPost, FDSWrap.EventList);
 
   // Будем засекать время выполнения запроса
-  TNotifyEventWrap.Create(Wrap.BeforeOpen, DoBeforeOpen, Wrap.EventList);
+  TNotifyEventWrap.Create(Wrap.BeforeOpen, DoBeforeOpenOrRefresh,
+    Wrap.EventList);
+  TNotifyEventWrap.Create(Wrap.BeforeRefresh, DoBeforeOpenOrRefresh,
+    Wrap.EventList);
+
+  TNotifyEventWrap.Create(Wrap.AfterRefresh, DoAfterRefresh, Wrap.EventList);
 
   // Все поля будем выравнивать по левому краю + клонировать курсор (если надо)
   TNotifyEventWrap.Create(Wrap.AfterOpen, DoAfterOpen, Wrap.EventList);
@@ -158,8 +169,11 @@ begin
   if FMonitor = nil then
   begin
     FMonitor := TQueryMonitor.Create;
-    AssignFile(FFile, 'c:\public\sql.txt');
-    rewrite(FFile);
+    if FDebug then
+    begin
+      AssignFile(FFile, FDebugFileName);
+      Rewrite(FFile);
+    end;
   end;
 
   // Добавляем себя в список всех запросов
@@ -182,7 +196,8 @@ begin
   if FMonitor.IsEmpty then
   begin
     FreeAndNil(FMonitor);
-    CloseFile(FFile);
+    if Debug then
+      CloseFile(FFile);
   end;
 
   FreeAndNil(FMasterEventList); // отписываемся от всех событий Мастера
@@ -206,6 +221,8 @@ begin
   end
   else if Wrap.NeedRefresh then
     Wrap.RefreshQuery
+  else if Master <> nil then
+    Load
   else
     Wrap.TryOpen;
 end;
@@ -271,26 +288,8 @@ end;
 procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
 var
   i: Integer;
-  t: Double;
 begin
-  t := FHRTimer.ReadTimer;
-  Writeln(FFile, Format('Time = %f (%s)', [t, Label1.Caption]));
-  // Записываем SQL запрос в файл
-  for i := 0 to FDQuery.SQL.Count - 1 do
-    Writeln(FFile, FDQuery.SQL[i]);
-  if FDQuery.ParamCount > 0 then
-  begin
-    Writeln(FFile, '');
-    for i := 0 to FDQuery.Params.Count - 1 do
-    begin
-      Writeln(FFile, Format(':%s = %s', [FDQuery.Params[i].Name,
-        FDQuery.Params[i].AsString]));
-    end;
-  end;
-  Writeln(FFile, '');
-  Writeln(FFile, '');
-
-  Flush(FFile);
+  SaveDebugLog;
 
   // Костыль с некоторыми типами полей
   InitializeFields;
@@ -307,13 +306,18 @@ begin
     FHaveAnyNotCommitedChanges := True;
 end;
 
+procedure TQueryBaseEvents.DoAfterRefresh(Sender: TObject);
+begin
+  SaveDebugLog;
+end;
+
 procedure TQueryBaseEvents.DoAfterRollback(Sender: TObject);
 begin
   // Помечаем что у нас нет не закоммитенных изменений
   FHaveAnyNotCommitedChanges := False;
 end;
 
-procedure TQueryBaseEvents.DoBeforeOpen(Sender: TObject);
+procedure TQueryBaseEvents.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
   FHRTimer.StartTimer;
 end;
@@ -405,6 +409,34 @@ begin
   Dec(FClientCount);
 end;
 
+procedure TQueryBaseEvents.SaveDebugLog;
+var
+  i: Integer;
+  t: Double;
+begin
+  if not FDebug then
+    Exit;
+
+  t := FHRTimer.ReadTimer;
+  Writeln(FFile, Format('Time = %f (%s)', [t, Label1.Caption]));
+  // Записываем SQL запрос в файл
+  for i := 0 to FDQuery.SQL.Count - 1 do
+    Writeln(FFile, FDQuery.SQL[i]);
+  if FDQuery.ParamCount > 0 then
+  begin
+    Writeln(FFile, '');
+    for i := 0 to FDQuery.Params.Count - 1 do
+    begin
+      Writeln(FFile, Format(':%s = %s', [FDQuery.Params[i].Name,
+        FDQuery.Params[i].AsString]));
+    end;
+  end;
+  Writeln(FFile, '');
+  Writeln(FFile, '');
+
+  Flush(FFile);
+end;
+
 procedure TQueryBaseEvents.SetAutoTransaction(const Value: Boolean);
 begin
   if FAutoTransaction <> Value then
@@ -436,31 +468,6 @@ begin
   end;
 end;
 
-procedure TQueryBaseEvents.SetLock(const Value: Boolean);
-begin
-  if FLock = Value then
-    Exit;
-
-  FLock := Value;
-
-  // Если не заблокировано
-  if (not FLock) then
-  begin
-    // если мастер изменился, нам пора обновиться
-    if FNeedLoad then
-    begin
-      Load;
-      Wrap.NeedRefresh := False; // Обновлять больше не нужно
-    end
-    else
-    begin
-      if Wrap.NeedRefresh then
-        Wrap.RefreshQuery;
-    end;
-  end;
-
-end;
-
 procedure TQueryBaseEvents.SetMaster(const Value: TQueryBaseEvents);
 begin
   if FMaster <> Value then
@@ -485,14 +492,6 @@ var
   AIDParent: Integer;
   AParamValueChange: Boolean;
 begin
-  // Будем обновляться, т.к. мы подчинены мастеру
-  (*
-    if not Lock then
-    Load
-    else
-    FNeedLoad := True;
-  *)
-
   Assert(DetailParameterName <> '');
 
   Assert(FMaster <> nil);
@@ -504,9 +503,6 @@ begin
   AParamValueChange := FDQuery.Params.ParamByName(DetailParameterName).AsInteger
     <> AIDParent;
 
-  if AParamValueChange then
-    FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
-
   // Если наш запрос пока ещё никто не использует
   if FClientCount = 0 then
   begin
@@ -516,6 +512,9 @@ begin
 
   // Если наш запрос кто-то использует - выполняем запрос !!!
   BeforeLoad.CallEventHandlers(FDQuery);
+
+  if AParamValueChange then
+    FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
 
   if FDQuery.Active then
     FDQuery.Refresh
