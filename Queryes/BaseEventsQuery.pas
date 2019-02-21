@@ -516,10 +516,8 @@ begin
   if AParamValueChange then
     FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
 
-  if FDQuery.Active then
-    FDQuery.Refresh
-  else
-    FDQuery.Open;
+  // Обновляем или открываем заново запрос
+  RefreshOrOpen;
 
   AfterLoad.CallEventHandlers(FDQuery);
 end;

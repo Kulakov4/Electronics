@@ -97,6 +97,8 @@ type
     actUpdateColumnWidth: TAction;
     actTestBandsID: TAction;
     actTestBandsID1: TMenuItem;
+    actChangeCount: TAction;
+    dxBarButton2: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);
@@ -117,6 +119,7 @@ type
     procedure actShowCategoryParametersQueryExecute(Sender: TObject);
     procedure actTestBandsIDExecute(Sender: TObject);
     procedure actUpdateColumnWidthExecute(Sender: TObject);
+    procedure actChangeCountExecute(Sender: TObject);
     procedure actUpdateDetailColumnWidth2Execute(Sender: TObject);
     procedure cxGridDBBandedTableViewBandPosChanged
       (Sender: TcxGridBandedTableView; ABand: TcxGridBand);
@@ -902,6 +905,17 @@ begin
   ACol.ApplyBestFit();
 end;
 
+procedure TViewParametricTable.actChangeCountExecute(Sender: TObject);
+var
+  S: string;
+begin
+  inherited;
+  S := Format('%d - %d', [ComponentsExGroup.qFamilyEx.FDQuery.ChangeCount,
+    ComponentsExGroup.qComponentsEx.FDQuery.ChangeCount]);
+
+  ShowMessage(S);
+end;
+
 procedure TViewParametricTable.actUpdateDetailColumnWidth2Execute
   (Sender: TObject);
 begin
@@ -1608,8 +1622,9 @@ begin
       end;
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
-        qCategoryParameters.W.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
-        ABandInfo.DefaultCreated, qCategoryParameters.W.IsDefault.F.AsInteger = 1));
+        qCategoryParameters.W.PK.AsInteger,
+        qCategoryParameters.W.Ord.F.AsInteger, ABandInfo.DefaultCreated,
+        qCategoryParameters.W.IsDefault.F.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
     end;
@@ -1823,14 +1838,16 @@ begin
   ABandInfo.IsDefault := qCategoryParameters.W.IsDefault.F.AsInteger = 1;
   // Параметр "по умолчанию" всегда в отдельно бэнде
   if qCategoryParameters.W.IsDefault.F.AsInteger = 1 then
-    ABandInfo.IDParamSubParam := qCategoryParameters.W.ParamSubParamId.F.AsInteger;
+    ABandInfo.IDParamSubParam := qCategoryParameters.W.ParamSubParamId.
+      F.AsInteger;
 
   // Связан ли он с подпараметром по умолчанию
   ABandInfo.IDParameter := qCategoryParameters.W.IDParameter.F.AsInteger;
   // Параметр, с которым связан бэнд
   // Подпараметр по "умолчанию"
   ABandInfo.DefaultVisible := qCategoryParameters.W.IsAttribute.F.AsInteger = 1;
-  ABandInfo.IDParameterKind := qCategoryParameters.W.IDParameterKind.F.AsInteger;
+  ABandInfo.IDParameterKind := qCategoryParameters.W.IDParameterKind.F.
+    AsInteger;
   ABandInfo.pos := qCategoryParameters.W.PosID.F.AsInteger;
 
   // Инициализируем сами бэнды
@@ -2073,7 +2090,7 @@ begin
   try
     ANewIDList.AddRange(ANewIDListArr);
     UpdateBandsPosition;
-    finally
+  finally
     FreeAndNil(ANewIDList);
   end;
 
@@ -2140,7 +2157,7 @@ procedure TViewParametricTable.Unlock;
 begin
   Assert(FLockInfo.Locked);
   Assert(BaseComponentsGroup = nil);
-  FLockInfo.Locked := False;
+  FLockInfo.Locked := false;
 
   // Подключаем представление к данным
   BaseComponentsGroup := FLockInfo.BaseComponentsGroup;
@@ -2162,7 +2179,6 @@ begin
     begin
       S := ABI.Band.Caption;
     end;
-
 
     // Ищем данные о заголовке бэнда
     Assert(ABI.IDList.Count > 0);
@@ -2641,7 +2657,7 @@ end;
 
 constructor TParametricTableLockInfo.Create;
 begin
-  Locked := False;
+  Locked := false;
   BaseComponentsGroup := nil;
 end;
 

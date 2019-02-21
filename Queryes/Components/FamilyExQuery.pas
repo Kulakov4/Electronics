@@ -18,11 +18,12 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+    procedure RefreshOrOpen; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -49,8 +50,9 @@ begin
   inherited;
 end;
 
-procedure TQueryFamilyEx.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryFamilyEx.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   // ничего не делаем при удаении
 end;
@@ -70,5 +72,12 @@ begin
   On_ApplyUpdate.CallEventHandlers(Self);
 end;
 
+procedure TQueryFamilyEx.RefreshOrOpen;
+begin
+  if FDQuery.Active then
+    FDQuery.Close;
+
+  FDQuery.Open;
+end;
 
 end.

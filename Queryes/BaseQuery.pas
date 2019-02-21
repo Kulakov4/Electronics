@@ -58,6 +58,7 @@ type
         TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
+    procedure RefreshOrOpen; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
   public
     constructor Create(AOwner: TComponent); override;
@@ -417,10 +418,8 @@ begin
     FBeforeLoad.CallEventHandlers(FDQuery);
 
     FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
-    if FDQuery.Active then
-      FDQuery.Refresh
-    else
-      FDQuery.Open;
+
+    RefreshOrOpen;
 
     FAfterLoad.CallEventHandlers(FDQuery);
   end;
@@ -437,6 +436,14 @@ begin
   finally
     FDQuery.EnableControls;
   end;
+end;
+
+procedure TQueryBase.RefreshOrOpen;
+begin
+  if FDQuery.Active then
+    FDQuery.Refresh
+  else
+    FDQuery.Open;
 end;
 
 procedure TQueryBase.SetParameters(const AParamNames: TArray<String>;

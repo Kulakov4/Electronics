@@ -245,7 +245,7 @@ begin
     FCatParamsGroup.qCategoryParameters.FDQuery.Next;
   end;
 
-  // Помечаем свободные поля как внутринне вычисляемые
+  // Помечаем свободные поля как внутренние вычисляемые
   for AFieldName in FFreeFields do
   begin
     AFDQuery.FieldByName(AFieldName).FieldKind := fkInternalCalc;
@@ -315,6 +315,7 @@ var
   AValue: string;
   S: string;
 begin
+
   // Во время загрузки из БД ничего в БД сохранять не будем
   FApplyUpdateEvents.Clear;
   qFamilyEx.SaveValuesAfterEdit := False;
@@ -366,9 +367,12 @@ begin
           AValue := AValue + #13#10;
         AValue := AValue + ANewValue;
 
+
+//        AField.FieldKind;
         qryComponents.W.TryEdit;
         AField.AsString := AValue;
         qryComponents.W.TryPost;
+        qryComponents.FDQuery.ChangeCount;
       end;
 
       qProductParameters.FDQuery.Next;

@@ -25,6 +25,7 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
+    procedure RefreshOrOpen; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -105,6 +106,14 @@ begin
   finally
     FreeAndNil(l);
   end;
+end;
+
+procedure TQueryComponentsEx.RefreshOrOpen;
+begin
+  if FDQuery.Active then
+    FDQuery.Close;
+
+  FDQuery.Open;
 end;
 
 constructor TComponentsExW.Create(AOwner: TComponent);
