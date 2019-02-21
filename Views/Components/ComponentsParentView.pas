@@ -645,9 +645,6 @@ begin
       TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
         AfterOpen, DoAfterOpenOrRefresh, FEventList);
 
-//      TNotifyEventWrap.Create
-//        (FBaseComponentsGroup.QueryBaseComponents.AfterLoad, AfterLoadData,
-//        FEventList);
     end;
 
     // Пусть нам монитор сообщает об изменениях в БД

@@ -112,8 +112,8 @@ type
     procedure cxGridDBBandedTableView2StylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
-    procedure cxGridDBBandedTableViewSelectionChanged(Sender:
-        TcxCustomGridTableView);
+    procedure cxGridDBBandedTableViewSelectionChanged
+      (Sender: TcxCustomGridTableView);
     procedure dxBarButton13Click(Sender: TObject);
     procedure dxBarButton14Click(Sender: TObject);
     procedure dxBarButton15Click(Sender: TObject);
@@ -134,11 +134,10 @@ type
     procedure SetPos(APosID: Integer);
     { Private declarations }
   protected
-    procedure DoAfterLoad(Sender: TObject);
     procedure DoBeforeUpdateData(Sender: TObject);
     procedure DoDeleteFromView(AView: TcxGridDBBandedTableView); override;
     procedure DoOnDetailExpanded(ADataController: TcxCustomDataController;
-        ARecordIndex: Integer); override;
+      ARecordIndex: Integer); override;
     procedure DoOnIsAttributeChange(Sender: TObject);
     function GetFocusedTableView: TcxGridDBBandedTableView; override;
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
@@ -396,8 +395,8 @@ begin
     cxGridDBBandedTableView.DataController.Post();
 end;
 
-procedure TViewCategoryParameters.cxGridDBBandedTableViewSelectionChanged(
-    Sender: TcxCustomGridTableView);
+procedure TViewCategoryParameters.cxGridDBBandedTableViewSelectionChanged
+  (Sender: TcxCustomGridTableView);
 begin
   inherited;
   UpdateView;
@@ -427,13 +426,11 @@ begin
   end;
 end;
 
-procedure TViewCategoryParameters.DoAfterLoad(Sender: TObject);
-begin
-  MainView.ViewData.Collapse(True);
-end;
-
 procedure TViewCategoryParameters.DoAfterUpdateData(Sender: TObject);
 begin
+  EndUpdate;
+  FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
+
   UpdateView;
   FLoading := False;
 end;
@@ -442,6 +439,8 @@ procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
 begin
   FLoading := True;
   MainView.Controller.ClearSelection;
+
+  BeginUpdate;
 end;
 
 procedure TViewCategoryParameters.DoDeleteFromView
@@ -464,8 +463,8 @@ begin
     CatParamsGroup.DeleteSubParameters(APKValues);
 end;
 
-procedure TViewCategoryParameters.DoOnDetailExpanded(ADataController:
-    TcxCustomDataController; ARecordIndex: Integer);
+procedure TViewCategoryParameters.DoOnDetailExpanded(ADataController
+  : TcxCustomDataController; ARecordIndex: Integer);
 begin
   if FLoading then
     Exit;
@@ -647,15 +646,24 @@ begin
 
   if FCatParamsGroup <> nil then
   begin
-    dsParameters.DataSet := FCatParamsGroup.qCatParams;
-    dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
+    BeginUpdate;
+    try
+      dsParameters.DataSet := FCatParamsGroup.qCatParams;
+      dsSubParameters.DataSet := FCatParamsGroup.qCatSubParams;
 
-    InitializeLookupColumn(clPosID, QueryParameterPos.W.DataSource, lsFixedList,
-      QueryParameterPos.W.Pos.FieldName);
+      InitializeLookupColumn(clPosID, QueryParameterPos.W.DataSource,
+        lsFixedList, QueryParameterPos.W.Pos.FieldName);
 
-    (clPosID.Properties as TcxLookupComboBoxProperties).ReadOnly := True;
+      (clPosID.Properties as TcxLookupComboBoxProperties).ReadOnly := True;
 
-    // (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
+      // (clIsAttribute.Properties as TcxCheckBoxProperties).ImmediatePost := True;
+
+    finally
+      EndUpdate;
+    end;
+    MainView.ViewData.Collapse(True);
+    FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
+    MyApplyBestFit;
 
     TNotifyEventWrap.Create(FCatParamsGroup.BeforeUpdateData,
       DoBeforeUpdateData, FEventList);
@@ -663,20 +671,10 @@ begin
     TNotifyEventWrap.Create(FCatParamsGroup.AfterUpdateData, DoAfterUpdateData,
       FEventList);
 
-    TNotifyEventWrap.Create(FCatParamsGroup.qCategoryParameters.AfterLoad,
-      DoAfterLoad, FEventList);
-
     TNotifyEventWrap.Create(FCatParamsGroup.OnIsAttributeChange,
       DoOnIsAttributeChange, FEventList);
 
     UpdateView;
-    MainView.ViewData.Collapse(True);
-    MyApplyBestFit;
-
-
-    // PostMyApplyBestFitEvent;
-
-    // DBGrid.DataSource := CatParamsGroup.qCategoryParameters.DataSource;
   end;
 end;
 
