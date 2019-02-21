@@ -104,7 +104,6 @@ type
     FMessageUpdateDetailColumnsPosted: Boolean;
     FOnDetailExpandedPosted: Boolean;
     FQuerySubGroups: TfrmQuerySubGroups;
-    procedure AfterLoadData(Sender: TObject);
     function GetQuerySubGroups: TfrmQuerySubGroups;
     procedure PostMessageUpdateDetailColumnsWidth;
     procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup2);
@@ -117,6 +116,8 @@ type
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
     procedure DoAfterLoadData; virtual;
+    procedure DoAfterOpenOrRefresh(Sender: TObject);
+    procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnMasterDetailChange; virtual;
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
@@ -201,19 +202,7 @@ end;
 
 procedure TViewComponentsParent.actCommitExecute(Sender: TObject);
 begin
-  // Мы просто завершаем транзакцию
-
-  // cxGrid.BeginUpdate();
-  // try
   BaseComponentsGroup.Commit;
-  // Почему-то при сохранении раскрываются детали
-  // MainView.ViewData.CollapseDetail(True);
-  // Переносим фокус на первую выделенную запись
-  // FocusSelectedRecord(MainView);
-  // finally
-  // cxGrid.EndUpdate;
-  // end;
-  // PutInTheCenterFocusedRecord(MainView);
   UpdateView;
 end;
 
@@ -337,12 +326,6 @@ begin
 
   FOnDetailExpandedPosted := True;
   PostMessage(Handle, WM_ON_DETAIL_EXPANDED, 0, 0);
-end;
-
-procedure TViewComponentsParent.AfterLoadData(Sender: TObject);
-begin
-  FIsSyncScrollbars := False;
-  DoAfterLoadData;
 end;
 
 procedure TViewComponentsParent.ApplyBestFitFocusedBand;
@@ -619,6 +602,18 @@ begin
   UpdateView;
 end;
 
+procedure TViewComponentsParent.DoAfterOpenOrRefresh(Sender: TObject);
+begin
+  EndUpdate;
+  FIsSyncScrollbars := False;
+  DoAfterLoadData;
+end;
+
+procedure TViewComponentsParent.DoBeforeOpenOrRefresh(Sender: TObject);
+begin
+  BeginUpdate;
+end;
+
 procedure TViewComponentsParent.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
@@ -638,9 +633,21 @@ begin
     if FBaseComponentsGroup.QueryBaseComponents.Master <> nil then
     begin
       // Компоненты у нас загружаются первыми
-      TNotifyEventWrap.Create
-        (FBaseComponentsGroup.QueryBaseComponents.AfterLoad, AfterLoadData,
-        FEventList);
+      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
+        BeforeOpen, DoBeforeOpenOrRefresh, FEventList);
+
+      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
+        BeforeRefresh, DoBeforeOpenOrRefresh, FEventList);
+
+      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
+        AfterRefresh, DoAfterOpenOrRefresh, FEventList);
+
+      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
+        AfterOpen, DoAfterOpenOrRefresh, FEventList);
+
+//      TNotifyEventWrap.Create
+//        (FBaseComponentsGroup.QueryBaseComponents.AfterLoad, AfterLoadData,
+//        FEventList);
     end;
 
     // Пусть нам монитор сообщает об изменениях в БД
@@ -800,24 +807,18 @@ begin
     AView := MainView;
     ALeftPos := AView.Controller.LeftPos;
 
-    // cxGrid.BeginUpdate();
-    try
-
-      for i := 0 to AView.ViewData.RowCount - 1 do
+    for i := 0 to AView.ViewData.RowCount - 1 do
+    begin
+      AcxGridMasterDataRow := GetRow(0, i) as TcxGridMasterDataRow;
+      if AcxGridMasterDataRow.Expanded then
       begin
-        AcxGridMasterDataRow := GetRow(0, i) as TcxGridMasterDataRow;
-        if AcxGridMasterDataRow.Expanded then
-        begin
-          AcxGridDBBandedTableView := AcxGridMasterDataRow.ActiveDetailGridView
-            as TcxGridDBBandedTableView;
+        AcxGridDBBandedTableView := AcxGridMasterDataRow.ActiveDetailGridView as
+          TcxGridDBBandedTableView;
 
-          if (AcxGridDBBandedTableView.Controller <> nil) and
-            (AcxGridDBBandedTableView.Controller.LeftPos <> ALeftPos) then
-            AcxGridDBBandedTableView.Controller.LeftPos := ALeftPos;
-        end;
+        if (AcxGridDBBandedTableView.Controller <> nil) and
+          (AcxGridDBBandedTableView.Controller.LeftPos <> ALeftPos) then
+          AcxGridDBBandedTableView.Controller.LeftPos := ALeftPos;
       end;
-    finally
-      // cxGrid.EndUpdate;
     end;
   finally
     FIsSyncScrollbars := False;
