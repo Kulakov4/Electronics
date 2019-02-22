@@ -34,36 +34,35 @@ object frmMain: TfrmMain
   end
   object cxpcLeft: TcxPageControl
     Left = 0
-    Top = 52
+    Top = 384
     Width = 273
-    Height = 564
-    Align = alLeft
+    Height = 232
     TabOrder = 1
-    Properties.ActivePage = cxtsStorehouses
+    Properties.ActivePage = cxtsComponents
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcLeftChange
     OnPageChanging = cxpcLeftPageChanging
-    ExplicitLeft = 2
-    ClientRectBottom = 560
+    ClientRectBottom = 228
     ClientRectLeft = 4
     ClientRectRight = 269
     ClientRectTop = 27
     object cxtsComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
+      ExplicitHeight = 533
     end
     object cxtsStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
+      ExplicitHeight = 533
       object CxGridStorehouseList: TcxGrid
         Left = 0
         Top = 0
         Width = 265
-        Height = 533
+        Height = 201
         Align = alClient
         TabOrder = 0
-        ExplicitLeft = -2
-        ExplicitTop = -2
+        ExplicitHeight = 533
         object tvStorehouseList: TcxGridDBTableView
           PopupMenu = pmLeftStoreHouse
           Navigator.Buttons.CustomButtons = <>
@@ -93,35 +92,141 @@ object frmMain: TfrmMain
   end
   object cxpcRight: TcxPageControl
     Left = 281
-    Top = 52
+    Top = 392
     Width = 934
-    Height = 564
-    Align = alClient
-    TabOrder = 6
+    Height = 224
+    TabOrder = 5
     Properties.ActivePage = cxtsRComponents
     Properties.CustomButtons.Buttons = <>
-    ClientRectBottom = 560
+    ClientRectBottom = 220
     ClientRectLeft = 4
     ClientRectRight = 930
     ClientRectTop = 27
     object cxtsRComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
+      ExplicitHeight = 533
     end
     object cxtsRStorehouses: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
+      ExplicitHeight = 533
     end
   end
-  object cxspltrMain: TcxSplitter
-    Left = 273
-    Top = 52
-    Width = 8
-    Height = 564
-    HotZoneClassName = 'TcxSimpleStyle'
-    PositionAfterOpen = 200
-    AutoSnap = True
-    Control = cxpcLeft
+  object cxpcMain: TcxPageControl
+    Left = 8
+    Top = 64
+    Width = 1097
+    Height = 329
+    TabOrder = 7
+    Properties.ActivePage = cxtshComp
+    Properties.CustomButtons.Buttons = <>
+    ClientRectBottom = 325
+    ClientRectLeft = 4
+    ClientRectRight = 1093
+    ClientRectTop = 27
+    object cxtshComp: TcxTabSheet
+      Caption = 'cxtshComp'
+      ImageIndex = 0
+      object cxPageControl1: TcxPageControl
+        Left = 0
+        Top = 0
+        Width = 1089
+        Height = 298
+        Align = alClient
+        TabOrder = 0
+        Properties.ActivePage = cxtshCompTree
+        Properties.CustomButtons.Buttons = <>
+        ExplicitLeft = 216
+        ExplicitTop = 40
+        ExplicitWidth = 289
+        ExplicitHeight = 193
+        ClientRectBottom = 294
+        ClientRectLeft = 4
+        ClientRectRight = 1085
+        ClientRectTop = 27
+        object cxtshCompTree: TcxTabSheet
+          Caption = #1055#1086' '#1075#1088#1091#1087#1087#1072#1084
+          ImageIndex = 0
+          ExplicitLeft = 5
+          ExplicitTop = 28
+          object pnlCompGroupLeft: TPanel
+            Left = 0
+            Top = 0
+            Width = 253
+            Height = 267
+            Align = alLeft
+            BevelOuter = bvNone
+            TabOrder = 0
+          end
+          object cxspltrMain: TcxSplitter
+            Left = 253
+            Top = 0
+            Width = 8
+            Height = 267
+            HotZoneClassName = 'TcxSimpleStyle'
+            PositionAfterOpen = 200
+            AutoSnap = True
+            Control = pnlCompGroupLeft
+            ExplicitLeft = 16
+          end
+          object pnlCompGroupRight: TPanel
+            Left = 261
+            Top = 0
+            Width = 820
+            Height = 267
+            Align = alClient
+            TabOrder = 2
+            ExplicitLeft = 616
+            ExplicitTop = 88
+            ExplicitWidth = 185
+            ExplicitHeight = 41
+          end
+        end
+        object cxtshCompSearch: TcxTabSheet
+          Caption = #1055#1086#1080#1089#1082
+          ImageIndex = 1
+        end
+      end
+    end
+    object cxtshWareHouse: TcxTabSheet
+      Caption = 'cxtshWareHouse'
+      ImageIndex = 1
+      object cxpcWareHouse2: TcxPageControl
+        Left = 0
+        Top = 0
+        Width = 1089
+        Height = 298
+        Align = alClient
+        TabOrder = 0
+        Properties.ActivePage = cxtshBasket
+        Properties.CustomButtons.Buttons = <>
+        ExplicitLeft = 232
+        ExplicitTop = 16
+        ExplicitWidth = 289
+        ExplicitHeight = 193
+        ClientRectBottom = 294
+        ClientRectLeft = 4
+        ClientRectRight = 1085
+        ClientRectTop = 27
+        object cxtshWareHouse3: TcxTabSheet
+          Caption = #1057#1082#1083#1072#1076#1099
+          ImageIndex = 0
+        end
+        object cxtshBasket: TcxTabSheet
+          Caption = #1050#1086#1088#1079#1080#1085#1072
+          ImageIndex = 1
+        end
+        object cxtshBill: TcxTabSheet
+          Caption = #1057#1095#1077#1090#1072
+          ImageIndex = 2
+        end
+        object cxtshSearch: TcxTabSheet
+          Caption = #1055#1086#1080#1089#1082
+          ImageIndex = 3
+        end
+      end
+    end
   end
   object bmMain: TdxBarManager
     Font.Charset = RUSSIAN_CHARSET
@@ -185,6 +290,10 @@ object frmMain: TfrmMain
       FloatClientHeight = 48
       Images = DMRepository.cxImageList
       ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbbtnComponents'
+        end
         item
           Visible = True
           ItemName = 'dxBarButton4'
@@ -303,6 +412,11 @@ object frmMain: TfrmMain
       Action = actShowExtraCharge
       Category = 0
     end
+    object dxbbtnComponents: TdxBarButton
+      Action = actComponentsTab
+      Category = 0
+      ButtonStyle = bsChecked
+    end
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -369,6 +483,10 @@ object frmMain: TfrmMain
     object actShowExtraCharge: TAction
       Caption = #1058#1072#1073#1083#1080#1094#1072' '#1086#1087#1090#1086#1074#1086#1081' '#1085#1072#1094#1077#1085#1082#1080
       OnExecute = actShowExtraChargeExecute
+    end
+    object actComponentsTab: TAction
+      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
+      OnExecute = actComponentsTabExecute
     end
   end
   object pmLeftStoreHouse: TPopupMenu

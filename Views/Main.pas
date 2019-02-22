@@ -74,7 +74,6 @@ type
     actLoadBodyTypes: TAction;
     dxBarButton10: TdxBarButton;
     cxpcRight: TcxPageControl;
-    cxspltrMain: TcxSplitter;
     cxtsRComponents: TcxTabSheet;
     cxtsRStorehouses: TcxTabSheet;
     CxGridStorehouseList: TcxGrid;
@@ -91,7 +90,24 @@ type
     actShowExtraCharge: TAction;
     dxBarButton1: TdxBarButton;
     ApplicationEvents: TApplicationEvents;
+    dxbbtnComponents: TdxBarButton;
+    actComponentsTab: TAction;
+    cxpcMain: TcxPageControl;
+    cxtshComp: TcxTabSheet;
+    cxtshWareHouse: TcxTabSheet;
+    cxPageControl1: TcxPageControl;
+    cxtshCompTree: TcxTabSheet;
+    cxtshCompSearch: TcxTabSheet;
+    cxpcWareHouse2: TcxPageControl;
+    cxtshWareHouse3: TcxTabSheet;
+    cxtshBasket: TcxTabSheet;
+    cxtshBill: TcxTabSheet;
+    cxtshSearch: TcxTabSheet;
+    pnlCompGroupLeft: TPanel;
+    cxspltrMain: TcxSplitter;
+    pnlCompGroupRight: TPanel;
     procedure actAddStorehouseExecute(Sender: TObject);
+    procedure actComponentsTabExecute(Sender: TObject);
     procedure actDeleteStorehouseExecute(Sender: TObject);
     procedure actDeleteStorehouseUpdate(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
@@ -197,6 +213,11 @@ begin
     TDM.Create.qStoreHouseList.W.LocateOrAppend(Value);
     clStorehouseListTitle.ApplyBestFit();
   end;
+end;
+
+procedure TfrmMain.actComponentsTabExecute(Sender: TObject);
+begin
+  beep;
 end;
 
 procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
