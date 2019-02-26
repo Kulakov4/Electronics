@@ -32,198 +32,212 @@ object frmMain: TfrmMain
     Font.Name = 'Tahoma'
     Font.Style = []
   end
-  object cxpcLeft: TcxPageControl
-    Left = 0
-    Top = 384
-    Width = 273
-    Height = 232
-    TabOrder = 1
-    Properties.ActivePage = cxtsComponents
-    Properties.CustomButtons.Buttons = <>
-    OnChange = cxpcLeftChange
-    OnPageChanging = cxpcLeftPageChanging
-    ClientRectBottom = 228
-    ClientRectLeft = 4
-    ClientRectRight = 269
-    ClientRectTop = 27
-    object cxtsComponents: TcxTabSheet
-      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
-      ImageIndex = 0
-      ExplicitHeight = 533
-    end
-    object cxtsStorehouses: TcxTabSheet
-      Caption = #1057#1082#1083#1072#1076#1099
-      ImageIndex = 1
-      ExplicitHeight = 533
-      object CxGridStorehouseList: TcxGrid
-        Left = 0
-        Top = 0
-        Width = 265
-        Height = 201
-        Align = alClient
-        TabOrder = 0
-        ExplicitHeight = 533
-        object tvStorehouseList: TcxGridDBTableView
-          PopupMenu = pmLeftStoreHouse
-          Navigator.Buttons.CustomButtons = <>
-          DataController.KeyFieldNames = 'Id'
-          DataController.Summary.DefaultGroupSummaryItems = <>
-          DataController.Summary.FooterSummaryItems = <>
-          DataController.Summary.SummaryGroups = <>
-          OptionsCustomize.ColumnFiltering = False
-          OptionsCustomize.ColumnGrouping = False
-          OptionsSelection.CellSelect = False
-          OptionsSelection.HideFocusRectOnExit = False
-          OptionsView.CellAutoHeight = True
-          OptionsView.ColumnAutoWidth = True
-          OptionsView.GroupByBox = False
-          object clStorehouseListTitle: TcxGridDBColumn
-            Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-            DataBinding.FieldName = 'Title'
-            PropertiesClassName = 'TcxLabelProperties'
-            Width = 250
-          end
-        end
-        object glStorehouseList: TcxGridLevel
-          GridView = tvStorehouseList
-        end
-      end
-    end
-  end
-  object cxpcRight: TcxPageControl
-    Left = 281
-    Top = 392
-    Width = 934
-    Height = 224
-    TabOrder = 5
-    Properties.ActivePage = cxtsRComponents
-    Properties.CustomButtons.Buttons = <>
-    ClientRectBottom = 220
-    ClientRectLeft = 4
-    ClientRectRight = 930
-    ClientRectTop = 27
-    object cxtsRComponents: TcxTabSheet
-      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
-      ImageIndex = 0
-      ExplicitHeight = 533
-    end
-    object cxtsRStorehouses: TcxTabSheet
-      Caption = #1057#1082#1083#1072#1076#1099
-      ImageIndex = 1
-      ExplicitHeight = 533
-    end
-  end
   object cxpcMain: TcxPageControl
-    Left = 8
-    Top = 64
-    Width = 1097
-    Height = 329
-    TabOrder = 7
+    Left = 0
+    Top = 52
+    Width = 1215
+    Height = 564
+    Align = alClient
+    TabOrder = 5
     Properties.ActivePage = cxtshComp
     Properties.CustomButtons.Buttons = <>
-    ClientRectBottom = 325
+    OnChange = cxpcMainChange
+    OnPageChanging = cxpcMainPageChanging
+    ExplicitLeft = 8
+    ExplicitTop = 64
+    ExplicitWidth = 1097
+    ExplicitHeight = 329
+    ClientRectBottom = 560
     ClientRectLeft = 4
-    ClientRectRight = 1093
+    ClientRectRight = 1211
     ClientRectTop = 27
     object cxtshComp: TcxTabSheet
-      Caption = 'cxtshComp'
+      Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      object cxPageControl1: TcxPageControl
+      ExplicitWidth = 1089
+      ExplicitHeight = 298
+      object cxpcComp2: TcxPageControl
         Left = 0
         Top = 0
-        Width = 1089
-        Height = 298
+        Width = 1207
+        Height = 533
         Align = alClient
         TabOrder = 0
-        Properties.ActivePage = cxtshCompTree
+        Properties.ActivePage = cxtshCompGroup
         Properties.CustomButtons.Buttons = <>
-        ExplicitLeft = 216
-        ExplicitTop = 40
-        ExplicitWidth = 289
-        ExplicitHeight = 193
-        ClientRectBottom = 294
+        OnPageChanging = cxpcComp2PageChanging
+        ExplicitWidth = 1089
+        ExplicitHeight = 298
+        ClientRectBottom = 529
         ClientRectLeft = 4
-        ClientRectRight = 1085
+        ClientRectRight = 1203
         ClientRectTop = 27
-        object cxtshCompTree: TcxTabSheet
+        object cxtshCompGroup: TcxTabSheet
           Caption = #1055#1086' '#1075#1088#1091#1087#1087#1072#1084
           ImageIndex = 0
-          ExplicitLeft = 5
-          ExplicitTop = 28
+          ExplicitWidth = 1081
+          ExplicitHeight = 267
           object pnlCompGroupLeft: TPanel
             Left = 0
             Top = 0
             Width = 253
-            Height = 267
+            Height = 502
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
+            ExplicitHeight = 267
           end
           object cxspltrMain: TcxSplitter
             Left = 253
             Top = 0
             Width = 8
-            Height = 267
+            Height = 502
             HotZoneClassName = 'TcxSimpleStyle'
             PositionAfterOpen = 200
             AutoSnap = True
             Control = pnlCompGroupLeft
-            ExplicitLeft = 16
+            ExplicitHeight = 267
           end
           object pnlCompGroupRight: TPanel
             Left = 261
             Top = 0
-            Width = 820
-            Height = 267
+            Width = 938
+            Height = 502
             Align = alClient
             TabOrder = 2
-            ExplicitLeft = 616
-            ExplicitTop = 88
-            ExplicitWidth = 185
-            ExplicitHeight = 41
+            ExplicitWidth = 820
+            ExplicitHeight = 267
+            object cxpcCompGroupRight: TcxPageControl
+              Left = 1
+              Top = 1
+              Width = 936
+              Height = 500
+              Align = alClient
+              TabOrder = 0
+              Properties.ActivePage = cxtsCategoryComponents
+              Properties.CustomButtons.Buttons = <>
+              OnPageChanging = cxpcCompGroupRightPageChanging
+              ExplicitLeft = -2
+              ExplicitTop = 3
+              ExplicitWidth = 818
+              ExplicitHeight = 265
+              ClientRectBottom = 496
+              ClientRectLeft = 4
+              ClientRectRight = 932
+              ClientRectTop = 27
+              object cxtsCategory: TcxTabSheet
+                Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
+                ImageIndex = 0
+                ExplicitWidth = 810
+                ExplicitHeight = 234
+              end
+              object cxtsCategoryComponents: TcxTabSheet
+                Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
+                ImageIndex = 1
+                ExplicitWidth = 810
+                ExplicitHeight = 234
+              end
+              object cxtsCategoryParameters: TcxTabSheet
+                Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
+                ImageIndex = 2
+                ExplicitWidth = 810
+                ExplicitHeight = 234
+              end
+              object cxtsParametricTable: TcxTabSheet
+                Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
+                ImageIndex = 3
+                ExplicitWidth = 810
+                ExplicitHeight = 234
+              end
+            end
           end
         end
         object cxtshCompSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 1
+          ExplicitWidth = 1081
+          ExplicitHeight = 267
         end
       end
     end
     object cxtshWareHouse: TcxTabSheet
-      Caption = 'cxtshWareHouse'
+      Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
+      ExplicitWidth = 1089
+      ExplicitHeight = 298
       object cxpcWareHouse2: TcxPageControl
         Left = 0
         Top = 0
-        Width = 1089
-        Height = 298
+        Width = 1207
+        Height = 533
         Align = alClient
         TabOrder = 0
-        Properties.ActivePage = cxtshBasket
+        Properties.ActivePage = cxtshSearch
         Properties.CustomButtons.Buttons = <>
-        ExplicitLeft = 232
-        ExplicitTop = 16
-        ExplicitWidth = 289
-        ExplicitHeight = 193
-        ClientRectBottom = 294
+        OnPageChanging = cxpcWareHouse2PageChanging
+        ExplicitWidth = 1089
+        ExplicitHeight = 298
+        ClientRectBottom = 529
         ClientRectLeft = 4
-        ClientRectRight = 1085
+        ClientRectRight = 1203
         ClientRectTop = 27
-        object cxtshWareHouse3: TcxTabSheet
+        object cxtshWareHouse2: TcxTabSheet
           Caption = #1057#1082#1083#1072#1076#1099
           ImageIndex = 0
+          ExplicitWidth = 1081
+          ExplicitHeight = 267
+          object pnlStoreHouseLeft: TPanel
+            Left = 0
+            Top = 0
+            Width = 253
+            Height = 502
+            Align = alLeft
+            BevelOuter = bvNone
+            TabOrder = 0
+            ExplicitHeight = 267
+          end
+          object cxSplitterStoreHouse: TcxSplitter
+            Left = 253
+            Top = 0
+            Width = 8
+            Height = 502
+            HotZoneClassName = 'TcxSimpleStyle'
+            Control = pnlStoreHouseLeft
+            ExplicitLeft = 376
+            ExplicitTop = 80
+            ExplicitHeight = 100
+          end
+          object pnlStoreHouseRight: TPanel
+            Left = 261
+            Top = 0
+            Width = 938
+            Height = 502
+            Align = alClient
+            BevelOuter = bvNone
+            TabOrder = 2
+            ExplicitLeft = 496
+            ExplicitTop = 88
+            ExplicitWidth = 185
+            ExplicitHeight = 41
+          end
         end
         object cxtshBasket: TcxTabSheet
           Caption = #1050#1086#1088#1079#1080#1085#1072
           ImageIndex = 1
+          ExplicitWidth = 1081
+          ExplicitHeight = 267
         end
         object cxtshBill: TcxTabSheet
           Caption = #1057#1095#1077#1090#1072
           ImageIndex = 2
+          ExplicitWidth = 1081
+          ExplicitHeight = 267
         end
         object cxtshSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 3
+          ExplicitWidth = 1081
+          ExplicitHeight = 267
         end
       end
     end
@@ -463,23 +477,6 @@ object frmMain: TfrmMain
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 25
     end
-    object actAddStorehouse: TAction
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1082#1083#1072#1076
-      ImageIndex = 1
-      OnExecute = actAddStorehouseExecute
-    end
-    object actDeleteStorehouse: TAction
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1082#1083#1072#1076
-      ImageIndex = 2
-      OnExecute = actDeleteStorehouseExecute
-      OnUpdate = actDeleteStorehouseUpdate
-    end
-    object actRenameStorehouse: TAction
-      Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1089#1082#1083#1072#1076
-      ImageIndex = 11
-      OnExecute = actRenameStorehouseExecute
-      OnUpdate = actRenameStorehouseUpdate
-    end
     object actShowExtraCharge: TAction
       Caption = #1058#1072#1073#1083#1080#1094#1072' '#1086#1087#1090#1086#1074#1086#1081' '#1085#1072#1094#1077#1085#1082#1080
       OnExecute = actShowExtraChargeExecute
@@ -494,13 +491,16 @@ object frmMain: TfrmMain
     Left = 44
     Top = 239
     object N1: TMenuItem
-      Action = actAddStorehouse
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1082#1083#1072#1076
+      ImageIndex = 1
     end
     object N2: TMenuItem
-      Action = actDeleteStorehouse
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1082#1083#1072#1076
+      ImageIndex = 2
     end
     object N3: TMenuItem
-      Action = actRenameStorehouse
+      Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1089#1082#1083#1072#1076
+      ImageIndex = 11
     end
   end
   object ApplicationEvents: TApplicationEvents

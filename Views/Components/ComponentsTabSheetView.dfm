@@ -13,7 +13,7 @@ object ComponentsFrame: TComponentsFrame
     Height = 480
     Align = alClient
     TabOrder = 0
-    Properties.ActivePage = cxtsCategory
+    Properties.ActivePage = cxtsParametricTable
     Properties.CustomButtons.Buttons = <>
     OnPageChanging = cxpcComponentsPageChanging
     ClientRectBottom = 476

@@ -24,37 +24,21 @@ object ProductsFrame: TProductsFrame
       Caption = #1048#1085#1092#1086#1088#1084#1072#1094#1080#1103' '#1086' '#1089#1082#1083#1072#1076#1077
       ImageIndex = 0
       OnShow = tsStorehouseInfoShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object tsStorehouseProducts: TcxTabSheet
       Caption = #1058#1086#1074#1072#1088#1099
       ImageIndex = 1
       OnShow = tsStorehouseProductsShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object tsStorehouseSearch: TcxTabSheet
       Caption = #1055#1086#1080#1089#1082
       ImageIndex = 2
       OnShow = tsStorehouseSearchShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
     object tsBasket: TcxTabSheet
       Caption = #1050#1086#1088#1079#1080#1085#1072
       ImageIndex = 3
       OnShow = tsBasketShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object dxBarManager: TdxBarManager

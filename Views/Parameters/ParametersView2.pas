@@ -506,7 +506,7 @@ function TViewParameters2.CheckAndSaveChanges: Integer;
 begin
   UpdateView;
   Result := 0;
-  if ParametersGrp = nil then
+  if FParametersGrp = nil then
     Exit;
 
   if ParametersGrp.HaveAnyChanges then

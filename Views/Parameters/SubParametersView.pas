@@ -209,7 +209,7 @@ end;
 function TViewSubParameters.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if QuerySubParameters = nil then
+  if FQuerySubParameters = nil then
     Exit;
 
   UpdateView;

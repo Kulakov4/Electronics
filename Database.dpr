@@ -237,7 +237,8 @@ uses
   DSWrap in 'Queryes\DSWrap.pas',
   DescriptionsQueryWrap in 'Queryes\DescriptionsQueryWrap.pas',
   AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas',
-  ProductsBasketView in 'Views\Products\ProductsBasketView.pas' {ViewProductsBasket: TFrame};
+  ProductsBasketView in 'Views\Products\ProductsBasketView.pas' {ViewProductsBasket: TFrame},
+  StoreHouseListView in 'Views\StoreHouse\StoreHouseListView.pas' {ViewStoreHouse: TFrame};
 
 {$R *.res}
 

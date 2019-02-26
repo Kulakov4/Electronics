@@ -346,7 +346,7 @@ end;
 function TViewComponentsParent.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if BaseComponentsGroup = nil then
+  if FBaseComponentsGroup = nil then
     Exit;
 
   UpdateView;

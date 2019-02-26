@@ -78,7 +78,7 @@ begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FAbbreviation := TFieldWrap.Create(Self, 'Abbreviation', 'Склад');
-  FTitle := TFieldWrap.Create(Self, 'Title');
+  FTitle := TFieldWrap.Create(Self, 'Title', 'Наименование');
 end;
 
 procedure TStoreHouseListW.AddNewValue(const AValue: string);

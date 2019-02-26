@@ -332,7 +332,7 @@ function TViewCategoryParameters.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
 
-  if CatParamsGroup = nil then
+  if FCatParamsGroup = nil then
     Exit;
 
   // Если есть несохранённые изменения

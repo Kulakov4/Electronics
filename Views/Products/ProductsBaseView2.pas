@@ -193,7 +193,6 @@ type
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterOpenOrRefresh(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
-    procedure DoAfterScroll(Sender: TObject);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     function GetIDExtraChargeType: Integer;
@@ -683,7 +682,7 @@ begin
   if UpdateCount = 0 then
   begin
     FCountEvents.Clear;
-//    W.DataSet.DisableControls;
+    // W.DataSet.DisableControls;
   end;
 
   inherited;
@@ -709,7 +708,7 @@ end;
 function TViewProductsBase2.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if qProductsBase = nil then
+  if FqProductsBase = nil then
     Exit;
 
   UpdateView;
@@ -746,14 +745,13 @@ end;
 
 procedure TViewProductsBase2.CreateCountEvents;
 begin
-  {
-    // Подписываемся на события чтобы отслеживать кол-во
-    TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, FCountEvents);
+  // Подписываемся на события чтобы отслеживать кол-во
+  TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, FCountEvents);
 
-    TNotifyEventWrap.Create(W.AfterPostM, DoAfterPost, FCountEvents);
+  TNotifyEventWrap.Create(W.AfterPostM, DoAfterPost, FCountEvents);
 
-    TNotifyEventWrap.Create(W.AfterDelete, DoAfterDelete, FCountEvents);
-  }
+  TNotifyEventWrap.Create(W.AfterDelete, DoAfterDelete, FCountEvents);
+
   UpdateProductCount;
 end;
 
@@ -1011,10 +1009,17 @@ end;
 
 procedure TViewProductsBase2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
+  Application.ProcessMessages;
   // Привязываем дерево к данным !!!
   W.DataSource.Enabled := True;
-  cxDBTreeList.EndUpdate;
-  cxDBTreeList.FullCollapse;
+
+
+  // W.DataSet.EnableControls;
+
+  // cxDBTreeList.DataController.DataSource := W.DataSource;
+
+  // cxDBTreeList.EndUpdate;
+  // cxDBTreeList.FullCollapse;
 
   UpdateView;
 end;
@@ -1031,17 +1036,13 @@ begin
   MyApplyBestFit;
 end;
 
-procedure TViewProductsBase2.DoAfterScroll(Sender: TObject);
-var
-  rn: Integer;
-begin
-  rn := W.DataSet.RecNo;
-end;
-
 procedure TViewProductsBase2.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
-  cxDBTreeList.BeginUpdate;
-  W.DataSource.Enabled := False;  // Полностью отвязываем дерево от данных !!!
+  // cxDBTreeList.DataController.DataSource := nil;
+  // cxDBTreeList.BeginUpdate;
+  // W.DataSet.DisableControls;
+  W.DataSource.Enabled := False; // Полностью отвязываем дерево от данных !!!
+
 end;
 
 procedure TViewProductsBase2.DoOnCourceChange(Sender: TObject);
@@ -1130,7 +1131,7 @@ begin
   if UpdateCount = 0 then
   begin
     CreateCountEvents;
-//    W.DataSet.EnableControls;
+    // W.DataSet.EnableControls;
   end;
 end;
 
@@ -1444,19 +1445,12 @@ begin
 
     InitializeColumns;
 
-    TNotifyEventWrap.Create(W.AfterScroll, DoAfterScroll, FEventList);
-
     TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpenOrRefresh, FEventList);
     TNotifyEventWrap.Create(W.BeforeRefresh, DoBeforeOpenOrRefresh, FEventList);
 
     TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpenOrRefresh, FEventList);
     TNotifyEventWrap.Create(W.AfterRefresh, DoAfterOpenOrRefresh, FEventList);
 
-
-
-//    TNotifyEventWrap.Create(FqProductsBase.BeforeLoad, DoBeforeLoad,
-//      FEventList);
-//    TNotifyEventWrap.Create(FqProductsBase.AfterLoad, DoAfterLoad, FEventList);
 
     TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
       DoOnDollarCourceChange, FEventList);

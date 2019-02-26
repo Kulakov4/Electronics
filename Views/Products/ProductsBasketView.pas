@@ -36,7 +36,6 @@ type
     procedure actBasketClearExecute(Sender: TObject);
     procedure actBasketDeleteExecute(Sender: TObject);
   private
-    FProductW: TProductW;
     function GetqProducts: TQueryProducts;
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }

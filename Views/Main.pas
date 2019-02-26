@@ -39,7 +39,9 @@ uses
   StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
   Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils,
   BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP,
+  ChildCategoriesView, StoreHouseListView, ProductsBasketView,
+  ProductsSearchView2, ProductsView2;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -57,9 +59,6 @@ type
     sbMain: TdxStatusBar;
     dxbrMainBar2: TdxBar;
     dxbrbtnSettings: TdxBarButton;
-    cxpcLeft: TcxPageControl;
-    cxtsComponents: TcxTabSheet;
-    cxtsStorehouses: TcxTabSheet;
     ActionList: TActionList;
     actShowProducers: TAction;
     actShowDescriptions: TAction;
@@ -73,17 +72,7 @@ type
     actExit: TAction;
     actLoadBodyTypes: TAction;
     dxBarButton10: TdxBarButton;
-    cxpcRight: TcxPageControl;
-    cxtsRComponents: TcxTabSheet;
-    cxtsRStorehouses: TcxTabSheet;
-    CxGridStorehouseList: TcxGrid;
-    tvStorehouseList: TcxGridDBTableView;
-    clStorehouseListTitle: TcxGridDBColumn;
-    glStorehouseList: TcxGridLevel;
     pmLeftStoreHouse: TPopupMenu;
-    actAddStorehouse: TAction;
-    actDeleteStorehouse: TAction;
-    actRenameStorehouse: TAction;
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
@@ -95,24 +84,27 @@ type
     cxpcMain: TcxPageControl;
     cxtshComp: TcxTabSheet;
     cxtshWareHouse: TcxTabSheet;
-    cxPageControl1: TcxPageControl;
-    cxtshCompTree: TcxTabSheet;
+    cxpcComp2: TcxPageControl;
+    cxtshCompGroup: TcxTabSheet;
     cxtshCompSearch: TcxTabSheet;
     cxpcWareHouse2: TcxPageControl;
-    cxtshWareHouse3: TcxTabSheet;
+    cxtshWareHouse2: TcxTabSheet;
     cxtshBasket: TcxTabSheet;
     cxtshBill: TcxTabSheet;
     cxtshSearch: TcxTabSheet;
     pnlCompGroupLeft: TPanel;
     cxspltrMain: TcxSplitter;
     pnlCompGroupRight: TPanel;
-    procedure actAddStorehouseExecute(Sender: TObject);
+    cxpcCompGroupRight: TcxPageControl;
+    cxtsCategory: TcxTabSheet;
+    cxtsCategoryComponents: TcxTabSheet;
+    cxtsCategoryParameters: TcxTabSheet;
+    cxtsParametricTable: TcxTabSheet;
+    pnlStoreHouseLeft: TPanel;
+    cxSplitterStoreHouse: TcxSplitter;
+    pnlStoreHouseRight: TPanel;
     procedure actComponentsTabExecute(Sender: TObject);
-    procedure actDeleteStorehouseExecute(Sender: TObject);
-    procedure actDeleteStorehouseUpdate(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
-    procedure actRenameStorehouseExecute(Sender: TObject);
-    procedure actRenameStorehouseUpdate(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
     procedure actSelectDataBasePathExecute(Sender: TObject);
     procedure actShowBodyTypes2Execute(Sender: TObject);
@@ -129,8 +121,14 @@ type
     procedure dbtlCategoriesDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
     procedure btnFocusRootClick(Sender: TObject);
-    procedure cxpcLeftChange(Sender: TObject);
-    procedure cxpcLeftPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+    procedure cxpcCompGroupRightPageChanging(Sender: TObject;
+      NewPage: TcxTabSheet; var AllowChange: Boolean);
+    procedure cxpcComp2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
+    procedure cxpcMainChange(Sender: TObject);
+    procedure cxpcMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+      var AllowChange: Boolean);
+    procedure cxpcWareHouse2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -140,11 +138,21 @@ type
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
     FCategoryPath: string;
-    FComponentsFrame: TComponentsFrame;
+    // FComponentsFrame: TComponentsFrame;
+    FcxpcCompGroupRightActivePage: TcxTabSheet;
     FEventList: TObjectList;
     FHintWindowEx: THintWindowEx;
-    FProductsFrame: TProductsFrame;
+    FLoadComplete: Boolean;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
+    FViewCategoryParameters: TViewCategoryParameters;
+    FViewChildCategories: TViewChildCategories;
+    FViewComponents: TViewComponents;
+    FViewComponentsSearch: TViewComponentsSearch;
+    FViewParametricTable: TViewParametricTable;
+    FViewProducts: TViewProducts2;
+    FViewProductsBasket: TViewProductsBasket;
+    FViewProductsSearch: TViewProductsSearch2;
+    FViewStoreHouse: TViewStoreHouse;
     FViewTreeList: TViewTreeList;
     procedure DoAfterTreeListSmartRefresh(Sender: TObject);
     procedure DoBeforeParametricTableActivate(Sender: TObject);
@@ -161,13 +169,24 @@ type
     procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnOpenCategory(Sender: TObject);
     procedure DoOnProductLocate(Sender: TObject);
-    property ComponentsFrame: TComponentsFrame read FComponentsFrame;
-    property ProductsFrame: TProductsFrame read FProductsFrame;
     property QueryMonitor: TQueryMonitor read GetQueryMonitor;
     property ViewTreeList: TViewTreeList read FViewTreeList;
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
+    property ViewCategoryParameters: TViewCategoryParameters
+      read FViewCategoryParameters;
+    property ViewChildCategories: TViewChildCategories
+      read FViewChildCategories;
+    property ViewComponents: TViewComponents read FViewComponents;
+    property ViewComponentsSearch: TViewComponentsSearch
+      read FViewComponentsSearch;
+    property ViewParametricTable: TViewParametricTable
+      read FViewParametricTable;
+    property ViewProducts: TViewProducts2 read FViewProducts;
+    property ViewProductsBasket: TViewProductsBasket read FViewProductsBasket;
+    property ViewProductsSearch: TViewProductsSearch2 read FViewProductsSearch;
+    property ViewStoreHouse: TViewStoreHouse read FViewStoreHouse;
     { Public declarations }
   end;
 
@@ -201,41 +220,9 @@ begin
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
 end;
 
-procedure TfrmMain.actAddStorehouseExecute(Sender: TObject);
-var
-  Value: string;
-begin
-  TDM.Create.qStoreHouseList.W.TryPost;
-
-  Value := InputBox(sDatabase, sPleaseWrite, '');
-  if Value <> '' then
-  begin
-    TDM.Create.qStoreHouseList.W.LocateOrAppend(Value);
-    clStorehouseListTitle.ApplyBestFit();
-  end;
-end;
-
 procedure TfrmMain.actComponentsTabExecute(Sender: TObject);
 begin
   beep;
-end;
-
-procedure TfrmMain.actDeleteStorehouseExecute(Sender: TObject);
-begin
-  TDM.Create.qStoreHouseList.W.TryPost;
-  if TDM.Create.qStoreHouseList.FDQuery.RecordCount > 0 then
-  begin
-    if TDialog.Create.DeleteRecordsDialog(sDoYouWantToDelete) then
-    begin
-      TDM.Create.qStoreHouseList.FDQuery.Delete;
-    end;
-  end;
-end;
-
-procedure TfrmMain.actDeleteStorehouseUpdate(Sender: TObject);
-begin
-  actDeleteStorehouse.Enabled := tvStorehouseList.DataController.
-    RecordCount > 0;
 end;
 
 procedure TfrmMain.actExitExecute(Sender: TObject);
@@ -243,35 +230,9 @@ begin
   Close
 end;
 
-procedure TfrmMain.actRenameStorehouseExecute(Sender: TObject);
-var
-  Value: string;
-begin
-  if tvStorehouseList.Controller.SelectedRecordCount > 0 then
-  begin
-    TDM.Create.qStoreHouseList.W.TryPost;
-    Value := InputBox(sDatabase, sPleaseWrite,
-      TDM.Create.qStoreHouseList.W.Title.F.AsString);
-    if (Value <> '') then
-    begin
-      TDM.Create.qStoreHouseList.W.TryEdit;
-      TDM.Create.qStoreHouseList.W.Title.F.AsString := Value;
-      TDM.Create.qStoreHouseList.W.TryPost;
-      clStorehouseListTitle.ApplyBestFit();
-    end;
-  end;
-end;
-
-procedure TfrmMain.actRenameStorehouseUpdate(Sender: TObject);
-begin
-  actRenameStorehouse.Enabled := tvStorehouseList.DataController.
-    RecordCount > 0;
-end;
-
 procedure TfrmMain.actSaveAllExecute(Sender: TObject);
 begin
   QueryMonitor.ApplyUpdates;
-  // DM2.SaveAll;
 end;
 
 procedure TfrmMain.actSelectDataBasePathExecute(Sender: TObject);
@@ -448,64 +409,302 @@ begin
   Result := (databasePath <> '') and (TDirectory.Exists(databasePath));
 end;
 
-procedure TfrmMain.cxpcLeftChange(Sender: TObject);
+procedure TfrmMain.cxpcCompGroupRightPageChanging(Sender: TObject;
+  NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
-  if ProductsFrame <> nil then
-  begin
-    ProductsFrame.ViewProducts.CheckAndSaveChanges;
-    ProductsFrame.ViewProductsSearch.CheckAndSaveChanges;
-  end;
-
-  if ComponentsFrame <> nil then
-    ComponentsFrame.ViewComponents.CheckAndSaveChanges;
-end;
-
-procedure TfrmMain.cxpcLeftPageChanging(Sender: TObject; NewPage: TcxTabSheet;
-  var AllowChange: Boolean);
-begin
-  if ViewTreeList = nil then
+  if not FLoadComplete then
     Exit;
 
-  // Если произошёл переход на вкладку "Компоненты"
-  if NewPage = cxtsComponents then
+  // Если переходим на вкладку категория
+  if NewPage = cxtsCategory then
+  begin
+    TDM.Create.qChildCategories.AddClient;
+
+    if FViewChildCategories = nil then
+    begin
+      FViewChildCategories := TViewChildCategories.Create(Self);
+      FViewChildCategories.Place(cxtsCategory);
+
+      // Привязываем подкатегории к данным (функциональная группа)
+      ViewChildCategories.qChildCategories := TDM.Create.qChildCategories;
+    end;
+    ViewChildCategories.MainView.ApplyBestFit;
+  end;
+
+  // Если уходим со вкладки Категория
+  if cxpcCompGroupRight.ActivePage = cxtsCategory then
+  begin
+    TDM.Create.qChildCategories.RemoveClient;
+  end;
+
+  // Если переходим на вкладку Содержимое
+  if NewPage = cxtsCategoryComponents then
+  begin
+    TDM.Create.ComponentsGroup.AddClient;
+
+    if FViewComponents = nil then
+    begin
+      FViewComponents := TViewComponents.Create(Self);
+      FViewComponents.Place(cxtsCategoryComponents);
+
+      // Привязываем представления к данным
+      ViewComponents.ComponentsGroup := TDM.Create.ComponentsGroup;
+
+      // Подписываемся на событие о отображении параметрической таблицы
+      TNotifyEventWrap.Create(ViewComponents.OnShowParametricTableEvent,
+        DoOnShowParametricTable, FEventList);
+    end;
+
+    ViewComponents.PostMyApplyBestFitEvent;
+  end;
+
+  // Если уходим со вкладки Содержимое
+  if cxpcCompGroupRight.ActivePage = cxtsCategoryComponents then
+  begin
+    TDM.Create.ComponentsGroup.RemoveClient;
+  end;
+
+  // Если переходим на вкладку Параметры
+  if NewPage = cxtsCategoryParameters then
+  begin
+    TDM.Create.CategoryParametersGroup.AddClient;
+
+    if FViewCategoryParameters = nil then
+    begin
+      FViewCategoryParameters := TViewCategoryParameters.Create(Self);
+      FViewCategoryParameters.Place(cxtsCategoryParameters);
+
+      // Параметры в виде списка
+      ViewCategoryParameters.CatParamsGroup :=
+        TDM.Create.CategoryParametersGroup;
+    end;
+    ViewCategoryParameters.MyApplyBestFit;
+  end;
+
+  // Если уходим со вкладки Параметры
+  if cxpcCompGroupRight.ActivePage = cxtsCategoryParameters then
+  begin
+    TDM.Create.CategoryParametersGroup.RemoveClient;
+  end;
+
+  // если переходим на вкладку "Параметрическая таблица"
+  if NewPage = cxtsParametricTable then
+  begin
+    // сообщаем о том, что этот запрос понадобится и его надо разблокировать
+    TDM.Create.ComponentsExGroup.AddClient;
+
+    if FViewParametricTable = nil then
+    begin
+      FViewParametricTable := TViewParametricTable.Create(Self);
+      FViewParametricTable.Place(cxtsParametricTable);
+      ViewParametricTable.ComponentsExGroup := TDM.Create.ComponentsExGroup;
+
+      // Подписываемся чтобы искать компонент на складах
+      TNotifyEventWrap.Create(TDM.Create.ComponentsExGroup.qComponentsEx.
+        OnLocate, DoOnComponentLocate, FEventList);
+    end
+    else
+      ViewParametricTable.Unlock;
+  end;
+
+  // если уходим с вкладки "Параметрическая таблица"
+  if (cxpcCompGroupRight.ActivePage = cxtsParametricTable) and
+    (NewPage <> cxtsParametricTable) then
+  begin
+    TDM.Create.ComponentsExGroup.RemoveClient;
+
+    if FViewParametricTable <> nil then
+      ViewParametricTable.Lock;
+  end;
+
+end;
+
+procedure TfrmMain.cxpcComp2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
+  var AllowChange: Boolean);
+begin
+  if not FLoadComplete then
+    Exit;
+
+  // Если переходим на вкладку "По группам"
+  if NewPage = cxtshCompGroup then
   begin
     TDM.Create.qTreeList.AddClient;
 
-    if ViewTreeList.qTreeList = nil then
+    if FViewTreeList = nil then
+    begin
+      // Создаём фрейм с деревом категорий
+      FViewTreeList := TViewTreeList.Create(Self);
+      ViewTreeList.Parent := pnlCompGroupLeft;
+      ViewTreeList.Align := alClient;
       ViewTreeList.qTreeList := TDM.Create.qTreeList;
 
-    // Справа активизируем вкладку "Компоненты"
-    cxpcRight.ActivePage := cxtsRComponents;
-  end;
+      // Устанавливаем обработчик события
+      ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
 
-  // Если произошёл переход на вкладку "Склады"
-  if NewPage = cxtsStorehouses then
-  begin
-    TDM.Create.qStoreHouseList.AddClient;
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
+        DoAfterTreeListSmartRefresh, FEventList);
 
-    // Привязываем список складов к данным
-    if tvStorehouseList.DataController.DataSource = nil then
-    begin
-      tvStorehouseList.DataController.DataSource :=
-        TDM.Create.qStoreHouseList.W.DataSource;
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterScrollM,
+        DoOnProductCategoriesChange, FEventList);
 
-      clStorehouseListTitle.ApplyBestFit();
+      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterOpen,
+        DoOnProductCategoriesChange, FEventList);
     end;
 
-    // Справа активизируем вкладку "Склады"
-    cxpcRight.ActivePage := cxtsRStorehouses;
+    if FcxpcCompGroupRightActivePage <> nil then
+      cxpcCompGroupRight.ActivePage := FcxpcCompGroupRightActivePage
+    else
+      cxpcCompGroupRight.ActivePage := cxtsCategory;
   end;
 
-  // Если уходим с вкладки компоненты
-  if cxpcLeft.ActivePage = cxtsComponents then
+  // Если уходим со вкладки "По группам"
+  if cxpcComp2.ActivePage = cxtshCompGroup then
   begin
     TDM.Create.qTreeList.RemoveClient;
+    FcxpcCompGroupRightActivePage := cxpcCompGroupRight.ActivePage;
+    cxpcCompGroupRight.ActivePage := nil;
   end;
 
-  // Если уходим с вкладки склады
-  if cxpcLeft.ActivePage = cxtsComponents then
+  // Если переходим на вкладку Поиск
+  if NewPage = cxtshCompSearch then
   begin
+    TDM.Create.ComponentsSearchGroup.AddClient;
+
+    if FViewComponentsSearch = nil then
+    begin
+      // Создаём представление поиска компонентов
+      FViewComponentsSearch := TViewComponentsSearch.Create(Self);
+      FViewComponentsSearch.Place(cxtshCompSearch);
+
+      // Привязываем представление к данным
+      ViewComponentsSearch.ComponentsSearchGroup :=
+        TDM.Create.ComponentsSearchGroup;
+
+      // Подписываемся на событие чтобы открывать найденную категорию
+      TNotifyEventWrap.Create(TDM.Create.ComponentsSearchGroup.OnOpenCategory,
+        DoOnOpenCategory, FEventList);
+    end;
+
+    ViewComponentsSearch.MyApplyBestFit;
+  end;
+
+  // Если уходим со вкладки Поиск
+  if cxpcComp2.ActivePage = cxtshCompSearch then
+  begin
+    TDM.Create.ComponentsSearchGroup.RemoveClient;
+  end;
+end;
+
+procedure TfrmMain.cxpcMainChange(Sender: TObject);
+begin
+  if ViewComponents <> nil then
+    ViewComponents.CheckAndSaveChanges;
+
+  if ViewProducts <> nil then
+    ViewProducts.CheckAndSaveChanges;
+
+  if ViewProductsSearch <> nil then
+    ViewProductsSearch.CheckAndSaveChanges;
+end;
+
+procedure TfrmMain.cxpcMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
+  var AllowChange: Boolean);
+begin
+  // Если переход на вкладку Компоненты
+  if NewPage = cxtshComp then
+    if cxpcComp2.ActivePage = nil then
+      cxpcComp2.ActivePage := cxtshCompGroup;
+
+  // Если переход на вкладку Склады
+  if NewPage = cxtshWareHouse then
+    if cxpcWareHouse2.ActivePage = nil then
+      cxpcWareHouse2.ActivePage := cxtshWareHouse2;
+end;
+
+procedure TfrmMain.cxpcWareHouse2PageChanging(Sender: TObject;
+  NewPage: TcxTabSheet; var AllowChange: Boolean);
+begin
+  if not FLoadComplete then
+    Exit;
+
+  // Если переходим на вкладку склады
+  if NewPage = cxtshWareHouse2 then
+  begin
+    TDM.Create.qStoreHouseList.AddClient;
+    TDM.Create.qProducts.AddClient;
+
+    // Привязываем список складов к данным
+    if FViewStoreHouse = nil then
+    begin
+      FViewStoreHouse := TViewStoreHouse.Create(Self);
+      FViewStoreHouse.Place(pnlStoreHouseLeft);
+      FViewStoreHouse.qStoreHouseList := TDM.Create.qStoreHouseList;
+    end;
+
+    // Привязываем представление содержимого склада к данным
+    if FViewProducts = nil then
+    begin
+      FViewProducts := TViewProducts2.Create(Self);
+      FViewProducts.Parent := pnlStoreHouseRight;
+      FViewProducts.Align := alClient;
+
+      ViewProducts.qProducts := TDM.Create.qProducts;
+
+      // Подписываемся чтобы искать компонент в параметрической таблице
+      TNotifyEventWrap.Create(TDM.Create.qProducts.OnLocate, DoOnProductLocate,
+        FEventList);
+    end;
+  end;
+
+  // Если уходим со вкладки Склады
+  if cxpcWareHouse2.ActivePage = cxtshWareHouse2 then
+  begin
+    TDM.Create.qProducts.RemoveClient;
     TDM.Create.qStoreHouseList.RemoveClient;
+  end;
+
+  // Если переходим на вкладку корзина
+  if NewPage = cxtshBasket then
+  begin
+    // TDM.Create.qProductsBasket.AddClient;
+    TDM.Create.qProductsBasket.SearchForBasket;
+
+    if FViewProductsBasket = nil then
+    begin
+      FViewProductsBasket := TViewProductsBasket.Create(Self);
+      FViewProductsBasket.Parent := cxtshBasket;
+      FViewProductsBasket.Align := alClient;
+      ViewProductsBasket.qProducts := TDM.Create.qProductsBasket;
+    end;
+
+    ViewProductsBasket.MyApplyBestFit;
+    (*
+      (ViewProductsBasket.cxDBTreeList.DataController.DataSource <> nil) then
+      ViewProductsBasket.cxDBTreeList.DataController.DataSource.Enabled := True;
+    *)
+  end;
+
+  // Если переходим на вкладку счета
+  if NewPage = cxtshBill then
+  begin
+
+  end;
+
+  // Если переходим на вкладку поиск
+  if NewPage = cxtshSearch then
+  begin
+    TDM.Create.qProductsSearch.W.TryOpen;
+
+    if FViewProductsSearch = nil then
+    begin
+      FViewProductsSearch := TViewProductsSearch2.Create(Self);
+      FViewProductsSearch.Parent := cxtshSearch;
+      FViewProductsSearch.Align := alClient;
+      ViewProductsSearch.qProductsSearch := TDM.Create.qProductsSearch;
+
+      TNotifyEventWrap.Create(TDM.Create.qProductsSearch.OnLocate,
+        DoOnProductLocate, FEventList);
+    end;
   end;
 end;
 
@@ -521,12 +720,13 @@ begin
   TDM.Create.qProductsSearch.Search(l);
 
   // Переключаемся на вкладку склады
-  cxpcLeft.ActivePage := cxtsStorehouses;
+  cxpcMain.ActivePage := cxtshWareHouse;
+
   // Переключаемся на вкладку поиск на складе
-  ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseSearch;
+  cxpcWareHouse2.ActivePage := cxtshSearch;
 
   BringToFront;
-  ProductsFrame.ViewProductsSearch.FocusValueColumn;
+  ViewProductsSearch.FocusValueColumn;
 end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -559,25 +759,15 @@ begin
   DMRepository := TDMRepository.Create(Self);
   Assert(not DMRepository.dbConnection.Connected);
 
-  cxpcRight.Properties.HideTabs := True;
-  cxpcLeft.ActivePage := nil;
+  cxpcMain.ActivePage := nil;
 
-  // Создаём фрейм с компонентами
-  FComponentsFrame := TComponentsFrame.Create(Self);
-  ComponentsFrame.Parent := cxtsRComponents;
-  ComponentsFrame.Align := alClient;
+  cxpcComp2.ActivePage := nil;
 
-  // Создаём фрейм со складом
-  FProductsFrame := TProductsFrame.Create(Self);
-  ProductsFrame.Parent := cxtsRStorehouses;
-  ProductsFrame.Align := alClient;
+  cxpcCompGroupRight.ActivePage := nil;
 
-  // Создаём фрейм с деревом категорий
-  FViewTreeList := TViewTreeList.Create(Self);
-  ViewTreeList.Parent := cxtsComponents;
-  ViewTreeList.Align := alClient;
-  // Устанавливаем обработчик события
-  ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
+  cxpcWareHouse2.ActivePage := nil;
+
+
 
   Assert(not DMRepository.dbConnection.Connected);
 
@@ -619,44 +809,13 @@ begin
       TNotifyEventWrap.Create(QueryMonitor.OnHaveAnyChanges,
         DoOnHaveAnyChanges);
 
-      // Подписываемся чтобы искать компонент на складах
-      TNotifyEventWrap.Create(TDM.Create.ComponentsExGroup.qComponentsEx.
-        OnLocate, DoOnComponentLocate, FEventList);
+      FLoadComplete := True;
 
-      // Подписываемся чтобы искать компонент в параметрической таблице
-      TNotifyEventWrap.Create(TDM.Create.qProducts.OnLocate, DoOnProductLocate,
-        FEventList);
-      TNotifyEventWrap.Create(TDM.Create.qProductsSearch.OnLocate,
-        DoOnProductLocate, FEventList);
+      cxpcMain.ActivePage := cxtshComp;
+      cxpcComp2.ActivePage := cxtshCompGroup;
 
-      // Подписываемся на событие о отображении параметрической таблицы
-      TNotifyEventWrap.Create
-        (ComponentsFrame.ViewComponents.OnShowParametricTableEvent,
-        DoOnShowParametricTable, FEventList);
-
-      // Подписываемся на событие чтобы открывать найденную категорию
-      TNotifyEventWrap.Create(TDM.Create.ComponentsSearchGroup.OnOpenCategory,
-        DoOnOpenCategory, FEventList);
-
-      ComponentsFrame.ViewParametricTable.ComponentsExGroup :=
-        TDM.Create.ComponentsExGroup;
-
-      // Блокируем это представление до тех пор, пока вкладка не станет активной
-      ComponentsFrame.ViewParametricTable.Lock;
-
-      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
-        DoAfterTreeListSmartRefresh, FEventList);
-
-      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterScrollM,
-        DoOnProductCategoriesChange, FEventList);
-
-      TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterOpen,
-        DoOnProductCategoriesChange, FEventList);
-
-      cxpcLeft.ActivePage := cxtsComponents;
-      ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
-//      ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
-
+      // ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
+      // ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
 
       // Искусственно вызываем событие
       if TDM.Create.qTreeList.FDQuery.Active then
@@ -683,8 +842,7 @@ end;
 
 procedure TfrmMain.DoOnProductCategoriesChange(Sender: TObject);
 begin
-  ComponentsFrame.cxtsCategoryComponents.Enabled :=
-    not TDM.Create.qTreeList.W.IsRootFocused;
+  cxtsCategoryComponents.Enabled := not TDM.Create.qTreeList.W.IsRootFocused;
 
   Assert(TDM.Create.qTreeList.W.PK.AsInteger > 0);
   Assert(FQuerySearchCategoriesPath <> nil);
@@ -779,8 +937,8 @@ end;
 procedure TfrmMain.OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
   ANode: TcxTreeListNode; var Allow: Boolean);
 begin
-  Allow := (ComponentsFrame.ViewComponents.CheckAndSaveChanges <> IDCancel) and
-    (ComponentsFrame.ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
+  Allow := (ViewComponents.CheckAndSaveChanges <> IDCancel) and
+    (ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
 end;
 
 procedure TfrmMain.dbtlCategoriesDragDrop(Sender, Source: TObject;
@@ -870,17 +1028,14 @@ begin
     [lxoCaseInsensitive]);
 
   // Переключаемся на вкладку "Компоненты"
-  ComponentsFrame.cxpcComponents.ActivePage :=
-    ComponentsFrame.cxtsCategoryComponents;
-  ComponentsFrame.ViewComponents.cxGrid.SetFocus;
+  cxpcCompGroupRight.ActivePage := cxtsCategoryComponents;
+  ViewComponents.cxGrid.SetFocus;
   // Application.ProcessMessages;
 
-  ComponentsFrame.ViewComponents.MainView.Controller.FocusedRow.
-    Selected := True;
+  ViewComponents.MainView.Controller.FocusedRow.Selected := True;
 
-  ComponentsFrame.ViewComponents.MainView.GetColumnByFieldName
-    (ComponentsFrame.ViewComponents.clValue.DataBinding.FieldName)
-    .Selected := True;
+  ViewComponents.MainView.GetColumnByFieldName
+    (ViewComponents.clValue.DataBinding.FieldName).Selected := True;
 end;
 
 function TfrmMain.GetQueryMonitor: TQueryMonitor;
@@ -913,7 +1068,7 @@ end;
 
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
 begin
-  ComponentsFrame.ViewComponents.actOpenDatasheetExecute(Sender);
+  ViewComponents.actOpenDatasheetExecute(Sender);
 end;
 
 initialization
