@@ -2,8 +2,9 @@ inherited ViewStoreHouse: TViewStoreHouse
   inherited cxGrid: TcxGrid
     Top = 0
     Height = 472
-    ExplicitTop = 0
-    ExplicitHeight = 472
+    inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      Styles.Inactive = cxStyleInactive
+    end
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
@@ -38,6 +39,21 @@ inherited ViewStoreHouse: TViewStoreHouse
     end
     object N4: TMenuItem
       Action = actRenameStorehouse
+    end
+  end
+  object cxStyleRepository1: TcxStyleRepository
+    Left = 128
+    Top = 160
+    PixelsPerInch = 96
+    object cxStyleInactive: TcxStyle
+      AssignedValues = [svColor, svFont, svTextColor]
+      Color = clHighlight
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      TextColor = clHighlightText
     end
   end
 end

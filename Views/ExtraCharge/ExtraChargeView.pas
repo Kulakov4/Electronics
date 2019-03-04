@@ -107,7 +107,8 @@ procedure TViewExtraCharge.actAddExecute(Sender: TObject);
 begin
   MainView.Controller.ClearSelection;
   MainView.DataController.Append;
-  FocusColumnEditor(0, clRange.DataBinding.FieldName);
+
+  FocusColumnEditor(0, ExtraChargeGroup.qExtraCharge2.W.Range.FieldName);
 
   UpdateView;
 end;

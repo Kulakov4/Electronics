@@ -252,7 +252,8 @@ begin
   AView := GetDBBandedTableView(1);
   AView.Controller.ClearSelection;
   AView.DataController.Append;
-  FocusColumnEditor(1, clValue.DataBinding.FieldName);
+
+  FocusColumnEditor(1, ParametersGrp.qParameters.W.Value.FieldName);
 
   UpdateView;
 end;
@@ -262,7 +263,8 @@ begin
   inherited;
   MainView.Controller.ClearSelection;
   MainView.DataController.Append;
-  FocusColumnEditor(0, clParameterType.DataBinding.FieldName);
+
+  FocusColumnEditor(0, ParametersGrp.qParameterTypes.W.ParameterType.FieldName);
 
   UpdateView;
 end;
@@ -499,7 +501,8 @@ begin
 
   // AView := GetDBBandedTableView(1);
   ARow.Expand(False);
-  FocusColumnEditor(1, clIDParameterType.DataBinding.FieldName);
+
+  FocusColumnEditor(1, ParametersGrp.qParameters.W.IDParameterType.FieldName);
 end;
 
 function TViewParameters2.CheckAndSaveChanges: Integer;

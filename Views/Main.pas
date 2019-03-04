@@ -72,14 +72,9 @@ type
     actExit: TAction;
     actLoadBodyTypes: TAction;
     dxBarButton10: TdxBarButton;
-    pmLeftStoreHouse: TPopupMenu;
-    N1: TMenuItem;
-    N2: TMenuItem;
-    N3: TMenuItem;
     actShowExtraCharge: TAction;
     dxBarButton1: TdxBarButton;
     ApplicationEvents: TApplicationEvents;
-    dxbbtnComponents: TdxBarButton;
     actComponentsTab: TAction;
     cxpcMain: TcxPageControl;
     cxtshComp: TcxTabSheet;
@@ -767,8 +762,6 @@ begin
 
   cxpcWareHouse2.ActivePage := nil;
 
-
-
   Assert(not DMRepository.dbConnection.Connected);
 
   inherited;
@@ -937,8 +930,9 @@ end;
 procedure TfrmMain.OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
   ANode: TcxTreeListNode; var Allow: Boolean);
 begin
-  Allow := (ViewComponents.CheckAndSaveChanges <> IDCancel) and
-    (ViewCategoryParameters.CheckAndSaveChanges <> IDCancel);
+  Allow := ((ViewComponents = nil) or (ViewComponents.CheckAndSaveChanges <>
+    IDCancel)) and ((ViewCategoryParameters = nil) or
+    (ViewCategoryParameters.CheckAndSaveChanges <> IDCancel));
 end;
 
 procedure TfrmMain.dbtlCategoriesDragDrop(Sender, Source: TObject;

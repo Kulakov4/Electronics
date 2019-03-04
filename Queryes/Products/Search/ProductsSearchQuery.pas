@@ -28,7 +28,6 @@ type
     FGetModeClone: TFDMemTable;
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
-    FqStoreHouseList: TQueryStoreHouseList;
     FX: Integer;
 
   const
@@ -39,7 +38,6 @@ type
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
     function GetProductSearchW: TProductSearchW;
-    function GetqStoreHouseList: TQueryStoreHouseList;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -67,7 +65,6 @@ type
     property OnBeginUpdate: TNotifyEventsEx read FOnBeginUpdate;
     property OnEndUpdate: TNotifyEventsEx read FOnEndUpdate;
     property ProductSearchW: TProductSearchW read GetProductSearchW;
-    property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     { Public declarations }
   end;
 
@@ -85,7 +82,8 @@ begin
   AutoTransaction := True;
 
   // Создаём два клона
-  FGetModeClone := W.AddClone(Format('%s > 0', [W.PKFieldName]));
+  FGetModeClone := W.AddClone(Format('%s < %d', [W.PKFieldName,
+    FVirtualIDOffset]));
   FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
@@ -219,11 +217,11 @@ begin
     begin
       AConditionSQL := IfThen(AConditionSQL.IsEmpty, '', ' or ');
       AConditionSQL := AConditionSQL + Format('%s like %s',
-        [W.Value.FieldName, QuotedStr(s + '%')]);
+        [W.Value.FullName, QuotedStr(s + '%')]);
     end;
 
-//    if not AConditionSQL.IsEmpty then
-//      AConditionSQL := Format(' and (%s)', [AConditionSQL]);
+    // if not AConditionSQL.IsEmpty then
+    // AConditionSQL := Format(' and (%s)', [AConditionSQL]);
   end
   else
   begin
@@ -244,7 +242,7 @@ begin
 
   if not ALike then
   begin
-    SetParamTypeEx(W.Value.FieldName, S, ptInput, ftWideString);
+    SetParamTypeEx(W.Value.FieldName, s, ptInput, ftWideString);
   end;
 
   FDQuery.Open;
@@ -291,16 +289,6 @@ begin
   Result := W as TProductSearchW;
 end;
 
-function TQueryProductsSearch.GetqStoreHouseList: TQueryStoreHouseList;
-begin
-  if FqStoreHouseList = nil then
-  begin
-    FqStoreHouseList := TQueryStoreHouseList.Create(Self);
-    FqStoreHouseList.FDQuery.Open;
-  end;
-  Result := FqStoreHouseList;
-end;
-
 procedure TQueryProductsSearch.Search(AValues: TList<String>);
 begin
   FOnBeginUpdate.CallEventHandlers(Self);
@@ -328,8 +316,8 @@ begin
   FDQuery.SQL.Text := SQL.Replace('0=0', Format('%s=0', [W.ID.FieldName]));
 end;
 
-procedure TProductSearchW.AppendRows(AFieldName: string; AValues:
-    TArray<String>);
+procedure TProductSearchW.AppendRows(AFieldName: string;
+  AValues: TArray<String>);
 begin
   if Length(AValues) = 0 then
     Exit;

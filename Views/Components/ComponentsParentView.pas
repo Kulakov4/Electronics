@@ -166,7 +166,8 @@ begin
 
   AView.DataController.Append;
 
-  FocusColumnEditor(AView, clValue.DataBinding.FieldName);
+  FocusColumnEditor(AView, BaseComponentsGroup.QueryBaseFamily.W.Value.
+    FieldName);
 
   UpdateView;
 end;
@@ -195,7 +196,8 @@ begin
   // —начала добавл€ем запись, потом разворачиваем
   AView.DataController.Append;
 
-  FocusColumnEditor(AView, clValue.DataBinding.FieldName);
+  FocusColumnEditor(AView, BaseComponentsGroup.QueryBaseComponents.W.Value.
+    FieldName);
 
   UpdateView;
 end;

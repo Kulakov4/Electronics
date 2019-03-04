@@ -91,7 +91,7 @@ begin
       // MainView.EndUpdate;
     end;
 
-    FocusColumnEditor(0, 'Value');
+    FocusColumnEditor(0, ComponentsSearchGroup.qFamilySearch.W.Value.FieldName);
   end;
 end;
 
@@ -208,7 +208,7 @@ begin
   finally
     MainView.EndUpdate;
   end;
-  FocusColumnEditor(0, clValue.DataBinding.FieldName);
+  FocusColumnEditor(0, ComponentsSearchGroup.qFamilySearch.W.Value.FieldName);
   PostMyApplyBestFitEvent;
 end;
 

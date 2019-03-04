@@ -157,7 +157,7 @@ begin
   ARow.Expand(false);
   AView := GetDBBandedTableView(1);
   AView.DataController.Append;
-  FocusColumnEditor(1, clName2.DataBinding.FieldName);
+  FocusColumnEditor(1, ProducersGroup.qProducers.W.Name.FieldName);
 end;
 
 procedure TViewProducers.actAddTypeExecute(Sender: TObject);
@@ -165,8 +165,7 @@ begin
   inherited;
   MainView.Controller.ClearSelection;
   MainView.DataController.Append;
-  // MainView.Controller.FocusedRow.Selected := True;
-  FocusColumnEditor(0, clProducerType.DataBinding.FieldName);
+  FocusColumnEditor(0, ProducersGroup.qProducerTypes.W.ProducerType.FieldName);
 
   UpdateView;
 end;
@@ -261,7 +260,7 @@ begin
   Assert(ARow <> nil);
 
   ARow.Expand(false);
-  FocusColumnEditor(1, clProducerTypeID.DataBinding.FieldName);
+  FocusColumnEditor(1, ProducersGroup.qProducers.W.ProducerTypeID.FieldName);
 end;
 
 procedure TViewProducers.clProducerTypeIDPropertiesCloseUp(Sender: TObject);

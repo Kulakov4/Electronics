@@ -14,6 +14,9 @@ inherited ViewProductsBase2: TViewProductsBase2
         FixedKind = tlbfLeft
       end
       item
+        Caption.Text = #1057#1082#1083#1072#1076
+      end
+      item
         Caption.AlignHorz = taCenter
         Caption.Text = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
       end
@@ -136,7 +139,6 @@ inherited ViewProductsBase2: TViewProductsBase2
     ExplicitWidth = 1177
     ExplicitHeight = 523
     object clID: TcxDBTreeListColumn
-      Visible = False
       Caption.AlignHorz = taCenter
       DataBinding.FieldName = 'ID'
       Options.VertSizing = False
@@ -184,6 +186,15 @@ inherited ViewProductsBase2: TViewProductsBase2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
+    object clStoreHouseID: TcxDBTreeListColumn
+      Caption.Text = ' '
+      DataBinding.FieldName = 'StorehouseId'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
     object clIDProducer: TcxDBTreeListColumn
       PropertiesClassName = 'TcxLookupComboBoxProperties'
       Properties.ListColumns = <>
@@ -193,7 +204,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.VertSizing = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 1
+      Position.BandIndex = 2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -208,7 +219,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Width = 100
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 2
+      Position.BandIndex = 3
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -233,7 +244,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 3
+      Position.BandIndex = 4
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
       OnGetDisplayText = clDatasheetGetDisplayText
@@ -258,7 +269,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 4
+      Position.BandIndex = 5
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
       OnGetDisplayText = clDatasheetGetDisplayText
@@ -283,7 +294,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 5
+      Position.BandIndex = 6
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
       OnGetDisplayText = clDatasheetGetDisplayText
@@ -308,7 +319,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 6
+      Position.BandIndex = 7
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
       OnGetDisplayText = clDatasheetGetDisplayText
@@ -321,7 +332,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 7
+      Position.BandIndex = 8
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -333,7 +344,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 8
+      Position.BandIndex = 9
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -345,7 +356,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 9
+      Position.BandIndex = 10
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -357,7 +368,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 10
+      Position.BandIndex = 11
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -369,7 +380,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 11
+      Position.BandIndex = 12
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -381,7 +392,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 11
+      Position.BandIndex = 12
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -393,7 +404,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 12
+      Position.BandIndex = 13
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -405,7 +416,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 12
+      Position.BandIndex = 13
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -417,7 +428,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 13
+      Position.BandIndex = 14
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -429,7 +440,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 13
+      Position.BandIndex = 14
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -441,7 +452,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 14
+      Position.BandIndex = 15
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -453,7 +464,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 14
+      Position.BandIndex = 15
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -465,7 +476,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 15
+      Position.BandIndex = 16
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -477,7 +488,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 16
+      Position.BandIndex = 17
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -489,7 +500,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 17
+      Position.BandIndex = 18
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -501,7 +512,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 17
+      Position.BandIndex = 18
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -513,7 +524,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 18
+      Position.BandIndex = 19
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -525,7 +536,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 19
+      Position.BandIndex = 20
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -537,7 +548,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 20
+      Position.BandIndex = 21
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -546,7 +557,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'IDCurrency'
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 1
+      Position.BandIndex = 2
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -566,7 +577,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'PriceE'
       Position.ColIndex = 2
       Position.RowIndex = 0
-      Position.BandIndex = 13
+      Position.BandIndex = 14
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -576,7 +587,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'PriceE1'
       Position.ColIndex = 2
       Position.RowIndex = 0
-      Position.BandIndex = 12
+      Position.BandIndex = 13
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -586,7 +597,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'PriceE2'
       Position.ColIndex = 2
       Position.RowIndex = 0
-      Position.BandIndex = 11
+      Position.BandIndex = 12
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -596,7 +607,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'LoadDate'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 21
+      Position.BandIndex = 22
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -607,7 +618,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 22
+      Position.BandIndex = 23
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -618,7 +629,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Options.Sorting = False
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 22
+      Position.BandIndex = 23
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
@@ -628,7 +639,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'SaleCount'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 23
+      Position.BandIndex = 24
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -642,7 +653,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'SaleR'
       Position.ColIndex = 0
       Position.RowIndex = 0
-      Position.BandIndex = 24
+      Position.BandIndex = 25
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -656,7 +667,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'SaleD'
       Position.ColIndex = 1
       Position.RowIndex = 0
-      Position.BandIndex = 24
+      Position.BandIndex = 25
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -670,7 +681,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       DataBinding.FieldName = 'SaleE'
       Position.ColIndex = 2
       Position.RowIndex = 0
-      Position.BandIndex = 24
+      Position.BandIndex = 25
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify

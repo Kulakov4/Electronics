@@ -237,7 +237,8 @@ begin
   AView := GetDBBandedTableView(1);
   AView.Controller.ClearSelection;
   AView.DataController.Append;
-  FocusColumnEditor(1, clBody.DataBinding.FieldName);
+
+  FocusColumnEditor(1, BodyTypesGroup.qBodyTypes2.W.Body.FieldName);
 
   UpdateView;
 
@@ -246,7 +247,7 @@ end;
 procedure TViewBodyTypes.actAddExecute(Sender: TObject);
 begin
   MainView.DataController.Append;
-  FocusColumnEditor(0, clBody.DataBinding.FieldName);
+  FocusColumnEditor(0, BodyTypesGroup.qBodyTypes2.W.Body.FieldName);
 
   UpdateView;
 

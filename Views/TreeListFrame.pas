@@ -43,8 +43,9 @@ type
     procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
       ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
       var ADone: Boolean);
-    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
-      AColumn: TcxTreeListColumn);
+    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
+        TcxTreeListColumn);
+
     procedure cxDBTreeListMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
     procedure cxDBTreeListStylesGetBandHeaderStyle(Sender: TcxCustomTreeList;
@@ -53,7 +54,8 @@ type
   private
     FBlockEvents: Integer;
     FGridSort: TGridSort;
-    FPostOnEnterFields: TList<String>;
+// TODO: FPostOnEnterFields
+//  FPostOnEnterFields: TList<String>;
     FSortVariant: TSortVariant;
     FStatusBarEmptyPanelIndex: Integer;
     FUpdateCount: Cardinal;
@@ -65,12 +67,9 @@ type
     procedure CreateColumnsBarButtons; virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InitializeColumns; virtual;
-    procedure InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
-      ADropDownListStyle: TcxEditDropDownListStyle; AField: TField); overload;
-    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
-      ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
-      const AListFieldNames: string;
-      const AKeyFieldNames: string = 'ID'); overload;
+    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn; ADataSource:
+        TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
+        AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
     procedure InternalApplySort(ASortedColumns: TArray < TPair <
       TcxDBTreeListColumn, TdxSortOrder >> );
     procedure InternalRefreshData; virtual;
@@ -96,7 +95,8 @@ type
     procedure RefreshData;
     procedure UpdateView; virtual;
     property GridSort: TGridSort read FGridSort;
-    property PostOnEnterFields: TList<String> read FPostOnEnterFields;
+// TODO: PostOnEnterFields
+//  property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
       write SetStatusBarEmptyPanelIndex;
     property UpdateCount: Cardinal read FUpdateCount;
@@ -114,7 +114,7 @@ constructor TfrmTreeList.Create(AOwner: TComponent);
 begin
   inherited;
   // —писок полей при редактировании которых Enter - сохранение
-  FPostOnEnterFields := TList<String>.Create;
+//  FPostOnEnterFields := TList<String>.Create;
   FEventList := TObjectList.Create;
 
   FGridSort := TGridSort.Create;
@@ -124,7 +124,7 @@ end;
 
 destructor TfrmTreeList.Destroy;
 begin
-  FreeAndNil(FPostOnEnterFields);
+//  FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FGridSort);
   FreeAndNil(FEventList);
   inherited;
@@ -291,29 +291,10 @@ begin
   { }
 end;
 
-procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList;
-  AColumn: TcxTreeListColumn);
+procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
+    TcxTreeListColumn);
 begin
-  if (FBlockEvents > 0) or
-    (not(cxDBTreeList.DataController.DataSet.State in [dsEdit, dsInsert])) then
-    Exit;
-
-  // ≈сли в TreeList в фокуе одна запись а в датасете редактируетс€ друга€
-  if not IsSyncToDataSet then
-    Exit;
-
-  // ≈сли закончили редактирование группы
-  if (Sender.FocusedNode <> nil) and (Sender.FocusedNode.IsGroupNode) then
-    Sender.Post
-  else
-  begin
-    if FPostOnEnterFields.IndexOf((AColumn as TcxDBTreeListColumn)
-      .DataBinding.FieldName) >= 0 then
-      Sender.Post
-  end;
-
   UpdateView;
-  { }
 end;
 
 procedure TfrmTreeList.cxDBTreeListMouseMove(Sender: TObject;
@@ -444,30 +425,9 @@ begin
 
 end;
 
-procedure TfrmTreeList.InitializeComboBoxColumn(AColumn: TcxDBTreeListColumn;
-  ADropDownListStyle: TcxEditDropDownListStyle; AField: TField);
-var
-  AcxComboBoxProperties: TcxComboBoxProperties;
-begin
-  Assert(AColumn <> nil);
-
-  AColumn.PropertiesClass := TcxComboBoxProperties;
-  AcxComboBoxProperties := AColumn.Properties as TcxComboBoxProperties;
-  AcxComboBoxProperties.DropDownListStyle := ADropDownListStyle;
-
-  // «аполн€ем выпадающий список значени€ми из запроса
-  AcxComboBoxProperties.Items.Clear;
-  AField.DataSet.First;
-  while not AField.DataSet.Eof do
-  begin
-    AcxComboBoxProperties.Items.Add(AField.AsString);
-    AField.DataSet.Next;
-  end;
-end;
-
 procedure TfrmTreeList.InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
-  ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
-  const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
+    ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+    const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
 begin
   Assert(AColumn <> nil);
   AColumn.PropertiesClass := TcxLookupComboBoxProperties;

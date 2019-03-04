@@ -170,7 +170,8 @@ begin
   ARow.Expand(false);
   AView := GetDBBandedTableView(1);
   AView.DataController.Append;
-  FocusColumnEditor(1, clComponentName.DataBinding.FieldName);
+  FocusColumnEditor(1, DescriptionsGroup.qDescriptions.W.ComponentName.
+    FieldName);
 
   UpdateView;
 end;
@@ -178,7 +179,8 @@ end;
 procedure TViewDescriptions.actAddTypeExecute(Sender: TObject);
 begin
   MainView.DataController.Append;
-  FocusColumnEditor(0, clComponentType.DataBinding.FieldName);
+  FocusColumnEditor(0, DescriptionsGroup.qDescriptionTypes.W.ComponentType.
+    FieldName);
 
   UpdateView;
 end;
@@ -313,7 +315,8 @@ begin
   Assert(ARow <> nil);
 
   ARow.Expand(false);
-  FocusColumnEditor(1, clIDComponentType.DataBinding.FieldName);
+  FocusColumnEditor(1, DescriptionsGroup.qDescriptions.W.IDComponentType.
+    FieldName);
 end;
 
 procedure TViewDescriptions.clIDComponentTypePropertiesCloseUp(Sender: TObject);

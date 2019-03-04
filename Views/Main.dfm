@@ -34,120 +34,94 @@ object frmMain: TfrmMain
   end
   object cxpcMain: TcxPageControl
     Left = 0
-    Top = 52
+    Top = 28
     Width = 1215
-    Height = 564
+    Height = 588
     Align = alClient
     TabOrder = 5
-    Properties.ActivePage = cxtshComp
+    Properties.ActivePage = cxtshWareHouse
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcMainChange
     OnPageChanging = cxpcMainPageChanging
-    ExplicitLeft = 8
-    ExplicitTop = 64
-    ExplicitWidth = 1097
-    ExplicitHeight = 329
-    ClientRectBottom = 560
+    ClientRectBottom = 584
     ClientRectLeft = 4
     ClientRectRight = 1211
     ClientRectTop = 27
     object cxtshComp: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitWidth = 1089
-      ExplicitHeight = 298
       object cxpcComp2: TcxPageControl
         Left = 0
         Top = 0
         Width = 1207
-        Height = 533
+        Height = 557
         Align = alClient
         TabOrder = 0
         Properties.ActivePage = cxtshCompGroup
         Properties.CustomButtons.Buttons = <>
         OnPageChanging = cxpcComp2PageChanging
-        ExplicitWidth = 1089
-        ExplicitHeight = 298
-        ClientRectBottom = 529
+        ClientRectBottom = 553
         ClientRectLeft = 4
         ClientRectRight = 1203
         ClientRectTop = 27
         object cxtshCompGroup: TcxTabSheet
           Caption = #1055#1086' '#1075#1088#1091#1087#1087#1072#1084
           ImageIndex = 0
-          ExplicitWidth = 1081
-          ExplicitHeight = 267
           object pnlCompGroupLeft: TPanel
             Left = 0
             Top = 0
             Width = 253
-            Height = 502
+            Height = 526
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitHeight = 267
           end
           object cxspltrMain: TcxSplitter
             Left = 253
             Top = 0
             Width = 8
-            Height = 502
+            Height = 526
             HotZoneClassName = 'TcxSimpleStyle'
             PositionAfterOpen = 200
             AutoSnap = True
             Control = pnlCompGroupLeft
-            ExplicitHeight = 267
           end
           object pnlCompGroupRight: TPanel
             Left = 261
             Top = 0
             Width = 938
-            Height = 502
+            Height = 526
             Align = alClient
             TabOrder = 2
-            ExplicitWidth = 820
-            ExplicitHeight = 267
             object cxpcCompGroupRight: TcxPageControl
               Left = 1
               Top = 1
               Width = 936
-              Height = 500
+              Height = 524
               Align = alClient
               TabOrder = 0
               Properties.ActivePage = cxtsCategoryComponents
               Properties.CustomButtons.Buttons = <>
               OnPageChanging = cxpcCompGroupRightPageChanging
-              ExplicitLeft = -2
-              ExplicitTop = 3
-              ExplicitWidth = 818
-              ExplicitHeight = 265
-              ClientRectBottom = 496
+              ClientRectBottom = 520
               ClientRectLeft = 4
               ClientRectRight = 932
               ClientRectTop = 27
               object cxtsCategory: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
                 ImageIndex = 0
-                ExplicitWidth = 810
-                ExplicitHeight = 234
               end
               object cxtsCategoryComponents: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
                 ImageIndex = 1
-                ExplicitWidth = 810
-                ExplicitHeight = 234
               end
               object cxtsCategoryParameters: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
                 ImageIndex = 2
-                ExplicitWidth = 810
-                ExplicitHeight = 234
               end
               object cxtsParametricTable: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
                 ImageIndex = 3
-                ExplicitWidth = 810
-                ExplicitHeight = 234
               end
             end
           end
@@ -155,42 +129,38 @@ object frmMain: TfrmMain
         object cxtshCompSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 1
-          ExplicitWidth = 1081
-          ExplicitHeight = 267
         end
       end
     end
     object cxtshWareHouse: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
-      ExplicitWidth = 1089
-      ExplicitHeight = 298
       object cxpcWareHouse2: TcxPageControl
         Left = 0
         Top = 0
         Width = 1207
-        Height = 533
+        Height = 557
         Align = alClient
         TabOrder = 0
         Properties.ActivePage = cxtshSearch
         Properties.CustomButtons.Buttons = <>
         OnPageChanging = cxpcWareHouse2PageChanging
-        ExplicitWidth = 1089
-        ExplicitHeight = 298
-        ClientRectBottom = 529
+        ClientRectBottom = 553
         ClientRectLeft = 4
         ClientRectRight = 1203
         ClientRectTop = 27
         object cxtshWareHouse2: TcxTabSheet
           Caption = #1057#1082#1083#1072#1076#1099
           ImageIndex = 0
+          ExplicitLeft = 0
+          ExplicitTop = 0
           ExplicitWidth = 1081
           ExplicitHeight = 267
           object pnlStoreHouseLeft: TPanel
             Left = 0
             Top = 0
             Width = 253
-            Height = 502
+            Height = 526
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
@@ -200,7 +170,7 @@ object frmMain: TfrmMain
             Left = 253
             Top = 0
             Width = 8
-            Height = 502
+            Height = 526
             HotZoneClassName = 'TcxSimpleStyle'
             Control = pnlStoreHouseLeft
             ExplicitLeft = 376
@@ -211,7 +181,7 @@ object frmMain: TfrmMain
             Left = 261
             Top = 0
             Width = 938
-            Height = 502
+            Height = 526
             Align = alClient
             BevelOuter = bvNone
             TabOrder = 2
@@ -224,20 +194,22 @@ object frmMain: TfrmMain
         object cxtshBasket: TcxTabSheet
           Caption = #1050#1086#1088#1079#1080#1085#1072
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
           ExplicitWidth = 1081
           ExplicitHeight = 267
         end
         object cxtshBill: TcxTabSheet
           Caption = #1057#1095#1077#1090#1072
           ImageIndex = 2
+          ExplicitLeft = 0
+          ExplicitTop = 0
           ExplicitWidth = 1081
           ExplicitHeight = 267
         end
         object cxtshSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 3
-          ExplicitWidth = 1081
-          ExplicitHeight = 267
         end
       end
     end
@@ -263,7 +235,7 @@ object frmMain: TfrmMain
     DockControlHeights = (
       0
       0
-      52
+      28
       0)
     object dxbrMainBar1: TdxBar
       Caption = #1055#1072#1085#1077#1083#1100' '#1091#1087#1088#1072#1074#1083#1077#1085#1080#1103
@@ -285,7 +257,7 @@ object frmMain: TfrmMain
           Visible = True
           ItemName = 'dxbrsbtm1'
         end>
-      OneOnRow = True
+      OneOnRow = False
       Row = 0
       UseOwnFont = False
       Visible = True
@@ -295,8 +267,8 @@ object frmMain: TfrmMain
       Caption = #1055#1072#1085#1077#1083#1100' '#1089' '#1080#1082#1086#1085#1082#1072#1084#1080
       CaptionButtons = <>
       DockedDockingStyle = dsTop
-      DockedLeft = 0
-      DockedTop = 24
+      DockedLeft = 170
+      DockedTop = 0
       DockingStyle = dsTop
       FloatLeft = 314
       FloatTop = 155
@@ -306,18 +278,14 @@ object frmMain: TfrmMain
       ItemLinks = <
         item
           Visible = True
-          ItemName = 'dxbbtnComponents'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarButton4'
         end
         item
           Visible = True
           ItemName = 'dxbrbtnSettings'
         end>
-      OneOnRow = True
-      Row = 1
+      OneOnRow = False
+      Row = 0
       UseOwnFont = False
       Visible = True
       WholeRow = False
@@ -426,11 +394,6 @@ object frmMain: TfrmMain
       Action = actShowExtraCharge
       Category = 0
     end
-    object dxbbtnComponents: TdxBarButton
-      Action = actComponentsTab
-      Category = 0
-      ButtonStyle = bsChecked
-    end
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -484,23 +447,6 @@ object frmMain: TfrmMain
     object actComponentsTab: TAction
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       OnExecute = actComponentsTabExecute
-    end
-  end
-  object pmLeftStoreHouse: TPopupMenu
-    Images = DMRepository.cxImageList
-    Left = 44
-    Top = 239
-    object N1: TMenuItem
-      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1082#1083#1072#1076
-      ImageIndex = 1
-    end
-    object N2: TMenuItem
-      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1089#1082#1083#1072#1076
-      ImageIndex = 2
-    end
-    object N3: TMenuItem
-      Caption = #1055#1077#1088#1077#1080#1084#1077#1085#1086#1074#1072#1090#1100' '#1089#1082#1083#1072#1076
-      ImageIndex = 11
     end
   end
   object ApplicationEvents: TApplicationEvents

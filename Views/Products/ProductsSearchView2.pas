@@ -38,7 +38,6 @@ type
     dxBarButton3: TdxBarButton;
     dxBarButton4: TdxBarButton;
     dxBarButton5: TdxBarButton;
-    clStorehouseId: TcxDBTreeListColumn;
     dxBarSubItem1: TdxBarSubItem;
     dxBarButton6: TdxBarButton;
     dxBarButton7: TdxBarButton;

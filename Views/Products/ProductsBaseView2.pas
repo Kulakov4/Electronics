@@ -36,6 +36,7 @@ uses
 
 const
   WM_SELECTION_CHANGED = WM_USER + 600;
+  WM_AFTER_OPEN_OR_REFRESH = WM_USER + 601;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -121,6 +122,7 @@ type
     clSaleE: TcxDBTreeListColumn;
     actCreateBill: TAction;
     dxbbCreateBill: TdxBarButton;
+    clStoreHouseID: TcxDBTreeListColumn;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -223,6 +225,8 @@ type
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
     procedure LoadWholeSale;
+    procedure OnInitEditValue(Sender, AItem: TObject; AEdit: TcxCustomEdit; var
+        AValue: Variant); virtual;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
@@ -233,6 +237,8 @@ type
     procedure UpdateFieldValue(AFields: TArray<TField>;
       AValues: TArray<Variant>);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
+    procedure WMAFTER_OPEN_OR_REFRESH(var Message: TMessage);
+      message WM_AFTER_OPEN_OR_REFRESH;
     property IDExtraChargeType: Integer read GetIDExtraChargeType
       write SetIDExtraChargeType;
     property IDExtraCharge: Integer read GetIDExtraCharge
@@ -276,11 +282,12 @@ begin
   FHRTimer := THRTimer.Create(False);
 
   // Список полей при редактировании которых Enter - сохранение
+(*
   PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
   PostOnEnterFields.Add(clPriceE.DataBinding.FieldName);
   PostOnEnterFields.Add(clSaleCount.DataBinding.FieldName);
-
+*)
   // Где отображать кол-во выделенных записей
   FSelectedCountPanelIndex := 1;
 
@@ -656,7 +663,9 @@ begin
   try
     qProductsBase.DollarCource := TMyCurrency.Create.GetCourses(2, Date);
     qProductsBase.EuroCource := TMyCurrency.Create.GetCourses(3, Date);
-    MyApplyBestFit;
+
+    if qProductsBase.FDQuery.State = dsBrowse then
+      MyApplyBestFit;
   except
     TDialog.Create.ErrorMessageDialog('Курсы валют не обновлены');
   end;
@@ -919,7 +928,8 @@ procedure TViewProductsBase2.cxDBTreeListExpanded(Sender: TcxCustomTreeList;
   ANode: TcxTreeListNode);
 begin
   inherited;
-  MyApplyBestFit;
+  if qProductsBase.FDQuery.State = dsBrowse then
+    MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
@@ -927,52 +937,44 @@ procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
 begin
   inherited;
 
-  // Отображаем розничную наценку у текущей записи
-  UpdateBarComboText(dxbcRetail, W.Retail.F.Value);
-  // Отображаем оптовую наценку у текущей записи
-  UpdateBarComboText(dxbcWholeSale, W.WholeSale.F.Value);
-  // Отображаем минимальную оптовую наценку у текущей записи
-  UpdateBarComboText(dxbcMinWholeSale, W.MinWholeSale.F.Value);
-
-  if IDExtraChargeType <> W.IDExtraChargeType.F.AsInteger then
+  if AFocusedNode <> nil then
   begin
-    IDExtraChargeType := W.IDExtraChargeType.F.AsInteger;
-    // Фильтруем оптовые наценки по типу
-    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
-      (IDExtraChargeType);
+
+    // Отображаем розничную наценку у текущей записи
+    UpdateBarComboText(dxbcRetail, W.Retail.F.Value);
+    // Отображаем оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcWholeSale, W.WholeSale.F.Value);
+    // Отображаем минимальную оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcMinWholeSale, W.MinWholeSale.F.Value);
+
+    if IDExtraChargeType <> W.IDExtraChargeType.F.AsInteger then
+    begin
+      IDExtraChargeType := W.IDExtraChargeType.F.AsInteger;
+      // Фильтруем оптовые наценки по типу
+      qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
+        (IDExtraChargeType);
+    end;
+
+    IDExtraCharge := W.IDExtraCharge.F.AsInteger;
+
+  end
+  else
+  begin
+    // Отображаем ПУСТУЮ розничную наценку
+    UpdateBarComboText(dxbcRetail, NULL);
+    // Отображаем ПУСТУЮ оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcWholeSale, NULL);
+    // Отображаем ПУСТУЮ минимальную оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcMinWholeSale, NULL);
   end;
-
-  IDExtraCharge := W.IDExtraCharge.F.AsInteger;
-
   UpdateView;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListInitEditValue(Sender, AItem: TObject;
   AEdit: TcxCustomEdit; var AValue: Variant);
-var
-  AColumn: TcxDBTreeListColumn;
-  AcxMaskEdit: TcxMaskEdit;
-  S: string;
-  // S: string;
+
 begin
-  inherited;
-  // В режиме вставки новой записи разрешаем редактирование цены
-  if qProductsBase.FDQuery.State = dsInsert then
-    Exit;
-
-  AColumn := AItem as TcxDBTreeListColumn;
-
-  if FReadOnlyColumns.IndexOf(AColumn) < 0 then
-    Exit;
-
-  S := AEdit.ClassName;
-
-  if not(AEdit is TcxMaskEdit) then
-    Exit;
-
-  AcxMaskEdit := AEdit as TcxMaskEdit;
-  AcxMaskEdit.Properties.ReadOnly := True;
-  { }
+  OnInitEditValue(Sender, AItem, AEdit, AValue)
 end;
 
 procedure TViewProductsBase2.cxDBTreeListIsGroupNode(Sender: TcxCustomTreeList;
@@ -1009,7 +1011,8 @@ end;
 
 procedure TViewProductsBase2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
-  Application.ProcessMessages;
+  // PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0, 0);
+
   // Привязываем дерево к данным !!!
   W.DataSource.Enabled := True;
 
@@ -1019,9 +1022,9 @@ begin
   // cxDBTreeList.DataController.DataSource := W.DataSource;
 
   // cxDBTreeList.EndUpdate;
-  // cxDBTreeList.FullCollapse;
+  cxDBTreeList.FullCollapse;
 
-  UpdateView;
+  // UpdateView;
 end;
 
 procedure TViewProductsBase2.DoAfterPost(Sender: TObject);
@@ -1033,16 +1036,18 @@ begin
   end;
 
   UpdateProductCount;
-  MyApplyBestFit;
+ // MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
   // cxDBTreeList.DataController.DataSource := nil;
   // cxDBTreeList.BeginUpdate;
-  // W.DataSet.DisableControls;
-  W.DataSource.Enabled := False; // Полностью отвязываем дерево от данных !!!
+  W.DataSource.Enabled := False;
 
+  // cxDBTreeList.BeginUpdate;
+  // cxDBTreeList.DataController.DataSource := nil;
+  // cxDBTreeList.EndUpdate;
 end;
 
 procedure TViewProductsBase2.DoOnCourceChange(Sender: TObject);
@@ -1322,6 +1327,31 @@ begin
   end;
 end;
 
+procedure TViewProductsBase2.OnInitEditValue(Sender, AItem: TObject; AEdit:
+    TcxCustomEdit; var AValue: Variant);
+var
+  AColumn: TcxDBTreeListColumn;
+  AcxMaskEdit: TcxMaskEdit;
+  S: string;
+begin
+  // В режиме вставки новой записи разрешаем редактирование цены
+  if qProductsBase.FDQuery.State = dsInsert then
+    Exit;
+
+  AColumn := AItem as TcxDBTreeListColumn;
+
+  if FReadOnlyColumns.IndexOf(AColumn) < 0 then
+    Exit;
+
+  S := AEdit.ClassName;
+
+  if not(AEdit is TcxMaskEdit) then
+    Exit;
+
+  AcxMaskEdit := AEdit as TcxMaskEdit;
+  AcxMaskEdit.Properties.ReadOnly := True;
+end;
+
 procedure TViewProductsBase2.OpenDoc(ADocFieldInfo: TDocFieldInfo);
 begin
   Application.Hint := '';
@@ -1451,7 +1481,6 @@ begin
     TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpenOrRefresh, FEventList);
     TNotifyEventWrap.Create(W.AfterRefresh, DoAfterOpenOrRefresh, FEventList);
 
-
     TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
       DoOnDollarCourceChange, FEventList);
     TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,
@@ -1535,7 +1564,8 @@ begin
   OK := (cxDBTreeList.DataController.DataSource <> nil) and
     (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
     (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
-    (qProductsBase.Master.FDQuery.RecordCount > 0);
+    (qProductsBase.Master.FDQuery.RecordCount > 0) and
+    (cxDBTreeList.DataController.DataSet <> nil);
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
@@ -1572,6 +1602,24 @@ begin
     Exit;
 
   FqProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
+end;
+
+procedure TViewProductsBase2.WMAFTER_OPEN_OR_REFRESH(var Message: TMessage);
+begin
+  inherited;
+  // Привязываем дерево к данным !!!
+  W.DataSource.Enabled := True;
+
+
+  // W.DataSet.EnableControls;
+
+  // cxDBTreeList.DataController.DataSource := W.DataSource;
+
+  // cxDBTreeList.EndUpdate;
+  // cxDBTreeList.FullCollapse;
+
+  UpdateView;
+
 end;
 
 end.

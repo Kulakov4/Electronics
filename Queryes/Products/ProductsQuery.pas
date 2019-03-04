@@ -24,7 +24,7 @@ type
     FqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     FTotalCount: Integer;
   class var
-    XXX: Integer;
+    FObjectCount: Integer;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
@@ -66,8 +66,8 @@ uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
 constructor TQueryProducts.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Inc(XXX);
-  Name := Format('QueryProducts_%d', [XXX]);
+  Inc(FObjectCount);
+  Name := Format('QueryProducts_%d', [FObjectCount]);
 
   W.Name := 'QueryProductsWrap';
 

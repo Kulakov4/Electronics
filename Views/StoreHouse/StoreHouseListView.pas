@@ -35,6 +35,8 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     N4: TMenuItem;
+    cxStyleRepository1: TcxStyleRepository;
+    cxStyleInactive: TcxStyle;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
   private
@@ -70,34 +72,37 @@ begin
 end;
 
 procedure TViewStoreHouse.actAddStorehouseExecute(Sender: TObject);
-var
-  Value: string;
 begin
-  qStoreHouseList.W.TryPost;
+  MainView.Controller.ClearSelection;
+  MainView.DataController.Append;
+  FocusColumnEditor(0, W.Title.FieldName);
 
-  Value := InputBox(sDatabase, sPleaseWrite, '');
-  if Value <> '' then
-  begin
-    qStoreHouseList.W.LocateOrAppend(Value);
-    MainView.ApplyBestFit();
-  end;
+  UpdateView;
 end;
 
 procedure TViewStoreHouse.actRenameStorehouseExecute(Sender: TObject);
-var
-  Value: string;
+// var
+// Value: string;
 begin
-  W.TryPost;
+  MainView.Controller.ClearSelection;
+  MainView.DataController.Edit;
+  FocusColumnEditor(0, W.Title.FieldName);
 
-  Value := InputBox(sDatabase, sPleaseWrite, W.Title.F.AsString);
+  UpdateView;
 
-  if (Value.IsEmpty) or (Value = W.Title.F.AsString) then
+  {
+    W.TryPost;
+
+    Value := InputBox(sDatabase, sPleaseWrite, W.Title.F.AsString);
+
+    if (Value.IsEmpty) or (Value = W.Title.F.AsString) then
     Exit;
 
-  W.TryEdit;
-  W.Title.F.AsString := Value;
-  W.TryPost;
-  MainView.ApplyBestFit();
+    W.TryEdit;
+    W.Title.F.AsString := Value;
+    W.TryPost;
+    MainView.ApplyBestFit();
+  }
 end;
 
 function TViewStoreHouse.GetclAbbreviation: TcxGridDBBandedColumn;
@@ -128,6 +133,18 @@ begin
 
   MainView.DataController.DataSource := FqStoreHouseList.W.DataSource;
   MainView.DataController.CreateAllItems(True);
+
+  MainView.OptionsBehavior.ImmediateEditor := False;
+  MainView.OptionsSelection.CellMultiSelect := False;
+  MainView.OptionsSelection.MultiSelect := False;
+  MainView.OptionsSelection.CellSelect := False;
+
+  MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
+  MainView.OptionsSelection.HideSelection := False;
+
+
+  MainView.Controller.FocusedRow.Selected := True;
+
   clAbbreviation.Visible := False;
   MainView.ApplyBestFit;
 end;

@@ -275,12 +275,12 @@ begin
 end;
 
 procedure TQueryBaseEvents.DoAfterMasterScroll(Sender: TObject);
-// var
-// S: String;
+ var
+ S: String;
 begin
-  // S := Name;
-  // if S.StartsWith('QueryProducts_') then
-  // beep;
+  S := Name;
+  if S.StartsWith('QueryProducts_') then
+    beep;
 
   TryLoad;
 end;

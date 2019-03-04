@@ -110,7 +110,8 @@ begin
   inherited;
   MainView.Controller.ClearSelection;
   MainView.DataController.Append;
-  FocusColumnEditor(0, clIDJEDEC.DataBinding.FieldName);
+
+  FocusColumnEditor(0, qBodyVariationsJedec.W.IDJEDEC.FieldName);
 
   UpdateView;
 end;

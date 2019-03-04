@@ -13,7 +13,7 @@ uses
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents, SearchComponentGroup,
   SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2, ExtraChargeGroupUnit,
-  DSWrap, DescriptionsQueryWrap, BaseEventsQuery;
+  DSWrap, DescriptionsQueryWrap, BaseEventsQuery, StoreHouseListQuery, HRTimer;
 
 const
   WM_OnCommitUpdates = WM_USER + 169;
@@ -151,9 +151,12 @@ type
     procedure FDQueryAfterApplyUpdates(DataSet: TFDDataSet; AErrors: Integer);
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
+    FAutoSaveFieldNameList: TList<String>;
     FBasket: TFDMemTable;
+    FCalcDic: TDictionary<Integer, Double>;
     FCalcExecCount: Integer;
     FCalcStatus: Integer;
+    FCalcTimer: THRTimer;
     FDataChange: Boolean;
     FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
@@ -168,7 +171,9 @@ type
     FOnDollarCourceChange: TNotifyEventsEx;
     FOnEuroCourceChange: TNotifyEventsEx;
     FExtraChargeGroup: TExtraChargeGroup;
+    FHRTimer: THRTimer;
     FOnCommitUpdatePosted: Boolean;
+    FqStoreHouseList: TQueryStoreHouseList;
     FW: TProductW;
     procedure DoBeforeOpen(Sender: TObject);
     function GetProducersGroup: TProducersGroup2;
@@ -178,12 +183,15 @@ type
     function GetqSearchFamily: TQuerySearchFamily;
     function GetqSearchProduct: TQuerySearchProduct;
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
+    function GetqStoreHouseList: TQueryStoreHouseList;
     procedure SetDollarCource(const Value: Double);
     procedure SetEuroCource(const Value: Double);
     // TODO: SplitComponentName
     // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
   protected
+  const
+    FVirtualIDOffset = -100000;
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -198,6 +206,9 @@ type
     procedure EnableCalc;
     function GetExportFileName: string; virtual; abstract;
     function GetHaveAnyChanges: Boolean; override;
+    function GetStorehouseProductID(AVirtualID: Integer): Integer;
+    function GetStorehouseProductVirtualID(AID: Integer): Integer;
+    procedure RefreshOrOpen; override;
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
@@ -231,6 +242,7 @@ type
     property Basket: TFDMemTable read FBasket;
     property CalcExecCount: Integer read FCalcExecCount write FCalcExecCount;
     property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
+    property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     property W: TProductW read FW;
     property OnLocate: TNotifyEventsEx read FOnLocate;
     { Public declarations }
@@ -266,7 +278,7 @@ begin
   TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 
   // Обрабатываем событие у источника данных
-//  W.DataSource.OnDataChange := DataSourceDataChange;
+  W.DataSource.OnDataChange := DataSourceDataChange;
 
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
@@ -290,6 +302,13 @@ begin
   FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
 
   FBasket := W.AddClone(Format('%s > 0', [W.SaleCount.FieldName]));
+
+  FAutoSaveFieldNameList := TList<String>.Create;
+  FAutoSaveFieldNameList.Add(W.SaleCount.FieldName.ToUpper);
+
+  FHRTimer := THRTimer.Create(False);
+  FCalcTimer := THRTimer.Create(True);
+  FCalcDic := TDictionary<Integer, Double>.Create;
 end;
 
 destructor TQueryProductsBase.Destroy;
@@ -303,7 +322,13 @@ begin
   W.DropClone(FNotGroupClone);
   FNotGroupClone := nil;
 
+  FreeAndNil(FAutoSaveFieldNameList);
+
   FreeAndNil(FOnLocate);
+
+  FreeAndNil(FHRTimer);
+  FreeAndNil(FCalcTimer);
+  FreeAndNil(FCalcDic);
   inherited;
 end;
 
@@ -348,8 +373,9 @@ begin
     end
     else
     begin
-      Assert(W.PK.Value < 0);
-      if qSearchStorehouseProduct.SearchByID(-W.PK.Value) = 0 then
+      Assert(W.PK.Value < FVirtualIDOffset);
+      if qSearchStorehouseProduct.SearchByID
+        (GetStorehouseProductID(W.PK.Value)) = 0 then
         Exit;
 
       AProductIDS.Add(W.ProductID.F.AsInteger);
@@ -410,9 +436,8 @@ begin
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
     // Запоминаем первичный ключ
-    ARH.Field[W.PK.FieldName] := -qSearchStorehouseProduct.W.PK.Value;
-    // FetchFields([PK.FieldName], [-qSearchStorehouseProduct.PK.Value], ARequest,
-    // AAction, AOptions);
+    ARH.Field[W.PK.FieldName] := GetStorehouseProductVirtualID
+      (qSearchStorehouseProduct.W.PK.Value);
 
     FetchFields(ARH, ARequest, AAction, AOptions);
   finally
@@ -450,7 +475,7 @@ begin
     begin
       Assert(W.PK.Value < 0);
       // Ищем по идентификатору связки склад-продукт
-      qSearchStorehouseProduct.SearchByID(-W.PK.Value);
+      qSearchStorehouseProduct.SearchByID(GetStorehouseProductID(W.PK.Value));
 
       // Обновляем информацию о компоненте на складе
       qSearchStorehouseProduct.W.UpdateRecord(ARH);
@@ -551,6 +576,8 @@ var
 begin
   inherited;
   Assert(FDQuery.CachedUpdates);
+  Assert(FAutoSaveFieldNameList <> nil);
+  Assert(FAutoSaveFieldNameList.Count > 0);
 
   // Если уже есть несохранённые изменения
   if (FDQuery.ChangeCount > 0) or (FDataChange) then
@@ -561,8 +588,9 @@ begin
   // Если сейчас происходит редактирование или вставка
   if (ADS.DataSet.State in [dsInsert, dsEdit]) and (Field <> nil) then
   begin
-    // Если изменилось только поле Кол-во продаж
-    if Field.FieldName = W.SaleCount.FieldName then
+    // Если изменилось только вычисляемые поля или поле кол-во продаж
+    if (Field.FieldKind = fkCalculated) or (Field.FieldKind = fkInternalCalc) or
+      (FAutoSaveFieldNameList.IndexOf(Field.FieldName.ToUpper) >= 0) then
     begin
       if not FOnCommitUpdatePosted then
       begin
@@ -592,6 +620,9 @@ begin
       W.SaleCount.F.Value := NULL;
       W.TryPost;
     end;
+
+    ApplyUpdates;
+
   finally
     FDQuery.EnableControls;
   end;
@@ -807,6 +838,10 @@ begin
       qSearchProduct.W.PK.Value], True);
   end;
 
+  // Заполняем минимальную оптовую наценку
+  if W.MinWholeSale.F.IsNull then
+    W.MinWholeSale.F.AsFloat := TSettings.Create.MinWholeSale;
+
   // Если тип валюты задан - ничего не предпринимаем
   if not W.IDCurrency.F.IsNull then
     Exit;
@@ -865,15 +900,37 @@ end;
 
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
 var
+  AContains: Boolean;
   ADCource: Double;
   AECource: Double;
+  AID: Integer;
   AWholeSale: Double;
+  t: Double;
+  tt: Double;
 begin
   inherited;
-
   if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull)
   then
     Exit;
+
+  AID := W.PK.AsInteger;
+
+  t := FCalcTimer.ReadTimer;
+  AContains := FCalcDic.ContainsKey(AID);
+
+  if AContains then
+  begin
+    tt := FCalcDic[AID];
+{
+    if tt > (t - 900) then
+      Exit;
+}
+  end;
+
+  if not AContains then
+    FCalcDic.Add(AID, t)
+  else
+    FCalcDic[AID] := t;
 
   Inc(FCalcExecCount);
 
@@ -953,7 +1010,9 @@ begin
 
   // Если оптовая наценка не задана берём минимальную оптовую наценку
   if AWholeSale = 0 then
-    AWholeSale := W.MinWholeSale.F.Value;
+    // Если минимальная оптовая наценка задана
+    if not W.MinWholeSale.F.IsNull then
+      AWholeSale := W.MinWholeSale.F.Value;
 
   // Оптовая цена
   W.PriceR2.F.Value := W.PriceR.F.Value * (1 + AWholeSale / 100);
@@ -1013,7 +1072,7 @@ begin
   // У нас все изменения кэшируются на стороне клиента
   Assert(FDQuery.CachedUpdates);
 
-  Result := FDataChange;
+  Result := (FDQuery.ChangeCount > 0) or (FDataChange);
 end;
 
 function TQueryProductsBase.GetqSearchComponentGroup
@@ -1056,6 +1115,32 @@ begin
   if FqSearchStorehouseProduct = nil then
     FqSearchStorehouseProduct := TQuerySearchStorehouseProduct.Create(Self);
   Result := FqSearchStorehouseProduct;
+end;
+
+function TQueryProductsBase.GetqStoreHouseList: TQueryStoreHouseList;
+begin
+  if FqStoreHouseList = nil then
+  begin
+    FqStoreHouseList := TQueryStoreHouseList.Create(Self);
+    FqStoreHouseList.FDQuery.Open;
+  end;
+  Result := FqStoreHouseList;
+end;
+
+function TQueryProductsBase.GetStorehouseProductID(AVirtualID: Integer)
+  : Integer;
+begin
+  // Assert(FVirtualIDOffset < 0);
+  Assert(AVirtualID < FVirtualIDOffset);
+  Result := (AVirtualID * -1) + FVirtualIDOffset;
+end;
+
+function TQueryProductsBase.GetStorehouseProductVirtualID(AID: Integer)
+  : Integer;
+begin
+  // Assert(FVirtualIDOffset < 0);
+  Assert(AID > 0);
+  Result := (AID * -1) + FVirtualIDOffset;
 end;
 
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
@@ -1117,6 +1202,13 @@ begin
     end;
 
   end;
+end;
+
+procedure TQueryProductsBase.RefreshOrOpen;
+begin
+  // inherited;
+  FDQuery.Close;
+  FDQuery.Open;
 end;
 
 procedure TQueryProductsBase.SaveExtraCharge;

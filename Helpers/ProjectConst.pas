@@ -91,6 +91,7 @@ const
   OnReadProcessEventRecordCount = 100;
   // „ерез сколько считанных / записанных записей извещать о прогрессе
   OnWriteProcessEventRecordCount = 5;
+  MinWholeSaleDef = 10; // ћинимальна€ оптова€ наценка по "умолчанию"
 
 implementation
 

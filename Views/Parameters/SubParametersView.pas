@@ -139,7 +139,8 @@ begin
   inherited;
   MainView.Controller.ClearSelection;
   MainView.DataController.Append;
-  FocusColumnEditor(0, clName.DataBinding.FieldName);
+
+  FocusColumnEditor(0, QuerySubParameters.W.Name.FieldName);
 
   UpdateView;
 end;

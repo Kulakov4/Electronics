@@ -4,7 +4,73 @@ inherited ViewProducts2: TViewProducts2
   inherited cxDBTreeList: TcxDBTreeList
     Width = 1206
     ExplicitWidth = 1206
-    inherited clSaleCount: TcxDBTreeListColumn
+    inherited clIDProducer: TcxDBTreeListColumn [4]
+    end
+    inherited clDescription: TcxDBTreeListColumn [5]
+    end
+    inherited clDatasheet: TcxDBTreeListColumn [6]
+    end
+    inherited clDiagram: TcxDBTreeListColumn [7]
+    end
+    inherited clDrawing: TcxDBTreeListColumn [8]
+    end
+    inherited clImage: TcxDBTreeListColumn [9]
+    end
+    inherited clPackagePins: TcxDBTreeListColumn [10]
+    end
+    inherited clReleaseDate: TcxDBTreeListColumn [11]
+    end
+    inherited clAmount: TcxDBTreeListColumn [12]
+    end
+    inherited clPackaging: TcxDBTreeListColumn [13]
+    end
+    inherited clPriceR2: TcxDBTreeListColumn [14]
+    end
+    inherited clPriceD2: TcxDBTreeListColumn [15]
+    end
+    inherited clPriceR1: TcxDBTreeListColumn [16]
+    end
+    inherited clPriceD1: TcxDBTreeListColumn [17]
+    end
+    inherited clPriceR: TcxDBTreeListColumn [18]
+    end
+    inherited clPriceD: TcxDBTreeListColumn [19]
+    end
+    inherited clOriginCountryCode: TcxDBTreeListColumn [20]
+    end
+    inherited clOriginCountry: TcxDBTreeListColumn [21]
+    end
+    inherited clBatchNumber: TcxDBTreeListColumn [22]
+    end
+    inherited clCustomsDeclarationNumber: TcxDBTreeListColumn [23]
+    end
+    inherited clStorage: TcxDBTreeListColumn [24]
+    end
+    inherited clStoragePlace: TcxDBTreeListColumn [25]
+    end
+    inherited clSeller: TcxDBTreeListColumn [26]
+    end
+    inherited clDocumentNumber: TcxDBTreeListColumn [27]
+    end
+    inherited clBarcode: TcxDBTreeListColumn [28]
+    end
+    inherited clIDCurrency: TcxDBTreeListColumn [29]
+    end
+    inherited clChecked: TcxDBTreeListColumn [30]
+    end
+    inherited clPriceE: TcxDBTreeListColumn [31]
+    end
+    inherited clPriceE1: TcxDBTreeListColumn [32]
+    end
+    inherited clPriceE2: TcxDBTreeListColumn [33]
+    end
+    inherited clLoadDate: TcxDBTreeListColumn [34]
+    end
+    inherited clDollar: TcxDBTreeListColumn [35]
+    end
+    inherited clEuro: TcxDBTreeListColumn [36]
+    end
+    inherited clSaleCount: TcxDBTreeListColumn [37]
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -12,7 +78,7 @@ inherited ViewProducts2: TViewProducts2
           Kind = skSum
         end>
     end
-    inherited clSaleR: TcxDBTreeListColumn
+    inherited clSaleR: TcxDBTreeListColumn [38]
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -20,7 +86,7 @@ inherited ViewProducts2: TViewProducts2
           Kind = skSum
         end>
     end
-    inherited clSaleD: TcxDBTreeListColumn
+    inherited clSaleD: TcxDBTreeListColumn [39]
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -28,13 +94,15 @@ inherited ViewProducts2: TViewProducts2
           Kind = skSum
         end>
     end
-    inherited clSaleE: TcxDBTreeListColumn
+    inherited clSaleE: TcxDBTreeListColumn [40]
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
           CalculatedColumn = clSaleE
           Kind = skSum
         end>
+    end
+    inherited clStoreHouseID: TcxDBTreeListColumn [41]
     end
   end
   inherited StatusBar: TStatusBar

@@ -25,7 +25,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxDBExtLookupComboBox, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxBarEditItem, cxClasses, Vcl.ComCtrls,
-  cxInplaceContainer, cxDBTL, cxTLData, ProductsQuery, ProductsBaseQuery;
+  cxInplaceContainer, cxDBTL, cxTLData, ProductsQuery, ProductsBaseQuery,
+  StoreHouseListQuery, cxEdit, cxCurrencyEdit;
 
 type
   TViewProductsBasket = class(TViewProductsBase2)
@@ -33,14 +34,25 @@ type
     actBasketDelete: TAction;
     actBasketClear: TAction;
     dxBarButton2: TdxBarButton;
+    cxbeiSaleR: TcxBarEditItem;
+    actCalcExecCount: TAction;
+    dxBarButton3: TdxBarButton;
+    dxBarButton4: TdxBarButton;
     procedure actBasketClearExecute(Sender: TObject);
     procedure actBasketDeleteExecute(Sender: TObject);
+    procedure actCalcExecCountExecute(Sender: TObject);
+    procedure cxDBTreeListAfterSummary(Sender: TObject);
+    procedure cxDBTreeListEditing(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn; var Allow: Boolean);
   private
     function GetqProducts: TQueryProducts;
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
   protected
+    procedure DoAfterPost(Sender: TObject);
+    procedure DoBeforePost(Sender: TObject);
     function GetW: TProductW; override;
+    procedure InitializeColumns; override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
@@ -91,6 +103,53 @@ begin
   end;
 end;
 
+procedure TViewProductsBasket.actCalcExecCountExecute(Sender: TObject);
+begin
+  inherited;
+  ShowMessage(Format('Calc exec count = %d', [qProducts.CalcExecCount]));
+end;
+
+procedure TViewProductsBasket.cxDBTreeListAfterSummary(Sender: TObject);
+var
+  AFooterSummaryItem: TcxTreeListSummaryItem;
+  AValue: Variant;
+begin
+  inherited;
+  AFooterSummaryItem := clSaleR.Summary.FooterSummaryItems.GetItemByKind(skSum);
+
+  if AFooterSummaryItem = nil then
+    Exit;
+
+  AValue := cxDBTreeList.Summary.FooterSummaryValues[AFooterSummaryItem];
+
+  cxbeiSaleR.EditValue := AValue;
+end;
+
+procedure TViewProductsBasket.cxDBTreeListEditing(Sender: TcxCustomTreeList;
+  AColumn: TcxTreeListColumn; var Allow: Boolean);
+begin
+  inherited;
+
+  Allow := AColumn = clSaleCount;
+end;
+
+procedure TViewProductsBasket.DoAfterPost(Sender: TObject);
+var
+  d: Double;
+begin
+  W.DataSource.Enabled := True;
+  EndUpdate;
+  d := FHRTimer.ReadTimer;
+//  ShowMessage(Format('Time = %f', [d]));
+end;
+
+procedure TViewProductsBasket.DoBeforePost(Sender: TObject);
+begin
+  FHRTimer.StartTimer;
+  BeginUpdate;
+  W.DataSource.Enabled := False;
+end;
+
 function TViewProductsBasket.GetqProducts: TQueryProducts;
 begin
   Result := qProductsBase as TQueryProducts;
@@ -98,14 +157,27 @@ end;
 
 function TViewProductsBasket.GetW: TProductW;
 begin
-{
-  if FProductW = nil then
-  begin
+  {
+    if FProductW = nil then
+    begin
     Assert(qProductsBase <> nil);
     FProductW := TProductW.Create(qProductsBase.Basket);
-  end;
-}
+    end;
+  }
   Result := qProducts.W;
+end;
+
+procedure TViewProductsBasket.InitializeColumns;
+begin
+  inherited;
+
+  Assert(qProducts <> nil);
+
+  // clSaleCount.Position.Band.Position.ColIndex := 1;
+  // clSaleR.Position.Band.Position.ColIndex := 2;
+
+  InitializeLookupColumn(clStorehouseId, qProducts.qStoreHouseList.W.DataSource,
+    lsEditFixedList, qProducts.qStoreHouseList.W.Abbreviation.FieldName);
 end;
 
 procedure TViewProductsBasket.SetqProducts(const Value: TQueryProducts);
@@ -117,6 +189,9 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
+
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
+  TNotifyEventWrap.Create(W.AfterPost, DoAfterPost, W.EventList);
 
   MyApplyBestFit;
 end;
@@ -133,7 +208,7 @@ begin
     (cxDBTreeList.SelectionCount > 0) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
-  actBasketClear.Enabled := actBasketDelete.Enabled
+  actBasketClear.Enabled := actBasketDelete.Enabled;
 end;
 
 end.

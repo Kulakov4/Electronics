@@ -54,7 +54,7 @@ inherited QueryProducts: TQueryProducts
       'join ComponentGroups cg on sp.IDComponentGroup = cg.id'
       'union'
       'select'
-      '       -sp.Id,'
+      '       -sp.Id -100000,'
       '       p.Value,'
       '       sp.StorehouseId,'
       '       0 IsGroup,'

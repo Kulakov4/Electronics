@@ -19,6 +19,7 @@ type
     function GetComponentsImageFolder: String;
     function GetComponentsDiagramFolder: String;
     function GetComponentsDatasheetFolder: String;
+    function GetMinWholeSale: Double;
     function GetWareHouseDiagramFolder: String;
     function GetWareHouseDrawingFolder: String;
     function GetWareHouseImageFolder: String;
@@ -41,6 +42,7 @@ type
     procedure SetComponentsImageFolder(const Value: String);
     procedure SetComponentsDiagramFolder(const Value: String);
     procedure SetComponentsDatasheetFolder(const Value: String);
+    procedure SetMinWholeSale(const Value: Double);
     procedure SetWareHouseDiagramFolder(const Value: String);
     procedure SetWareHouseDrawingFolder(const Value: String);
     procedure SetWareHouseImageFolder(const Value: String);
@@ -87,6 +89,7 @@ type
       write SetComponentsDiagramFolder;
     property ComponentsDatasheetFolder: String read GetComponentsDatasheetFolder
       write SetComponentsDatasheetFolder;
+    property MinWholeSale: Double read GetMinWholeSale write SetMinWholeSale;
     property WareHouseDiagramFolder: String read GetWareHouseDiagramFolder
       write SetWareHouseDiagramFolder;
     property WareHouseDrawingFolder: String read GetWareHouseDrawingFolder
@@ -116,7 +119,7 @@ uses ProjectConst, System.IOUtils, System.Variants, System.Contnrs,
   System.Classes;
 
 var
-  SingletonList : TObjectList;
+  SingletonList: TObjectList;
 
 constructor TSettings.Create;
 begin
@@ -179,6 +182,12 @@ function TSettings.GetComponentsDatasheetFolder: String;
 begin
   Result := GetPath('Components', 'DatasheetFolder',
     sComponentsDatasheetFolder);
+end;
+
+function TSettings.GetMinWholeSale: Double;
+begin
+  Result := StrToFloatDef(GetValue('StoreHouse', 'MinWholeSale',
+    IntToStr(MinWholeSaleDef)), MinWholeSaleDef);
 end;
 
 function TSettings.GetWareHouseDiagramFolder: String;
@@ -255,8 +264,8 @@ function TSettings.GetValue(const ASection, AParameter: string;
   const ADefault: string = ''): string;
 begin
   Result := IniFile.ReadString(ASection, AParameter, ADefault);
-//  if Result = ADefault then
-//    Result := IniFile.ReadString('Db', AParameter, ADefault);
+  // if Result = ADefault then
+  // Result := IniFile.ReadString('Db', AParameter, ADefault);
 end;
 
 function TSettings.GetPath(const ASection, AParameter, ADefaultFolder
@@ -344,6 +353,11 @@ begin
 end;
 
 procedure TSettings.SetComponentsDatasheetFolder(const Value: String);
+begin
+  SetValue('Components', 'DatasheetFolder', Value);
+end;
+
+procedure TSettings.SetMinWholeSale(const Value: Double);
 begin
   SetValue('Components', 'DatasheetFolder', Value);
 end;
@@ -464,9 +478,11 @@ begin
 end;
 
 initialization
-   SingletonList := TObjectList.Create(True);
+
+SingletonList := TObjectList.Create(True);
 
 finalization
-   SingletonList.Free;
+
+SingletonList.Free;
 
 end.

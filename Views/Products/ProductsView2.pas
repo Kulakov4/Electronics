@@ -88,6 +88,7 @@ type
   protected
     function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
+    procedure InitializeColumns; override;
     procedure UpdateProductCount; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -197,26 +198,28 @@ end;
 procedure TViewProducts2.actDisContrlExecute(Sender: TObject);
 begin
   inherited;
-  qProducts.Basket.DisableControls;
+  W.DataSource.Enabled := False;
 end;
 
 procedure TViewProducts2.actEnContrlExecute(Sender: TObject);
 begin
   inherited;
-  qProducts.Basket.EnableControls;
+  BeginUpdate;
+  cxDBTreeList.DataController.DataSource := qProducts.W.DataSource;
+  EndUpdate;
 end;
 
 procedure TViewProducts2.actIsContolDisExecute(Sender: TObject);
 begin
   inherited;
-  ShowMessage(BoolToStr(qProducts.Basket.ControlsDisabled, True));
+  ShowMessage(BoolToStr(cxDBTreeList.DataController.DataSource <> nil, true));
 end;
 
 procedure TViewProducts2.actTryEditExecute(Sender: TObject);
 begin
   inherited;
   FHRTimer.StartTimer;
-//  ShowMessage('0');
+  // ShowMessage('0');
   W.TryEdit;
   ShowMessage(Format('Время: %f', [FHRTimer.ReadTimer]));
 end;
@@ -226,8 +229,8 @@ begin
   Result := TViewProducts2.Create(nil);
 end;
 
-procedure TViewProducts2.cxBarEditItem1PropertiesDrawItem(
-  AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
+procedure TViewProducts2.cxBarEditItem1PropertiesDrawItem
+  (AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
   const ARect: TRect; AState: TOwnerDrawState);
 var
   S: string;
@@ -273,19 +276,17 @@ begin
   Error := true;
 end;
 
-procedure TViewProducts2.cxbeiWholeSalePropertiesDrawItem(
-  AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
+procedure TViewProducts2.cxbeiWholeSalePropertiesDrawItem
+  (AControl: TcxCustomComboBox; ACanvas: TcxCanvas; AIndex: Integer;
   const ARect: TRect; AState: TOwnerDrawState);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
-procedure TViewProducts2.cxbeiWholeSalePropertiesEditValueChanged(
-  Sender: TObject);
+procedure TViewProducts2.cxbeiWholeSalePropertiesEditValueChanged
+  (Sender: TObject);
 begin
-  inherited;
-  ;
+  inherited;;
 end;
 
 procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
@@ -304,6 +305,16 @@ end;
 function TViewProducts2.GetW: TProductW;
 begin
   Result := qProducts.W;
+end;
+
+procedure TViewProducts2.InitializeColumns;
+begin
+  inherited;
+
+  Assert(qProducts <> nil);
+  Assert(clStoreHouseID.Position.Band <> nil);
+
+  clStoreHouseID.Position.Band.Visible := False;
 end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
@@ -345,7 +356,6 @@ begin
   begin
     TNotifyEventWrap.Create(qProducts.BeforeLoad, DoBeforeLoad, FEventList);
   end;
-
 
 end;
 
