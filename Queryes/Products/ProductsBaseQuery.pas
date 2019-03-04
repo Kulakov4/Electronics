@@ -189,8 +189,7 @@ type
     // TODO: SplitComponentName
     // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
-  protected
-  const
+  protected const
     FVirtualIDOffset = -100000;
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
@@ -536,30 +535,30 @@ begin
 end;
 
 procedure TQueryProductsBase.ClearInternalCalcFields;
-var
-  WasSave: Boolean;
 begin
-  WasSave := not HaveAnyNotCommitedChanges;
+  Assert(not HaveAnyNotCommitedChanges);
   FDQuery.DisableControls;
+//  BeginApplyUpdatesOnClient;
   try
     FDQuery.First;
     while not FDQuery.Eof do
     begin
-      W.TryEdit;
-      W.IDExtraCharge.F.Clear;
-      W.IDExtraChargeType.F.Clear;
-      W.Wholesale.F.Clear; // Оптовая наценка
-      W.SaleCount.F.Clear; // Кол-во продаж
-      W.TryPost;
+      if W.IsGroup.F.AsInteger = 0 then
+      begin
+        W.TryEdit;
+        W.IDExtraCharge.F.Clear;
+        W.IDExtraChargeType.F.Clear;
+        W.Wholesale.F.Clear; // Оптовая наценка
+        W.SaleCount.F.Clear; // Кол-во продаж - хранится в БД
+        W.TryPost;
 
-      // Если до очистки у нас всё было сохранене
-      if WasSave then
-        // никаких изменений в БД не должно произойти
+        // никаких изменений в БД не должно произойти, кроме кол-ва продаж!!!
         ApplyUpdates;
-
+      end;
       FDQuery.Next;
     end;
   finally
+    //EndApplyUpdatesOnClient;
     FDQuery.EnableControls;
   end;
 end;
@@ -596,7 +595,6 @@ begin
       begin
         FOnCommitUpdatePosted := True;
         PostMessage(Handle, WM_OnCommitUpdates, 0, 0);
-        beep;
       end;
       // FDQuery.CommitUpdates;
     end
@@ -734,6 +732,7 @@ begin;
   // Retail.FieldKind := fkInternalCalc;
 
   W.InitFields;
+  FDataChange := False;
 
   // DisableCalc;
 end;
@@ -921,10 +920,10 @@ begin
   if AContains then
   begin
     tt := FCalcDic[AID];
-{
-    if tt > (t - 900) then
+    {
+      if tt > (t - 900) then
       Exit;
-}
+    }
   end;
 
   if not AContains then

@@ -275,12 +275,12 @@ begin
 end;
 
 procedure TQueryBaseEvents.DoAfterMasterScroll(Sender: TObject);
- var
- S: String;
+ //var
+// S: String;
 begin
-  S := Name;
-  if S.StartsWith('QueryProducts_') then
-    beep;
+//  S := Name;
+//  if S.StartsWith('QueryProducts_') then
+//    beep;
 
   TryLoad;
 end;
@@ -510,7 +510,14 @@ begin
     Exit;
   end;
 
-  // Если наш запрос кто-то использует - выполняем запрос !!!
+  // Если наш запрос кто-то использует
+  // но параметр  НЕ изменился и запрос уже открыт
+  if (not AParamValueChange) and FDQuery.Active then
+  begin
+    Exit;
+  end;
+
+
   BeforeLoad.CallEventHandlers(FDQuery);
 
   if AParamValueChange then
@@ -764,8 +771,8 @@ begin
   // Мы не должны разрушать запрос, который имеет несохранённые данные
   i := FChangedQueries.IndexOf(AQuery);
 
-  if i >= 0 then
-    beep;
+//  if i >= 0 then
+//    beep;
 
   Assert(i = -1);
 

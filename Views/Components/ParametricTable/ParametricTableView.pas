@@ -890,8 +890,8 @@ begin
     if not ABI.Band.Visible then
       Continue;
 
-    if ABI.IDList.Count = 0 then
-      beep;
+//    if ABI.IDList.Count = 0 then
+//      beep;
   end;
 end;
 

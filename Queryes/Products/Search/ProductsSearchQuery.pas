@@ -33,7 +33,6 @@ type
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;
-    procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
@@ -87,7 +86,6 @@ begin
   FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
-  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);
   FOnEndUpdate := TNotifyEventsEx.Create(Self);
@@ -150,13 +148,6 @@ begin
   Result := TProductSearchW.Create(FDQuery);
 end;
 
-procedure TQueryProductsSearch.DoAfterInsert(Sender: TObject);
-begin
-  Inc(FX);
-  W.PK.Value := -FX;
-  W.IsGroup.F.AsInteger := 0;
-end;
-
 procedure TQueryProductsSearch.DoAfterOpen(Sender: TObject);
 var
   I: Integer;
@@ -165,7 +156,7 @@ begin
   W.SetFieldsReadOnly(False);
 
   // Добавляем пустую запись для поиска, если она необходима
-  AutoTransaction := True;
+//  AutoTransaction := True;
 
   for I := FDQuery.RecordCount to FEmptyAmount - 1 do
   begin
@@ -182,13 +173,14 @@ begin
   ProductSearchW.FMode := GetCurrentMode;
 
   // Выбираем нужный режим транзакции
-  AutoTransaction := ProductSearchW.Mode = SearchMode;
+//  AutoTransaction := ProductSearchW.Mode = SearchMode;
 end;
 
 procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
 begin
-  // Ничего не делаем
-  ;
+;
+  // Предполагаем что при поиске
+  // записи на склад не вставляются и проверка не нежна!!!
 end;
 
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);

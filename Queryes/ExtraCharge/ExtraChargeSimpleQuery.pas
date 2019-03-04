@@ -102,7 +102,7 @@ begin
   Assert(AID >= 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.PK.FullName, AID)], TestResult);
+  Result := SearchEx([TParamRec.Create(W.ID.FullName, AID)], TestResult);
 end;
 
 function TQueryExtraChargeSimple.SearchValueInRange(const AValue: Integer;

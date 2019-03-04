@@ -217,7 +217,7 @@ end;
 
 procedure TfrmMain.actComponentsTabExecute(Sender: TObject);
 begin
-  beep;
+//  beep;
 end;
 
 procedure TfrmMain.actExitExecute(Sender: TObject);

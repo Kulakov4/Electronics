@@ -61,7 +61,7 @@ begin
   Assert(AID > 0);
 
   // »щем
-  Result := SearchEx([TParamRec.Create(W.PK.FullName, AID)],
+  Result := SearchEx([TParamRec.Create(W.ID.FullName, AID)],
     IfThen(ATestResult, 1, -1));
 end;
 

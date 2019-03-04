@@ -32,6 +32,7 @@ type
     FAfterLoad: TNotifyEventsEx;
     FBeforeLoad: TNotifyEventsEx;
     FDetailParameterName: string;
+    FFDUpdateRecordEvent: TFDUpdateRecordEvent;
     FFDUpdateSQL: TFDUpdateSQL;
     FMaxUpdateRecCount: Integer;
     FSQL: string;
@@ -49,13 +50,15 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
+    procedure BeginApplyUpdatesOnClient;
+    procedure EndApplyUpdatesOnClient;
     procedure DoOnQueryUpdateRecord(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
     procedure DoOnUpdateRecordException(AException: Exception); virtual;
-    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-        TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-        TFDUpdateRowOptions);
+    procedure FDQueryUpdateRecordOnClient(ASender: TDataSet;
+      ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+      AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
     procedure RefreshOrOpen; virtual;
@@ -157,6 +160,20 @@ procedure TQueryBase.ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
 begin
 end;
 
+procedure TQueryBase.BeginApplyUpdatesOnClient;
+begin
+  Assert(not Assigned(FFDUpdateRecordEvent));
+  FFDUpdateRecordEvent := FDQuery.OnUpdateRecord;
+  FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
+end;
+
+procedure TQueryBase.EndApplyUpdatesOnClient;
+begin
+  Assert(Assigned(FFDUpdateRecordEvent));
+  FDQuery.OnUpdateRecord := FFDUpdateRecordEvent;
+  FFDUpdateRecordEvent := nil
+end;
+
 // Есть-ли изменения не сохранённые в БД
 function TQueryBase.GetHaveAnyChanges: Boolean;
 begin
@@ -183,16 +200,13 @@ begin
 end;
 
 procedure TQueryBase.DeleteFromClient;
-var
-  E: TFDUpdateRecordEvent;
 begin
   Assert(FDQuery.RecordCount > 0);
-  E := FDQuery.OnUpdateRecord;
+  BeginApplyUpdatesOnClient;
   try
-    FDQuery.OnUpdateRecord := FDQueryUpdateRecordOnClient;
     FDQuery.Delete;
   finally
-    FDQuery.OnUpdateRecord := E;
+    EndApplyUpdatesOnClient;
   end;
 end;
 
@@ -240,9 +254,9 @@ begin
   raise AException;
 end;
 
-procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet; ARequest:
-    TFDUpdateRequest; var AAction: TFDErrorAction; AOptions:
-    TFDUpdateRowOptions);
+procedure TQueryBase.FDQueryUpdateRecordOnClient(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   inherited;
   AAction := eaApplied;
