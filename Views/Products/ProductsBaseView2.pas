@@ -128,6 +128,8 @@ type
     cxslFocusedColumn: TcxStyle;
     cxslSelectedColumn: TcxStyle;
     cxslOtherColumn: TcxStyle;
+    cxslHighlited: TcxStyle;
+    cxslSelectedColumn2: TcxStyle;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -875,8 +877,11 @@ procedure TViewProductsBase2.cxDBTreeListCustomDrawDataCell
   AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
 var
   AStyle: TcxStyle;
+  V: Variant;
 begin
   inherited;
+
+  AStyle := nil;
 
   // Если снято всё выделение
   if AViewInfo.TreeList.SelectionCount = 0 then
@@ -886,7 +891,7 @@ begin
   else
   begin
     // Сфокусированная строка
-    if AViewInfo.Node.Focused then
+    if (AViewInfo.Node.Focused) and ( AViewInfo.TreeList.SelectionCount = 1) then
     begin
       // Сфокусированный столбец
       if AViewInfo.Focused then
@@ -901,52 +906,38 @@ begin
     end
     else if AViewInfo.Node.Selected then
     begin
-      AStyle := cxslSelectedColumn;
+      AStyle := cxslSelectedColumn2;
     end
     else
     begin
       AStyle := cxslOtherColumn;
     end;
   end;
-  ACanvas.Font.Color := AStyle.TextColor;
-  ACanvas.FillRect(AViewInfo.BoundsRect, AStyle.Color);
 
-  {
-    if (AViewInfo.Selected) and (AViewInfo.Column = cxDBTreeList.FocusedColumn)
-    then
-    Exit;
-
-    if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) and
-    (AViewInfo.Column <> clValue) then
-    Exit;
-
-    if AViewInfo.Column = clValue then
-    begin
+  // Выделяем наименование, если оно есть в базе по компонентам
+  if AViewInfo.Column = clValue then
+  begin
     V := AViewInfo.Node.Values[clChecked.ItemIndex];
-    if VarIsNull(V) then
-    Exit;
+    if (not VarIsNull(V)) and (V = 1) then
+      AStyle := cxslHighlited;
+  end;
 
-    if V = 1 then
-    begin
-    // Пишем чёрным по белому
-    ACanvas.Font.Color := clBlack;
-    ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
-    end;
-    Exit;
-    end;
-
+  // Выделяем цветом закупочную цену
+  if (AViewInfo.Column = clPriceR) or (AViewInfo.Column = clPriceD) or
+    (AViewInfo.Column = clPriceE) then
+  begin
     V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
-    if VarIsNull(V) then
-    Exit;
+    if (not VarIsNull(V)) and (((V = 1) and (AViewInfo.Column = clPriceR)) or
+      ((V = 2) and (AViewInfo.Column = clPriceD)) or
+      ((V = 3) and (AViewInfo.Column = clPriceE))) then
+      AStyle := cxslHighlited;
+  end;
 
-    if ((V = 1) and (AViewInfo.Column = clPriceR)) or
-    ((V = 2) and (AViewInfo.Column = clPriceD)) then
-    begin
-    // Пишем чёрным по белому
-    ACanvas.Font.Color := clBlack;
-    ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
-    end;
-    { }
+  if AStyle <> nil then
+  begin
+    ACanvas.Font.Color := AStyle.TextColor;
+    ACanvas.FillRect(AViewInfo.BoundsRect, AStyle.Color);
+  end;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListExpanded(Sender: TcxCustomTreeList;

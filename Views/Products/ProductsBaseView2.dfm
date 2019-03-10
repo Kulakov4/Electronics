@@ -1077,5 +1077,15 @@ inherited ViewProductsBase2: TViewProductsBase2
       Color = clWindow
       TextColor = clWindowText
     end
+    object cxslHighlited: TcxStyle
+      AssignedValues = [svColor, svTextColor]
+      Color = 10092441
+      TextColor = clBlack
+    end
+    object cxslSelectedColumn2: TcxStyle
+      AssignedValues = [svColor, svTextColor]
+      Color = clHighlight
+      TextColor = clHighlightText
+    end
   end
 end
