@@ -184,6 +184,8 @@ type
     procedure PopupMenuPopup(Sender: TObject);
     procedure cxbeiExtraChargeTypePropertiesChange(Sender: TObject);
     procedure cxbeiExtraChargePropertiesChange(Sender: TObject);
+    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn);
     procedure dxbcMinWholeSaleChange(Sender: TObject);
   private
     FCountEvents: TObjectList;
@@ -368,29 +370,25 @@ var
 begin
   inherited;
 
-  // BeginBlockEvents;
-  try
+  // Если редактировалась группа - то по окончании редактироваия она автосохранится!!!
+  cxDBTreeList.HideEdit;
 
-    cxDBTreeList.Post;
+  cxDBTreeList.Post;
 
-    if cxDBTreeList.FocusedNode.IsGroupNode then
-      AID := FocusedNodeValue(clID)
-    else
-    begin
-      Assert(cxDBTreeList.FocusedNode.Parent <> nil);
-      AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
-    end;
-
-    W.AddProduct(AID);
-
-    // cxDBTreeList.ApplyBestFit;
-    cxDBTreeList.SetFocus;
-
-    // Переводим колонку в режим редактирования
-    clValue.Editing := True;
-  finally
-    // EndBlockEvents;
+  if cxDBTreeList.FocusedNode.IsGroupNode then
+    AID := FocusedNodeValue(clID)
+  else
+  begin
+    Assert(cxDBTreeList.FocusedNode.Parent <> nil);
+    AID := cxDBTreeList.FocusedNode.Parent.Values[clID.ItemIndex];
   end;
+
+  W.AddProduct(AID);
+
+  cxDBTreeList.SetFocus;
+
+  // Переводим колонку в режим редактирования
+  clValue.Editing := True;
 end;
 
 procedure TViewProductsBase2.actApplyBestFitExecute(Sender: TObject);
@@ -891,7 +889,7 @@ begin
   else
   begin
     // Сфокусированная строка
-    if (AViewInfo.Node.Focused) and ( AViewInfo.TreeList.SelectionCount = 1) then
+    if (AViewInfo.Node.Focused) and (AViewInfo.TreeList.SelectionCount = 1) then
     begin
       // Сфокусированный столбец
       if AViewInfo.Focused then
@@ -938,6 +936,27 @@ begin
     ACanvas.Font.Color := AStyle.TextColor;
     ACanvas.FillRect(AViewInfo.BoundsRect, AStyle.Color);
   end;
+end;
+
+procedure TViewProductsBase2.cxDBTreeListEdited(Sender: TcxCustomTreeList;
+  AColumn: TcxTreeListColumn);
+var
+  V: Variant;
+begin
+  inherited;
+  if (AColumn <> clValue) or (VarToStrDef(AColumn.Value, '') = '') then
+    Exit;
+
+  V := Sender.FocusedNode.Values[clIsGroup.ItemIndex];
+
+  if VarIsNull(V) or V <> 1 then
+    Exit;
+
+  // Нужно сохранить запись в БД чтобы товар мог ссылаться на неё
+  Sender.Post;
+  // Мы просто завершаем транзакцию
+  FqProductsBase.ApplyUpdates;
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.cxDBTreeListExpanded(Sender: TcxCustomTreeList;
