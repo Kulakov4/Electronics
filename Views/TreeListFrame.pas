@@ -50,6 +50,10 @@ type
         TcxTreeListColumn);
     procedure cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
         TcxTreeListColumn; var Allow: Boolean);
+    procedure cxDBTreeListFocusedColumnChanged(Sender: TcxCustomTreeList;
+        APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
+    procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
+        APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 
     procedure cxDBTreeListMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
@@ -305,6 +309,18 @@ end;
 
 procedure TfrmTreeList.cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
     TcxTreeListColumn; var Allow: Boolean);
+begin
+  UpdateView;
+end;
+
+procedure TfrmTreeList.cxDBTreeListFocusedColumnChanged(Sender:
+    TcxCustomTreeList; APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
+begin
+  UpdateView;
+end;
+
+procedure TfrmTreeList.cxDBTreeListFocusedNodeChanged(Sender:
+    TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
   UpdateView;
 end;

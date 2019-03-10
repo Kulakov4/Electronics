@@ -26,7 +26,7 @@ uses
   dxSkinXmas2008Blue, cxDBExtLookupComboBox, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxBarEditItem, cxClasses, Vcl.ComCtrls,
   cxInplaceContainer, cxDBTL, cxTLData, ProductsQuery, ProductsBaseQuery,
-  StoreHouseListQuery, cxEdit, cxCurrencyEdit;
+  StoreHouseListQuery, cxEdit, cxCurrencyEdit, cxTextEdit;
 
 type
   TViewProductsBasket = class(TViewProductsBase2)

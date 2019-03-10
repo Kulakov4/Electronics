@@ -132,7 +132,6 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
     OnColumnHeaderClick = cxDBTreeListColumnHeaderClick
     OnExpanded = cxDBTreeListExpanded
-    OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged

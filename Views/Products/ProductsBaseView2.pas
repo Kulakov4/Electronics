@@ -32,7 +32,7 @@ uses
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
   cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections,
   cxDataControllerConditionalFormattingRulesManagerDialog,
-  ExtraChargeSimpleView, DSWrap, HRTimer;
+  ExtraChargeSimpleView, DSWrap, HRTimer, dxNumericWheelPicker, cxTextEdit;
 
 const
   WM_RESYNC_DATASET = WM_USER + 800;

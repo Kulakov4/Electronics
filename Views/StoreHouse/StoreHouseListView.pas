@@ -103,28 +103,12 @@ begin
 end;
 
 procedure TViewStoreHouse.actRenameStorehouseExecute(Sender: TObject);
-// var
-// Value: string;
 begin
   MainView.Controller.ClearSelection;
   MainView.DataController.Edit;
   FocusColumnEditor(0, W.Title.FieldName);
 
   UpdateView;
-
-  {
-    W.TryPost;
-
-    Value := InputBox(sDatabase, sPleaseWrite, W.Title.F.AsString);
-
-    if (Value.IsEmpty) or (Value = W.Title.F.AsString) then
-    Exit;
-
-    W.TryEdit;
-    W.Title.F.AsString := Value;
-    W.TryPost;
-    MainView.ApplyBestFit();
-  }
 end;
 
 procedure TViewStoreHouse.cxGridDBBandedTableViewCanFocusRecord

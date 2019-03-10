@@ -176,9 +176,11 @@ end;
 
 procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
 begin
-;
   // Предполагаем что при поиске
-  // записи на склад не вставляются и проверка не нежна!!!
+  // записи на склад не вставляются и проверка не нужна!!!
+
+  if FDQuery.State = dsEdit then
+    inherited;
 end;
 
 procedure TQueryProductsSearch.DoSearch(ALike: Boolean);

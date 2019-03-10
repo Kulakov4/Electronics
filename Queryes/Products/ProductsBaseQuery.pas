@@ -83,8 +83,9 @@ type
     FWholesale: TFieldWrap;
     procedure DoAfterOpen(Sender: TObject);
   protected
-    function CheckRecord(ADollarCource: Double;
+    function CheckInsertingRecord(ADollarCource: Double;
       const AEuroCource: Double): String;
+    function CheckEditingRecord: String;
     procedure InitFields;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
@@ -512,7 +513,7 @@ begin
 
   W.TryPost;
   // тут должны быть несохранЄнные изменени€
-  Assert(FDQuery.ChangeCount > 0);
+//  Assert(FDQuery.ChangeCount > 0);
 
   FDQuery.Connection.StartTransaction;
 
@@ -521,6 +522,9 @@ begin
 
   FDQuery.Connection.Commit;
   FDataChange := False;
+
+  Assert(not FDQuery.UpdatesPending);
+  Assert(FDQuery.ChangeCount = 0);
 end;
 
 procedure TQueryProductsBase.CancelUpdates;
@@ -777,6 +781,14 @@ var
   AErrorMessage: String;
   rc: Integer;
 begin
+  if FDQuery.State = dsEdit then
+  begin
+    // ѕровер€ем что поле кол-во продаж <= пол€ кол-во
+    AErrorMessage := W.CheckEditingRecord;
+    if not AErrorMessage.IsEmpty then
+      raise Exception.Create(AErrorMessage);
+  end;
+
   // ≈сли не происходит вставка новой записи
   if not(FDQuery.State in [dsInsert]) then
     Exit;
@@ -788,7 +800,7 @@ begin
     Exit;
 
   // ѕровер€ем запись на наличие ошибок
-  AErrorMessage := W.CheckRecord(DollarCource, EuroCource);
+  AErrorMessage := W.CheckInsertingRecord(DollarCource, EuroCource);
   if not AErrorMessage.IsEmpty then
     raise Exception.Create(AErrorMessage);
 
@@ -913,8 +925,8 @@ end;
 procedure TQueryProductsBase.DoOnCommitUpdates(var Message: TMessage);
 begin
   inherited;
-  ApplyUpdates;
   FOnCommitUpdatePosted := False;
+  ApplyUpdates;
 end;
 
 procedure TQueryProductsBase.EnableCalc;
@@ -1413,7 +1425,7 @@ begin
   DataSet.Filtered := True;
 end;
 
-function TProductW.CheckRecord(ADollarCource: Double;
+function TProductW.CheckInsertingRecord(ADollarCource: Double;
   const AEuroCource: Double): String;
 var
   k: Integer;
@@ -1475,6 +1487,17 @@ begin
   if (Euro.F.IsNull) and (AEuroCource = 0) then
   begin
     Result := 'Ќе задан курс евро';
+    Exit;
+  end;
+end;
+
+function TProductW.CheckEditingRecord: String;
+begin
+  Result := '';
+
+  if SaleCount.F.AsFloat > Amount.F.AsFloat then
+  begin
+    Result := 'Ќа складе недостаточное количество товара';
     Exit;
   end;
 end;
