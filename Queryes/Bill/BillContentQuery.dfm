@@ -1,4 +1,4 @@
-inherited QueryBillContent: TQueryBillContent
+inherited QryBillContent: TQryBillContent
   inherited Label1: TLabel
     Width = 69
     Caption = 'BillContent'
@@ -6,8 +6,50 @@ inherited QueryBillContent: TQueryBillContent
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select *'
-      'from BillContent'
-      'order by BillID')
+      'select'
+      '       -sp.Id -100000 ID,'
+      '       p.Value,'
+      '       sp.StorehouseId,'
+      '       0 IsGroup,'
+      '       sp.IDComponentGroup,'
+      '       p.IDProducer,'
+      '       sp.Amount,'
+      '       sp.Price,'
+      '       sp.ProductId,'
+      '       sp.ReleaseDate,'
+      '       sp.BatchNumber,'
+      '       sp.Packaging,'
+      '       sp.OriginCountry,'
+      '       sp.CustomsDeclarationNumber,'
+      '       sp.Storage,'
+      '       sp.DocumentNumber,'
+      '       sp.Barcode,'
+      '       sp.Seller,'
+      '       sp.StoragePlace,'
+      '       sp.OriginCountryCode,'
+      '       sp.IDCurrency,'
+      '       sp.LoadDate,'
+      '       sp.DOLLAR,'
+      '       sp.EURO,'
+      '       sp.RETAIL,'
+      '       sp.MinWholeSale,'
+      '       bc.SaleCount,'
+      '       p.PackagePins,'
+      '       p.Datasheet,'
+      '       p.Diagram,'
+      '       p.Drawing,'
+      '       p.Image,'
+      '       p.DescriptionID,'
+      '       d.ComponentName DescriptionComponentName,'
+      '       d.Description,'
+      '       case when pr.ID is null then 0 else 1 end Checked,'
+      '       bc.ID BillContentID,'
+      '       bc.BillID'
+      'from StorehouseProducts sp'
+      'join Products2 p on sp.ProductId = p.id'
+      'join BillContent bc on bc.StorehouseProductID = sp.Id'
+      'left join Products pr on p.Value = pr.Value'
+      'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
+      'where (0=0) and (1=1)')
   end
 end

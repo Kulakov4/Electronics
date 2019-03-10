@@ -97,5 +97,6 @@ inherited QueryProductsSearch: TQueryProductsSearch
       ')'
       'where 0=0'
       'order by IsGroup desc, Value')
+    Left = 81
   end
 end

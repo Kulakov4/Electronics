@@ -28,6 +28,9 @@ uses
   Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper, System.Contnrs,
   Vcl.ComCtrls, dxCore, cxDataControllerConditionalFormattingRulesManagerDialog;
 
+const
+  WM_SELECTION_CHANGED = WM_USER + 600;
+
 type
   TfrmTreeList = class(TFrame)
     cxDBTreeList: TcxDBTreeList;
@@ -45,6 +48,8 @@ type
       var ADone: Boolean);
     procedure cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
         TcxTreeListColumn);
+    procedure cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
+        TcxTreeListColumn; var Allow: Boolean);
 
     procedure cxDBTreeListMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
@@ -64,6 +69,7 @@ type
   protected
     FColumnsBarButtons: TTLColumnsBarButtons;
     FEventList: TObjectList;
+    FPostSelectionChanged: Boolean;
     procedure CreateColumnsBarButtons; virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InitializeColumns; virtual;
@@ -297,6 +303,12 @@ begin
   UpdateView;
 end;
 
+procedure TfrmTreeList.cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
+    TcxTreeListColumn; var Allow: Boolean);
+begin
+  UpdateView;
+end;
+
 procedure TfrmTreeList.cxDBTreeListMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 var
@@ -316,6 +328,11 @@ begin
   ANode := cxDBTreeList.HitTest.HitNode;
 
   ANode.Selected := True;
+
+  if not FPostSelectionChanged then
+  begin
+    PostMessage(Handle, WM_SELECTION_CHANGED, 0, 0);
+  end;
   { }
 end;
 

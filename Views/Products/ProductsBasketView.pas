@@ -49,8 +49,6 @@ type
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
   protected
-    procedure DoAfterPost(Sender: TObject);
-    procedure DoBeforePost(Sender: TObject);
     function GetW: TProductW; override;
     procedure InitializeColumns; override;
   public
@@ -133,23 +131,6 @@ begin
   Allow := AColumn = clSaleCount;
 end;
 
-procedure TViewProductsBasket.DoAfterPost(Sender: TObject);
-var
-  d: Double;
-begin
-  W.DataSource.Enabled := True;
-  EndUpdate;
-  d := FHRTimer.ReadTimer;
-//  ShowMessage(Format('Time = %f', [d]));
-end;
-
-procedure TViewProductsBasket.DoBeforePost(Sender: TObject);
-begin
-  FHRTimer.StartTimer;
-  BeginUpdate;
-  W.DataSource.Enabled := False;
-end;
-
 function TViewProductsBasket.GetqProducts: TQueryProducts;
 begin
   Result := qProductsBase as TQueryProducts;
@@ -189,9 +170,6 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
-
-  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
-  TNotifyEventWrap.Create(W.AfterPost, DoAfterPost, W.EventList);
 
   MyApplyBestFit;
 end;

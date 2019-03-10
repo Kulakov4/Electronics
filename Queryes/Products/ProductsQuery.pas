@@ -23,11 +23,10 @@ type
     FNeedUpdateCount: Boolean;
     FqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
     FTotalCount: Integer;
-  class var
-    FObjectCount: Integer;
+    class var FObjectCount: Integer;
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
-    procedure DoBeforeOpen(Sender: TObject);
+    procedure DoAfterCancelUpdates(Sender: TObject);
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
     function GetqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
@@ -77,7 +76,8 @@ begin
 
   DetailParameterName := W.StorehouseId.FieldName;
 
-  TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
+  TNotifyEventWrap.Create(AfterCancelUpdates, DoAfterCancelUpdates, FEventList);
+
 
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
@@ -121,6 +121,8 @@ begin
           W.IsGroup.F.AsInteger := 1; // Будем добавлять группу
           W.Value.F.AsString := AExcelTable.ComponentGroup.AsString;
           FDQuery.Post;
+          // Сохраняем изменения в БД чтобы ссылаться на эту группу!!!
+          ApplyUpdates;
           AIDComponentGroup := W.PK.Value;
         end
         else
@@ -178,12 +180,14 @@ begin
         // Курс Евро должен заполняться при загрузке
         Assert(not W.Euro.F.IsNull);
 
+        FDQuery.Post;
+
       finally
+        FDQuery.Edit;
         // Разрешаем обновиться автовычисляемым полям
         EnableCalc;
+        FDQuery.Post;
       end;
-
-      FDQuery.Post;
 
       AExcelTable.Next;
       AExcelTable.CallOnProcessEvent;
@@ -298,7 +302,7 @@ end;
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   FNeedUpdateCount := True;
-  FNeedDecTotalCount := false;
+  FNeedDecTotalCount := False;
 end;
 
 procedure TQueryProducts.DoAfterPost(Sender: TObject);
@@ -308,14 +312,15 @@ begin
     Inc(FTotalCount);
 end;
 
-procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
+procedure TQueryProducts.DoAfterCancelUpdates(Sender: TObject);
 begin
-  FNeedDecTotalCount := not W.IsGroup.F.IsNull and (W.IsGroup.F.AsInteger = 0);
+  FNeedUpdateCount := True;
 end;
 
-procedure TQueryProducts.DoBeforeOpen(Sender: TObject);
+procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
 begin
-  // beep;
+  FNeedDecTotalCount := (not FNeedUpdateCount) and (not W.IsGroup.F.IsNull) and
+    (W.IsGroup.F.AsInteger = 0);
 end;
 
 function TQueryProducts.GetExportFileName: string;

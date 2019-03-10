@@ -53,14 +53,14 @@ type
     actFilterAndExportToExcelDocument: TAction;
     dxBarButton10: TdxBarButton;
     actCalcCount: TAction;
-    dxBarButton12: TdxBarButton;
     actTryEdit: TAction;
     actDisContrl: TAction;
     actEnContrl: TAction;
     actIsContolDis: TAction;
-    dxBarButton13: TdxBarButton;
-    dxBarButton14: TdxBarButton;
-    dxBarButton15: TdxBarButton;
+    dxBarButton16: TdxBarButton;
+    actLoadFromExcelDocument: TAction;
+    dxBarSubItem3: TdxBarSubItem;
+    dxBarButton17: TdxBarButton;
     procedure actColumnsAutoWidth2Execute(Sender: TObject);
     procedure actExportToExcelDocument2Execute(Sender: TObject);
     procedure actFilterAndExportToExcelDocumentExecute(Sender: TObject);
@@ -69,6 +69,7 @@ type
     procedure actDisContrlExecute(Sender: TObject);
     procedure actEnContrlExecute(Sender: TObject);
     procedure actIsContolDisExecute(Sender: TObject);
+    procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actTryEditExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
@@ -81,7 +82,8 @@ type
       ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
       AState: TOwnerDrawState);
   private
-    procedure DoBeforeLoad(ASender: TObject);
+  const
+    FolderKey: String = 'Products';
     function GetqProducts: TQueryProducts;
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
@@ -104,7 +106,8 @@ implementation
 
 uses RepositoryDataModule, ProgressBarForm, ProjectConst, CustomExcelTable,
   NotifyEvents, ProgressInfo, LoadFromExcelFileHelper,
-  CustomErrorForm, HttpUnit, ProductsViewForm, DialogUnit, CurrencyUnit;
+  CustomErrorForm, HttpUnit, ProductsViewForm, DialogUnit, CurrencyUnit,
+  DialogUnit2;
 
 constructor TViewProducts2.Create(AOwner: TComponent);
 begin
@@ -215,6 +218,28 @@ begin
   ShowMessage(BoolToStr(cxDBTreeList.DataController.DataSource <> nil, true));
 end;
 
+procedure TViewProducts2.actLoadFromExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: String;
+begin
+  Application.Hint := '';
+
+  Assert(qProducts.Master <> nil);
+
+  if qProducts.Master.FDQuery.RecordCount = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog
+      ('Нет информации о текущем складе.'#13#10'Действие отменено');
+    Exit;
+  end;
+
+  // Открываем диалог выбора excel файла из последнего места
+  if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
+    Exit;
+
+  LoadFromExcelDocument(AFileName);
+end;
+
 procedure TViewProducts2.actTryEditExecute(Sender: TObject);
 begin
   inherited;
@@ -289,14 +314,6 @@ begin
   inherited;;
 end;
 
-procedure TViewProducts2.DoBeforeLoad(ASender: TObject);
-begin
-  UpdateView;
-  { при выборе другого склада проверить наличие изменений в старом складе }
-  if CheckAndSaveChanges = IDCANCEL then
-    raise EAbort.Create('Cancel scroll');
-end;
-
 function TViewProducts2.GetqProducts: TQueryProducts;
 begin
   Result := qProductsBase as TQueryProducts;
@@ -352,11 +369,6 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
-  if qProductsBase <> nil then
-  begin
-    TNotifyEventWrap.Create(qProducts.BeforeLoad, DoBeforeLoad, FEventList);
-  end;
-
 end;
 
 procedure TViewProducts2.TimerTimer(Sender: TObject);

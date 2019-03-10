@@ -16,12 +16,14 @@ type
     FProductID: TFieldWrap;
     FID: TFieldWrap;
     FIDComponentGroup: TFieldWrap;
+    FAmount: TFieldWrap;
     FStorehouseID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     property ProductID: TFieldWrap read FProductID;
     property ID: TFieldWrap read FID;
     property IDComponentGroup: TFieldWrap read FIDComponentGroup;
+    property Amount: TFieldWrap read FAmount;
     property StorehouseID: TFieldWrap read FStorehouseID;
   end;
 
@@ -83,6 +85,7 @@ begin
   FProductID := TFieldWrap.Create(Self, 'ProductID');
   FStorehouseID := TFieldWrap.Create(Self, 'StorehouseID');
   FIDComponentGroup := TFieldWrap.Create(Self, 'IDComponentGroup');
+  FAmount := TFieldWrap.Create(Self, 'Amount');
 end;
 
 end.

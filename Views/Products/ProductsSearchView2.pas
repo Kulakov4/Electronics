@@ -56,6 +56,7 @@ type
     function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
     procedure InitializeColumns; override;
+    function IsViewOK: Boolean; override;
   public
     procedure FocusValueColumn;
     procedure UpdateView; override;
@@ -164,6 +165,12 @@ begin
     qProductsSearch.qStoreHouseList.W.Abbreviation.FieldName);
 end;
 
+function TViewProductsSearch2.IsViewOK: Boolean;
+begin
+  Result := (qProductsSearch <> nil) and
+    (qProductsSearch.ProductSearchW.Mode = RecordsMode);
+end;
+
 procedure TViewProductsSearch2.Search(ALike: Boolean);
 begin
   cxDBTreeList.BeginUpdate;
@@ -209,8 +216,7 @@ begin
   actRollback.Enabled := actCommit.Enabled;
 
   actPasteFromBuffer.Enabled := Ok and
-    (qProductsSearch.ProductSearchW.
-    Mode = SearchMode);
+    (qProductsSearch.ProductSearchW.Mode = SearchMode);
 
 
   // cxGridDBBandedTableView.OptionsData.Appending :=

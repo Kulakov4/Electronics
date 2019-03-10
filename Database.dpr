@@ -232,13 +232,16 @@ uses
   ExtraChargeSimpleView in 'Views\ExtraCharge\ExtraChargeSimpleView.pas' {ViewExtraChargeSimple: TFrame},
   BillQuery in 'Queryes\Bill\BillQuery.pas' {QryBill: TFrame},
   MaxBillNumberQuery in 'Queryes\Bill\MaxBillNumberQuery.pas' {QryMaxBillNumber: TFrame},
-  BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QueryBillContent: TFrame},
+  BillContentQuerySimple in 'Queryes\Bill\BillContentQuerySimple.pas' {QueryBillContentSimple: TFrame},
   BillQuery2 in 'Queryes\Bill\BillQuery2.pas' {QryBill2: TFrame},
   DSWrap in 'Queryes\DSWrap.pas',
   DescriptionsQueryWrap in 'Queryes\DescriptionsQueryWrap.pas',
   AnalogQueryes in 'Queryes\Analog\AnalogQueryes.pas',
   ProductsBasketView in 'Views\Products\ProductsBasketView.pas' {ViewProductsBasket: TFrame},
-  StoreHouseListView in 'Views\StoreHouse\StoreHouseListView.pas' {ViewStoreHouse: TFrame};
+  StoreHouseListView in 'Views\StoreHouse\StoreHouseListView.pas' {ViewStoreHouse: TFrame},
+  BillListView in 'Views\Bill\BillListView.pas' {ViewBill: TFrame},
+  BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QryBillContent: TFrame},
+  BillContentView in 'Views\Bill\BillContentView.pas' {ViewBillContent: TFrame};
 
 {$R *.res}
 

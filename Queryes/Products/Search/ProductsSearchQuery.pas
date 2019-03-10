@@ -28,8 +28,6 @@ type
     FGetModeClone: TFDMemTable;
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
-    FX: Integer;
-
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;

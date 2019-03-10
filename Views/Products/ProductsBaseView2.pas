@@ -35,8 +35,7 @@ uses
   ExtraChargeSimpleView, DSWrap, HRTimer;
 
 const
-  WM_SELECTION_CHANGED = WM_USER + 600;
-  WM_AFTER_OPEN_OR_REFRESH = WM_USER + 601;
+  WM_RESYNC_DATASET = WM_USER + 800;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -123,11 +122,18 @@ type
     actCreateBill: TAction;
     dxbbCreateBill: TdxBarButton;
     clStoreHouseID: TcxDBTreeListColumn;
+    cxStyle2: TcxStyle;
+    cxStyle3: TcxStyle;
+    actClearSelection: TAction;
+    cxslFocusedColumn: TcxStyle;
+    cxslSelectedColumn: TcxStyle;
+    cxslOtherColumn: TcxStyle;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
     procedure actBandWidthExecute(Sender: TObject);
     procedure actClearPriceExecute(Sender: TObject);
+    procedure actClearSelectionExecute(Sender: TObject);
     procedure actColumnAutoWidthExecute(Sender: TObject);
     procedure actColumnFilterExecute(Sender: TObject);
     procedure actColumnWidthExecute(Sender: TObject);
@@ -183,14 +189,14 @@ type
     FcxTreeListColumnHeaderCellViewInfo: TcxTreeListColumnHeaderCellViewInfo;
     FfrmDescriptionPopup: TfrmDescriptionPopup;
     FNeedResyncAfterPost: Boolean;
-    FPostSelectionChanged: Boolean;
     FqProductsBase: TQueryProductsBase;
     FReadOnlyColumns: TList<TcxDBTreeListColumn>;
-    FSelectionCount: Integer;
+    FResyncDataSetMessagePosted: Boolean;
     FViewExtraChargeSimple: TViewExtraChargeSimple;
 
   const
     KeyFolder: String = 'Products';
+    procedure DoAfterDataChange(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterOpenOrRefresh(Sender: TObject);
@@ -200,6 +206,8 @@ type
     function GetIDExtraChargeType: Integer;
     function GetIDExtraCharge: Integer;
     function GetViewExtraChargeSimple: TViewExtraChargeSimple;
+    procedure ProcessResyncDataSetMessage(var Message: TMessage);
+      message WM_RESYNC_DATASET;
     procedure ProcessSelectionChanged(var Message: TMessage);
       message WM_SELECTION_CHANGED;
     procedure SaveBarComboValue(AdxBarCombo: TdxBarCombo;
@@ -224,9 +232,10 @@ type
     procedure InitializeColumns; override;
     procedure InternalRefreshData; override;
     function IsSyncToDataSet: Boolean; override;
+    function IsViewOK: Boolean; virtual;
     procedure LoadWholeSale;
-    procedure OnInitEditValue(Sender, AItem: TObject; AEdit: TcxCustomEdit; var
-        AValue: Variant); virtual;
+    procedure OnInitEditValue(Sender, AItem: TObject; AEdit: TcxCustomEdit;
+      var AValue: Variant); virtual;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
     function RateToPerсent(ARate: Double): Double;
@@ -237,8 +246,6 @@ type
     procedure UpdateFieldValue(AFields: TArray<TField>;
       AValues: TArray<Variant>);
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
-    procedure WMAFTER_OPEN_OR_REFRESH(var Message: TMessage);
-      message WM_AFTER_OPEN_OR_REFRESH;
     property IDExtraChargeType: Integer read GetIDExtraChargeType
       write SetIDExtraChargeType;
     property IDExtraCharge: Integer read GetIDExtraCharge
@@ -282,12 +289,12 @@ begin
   FHRTimer := THRTimer.Create(False);
 
   // Список полей при редактировании которых Enter - сохранение
-(*
-  PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
-  PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
-  PostOnEnterFields.Add(clPriceE.DataBinding.FieldName);
-  PostOnEnterFields.Add(clSaleCount.DataBinding.FieldName);
-*)
+  (*
+    PostOnEnterFields.Add(clPriceR.DataBinding.FieldName);
+    PostOnEnterFields.Add(clPriceD.DataBinding.FieldName);
+    PostOnEnterFields.Add(clPriceE.DataBinding.FieldName);
+    PostOnEnterFields.Add(clSaleCount.DataBinding.FieldName);
+  *)
   // Где отображать кол-во выделенных записей
   FSelectedCountPanelIndex := 1;
 
@@ -327,6 +334,10 @@ begin
   FReadOnlyColumns.Add(clSaleR);
   FReadOnlyColumns.Add(clSaleD);
   FReadOnlyColumns.Add(clSaleE);
+
+  cxDBTreeList.OptionsSelection.HideFocusRect := True;
+  cxDBTreeList.OptionsSelection.HideSelection := True;
+  // cxDBTreeList.OnCustomDrawDataCell := nil;
 end;
 
 destructor TViewProductsBase2.Destroy;
@@ -384,6 +395,7 @@ procedure TViewProductsBase2.actApplyBestFitExecute(Sender: TObject);
 begin
   inherited;
   MyApplyBestFit;
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.actBandWidthExecute(Sender: TObject);
@@ -413,6 +425,13 @@ begin
   finally
     EndUpdate;
   end;
+  UpdateView;
+end;
+
+procedure TViewProductsBase2.actClearSelectionExecute(Sender: TObject);
+begin
+  inherited;
+  cxDBTreeList.ClearSelection();
   UpdateView;
 end;
 
@@ -466,9 +485,6 @@ begin
 end;
 
 procedure TViewProductsBase2.actCreateBillExecute(Sender: TObject);
-var
-  ABillID: Integer;
-  AStoreHouseProductID: Integer;
 begin
   inherited;
 
@@ -478,33 +494,8 @@ begin
     Exit;
   end;
 
-  // Добавляем новый счёт
-  ABillID := TDM.Create.QryBill.W.AddBill(FqProductsBase.DollarCource,
-    FqProductsBase.EuroCource);
-  try
-    FqProductsBase.Basket.DisableControls;
-    try
-      FqProductsBase.Basket.First;
-      while not FqProductsBase.Basket.Eof do
-      begin
-        // Идентификатор связи товар-склад у нас отрицательный
-        AStoreHouseProductID := -FqProductsBase.Basket.FieldByName
-          (W.PKFieldName).AsInteger;
-
-        TDM.Create.qBillContent.W.AddContent(ABillID, AStoreHouseProductID,
-          FqProductsBase.Basket.FieldByName(W.SaleCount.FieldName).Value);
-
-        FqProductsBase.Basket.Next;
-      end;
-    finally
-      FqProductsBase.Basket.EnableControls;
-    end;
-
-  except
-    // Удаляем добавленный счёт
-    TDM.Create.QryBill.W.LocateByPKAndDelete(ABillID);
-    raise;
-  end;
+  // Создаём новый счёт
+  TDM.Create.AddBill(qProductsBase);
 end;
 
 procedure TViewProductsBase2.actDeleteExecute(Sender: TObject);
@@ -883,45 +874,79 @@ procedure TViewProductsBase2.cxDBTreeListCustomDrawDataCell
   (Sender: TcxCustomTreeList; ACanvas: TcxCanvas;
   AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
 var
-  V: Variant;
+  AStyle: TcxStyle;
 begin
   inherited;
 
-  if (AViewInfo.Selected) and (AViewInfo.Column = cxDBTreeList.FocusedColumn)
-  then
+  // Если снято всё выделение
+  if AViewInfo.TreeList.SelectionCount = 0 then
+  begin
+    AStyle := cxslOtherColumn;
+  end
+  else
+  begin
+    // Сфокусированная строка
+    if AViewInfo.Node.Focused then
+    begin
+      // Сфокусированный столбец
+      if AViewInfo.Focused then
+      begin
+        AStyle := cxslFocusedColumn;
+      end
+      else
+      begin
+        // Несфокусированый столбец в сфокусированной строке
+        AStyle := cxslSelectedColumn;
+      end;
+    end
+    else if AViewInfo.Node.Selected then
+    begin
+      AStyle := cxslSelectedColumn;
+    end
+    else
+    begin
+      AStyle := cxslOtherColumn;
+    end;
+  end;
+  ACanvas.Font.Color := AStyle.TextColor;
+  ACanvas.FillRect(AViewInfo.BoundsRect, AStyle.Color);
+
+  {
+    if (AViewInfo.Selected) and (AViewInfo.Column = cxDBTreeList.FocusedColumn)
+    then
     Exit;
 
-  if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) and
+    if (AViewInfo.Column <> clPriceR) and (AViewInfo.Column <> clPriceD) and
     (AViewInfo.Column <> clValue) then
     Exit;
 
-  if AViewInfo.Column = clValue then
-  begin
+    if AViewInfo.Column = clValue then
+    begin
     V := AViewInfo.Node.Values[clChecked.ItemIndex];
     if VarIsNull(V) then
-      Exit;
+    Exit;
 
     if V = 1 then
     begin
-      // Пишем чёрным по белому
-      ACanvas.Font.Color := clBlack;
-      ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
-    end;
-    Exit;
-  end;
-
-  V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
-  if VarIsNull(V) then
-    Exit;
-
-  if ((V = 1) and (AViewInfo.Column = clPriceR)) or
-    ((V = 2) and (AViewInfo.Column = clPriceD)) then
-  begin
     // Пишем чёрным по белому
     ACanvas.Font.Color := clBlack;
     ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
-  end;
-  { }
+    end;
+    Exit;
+    end;
+
+    V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
+    if VarIsNull(V) then
+    Exit;
+
+    if ((V = 1) and (AViewInfo.Column = clPriceR)) or
+    ((V = 2) and (AViewInfo.Column = clPriceD)) then
+    begin
+    // Пишем чёрным по белому
+    ACanvas.Font.Color := clBlack;
+    ACanvas.FillRect(AViewInfo.BoundsRect, $0099FF99);
+    end;
+    { }
 end;
 
 procedure TViewProductsBase2.cxDBTreeListExpanded(Sender: TcxCustomTreeList;
@@ -967,6 +992,7 @@ begin
     // Отображаем ПУСТУЮ минимальную оптовую наценку у текущей записи
     UpdateBarComboText(dxbcMinWholeSale, NULL);
   end;
+
   UpdateView;
 end;
 
@@ -996,6 +1022,12 @@ begin
 
   PostMessage(Handle, WM_SELECTION_CHANGED, 0, 0);
   FPostSelectionChanged := True;
+  UpdateView;
+end;
+
+procedure TViewProductsBase2.DoAfterDataChange(Sender: TObject);
+begin
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.DoAfterDelete(Sender: TObject);
@@ -1011,20 +1043,13 @@ end;
 
 procedure TViewProductsBase2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
-  // PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0, 0);
-
   // Привязываем дерево к данным !!!
   W.DataSource.Enabled := True;
 
-
-  // W.DataSet.EnableControls;
-
-  // cxDBTreeList.DataController.DataSource := W.DataSource;
-
-  // cxDBTreeList.EndUpdate;
   cxDBTreeList.FullCollapse;
+  cxDBTreeList.ClearSelection();
 
-  // UpdateView;
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.DoAfterPost(Sender: TObject);
@@ -1036,7 +1061,7 @@ begin
   end;
 
   UpdateProductCount;
- // MyApplyBestFit;
+  // MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.DoBeforeOpenOrRefresh(Sender: TObject);
@@ -1057,8 +1082,11 @@ begin
     Exit;
 
   FNeedResyncAfterPost := FqProductsBase.FDQuery.State in [dsEdit, dsInsert];
-  if not FNeedResyncAfterPost then
-    FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+  if (not FNeedResyncAfterPost) and (not FResyncDataSetMessagePosted) then
+  begin
+    FResyncDataSetMessagePosted := True;
+    PostMessage(Handle, WM_RESYNC_DATASET, 0, 0);
+  end;
 end;
 
 procedure TViewProductsBase2.DoOnDollarCourceChange(Sender: TObject);
@@ -1306,6 +1334,11 @@ begin
   Result := S1 = S2;
 end;
 
+function TViewProductsBase2.IsViewOK: Boolean;
+begin
+  Result := True;
+end;
+
 procedure TViewProductsBase2.LoadWholeSale;
 begin
   dxbcWholeSale.Items.BeginUpdate;
@@ -1327,8 +1360,8 @@ begin
   end;
 end;
 
-procedure TViewProductsBase2.OnInitEditValue(Sender, AItem: TObject; AEdit:
-    TcxCustomEdit; var AValue: Variant);
+procedure TViewProductsBase2.OnInitEditValue(Sender, AItem: TObject;
+  AEdit: TcxCustomEdit; var AValue: Variant);
 var
   AColumn: TcxDBTreeListColumn;
   AcxMaskEdit: TcxMaskEdit;
@@ -1396,6 +1429,17 @@ begin
   actBandWidth.Enabled := FcxTreeListBandHeaderCellViewInfo <> nil;
   actColumnAutoWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
   actColumnWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
+end;
+
+procedure TViewProductsBase2.ProcessResyncDataSetMessage(var Message: TMessage);
+begin
+  inherited;
+  FResyncDataSetMessagePosted := False;
+
+  if FqProductsBase.FDQuery.State <> dsBrowse then
+    Exit;
+
+  FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
 end;
 
 procedure TViewProductsBase2.ProcessSelectionChanged(var Message: TMessage);
@@ -1511,15 +1555,30 @@ begin
 
     LoadWholeSale;
 
+    // Просим монитор сообщать нам об изменении в БД
+    TNotifyEventWrap.Create(qProductsBase.Monitor.OnHaveAnyChanges,
+      DoAfterDataChange, FEventList);
+
+    // Отображаем курс Доллара в поле ввода
+    if FqProductsBase.DollarCource > 0 then
+      cxbeiDollar.EditValue := qProductsBase.DollarCource.ToString;
+
+    // Отображаем курс Евро в поле ввода
+    if FqProductsBase.EuroCource > 0 then
+      cxbeiEuro.EditValue := qProductsBase.EuroCource.ToString;
+
   finally
     EndUpdate;
   end;
+  cxDBTreeList.FullCollapse;
+  cxDBTreeList.ClearSelection();
   UpdateView;
   MyApplyBestFit;
 end;
 
 procedure TViewProductsBase2.UpdateProductCount;
 begin
+  Assert(StatusBar.Panels.Count > 0);
   // На выбранном складе или в результате поиска без учёта групп
   StatusBar.Panels[0].Text :=
     Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
@@ -1551,7 +1610,6 @@ end;
 
 procedure TViewProductsBase2.UpdateSelectedCount;
 begin
-  FSelectionCount := cxDBTreeList.SelectionCount;
   StatusBar.Panels[FSelectedCountPanelIndex].Text :=
     Format('%d', [cxDBTreeList.SelectionCount]);
 end;
@@ -1562,15 +1620,20 @@ var
 begin
   inherited;
   OK := (cxDBTreeList.DataController.DataSource <> nil) and
-    (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and
-//    (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
-//    (qProductsBase.Master.FDQuery.RecordCount > 0) and
+    (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and IsViewOK and
+  // (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
+  // (qProductsBase.Master.FDQuery.RecordCount > 0) and
     (cxDBTreeList.DataController.DataSet <> nil);
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
-  actOpenInParametricTable.Enabled := OK and
-    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
+
+  actOpenInParametricTable.Enabled := OK and (cxDBTreeList.FocusedNode <> nil)
+    and (cxDBTreeList.SelectionCount = 1) and
+    (qProductsBase.FDQuery.State = dsBrowse) and
+    (not qProductsBase.W.IsGroup.F.IsNull) and
+    (qProductsBase.W.IsGroup.F.AsInteger = 0);
+
   actExportToExcelDocument.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
   actAddCategory.Enabled := OK;
@@ -1583,6 +1646,8 @@ begin
 
   actClearPrice.Enabled := OK and (not qProductsBase.HaveAnyChanges);
 
+  actClearSelection.Enabled := OK and (cxDBTreeList.SelectionCount > 0);
+
   // Отображаем текущие курсы валют
   if qProductsBase.DollarCource > 0 then
     cxbeiDollar.EditValue := qProductsBase.DollarCource;
@@ -1591,6 +1656,9 @@ begin
 
   actCreateBill.Enabled := OK and (qProductsBase.Basket.RecordCount > 0)
   { and (FqProductsBase.DollarCource > 0) and (FqProductsBase.EuroCource > 0) };
+
+  actClearPrice.Enabled := OK and
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 end;
 
 procedure TViewProductsBase2.UploadDoc(ADocFieldInfo: TDocFieldInfo);
@@ -1604,24 +1672,6 @@ begin
     Exit;
 
   FqProductsBase.LoadDocFile(sourceFileName, ADocFieldInfo);
-end;
-
-procedure TViewProductsBase2.WMAFTER_OPEN_OR_REFRESH(var Message: TMessage);
-begin
-  inherited;
-  // Привязываем дерево к данным !!!
-  W.DataSource.Enabled := True;
-
-
-  // W.DataSet.EnableControls;
-
-  // cxDBTreeList.DataController.DataSource := W.DataSource;
-
-  // cxDBTreeList.EndUpdate;
-  // cxDBTreeList.FullCollapse;
-
-  UpdateView;
-
 end;
 
 end.

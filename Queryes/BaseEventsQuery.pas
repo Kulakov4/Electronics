@@ -275,12 +275,12 @@ begin
 end;
 
 procedure TQueryBaseEvents.DoAfterMasterScroll(Sender: TObject);
- //var
+// var
 // S: String;
 begin
-//  S := Name;
-//  if S.StartsWith('QueryProducts_') then
-//    beep;
+  // S := Name;
+  // if S.StartsWith('QueryProducts_') then
+  // beep;
 
   TryLoad;
 end;
@@ -517,7 +517,6 @@ begin
     Exit;
   end;
 
-
   BeforeLoad.CallEventHandlers(FDQuery);
 
   if AParamValueChange then
@@ -646,8 +645,14 @@ procedure TQueryMonitor.DoAfterCancelOrPost(Sender: TObject);
 var
   i: Integer;
   Q: TQueryBaseEvents;
+  S: string;
 begin
-  Q := (Sender as TDSWrap).Obj as TQueryBaseEvents;
+  if Sender is TQueryBaseEvents then
+    Q := Sender as TQueryBaseEvents
+  else if Sender is TDSWrap then
+    Q := (Sender as TDSWrap).Obj as TQueryBaseEvents
+  else
+    Assert(False);
 
   i := FChangedQueries.IndexOf(Q);
 
@@ -771,8 +776,8 @@ begin
   // Мы не должны разрушать запрос, который имеет несохранённые данные
   i := FChangedQueries.IndexOf(AQuery);
 
-//  if i >= 0 then
-//    beep;
+  // if i >= 0 then
+  // beep;
 
   Assert(i = -1);
 

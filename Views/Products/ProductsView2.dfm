@@ -4,73 +4,7 @@ inherited ViewProducts2: TViewProducts2
   inherited cxDBTreeList: TcxDBTreeList
     Width = 1206
     ExplicitWidth = 1206
-    inherited clIDProducer: TcxDBTreeListColumn [4]
-    end
-    inherited clDescription: TcxDBTreeListColumn [5]
-    end
-    inherited clDatasheet: TcxDBTreeListColumn [6]
-    end
-    inherited clDiagram: TcxDBTreeListColumn [7]
-    end
-    inherited clDrawing: TcxDBTreeListColumn [8]
-    end
-    inherited clImage: TcxDBTreeListColumn [9]
-    end
-    inherited clPackagePins: TcxDBTreeListColumn [10]
-    end
-    inherited clReleaseDate: TcxDBTreeListColumn [11]
-    end
-    inherited clAmount: TcxDBTreeListColumn [12]
-    end
-    inherited clPackaging: TcxDBTreeListColumn [13]
-    end
-    inherited clPriceR2: TcxDBTreeListColumn [14]
-    end
-    inherited clPriceD2: TcxDBTreeListColumn [15]
-    end
-    inherited clPriceR1: TcxDBTreeListColumn [16]
-    end
-    inherited clPriceD1: TcxDBTreeListColumn [17]
-    end
-    inherited clPriceR: TcxDBTreeListColumn [18]
-    end
-    inherited clPriceD: TcxDBTreeListColumn [19]
-    end
-    inherited clOriginCountryCode: TcxDBTreeListColumn [20]
-    end
-    inherited clOriginCountry: TcxDBTreeListColumn [21]
-    end
-    inherited clBatchNumber: TcxDBTreeListColumn [22]
-    end
-    inherited clCustomsDeclarationNumber: TcxDBTreeListColumn [23]
-    end
-    inherited clStorage: TcxDBTreeListColumn [24]
-    end
-    inherited clStoragePlace: TcxDBTreeListColumn [25]
-    end
-    inherited clSeller: TcxDBTreeListColumn [26]
-    end
-    inherited clDocumentNumber: TcxDBTreeListColumn [27]
-    end
-    inherited clBarcode: TcxDBTreeListColumn [28]
-    end
-    inherited clIDCurrency: TcxDBTreeListColumn [29]
-    end
-    inherited clChecked: TcxDBTreeListColumn [30]
-    end
-    inherited clPriceE: TcxDBTreeListColumn [31]
-    end
-    inherited clPriceE1: TcxDBTreeListColumn [32]
-    end
-    inherited clPriceE2: TcxDBTreeListColumn [33]
-    end
-    inherited clLoadDate: TcxDBTreeListColumn [34]
-    end
-    inherited clDollar: TcxDBTreeListColumn [35]
-    end
-    inherited clEuro: TcxDBTreeListColumn [36]
-    end
-    inherited clSaleCount: TcxDBTreeListColumn [37]
+    inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -78,7 +12,7 @@ inherited ViewProducts2: TViewProducts2
           Kind = skSum
         end>
     end
-    inherited clSaleR: TcxDBTreeListColumn [38]
+    inherited clSaleR: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -86,7 +20,7 @@ inherited ViewProducts2: TViewProducts2
           Kind = skSum
         end>
     end
-    inherited clSaleD: TcxDBTreeListColumn [39]
+    inherited clSaleD: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -94,15 +28,13 @@ inherited ViewProducts2: TViewProducts2
           Kind = skSum
         end>
     end
-    inherited clSaleE: TcxDBTreeListColumn [40]
+    inherited clSaleE: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
           CalculatedColumn = clSaleE
           Kind = skSum
         end>
-    end
-    inherited clStoreHouseID: TcxDBTreeListColumn [41]
     end
   end
   inherited StatusBar: TStatusBar
@@ -132,6 +64,10 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
+          ItemName = 'dxBarButton16'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarSubItem1'
         end
         item
@@ -148,7 +84,19 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
+          ItemName = 'dxBarSubItem3'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarSubItem2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbCreateBill'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton11'
         end
         item
           Visible = True
@@ -161,22 +109,6 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxBarButton8'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton13'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton14'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton15'
         end>
     end
     inherited dxBarManagerBar2: TdxBar
@@ -200,14 +132,6 @@ inherited ViewProducts2: TViewProducts2
         item
           Visible = True
           ItemName = 'dxbbRefreshCources'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton11'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbCreateBill'
         end
         item
           Visible = True
@@ -237,6 +161,7 @@ inherited ViewProducts2: TViewProducts2
       Category = 0
       Visible = ivAlways
       ImageIndex = 1
+      ShowCaption = False
       Images = DMRepository.cxImageList
       ItemLinks = <
         item
@@ -259,17 +184,17 @@ inherited ViewProducts2: TViewProducts2
     object dxBarButton3: TdxBarButton [7]
       Action = actDelete
       Category = 0
-      PaintStyle = psCaptionGlyph
+      PaintStyle = psCaptionInMenu
     end
     object dxBarButton4: TdxBarButton [8]
       Action = actCommit
       Category = 0
-      PaintStyle = psCaptionGlyph
+      PaintStyle = psCaptionInMenu
     end
     object dxBarButton5: TdxBarButton [9]
       Action = actRollback
       Category = 0
-      PaintStyle = psCaptionGlyph
+      PaintStyle = psCaptionInMenu
     end
     object dxBarButton6: TdxBarButton [10]
       Action = actOpenInParametricTable
@@ -282,8 +207,10 @@ inherited ViewProducts2: TViewProducts2
     object dxBarSubItem2: TdxBarSubItem [15]
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0
+      Hint = #1069#1082#1089#1087#1086#1088#1090
       Visible = ivAlways
       ImageIndex = 6
+      ShowCaption = False
       ItemLinks = <
         item
           Visible = True
@@ -317,20 +244,25 @@ inherited ViewProducts2: TViewProducts2
       Action = actFilterAndExportToExcelDocument
       Category = 0
     end
-    object dxBarButton12: TdxBarButton
-      Action = actTryEdit
+    object dxBarButton16: TdxBarButton
+      Action = actClearSelection
       Category = 0
     end
-    object dxBarButton13: TdxBarButton
-      Action = actDisContrl
+    object dxBarSubItem3: TdxBarSubItem
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       Category = 0
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100
+      Visible = ivAlways
+      ImageIndex = 20
+      ShowCaption = False
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxBarButton17'
+        end>
     end
-    object dxBarButton14: TdxBarButton
-      Action = actEnContrl
-      Category = 0
-    end
-    object dxBarButton15: TdxBarButton
-      Action = actIsContolDis
+    object dxBarButton17: TdxBarButton
+      Action = actLoadFromExcelDocument
       Category = 0
     end
   end
@@ -370,6 +302,12 @@ inherited ViewProducts2: TViewProducts2
     object actIsContolDis: TAction
       Caption = 'actIsContolDis'
       OnExecute = actIsContolDisExecute
+    end
+    object actLoadFromExcelDocument: TAction
+      Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1085#1072' '#1089#1082#1083#1072#1076' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
+      ImageIndex = 32
+      OnExecute = actLoadFromExcelDocumentExecute
     end
   end
   inherited cxStyleRepository1: TcxStyleRepository

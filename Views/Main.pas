@@ -41,7 +41,7 @@ uses
   BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP,
   ChildCategoriesView, StoreHouseListView, ProductsBasketView,
-  ProductsSearchView2, ProductsView2;
+  ProductsSearchView2, ProductsView2, BillListView, BillContentView;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -98,6 +98,9 @@ type
     pnlStoreHouseLeft: TPanel;
     cxSplitterStoreHouse: TcxSplitter;
     pnlStoreHouseRight: TPanel;
+    pnlBillLeft: TPanel;
+    cxSplitter1: TcxSplitter;
+    pnlBillCenter: TPanel;
     procedure actComponentsTabExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
@@ -139,6 +142,8 @@ type
     FHintWindowEx: THintWindowEx;
     FLoadComplete: Boolean;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
+    FViewBill: TViewBill;
+    FViewBillContent: TViewBillContent;
     FViewCategoryParameters: TViewCategoryParameters;
     FViewChildCategories: TViewChildCategories;
     FViewComponents: TViewComponents;
@@ -155,6 +160,7 @@ type
     procedure DoOnComponentLocate(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
+    procedure DoOnViewStoreHouseCanFocusRecord(Sender: TObject);
     function GetQueryMonitor: TQueryMonitor;
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
@@ -169,6 +175,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
+    property ViewBill: TViewBill read FViewBill;
+    property ViewBillContent: TViewBillContent read FViewBillContent;
     property ViewCategoryParameters: TViewCategoryParameters
       read FViewCategoryParameters;
     property ViewChildCategories: TViewChildCategories
@@ -217,7 +225,7 @@ end;
 
 procedure TfrmMain.actComponentsTabExecute(Sender: TObject);
 begin
-//  beep;
+  // beep;
 end;
 
 procedure TfrmMain.actExitExecute(Sender: TObject);
@@ -634,6 +642,9 @@ begin
       FViewStoreHouse := TViewStoreHouse.Create(Self);
       FViewStoreHouse.Place(pnlStoreHouseLeft);
       FViewStoreHouse.qStoreHouseList := TDM.Create.qStoreHouseList;
+
+      TNotifyEventWrap.Create(FViewStoreHouse.OnCanFocusRecord,
+        DoOnViewStoreHouseCanFocusRecord, FEventList);
     end;
 
     // Привязываем представление содержимого склада к данным
@@ -671,18 +682,35 @@ begin
       FViewProductsBasket.Align := alClient;
       ViewProductsBasket.qProducts := TDM.Create.qProductsBasket;
     end;
-
-    ViewProductsBasket.MyApplyBestFit;
-    (*
-      (ViewProductsBasket.cxDBTreeList.DataController.DataSource <> nil) then
-      ViewProductsBasket.cxDBTreeList.DataController.DataSource.Enabled := True;
-    *)
   end;
 
   // Если переходим на вкладку счета
   if NewPage = cxtshBill then
   begin
+    TDM.Create.qBill.AddClient;
+    TDM.Create.qBillContent2.AddClient;
 
+    if FViewBill = nil then
+    begin
+      FViewBill := TViewBill.Create(Self);
+      FViewBill.Place(pnlBillLeft);
+      FViewBill.qBill := TDM.Create.qBill;
+    end;
+
+    if FViewBillContent = nil then
+    begin
+      FViewBillContent := TViewBillContent.Create(Self);
+      FViewBillContent.Parent := pnlBillCenter;
+      FViewBillContent.Align := alClient;
+      FViewBillContent.qBillContent := TDM.Create.qBillContent2;
+    end;
+  end;
+
+  // Если уходим со вкладки Счета
+  if cxpcWareHouse2.ActivePage = cxtshBill then
+  begin
+    TDM.Create.qBillContent2.RemoveClient;
+    TDM.Create.qBill.RemoveClient;
   end;
 
   // Если переходим на вкладку поиск
@@ -1030,6 +1058,17 @@ begin
 
   ViewComponents.MainView.GetColumnByFieldName
     (ViewComponents.clValue.DataBinding.FieldName).Selected := True;
+end;
+
+procedure TfrmMain.DoOnViewStoreHouseCanFocusRecord(Sender: TObject);
+var
+  AOnCanFocusRecord: TOnCanFocusRecord;
+begin
+  if ViewProducts = nil then
+    Exit;
+
+  AOnCanFocusRecord := Sender as TOnCanFocusRecord;
+  AOnCanFocusRecord.Allow := ViewProducts.CheckAndSaveChanges <> IDCancel;
 end;
 
 function TfrmMain.GetQueryMonitor: TQueryMonitor;

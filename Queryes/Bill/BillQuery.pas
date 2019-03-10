@@ -38,6 +38,7 @@ type
     function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure CancelBill;
     property W: TBillW read FW;
     { Public declarations }
   end;
@@ -45,7 +46,7 @@ type
 implementation
 
 uses
-  MaxBillNumberQuery;
+  MaxBillNumberQuery, NotifyEvents;
 
 {$R *.dfm}
 
@@ -53,6 +54,11 @@ constructor TQryBill.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TBillW;
+end;
+
+procedure TQryBill.CancelBill;
+begin
+  // TODO -cMM: TQryBill.CancelBill default body inserted
 end;
 
 function TQryBill.CreateDSWrap: TDSWrap;
@@ -67,8 +73,8 @@ begin
   FNumber := TFieldWrap.Create(Self, 'Number', 'Номер');
   FBillDate := TFieldWrap.Create(Self, 'BillDate', 'Дата');
   FShipmentDate := TFieldWrap.Create(Self, 'ShipmentDate', 'Дата отгрузки');
-  FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс доллара');
-  FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс евро');
+  FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс $');
+  FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс €');
 end;
 
 function TBillW.AddBill(const ADollarCource, AEuroCource: Double): Integer;

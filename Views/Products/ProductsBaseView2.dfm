@@ -118,6 +118,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     DataController.KeyField = 'ID'
     LookAndFeel.Kind = lfFlat
     LookAndFeel.NativeStyle = False
+    OptionsBehavior.ImmediateEditor = False
     OptionsCustomizing.BandMoving = False
     OptionsCustomizing.ColumnMoving = False
     OptionsView.Bands = True
@@ -1022,6 +1023,12 @@ inherited ViewProductsBase2: TViewProductsBase2
       ImageIndex = 45
       OnExecute = actCreateBillExecute
     end
+    object actClearSelection: TAction
+      Caption = 'actClearSelection'
+      Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
+      ImageIndex = 46
+      OnExecute = actClearSelectionExecute
+    end
   end
   inherited PopupMenu: TPopupMenu
     OnPopup = PopupMenuPopup
@@ -1047,6 +1054,28 @@ inherited ViewProductsBase2: TViewProductsBase2
       Color = clHighlight
     end
     object cxNormalStyle: TcxStyle
+    end
+    object cxStyle2: TcxStyle
+      AssignedValues = [svColor]
+      Color = clGrayText
+    end
+    object cxStyle3: TcxStyle
+      AssignedValues = [svColor]
+      Color = clGreen
+    end
+    object cxslFocusedColumn: TcxStyle
+      AssignedValues = [svColor, svTextColor]
+      Color = clHighlight
+      TextColor = clHighlightText
+    end
+    object cxslSelectedColumn: TcxStyle
+      AssignedValues = [svColor]
+      Color = clInfoBk
+    end
+    object cxslOtherColumn: TcxStyle
+      AssignedValues = [svColor, svTextColor]
+      Color = clWindow
+      TextColor = clWindowText
     end
   end
 end

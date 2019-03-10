@@ -26,7 +26,8 @@ uses
   cxDBData, dxBarBuiltInMenu, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus,
   System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, StoreHouseListQuery;
+  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, StoreHouseListQuery,
+  NotifyEvents;
 
 type
   TViewStoreHouse = class(TfrmGrid)
@@ -39,7 +40,11 @@ type
     cxStyleInactive: TcxStyle;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
+    procedure cxGridDBBandedTableViewCanFocusRecord
+      (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+      var AAllow: Boolean);
   private
+    FOnCanFocusRecord: TNotifyEventsEx;
     FqStoreHouseList: TQueryStoreHouseList;
     function GetclAbbreviation: TcxGridDBBandedColumn;
     function GetclTitle: TcxGridDBBandedColumn;
@@ -49,13 +54,22 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure UpdateView; override;
     property clAbbreviation: TcxGridDBBandedColumn read GetclAbbreviation;
     property clTitle: TcxGridDBBandedColumn read GetclTitle;
     property qStoreHouseList: TQueryStoreHouseList read FqStoreHouseList
       write SetqStoreHouseList;
     property W: TStoreHouseListW read GetW;
+    property OnCanFocusRecord: TNotifyEventsEx read FOnCanFocusRecord;
     { Public declarations }
+  end;
+
+  TOnCanFocusRecord = class(TObject)
+  private
+    FAllow: Boolean;
+  public
+    property Allow: Boolean read FAllow write FAllow;
   end;
 
 implementation
@@ -69,6 +83,14 @@ constructor TViewStoreHouse.Create(AOwner: TComponent);
 begin
   inherited;
   DeleteMessages.Add(cxGridLevel, 'Удалить склад?');
+
+  FOnCanFocusRecord := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TViewStoreHouse.Destroy;
+begin
+  inherited;
+  FreeAndNil(FOnCanFocusRecord);
 end;
 
 procedure TViewStoreHouse.actAddStorehouseExecute(Sender: TObject);
@@ -103,6 +125,22 @@ begin
     W.TryPost;
     MainView.ApplyBestFit();
   }
+end;
+
+procedure TViewStoreHouse.cxGridDBBandedTableViewCanFocusRecord
+  (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+  var AAllow: Boolean);
+var
+  AOnCanFocusRecord: TOnCanFocusRecord;
+begin
+  inherited;
+  AOnCanFocusRecord := TOnCanFocusRecord.Create;
+  try
+    FOnCanFocusRecord.CallEventHandlers(AOnCanFocusRecord);
+    AAllow := AOnCanFocusRecord.Allow;
+  finally
+    FreeAndNil(AOnCanFocusRecord);
+  end;
 end;
 
 function TViewStoreHouse.GetclAbbreviation: TcxGridDBBandedColumn;
@@ -141,7 +179,6 @@ begin
 
   MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
   MainView.OptionsSelection.HideSelection := False;
-
 
   MainView.Controller.FocusedRow.Selected := True;
 

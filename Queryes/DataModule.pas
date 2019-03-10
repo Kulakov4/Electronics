@@ -9,7 +9,8 @@ uses
   ComponentsSearchGroupUnit2, CategoryParametersGroupUnit2,
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
-  SubParametersQuery2, ExtraChargeGroupUnit, BillQuery, BillContentQuery;
+  SubParametersQuery2, ExtraChargeGroupUnit, BillQuery, BillContentQuerySimple,
+  BillContentQuery, ProductsBaseQuery;
 
 type
   TDM = class(TObject)
@@ -29,12 +30,13 @@ type
     FExtraChargeGroup: TExtraChargeGroup;
     FParametersGroup: TParametersGroup2;
     FProducersGroup: TProducersGroup2;
-    FqBillContent: TQueryBillContent;
+    FqBillContentSimple: TQueryBillContentSimple;
     FqChildCategories: TQueryChildCategories;
+    FqBill: TQryBill;
+    FqBillContent2: TQryBillContent;
     FqProducts: TQueryProducts;
     FqProductsBasket: TQueryProducts;
     FqProductsSearch: TQueryProductsSearch;
-    FQryBill: TQryBill;
     FqStoreHouseList: TQueryStoreHouseList;
     FqSubParameters: TQuerySubParameters2;
     FqTreeList: TQueryTreeList;
@@ -54,12 +56,13 @@ type
     function GetExtraChargeGroup: TExtraChargeGroup;
     function GetParametersGroup: TParametersGroup2;
     function GetProducersGroup: TProducersGroup2;
-    function GetqBillContent: TQueryBillContent;
+    function GetqBillContentSimple: TQueryBillContentSimple;
     function GetqChildCategories: TQueryChildCategories;
+    function GetqBill: TQryBill;
+    function GetqBillContent2: TQryBillContent;
     function GetqProducts: TQueryProducts;
     function GetqProductsBasket: TQueryProducts;
     function GetqProductsSearch: TQueryProductsSearch;
-    function GetQryBill: TQryBill;
     function GetqStoreHouseList: TQueryStoreHouseList;
     function GetqSubParameters: TQuerySubParameters2;
     function GetqTreeList: TQueryTreeList;
@@ -69,11 +72,13 @@ type
     procedure DoAfterChildCategoriesPostOrDelete(Sender: TObject);
     procedure DoAfterCommit(Sender: TObject);
     procedure DoAfterTreeListFirstOpen(Sender: TObject);
+    procedure DoBeforeBillDelete(Sender: TObject);
     procedure DoBeforeCommit(Sender: TObject);
     procedure DoBeforeTreeListClose(Sender: TObject);
   public
     constructor Create;
     destructor Destroy; override;
+    procedure AddBill(AQryProducts: TQueryProductsBase);
     class function Created: Boolean;
     procedure CreateOrOpenDataBase(const AExeName: String);
     class function NewInstance: TObject; override;
@@ -88,12 +93,14 @@ type
     property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
     property ParametersGroup: TParametersGroup2 read GetParametersGroup;
     property ProducersGroup: TProducersGroup2 read GetProducersGroup;
-    property qBillContent: TQueryBillContent read GetqBillContent;
+    property qBillContentSimple: TQueryBillContentSimple
+      read GetqBillContentSimple;
     property qChildCategories: TQueryChildCategories read GetqChildCategories;
+    property qBill: TQryBill read GetqBill;
+    property qBillContent2: TQryBillContent read GetqBillContent2;
     property qProducts: TQueryProducts read GetqProducts;
     property qProductsBasket: TQueryProducts read GetqProductsBasket;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
-    property QryBill: TQryBill read GetQryBill;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     property qSubParameters: TQuerySubParameters2 read GetqSubParameters;
     property qTreeList: TQueryTreeList read GetqTreeList;
@@ -130,11 +137,11 @@ begin
   begin
     // Add(qTreeList);
 
-//    Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
-//    Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
+    // Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
+    // Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
 
-//    Add(ProducersGroup.qProducerTypes); // Типы производителей
-//    Add(ProducersGroup.qProducers); // Производители
+    // Add(ProducersGroup.qProducerTypes); // Типы производителей
+    // Add(ProducersGroup.qProducers); // Производители
 
     // Поиск на складе и редактирование найденного
     // Add(qProductsSearch);
@@ -142,13 +149,13 @@ begin
     // Add(qStoreHouseList); // Склады - главное
 
     // Поиск среди семейств
-//    Add(ComponentsSearchGroup.qFamilySearch);
+    // Add(ComponentsSearchGroup.qFamilySearch);
 
     // Поиск среди компонентов (подчинённое)
-//    Add(ComponentsSearchGroup.qComponentsSearch);
+    // Add(ComponentsSearchGroup.qComponentsSearch);
 
     // вкладка параметры - список параметров
-  //  Add(CategoryParametersGroup.qCategoryParameters);
+    // Add(CategoryParametersGroup.qCategoryParameters);
   end;
   // Для компонентов указываем откуда брать производителя и корпус
   // ComponentsGroup.Producers := ProducersGroup.qProducers;
@@ -156,32 +163,30 @@ begin
   // ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
   Assert(not qTreeList.FDQuery.Active);
-  TNotifyEventWrap.Create(qTreeList.W.AfterOpen,
-    DoAfterTreeListFirstOpen, FEventList);
+  TNotifyEventWrap.Create(qTreeList.W.AfterOpen, DoAfterTreeListFirstOpen,
+    FEventList);
 
   TNotifyEventWrap.Create(qTreeList.W.BeforeClose, DoBeforeTreeListClose,
     FEventList);
 
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
+  CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
+  // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
+  ComponentsGroup.qComponents.Master := qTreeList;
+  ComponentsGroup.qFamily.Master := qTreeList;
+  // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
+  ComponentsExGroup.qComponentsEx.Master := qTreeList;
+  ComponentsExGroup.qFamilyEx.Master := qTreeList;
+
+  qProducts.Master := qStoreHouseList;
+  qBillContent2.Master := qBill;
 
   // При редактировании дочерней категории нужно будет обновлять дерево
   TNotifyEventWrap.Create(qChildCategories.W.AfterPostM,
     DoAfterChildCategoriesPostOrDelete, FEventList);
   TNotifyEventWrap.Create(qChildCategories.W.AfterDelete,
     DoAfterChildCategoriesPostOrDelete, FEventList);
-
-  qProducts.Master := qStoreHouseList;
-
-  // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
-  ComponentsGroup.qComponents.Master := qTreeList;
-  ComponentsGroup.qFamily.Master := qTreeList;
-
-  // Сначала обновим компоненты, чтобы при обновлении семейства знать сколько у него компонент
-  ComponentsExGroup.qComponentsEx.Master := qTreeList;
-  ComponentsExGroup.qFamilyEx.Master := qTreeList;
-
-  CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
 
   TNotifyEventWrap.Create(DMRepository.BeforeCommit, DoBeforeCommit,
     FEventList);
@@ -203,6 +208,8 @@ begin
   // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
   TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
     DoOnParamOrderChange, FEventList);
+
+  TNotifyEventWrap.Create(qBill.W.BeforeDelete, DoBeforeBillDelete, FEventList);
 end;
 
 destructor TDM.Destroy;
@@ -214,6 +221,54 @@ begin
   FreeAndNil(FDataSetList);
 
   inherited;
+end;
+
+procedure TDM.AddBill(AQryProducts: TQueryProductsBase);
+var
+  ABillID: Integer;
+  AStoreHouseProductID: Integer;
+begin
+  Assert(AQryProducts <> nil);
+  qBill.W.TryOpen;
+
+  // Добавляем новый счёт
+  ABillID := qBill.W.AddBill(AQryProducts.DollarCource,
+    AQryProducts.EuroCource);
+  try
+    AQryProducts.Basket.DisableControls;
+    AQryProducts.FDQuery.DisableControls;
+    try
+      AQryProducts.Basket.First;
+      while not AQryProducts.Basket.Eof do
+      begin
+        // На складе должно быть достаточное количество товара
+        Assert(AQryProducts.W.Amount.F.AsFloat >
+          AQryProducts.W.SaleCount.F.AsFloat);
+
+        // Идентификатор связи товар-склад у нас отрицательный
+        AStoreHouseProductID := AQryProducts.GetStorehouseProductID
+          (AQryProducts.BasketW.ID.F.AsInteger);
+
+        // Добавляем товар в заказ
+        qBillContentSimple.W.AddContent(ABillID, AStoreHouseProductID,
+          AQryProducts.BasketW.SaleCount.F.Value);
+
+        // Резервируем этот продукт, уменьшая его количество на складе
+        AQryProducts.BasketW.ReserveProduct;
+
+        AQryProducts.Basket.Next;
+      end;
+    finally
+      AQryProducts.Basket.EnableControls;
+      AQryProducts.FDQuery.EnableControls;
+    end;
+    AQryProducts.ApplyUpdates;
+  except
+    // Удаляем добавленный счёт
+    qBill.W.LocateByPKAndDelete(ABillID);
+    raise;
+  end;
+
 end;
 
 { закрытие датасетов }
@@ -339,6 +394,23 @@ begin
   qTreeList.W.LocateByPK(ACategoryID);
 end;
 
+procedure TDM.DoBeforeBillDelete(Sender: TObject);
+var
+  AIDBill: Integer;
+begin
+  // Надо вернуть зарезервированный товар на склад перед удалением счёта
+
+  AIDBill := qBill.W.PK.Value;
+
+  // Каскадно удаляем содержимое заказа
+  qBillContent2.W.CascadeDelete(AIDBill, qBillContent2.W.BillID.FieldName);
+  qBillContent2.ApplyUpdates;
+
+  // cxGrid сместил запись, поэтому возвращаемся на место
+  qBill.W.LocateByPK(AIDBill, True);
+
+end;
+
 procedure TDM.DoBeforeCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
@@ -445,15 +517,15 @@ begin
   Result := FProducersGroup;
 end;
 
-function TDM.GetqBillContent: TQueryBillContent;
+function TDM.GetqBillContentSimple: TQueryBillContentSimple;
 begin
-  if FqBillContent = nil then
+  if FqBillContentSimple = nil then
   begin
-    FqBillContent := TQueryBillContent.Create(FComponent);
-    FqBillContent.FDQuery.Open;
+    FqBillContentSimple := TQueryBillContentSimple.Create(FComponent);
+    FqBillContentSimple.FDQuery.Open;
   end;
 
-  Result := FqBillContent;
+  Result := FqBillContentSimple;
 end;
 
 function TDM.GetqChildCategories: TQueryChildCategories;
@@ -462,6 +534,24 @@ begin
     FqChildCategories := TQueryChildCategories.Create(FComponent);
 
   Result := FqChildCategories;
+end;
+
+function TDM.GetqBill: TQryBill;
+begin
+  if FqBill = nil then
+    FqBill := TQryBill.Create(FComponent);
+
+  Result := FqBill;
+end;
+
+function TDM.GetqBillContent2: TQryBillContent;
+begin
+  if FqBillContent2 = nil then
+  begin
+    FqBillContent2 := TQryBillContent.Create(FComponent);
+  end;
+
+  Result := FqBillContent2;
 end;
 
 function TDM.GetqProducts: TQueryProducts;
@@ -486,17 +576,6 @@ begin
     FqProductsSearch := TQueryProductsSearch.Create(FComponent);
 
   Result := FqProductsSearch;
-end;
-
-function TDM.GetQryBill: TQryBill;
-begin
-  if FQryBill = nil then
-  begin
-    FQryBill := TQryBill.Create(FComponent);
-    FQryBill.FDQuery.Open;
-  end;
-
-  Result := FQryBill;
 end;
 
 function TDM.GetqStoreHouseList: TQueryStoreHouseList;
