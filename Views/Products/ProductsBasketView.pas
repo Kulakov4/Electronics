@@ -36,7 +36,6 @@ type
     dxBarButton2: TdxBarButton;
     cxbeiSaleR: TcxBarEditItem;
     actCalcExecCount: TAction;
-    dxBarButton3: TdxBarButton;
     dxBarButton4: TdxBarButton;
     procedure actBasketClearExecute(Sender: TObject);
     procedure actBasketDeleteExecute(Sender: TObject);

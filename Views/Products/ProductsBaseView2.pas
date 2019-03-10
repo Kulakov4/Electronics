@@ -1583,6 +1583,11 @@ begin
   cxDBTreeList.FullCollapse;
   cxDBTreeList.ClearSelection();
   UpdateView;
+
+  // ѕытаемс€ обновить курсы валют
+  if qProductsBase.DollarCource = 0 then
+    actRefreshCources.Execute;
+
   MyApplyBestFit;
 end;
 

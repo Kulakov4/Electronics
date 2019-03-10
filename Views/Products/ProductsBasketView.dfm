@@ -110,7 +110,6 @@ inherited ViewProductsBasket: TViewProductsBasket
         FixedKind = tlbfRight
       end>
     OnAfterSummary = cxDBTreeListAfterSummary
-    OnEditing = cxDBTreeListEditing
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -186,10 +185,6 @@ inherited ViewProductsBasket: TViewProductsBasket
         item
           Visible = True
           ItemName = 'dxBarButton4'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton3'
         end>
     end
     inherited dxBarManagerBar2: TdxBar
@@ -259,10 +254,6 @@ inherited ViewProductsBasket: TViewProductsBasket
       Visible = ivAlways
       ShowCaption = True
       PropertiesClassName = 'TcxCurrencyEditProperties'
-    end
-    object dxBarButton3: TdxBarButton
-      Action = actCalcExecCount
-      Category = 0
     end
     object dxBarButton4: TdxBarButton
       Action = actApplyBestFit
