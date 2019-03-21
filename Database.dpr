@@ -241,7 +241,8 @@ uses
   StoreHouseListView in 'Views\StoreHouse\StoreHouseListView.pas' {ViewStoreHouse: TFrame},
   BillListView in 'Views\Bill\BillListView.pas' {ViewBill: TFrame},
   BillContentQuery in 'Queryes\Bill\BillContentQuery.pas' {QryBillContent: TFrame},
-  BillContentView in 'Views\Bill\BillContentView.pas' {ViewBillContent: TFrame};
+  BillContentView in 'Views\Bill\BillContentView.pas' {ViewBillContent: TFrame},
+  ClearStorehouseProductsQuery in 'Queryes\Products\ClearStorehouseProductsQuery.pas' {QryClearStoreHouseProducts: TFrame};
 
 {$R *.res}
 

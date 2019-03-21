@@ -50,8 +50,6 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
-    procedure BeginApplyUpdatesOnClient;
-    procedure EndApplyUpdatesOnClient;
     procedure DoOnQueryUpdateRecord(ASender: TDataSet;
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions);
@@ -67,8 +65,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
+    procedure BeginApplyUpdatesOnClient;
     procedure ClearUpdateRecCount;
     procedure DeleteFromClient;
+    procedure EndApplyUpdatesOnClient;
     procedure FetchFields(const AFieldNames: TArray<String>;
       const AValues: TArray<Variant>; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); overload;

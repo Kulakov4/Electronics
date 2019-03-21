@@ -26,7 +26,8 @@ uses
   dxSkinXmas2008Blue, cxDBExtLookupComboBox, Vcl.Menus, System.Actions,
   Vcl.ActnList, dxBar, cxBarEditItem, cxClasses, Vcl.ComCtrls,
   cxInplaceContainer, cxDBTL, cxTLData, ProductsQuery, ProductsBaseQuery,
-  StoreHouseListQuery, cxEdit, cxCurrencyEdit, cxTextEdit;
+  StoreHouseListQuery, cxEdit, cxCurrencyEdit, cxTextEdit, cxCalendar,
+  Vcl.ExtCtrls;
 
 type
   TViewProductsBasket = class(TViewProductsBase2)
@@ -34,13 +35,13 @@ type
     actBasketDelete: TAction;
     actBasketClear: TAction;
     dxBarButton2: TdxBarButton;
-    cxbeiSaleR: TcxBarEditItem;
     actCalcExecCount: TAction;
     dxBarButton4: TdxBarButton;
+    dxBarButton3: TdxBarButton;
+    dxBarButton5: TdxBarButton;
     procedure actBasketClearExecute(Sender: TObject);
     procedure actBasketDeleteExecute(Sender: TObject);
     procedure actCalcExecCountExecute(Sender: TObject);
-    procedure cxDBTreeListAfterSummary(Sender: TObject);
     procedure cxDBTreeListEditing(Sender: TcxCustomTreeList;
       AColumn: TcxTreeListColumn; var Allow: Boolean);
   private
@@ -106,22 +107,6 @@ begin
   ShowMessage(Format('Calc exec count = %d', [qProducts.CalcExecCount]));
 end;
 
-procedure TViewProductsBasket.cxDBTreeListAfterSummary(Sender: TObject);
-var
-  AFooterSummaryItem: TcxTreeListSummaryItem;
-  AValue: Variant;
-begin
-  inherited;
-  AFooterSummaryItem := clSaleR.Summary.FooterSummaryItems.GetItemByKind(skSum);
-
-  if AFooterSummaryItem = nil then
-    Exit;
-
-  AValue := cxDBTreeList.Summary.FooterSummaryValues[AFooterSummaryItem];
-
-  cxbeiSaleR.EditValue := AValue;
-end;
-
 procedure TViewProductsBasket.cxDBTreeListEditing(Sender: TcxCustomTreeList;
   AColumn: TcxTreeListColumn; var Allow: Boolean);
 begin
@@ -185,7 +170,8 @@ begin
     (cxDBTreeList.SelectionCount > 0) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
-  actBasketClear.Enabled := actBasketDelete.Enabled;
+  actBasketClear.Enabled := OK and
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 end;
 
 end.

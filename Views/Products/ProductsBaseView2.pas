@@ -32,10 +32,12 @@ uses
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView,
   cxGridCustomView, cxGrid, ExtraChargeView, System.Generics.Collections,
   cxDataControllerConditionalFormattingRulesManagerDialog,
-  ExtraChargeSimpleView, DSWrap, HRTimer, dxNumericWheelPicker, cxTextEdit;
+  ExtraChargeSimpleView, DSWrap, HRTimer, dxNumericWheelPicker, cxTextEdit,
+  cxCalendar, Vcl.ExtCtrls, cxCurrencyEdit;
 
 const
   WM_RESYNC_DATASET = WM_USER + 800;
+  WM_AFTER_APPLY_UPDATES = WM_USER + 801;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -130,6 +132,12 @@ type
     cxslOtherColumn: TcxStyle;
     cxslHighlited: TcxStyle;
     cxslSelectedColumn2: TcxStyle;
+    cxbeiDate: TcxBarEditItem;
+    Timer: TTimer;
+    dxBarButton12: TdxBarButton;
+    cxbeiTotalR: TcxBarEditItem;
+    dxBarButton13: TdxBarButton;
+    actRubToDollar: TAction;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -154,6 +162,7 @@ type
     procedure actOpenInParametricTableExecute(Sender: TObject);
     procedure actRefreshCourcesExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
+    procedure actRubToDollarExecute(Sender: TObject);
     procedure clDatasheetGetDisplayText(Sender: TcxTreeListColumn;
       ANode: TcxTreeListNode; var Value: string);
     procedure cxbeiDollarChange(Sender: TObject);
@@ -184,9 +193,11 @@ type
     procedure PopupMenuPopup(Sender: TObject);
     procedure cxbeiExtraChargeTypePropertiesChange(Sender: TObject);
     procedure cxbeiExtraChargePropertiesChange(Sender: TObject);
+    procedure cxDBTreeListAfterSummary(Sender: TObject);
     procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
       AColumn: TcxTreeListColumn);
     procedure dxbcMinWholeSaleChange(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);
   private
     FCountEvents: TObjectList;
     FcxTreeListBandHeaderCellViewInfo: TcxTreeListBandHeaderCellViewInfo;
@@ -200,6 +211,8 @@ type
 
   const
     KeyFolder: String = 'Products';
+    procedure DoAfterApplyUpdates(Sender: TObject);
+    procedure DoAfterCancelUpdates(Sender: TObject);
     procedure DoAfterDataChange(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
@@ -207,6 +220,7 @@ type
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
+    procedure DoOnRubToDollarChange(Sender: TObject);
     function GetIDExtraChargeType: Integer;
     function GetIDExtraCharge: Integer;
     function GetViewExtraChargeSimple: TViewExtraChargeSimple;
@@ -219,6 +233,7 @@ type
     procedure SetIDExtraCharge(const Value: Integer);
     procedure SetIDExtraChargeType(const Value: Integer);
     procedure SetqProductsBase(const Value: TQueryProductsBase);
+    procedure UpdateAllBarComboText;
     procedure UpdateSelectedCount;
     { Private declarations }
   protected
@@ -242,6 +257,8 @@ type
       var AValue: Variant); virtual;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
+    procedure ProcessAfterApplyUpdatesMessage(var Message: TMessage);
+      message WM_AFTER_APPLY_UPDATES;
     function RateToPerсent(ARate: Double): Double;
     // TODO: SortList
     // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
@@ -341,6 +358,11 @@ begin
 
   cxDBTreeList.OptionsSelection.HideFocusRect := True;
   cxDBTreeList.OptionsSelection.HideSelection := True;
+  cxDBTreeList.OptionsView.FocusRect := False;
+  cxDBTreeList.OptionsData.Deleting := False;
+  cxDBTreeList.OptionsData.Inserting := False;
+  cxDBTreeList.OptionsBehavior.ConfirmDelete := False;
+
   // cxDBTreeList.OnCustomDrawDataCell := nil;
 end;
 
@@ -477,8 +499,25 @@ begin
 end;
 
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
+var
+  X: Integer;
 begin
   inherited;
+  FqProductsBase.W.TryPost;
+
+  // если есть записи, которые были добавлены
+  if FqProductsBase.HaveInsertedRecords then
+  begin
+    X := TDialog.Create.UseDefaultMinWholeSale(TSettings.Create.MinWholeSale);
+    // Если отмена сохранения
+    if X = IDCANCEL then
+      Exit;
+
+    // Применяем минимальную оптовую наценку
+    if X = IDYES then
+      FqProductsBase.ApplyMinWholeSale(TSettings.Create.MinWholeSale);
+  end;
+
   // Мы просто завершаем транзакцию
   FqProductsBase.ApplyUpdates;
   UpdateView;
@@ -676,6 +715,12 @@ begin
   UpdateView;
 end;
 
+procedure TViewProductsBase2.actRubToDollarExecute(Sender: TObject);
+begin
+  inherited;
+  qProductsBase.RubToDollar := not qProductsBase.RubToDollar;
+end;
+
 procedure TViewProductsBase2.BeginUpdate;
 begin
   // Отписываемся от событий о смене кол-ва
@@ -773,14 +818,14 @@ end;
 procedure TViewProductsBase2.cxbeiDollarPropertiesValidate(Sender: TObject;
   var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
 var
-  x: Double;
+  X: Double;
 begin
   inherited;
   if DisplayValue = '' then
     Exit;
 
-  x := StrToFloatDef(DisplayValue, 0);
-  if x > 0 then
+  X := StrToFloatDef(DisplayValue, 0);
+  if X > 0 then
     Exit;
 
   ErrorText := 'Редактируемое значение не является курсом валюты';
@@ -851,6 +896,23 @@ begin
   end;
 end;
 
+procedure TViewProductsBase2.cxDBTreeListAfterSummary(Sender: TObject);
+var
+  AFooterSummaryItem: TcxTreeListSummaryItem;
+  AValue: Variant;
+begin
+  inherited;
+  AFooterSummaryItem := clSaleR.Summary.FooterSummaryItems.GetItemByKind(skSum);
+
+  if AFooterSummaryItem = nil then
+    Exit;
+
+  AValue := cxDBTreeList.Summary.FooterSummaryValues[AFooterSummaryItem];
+
+  cxbeiTotalR.EditValue := AValue;
+
+end;
+
 procedure TViewProductsBase2.cxDBTreeListBandHeaderClick
   (Sender: TcxCustomTreeList; ABand: TcxTreeListBand);
 begin
@@ -875,21 +937,27 @@ procedure TViewProductsBase2.cxDBTreeListCustomDrawDataCell
   AViewInfo: TcxTreeListEditCellViewInfo; var ADone: Boolean);
 var
   AStyle: TcxStyle;
+  IsClearAllSelection: Boolean;
   V: Variant;
 begin
   inherited;
 
   AStyle := nil;
 
+  IsClearAllSelection := (AViewInfo.TreeList.SelectionCount = 0) and
+    (not AViewInfo.Node.IsEditing);
+
   // Если снято всё выделение
-  if AViewInfo.TreeList.SelectionCount = 0 then
+  if IsClearAllSelection then
   begin
     AStyle := cxslOtherColumn;
   end
   else
   begin
     // Сфокусированная строка
-    if (AViewInfo.Node.Focused) and (AViewInfo.TreeList.SelectionCount = 1) then
+    if (AViewInfo.Node.IsEditing and (AViewInfo.TreeList.SelectionCount = 0)) or
+      ((AViewInfo.Node.Focused) and (AViewInfo.TreeList.SelectionCount = 1))
+    then
     begin
       // Сфокусированный столбец
       if AViewInfo.Focused then
@@ -913,7 +981,8 @@ begin
   end;
 
   // Выделяем наименование, если оно есть в базе по компонентам
-  if AViewInfo.Column = clValue then
+  if (AViewInfo.Column = clValue) and
+    ((not AViewInfo.Focused) or IsClearAllSelection) then
   begin
     V := AViewInfo.Node.Values[clChecked.ItemIndex];
     if (not VarIsNull(V)) and (V = 1) then
@@ -921,8 +990,9 @@ begin
   end;
 
   // Выделяем цветом закупочную цену
-  if (AViewInfo.Column = clPriceR) or (AViewInfo.Column = clPriceD) or
-    (AViewInfo.Column = clPriceE) then
+  if ((AViewInfo.Column = clPriceR) or (AViewInfo.Column = clPriceD) or
+    (AViewInfo.Column = clPriceE)) and
+    ((not AViewInfo.Focused) or IsClearAllSelection) then
   begin
     V := AViewInfo.Node.Values[clIDCurrency.ItemIndex];
     if (not VarIsNull(V)) and (((V = 1) and (AViewInfo.Column = clPriceR)) or
@@ -971,38 +1041,21 @@ procedure TViewProductsBase2.cxDBTreeListFocusedNodeChanged
   (Sender: TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
   inherited;
-
-  if AFocusedNode <> nil then
-  begin
-
-    // Отображаем розничную наценку у текущей записи
-    UpdateBarComboText(dxbcRetail, W.Retail.F.Value);
-    // Отображаем оптовую наценку у текущей записи
-    UpdateBarComboText(dxbcWholeSale, W.WholeSale.F.Value);
-    // Отображаем минимальную оптовую наценку у текущей записи
-    UpdateBarComboText(dxbcMinWholeSale, W.MinWholeSale.F.Value);
-
-    if IDExtraChargeType <> W.IDExtraChargeType.F.AsInteger then
+  {
+    if AFocusedNode <> nil then
     begin
-      IDExtraChargeType := W.IDExtraChargeType.F.AsInteger;
-      // Фильтруем оптовые наценки по типу
-      qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
-        (IDExtraChargeType);
-    end;
-
-    IDExtraCharge := W.IDExtraCharge.F.AsInteger;
-
-  end
-  else
-  begin
+    UpdateAllBarComboText;
+    end
+    else
+    begin
     // Отображаем ПУСТУЮ розничную наценку
     UpdateBarComboText(dxbcRetail, NULL);
     // Отображаем ПУСТУЮ оптовую наценку у текущей записи
     UpdateBarComboText(dxbcWholeSale, NULL);
     // Отображаем ПУСТУЮ минимальную оптовую наценку у текущей записи
     UpdateBarComboText(dxbcMinWholeSale, NULL);
-  end;
-
+    end;
+  }
   UpdateView;
 end;
 
@@ -1033,6 +1086,17 @@ begin
   PostMessage(Handle, WM_SELECTION_CHANGED, 0, 0);
   FPostSelectionChanged := True;
   UpdateView;
+end;
+
+procedure TViewProductsBase2.DoAfterApplyUpdates(Sender: TObject);
+begin
+  // Нужно ждать CommitUpdates чтобы очистить журнал изменений
+  PostMessage(Handle, WM_AFTER_APPLY_UPDATES, 0, 0);
+end;
+
+procedure TViewProductsBase2.DoAfterCancelUpdates(Sender: TObject);
+begin
+  UpdateAllBarComboText;
 end;
 
 procedure TViewProductsBase2.DoAfterDataChange(Sender: TObject);
@@ -1100,7 +1164,11 @@ begin
 end;
 
 procedure TViewProductsBase2.DoOnDollarCourceChange(Sender: TObject);
+var
+  S: string;
 begin
+  S := Name;
+
   // Отображаем курс доллара в поле ввода
   cxbeiDollar.EditValue := qProductsBase.DollarCource.ToString;
   DoOnCourceChange(Sender);
@@ -1116,6 +1184,17 @@ end;
 procedure TViewProductsBase2.DoOnDescriptionPopupHide(Sender: TObject);
 begin
   UpdateView;
+end;
+
+procedure TViewProductsBase2.DoOnRubToDollarChange(Sender: TObject);
+begin
+  Assert(FqProductsBase <> nil);
+  actRubToDollar.Checked := FqProductsBase.RubToDollar;
+  if not FResyncDataSetMessagePosted then
+  begin
+    FResyncDataSetMessagePosted := True;
+    PostMessage(Handle, WM_RESYNC_DATASET, 0, 0);
+  end;
 end;
 
 procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
@@ -1441,7 +1520,16 @@ begin
   actColumnWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
 end;
 
+procedure TViewProductsBase2.ProcessAfterApplyUpdatesMessage
+  (var Message: TMessage);
+begin
+  inherited;
+  UpdateView;
+end;
+
 procedure TViewProductsBase2.ProcessResyncDataSetMessage(var Message: TMessage);
+var
+  ASelectionCount: Integer;
 begin
   inherited;
   FResyncDataSetMessagePosted := False;
@@ -1449,13 +1537,22 @@ begin
   if FqProductsBase.FDQuery.State <> dsBrowse then
     Exit;
 
-  FqProductsBase.FDQuery.Resync([rmExact, rmCenter]);
+  ASelectionCount := cxDBTreeList.SelectionCount;
+
+  // Тут выделяется текущаяя запись
+  FqProductsBase.FDQuery.Resync([ { rmExact, } rmCenter]);
+
+  if ASelectionCount = 0 then
+    cxDBTreeList.ClearSelection();
 end;
 
 procedure TViewProductsBase2.ProcessSelectionChanged(var Message: TMessage);
 begin
   inherited;
   UpdateSelectedCount;
+  UpdateAllBarComboText;
+  UpdateView;
+
   FPostSelectionChanged := False;
 end;
 
@@ -1514,6 +1611,8 @@ begin
 end;
 
 procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
+var
+  ACount: Integer;
 begin
   if FqProductsBase = Value then
     Exit;
@@ -1537,8 +1636,16 @@ begin
 
     TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
       DoOnDollarCourceChange, FEventList);
+
+    ACount := FqProductsBase.OnDollarCourceChange.Count;
+
     TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,
       DoOnEuroCourceChange, FEventList);
+
+    TNotifyEventWrap.Create(FqProductsBase.OnRubToDollarChange,
+      DoOnRubToDollarChange, FEventList);
+    // Обновляем состояние кнопки
+    DoOnRubToDollarChange(nil);
 
     // подписываемся на события о смене количества и надбавки
     CreateCountEvents;
@@ -1569,6 +1676,12 @@ begin
     TNotifyEventWrap.Create(qProductsBase.Monitor.OnHaveAnyChanges,
       DoAfterDataChange, FEventList);
 
+    TNotifyEventWrap.Create(qProductsBase.AfterApplyUpdates,
+      DoAfterApplyUpdates, FEventList);
+
+    TNotifyEventWrap.Create(qProductsBase.AfterCancelUpdates,
+      DoAfterCancelUpdates, FEventList);
+
     // Отображаем курс Доллара в поле ввода
     if FqProductsBase.DollarCource > 0 then
       cxbeiDollar.EditValue := qProductsBase.DollarCource.ToString;
@@ -1576,19 +1689,61 @@ begin
     // Отображаем курс Евро в поле ввода
     if FqProductsBase.EuroCource > 0 then
       cxbeiEuro.EditValue := qProductsBase.EuroCource.ToString;
-
   finally
     EndUpdate;
   end;
   cxDBTreeList.FullCollapse;
   cxDBTreeList.ClearSelection();
   UpdateView;
+  UpdateAllBarComboText;
 
   // Пытаемся обновить курсы валют
   if qProductsBase.DollarCource = 0 then
     actRefreshCources.Execute;
 
   MyApplyBestFit;
+end;
+
+procedure TViewProductsBase2.TimerTimer(Sender: TObject);
+begin
+  inherited;
+  cxbeiDate.EditValue := DateToStr(Date);
+end;
+
+procedure TViewProductsBase2.UpdateAllBarComboText;
+begin
+  if (W.DataSet.RecordCount > 0) and (cxDBTreeList.SelectionCount > 0) then
+  begin
+    // Отображаем розничную наценку у текущей записи
+    UpdateBarComboText(dxbcRetail, W.Retail.F.Value);
+    // Отображаем оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcWholeSale, W.WholeSale.F.Value);
+    // Отображаем минимальную оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcMinWholeSale, W.MinWholeSale.F.Value);
+
+    if IDExtraChargeType <> W.IDExtraChargeType.F.AsInteger then
+    begin
+      IDExtraChargeType := W.IDExtraChargeType.F.AsInteger;
+      // Фильтруем оптовые наценки по типу
+      qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
+        (IDExtraChargeType);
+    end;
+
+    IDExtraCharge := W.IDExtraCharge.F.AsInteger;
+  end
+  else
+  begin
+    // Выпадающий список "Стоимость"
+    cxbeiExtraChargeType.EditValue := NULL;
+    // Выпадающий список "Кол-во"
+    cxbeiExtraCharge.EditValue := NULL;
+    // Отображаем ПУСТУЮ оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcWholeSale, NULL);
+    // Отображаем ПУСТУЮ минимальную оптовую наценку у текущей записи
+    UpdateBarComboText(dxbcMinWholeSale, NULL);
+    // Отображаем ПУСТУЮ розничную наценку
+    UpdateBarComboText(dxbcRetail, NULL);
+  end;
 end;
 
 procedure TViewProductsBase2.UpdateProductCount;
@@ -1644,22 +1799,19 @@ begin
   actRollback.Enabled := actCommit.Enabled;
 
   actOpenInParametricTable.Enabled := OK and (cxDBTreeList.FocusedNode <> nil)
-    and (cxDBTreeList.SelectionCount = 1) and
-    (qProductsBase.FDQuery.State = dsBrowse) and
-    (not qProductsBase.W.IsGroup.F.IsNull) and
-    (qProductsBase.W.IsGroup.F.AsInteger = 0);
+    and (cxDBTreeList.SelectionCount = 1) and (W.DataSet.State = dsBrowse) and
+    (not W.IsGroup.F.IsNull) and (W.IsGroup.F.AsInteger = 0);
 
   actExportToExcelDocument.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
   actAddCategory.Enabled := OK;
 
-  actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil);
+  actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
+    (cxDBTreeList.SelectionCount = 1);
 
   actDelete.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.SelectionCount > 0) and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
-
-  actClearPrice.Enabled := OK and (not qProductsBase.HaveAnyChanges);
 
   actClearSelection.Enabled := OK and (cxDBTreeList.SelectionCount > 0);
 
@@ -1669,10 +1821,15 @@ begin
   if qProductsBase.EuroCource > 0 then
     cxbeiEuro.EditValue := qProductsBase.EuroCource;
 
-  actCreateBill.Enabled := OK and (qProductsBase.Basket.RecordCount > 0)
+  actCreateBill.Enabled := OK and (qProductsBase.BasketW <> nil) and
+    (qProductsBase.BasketW.RecordCount > 0) and (W.DataSet.State = dsBrowse);
   { and (FqProductsBase.DollarCource > 0) and (FqProductsBase.EuroCource > 0) };
 
   actClearPrice.Enabled := OK and
+    (cxDBTreeList.DataController.DataSet.RecordCount > 0) and
+    (W.DataSet.State = dsBrowse) and (not qProductsBase.HaveAnyChanges);
+
+  actRubToDollar.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 end;
 

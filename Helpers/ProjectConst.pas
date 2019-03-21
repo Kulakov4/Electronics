@@ -9,6 +9,8 @@ resourcestring
 
   sOperatingTemperatureRange = 'Operating Temperature Range';
 
+  sIsNotEnoughProductAmount = 'На складе недостаточное количество товара';
+
   // Папка по умолчанию для хранения документации на складе
   sWareHouseFolder = 'Склад';
 
@@ -85,7 +87,7 @@ resourcestring
 
 const
   DBVersion = 7;
-  ProgramVersion = 1.3;
+  ProgramVersion = 1.4;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
   DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
   OnReadProcessEventRecordCount = 100;

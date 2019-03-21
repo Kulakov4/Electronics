@@ -4,9 +4,9 @@ inherited ViewProductsBase2: TViewProductsBase2
   ExplicitWidth = 1177
   ExplicitHeight = 598
   inherited cxDBTreeList: TcxDBTreeList
-    Top = 56
+    Top = 54
     Width = 1177
-    Height = 523
+    Height = 525
     Bands = <
       item
         Caption.AlignHorz = taCenter
@@ -129,16 +129,18 @@ inherited ViewProductsBase2: TViewProductsBase2
     OptionsView.PaintStyle = tlpsCategorized
     OptionsView.TreeLineStyle = tllsNone
     Styles.OnGetBandHeaderStyle = nil
+    OnAfterSummary = cxDBTreeListAfterSummary
     OnBandHeaderClick = cxDBTreeListBandHeaderClick
     OnColumnHeaderClick = cxDBTreeListColumnHeaderClick
     OnExpanded = cxDBTreeListExpanded
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 56
+    ExplicitTop = 26
     ExplicitWidth = 1177
-    ExplicitHeight = 523
+    ExplicitHeight = 553
     object clID: TcxDBTreeListColumn
+      Visible = False
       Caption.AlignHorz = taCenter
       DataBinding.FieldName = 'ID'
       Options.VertSizing = False
@@ -702,8 +704,51 @@ inherited ViewProductsBase2: TViewProductsBase2
     DockControlHeights = (
       0
       0
-      56
+      54
       0)
+    inherited dxBarManagerBar1: TdxBar
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbsColumns'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiDate'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiDollar'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiEuro'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbRefreshCources'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton12'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbCreateBill'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton11'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiTotalR'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton13'
+        end>
+    end
     object dxBarManagerBar2: TdxBar [1]
       Caption = 'Price'
       CaptionButtons = <>
@@ -717,30 +762,6 @@ inherited ViewProductsBase2: TViewProductsBase2
       FloatClientHeight = 0
       Images = DMRepository.cxImageList
       ItemLinks = <
-        item
-          UserDefine = [udWidth]
-          UserWidth = 55
-          Visible = True
-          ItemName = 'cxbeiDollar'
-        end
-        item
-          UserDefine = [udWidth]
-          UserWidth = 51
-          Visible = True
-          ItemName = 'cxbeiEuro'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbRefreshCources'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton11'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbCreateBill'
-        end
         item
           Visible = True
           ItemName = 'cxbeiExtraChargeType'
@@ -811,6 +832,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Visible = ivAlways
       OnChange = cxbeiDollarChange
       ShowCaption = True
+      Width = 70
       PropertiesClassName = 'TcxMaskEditProperties'
       Properties.BeepOnError = True
       Properties.MaskKind = emkRegExpr
@@ -828,6 +850,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       Visible = ivAlways
       OnChange = cxbeiEuroChange
       ShowCaption = True
+      Width = 70
       PropertiesClassName = 'TcxMaskEditProperties'
       Properties.MaskKind = emkRegExpr
       Properties.EditMask = '(\d+\,?\d?\d?\d?\d?)'
@@ -893,6 +916,30 @@ inherited ViewProductsBase2: TViewProductsBase2
     object dxbbCreateBill: TdxBarButton
       Action = actCreateBill
       Category = 0
+    end
+    object cxbeiDate: TcxBarEditItem
+      Caption = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
+      Category = 0
+      Hint = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
+      Visible = ivAlways
+      PropertiesClassName = 'TcxDateEditProperties'
+    end
+    object dxBarButton12: TdxBarButton
+      Action = actClearSelection
+      Category = 0
+    end
+    object cxbeiTotalR: TcxBarEditItem
+      Caption = #1048#1090#1086#1075#1086':'
+      Category = 0
+      Hint = #1048#1090#1086#1075#1086':'
+      Visible = ivAlways
+      ShowCaption = True
+      PropertiesClassName = 'TcxCurrencyEditProperties'
+    end
+    object dxBarButton13: TdxBarButton
+      Action = actRubToDollar
+      Category = 0
+      ButtonStyle = bsChecked
     end
   end
   inherited ActionList: TActionList
@@ -1023,10 +1070,14 @@ inherited ViewProductsBase2: TViewProductsBase2
       OnExecute = actCreateBillExecute
     end
     object actClearSelection: TAction
-      Caption = 'actClearSelection'
+      Caption = #1054#1095#1080#1089#1090#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
       Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1074#1099#1076#1077#1083#1077#1085#1080#1077
       ImageIndex = 46
       OnExecute = actClearSelectionExecute
+    end
+    object actRubToDollar: TAction
+      Caption = #8381'-$'
+      OnExecute = actRubToDollarExecute
     end
   end
   inherited PopupMenu: TPopupMenu
@@ -1086,5 +1137,10 @@ inherited ViewProductsBase2: TViewProductsBase2
       Color = clHighlight
       TextColor = clHighlightText
     end
+  end
+  object Timer: TTimer
+    OnTimer = TimerTimer
+    Left = 72
+    Top = 200
   end
 end

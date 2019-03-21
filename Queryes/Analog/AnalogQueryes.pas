@@ -188,7 +188,6 @@ begin
   begin
     Q.FDQuery.SQL.Text := Format('INSERT INTO %s '#13#10'%s',
       [FTempTableName, ASQL]);
-    // Q.FDQuery.SQL.SaveToFile('C:\public\sql.sql');
     Q.Execute(FProductCategoryID);
     Q.FDQuery.Connection.Commit;
   end;

@@ -26,7 +26,8 @@ uses
   cxBarEditItem, dxBar, cxClasses, cxInplaceContainer, cxDBTL, cxTLData,
   Vcl.Menus, Vcl.ComCtrls, cxDropDownEdit,
   ProductsSearchQuery, cxDBExtLookupComboBox,
-  cxDataControllerConditionalFormattingRulesManagerDialog, ProductsBaseQuery;
+  cxDataControllerConditionalFormattingRulesManagerDialog, ProductsBaseQuery,
+  cxCalendar, Vcl.ExtCtrls, cxCurrencyEdit;
 
 type
   TViewProductsSearch2 = class(TViewProductsBase2)

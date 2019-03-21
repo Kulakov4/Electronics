@@ -3,7 +3,8 @@ unit BillListView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -25,21 +26,43 @@ uses
   cxDBData, dxBarBuiltInMenu, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus,
   System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, BillQuery;
+  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, BillQuery,
+  cxDropDownEdit, dxDateTimeWheelPicker, cxBarEditItem, cxCalendar,
+  RepositoryDataModule;
 
 type
   TViewBill = class(TfrmGrid)
     dxBarButton1: TdxBarButton;
+    actShip: TAction;
+    dxBarButton2: TdxBarButton;
+    dxBarManagerBar1: TdxBar;
+    cxbeiPeriodComboBox: TcxBarEditItem;
+    cxbeiBeginDate: TcxBarEditItem;
+    cxbeiEndDate: TcxBarEditItem;
+    dxbmbPeriod: TdxBar;
+    dxBarButton3: TdxBarButton;
+    actApplyCustomFilter: TAction;
+    cxbeiShippedComboBox: TcxBarEditItem;
+    procedure actApplyCustomFilterExecute(Sender: TObject);
+    procedure actShipExecute(Sender: TObject);
+    procedure cxbeiBeginDateChange(Sender: TObject);
+    procedure cxbeiPeriodComboBoxPropertiesEditValueChanged(Sender: TObject);
+    procedure cxbeiEndDateChange(Sender: TObject);
+    procedure cxbeiShippedComboBoxPropertiesEditValueChanged(Sender: TObject);
   private
     FqBill: TQryBill;
     function GetclBillDate: TcxGridDBBandedColumn;
+    function GetclNumber: TcxGridDBBandedColumn;
     function GetW: TBillW;
     procedure SetqBill(const Value: TQryBill);
     { Private declarations }
+  protected
+    procedure MyDelete; override;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateView; override;
     property clBillDate: TcxGridDBBandedColumn read GetclBillDate;
+    property clNumber: TcxGridDBBandedColumn read GetclNumber;
     property qBill: TQryBill read FqBill write SetqBill;
     property W: TBillW read GetW;
     { Public declarations }
@@ -56,6 +79,98 @@ constructor TViewBill.Create(AOwner: TComponent);
 begin
   inherited;
   DeleteMessages.Add(cxGridLevel, 'Вы действительно хотите отменить счёт?');
+
+  dxbmbPeriod.Visible := False;
+//  cxbeiBeginDate.EditValue := DateToStr(Date - 30);
+//  cxbeiEndDate.EditValue := DateToStr(Date);
+end;
+
+procedure TViewBill.actApplyCustomFilterExecute(Sender: TObject);
+var
+  D1: TDate;
+  D2: TDate;
+  S1: string;
+  S2: string;
+begin
+  inherited;
+  S1 := VarToStrDef(cxbeiBeginDate.EditValue, '');
+  S2 := VarToStrDef(cxbeiEndDate.EditValue, '');
+
+  if (S1 = '') or (S2 = '') then
+    Exit;
+
+  D1 := StrToDate(S1);
+  D2 := StrToDate(S2);
+
+  qBill.SearchByPeriod(D1, D2); // За произвольный период
+end;
+
+procedure TViewBill.cxbeiPeriodComboBoxPropertiesEditValueChanged
+  (Sender: TObject);
+var
+  AcxComboBox: TcxComboBox;
+begin
+  inherited;
+
+  if qBill = nil then
+    Exit;
+
+  AcxComboBox := Sender as TcxComboBox;
+  // Сохраняем значение
+  AcxComboBox.PostEditValue;
+  dxbmbPeriod.Visible := AcxComboBox.ItemIndex = 0;
+
+  case AcxComboBox.ItemIndex of
+    1:
+      qBill.SearchByPeriod(Date, Date); // Сегодня
+    2:
+      qBill.SearchByPeriod(Date - 7, Date); // За 7 дней
+    3:
+      qBill.SearchByPeriod(Date - 30, Date); // За 30 дней
+    4:
+      qBill.SearchByPeriod(Date - 365, Date); // За 365 дней
+  end;
+end;
+
+procedure TViewBill.cxbeiShippedComboBoxPropertiesEditValueChanged(
+  Sender: TObject);
+var
+  AcxComboBox: TcxComboBox;
+begin
+  inherited;
+  if qBill = nil then
+    Exit;
+
+  AcxComboBox := Sender as TcxComboBox;
+  // Сохраняем значение
+  AcxComboBox.PostEditValue;
+
+  case AcxComboBox.ItemIndex of
+    0:
+      qBill.FDQuery.Filtered := False;
+    1:
+      qBill.W.ApplyShipmentFilter; // Отгруженные
+    2:
+      qBill.W.ApplyNotShipmentFilter; // Неотгруженные
+  end;
+end;
+
+procedure TViewBill.actShipExecute(Sender: TObject);
+begin
+  inherited;
+  qBill.W.Ship;
+end;
+
+procedure TViewBill.cxbeiBeginDateChange(Sender: TObject);
+begin
+  inherited;
+  UpdateView;
+end;
+
+procedure TViewBill.cxbeiEndDateChange(Sender: TObject);
+begin
+  inherited;
+  UpdateView;
 end;
 
 function TViewBill.GetclBillDate: TcxGridDBBandedColumn;
@@ -64,10 +179,34 @@ begin
   Assert(Result <> nil);
 end;
 
+function TViewBill.GetclNumber: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.Number.FieldName);
+  Assert(Result <> nil);
+end;
+
 function TViewBill.GetW: TBillW;
 begin
   Assert(FqBill <> nil);
   Result := FqBill.W;
+end;
+
+procedure TViewBill.MyDelete;
+var
+  ADeleteMessage: string;
+begin
+  Assert(MainView.Controller.SelectedRowCount = 1);
+
+  if W.ShipmentDate.F.IsNull then
+    ADeleteMessage := 'Вы действительно хотите отменить счёт?'
+  else
+    ADeleteMessage :=
+      'Вы действительно хотите отменить счёт и вернуть товар на склад?';
+
+  DeleteMessages.Clear;
+  DeleteMessages.Add(cxGridLevel, ADeleteMessage);
+
+  inherited;
 end;
 
 procedure TViewBill.SetqBill(const Value: TQryBill);
@@ -93,10 +232,10 @@ begin
 
   MainView.OptionsView.ColumnAutoWidth := False;
 
-  GridSort.Add(TSortVariant.Create(clBillDate, [clBillDate]));
+  GridSort.Add(TSortVariant.Create(clNumber, [clNumber]));
 
-  ApplySort(MainView, clBillDate);
-  ApplySort(MainView, clBillDate);
+  ApplySort(MainView, clNumber);
+  ApplySort(MainView, clNumber);
 
   // Фокусируем верхнюю запись в гриде
   FocusTopLeft(W.Number.FieldName);
@@ -114,9 +253,15 @@ begin
   OK := (qBill <> nil) and (qBill.FDQuery.Active);
   AView := FocusedTableView;
 
-  // Выделено и не отгружено
+  // Выделено
   actDeleteEx.Enabled := OK and (AView <> nil) and
-    (AView.Controller.SelectedRowCount > 0) and (W.ShipmentDate.F.IsNull);
+    (AView.Controller.SelectedRowCount = 1);
+
+  actShip.Enabled := OK and (AView <> nil) and
+    (AView.Controller.SelectedRowCount = 1) and (W.ShipmentDate.F.IsNull);
+
+  actApplyCustomFilter.Enabled := not VarIsNull(cxbeiBeginDate.EditValue) and
+    not VarIsNull(cxbeiEndDate.EditValue);
 end;
 
 end.

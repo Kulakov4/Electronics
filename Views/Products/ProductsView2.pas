@@ -31,7 +31,7 @@ uses
   Data.DB, cxDBData, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGridCustomView, cxGrid,
   cxCalendar, cxDataControllerConditionalFormattingRulesManagerDialog,
-  ProductsBaseQuery;
+  ProductsBaseQuery, cxCurrencyEdit;
 
 type
   TViewProducts2 = class(TViewProductsBase2)
@@ -44,8 +44,6 @@ type
     dxBarButton6: TdxBarButton;
     dxBarSubItem2: TdxBarSubItem;
     dxBarButton9: TdxBarButton;
-    Timer: TTimer;
-    cxbeiDate: TcxBarEditItem;
     actColumnsAutoWidth2: TAction;
     dxBarButton7: TdxBarButton;
     actFullScreen: TAction;
@@ -57,7 +55,6 @@ type
     actDisContrl: TAction;
     actEnContrl: TAction;
     actIsContolDis: TAction;
-    dxBarButton16: TdxBarButton;
     actLoadFromExcelDocument: TAction;
     dxBarSubItem3: TdxBarSubItem;
     dxBarButton17: TdxBarButton;
@@ -73,7 +70,6 @@ type
     procedure actTryEditExecute(Sender: TObject);
     procedure cxBarEditItem1PropertiesValidate(Sender: TObject;
       var DisplayValue: Variant; var ErrorText: TCaption; var Error: Boolean);
-    procedure TimerTimer(Sender: TObject);
     procedure cxbeiWholeSalePropertiesDrawItem(AControl: TcxCustomComboBox;
       ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
       AState: TOwnerDrawState);
@@ -369,12 +365,6 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
-end;
-
-procedure TViewProducts2.TimerTimer(Sender: TObject);
-begin
-  inherited;
-  cxbeiDate.EditValue := DateToStr(Date);
 end;
 
 procedure TViewProducts2.UpdateProductCount;

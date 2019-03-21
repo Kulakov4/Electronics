@@ -52,6 +52,7 @@ type
     class function NewInstance: TObject; override;
     function CreateFolderDialog(const AValue: String): Integer;
     function ClearBasketDialog: Boolean;
+    function UseDefaultMinWholeSale(AMinWholeSale: Double): Integer;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
     procedure DollarOrEuroCourceUnknown;
@@ -187,6 +188,14 @@ begin
   Result := Application.MessageBox
     (PWideChar('Вы действительно хотите очистить корзину?'), 'Очистка корзины',
     MB_YESNO + MB_ICONQUESTION) = IDYES;
+end;
+
+function TDialog.UseDefaultMinWholeSale(AMinWholeSale: Double): Integer;
+begin
+  Assert(AMinWholeSale >= 0);
+  Result := Application.MessageBox
+    (PWideChar(Format('Применить минимальную отповую наценку %f%%?',
+    [AMinWholeSale])), 'Наценка', MB_YESNOCANCEL + MB_ICONQUESTION);
 end;
 
 procedure TDialog.ExcelFilesNotFoundDialog;

@@ -80,22 +80,27 @@ type
     FStoragePlace: TFieldWrap;
     FStorehouseId: TFieldWrap;
     FValue: TFieldWrap;
-    FWholesale: TFieldWrap;
+    FWholeSale: TFieldWrap;
     procedure DoAfterOpen(Sender: TObject);
   protected
     function CheckInsertingRecord(ADollarCource: Double;
       const AEuroCource: Double): String;
-    function CheckEditingRecord: String;
+    function CheckEditingRecord: String; virtual;
+    function GetStorehouseProductVirtualID(AID: Integer): Integer;
     procedure InitFields;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
-  public
+  public const
+    VirtualIDOffset = -100000;
     constructor Create(AOwner: TComponent); override;
     procedure AddCategory;
     procedure AddProduct(AIDComponentGroup: Integer);
-    procedure ApplyBasketFilter;
+    procedure ApplySaleCountFilter;
+    procedure ApplyAmountFilter;
+    procedure CheckSaleCount;
     function LookupComponentGroup(const AComponentGroup: string): Variant;
-    procedure ReserveProduct;
+    procedure SetSaleCount(ASaleCount: Double);
+    function GetStorehouseProductID(AVirtualID: Integer): Integer;
     procedure TunePriceFields(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
     property ID: TFieldWrap read FID;
@@ -145,12 +150,11 @@ type
     property StoragePlace: TFieldWrap read FStoragePlace;
     property StorehouseId: TFieldWrap read FStorehouseId;
     property Value: TFieldWrap read FValue;
-    property Wholesale: TFieldWrap read FWholesale;
+    property WholeSale: TFieldWrap read FWholeSale;
   end;
 
   TQueryProductsBase = class(TQueryBaseEvents)
     procedure DataSourceDataChange(Sender: TObject; Field: TField);
-    procedure FDQueryAfterApplyUpdates(DataSet: TFDDataSet; AErrors: Integer);
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
     FAutoSaveFieldNameList: TList<String>;
@@ -181,6 +185,10 @@ type
     FEuroCource: Double;
     FOnDollarCourceChange: TNotifyEventsEx;
     FOnEuroCourceChange: TNotifyEventsEx;
+    FOnRubToDollarChange: TNotifyEventsEx;
+    FRubToDollar: Boolean;
+    procedure SetFieldValuesBeforePost;
+    procedure DoAfterApplyUpdates(Sender: TObject);
     procedure DoAfterClose(Sender: TObject);
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
@@ -195,11 +203,11 @@ type
     function GetqStoreHouseList: TQueryStoreHouseList;
     class procedure SetDollarCource(const Value: Double); static;
     class procedure SetEuroCource(const Value: Double); static;
+    class procedure SetRubToDollar(const Value: Boolean); static;
     // TODO: SplitComponentName
     // function SplitComponentName(const S: string): TComponentNameParts;
     { Private declarations }
-  protected const
-    FVirtualIDOffset = -100000;
+  protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -212,9 +220,10 @@ type
     procedure DoOnCommitUpdates(var Message: TMessage);
       message WM_OnCommitUpdates;
     procedure EnableCalc;
+    function GetDollarCource: Double; virtual;
+    function GetEuroCource: Double; virtual;
     function GetExportFileName: string; virtual; abstract;
     function GetHaveAnyChanges: Boolean; override;
-    function GetStorehouseProductVirtualID(AID: Integer): Integer;
     procedure RefreshOrOpen; override;
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
@@ -227,19 +236,24 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure ApplyMinWholeSale(AMinWholeSale: Double);
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure ClearInternalCalcFields;
     procedure DeleteFromBasket(APKArray: TArray<Integer>);
     procedure DeleteNode(AID: Integer);
     procedure DeleteNotUsedProducts(AProductIDS: TList<Integer>);
-    function GetStorehouseProductID(AVirtualID: Integer): Integer;
+    function HaveInsertedRecords: Boolean;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
     procedure SaveExtraCharge;
+    class procedure UpdateSaleCount(ASourceProductQry: TQueryProductsBase;
+      AArray: TArray<TQueryProductsBase>); static;
     procedure UpdateFieldValue(AID: Integer; AFields: TArray<TField>;
       AValues: TArray<Variant>; AUpdatedIDList: TList<Integer>);
+    class procedure UpdateAmount(ASourceProductQry: TQueryProductsBase;
+      AArray: TArray<TQueryProductsBase>); static;
     property ExportFileName: string read GetExportFileName;
     property NotGroupClone: TFDMemTable read FNotGroupClone;
     property ProducersGroup: TProducersGroup2 read GetProducersGroup;
@@ -253,7 +267,10 @@ type
     property BasketW: TProductW read FBasketW;
     property CalcExecCount: Integer read FCalcExecCount write FCalcExecCount;
     property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
+    class property OnRubToDollarChange: TNotifyEventsEx
+      read FOnRubToDollarChange;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
+    class property RubToDollar: Boolean read FRubToDollar write SetRubToDollar;
     property W: TProductW read FW;
     property OnLocate: TNotifyEventsEx read FOnLocate;
     { Public declarations }
@@ -277,7 +294,7 @@ implementation
 {$R *.dfm}
 
 uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
-  ParameterValuesUnit, StrHelper, System.StrUtils;
+  ParameterValuesUnit, StrHelper, System.StrUtils, ProjectConst, System.Math;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
@@ -285,6 +302,8 @@ begin
   FW := FDSWrap as TProductW;
   FOnLocate := TNotifyEventsEx.Create(Self);
 
+  TNotifyEventWrap.Create(AfterApplyUpdates, DoAfterApplyUpdates,
+    FDSWrap.EventList);
   TNotifyEventWrap.Create(W.AfterClose, DoAfterClose, W.EventList);
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
@@ -312,11 +331,12 @@ begin
 
   FNotGroupClone := W.AddClone(Format('%s = 0', [W.IsGroup.FieldName]));
 
-  FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
-  FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
-
-  FBasket := W.AddClone(Format('%s > 0', [W.SaleCount.FieldName]));
-  FBasketW := TProductW.Create(FBasket);
+  if FOnDollarCourceChange = nil then
+  begin
+    FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
+    FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
+    FOnRubToDollarChange := TNotifyEventsEx.Create(Self);
+  end;
 
   FAutoSaveFieldNameList := TList<String>.Create;
   FAutoSaveFieldNameList.Add(W.SaleCount.FieldName.ToUpper);
@@ -324,6 +344,9 @@ begin
   FHRTimer := THRTimer.Create(False);
   FCalcTimer := THRTimer.Create(True);
   FCalcDic := TDictionary<Integer, Double>.Create;
+
+  FBasket := W.AddClone(Format('%s > 0', [W.SaleCount.FieldName]));
+  FBasketW := TProductW.Create(FBasket);
 end;
 
 destructor TQueryProductsBase.Destroy;
@@ -331,8 +354,8 @@ begin
   W.DropClone(FBasket);
   FBasket := nil;
 
-  FreeAndNil(FOnDollarCourceChange);
-  FreeAndNil(FOnEuroCourceChange);
+  // FreeAndNil(FOnDollarCourceChange);
+  // FreeAndNil(FOnEuroCourceChange);
 
   W.DropClone(FNotGroupClone);
   FNotGroupClone := nil;
@@ -388,9 +411,9 @@ begin
     end
     else
     begin
-      Assert(W.PK.Value < FVirtualIDOffset);
+      Assert(W.PK.Value < W.VirtualIDOffset);
       if qSearchStorehouseProduct.SearchByID
-        (GetStorehouseProductID(W.PK.Value)) = 0 then
+        (W.GetStorehouseProductID(W.PK.Value)) = 0 then
         Exit;
 
       AProductIDS.Add(W.ProductID.F.AsInteger);
@@ -451,7 +474,7 @@ begin
 
     // Первичный ключ у нас - идентификатор связки "Продукт-склад" с отрицательным значением
     // Запоминаем первичный ключ
-    ARH.Field[W.PK.FieldName] := GetStorehouseProductVirtualID
+    ARH.Field[W.PK.FieldName] := W.GetStorehouseProductVirtualID
       (qSearchStorehouseProduct.W.PK.Value);
 
     FetchFields(ARH, ARequest, AAction, AOptions);
@@ -460,6 +483,38 @@ begin
   end;
 
   inherited;
+end;
+
+procedure TQueryProductsBase.ApplyMinWholeSale(AMinWholeSale: Double);
+var
+  AClone: TFDMemTable;
+  AProductW: TProductW;
+  ARecNo: Integer;
+begin
+  Assert(AMinWholeSale >= 0);
+  Assert(FDQuery.CachedUpdates);
+
+  AClone := W.AddClone('');
+  try
+    AProductW := TProductW.Create(AClone);
+    AClone.FilterChanges := [rtInserted];
+    AClone.First;
+    ARecNo := AClone.RecNo;
+    while not AClone.Eof do
+    begin
+      AProductW.TryEdit;
+      AProductW.MinWholeSale.F.AsFloat := AMinWholeSale;
+      AProductW.TryPost;
+
+      // Не должно происходить смещение записи при сохранении
+      Assert(ARecNo = AClone.RecNo);
+
+      AClone.Next;
+      ARecNo := AClone.RecNo;
+    end;
+  finally
+    W.DropClone(AClone);
+  end;
 end;
 
 procedure TQueryProductsBase.ApplyUpdate(ASender: TDataSet;
@@ -490,7 +545,7 @@ begin
     begin
       Assert(W.PK.Value < 0);
       // Ищем по идентификатору связки склад-продукт
-      qSearchStorehouseProduct.SearchByID(GetStorehouseProductID(W.PK.Value));
+      qSearchStorehouseProduct.SearchByID(W.GetStorehouseProductID(W.PK.Value));
 
       // Обновляем информацию о компоненте на складе
       qSearchStorehouseProduct.W.UpdateRecord(ARH);
@@ -513,7 +568,7 @@ begin
 
   W.TryPost;
   // тут должны быть несохранённые изменения
-//  Assert(FDQuery.ChangeCount > 0);
+  // Assert(FDQuery.ChangeCount > 0);
 
   FDQuery.Connection.StartTransaction;
 
@@ -553,32 +608,89 @@ begin
   end;
 end;
 
+procedure TQueryProductsBase.SetFieldValuesBeforePost;
+var
+  rc: Integer;
+begin
+  // Если производитель задан
+  if W.IDProducer.F.AsInteger > 0 then
+  begin
+    // Ищем производителя по коду
+    ProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
+
+    // Ищем компонент в теоретической базе данных
+    rc := qSearchComponentOrFamily.SearchComponentWithProducer
+      (W.Value.F.AsString, ProducersGroup.qProducers.W.Name.F.AsString);
+  end
+  else
+  begin
+    // Ищем в теоретической базе просто по наименованию
+    rc := qSearchComponentOrFamily.SearchComponentWithProducer
+      (W.Value.F.AsString);
+    if rc > 0 then
+    begin
+      // Ищем в справочнике такого производителя
+      ProducersGroup.qProducers.Locate
+        (qSearchComponentOrFamily.W.Producer.F.AsString, True);
+
+      // Заполняем поле "Код производителя"
+      W.IDProducer.F.Value := ProducersGroup.qProducers.W.PK.Value;
+    end;
+  end;
+
+  // Запоминаем, есть ли этот компонент в теоретической базе
+  W.Checked.F.AsInteger := IfThen(rc > 0, 1, 0);
+
+  // Если такой компонент найден в компонентой базе
+  if rc > 0 then
+  begin
+    // Ищем соответствующее семейство компонентов
+    qSearchFamily.SearchByID(qSearchComponentOrFamily.W.ParentProductID.F.
+      AsInteger, 1);
+
+    // Заполняем пустые поля из найденного компонента
+    UpdateFields([W.Datasheet.F, W.Diagram.F, W.Drawing.F, W.Image.F,
+      W.DescriptionID.F], [qSearchFamily.W.Datasheet.F.Value,
+      qSearchFamily.W.Diagram.F.Value, qSearchFamily.W.Drawing.F.Value,
+      qSearchFamily.W.Image.F.Value,
+      qSearchFamily.W.DescriptionID.F.Value], True);
+  end;
+end;
+
 procedure TQueryProductsBase.ClearInternalCalcFields;
+var
+  AClone: TFDMemTable;
+  ACloneW: TProductW;
+  ARecNo: Integer;
 begin
   Assert(not HaveAnyNotCommitedChanges);
-  FDQuery.DisableControls;
-  // BeginApplyUpdatesOnClient;
-  try
-    FDQuery.First;
-    while not FDQuery.Eof do
-    begin
-      if W.IsGroup.F.AsInteger = 0 then
-      begin
-        W.TryEdit;
-        W.IDExtraCharge.F.Clear;
-        W.IDExtraChargeType.F.Clear;
-        W.Wholesale.F.Clear; // Оптовая наценка
-        W.SaleCount.F.Clear; // Кол-во продаж - хранится в БД
-        W.TryPost;
 
-        // никаких изменений в БД не должно произойти, кроме кол-ва продаж!!!
+  AClone := W.AddClone('');
+  ACloneW := TProductW.Create(AClone);
+  try
+    // Сортируем по идентификатору
+    // AClone.IndexFieldNames := ACloneW.ID.FieldName + ':D';
+    AClone.First;
+    while not AClone.Eof do
+    begin
+      if ACloneW.IsGroup.F.AsInteger = 0 then
+      begin
+        ACloneW.TryEdit;
+        ACloneW.IDExtraCharge.F.Clear; // - хранится в БД
+        ACloneW.IDExtraChargeType.F.Clear; // - хранится в БД
+        ACloneW.WholeSale.F.Clear; // Оптовая наценка - хранится в БД
+        ACloneW.SaleCount.F.Clear; // Кол-во продаж - хранится в БД
+        ARecNo := ACloneW.DataSet.RecNo;
+        ACloneW.TryPost;
+        ACloneW.DataSet.RecNo := ARecNo;
+
+        // Сохраняем в БД
         ApplyUpdates;
       end;
-      FDQuery.Next;
+      AClone.Next;
     end;
   finally
-    // EndApplyUpdatesOnClient;
-    FDQuery.EnableControls;
+    W.DropClone(AClone);
   end;
 end;
 
@@ -633,17 +745,13 @@ begin
   try
     for APK in APKArray do
     begin
-      W.LocateByPK(APK, True);
-      W.TryEdit;
-      W.SaleCount.F.Value := NULL;
-      W.TryPost;
+      BasketW.LocateByPK(APK);
+      BasketW.SetSaleCount(0);
     end;
-
-    ApplyUpdates;
-
   finally
     FDQuery.EnableControls;
   end;
+  ApplyUpdates;
 end;
 
 procedure TQueryProductsBase.DeleteNode(AID: Integer);
@@ -701,6 +809,11 @@ begin
   Inc(FCalcStatus);
 end;
 
+procedure TQueryProductsBase.DoAfterApplyUpdates(Sender: TObject);
+begin
+  FDataChange := False;
+end;
+
 procedure TQueryProductsBase.DoAfterClose(Sender: TObject);
 begin
   // This forces "description" field to become of UInt32 data type.
@@ -731,11 +844,12 @@ begin;
   FDQuery.FieldDefs.Update;
 
   // Ссылка на выбранный диапазон оптовой наценки
-  FDQuery.FieldDefs.Add(W.IDExtraCharge.FieldName, ftInteger);
-  FDQuery.FieldDefs.Add(W.IDExtraChargeType.FieldName, ftInteger);
+  // FDQuery.FieldDefs.Add(W.IDExtraCharge.FieldName, ftInteger);
+  // FDQuery.FieldDefs.Add(W.IDExtraChargeType.FieldName, ftInteger);
 
-  // Процент оптовой наценки
-  FDQuery.FieldDefs.Add(W.Wholesale.FieldName, ftFloat);
+  // Процент оптовой наценки - теперь постоянное поле
+  // FDQuery.FieldDefs.Add(W.Wholesale.FieldName, ftFloat);
+
   // Процент РОЗНИЧНОЙ наценки
   // FDQuery.FieldDefs.Add('Retail', ftInteger);
 
@@ -764,16 +878,13 @@ begin;
   W.CreateDefaultFields(False);
 
   // Внутренние вычисляемые поля
-  W.IDExtraCharge.F.FieldKind := fkInternalCalc;
-  W.IDExtraChargeType.F.FieldKind := fkInternalCalc;
-  W.Wholesale.F.FieldKind := fkInternalCalc;
-  // W.SaleCount.F.FieldKind := fkInternalCalc;
-  // Retail.FieldKind := fkInternalCalc;
+  // W.IDExtraCharge.F.FieldKind := fkInternalCalc;
+  // W.IDExtraChargeType.F.FieldKind := fkInternalCalc;
+  // Оптовая наценка - теперь постоянное поле
+  // W.Wholesale.F.FieldKind := fkInternalCalc;
 
   W.InitFields;
   FDataChange := False;
-
-  // DisableCalc;
 end;
 
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
@@ -787,10 +898,13 @@ begin
     AErrorMessage := W.CheckEditingRecord;
     if not AErrorMessage.IsEmpty then
       raise Exception.Create(AErrorMessage);
+
+    // Пробуем заполнить значения полей из компонентской базы
+    SetFieldValuesBeforePost;
   end;
 
   // Если не происходит вставка новой записи
-  if not(FDQuery.State in [dsInsert]) then
+  if not (FDQuery.State in [dsInsert]) then
     Exit;
 
   Assert(not W.IsGroup.F.IsNull);
@@ -816,48 +930,8 @@ begin
   if W.LoadDate.F.IsNull then
     W.LoadDate.F.AsString := FormatDateTime('dd.mm.yyyy', Date);;
 
-  // Если производитель задан
-  if W.IDProducer.F.AsInteger > 0 then
-  begin
-    // Ищем производителя по коду
-    ProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
-
-    // Ищем компонент в теоретической базе данных
-    rc := qSearchComponentOrFamily.SearchComponentWithProducer
-      (W.Value.F.AsString, ProducersGroup.qProducers.W.Name.F.AsString);
-  end
-  else
-  begin
-    // Ищем в теоретической базе просто по наименованию
-    rc := qSearchComponentOrFamily.SearchComponentWithProducer
-      (W.Value.F.AsString);
-    if rc > 0 then
-    begin
-      // Ищем в справочнике такого производителя
-      ProducersGroup.qProducers.Locate
-        (qSearchComponentOrFamily.W.Producer.F.AsString, True);
-
-      // Заполняем поле "Код производителя"
-      W.IDProducer.F.Value := ProducersGroup.qProducers.W.PK.Value;
-    end;
-  end;
-
-  // Если такой компонент найден в компонентой базе
-  if rc > 0 then
-  begin
-    // Запоминаем, что этот компонент есть в теоретической базе
-    W.Checked.F.AsInteger := 1;
-    // Ищем соответствующее семейство компонентов
-    qSearchFamily.SearchByID(qSearchComponentOrFamily.W.ParentProductID.F.
-      AsInteger, 1);
-
-    // Заполняем пустые поля из найденного компонента
-    UpdateFields([W.Datasheet.F, W.Diagram.F, W.Drawing.F, W.Image.F,
-      W.DescriptionID.F], [qSearchFamily.W.Datasheet.F.Value,
-      qSearchFamily.W.Diagram.F.Value, qSearchFamily.W.Drawing.F.Value,
-      qSearchFamily.W.Image.F.Value,
-      qSearchFamily.W.DescriptionID.F.Value], True);
-  end;
+  // Пробуем заполнить значения полей из компонентской базы
+  SetFieldValuesBeforePost;
 
   // Если производитель не задан
   if W.IDProducer.F.IsNull or (W.IDProducer.F.AsInteger = 0) then
@@ -883,10 +957,6 @@ begin
       qSearchProduct.W.Image.F.Value, qSearchProduct.W.DescriptionID.F.Value,
       qSearchProduct.W.PK.Value], True);
   end;
-
-  // Заполняем минимальную оптовую наценку
-  if W.MinWholeSale.F.IsNull then
-    W.MinWholeSale.F.AsFloat := TSettings.Create.MinWholeSale;
 
   // Если тип валюты задан - ничего не предпринимаем
   if not W.IDCurrency.F.IsNull then
@@ -937,18 +1007,12 @@ begin
     FDQueryCalcFields(FDQuery);
 end;
 
-procedure TQueryProductsBase.FDQueryAfterApplyUpdates(DataSet: TFDDataSet;
-  AErrors: Integer);
-begin
-  inherited;
-  FDataChange := False;
-end;
-
 procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
 var
   // AContains: Boolean;
   ADCource: Double;
   AECource: Double;
+  APriceR: Double;
   // AID: Integer;
   AWholeSale: Double;
   // t: Double;
@@ -981,52 +1045,57 @@ begin
   Inc(FCalcExecCount);
 
   // Определяемся с курсом Доллара
-  ADCource := 0;
-  // Если задан курс на сегодняшний день
-  if DollarCource > 0 then
-    ADCource := DollarCource
-  else
-    // Если известен курс на день покупки
-    if W.Dollar.F.AsFloat > 0 then
-      ADCource := W.Dollar.F.AsFloat;
+  ADCource := GetDollarCource;
 
   // Определяемся с курсом Евро
-  AECource := 0;
-  if EuroCource > 0 then
-    AECource := EuroCource
-  else
-    // Если известен курс на день покупки
-    if W.Euro.F.AsFloat > 0 then
-      AECource := W.Euro.F.AsFloat;
+  AECource := GetEuroCource;
 
-  // Если исходная цена была в рублях
+  // Если закупочная цена была в рублях
   if W.IDCurrency.F.AsInteger = 1 then
   begin
+    // *************************************************************************
+    // Закупочная цена
+    // *************************************************************************
     W.PriceR.F.Value := W.Price.F.Value;
 
-    if ADCource > 0 then
-      W.PriceD.F.Value := W.Price.F.Value / ADCource
+    // Расчитываем закупочную цену в Долларах по курсу на момент покупки
+    if W.Dollar.F.AsFloat > 0 then
+      W.PriceD.F.Value := W.Price.F.AsFloat / W.Dollar.F.AsFloat
     else
       W.PriceD.F.Value := NULL;
 
-    if AECource > 0 then
-      W.PriceE.F.Value := W.Price.F.Value / AECource
+    // Расчитываем закупочная цену в Евро по курсу на момент покупки
+    if W.Euro.F.AsFloat > 0 then
+      W.PriceE.F.Value := W.Price.F.AsFloat / W.Euro.F.AsFloat
     else
       W.PriceE.F.Value := NULL;
+
+    // *************************************************************************
+    // Розничная цена
+    // *************************************************************************
+    APriceR := W.PriceR.F.AsFloat;
+
+    // Если курс Доллара вырос и мы хотим пересчитать закупочную цену по новому курсу
+    if RubToDollar and (ADCource > 0) and (W.Dollar.F.AsFloat > 0) and
+      (ADCource > W.Dollar.F.AsFloat) then
+      // Закупочную цену в Долларах на момент покупки переводим в Рубли по сегодняшнему курсу
+      APriceR := W.PriceD.F.Value * ADCource;
   end;
 
   // Если исходная цена была в долларах
   if W.IDCurrency.F.AsInteger = 2 then
   begin
-    if ADCource > 0 then
-      W.PriceR.F.Value := W.Price.F.Value * ADCource
+    // Расчитываем цену в Рублях по курсу Доллара на момент покупки
+    if W.Dollar.F.AsFloat > 0 then
+      W.PriceR.F.Value := W.Price.F.Value * W.Dollar.F.AsFloat
     else
       W.PriceR.F.Value := NULL;
 
     W.PriceD.F.Value := W.Price.F.Value;
 
-    if (ADCource > 0) and (AECource > 0) then
-      W.PriceE.F.Value := W.Price.F.Value * ADCource / AECource
+    if (W.Dollar.F.AsFloat > 0) and (W.Euro.F.AsFloat > 0) then
+      W.PriceE.F.Value := W.Price.F.Value * W.Dollar.F.AsFloat /
+        W.Euro.F.AsFloat
     else
       W.PriceE.F.Value := NULL;
   end;
@@ -1034,25 +1103,29 @@ begin
   // Если исходная цена была в евро
   if W.IDCurrency.F.AsInteger = 3 then
   begin
-    if AECource > 0 then
-      W.PriceR.F.Value := W.Price.F.Value * AECource
+    // Расчитываем цену в Рублях по курсу Евро на момент покупки
+    if W.Euro.F.AsFloat > 0 then
+      W.PriceR.F.Value := W.Price.F.Value * W.Euro.F.AsFloat
     else
       W.PriceR.F.Value := NULL;
 
-    if (ADCource > 0) and (AECource > 0) then
-      W.PriceD.F.Value := W.Price.F.Value * AECource / ADCource
+    if (W.Dollar.F.AsFloat > 0) and (W.Euro.F.AsFloat > 0) then
+      W.PriceD.F.Value := W.Price.F.Value * W.Euro.F.AsFloat /
+        W.Dollar.F.AsFloat
     else
       W.PriceD.F.Value := NULL;
 
     W.PriceE.F.Value := W.Price.F.Value;
   end;
 
-  // Розничная цена
-  W.PriceR1.F.Value := W.PriceR.F.Value * (1 + W.Retail.F.Value / 100);
+  // Розничная цена в рублях
+  W.PriceR1.F.Value := APriceR * (1 + W.Retail.F.Value / 100);
+  // Розничная цена в долларах
   W.PriceD1.F.Value := W.PriceD.F.Value * (1 + W.Retail.F.Value / 100);
+  // Розничная цена в Евро
   W.PriceE1.F.Value := W.PriceE.F.Value * (1 + W.Retail.F.Value / 100);
 
-  AWholeSale := W.Wholesale.F.AsFloat;
+  AWholeSale := W.WholeSale.F.AsFloat;
 
   // Если оптовая наценка не задана берём минимальную оптовую наценку
   if AWholeSale = 0 then
@@ -1060,9 +1133,11 @@ begin
     if not W.MinWholeSale.F.IsNull then
       AWholeSale := W.MinWholeSale.F.Value;
 
-  // Оптовая цена
-  W.PriceR2.F.Value := W.PriceR.F.Value * (1 + AWholeSale / 100);
+  // Оптовая цена в Рублях
+  W.PriceR2.F.Value := APriceR * (1 + AWholeSale / 100);
+  // Оптовая цена в Долларах
   W.PriceD2.F.Value := W.PriceD.F.Value * (1 + AWholeSale / 100);
+  // Оптовая цена в Евро
   W.PriceE2.F.Value := W.PriceE.F.Value * (1 + AWholeSale / 100);
 
   // Если указано количество продаж
@@ -1089,6 +1164,29 @@ begin
     W.SaleD.F.Value := NULL;
     W.SaleE.F.Value := NULL;
   end;
+end;
+
+function TQueryProductsBase.GetDollarCource: Double;
+begin
+  Result := 1;
+  // Если задан курс на сегодняшний день
+  if DollarCource > 0 then
+    Result := DollarCource
+  else
+    // Если известен курс на день покупки
+    if W.Dollar.F.AsFloat > 0 then
+      Result := W.Dollar.F.AsFloat;
+end;
+
+function TQueryProductsBase.GetEuroCource: Double;
+begin
+  Result := 1;
+  if EuroCource > 0 then
+    Result := EuroCource
+  else
+    // Если известен курс на день покупки
+    if W.Euro.F.AsFloat > 0 then
+      Result := W.Euro.F.AsFloat;
 end;
 
 function TQueryProductsBase.GetProducersGroup: TProducersGroup2;
@@ -1173,20 +1271,18 @@ begin
   Result := FqStoreHouseList;
 end;
 
-function TQueryProductsBase.GetStorehouseProductID(AVirtualID: Integer)
-  : Integer;
+function TQueryProductsBase.HaveInsertedRecords: Boolean;
+var
+  AClone: TFDMemTable;
 begin
-  // Assert(FVirtualIDOffset < 0);
-  Assert(AVirtualID < FVirtualIDOffset);
-  Result := (AVirtualID * -1) + FVirtualIDOffset;
-end;
-
-function TQueryProductsBase.GetStorehouseProductVirtualID(AID: Integer)
-  : Integer;
-begin
-  // Assert(FVirtualIDOffset < 0);
-  Assert(AID > 0);
-  Result := (AID * -1) + FVirtualIDOffset;
+  Assert(FDQuery.CachedUpdates);
+  AClone := W.AddClone('');
+  try
+    AClone.FilterChanges := [rtInserted];
+    Result := AClone.RecordCount > 0;
+  finally
+    W.DropClone(AClone);
+  end;
 end;
 
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
@@ -1263,25 +1359,136 @@ begin
   W.TryEdit;
   W.IDExtraCharge.F.AsInteger := ExtraChargeGroup.qExtraCharge2.W.PK.AsInteger;
   // Меняем процент оптовой наценки
-  W.Wholesale.F.Value := ExtraChargeGroup.qExtraCharge2.W.Wholesale.F.Value;
+  W.WholeSale.F.Value := ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value;
   W.TryPost;
 end;
 
 class procedure TQueryProductsBase.SetDollarCource(const Value: Double);
 begin
-  if FDollarCource <> Value then
-  begin
-    FDollarCource := Value;
-    FOnDollarCourceChange.CallEventHandlers(nil);
-  end;
+  if FDollarCource = Value then
+    Exit;
+
+  FDollarCource := Value;
+  // Извещаем представления
+  FOnDollarCourceChange.CallEventHandlers(nil);
 end;
 
 class procedure TQueryProductsBase.SetEuroCource(const Value: Double);
 begin
-  if FEuroCource <> Value then
+  if FEuroCource = Value then
+    Exit;
+
+  FEuroCource := Value;
+  // Извещаем представления
+  FOnEuroCourceChange.CallEventHandlers(nil);
+end;
+
+class procedure TQueryProductsBase.SetRubToDollar(const Value: Boolean);
+begin
+  if FRubToDollar = Value then
+    Exit;
+
+  FRubToDollar := Value;
+  FOnRubToDollarChange.CallEventHandlers(nil);
+end;
+
+class procedure TQueryProductsBase.UpdateSaleCount(ASourceProductQry
+  : TQueryProductsBase; AArray: TArray<TQueryProductsBase>);
+var
+  AFDUpdateRecordTypes: TFDUpdateRecordTypes;
+  AFieldName: string;
+  AFieldValues: TDictionary<String, Variant>;
+  AFiltered: Boolean;
+  AQryProductsBase: TQueryProductsBase;
+  F: TField;
+begin
+  // Работаем с клоном !!!
+  AFDUpdateRecordTypes := ASourceProductQry.Basket.FilterChanges;
+  AFiltered := ASourceProductQry.Basket.Filtered;
+
+  // Обрабатываем изменённые в корзине записи
+  ASourceProductQry.Basket.FilterChanges := [rtModified];
+  ASourceProductQry.Basket.Filtered := False;
+  ASourceProductQry.Basket.First;
+
+  AFieldValues := TDictionary<String, Variant>.Create;
+  try
+    while not ASourceProductQry.Basket.Eof do
+    begin
+      // Очищаем список изменившихся полей
+      AFieldValues.Clear;
+      // Цикл по всем полям корзины
+      for F in ASourceProductQry.Basket.Fields do
+      begin
+        // Если в корзине изменилось какое-то поле
+        if (F.FieldKind = fkData) and (F.OldValue <> F.Value) then
+          AFieldValues.Add(F.FieldName, F.Value);
+      end;
+
+      // Если в корзине изменилось хоть одно поле
+      if AFieldValues.Count > 0 then
+      begin
+        for AQryProductsBase in AArray do
+        begin
+          AQryProductsBase.Basket.Filtered := False;
+          if AQryProductsBase.BasketW.LocateByPK
+            (ASourceProductQry.BasketW.PK.AsInteger) then
+          begin
+            AQryProductsBase.BasketW.TryEdit;
+            for AFieldName in AFieldValues.Keys do
+              AQryProductsBase.BasketW.Field(AFieldName).Value :=
+                AFieldValues[AFieldName];
+            AQryProductsBase.BasketW.TryPost;
+          end;
+        end;
+      end;
+
+      ASourceProductQry.Basket.Next;
+    end;
+  finally
+    FreeAndNil(AFieldValues);
+  end;
+
+  // Обрабатываем удалённые из корзины записи
+  ASourceProductQry.Basket.FilterChanges := [rtDeleted];
+  ASourceProductQry.Basket.First;
+  while not ASourceProductQry.Basket.Eof do
   begin
-    FEuroCource := Value;
-    FOnEuroCourceChange.CallEventHandlers(nil);
+    for AQryProductsBase in AArray do
+    begin
+      AQryProductsBase.Basket.Filtered := False;
+      if AQryProductsBase.BasketW.LocateByPK
+        (ASourceProductQry.BasketW.PK.AsInteger) then
+        AQryProductsBase.BasketW.SetSaleCount(0);
+    end;
+    ASourceProductQry.Basket.Next;
+  end;
+
+  // Обрабатываем добавленные в корзину записи
+  ASourceProductQry.Basket.FilterChanges := [rtInserted];
+  ASourceProductQry.Basket.First;
+  while not ASourceProductQry.Basket.Eof do
+  begin
+    for AQryProductsBase in AArray do
+    begin
+      AQryProductsBase.Basket.Filtered := False;
+      if AQryProductsBase.BasketW.LocateByPK
+        (ASourceProductQry.BasketW.PK.AsInteger) then
+        AQryProductsBase.BasketW.SetSaleCount
+          (ASourceProductQry.BasketW.SaleCount.F.AsFloat);
+    end;
+    ASourceProductQry.Basket.Next;
+  end;
+
+  ASourceProductQry.Basket.Filtered := AFiltered;
+  ASourceProductQry.Basket.FilterChanges := AFDUpdateRecordTypes;
+
+  for AQryProductsBase in AArray do
+  begin
+    // Возвращаем фильтры на корзины
+    AQryProductsBase.Basket.Filtered := True;
+    // Очищаем кэш изменений, не сохраняя их на сервер
+    AQryProductsBase.FDQuery.CommitUpdates;
   end;
 end;
 
@@ -1328,6 +1535,56 @@ begin
     W.TryPost;
 
     AUpdatedIDList.Add(AID);
+  end;
+end;
+
+class procedure TQueryProductsBase.UpdateAmount(ASourceProductQry
+  : TQueryProductsBase; AArray: TArray<TQueryProductsBase>);
+var
+  AFDUpdateRecordTypes: TFDUpdateRecordTypes;
+  AFiltered: Boolean;
+  AQryProductsBase: TQueryProductsBase;
+begin
+  // Работаем с клоном !!!
+  AFDUpdateRecordTypes := ASourceProductQry.Basket.FilterChanges;
+  AFiltered := ASourceProductQry.Basket.Filtered;
+
+  // Обрабатываем изменённые в корзине записи
+  ASourceProductQry.Basket.FilterChanges := [rtModified];
+  ASourceProductQry.Basket.Filtered := False;
+  ASourceProductQry.Basket.First;
+  while not ASourceProductQry.Basket.Eof do
+  begin
+    // Если в источнике изменилось кол-во
+    if ASourceProductQry.BasketW.Amount.F.OldValue <>
+      ASourceProductQry.BasketW.Amount.F.Value then
+    begin
+      for AQryProductsBase in AArray do
+      begin
+        AQryProductsBase.Basket.Filtered := False;
+        if AQryProductsBase.BasketW.LocateByPK
+          (ASourceProductQry.BasketW.PK.AsInteger) then
+        begin
+          AQryProductsBase.BasketW.TryEdit;
+          AQryProductsBase.BasketW.Amount.F.Value :=
+            ASourceProductQry.BasketW.Amount.F.Value;
+          AQryProductsBase.BasketW.TryPost;
+        end;
+      end;
+    end;
+
+    ASourceProductQry.Basket.Next;
+  end;
+
+  ASourceProductQry.Basket.Filtered := AFiltered;
+  ASourceProductQry.Basket.FilterChanges := AFDUpdateRecordTypes;
+
+  for AQryProductsBase in AArray do
+  begin
+    // Возвращаем фильтры на корзины
+    AQryProductsBase.Basket.Filtered := True;
+    // Очищаем кэш изменений, не сохраняя их на сервер
+    AQryProductsBase.FDQuery.CommitUpdates;
   end;
 end;
 
@@ -1395,7 +1652,7 @@ begin
   FStoragePlace := TFieldWrap.Create(Self, 'StoragePlace');
   FStorehouseId := TFieldWrap.Create(Self, 'StorehouseId');
   FValue := TFieldWrap.Create(Self, 'p.Value');
-  FWholesale := TFieldWrap.Create(Self, 'Wholesale');
+  FWholeSale := TFieldWrap.Create(Self, 'WholeSale');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
   if DataSet.Active then
@@ -1419,9 +1676,16 @@ begin
   IDComponentGroup.F.AsInteger := AIDComponentGroup;
 end;
 
-procedure TProductW.ApplyBasketFilter;
+procedure TProductW.ApplySaleCountFilter;
 begin
   DataSet.Filter := Format('%s > 0', [SaleCount.FieldName]);
+  DataSet.Filtered := True;
+end;
+
+procedure TProductW.ApplyAmountFilter;
+begin
+  DataSet.Filter := Format('(%s = 1) or (%s > 0)',
+    [IsGroup.FieldName, Amount.FieldName]);
   DataSet.Filtered := True;
 end;
 
@@ -1497,9 +1761,15 @@ begin
 
   if SaleCount.F.AsFloat > Amount.F.AsFloat then
   begin
-    Result := 'На складе недостаточное количество товара';
+    Result := sIsNotEnoughProductAmount;
     Exit;
   end;
+end;
+
+procedure TProductW.CheckSaleCount;
+begin
+  if SaleCount.F.AsFloat > Amount.F.AsFloat then
+    raise Exception.Create(sIsNotEnoughProductAmount);
 end;
 
 procedure TProductW.DoAfterOpen(Sender: TObject);
@@ -1541,15 +1811,31 @@ begin
     Text := TPath.GetFileNameWithoutExtension(Sender.AsString);
 end;
 
-procedure TProductW.ReserveProduct;
+procedure TProductW.SetSaleCount(ASaleCount: Double);
 begin
   Assert(DataSet.RecordCount > 0);
-  Assert(SaleCount.F.AsFloat < Amount.F.AsFloat);
+  CheckSaleCount;
 
   TryEdit;
-  Amount.F.AsFloat := Amount.F.AsFloat - SaleCount.F.AsFloat;
-  SaleCount.F.Value := NULL;
+  if ASaleCount > 0 then
+    SaleCount.F.Value := ASaleCount
+  else
+    SaleCount.F.Value := NULL;
   TryPost;
+end;
+
+function TProductW.GetStorehouseProductID(AVirtualID: Integer): Integer;
+begin
+  // Assert(FVirtualIDOffset < 0);
+  Assert(AVirtualID < VirtualIDOffset);
+  Result := (AVirtualID * -1) + VirtualIDOffset;
+end;
+
+function TProductW.GetStorehouseProductVirtualID(AID: Integer): Integer;
+begin
+  // Assert(FVirtualIDOffset < 0);
+  Assert(AID > 0);
+  Result := (AID * -1) + VirtualIDOffset;
 end;
 
 procedure TProductW.TunePriceFields(const AFields: Array of TField);

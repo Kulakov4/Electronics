@@ -80,7 +80,7 @@ begin
 
   // Создаём два клона
   FGetModeClone := W.AddClone(Format('%s < %d', [W.PKFieldName,
-    FVirtualIDOffset]));
+    W.VirtualIDOffset]));
   FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
 
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);

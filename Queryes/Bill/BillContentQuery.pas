@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap,
-  ProductsBaseQuery, BillContentQuerySimple;
+  ProductsBaseQuery, BillContentQuerySimple, BillQuery;
 
 type
   TBillContentW = class(TProductW)
@@ -25,9 +25,11 @@ type
 
   TQryBillContent = class(TQueryProductsBase)
   private
+    FIsShipment: Boolean;
     FqBillContentSimple: TQueryBillContentSimple;
     FW: TBillContentW;
     function GetqBillContentSimple: TQueryBillContentSimple;
+    function GetQryBill: TQryBill;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -37,12 +39,21 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
+    procedure DoBeforePost(Sender: TObject); override;
+    function GetDollarCource: Double; override;
+    function GetEuroCource: Double; override;
     function GetExportFileName: string; override;
     property qBillContentSimple: TQueryBillContentSimple
       read GetqBillContentSimple;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AfterConstruction; override;
+    function AllowEdit: Boolean;
+    procedure CancelShip;
+    procedure Ship;
+    procedure ShipAll;
+    procedure CalcelAllShip;
+    property QryBill: TQryBill read GetQryBill;
     property W: TBillContentW read FW;
     { Public declarations }
   end;
@@ -50,7 +61,7 @@ type
 implementation
 
 uses
-  StrHelper, System.Generics.Collections, BillQuery;
+  StrHelper, System.Generics.Collections, ProjectConst;
 
 {$R *.dfm}
 
@@ -73,6 +84,13 @@ begin
   SetParamType(W.BillID.FieldName);
 end;
 
+function TQryBillContent.AllowEdit: Boolean;
+begin
+  // Разрешаем редактирование только неотгруженного товара
+  Result := (QryBill <> nil) and (QryBill.FDQuery.RecordCount > 0) and
+    (QryBill.W.ShipmentDate.F.IsNull);
+end;
+
 procedure TQryBillContent.ApplyDelete(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
@@ -80,50 +98,55 @@ begin
   Assert(ASender = FDQuery);
   // Удаление позиции заказа - это отмена позиции заказа, но не удаление товара со склада
 
-  // Если это группа
-  if W.IsGroup.F.AsInteger = 1 then
-  begin
+  // Ищем и удаляем сам контент из счёта
+  if qBillContentSimple.SearchByID(W.BillContentID.F.AsInteger) = 1 then
+    qBillContentSimple.FDQuery.Delete;
+
+  (*
+    // Если это группа
+    if W.IsGroup.F.AsInteger = 1 then
+    begin
     Assert(W.PK.Value > 0);
     // Ищем такую группу
     if qSearchComponentGroup.SearchByID(W.PK.Value) = 0 then
-      Exit;
+    Exit;
 
     // Группу удалять не надо. Надо удалить с текущего склада все компоненты этой группы
     // Ищем компоненты на текущем складе, которые принадлежат этой группе
     if qSearchStorehouseProduct.SearchByGroupID(W.StorehouseId.F.AsInteger,
-      W.PK.Value) = 0 then
-      Exit;
+    W.PK.Value) = 0 then
+    Exit;
 
-  end
-  else
-  begin
+    end
+    else
+    begin
     Assert(W.PK.Value < FVirtualIDOffset);
     if qSearchStorehouseProduct.SearchByID(GetStorehouseProductID(W.PK.Value)) = 0
     then
-      Exit;
-  end;
+    Exit;
+    end;
 
-  // Отменяем в заказе все найденные компоненты
-  qSearchStorehouseProduct.FDQuery.First;
-  while not qSearchStorehouseProduct.FDQuery.Eof do
-  begin
+    // Отменяем в заказе все найденные компоненты
+    qSearchStorehouseProduct.FDQuery.First;
+    while not qSearchStorehouseProduct.FDQuery.Eof do
+    begin
+
     // Увеличиваем количество товара на складе
     if W.SaleCount.F.AsFloat > 0 then
     begin
-      qSearchStorehouseProduct.W.TryEdit;
-      qSearchStorehouseProduct.W.Amount.F.AsFloat :=
-        qSearchStorehouseProduct.W.Amount.F.AsFloat + W.SaleCount.F.AsFloat;
-      qSearchStorehouseProduct.W.TryPost;
+    qSearchStorehouseProduct.W.TryEdit;
+    qSearchStorehouseProduct.W.Amount.F.AsFloat :=
+    qSearchStorehouseProduct.W.Amount.F.AsFloat + W.SaleCount.F.AsFloat;
+    qSearchStorehouseProduct.W.TryPost;
     end;
 
     // Ищем и удаляем сам контент из счёта
     if qBillContentSimple.SearchByID(W.BillContentID.F.AsInteger) = 1 then
-      qBillContentSimple.FDQuery.Delete;
+    qBillContentSimple.FDQuery.Delete;
 
     qSearchStorehouseProduct.FDQuery.Next;
-  end;
-
-  inherited;
+    end;
+  *)
 end;
 
 procedure TQryBillContent.ApplyInsert(ASender: TDataSet;
@@ -133,60 +156,60 @@ begin
   Assert(ASender = FDQuery);
 
   // Добавление в счёт контента пока не реализовано!
-
-  inherited;
 end;
 
 procedure TQryBillContent.ApplyUpdate(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
-var
-  ANewAmount: Double;
-  AOldSaleCount: Double;
-  ASaleCount: Double;
 begin
   Assert(ASender = FDQuery);
 
   Assert(W.PK.Value < 0);
 
-  AOldSaleCount := W.SaleCount.F.OldValue;
-
-  ASaleCount := W.SaleCount.F.AsFloat;
-
-  // если кол-во зарезервированного в счёте товара не изменилось
-  if AOldSaleCount = ASaleCount then
-    Exit;
-
-  // Ищем содержимое счёта
-  if qBillContentSimple.SearchByID(W.FBillContentID.F.AsInteger) = 0 then
+  // Если изменилось кол-во продаж
+  if W.SaleCount.F.OldValue <> W.SaleCount.F.Value then
   begin
-    AAction := eaFail;
-    Exit;
+    // Ищем содержимое счёта
+    if qBillContentSimple.SearchByID(W.FBillContentID.F.AsInteger) = 0 then
+    begin
+      AAction := eaFail;
+      Exit;
+    end;
+    // Обновляем информацию о количестве товаров в контенте счёта
+    qBillContentSimple.W.TryEdit;
+    qBillContentSimple.W.SaleCount.F.Value := W.SaleCount.F.AsFloat;
+    qBillContentSimple.W.TryPost;
   end;
 
-  // Рассчитываем новое кол-во товара на складе
-  ANewAmount := qSearchStorehouseProduct.W.Amount.F.AsFloat + AOldSaleCount -
-    ASaleCount;
-
-  if ANewAmount < 0 then
+  // Если изменилось кол-во товара на складе (отгрузили товар)
+  if W.Amount.F.OldValue <> W.Amount.F.Value then
   begin
-    AAction := eaFail;
-    Exit;
+    // Ищем по идентификатору связки склад-продукт
+    if qSearchStorehouseProduct.SearchByID
+      (W.GetStorehouseProductID(W.PK.Value)) = 0 then
+    begin
+      AAction := eaFail;
+      Exit;
+    end;
+
+    // Обновляем информацию о количестве товара на складе
+    qSearchStorehouseProduct.W.TryEdit;
+    qSearchStorehouseProduct.W.Amount.F.AsFloat := W.Amount.F.AsFloat;
+    qSearchStorehouseProduct.W.TryPost;
   end;
+end;
 
-  // Ищем по идентификатору связки склад-продукт
-  qSearchStorehouseProduct.SearchByID(GetStorehouseProductID(W.PK.Value));
+procedure TQryBillContent.CancelShip;
+begin
+  if qSearchStorehouseProduct.SearchByID(W.GetStorehouseProductID(W.PK.Value)) = 0
+  then
+    raise Exception.Create('Ошибка при поиске товара на складе');
 
-  // Обновляем информацию о количестве товара на складе
-  qSearchStorehouseProduct.W.TryEdit;
-  qSearchStorehouseProduct.W.Amount.F.AsFloat := ANewAmount;
-  qSearchStorehouseProduct.W.TryPost;
-
-  // Обновляем информацию о количестве товаров в контенте счёта
-  qBillContentSimple.W.TryEdit;
-  qBillContentSimple.W.SaleCount.F.Value := ASaleCount;
-  qBillContentSimple.W.TryPost;
-  inherited;
+  // Увеличиваем кол-во товара на складе в нашем наборе данных
+  W.TryEdit;
+  W.Amount.F.AsFloat := qSearchStorehouseProduct.W.Amount.F.AsFloat +
+    W.SaleCount.F.AsFloat;
+  W.TryPost;
 end;
 
 function TQryBillContent.CreateDSWrap: TDSWrap;
@@ -214,6 +237,94 @@ begin
   end;
 
   Result := FqBillContentSimple;
+end;
+
+procedure TQryBillContent.Ship;
+begin
+  if qSearchStorehouseProduct.SearchByID(W.GetStorehouseProductID(W.PK.Value)) = 0
+  then
+    raise Exception.Create('Ошибка при поиске товара на складе');
+
+  if qSearchStorehouseProduct.W.Amount.F.AsFloat < W.SaleCount.F.AsFloat then
+    raise Exception.Create(sIsNotEnoughProductAmount);
+
+  FIsShipment := True;
+  // Уменьшаем кол-во товара на складе в нашем наборе данных
+  W.TryEdit;
+  W.Amount.F.AsFloat := qSearchStorehouseProduct.W.Amount.F.AsFloat -
+    W.SaleCount.F.AsFloat;
+  W.TryPost;
+  FIsShipment := False;
+end;
+
+procedure TQryBillContent.ShipAll;
+begin
+  FDQuery.DisableControls;
+  try
+    try
+      W.SaveBookmark;
+      FDQuery.First;
+      while not FDQuery.Eof do
+      begin
+        Ship;
+        FDQuery.Next;
+      end;
+      W.RestoreBookmark;
+      ApplyUpdates;
+    except
+      CancelUpdates;
+      raise;
+    end;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
+procedure TQryBillContent.CalcelAllShip;
+begin
+  FDQuery.DisableControls;
+  try
+    try
+      W.SaveBookmark;
+      FDQuery.First;
+      while not FDQuery.Eof do
+      begin
+        CancelShip;
+        FDQuery.Next;
+      end;
+      W.RestoreBookmark;
+      ApplyUpdates;
+    except
+      CancelUpdates;
+      raise;
+    end;
+  finally
+    FDQuery.EnableControls;
+  end;
+end;
+
+procedure TQryBillContent.DoBeforePost(Sender: TObject);
+begin
+  // Во время отгрузки на складе может остаться меньше чем отгрузили!!!
+  if (FDQuery.State <> dsEdit) or (not FIsShipment) then
+    inherited;
+end;
+
+function TQryBillContent.GetDollarCource: Double;
+begin
+  Result := QryBill.W.Dollar.F.AsFloat;
+end;
+
+function TQryBillContent.GetEuroCource: Double;
+begin
+  Result := QryBill.W.Euro.F.AsFloat;
+end;
+
+function TQryBillContent.GetQryBill: TQryBill;
+begin
+  Assert(Master <> nil);
+  Assert(Master is TQryBill);
+  Result := (Master as TQryBill);
 end;
 
 constructor TBillContentW.Create(AOwner: TComponent);

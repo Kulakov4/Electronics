@@ -10,7 +10,6 @@ inherited QueryProductsBase: TQueryProductsBase
   end
   inherited FDQuery: TFDQuery
     OnCalcFields = FDQueryCalcFields
-    AfterApplyUpdates = FDQueryAfterApplyUpdates
     Left = 17
   end
 end

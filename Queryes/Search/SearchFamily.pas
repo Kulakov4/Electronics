@@ -77,7 +77,7 @@ uses DefaultParameters, StrHelper;
 constructor TQuerySearchFamily.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := TSearchFamilyW.Create(Self);
+  FW := TSearchFamilyW.Create(FDQuery);
 end;
 
 function TQuerySearchFamily.SearchByID(const AIDComponent: Integer;

@@ -8,11 +8,12 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery, NotifyEvents;
 
 type
   TBillW = class(TDSWrap)
   private
+    FBeforeShip: TNotifyEventsEx;
     FID: TFieldWrap;
     FNumber: TFieldWrap;
     FBillDate: TFieldWrap;
@@ -21,7 +22,12 @@ type
     FEuro: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function AddBill(const ADollarCource, AEuroCource: Double): Integer;
+    procedure ApplyNotShipmentFilter;
+    procedure ApplyShipmentFilter;
+    procedure Ship;
+    property BeforeShip: TNotifyEventsEx read FBeforeShip;
     property ID: TFieldWrap read FID;
     property Number: TFieldWrap read FNumber;
     property BillDate: TFieldWrap read FBillDate;
@@ -39,6 +45,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure CancelBill;
+    function SearchByPeriod(ABeginDate, AEndDate: TDate): Integer;
     property W: TBillW read FW;
     { Public declarations }
   end;
@@ -46,7 +53,7 @@ type
 implementation
 
 uses
-  MaxBillNumberQuery, NotifyEvents;
+  MaxBillNumberQuery, BaseQuery, StrHelper;
 
 {$R *.dfm}
 
@@ -66,6 +73,39 @@ begin
   Result := TBillW.Create(FDQuery);
 end;
 
+function TQryBill.SearchByPeriod(ABeginDate, AEndDate: TDate): Integer;
+var
+  AED: TDate;
+  ANewSQL: string;
+  ASD: TDate;
+  AStipulation: string;
+begin
+  if ABeginDate <= AEndDate then
+  begin
+    ASD := ABeginDate;
+    AED := AEndDate;
+  end
+  else
+  begin
+    ASD := AEndDate;
+    AED := ABeginDate;
+  end;
+
+  // Делаем замену в SQL запросе
+  AStipulation := Format('%s >= date(''%s'')',
+    [W.BillDate.FieldName, FormatDateTime('YYYY-MM-DD', ASD)]);
+  ANewSQL := ReplaceInSQL(SQL, AStipulation, 0);
+
+  // Делаем замену в SQL запросе
+  AStipulation := Format('%s <= date(''%s'')',
+    [W.BillDate.FieldName, FormatDateTime('YYYY-MM-DD', AED)]);
+  ANewSQL := ReplaceInSQL(ANewSQL, AStipulation, 1);
+
+  FDQuery.SQL.Text := ANewSQL;
+  W.RefreshQuery;
+  Result := FDQuery.RecordCount;
+end;
+
 constructor TBillW.Create(AOwner: TComponent);
 begin
   inherited;
@@ -75,6 +115,14 @@ begin
   FShipmentDate := TFieldWrap.Create(Self, 'ShipmentDate', 'Дата отгрузки');
   FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс $');
   FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс €');
+
+  FBeforeShip := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TBillW.Destroy;
+begin
+  inherited;
+  FreeAndNil(FBeforeShip);
 end;
 
 function TBillW.AddBill(const ADollarCource, AEuroCource: Double): Integer;
@@ -92,6 +140,29 @@ begin
     TryCancel;
     raise;
   end;
+end;
+
+procedure TBillW.ApplyNotShipmentFilter;
+begin
+  DataSet.Filter := Format('%s is null', [ShipmentDate.FieldName]);
+  DataSet.Filtered := True;
+end;
+
+procedure TBillW.ApplyShipmentFilter;
+begin
+  DataSet.Filter := Format('%s is not null', [ShipmentDate.FieldName]);
+  DataSet.Filtered := True;
+end;
+
+procedure TBillW.Ship;
+begin
+  Assert(ShipmentDate.F.IsNull);
+
+  FBeforeShip.CallEventHandlers(Self);
+
+  TryEdit;
+  ShipmentDate.F.AsDateTime := Date;
+  TryPost;
 end;
 
 end.

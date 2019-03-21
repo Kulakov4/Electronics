@@ -7,6 +7,7 @@ inherited QryBill: TQryBill
   inherited FDQuery: TFDQuery
     SQL.Strings = (
       'select *'
-      'from bill')
+      'from bill'
+      'where (0=0) and (1=1)')
   end
 end

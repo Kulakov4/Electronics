@@ -23,6 +23,8 @@ type
     FAutoTransaction: Boolean;
     FAfterCommit: TNotifyEventsEx;
     FAfterCancelUpdates: TNotifyEventsEx;
+    FBeforeApplyUpdates: TNotifyEventsEx;
+    FAfterApplyUpdates: TNotifyEventsEx;
     FClientCount: Integer;
     FDebug: Boolean;
     FHaveAnyNotCommitedChanges: Boolean;
@@ -37,9 +39,13 @@ type
     procedure DoAfterMasterScroll(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
+    procedure DoBeforeApplyUpdates(Sender: TFDDataSet);
+    procedure DoAfterApplyUpdates(Sender: TFDDataSet; AError: Integer);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetActual: Boolean;
+    function GetBeforeApplyUpdates: TNotifyEventsEx;
+    function GetAfterApplyUpdates: TNotifyEventsEx;
     procedure InitializeFields;
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
@@ -74,6 +80,8 @@ type
       write SetAutoTransaction;
     property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
+    property BeforeApplyUpdates: TNotifyEventsEx read GetBeforeApplyUpdates;
+    property AfterApplyUpdates: TNotifyEventsEx read GetAfterApplyUpdates;
     property ClientCount: Integer read FClientCount;
     property Debug: Boolean read FDebug write FDebug;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
@@ -127,7 +135,7 @@ constructor TQueryBaseEvents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FDebug := True;
+  //FDebug := True;
 
   // Создаём обёртку вокруг себя
   FDSWrap := CreateDSWrap;
@@ -317,6 +325,19 @@ begin
   FHaveAnyNotCommitedChanges := False;
 end;
 
+procedure TQueryBaseEvents.DoBeforeApplyUpdates(Sender: TFDDataSet);
+begin
+  Assert(FBeforeApplyUpdates <> nil);
+  FBeforeApplyUpdates.CallEventHandlers(Self);
+end;
+
+procedure TQueryBaseEvents.DoAfterApplyUpdates(Sender: TFDDataSet; AError:
+    Integer);
+begin
+  Assert(FAfterApplyUpdates <> nil);
+  FAfterApplyUpdates.CallEventHandlers(Self);
+end;
+
 procedure TQueryBaseEvents.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
   FHRTimer.StartTimer;
@@ -343,6 +364,28 @@ end;
 function TQueryBaseEvents.GetActual: Boolean;
 begin
   Result := FDQuery.Active and not Wrap.NeedRefresh;
+end;
+
+function TQueryBaseEvents.GetBeforeApplyUpdates: TNotifyEventsEx;
+begin
+  if FBeforeApplyUpdates = nil then
+  begin
+    Assert(not Assigned(FDQuery.BeforeApplyUpdates));
+    FBeforeApplyUpdates := TNotifyEventsEx.Create(Self);
+    FDQuery.BeforeApplyUpdates := DoBeforeApplyUpdates;
+  end;
+  Result := FBeforeApplyUpdates;
+end;
+
+function TQueryBaseEvents.GetAfterApplyUpdates: TNotifyEventsEx;
+begin
+  if FAfterApplyUpdates = nil then
+  begin
+    Assert(not Assigned(FDQuery.AfterApplyUpdates));
+    FAfterApplyUpdates := TNotifyEventsEx.Create(Self);
+    FDQuery.AfterApplyUpdates := DoAfterApplyUpdates;
+  end;
+  Result := FAfterApplyUpdates;
 end;
 
 procedure TQueryBaseEvents.TryStartTransaction(Sender: TObject);
@@ -645,14 +688,14 @@ procedure TQueryMonitor.DoAfterCancelOrPost(Sender: TObject);
 var
   i: Integer;
   Q: TQueryBaseEvents;
-  S: string;
 begin
+  Q := nil;
   if Sender is TQueryBaseEvents then
     Q := Sender as TQueryBaseEvents
   else if Sender is TDSWrap then
-    Q := (Sender as TDSWrap).Obj as TQueryBaseEvents
-  else
-    Assert(False);
+    Q := (Sender as TDSWrap).Obj as TQueryBaseEvents;
+
+  Assert(Q <> nil);
 
   i := FChangedQueries.IndexOf(Q);
 

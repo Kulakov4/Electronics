@@ -3,7 +3,9 @@ inherited ViewProducts2: TViewProducts2
   ExplicitWidth = 1206
   inherited cxDBTreeList: TcxDBTreeList
     Width = 1206
+    ExplicitTop = 48
     ExplicitWidth = 1206
+    ExplicitHeight = 525
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -64,7 +66,27 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton16'
+          ItemName = 'cxbeiDate'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiDollar'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiEuro'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbRefreshCources'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton12'
         end
         item
           Visible = True
@@ -92,19 +114,23 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
-          ItemName = 'dxbbCreateBill'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarButton11'
         end
         item
           Visible = True
-          ItemName = 'dxBarButton6'
+          ItemName = 'cxbeiTotalR'
         end
         item
           Visible = True
-          ItemName = 'dxBarButton7'
+          ItemName = 'dxbbCreateBill'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton13'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton6'
         end
         item
           Visible = True
@@ -113,26 +139,6 @@ inherited ViewProducts2: TViewProducts2
     end
     inherited dxBarManagerBar2: TdxBar
       ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'cxbeiDate'
-        end
-        item
-          UserDefine = [udWidth]
-          UserWidth = 55
-          Visible = True
-          ItemName = 'cxbeiDollar'
-        end
-        item
-          UserDefine = [udWidth]
-          UserWidth = 51
-          Visible = True
-          ItemName = 'cxbeiEuro'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbRefreshCources'
-        end
         item
           Visible = True
           ItemName = 'cxbeiExtraChargeType'
@@ -155,6 +161,9 @@ inherited ViewProducts2: TViewProducts2
           Visible = True
           ItemName = 'dxbcRetail'
         end>
+    end
+    inherited dxbsColumns: TdxBarSubItem
+      ShowCaption = False
     end
     object dxBarSubItem1: TdxBarSubItem [4]
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
@@ -225,30 +234,19 @@ inherited ViewProducts2: TViewProducts2
       Action = actExportToExcelDocument
       Category = 0
     end
-    object cxbeiDate: TcxBarEditItem [17]
-      Caption = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
-      Category = 0
-      Hint = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
-      Visible = ivAlways
-      PropertiesClassName = 'TcxDateEditProperties'
-    end
-    object dxBarButton7: TdxBarButton [20]
+    object dxBarButton7: TdxBarButton [19]
       Action = actApplyBestFit
       Category = 0
     end
-    object dxBarButton8: TdxBarButton [21]
+    object dxBarButton8: TdxBarButton [20]
       Action = actFullScreen
       Category = 0
     end
-    object dxBarButton10: TdxBarButton [22]
+    object dxBarButton10: TdxBarButton [21]
       Action = actFilterAndExportToExcelDocument
       Category = 0
     end
-    object dxBarButton16: TdxBarButton
-      Action = actClearSelection
-      Category = 0
-    end
-    object dxBarSubItem3: TdxBarSubItem
+    object dxBarSubItem3: TdxBarSubItem [25]
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
       Category = 0
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100
@@ -261,9 +259,12 @@ inherited ViewProducts2: TViewProducts2
           ItemName = 'dxBarButton17'
         end>
     end
-    object dxBarButton17: TdxBarButton
+    object dxBarButton17: TdxBarButton [26]
       Action = actLoadFromExcelDocument
       Category = 0
+    end
+    inherited dxBarButton13: TdxBarButton
+      Down = True
     end
   end
   inherited ActionList: TActionList
@@ -283,27 +284,27 @@ inherited ViewProducts2: TViewProducts2
       ImageIndex = 6
       OnExecute = actFilterAndExportToExcelDocumentExecute
     end
-    object actCalcCount: TAction
+    object actCalcCount: TAction [28]
       Caption = 'actCalcCount'
       OnExecute = actCalcCountExecute
     end
-    object actTryEdit: TAction
+    object actTryEdit: TAction [29]
       Caption = 'actTryEdit'
       OnExecute = actTryEditExecute
     end
-    object actDisContrl: TAction
+    object actDisContrl: TAction [30]
       Caption = 'actDisContrl'
       OnExecute = actDisContrlExecute
     end
-    object actEnContrl: TAction
+    object actEnContrl: TAction [31]
       Caption = 'actEnContrl'
       OnExecute = actEnContrlExecute
     end
-    object actIsContolDis: TAction
+    object actIsContolDis: TAction [32]
       Caption = 'actIsContolDis'
       OnExecute = actIsContolDisExecute
     end
-    object actLoadFromExcelDocument: TAction
+    object actLoadFromExcelDocument: TAction [33]
       Caption = #1048#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1099' '#1085#1072' '#1089#1082#1083#1072#1076' '#1080#1079' '#1076#1086#1082#1091#1084#1077#1085#1090#1072' Excel'
       ImageIndex = 32
@@ -312,10 +313,5 @@ inherited ViewProducts2: TViewProducts2
   end
   inherited cxStyleRepository1: TcxStyleRepository
     PixelsPerInch = 96
-  end
-  object Timer: TTimer
-    OnTimer = TimerTimer
-    Left = 72
-    Top = 224
   end
 end

@@ -87,14 +87,24 @@ begin
 end;
 
 procedure TQueryProducts.AfterConstruction;
+var
+  ANewSQL: string;
+  AStipulation: string;
 begin
   // Сохраняем первоначальный SQL
   inherited;
 
+  // Добавляем в SQL запрос условие - кол-во > 0
+  AStipulation := Format( '%s > 0', [W.Amount.FullName]);
+  ANewSQL := ReplaceInSQL(SQL, AStipulation, 100);
+  ANewSQL := ReplaceInSQL(ANewSQL, AStipulation, 101);
+
   // Добавляем в SQL запрос параметр - идентификатор склада
-  FDQuery.SQL.Text := ReplaceInSQL(SQL,
+  FDQuery.SQL.Text := ReplaceInSQL(ANewSQL,
     Format('%s = :%s', [W.StorehouseId.FullName, W.StorehouseId.FieldName]), 0);
   SetParamType(W.StorehouseId.FieldName);
+
+  W.ApplyAmountFilter;
 end;
 
 procedure TQueryProducts.LoadDataFromExcelTable(AExcelTable
@@ -397,7 +407,7 @@ function TQueryProducts.SearchForBasket: Integer;
 begin
   Result := SearchEx([TParamRec.Create(W.SaleCount.FullName, 0, ftFloat,
     false, '>')]);
-  W.ApplyBasketFilter;
+  W.ApplySaleCountFilter;
 end;
 
 end.

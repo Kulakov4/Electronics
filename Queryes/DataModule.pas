@@ -43,8 +43,14 @@ type
     FqVersion: TQueryVersion;
     FRefreshQList: TList;
     procedure CloseConnection;
+    procedure DoAfterBillContentApplyUpdates(Sender: TObject);
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
+    procedure DoBeforeBasketApplyUpdates(Sender: TObject);
+    procedure DoBeforeBillShip(Sender: TObject);
+    procedure DoBeforeRepDMDestroy(Sender: TObject);
+    procedure DoBeforeProductsApplyUpdates(Sender: TObject);
+    procedure DoBeforeProductsSearchApplyUpdates(Sender: TObject);
     procedure DoOnCategoryParametersApplyUpdates(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
     function GetBodyTypesGroup: TBodyTypesGroup2;
@@ -74,7 +80,6 @@ type
     procedure DoAfterTreeListFirstOpen(Sender: TObject);
     procedure DoBeforeBillDelete(Sender: TObject);
     procedure DoBeforeCommit(Sender: TObject);
-    procedure DoBeforeTreeListClose(Sender: TObject);
   public
     constructor Create;
     destructor Destroy; override;
@@ -111,7 +116,8 @@ implementation
 
 uses
   RepositoryDataModule, SettingsController, System.SysUtils, System.IOUtils,
-  ProjectConst, ModCheckDatabase;
+  ProjectConst, ModCheckDatabase, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  SearchInterfaceUnit, ClearStorehouseProductsQuery;
 
 var
   SingletonList: TObjectList;
@@ -126,6 +132,9 @@ begin
 
   Assert(DMRepository <> nil);
   Assert(not DMRepository.dbConnection.Connected);
+
+  TNotifyEventWrap.Create(DMRepository.BeforeDestroy, DoBeforeRepDMDestroy,
+    FEventList);
 
   FEventList := TObjectList.Create;
   FRefreshQList := TList.Create;
@@ -166,9 +175,6 @@ begin
   TNotifyEventWrap.Create(qTreeList.W.AfterOpen, DoAfterTreeListFirstOpen,
     FEventList);
 
-  TNotifyEventWrap.Create(qTreeList.W.BeforeClose, DoBeforeTreeListClose,
-    FEventList);
-
   // Связываем запросы отношением главный-подчинённый
   qChildCategories.Master := qTreeList;
   CategoryParametersGroup.qCategoryParameters.Master := qTreeList;
@@ -179,7 +185,6 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  qProducts.Master := qStoreHouseList;
   qBillContent2.Master := qBill;
 
   // При редактировании дочерней категории нужно будет обновлять дерево
@@ -208,8 +213,6 @@ begin
   // Пробы при перетаскивании бэндов в параметрической таблице менялся порядок параметров
   TNotifyEventWrap.Create(ComponentsExGroup.OnParamOrderChange,
     DoOnParamOrderChange, FEventList);
-
-  TNotifyEventWrap.Create(qBill.W.BeforeDelete, DoBeforeBillDelete, FEventList);
 end;
 
 destructor TDM.Destroy;
@@ -219,7 +222,6 @@ begin
   FreeAndNil(FEventList);
   FreeAndNil(FRefreshQList);
   FreeAndNil(FDataSetList);
-
   inherited;
 end;
 
@@ -229,38 +231,37 @@ var
   AStoreHouseProductID: Integer;
 begin
   Assert(AQryProducts <> nil);
+  Assert(AQryProducts.BasketW <> nil);
+
   qBill.W.TryOpen;
 
   // Добавляем новый счёт
   ABillID := qBill.W.AddBill(AQryProducts.DollarCource,
     AQryProducts.EuroCource);
   try
-    AQryProducts.Basket.DisableControls;
-    AQryProducts.FDQuery.DisableControls;
+    AQryProducts.BasketW.DataSet.DisableControls;
     try
-      AQryProducts.Basket.First;
-      while not AQryProducts.Basket.Eof do
+      AQryProducts.BasketW.DataSet.First;
+      while not AQryProducts.BasketW.DataSet.Eof do
       begin
         // На складе должно быть достаточное количество товара
-        Assert(AQryProducts.W.Amount.F.AsFloat >
-          AQryProducts.W.SaleCount.F.AsFloat);
+        AQryProducts.BasketW.CheckSaleCount;
 
         // Идентификатор связи товар-склад у нас отрицательный
-        AStoreHouseProductID := AQryProducts.GetStorehouseProductID
+        AStoreHouseProductID := AQryProducts.BasketW.GetStorehouseProductID
           (AQryProducts.BasketW.ID.F.AsInteger);
 
         // Добавляем товар в заказ
         qBillContentSimple.W.AddContent(ABillID, AStoreHouseProductID,
           AQryProducts.BasketW.SaleCount.F.Value);
 
-        // Резервируем этот продукт, уменьшая его количество на складе
-        AQryProducts.BasketW.ReserveProduct;
+        // Тут товар исчезает из корзины !!!
+        AQryProducts.BasketW.SetSaleCount(0);
 
-        AQryProducts.Basket.Next;
+        AQryProducts.BasketW.DataSet.First;
       end;
     finally
-      AQryProducts.Basket.EnableControls;
-      AQryProducts.FDQuery.EnableControls;
+      AQryProducts.BasketW.DataSet.EnableControls;
     end;
     AQryProducts.ApplyUpdates;
   except
@@ -276,10 +277,6 @@ procedure TDM.CloseConnection;
 var
   I: Integer;
 begin
-  // Это событие не срабатывает, потому что csDestroying in ComponentState
-  if qTreeList.FDQuery.Active then
-    DoBeforeTreeListClose(qTreeList.FDQuery);
-
   for I := FDataSetList.Count - 1 downto 0 do
     FDataSetList[I].FDQuery.Close;
 
@@ -326,6 +323,26 @@ begin
 
   // Открываем новое соединение с БД
   OpenConnection();
+end;
+
+procedure TDM.DoAfterBillContentApplyUpdates(Sender: TObject);
+var
+  AList: TList<TQueryProductsBase>;
+begin
+  AList := TList<TQueryProductsBase>.Create;
+  try
+
+    if (FqProducts <> nil) and (FqProducts.FDQuery.Active) then
+      AList.Add(qProducts);
+    if (qProductsSearch <> nil) and (qProductsSearch.FDQuery.Active) then
+      AList.Add(qProductsSearch);
+
+    // Обновляем количество товара в других наборах данных
+    if AList.Count > 0 then
+      TQueryProductsBase.UpdateAmount(qBillContent2, AList.ToArray);
+  finally
+    FreeAndNil(AList);
+  end;
 end;
 
 procedure TDM.DoAfterChildCategoriesPostOrDelete(Sender: TObject);
@@ -394,6 +411,26 @@ begin
   qTreeList.W.LocateByPK(ACategoryID);
 end;
 
+procedure TDM.DoBeforeBasketApplyUpdates(Sender: TObject);
+var
+  AList: TList<TQueryProductsBase>;
+begin
+  AList := TList<TQueryProductsBase>.Create;
+  try
+
+    if (FqProducts <> nil) and (FqProducts.FDQuery.Active) then
+      AList.Add(qProducts);
+    if (qProductsSearch <> nil) and (qProductsSearch.FDQuery.Active) then
+      AList.Add(qProductsSearch);
+
+    // Обновляем корзины других наборов данных
+    if AList.Count > 0 then
+      TQueryProductsBase.UpdateSaleCount(qProductsBasket, AList.ToArray);
+  finally
+    FreeAndNil(AList);
+  end;
+end;
+
 procedure TDM.DoBeforeBillDelete(Sender: TObject);
 var
   AIDBill: Integer;
@@ -402,6 +439,13 @@ begin
 
   AIDBill := qBill.W.PK.Value;
 
+  // Если товар уже был отгружен
+  if not qBill.W.ShipmentDate.F.IsNull then
+  begin
+    // Отменяем отгрузку товара
+    qBillContent2.CalcelAllShip;
+  end;
+
   // Каскадно удаляем содержимое заказа
   qBillContent2.W.CascadeDelete(AIDBill, qBillContent2.W.BillID.FieldName);
   qBillContent2.ApplyUpdates;
@@ -409,6 +453,11 @@ begin
   // cxGrid сместил запись, поэтому возвращаемся на место
   qBill.W.LocateByPK(AIDBill, True);
 
+end;
+
+procedure TDM.DoBeforeBillShip(Sender: TObject);
+begin
+  qBillContent2.ShipAll;
 end;
 
 procedure TDM.DoBeforeCommit(Sender: TObject);
@@ -423,12 +472,32 @@ begin
     FRefreshQList.Add(ComponentsGroup);
 end;
 
-procedure TDM.DoBeforeTreeListClose(Sender: TObject);
+procedure TDM.DoBeforeRepDMDestroy(Sender: TObject);
 begin
+  if not DMRepository.dbConnection.Connected then
+    Exit;
+  // Делаем очистку временных полей склада
+  TQryClearStoreHouseProducts.ExecSQL;
+
   if qTreeList.FDQuery.RecordCount = 0 then
     Exit;
 
   TSettings.Create.CategoryID := qTreeList.W.PK.AsInteger;
+end;
+
+procedure TDM.DoBeforeProductsApplyUpdates(Sender: TObject);
+begin
+  if (FqProductsSearch <> nil) and (FqProductsSearch.FDQuery.Active) then
+    // Обновляем корзины других наборов данных
+    TQueryProductsBase.UpdateSaleCount(qProducts, [qProductsSearch]);
+end;
+
+procedure TDM.DoBeforeProductsSearchApplyUpdates(Sender: TObject);
+begin
+  if (FqProducts <> nil) and (FqProducts.FDQuery.Active) and
+    (qProductsSearch.ProductSearchW.Mode = RecordsMode) then
+    // Обновляем корзины других наборов данных
+    TQueryProductsBase.UpdateSaleCount(qProductsSearch, [qProducts]);
 end;
 
 procedure TDM.DoOnCategoryParametersApplyUpdates(Sender: TObject);
@@ -539,7 +608,12 @@ end;
 function TDM.GetqBill: TQryBill;
 begin
   if FqBill = nil then
+  begin
     FqBill := TQryBill.Create(FComponent);
+    TNotifyEventWrap.Create(FqBill.W.BeforeShip, DoBeforeBillShip, FEventList);
+    TNotifyEventWrap.Create(FqBill.W.BeforeDelete, DoBeforeBillDelete,
+      FEventList);
+  end;
 
   Result := FqBill;
 end;
@@ -549,6 +623,8 @@ begin
   if FqBillContent2 = nil then
   begin
     FqBillContent2 := TQryBillContent.Create(FComponent);
+    TNotifyEventWrap.Create(FqBillContent2.AfterApplyUpdates,
+      DoAfterBillContentApplyUpdates, FEventList);
   end;
 
   Result := FqBillContent2;
@@ -557,7 +633,13 @@ end;
 function TDM.GetqProducts: TQueryProducts;
 begin
   if FqProducts = nil then
+  begin
     FqProducts := TQueryProducts.Create(FComponent);
+    qProducts.Master := qStoreHouseList;
+
+    TNotifyEventWrap.Create(FqProducts.BeforeApplyUpdates,
+      DoBeforeProductsApplyUpdates, FEventList);
+  end;
 
   Result := FqProducts;
 end;
@@ -565,7 +647,11 @@ end;
 function TDM.GetqProductsBasket: TQueryProducts;
 begin
   if FqProductsBasket = nil then
+  begin
     FqProductsBasket := TQueryProducts.Create(FComponent);
+    TNotifyEventWrap.Create(FqProductsBasket.BeforeApplyUpdates,
+      DoBeforeBasketApplyUpdates, FEventList);
+  end;
 
   Result := FqProductsBasket;
 end;
@@ -573,7 +659,11 @@ end;
 function TDM.GetqProductsSearch: TQueryProductsSearch;
 begin
   if FqProductsSearch = nil then
+  begin
     FqProductsSearch := TQueryProductsSearch.Create(FComponent);
+    TNotifyEventWrap.Create(FqProductsSearch.BeforeApplyUpdates,
+      DoBeforeProductsSearchApplyUpdates, FEventList);
+  end;
 
   Result := FqProductsSearch;
 end;

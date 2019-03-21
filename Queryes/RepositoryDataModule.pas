@@ -30,16 +30,20 @@ type
     cxImageList: TcxImageList;
     cxStyleRepository: TcxStyleRepository;
     cxHeaderStyle: TcxStyle;
+    procedure DataModuleDestroy(Sender: TObject);
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);
     procedure dbConnectionAfterRollback(Sender: TObject);
     procedure dbConnectionBeforeCommit(Sender: TObject);
-    procedure dbConnectionBeforeConnect(Sender: TObject);
+    procedure dbConnectionBeforeDisconnect(Sender: TObject);
   private
     FAfterCommit: TNotifyEventsEx;
     FBeforeCommit: TNotifyEventsEx;
     FAfterConnect: TNotifyEventsEx;
     FAfterRollback: TNotifyEventsEx;
+    FAfterRollback1: TNotifyEventsEx;
+    FBeforeDisconnect: TNotifyEventsEx;
+    FBeforeDestroy: TNotifyEventsEx;
     procedure LocalizeDevExpress;
     { Private declarations }
   public
@@ -49,6 +53,9 @@ type
     property BeforeCommit: TNotifyEventsEx read FBeforeCommit;
     property AfterConnect: TNotifyEventsEx read FAfterConnect;
     property AfterRollback: TNotifyEventsEx read FAfterRollback;
+    property AfterRollback1: TNotifyEventsEx read FAfterRollback1;
+    property BeforeDisconnect: TNotifyEventsEx read FBeforeDisconnect;
+    property BeforeDestroy: TNotifyEventsEx read FBeforeDestroy;
     { Public declarations }
   end;
 
@@ -73,8 +80,17 @@ begin
   FAfterRollback := TNotifyEventsEx.Create(Self);
   FAfterConnect := TNotifyEventsEx.Create(Self);
 
+  FBeforeDisconnect := TNotifyEventsEx.Create(Self);
+
+  FBeforeDestroy := TNotifyEventsEx.Create(Self);
+
   // локализуем девэкспресс
   LocalizeDevExpress();
+end;
+
+procedure TDMRepository.DataModuleDestroy(Sender: TObject);
+begin
+  FBeforeDestroy.CallEventHandlers(Self);
 end;
 
 destructor TDMRepository.Destroy;
@@ -85,6 +101,10 @@ begin
 
   FreeAndNil(FAfterRollback);
   FreeAndNil(FAfterConnect);
+
+  FreeAndNil(FBeforeDisconnect);
+
+  FreeAndNil(FBeforeDestroy);
 end;
 
 procedure TDMRepository.dbConnectionAfterCommit(Sender: TObject);
@@ -111,9 +131,9 @@ begin
   FBeforeCommit.CallEventHandlers(Sender);
 end;
 
-procedure TDMRepository.dbConnectionBeforeConnect(Sender: TObject);
+procedure TDMRepository.dbConnectionBeforeDisconnect(Sender: TObject);
 begin
-;
+  FBeforeDisconnect.CallEventHandlers(Self);
 end;
 
 procedure TDMRepository.LocalizeDevExpress;

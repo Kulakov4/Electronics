@@ -1,5 +1,7 @@
 inherited ViewProductsSearch2: TViewProductsSearch2
   inherited cxDBTreeList: TcxDBTreeList
+    ExplicitTop = 54
+    ExplicitHeight = 525
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -55,11 +57,39 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         end
         item
           Visible = True
+          ItemName = 'cxbeiDate'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiDollar'
+        end
+        item
+          Visible = True
+          ItemName = 'cxbeiEuro'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbRefreshCources'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton12'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarButton3'
         end
         item
           Visible = True
           ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
         end
         item
           Visible = True
@@ -71,51 +101,58 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton1'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarSubItem1'
         end
         item
           Visible = True
-          ItemName = 'dxBarButton7'
+          ItemName = 'dxBarButton11'
         end
         item
           Visible = True
-          ItemName = 'dxBarButton8'
+          ItemName = 'cxbeiTotalR'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbCreateBill'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton13'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton7'
         end>
+    end
+    inherited dxbsColumns: TdxBarSubItem
+      ShowCaption = False
     end
     object dxBarButton1: TdxBarButton [10]
       Action = actPasteFromBuffer
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarButton2: TdxBarButton [11]
       Action = actClear
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarButton3: TdxBarButton [12]
       Action = actSearch
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarButton4: TdxBarButton [13]
       Action = actCommit
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarButton5: TdxBarButton [14]
       Action = actRollback
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarSubItem1: TdxBarSubItem [15]
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0
       Visible = ivAlways
       ImageIndex = 6
+      ShowCaption = False
       ItemLinks = <
         item
           Visible = True
@@ -133,6 +170,9 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     object dxBarButton8: TdxBarButton [18]
       Action = actApplyBestFit
       Category = 0
+    end
+    inherited dxBarButton13: TdxBarButton
+      Down = True
     end
   end
   inherited ActionList: TActionList

@@ -672,7 +672,7 @@ begin
   // Если переходим на вкладку корзина
   if NewPage = cxtshBasket then
   begin
-    // TDM.Create.qProductsBasket.AddClient;
+    // Обновляем содержимое корзины
     TDM.Create.qProductsBasket.SearchForBasket;
 
     if FViewProductsBasket = nil then
@@ -768,6 +768,8 @@ begin
         Action := caNone;
     end;
   end;
+
+//  TDM.Create.
 
   inherited;
 end;
