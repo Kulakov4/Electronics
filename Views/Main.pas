@@ -277,15 +277,30 @@ begin
   if AOldDataBasePath = ANewDataBasePath then
     Exit;
 
-  FViewTreeList.BeginUpdate;
-  try
-    TDM.Create.CreateOrOpenDataBase(Application.ExeName);
-    // Искусственно вызываем событие
+  // FViewTreeList.BeginUpdate;
+  // try
+
+  cxpcMain.ActivePage := nil;
+  cxpcComp2.ActivePage := nil;
+  cxpcCompGroupRight.ActivePage := nil;
+  cxpcWareHouse2.ActivePage := nil;
+
+  TDM.Create.CreateOrOpenDataBase(Application.ExeName);
+
+  // обновляем доступность кнопки "Сохранить всё"
+  DoOnHaveAnyChanges(nil);
+
+  cxpcMain.ActivePage := cxtshComp;
+  cxpcComp2.ActivePage := cxtshCompGroup;
+
+  // Искусственно вызываем событие
+  if TDM.Create.qTreeList.FDQuery.Active then
     DoOnProductCategoriesChange(nil);
-  finally
-    FViewTreeList.EndUpdate;
-    FViewTreeList.ExpandRoot;
-  end;
+
+  // finally
+  // FViewTreeList.EndUpdate;
+  // FViewTreeList.ExpandRoot;
+  // end;
 end;
 
 procedure TfrmMain.actShowBodyTypes2Execute(Sender: TObject);
@@ -814,11 +829,8 @@ begin
   Assert(not DMRepository.dbConnection.Connected);
 
   cxpcMain.ActivePage := nil;
-
   cxpcComp2.ActivePage := nil;
-
   cxpcCompGroupRight.ActivePage := nil;
-
   cxpcWareHouse2.ActivePage := nil;
 
   Assert(not DMRepository.dbConnection.Connected);
