@@ -124,7 +124,7 @@ end;
 
 class function TDefaultParameters.GetPackagePinsParamSubParamID: Integer;
 begin
-  // Надо поределить код параметра с табличным именем Package/Pins (Корпус/Кол-во выводов)
+  // Надо определить код параметра с табличным именем Package/Pins (Корпус/Кол-во выводов)
   if FPackagePinsParamSubParamID = 0 then
   begin
     // Ищем параметр либо добавляем его

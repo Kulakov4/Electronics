@@ -262,10 +262,6 @@ inherited ViewParametricTable: TViewParametricTable
         item
           Visible = True
           ItemName = 'dxBarButton5'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton2'
         end>
     end
     object dxbrbtnApplyUpdates: TdxBarButton
@@ -312,10 +308,6 @@ inherited ViewParametricTable: TViewParametricTable
       Properties.ImmediatePost = True
       Properties.OnChange = cxbeiTableNamePropertiesChange
       InternalEditValue = 'True'
-    end
-    object dxBarButton2: TdxBarButton
-      Action = actChangeCount
-      Category = 0
     end
   end
   inherited ActionList: TActionList

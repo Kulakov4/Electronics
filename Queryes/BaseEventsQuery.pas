@@ -93,6 +93,7 @@ type
 
   TQueryMonitor = class
   private
+    FBeforeApplyUpdates: TNotifyEventsEx;
     FChangedQueries: TList<TQueryBaseEvents>;
     FEventList: TObjectList;
     FOnHaveAnyChanges: TNotifyEventsEx;
@@ -117,6 +118,7 @@ type
     procedure Remove(AQuery: TQueryBaseEvents);
     procedure TryCommit;
     procedure TryRollback;
+    property BeforeApplyUpdates: TNotifyEventsEx read FBeforeApplyUpdates;
     property Connection: TFDCustomConnection read GetConnection;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
     property IsEmpty: Boolean read GetIsEmpty;
@@ -135,7 +137,7 @@ constructor TQueryBaseEvents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  //FDebug := True;
+  // FDebug := True;
 
   // Создаём обёртку вокруг себя
   FDSWrap := CreateDSWrap;
@@ -243,7 +245,9 @@ begin
     // Если все изменения прошли без ошибок
     if FDQuery.ApplyUpdates() = 0 then
       FDQuery.CommitUpdates;
-  end
+  end;
+
+  Assert(FDQuery.ChangeCount = 0);
 end;
 
 procedure TQueryBaseEvents.CancelUpdates;
@@ -331,8 +335,8 @@ begin
   FBeforeApplyUpdates.CallEventHandlers(Self);
 end;
 
-procedure TQueryBaseEvents.DoAfterApplyUpdates(Sender: TFDDataSet; AError:
-    Integer);
+procedure TQueryBaseEvents.DoAfterApplyUpdates(Sender: TFDDataSet;
+  AError: Integer);
 begin
   Assert(FAfterApplyUpdates <> nil);
   FAfterApplyUpdates.CallEventHandlers(Self);
@@ -601,11 +605,14 @@ begin
   TNotifyEventWrap.Create(DMRepository.AfterRollback, DoAfterCommitOrRollback,
     FEventList);
 
+  FBeforeApplyUpdates := TNotifyEventsEx.Create(Self);
+
   FOnHaveAnyChanges := TNotifyEventsEx.Create(Self);
 end;
 
 destructor TQueryMonitor.Destroy;
 begin
+  FreeAndNil(FBeforeApplyUpdates);
   FreeAndNil(FOnHaveAnyChanges);
   FreeAndNil(FEventList);
   FreeAndNil(FQueries);
@@ -725,6 +732,8 @@ begin
 
   ACount := FChangedQueries.Count;
   k := 0;
+
+  FBeforeApplyUpdates.CallEventHandlers(Self);
 
   while (FChangedQueries.Count > 0) and (k < ACount) do
   begin

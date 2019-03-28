@@ -195,12 +195,10 @@ inherited ViewComponents: TViewComponents
     object dxbbParametricTable: TdxBarButton
       Action = actShowParametricTable
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxbbSettings: TdxBarButton
       Action = actSettings
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object dxBarButton3: TdxBarButton
       Action = actRollback

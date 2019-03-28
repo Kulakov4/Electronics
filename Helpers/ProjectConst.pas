@@ -40,8 +40,8 @@ resourcestring
 
   sBodyTypesFilesExt = 'pdf;jpg;png;bmp;gif';
 
-  sDefaultDatabaseFileName = 'database.db';
-  sEmptyDatabaseFileName = 'database_empty.db';
+  sDefaultDatabaseFileName = 'database_1.4.db';
+  sEmptyDatabaseFileName = 'database_empty_1.4.db';
 
   sDoYouWantToDeleteCategoryParameter =
     '¬ы действительно хотите убрать выделенные параметры из текущей категории?';

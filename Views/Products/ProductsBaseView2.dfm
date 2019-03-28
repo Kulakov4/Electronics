@@ -136,9 +136,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 26
+    ExplicitTop = 54
     ExplicitWidth = 1177
-    ExplicitHeight = 553
+    ExplicitHeight = 525
     object clID: TcxDBTreeListColumn
       Visible = False
       Caption.AlignHorz = taCenter
@@ -746,7 +746,7 @@ inherited ViewProductsBase2: TViewProductsBase2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton13'
+          ItemName = 'dxbbRubToDollar'
         end>
     end
     object dxBarManagerBar2: TdxBar [1]
@@ -936,7 +936,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       ShowCaption = True
       PropertiesClassName = 'TcxCurrencyEditProperties'
     end
-    object dxBarButton13: TdxBarButton
+    object dxbbRubToDollar: TdxBarButton
       Action = actRubToDollar
       Category = 0
       ButtonStyle = bsChecked

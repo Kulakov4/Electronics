@@ -359,7 +359,7 @@ end;
 
 procedure TSettings.SetMinWholeSale(const Value: Double);
 begin
-  SetValue('Components', 'DatasheetFolder', Value);
+  SetValue('StoreHouse', 'MinWholeSale', Value);
 end;
 
 procedure TSettings.SetWareHouseDiagramFolder(const Value: String);

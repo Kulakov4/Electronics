@@ -62,21 +62,22 @@ type
     function GetTotalCount: Integer;
   protected
     procedure DoBeforeDetailPost(Sender: TObject);
-    property QueryComponentsCount: TQueryComponentsCount read
-        GetQueryComponentsCount;
-    property QueryEmptyFamilyCount: TQueryEmptyFamilyCount read
-        GetQueryEmptyFamilyCount;
+    property QueryComponentsCount: TQueryComponentsCount
+      read GetQueryComponentsCount;
+    property QueryEmptyFamilyCount: TQueryEmptyFamilyCount
+      read GetQueryEmptyFamilyCount;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Commit; override;
     procedure DoAfterLoadSheet(e: TFolderLoadEvent);
     procedure DoOnTotalProgress(e: TFolderLoadEvent);
-    procedure LoadDataFromExcelTable(AComponentsExcelTable : TComponentsExcelTable;
-        const AProducer: string);
+    procedure LoadDataFromExcelTable(AComponentsExcelTable
+      : TComponentsExcelTable; const AProducer: string);
     // TODO: LoadBodyList
     // procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
     procedure LoadFromExcelFolder(AFileNames: TList<String>;
-        AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
+      AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
+      const AProducer: String);
     property qComponents: TQueryComponents read GetqComponents;
     property qFamily: TQueryFamily read GetqFamily;
     property TotalCount: Integer read GetTotalCount;
@@ -243,8 +244,8 @@ begin
   Result := x;
 end;
 
-procedure TComponentsGroup2.LoadDataFromExcelTable(AComponentsExcelTable :
-    TComponentsExcelTable; const AProducer: string);
+procedure TComponentsGroup2.LoadDataFromExcelTable(AComponentsExcelTable
+  : TComponentsExcelTable; const AProducer: string);
 var
   I: Integer;
   k: Integer;
@@ -273,8 +274,8 @@ begin
       while not AComponentsExcelTable.Eof do
       begin
         // Добавляем компонент в базу данных
-        qFamily.FamilyW.LocateOrAppend(AComponentsExcelTable.FamilyName.AsString,
-          AProducer);
+        qFamily.FamilyW.LocateOrAppend
+          (AComponentsExcelTable.FamilyName.AsString, AProducer);
 
         // Если в Excel файле указаны дополнительные подгруппы
         if not AComponentsExcelTable.SubGroup.AsString.IsEmpty then
@@ -378,7 +379,7 @@ end;
 // end;
 
 procedure TComponentsGroup2.LoadFromExcelFolder(AFileNames: TList<String>;
-    AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
+AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
 var
   AComponentsExcelDM: TComponentsExcelDM;
   AFullFileName: string;
@@ -487,6 +488,8 @@ begin
         try
           // Загружаем даные из Excel файла
           AComponentsExcelDM.LoadExcelFile2(AFullFileName);
+          qFamily.ApplyUpdates;
+          qComponents.ApplyUpdates;
         except
           on e: Exception do
           begin
@@ -505,9 +508,12 @@ begin
     FreeAndNil(AQueryTreeList);
   end;
 
-  // загружаем компоненты из нужной нам категории
-  qComponents.Load(qComponents.Master.Wrap.PK.Value);
-  qFamily.Load(qComponents.Master.Wrap.PK.Value);
+  if qComponents.Master <> nil then
+  begin
+    // загружаем компоненты из нужной нам категории
+    qComponents.Load(qComponents.Master.Wrap.PK.Value);
+    qFamily.Load(qComponents.Master.Wrap.PK.Value);
+  end;
 end;
 
 constructor TFolderLoadEvent.Create(const AFileName: string;

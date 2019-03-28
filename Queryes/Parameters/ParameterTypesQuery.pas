@@ -33,17 +33,15 @@ type
     FDQueryOrd: TIntegerField;
     fdqDeleteNotUsedPT: TFDQuery;
   private
-    FShowDuplicate: Boolean;
     FW: TParameterTypeW;
     procedure DoBeforeOpen(Sender: TObject);
-    procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
     function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
+    function ApplyFilter(AShowDuplicate: Boolean; ATableName: string): Integer;
     function SearchByTableName(const ATableName: string): Integer;
-    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
     property W: TParameterTypeW read FW;
     { Public declarations }
   end;
@@ -64,6 +62,32 @@ begin
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
+function TQueryParameterTypes.ApplyFilter(AShowDuplicate: Boolean;
+  ATableName: string): Integer;
+var
+  ASQL: string;
+begin
+  // Получаем первоначальный запрос
+  ASQL := SQL;
+  if AShowDuplicate then
+  begin
+    ASQL := SQL;
+    ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+    ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
+  end;
+
+  if ATableName.IsEmpty then
+  begin
+    FDQuery.Close;
+    FDQuery.SQL.Text := ASQL;
+    FDQuery.Open;
+    Result := FDQuery.RecordCount;
+  end
+  else
+    Result := SearchEx([TParamRec.Create(W.TableName.FullName, ATableName,
+      ftWideString)], -1, ASQL)
+end;
+
 function TQueryParameterTypes.CreateDSWrap: TDSWrap;
 begin
   Result := TParameterTypeW.Create(FDQuery);
@@ -81,28 +105,6 @@ begin
   Assert(not ATableName.IsEmpty);
   Result := SearchEx([TParamRec.Create(W.TableName.FullName, ATableName,
     ftWideString)]);
-end;
-
-procedure TQueryParameterTypes.SetShowDuplicate(const Value: Boolean);
-var
-  ASQL: String;
-begin
-  if FShowDuplicate <> Value then
-  begin
-    FShowDuplicate := Value;
-
-    // Получаем первоначальный запрос
-    ASQL := SQL;
-    if FShowDuplicate then
-    begin
-      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
-      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
-    end;
-
-    FDQuery.Close;
-    FDQuery.SQL.Text := ASQL;
-    FDQuery.Open;
-  end;
 end;
 
 constructor TParameterTypeW.Create(AOwner: TComponent);

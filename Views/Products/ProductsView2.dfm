@@ -3,9 +3,7 @@ inherited ViewProducts2: TViewProducts2
   ExplicitWidth = 1206
   inherited cxDBTreeList: TcxDBTreeList
     Width = 1206
-    ExplicitTop = 48
     ExplicitWidth = 1206
-    ExplicitHeight = 525
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -126,7 +124,7 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton13'
+          ItemName = 'dxbbRubToDollar'
         end
         item
           Visible = True
@@ -262,9 +260,6 @@ inherited ViewProducts2: TViewProducts2
     object dxBarButton17: TdxBarButton [26]
       Action = actLoadFromExcelDocument
       Category = 0
-    end
-    inherited dxBarButton13: TdxBarButton
-      Down = True
     end
   end
   inherited ActionList: TActionList

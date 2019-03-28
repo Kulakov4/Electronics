@@ -180,7 +180,7 @@ begin
     [W.Value.FullName, W.Value.FieldName]), 0);
 
   FDQuery.SQL.Text := ReplaceInSQL(ASQL,
-    'upper(pv.Value) = upper(:Producer)', 0);
+    'upper(pv.Value) = upper(:Producer)', 1);
   SetParamType(W.Value.FieldName, ptInput, ftWideString);
   SetParamType('Producer', ptInput, ftWideString);
   SetParamType('ProducerParamSubParamID');

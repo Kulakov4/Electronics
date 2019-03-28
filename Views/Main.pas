@@ -36,12 +36,14 @@ uses
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
-  StoreHouseInfoView, ComponentsTabSheetView, ProductsTabSheetView,
+  StoreHouseInfoView, ProductsTabSheetView,
   Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils,
   BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog,
   IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP,
   ChildCategoriesView, StoreHouseListView, ProductsBasketView,
-  ProductsSearchView2, ProductsView2, BillListView, BillContentView;
+  ProductsSearchView2, ProductsView2, BillListView, BillContentView,
+  Vcl.ToolWin, CompFrameUnit, ComponentTypeSetUnit, ProgressBarForm3,
+  ProgressInfo;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -101,6 +103,8 @@ type
     pnlBillLeft: TPanel;
     cxSplitter1: TcxSplitter;
     pnlBillCenter: TPanel;
+    pnlLoad: TPanel;
+    actTest: TAction;
     procedure actComponentsTabExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actSaveAllExecute(Sender: TObject);
@@ -111,6 +115,7 @@ type
     procedure actShowExtraChargeExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
+    procedure actTestExecute(Sender: TObject);
     procedure ApplicationEventsException(Sender: TObject; E: Exception);
     procedure ApplicationEventsHint(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -139,6 +144,8 @@ type
     // FComponentsFrame: TComponentsFrame;
     FcxpcCompGroupRightActivePage: TcxTabSheet;
     FEventList: TObjectList;
+    FfrmComp: TfrmComp;
+    FfrmProgressBar: TfrmProgressBar3;
     FHintWindowEx: THintWindowEx;
     FLoadComplete: Boolean;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
@@ -154,16 +161,32 @@ type
     FViewProductsSearch: TViewProductsSearch2;
     FViewStoreHouse: TViewStoreHouse;
     FViewTreeList: TViewTreeList;
+    FWriteProgress: TTotalProgress;
+    procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoAfterTreeListSmartRefresh(Sender: TObject);
     procedure DoBeforeParametricTableActivate(Sender: TObject);
     procedure DoBeforeParametricTableDeactivate(Sender: TObject);
+    procedure DoOnAutoBindingDescription(Sender: TObject);
+    procedure DoOnAutoBindingDoc(Sender: TObject);
     procedure DoOnComponentLocate(Sender: TObject);
+    procedure DoOnLoadCompFromExcelDocument(Sender: TObject);
+    procedure DoOnLoadCompFromExcelFolder(Sender: TObject);
+    procedure DoOnLoadParametricData(Sender: TObject);
+    procedure DoOnLoadParametricTable(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
+    procedure DoOnTotalReadProgress(ASender: TObject);
     procedure DoOnViewStoreHouseCanFocusRecord(Sender: TObject);
     function GetQueryMonitor: TQueryMonitor;
+    procedure LoadDocFromExcelDocument;
+    function LoadExcelFileHeader(var AFileName: String;
+      AFieldsInfo: TFieldsInfo): Boolean;
+    procedure LoadParametricData(AComponentTypeSet: TComponentTypeSet);
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
+    procedure TryUpdateAnalizeStatistic(API: TProgressInfo);
+    procedure TryUpdateWrite0Statistic(API: TProgressInfo);
+    procedure TryUpdateWriteStatistic(API: TProgressInfo);
     procedure UpdateCaption;
     { Private declarations }
   protected
@@ -203,7 +226,7 @@ uses
   ParametersForm, SettingsController, ReportsForm, ReportQuery,
   ParametricExcelDataModule, ParametricTableForm, BodyTypesForm, ProjectConst,
   PathSettingsForm, ImportErrorForm, cxGridDBBandedTableView,
-  System.IOUtils, ImportProcessForm, ProgressInfo, ProgressBarForm,
+  System.IOUtils, ImportProcessForm, ProgressBarForm,
   Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm,
   TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
@@ -211,7 +234,8 @@ uses
   RecursiveTreeQuery, TreeExcelDataModule, BindDocUnit, DialogUnit2,
   LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
   ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule,
-  FireDAC.Comp.DataSet;
+  FireDAC.Comp.DataSet, ComponentsGroupUnit2, ComponentsExcelDataModule,
+  StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType;
 
 {$R *.dfm}
 
@@ -354,6 +378,11 @@ begin
   end;
 
   frmParameters.Show;
+end;
+
+procedure TfrmMain.actTestExecute(Sender: TObject);
+begin
+  beep;
 end;
 
 procedure TfrmMain.ApplicationEventsException(Sender: TObject; E: Exception);
@@ -769,7 +798,7 @@ begin
     end;
   end;
 
-//  TDM.Create.
+  // TDM.Create.
 
   inherited;
 end;
@@ -800,6 +829,22 @@ begin
 
   // Подписываемся на события
   FEventList := TObjectList.Create;
+
+  FfrmComp := TfrmComp.Create(Self);
+  FfrmComp.Parent := pnlLoad;
+  FfrmComp.Align := alClient;
+  TNotifyEventWrap.Create(FfrmComp.OnLoadCompFromExcelFolder,
+    DoOnLoadCompFromExcelFolder, FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnLoadCompFromExcelDocument,
+    DoOnLoadCompFromExcelDocument, FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnLoadParametricTable,
+    DoOnLoadParametricTable, FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnLoadParametricData, DoOnLoadParametricData,
+    FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnAutoBindingDoc, DoOnAutoBindingDoc,
+    FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnAutoBindingDescription,
+    DoOnAutoBindingDescription, FEventList);
 
   // Проверяем что путь до базы данных корректный
   OK := CheckDataBasePath;
@@ -987,6 +1032,118 @@ begin
   Accept := True;
 end;
 
+procedure TfrmMain.DoAfterLoadSheet(ASender: TObject);
+var
+  A: TArray<Integer>;
+  ADataOnly: Boolean;
+  AfrmError: TfrmCustomError;
+  AParametricExcelTable: TParametricExcelTable;
+  E: TExcelDMEvent;
+  ne: TNotifyEventR;
+  OK: Boolean;
+begin
+  E := ASender as TExcelDMEvent;
+
+  AParametricExcelTable := E.ExcelTable as TParametricExcelTable;
+
+  // Надо обновить прогресс записи
+  if FWriteProgress.PIList.Count = 0 then
+    FWriteProgress.Assign(E.TotalProgress);
+
+  OK := E.ExcelTable.Errors.RecordCount = 0;
+  // Если в ходе загрузки данных произошли ошибки (компонент не найден)
+  if not OK then
+  begin
+    FfrmProgressBar.Hide;
+    AfrmError := TfrmCustomError.Create(nil);
+    try
+      AfrmError.ViewGridEx.DataSet := E.ExcelTable.Errors;
+      // Показываем ошибки
+      OK := AfrmError.ShowModal = mrOk;
+      if OK then
+      begin
+        if AfrmError.ContinueType = ctSkip then
+          // Убираем записи с ошибками и предупреждениями
+          E.ExcelTable.ExcludeErrors(etWarring)
+        else
+          // Убираем записи с ошибками
+          E.ExcelTable.ExcludeErrors(etError);
+      end;
+    finally
+      FreeAndNil(AfrmError);
+    end;
+  end;
+
+  // Надо ли останавливать загрузку остальных листов
+  E.Terminate := not OK;
+
+  if not OK then
+    Exit;
+
+  FfrmProgressBar.Show;
+
+  // Если требуется загрузить только данные, но не сами параметры
+  ADataOnly := AParametricExcelTable.ComponentTypeSet = [ctComponent];
+
+  // Перед записью первого листа создадим все необходимые параметры
+  if (E.SheetIndex = 1) and (not ADataOnly) then
+  begin
+    // Должна быть хотя-бы одна категория, в которую будем добавлять параметры
+    Assert(TDM.Create.qSearchDaughterCategories.FDQuery.RecordCount >= 1);
+
+    A := TDM.Create.qSearchDaughterCategories.W.ID.AsIntArray;
+
+    // 1 Добавляем параметры в категорию
+    E.ExcelTable.Process(
+      procedure(ASender: TObject)
+      begin
+        TParameterValues.LoadParameters(A,
+          E.ExcelTable as TParametricExcelTable);
+      end,
+
+    // Обработчик события
+      procedure(ASender: TObject)
+      Var
+        API: TProgressInfo;
+      begin
+        API := ASender as TProgressInfo;
+        TryUpdateWrite0Statistic(API);
+      end);
+  end;
+
+  // 2 Сохраняем значения параметров
+
+  // Подписываемся на событие
+  ne := TNotifyEventR.Create(E.ExcelTable.OnProgress,
+    procedure(ASender: TObject)
+    Var
+      API: TProgressInfo;
+    begin
+      API := ASender as TProgressInfo;
+      // Запоминаем прогресс записи листа
+      FWriteProgress.PIList[E.SheetIndex - 1].Assign(API);
+      // Обновляем общий прогресс записи
+      FWriteProgress.UpdateTotalProgress;
+
+      TryUpdateWriteStatistic(FWriteProgress.TotalProgress);
+    end);
+  try
+    // Выполняем загрузку значений параметров
+    TParameterValues.LoadParameterValues(E.ExcelTable as TParametricExcelTable,
+
+      procedure(ASender: TObject)
+      Var
+        API: TProgressInfo;
+      begin
+        API := ASender as TProgressInfo;
+        TryUpdateAnalizeStatistic(API);
+      end);
+
+  finally
+    FreeAndNil(ne);
+  end;
+end;
+
 procedure TfrmMain.DoAfterTreeListSmartRefresh(Sender: TObject);
 begin
   ViewTreeList.ExpandRoot;
@@ -1018,9 +1175,295 @@ begin
   TDM.Create.ComponentsExGroup.RemoveClient;
 end;
 
+procedure TfrmMain.DoOnAutoBindingDescription(Sender: TObject);
+var
+  AIDCategory: Integer;
+  frmAutoBindingDescriptions: TfrmAutoBindingDescriptions;
+  MR: Integer;
+begin
+  Application.Hint := '';
+  frmAutoBindingDescriptions := TfrmAutoBindingDescriptions.Create(Self);
+  try
+    // В выбранной категории можно только если выбрана вкладка "По группам"
+    frmAutoBindingDescriptions.actCategory.Enabled :=
+      cxpcComp2.ActivePage = cxtshCompGroup;
+
+    MR := frmAutoBindingDescriptions.ShowModal;
+    case MR of
+      mrOk:
+        AIDCategory := TDM.Create.qTreeList.W.ID.F.AsInteger;
+      mrAll:
+        AIDCategory := 0;
+    else
+      AIDCategory := -1;
+    end;
+  finally
+    FreeAndNil(frmAutoBindingDescriptions);
+  end;
+
+  Application.Hint := '';
+  Application.ProcessMessages;
+
+  if MR <> mrCancel then
+  begin
+    TAutoBind.BindComponentDescriptions(AIDCategory);
+    // Обновим данные в текущей категории
+    if (ViewComponents <> nil) then
+    begin
+      TDM.Create.ComponentsGroup.AddClient;
+      ViewComponents.RefreshData;
+      TDM.Create.ComponentsGroup.RemoveClient;
+    end;
+  end;
+
+end;
+
+procedure TfrmMain.DoOnAutoBindingDoc(Sender: TObject);
+var
+  AFDQuery: TFDQuery;
+  AQueryAllFamily: TQueryAllFamily;
+  frmAutoBindingDoc: TfrmAutoBindingDoc;
+  MR: Integer;
+begin
+  Application.Hint := '';
+  AQueryAllFamily := nil;
+  AFDQuery := nil;
+  frmAutoBindingDoc := TfrmAutoBindingDoc.Create(Self);
+  try
+    // В выбранной категории можно только если выбрана вкладка "По группам"
+    frmAutoBindingDoc.actCategory.Enabled :=
+      cxpcComp2.ActivePage = cxtshCompGroup;
+
+    MR := frmAutoBindingDoc.ShowModal;
+    case MR of
+      mrAll:
+        begin
+          AQueryAllFamily := TQueryAllFamily.Create(Self);
+          AQueryAllFamily.FDQuery.Open;
+          AFDQuery := AQueryAllFamily.FDQuery;
+        end;
+      mrOk:
+        TDM.Create.ComponentsGroup.AddClient;
+      // AFDQuery := ViewComponents.ComponentsGroup.qFamily.FDQuery;
+      mrNo:
+        LoadDocFromExcelDocument;
+    end;
+
+    if AFDQuery <> nil then
+    begin
+      TAutoBind.BindDocs(frmAutoBindingDoc.Docs, AFDQuery,
+        frmAutoBindingDoc.cxrbNoRange.Checked,
+        frmAutoBindingDoc.cxcbAbsentDoc.Checked);
+
+      // Если привязывали текущую категорию
+      if (MR = mrOk) then
+      begin
+        TDM.Create.ComponentsGroup.ReOpen;
+        TDM.Create.ComponentsGroup.RemoveClient;
+      end;
+      {
+        if AFDQuery = ViewComponents.ComponentsGroup.qFamily.FDQuery then
+        begin
+        ViewComponents.ComponentsGroup.ReOpen;
+        end;
+      }
+    end;
+  finally
+    FreeAndNil(frmAutoBindingDoc);
+    if AQueryAllFamily <> nil then
+      FreeAndNil(AQueryAllFamily);
+  end;
+end;
+
 procedure TfrmMain.DoOnHaveAnyChanges(Sender: TObject);
 begin
   actSaveAll.Enabled := QueryMonitor.HaveAnyChanges;
+end;
+
+procedure TfrmMain.DoOnLoadCompFromExcelDocument(Sender: TObject);
+var
+  AComponentsGroup: TComponentsGroup2;
+  AFileName: string;
+  AProducer: String;
+  AProducerID: Integer;
+  m: TArray<String>;
+  S: string;
+begin
+  Application.Hint := '';
+
+  if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
+    Exit;
+
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
+    Exit; // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForComponentsLoad :=
+    TPath.GetDirectoryName(AFileName);
+
+  S := TPath.GetFileNameWithoutExtension(AFileName);
+
+  m := S.Split([' ']);
+  if Length(m) = 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+    Exit;
+  end;
+
+  try
+    // Проверяем что первая часть содержит целочисленный код категории
+    m[0].ToInteger;
+  except
+    TDialog.Create.ErrorMessageDialog
+      ('В начале имени файла должен быть код категории');
+    Exit;
+  end;
+
+  TDM.Create.qTreeList.W.TryOpen;
+
+  // Переходим в дереве категорий на загружаемую категорию
+  if not TDM.Create.qTreeList.W.LocateByExternalID(m[0]) then
+  begin
+    TDialog.Create.ErrorMessageDialog(Format('Категория %s не найдена',
+      [m[0]]));
+    Exit;
+  end;
+
+  Assert(not AFileName.IsEmpty);
+  Assert(not AProducer.IsEmpty);
+
+  AComponentsGroup := TComponentsGroup2.Create(Self);
+  try
+    AComponentsGroup.qFamily.Master := TDM.Create.qTreeList;
+    AComponentsGroup.qComponents.Master := TDM.Create.qTreeList;
+
+    AComponentsGroup.qFamily.Load;
+    AComponentsGroup.qComponents.Load;
+
+    TLoad.Create.LoadAndProcess(AFileName, TComponentsExcelDM, TfrmImportError,
+      procedure(ASender: TObject)
+      begin
+        AComponentsGroup.LoadDataFromExcelTable
+          (ASender as TComponentsExcelTable, AProducer);
+      end);
+  finally
+    FreeAndNil(AComponentsGroup);
+  end;
+
+  {
+    // Тут некоторые узлы почему-то разворачиваются
+    MainView.ViewData.Collapse(True);
+
+    FocusTopLeft(clValue.DataBinding.FieldName);
+
+    UpdateView;
+  }
+end;
+
+procedure TfrmMain.DoOnLoadCompFromExcelFolder(Sender: TObject);
+var
+  AComponentsGroup2: TComponentsGroup2;
+  AFileName: string;
+  AFileNames: TList<String>;
+  AFolderName: string;
+  AProducer: String;
+  AProducerID: Integer;
+  AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
+  I: Integer;
+  m: TStringDynArray;
+  S: string;
+begin
+  Application.Hint := '';
+  // Выбираем производителя
+  if not TfrmProducers.TakeProducer(AProducerID, AProducer) then
+    Exit;
+
+  if not TDialog.Create.ShowDialog(TExcelFilesFolderOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
+    Exit;
+
+  AFolderName := TPath.GetDirectoryName(AFileName);
+
+  TSettings.Create.LastFolderForComponentsLoad := AFolderName;
+
+  Assert(not AFolderName.IsEmpty);
+  Assert(not AProducer.IsEmpty);
+
+  m := TDirectory.GetFiles(AFolderName,
+    function(const Path: string; const SearchRec: TSearchRec): Boolean
+    Var
+      S: String;
+    begin
+      S := TPath.GetExtension(SearchRec.Name);
+      Result := S.IndexOf('.xls') = 0;
+    end);
+
+  if Length(m) = 0 then
+  begin
+    TDialog.Create.ExcelFilesNotFoundDialog;
+  end;
+
+  AFileNames := TList<String>.Create();
+  try
+    for I := Low(m) to High(m) do
+    begin
+      AFileNames.Add(m[I]);
+    end;
+
+    AutomaticLoadErrorTable := TAutomaticLoadErrorTable.Create(Self);
+    for AFileName in AFileNames do
+    begin
+      S := TPath.GetFileNameWithoutExtension(AFileName);
+      AutomaticLoadErrorTable.LocateOrAppendData(S, NULL, '', '', '');
+    end;
+    AutomaticLoadErrorTable.First;
+
+    if frmImportProcess <> nil then
+      FreeAndNil(frmImportProcess);
+
+    frmImportProcess := TfrmImportProcess.Create(Self);
+    frmImportProcess.Caption := 'Загрузка компонентов';
+    frmImportProcess.ViewGridEx.DataSet := AutomaticLoadErrorTable;
+    frmImportProcess.ViewGridEx.ApplyBestFitOnUpdateData := True;
+    // Показываем отчёт
+    frmImportProcess.Show;
+
+    Application.ProcessMessages;
+
+    AComponentsGroup2 := TComponentsGroup2.Create(Self);
+    try
+      AComponentsGroup2.LoadFromExcelFolder(AFileNames, AutomaticLoadErrorTable,
+        AProducer);
+    finally
+      FreeAndNil(AComponentsGroup2);
+      // Разрешаем закрыть форму
+      frmImportProcess.Done := True;
+    end;
+  finally
+    FreeAndNil(AFileNames);
+  end;
+  {
+    // Тут некоторые узлы почему-то разворачиваются
+    MainView.ViewData.Collapse(True);
+    FocusTopLeft(clValue.DataBinding.FieldName);
+
+    UpdateView;
+  }
+end;
+
+procedure TfrmMain.DoOnLoadParametricData(Sender: TObject);
+begin
+  Application.Hint := '';
+  // будем загружать параметрические данные для компонентов (не семейств)
+  LoadParametricData([ctComponent]);
+end;
+
+procedure TfrmMain.DoOnLoadParametricTable(Sender: TObject);
+begin
+  Application.Hint := '';
+  // будем загружать параметрические данные для семейств компонентов
+  LoadParametricData([ctFamily]);
 end;
 
 procedure TfrmMain.DoOnOpenCategory(Sender: TObject);
@@ -1056,10 +1499,20 @@ begin
   ViewComponents.cxGrid.SetFocus;
   // Application.ProcessMessages;
 
-  ViewComponents.MainView.Controller.FocusedRow.Selected := True;
+  if ViewComponents.MainView.Controller.FocusedRow <> nil then
+    ViewComponents.MainView.Controller.FocusedRow.Selected := True;
 
   ViewComponents.MainView.GetColumnByFieldName
     (ViewComponents.clValue.DataBinding.FieldName).Selected := True;
+end;
+
+procedure TfrmMain.DoOnTotalReadProgress(ASender: TObject);
+var
+  E: TExcelDMEvent;
+begin
+  Assert(FfrmProgressBar <> nil);
+  E := ASender as TExcelDMEvent;
+  FfrmProgressBar.UpdateReadStatistic(E.TotalProgress.TotalProgress);
 end;
 
 procedure TfrmMain.DoOnViewStoreHouseCanFocusRecord(Sender: TObject);
@@ -1076,6 +1529,177 @@ end;
 function TfrmMain.GetQueryMonitor: TQueryMonitor;
 begin
   Result := TDM.Create.qTreeList.Monitor;
+end;
+
+procedure TfrmMain.LoadDocFromExcelDocument;
+var
+  AFileName: string;
+begin
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.LastFolderForComponentsLoad, '', AFileName) then
+    Exit;
+  // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.LastFolderForComponentsLoad :=
+    TPath.GetDirectoryName(AFileName);
+
+  TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
+end;
+
+function TfrmMain.LoadExcelFileHeader(var AFileName: String;
+AFieldsInfo: TFieldsInfo): Boolean;
+var
+  ARootTreeNode: TStringTreeNode;
+  R: TLoadExcelFileHeaderResult;
+begin
+  Result := False;
+  Assert(AFieldsInfo <> nil);
+
+  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+    TSettings.Create.ParametricDataFolder, '', AFileName) then
+    Exit;
+  // отказались от выбора файла
+
+  // Сохраняем эту папку в настройках
+  TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
+
+  // Описания полей excel файла
+  ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
+  try
+    // Result :=
+    R := TDM.Create.LoadExcelFileHeader(ARootTreeNode, AFieldsInfo,
+      function(AParametricErrorTable: TParametricErrorTable): Boolean
+      var
+        AfrmParametricTableError: TfrmParametricTableError;
+      begin
+        AfrmParametricTableError := TfrmParametricTableError.Create(Self);
+        try
+          // AfrmGridView.Caption := 'Ошибки среди параметров';
+          AfrmParametricTableError.ViewParametricTableError.DataSet :=
+            AParametricErrorTable;
+          // Показываем что мы собираемся привязывать
+          Result := AfrmParametricTableError.ShowModal = mrOk;
+        finally
+          FreeAndNil(AfrmParametricTableError);
+        end;
+      end);
+
+    case R of
+      ID_ParametricTableNotFound:
+        TDialog.Create.ParametricTableNotFound;
+      ID_NoParameterForLoad:
+        TDialog.Create.ErrorMessageDialog
+          ('Нет параметров, значения которых можно загрузить');
+    end;
+    Result := R = ID_OK;
+  finally
+    FreeAndNil(ARootTreeNode);
+  end;
+end;
+
+procedure TfrmMain.LoadParametricData(AComponentTypeSet: TComponentTypeSet);
+var
+  ADataOnly: Boolean;
+  AFieldsInfo: TFieldsInfo;
+  AFileName: string;
+  AFullFileName: string;
+  AParametricExcelDM: TParametricExcelDM;
+  m: TArray<String>;
+  rc: Integer;
+begin
+  AFieldsInfo := TFieldsInfo.Create();
+  try
+    if not LoadExcelFileHeader(AFullFileName, AFieldsInfo) then
+      Exit;
+
+    // Если идёт загрузка только данных
+    ADataOnly := AComponentTypeSet = [ctComponent];
+
+    if not ADataOnly then
+    begin
+      // В начале имени файла - код категории в которую будем загружать параметры
+      AFileName := TPath.GetFileNameWithoutExtension(AFullFileName);
+
+      m := AFileName.Split([' ']);
+      if Length(m) = 1 then
+      begin
+        TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+        Exit;
+      end;
+
+      try
+        // Проверяем что первая часть содержит целочисленный код категории
+        m[0].ToInteger;
+      except
+        TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+        Exit;
+      end;
+
+      // Ищем, есть ли категория с такми внешним кодом
+      if TDM.Create.qSearchCategory.SearchByExternalID(m[0]) = 0 then
+      begin
+        TDialog.Create.ErrorMessageDialog
+          (Format('Категория %s не найдена', [m[0]]));
+        Exit;
+      end;
+
+      // Ищем все дочерние категории
+      rc := TDM.Create.qSearchDaughterCategories.SearchEx
+        (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
+      Assert(rc > 1);
+    end;
+
+    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
+      AComponentTypeSet);
+    FWriteProgress := TTotalProgress.Create;
+    FfrmProgressBar := TfrmProgressBar3.Create(Self);
+    try
+      TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
+        DoAfterLoadSheet);
+      TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
+        DoOnTotalReadProgress);
+
+      FfrmProgressBar.Show;
+      AParametricExcelDM.LoadExcelFile2(AFullFileName);
+
+      // Обновляем параметры для текущей категории
+      TDM.Create.CategoryParametersGroup.RefreshData;
+      // Пытаемся обновить параметрическую таблицу
+      TDM.Create.ComponentsExGroup.TryRefresh;
+    finally
+      FreeAndNil(AParametricExcelDM);
+      FreeAndNil(FWriteProgress);
+      FreeAndNil(FfrmProgressBar);
+    end;
+  finally
+    FreeAndNil(AFieldsInfo);
+  end;
+
+end;
+
+procedure TfrmMain.TryUpdateAnalizeStatistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем прогресс анализа
+    FfrmProgressBar.UpdateAnalizeStatistic(API);
+end;
+
+procedure TfrmMain.TryUpdateWrite0Statistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем общий прогресс записи
+    FfrmProgressBar.UpdateWriteStatistic0(API);
+end;
+
+procedure TfrmMain.TryUpdateWriteStatistic(API: TProgressInfo);
+begin
+  if (API.ProcessRecords mod OnWriteProcessEventRecordCount = 0) or
+    (API.ProcessRecords = API.TotalRecords) then
+    // Отображаем общий прогресс записи
+    FfrmProgressBar.UpdateWriteStatistic(API);
 end;
 
 procedure TfrmMain.UpdateCaption;

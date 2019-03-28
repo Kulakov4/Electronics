@@ -134,6 +134,7 @@ begin
   if FDescriptionW <> nil then
   begin
     Assert(FDescriptionW.DataSet.Active);
+    DataSource.DataSet := FDescriptionW.DataSet;
     cxdbmDescriptions.DataBinding.DataField :=
       FDescriptionW.Description.FieldName;
   end;

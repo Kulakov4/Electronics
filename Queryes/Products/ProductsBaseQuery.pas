@@ -243,7 +243,7 @@ type
     procedure DeleteFromBasket(APKArray: TArray<Integer>);
     procedure DeleteNode(AID: Integer);
     procedure DeleteNotUsedProducts(AProductIDS: TList<Integer>);
-    function HaveInsertedRecords: Boolean;
+    function HaveInsertedProducts: Boolean;
     procedure LoadDocFile(const AFileName: String;
       ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
@@ -498,6 +498,8 @@ begin
   try
     AProductW := TProductW.Create(AClone);
     AClone.FilterChanges := [rtInserted];
+    AClone.Filter := Format('%s=0', [W.IsGroup.FieldName]);
+    AClone.Filtered := True;
     AClone.First;
     ARecNo := AClone.RecNo;
     while not AClone.Eof do
@@ -506,8 +508,9 @@ begin
       AProductW.MinWholeSale.F.AsFloat := AMinWholeSale;
       AProductW.TryPost;
 
+      AClone.RecNo := ARecNo;
       // Не должно происходить смещение записи при сохранении
-      Assert(ARecNo = AClone.RecNo);
+//      Assert(ARecNo = AClone.RecNo);
 
       AClone.Next;
       ARecNo := AClone.RecNo;
@@ -564,7 +567,8 @@ end;
 procedure TQueryProductsBase.ApplyUpdates;
 begin
   Assert(FDQuery.CachedUpdates);
-  Assert(not FDQuery.Connection.InTransaction);
+  // Возможно мы добавили производителя в раздел Склад и транзакция уже началась!!!
+//  Assert(not FDQuery.Connection.InTransaction);
 
   W.TryPost;
   // тут должны быть несохранённые изменения
@@ -585,14 +589,14 @@ end;
 procedure TQueryProductsBase.CancelUpdates;
 begin
   Assert(FDQuery.CachedUpdates);
-  Assert(not FDQuery.Connection.InTransaction);
+//  Assert(not FDQuery.Connection.InTransaction);
   FDataChange := False;
 
   // отменяем сделанные изменения в текущей записи на стороне клиента
   W.TryCancel;
 
   // Если в других записях тоже нет изменений
-  if FDQuery.ChangeCount = 0 then
+  if (FDQuery.ChangeCount = 0) and (not FDQuery.Connection.InTransaction) then
     Exit;
 
   W.SaveBookmark;
@@ -600,6 +604,14 @@ begin
   try
     // Тут вызываем собственно отмену всех изменений и извещаем всех об этом
     inherited;
+
+    // Если транзакция всё-таки была начата
+    if FDQuery.Connection.InTransaction then
+    begin
+      FDQuery.Connection.Rollback;
+      W.RefreshQuery;
+    end;
+
     ProducersGroup.ReOpen;
 
     W.RestoreBookmark;
@@ -904,7 +916,7 @@ begin
   end;
 
   // Если не происходит вставка новой записи
-  if not (FDQuery.State in [dsInsert]) then
+  if not(FDQuery.State in [dsInsert]) then
     Exit;
 
   Assert(not W.IsGroup.F.IsNull);
@@ -1011,7 +1023,7 @@ procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
 var
   // AContains: Boolean;
   ADCource: Double;
-  AECource: Double;
+  // AECource: Double;
   APriceR: Double;
   // AID: Integer;
   AWholeSale: Double;
@@ -1048,7 +1060,10 @@ begin
   ADCource := GetDollarCource;
 
   // Определяемся с курсом Евро
-  AECource := GetEuroCource;
+  // AECource := GetEuroCource;
+
+  // Розничная цена
+  APriceR := W.PriceR.F.AsFloat;
 
   // Если закупочная цена была в рублях
   if W.IDCurrency.F.AsInteger = 1 then
@@ -1073,8 +1088,6 @@ begin
     // *************************************************************************
     // Розничная цена
     // *************************************************************************
-    APriceR := W.PriceR.F.AsFloat;
-
     // Если курс Доллара вырос и мы хотим пересчитать закупочную цену по новому курсу
     if RubToDollar and (ADCource > 0) and (W.Dollar.F.AsFloat > 0) and
       (ADCource > W.Dollar.F.AsFloat) then
@@ -1271,7 +1284,7 @@ begin
   Result := FqStoreHouseList;
 end;
 
-function TQueryProductsBase.HaveInsertedRecords: Boolean;
+function TQueryProductsBase.HaveInsertedProducts: Boolean;
 var
   AClone: TFDMemTable;
 begin
@@ -1279,6 +1292,8 @@ begin
   AClone := W.AddClone('');
   try
     AClone.FilterChanges := [rtInserted];
+    AClone.Filter := Format('%s=0', [W.IsGroup.FieldName]);
+    AClone.Filtered := True;
     Result := AClone.RecordCount > 0;
   finally
     W.DropClone(AClone);

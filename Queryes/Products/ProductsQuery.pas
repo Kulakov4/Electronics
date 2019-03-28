@@ -78,7 +78,6 @@ begin
 
   TNotifyEventWrap.Create(AfterCancelUpdates, DoAfterCancelUpdates, FEventList);
 
-
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
   TNotifyEventWrap.Create(W.AfterPostM, DoAfterPost, W.EventList);
@@ -95,7 +94,7 @@ begin
   inherited;
 
   // Добавляем в SQL запрос условие - кол-во > 0
-  AStipulation := Format( '%s > 0', [W.Amount.FullName]);
+  AStipulation := Format('%s > 0', [W.Amount.FullName]);
   ANewSQL := ReplaceInSQL(SQL, AStipulation, 100);
   ANewSQL := ReplaceInSQL(ANewSQL, AStipulation, 101);
 
@@ -115,6 +114,38 @@ var
   AIDComponentGroup: Integer;
   V: Variant;
 begin
+  //****************************************************************************
+  // Снача добавим все группы компонентов и производителей и сохраним в БД
+  //****************************************************************************
+
+  // Чтобы при изменении любого поля не происходил пересчёт автовычисляемых полей
+  DisableCalc;
+  AExcelTable.First;
+  while not AExcelTable.Eof do
+  begin
+    // 1) Ищем такую группу компонентов на текущем складе
+    V := W.LookupComponentGroup(AExcelTable.ComponentGroup.AsString);
+    if VarIsNull(V) then
+    begin
+      FDQuery.Append;
+      W.IsGroup.F.AsInteger := 1; // Будем добавлять группу
+      W.Value.F.AsString := AExcelTable.ComponentGroup.AsString;
+      FDQuery.Post;
+    end;
+
+    // 2) Ищем или добавляем такого производителя в справочнике производителей
+    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
+
+    AExcelTable.Next;
+  end;
+  EnableCalc;
+
+  // Сохраняем изменения в БД чтобы ссылаться на эту группу!!!
+  FDQuery.Connection.StartTransaction;
+  FDQuery.ApplyUpdates();
+  FDQuery.CommitUpdates;
+
+
   try
     AExcelTable.First;
     AExcelTable.CallOnProcessEvent;
@@ -312,7 +343,7 @@ end;
 procedure TQueryProducts.DoAfterOpen(Sender: TObject);
 begin
   FNeedUpdateCount := True;
-  FNeedDecTotalCount := False;
+  FNeedDecTotalCount := false;
 end;
 
 procedure TQueryProducts.DoAfterPost(Sender: TObject);

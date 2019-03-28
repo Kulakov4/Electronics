@@ -2,6 +2,9 @@ unit FieldInfoUnit;
 
 interface
 
+uses
+  System.Generics.Collections;
+
 type
   TFieldInfo = class(TObject)
   private
@@ -22,6 +25,12 @@ type
     property Size: Integer read FSize write FSize;
   end;
 
+type
+  TFieldsInfo = class(TList<TFieldInfo>)
+  public
+    function Find(const AFieldName: string): TFieldInfo;
+  end;
+
 implementation
 
 uses System.SysUtils;
@@ -39,6 +48,18 @@ begin
 
   if FRequired then
     Assert(not FErrorMessage.IsEmpty);
+end;
+
+function TFieldsInfo.Find(const AFieldName: string): TFieldInfo;
+begin
+  Assert(not AFieldName.IsEmpty);
+
+  for Result in Self do
+  begin
+    if Result.FieldName = AFieldName then
+      Exit;
+  end;
+  Result := nil;
 end;
 
 end.

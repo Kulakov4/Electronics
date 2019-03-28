@@ -85,8 +85,8 @@ type
     function Search(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; TestResult: Integer = -1)
       : Integer; overload;
-    function SearchEx(AParams: TArray<TParamRec>;
-      TestResult: Integer = -1): Integer;
+    function SearchEx(AParams: TArray<TParamRec>; TestResult: Integer = -1; ASQL:
+        String = ''): Integer;
     function SetParamType(const AParamName: String;
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
       : TFDParam;
@@ -245,8 +245,8 @@ begin
       end;
     }
   end
-  else
-    AAction := eaSkip;
+//  else
+//    AAction := eaSkip;
 end;
 
 procedure TQueryBase.DoOnUpdateRecordException(AException: Exception);
@@ -484,8 +484,8 @@ begin
     Assert(Result = TestResult);
 end;
 
-function TQueryBase.SearchEx(AParams: TArray<TParamRec>;
-  TestResult: Integer = -1): Integer;
+function TQueryBase.SearchEx(AParams: TArray<TParamRec>; TestResult: Integer =
+    -1; ASQL: String = ''): Integer;
 var
   AParamNames: TList<String>;
   AFormatStr: string;
@@ -496,7 +496,8 @@ var
 begin
   Assert(Length(AParams) > 0);
 
-  ANewSQL := SQL; // ¬осстанавливаем первоначальный SQL
+  // ¬осстанавливаем первоначальный SQL или используем заданный
+  ANewSQL := IfThen(ASQL.IsEmpty, SQL, ASQL);
 
   for i := Low(AParams) to High(AParams) do
   begin

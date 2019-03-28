@@ -30,15 +30,10 @@ inherited QueryParameterTypes: TQueryParameterTypes
       '        HAVING count( * ) > 1'
       '    )'
       '    ShowDuplicate */    '
-      '    AND ( (tablename = :tablename) or (:tablename = '#39#39') )'
+      '    AND ( 0=0 )'
       '    ORDER BY IDParameterType, [Order]'
       ')'
       'ORDER BY Ord;')
-    ParamData = <
-      item
-        Name = 'TABLENAME'
-        ParamType = ptInput
-      end>
     object FDQueryID: TFDAutoIncField
       FieldName = 'ID'
       Origin = 'ID'

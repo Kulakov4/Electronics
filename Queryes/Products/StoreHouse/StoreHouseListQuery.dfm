@@ -1,8 +1,4 @@
 inherited QueryStoreHouseList: TQueryStoreHouseList
-  Width = 208
-  Height = 86
-  ExplicitWidth = 208
-  ExplicitHeight = 86
   inherited Label1: TLabel
     Width = 99
     Caption = 'StoreHouseList'
@@ -41,7 +37,7 @@ inherited QueryStoreHouseList: TQueryStoreHouseList
       'SELECT ID, EXTERNALID, TITLE, RESPONSIBLE, ADDRESS, ABBREVIATION'
       'FROM STOREHOUSE'
       'WHERE ID = :ID')
-    Left = 152
-    Top = 24
+    Left = 75
+    Top = 25
   end
 end

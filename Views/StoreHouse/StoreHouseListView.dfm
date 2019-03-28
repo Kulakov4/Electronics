@@ -6,6 +6,7 @@ inherited ViewStoreHouse: TViewStoreHouse
     ExplicitHeight = 472
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnCanFocusRecord = cxGridDBBandedTableViewCanFocusRecord
+      OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       Styles.Inactive = cxStyleInactive
     end
   end
@@ -44,18 +45,22 @@ inherited ViewStoreHouse: TViewStoreHouse
       Action = actRenameStorehouse
     end
   end
+  inherited cxGridPopupMenu: TcxGridPopupMenu
+    PopupMenus = <
+      item
+        GridView = cxGridDBBandedTableView
+        HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
+        Index = 0
+        PopupMenu = pmGrid
+      end>
+  end
   object cxStyleRepository1: TcxStyleRepository
     Left = 128
     Top = 160
     PixelsPerInch = 96
     object cxStyleInactive: TcxStyle
-      AssignedValues = [svColor, svFont, svTextColor]
+      AssignedValues = [svColor, svTextColor]
       Color = clHighlight
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
       TextColor = clHighlightText
     end
   end

@@ -5,7 +5,6 @@ inherited QueryBodyData: TQueryBodyData
     ExplicitWidth = 63
   end
   inherited FDQuery: TFDQuery
-    Active = True
     UpdateOptions.AssignedValues = [uvRefreshMode]
     UpdateOptions.RefreshMode = rmAll
     UpdateObject = FDUpdateSQL

@@ -109,7 +109,6 @@ inherited ViewProductsBasket: TViewProductsBasket
         Caption.Text = #1057#1090#1086#1080#1084#1086#1089#1090#1100
         FixedKind = tlbfRight
       end>
-    OnAfterSummary = cxDBTreeListAfterSummary
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -217,7 +216,7 @@ inherited ViewProductsBasket: TViewProductsBasket
         end
         item
           Visible = True
-          ItemName = 'dxBarButton13'
+          ItemName = 'dxbbRubToDollar'
         end>
     end
     inherited dxbsColumns: TdxBarSubItem
@@ -245,9 +244,6 @@ inherited ViewProductsBasket: TViewProductsBasket
     object dxBarButton5: TdxBarButton [19]
       Action = actRollback
       Category = 0
-    end
-    inherited dxBarButton13: TdxBarButton
-      Down = True
     end
   end
   inherited ActionList: TActionList

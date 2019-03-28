@@ -28,6 +28,8 @@ type
 
   TQueryStoreHouseList = class(TQueryBaseEvents)
     FDUpdateSQL: TFDUpdateSQL;
+    procedure FDQueryUpdateError(ASender: TDataSet; AException: EFDException; ARow:
+        TFDDatSRow; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction);
   private
     FW: TStoreHouseListW;
     procedure DoBeforePost(Sender: TObject);
@@ -65,12 +67,21 @@ begin
     raise Exception.Create('Не задано наименование склада');
 
   // Если сокращённое наименование не задано
-  if (FDQuery.State = dsInsert) and W.Abbreviation.F.IsNull then
-  begin
+//  if (FDQuery.State = dsInsert) and W.Abbreviation.F.IsNull then
+//  begin
     W.Abbreviation.F.AsString := DeleteDouble(W.Title.F.AsString, ' ')
       .Replace(' ', '');
-  end;
+//  end;
 
+end;
+
+procedure TQueryStoreHouseList.FDQueryUpdateError(ASender: TDataSet;
+    AException: EFDException; ARow: TFDDatSRow; ARequest: TFDUpdateRequest; var
+    AAction: TFDErrorAction);
+begin
+  inherited;
+  if AException.Message ='[FireDAC][Phys][SQLite] ERROR: UNIQUE constraint failed: Storehouse.Title' then
+    AException.Message := 'Наименование склада должно быть уникальным';
 end;
 
 constructor TStoreHouseListW.Create(AOwner: TComponent);

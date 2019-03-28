@@ -129,7 +129,9 @@ begin
     if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.
       DataBinding.FieldName then
     begin
-      Search(True);
+      if VarToStrDef(FocusedNodeValue(AColumn as TcxDBTreeListColumn), '') <> ''
+      then
+        Search(True);
     end;
   end
   else

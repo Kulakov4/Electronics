@@ -115,7 +115,7 @@ var
   S4: string;
   AValueParamName: string;
 begin
-  Assert(AID >= 0);
+//  Assert(AID >= 0);
   Assert(AIDExtraRangeType >= 0);
 
   AValueParamName := 'Value';
@@ -124,7 +124,7 @@ begin
   S2 := Format(':%s <= %s', [AValueParamName, W.H.FieldName]);
   S3 := Format('%s = :%s', [W.IDExtraChargeType.FieldName,
     W.IDExtraChargeType.FieldName]);
-  S4 := Format('%s <> :%s', [W.PK.FieldName, W.PK.FieldName]);
+  S4 := Format('%s <> :%s', [W.ID.FieldName, W.ID.FieldName]);
 
   AStipulation := Format('(%s) and (%s) and (%s) and (%s)', [S1, S2, S3, S4]);
 
@@ -133,11 +133,11 @@ begin
 
   SetParamType(AValueParamName);
   SetParamType(W.IDExtraChargeType.FieldName);
-  SetParamType(W.PK.FieldName);
+  SetParamType(W.ID.FieldName);
 
   // »щем
   Result := Search([AValueParamName, W.IDExtraChargeType.FieldName,
-    W.PK.FieldName], [AValue, AIDExtraRangeType, AID]);
+    W.ID.FieldName], [AValue, AIDExtraRangeType, AID]);
 end;
 
 constructor TExtraChargeSimpleW.Create(AOwner: TComponent);

@@ -39,7 +39,7 @@ object frmMain: TfrmMain
     Height = 588
     Align = alClient
     TabOrder = 5
-    Properties.ActivePage = cxtshWareHouse
+    Properties.ActivePage = cxtshComp
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcMainChange
     OnPageChanging = cxpcMainPageChanging
@@ -50,10 +50,6 @@ object frmMain: TfrmMain
     object cxtshComp: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cxpcComp2: TcxPageControl
         Left = 0
         Top = 0
@@ -71,10 +67,6 @@ object frmMain: TfrmMain
         object cxtshCompGroup: TcxTabSheet
           Caption = #1055#1086' '#1075#1088#1091#1087#1087#1072#1084
           ImageIndex = 0
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlCompGroupLeft: TPanel
             Left = 0
             Top = 0
@@ -108,7 +100,7 @@ object frmMain: TfrmMain
               Height = 524
               Align = alClient
               TabOrder = 0
-              Properties.ActivePage = cxtsCategoryComponents
+              Properties.ActivePage = cxtsParametricTable
               Properties.CustomButtons.Buttons = <>
               OnPageChanging = cxpcCompGroupRightPageChanging
               ClientRectBottom = 520
@@ -118,34 +110,18 @@ object frmMain: TfrmMain
               object cxtsCategory: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
                 ImageIndex = 0
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
               end
               object cxtsCategoryComponents: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
                 ImageIndex = 1
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
               end
               object cxtsCategoryParameters: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
                 ImageIndex = 2
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
               end
               object cxtsParametricTable: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
                 ImageIndex = 3
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
               end
             end
           end
@@ -153,11 +129,15 @@ object frmMain: TfrmMain
         object cxtshCompSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
+      end
+      object pnlLoad: TPanel
+        Left = 271
+        Top = -3
+        Width = 394
+        Height = 26
+        BevelOuter = bvNone
+        TabOrder = 1
       end
     end
     object cxtshWareHouse: TcxTabSheet
@@ -180,10 +160,6 @@ object frmMain: TfrmMain
         object cxtshWareHouse2: TcxTabSheet
           Caption = #1057#1082#1083#1072#1076#1099
           ImageIndex = 0
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlStoreHouseLeft: TPanel
             Left = 0
             Top = 0
@@ -214,10 +190,6 @@ object frmMain: TfrmMain
         object cxtshBasket: TcxTabSheet
           Caption = #1050#1086#1088#1079#1080#1085#1072
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object cxtshBill: TcxTabSheet
           Caption = #1057#1095#1077#1090#1072
@@ -252,10 +224,6 @@ object frmMain: TfrmMain
         object cxtshSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 3
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
     end
@@ -493,6 +461,11 @@ object frmMain: TfrmMain
     object actComponentsTab: TAction
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       OnExecute = actComponentsTabExecute
+    end
+    object actTest: TAction
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100
+      ImageIndex = 20
+      OnExecute = actTestExecute
     end
   end
   object ApplicationEvents: TApplicationEvents

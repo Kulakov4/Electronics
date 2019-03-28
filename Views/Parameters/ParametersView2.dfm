@@ -273,10 +273,6 @@ inherited ViewParameters2: TViewParameters2
         item
           Visible = True
           ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton19'
         end>
       OneOnRow = False
       Row = 1

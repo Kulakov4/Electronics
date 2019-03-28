@@ -165,6 +165,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
         end>
       object clID2: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
+        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 0
@@ -172,6 +173,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
       object clIDParent: TcxGridDBBandedColumn
         DataBinding.FieldName = 'IDParent'
+        Visible = False
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 1

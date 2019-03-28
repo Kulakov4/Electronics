@@ -2,7 +2,6 @@ inherited ViewBillContent: TViewBillContent
   inherited cxDBTreeList: TcxDBTreeList
     Top = 28
     Height = 551
-    OnAfterSummary = cxDBTreeListAfterSummary
     ExplicitTop = 28
     ExplicitHeight = 551
     inherited clSaleCount: TcxDBTreeListColumn
@@ -93,10 +92,6 @@ inherited ViewBillContent: TViewBillContent
         item
           Visible = True
           ItemName = 'cxbeiTotalR'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton13'
         end>
     end
     inherited dxBarManagerBar2: TdxBar
@@ -112,7 +107,7 @@ inherited ViewBillContent: TViewBillContent
       Action = actApplyBestFit
       Category = 0
     end
-    inherited dxBarButton13: TdxBarButton
+    inherited dxbbRubToDollar: TdxBarButton
       Down = True
     end
   end

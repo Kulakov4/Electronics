@@ -136,7 +136,7 @@ type
     Timer: TTimer;
     dxBarButton12: TdxBarButton;
     cxbeiTotalR: TcxBarEditItem;
-    dxBarButton13: TdxBarButton;
+    dxbbRubToDollar: TdxBarButton;
     actRubToDollar: TAction;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
@@ -297,7 +297,7 @@ uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
   HttpUnit, StrHelper, dxCore, CurrencyUnit, DBLookupComboBoxHelper,
-  DataModule, MaxBillNumberQuery;
+  DataModule, MaxBillNumberQuery, MinWholeSaleForm;
 
 const
   clClickedColor = clRed;
@@ -377,6 +377,12 @@ end;
 procedure TViewProductsBase2.actAddCategoryExecute(Sender: TObject);
 begin
   inherited;
+  if qProductsBase.ParentValue <= 0 then
+  begin
+    TDialog.Create.ErrorMessageDialog('Не выбран склад');
+    Exit;
+  end;
+
   W.AddCategory;
 
   // cxDBTreeList.ApplyBestFit;
@@ -500,22 +506,29 @@ end;
 
 procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
 var
+  AMinWholeSale: Double;
+  ASave: Boolean;
   X: Integer;
 begin
   inherited;
   FqProductsBase.W.TryPost;
 
   // если есть записи, которые были добавлены
-  if FqProductsBase.HaveInsertedRecords then
+  if FqProductsBase.HaveInsertedProducts then
   begin
-    X := TDialog.Create.UseDefaultMinWholeSale(TSettings.Create.MinWholeSale);
+    // X := TDialog.Create.UseDefaultMinWholeSale();
     // Если отмена сохранения
-    if X = IDCANCEL then
-      Exit;
+    // if X = IDCANCEL then
 
-    // Применяем минимальную оптовую наценку
-    if X = IDYES then
-      FqProductsBase.ApplyMinWholeSale(TSettings.Create.MinWholeSale);
+    AMinWholeSale := TSettings.Create.MinWholeSale;
+    if TfrmMinWholeSale.DoShowModal(AMinWholeSale, ASave) then
+    begin
+      if ASave then
+        // Сохоаняем минимальную оптовую наценку по умолчанию в настройках
+        TSettings.Create.MinWholeSale := AMinWholeSale;
+      // Применяем минимальную оптовую наценку
+      FqProductsBase.ApplyMinWholeSale(AMinWholeSale);
+    end;
   end;
 
   // Мы просто завершаем транзакцию
@@ -1019,7 +1032,7 @@ begin
 
   V := Sender.FocusedNode.Values[clIsGroup.ItemIndex];
 
-  if VarIsNull(V) or V <> 1 then
+  if VarToStrDef(V, '') <> '1' then
     Exit;
 
   // Нужно сохранить запись в БД чтобы товар мог ссылаться на неё
@@ -1611,8 +1624,6 @@ begin
 end;
 
 procedure TViewProductsBase2.SetqProductsBase(const Value: TQueryProductsBase);
-var
-  ACount: Integer;
 begin
   if FqProductsBase = Value then
     Exit;
@@ -1637,15 +1648,14 @@ begin
     TNotifyEventWrap.Create(FqProductsBase.OnDollarCourceChange,
       DoOnDollarCourceChange, FEventList);
 
-    ACount := FqProductsBase.OnDollarCourceChange.Count;
-
     TNotifyEventWrap.Create(FqProductsBase.OnEuroCourceChange,
       DoOnEuroCourceChange, FEventList);
 
     TNotifyEventWrap.Create(FqProductsBase.OnRubToDollarChange,
       DoOnRubToDollarChange, FEventList);
     // Обновляем состояние кнопки
-    DoOnRubToDollarChange(nil);
+    actRubToDollar.Checked := FqProductsBase.RubToDollar;
+    dxbbRubToDollar.Down := actRubToDollar.Checked;
 
     // подписываемся на события о смене количества и надбавки
     CreateCountEvents;

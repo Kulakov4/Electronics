@@ -98,7 +98,6 @@ type
     actTestBandsID: TAction;
     actTestBandsID1: TMenuItem;
     actChangeCount: TAction;
-    dxBarButton2: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAutoWidthExecute(Sender: TObject);
     procedure actClearFiltersExecute(Sender: TObject);

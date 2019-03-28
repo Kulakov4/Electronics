@@ -112,9 +112,9 @@ begin
   qExtraChargeSimple.W.IDExtraChargeType.F.Value := W.IDExtraChargeType.F.Value;
   qExtraChargeSimple.W.TryPost;
 
-  Assert(qExtraChargeSimple.W.PK.AsInteger > 0);
+  Assert(qExtraChargeSimple.W.ID.F.AsInteger > 0);
 
-  FetchFields([W.PKFieldName], [qExtraChargeSimple.W.PK.Value], ARequest, AAction,
+  FetchFields([W.PKFieldName], [qExtraChargeSimple.W.ID.F.Value], ARequest, AAction,
     AOptions);
 end;
 

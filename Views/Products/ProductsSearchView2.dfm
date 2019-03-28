@@ -1,7 +1,5 @@
 inherited ViewProductsSearch2: TViewProductsSearch2
   inherited cxDBTreeList: TcxDBTreeList
-    ExplicitTop = 54
-    ExplicitHeight = 525
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -117,7 +115,7 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton13'
+          ItemName = 'dxbbRubToDollar'
         end
         item
           Visible = True
@@ -171,9 +169,6 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       Action = actApplyBestFit
       Category = 0
     end
-    inherited dxBarButton13: TdxBarButton
-      Down = True
-    end
   end
   inherited ActionList: TActionList
     object actPasteFromBuffer: TAction [15]
@@ -183,6 +178,7 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     end
     object actClear: TAction [16]
       Caption = #1054#1095#1080#1089#1090#1080#1090#1100
+      Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1087#1086#1080#1089#1082
       ImageIndex = 10
       OnExecute = actClearExecute
     end

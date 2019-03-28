@@ -28,6 +28,7 @@ type
     FGetModeClone: TFDMemTable;
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
+
   const
     FEmptyAmount = 1;
     function GetCurrentMode: TContentMode;
@@ -154,7 +155,7 @@ begin
   W.SetFieldsReadOnly(False);
 
   // Добавляем пустую запись для поиска, если она необходима
-//  AutoTransaction := True;
+  // AutoTransaction := True;
 
   for I := FDQuery.RecordCount to FEmptyAmount - 1 do
   begin
@@ -171,7 +172,7 @@ begin
   ProductSearchW.FMode := GetCurrentMode;
 
   // Выбираем нужный режим транзакции
-//  AutoTransaction := ProductSearchW.Mode = SearchMode;
+  // AutoTransaction := ProductSearchW.Mode = SearchMode;
 end;
 
 procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
@@ -222,12 +223,15 @@ begin
     // ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
   end;
 
-  p := SQL.IndexOf('1=1');
-  Assert(p > 0);
-  ANewSQL := SQL.Replace('1=1', AConditionSQL);
-  p := ANewSQL.IndexOf('2=2');
-  Assert(p > 0);
-  ANewSQL := ANewSQL.Replace('2=2', AConditionSQL);
+  if AConditionSQL <> '' then
+  begin
+    p := SQL.IndexOf('1=1');
+    Assert(p > 0);
+    ANewSQL := SQL.Replace('1=1', AConditionSQL);
+    p := ANewSQL.IndexOf('2=2');
+    Assert(p > 0);
+    ANewSQL := ANewSQL.Replace('2=2', AConditionSQL);
+  end;
 
   FDQuery.Close;
   FDQuery.SQL.Text := ANewSQL;

@@ -346,24 +346,23 @@ end;
 procedure TViewParameters2.actFilterByTableNameExecute(Sender: TObject);
 var
   AID: Variant;
-  S: string;
+  ATableName: string;
 begin
+  Application.Hint := '';
+  ParametersGrp.qParameterTypes.W.TryPost;
+  ParametersGrp.qParameters.W.TryPost;
+
   actFilterByTableName.Checked := not actFilterByTableName.Checked;
   AID := ParametersGrp.qParameters.W.PK.Value;
 
-  S := IfThen(actFilterByTableName.Checked,
+  ATableName := IfThen(actFilterByTableName.Checked,
     ParametersGrp.qParameters.W.TableName.F.AsString, '');
 
   BeginUpdate();
   try
-    ParametersGrp.qParameterTypes.W.TryPost;
-    ParametersGrp.qParameters.W.TryPost;
-    // ParametersGrp.qSubParameters.TryPost;
-
-    // Фильтруем параметры по табличному имени
-    ParametersGrp.qParameters.SearchByTableName(S);
-    // Фильтруем типы параметров по табличному имени
-    ParametersGrp.qParameterTypes.SearchByTableName(S);
+    ParametersGrp.qParameterTypes.ApplyFilter(actShowDuplicate.Checked,
+      ATableName);
+    ParametersGrp.qParameters.ApplyFilter(actShowDuplicate.Checked, ATableName);
   finally
     EndUpdate;
   end;
@@ -444,22 +443,30 @@ end;
 procedure TViewParameters2.actShowDuplicateExecute(Sender: TObject);
 var
   AID: Variant;
-  d: Boolean;
+  ATableName: string;
 begin
   inherited;
 
   Application.Hint := '';
+  ParametersGrp.qParameterTypes.W.TryPost;
+  ParametersGrp.qParameters.W.TryPost;
+
   AID := ParametersGrp.qParameters.W.PK.Value;
 
-  d := not ParametersGrp.qParameters.ShowDuplicate;
-  actShowDuplicate.Checked := d;
+  actShowDuplicate.Checked := not actShowDuplicate.Checked;
+
+  // Если Показать всё
+  if not actShowDuplicate.Checked then
+    actFilterByTableName.Checked := False;
+
+  ATableName := IfThen(actFilterByTableName.Checked,
+    ParametersGrp.qParameters.W.TableName.F.AsString, '');
 
   BeginUpdate();
   try
-    ParametersGrp.qParameterTypes.W.TryPost;
-    ParametersGrp.qParameters.W.TryPost;
-    ParametersGrp.qParameterTypes.ShowDuplicate := d;
-    ParametersGrp.qParameters.ShowDuplicate := d;
+    ParametersGrp.qParameterTypes.ApplyFilter(actShowDuplicate.Checked,
+      ATableName);
+    ParametersGrp.qParameters.ApplyFilter(actShowDuplicate.Checked, ATableName);
   finally
     EndUpdate;
   end;

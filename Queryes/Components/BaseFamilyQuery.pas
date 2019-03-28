@@ -74,10 +74,10 @@ procedure TQueryBaseFamily.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateReq
   var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
 begin
   Assert(ASender = FDQuery);
-  if W.PK.AsInteger > 0 then
+  if W.ID.F.AsInteger > 0 then
   begin
     // Удаляем компонент из всех категорий
-    UpdateCategory(W.PK.AsInteger, '');
+    UpdateCategory(W.ID.F.AsInteger, '');
 
     // Удаляем сам компонент
     qProducts.DeleteRecord(W.PK.AsInteger);

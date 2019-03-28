@@ -139,6 +139,7 @@ begin
   FIDSubParameter := TFieldWrap.Create(Self, 'psp.IDSubParameter');
   FName := TFieldWrap.Create(Self, 'Name');
   FTranslation := TFieldWrap.Create(Self, 'Translation');
+  FChecked := TFieldWrap.Create(Self, 'Checked');
 
   // Параметры SQL запроса
   FProductCategoryId := TParamWrap.Create(Self, 'cp.ProductCategoryId');

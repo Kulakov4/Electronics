@@ -126,6 +126,8 @@ begin
 
   // Если надо, будем запоминать значения перед сохранением
   TNotifyEventWrap.Create(W.AfterEdit, DoAfterEdit, W.EventList);
+
+  FDQuery.CachedUpdates := False;
 end;
 
 destructor TQueryCustomComponents.Destroy;

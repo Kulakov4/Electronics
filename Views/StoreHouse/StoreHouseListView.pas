@@ -43,9 +43,13 @@ type
     procedure cxGridDBBandedTableViewCanFocusRecord
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       var AAllow: Boolean);
+    procedure cxGridDBBandedTableViewEditValueChanged
+      (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
   private
     FOnCanFocusRecord: TNotifyEventsEx;
+    FPosting: Boolean;
     FqStoreHouseList: TQueryStoreHouseList;
+    procedure DoBeforeMonitorApplyUpdates(Sender: TObject);
     function GetclAbbreviation: TcxGridDBBandedColumn;
     function GetclTitle: TcxGridDBBandedColumn;
     function GetW: TStoreHouseListW;
@@ -95,6 +99,7 @@ end;
 
 procedure TViewStoreHouse.actAddStorehouseExecute(Sender: TObject);
 begin
+  MainView.OptionsSelection.CellSelect := True;
   MainView.Controller.ClearSelection;
   MainView.DataController.Append;
   FocusColumnEditor(0, W.Title.FieldName);
@@ -104,6 +109,7 @@ end;
 
 procedure TViewStoreHouse.actRenameStorehouseExecute(Sender: TObject);
 begin
+  MainView.OptionsSelection.CellSelect := True;
   MainView.Controller.ClearSelection;
   MainView.DataController.Edit;
   FocusColumnEditor(0, W.Title.FieldName);
@@ -124,6 +130,50 @@ begin
     AAllow := AOnCanFocusRecord.Allow;
   finally
     FreeAndNil(AOnCanFocusRecord);
+  end;
+end;
+
+procedure TViewStoreHouse.cxGridDBBandedTableViewEditValueChanged
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
+begin
+  inherited;
+  if FPosting then Exit;
+
+  if VarToStrDef(MainView.Controller.EditingController.Edit.EditingValue, '') <> ''
+  then
+    MainView.DataController.Post()
+  else
+    MainView.DataController.Cancel;
+
+  MainView.OptionsSelection.CellSelect := False;
+  UpdateView;
+end;
+
+procedure TViewStoreHouse.DoBeforeMonitorApplyUpdates(Sender: TObject);
+var
+  OK: Boolean;
+begin
+  if MainView.Controller.EditingItem = nil then
+    Exit;
+
+  FPosting := True;
+  try
+    // Если в настоящий момент происходит редактирование
+    if VarToStrDef(MainView.Controller.EditingController.Edit.EditingValue, '')
+      <> '' then
+    begin
+      OK := Assigned(qStoreHouseList.FDQuery.BeforePost);
+      qStoreHouseList.W.TryPost
+    end
+    // MainView.DataController.Post()
+    else
+      MainView.DataController.Cancel;
+
+    MainView.OptionsSelection.CellSelect := False;
+    UpdateView;
+
+  finally
+    FPosting := False;
   end;
 end;
 
@@ -164,7 +214,11 @@ begin
   MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
   MainView.OptionsSelection.HideSelection := False;
 
-  MainView.Controller.FocusedRow.Selected := True;
+  if MainView.Controller.FocusedRow <> nil then
+    MainView.Controller.FocusedRow.Selected := True;
+
+  TNotifyEventWrap.Create(qStoreHouseList.Monitor.BeforeApplyUpdates,
+    DoBeforeMonitorApplyUpdates, FEventList);
 
   clAbbreviation.Visible := False;
   MainView.ApplyBestFit;
