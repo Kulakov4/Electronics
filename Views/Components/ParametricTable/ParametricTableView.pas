@@ -36,7 +36,7 @@ uses
   BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
   CategoryParametersQuery2, cxCheckBox, cxBarEditItem,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  BaseComponentsGroupUnit2;
+  BaseComponentsGroupUnit2, DSWrap;
 
 type
   TParametricTableLockInfo = class
@@ -189,6 +189,7 @@ type
     procedure ApplyFilter;
     function CreateBandInfoEx(AViewArray: TArray<TcxGridDBBandedTableView>;
       const AIDList: TArray<Integer>): TBandInfoEx;
+    function CreateColInfoArray: TArray<TColInfo>; override;
     procedure CreateColumnsBarButtons; override;
     procedure CreateColumnsForBand(AIDCategoryParam: Integer);
     procedure CreateDetailFilter;
@@ -201,6 +202,7 @@ type
     procedure DropColumn(AIDCategoryParam: Integer);
     function GetBandCaption(qryCategoryParameters
       : TQueryCategoryParameters2): string;
+    procedure InitColumns; override;
     procedure InitializeBandInfo(ABandInfo: TBandInfoEx;
       const AIDList: TArray<Integer>;
       qCategoryParameters2: TQueryCategoryParameters2);
@@ -889,8 +891,8 @@ begin
     if not ABI.Band.Visible then
       Continue;
 
-//    if ABI.IDList.Count = 0 then
-//      beep;
+    // if ABI.IDList.Count = 0 then
+    // beep;
   end;
 end;
 
@@ -1292,7 +1294,7 @@ procedure TViewParametricTable.DoOnMasterDetailChange;
 begin
   inherited;
   Assert(not FLockInfo.Locked);
-  if BaseComponentsGroup <> nil then
+  if BaseCompGrp <> nil then
   begin
     FMark := ComponentsExGroup.Mark;
 
@@ -1376,7 +1378,7 @@ end;
 
 function TViewParametricTable.GetComponentsExGroup: TComponentsExGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsExGroup2;
+  Result := BaseCompGrp as TComponentsExGroup2;
 end;
 
 procedure TViewParametricTable.InitializeDefaultCreatedBands
@@ -1421,7 +1423,7 @@ end;
 procedure TViewParametricTable.SetComponentsExGroup
   (const Value: TComponentsExGroup2);
 begin
-  BaseComponentsGroup := Value;
+  BaseCompGrp := Value;
 end;
 
 procedure TViewParametricTable.BandTimerTimer(Sender: TObject);
@@ -1483,6 +1485,20 @@ begin
   finally
     FreeAndNil(ABandList);
   end;
+end;
+
+function TViewParametricTable.CreateColInfoArray: TArray<TColInfo>;
+Var
+  W: TCustomComponentsW;
+begin
+  W := BaseCompGrp.qBaseFamily.W;
+  Result := [TColInfo.Create(W.ID, 0), TColInfo.Create(W.Value, 0,
+    W.Value.DisplayLabel), TColInfo.Create(W.Producer, 1, W.Producer.FieldName),
+    TColInfo.Create(W.DescriptionComponentName, 2,
+    W.DescriptionComponentName.FieldName), TColInfo.Create(W.Datasheet, 3,
+    W.Datasheet.FieldName), TColInfo.Create(W.Diagram, 4, W.Diagram.FieldName),
+    TColInfo.Create(W.Drawing, 5, W.Drawing.FieldName),
+    TColInfo.Create(W.Image, 6, W.Image.FieldName)]
 end;
 
 procedure TViewParametricTable.CreateColumn(AViewArray
@@ -1824,6 +1840,25 @@ begin
   Result := b;
 end;
 
+procedure TViewParametricTable.InitColumns;
+var
+  ACol: TcxGridDBBandedColumn;
+  AView: TcxGridDBBandedTableView;
+  i: Integer;
+begin
+  inherited;
+
+  for AView in ViewArr do
+  begin
+    // Все колонки очередного представления
+    for i := 0 to AView.ColumnCount - 1 do
+    begin
+      ACol := AView.Columns[i];
+      ACol.Caption := ' ';
+    end;
+  end;
+end;
+
 procedure TViewParametricTable.InitializeBandInfo(ABandInfo: TBandInfoEx;
   const AIDList: TArray<Integer>;
   qCategoryParameters2: TQueryCategoryParameters2);
@@ -1873,10 +1908,10 @@ begin
   Assert(not FLockInfo.Locked);
 
   // Запоминаем, к каким данным мы сейчас были подключены
-  FLockInfo.BaseComponentsGroup := BaseComponentsGroup;
+  FLockInfo.BaseComponentsGroup := BaseCompGrp;
 
   // Отключаемся от данных
-  BaseComponentsGroup := nil;
+  BaseCompGrp := nil;
 
   FLockInfo.Locked := True;
 end;
@@ -2155,11 +2190,11 @@ end;
 procedure TViewParametricTable.Unlock;
 begin
   Assert(FLockInfo.Locked);
-  Assert(BaseComponentsGroup = nil);
+  Assert(BaseCompGrp = nil);
   FLockInfo.Locked := false;
 
   // Подключаем представление к данным
-  BaseComponentsGroup := FLockInfo.BaseComponentsGroup;
+  BaseCompGrp := FLockInfo.BaseComponentsGroup;
 end;
 
 procedure TViewParametricTable.UpdateBandsCaptions;

@@ -181,7 +181,7 @@ end;
 function TViewComponentsSearch.GetComponentsSearchGroup
   : TComponentsSearchGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsSearchGroup2;
+  Result := BaseCompGrp as TComponentsSearchGroup2;
 end;
 
 procedure TViewComponentsSearch.OnGridRecordCellPopupMenu
@@ -215,13 +215,7 @@ end;
 procedure TViewComponentsSearch.SetComponentsSearchGroup
   (const Value: TComponentsSearchGroup2);
 begin
-  if BaseComponentsGroup <> Value then
-  begin
-    BaseComponentsGroup := Value;
-
-    // Обновляем представление
-    UpdateView;
-  end;
+  BaseCompGrp := Value;
 end;
 
 procedure TViewComponentsSearch.UpdateView;

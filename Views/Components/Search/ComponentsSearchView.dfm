@@ -103,4 +103,7 @@ inherited ViewComponentsSearch: TViewComponentsSearch
       Properties.OnChange = cxFieldValueWithExpandPropertiesChange
     end
   end
+  inherited cxEditRepository1: TcxEditRepository
+    PixelsPerInch = 96
+  end
 end

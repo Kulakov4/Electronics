@@ -62,31 +62,21 @@ type
     dxBarButton1: TdxBarButton;
     procedure actRefreshExecute(Sender: TObject);
     procedure actShowParametricTableExecute(Sender: TObject);
-    procedure cxGridDBBandedTableViewSelectionChanged
-      (Sender: TcxCustomGridTableView);
   private
-    FCountEvents: TObjectList;
     FOnShowParametricTableEvent: TNotifyEventsEx;
-    procedure DoOnUpdateComponentsCount(Sender: TObject);
-    procedure DoOnUpdateFamilyCount(Sender: TObject);
     function GetComponentsGroup: TComponentsGroup2;
     procedure SetComponentsGroup(const Value: TComponentsGroup2);
-    procedure UpdateSelectedCount;
-    procedure UpdateTotalComponentCount;
     { Private declarations }
   protected
-    procedure CreateCountEvents;
     // TODO: LoadFromDirectory
     // function LoadFromDirectory(ADocFieldInfo: TDocFieldInfo): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure BeginUpdate; override;
-    procedure EndUpdate; override;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
-    property ComponentsGroup: TComponentsGroup2 read GetComponentsGroup write
-        SetComponentsGroup;
+    property ComponentsGroup: TComponentsGroup2 read GetComponentsGroup
+      write SetComponentsGroup;
     property OnShowParametricTableEvent: TNotifyEventsEx
       read FOnShowParametricTableEvent;
     { Public declarations }
@@ -104,19 +94,13 @@ uses RepositoryDataModule, ComponentsExcelDataModule, ImportErrorForm,
 constructor TViewComponents.Create(AOwner: TComponent);
 begin
   inherited;
-
-  FCountEvents := TObjectList.Create;
-
   // Событие о отображении формы с параметрической таблицей
   FOnShowParametricTableEvent := TNotifyEventsEx.Create(Self);
-
-  StatusBarEmptyPanelIndex := 3;
 end;
 
 destructor TViewComponents.Destroy;
 begin
   FreeAndNil(FOnShowParametricTableEvent);
-  FreeAndNil(FCountEvents);
   inherited;
 end;
 
@@ -137,76 +121,9 @@ begin
   UpdateView;
 end;
 
-procedure TViewComponents.DoOnUpdateComponentsCount(Sender: TObject);
-begin
-  // Выводим кол-во дочерних наименований
-  StatusBar.Panels[1].Text :=
-    Format('%d', [ComponentsGroup.qComponents.FDQuery.RecordCount]);
-end;
-
-procedure TViewComponents.DoOnUpdateFamilyCount(Sender: TObject);
-begin
-  if ComponentsGroup.qFamily.FDQuery.State = dsBrowse then
-  begin
-    // Выводим кол-во родительских наименований
-    StatusBar.Panels[0].Text :=
-      Format('%d', [ComponentsGroup.qFamily.FDQuery.RecordCount]);
-
-    UpdateTotalComponentCount;
-  end;
-end;
-
-procedure TViewComponents.BeginUpdate;
-begin
-  // Отписываемся от событий о смене кол-ва
-  if UpdateCount = 0 then
-    FCountEvents.Clear;
-
-  inherited;
-end;
-
-procedure TViewComponents.CreateCountEvents;
-begin
-  // Подписываемся на события чтобы отслеживать кол-во
-  TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterPostM,
-    DoOnUpdateFamilyCount, FCountEvents);
-
-  TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterOpen,
-    DoOnUpdateFamilyCount, FCountEvents);
-
-  TNotifyEventWrap.Create(ComponentsGroup.qFamily.W.AfterDelete,
-    DoOnUpdateFamilyCount, FCountEvents);
-
-  TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterPostM,
-    DoOnUpdateComponentsCount, FCountEvents);
-
-  TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterOpen,
-    DoOnUpdateComponentsCount, FEventList);
-
-  TNotifyEventWrap.Create(ComponentsGroup.qComponents.W.AfterDelete,
-    DoOnUpdateComponentsCount, FCountEvents);
-
-  DoOnUpdateComponentsCount(nil);
-  DoOnUpdateFamilyCount(nil);
-  UpdateTotalComponentCount;
-end;
-
-procedure TViewComponents.cxGridDBBandedTableViewSelectionChanged
-  (Sender: TcxCustomGridTableView);
-begin
-  UpdateSelectedCount;
-end;
-
-procedure TViewComponents.EndUpdate;
-begin
-  inherited;
-  if UpdateCount = 0 then
-    CreateCountEvents;
-end;
-
 function TViewComponents.GetComponentsGroup: TComponentsGroup2;
 begin
-  Result := BaseComponentsGroup as TComponentsGroup2;
+  Result := BaseCompGrp as TComponentsGroup2;
 end;
 
 procedure TViewComponents.LoadFromExcelDocument(const AFileName,
@@ -224,8 +141,8 @@ begin
           AProducer);
       end);
 
-     // Тут некоторые узлы почему-то разворачиваются
-     MainView.ViewData.Collapse(True);
+    // Тут некоторые узлы почему-то разворачиваются
+    MainView.ViewData.Collapse(True);
   finally
     EndUpdate;
   end;
@@ -310,30 +227,7 @@ end;
 
 procedure TViewComponents.SetComponentsGroup(const Value: TComponentsGroup2);
 begin
-  if BaseComponentsGroup <> Value then
-  begin
-    BaseComponentsGroup := Value;
-
-    if BaseComponentsGroup <> nil then
-    begin
-      if UpdateCount = 0 then
-        CreateCountEvents;
-    end;
-  end;
-end;
-
-procedure TViewComponents.UpdateSelectedCount;
-begin
-  if UpdateCount = 0 then
-
-    StatusBar.Panels[2].Text :=
-      Format('%d', [MainView.DataController.GetSelectedCount]);
-end;
-
-procedure TViewComponents.UpdateTotalComponentCount;
-begin
-  // Общее число компонентов на в БД
-  StatusBar.Panels[4].Text := Format('Всего: %d', [ComponentsGroup.TotalCount]);
+  BaseCompGrp := Value;
 end;
 
 end.

@@ -232,20 +232,20 @@ constructor TCustomComponentsW.Create(AOwner: TComponent);
 begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
-  FDatasheet := TFieldWrap.Create(Self, 'Datasheet');
-  FDiagram := TFieldWrap.Create(Self, 'Diagram');
-  FDrawing := TFieldWrap.Create(Self, 'Drawing');
+  FDatasheet := TFieldWrap.Create(Self, 'Datasheet', 'Спецификация');
+  FDiagram := TFieldWrap.Create(Self, 'Diagram', 'Схема');
+  FDrawing := TFieldWrap.Create(Self, 'Drawing', 'Чертёж');
   FIDDatasheet := TFieldWrap.Create(Self, 'IDDatasheet');
   FIDDiagram := TFieldWrap.Create(Self, 'IDDiagram');
   FIDDrawing := TFieldWrap.Create(Self, 'IDDrawing');
   FIDImage := TFieldWrap.Create(Self, 'IDImage');
   FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
-  FImage := TFieldWrap.Create(Self, 'Image');
-  FPackagePins := TFieldWrap.Create(Self, 'PackagePins');
+  FImage := TFieldWrap.Create(Self, 'Image', 'Изображение');
+  FPackagePins := TFieldWrap.Create(Self, 'PackagePins', 'Корпус');
   FParentProductID := TFieldWrap.Create(Self, 'ParentProductID');
-  FProducer := TFieldWrap.Create(Self, 'Producer');
-  FSubGroup := TFieldWrap.Create(Self, 'SubGroup');
-  FValue := TFieldWrap.Create(Self, 'Value');
+  FProducer := TFieldWrap.Create(Self, 'Producer', 'Производитель');
+  FSubGroup := TFieldWrap.Create(Self, 'SubGroup', 'Группа компонентов');
+  FValue := TFieldWrap.Create(Self, 'Value', 'Наименование');
 end;
 
 function TCustomComponentsW.GetqSearchProductParameterValues

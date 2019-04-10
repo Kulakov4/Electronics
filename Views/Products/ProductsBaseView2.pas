@@ -508,7 +508,6 @@ procedure TViewProductsBase2.actCommitExecute(Sender: TObject);
 var
   AMinWholeSale: Double;
   ASave: Boolean;
-  X: Integer;
 begin
   inherited;
   FqProductsBase.W.TryPost;

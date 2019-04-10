@@ -49,26 +49,14 @@ type
 
   TComponentsGroup2 = class(TBaseComponentsGroup2)
   private
-    FNeedUpdateCount: Boolean;
     FqComponents: TQueryComponents;
     FqFamily: TQueryFamily;
-    FQueryComponentsCount: TQueryComponentsCount;
-    FQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
-    procedure AfterComponentPostOrDelete(Sender: TObject);
     function GetqComponents: TQueryComponents;
     function GetqFamily: TQueryFamily;
-    function GetQueryComponentsCount: TQueryComponentsCount;
-    function GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
-    function GetTotalCount: Integer;
   protected
     procedure DoBeforeDetailPost(Sender: TObject);
-    property QueryComponentsCount: TQueryComponentsCount
-      read GetQueryComponentsCount;
-    property QueryEmptyFamilyCount: TQueryEmptyFamilyCount
-      read GetQueryEmptyFamilyCount;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure Commit; override;
     procedure DoAfterLoadSheet(e: TFolderLoadEvent);
     procedure DoOnTotalProgress(e: TFolderLoadEvent);
     procedure LoadDataFromExcelTable(AComponentsExcelTable
@@ -80,7 +68,6 @@ type
       const AProducer: String);
     property qComponents: TQueryComponents read GetqComponents;
     property qFamily: TQueryFamily read GetqFamily;
-    property TotalCount: Integer read GetTotalCount;
   end;
 
 implementation
@@ -102,25 +89,6 @@ begin
 
   TNotifyEventWrap.Create(qComponents.W.BeforePost, DoBeforeDetailPost,
     EventList);
-  TNotifyEventWrap.Create(qFamily.W.AfterPostM, AfterComponentPostOrDelete,
-    EventList);
-  TNotifyEventWrap.Create(qFamily.W.AfterDelete, AfterComponentPostOrDelete,
-    EventList);
-  TNotifyEventWrap.Create(qComponents.W.AfterPostM, AfterComponentPostOrDelete,
-    EventList);
-  TNotifyEventWrap.Create(qComponents.W.AfterDelete, AfterComponentPostOrDelete,
-    EventList);
-end;
-
-procedure TComponentsGroup2.AfterComponentPostOrDelete(Sender: TObject);
-begin
-  FNeedUpdateCount := True;
-end;
-
-procedure TComponentsGroup2.Commit;
-begin
-  inherited;
-  FNeedUpdateCount := True;
 end;
 
 procedure TComponentsGroup2.DoAfterLoadSheet(e: TFolderLoadEvent);
@@ -202,46 +170,6 @@ begin
     FqFamily := TQueryFamily.Create(Self);
 
   Result := FqFamily;
-end;
-
-function TComponentsGroup2.GetQueryComponentsCount: TQueryComponentsCount;
-begin
-  if FQueryComponentsCount = nil then
-  begin
-    FQueryComponentsCount := TQueryComponentsCount.Create(Self);
-    FQueryComponentsCount.FDQuery.Connection := qFamily.FDQuery.Connection;
-  end;
-  Result := FQueryComponentsCount;
-end;
-
-function TComponentsGroup2.GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
-begin
-  if FQueryEmptyFamilyCount = nil then
-  begin
-    FQueryEmptyFamilyCount := TQueryEmptyFamilyCount.Create(Self);
-    FQueryEmptyFamilyCount.FDQuery.Connection := qFamily.FDQuery.Connection;
-  end;
-  Result := FQueryEmptyFamilyCount;
-end;
-
-function TComponentsGroup2.GetTotalCount: Integer;
-var
-  x: Integer;
-begin
-  if FNeedUpdateCount or not QueryEmptyFamilyCount.FDQuery.Active then
-  begin
-    // Обновляем кол-во компонентов без семей
-    QueryEmptyFamilyCount.FDQuery.Close;
-    QueryEmptyFamilyCount.FDQuery.Open;
-
-    // Обновляем кол-во дочерних компонентов
-    QueryComponentsCount.FDQuery.Close;
-    QueryComponentsCount.FDQuery.Open;
-
-    FNeedUpdateCount := false;
-  end;
-  x := QueryEmptyFamilyCount.Count + QueryComponentsCount.Count;
-  Result := x;
 end;
 
 procedure TComponentsGroup2.LoadDataFromExcelTable(AComponentsExcelTable

@@ -97,7 +97,7 @@ type
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit; var Key: Word;
       Shift: TShiftState);
   private
-    FBaseComponentsGroup: TBaseComponentsGroup2;
+    FBaseCompGrp: TBaseComponentsGroup2;
     FDeleteFromAllCategories: Boolean;
     FEditingValue: Variant;
     FIsSyncScrollbars: Boolean;
@@ -106,7 +106,7 @@ type
     FQuerySubGroups: TfrmQuerySubGroups;
     function GetQuerySubGroups: TfrmQuerySubGroups;
     procedure PostMessageUpdateDetailColumnsWidth;
-    procedure SetBaseComponentsGroup(const Value: TBaseComponentsGroup2);
+    procedure SetBaseCompGrp(const Value: TBaseComponentsGroup2);
     procedure SyncScrollbarPositions;
     procedure UpdateSelectedValues(AView: TcxGridDBBandedTableView);
     { Private declarations }
@@ -135,8 +135,8 @@ type
     function CheckAndSaveChanges: Integer;
     procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure UpdateView; override;
-    property BaseComponentsGroup: TBaseComponentsGroup2
-      read FBaseComponentsGroup write SetBaseComponentsGroup;
+    property BaseCompGrp: TBaseComponentsGroup2 read FBaseCompGrp write
+        SetBaseCompGrp;
     { Public declarations }
   end;
 
@@ -166,8 +166,7 @@ begin
 
   AView.DataController.Append;
 
-  FocusColumnEditor(AView, BaseComponentsGroup.QueryBaseFamily.W.Value.
-    FieldName);
+  FocusColumnEditor(AView, BaseCompGrp.qBaseFamily.W.Value.FieldName);
 
   UpdateView;
 end;
@@ -188,7 +187,7 @@ var
   AView: TcxGridDBBandedTableView;
 begin
   // Сначала сохраняем семейство компонентов
-  BaseComponentsGroup.QueryBaseFamily.W.TryPost;
+  BaseCompGrp.qBaseFamily.W.TryPost;
 
   // Разворачиваем представление 2-го уровня
   AView := ExpandDetail;
@@ -196,7 +195,7 @@ begin
   // Сначала добавляем запись, потом разворачиваем
   AView.DataController.Append;
 
-  FocusColumnEditor(AView, BaseComponentsGroup.QueryBaseComponents.W.Value.
+  FocusColumnEditor(AView, BaseCompGrp.qBaseComponents.W.Value.
     FieldName);
 
   UpdateView;
@@ -204,7 +203,7 @@ end;
 
 procedure TViewComponentsParent.actCommitExecute(Sender: TObject);
 begin
-  BaseComponentsGroup.Commit;
+  BaseCompGrp.Commit;
   UpdateView;
 end;
 
@@ -212,7 +211,7 @@ procedure TViewComponentsParent.actRollbackExecute(Sender: TObject);
 begin
   cxGrid.BeginUpdate();
   try
-    BaseComponentsGroup.Rollback;
+    BaseCompGrp.Rollback;
   finally
     cxGrid.EndUpdate;
   end;
@@ -348,13 +347,13 @@ end;
 function TViewComponentsParent.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
-  if FBaseComponentsGroup = nil then
+  if FBaseCompGrp = nil then
     Exit;
 
   UpdateView;
 
   // Если есть несохранённые изменения
-  if BaseComponentsGroup.HaveAnyChanges then
+  if BaseCompGrp.HaveAnyChanges then
   begin
     Result := TDialog.Create.SaveDataDialog;
     case Result of
@@ -391,7 +390,7 @@ begin
 
   // В режиме редактирования - доступ в зависимости от состояния
   AReadOnly := (not VarIsNull(V)) and
-    (not BaseComponentsGroup.QueryBaseComponents.W.IsRecordModifed(V));
+    (not BaseCompGrp.qBaseComponents.W.IsRecordModifed(V));
 
   if AReadOnly then
     AProperties := cxertiValueRO.Properties
@@ -411,13 +410,13 @@ begin
     Exit;
 
   HavDetails := False;
-  if BaseComponentsGroup <> nil then
+  if BaseCompGrp <> nil then
   begin
     V := ARecord.Values[0];
     if not VarIsNull(V) then
     begin
       AID := V;
-      HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
+      HavDetails := BaseCompGrp.qBaseComponents.Exists(AID);
     end;
   end;
 
@@ -453,10 +452,10 @@ begin
   begin
     AID := V;
     // Смотрим, есть ли у семейства компоненты
-    HavDetails := BaseComponentsGroup.QueryBaseComponents.Exists(AID);
+    HavDetails := BaseCompGrp.qBaseComponents.Exists(AID);
 
     // Только для чтения те записи, которые не модифицировались
-    AReadOnly := not BaseComponentsGroup.QueryBaseFamily.W.IsRecordModifed(AID);
+    AReadOnly := not BaseCompGrp.qBaseFamily.W.IsRecordModifed(AID);
   end;
 
   if HavDetails then
@@ -623,34 +622,44 @@ end;
 
 procedure TViewComponentsParent.DoOnMasterDetailChange;
 begin
-  if FBaseComponentsGroup <> nil then
+  if FBaseCompGrp <> nil then
   begin
-    // Привязываем вью к данным
-    MainView.DataController.DataSource :=
-      BaseComponentsGroup.QueryBaseFamily.W.DataSource;
+    with MainView do
+    begin
+      DataController.DataSource :=  BaseCompGrp.qBaseFamily.W.DataSource;
+      DataController.KeyFieldNames := BaseCompGrp.qBaseFamily.W.ID.FieldName;
+      OptionsData.Deleting := False;
+      OptionsData.DeletingConfirmation := False;
+      OptionsData.Inserting := False;
+      OptionsView.ColumnAutoWidth := False;
+    end;
+
+
     cxGridDBBandedTableView2.DataController.DataSource :=
-      FBaseComponentsGroup.QueryBaseComponents.W.DataSource;
+      FBaseCompGrp.qBaseComponents.W.DataSource;
 
     // Подписываемся на события
-    if FBaseComponentsGroup.QueryBaseComponents.Master <> nil then
+    if FBaseCompGrp.qBaseComponents.Master <> nil then
     begin
       // Компоненты у нас загружаются первыми
-      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
-        BeforeOpen, DoBeforeOpenOrRefresh, FEventList);
+      TNotifyEventWrap.Create(FBaseCompGrp.qBaseComponents.W.BeforeOpen,
+        DoBeforeOpenOrRefresh, FEventList);
 
-      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
-        BeforeRefresh, DoBeforeOpenOrRefresh, FEventList);
+      TNotifyEventWrap.Create
+        (FBaseCompGrp.qBaseComponents.W.BeforeRefresh,
+        DoBeforeOpenOrRefresh, FEventList);
 
-      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
-        AfterRefresh, DoAfterOpenOrRefresh, FEventList);
+      TNotifyEventWrap.Create
+        (FBaseCompGrp.qBaseComponents.W.AfterRefresh,
+        DoAfterOpenOrRefresh, FEventList);
 
-      TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.W.
-        AfterOpen, DoAfterOpenOrRefresh, FEventList);
+      TNotifyEventWrap.Create(FBaseCompGrp.qBaseComponents.W.AfterOpen,
+        DoAfterOpenOrRefresh, FEventList);
 
     end;
 
     // Пусть нам монитор сообщает об изменениях в БД
-    TNotifyEventWrap.Create(FBaseComponentsGroup.QueryBaseComponents.Monitor.
+    TNotifyEventWrap.Create(FBaseCompGrp.qBaseComponents.Monitor.
       OnHaveAnyChanges, DoOnHaveAnyChanges, FEventList);
   end;
   UpdateView;
@@ -681,7 +690,7 @@ begin
   if FQuerySubGroups = nil then
   begin
     FQuerySubGroups := TfrmQuerySubGroups.Create(Self);
-    FQuerySubGroups.FDQuery.Connection := BaseComponentsGroup.Connection;
+    FQuerySubGroups.FDQuery.Connection := BaseCompGrp.Connection;
   end;
   Result := FQuerySubGroups;
 end;
@@ -726,13 +735,13 @@ begin
       for i := 0 to AController.SelectedRowCount - 1 do
       begin
         X := AController.SelectedRows[i].Values[clID.Index];
-        BaseComponentsGroup.FullDeleted.Add(X);
+        BaseCompGrp.FullDeleted.Add(X);
       end;
     end
     else
     begin
       X := AController.FocusedRecord.Values[clID.Index];
-      BaseComponentsGroup.FullDeleted.Add(X);
+      BaseCompGrp.FullDeleted.Add(X);
     end;
   end;
 
@@ -774,12 +783,12 @@ begin
 
 end;
 
-procedure TViewComponentsParent.SetBaseComponentsGroup
-  (const Value: TBaseComponentsGroup2);
+procedure TViewComponentsParent.SetBaseCompGrp(const Value:
+    TBaseComponentsGroup2);
 begin
-  if FBaseComponentsGroup <> Value then
+  if FBaseCompGrp <> Value then
   begin
-    FBaseComponentsGroup := Value;
+    FBaseCompGrp := Value;
 
     FEventList.Clear; // Отписываемся от старых событий
 
@@ -948,7 +957,7 @@ var
   Ok: Boolean;
   S: string;
 begin
-  Ok := BaseComponentsGroup <> nil;
+  Ok := BaseCompGrp <> nil;
   AView := FocusedTableView;
 
   // Удалить из всех категорий можно только родительский компонент
@@ -964,10 +973,10 @@ begin
 
   if Ok and (AView <> nil) and (AView.Level = cxGridLevel) then
   begin
-    if (BaseComponentsGroup.QueryBaseFamily.Master <> nil) and
-      ((BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.Active)) then
+    if (BaseCompGrp.qBaseFamily.Master <> nil) and
+      ((BaseCompGrp.qBaseFamily.Master.FDQuery.Active)) then
     begin
-      S := BaseComponentsGroup.QueryBaseFamily.Master.FDQuery.FieldByName
+      S := BaseCompGrp.qBaseFamily.Master.FDQuery.FieldByName
         ('Value').AsString;
       actDeleteEx.Caption := Format('Удалить семейство из категории «%s»', [S]);
     end;
@@ -982,7 +991,7 @@ begin
   actAddComponent.Enabled := Ok and (AView <> nil);
   // and (AView.Level = tlComponentsDetails);
 
-  actCommit.Enabled := Ok and BaseComponentsGroup.HaveAnyChanges;
+  actCommit.Enabled := Ok and BaseCompGrp.HaveAnyChanges;
   actRollback.Enabled := actCommit.Enabled;
 end;
 

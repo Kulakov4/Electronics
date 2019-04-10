@@ -1,253 +1,51 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      OnCellClick = cxGridDBBandedTableViewCellClick
+      OnEditKeyUp = cxGridDBBandedTableViewEditKeyUp
+      OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
+      OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
       OptionsCustomize.ColumnVertSizing = False
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
-      Bands = <
-        item
-          FixedKind = fkLeft
-          Options.HoldOwnColumnsOnly = True
-          Options.Moving = False
-        end
-        item
-          Options.HoldOwnColumnsOnly = True
-          Options.Moving = False
-        end>
-      inherited clValue: TcxGridDBBandedColumn
-        SortIndex = 0
-        SortOrder = soAscending
-      end
-      object clProducer: TcxGridDBBandedColumn
-        AlternateCaption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
-        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
-        DataBinding.FieldName = 'Producer'
-        PropertiesClassName = 'TcxTextEditProperties'
-        Properties.ReadOnly = True
-        Position.BandIndex = 1
-        Position.ColIndex = 0
-        Position.RowIndex = 0
-      end
-      object clSubGroup: TcxGridDBBandedColumn
-        Caption = #1043#1088#1091#1087#1087#1072' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
-        DataBinding.FieldName = 'subGroup'
-        PropertiesClassName = 'TcxPopupEditProperties'
-        OnGetProperties = clSubGroupGetProperties
-        Options.Sorting = False
-        Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 1
-        Position.RowIndex = 0
-      end
-      object clDescription: TcxGridDBBandedColumn
-        AlternateCaption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
-        Caption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
-        DataBinding.FieldName = 'DescriptionComponentName'
-        PropertiesClassName = 'TcxPopupEditProperties'
-        Properties.OnInitPopup = clDescriptionPropertiesInitPopup
-        MinWidth = 50
-        Options.Sorting = False
-        Position.BandIndex = 1
-        Position.ColIndex = 2
-        Position.RowIndex = 0
-      end
-      object clDatasheet: TcxGridDBBandedColumn
-        AlternateCaption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103
-        Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103
-        DataBinding.FieldName = 'Datasheet'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Action = actOpenDatasheet
-            Kind = bkText
-          end
-          item
-            Action = actLoadDatasheet
-            Default = True
-            Kind = bkEllipsis
-          end>
-        OnGetDataText = clDatasheetGetDataText
-        Options.Sorting = False
-        Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 3
-        Position.RowIndex = 0
-      end
-      object clDiagram: TcxGridDBBandedColumn
-        AlternateCaption = #1057#1093#1077#1084#1072
-        Caption = #1057#1093#1077#1084#1072
-        DataBinding.FieldName = 'Diagram'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Action = actOpenDiagram
-            Kind = bkText
-          end
-          item
-            Action = actLoadDiagram
-            Default = True
-            Kind = bkEllipsis
-          end>
-        OnGetDataText = clDatasheetGetDataText
-        Options.Sorting = False
-        Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 4
-        Position.RowIndex = 0
-      end
-      object clDrawing: TcxGridDBBandedColumn
-        AlternateCaption = #1063#1077#1088#1090#1105#1078
-        Caption = #1063#1077#1088#1090#1105#1078
-        DataBinding.FieldName = 'Drawing'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Action = actOpenDrawing
-            Kind = bkText
-          end
-          item
-            Action = actLoadDrawing
-            Default = True
-            Kind = bkEllipsis
-          end>
-        OnGetDataText = clDatasheetGetDataText
-        Options.Sorting = False
-        Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 5
-        Position.RowIndex = 0
-      end
-      object clImage: TcxGridDBBandedColumn
-        AlternateCaption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
-        Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
-        DataBinding.FieldName = 'Image'
-        PropertiesClassName = 'TcxButtonEditProperties'
-        Properties.Buttons = <
-          item
-            Action = actOpenImage
-            Kind = bkText
-          end
-          item
-            Action = actLoadImage
-            Default = True
-            Kind = bkEllipsis
-          end>
-        OnGetDataText = clDatasheetGetDataText
-        Options.Sorting = False
-        Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 6
-        Position.RowIndex = 0
-      end
-      object clPackagePins: TcxGridDBBandedColumn
-        AlternateCaption = #1050#1086#1088#1087#1091#1089
-        Caption = #1050#1086#1088#1087#1091#1089
-        DataBinding.FieldName = 'PackagePins'
-        MinWidth = 120
-        Options.Sorting = False
-        Position.BandIndex = 1
-        Position.ColIndex = 7
-        Position.RowIndex = 0
-      end
-      object clParentProductId: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ParentProductId'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 1
-        Position.ColIndex = 8
-        Position.RowIndex = 0
+      OnColumnSizeChanged = cxGridDBBandedTableViewColumnSizeChanged
+      OnLeftPosChanged = cxGridDBBandedTableViewLeftPosChanged
+      Bands = <>
+      OnBandSizeChanged = cxGridDBBandedTableViewBandSizeChanged
+    end
+    object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]
+      OnKeyDown = cxGridDBBandedTableViewKeyDown
+      Navigator.Buttons.CustomButtons = <>
+      OnCellClick = cxGridDBBandedTableView2CellClick
+      OnEditKeyDown = cxGridDBBandedTableView2EditKeyDown
+      DataController.Summary.DefaultGroupSummaryItems = <>
+      DataController.Summary.FooterSummaryItems = <>
+      DataController.Summary.SummaryGroups = <>
+      OnLeftPosChanged = cxGridDBBandedTableView2LeftPosChanged
+      Bands = <>
+    end
+    inherited cxGridLevel: TcxGridLevel
+      object cxGridLevel2: TcxGridLevel
+        GridView = cxGridDBBandedTableView2
       end
     end
-    inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
-      Bands = <
-        item
-          FixedKind = fkLeft
-          Options.HoldOwnColumnsOnly = True
-          Options.Moving = False
-        end
-        item
-          Options.HoldOwnColumnsOnly = True
-          Options.Moving = False
-        end>
-      object clProducer2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'Producer'
-        PropertiesClassName = 'TcxTextEditProperties'
-        Properties.ReadOnly = True
-        Position.BandIndex = 1
-        Position.ColIndex = 0
-        Position.RowIndex = 0
-      end
-      object clSubGroup2: TcxGridDBBandedColumn
-        Caption = #1043#1088#1091#1087#1087#1072' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
-        DataBinding.FieldName = 'DescriptionId'
-        PropertiesClassName = 'TcxLabelProperties'
-        OnGetProperties = clSubGroup2GetProperties
-        Position.BandIndex = 1
-        Position.ColIndex = 1
-        Position.RowIndex = 0
-      end
-      object clDescription2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'DescriptionComponentName'
-        Position.BandIndex = 1
-        Position.ColIndex = 2
-        Position.RowIndex = 0
-      end
-      object clDatasheet2: TcxGridDBBandedColumn
-        Caption = #1057#1087#1077#1094#1080#1092#1080#1082#1072#1094#1080#1103
-        DataBinding.FieldName = 'Datasheet'
-        PropertiesClassName = 'TcxTextEditProperties'
-        Properties.ReadOnly = True
+  end
+  inherited StatusBar: TStatusBar
+    Panels = <
+      item
         Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 3
-        Position.RowIndex = 0
       end
-      object clDiagram2: TcxGridDBBandedColumn
-        Caption = #1057#1093#1077#1084#1072
-        DataBinding.FieldName = 'Diagram'
-        PropertiesClassName = 'TcxTextEditProperties'
-        Properties.ReadOnly = True
+      item
         Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 4
-        Position.RowIndex = 0
       end
-      object clDrawing2: TcxGridDBBandedColumn
-        Caption = #1063#1077#1088#1090#1105#1078
-        DataBinding.FieldName = 'Drawing'
-        PropertiesClassName = 'TcxTextEditProperties'
-        Properties.ReadOnly = True
+      item
         Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 5
-        Position.RowIndex = 0
       end
-      object clImage2: TcxGridDBBandedColumn
-        Caption = #1048#1079#1086#1073#1088#1072#1078#1077#1085#1080#1077
-        DataBinding.FieldName = 'Image'
-        PropertiesClassName = 'TcxTextEditProperties'
-        Properties.ReadOnly = True
+      item
         Width = 100
-        Position.BandIndex = 1
-        Position.ColIndex = 6
-        Position.RowIndex = 0
       end
-      object clPackagePins2: TcxGridDBBandedColumn
-        Caption = #1050#1086#1088#1087#1091#1089
-        DataBinding.FieldName = 'PackagePins'
-        MinWidth = 120
-        Position.BandIndex = 1
-        Position.ColIndex = 7
-        Position.RowIndex = 0
-      end
-      object clParentProductId2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'ParentProductId'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 1
-        Position.ColIndex = 8
-        Position.RowIndex = 0
-      end
-    end
+      item
+        Width = 150
+      end>
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
@@ -318,6 +116,36 @@ inherited ViewComponentsBase: TViewComponentsBase
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       OnExecute = actLoadDrawingExecute
     end
+    object actCommit: TAction
+      Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+      Hint = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074#1089#1077' '#1089#1076#1077#1083#1072#1085#1085#1099#1077' '#1080#1079#1084#1077#1085#1077#1085#1080#1103
+      ImageIndex = 3
+      OnExecute = actCommitExecute
+    end
+    object actRollback: TAction
+      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
+      Hint = #1054#1090#1084#1077#1085#1080#1090#1100' '#1074#1089#1077' '#1089#1076#1077#1083#1072#1085#1085#1099#1077' '#1080#1079#1084#1077#1085#1077#1085#1080#1103
+      ImageIndex = 14
+      OnExecute = actRollbackExecute
+    end
+    object actDeleteFromAllCategories: TAction
+      Caption = #1059#1076#1072#1083#1080#1090#1100' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086' '#1080#1079' '#1074#1089#1077#1093' '#1082#1072#1090#1077#1075#1086#1088#1080#1081
+      ImageIndex = 33
+      OnExecute = actDeleteFromAllCategoriesExecute
+    end
+    object actAddFamily: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1089#1077#1084#1077#1081#1089#1090#1074#1086' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
+      ImageIndex = 1
+      OnExecute = actAddFamilyExecute
+    end
+    object actAddComponent: TAction
+      Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
+      ImageIndex = 1
+      OnExecute = actAddComponentExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N2: TMenuItem
@@ -342,13 +170,14 @@ inherited ViewComponentsBase: TViewComponentsBase
         PopupMenu = pmGrid
       end
       item
-        GridView = cxGridDBBandedTableView2
         HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
         Index = 1
         PopupMenu = pmGrid
       end>
   end
-  inherited cxerComponents: TcxEditRepository
+  object cxerComponents: TcxEditRepository
+    Left = 128
+    Top = 208
     PixelsPerInch = 96
     object cxerlSubGroup: TcxEditRepositoryLabel
     end
@@ -356,5 +185,38 @@ inherited ViewComponentsBase: TViewComponentsBase
       Properties.OnCloseUp = cxerpiSubGroup_PropertiesCloseUp
       Properties.OnInitPopup = cxerpiSubGroup_PropertiesInitPopup
     end
+    object cxertiValue: TcxEditRepositoryTextItem
+    end
+    object cxertiValueRO: TcxEditRepositoryTextItem
+      Properties.ReadOnly = True
+    end
+    object cxFieldValueWithExpand: TcxEditRepositoryButtonItem
+      Properties.Buttons = <
+        item
+          Caption = 'F'
+          Default = True
+          ImageIndex = 15
+          Kind = bkGlyph
+        end>
+      Properties.Images = DMRepository.cxImageList
+      Properties.OnButtonClick = cxFieldValueWithExpandPropertiesButtonClick
+    end
+    object cxFieldValueWithExpandRO: TcxEditRepositoryButtonItem
+      Properties.Buttons = <
+        item
+          Caption = 'F'
+          Default = True
+          ImageIndex = 15
+          Kind = bkGlyph
+        end>
+      Properties.Images = DMRepository.cxImageList
+      Properties.ReadOnly = True
+      Properties.OnButtonClick = cxFieldValueWithExpandPropertiesButtonClick
+    end
+  end
+  object cxEditRepository1: TcxEditRepository
+    Left = 184
+    Top = 280
+    PixelsPerInch = 96
   end
 end

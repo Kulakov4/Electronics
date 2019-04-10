@@ -21,112 +21,15 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsView.BandHeaders = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
-      Bands = <
-        item
-          Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-          FixedKind = fkLeft
-          Options.HoldOwnColumnsOnly = True
-          Options.Moving = False
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Producer'
-          Options.HoldOwnColumnsOnly = True
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Description'
-          Options.HoldOwnColumnsOnly = True
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Datasheet'
-          Options.HoldOwnColumnsOnly = True
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Diagram'
-          Options.HoldOwnColumnsOnly = True
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Drawing'
-          Options.HoldOwnColumnsOnly = True
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Image'
-          Options.HoldOwnColumnsOnly = True
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Package/Pins'
-          Options.HoldOwnColumnsOnly = True
-          Visible = False
-          VisibleForCustomization = False
-        end>
       OnBandPosChanged = cxGridDBBandedTableViewBandPosChanged
-      inherited clValue: TcxGridDBBandedColumn
-        Caption = ' '
-      end
-      inherited clProducer: TcxGridDBBandedColumn
-        Caption = ''
-        IsCaptionAssigned = True
-      end
-      inherited clSubGroup: TcxGridDBBandedColumn
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 2
-      end
-      inherited clDescription: TcxGridDBBandedColumn
-        Caption = ''
-        Position.BandIndex = 2
-        Position.ColIndex = 0
-        IsCaptionAssigned = True
-      end
-      inherited clDatasheet: TcxGridDBBandedColumn
-        Caption = ''
-        Position.BandIndex = 3
-        Position.ColIndex = 0
-        IsCaptionAssigned = True
-      end
-      inherited clDiagram: TcxGridDBBandedColumn
-        Caption = ''
-        Position.BandIndex = 4
-        Position.ColIndex = 0
-        IsCaptionAssigned = True
-      end
-      inherited clDrawing: TcxGridDBBandedColumn
-        Caption = ''
-        Position.BandIndex = 5
-        Position.ColIndex = 0
-        IsCaptionAssigned = True
-      end
-      inherited clImage: TcxGridDBBandedColumn
-        Caption = ''
-        Position.BandIndex = 6
-        Position.ColIndex = 0
-        IsCaptionAssigned = True
-      end
-      inherited clPackagePins: TcxGridDBBandedColumn
-        Caption = ''
-        Position.BandIndex = 7
-        Position.ColIndex = 0
-        IsCaptionAssigned = True
-      end
-      inherited clParentProductId: TcxGridDBBandedColumn
-        Position.BandIndex = 0
-        Position.ColIndex = 3
-      end
       object clAnalog: TcxGridDBBandedColumn
         Caption = #1040#1085#1072#1083#1086#1075
         DataBinding.FieldName = 'Analog'
         Visible = False
         VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 4
-        Position.RowIndex = 0
+        Position.BandIndex = -1
+        Position.ColIndex = -1
+        Position.RowIndex = -1
       end
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
@@ -135,94 +38,15 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsBehavior.EditAutoHeight = eahRow
       OptionsBehavior.BandHeaderHints = False
       OptionsData.Deleting = False
-      OptionsData.DeletingConfirmation = True
       OptionsView.CellAutoHeight = True
-      Bands = <
-        item
-          FixedKind = fkLeft
-          Options.HoldOwnColumnsOnly = True
-          Options.Moving = False
-        end
-        item
-          Caption = 'Producer'
-          Options.HoldOwnColumnsOnly = True
-        end
-        item
-          Caption = 'Description'
-          Options.HoldOwnColumnsOnly = True
-        end
-        item
-          Caption = 'Datasheet'
-          Options.HoldOwnColumnsOnly = True
-        end
-        item
-          Caption = 'Diagram'
-          Options.HoldOwnColumnsOnly = True
-          Visible = False
-          VisibleForCustomization = False
-        end
-        item
-          Caption = 'Drawing'
-          Options.HoldOwnColumnsOnly = True
-        end
-        item
-          Caption = 'Image'
-          Options.HoldOwnColumnsOnly = True
-        end
-        item
-          Caption = 'Package/Pins'
-          Options.HoldOwnColumnsOnly = True
-          Visible = False
-        end>
-      inherited clValue2: TcxGridDBBandedColumn
-        Caption = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-      end
-      inherited clProducer2: TcxGridDBBandedColumn
-        Caption = #1055#1088#1086#1080#1079#1074#1086#1076#1080#1090#1077#1083#1100
-      end
-      inherited clSubGroup2: TcxGridDBBandedColumn
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 3
-      end
-      inherited clDescription2: TcxGridDBBandedColumn
-        Caption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
-        Position.BandIndex = 2
-        Position.ColIndex = 0
-      end
-      inherited clDatasheet2: TcxGridDBBandedColumn
-        Position.BandIndex = 3
-        Position.ColIndex = 0
-      end
-      inherited clDiagram2: TcxGridDBBandedColumn
-        Position.BandIndex = 4
-        Position.ColIndex = 0
-      end
-      inherited clDrawing2: TcxGridDBBandedColumn
-        Position.BandIndex = 5
-        Position.ColIndex = 0
-      end
-      inherited clImage2: TcxGridDBBandedColumn
-        Position.BandIndex = 6
-        Position.ColIndex = 0
-      end
-      inherited clPackagePins2: TcxGridDBBandedColumn
-        Position.BandIndex = 7
-        Position.ColIndex = 0
-      end
-      inherited clParentProductId2: TcxGridDBBandedColumn
-        Position.BandIndex = 0
-        Position.ColIndex = 2
-      end
       object clAnalog2: TcxGridDBBandedColumn
         Caption = #1040#1085#1072#1083#1086#1075
         DataBinding.FieldName = 'Analog'
         Visible = False
         VisibleForCustomization = False
-        Position.BandIndex = 0
-        Position.ColIndex = 4
-        Position.RowIndex = 0
+        Position.BandIndex = -1
+        Position.ColIndex = -1
+        Position.RowIndex = -1
       end
     end
   end
@@ -455,6 +279,9 @@ inherited ViewParametricTable: TViewParametricTable
       end>
   end
   inherited cxerComponents: TcxEditRepository
+    PixelsPerInch = 96
+  end
+  inherited cxEditRepository1: TcxEditRepository
     PixelsPerInch = 96
   end
   object BandTimer: TTimer

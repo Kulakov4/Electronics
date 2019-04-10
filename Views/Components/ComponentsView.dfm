@@ -4,33 +4,9 @@ inherited ViewComponents: TViewComponents
   inherited cxGrid: TcxGrid
     Width = 960
     ExplicitWidth = 960
-    inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
-      OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
-    end
-    inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
-      inherited clSubGroup2: TcxGridDBBandedColumn
-        DataBinding.FieldName = 'subgroup'
-      end
-    end
   end
   inherited StatusBar: TStatusBar
     Width = 960
-    Panels = <
-      item
-        Width = 100
-      end
-      item
-        Width = 100
-      end
-      item
-        Width = 100
-      end
-      item
-        Width = 100
-      end
-      item
-        Width = 150
-      end>
     ExplicitWidth = 960
   end
   inherited dxBarManager: TdxBarManager
@@ -107,11 +83,11 @@ inherited ViewComponents: TViewComponents
         end>
     end
     object dxbrbtnAddFamily: TdxBarButton
-      Action = actAddFamily
+      Action = actAddComponent
       Category = 0
     end
     object dxbrbtnAddComponent: TdxBarButton
-      Action = actAddComponent
+      Action = actAddFamily
       Category = 0
     end
     object dxbrsbtmDelete: TdxBarSubItem
@@ -218,7 +194,7 @@ inherited ViewComponents: TViewComponents
       ImageIndex = 11
       OnExecute = actShowParametricTableExecute
     end
-    object actRefresh: TAction
+    object actRefresh: TAction [19]
       Caption = #1054#1073#1085#1086#1074#1080#1090#1100
       Hint = #1054#1073#1085#1086#1074#1080#1090#1100
       ImageIndex = 4
@@ -226,6 +202,9 @@ inherited ViewComponents: TViewComponents
     end
   end
   inherited cxerComponents: TcxEditRepository
+    PixelsPerInch = 96
+  end
+  inherited cxEditRepository1: TcxEditRepository
     PixelsPerInch = 96
   end
 end

@@ -4,28 +4,44 @@ interface
 
 uses
   QueryGroupUnit2, NotifyEvents, System.Classes, System.Generics.Collections,
-  ProducersQuery, BaseComponentsQuery, BaseFamilyQuery, DocFieldInfo;
+  ProducersQuery, BaseComponentsQuery, BaseFamilyQuery, DocFieldInfo,
+  ComponentsCountQuery, EmptyFamilyCountQuery;
 
 type
   TBaseComponentsGroup2 = class(TQueryGroup2)
   private
     FAfterApplyUpdates: TNotifyEventsEx;
     FFullDeleted: TList<Integer>;
+    FNeedUpdateCount: Boolean;
     FProducers: TQueryProducers;
+    FQueryComponentsCount: TQueryComponentsCount;
+    FQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
+    procedure AfterComponentPostOrDelete(Sender: TObject);
     function GetProducers: TQueryProducers;
-    function GetQueryBaseComponents: TQueryBaseComponents;
-    function GetQueryBaseFamily: TQueryBaseFamily;
+    function GetqBaseComponents: TQueryBaseComponents;
+    function GetqBaseFamily: TQueryBaseFamily;
+    function GetQueryComponentsCount: TQueryComponentsCount;
+    function GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
+    function GetTotalCount: Integer;
+  protected
+    property QueryComponentsCount: TQueryComponentsCount
+      read GetQueryComponentsCount;
+    property QueryEmptyFamilyCount: TQueryEmptyFamilyCount
+      read GetQueryEmptyFamilyCount;
   public
-    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Commit; override;
-    procedure LoadDocFile(const AFileName: String; ADocFieldInfo: TDocFieldInfo);
+    procedure LoadDocFile(const AFileName: String;
+      ADocFieldInfo: TDocFieldInfo);
     procedure Rollback; override;
+    constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     property AfterApplyUpdates: TNotifyEventsEx read FAfterApplyUpdates;
     property FullDeleted: TList<Integer> read FFullDeleted;
     property Producers: TQueryProducers read GetProducers;
-    property QueryBaseComponents: TQueryBaseComponents read GetQueryBaseComponents;
-    property QueryBaseFamily: TQueryBaseFamily read GetQueryBaseFamily;
+    property qBaseComponents: TQueryBaseComponents read GetqBaseComponents;
+    property qBaseFamily: TQueryBaseFamily read GetqBaseFamily;
+    property TotalCount: Integer read GetTotalCount;
   end;
 
 implementation
@@ -49,10 +65,32 @@ begin
   inherited;
 end;
 
+procedure TBaseComponentsGroup2.AfterComponentPostOrDelete(Sender: TObject);
+var
+  S: string;
+begin
+  S := Sender.ClassName;
+  FNeedUpdateCount := True;
+end;
+
+procedure TBaseComponentsGroup2.AfterConstruction;
+begin
+  TNotifyEventWrap.Create(qBaseFamily.W.AfterPostM, AfterComponentPostOrDelete,
+    EventList);
+  TNotifyEventWrap.Create(qBaseFamily.W.AfterDelete, AfterComponentPostOrDelete,
+    EventList);
+
+  TNotifyEventWrap.Create(qBaseComponents.W.AfterPostM,
+    AfterComponentPostOrDelete, EventList);
+  TNotifyEventWrap.Create(qBaseComponents.W.AfterDelete,
+    AfterComponentPostOrDelete, EventList);
+end;
+
 procedure TBaseComponentsGroup2.Commit;
 begin
   inherited;
   FFullDeleted.Clear;
+  FNeedUpdateCount := True;
 end;
 
 function TBaseComponentsGroup2.GetProducers: TQueryProducers;
@@ -65,7 +103,7 @@ begin
   Result := FProducers;
 end;
 
-function TBaseComponentsGroup2.GetQueryBaseComponents: TQueryBaseComponents;
+function TBaseComponentsGroup2.GetqBaseComponents: TQueryBaseComponents;
 var
   Q: TQueryBaseEvents;
 begin
@@ -83,7 +121,7 @@ begin
   Assert(Result <> nil);
 end;
 
-function TBaseComponentsGroup2.GetQueryBaseFamily: TQueryBaseFamily;
+function TBaseComponentsGroup2.GetqBaseFamily: TQueryBaseFamily;
 var
   Q: TQueryBaseEvents;
 begin
@@ -101,8 +139,48 @@ begin
   Assert(Result <> nil);
 end;
 
+function TBaseComponentsGroup2.GetQueryComponentsCount: TQueryComponentsCount;
+begin
+  if FQueryComponentsCount = nil then
+  begin
+    FQueryComponentsCount := TQueryComponentsCount.Create(Self);
+    // FQueryComponentsCount.FDQuery.Connection := qBaseFamily.FDQuery.Connection;
+  end;
+  Result := FQueryComponentsCount;
+end;
+
+function TBaseComponentsGroup2.GetQueryEmptyFamilyCount: TQueryEmptyFamilyCount;
+begin
+  if FQueryEmptyFamilyCount = nil then
+  begin
+    FQueryEmptyFamilyCount := TQueryEmptyFamilyCount.Create(Self);
+    // FQueryEmptyFamilyCount.FDQuery.Connection := qBaseFamily.FDQuery.Connection;
+  end;
+  Result := FQueryEmptyFamilyCount;
+end;
+
+function TBaseComponentsGroup2.GetTotalCount: Integer;
+var
+  x: Integer;
+begin
+  if FNeedUpdateCount or not QueryEmptyFamilyCount.FDQuery.Active then
+  begin
+    // Обновляем кол-во компонентов без семей
+    QueryEmptyFamilyCount.FDQuery.Close;
+    QueryEmptyFamilyCount.FDQuery.Open;
+
+    // Обновляем кол-во дочерних компонентов
+    QueryComponentsCount.FDQuery.Close;
+    QueryComponentsCount.FDQuery.Open;
+
+    FNeedUpdateCount := false;
+  end;
+  x := QueryEmptyFamilyCount.Count + QueryComponentsCount.Count;
+  Result := x;
+end;
+
 procedure TBaseComponentsGroup2.LoadDocFile(const AFileName: String;
-    ADocFieldInfo: TDocFieldInfo);
+  ADocFieldInfo: TDocFieldInfo);
 var
   IsEdited: Boolean;
   S: string;
@@ -111,12 +189,12 @@ begin
   begin
     // В БД храним путь до файла относительно папки с документацией
     S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    IsEdited := not QueryBaseFamily.W.TryEdit;
-    QueryBaseFamily.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
+    IsEdited := not qBaseFamily.W.TryEdit;
+    qBaseFamily.FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
 
     // Сохраняем только если запись уже была сохранена до редактирования
     if not IsEdited then
-      QueryBaseFamily.W.TryPost;
+      qBaseFamily.W.TryPost;
   end;
 end;
 

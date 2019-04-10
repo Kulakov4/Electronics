@@ -150,8 +150,6 @@ begin
 end;
 
 procedure TViewStoreHouse.DoBeforeMonitorApplyUpdates(Sender: TObject);
-var
-  OK: Boolean;
 begin
   if MainView.Controller.EditingItem = nil then
     Exit;
@@ -161,11 +159,7 @@ begin
     // Если в настоящий момент происходит редактирование
     if VarToStrDef(MainView.Controller.EditingController.Edit.EditingValue, '')
       <> '' then
-    begin
-      OK := Assigned(qStoreHouseList.FDQuery.BeforePost);
-      qStoreHouseList.W.TryPost
-    end
-    // MainView.DataController.Post()
+      MainView.DataController.Post()
     else
       MainView.DataController.Cancel;
 

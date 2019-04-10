@@ -25,7 +25,7 @@ begin
   inherited;
   FDescription := TFieldWrap.Create(Self, 'Description');
   FDescriptionComponentName := TFieldWrap.Create(Self,
-    'DescriptionComponentName');
+    'DescriptionComponentName', 'Краткое описание');
   FDescriptionID := TFieldWrap.Create(Self, 'DescriptionID');
 end;
 

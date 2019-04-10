@@ -280,8 +280,11 @@ begin
     // Добавляем в список все колонки, которые есть у cxGrid
     for i := 0 to FcxGridDBBandedTableView.ColumnCount - 1 do
     begin
-      Assert(FcxGridDBBandedTableView.Columns[i].Position.Band <> nil);
-      AAllColumns.Add(FcxGridDBBandedTableView.Columns[i]);
+      if FcxGridDBBandedTableView.Columns[i].Position.Band <> nil then
+      begin
+        Assert(FcxGridDBBandedTableView.Columns[i].Position.Band <> nil);
+        AAllColumns.Add(FcxGridDBBandedTableView.Columns[i]);
+      end;
     end;
     // Сортируем эти столбцы по позиции бэнда и по позиции внутри бэнда
     AAllColumns.Sort(TComparer<TcxGridDBBandedColumn>.Construct(
