@@ -208,6 +208,7 @@ type
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
     procedure RefreshData;
+    procedure SelectFocusedRecord(const AFieldName: String);
     procedure SetZeroBandWidth(AView: TcxGridDBBandedTableView);
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
@@ -1651,6 +1652,14 @@ begin
   Result := (AColumn1 is TcxGridDBBandedColumn) and
     ((AColumn1 as TcxGridDBBandedColumn).DataBinding.FieldName = AColumn2.
     DataBinding.FieldName);
+end;
+
+procedure TfrmGrid.SelectFocusedRecord(const AFieldName: String);
+begin
+  if MainView.Controller.FocusedRow <> nil then
+    MainView.Controller.FocusedRow.Selected := True;
+
+  MainView.GetColumnByFieldName(AFieldName).Selected := True;
 end;
 
 procedure TfrmGrid.SetStatusBarEmptyPanelIndex(const Value: Integer);

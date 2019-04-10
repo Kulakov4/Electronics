@@ -1503,19 +1503,34 @@ begin
   // Ждём, пока группа компонентов обновит свои данные!
   Application.ProcessMessages;
 
-  TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.Locate(AFamilyCaption,
-    [lxoCaseInsensitive]);
+  TDM.Create.ComponentsGroup.AddClient;
+  try
+    // Ищем нужное нам семейство
+    TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.Locate(AFamilyCaption,
+      [lxoCaseInsensitive]);
 
-  // Переключаемся на вкладку "Компоненты"
-  cxpcCompGroupRight.ActivePage := cxtsCategoryComponents;
-  ViewComponents.cxGrid.SetFocus;
-  // Application.ProcessMessages;
+    // Переключаемся на вкладку "Компоненты"
+    cxpcMain.ActivePage := cxtshComp;
 
-  if ViewComponents.MainView.Controller.FocusedRow <> nil then
-    ViewComponents.MainView.Controller.FocusedRow.Selected := True;
+    // Переключаемся на вкладку "По группам"
+    cxpcComp2.ActivePage := cxtshCompGroup;
 
-  ViewComponents.MainView.GetColumnByFieldName
-    (ViewComponents.clValue.DataBinding.FieldName).Selected := True;
+    // Переключаемся на вкладку "Содержимое группы компонентов"
+    cxpcCompGroupRight.ActivePage := cxtsCategoryComponents;
+
+    // Ждём
+    Application.ProcessMessages;
+
+    Assert(ViewComponents <> nil);
+
+    ViewComponents.cxGrid.SetFocus;
+
+    // Выделяем сфокусированную запись
+    ViewComponents.SelectFocusedRecord
+      (TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.FieldName);
+  finally
+    TDM.Create.ComponentsGroup.RemoveClient;
+  end;
 end;
 
 procedure TfrmMain.DoOnTotalReadProgress(ASender: TObject);

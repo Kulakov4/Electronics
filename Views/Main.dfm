@@ -100,7 +100,7 @@ object frmMain: TfrmMain
               Height = 524
               Align = alClient
               TabOrder = 0
-              Properties.ActivePage = cxtsParametricTable
+              Properties.ActivePage = cxtsCategoryComponents
               Properties.CustomButtons.Buttons = <>
               OnPageChanging = cxpcCompGroupRightPageChanging
               ClientRectBottom = 520
