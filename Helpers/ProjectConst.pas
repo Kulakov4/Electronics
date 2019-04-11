@@ -9,6 +9,8 @@ resourcestring
 
   sOperatingTemperatureRange = 'Operating Temperature Range';
 
+  sDoDescriptionsBind = 'Выполняем прикрепление кратких описаний';
+
   sIsNotEnoughProductAmount = 'На складе недостаточное количество товара';
 
   // Папка по умолчанию для хранения документации на складе

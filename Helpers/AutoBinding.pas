@@ -98,8 +98,8 @@ uses cxGridDbBandedTableView, GridViewForm, ProgressBarForm, System.SysUtils,
 class function TAutoBind.AnalizeDocFiles(ADocFilesTable: TDocFilesTable)
   : TDictionary<Integer, TPossibleLinkDocTable>;
 
-  procedure Append(AIDParamSubParam: Integer; const AComponentName: String; const
-      ARange: cardinal);
+  procedure Append(AIDParamSubParam: Integer; const AComponentName: String;
+    const ARange: cardinal);
   begin
     Assert(AIDParamSubParam > 0);
     Assert(not AComponentName.IsEmpty);
@@ -196,8 +196,8 @@ begin
     if ABindQuery.FDQuery.RecordCount > 0 then
     begin
       TfrmProgressBar.Process(ABindQuery,
-        ABindQuery.UpdateComponentDescriptions,
-        'Выполняем привязку кратких описаний', sComponents);
+        ABindQuery.UpdateComponentDescriptions, sDoDescriptionsBind,
+        sComponents);
 
       TDialog.Create.AutoBindResultDialog(ABindQuery.FDQuery.RecordCount);
     end
@@ -222,12 +222,10 @@ begin
     // Если найдены компоненты, которые можно привязать
     if ABindQuery.FDQuery.RecordCount > 0 then
     begin
-      TfrmProgressBar.Process(ABindQuery,
-        ABindQuery.UpdateProductDescriptions,
+      TfrmProgressBar.Process(ABindQuery, ABindQuery.UpdateProductDescriptions,
         'Выполняем привязку кратких описаний', sComponents);
 
-      TDialog.Create.AutoBindResultDialog
-        (ABindQuery.FDQuery.RecordCount);
+      TDialog.Create.AutoBindResultDialog(ABindQuery.FDQuery.RecordCount);
     end
     else
       TDialog.Create.AutoBindNotFoundDialog;
@@ -350,9 +348,8 @@ begin
           AfrmGridView.Caption :=
             'Компоненты для которых отсутствует документация';
           AfrmGridView.ViewGridEx.DataSet := AAbsentDocTable;
-          AcxGridDBBandedColumn :=
-            AfrmGridView.ViewGridEx.MainView.GetColumnByFieldName
-            (AAbsentDocTable.Folder.FieldName);
+          AcxGridDBBandedColumn := AfrmGridView.ViewGridEx.MainView.
+            GetColumnByFieldName(AAbsentDocTable.Folder.FieldName);
           Assert(AcxGridDBBandedColumn <> nil);
           AcxGridDBBandedColumn.GroupIndex := 0;
           AcxGridDBBandedColumn.Visible := False;
@@ -476,7 +473,7 @@ const ANoRange: Boolean): TErrorLinkedDocTable;
 var
   ADocFieldInfo: TDocFieldInfo;
   APossibleLinkDocTable: TPossibleLinkDocTable;
-//  ASQL: string;
+  // ASQL: string;
   i: Integer;
   OK: Boolean;
   Q: TQuerySearchProductParameterValues;
@@ -507,7 +504,8 @@ begin
           .AsString.IsEmpty) then
         begin
           // Если для этого параметра существует таблица с возможными файлами
-          if APossibleLinkDocTables.ContainsKey(ADocFieldInfo.IDParamSubParam) then
+          if APossibleLinkDocTables.ContainsKey(ADocFieldInfo.IDParamSubParam)
+          then
           begin
             APossibleLinkDocTable := APossibleLinkDocTables
               [ADocFieldInfo.IDParamSubParam];
@@ -555,14 +553,14 @@ begin
                   begin
                     // А ТАК МОЖНО????
                     Q.AppendValue(S);
-                  {
-                    ASQL := 'INSERT INTO ParameterValues2' +
+                    {
+                      ASQL := 'INSERT INTO ParameterValues2' +
                       '(ParamSubParamID, Value, ProductID) ' +
                       Format('Values (%d, ''%s'', %d)',
                       [ADocFieldInfo.IDParamSubParam, S,
                       AComponentsDataSet.FieldByName('ID').AsInteger]);
 
-                    AConnection.ExecSQL(ASQL);
+                      AConnection.ExecSQL(ASQL);
                     }
                     Inc(i);
                   end;
