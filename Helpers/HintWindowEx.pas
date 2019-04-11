@@ -74,6 +74,7 @@ var
   R: TRect;
   wdth: integer;
   hght: integer;
+  n: Integer;
 begin
   FShowTimer.OnTimer := nil;
 
@@ -86,6 +87,16 @@ begin
   // position and resize
   wdth := Canvas.TextWidth(FHint);
   hght := Canvas.TextHeight(FHint);
+  if wdth > 600 then
+  begin
+    n := wdth div 600;
+    if frac(wdth / 600) > 0 then
+      Inc(n);
+
+    hght := hght * n;
+    wdth := 600;
+  end;
+
 
   R.Left := Mouse.CursorPos.X + 16;
   R.Top := Mouse.CursorPos.Y + 16;
