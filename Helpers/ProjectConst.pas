@@ -5,6 +5,9 @@ interface
 resourcestring
   sMainFormCaption = 'Database';
 
+  sSaveAllActionCaption = 'Перезаписать уже имеющиеся';
+  sSkipAllActionCaption = 'Пропустить уже имеющиеся';
+
   sRecommendedReplacement = 'Recommended Replacement';
 
   sOperatingTemperatureRange = 'Operating Temperature Range';

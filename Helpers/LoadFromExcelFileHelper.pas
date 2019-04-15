@@ -53,6 +53,12 @@ begin
     FfrmProgressBar.Hide;
     AfrmError := FCustomErrorFormClass.Create(nil);
     try
+      if not e.ExcelTable.SaveAllActionCaption.IsEmpty then
+        AfrmError.actAll.Caption := e.ExcelTable.SaveAllActionCaption;
+
+      if not e.ExcelTable.SkipAllActionCaption.IsEmpty then
+        AfrmError.actSkip.Caption := e.ExcelTable.SkipAllActionCaption;
+
       AfrmError.ViewGridEx.DataSet := e.ExcelTable.Errors;
       // Показываем ошибки
       OK := AfrmError.ShowModal = mrOk;

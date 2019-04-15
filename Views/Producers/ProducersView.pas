@@ -61,7 +61,6 @@ type
     dxBarButton1: TdxBarButton;
     clOrder: TcxGridDBBandedColumn;
     actRefresh: TAction;
-    dxBarButton2: TdxBarButton;
     procedure actAddExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -96,6 +95,7 @@ type
     FHRTimer: THRTimer;
     FNewValue: string;
     FProducersGroup: TProducersGroup2;
+
   const
     FolderKey = 'Producers';
     procedure SetProducersGroup(const Value: TProducersGroup2);
@@ -427,39 +427,40 @@ begin
   end;
 
   UpdateView;
+
 end;
 
+// Ищет производителя в гриде
 procedure TViewProducers.Locate(const AProducer: string);
 var
-  List: TList<String>;
+  Arr: TArray<String>;
   ARow: TcxGridMasterDataRow;
   AView: TcxGridDBBandedTableView;
 begin
   BeginUpdate;
-  // Ищет производителя в гриде
-  List := ProducersGroup.Find(clName2.DataBinding.FieldName, AProducer);
   try
-    // сначала ищем на первом уровне (по названию категории)
-    if (List.Count > 0) and
-      (MainView.DataController.Search.Locate(clProducerType.Index, List[0],
-      True)) then
-    begin
-      // Затем ищем на втором уровне (по наименованию производителя)
-      if List.Count > 1 then
-      begin
-        ARow := GetRow(0) as TcxGridMasterDataRow;
-        ARow.Expand(false);
-        AView := GetDBBandedTableView(1);
-        AView.Focused := True;
-        AView.DataController.Search.Locate(clName2.Index, List[1], True);
-        PutInTheCenterFocusedRecord(AView);
-      end
-      else
-        PutInTheCenterFocusedRecord(MainView);
-    end;
+    Arr := ProducersGroup.Find(AProducer);
   finally
-    FreeAndNil(List);
     EndUpdate;
+  end;
+
+  // сначала ищем на первом уровне (по названию категории)
+  if (Length(Arr) > 0) and
+    (MainView.DataController.Search.Locate(clProducerType.Index, Arr[0], True,
+    True)) then
+  begin
+    // Затем ищем на втором уровне (по наименованию производителя)
+    if Length(Arr) > 1 then
+    begin
+      ARow := GetRow(0) as TcxGridMasterDataRow;
+      ARow.Expand(false);
+      AView := GetDBBandedTableView(1);
+      AView.Focused := True;
+      AView.DataController.Search.Locate(clName2.Index, Arr[1], True, True);
+      PutInTheCenterFocusedRecord(AView);
+    end
+    else
+      PutInTheCenterFocusedRecord(MainView);
   end;
 end;
 

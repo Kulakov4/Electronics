@@ -12,8 +12,12 @@ type
   private
     FErrors: TErrorTable;
     FFieldsInfo: TObjectList<TFieldInfo>;
+    FSaveAllActionCaption: string;
+    FSkipAllActionCaption: string;
     function GetErrorType: TField;
     function GetExcelRow: TField;
+    procedure SetSaveAllActionCaption(const Value: string);
+    procedure SetSkipAllActionCaption(const Value: string);
   protected
     function ProcessValue(const AFieldName, AValue: string): String; virtual;
     procedure CreateFieldDefs; virtual;
@@ -34,6 +38,10 @@ type
     property ErrorType: TField read GetErrorType;
     property ExcelRow: TField read GetExcelRow;
     property FieldsInfo: TObjectList<TFieldInfo> read FFieldsInfo;
+    property SaveAllActionCaption: string read FSaveAllActionCaption write
+        SetSaveAllActionCaption;
+    property SkipAllActionCaption: string read FSkipAllActionCaption write
+        SetSkipAllActionCaption;
   end;
 
 implementation
@@ -201,6 +209,18 @@ end;
 procedure TCustomExcelTable.SetFieldsInfo;
 begin
   // TODO -cMM: TCustomExcelTable.SetFieldsInfo default body inserted
+end;
+
+procedure TCustomExcelTable.SetSaveAllActionCaption(const Value: string);
+begin
+  Assert(not Value.IsEmpty);
+  FSaveAllActionCaption := Value;
+end;
+
+procedure TCustomExcelTable.SetSkipAllActionCaption(const Value: string);
+begin
+  Assert(not Value.IsEmpty);
+  FSkipAllActionCaption := Value;
 end;
 
 function TCustomExcelTable.TryEdit: Boolean;

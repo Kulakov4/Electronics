@@ -15,6 +15,8 @@ type
   private
     FParentProductID: TFieldWrap;
     FID: TFieldWrap;
+    FFamilyID: TFieldWrap;
+    FFamilyValue: TFieldWrap;
     FProducer: TFieldWrap;
     FProducerParamSubParamID: TParamWrap;
     FProducerParam: TParamWrap;
@@ -25,6 +27,8 @@ type
     procedure ApplyProductFilter;
     property ParentProductID: TFieldWrap read FParentProductID;
     property ID: TFieldWrap read FID;
+    property FamilyID: TFieldWrap read FFamilyID;
+    property FamilyValue: TFieldWrap read FFamilyValue;
     property Producer: TFieldWrap read FProducer;
     property ProducerParamSubParamID: TParamWrap read FProducerParamSubParamID;
     property ProducerParam: TParamWrap read FProducerParam;
@@ -230,6 +234,8 @@ begin
   FParentProductID := TFieldWrap.Create(Self, 'p.ParentProductID');
   FProducer := TFieldWrap.Create(Self, 'Producer');
   FValue := TFieldWrap.Create(Self, 'p.Value');
+  FFamilyID := TFieldWrap.Create(Self, 'FamilyID');
+  FFamilyValue := TFieldWrap.Create(Self, 'FamilyValue');
 
   FProducerParamSubParamID := TParamWrap.Create(Self,
     'ProducerParamSubParamID');

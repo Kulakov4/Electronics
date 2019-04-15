@@ -178,6 +178,7 @@ type
     procedure DoOnTotalReadProgress(ASender: TObject);
     procedure DoOnViewStoreHouseCanFocusRecord(Sender: TObject);
     function GetQueryMonitor: TQueryMonitor;
+    function GetViewComponentsFocused: Boolean;
     procedure LoadDocFromExcelDocument;
     function LoadExcelFileHeader(var AFileName: String;
       AFieldsInfo: TFieldsInfo): Boolean;
@@ -193,7 +194,10 @@ type
     procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnOpenCategory(Sender: TObject);
     procedure DoOnProductLocate(Sender: TObject);
+    procedure FocusViewComponents;
+    procedure TryFocusViewComponents;
     property QueryMonitor: TQueryMonitor read GetQueryMonitor;
+    property ViewComponentsFocused: Boolean read GetViewComponentsFocused;
     property ViewTreeList: TViewTreeList read FViewTreeList;
   public
     constructor Create(AOwner: TComponent); override;
@@ -1294,7 +1298,6 @@ end;
 
 procedure TfrmMain.DoOnLoadCompFromExcelDocument(Sender: TObject);
 var
-  AComponentsGroup: TComponentsGroup2;
   AFileName: string;
   AProducer: String;
   AProducerID: Integer;
@@ -1345,32 +1348,36 @@ begin
   Assert(not AFileName.IsEmpty);
   Assert(not AProducer.IsEmpty);
 
-  AComponentsGroup := TComponentsGroup2.Create(Self);
+  if ViewComponents <> nil then
+    ViewComponents.BeginUpdate;
+
+  TDM.Create.ComponentsGroup.AddClient;
   try
-    AComponentsGroup.qFamily.Master := TDM.Create.qTreeList;
-    AComponentsGroup.qComponents.Master := TDM.Create.qTreeList;
-
-    AComponentsGroup.qFamily.Load;
-    AComponentsGroup.qComponents.Load;
-
     TLoad.Create.LoadAndProcess(AFileName, TComponentsExcelDM, TfrmImportError,
       procedure(ASender: TObject)
       begin
-        AComponentsGroup.LoadDataFromExcelTable
+        TDM.Create.ComponentsGroup.LoadDataFromExcelTable
           (ASender as TComponentsExcelTable, AProducer);
+      end,
+      procedure(ASender: TObject)
+      begin
+        with ASender as TComponentsExcelTable do
+        begin
+          Producer := AProducer;
+          SaveAllActionCaption := sSaveAllActionCaption;
+          SkipAllActionCaption := sSkipAllActionCaption;
+        end;
       end);
   finally
-    FreeAndNil(AComponentsGroup);
+    TDM.Create.ComponentsGroup.RemoveClient;
+
+    if ViewComponents <> nil then
+      ViewComponents.EndUpdate;
+
+    // Переходим на квладку "Содержимое группы компонентов"
+    TryFocusViewComponents;
   end;
 
-  {
-    // Тут некоторые узлы почему-то разворачиваются
-    MainView.ViewData.Collapse(True);
-
-    FocusTopLeft(clValue.DataBinding.FieldName);
-
-    UpdateView;
-  }
 end;
 
 procedure TfrmMain.DoOnLoadCompFromExcelFolder(Sender: TObject);
@@ -1381,6 +1388,7 @@ var
   AFolderName: string;
   AProducer: String;
   AProducerID: Integer;
+  ATreeListID: Integer;
   AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
   I: Integer;
   m: TStringDynArray;
@@ -1443,25 +1451,33 @@ begin
 
     Application.ProcessMessages;
 
-    AComponentsGroup2 := TComponentsGroup2.Create(Self);
+    if ViewComponents <> nil then
+      ViewComponents.BeginUpdate;
     try
-      AComponentsGroup2.LoadFromExcelFolder(AFileNames, AutomaticLoadErrorTable,
-        AProducer);
+      AComponentsGroup2 := TComponentsGroup2.Create(Self);
+      try
+        ATreeListID := AComponentsGroup2.LoadFromExcelFolder(AFileNames,
+          AutomaticLoadErrorTable, AProducer);
+      finally
+        FreeAndNil(AComponentsGroup2);
+        // Разрешаем закрыть форму
+        frmImportProcess.Done := True;
+      end;
+
+      TDM.Create.qTreeList.W.TryOpen;
+
+      // Выбираем в дереве последнюю загруженную категорию
+      TDM.Create.qTreeList.W.LocateByPK(ATreeListID, True);
     finally
-      FreeAndNil(AComponentsGroup2);
-      // Разрешаем закрыть форму
-      frmImportProcess.Done := True;
+      if ViewComponents <> nil then
+        ViewComponents.EndUpdate;
+      // Переходим на вкладку "Содержимое группы компонентов"
+      TryFocusViewComponents;
     end;
+
   finally
     FreeAndNil(AFileNames);
   end;
-  {
-    // Тут некоторые узлы почему-то разворачиваются
-    MainView.ViewData.Collapse(True);
-    FocusTopLeft(clValue.DataBinding.FieldName);
-
-    UpdateView;
-  }
 end;
 
 procedure TfrmMain.DoOnLoadParametricData(Sender: TObject);
@@ -1553,9 +1569,23 @@ begin
   AOnCanFocusRecord.Allow := ViewProducts.CheckAndSaveChanges <> IDCancel;
 end;
 
+procedure TfrmMain.FocusViewComponents;
+begin
+  cxpcMain.ActivePage := cxtshComp;
+  cxpcComp2.ActivePage := cxtshCompGroup;
+  cxpcCompGroupRight.ActivePage := cxtsCategoryComponents;
+end;
+
 function TfrmMain.GetQueryMonitor: TQueryMonitor;
 begin
   Result := TDM.Create.qTreeList.Monitor;
+end;
+
+function TfrmMain.GetViewComponentsFocused: Boolean;
+begin
+  Result := (ViewComponents <> nil) and (cxpcMain.ActivePage = cxtshComp) and
+    (cxpcComp2.ActivePage = cxtshCompGroup) and
+    (cxpcCompGroupRight.ActivePage = cxtsCategoryComponents);
 end;
 
 procedure TfrmMain.LoadDocFromExcelDocument;
@@ -1703,6 +1733,19 @@ begin
     FreeAndNil(AFieldsInfo);
   end;
 
+end;
+
+procedure TfrmMain.TryFocusViewComponents;
+begin
+  if ViewComponentsFocused then
+    // Фокусируем левый верхний угол
+    ViewComponents.FocusTopLeftEx
+  else
+    // Переходим на вкладку "Содержимое группы компонентов"
+    FocusViewComponents;
+
+  Assert(ViewComponents <> nil);
+  ViewComponents.UpdateView;
 end;
 
 procedure TfrmMain.TryUpdateAnalizeStatistic(API: TProgressInfo);

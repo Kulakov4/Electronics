@@ -10,6 +10,8 @@ inherited QuerySearchComponentOrFamily: TQuerySearchComponentOrFamily
       '    p.*'
       '/* Producer'
       ',pv.Value Producer    '
+      ',f.ID FamilyID'
+      ',f.Value FamilyValue'
       'Producer */'
       'from'
       '  Products p'

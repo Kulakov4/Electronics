@@ -169,10 +169,6 @@ inherited ViewProducers: TViewProducers
         item
           Visible = True
           ItemName = 'dxbrsbtmExportImport'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton2'
         end>
     end
     object dxbbAdd: TdxBarButton
@@ -223,10 +219,6 @@ inherited ViewProducers: TViewProducers
       Action = actAddType
       Category = 0
       PaintStyle = psCaptionGlyph
-    end
-    object dxBarButton2: TdxBarButton
-      Action = actRefresh
-      Category = 0
     end
   end
   inherited ActionList: TActionList

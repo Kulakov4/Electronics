@@ -294,6 +294,12 @@ begin
 
   // Массив табличных представлений
   FViewArr := [MainView, cxGridDBBandedTableView2];
+
+  for AView in FViewArr do
+  begin
+    AView.OptionsData.Deleting := False;
+    AView.OptionsData.DeletingConfirmation := False;
+  end;
 end;
 
 destructor TViewComponentsBase.Destroy;
@@ -1032,7 +1038,6 @@ begin
       TNotifyEventWrap.Create(FBaseCompGrp.qBaseComponents.W.BeforeRefresh,
         DoBeforeOpenOrRefresh, FEventList);
 
-
       // Семейства у нас загружаются последними !!!
       TNotifyEventWrap.Create(FBaseCompGrp.qBaseFamily.W.AfterRefresh,
         DoAfterOpenOrRefresh, FEventList);
@@ -1058,7 +1063,6 @@ begin
     // Настраиваем сортировку
     GridSort.Add(TSortVariant.Create(clValue, [clValue]));
     GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
-
 
     // Подписываемся на сообщения об изменении кол-ва
     if UpdateCount = 0 then

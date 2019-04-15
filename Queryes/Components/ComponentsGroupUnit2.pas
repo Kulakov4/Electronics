@@ -63,9 +63,9 @@ type
       : TComponentsExcelTable; const AProducer: string);
     // TODO: LoadBodyList
     // procedure LoadBodyList(AExcelTable: TComponentBodyTypesExcelTable);
-    procedure LoadFromExcelFolder(AFileNames: TList<String>;
+    function LoadFromExcelFolder(AFileNames: TList<String>;
       AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
-      const AProducer: String);
+      const AProducer: String): Integer;
     property qComponents: TQueryComponents read GetqComponents;
     property qFamily: TQueryFamily read GetqFamily;
   end;
@@ -201,7 +201,7 @@ begin
       AComponentsExcelTable.CallOnProcessEvent;
       while not AComponentsExcelTable.Eof do
       begin
-        // Добавляем компонент в базу данных
+        // Добавляем семейство в базу данных
         qFamily.FamilyW.LocateOrAppend
           (AComponentsExcelTable.FamilyName.AsString, AProducer);
 
@@ -306,8 +306,9 @@ end;
 //
 // end;
 
-procedure TComponentsGroup2.LoadFromExcelFolder(AFileNames: TList<String>;
-AutomaticLoadErrorTable: TAutomaticLoadErrorTable; const AProducer: String);
+function TComponentsGroup2.LoadFromExcelFolder(AFileNames: TList<String>;
+AutomaticLoadErrorTable: TAutomaticLoadErrorTable;
+const AProducer: String): Integer;
 var
   AComponentsExcelDM: TComponentsExcelDM;
   AFullFileName: string;
@@ -376,6 +377,8 @@ begin
 
       AComponentsExcelDM := TComponentsExcelDM.Create(Self);
       try
+        AComponentsExcelDM.ExcelTable.Producer := AProducer;
+
         TNotifyEventR.Create(AComponentsExcelDM.BeforeLoadSheet,
         // Перед загрузкой очередного листа
           procedure(ASender: TObject)
@@ -430,17 +433,12 @@ begin
       finally
         FreeAndNil(AComponentsExcelDM);
       end;
-    end
+    end;
+
+    Result := AQueryTreeList.W.PK.Value;
 
   finally
     FreeAndNil(AQueryTreeList);
-  end;
-
-  if qComponents.Master <> nil then
-  begin
-    // загружаем компоненты из нужной нам категории
-    qComponents.Load(qComponents.Master.Wrap.PK.Value);
-    qFamily.Load(qComponents.Master.Wrap.PK.Value);
   end;
 end;
 

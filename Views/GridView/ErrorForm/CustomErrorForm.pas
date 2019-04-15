@@ -22,7 +22,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, GridFrame, GridView, GridViewEx,
   Vcl.ExtCtrls, NotifyEvents, CustomErrorTable, cxControls, cxContainer, cxEdit,
-  cxLabel;
+  cxLabel, System.Actions, Vcl.ActnList;
 
 type
   TContinueType = (ctAll, ctSkip);
@@ -30,6 +30,11 @@ type
 
   TfrmCustomError = class(TfrmGridView)
     lblStatus: TcxLabel;
+    ErrorActionList: TActionList;
+    actAll: TAction;
+    actSkip: TAction;
+    procedure actAllExecute(Sender: TObject);
+    procedure actSkipExecute(Sender: TObject);
   private
     procedure DoOnAssignDataSet(Sender: TObject);
     function GetErrorTable: TCustomErrorTable;
@@ -53,11 +58,30 @@ begin
   TNotifyEventWrap.Create(ViewGridEx.OnAssignDataSet, DoOnAssignDataSet);
 end;
 
+procedure TfrmCustomError.actAllExecute(Sender: TObject);
+begin
+  inherited;
+  FContinueType := ctAll;
+  ModalResult := mrOk;
+end;
+
+procedure TfrmCustomError.actSkipExecute(Sender: TObject);
+begin
+  inherited;
+  FContinueType := ctSkip;
+  ModalResult := mrOk;
+end;
+
 procedure TfrmCustomError.DoOnAssignDataSet(Sender: TObject);
 begin
   if (ErrorTable <> nil) and (ErrorTable.Active) then
+  begin
     lblStatus.Caption := Format('Ошибок: %d, Предупреждений: %d',
       [ErrorTable.TotalError, ErrorTable.TotalWarrings]);
+
+    actAll.Visible := ErrorTable.TotalWarrings > 0;
+    actSkip.Visible := ErrorTable.TotalWarrings > 0;
+  end;
 end;
 
 function TfrmCustomError.GetErrorTable: TCustomErrorTable;

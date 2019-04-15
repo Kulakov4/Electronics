@@ -30,11 +30,6 @@ type
     pmContinue: TPopupMenu;
     N1: TMenuItem;
     N2: TMenuItem;
-    ErrorActionList: TActionList;
-    actAll: TAction;
-    actSkip: TAction;
-    procedure actAllExecute(Sender: TObject);
-    procedure actSkipExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -44,17 +39,5 @@ type
 implementation
 
 {$R *.dfm}
-
-procedure TfrmImportError.actAllExecute(Sender: TObject);
-begin
-  FContinueType := ctAll;
-  ModalResult := mrOk;
-end;
-
-procedure TfrmImportError.actSkipExecute(Sender: TObject);
-begin
-  FContinueType := ctSkip;
-  ModalResult := mrOk;
-end;
 
 end.

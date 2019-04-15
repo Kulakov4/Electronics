@@ -18,7 +18,7 @@ type
     procedure DoAfterDelete(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
-    function Find(const AFieldName, S: string): TList<String>;
+    function Find(const AProducer: string): TArray<String>;
     procedure LoadDataFromExcelTable(AProducersExcelTable
       : TProducersExcelTable);
     procedure LocateOrAppend(AValue: string; const AProducerType: String);
@@ -51,28 +51,34 @@ begin
     qProducers.W.ProducerTypeID.FieldName, True);
 end;
 
-function TProducersGroup2.Find(const AFieldName, S: string): TList<String>;
+function TProducersGroup2.Find(const AProducer: string): TArray<String>;
+var
+  L: TList<String>;
 begin
-  Assert(not AFieldName.IsEmpty);
-  Result := TList<String>.Create();
-
-  // Пытаемся искать среди производителей по какому-то полю
-  if qProducers.W.LocateByF(AFieldName, S, [lxoCaseInsensitive, lxoPartialKey])
-  then
-  begin
-    qProducerTypes.W.LocateByPK(qProducers.W.ProducerTypeID.F.Value, True);
-    // запоминаем что надо искать на первом уровне
-    Result.Add(qProducerTypes.W.ProducerType.F.AsString);
-    // запоминаем что надо искать на втором уровне
-    Result.Add(S);
-  end
-  else
-    // Пытаемся искать среди типов параметров
-    if qProducerTypes.W.LocateByF(qProducerTypes.W.ProducerType.FieldName, S,
-      [lxoCaseInsensitive, lxoPartialKey]) then
+  L := TList<String>.Create();
+  try
+    // Пытаемся искать среди производителей по наименованию
+    if qProducers.W.Name.Locate(AProducer, [lxoCaseInsensitive, lxoPartialKey])
+    then
     begin
-      Result.Add(S);
-    end;
+      qProducerTypes.W.LocateByPK(qProducers.W.ProducerTypeID.F.Value, True);
+      // запоминаем что надо искать на первом уровне
+      L.Add(qProducerTypes.W.ProducerType.F.AsString);
+      // запоминаем что надо искать на втором уровне
+      L.Add(AProducer);
+    end
+    else
+      // Пытаемся искать среди типов производителей
+      if qProducerTypes.W.ProducerType.Locate(AProducer,
+        [lxoCaseInsensitive, lxoPartialKey]) then
+      begin
+        L.Add(AProducer);
+      end;
+
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
+  end;
 end;
 
 function TProducersGroup2.GetqProducers: TQueryProducers;

@@ -9,7 +9,6 @@ inherited ViewComponentsBase: TViewComponentsBase
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
       OnColumnSizeChanged = cxGridDBBandedTableViewColumnSizeChanged
       OnLeftPosChanged = cxGridDBBandedTableViewLeftPosChanged
-      Bands = <>
       OnBandSizeChanged = cxGridDBBandedTableViewBandSizeChanged
     end
     object cxGridDBBandedTableView2: TcxGridDBBandedTableView [1]

@@ -7,7 +7,8 @@ uses
   System.Generics.Collections, FireDAC.Comp.Client, FireDAC.Stan.Intf,
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet,
-  CustomExcelTable, SearchCategoryQuery, SearchFamily;
+  CustomExcelTable, SearchCategoryQuery, SearchFamily,
+  SearchComponentOrFamilyQuery;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -16,12 +17,14 @@ type
   private
     FBadSubGroup: TList<String>;
     FGoodSubGroup: TList<String>;
+    FProducer: string;
     FQuerySearchFamily: TQuerySearchFamily;
     FqSearchCategory: TQuerySearchCategory;
-    function GetIDFamily: TField;
+    FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetFamilyName: TField;
     function GetSubGroup: TField;
     function GetComponentName: TField;
+    procedure SetProducer(const Value: string);
   protected
     function CheckComponent: Boolean;
     function CheckSubGroup: Boolean;
@@ -31,10 +34,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function CheckRecord: Boolean; override;
-    property IDFamily: TField read GetIDFamily;
     property FamilyName: TField read GetFamilyName;
     property SubGroup: TField read GetSubGroup;
     property ComponentName: TField read GetComponentName;
+    property Producer: string read FProducer write SetProducer;
   end;
 
   TComponentsExcelDM = class(TExcelDM)
@@ -181,6 +184,7 @@ begin
   inherited;
   FqSearchCategory := TQuerySearchCategory.Create(Self);
   FQuerySearchFamily := TQuerySearchFamily.Create(Self);
+  FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
   FGoodSubGroup := TList<String>.Create;
   FBadSubGroup := TList<String>.Create;
 end;
@@ -196,25 +200,52 @@ function TComponentsExcelTable.CheckComponent: Boolean;
 var
   ARecordCheck: TRecordCheck;
 begin
-  Result := FQuerySearchFamily.SearchByValueSimple(FamilyName.AsString) = 0;
+  Assert(not Producer.IsEmpty);
 
-  // Если нашли такой компонент
+  // Ищем такой компонент и производителя в базе
+  Result := FqSearchComponentOrFamily.SearchComponentWithProducer
+    (ComponentName.AsString, Producer) = 0;
+
+  // Если нашли такой компонент с таким производителем
   if not Result then
   begin
-    // Запоминаем код родительского компонента
+    // Наш компонент уже есть в базе, и относится к семейству с другим именем
+    if FqSearchComponentOrFamily.W.FamilyValue.F.AsString <> FamilyName.AsString
+    then
+    begin
+      ARecordCheck.ErrorType := etError;
+      ARecordCheck.Row := ExcelRow.AsInteger;
+      ARecordCheck.Col := FamilyName.Index + 1;
+      ARecordCheck.ErrorMessage := FamilyName.AsString;
+      ARecordCheck.Description :=
+        Format('Компонент %s не может принадлежать двум семействам: %s и %s',
+        [ComponentName.AsString,
+        FqSearchComponentOrFamily.W.FamilyValue.F.AsString,
+        FamilyName.AsString]);
+
+      ProcessErrors(ARecordCheck);
+    end
+    else
+    begin
+
+      // Наш компонент и его семейство уже есть в базе
+      ARecordCheck.ErrorType := etWarring;
+      ARecordCheck.Row := ExcelRow.AsInteger;
+      ARecordCheck.Col := FamilyName.Index + 1;
+      ARecordCheck.ErrorMessage := ComponentName.AsString;
+      ARecordCheck.Description :=
+        Format('Компонент %s и его семейство %s уже занесёно в БД',
+        [ComponentName.AsString, FamilyName.AsString]);
+
+      ProcessErrors(ARecordCheck);
+    end;
+
+    // Запоминаем код семейства
+{
     Edit;
     IDFamily.Value := FQuerySearchFamily.W.PK.Value;
     Post;
-
-    ARecordCheck.ErrorType := etWarring;
-    ARecordCheck.Row := ExcelRow.AsInteger;
-    ARecordCheck.Col := FamilyName.Index + 1;
-    ARecordCheck.ErrorMessage := FamilyName.AsString;
-    ARecordCheck.Description :=
-      Format('Семейство компонентов с таким именем уже занесёно в БД в категорию %s',
-      [FQuerySearchFamily.W.SubGroup.F.AsString]);
-
-    ProcessErrors(ARecordCheck);
+}
   end;
 end;
 
@@ -297,11 +328,6 @@ begin
   FieldDefs.Add('IDFamily', ftInteger);
 end;
 
-function TComponentsExcelTable.GetIDFamily: TField;
-begin
-  Result := FieldByName('IDFamily');
-end;
-
 function TComponentsExcelTable.GetFamilyName: TField;
 begin
   Result := FieldByName('FamilyName');
@@ -321,8 +347,14 @@ procedure TComponentsExcelTable.SetFieldsInfo;
 begin
   FieldsInfo.Add(TFieldInfo.Create('FamilyName', False, '', True));
   FieldsInfo.Add(TFieldInfo.Create('ComponentName', True,
-    'Дочернее наименование не должно быть пустым'));
+    'Наименование компонента не должно быть пустым'));
   FieldsInfo.Add(TFieldInfo.Create('SubGroup', False, '', True));
+end;
+
+procedure TComponentsExcelTable.SetProducer(const Value: string);
+begin
+  Assert(not Value.IsEmpty);
+  FProducer := Value;
 end;
 
 end.

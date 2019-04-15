@@ -9,23 +9,27 @@ inherited frmImportError: TfrmImportError
   inherited pnlMain: TPanel
     Width = 609
     Height = 372
+    ExplicitWidth = 609
+    ExplicitHeight = 372
     inherited ViewGridEx: TViewGridEx
       Width = 609
       Height = 372
+      ExplicitWidth = 609
+      ExplicitHeight = 372
       inherited cxGrid: TcxGrid
         Width = 609
         Height = 325
+        ExplicitWidth = 609
+        ExplicitHeight = 325
       end
       inherited StatusBar: TStatusBar
         Top = 353
         Width = 609
+        ExplicitTop = 353
+        ExplicitWidth = 609
       end
       inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          28
-          0)
+        PixelsPerInch = 96
       end
       inherited cxGridPopupMenu: TcxGridPopupMenu
         PopupMenus = <
@@ -46,14 +50,14 @@ inherited frmImportError: TfrmImportError
     Top = 387
     DropDownMenu = pmContinue
     Kind = cxbkDropDownButton
-    ExplicitLeft = 265
-    ExplicitTop = 381
+    ExplicitLeft = 270
+    ExplicitTop = 387
   end
   inherited lblStatus: TcxLabel
     Top = 391
-    ExplicitTop = 385
+    ExplicitTop = 391
   end
-  object cxButton2: TcxButton
+  object cxButton2: TcxButton [3]
     Left = 439
     Top = 387
     Width = 163
@@ -63,10 +67,8 @@ inherited frmImportError: TfrmImportError
     Caption = #1054#1090#1084#1077#1085#1072
     ModalResult = 2
     TabOrder = 3
-    ExplicitLeft = 434
-    ExplicitTop = 381
   end
-  object pmContinue: TPopupMenu
+  object pmContinue: TPopupMenu [4]
     Left = 131
     Top = 35
     object N1: TMenuItem
@@ -75,18 +77,6 @@ inherited frmImportError: TfrmImportError
     end
     object N2: TMenuItem
       Action = actSkip
-    end
-  end
-  object ErrorActionList: TActionList
-    Left = 43
-    Top = 35
-    object actAll: TAction
-      Caption = #1048#1084#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1089#1105
-      OnExecute = actAllExecute
-    end
-    object actSkip: TAction
-      Caption = #1055#1088#1086#1087#1091#1089#1090#1080#1090#1100' '#1079#1072#1087#1080#1089#1080' '#1089' '#1087#1088#1077#1076#1091#1087#1088#1077#1078#1076#1077#1085#1080#1103#1084#1080
-      OnExecute = actSkipExecute
     end
   end
 end
