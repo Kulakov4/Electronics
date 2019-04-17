@@ -14,6 +14,7 @@ uses
 type
   TQueryBaseComponents = class(TQueryCustomComponents)
   private
+    FClone: TFDMemTable;
     FqSearchComponent: TQuerySearchComponentOrFamily;
     procedure DoBeforeOpen(Sender: TObject);
     function GetqSearchComponent: TQuerySearchComponentOrFamily;
@@ -45,6 +46,8 @@ constructor TQueryBaseComponents.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
+
+  FClone := W.AddClone('');
 end;
 
 procedure TQueryBaseComponents.ApplyDelete(ASender: TDataSet;
@@ -129,10 +132,24 @@ end;
 
 function TQueryBaseComponents.Exists(AParentProductID: Integer): Boolean;
 begin
-  Result := (FDQuery.RecordCount > 0) and
-    ((W.ParentProductID.F.AsInteger = AParentProductID) or
-    not VarIsNull(FDQuery.LookupEx(W.ParentProductID.FieldName, AParentProductID,
-    W.PKFieldName)));
+  Result := False;
+
+  if FDQuery.RecordCount = 0 then
+    Exit;
+
+
+  if W.ParentProductID.F.AsInteger = AParentProductID then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+//  if not (FDQuery.State in [dsBrowse]) then
+//    Exit;
+
+  // Клон нужен так как набор данных может быть не в режиме dsBrowse
+  Result := not VarIsNull(FClone.LookupEx(W.ParentProductID.FieldName,
+    AParentProductID, W.PKFieldName));
 end;
 
 end.

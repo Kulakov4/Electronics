@@ -95,7 +95,6 @@ end;
 
 destructor TDMRepository.Destroy;
 begin
-  inherited;
   FreeAndNil(FAfterCommit);
   FreeAndNil(FBeforeCommit);
 
@@ -105,30 +104,35 @@ begin
   FreeAndNil(FBeforeDisconnect);
 
   FreeAndNil(FBeforeDestroy);
+  inherited;
 end;
 
 procedure TDMRepository.dbConnectionAfterCommit(Sender: TObject);
 begin
   // Извещаем всех о коммите
-  FAfterCommit.CallEventHandlers(Sender);
+  if FAfterCommit <> nil then
+    FAfterCommit.CallEventHandlers(Sender);
 end;
 
 procedure TDMRepository.dbConnectionAfterConnect(Sender: TObject);
 begin
   // Извещаем всех, что соединение с БД установлено
-  FAfterConnect.CallEventHandlers(Sender);
+  if FAfterConnect <> nil then
+    FAfterConnect.CallEventHandlers(Sender);
 end;
 
 procedure TDMRepository.dbConnectionAfterRollback(Sender: TObject);
 begin
   // Извещаем всех о роллбэке
-  FAfterRollback.CallEventHandlers(Sender);
+  if FAfterRollback <> nil then
+    FAfterRollback.CallEventHandlers(Sender);
 end;
 
 procedure TDMRepository.dbConnectionBeforeCommit(Sender: TObject);
 begin
   // Извещаем всех о предстоящем коммите
-  FBeforeCommit.CallEventHandlers(Sender);
+  if FBeforeCommit <> nil then
+    FBeforeCommit.CallEventHandlers(Sender);
 end;
 
 procedure TDMRepository.dbConnectionBeforeDisconnect(Sender: TObject);
