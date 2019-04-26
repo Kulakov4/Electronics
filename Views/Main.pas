@@ -1704,7 +1704,7 @@ begin
       // »щем все дочерние категории
       rc := TDM.Create.qSearchDaughterCategories.SearchEx
         (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
-      Assert(rc > 1);
+      Assert(rc > 0);
     end;
 
     AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
