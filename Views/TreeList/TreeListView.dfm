@@ -41,7 +41,7 @@ inherited ViewTreeList: TViewTreeList
     object clValue: TcxDBTreeListColumn
       DataBinding.FieldName = 'Value'
       MinWidth = 100
-      Width = 100
+      Width = 500
       Position.ColIndex = 1
       Position.RowIndex = 0
       Position.BandIndex = 0
@@ -85,7 +85,6 @@ inherited ViewTreeList: TViewTreeList
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
-    ExplicitWidth = 8
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False
