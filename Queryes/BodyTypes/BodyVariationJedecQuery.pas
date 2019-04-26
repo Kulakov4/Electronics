@@ -81,7 +81,8 @@ begin
   SearchByIDBodyVariation(AIDBodyVariation);
 
   // Сначала удалим всё лишнее
-
+  W.DeleteAll;
+{
   TArray.Sort<Integer>(AJedecIDArr);
   FDQuery.First;
   while not FDQuery.Eof do
@@ -92,7 +93,7 @@ begin
     else
       FDQuery.Next;
   end;
-
+}
   // Теперь добавим недостающее
   for i := Low(AJedecIDArr) to High(AJedecIDArr) do
   begin

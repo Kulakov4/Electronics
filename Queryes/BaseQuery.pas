@@ -85,8 +85,8 @@ type
     function Search(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>; TestResult: Integer = -1)
       : Integer; overload;
-    function SearchEx(AParams: TArray<TParamRec>; TestResult: Integer = -1; ASQL:
-        String = ''): Integer;
+    function SearchEx(AParams: TArray<TParamRec>; TestResult: Integer = -1;
+      ASQL: String = ''): Integer;
     function SetParamType(const AParamName: String;
       AParamType: TParamType = ptInput; ADataType: TFieldType = ftInteger)
       : TFDParam;
@@ -214,6 +214,8 @@ procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
+  AAction := eaApplied;
+
   if ARequest in [arDelete, arInsert, arUpdate] then
   begin
     // try
@@ -245,8 +247,8 @@ begin
       end;
     }
   end
-//  else
-//    AAction := eaSkip;
+  // else
+  // AAction := eaSkip;
 end;
 
 procedure TQueryBase.DoOnUpdateRecordException(AException: Exception);
@@ -484,8 +486,8 @@ begin
     Assert(Result = TestResult);
 end;
 
-function TQueryBase.SearchEx(AParams: TArray<TParamRec>; TestResult: Integer =
-    -1; ASQL: String = ''): Integer;
+function TQueryBase.SearchEx(AParams: TArray<TParamRec>;
+  TestResult: Integer = -1; ASQL: String = ''): Integer;
 var
   AParamNames: TList<String>;
   AFormatStr: string;

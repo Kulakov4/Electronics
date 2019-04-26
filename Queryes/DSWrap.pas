@@ -1110,8 +1110,16 @@ procedure TDSWrap.RefreshQuery;
 begin
   FDataSet.DisableControls;
   try
-    if FDataSet.Active then
-      FDataSet.Refresh
+    if (FDataSet.Active) then
+    begin
+      if FDDataSet.ChangeCount = 0 then
+        FDataSet.Refresh
+      else
+      begin
+        FDataSet.Close;
+        FDataSet.Open;
+      end;
+    end
     else
       FDataSet.Open;
 

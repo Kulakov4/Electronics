@@ -67,7 +67,8 @@ begin
   SearchByIDBodyVariation(AIDBodyVariation);
 
   // Сначала удалим всё лишнее
-
+  W.DeleteAll;
+{
   TArray.Sort<Integer>(AOptionIDArr);
   FDQuery.First;
   while not FDQuery.Eof do
@@ -78,7 +79,7 @@ begin
     else
       FDQuery.Next;
   end;
-
+}
   // Теперь добавим недостающее
   for i := Low(AOptionIDArr) to High(AOptionIDArr) do
   begin
