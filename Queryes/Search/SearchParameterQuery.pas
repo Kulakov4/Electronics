@@ -121,7 +121,7 @@ end;
 constructor TSearchParameterW.Create(AOwner: TComponent);
 begin
   inherited;
-  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FID := TFieldWrap.Create(Self, 'p.ID', '', True);
   FCodeLetters := TFieldWrap.Create(Self, 'CodeLetters');
   FDefinition := TFieldWrap.Create(Self, 'Definition');
   FIDParameterKind := TFieldWrap.Create(Self, 'IDParameterKind');

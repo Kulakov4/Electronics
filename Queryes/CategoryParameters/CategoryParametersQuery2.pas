@@ -19,7 +19,6 @@ type
 
   TCategoryParameters2W = class(TDSWrap)
   private
-    FCategoryID: TFieldWrap;
     FID: TFieldWrap;
     FIDParameter: TFieldWrap;
     FIDParameterKind: TFieldWrap;
@@ -54,7 +53,6 @@ type
     function NextEx: Boolean;
     procedure SetPos(APosID: Integer); overload;
     procedure SetPos(AIDArray: TArray<Integer>; APosID: Integer); overload;
-    property CategoryID: TFieldWrap read FCategoryID;
     property ID: TFieldWrap read FID;
     property IDParameter: TFieldWrap read FIDParameter;
     property IDParameterKind: TFieldWrap read FIDParameterKind;
@@ -195,7 +193,7 @@ begin
   Assert(ASender = FDQuery);
   // Рекурсивно удаляем из категорий сам параметр
   QueryRecursiveParameters.ExecDeleteSQL(W.ParamSubParamId.F.OldValue,
-    W.CategoryID.F.OldValue);
+    W.ProductCategoryID.F.OldValue);
 
   // Запоминаем, какаой подпараметр мы удалили
   FDeletedSubParams.Add(TRecordHolder.Create(FDQuery));
@@ -213,11 +211,11 @@ begin
 
   // Рекурсивно вставляем записи в БД
   QueryRecursiveParameters.ExecInsertSQL(W.PosID.F.Value, W.Ord.F.Value,
-    W.ParamSubParamId.F.Value, W.CategoryID.F.Value);
+    W.ParamSubParamId.F.Value, W.ProductCategoryID.F.Value);
 
   // Выбираем вставленную запись чтобы узнать её идентификатор
   RefreshQry.Load([DetailParameterName, W.ParamSubParamId.FieldName],
-    [W.CategoryID.F.Value, W.ParamSubParamId.F.Value]);
+    [W.ProductCategoryID.F.Value, W.ParamSubParamId.F.Value]);
 
   // Должна быть выбрана только одна запись
   // Иначе - нарушено ограничение уникальности
@@ -253,7 +251,7 @@ begin
 
     QueryRecursiveParameters.ExecUpdateOrdSQL(W.PosID.F.OldValue,
       W.PosID.F.Value, W.Ord.F.OldValue, W.Ord.F.Value,
-      W.ParamSubParamId.F.AsInteger, W.CategoryID.F.AsInteger);
+      W.ParamSubParamId.F.AsInteger, W.ProductCategoryID.F.AsInteger);
   end;
 
   // Если изменилось что-то другое
@@ -266,7 +264,7 @@ begin
     QueryRecursiveParameters.ExecUpdateSQL(W.PosID.F.OldValue, W.PosID.F.Value,
       W.Ord.F.OldValue, W.Ord.F.Value, W.IsAttribute.F.OldValue,
       W.IsAttribute.F.Value, W.ParamSubParamId.F.OldValue,
-      W.ParamSubParamId.F.AsInteger, W.CategoryID.F.AsInteger);
+      W.ParamSubParamId.F.AsInteger, W.ProductCategoryID.F.AsInteger);
 
     ARecHolder := TRecordHolder.Create(FDQuery);
     ARecHolder.Field[W.ParamSubParamId.FieldName] :=
@@ -445,15 +443,20 @@ begin
 end;
 
 function TQueryCategoryParameters2.GetRefreshQry: TQueryCategoryParameters2;
+var
+  AStipulation: string;
 begin
   if FRefreshQry = nil then
   begin
     FRefreshQry := TQueryCategoryParameters2.Create(Self);
-    // Добавляем в текст SQL запроса условие с параметром
-    FRefreshQry.FDQuery.SQL.Text := FRefreshQry.FDQuery.SQL.Text.Replace
-      ('and 0=0', 'and 0=0 and ParamSubParamId = :ParamSubParamID');
 
-    FRefreshQry.SetParamType('ParamSubParamID');
+    // Добавляем в текст SQL запроса условие с параметром
+    AStipulation := Format('%s = :%s', [W.ParamSubParamId.FieldName,
+      W.ParamSubParamId.FieldName]);
+    FRefreshQry.FDQuery.SQL.Text := ReplaceInSQL(FRefreshQry.FDQuery.SQL.Text,
+      AStipulation, 1);
+
+    FRefreshQry.SetParamType(W.ParamSubParamId.FieldName);
   end;
 
   Result := FRefreshQry;
@@ -550,7 +553,7 @@ constructor TCategoryParameters2W.Create(AOwner: TComponent);
 begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
-  FCategoryID := TFieldWrap.Create(Self, 'CategoryID');
+  // FCategoryID := TFieldWrap.Create(Self, 'CategoryID');
   FIDParameter := TFieldWrap.Create(Self, 'IDParameter');
   FIDParameterKind := TFieldWrap.Create(Self, 'IDParameterKind');
   FIdSubParameter := TFieldWrap.Create(Self, 'IdSubParameter');
