@@ -41,6 +41,7 @@ type
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
+    procedure RefreshOrOpen; virtual;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -59,7 +60,6 @@ type
       AOptions: TFDUpdateRowOptions);
     function GetHaveAnyChanges: Boolean; virtual;
     function GetHaveAnyNotCommitedChanges: Boolean; virtual;
-    procedure RefreshOrOpen; virtual;
     property FDUpdateSQL: TFDUpdateSQL read GetFDUpdateSQL;
   public
     constructor Create(AOwner: TComponent); override;

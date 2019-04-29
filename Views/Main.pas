@@ -115,7 +115,6 @@ type
     procedure actShowExtraChargeExecute(Sender: TObject);
     procedure actShowProducersExecute(Sender: TObject);
     procedure actShowParametersExecute(Sender: TObject);
-    procedure actTestExecute(Sender: TObject);
     procedure ApplicationEventsException(Sender: TObject; E: Exception);
     procedure ApplicationEventsHint(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -397,11 +396,6 @@ begin
   end;
 
   frmParameters.Show;
-end;
-
-procedure TfrmMain.actTestExecute(Sender: TObject);
-begin
-  beep;
 end;
 
 procedure TfrmMain.ApplicationEventsException(Sender: TObject; E: Exception);

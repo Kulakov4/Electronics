@@ -570,7 +570,7 @@ begin
     FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
 
   // Обновляем или открываем заново запрос
-  RefreshOrOpen;
+  Wrap.RefreshQuery;
 
   AfterLoad.CallEventHandlers(FDQuery);
 end;

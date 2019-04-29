@@ -1912,6 +1912,7 @@ begin
   BaseCompGrp := nil;
 
   FLockInfo.Locked := True;
+  BeginUpdate;
 end;
 
 procedure TViewParametricTable.OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
@@ -2193,6 +2194,7 @@ begin
 
   // Подключаем представление к данным
   BaseCompGrp := FLockInfo.BaseComponentsGroup;
+  EndUpdate;
 end;
 
 procedure TViewParametricTable.UpdateBandsCaptions;

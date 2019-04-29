@@ -1108,8 +1108,8 @@ end;
 
 procedure TDSWrap.RefreshQuery;
 begin
-  FDataSet.DisableControls;
-  try
+//  FDataSet.DisableControls;
+//  try
     if (FDataSet.Active) then
     begin
       if FDDataSet.ChangeCount = 0 then
@@ -1124,9 +1124,9 @@ begin
       FDataSet.Open;
 
     FNeedRefresh := False;
-  finally
-    FDataSet.EnableControls;
-  end;
+//  finally
+//    FDataSet.EnableControls;
+//  end;
 end;
 
 function TDSWrap.RestoreBookmark: Boolean;

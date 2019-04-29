@@ -25,7 +25,6 @@ type
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
-    procedure RefreshOrOpen; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -40,6 +39,7 @@ type
     FAnalog: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshQuery; override;
     property Analog: TFieldWrap read FAnalog;
   end;
 
@@ -108,18 +108,19 @@ begin
   end;
 end;
 
-procedure TQueryComponentsEx.RefreshOrOpen;
-begin
-  if FDQuery.Active then
-    FDQuery.Close;
-
-  FDQuery.Open;
-end;
-
 constructor TComponentsExW.Create(AOwner: TComponent);
 begin
   inherited;
   FAnalog := TFieldWrap.Create(Self, 'Analog');
+end;
+
+procedure TComponentsExW.RefreshQuery;
+begin
+  if DataSet.Active then
+    DataSet.Close;
+  DataSet.Open;
+
+  NeedRefresh := False;
 end;
 
 end.

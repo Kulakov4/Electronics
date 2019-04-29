@@ -602,6 +602,8 @@ procedure TViewComponentsBase.CreateCountEvents;
 begin
   // Подписываемся на события чтобы отслеживать кол-во
 
+  Assert(FCountEvents.Count = 0);
+
   TNotifyEventWrap.Create(BaseCompGrp.qBaseFamily.W.AfterPostM,
     DoOnUpdateFamilyCount, FCountEvents);
 
@@ -761,7 +763,7 @@ end;
 
 procedure TViewComponentsBase.Create_Columns;
 var
-  ABand: TcxGridBand;
+//  ABand: TcxGridBand;
   ACol: TcxGridDBBandedColumn;
   AColInfo: TColInfo;
   Arr: TArray<TColInfo>;
@@ -784,7 +786,7 @@ begin
 
       // Если такого бэнда не существует
       while AView.Bands.Count <= AColInfo.BandIndex do
-        ABand := AView.Bands.Add;
+        {ABand := }AView.Bands.Add;
 
       if AColInfo.BandCaption <> '' then
         AView.Bands[AColInfo.BandIndex].Caption := AColInfo.BandCaption;
@@ -1095,6 +1097,16 @@ end;
 
 procedure TViewComponentsBase.DoOnUpdateFamilyCount(Sender: TObject);
 begin
+  Assert(BaseCompGrp <> nil);
+(*
+  // Событие может прийти позже, после того как набор данных будет разрушен
+  if BaseCompGrp = nil then
+  begin
+    beep;
+    Exit;
+  end;
+*)
+
   if BaseCompGrp.qBaseFamily.FDQuery.State = dsBrowse then
   begin
     // Выводим кол-во родительских наименований

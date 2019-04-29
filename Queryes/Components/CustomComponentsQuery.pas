@@ -337,7 +337,8 @@ begin
     Assert(qSearchProductParameterValues.W.PK.AsInteger > 0);
 
     if AIDProductParameterValue <> nil then
-      AIDProductParameterValue.Value := qSearchProductParameterValues.W.PK.Value;
+      AIDProductParameterValue.Value :=
+        qSearchProductParameterValues.W.PK.Value;
   end;
 end;
 

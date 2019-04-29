@@ -101,6 +101,7 @@ type
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure SetSaleCount(ASaleCount: Double);
     function GetStorehouseProductID(AVirtualID: Integer): Integer;
+    procedure RefreshQuery; override;
     procedure TunePriceFields(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
     property ID: TFieldWrap read FID;
@@ -224,7 +225,6 @@ type
     function GetEuroCource: Double; virtual;
     function GetExportFileName: string; virtual; abstract;
     function GetHaveAnyChanges: Boolean; override;
-    procedure RefreshOrOpen; override;
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
@@ -1361,13 +1361,6 @@ begin
   end;
 end;
 
-procedure TQueryProductsBase.RefreshOrOpen;
-begin
-  // inherited;
-  FDQuery.Close;
-  FDQuery.Open;
-end;
-
 procedure TQueryProductsBase.SaveExtraCharge;
 begin
   Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
@@ -1851,6 +1844,15 @@ begin
   // Assert(FVirtualIDOffset < 0);
   Assert(AID > 0);
   Result := (AID * -1) + VirtualIDOffset;
+end;
+
+procedure TProductW.RefreshQuery;
+begin
+  if DataSet.Active then
+    DataSet.Close;
+  DataSet.Open;
+
+  NeedRefresh := False;
 end;
 
 procedure TProductW.TunePriceFields(const AFields: Array of TField);

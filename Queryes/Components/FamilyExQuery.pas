@@ -9,9 +9,15 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  ApplyQueryFrame, NotifyEvents, System.Generics.Collections, DBRecordHolder;
+  ApplyQueryFrame, NotifyEvents, System.Generics.Collections, DBRecordHolder,
+  DSWrap;
 
 type
+  TFamilyExW = class(TFamilyW)
+  public
+    procedure RefreshQuery; override;
+  end;
+
   TQueryFamilyEx = class(TQueryFamily)
   private
     FOn_ApplyUpdate: TNotifyEventsEx;
@@ -23,7 +29,7 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
-    procedure RefreshOrOpen; override;
+    function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -72,12 +78,18 @@ begin
   On_ApplyUpdate.CallEventHandlers(Self);
 end;
 
-procedure TQueryFamilyEx.RefreshOrOpen;
+function TQueryFamilyEx.CreateDSWrap: TDSWrap;
 begin
-  if FDQuery.Active then
-    FDQuery.Close;
+  Result := TFamilyExW.Create(FDQuery);
+end;
 
-  FDQuery.Open;
+procedure TFamilyExW.RefreshQuery;
+begin
+  if DataSet.Active then
+    DataSet.Close;
+  DataSet.Open;
+
+  NeedRefresh := False;
 end;
 
 end.
