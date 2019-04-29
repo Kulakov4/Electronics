@@ -415,7 +415,7 @@ end;
 
 procedure TViewAnalogGrid.CreateColumnsForBand(AIDCategoryParam: Integer);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AIDList: TList<Integer>;
 begin
   Assert(AIDCategoryParam > 0);
@@ -424,29 +424,28 @@ begin
 
   AIDList := TList<Integer>.Create;
   // Получаем все подпараметры текущего бэнда
-  AClone := qCategoryParameters.CreateSubParamsClone;
+  ACloneW := qCategoryParameters.CreateSubParamsClone;
   try
     // Составляем список идентификаторов текущего бэнда
-    while not AClone.Eof do
+    while not ACloneW.DataSet.Eof do
     begin
-      AIDList.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger);
-      AClone.Next;
+      AIDList.Add(ACloneW.ID.F.AsInteger);
+      ACloneW.DataSet.Next;
     end;
 
-    AClone.First;
-    while not AClone.Eof do
+    ACloneW.DataSet.First;
+    while not ACloneW.DataSet.Eof do
     begin
       // Переходим на очередной подпараметр
-      qCategoryParameters.W.LocateByPK
-        (AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger, True);
+      qCategoryParameters.W.LocateByPK(ACloneW.ID.F.AsInteger, True);
 
       // Создаём колонку
       CreateColumn([MainView], AIDList.ToArray, qCategoryParameters);
 
-      AClone.Next;
+      ACloneW.DataSet.Next;
     end;
   finally
-    qCategoryParameters.W.DropClone(AClone);
+    qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
     FreeAndNil(AIDList);
   end;
 

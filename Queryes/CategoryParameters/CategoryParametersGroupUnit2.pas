@@ -137,8 +137,8 @@ type
     procedure DeleteSubParameters(APKValues: array of Integer);
     function GetIDList(AID: Integer): TArray<Integer>;
     procedure LoadData;
-    procedure MoveParameters(IDList: TList<Integer>; TargetID: Integer;
-      AUp: Boolean);
+    procedure MoveParameters(IDArr: TArray<Integer>; TargetID: Integer; AUp:
+        Boolean);
     procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
       AUp: Boolean);
     procedure RefreshData; override;
@@ -313,7 +313,7 @@ end;
 procedure TCategoryParametersGroup2.AppendSubParameter(AID,
   ASubParamID: Integer);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AOrder: Integer;
   APosID: Integer;
   rc: Integer;
@@ -340,10 +340,10 @@ begin
   qSearchParamSubParam.SearchByID(qParamSubParams.W.PK.Value, 1);
 
   // Получам подпараметры текущего параметра
-  AClone := qCategoryParameters.CreateSubParamsClone;
+  ACloneW := qCategoryParameters.CreateSubParamsClone;
   try
     // Если этот параметр ещё не имеет подпараметров
-    if (AClone.RecordCount = 1) and
+    if (ACloneW.DataSet.RecordCount = 1) and
       (qCategoryParameters.W.IsDefault.F.AsInteger = 1) then
     begin
       // Надо заменить подпараметр по умолчанию на добавляемый подпараметр
@@ -359,10 +359,9 @@ begin
     else
     begin
       // Добавлять подпараметр будем в конец!
-      AClone.Last;
+      ACloneW.DataSet.Last;
       // новое значение порядка
-      AOrder := AClone.FieldByName(qCategoryParameters.W.Ord.FieldName)
-        .AsInteger + 1;
+      AOrder := ACloneW.Ord.F.AsInteger + 1;
       APosID := qCategoryParameters.W.PosID.F.AsInteger;
       // увеличим значение порядка всех параметров/подпараметров на 1.
       // Они сместятся вниз!
@@ -382,7 +381,7 @@ begin
 
     end;
   finally
-    qCategoryParameters.W.DropClone(AClone);
+    qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
   end;
 end;
 
@@ -459,20 +458,19 @@ end;
 procedure TCategoryParametersGroup2.DeleteParameters
   (APKValues: array of Integer);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AID: Integer;
 begin
   for AID in APKValues do
   begin
     qCategoryParameters.W.LocateByPK(AID);
     // Получаем все подпараметры, относящиеся к текущей записи
-    AClone := qCategoryParameters.CreateSubParamsClone;
+    ACloneW := qCategoryParameters.CreateSubParamsClone;
     try
       // Удаляем всё
-      while not AClone.Eof do
-        AClone.Delete;
+      ACloneW.DeleteAll;
     finally
-      qCategoryParameters.W.DropClone(AClone);
+      qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
     end;
   end;
   LoadData;
@@ -481,17 +479,17 @@ end;
 procedure TCategoryParametersGroup2.DeleteSubParameters
   (APKValues: array of Integer);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AID: Integer;
   VID: Integer;
 begin
   for AID in APKValues do
   begin
     qCategoryParameters.W.LocateByPK(AID, True);
-    AClone := qCategoryParameters.CreateSubParamsClone;
+    ACloneW := qCategoryParameters.CreateSubParamsClone;
     try
       // Если этот параметр имел единстенный подпараметр
-      if AClone.RecordCount = 1 then
+      if ACloneW.DataSet.RecordCount = 1 then
       begin
         // Выбираем информацию о том, какой подпараметр "по умолчанию" у нашего параметра
         qSearchParamDefSubParam.SearchByID
@@ -514,7 +512,7 @@ begin
       begin
         // Удаляем подпараметр;
         qCategoryParameters.FDQuery.Delete;
-        Assert(AClone.RecordCount > 0);
+        Assert(ACloneW.DataSet.RecordCount > 0);
         // Если мы удалили первый подпараметр
         if FIDDic.ContainsKey(AID) then
         begin
@@ -522,12 +520,11 @@ begin
           VID := FIDDic[AID];
           FIDDic.Remove(AID);
           // Добавляем идентификатор первого подпараметра
-          FIDDic.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName)
-            .AsInteger, VID);
+          FIDDic.Add(ACloneW.ID.F.AsInteger, VID);
         end;
       end;
     finally
-      qCategoryParameters.W.DropClone(AClone);
+      qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
     end;
   end;
 
@@ -562,7 +559,7 @@ end;
 
 function TCategoryParametersGroup2.GetIDList(AID: Integer): TArray<Integer>;
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   L: TList<Integer>;
 begin
   Assert(AID > 0);
@@ -572,17 +569,17 @@ begin
   L := TList<Integer>.Create;
   try
     qCategoryParameters.W.LocateByPK(AID, True);
-    AClone := qCategoryParameters.CreateSubParamsClone;
+    ACloneW := qCategoryParameters.CreateSubParamsClone;
     try
       // Составляем список идентификаторов текущего бэнда
-      while not AClone.Eof do
+      while not ACloneW.DataSet.Eof do
       begin
-        L.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger);
-        AClone.Next;
+        L.Add(ACloneW.ID.F.AsInteger);
+        ACloneW.DataSet.Next;
       end;
       Result := L.ToArray;
     finally
-      qCategoryParameters.W.DropClone(AClone);
+      qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
     end;
   finally
     FreeAndNil(L);
@@ -708,43 +705,47 @@ begin
   UpdateData;
 end;
 
-procedure TCategoryParametersGroup2.MoveParameters(IDList: TList<Integer>;
-  TargetID: Integer; AUp: Boolean);
+procedure TCategoryParametersGroup2.MoveParameters(IDArr: TArray<Integer>;
+    TargetID: Integer; AUp: Boolean);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AID: Integer;
   L: TDictionary<Integer, Integer>;
   ACount: Integer;
+  AIDList: TList<Integer>;
 begin
-  Assert(IDList.Count > 0);
+  Assert(Length(IDArr) > 0);
   Assert(TargetID <> 0);
   ACount := 0;
 
+
+  AIDList := TList<Integer>.Create();
   L := TDictionary<Integer, Integer>.Create;
   try
-    IDList.Add(TargetID);
-    for AID in IDList do
+    AIDList.AddRange(IDArr);
+    AIDList.Add(TargetID);
+    for AID in AIDList do
     begin
       if AID = TargetID then
         ACount := L.Count; // Количество переносимых записей
 
       qCategoryParameters.W.LocateByPK(AID, True);
-      AClone := qCategoryParameters.CreateSubParamsClone;
+      ACloneW := qCategoryParameters.CreateSubParamsClone;
       try
-        while not AClone.Eof do
+        while not ACloneW.DataSet.Eof do
         begin
-          L.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger,
-            AClone.FieldByName(qCategoryParameters.W.Ord.FieldName).AsInteger);
-          AClone.Next;
+          L.Add(ACloneW.ID.F.AsInteger, ACloneW.Ord.F.AsInteger);
+          ACloneW.DataSet.Next;
         end;
       finally
-        qCategoryParameters.W.DropClone(AClone);
+        qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
       end;
     end;
 
     qCategoryParameters.W.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
   finally
     FreeAndNil(L);
+    FreeAndNil(AIDList);
   end;
   LoadData;
 end;
@@ -752,7 +753,7 @@ end;
 procedure TCategoryParametersGroup2.MoveSubParameters(IDList: TList<Integer>;
   TargetID: Integer; AUp: Boolean);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AID: Integer;
   L: TDictionary<Integer, Integer>;
   ACount: Integer;
@@ -775,15 +776,15 @@ begin
       L.Add(qCategoryParameters.W.PK.Value, qCategoryParameters.W.Ord.F.Value);
     end;
 
-    AClone := qCategoryParameters.CreateSubParamsClone;
+    ACloneW := qCategoryParameters.CreateSubParamsClone;
     try
       // Идентификатор первого подпараметра
-      AID := AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger;
+      AID := ACloneW.ID.F.AsInteger;
       // Просим произвести перенос
       qCategoryParameters.W.Move(TMoveHelper.Move(L.ToArray, AUp, ACount));
-      ANewID := AClone.FieldByName(qCategoryParameters.W.PKFieldName).AsInteger;
+      ANewID := ACloneW.ID.F.AsInteger;
     finally
-      qCategoryParameters.W.DropClone(AClone);
+      qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
     end;
 
     // Если в ходе перемещения, на первое место встал другой подпараметр
@@ -815,7 +816,7 @@ end;
 procedure TCategoryParametersGroup2.SetPos(AIDArray: TArray<Integer>;
   AWithSubParams: Boolean; APosID: Integer);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
   AID: Integer;
   AIDList: TList<Integer>;
 begin
@@ -826,16 +827,15 @@ begin
       qCategoryParameters.W.LocateByPK(AID);
       if AWithSubParams then
       begin
-        AClone := qCategoryParameters.CreateSubParamsClone;
+        ACloneW := qCategoryParameters.CreateSubParamsClone;
         try
-          while not AClone.Eof do
+          while not ACloneW.DataSet.Eof do
           begin
-            AIDList.Add(AClone.FieldByName(qCategoryParameters.W.PKFieldName)
-              .AsInteger);
-            AClone.Next;
+            AIDList.Add(ACloneW.ID.F.AsInteger);
+            ACloneW.DataSet.Next;
           end;
         finally
-          qCategoryParameters.W.DropClone(AClone);
+          qCategoryParameters.W.DropClone(ACloneW.DataSet as TFDMemTable);
         end;
       end
       else

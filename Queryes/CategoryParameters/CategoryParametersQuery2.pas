@@ -110,7 +110,7 @@ type
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
     procedure ClearSubParamsRecHolders;
-    function CreateSubParamsClone: TFDMemTable;
+    function CreateSubParamsClone: TCategoryParameters2W;
     function GetAllIDSubParamList: string;
     procedure IncOrder(AStartOrder: Integer);
     function NextOrder: Integer;
@@ -305,7 +305,7 @@ begin
   Result := TCategoryParameters2W.Create(FDQuery);
 end;
 
-function TQueryCategoryParameters2.CreateSubParamsClone: TFDMemTable;
+function TQueryCategoryParameters2.CreateSubParamsClone: TCategoryParameters2W;
 var
   AIDList: TList<Integer>;
   AIDParameter: Integer;
@@ -366,8 +366,8 @@ begin
   end;
 
   AFilter := Format('%s in (%s)', [W.PKFieldName, S]);
-  Result := W.AddClone(AFilter);
 
+  Result := TCategoryParameters2W.Create(W.AddClone(AFilter));
 end;
 
 procedure TQueryCategoryParameters2.DoAfterInsert(Sender: TObject);
@@ -528,24 +528,24 @@ end;
 
 procedure TQueryCategoryParameters2.SetIsAttribute(AID, AIsAttribute: Integer);
 var
-  AClone: TFDMemTable;
+  ACloneW: TCategoryParameters2W;
 begin
   Assert(AID > 0);
   Assert(AIsAttribute in [0, 1]);
 
   W.LocateByPK(AID, True);
-  AClone := CreateSubParamsClone;
+  ACloneW := CreateSubParamsClone;
   try
-    while not AClone.Eof do
+    while not ACloneW.DataSet.Eof do
     begin
-      AClone.Edit;
-      AClone.FieldByName(W.IsAttribute.FieldName).AsInteger := AIsAttribute;
-      AClone.Post;
+      ACloneW.TryEdit;
+      ACloneW.IsAttribute.F.AsInteger := AIsAttribute;
+      ACloneW.TryPost;
 
-      AClone.Next;
+      ACloneW.DataSet.Next;
     end;
   finally
-    W.DropClone(AClone);
+    W.DropClone(ACloneW.DataSet as TFDMemTable);
   end;
 end;
 

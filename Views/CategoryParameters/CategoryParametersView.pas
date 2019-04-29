@@ -555,10 +555,14 @@ var
   ARowIndex: Integer;
   AView: TcxGridDBBandedTableView;
   IDList: TList<Integer>;
+  VID: Integer;
+  VIDArr: TArray<Integer>;
 begin
   inherited;
   AView := FocusedTableView;
   Assert(AView = MainView);
+
+  // AView.Controller.SelectedRowCount
 
   if not GetSelectedRowIndexesForMove(AView, AUp, m, i) then
     Exit;
@@ -571,6 +575,8 @@ begin
   if Value(AView, clPosID, m[high(m)]) <> Value(AView, clPosID, m[0]) then
     Exit;
 
+  VIDArr := GetSelectedIntValues(clVID);
+
   // В этой точке уже понятно что изменение положения возможно!
   IDList := TList<Integer>.Create;
   try
@@ -582,10 +588,18 @@ begin
     AView.BeginSortingUpdate;
     try
       // Вызываем перемешение параметров
-      CatParamsGroup.MoveParameters(IDList, Value(AView, clID, i), AUp);
+      CatParamsGroup.MoveParameters(IDList.ToArray, Value(AView, clID, i), AUp);
     finally
       AView.EndSortingUpdate;
     end;
+
+    for VID in VIDArr do
+    begin
+      if AView.DataController.Search.Locate(clVID.Index, VID.ToString, False,
+        True) then
+        clValue.Selected := True;
+    end;
+
   finally
     FreeAndNil(IDList);
   end;
