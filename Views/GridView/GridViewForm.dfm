@@ -15,46 +15,6 @@ inherited frmGridView: TfrmGridView
     Align = alNone
     ExplicitWidth = 618
     ExplicitHeight = 371
-    inherited ViewGridEx: TViewGridEx
-      Width = 618
-      Height = 371
-      ExplicitWidth = 618
-      ExplicitHeight = 371
-      inherited cxGrid: TcxGrid
-        Width = 618
-        Height = 324
-        ExplicitWidth = 618
-        ExplicitHeight = 324
-      end
-      inherited StatusBar: TStatusBar
-        Top = 352
-        Width = 618
-        ExplicitTop = 352
-        ExplicitWidth = 618
-      end
-      inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          28
-          0)
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewGridEx.cxGridDBBandedTableView
-            HitTypes = [gvhtNone, gvhtCell]
-            Index = 0
-            PopupMenu = ViewGridEx.pmGrid
-          end>
-      end
-      inherited DataSource: TDataSource
-        Left = 40
-      end
-      inherited cxImageList1: TcxImageList
-        FormatVersion = 1
-      end
-    end
   end
   object cxbtnOK: TcxButton
     Left = 448

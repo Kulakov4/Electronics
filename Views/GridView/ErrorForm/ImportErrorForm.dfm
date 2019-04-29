@@ -11,39 +11,6 @@ inherited frmImportError: TfrmImportError
     Height = 372
     ExplicitWidth = 609
     ExplicitHeight = 372
-    inherited ViewGridEx: TViewGridEx
-      Width = 609
-      Height = 372
-      ExplicitWidth = 609
-      ExplicitHeight = 372
-      inherited cxGrid: TcxGrid
-        Width = 609
-        Height = 325
-        ExplicitWidth = 609
-        ExplicitHeight = 325
-      end
-      inherited StatusBar: TStatusBar
-        Top = 353
-        Width = 609
-        ExplicitTop = 353
-        ExplicitWidth = 609
-      end
-      inherited dxBarManager: TdxBarManager
-        PixelsPerInch = 96
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewGridEx.cxGridDBBandedTableView
-            HitTypes = [gvhtNone, gvhtCell]
-            Index = 0
-            PopupMenu = ViewGridEx.pmGrid
-          end>
-      end
-      inherited cxImageList1: TcxImageList
-        FormatVersion = 1
-      end
-    end
   end
   inherited cxbtnOK: TcxButton
     Left = 270

@@ -14,44 +14,8 @@ inherited frmGridViewAutoSize: TfrmGridViewAutoSize
     Height = 334
     Align = alCustom
     Anchors = [akLeft, akTop, akRight, akBottom]
-    inherited ViewGridEx: TViewGridEx
-      Width = 728
-      Height = 334
-      inherited cxGrid: TcxGrid
-        Top = 0
-        Width = 728
-        Height = 315
-        ExplicitTop = 0
-        ExplicitHeight = 270
-      end
-      inherited StatusBar: TStatusBar
-        Top = 315
-        Width = 728
-        Visible = False
-      end
-      inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          0
-          0)
-        inherited dxbrMain: TdxBar
-          Visible = False
-        end
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewGridEx.cxGridDBBandedTableView
-            HitTypes = [gvhtNone, gvhtCell]
-            Index = 0
-            PopupMenu = ViewGridEx.pmGrid
-          end>
-      end
-      inherited cxImageList1: TcxImageList
-        FormatVersion = 1
-      end
-    end
+    ExplicitWidth = 728
+    ExplicitHeight = 334
   end
   inherited cxbtnOK: TcxButton
     Left = 8
@@ -60,6 +24,6 @@ inherited frmGridViewAutoSize: TfrmGridViewAutoSize
     Anchors = [akLeft, akRight, akBottom]
     ExplicitLeft = 8
     ExplicitTop = 340
-    ExplicitWidth = 484
+    ExplicitWidth = 714
   end
 end

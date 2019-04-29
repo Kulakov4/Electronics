@@ -4,23 +4,6 @@ inherited frmCustomError: TfrmCustomError
   TextHeight = 16
   inherited pnlMain: TPanel
     Anchors = [akLeft, akTop, akRight, akBottom]
-    inherited ViewGridEx: TViewGridEx
-      inherited dxBarManager: TdxBarManager
-        PixelsPerInch = 96
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            GridView = ViewGridEx.cxGridDBBandedTableView
-            HitTypes = [gvhtNone, gvhtCell]
-            Index = 0
-            PopupMenu = ViewGridEx.pmGrid
-          end>
-      end
-      inherited cxImageList1: TcxImageList
-        FormatVersion = 1
-      end
-    end
   end
   object lblStatus: TcxLabel
     Left = 8
@@ -28,8 +11,8 @@ inherited frmCustomError: TfrmCustomError
     Anchors = [akLeft, akBottom]
   end
   object ErrorActionList: TActionList
-    Left = 43
-    Top = 35
+    Left = 80
+    Top = 72
     object actAll: TAction
       Caption = #1048#1084#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074#1089#1105
       OnExecute = actAllExecute

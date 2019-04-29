@@ -91,6 +91,7 @@ begin
 
   MyApplyBestFit;
   UpdateStatusBar;
+  UpdateView;
 end;
 
 procedure TViewGridEx.DataSourceUpdateData(Sender: TObject);

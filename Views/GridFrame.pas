@@ -656,6 +656,8 @@ var
   Grid: TcxGrid;
   Level: TcxGridLevel;
   GridView: TcxGridDBBandedTableView;
+  p: Integer;
+  s: string;
 begin
   Assert(not AFileName.IsEmpty);
 
@@ -684,6 +686,15 @@ begin
   // Выставляем оптимальную ширину колонок
   MyApplyBestFitForView(GridView);
   // GridView.ApplyBestFit();
+
+  // если имя файла содержит точку, то то что после точки должно быть расширением файла
+  p := AFileName.LastIndexOf('.');
+  if (p > 0) then
+  begin
+    s := AFileName.Substring(p).ToLower;
+    if s.Substring(0, 4) <> '.xls' then
+      AFileName := AFileName + '.xls';
+  end;
 
   // Экспортируем в Excel
   ExportGridToExcel(AFileName, Grid);

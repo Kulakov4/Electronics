@@ -10,15 +10,24 @@ uses
 type
   TfrmCustomGridView = class(TfrmRoot)
     pnlMain: TPanel;
-    ViewGridEx: TViewGridEx;
   private
+    FViewGridEx: TViewGridEx;
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
+    property ViewGridEx: TViewGridEx read FViewGridEx;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+constructor TfrmCustomGridView.Create(AOwner: TComponent);
+begin
+  inherited;
+  FViewGridEx := TViewGridEx.Create(Self);
+  FViewGridEx.Place(pnlMain);
+end;
 
 end.

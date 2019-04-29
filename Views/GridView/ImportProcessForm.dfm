@@ -12,41 +12,6 @@ inherited frmImportProcess: TfrmImportProcess
     Height = 473
     ExplicitWidth = 878
     ExplicitHeight = 473
-    inherited ViewGridEx: TViewGridEx
-      Width = 878
-      Height = 473
-      ExplicitWidth = 878
-      ExplicitHeight = 473
-      inherited cxGrid: TcxGrid
-        Width = 878
-        Height = 426
-        ExplicitWidth = 878
-        ExplicitHeight = 426
-      end
-      inherited StatusBar: TStatusBar
-        Top = 454
-        Width = 878
-        ExplicitTop = 454
-        ExplicitWidth = 878
-      end
-      inherited dxBarManager: TdxBarManager
-        DockControlHeights = (
-          0
-          0
-          28
-          0)
-      end
-      inherited cxGridPopupMenu: TcxGridPopupMenu
-        PopupMenus = <
-          item
-            HitTypes = [gvhtCell]
-            Index = 0
-          end>
-      end
-      inherited cxImageList1: TcxImageList
-        FormatVersion = 1
-      end
-    end
   end
   object Panel1: TPanel
     Left = 0
