@@ -169,6 +169,7 @@ type
     FfrmSubgroupListPopup: TfrmSubgroupListPopup;
     FIsSyncScrollbars: Boolean;
     FMessageUpdateDetailColumnsPosted: Boolean;
+    FNeedApplyBestFit: Boolean;
     FqSubGroups: TfrmQuerySubGroups;
     FViewArr: TArray<TcxGridDBBandedTableView>;
     procedure DoAfterCommit(Sender: TObject);
@@ -234,6 +235,7 @@ type
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
+    procedure TryApplyBestFit;
     procedure UpdateView; override;
     property BaseCompGrp: TBaseComponentsGroup2 read FBaseCompGrp
       write SetBaseCompGrp;
@@ -763,7 +765,7 @@ end;
 
 procedure TViewComponentsBase.Create_Columns;
 var
-//  ABand: TcxGridBand;
+  // ABand: TcxGridBand;
   ACol: TcxGridDBBandedColumn;
   AColInfo: TColInfo;
   Arr: TArray<TColInfo>;
@@ -786,7 +788,7 @@ begin
 
       // Если такого бэнда не существует
       while AView.Bands.Count <= AColInfo.BandIndex do
-        {ABand := }AView.Bands.Add;
+        { ABand := } AView.Bands.Add;
 
       if AColInfo.BandCaption <> '' then
         AView.Bands[AColInfo.BandIndex].Caption := AColInfo.BandCaption;
@@ -976,6 +978,7 @@ begin
   EndUpdate;
   FIsSyncScrollbars := False;
   DoAfterLoadData;
+  FNeedApplyBestFit := True;
 end;
 
 procedure TViewComponentsBase.DoBeforeOpenOrRefresh(Sender: TObject);
@@ -995,6 +998,7 @@ end;
 
 procedure TViewComponentsBase.DoOnMasterDetailChange;
 begin
+  FNeedApplyBestFit := FBaseCompGrp <> nil;
   if FBaseCompGrp <> nil then
   begin
     // Привязываем представление к данным
@@ -1098,14 +1102,14 @@ end;
 procedure TViewComponentsBase.DoOnUpdateFamilyCount(Sender: TObject);
 begin
   Assert(BaseCompGrp <> nil);
-(*
-  // Событие может прийти позже, после того как набор данных будет разрушен
-  if BaseCompGrp = nil then
-  begin
+  (*
+    // Событие может прийти позже, после того как набор данных будет разрушен
+    if BaseCompGrp = nil then
+    begin
     beep;
     Exit;
-  end;
-*)
+    end;
+  *)
 
   if BaseCompGrp.qBaseFamily.FDQuery.State = dsBrowse then
   begin
@@ -1579,6 +1583,15 @@ begin
   finally
     FIsSyncScrollbars := False;
   end;
+end;
+
+procedure TViewComponentsBase.TryApplyBestFit;
+begin
+  if not FNeedApplyBestFit then
+    Exit;
+
+  FNeedApplyBestFit := False;
+  MyApplyBestFit;
 end;
 
 procedure TViewComponentsBase.UpdateDetailColumnsWidth;

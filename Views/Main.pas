@@ -630,7 +630,7 @@ begin
         DoOnOpenCategory, FEventList);
     end;
 
-    ViewComponentsSearch.MyApplyBestFit;
+    ViewComponentsSearch.TryApplyBestFit;
   end;
 
   // Если уходим со вкладки Поиск
