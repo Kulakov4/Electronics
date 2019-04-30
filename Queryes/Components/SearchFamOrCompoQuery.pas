@@ -17,6 +17,9 @@ type
   public
     procedure PrepareSearchByValue(AValues: TArray<String>;
       ALike, AFamily: Boolean);
+    function SearchFamily(const AFamily: String): Integer;
+    function SearchComponent(const AComponent: String): Integer;
+    function SearchEx(const AValue: String; ALike, AFamily: Boolean): Integer;
     { Public declarations }
   end;
 
@@ -56,6 +59,30 @@ begin
     [IfThen(AFamily, '', 'not')]);
 
   FDQuery.SQL.Text := ReplaceInSQL(FDQuery.SQL.Text, AStipulation, 1);
+end;
+
+function TQuerySearchFamilyOrComp.SearchFamily(const AFamily: String): Integer;
+begin
+  Result := SearchEx(AFamily, False, True);
+end;
+
+function TQuerySearchFamilyOrComp.SearchComponent(const AComponent: String):
+    Integer;
+begin
+  Result := SearchEx(AComponent, False, False);
+end;
+
+function TQuerySearchFamilyOrComp.SearchEx(const AValue: String; ALike,
+    AFamily: Boolean): Integer;
+begin
+  Assert(not AValue.IsEmpty);
+
+  PrepareSearchByValue([AValue], ALike, AFamily);
+
+  FDQuery.Close;
+  FDQuery.Open;
+
+  Result := FDQuery.RecordCount;
 end;
 
 end.
