@@ -198,7 +198,7 @@ begin
   AFieldType := ftWideString;
   ASize := 200;
   // В списке параметров могли произойти изменения (порядок, видимость)
-  FCatParamsGroup.qCategoryParameters.Load(AData.ParentValue, True);
+  FCatParamsGroup.qCategoryParameters.LoadFromMaster(AData.ParentValue, True);
   FCatParamsGroup.qCategoryParameters.FDQuery.First;
   while not FCatParamsGroup.qCategoryParameters.FDQuery.Eof do
   begin
@@ -324,7 +324,7 @@ begin
   // qComponentsEx.AutoTransaction := True;
 
   // Загружаем значения параметров из БД принудительно
-  qProductParameters.Load(qFamilyEx.ParentValue, True);
+  qProductParameters.SearchByProductCategoryId(qFamilyEx.ParentValue);
 
   qFamilyEx.FDQuery.DisableControls;
   qComponentsEx.FDQuery.DisableControls;

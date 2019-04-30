@@ -372,8 +372,8 @@ begin
         AQueryTreeList.W.Value.F.AsString, 'Идёт обработка этого файла...', '');
 
       // загружаем компоненты из нужной нам категории
-      qComponents.Load(AQueryTreeList.W.PK.Value);
-      qFamily.Load(AQueryTreeList.W.PK.Value);
+      qComponents.LoadFromMaster(AQueryTreeList.W.PK.Value);
+      qFamily.LoadFromMaster(AQueryTreeList.W.PK.Value);
 
       AComponentsExcelDM := TComponentsExcelDM.Create(Self);
       try

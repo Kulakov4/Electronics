@@ -41,7 +41,6 @@ type
     function GetCashedRecordBalance: Integer;
     function GetFDUpdateSQL: TFDUpdateSQL;
     function GetParentValue: Integer;
-    procedure RefreshOrOpen; virtual;
     { Private declarations }
   protected
     FEventList: TObjectList;
@@ -76,8 +75,6 @@ type
       ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
       AOptions: TFDUpdateRowOptions); overload;
     procedure IncUpdateRecCount;
-    procedure Load(AIDParent: Integer; AForcibly: Boolean = False);
-      overload; virtual;
     procedure Load(const AParamNames: TArray<String>;
       const AParamValues: TArray<Variant>); overload;
     procedure SetParameters(const AParamNames: TArray<String>;
@@ -423,24 +420,6 @@ begin
   end;
 end;
 
-procedure TQueryBase.Load(AIDParent: Integer; AForcibly: Boolean = False);
-begin
-  Assert(DetailParameterName <> '');
-
-  // Если есть необходимость в загрузке данных
-  if (not FDQuery.Active) or (FDQuery.Params.ParamByName(DetailParameterName)
-    .AsInteger <> AIDParent) or AForcibly then
-  begin
-    FBeforeLoad.CallEventHandlers(FDQuery);
-
-    FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
-
-    RefreshOrOpen;
-
-    FAfterLoad.CallEventHandlers(FDQuery);
-  end;
-end;
-
 procedure TQueryBase.Load(const AParamNames: TArray<String>;
   const AParamValues: TArray<Variant>);
 begin
@@ -452,14 +431,6 @@ begin
   finally
     FDQuery.EnableControls;
   end;
-end;
-
-procedure TQueryBase.RefreshOrOpen;
-begin
-  if FDQuery.Active then
-    FDQuery.Refresh
-  else
-    FDQuery.Open;
 end;
 
 procedure TQueryBase.SetParameters(const AParamNames: TArray<String>;

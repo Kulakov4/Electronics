@@ -15,6 +15,7 @@ type
   private
     FParamSubParamID: TFieldWrap;
     FID: TFieldWrap;
+    FProductCategoryID: TParamWrap;
     FParentProductID: TFieldWrap;
     FProductID: TFieldWrap;
     FValue: TFieldWrap;
@@ -23,6 +24,7 @@ type
     procedure ApplyFilter(AProductID: Integer; const AParamSubParamID: Integer);
     property ParamSubParamID: TFieldWrap read FParamSubParamID;
     property ID: TFieldWrap read FID;
+    property ProductCategoryID: TParamWrap read FProductCategoryID;
     property ParentProductID: TFieldWrap read FParentProductID;
     property ProductID: TFieldWrap read FProductID;
     property Value: TFieldWrap read FValue;
@@ -35,6 +37,7 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
+    function SearchByProductCategoryId(AProductCategoryId: Integer): Integer;
     property W: TProductParametersW read FW;
     { Public declarations }
   end;
@@ -46,8 +49,15 @@ implementation
 constructor TQueryProductParameters.Create(AOwner: TComponent);
 begin
   inherited;
-  DetailParameterName := 'ProductCategoryId';
   FW := TProductParametersW.Create(FDQuery);
+end;
+
+function TQueryProductParameters.SearchByProductCategoryId(AProductCategoryId
+  : Integer): Integer;
+begin
+  Result := SearchEx([TParamRec.Create(W.ProductCategoryID.FullName,
+    AProductCategoryId), TParamRec.Create(W.ProductCategoryID.FullName,
+    AProductCategoryId)]);
 end;
 
 constructor TProductParametersW.Create(AOwner: TComponent);
@@ -58,16 +68,19 @@ begin
   FParentProductID := TFieldWrap.Create(Self, 'p.ParentProductId');
   FProductID := TFieldWrap.Create(Self, 'pv.ProductId');
   FValue := TFieldWrap.Create(Self, 'pv.Value');
+  // Параметр SQL запроса
+  FProductCategoryID := TParamWrap.Create(Self, 'ppc.ProductCategoryId');
 end;
 
-procedure TProductParametersW.ApplyFilter(AProductID: Integer; const
-    AParamSubParamID: Integer);
+procedure TProductParametersW.ApplyFilter(AProductID: Integer;
+  const AParamSubParamID: Integer);
 begin
   Assert(AProductID > 0);
   Assert(AParamSubParamID > 0);
 
   DataSet.Filter := Format('(%s=%d) and (%s=%d)',
-    [ProductID.FieldName, AProductID, ParamSubParamID.FieldName, AParamSubParamID]);
+    [ProductID.FieldName, AProductID, ParamSubParamID.FieldName,
+    AParamSubParamID]);
   DataSet.Filtered := True;
 end;
 

@@ -21,19 +21,12 @@ inherited QueryProductParameters: TQueryProductParameters
       '    from ProductProductCategories ppc'
       '    join products f on ppc.ProductId = f.id'
       '    join products p on p.ParentProductId = f.Id'
-      '    where ppc.ProductCategoryId = :ProductCategoryId'
+      '    where (0=0)'
       '    union'
       '    select distinct ProductId'
       '    from ProductProductCategories ppc'
-      '    where ppc.ProductCategoryId = :ProductCategoryId'
+      '    where (1=1)'
       ')'
       'order by pv.ProductID, pv.ParamSubParamID, pv.ID')
-    ParamData = <
-      item
-        Name = 'PRODUCTCATEGORYID'
-        DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end>
   end
 end

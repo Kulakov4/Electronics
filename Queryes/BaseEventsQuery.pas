@@ -32,7 +32,6 @@ type
     FMaster: TQueryBaseEvents;
     FNeedLoad: Boolean;
     class var FMonitor: TQueryMonitor;
-
   const
     FDebugFileName: string = 'C:\Public\SQL.txt';
     procedure DoAfterDelete(Sender: TObject);
@@ -68,7 +67,9 @@ type
     procedure AddClient;
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
-    procedure Load; overload;
+    procedure LoadFromMaster; overload;
+    procedure LoadFromMaster(AIDParent: Integer; AForcibly: Boolean = False);
+        overload;
     procedure MasterCascadeDelete;
     procedure RemoveClient;
     procedure TryLoad;
@@ -226,13 +227,13 @@ begin
   // если мастер изменилс€, нам пора обновитьс€
   if FNeedLoad then
   begin
-    Load;
+    LoadFromMaster;
     Wrap.NeedRefresh := False; // ќбновл€ть больше не нужно
   end
   else if Wrap.NeedRefresh then
     Wrap.RefreshQuery
   else if Master <> nil then
-    Load
+    LoadFromMaster
   else
     Wrap.TryOpen;
 end;
@@ -428,7 +429,26 @@ begin
   end;
 end;
 
-procedure TQueryBaseEvents.Load;
+procedure TQueryBaseEvents.LoadFromMaster(AIDParent: Integer; AForcibly:
+    Boolean = False);
+begin
+  Assert(DetailParameterName <> '');
+
+  // ≈сли есть необходимость в загрузке данных
+  if (not FDQuery.Active) or (FDQuery.Params.ParamByName(DetailParameterName)
+    .AsInteger <> AIDParent) or AForcibly then
+  begin
+    BeforeLoad.CallEventHandlers(FDQuery);
+
+    FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
+
+    Wrap.RefreshQuery;
+
+    AfterLoad.CallEventHandlers(FDQuery);
+  end;
+end;
+
+procedure TQueryBaseEvents.LoadFromMaster;
 var
   AIDParent: Integer;
 begin
@@ -436,7 +456,7 @@ begin
   Assert(FMaster <> nil);
   AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
     FMaster.Wrap.PK.AsInteger, -1);
-  Load(AIDParent);
+  LoadFromMaster(AIDParent);
 end;
 
 procedure TQueryBaseEvents.MasterCascadeDelete;
