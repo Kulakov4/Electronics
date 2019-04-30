@@ -128,6 +128,7 @@ begin
   TNotifyEventWrap.Create(W.AfterEdit, DoAfterEdit, W.EventList);
 
   FDQuery.CachedUpdates := False;
+  FDQuery.UpdateOptions.KeyFields := W.ID.FieldName;
 end;
 
 destructor TQueryCustomComponents.Destroy;

@@ -39,7 +39,6 @@ type
     FAnalog: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure RefreshQuery; override;
     property Analog: TFieldWrap read FAnalog;
   end;
 
@@ -112,15 +111,6 @@ constructor TComponentsExW.Create(AOwner: TComponent);
 begin
   inherited;
   FAnalog := TFieldWrap.Create(Self, 'Analog');
-end;
-
-procedure TComponentsExW.RefreshQuery;
-begin
-  if DataSet.Active then
-    DataSet.Close;
-  DataSet.Open;
-
-  NeedRefresh := False;
 end;
 
 end.

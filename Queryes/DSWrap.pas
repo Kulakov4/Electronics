@@ -58,8 +58,8 @@ type
     procedure AfterDataSetOpen(DataSet: TDataSet);
     procedure AfterDataSetInsert(DataSet: TDataSet);
     procedure AfterDataSetCancel(DataSet: TDataSet);
-    procedure CloneAfterClose(Sender: TObject);
-    procedure CloneAfterOpen(Sender: TObject);
+    procedure CloneAfterCloseOrBeforeRefresh(Sender: TObject);
+    procedure CloneAfterOpenOrRefresh(Sender: TObject);
     procedure CloneCursor(AClone: TFDMemTable);
     procedure DoAfterOpen___(Sender: TObject);
     function GetActive: Boolean;
@@ -289,9 +289,11 @@ begin
     FCloneEvents := TObjectList.Create;
 
     // Будем клонировать курсоры
-    TNotifyEventWrap.Create(AfterOpen, CloneAfterOpen, FCloneEvents);
+    TNotifyEventWrap.Create(AfterOpen, CloneAfterOpenOrRefresh, FCloneEvents);
+    TNotifyEventWrap.Create(AfterRefresh, CloneAfterOpenOrRefresh, FCloneEvents);
     // Будем закрывать курсоры
-    TNotifyEventWrap.Create(AfterClose, CloneAfterClose, FCloneEvents);
+    TNotifyEventWrap.Create(AfterClose, CloneAfterCloseOrBeforeRefresh, FCloneEvents);
+    TNotifyEventWrap.Create(BeforeRefresh, CloneAfterCloseOrBeforeRefresh, FCloneEvents);
   end;
 
   Result := TFDMemTable.Create(nil); // Владельцем будет список
@@ -526,7 +528,7 @@ begin
   FDataSet.Filtered := False;
 end;
 
-procedure TDSWrap.CloneAfterClose(Sender: TObject);
+procedure TDSWrap.CloneAfterCloseOrBeforeRefresh(Sender: TObject);
 var
   AClone: TFDMemTable;
 begin
@@ -535,7 +537,7 @@ begin
     AClone.Close;
 end;
 
-procedure TDSWrap.CloneAfterOpen(Sender: TObject);
+procedure TDSWrap.CloneAfterOpenOrRefresh(Sender: TObject);
 var
   AClone: TFDMemTable;
 begin

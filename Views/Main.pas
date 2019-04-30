@@ -500,7 +500,7 @@ begin
         DoOnShowParametricTable, FEventList);
     end;
 
-    ViewComponents.PostMyApplyBestFitEvent;
+    ViewComponents.TryApplyBestFit;
   end;
 
   // Если уходим со вкладки Содержимое
