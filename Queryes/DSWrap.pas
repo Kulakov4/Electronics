@@ -1108,8 +1108,8 @@ end;
 
 procedure TDSWrap.RefreshQuery;
 begin
-//  FDataSet.DisableControls;
-//  try
+  FDataSet.DisableControls;
+  try
     if (FDataSet.Active) then
     begin
       if FDDataSet.ChangeCount = 0 then
@@ -1124,9 +1124,9 @@ begin
       FDataSet.Open;
 
     FNeedRefresh := False;
-//  finally
-//    FDataSet.EnableControls;
-//  end;
+  finally
+    FDataSet.EnableControls;
+  end;
 end;
 
 function TDSWrap.RestoreBookmark: Boolean;
@@ -1319,8 +1319,8 @@ var
   PW: TParamWrap;
   FW: TFieldWrap;
 begin
-//  if Name = 'QueryProductsWrap' then
-//    beep(1000, 1);
+  // if Name = 'QueryProductsWrap' then
+  // beep(1000, 1);
 
   DataSet.DisableControls;
   try
@@ -1353,7 +1353,7 @@ begin
       // ќстальные пол€ пр€чем
       for F in DataSet.Fields do
       begin
-        if Flist.IndexOf(F) < 0 then
+        if FList.IndexOf(F) < 0 then
           F.Visible := False;
       end;
 
@@ -1458,18 +1458,23 @@ begin
   AClone := TFDMemTable.Create(DataSetWrap);
   try
     AClone.CloneCursor(DataSetWrap.FDDataSet);
-    AClone.First;
-    while not AClone.Eof do
-    begin
-
-      AValue := AClone.FieldByName(FieldName).AsString;
-
-      if (AValue <> '') then
+    AClone.BeginBatch();
+    try
+      AClone.First;
+      while not AClone.Eof do
       begin
-        Result := IfThen(Result.IsEmpty, '', Result + ADelimiter) + AValue;
-      end;
 
-      AClone.Next;
+        AValue := AClone.FieldByName(FieldName).AsString;
+
+        if (AValue <> '') then
+        begin
+          Result := IfThen(Result.IsEmpty, '', Result + ADelimiter) + AValue;
+        end;
+
+        AClone.Next;
+      end;
+    finally
+      AClone.EndBatch;
     end;
   finally
     FreeAndNil(AClone);

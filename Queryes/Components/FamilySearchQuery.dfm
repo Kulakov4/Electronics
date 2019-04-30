@@ -62,10 +62,7 @@ inherited QueryFamilySearch: TQueryFamilySearch
         'LEFT JOIN ParameterValues2 pv6 ON pv6.ProductID = p.Id AND pv6.P' +
         'aramSubParamId = :ImageParamSubParamID'
       ''
-      
-        'WHERE instr('#39','#39' || :IDList || '#39','#39'   ,    '#39','#39' || p.Id || '#39','#39') > 0' +
-        ' '
-      '      AND p.ParentProductId IS NULL')
+      'WHERE (p.ParentProductId IS NULL) and (0=0)')
     ParamData = <
       item
         Name = 'PACKAGEPINSPARAMSUBPARAMID'
@@ -100,12 +97,6 @@ inherited QueryFamilySearch: TQueryFamilySearch
       item
         Name = 'IMAGEPARAMSUBPARAMID'
         DataType = ftInteger
-        ParamType = ptInput
-        Value = Null
-      end
-      item
-        Name = 'IDLIST'
-        DataType = ftString
         ParamType = ptInput
         Value = Null
       end>

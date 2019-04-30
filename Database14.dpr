@@ -244,7 +244,8 @@ uses
   BillContentView in 'Views\Bill\BillContentView.pas' {ViewBillContent: TFrame},
   ClearStorehouseProductsQuery in 'Queryes\Products\ClearStorehouseProductsQuery.pas' {QryClearStoreHouseProducts: TFrame},
   CompFrameUnit in 'Views\CompFrameUnit.pas' {frmComp: TFrame},
-  MinWholeSaleForm in 'Views\Products\MinWholeSaleForm.pas' {frmMinWholeSale};
+  MinWholeSaleForm in 'Views\Products\MinWholeSaleForm.pas' {frmMinWholeSale},
+  SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame};
 
 {$R *.res}
 

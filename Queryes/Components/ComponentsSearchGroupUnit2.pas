@@ -12,12 +12,8 @@ type
     FOnOpenCategory: TNotifyEventsEx;
     FqComponentsSearch: TQueryComponentsSearch;
     FqFamilySearch: TQueryFamilySearch;
-    FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetqComponentsSearch: TQueryComponentsSearch;
     function GetqFamilySearch: TQueryFamilySearch;
-    function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
-    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
-      read GetqSearchComponentOrFamily;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -86,15 +82,6 @@ begin
   Result := FqFamilySearch;
 end;
 
-function TComponentsSearchGroup2.GetqSearchComponentOrFamily
-  : TQuerySearchComponentOrFamily;
-begin
-  if FqSearchComponentOrFamily = nil then
-    FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
-
-  Result := FqSearchComponentOrFamily;
-end;
-
 procedure TComponentsSearchGroup2.OpenCategory;
 begin
   FOnOpenCategory.CallEventHandlers(Self);
@@ -102,43 +89,18 @@ end;
 
 procedure TComponentsSearchGroup2.Search(ALike: Boolean);
 var
-  s: string;
-  sDetail: string;
-  sParent: string;
-  sParent2: string;
+  AValues: TArray<String>;
 begin
   qFamilySearch.W.TryPost;
-  // Получаем список значений по которым будем осуществлять поиск
-  s := qFamilySearch.W.Value.AllValues(',').ToUpper;
 
-  if s.IsEmpty then
+  // Получаем список значений по которым будем осуществлять поиск
+  AValues := qFamilySearch.W.Value.AllValues(',').ToUpper.Split([',']);
+
+  if Length(AValues) = 0 then
     Exit;
 
-  { необходимо получить все идентификаторы которые есть по значениям. Далее, определить что это, обычная или родительская запись
-    и запомнить эти идентификаторы }
-
-  if ALike then
-    qSearchComponentOrFamily.SearchByValueLike(s)
-  else
-    qSearchComponentOrFamily.SearchByValues(s);
-
-  // Фильтруем - оставляем только семейства
-  qSearchComponentOrFamily.W.ApplyFamilyFilter;
-
-  s := qSearchComponentOrFamily.W.ID.AllValues(',');
-  sParent := s;
-
-  // Фильтруем - оставляем только компоненты
-  qSearchComponentOrFamily.W.ApplyProductFilter;
-
-  sParent2 := qSearchComponentOrFamily.W.ParentProductID.AllValues(',');
-  sDetail := qSearchComponentOrFamily.W.ID.AllValues(',');
-
-  if not sParent2.IsEmpty then
-    sParent := Format('%s,%s', [sParent, sParent2]);
-
-  qComponentsSearch.Search(s, sDetail);
-  qFamilySearch.Search(sParent);
+  qComponentsSearch.SearchByValue(AValues, ALike);
+  qFamilySearch.SearchByValue(AValues, ALike);
 end;
 
 end.

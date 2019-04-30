@@ -24,7 +24,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure ApplyFamilyFilter;
-    procedure ApplyProductFilter;
+    procedure ApplyComponentFilter;
     property ParentProductID: TFieldWrap read FParentProductID;
     property ID: TFieldWrap read FID;
     property FamilyID: TFieldWrap read FFamilyID;
@@ -249,7 +249,7 @@ begin
   DataSet.Filtered := True;
 end;
 
-procedure TSearchComponentOrFamilyW.ApplyProductFilter;
+procedure TSearchComponentOrFamilyW.ApplyComponentFilter;
 begin
   DataSet.Filter := Format('%s <> NULL', [ParentProductID.FieldName]);
   DataSet.Filtered := True;

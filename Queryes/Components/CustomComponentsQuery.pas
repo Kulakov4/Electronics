@@ -231,7 +231,7 @@ end;
 constructor TCustomComponentsW.Create(AOwner: TComponent);
 begin
   inherited;
-  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FID := TFieldWrap.Create(Self, 'p.ID', '', True);
   FDatasheet := TFieldWrap.Create(Self, 'Datasheet', 'Спецификация');
   FDiagram := TFieldWrap.Create(Self, 'Diagram', 'Схема');
   FDrawing := TFieldWrap.Create(Self, 'Drawing', 'Чертёж');
@@ -242,7 +242,7 @@ begin
   FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
   FImage := TFieldWrap.Create(Self, 'Image', 'Изображение');
   FPackagePins := TFieldWrap.Create(Self, 'PackagePins', 'Корпус');
-  FParentProductID := TFieldWrap.Create(Self, 'ParentProductID');
+  FParentProductID := TFieldWrap.Create(Self, 'p.ParentProductID');
   FProducer := TFieldWrap.Create(Self, 'Producer', 'Производитель');
   FSubGroup := TFieldWrap.Create(Self, 'SubGroup', 'Группа компонентов');
   FValue := TFieldWrap.Create(Self, 'Value', 'Наименование');

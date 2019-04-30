@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   SearchInterfaceUnit, CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery,
-  DSWrap;
+  DSWrap, SearchFamOrCompoQuery;
 
 type
   TFamilySearchW = class(TBaseFamilyW)
@@ -28,11 +28,13 @@ type
   var
     FGetModeClone: TFDMemTable;
     FClone: TFDMemTable;
+    FqSearchFamilyOrComp: TQuerySearchFamilyOrComp;
     procedure DoAfterOpen(Sender: TObject);
     function GetCurrentMode: TContentMode;
     function GetFamilySearchW: TFamilySearchW;
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
+    function GetqSearchFamilyOrComp: TQuerySearchFamilyOrComp;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -43,10 +45,13 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
     function GetHaveAnyChanges: Boolean; override;
+    property qSearchFamilyOrComp: TQuerySearchFamilyOrComp read
+        GetqSearchFamilyOrComp;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     procedure ClearSearchResult;
-    procedure Search(const AIDList: string); stdcall;
+    procedure SearchByValue(AValues: TArray<String>; ALike: Boolean);
     property FamilySearchW: TFamilySearchW read GetFamilySearchW;
     property IsClearEnabled: Boolean read GetIsClearEnabled;
     property IsSearchEnabled: Boolean read GetIsSearchEnabled;
@@ -55,7 +60,7 @@ type
 
 implementation
 
-Uses NotifyEvents, System.Math, DBRecordHolder;
+Uses NotifyEvents, System.Math, DBRecordHolder, StrHelper;
 
 {$R *.dfm}
 { TfrmQueryComponentsContent }
@@ -73,6 +78,13 @@ begin
 
   // Подписываемся на событие
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
+end;
+
+procedure TQueryFamilySearch.AfterConstruction;
+begin
+  inherited;
+  // Подставляем заведомо ложное условие чтобы очистить список
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, '0=1', 0);
 end;
 
 procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -99,8 +111,9 @@ end;
 
 procedure TQueryFamilySearch.ClearSearchResult;
 begin
-  // Ищем пустое значение - и ничего не находим
-  Search('');
+  // Подставляем заведомо ложное условие чтобы очистить список
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, '0=1', 0);
+  W.RefreshQuery;
 end;
 
 function TQueryFamilySearch.CreateDSWrap: TDSWrap;
@@ -177,12 +190,27 @@ begin
   Result := (FamilySearchW.Mode = SearchMode) and (FClone.RecordCount > 0);
 end;
 
-procedure TQueryFamilySearch.Search(const AIDList: string);
+function TQueryFamilySearch.GetqSearchFamilyOrComp: TQuerySearchFamilyOrComp;
 begin
-  // Загружаем компоенты по их идентификаторам
-  Load(['IDList'], [AIDList]);
+  if FqSearchFamilyOrComp = nil then
+    FqSearchFamilyOrComp := TQuerySearchFamilyOrComp.Create(Self);
 
-  // При открытии будет добавлена пустая запись
+  Result := FqSearchFamilyOrComp;
+end;
+
+procedure TQueryFamilySearch.SearchByValue(AValues: TArray<String>; ALike:
+    Boolean);
+var
+  AStipulation: string;
+begin
+  // Готовим SQL запрос для поиска семейств
+  qSearchFamilyOrComp.PrepareSearchByValue(AValues, ALike, True);
+
+  AStipulation := Format('%s in (%s)', [W.ID.FullName,
+    qSearchFamilyOrComp.FDQuery.SQL.Text]);
+
+  FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
+  W.RefreshQuery;
 end;
 
 procedure TFamilySearchW.AppendRows(AFieldName: string; AValues:
