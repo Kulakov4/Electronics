@@ -76,7 +76,8 @@ begin
 
   DetailParameterName := W.StorehouseId.FieldName;
 
-  TNotifyEventWrap.Create(AfterCancelUpdates, DoAfterCancelUpdates, FEventList);
+  TNotifyEventWrap.Create(AfterCancelUpdates, DoAfterCancelUpdates,
+    W.EventList);
 
   TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
@@ -114,9 +115,9 @@ var
   AIDComponentGroup: Integer;
   V: Variant;
 begin
-  //****************************************************************************
+  // ****************************************************************************
   // Снача добавим все группы компонентов и производителей и сохраним в БД
-  //****************************************************************************
+  // ****************************************************************************
 
   // Чтобы при изменении любого поля не происходил пересчёт автовычисляемых полей
   DisableCalc;
@@ -144,7 +145,6 @@ begin
   FDQuery.Connection.StartTransaction;
   FDQuery.ApplyUpdates();
   FDQuery.CommitUpdates;
-
 
   try
     AExcelTable.First;

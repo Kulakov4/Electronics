@@ -105,7 +105,7 @@ type
     FqSearchParamSubParam: TQuerySearchParamSubParam;
     FqUpdNegativeOrd: TQueryUpdNegativeOrd;
     FVID: Integer;
-    procedure DoAfterLoad(Sender: TObject);
+    procedure DoAfterOpenOrRefresh(Sender: TObject);
     function GetIsAllQuerysActive: Boolean;
     function GetqParamSubParams: TQueryParamSubParams;
     function GetqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
@@ -137,8 +137,8 @@ type
     procedure DeleteSubParameters(APKValues: array of Integer);
     function GetIDList(AID: Integer): TArray<Integer>;
     procedure LoadData;
-    procedure MoveParameters(IDArr: TArray<Integer>; TargetID: Integer; AUp:
-        Boolean);
+    procedure MoveParameters(IDArr: TArray<Integer>; TargetID: Integer;
+      AUp: Boolean);
     procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
       AUp: Boolean);
     procedure RefreshData; override;
@@ -173,8 +173,10 @@ begin
   FqCatParams.IsAttribute.OnChange := DoOnIsAttributeChange;
   FqCatSubParams := TQryCategorySubParameters.Create(Self);
 
-  TNotifyEventWrap.Create(FqCategoryParameters.AfterLoad, DoAfterLoad,
-    EventList);
+  TNotifyEventWrap.Create(FqCategoryParameters.W.AfterOpen,
+    DoAfterOpenOrRefresh, EventList);
+  TNotifyEventWrap.Create(FqCategoryParameters.W.AfterRefresh,
+    DoAfterOpenOrRefresh, EventList);
 
   FBeforeUpdateData := TNotifyEventsEx.Create(Self);
   FAfterUpdateData := TNotifyEventsEx.Create(Self);
@@ -531,7 +533,7 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup2.DoAfterLoad(Sender: TObject);
+procedure TCategoryParametersGroup2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
   FVID := 0;
   FIDDic.Clear;
@@ -706,7 +708,7 @@ begin
 end;
 
 procedure TCategoryParametersGroup2.MoveParameters(IDArr: TArray<Integer>;
-    TargetID: Integer; AUp: Boolean);
+  TargetID: Integer; AUp: Boolean);
 var
   ACloneW: TCategoryParameters2W;
   AID: Integer;
@@ -717,7 +719,6 @@ begin
   Assert(Length(IDArr) > 0);
   Assert(TargetID <> 0);
   ACount := 0;
-
 
   AIDList := TList<Integer>.Create();
   L := TDictionary<Integer, Integer>.Create;

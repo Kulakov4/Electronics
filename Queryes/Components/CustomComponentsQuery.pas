@@ -108,7 +108,7 @@ begin
   if not DMRepository.dbConnection.Connected then
   begin
     TNotifyEventWrap.Create(DMRepository.AfterConnect, DoAfterConnect,
-      FEventList);
+      W.EventList);
   end
   else
     InitParameterFields;

@@ -29,8 +29,6 @@ type
     FDQuery: TFDQuery;
     Label1: TLabel;
   private
-    FAfterLoad: TNotifyEventsEx;
-    FBeforeLoad: TNotifyEventsEx;
     FDetailParameterName: string;
     FFDUpdateRecordEvent: TFDUpdateRecordEvent;
     FFDUpdateSQL: TFDUpdateSQL;
@@ -43,7 +41,6 @@ type
     function GetParentValue: Integer;
     { Private declarations }
   protected
-    FEventList: TObjectList;
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); virtual;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -92,8 +89,6 @@ type
       : TFDParam;
     procedure UpdateFields(AFields: TArray<TField>; AValues: TArray<Variant>;
       AUpdateNullFieldsOnly: Boolean);
-    property AfterLoad: TNotifyEventsEx read FAfterLoad;
-    property BeforeLoad: TNotifyEventsEx read FBeforeLoad;
     property CashedRecordBalance: Integer read GetCashedRecordBalance;
     property DetailParameterName: string read FDetailParameterName
       write FDetailParameterName;
@@ -116,22 +111,12 @@ constructor TQueryBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  // Создаём список своих подписчиков на события
-  FEventList := TObjectList.Create;
-
-  // Создаём события
-  FBeforeLoad := TNotifyEventsEx.Create(Self);
-  FAfterLoad := TNotifyEventsEx.Create(Self);
-
   // Максимальное количество обновлённых записей в рамках одной транзакции
   FMaxUpdateRecCount := 1000;
 end;
 
 destructor TQueryBase.Destroy;
 begin
-  FreeAndNil(FEventList); // отписываемся от всех событий
-  FreeAndNil(FBeforeLoad);
-  FreeAndNil(FAfterLoad);
   inherited;
 end;
 

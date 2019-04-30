@@ -69,7 +69,7 @@ begin
   inherited;
   FW := FDSWrap as TSubParametersW;
   AutoTransaction := False;
-  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, FEventList);
+  TNotifyEventWrap.Create(W.AfterInsert, DoAfterInsert, W.EventList);
 end;
 
 function TQuerySubParameters2.CreateDSWrap: TDSWrap;

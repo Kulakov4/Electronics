@@ -438,13 +438,8 @@ begin
   if (not FDQuery.Active) or (FDQuery.Params.ParamByName(DetailParameterName)
     .AsInteger <> AIDParent) or AForcibly then
   begin
-    BeforeLoad.CallEventHandlers(FDQuery);
-
     FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
-
     Wrap.RefreshQuery;
-
-    AfterLoad.CallEventHandlers(FDQuery);
   end;
 end;
 
@@ -584,15 +579,11 @@ begin
     Exit;
   end;
 
-  BeforeLoad.CallEventHandlers(FDQuery);
-
   if AParamValueChange then
     FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
 
   // Обновляем или открываем заново запрос
   Wrap.RefreshQuery;
-
-  AfterLoad.CallEventHandlers(FDQuery);
 end;
 
 procedure TQueryBaseEvents.TryRefresh;
