@@ -616,7 +616,6 @@ begin
   inherited;
   FieldDefs.Add('Folder', ftWideString, 100);
   FieldDefs.Add('ComponentName', ftWideString, 100);
-  // FieldDefs.Add('Error', ftWideString, 50);
   FieldDefs.Add('Description', ftWideString, 150);
   CreateDataSet;
 
@@ -625,7 +624,6 @@ begin
   Folder.DisplayLabel := 'Папка';
   ComponentName.DisplayLabel := 'Имя компонента';
   Description.DisplayLabel := 'Описание';
-  // Error.DisplayLabel := 'Вид ошибки';
 end;
 
 procedure TAbsentDocTable.AddError(const AFolder, AComponentName,

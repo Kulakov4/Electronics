@@ -78,7 +78,7 @@ begin
       AfrmParameters.ViewSubParameters.QuerySubParameters := AqSubParameters;
 
       OK := True;
-      case ParametricErrorTable.ErrorType.AsInteger of
+      case ParametricErrorTable.W.ErrorType.F.AsInteger of
         Integer(petNotUnique):
           begin
             OK := False;
@@ -95,11 +95,11 @@ begin
             ErrMsg := 'Табличное имя выбранного параметра не совпадает с заголовком в Excel файле';
             PKFieldName := AParametersGroup.qParameters.W.PKFieldName;
 
-            if ParametricErrorTable.ErrorType.AsInteger = Integer
+            if ParametricErrorTable.W.ErrorType.F.AsInteger = Integer
               (petParamDuplicate) then
             begin
               AfrmParameters.ViewParameters.Search
-                (ParametricErrorTable.ParameterName.AsString);
+                (ParametricErrorTable.W.ParameterName.F.AsString);
               AfrmParameters.ViewParameters.actFilterByTableName.Execute;
             end;
           end;
@@ -124,14 +124,14 @@ begin
         (F.DataSet.RecordCount = 0) then
         Exit;
 
-      if F.AsString <> ParametricErrorTable.ParameterName.AsString then
+      if F.AsString <> ParametricErrorTable.W.ParameterName.F.AsString then
       begin
         TDialog.Create.ErrorMessageDialog(ErrMsg);
         Exit;
       end;
 
       // Фиксим ошибку
-      ParametricErrorTable.Fix(F.DataSet.FieldByName(PKFieldName).AsInteger);
+      ParametricErrorTable.W.Fix(F.DataSet.FieldByName(PKFieldName).AsInteger);
 
     finally
       FreeAndNil(AfrmParameters);

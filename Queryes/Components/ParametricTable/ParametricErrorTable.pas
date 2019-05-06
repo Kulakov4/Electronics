@@ -3,36 +3,50 @@ unit ParametricErrorTable;
 interface
 
 uses
-  CustomErrorTable, Data.DB, System.Classes, System.SysUtils, ExcelDataModule;
+  CustomErrorTable, Data.DB, System.Classes, System.SysUtils, ExcelDataModule,
+  DSWrap, FireDAC.Comp.Client, NotifyEvents;
 
 type
   TParametricErrorType = (petParamNotFound, petParamDuplicate,
     petSubParamNotFound, petSubParamDuplicate, petNotUnique);
 
-  TParametricErrorTable = class(TCustomErrorTable)
+  TParametricErrorTableW = class(TCustomErrorTableW)
   private
-    function GetDescription: TField;
-    function GetError: TField;
-    function GetErrorType: TField;
-    function GetFixed: TField;
-    function GetStringTreeNodeID: TField;
-    function GetParameterID: TField;
-    function GetParameterName: TField;
-  protected
+    FOnFixError: TNotifyEventsEx;
+    FDescription: TFieldWrap;
+    FFixed: TFieldWrap;
+    FErrorType: TFieldWrap;
+    FParameterID: TFieldWrap;
+    FParameterName: TFieldWrap;
+    FStringTreeNodeID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AddErrorMessage(const AParameterName, AMessage: string; const
-        AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
+    destructor Destroy; override;
+    procedure AddErrorMessage(const AParameterName, AMessage: string;
+      const AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
     procedure FilterFixed;
     procedure Fix(AParameterID: Integer);
     function LocateByID(AStringTreeNodeID: Integer): Boolean;
-    property Description: TField read GetDescription;
-    property Error: TField read GetError;
-    property ErrorType: TField read GetErrorType;
-    property Fixed: TField read GetFixed;
-    property StringTreeNodeID: TField read GetStringTreeNodeID;
-    property ParameterID: TField read GetParameterID;
-    property ParameterName: TField read GetParameterName;
+    property OnFixError: TNotifyEventsEx read FOnFixError;
+    property Description: TFieldWrap read FDescription;
+    property Fixed: TFieldWrap read FFixed;
+    property ErrorType: TFieldWrap read FErrorType;
+    property ParameterID: TFieldWrap read FParameterID;
+    property ParameterName: TFieldWrap read FParameterName;
+    property StringTreeNodeID: TFieldWrap read FStringTreeNodeID;
+  end;
+
+  TParametricErrorTable = class(TCustomErrorTable)
+  private
+    FParamDuplicateClone: TFDMemTable;
+    FW: TParametricErrorTableW;
+    function GetParamDuplicateClone: TFDMemTable;
+  protected
+    function CreateWrap: TCustomErrorTableW; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property ParamDuplicateClone: TFDMemTable read GetParamDuplicateClone;
+    property W: TParametricErrorTableW read FW;
   end;
 
 implementation
@@ -40,97 +54,95 @@ implementation
 constructor TParametricErrorTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('ParameterName', ftWideString, 100);
-  FieldDefs.Add('Error', ftWideString, 50);
-  FieldDefs.Add('Description', ftWideString, 150);
-  FieldDefs.Add('StringTreeNodeID', ftInteger, 0);
-  FieldDefs.Add('ErrorType', ftInteger, 0);
-  FieldDefs.Add('ParameterID', ftInteger, 0);
-  FieldDefs.Add('Fixed', ftBoolean);
+  FW := Wrap as TParametricErrorTableW;
+
+  FieldDefs.Add(W.ParameterName.FieldName, ftWideString, 100);
+  FieldDefs.Add(W.Error.FieldName, ftWideString, 50);
+  FieldDefs.Add(W.Description.FieldName, ftWideString, 150);
+  FieldDefs.Add(W.StringTreeNodeID.FieldName, ftInteger, 0);
+  FieldDefs.Add(W.ErrorType.FieldName, ftInteger, 0);
+  FieldDefs.Add(W.ParameterID.FieldName, ftInteger, 0);
+  FieldDefs.Add(W.Fixed.FieldName, ftBoolean);
   CreateDataSet;
 
   Open;
-
-  ParameterName.DisplayLabel := 'Параметр';
-  Description.DisplayLabel := 'Описание';
-  Error.DisplayLabel := 'Вид ошибки';
-  StringTreeNodeID.Visible := False;
-  ErrorType.Visible := False;
-  ParameterID.Visible := False;
-  Fixed.Visible := False;
 end;
 
-function TParametricErrorTable.GetDescription: TField;
+function TParametricErrorTable.CreateWrap: TCustomErrorTableW;
 begin
-  Result := FieldByName('Description');
+  Result := TParametricErrorTableW.Create(Self);
 end;
 
-function TParametricErrorTable.GetError: TField;
+function TParametricErrorTable.GetParamDuplicateClone: TFDMemTable;
 begin
-  Result := FieldByName('Error');
+  if FParamDuplicateClone = nil then
+  begin
+    FParamDuplicateClone :=
+      W.AddClone(Format('%s=%d', [W.ErrorType.FieldName, Integer(petParamDuplicate)]));
+  end;
+
+  Result := FParamDuplicateClone;
 end;
 
-function TParametricErrorTable.GetParameterName: TField;
+constructor TParametricErrorTableW.Create(AOwner: TComponent);
 begin
-  Result := FieldByName('ParameterName');
+  inherited;
+  FFixed := TFieldWrap.Create(Self, 'Fixed');
+  FDescription := TFieldWrap.Create(Self, 'Description', 'Описание');
+  FErrorType := TFieldWrap.Create(Self, 'ErrorType');
+  FParameterID := TFieldWrap.Create(Self, 'ParameterID');
+  FParameterName := TFieldWrap.Create(Self, 'ParameterName', 'Параметр');
+  FStringTreeNodeID := TFieldWrap.Create(Self, 'StringTreeNodeID');
+
+  FOnFixError := TNotifyEventsEx.Create(Self);
 end;
 
-procedure TParametricErrorTable.AddErrorMessage(const AParameterName, AMessage:
-    string; const AErrorType: TParametricErrorType; AStringTreeNodeID: Integer);
+destructor TParametricErrorTableW.Destroy;
+begin
+  inherited;
+  FreeAndNil(FOnFixError);
+end;
+
+procedure TParametricErrorTableW.AddErrorMessage(const AParameterName,
+  AMessage: string; const AErrorType: TParametricErrorType;
+  AStringTreeNodeID: Integer);
 begin
   Assert(Active);
   Assert(AStringTreeNodeID > 0);
 
-  if not(State in [dsEdit, dsInsert]) then
-    Append;
+  TryAppend;
 
-  ParameterName.AsString := AParameterName;
-  Error.AsString := ErrorMessage;
-  Description.AsString := AMessage;
-  StringTreeNodeID.AsInteger := AStringTreeNodeID;
-  ErrorType.AsInteger := Integer(AErrorType);
-  Fixed.AsBoolean := False;
-  Post;
+  ParameterName.F.AsString := AParameterName;
+  Error.F.AsString := ErrorMessage;
+  Description.F.AsString := AMessage;
+  StringTreeNodeID.F.AsInteger := AStringTreeNodeID;
+  ErrorType.F.AsInteger := Integer(AErrorType);
+  Fixed.F.AsBoolean := False;
+  TryPost;
 end;
 
-procedure TParametricErrorTable.FilterFixed;
+procedure TParametricErrorTableW.FilterFixed;
 begin
-  Filter := Format('%s = false', [Fixed.FieldName]);
-  Filtered := True;
+  DataSet.Filter := Format('%s = false', [Fixed.FieldName]);
+  DataSet.Filtered := True;
 end;
 
-procedure TParametricErrorTable.Fix(AParameterID: Integer);
+procedure TParametricErrorTableW.Fix(AParameterID: Integer);
 begin
   Assert(AParameterID > 0);
-  Edit;
-  ParameterID.AsInteger := AParameterID;
-  Fixed.AsBoolean := True;
-  Post;
+
+  TryEdit;
+  ParameterID.F.AsInteger := AParameterID;
+  Fixed.F.AsBoolean := True;
+  TryPost;
+
+  FOnFixError.CallEventHandlers(Self);
 end;
 
-function TParametricErrorTable.GetErrorType: TField;
+function TParametricErrorTableW.LocateByID(AStringTreeNodeID: Integer): Boolean;
 begin
-  Result := FieldByName('ErrorType');
-end;
-
-function TParametricErrorTable.GetFixed: TField;
-begin
-  Result := FieldByName('Fixed');
-end;
-
-function TParametricErrorTable.GetStringTreeNodeID: TField;
-begin
-  Result := FieldByName('StringTreeNodeID');
-end;
-
-function TParametricErrorTable.GetParameterID: TField;
-begin
-  Result := FieldByName('ParameterID');
-end;
-
-function TParametricErrorTable.LocateByID(AStringTreeNodeID: Integer): Boolean;
-begin
-  Result := LocateEx(StringTreeNodeID.FieldName, AStringTreeNodeID, []);
+  Result := FDDataSet.LocateEx(StringTreeNodeID.FieldName,
+    AStringTreeNodeID, []);
 end;
 
 end.

@@ -779,23 +779,6 @@ end;
 function TDM.LoadExcelFileHeader(ARootTreeNode: TStringTreeNode; AFieldsInfo:
     TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef):
     TLoadExcelFileHeaderResult;
-{
-  function ShowErrorForm(AParametricErrorTable: TParametricErrorTable): Boolean;
-  var
-  AfrmParametricTableError: TfrmParametricTableError;
-  begin
-  AfrmParametricTableError := TfrmParametricTableError.Create(Self);
-  try
-  // AfrmGridView.Caption := 'Ошибки среди параметров';
-  AfrmParametricTableError.ViewParametricTableError.DataSet :=
-  AParametricErrorTable;
-  // Показываем что мы собираемся привязывать
-  Result := AfrmParametricTableError.ShowModal = mrOk;
-  finally
-  FreeAndNil(AfrmParametricTableError);
-  end;
-  end;
-}
 var
   AFieldName: string;
   AParametricErrorTable: TParametricErrorTable;
@@ -828,7 +811,7 @@ begin
         rc := AParametricErrorTable.RecordCount;
 
         // Скрываем те ошибки, что уже исправили
-        AParametricErrorTable.FilterFixed;
+        AParametricErrorTable.W.FilterFixed;
 
         if not AShowErrorDialogRef(AParametricErrorTable) then
         begin
@@ -894,12 +877,12 @@ function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
 
     if ACount = 0 then
     begin
-      AParametricErrorTable.AddErrorMessage(AStringTreeNode.Value,
+      AParametricErrorTable.W.AddErrorMessage(AStringTreeNode.Value,
         'Параметр не найден', petParamNotFound, AStringTreeNode.ID);
     end
     else
     begin
-      AParametricErrorTable.AddErrorMessage(AStringTreeNode.Value,
+      AParametricErrorTable.W.AddErrorMessage(AStringTreeNode.Value,
         Format('Параметр найден в справочнике параметров %d %s',
         [ACount, NameForm(ACount, 'раз', 'раза', 'раз')]), petParamDuplicate,
         AStringTreeNode.ID);
@@ -918,13 +901,13 @@ function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
 
     if ACount = 0 then
     begin
-      AParametricErrorTable.AddErrorMessage(AStringTreeNode.Value,
+      AParametricErrorTable.W.AddErrorMessage(AStringTreeNode.Value,
         'Подпараметр не найден', petSubParamNotFound, AStringTreeNode.ID);
     end;
 
     if ACount > 1 then
     begin
-      AParametricErrorTable.AddErrorMessage(AStringTreeNode.Value,
+      AParametricErrorTable.W.AddErrorMessage(AStringTreeNode.Value,
         Format('Подпараметр найден в справочнике подпараметров %d %s',
         [ACount, NameForm(ACount, 'раз', 'раза', 'раз')]), petSubParamDuplicate,
         AStringTreeNode.ID);
@@ -944,7 +927,7 @@ function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
     if AIDList.IndexOf(AParamSubParamID) < 0 then
       Exit;
 
-    AParametricErrorTable.AddErrorMessage(AStringTreeNode.Value,
+    AParametricErrorTable.W.AddErrorMessage(AStringTreeNode.Value,
       'Параметр встречается более одного раза', petNotUnique,
       AStringTreeNode.ID);
     Result := False;
@@ -983,12 +966,12 @@ begin
       end;
 
       // Ищем, возможно этот узел раньше был помечен как ошибочный
-      if AParametricErrorTable.LocateByID(AStringTreeNode.ID) then
+      if AParametricErrorTable.W.LocateByID(AStringTreeNode.ID) then
       begin
-        ParamIsOk := AParametricErrorTable.Fixed.AsBoolean;
+        ParamIsOk := AParametricErrorTable.W.Fixed.F.AsBoolean;
         if ParamIsOk then
           qSearchParameter.SearchByID
-            (AParametricErrorTable.ParameterID.AsInteger, True);
+            (AParametricErrorTable.W.ParameterID.F.AsInteger, True);
       end
       else
       begin
@@ -1013,12 +996,12 @@ begin
           end;
 
           // Ищем, возможно этот узел раньше был помечен как ошибочный
-          if AParametricErrorTable.LocateByID(AStringTreeNode2.ID) then
+          if AParametricErrorTable.W.LocateByID(AStringTreeNode2.ID) then
           begin
-            SubParamIsOk := AParametricErrorTable.Fixed.AsBoolean;
+            SubParamIsOk := AParametricErrorTable.W.Fixed.F.AsBoolean;
             if SubParamIsOk then
               qSubParameters.SearchByID
-                (AParametricErrorTable.ParameterID.AsInteger, True)
+                (AParametricErrorTable.W.ParameterID.F.AsInteger, True)
           end
           else
           begin

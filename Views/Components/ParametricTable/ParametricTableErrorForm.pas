@@ -3,7 +3,8 @@ unit ParametricTableErrorForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, Vcl.ExtCtrls, GridFrame,
   GridView, GridViewEx, ParametricTableErrorView, cxGraphics, cxLookAndFeels,
   cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack, dxSkinBlue,
@@ -21,7 +22,7 @@ uses
   dxSkinTheAsphaltWorld, dxSkinsDefaultPainters, dxSkinValentine,
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons;
+  dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons, System.Contnrs;
 
 type
   TfrmParametricTableError = class(TfrmRoot)
@@ -29,32 +30,65 @@ type
     cxButtonNext: TcxButton;
     cxButtonCancel: TcxButton;
   private
+    FEvents: TObjectList;
     FViewParametricTableError: TViewParametricTableError;
+    procedure DoOnAssignDataSet(Sender: TObject);
+    procedure DoOnFixError(Sender: TObject);
+    procedure UpdateView;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property ViewParametricTableError: TViewParametricTableError read
-        FViewParametricTableError;
+    property ViewParametricTableError: TViewParametricTableError
+      read FViewParametricTableError;
     { Public declarations }
   end;
 
 implementation
+
+uses
+  NotifyEvents;
 
 {$R *.dfm}
 
 constructor TfrmParametricTableError.Create(AOwner: TComponent);
 begin
   inherited;
+  FEvents := TObjectList.Create;
   FViewParametricTableError := TViewParametricTableError.Create(Self);
   FViewParametricTableError.Parent := pnlMain;
   FViewParametricTableError.Align := alClient;
+  TNotifyEventWrap.Create(FViewParametricTableError.OnAssignDataSet,
+    DoOnAssignDataSet, FEvents);
+  UpdateView;
 end;
 
 destructor TfrmParametricTableError.Destroy;
 begin
-  FreeAndNil(FViewParametricTableError);
+  FreeAndNil(FEvents);
   inherited;
+end;
+
+procedure TfrmParametricTableError.DoOnAssignDataSet(Sender: TObject);
+begin
+  TNotifyEventWrap.Create(FViewParametricTableError.ParametricErrorTable.W.
+    OnFixError, DoOnFixError, FEvents);
+  UpdateView;
+end;
+
+procedure TfrmParametricTableError.DoOnFixError(Sender: TObject);
+begin
+  UpdateView;
+end;
+
+procedure TfrmParametricTableError.UpdateView;
+begin
+  // Кнопка "Далее" активна,
+  // если в списке ошибок нет ошибок связанных с дублированием параметра
+
+  cxButtonNext.Enabled := (FViewParametricTableError.ParametricErrorTable <>
+    nil) and (FViewParametricTableError.ParametricErrorTable.
+    ParamDuplicateClone.RecordCount = 0);
 end;
 
 end.

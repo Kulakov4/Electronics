@@ -1630,7 +1630,6 @@ begin
       begin
         AfrmParametricTableError := TfrmParametricTableError.Create(Self);
         try
-          // AfrmGridView.Caption := 'Ошибки среди параметров';
           AfrmParametricTableError.ViewParametricTableError.DataSet :=
             AParametricErrorTable;
           // Показываем что мы собираемся привязывать
