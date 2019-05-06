@@ -179,8 +179,8 @@ type
     function GetQueryMonitor: TQueryMonitor;
     function GetViewComponentsFocused: Boolean;
     procedure LoadDocFromExcelDocument;
-    function LoadExcelFileHeader(var AFileName: String;
-      AFieldsInfo: TFieldsInfo): Boolean;
+    function LoadExcelFileHeader(const ACaption: string; var AFileName: String;
+      var AReplace: Boolean; AFieldsInfo: TFieldsInfo): Boolean;
     procedure LoadParametricData(AComponentTypeSet: TComponentTypeSet);
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
@@ -238,7 +238,8 @@ uses
   LoadFromExcelFileHelper, SearchCategoryQuery, CustomErrorForm,
   ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule,
   FireDAC.Comp.DataSet, ComponentsGroupUnit2, ComponentsExcelDataModule,
-  StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType;
+  StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType,
+  LoadParametricDataForm;
 
 {$R *.dfm}
 
@@ -1598,8 +1599,9 @@ begin
   TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
 end;
 
-function TfrmMain.LoadExcelFileHeader(var AFileName: String;
-AFieldsInfo: TFieldsInfo): Boolean;
+function TfrmMain.LoadExcelFileHeader(const ACaption: string;
+var AFileName: String; var AReplace: Boolean; AFieldsInfo: TFieldsInfo)
+  : Boolean;
 var
   ARootTreeNode: TStringTreeNode;
   R: TLoadExcelFileHeaderResult;
@@ -1607,10 +1609,12 @@ begin
   Result := False;
   Assert(AFieldsInfo <> nil);
 
-  if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
-    TSettings.Create.ParametricDataFolder, '', AFileName) then
-    Exit;
-  // отказались от выбора файла
+  if not TfrmLoadParametricData.ShowDialog(ACaption, AFileName, AReplace) then
+    Exit; // отказались от выбора файла
+
+  // if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
+  // TSettings.Create.ParametricDataFolder, '', AFileName) then
+  // Exit;
 
   // Сохраняем эту папку в настройках
   TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
@@ -1651,21 +1655,25 @@ end;
 
 procedure TfrmMain.LoadParametricData(AComponentTypeSet: TComponentTypeSet);
 var
+  ACaption: string;
   ADataOnly: Boolean;
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
   AFullFileName: string;
   AParametricExcelDM: TParametricExcelDM;
+  AReplace: Boolean;
   m: TArray<String>;
   rc: Integer;
 begin
   AFieldsInfo := TFieldsInfo.Create();
   try
-    if not LoadExcelFileHeader(AFullFileName, AFieldsInfo) then
-      Exit;
-
     // Если идёт загрузка только данных
     ADataOnly := AComponentTypeSet = [ctComponent];
+    ACaption := IfThen(not ADataOnly, 'Загрузка параметрической таблицы',
+      'Загрузка параметрических данных');
+
+    if not LoadExcelFileHeader(ACaption, AFullFileName, AReplace, AFieldsInfo) then
+      Exit;
 
     if not ADataOnly then
     begin
@@ -1702,7 +1710,7 @@ begin
     end;
 
     AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
-      AComponentTypeSet);
+      AComponentTypeSet, AReplace);
     FWriteProgress := TTotalProgress.Create;
     FfrmProgressBar := TfrmProgressBar3.Create(Self);
     try

@@ -15,6 +15,7 @@ type
   private
     FComponentTypeSet: TComponentTypeSet;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
+    FReplace: Boolean;
     function GetComponentName: TField;
     // TODO: GetIDBodyType
     // function GetIDBodyType: TField;
@@ -24,33 +25,36 @@ type
   protected
     function CheckComponent: Boolean;
     procedure CreateFieldDefs; override;
-    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily read
-        GetqSearchComponentOrFamily;
+    property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
+      read GetqSearchComponentOrFamily;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
-        AComponentTypeSet: TComponentTypeSet); reintroduce;
+      AComponentTypeSet: TComponentTypeSet; AReplace: Boolean); reintroduce;
     function CheckRecord: Boolean; override;
-    class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer):
-        String; static;
-    function GetParamSubParamIDByFieldName(AFieldName: string; out
-        AParamSubParamID: Integer): Boolean;
+    class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer)
+      : String; static;
+    function GetParamSubParamIDByFieldName(AFieldName: string;
+      out AParamSubParamID: Integer): Boolean;
     property ComponentName: TField read GetComponentName;
     property ComponentTypeSet: TComponentTypeSet read FComponentTypeSet;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
+    property Replace: Boolean read FReplace;
   end;
 
   TParametricExcelDM = class(TExcelDM)
   private
     FComponentTypeSet: TComponentTypeSet;
     FFieldsInfo: TList<TFieldInfo>;
+    FReplace: Boolean;
     function GetExcelTable: TParametricExcelTable;
     { Private declarations }
   protected
     function CreateExcelTable: TCustomExcelTable; override;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
-        AComponentTypeSet: TComponentTypeSet); reintroduce; overload;
+      AComponentTypeSet: TComponentTypeSet; AReplace: Boolean);
+      reintroduce; overload;
     property ExcelTable: TParametricExcelTable read GetExcelTable;
     { Public declarations }
   end;
@@ -66,8 +70,9 @@ uses ProgressInfo, System.Variants, ErrorType, RecordCheck;
 const
   FParamPrefix = 'Param';
 
-constructor TParametricExcelTable.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet);
+constructor TParametricExcelTable.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet;
+  AReplace: Boolean);
 var
   AFieldInfo: TFieldInfo;
 begin
@@ -76,6 +81,7 @@ begin
     FieldsInfo.Add(AFieldInfo);
 
   FComponentTypeSet := AComponentTypeSet;
+  FReplace := AReplace;
 end;
 
 function TParametricExcelTable.CheckComponent: Boolean;
@@ -99,14 +105,16 @@ begin
   // Ищем компонент
   if FComponentTypeSet = [ctComponent] then
   begin
-    Result := qSearchComponentOrFamily.SearchComponent(ComponentName.AsString) > 0;
+    Result := qSearchComponentOrFamily.SearchComponent
+      (ComponentName.AsString) > 0;
     if not Result then
       AErrorMessage := 'Компонент с таким именем не найден';
   end;
 
   if FComponentTypeSet = [ctComponent, ctFamily] then
   begin
-    Result := qSearchComponentOrFamily.SearchByValue(ComponentName.AsString) > 0;
+    Result := qSearchComponentOrFamily.SearchByValue
+      (ComponentName.AsString) > 0;
     if not Result then
       AErrorMessage := 'Семейство или компонент с таким именем не найден';
   end;
@@ -115,8 +123,8 @@ begin
   begin
     Edit;
     IDComponent.AsInteger := qSearchComponentOrFamily.W.PK.AsInteger;
-    IDParentComponent.AsInteger :=
-      qSearchComponentOrFamily.W.ParentProductID.F.AsInteger;
+    IDParentComponent.AsInteger := qSearchComponentOrFamily.W.ParentProductID.
+      F.AsInteger;
     Post;
   end
   else
@@ -154,8 +162,8 @@ begin
   Result := FieldByName(FieldsInfo[0].FieldName);
 end;
 
-class function TParametricExcelTable.GetFieldNameByParamSubParamID(
-    AParamSubParamID: Integer): String;
+class function TParametricExcelTable.GetFieldNameByParamSubParamID
+  (AParamSubParamID: Integer): String;
 begin
   Assert(AParamSubParamID > 0);
   Assert(not FParamPrefix.IsEmpty);
@@ -168,8 +176,8 @@ begin
   Result := FieldByName('IDComponent');
 end;
 
-function TParametricExcelTable.GetParamSubParamIDByFieldName(AFieldName:
-    string; out AParamSubParamID: Integer): Boolean;
+function TParametricExcelTable.GetParamSubParamIDByFieldName(AFieldName: string;
+  out AParamSubParamID: Integer): Boolean;
 var
   m: TArray<String>;
 begin
@@ -197,8 +205,8 @@ begin
   Result := FieldByName('IDParentComponent');
 end;
 
-function TParametricExcelTable.GetqSearchComponentOrFamily:
-    TQuerySearchComponentOrFamily;
+function TParametricExcelTable.GetqSearchComponentOrFamily
+  : TQuerySearchComponentOrFamily;
 begin
   if FqSearchComponentOrFamily = nil then
     FqSearchComponentOrFamily := TQuerySearchComponentOrFamily.Create(Self);
@@ -206,12 +214,14 @@ begin
   Result := FqSearchComponentOrFamily;
 end;
 
-constructor TParametricExcelDM.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet);
+constructor TParametricExcelDM.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet;
+  AReplace: Boolean);
 begin
   Assert(AFieldsInfo <> nil);
   FFieldsInfo := AFieldsInfo;
   FComponentTypeSet := AComponentTypeSet;
+  FReplace := AReplace;
 
   Create(AOwner);
 end;
@@ -219,7 +229,8 @@ end;
 function TParametricExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
   Assert(FFieldsInfo <> nil);
-  Result := TParametricExcelTable.Create(Self, FFieldsInfo, FComponentTypeSet);
+  Result := TParametricExcelTable.Create(Self, FFieldsInfo, FComponentTypeSet,
+    FReplace);
 end;
 
 function TParametricExcelDM.GetExcelTable: TParametricExcelTable;

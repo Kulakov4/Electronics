@@ -137,7 +137,6 @@ uses
   ParametricTableForm in 'Views\Components\ParametricTable\ParametricTableForm.pas' {frmParametricTable},
   AutoBinding in 'Helpers\AutoBinding.pas',
   BindDocUnit in 'Helpers\BindDocUnit.pas',
-  ComponentsTabSheetView in 'Views\Components\ComponentsTabSheetView.pas' {ComponentsFrame: TFrame},
   ProductsBaseView2 in 'Views\Products\ProductsBaseView2.pas' {ViewProductsBase2: TFrame},
   ProductsSearchView2 in 'Views\Products\ProductsSearchView2.pas' {ViewProductsSearch2: TFrame},
   ProductsView2 in 'Views\Products\ProductsView2.pas' {ViewProducts2: TFrame},
@@ -245,7 +244,8 @@ uses
   ClearStorehouseProductsQuery in 'Queryes\Products\ClearStorehouseProductsQuery.pas' {QryClearStoreHouseProducts: TFrame},
   CompFrameUnit in 'Views\CompFrameUnit.pas' {frmComp: TFrame},
   MinWholeSaleForm in 'Views\Products\MinWholeSaleForm.pas' {frmMinWholeSale},
-  SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame};
+  SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame},
+  LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData};
 
 {$R *.res}
 

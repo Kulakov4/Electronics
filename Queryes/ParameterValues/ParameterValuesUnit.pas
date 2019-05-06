@@ -116,7 +116,8 @@ begin
       AExcelTable.CallOnProcessEvent;
       while not AExcelTable.Eof do
       begin
-        Assert(AExcelTable.IDComponent.AsInteger > 0);
+        AIDComponent := AExcelTable.IDComponent.AsInteger;
+        Assert(AIDComponent > 0);
 
         // Цикл по всем описаниям полей
         for AFieldInfo in AExcelTable.FieldsInfo do
@@ -132,7 +133,19 @@ begin
 
           AValue := AExcelTable.FieldByName(AFieldInfo.FieldName).AsString;
 
-          // если значение для параметра не пустое
+          // если значение для параметра пустое и нет необходимости удалять старве значения
+          if AValue.IsEmpty and not AExcelTable.Replace then
+            continue;
+
+          // Ищем все значения для какой либо связки параметра с подпараметром
+          AQueryParametersValue.Search(AIDComponent, AParamSubParamID);
+
+          // Если нужно заменить значения загружаемого параметра
+          if AExcelTable.Replace then
+            // Удаляем все значения параметров для текущего компонента и связки параметра с подпараметром
+            AQueryParametersValue.W.DeleteAll;
+
+          // если значение для параметра пустое
           if AValue.IsEmpty then
             continue;
 
@@ -144,7 +157,7 @@ begin
             if AValue.IsEmpty then
               continue;
 
-            // Если загружаем значение для компонента
+            // Если загружаем значение для компонента (не для семейства)
             if AExcelTable.IDParentComponent.AsInteger > 0 then
             begin
               if AUpdParamSubParamList.Search
@@ -156,12 +169,6 @@ begin
                   (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID));
               end;
             end;
-
-            AIDComponent := AExcelTable.IDComponent.AsInteger;
-
-            // Ищем все значения для какой либо связки параметра с подпараметром
-            AQueryParametersValue.Search(AIDComponent, AParamSubParamID);
-            AExcelTable.CallOnProcessEvent;
 
             // Добавляем значение в таблицу значений связки параметра с подпараметром
             AQueryParametersValue.W.LocateOrAppend(AValue);
@@ -187,7 +194,8 @@ begin
         if Q.SearchEx(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID) = 1 then
         begin
           // Добавляем значение параметра для семейства
-          AQueryParametersValue.Search(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID);
+          AQueryParametersValue.Search(AUpdPSP.FamilyID,
+            AUpdPSP.ParamSubParamID);
           AQueryParametersValue.W.LocateOrAppend(Q.W.Value.F.AsString);
         end;
         Inc(i);

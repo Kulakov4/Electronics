@@ -318,6 +318,7 @@ var
 begin
   Assert(AFileNames <> nil);
   Assert(AutomaticLoadErrorTable <> nil);
+  Result := 0;
 
   if AFileNames.Count = 0 then
     Exit;

@@ -538,10 +538,6 @@
         </DCCReference>
         <DCCReference Include="Helpers\AutoBinding.pas"/>
         <DCCReference Include="Helpers\BindDocUnit.pas"/>
-        <DCCReference Include="Views\Components\ComponentsTabSheetView.pas">
-            <Form>ComponentsFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\Products\ProductsBaseView2.pas">
             <Form>ViewProductsBase2</Form>
             <DesignClass>TFrame</DesignClass>
@@ -861,6 +857,10 @@
             <Form>QuerySearchFamilyOrComp</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\LoadParametricDataForm.pas">
+            <Form>frmLoadParametricData</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
