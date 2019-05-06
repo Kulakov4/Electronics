@@ -14,6 +14,8 @@ uses
 
 type
   TFamilyExW = class(TFamilyW)
+  public
+    procedure RefreshQuery; override;
   end;
 
   TQueryFamilyEx = class(TQueryFamily)
@@ -79,6 +81,22 @@ end;
 function TQueryFamilyEx.CreateDSWrap: TDSWrap;
 begin
   Result := TFamilyExW.Create(FDQuery);
+end;
+
+procedure TFamilyExW.RefreshQuery;
+begin
+  // При каждом обновлении в запрос добавляются разные дополнительные поля.
+  // Поэтому обычный Refresh не подходит
+  DataSet.DisableControls;
+  try
+    if DataSet.Active then
+      DataSet.Close;
+    DataSet.Open;
+
+    NeedRefresh := False;
+  finally
+    DataSet.EnableControls;
+  end;
 end;
 
 end.

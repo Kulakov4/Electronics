@@ -143,7 +143,7 @@ type
     function LocateByPK(APKValue: Variant; TestResult: Boolean = False)
       : Boolean;
     procedure LocateByPKAndDelete(APKValue: Variant);
-    procedure RefreshQuery;
+    procedure RefreshQuery; virtual;
     function RestoreBookmark: Boolean; virtual;
     function SaveBookmark: Boolean;
     procedure SetFieldsReadOnly(AReadOnly: Boolean);

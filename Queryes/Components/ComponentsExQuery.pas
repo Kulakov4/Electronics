@@ -19,7 +19,7 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -39,6 +39,7 @@ type
     FAnalog: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshQuery; override;
     property Analog: TFieldWrap read FAnalog;
   end;
 
@@ -64,8 +65,9 @@ begin
   FreeAndNil(FRecordHolder);
 end;
 
-procedure TQueryComponentsEx.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryComponentsEx.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   // ничего не делаем при удаении
 end;
@@ -111,6 +113,22 @@ constructor TComponentsExW.Create(AOwner: TComponent);
 begin
   inherited;
   FAnalog := TFieldWrap.Create(Self, 'Analog');
+end;
+
+procedure TComponentsExW.RefreshQuery;
+begin
+  // При каждом обновлении в запрос добавляются разные дополнительные поля.
+  // Поэтому обычный Refresh не подходит
+  DataSet.DisableControls;
+  try
+    if DataSet.Active then
+      DataSet.Close;
+    DataSet.Open;
+
+    NeedRefresh := False;
+  finally
+    DataSet.EnableControls;
+  end;
 end;
 
 end.
