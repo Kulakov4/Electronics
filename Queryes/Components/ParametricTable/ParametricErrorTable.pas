@@ -77,8 +77,10 @@ function TParametricErrorTable.GetParamDuplicateClone: TFDMemTable;
 begin
   if FParamDuplicateClone = nil then
   begin
+    // Есть ошибки сязанные с дублированием параметра и они не исправлены
     FParamDuplicateClone :=
-      W.AddClone(Format('%s=%d', [W.ErrorType.FieldName, Integer(petParamDuplicate)]));
+      W.AddClone(Format('(%s=%d) and (%s=false)',
+      [W.ErrorType.FieldName, Integer(petParamDuplicate), W.Fixed.FieldName]));
   end;
 
   Result := FParamDuplicateClone;

@@ -25,7 +25,6 @@ type
     property Size: Integer read FSize write FSize;
   end;
 
-type
   TFieldsInfo = class(TList<TFieldInfo>)
   public
     function Find(const AFieldName: string): TFieldInfo;

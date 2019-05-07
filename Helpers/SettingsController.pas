@@ -2,7 +2,7 @@ unit SettingsController;
 
 interface
 
-uses IniFiles, SysUtils, Forms;
+uses System.IniFiles, System.SysUtils, Vcl.Forms;
 
 type
   TSettings = class(TObject)
@@ -67,7 +67,10 @@ type
       const ADefault: string = ''): string;
     function GetPath(const ASection, AParameter, ADefaultFolder
       : string): string;
+    function LoadStrings(const ASection, ACaption: string): TArray<String>;
     class function NewInstance: TObject; override;
+    procedure SaveStrings(const ASection, ACaption: string;
+      StrArr: TArray<String>);
     procedure SetFolderForExcelFile(const AFolderKey, AFolder: String);
     procedure SetValue(const ASection, AParameter: string;
       const Value: Variant);
@@ -116,7 +119,7 @@ type
 implementation
 
 uses ProjectConst, System.IOUtils, System.Variants, System.Contnrs,
-  System.Classes;
+  System.Classes, System.Generics.Collections;
 
 var
   SingletonList: TObjectList;
@@ -310,6 +313,56 @@ begin
   end;
 
   Result := Instance;
+end;
+
+function TSettings.LoadStrings(const ASection, ACaption: string):
+    TArray<String>;
+var
+  AIniFile: TIniFile;
+  I: Integer;
+  L: TList<String>;
+  S: String;
+begin
+  L := TList<String>.Create;
+  try
+    AIniFile := TIniFile.Create(FFileName);
+    try
+      for I := 0 to 20 do
+      begin
+        S := AIniFile.ReadString(ASection, Format('%s_%d', [ACaption, I]), '');
+        if not S.IsEmpty then
+          L.Add(S)
+        else
+          break;
+      end;
+    finally
+      AIniFile.Free;
+    end;
+
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
+  end;
+end;
+
+procedure TSettings.SaveStrings(const ASection, ACaption: string;
+  StrArr: TArray<String>);
+var
+  AIniFile: TIniFile;
+  I: Integer;
+  S: String;
+begin
+  AIniFile := TIniFile.Create(FFileName);
+  try
+    for I := Low(StrArr) to High(StrArr) do
+      AIniFile.WriteString(ASection, Format('%s_%d', [ACaption, I]), StrArr[I]);
+
+    // Удаляем "лишние" ключи
+    for I := High(StrArr) + 1 to 20 do
+      AIniFile.DeleteKey(ASection, Format('%s_%d', [ACaption, I]));
+  finally
+    AIniFile.Free;
+  end;
 end;
 
 procedure TSettings.SetBodyTypesLandPatternFolder(const Value: string);

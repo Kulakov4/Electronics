@@ -179,8 +179,8 @@ type
     function GetQueryMonitor: TQueryMonitor;
     function GetViewComponentsFocused: Boolean;
     procedure LoadDocFromExcelDocument;
-    function LoadExcelFileHeader(const ACaption: string; var AFileName: String;
-      var AReplace: Boolean; AFieldsInfo: TFieldsInfo): Boolean;
+    function LoadExcelFileHeader(const AFileName: String;
+      AFieldsInfo: TFieldsInfo): Boolean;
     procedure LoadParametricData(AComponentTypeSet: TComponentTypeSet);
     procedure ShowParametricTable;
     function ShowSettingsEditor: Integer;
@@ -1599,30 +1599,18 @@ begin
   TBindDoc.LoadDocBindsFromExcelDocument(AFileName);
 end;
 
-function TfrmMain.LoadExcelFileHeader(const ACaption: string;
-var AFileName: String; var AReplace: Boolean; AFieldsInfo: TFieldsInfo)
-  : Boolean;
+function TfrmMain.LoadExcelFileHeader(const AFileName: String;
+AFieldsInfo: TFieldsInfo): Boolean;
 var
   ARootTreeNode: TStringTreeNode;
   R: TLoadExcelFileHeaderResult;
 begin
-  Result := False;
   Assert(AFieldsInfo <> nil);
-
-  if not TfrmLoadParametricData.ShowDialog(ACaption, AFileName, AReplace) then
-    Exit; // отказались от выбора файла
-
-  // if not TDialog.Create.ShowDialog(TExcelFileOpenDialog,
-  // TSettings.Create.ParametricDataFolder, '', AFileName) then
-  // Exit;
-
-  // Сохраняем эту папку в настройках
-  TSettings.Create.ParametricDataFolder := TPath.GetDirectoryName(AFileName);
+  Result := True;
 
   // Описания полей excel файла
   ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
   try
-    // Result :=
     R := TDM.Create.LoadExcelFileHeader(ARootTreeNode, AFieldsInfo,
       function(AParametricErrorTable: TParametricErrorTable): Boolean
       var
@@ -1638,18 +1626,18 @@ begin
           FreeAndNil(AfrmParametricTableError);
         end;
       end);
-
-    case R of
-      ID_ParametricTableNotFound:
-        TDialog.Create.ParametricTableNotFound;
-      ID_NoParameterForLoad:
-        TDialog.Create.ErrorMessageDialog
-          ('Нет параметров, значения которых можно загрузить');
-    end;
-    Result := R = ID_OK;
   finally
     FreeAndNil(ARootTreeNode);
   end;
+
+  case R of
+    ID_ParametricTableNotFound:
+      TDialog.Create.ParametricTableNotFound;
+    ID_NoParameterForLoad:
+      TDialog.Create.ErrorMessageDialog
+        ('Нет параметров, значения которых можно загрузить');
+  end;
+  Result := Result and (R = ID_OK);
 end;
 
 procedure TfrmMain.LoadParametricData(AComponentTypeSet: TComponentTypeSet);
@@ -1658,82 +1646,114 @@ var
   ADataOnly: Boolean;
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
-  AFullFileName: string;
+  AfrmLoadParametricData: TfrmLoadParametricData;
   AParametricExcelDM: TParametricExcelDM;
-  AReplace: Boolean;
   m: TArray<String>;
+  OK: Boolean;
   rc: Integer;
 begin
-  AFieldsInfo := TFieldsInfo.Create();
-  try
-    // Если идёт загрузка только данных
-    ADataOnly := AComponentTypeSet = [ctComponent];
-    ACaption := IfThen(not ADataOnly, 'Загрузка параметрической таблицы',
-      'Загрузка параметрических данных');
+  OK := False;
+  // Если идёт загрузка только данных
+  ADataOnly := AComponentTypeSet = [ctComponent];
 
-    if not LoadExcelFileHeader(ACaption, AFullFileName, AReplace, AFieldsInfo) then
+  AfrmLoadParametricData := TfrmLoadParametricData.Create(Self, not ADataOnly);
+  try
+    // Если отказались от дальнейших действий
+    if AfrmLoadParametricData.ShowModal <> mrOk then
       Exit;
 
-    if not ADataOnly then
-    begin
-      // В начале имени файла - код категории в которую будем загружать параметры
-      AFileName := TPath.GetFileNameWithoutExtension(AFullFileName);
+    // Сохраняем эту папку в настройках
+    TSettings.Create.ParametricDataFolder :=
+      TPath.GetDirectoryName(AfrmLoadParametricData.FileName);
 
-      m := AFileName.Split([' ']);
-      if Length(m) = 1 then
-      begin
-        TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+    AFieldsInfo := TFieldsInfo.Create();
+    try
+      if not LoadExcelFileHeader(AfrmLoadParametricData.FileName, AFieldsInfo)
+      then
         Exit;
+
+      if not ADataOnly then
+      begin
+        // В начале имени файла - код категории в которую будем загружать параметры
+        AFileName := TPath.GetFileNameWithoutExtension
+          (AfrmLoadParametricData.FileName);
+
+        m := AFileName.Split([' ']);
+        if Length(m) = 1 then
+        begin
+          TDialog.Create.ErrorMessageDialog
+            ('Имя файла должно содержать пробел');
+          Exit;
+        end;
+
+        try
+          // Проверяем что первая часть содержит целочисленный код категории
+          m[0].ToInteger;
+        except
+          TDialog.Create.ErrorMessageDialog
+            ('Имя файла должно содержать пробел');
+          Exit;
+        end;
+
+        // Ищем, есть ли категория с такми внешним кодом
+        if TDM.Create.qSearchCategory.SearchByExternalID(m[0]) = 0 then
+        begin
+          TDialog.Create.ErrorMessageDialog
+            (Format('Категория %s не найдена', [m[0]]));
+          Exit;
+        end;
+
+        // Ищем все дочерние категории
+        rc := TDM.Create.qSearchDaughterCategories.SearchEx
+          (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
+        Assert(rc > 0);
       end;
 
+      AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
+        AComponentTypeSet, AfrmLoadParametricData.Replace);
+      FWriteProgress := TTotalProgress.Create;
+      FfrmProgressBar := TfrmProgressBar3.Create(Self);
       try
-        // Проверяем что первая часть содержит целочисленный код категории
-        m[0].ToInteger;
-      except
-        TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
-        Exit;
-      end;
+        TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
+          DoAfterLoadSheet);
+        TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
+          DoOnTotalReadProgress);
 
-      // Ищем, есть ли категория с такми внешним кодом
-      if TDM.Create.qSearchCategory.SearchByExternalID(m[0]) = 0 then
-      begin
-        TDialog.Create.ErrorMessageDialog
-          (Format('Категория %s не найдена', [m[0]]));
-        Exit;
-      end;
+        FfrmProgressBar.Show;
+        AParametricExcelDM.LoadExcelFile2(AfrmLoadParametricData.FileName);
 
-      // Ищем все дочерние категории
-      rc := TDM.Create.qSearchDaughterCategories.SearchEx
-        (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
-      Assert(rc > 0);
+        OK := True;
+
+      finally
+        FreeAndNil(AParametricExcelDM);
+        FreeAndNil(FWriteProgress);
+        FreeAndNil(FfrmProgressBar);
+      end;
+    finally
+      FreeAndNil(AFieldsInfo);
     end;
 
-    AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
-      AComponentTypeSet, AReplace);
-    FWriteProgress := TTotalProgress.Create;
-    FfrmProgressBar := TfrmProgressBar3.Create(Self);
-    try
-      TNotifyEventWrap.Create(AParametricExcelDM.AfterLoadSheet,
-        DoAfterLoadSheet);
-      TNotifyEventWrap.Create(AParametricExcelDM.OnTotalProgress,
-        DoOnTotalReadProgress);
-
-      FfrmProgressBar.Show;
-      AParametricExcelDM.LoadExcelFile2(AFullFileName);
+    if OK and (AfrmLoadParametricData.LoadComponentGroup or
+      (TDM.Create.qTreeList.W.ID.F.AsInteger = TDM.Create.qSearchCategory.W.ID.
+      F.AsInteger)) then
+    begin
+      // Переходив на категорию в которую загружали значения параметров
+      TDM.Create.qTreeList.W.LocateByPK
+        (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
 
       // Обновляем параметры для текущей категории
       TDM.Create.CategoryParametersGroup.RefreshData;
+
       // Пытаемся обновить параметрическую таблицу
       TDM.Create.ComponentsExGroup.TryRefresh;
-    finally
-      FreeAndNil(AParametricExcelDM);
-      FreeAndNil(FWriteProgress);
-      FreeAndNil(FfrmProgressBar);
+
+      // Показываем параметрическую таблицу в полноэкранном режиме
+      if AfrmLoadParametricData.ShowParametricTable then
+        ShowParametricTable;
     end;
   finally
-    FreeAndNil(AFieldsInfo);
+    FreeAndNil(AfrmLoadParametricData);
   end;
-
 end;
 
 procedure TfrmMain.TryFocusViewComponents;

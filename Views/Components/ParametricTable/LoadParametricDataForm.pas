@@ -23,16 +23,15 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, cxGroupBox, cxLabel, Vcl.StdCtrls, cxRadioGroup,
   Vcl.Menus, System.ImageList, Vcl.ImgList, cxImageList, cxButtons, cxTextEdit,
-  System.Actions, Vcl.ActnList;
+  System.Actions, Vcl.ActnList, cxCheckBox, cxMaskEdit, cxDropDownEdit;
 
 type
-  TfrmLoadParametricData = class(TfrmRoot)
+  TfrmLoadParametricData = class(TForm)
     cxGroupBox1: TcxGroupBox;
     cxLabel1: TcxLabel;
     cxrbReplace: TcxRadioButton;
     cxrbAdd: TcxRadioButton;
     cxGroupBox2: TcxGroupBox;
-    cxteFileName: TcxTextEdit;
     cxButton1: TcxButton;
     cxImageList1: TcxImageList;
     cxbtnOK: TcxButton;
@@ -40,49 +39,78 @@ type
     ActionList1: TActionList;
     actOpenFile: TAction;
     actOK: TAction;
+    cxGroupBox3: TcxGroupBox;
+    cxcbLoadComponentGroup: TcxCheckBox;
+    cxcbShowParametricTable: TcxCheckBox;
+    cxcbFileName: TcxComboBox;
     procedure actOKExecute(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure actOpenFileExecute(Sender: TObject);
-    procedure cxteFileNamePropertiesChange(Sender: TObject);
-  private
+    procedure cxcbLoadComponentGroupClick(Sender: TObject);
+    procedure cxcbFileNamePropertiesChange(Sender: TObject);
+  private const
+    IniIdent: String = 'File';
+
+  var
+    FIniSection: string;
     function GetFileName: string;
+    function GetLoadComponentGroup: Boolean;
     function GetReplace: Boolean;
+    function GetShowParametricTable: Boolean;
     { Private declarations }
   protected
   public
-    class function ShowDialog(const ACaption: string; var AFileName: String; var
-        AReplace: Boolean): Boolean; static;
+    constructor Create(AOwner: TComponent; AParametricTable: Boolean);
     property FileName: string read GetFileName;
+    property LoadComponentGroup: Boolean read GetLoadComponentGroup;
     property Replace: Boolean read GetReplace;
+    property ShowParametricTable: Boolean read GetShowParametricTable;
     { Public declarations }
   end;
 
 implementation
 
 uses
-  DialogUnit, SettingsController, System.IOUtils;
+  DialogUnit, SettingsController, System.IOUtils, System.StrUtils;
 
 {$R *.dfm}
 
+constructor TfrmLoadParametricData.Create(AOwner: TComponent;
+  AParametricTable: Boolean);
+begin
+  inherited Create(AOwner);
+  Caption := IfThen(AParametricTable, 'Загрузка параметрической таблицы',
+    'Загрузка параметрических данных');
+
+  FIniSection := IfThen(AParametricTable, 'ParametricTableFiles',
+    'ParametricDataFiles');
+
+  cxbtnOK.Enabled := False;
+
+  // Загружаем список последних файлов
+  cxcbFileName.Properties.Items.AddStrings
+    (TSettings.Create.LoadStrings(FIniSection, IniIdent));
+end;
+
 procedure TfrmLoadParametricData.actOKExecute(Sender: TObject);
+var
+  i: Integer;
 begin
   inherited;
   if TFile.Exists(FileName) then
-    ModalResult := mrOK
+  begin
+    i := cxcbFileName.Properties.Items.IndexOf(cxcbFileName.Text);
+    if i >= 0 then
+      cxcbFileName.Properties.Items.Delete(i);
+
+    cxcbFileName.Properties.Items.Insert(0, cxcbFileName.Text);
+
+    // Сохраняем список файлов в настройках
+    TSettings.Create.SaveStrings(FIniSection, IniIdent,
+      cxcbFileName.Properties.Items.ToStringArray);
+    ModalResult := mrOK;
+  end
   else
     TDialog.Create.ErrorMessageDialog(Format('Файл %s не найден', [FileName]));
-end;
-
-procedure TfrmLoadParametricData.cxteFileNamePropertiesChange(Sender: TObject);
-begin
-  inherited;
-  cxbtnOK.Enabled := cxteFileName.Text <> '';
-end;
-
-procedure TfrmLoadParametricData.FormCreate(Sender: TObject);
-begin
-  inherited;
-  cxbtnOK.Enabled := False;
 end;
 
 procedure TfrmLoadParametricData.actOpenFileExecute(Sender: TObject);
@@ -94,12 +122,30 @@ begin
     TSettings.Create.ParametricDataFolder, '', AFileName) then
     Exit;
 
-  cxteFileName.Text := AFileName;
+  cxcbFileName.Text := AFileName;
+end;
+
+procedure TfrmLoadParametricData.cxcbFileNamePropertiesChange(Sender: TObject);
+begin
+  cxbtnOK.Enabled := cxcbFileName.Text <> '';
+end;
+
+procedure TfrmLoadParametricData.cxcbLoadComponentGroupClick(Sender: TObject);
+begin
+  cxcbShowParametricTable.Enabled := cxcbLoadComponentGroup.Checked;
+
+  if not cxcbShowParametricTable.Enabled then
+    cxcbShowParametricTable.Checked := False;
 end;
 
 function TfrmLoadParametricData.GetFileName: string;
 begin
-  Result := cxteFileName.Text;
+  Result := cxcbFileName.Text;
+end;
+
+function TfrmLoadParametricData.GetLoadComponentGroup: Boolean;
+begin
+  Result := cxcbLoadComponentGroup.Checked;
 end;
 
 function TfrmLoadParametricData.GetReplace: Boolean;
@@ -107,25 +153,9 @@ begin
   Result := cxrbReplace.Checked;
 end;
 
-class function TfrmLoadParametricData.ShowDialog(const ACaption: string; var
-    AFileName: String; var AReplace: Boolean): Boolean;
-var
-  AForm: TfrmLoadParametricData;
+function TfrmLoadParametricData.GetShowParametricTable: Boolean;
 begin
-  Assert(not ACaption.IsEmpty);
-  AForm := TfrmLoadParametricData.Create(nil);
-  try
-    AForm.Caption := ACaption;
-    Result := AForm.ShowModal = mrOK;
-    if Result then
-    begin
-      AFileName := AForm.FileName;
-      AReplace := AForm.Replace;
-    end;
-
-  finally
-    FreeAndNil(AForm);
-  end;
+  Result := cxcbShowParametricTable.Checked;
 end;
 
 end.

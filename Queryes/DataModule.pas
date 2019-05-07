@@ -798,7 +798,6 @@ begin
     if Length(AIDArray) = 0 then
     begin
       Result := ID_ParametricTableNotFound;
-      // TDialog.Create.ParametricTableNotFound;
       Exit;
     end;
 
