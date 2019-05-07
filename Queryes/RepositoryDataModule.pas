@@ -30,6 +30,7 @@ type
     cxImageList: TcxImageList;
     cxStyleRepository: TcxStyleRepository;
     cxHeaderStyle: TcxStyle;
+    cxInactiveStyle: TcxStyle;
     procedure DataModuleDestroy(Sender: TObject);
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);

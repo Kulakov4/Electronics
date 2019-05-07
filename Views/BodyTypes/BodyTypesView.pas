@@ -159,7 +159,7 @@ type
     { Private declarations }
   protected
     procedure CreateColumnsBarButtons; override;
-    function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure LoadFromExcel(const AFileName: String; AProducerID: Integer);
     procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
       var AllowPopup: Boolean); override;
@@ -582,6 +582,11 @@ begin
     cxGridDBBandedTableView2);
 end;
 
+function TViewBodyTypes.CreateViewArr: TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView, cxGridDBBandedTableView2];
+end;
+
 procedure TViewBodyTypes.cxerpiJEDECPropertiesCloseUp(Sender: TObject);
 var
   AJedec: String;
@@ -777,19 +782,6 @@ end;
 procedure TViewBodyTypes.DoAfterDataChange(Sender: TObject);
 begin
   UpdateView;
-end;
-
-function TViewBodyTypes.GetFocusedTableView: TcxGridDBBandedTableView;
-begin
-  Result := inherited;
-
-  // Если не первый уровень в фокусе
-  if (Result = nil) then
-  begin
-    Result := GetDBBandedTableView(1);
-    if (Result <> nil) and (not Result.Focused) then
-      Result := nil;
-  end;
 end;
 
 function TViewBodyTypes.GetfrmJEDECPopup: TfrmJEDECPopup;

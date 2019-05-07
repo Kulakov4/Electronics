@@ -171,7 +171,6 @@ type
     FMessageUpdateDetailColumnsPosted: Boolean;
     FNeedApplyBestFit: Boolean;
     FqSubGroups: TfrmQuerySubGroups;
-    FViewArr: TArray<TcxGridDBBandedTableView>;
     procedure DoAfterCommit(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     procedure DoOnUpdateComponentsCount(Sender: TObject);
@@ -204,6 +203,7 @@ type
     procedure ClearCountEvents;
     function CreateColInfoArray: TArray<TColInfo>; virtual;
     procedure CreateColumnsBarButtons; override;
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure Create_Columns;
     procedure DoAfterLoadData; virtual;
     procedure DoAfterOpenOrRefresh(Sender: TObject);
@@ -213,9 +213,9 @@ type
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
       message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
     function ExpandDetail: TcxGridDBBandedTableView;
-    function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure InitBands;
     procedure InitColumns; virtual;
+    procedure InitView(AView: TcxGridDBBandedTableView); override;
     procedure InternalRefreshData; override;
     procedure MyDelete; override;
     procedure MyInitializeComboBoxColumn;
@@ -228,7 +228,6 @@ type
     property frmSubgroupListPopup: TfrmSubgroupListPopup
       read GetfrmSubgroupListPopup;
     property qSubGroups: TfrmQuerySubGroups read GetqSubGroups;
-    property ViewArr: TArray<TcxGridDBBandedTableView> read FViewArr;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -293,15 +292,6 @@ begin
   cxGridLevel.GridView := AView;
 
   cxGridDBBandedTableView.Free;
-
-  // Массив табличных представлений
-  FViewArr := [MainView, cxGridDBBandedTableView2];
-
-  for AView in FViewArr do
-  begin
-    AView.OptionsData.Deleting := False;
-    AView.OptionsData.DeletingConfirmation := False;
-  end;
 end;
 
 destructor TViewComponentsBase.Destroy;
@@ -763,6 +753,11 @@ begin
     MainView, cxGridDBBandedTableView2);
 end;
 
+function TViewComponentsBase.CreateViewArr: TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView, cxGridDBBandedTableView2];
+end;
+
 procedure TViewComponentsBase.Create_Columns;
 var
   // ABand: TcxGridBand;
@@ -778,7 +773,7 @@ begin
 
   for AColInfo in Arr do
   begin
-    for AView in FViewArr do
+    for AView in ViewArr do
     begin
       ACol := AView.CreateColumn;
       ACol.Visible := AColInfo.FieldWrap.DisplayLabel <> '';
@@ -1228,19 +1223,6 @@ begin
   end;
 end;
 
-function TViewComponentsBase.GetFocusedTableView: TcxGridDBBandedTableView;
-begin
-  Result := inherited;
-
-  // Если не первый уровень в фокусе
-  if (Result = nil) then
-  begin
-    Result := GetDBBandedTableView(1);
-    if (Result <> nil) and (not Result.Focused) then
-      Result := nil;
-  end;
-end;
-
 function TViewComponentsBase.GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
 begin
   if FfrmSubgroupListPopup = nil then
@@ -1283,7 +1265,7 @@ var
 begin
   Assert(Length(ViewArr) > 0);
 
-  for AView in FViewArr do
+  for AView in ViewArr do
   begin
     for i := 0 to AView.Bands.Count - 1 do
     begin
@@ -1402,6 +1384,13 @@ begin
     ACol.PropertiesClass := TcxTextEditProperties;
     (ACol.Properties as TcxTextEditProperties).ReadOnly := True;
   end;
+end;
+
+procedure TViewComponentsBase.InitView(AView: TcxGridDBBandedTableView);
+begin
+  inherited;
+  AView.OptionsData.Deleting := False;
+  AView.OptionsData.DeletingConfirmation := False;
 end;
 
 procedure TViewComponentsBase.InternalRefreshData;

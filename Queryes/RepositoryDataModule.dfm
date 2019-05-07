@@ -1920,5 +1920,9 @@ object DMRepository: TDMRepository
       AssignedValues = [svColor]
       Color = 16113353
     end
+    object cxInactiveStyle: TcxStyle
+      AssignedValues = [svColor]
+      Color = clWindow
+    end
   end
 end

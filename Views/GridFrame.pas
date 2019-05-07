@@ -87,6 +87,7 @@ type
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
     FUpdateCount: Cardinal;
+    FViewArr: TArray<TcxGridDBBandedTableView>;
     function GetMainView: TcxGridDBBandedTableView;
     function GetParentForm: TForm;
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
@@ -101,6 +102,7 @@ type
     procedure CreateColumnsBarButtons; virtual;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); virtual;
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; virtual;
     procedure DoCancelDetailExpanding(ADataController: TcxCustomDataController;
       ARecordIndex: Integer; var AAllow: Boolean);
     procedure DoCancelFocusRecord(Sender: TcxCustomGridTableView;
@@ -114,7 +116,7 @@ type
     procedure DoOnKeyOrMouseDown;
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
-    function GetFocusedTableView: TcxGridDBBandedTableView; virtual;
+    function GetFocusedTableView: TcxGridDBBandedTableView;
     procedure InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
       ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
@@ -132,6 +134,7 @@ type
     procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
       var AllowPopup: Boolean); virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
+    procedure InitView(AView: TcxGridDBBandedTableView); virtual;
     procedure InternalRefreshData; virtual;
     procedure MyDelete; virtual;
     procedure OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
@@ -145,6 +148,7 @@ type
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
     property SortSL: TList<String> read FSortSL;
+    property ViewArr: TArray<TcxGridDBBandedTableView> read FViewArr;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -155,6 +159,7 @@ type
     function CalcBandHeight(ABand: TcxGridBand): Integer;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
+    procedure ClearSelection;
     procedure ClearSort(AView: TcxGridTableView);
     procedure DisableCollapsingAndExpanding;
     procedure DoDragDrop(AcxGridSite: TcxGridSite;
@@ -279,8 +284,18 @@ begin
 end;
 
 procedure TfrmGrid.AfterConstruction;
+var
+  AView: TcxGridDBBandedTableView;
 begin
   inherited;
+
+  // Создаём массив представлений
+  FViewArr := CreateViewArr;
+
+  // Инициализируем представления
+  for AView in FViewArr do
+    InitView(AView);
+
   CreateColumnsBarButtons;
 end;
 
@@ -457,6 +472,14 @@ begin
   end;
 end;
 
+procedure TfrmGrid.ClearSelection;
+var
+  AView: TcxGridDBBandedTableView;
+begin
+  for AView in ViewArr do
+    AView.Controller.ClearSelection;
+end;
+
 procedure TfrmGrid.ClearSort(AView: TcxGridTableView);
 var
   i: Integer;
@@ -478,6 +501,11 @@ procedure TfrmGrid.CreateFilterForExport(AView,
   ASource: TcxGridDBBandedTableView);
 begin
   AView.DataController.Filter.Assign(ASource.DataController.Filter);
+end;
+
+function TfrmGrid.CreateViewArr: TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView];
 end;
 
 procedure TfrmGrid.cxGridDBBandedTableViewCustomDrawColumnHeader
@@ -786,15 +814,14 @@ begin
   Result := GetDBBandedTableView(0);
   if (Result <> nil) and (not Result.Focused) then
     Result := nil;
-  {
-    // Если не первый уровень в фокусе
-    if (Result = nil) and (cxGrid.Levels.Count > 1) then
-    begin
+
+  // Если не первый уровень в фокусе, и есть ещё одно представление
+  if (Result = nil) and (Length(FViewArr) > 1) then
+  begin
     Result := GetDBBandedTableView(1);
     if (Result <> nil) and (not Result.Focused) then
-    Result := nil;
-    end;
-  }
+      Result := nil;
+  end;
 end;
 
 function TfrmGrid.GetMainView: TcxGridDBBandedTableView;
@@ -1164,6 +1191,9 @@ end;
 
 procedure TfrmGrid.FocusFirstSelectedRow(AView: TcxGridDBBandedTableView);
 begin
+  Assert(AView <> nil);
+  Assert(AView.Controller <> nil);
+
   if AView.Controller.SelectedRowCount = 0 then
     Exit;
 
@@ -1310,6 +1340,13 @@ begin
   // Условие, при котором перемещение записей возможно
   Result := (ATargetRowIndex >= 0) and
     (ATargetRowIndex < AView.ViewData.RowCount);
+end;
+
+procedure TfrmGrid.InitView(AView: TcxGridDBBandedTableView);
+begin
+  AView.OptionsBehavior.ImmediateEditor := False;
+  AView.OptionsView.FocusRect := False;
+  AView.Styles.Inactive := DMRepository.cxInactiveStyle;
 end;
 
 procedure TfrmGrid.InternalRefreshData;

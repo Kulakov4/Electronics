@@ -350,7 +350,6 @@ procedure TSettings.SaveStrings(const ASection, ACaption: string;
 var
   AIniFile: TIniFile;
   I: Integer;
-  S: String;
 begin
   AIniFile := TIniFile.Create(FFileName);
   try

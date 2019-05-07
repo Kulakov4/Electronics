@@ -115,6 +115,7 @@ type
     function ExpandDetail: TcxGridDBBandedTableView;
     procedure CollapseDetail;
     procedure CreateColumnsBarButtons; override;
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure DoAfterLoadData; virtual;
     procedure DoAfterOpenOrRefresh(Sender: TObject);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
@@ -122,7 +123,6 @@ type
     procedure DoOnMasterDetailChange; virtual;
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
       message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
-    function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure MyDelete; override;
     procedure OnDetailExpandedProcess(var Message: TMessage);
       message WM_ON_DETAIL_EXPANDED;
@@ -494,6 +494,11 @@ begin
     MainView, cxGridDBBandedTableView2);
 end;
 
+function TViewComponentsParent.CreateViewArr: TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView, cxGridDBBandedTableView2];
+end;
+
 procedure TViewComponentsParent.cxFieldValueWithExpandPropertiesButtonClick
   (Sender: TObject; AButtonIndex: Integer);
 var
@@ -670,19 +675,6 @@ procedure TViewComponentsParent.DoOnUpdateColumnsWidth(var Message: TMessage);
 begin
   UpdateDetailColumnsWidth;
   FMessageUpdateDetailColumnsPosted := False;
-end;
-
-function TViewComponentsParent.GetFocusedTableView: TcxGridDBBandedTableView;
-begin
-  Result := inherited;
-
-  // Если не первый уровень в фокусе
-  if (Result = nil) then
-  begin
-    Result := GetDBBandedTableView(1);
-    if (Result <> nil) and (not Result.Focused) then
-      Result := nil;
-  end;
 end;
 
 function TViewComponentsParent.GetQuerySubGroups: TfrmQuerySubGroups;

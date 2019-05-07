@@ -134,12 +134,12 @@ type
     procedure SetPos(APosID: Integer);
     { Private declarations }
   protected
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure DoBeforeUpdateData(Sender: TObject);
     procedure DoDeleteFromView(AView: TcxGridDBBandedTableView); override;
     procedure DoOnDetailExpanded(ADataController: TcxCustomDataController;
       ARecordIndex: Integer); override;
     procedure DoOnIsAttributeChange(Sender: TObject);
-    function GetFocusedTableView: TcxGridDBBandedTableView; override;
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
     constructor Create(AOwner: TComponent); override;
@@ -349,6 +349,12 @@ begin
 
 end;
 
+function TViewCategoryParameters.CreateViewArr
+  : TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView, cxGridDBBandedTableView2];
+end;
+
 procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown
   (Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
@@ -523,19 +529,6 @@ procedure TViewCategoryParameters.EndUpdate;
 begin
   inherited;
   // EnableCollapsingAndExpanding;
-end;
-
-function TViewCategoryParameters.GetFocusedTableView: TcxGridDBBandedTableView;
-begin
-  Result := inherited;
-
-  // Если не первый уровень в фокусе
-  if (Result = nil) then
-  begin
-    Result := GetDBBandedTableView(1);
-    if (Result <> nil) and (not Result.Focused) then
-      Result := nil;
-  end;
 end;
 
 function TViewCategoryParameters.GetQueryParameterPos: TQueryParameterPos;
@@ -718,11 +711,14 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  FocusFirstSelectedRow(AView);
 
-  OK := (FCatParamsGroup <> nil) and FCatParamsGroup.IsAllQuerysActive;
+  if AView <> nil then
+    FocusFirstSelectedRow(AView);
 
-  actPosBegin.Enabled := OK and (AView <> nil) and
+  OK := (AView <> nil) and (FCatParamsGroup <> nil) and
+    FCatParamsGroup.IsAllQuerysActive;
+
+  actPosBegin.Enabled := OK and (AView = MainView) and
     (AView.Controller.SelectedRowCount > 0) and
     (AView.DataController.RecordCount > 0);
   actPosCenter.Enabled := actPosBegin.Enabled;
@@ -733,8 +729,7 @@ begin
   actCancelUpdates.Enabled := actApplyUpdates.Enabled;
 
   // Удалять разрешаем только если что-то выделено
-  actDeleteEx.Enabled := OK and (AView <> nil) and
-    (AView.Controller.SelectedRowCount > 0);
+  actDeleteEx.Enabled := OK and (AView.Controller.SelectedRowCount > 0);
 
   actAddToBegin.Enabled := OK and not FCatParamsGroup.qCategoryParameters.
     HaveAnyChanges;
@@ -745,9 +740,11 @@ begin
   // кнопка "Добавить подпараметр" - должна быть не активна.
   actAddSubParameter.Enabled := OK and
     (not FCatParamsGroup.qCategoryParameters.HaveAnyChanges) and
-    (MainView.Controller.SelectedRowCount = 1);
+    (((AView = MainView) and (MainView.Controller.SelectedRowCount = 1)) or
+    (AView <> MainView));
 
-  actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted;
+  actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted
+    and (AView = MainView);
   actDown.Enabled := actUp.Enabled;
 end;
 

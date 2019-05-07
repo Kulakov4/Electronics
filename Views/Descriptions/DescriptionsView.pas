@@ -112,7 +112,7 @@ type
     procedure CreateColumnsBarButtons; override;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); override;
-    function GetFocusedTableView: TcxGridDBBandedTableView; override;
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure LoadFromExcel(const AFileName: String);
   public
     constructor Create(AOwner: TComponent); override;
@@ -406,6 +406,11 @@ begin
   end;
 end;
 
+function TViewDescriptions.CreateViewArr: TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView, cxGridDBBandedTableView2];
+end;
+
 procedure TViewDescriptions.cxGridDBBandedTableView2ColumnHeaderClick
   (Sender: TcxGridTableView; AColumn: TcxGridColumn);
 begin
@@ -528,19 +533,6 @@ end;
 procedure TViewDescriptions.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
-end;
-
-function TViewDescriptions.GetFocusedTableView: TcxGridDBBandedTableView;
-begin
-  Result := inherited;
-
-  // Если не первый уровень в фокусе
-  if (Result = nil) then
-  begin
-    Result := GetDBBandedTableView(1);
-    if (Result <> nil) and (not Result.Focused) then
-      Result := nil;
-  end;
 end;
 
 procedure TViewDescriptions.LoadFromExcel(const AFileName: String);

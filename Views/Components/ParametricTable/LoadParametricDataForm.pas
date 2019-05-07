@@ -59,7 +59,7 @@ type
     { Private declarations }
   protected
   public
-    constructor Create(AOwner: TComponent; AParametricTable: Boolean);
+    constructor Create(AOwner: TComponent; AParametricTable: Boolean); reintroduce;
     property FileName: string read GetFileName;
     property LoadComponentGroup: Boolean read GetLoadComponentGroup;
     property Replace: Boolean read GetReplace;
@@ -74,8 +74,8 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmLoadParametricData.Create(AOwner: TComponent;
-  AParametricTable: Boolean);
+constructor TfrmLoadParametricData.Create(AOwner: TComponent; AParametricTable:
+    Boolean);
 begin
   inherited Create(AOwner);
   Caption := IfThen(AParametricTable, 'Загрузка параметрической таблицы',

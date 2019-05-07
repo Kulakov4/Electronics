@@ -105,8 +105,8 @@ type
     procedure AfterSetNewValue(var Message: TMessage);
       message WM_AFTER_SET_NEW_VALUE;
     procedure CreateColumnsBarButtons; override;
+    function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure DoOnHaveAnyChanges(Sender: TObject);
-    function GetFocusedTableView: TcxGridDBBandedTableView; override;
     procedure LoadFromExcel(const AFileName: String);
   public
     constructor Create(AOwner: TComponent); override;
@@ -309,6 +309,11 @@ begin
     cxGridDBBandedTableView2);
 end;
 
+function TViewProducers.CreateViewArr: TArray<TcxGridDBBandedTableView>;
+begin
+  Result := [MainView, cxGridDBBandedTableView2];
+end;
+
 procedure TViewProducers.cxGridDBBandedTableView2EditKeyDown
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
 AEdit: TcxCustomEdit; var Key: Word; Shift: TShiftState);
@@ -393,19 +398,6 @@ end;
 procedure TViewProducers.DoOnHaveAnyChanges(Sender: TObject);
 begin
   UpdateView;
-end;
-
-function TViewProducers.GetFocusedTableView: TcxGridDBBandedTableView;
-begin
-  Result := inherited;
-
-  // Если не первый уровень в фокусе
-  if (Result = nil) then
-  begin
-    Result := GetDBBandedTableView(1);
-    if (Result <> nil) and (not Result.Focused) then
-      Result := nil;
-  end;
 end;
 
 procedure TViewProducers.LoadFromExcel(const AFileName: String);
