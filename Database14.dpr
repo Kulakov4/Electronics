@@ -245,7 +245,8 @@ uses
   CompFrameUnit in 'Views\CompFrameUnit.pas' {frmComp: TFrame},
   MinWholeSaleForm in 'Views\Products\MinWholeSaleForm.pas' {frmMinWholeSale},
   SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame},
-  LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData};
+  LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData},
+  SelectionInt in 'Helpers\SelectionInt.pas';
 
 {$R *.res}
 

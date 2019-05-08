@@ -195,7 +195,6 @@ type
     procedure DoOnProductLocate(Sender: TObject);
     procedure FocusViewComponents;
     procedure TryFocusViewComponents;
-    procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
     property QueryMonitor: TQueryMonitor read GetQueryMonitor;
     property ViewComponentsFocused: Boolean read GetViewComponentsFocused;
     property ViewTreeList: TViewTreeList read FViewTreeList;
@@ -1816,20 +1815,6 @@ end;
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
 begin
   ViewComponents.actOpenDatasheetExecute(Sender);
-end;
-
-procedure TfrmMain.WMSysCommand(var Message: TWMSysCommand);
-begin
-  if Message.CmdType = $F012 then // если клик по заголовку
-  begin
-    FfrmComp.SetFocus;
-    if ViewComponents <> nil then
-      ViewComponents.ClearSelection;
-
-    Application.ProcessMessages;
-  end;
-  inherited; // вызвать стандартное действие
-  // AlphaBlend := False; // после чего выключить прозрачностьend;
 end;
 
 initialization

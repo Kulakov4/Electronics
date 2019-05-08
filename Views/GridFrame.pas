@@ -28,7 +28,8 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
   System.Generics.Collections, DragHelper, OrderQuery, GridSort,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  SelectionInt;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -39,7 +40,7 @@ type
   // —сылка на метод
   TProcRef = reference to procedure();
 
-  TfrmGrid = class(TFrame)
+  TfrmGrid = class(TFrame, ISelection)
     cxGridLevel: TcxGridLevel;
     cxGrid: TcxGrid;
     dxBarManager: TdxBarManager;
@@ -212,6 +213,7 @@ type
     procedure Place(AParent: TWinControl);
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
+    function QueryInterface(const IID: TGUID; out Obj): HResult;
     procedure RefreshData;
     procedure SelectFocusedRecord(const AFieldName: String);
     procedure SetZeroBandWidth(AView: TcxGridDBBandedTableView);
@@ -474,10 +476,38 @@ end;
 
 procedure TfrmGrid.ClearSelection;
 var
-  AView: TcxGridDBBandedTableView;
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
+  AView: TcxGridTableView;
+  i: Integer;
 begin
-  for AView in ViewArr do
-    AView.Controller.ClearSelection;
+
+  MainView.Controller.ClearSelection;
+  MainView.Controller.EditingController.HideEdit(False);
+
+  if (MainView.ViewData.RowCount > 0) and
+    (MainView.ViewData.Rows[0] is TcxGridMasterDataRow) then
+  begin
+    for i := 0 to MainView.ViewData.RowCount - 1 do
+    begin
+      AcxGridMasterDataRow := MainView.ViewData.Rows[i] as TcxGridMasterDataRow;
+      AView := AcxGridMasterDataRow.ActiveDetailGridView as TcxGridTableView;
+      if AView <> nil then
+      begin
+        AView.Controller.ClearSelection;
+        AView.Controller.EditingController.HideEdit(False);
+      end;
+    end;
+  end;
+
+  UpdateView;
+end;
+
+function TfrmGrid.QueryInterface(const IID: TGUID; out Obj): HResult;
+begin
+  if GetInterface(IID, Obj) then
+    Result := 0
+  else
+    Result := E_NOINTERFACE;
 end;
 
 procedure TfrmGrid.ClearSort(AView: TcxGridTableView);
@@ -685,7 +715,7 @@ var
   Level: TcxGridLevel;
   GridView: TcxGridDBBandedTableView;
   p: Integer;
-  s: string;
+  S: string;
 begin
   Assert(not AFileName.IsEmpty);
 
@@ -719,8 +749,8 @@ begin
   p := AFileName.LastIndexOf('.');
   if (p > 0) then
   begin
-    s := AFileName.Substring(p).ToLower;
-    if s.Substring(0, 4) <> '.xls' then
+    S := AFileName.Substring(p).ToLower;
+    if S.Substring(0, 4) <> '.xls' then
       AFileName := AFileName + '.xls';
   end;
 
@@ -796,6 +826,10 @@ begin
 
         i := AcxGridDBBandedTableView.DataController.FocusedRowIndex;
         if i < 0 then
+          Exit;
+
+        if not(GetDBBandedTableView(ALevel - 1).ViewData.Rows[i]
+          is TcxGridMasterDataRow) then
           Exit;
 
         AcxGridMasterDataRow := GetDBBandedTableView(ALevel - 1).ViewData.Rows

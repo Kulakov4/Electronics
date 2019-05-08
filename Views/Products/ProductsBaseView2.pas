@@ -459,8 +459,7 @@ end;
 procedure TViewProductsBase2.actClearSelectionExecute(Sender: TObject);
 begin
   inherited;
-  cxDBTreeList.ClearSelection();
-  UpdateView;
+  ClearSelection;
 end;
 
 procedure TViewProductsBase2.actColumnAutoWidthExecute(Sender: TObject);

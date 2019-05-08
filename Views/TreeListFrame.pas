@@ -26,13 +26,14 @@ uses
   cxClasses, dxBar, System.Actions, Vcl.ActnList, cxGridDBBandedTableView,
   Data.DB, cxDropDownEdit, cxDBLookupComboBox, System.Generics.Collections,
   Vcl.Menus, GridSort, cxGridTableView, ColumnsBarButtonsHelper, System.Contnrs,
-  Vcl.ComCtrls, dxCore, cxDataControllerConditionalFormattingRulesManagerDialog;
+  Vcl.ComCtrls, dxCore,
+  cxDataControllerConditionalFormattingRulesManagerDialog, SelectionInt;
 
 const
   WM_SELECTION_CHANGED = WM_USER + 600;
 
 type
-  TfrmTreeList = class(TFrame)
+  TfrmTreeList = class(TFrame, ISelection)
     cxDBTreeList: TcxDBTreeList;
     dxBarManager: TdxBarManager;
     dxBarManagerBar1: TdxBar;
@@ -93,6 +94,7 @@ type
     procedure BeginBlockEvents;
     procedure BeginUpdate; virtual;
     function CalcBandHeight(ABand: TcxTreeListBand): Integer;
+    procedure ClearSelection;
     procedure ClearSort;
     procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
     procedure EndBlockEvents;
@@ -259,6 +261,13 @@ begin
     Rect(0, 0, ABandWidth, ABandHeight));
 
   Result := MAGIC + R.Height;
+end;
+
+procedure TfrmTreeList.ClearSelection;
+begin
+  cxDBTreeList.ClearSelection();
+  cxDBTreeList.CancelEdit;
+  UpdateView;
 end;
 
 procedure TfrmTreeList.ClearSort;
