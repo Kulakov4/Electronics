@@ -217,6 +217,7 @@ type
     procedure RefreshData;
     procedure SelectFocusedRecord(const AFieldName: String);
     procedure SetZeroBandWidth(AView: TcxGridDBBandedTableView);
+    procedure TryClearSelection(X, Y: Integer);
     function Value(AView: TcxGridDBBandedTableView;
       AColumn: TcxGridDBBandedColumn; const ARowIndex: Integer): Variant;
     property ApplyBestFitForDetail: Boolean read FApplyBestFitForDetail
@@ -568,6 +569,7 @@ end;
 procedure TfrmGrid.cxGridDBBandedTableViewMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  TryClearSelection(X, Y);
   DoOnKeyOrMouseDown;
 end;
 
@@ -1771,6 +1773,15 @@ begin
   if (FStatusBarEmptyPanelIndex >= 0) and
     (FStatusBarEmptyPanelIndex < StatusBar.Panels.Count) then
     DoStatusBarResize(FStatusBarEmptyPanelIndex);
+end;
+
+procedure TfrmGrid.TryClearSelection(X, Y: Integer);
+var
+  HT: TcxCustomGridHitTest;
+begin
+  HT := MainView.ViewInfo.GetHitTest(X, Y);
+  if HT is TcxGridViewNoneHitTest then
+    ClearSelection;
 end;
 
 function TfrmGrid.Value(AView: TcxGridDBBandedTableView;
