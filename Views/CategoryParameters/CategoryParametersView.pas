@@ -140,6 +140,7 @@ type
     procedure DoOnDetailExpanded(ADataController: TcxCustomDataController;
       ARecordIndex: Integer); override;
     procedure DoOnIsAttributeChange(Sender: TObject);
+    procedure InitView(AView: TcxGridDBBandedTableView); override;
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
     constructor Create(AOwner: TComponent); override;
@@ -195,7 +196,7 @@ begin
     CatParamsGroup.qCategoryParameters.ParentValue, S) then
   begin
     fri := MainView.Controller.FocusedRowIndex;
-    cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
+//    cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
     CatParamsGroup.AddOrDeleteSubParameters(AID, S);
     // Возвращаемся к той записи, которая была сфокусирована
     MainView.Controller.FocusedRowIndex := fri;
@@ -539,6 +540,12 @@ begin
     FQueryParameterPos.FDQuery.Open;
   end;
   Result := FQueryParameterPos;
+end;
+
+procedure TViewCategoryParameters.InitView(AView: TcxGridDBBandedTableView);
+begin
+  inherited;
+  AView.OptionsView.HeaderAutoHeight := True;
 end;
 
 procedure TViewCategoryParameters.MoveParameter(AUp: Boolean);
