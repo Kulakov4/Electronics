@@ -38,6 +38,7 @@ uses
 const
   WM_RESYNC_DATASET = WM_USER + 800;
   WM_AFTER_APPLY_UPDATES = WM_USER + 801;
+  WM_AFTER_OPEN_OR_REFRESH = WM_USER + 802;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -245,6 +246,8 @@ type
     procedure DoOnCourceChange(Sender: TObject);
     procedure DoOnDollarCourceChange(Sender: TObject);
     procedure DoOnEuroCourceChange(Sender: TObject);
+    procedure ClearSelectionAfterOpenOrRefresh(var Message: TMessage); message
+        WM_AFTER_OPEN_OR_REFRESH;
     procedure ExportToExcelDocument(const AFileName: String);
     function GetNodeID(ANode: TcxDBTreeListNode): TArray<Integer>;
     function GetW: TProductW; virtual; abstract;
@@ -1132,9 +1135,13 @@ begin
   W.DataSource.Enabled := True;
 
   cxDBTreeList.FullCollapse;
-  cxDBTreeList.ClearSelection();
+
+
+  PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0 , 0);
+  ClearSelection;
 
   UpdateView;
+
 end;
 
 procedure TViewProductsBase2.DoAfterPost(Sender: TObject);
@@ -1206,6 +1213,13 @@ begin
     FResyncDataSetMessagePosted := True;
     PostMessage(Handle, WM_RESYNC_DATASET, 0, 0);
   end;
+end;
+
+procedure TViewProductsBase2.ClearSelectionAfterOpenOrRefresh(var Message:
+    TMessage);
+begin
+  inherited;
+  ClearSelection;
 end;
 
 procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
