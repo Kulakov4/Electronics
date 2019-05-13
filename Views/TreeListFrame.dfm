@@ -28,6 +28,7 @@ object frmTreeList: TfrmTreeList
     OnEditing = cxDBTreeListEditing
     OnFocusedColumnChanged = cxDBTreeListFocusedColumnChanged
     OnFocusedNodeChanged = cxDBTreeListFocusedNodeChanged
+    OnMouseDown = cxDBTreeListMouseDown
     OnMouseMove = cxDBTreeListMouseMove
   end
   object StatusBar: TStatusBar

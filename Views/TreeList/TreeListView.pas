@@ -119,6 +119,8 @@ begin
 
   cxbeiSearch.Properties.ImmediatePost := True;
   (cxbeiSearch.Properties as TcxTextEditProperties).ImmediateUpdateText := True;
+
+  FEnableClearSelection := False;
 end;
 
 procedure TViewTreeList.actAddExecute(Sender: TObject);

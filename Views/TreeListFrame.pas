@@ -55,6 +55,8 @@ type
         APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
         APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+    procedure cxDBTreeListMouseDown(Sender: TObject; Button: TMouseButton; Shift:
+        TShiftState; X, Y: Integer);
 
     procedure cxDBTreeListMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
@@ -72,6 +74,7 @@ type
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
+    FEnableClearSelection: Boolean;
     FColumnsBarButtons: TTLColumnsBarButtons;
     FEventList: TObjectList;
     FPostSelectionChanged: Boolean;
@@ -132,6 +135,8 @@ begin
   FGridSort := TGridSort.Create;
   cxDBTreeList.Styles.OnGetBandHeaderStyle :=
     cxDBTreeListStylesGetBandHeaderStyle;
+
+  FEnableClearSelection := True;
 end;
 
 destructor TfrmTreeList.Destroy;
@@ -265,6 +270,9 @@ end;
 
 procedure TfrmTreeList.ClearSelection;
 begin
+  if not FEnableClearSelection then
+    Exit;
+
   cxDBTreeList.ClearSelection();
   cxDBTreeList.CancelEdit;
   UpdateView;
@@ -332,6 +340,16 @@ procedure TfrmTreeList.cxDBTreeListFocusedNodeChanged(Sender:
     TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
   UpdateView;
+end;
+
+procedure TfrmTreeList.cxDBTreeListMouseDown(Sender: TObject; Button:
+    TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  HT: TcxTreeListHitTest;
+begin
+  HT := cxDBTreeList.HitTest;
+  if HT.HitAtBackground then
+    ClearSelection;
 end;
 
 procedure TfrmTreeList.cxDBTreeListMouseMove(Sender: TObject;

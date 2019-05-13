@@ -1382,7 +1382,7 @@ procedure TfrmGrid.InitView(AView: TcxGridDBBandedTableView);
 begin
   AView.OptionsBehavior.ImmediateEditor := False;
   AView.OptionsView.FocusRect := False;
-  AView.Styles.Inactive := DMRepository.cxInactiveStyle;
+//  AView.Styles.Inactive := DMRepository.cxInactiveStyle;
 end;
 
 procedure TfrmGrid.InternalRefreshData;
