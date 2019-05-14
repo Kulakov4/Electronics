@@ -43,7 +43,7 @@ type
   TSaveSelection = record
     ColumnIndex: Integer;
     IDArr: TArray<Integer>;
-    Columns: TArray<TcxGridDBBandedColumn>;
+    FieldNames: TArray<String>;
     View: TcxGridDBBandedTableView;
   end;
 
@@ -1390,8 +1390,8 @@ end;
 
 procedure TfrmGrid.InitView(AView: TcxGridDBBandedTableView);
 begin
-  AView.OptionsBehavior.ImmediateEditor := False;
-  AView.OptionsView.FocusRect := False;
+//  AView.OptionsBehavior.ImmediateEditor := False;
+//  AView.OptionsView.FocusRect := False;
   // AView.Styles.Inactive := DMRepository.cxInactiveStyle;
 end;
 
@@ -1743,8 +1743,10 @@ end;
 procedure TfrmGrid.RestoreSelection(ASaveSelection: TSaveSelection);
 var
   ACol: TcxGridDBBandedColumn;
+  AFieldName: string;
   AID: Integer;
 begin
+  ASaveSelection.View.Focused := True;
 
   // Выделяем записи, которые были выделены во время сохранения
   for AID in ASaveSelection.IDArr do
@@ -1753,10 +1755,12 @@ begin
       (ASaveSelection.ColumnIndex, AID.ToString, False, False) then
       ASaveSelection.View.Controller.FocusedRow.Selected := True;
   end;
-  for ACol in ASaveSelection.Columns do
-    ACol.Selected := True;
-
-  ASaveSelection.View.Focused := True;
+  for AFieldName in ASaveSelection.FieldNames do
+  begin
+    ACol := ASaveSelection.View.GetColumnByFieldName(AFieldName);
+    if ACol <> nil then
+      ACol.Selected := True;
+  end;
 end;
 
 function TfrmGrid.SameCol(AColumn1: TcxGridColumn;
@@ -1770,23 +1774,23 @@ end;
 function TfrmGrid.SaveSelection(AView: TcxGridDBBandedTableView;
   AColumnIndex: Integer): TSaveSelection;
 var
-  AColumns: TList<TcxGridDBBandedColumn>;
+  AFieldNames: TList<String>;
   i: Integer;
 begin
   Result.View := AView;
   Result.ColumnIndex := AColumnIndex;
   Result.IDArr := GetSelectedIntValues(AView, AColumnIndex);
 
-  AColumns := TList<TcxGridDBBandedColumn>.Create;
+  AFieldNames := TList<String>.Create;
   try
     for i := 0 to AView.ColumnCount - 1 do
     begin
       if AView.Columns[i].Selected then
-        AColumns.Add(AView.Columns[i]);
+        AFieldNames.Add(AView.Columns[i].DataBinding.FieldName);
     end;
-    Result.Columns := AColumns.ToArray;
+    Result.FieldNames := AFieldNames.ToArray;
   finally
-    FreeAndNil(AColumns);
+    FreeAndNil(AFieldNames);
   end;
 end;
 

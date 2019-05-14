@@ -15,6 +15,7 @@ type
     function GetID: TField;
     function GetIsAttribute: TField;
     function GetOrd: TField;
+    function GetPK: TField; virtual;
     function GetPosID: TField;
   protected
     procedure DeleteTail(AFromRecNo: Integer);
@@ -24,7 +25,8 @@ type
     procedure AppendFrom(ASource: TCategoryFDMemTable);
     function GetFieldValues(const AFieldName: string): String;
     procedure LoadRecFrom(ADataSet: TDataSet; AFieldList: TStrings);
-    function LocateByPK(AValue: Integer; TestResult: Boolean = False): Boolean;
+    function LocateByPK(AField: TField; AValue: Integer; TestResult: Boolean =
+        False): Boolean;
     procedure SetOrder(AOrder: Integer);
     procedure Update(ASource: TCategoryFDMemTable);
     procedure UpdateFrom(ASource: TCategoryFDMemTable);
@@ -33,6 +35,7 @@ type
     property InUpdate: Boolean read FInUpdate;
     property IsAttribute: TField read GetIsAttribute;
     property Ord: TField read GetOrd;
+    property PK: TField read GetPK;
     property PosID: TField read GetPosID;
   end;
 
@@ -41,6 +44,7 @@ type
     function GetIDParameter: TField;
     function GetIsDefault: TField;
     function GetParameterType: TField;
+    function GetPK: TField; override;
     function GetTableName: TField;
     function GetValue: TField;
     function GetValueT: TField;
@@ -937,6 +941,11 @@ begin
   Result := FieldByName('Ord');
 end;
 
+function TCategoryFDMemTable.GetPK: TField;
+begin
+  Result := ID;
+end;
+
 function TCategoryFDMemTable.GetPosID: TField;
 begin
   Result := FieldByName('PosID');
@@ -1013,11 +1022,11 @@ begin
     Assert(Result);
 end;
 
-function TCategoryFDMemTable.LocateByPK(AValue: Integer;
-  TestResult: Boolean = False): Boolean;
+function TCategoryFDMemTable.LocateByPK(AField: TField; AValue: Integer;
+    TestResult: Boolean = False): Boolean;
 begin
   Assert(AValue <> 0);
-  Result := LocateEx(ID.FieldName, AValue);
+  Result := LocateEx(AField.FieldName, AValue);
   if TestResult then
     Assert(Result);
 end;
@@ -1040,12 +1049,12 @@ begin
   DisableControls;
   try
     FInUpdate := True; // Ставим флаг сигнализирующий о том, что мы обновляемся
-    AID := ID.AsInteger;
+    AID := PK.AsInteger;
     ASource.First;
     while not ASource.Eof do
     begin
       // Если такой записи у нас ещё нет
-      if not LocateByPK(ASource.ID.AsInteger) then
+      if not LocateByPK(ID, ASource.ID.AsInteger) then
         AppendFrom(ASource)
       else
         UpdateFrom(ASource);
@@ -1056,14 +1065,14 @@ begin
     First;
     while not Eof do
     begin
-      if not ASource.LocateByPK(ID.AsInteger) then
+      if not ASource.LocateByPK(ASource.ID, ID.AsInteger) then
         Delete
       else
         Next;
     end;
 
     if AID <> 0 then
-      LocateByPK(AID);
+      LocateByPK(PK, AID);
   finally
     FInUpdate := False;
     EnableControls;
@@ -1176,6 +1185,11 @@ end;
 function TQryCategoryParameters.GetParameterType: TField;
 begin
   Result := FieldByName('ParameterType');
+end;
+
+function TQryCategoryParameters.GetPK: TField;
+begin
+  Result := VID;
 end;
 
 function TQryCategoryParameters.GetTableName: TField;

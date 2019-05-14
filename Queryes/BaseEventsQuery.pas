@@ -32,6 +32,7 @@ type
     FMaster: TQueryBaseEvents;
     FNeedLoad: Boolean;
     class var FMonitor: TQueryMonitor;
+
   const
     FDebugFileName: string = 'C:\Public\SQL.txt';
     procedure DoAfterDelete(Sender: TObject);
@@ -68,8 +69,8 @@ type
     procedure ApplyUpdates; virtual;
     procedure CancelUpdates; virtual;
     procedure LoadFromMaster; overload;
-    procedure LoadFromMaster(AIDParent: Integer; AForcibly: Boolean = False);
-        overload;
+    procedure LoadFromMaster(AIDParent: Integer;
+      AForcibly: Boolean = False); overload;
     procedure MasterCascadeDelete;
     procedure RemoveClient;
     procedure TryLoad;
@@ -292,7 +293,7 @@ procedure TQueryBaseEvents.DoAfterMasterScroll(Sender: TObject);
 // S: String;
 begin
   // S := Name;
-  // if S.StartsWith('QueryProducts_') then
+  // if S.StartsWith('QueryCategoryParameters2') then
   // beep;
 
   TryLoad;
@@ -429,8 +430,8 @@ begin
   end;
 end;
 
-procedure TQueryBaseEvents.LoadFromMaster(AIDParent: Integer; AForcibly:
-    Boolean = False);
+procedure TQueryBaseEvents.LoadFromMaster(AIDParent: Integer;
+  AForcibly: Boolean = False);
 begin
   Assert(DetailParameterName <> '');
 

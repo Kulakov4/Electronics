@@ -89,6 +89,11 @@ type
     dxBarButton18: TdxBarButton;
     clVID: TcxGridDBBandedColumn;
     dxBarButton19: TdxBarButton;
+    dxBarButton20: TdxBarButton;
+    dxBarButton21: TdxBarButton;
+    dxBarButton22: TdxBarButton;
+    actRefresh: TAction;
+    dxBarButton23: TdxBarButton;
     procedure actAddSubParameterExecute(Sender: TObject);
     procedure actAddToBeginExecute(Sender: TObject);
     procedure actAddToCenterExecute(Sender: TObject);
@@ -99,7 +104,10 @@ type
     procedure actPosBeginExecute(Sender: TObject);
     procedure actPosCenterExecute(Sender: TObject);
     procedure actPosEndExecute(Sender: TObject);
+    procedure actRefreshExecute(Sender: TObject);
     procedure actUpExecute(Sender: TObject);
+    procedure cxGridDBBandedTableView2Editing(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; var AAllow: Boolean);
     procedure cxGridDBBandedTableView2KeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure cxGridDBBandedTableView2MouseDown(Sender: TObject;
@@ -112,6 +120,8 @@ type
     procedure cxGridDBBandedTableView2StylesGetContentStyle
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
+    procedure cxGridDBBandedTableViewEditing(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; var AAllow: Boolean);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
     procedure cxGridFocusedViewChanged(Sender: TcxCustomGrid;
@@ -123,6 +133,9 @@ type
     procedure dxBarButton17Click(Sender: TObject);
     procedure dxBarButton18Click(Sender: TObject);
     procedure dxBarButton19Click(Sender: TObject);
+    procedure dxBarButton20Click(Sender: TObject);
+    procedure dxBarButton21Click(Sender: TObject);
+    procedure dxBarButton23Click(Sender: TObject);
   private
     FCatParamsGroup: TCategoryParametersGroup2;
     FQueryParameterPos: TQueryParameterPos;
@@ -145,9 +158,7 @@ type
     property QueryParameterPos: TQueryParameterPos read GetQueryParameterPos;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
-    procedure EndUpdate; override;
     procedure UpdateView; override;
     property CatParamsGroup: TCategoryParametersGroup2 read FCatParamsGroup
       write SetCatParamsGroup;
@@ -269,6 +280,12 @@ begin
   SetPos(2);
 end;
 
+procedure TViewCategoryParameters.actRefreshExecute(Sender: TObject);
+begin
+  inherited;
+  CatParamsGroup.RefreshData;
+end;
+
 procedure TViewCategoryParameters.actUpExecute(Sender: TObject);
 begin
   inherited;
@@ -324,12 +341,6 @@ begin
   UpdateView;
 end;
 
-procedure TViewCategoryParameters.BeginUpdate;
-begin
-  inherited;
-  // DisableCollapsingAndExpanding;
-end;
-
 function TViewCategoryParameters.CheckAndSaveChanges: Integer;
 begin
   Result := 0;
@@ -355,6 +366,14 @@ function TViewCategoryParameters.CreateViewArr
   : TArray<TcxGridDBBandedTableView>;
 begin
   Result := [MainView, cxGridDBBandedTableView2];
+end;
+
+procedure TViewCategoryParameters.cxGridDBBandedTableView2Editing
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  var AAllow: Boolean);
+begin
+  inherited;
+  AAllow := False;
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableView2KeyDown
@@ -393,6 +412,14 @@ begin
     2:
       AStyle := cxStyleEnd;
   end;
+end;
+
+procedure TViewCategoryParameters.cxGridDBBandedTableViewEditing
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  var AAllow: Boolean);
+begin
+  inherited;
+  beep;
 end;
 
 procedure TViewCategoryParameters.cxGridDBBandedTableViewEditValueChanged
@@ -448,7 +475,10 @@ begin
     EndUpdate;
     FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
     UpdateView;
+
+    // CatParamsGroup.qCatParams.ID.AsInteger;
   end;
+  MainView.DataController.DataModeController.SyncMode := True;
 end;
 
 procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
@@ -458,6 +488,7 @@ begin
     MainView.Controller.ClearSelection;
     BeginUpdate;
   end;
+  MainView.DataController.DataModeController.SyncMode := False;
 end;
 
 procedure TViewCategoryParameters.DoDeleteFromView
@@ -536,10 +567,23 @@ begin
   ShowMessage(BoolToStr(CatParamsGroup.qCatParams.ReadOnly, True));
 end;
 
-procedure TViewCategoryParameters.EndUpdate;
+procedure TViewCategoryParameters.dxBarButton20Click(Sender: TObject);
 begin
   inherited;
-  // EnableCollapsingAndExpanding;
+  MainView.DataController.DataModeController.SyncMode := False;
+end;
+
+procedure TViewCategoryParameters.dxBarButton21Click(Sender: TObject);
+begin
+  inherited;
+  MainView.DataController.DataModeController.SyncMode := True;
+end;
+
+procedure TViewCategoryParameters.dxBarButton23Click(Sender: TObject);
+begin
+  inherited;
+  FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
+  // CatParamsGroup.qCatParams.ID.AsInteger;
 end;
 
 function TViewCategoryParameters.GetQueryParameterPos: TQueryParameterPos;
@@ -556,7 +600,7 @@ procedure TViewCategoryParameters.InitView(AView: TcxGridDBBandedTableView);
 begin
   inherited;
   // Курсор в представлении у нас не будет синхронизирован с курсором набора данных
-  AView.DataController.DataModeController.SyncMode := False;
+  // AView.DataController.DataModeController.SyncMode := False;
   AView.OptionsView.HeaderAutoHeight := True;
 end;
 
@@ -595,6 +639,8 @@ begin
       IDList.Add(Value(AView, clID, ARowIndex));
     end;
 
+    // MainView.DataController.DataModeController.SyncMode := False;
+
     // Сохраняем состояние выделенных записей
     SS := SaveSelection(AView, clID2.Index);
 
@@ -604,6 +650,8 @@ begin
 
     // Восстанавливаем состояние выделенных записей
     RestoreSelection(SS);
+
+    // MainView.DataController.DataModeController.SyncMode := True;
 
   finally
     FreeAndNil(IDList);
@@ -617,11 +665,13 @@ var
   ARowIndex: Integer;
   ATargetRowIndex: Integer;
   AView: TcxGridDBBandedTableView;
+  AView2: TcxGridDBBandedTableView;
   IDList: TList<Integer>;
   SS: TSaveSelection;
 begin
   inherited;
   AView := FocusedTableView;
+
   Assert(AView.Level = cxGridLevel2);
   if not GetSelectedRowIndexesForMove(AView, AUp, m, ATargetRowIndex) then
     Exit;
@@ -634,6 +684,8 @@ begin
       IDList.Add(Value(AView, clID2, ARowIndex));
     end;
 
+    // MainView.DataController.DataModeController.SyncMode := False;
+
     // Сохраняем состояние выделенных записей
     SS := SaveSelection(AView, clID2.Index);
 
@@ -641,12 +693,14 @@ begin
     CatParamsGroup.MoveSubParameters(IDList.ToArray,
       Value(AView, clID2, ATargetRowIndex), AUp);
 
+    // Почему-то старое представление после обновления данных в этот момент бывает уже разрушено!!!
+    SS.View := GetDBBandedTableView(1);
+
     // Восстанавливаем состояние выделенных записей
     RestoreSelection(SS);
   finally
     FreeAndNil(IDList);
   end;
-
   UpdateView;
 end;
 
