@@ -114,6 +114,8 @@ type
       AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
+    procedure cxGridFocusedViewChanged(Sender: TcxCustomGrid;
+      APrevFocusedView, AFocusedView: TcxCustomGridView);
     procedure dxBarButton13Click(Sender: TObject);
     procedure dxBarButton14Click(Sender: TObject);
     procedure dxBarButton15Click(Sender: TObject);
@@ -123,7 +125,6 @@ type
     procedure dxBarButton19Click(Sender: TObject);
   private
     FCatParamsGroup: TCategoryParametersGroup2;
-    FLoading: Boolean;
     FQueryParameterPos: TQueryParameterPos;
     procedure AddParameter(APosID: Integer);
     procedure DoAfterUpdateData(Sender: TObject);
@@ -196,7 +197,7 @@ begin
     CatParamsGroup.qCategoryParameters.ParentValue, S) then
   begin
     fri := MainView.Controller.FocusedRowIndex;
-//    cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
+    // cxGridDBBandedTableView2.OptionsView.HeaderAutoHeight := False;
     CatParamsGroup.AddOrDeleteSubParameters(AID, S);
     // Возвращаемся к той записи, которая была сфокусирована
     MainView.Controller.FocusedRowIndex := fri;
@@ -433,21 +434,30 @@ begin
   end;
 end;
 
+procedure TViewCategoryParameters.cxGridFocusedViewChanged
+  (Sender: TcxCustomGrid; APrevFocusedView, AFocusedView: TcxCustomGridView);
+begin
+  inherited;
+  (APrevFocusedView as TcxGridDBBandedTableView).Controller.ClearSelection;
+end;
+
 procedure TViewCategoryParameters.DoAfterUpdateData(Sender: TObject);
 begin
-  EndUpdate;
-  FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
-
-  UpdateView;
-  FLoading := False;
+  if CatParamsGroup.FullUpdate then
+  begin
+    EndUpdate;
+    FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
+    UpdateView;
+  end;
 end;
 
 procedure TViewCategoryParameters.DoBeforeUpdateData(Sender: TObject);
 begin
-  FLoading := True;
-  MainView.Controller.ClearSelection;
-
-  BeginUpdate;
+  if CatParamsGroup.FullUpdate then
+  begin
+    MainView.Controller.ClearSelection;
+    BeginUpdate;
+  end;
 end;
 
 procedure TViewCategoryParameters.DoDeleteFromView
@@ -473,7 +483,7 @@ end;
 procedure TViewCategoryParameters.DoOnDetailExpanded(ADataController
   : TcxCustomDataController; ARecordIndex: Integer);
 begin
-  if FLoading then
+  if (FCatParamsGroup <> nil) and FCatParamsGroup.DataLoading then
     Exit;
 
   inherited;
@@ -545,18 +555,19 @@ end;
 procedure TViewCategoryParameters.InitView(AView: TcxGridDBBandedTableView);
 begin
   inherited;
+  // Курсор в представлении у нас не будет синхронизирован с курсором набора данных
+  AView.DataController.DataModeController.SyncMode := False;
   AView.OptionsView.HeaderAutoHeight := True;
 end;
 
 procedure TViewCategoryParameters.MoveParameter(AUp: Boolean);
 var
   m: TArray<Integer>;
-  i: Integer;
   ARowIndex: Integer;
+  ATargetRowIndex: Integer;
   AView: TcxGridDBBandedTableView;
   IDList: TList<Integer>;
-  VID: Integer;
-  VIDArr: TArray<Integer>;
+  SS: TSaveSelection;
 begin
   inherited;
   AView := FocusedTableView;
@@ -564,18 +575,17 @@ begin
 
   // AView.Controller.SelectedRowCount
 
-  if not GetSelectedRowIndexesForMove(AView, AUp, m, i) then
+  if not GetSelectedRowIndexesForMove(AView, AUp, m, ATargetRowIndex) then
     Exit;
 
   // Если место для перемещения в другой области
-  if Value(AView, clPosID, m[high(m)]) <> Value(AView, clPosID, i) then
+  if Value(AView, clPosID, m[high(m)]) <> Value(AView, clPosID, ATargetRowIndex)
+  then
     Exit;
 
   // Если перемещаем записи из разных областей
   if Value(AView, clPosID, m[high(m)]) <> Value(AView, clPosID, m[0]) then
     Exit;
-
-  VIDArr := GetSelectedIntValues(clVID);
 
   // В этой точке уже понятно что изменение положения возможно!
   IDList := TList<Integer>.Create;
@@ -585,20 +595,15 @@ begin
       IDList.Add(Value(AView, clID, ARowIndex));
     end;
 
-    AView.BeginSortingUpdate;
-    try
-      // Вызываем перемешение параметров
-      CatParamsGroup.MoveParameters(IDList.ToArray, Value(AView, clID, i), AUp);
-    finally
-      AView.EndSortingUpdate;
-    end;
+    // Сохраняем состояние выделенных записей
+    SS := SaveSelection(AView, clID2.Index);
 
-    for VID in VIDArr do
-    begin
-      if AView.DataController.Search.Locate(clVID.Index, VID.ToString, False,
-        True) then
-        clValue.Selected := True;
-    end;
+    // Вызываем перемешение параметров
+    CatParamsGroup.MoveParameters(IDList.ToArray,
+      Value(AView, clID, ATargetRowIndex), AUp);
+
+    // Восстанавливаем состояние выделенных записей
+    RestoreSelection(SS);
 
   finally
     FreeAndNil(IDList);
@@ -609,15 +614,16 @@ end;
 procedure TViewCategoryParameters.MoveSubParameter(AUp: Boolean);
 var
   m: TArray<Integer>;
-  i: Integer;
   ARowIndex: Integer;
+  ATargetRowIndex: Integer;
   AView: TcxGridDBBandedTableView;
   IDList: TList<Integer>;
+  SS: TSaveSelection;
 begin
   inherited;
   AView := FocusedTableView;
   Assert(AView.Level = cxGridLevel2);
-  if not GetSelectedRowIndexesForMove(AView, AUp, m, i) then
+  if not GetSelectedRowIndexesForMove(AView, AUp, m, ATargetRowIndex) then
     Exit;
 
   // В этой точке уже понятно что изменение положения возможно!
@@ -628,18 +634,15 @@ begin
       IDList.Add(Value(AView, clID2, ARowIndex));
     end;
 
-    // MainView.BeginSortingUpdate;
-    // cxGridDBBandedTableView2.BeginSortingUpdate;
-    // AView.BeginSortingUpdate;
-    // try
-    // Вызываем перемешение параметров
-    CatParamsGroup.MoveSubParameters(IDList, Value(AView, clID2, i), AUp);
-    // finally
-    // AView.EndSortingUpdate;
-    // cxGridDBBandedTableView2.EndSortingUpdate;
-    // MainView.EndSortingUpdate;
-    // end;
+    // Сохраняем состояние выделенных записей
+    SS := SaveSelection(AView, clID2.Index);
 
+    // Меняем порядок в наборе данных
+    CatParamsGroup.MoveSubParameters(IDList.ToArray,
+      Value(AView, clID2, ATargetRowIndex), AUp);
+
+    // Восстанавливаем состояние выделенных записей
+    RestoreSelection(SS);
   finally
     FreeAndNil(IDList);
   end;
@@ -750,8 +753,7 @@ begin
     (((AView = MainView) and (MainView.Controller.SelectedRowCount = 1)) or
     (AView <> MainView));
 
-  actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted
-    and (AView = MainView);
+  actUp.Enabled := OK and not FCatParamsGroup.qCategoryParameters.HaveInserted;
   actDown.Enabled := actUp.Enabled;
 end;
 

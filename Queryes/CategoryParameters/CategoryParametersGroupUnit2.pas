@@ -93,8 +93,10 @@ type
   private
     FAfterUpdateData: TNotifyEventsEx;
     FBeforeUpdateData: TNotifyEventsEx;
+    FDataLoading: Boolean;
     FFDQCategoryParameters: TQryCategoryParameters;
     FFDQCategorySubParameters: TQryCategorySubParameters;
+    FFullUpdate: Boolean;
     FIDDic: TDictionary<Integer, Integer>;
     FOnIsAttributeChange: TNotifyEventsEx;
     FqCategoryParameters: TQueryCategoryParameters2;
@@ -139,8 +141,8 @@ type
     procedure LoadData;
     procedure MoveParameters(IDArr: TArray<Integer>; TargetID: Integer;
       AUp: Boolean);
-    procedure MoveSubParameters(IDList: TList<Integer>; TargetID: Integer;
-      AUp: Boolean);
+    procedure MoveSubParameters(IDArr: TArray<Integer>; TargetID: Integer; AUp:
+        Boolean);
     procedure RefreshData; override;
     procedure RemoveClient; override;
     procedure SetPos(AIDArray: TArray<Integer>; AWithSubParams: Boolean;
@@ -150,6 +152,8 @@ type
     property BeforeUpdateData: TNotifyEventsEx read FBeforeUpdateData;
     property IsAllQuerysActive: Boolean read GetIsAllQuerysActive;
     property OnIsAttributeChange: TNotifyEventsEx read FOnIsAttributeChange;
+    property DataLoading: Boolean read FDataLoading;
+    property FullUpdate: Boolean read FFullUpdate;
     property qCategoryParameters: TQueryCategoryParameters2
       read FqCategoryParameters;
     property qCatParams: TQryCategoryParameters read FqCatParams;
@@ -537,7 +541,13 @@ procedure TCategoryParametersGroup2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
   FVID := 0;
   FIDDic.Clear;
-  LoadData;
+
+  FFullUpdate := True;
+  try
+    LoadData;
+  finally
+    FFullUpdate := False;
+  end;
 end;
 
 procedure TCategoryParametersGroup2.DoOnIsAttributeChange(Sender: TField);
@@ -751,24 +761,28 @@ begin
   LoadData;
 end;
 
-procedure TCategoryParametersGroup2.MoveSubParameters(IDList: TList<Integer>;
-  TargetID: Integer; AUp: Boolean);
+procedure TCategoryParametersGroup2.MoveSubParameters(IDArr: TArray<Integer>;
+    TargetID: Integer; AUp: Boolean);
 var
   ACloneW: TCategoryParameters2W;
   AID: Integer;
   L: TDictionary<Integer, Integer>;
   ACount: Integer;
+  AIDList: TList<Integer>;
   ANewID: Integer;
   AVID: Integer;
 begin
-  Assert(IDList.Count > 0);
+  Assert(Length(IDArr) > 0);
   Assert(TargetID <> 0);
   ACount := 0;
 
+  AIDList := TList<Integer>.Create();
   L := TDictionary<Integer, Integer>.Create;
   try
-    IDList.Add(TargetID);
-    for AID in IDList do
+    AIDList.AddRange(IDArr);
+    AIDList.Add(TargetID);
+
+    for AID in AIDList do
     begin
       if AID = TargetID then
         ACount := L.Count; // Количество переносимых записей
@@ -798,6 +812,7 @@ begin
 
   finally
     FreeAndNil(L);
+    FreeAndNil(AIDList);
   end;
 
   LoadData;
@@ -854,12 +869,14 @@ end;
 
 procedure TCategoryParametersGroup2.UpdateData;
 begin
+  FDataLoading := True;
   FBeforeUpdateData.CallEventHandlers(Self);
   try
     qCatParams.Update(FFDQCategoryParameters);
     qCatSubParams.Update(FFDQCategorySubParameters);
   finally
     FAfterUpdateData.CallEventHandlers(Self);
+    FDataLoading := False;
   end;
 end;
 

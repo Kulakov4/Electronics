@@ -3,6 +3,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
   ExplicitWidth = 1037
   inherited cxGrid: TcxGrid
     Width = 1037
+    OnFocusedViewChanged = cxGridFocusedViewChanged
     ExplicitWidth = 1037
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
@@ -106,6 +107,7 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       end
       object clOrder: TcxGridDBBandedColumn
         DataBinding.FieldName = 'Ord'
+        Visible = False
         Options.Editing = False
         Options.IncSearch = False
         Options.Grouping = False
@@ -144,7 +146,6 @@ inherited ViewCategoryParameters: TViewCategoryParameters
       OnKeyDown = cxGridDBBandedTableView2KeyDown
       OnMouseDown = cxGridDBBandedTableView2MouseDown
       Navigator.Buttons.CustomButtons = <>
-      DataController.DataModeController.SyncMode = False
       DataController.DataSource = dsSubParameters
       DataController.DetailKeyFieldNames = 'IDParent'
       DataController.KeyFieldNames = 'ID'

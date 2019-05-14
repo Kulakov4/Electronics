@@ -40,6 +40,13 @@ type
   // Ссылка на метод
   TProcRef = reference to procedure();
 
+  TSaveSelection = record
+    ColumnIndex: Integer;
+    IDArr: TArray<Integer>;
+    Columns: TArray<TcxGridDBBandedColumn>;
+    View: TcxGridDBBandedTableView;
+  end;
+
   TfrmGrid = class(TFrame, ISelection)
     cxGridLevel: TcxGridLevel;
     cxGrid: TcxGrid;
@@ -213,8 +220,11 @@ type
     procedure Place(AParent: TWinControl);
     procedure PostMyApplyBestFitEventForView(AView: TcxGridDBBandedTableView);
     procedure PutInTheCenterFocusedRecord; overload;
-    function QueryInterface(const IID: TGUID; out Obj): HResult;
+    function QueryInterface(const IID: TGUID; out Obj): HResult; override;
     procedure RefreshData;
+    procedure RestoreSelection(ASaveSelection: TSaveSelection);
+    function SaveSelection(AView: TcxGridDBBandedTableView;
+      AColumnIndex: Integer): TSaveSelection;
     procedure SelectFocusedRecord(const AFieldName: String);
     procedure SetZeroBandWidth(AView: TcxGridDBBandedTableView);
     procedure TryClearSelection(X, Y: Integer);
@@ -1382,7 +1392,7 @@ procedure TfrmGrid.InitView(AView: TcxGridDBBandedTableView);
 begin
   AView.OptionsBehavior.ImmediateEditor := False;
   AView.OptionsView.FocusRect := False;
-//  AView.Styles.Inactive := DMRepository.cxInactiveStyle;
+  // AView.Styles.Inactive := DMRepository.cxInactiveStyle;
 end;
 
 procedure TfrmGrid.InternalRefreshData;
@@ -1730,12 +1740,54 @@ begin
   end;
 end;
 
+procedure TfrmGrid.RestoreSelection(ASaveSelection: TSaveSelection);
+var
+  ACol: TcxGridDBBandedColumn;
+  AID: Integer;
+begin
+
+  // Выделяем записи, которые были выделены во время сохранения
+  for AID in ASaveSelection.IDArr do
+  begin
+    if ASaveSelection.View.DataController.Search.Locate
+      (ASaveSelection.ColumnIndex, AID.ToString, False, False) then
+      ASaveSelection.View.Controller.FocusedRow.Selected := True;
+  end;
+  for ACol in ASaveSelection.Columns do
+    ACol.Selected := True;
+
+  ASaveSelection.View.Focused := True;
+end;
+
 function TfrmGrid.SameCol(AColumn1: TcxGridColumn;
   AColumn2: TcxGridDBBandedColumn): Boolean;
 begin
   Result := (AColumn1 is TcxGridDBBandedColumn) and
     ((AColumn1 as TcxGridDBBandedColumn).DataBinding.FieldName = AColumn2.
     DataBinding.FieldName);
+end;
+
+function TfrmGrid.SaveSelection(AView: TcxGridDBBandedTableView;
+  AColumnIndex: Integer): TSaveSelection;
+var
+  AColumns: TList<TcxGridDBBandedColumn>;
+  i: Integer;
+begin
+  Result.View := AView;
+  Result.ColumnIndex := AColumnIndex;
+  Result.IDArr := GetSelectedIntValues(AView, AColumnIndex);
+
+  AColumns := TList<TcxGridDBBandedColumn>.Create;
+  try
+    for i := 0 to AView.ColumnCount - 1 do
+    begin
+      if AView.Columns[i].Selected then
+        AColumns.Add(AView.Columns[i]);
+    end;
+    Result.Columns := AColumns.ToArray;
+  finally
+    FreeAndNil(AColumns);
+  end;
 end;
 
 procedure TfrmGrid.SelectFocusedRecord(const AFieldName: String);
