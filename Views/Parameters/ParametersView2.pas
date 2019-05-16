@@ -94,6 +94,8 @@ type
     dxBarButton18: TdxBarButton;
     actClearSelection: TAction;
     dxBarButton19: TdxBarButton;
+    dxBarButton20: TdxBarButton;
+    actPaste: TAction;
     procedure actAddParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -108,6 +110,7 @@ type
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelSheetExecute(Sender: TObject);
     procedure actExpandExecute(Sender: TObject);
+    procedure actPasteExecute(Sender: TObject);
     procedure actReopenExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
@@ -191,7 +194,7 @@ uses
   cxDropDownEdit, DialogUnit, System.Generics.Collections, System.StrUtils,
   DialogUnit2, LoadFromExcelFileHelper, ProgressBarForm, ProjectConst,
   ImportErrorForm, RepositoryDataModule, SettingsController, GridSort,
-  ColumnsBarButtonsHelper;
+  ColumnsBarButtonsHelper, ClipboardUnit;
 
 {$R *.dfm}
 
@@ -397,6 +400,13 @@ procedure TViewParameters2.actExpandExecute(Sender: TObject);
 begin
   inherited;
   MainView.ViewData.Expand(True);
+end;
+
+procedure TViewParameters2.actPasteExecute(Sender: TObject);
+begin
+  inherited;
+  cxbeiSearch.EditValue := TClb.Create.ConcatRows;
+  UpdateView;
 end;
 
 procedure TViewParameters2.actReopenExecute(Sender: TObject);

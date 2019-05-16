@@ -12,16 +12,23 @@ type
     // TODO: GetRows
     // function GetRows: TStringList;
   public
+    function ConcatRows: string;
     function GetRowsAsArray: TArray<String>;
     class function NewInstance: TObject; override;
   end;
 
 implementation
 
-uses Vcl.Clipbrd, Winapi.Windows, System.SysUtils, System.Contnrs;
+uses Vcl.Clipbrd, Winapi.Windows, System.SysUtils, System.Contnrs, StrHelper;
 
 var
   SingletonList: TObjectList;
+
+function TClb.ConcatRows: string;
+begin
+  Result := StrHelper.DeleteDouble(Clipboard.AsText.Trim.Replace(#13, ' ')
+    .Replace(#10, ' '), ' ');
+end;
 
 function TClb.GetRowsAsArray: TArray<String>;
 var

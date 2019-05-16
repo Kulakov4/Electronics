@@ -246,6 +246,10 @@ inherited ViewParameters2: TViewParameters2
         item
           Visible = True
           ItemName = 'dxBarButton2'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton20'
         end>
       OneOnRow = False
       Row = 1
@@ -257,7 +261,7 @@ inherited ViewParameters2: TViewParameters2
       Caption = 'Duplicate'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
-      DockedLeft = 233
+      DockedLeft = 257
       DockedTop = 28
       DockingStyle = dsTop
       FloatLeft = 903
@@ -441,6 +445,10 @@ inherited ViewParameters2: TViewParameters2
       Action = actClearSelection
       Category = 0
     end
+    object dxBarButton20: TdxBarButton
+      Action = actPaste
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAddParameterType: TAction
@@ -525,6 +533,12 @@ inherited ViewParameters2: TViewParameters2
     object actClearSelection: TAction
       Caption = 'actClearSelection'
       OnExecute = actClearSelectionExecute
+    end
+    object actPaste: TAction
+      Caption = #1042#1089#1090#1072#1074#1080#1090#1100
+      Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
+      ImageIndex = 5
+      OnExecute = actPasteExecute
     end
   end
 end
