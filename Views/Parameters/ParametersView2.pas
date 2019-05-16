@@ -916,7 +916,9 @@ begin
   end;
 
   if not Result then
-    cxbeiSearch.StyleEdit := cxStyleNotFound;
+    cxbeiSearch.StyleEdit := cxStyleNotFound
+  else
+    cxbeiSearch.StyleEdit := nil;
 
   UpdateView;
 end;
