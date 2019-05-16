@@ -33,6 +33,7 @@ uses
 const
   // Когда попытались вести новый тип параметра
   WM_NEED_CHANGE_PARAMETER_TYPE = WM_USER + 12;
+  WM_SEARCH_EDIT_ENTER = WM_USER + 13;
 
 type
   TViewParameters2 = class(TfrmGrid)
@@ -96,6 +97,8 @@ type
     dxBarButton19: TdxBarButton;
     dxBarButton20: TdxBarButton;
     actPaste: TAction;
+    cxStyleRepository: TcxStyleRepository;
+    cxStyleNotFound: TcxStyle;
     procedure actAddParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -139,6 +142,7 @@ type
     procedure cxGridDBBandedTableView2MouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure clCheckedPropertiesEditValueChanged(Sender: TObject);
+    procedure cxbeiSearchEnter(Sender: TObject);
     procedure cxbeiSearchPropertiesChange(Sender: TObject);
     procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerSummaryAfterSummary
@@ -157,6 +161,8 @@ type
   const
     FolderKey: String = 'Parameters';
     procedure LoadDataFromExcelTable(AData: TParametersExcelTable);
+    procedure OnAfterSearchEditEnter(var Message: TMessage); message
+        WM_SEARCH_EDIT_ENTER;
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetParametersGrp(const Value: TParametersGroup2);
     procedure UpdateAutoTransaction;
@@ -177,7 +183,7 @@ type
     destructor Destroy; override;
     function CheckAndSaveChanges: Integer;
     procedure CommitOrPost;
-    procedure Search(const AName: string);
+    function Search(const AName: string): Boolean;
     procedure UpdateView; override;
     property CheckedMode: Boolean read FCheckedMode write SetCheckedMode;
     property ParametersGrp: TParametersGroup2 read FParametersGrp
@@ -649,6 +655,15 @@ begin
   Result := [MainView, cxGridDBBandedTableView2];
 end;
 
+procedure TViewParameters2.cxbeiSearchEnter(Sender: TObject);
+begin
+  inherited;
+  if cxbeiSearch.StyleEdit <> nil then
+  begin
+    PostMessage(Handle, WM_SEARCH_EDIT_ENTER, 0, 0);
+  end;
+end;
+
 procedure TViewParameters2.cxbeiSearchPropertiesChange(Sender: TObject);
 begin
   inherited;
@@ -849,7 +864,15 @@ begin
   AView.Columns[clValue.Index].Selected := True;
 end;
 
-procedure TViewParameters2.Search(const AName: string);
+procedure TViewParameters2.OnAfterSearchEditEnter(var Message: TMessage);
+begin
+  inherited;
+  cxGrid.SetFocus;
+  cxbeiSearch.StyleEdit := nil;
+  cxbeiSearch.SetFocus();
+end;
+
+function TViewParameters2.Search(const AName: string): Boolean;
 var
   AColumn: TcxGridDBBandedColumn;
   ARow: TcxGridMasterDataRow;
@@ -871,6 +894,8 @@ begin
     EndUpdate;
   end;
 
+  Result := False;
+
   // сначала ищем на первом уровне (по названию категории)
   if (Length(Arr) > 0) and
     (MainView.DataController.Search.Locate(clParameterType.Index, Arr[0], True))
@@ -883,12 +908,15 @@ begin
       ARow.Expand(False);
       AView := GetDBBandedTableView(1);
       AView.Focused := True;
-      AView.DataController.Search.Locate(AColumn.Index, Arr[1], True);
+      Result := AView.DataController.Search.Locate(AColumn.Index, Arr[1], True);
       PutInTheCenterFocusedRecord(AView);
     end
     else
       PutInTheCenterFocusedRecord(MainView);
   end;
+
+  if not Result then
+    cxbeiSearch.StyleEdit := cxStyleNotFound;
 
   UpdateView;
 end;

@@ -340,6 +340,7 @@ inherited ViewParameters2: TViewParameters2
       Category = 0
       Hint = #1055#1086#1080#1089#1082':'
       Visible = ivAlways
+      OnEnter = cxbeiSearchEnter
       ShowCaption = True
       PropertiesClassName = 'TcxTextEditProperties'
       Properties.OnChange = cxbeiSearchPropertiesChange
@@ -539,6 +540,15 @@ inherited ViewParameters2: TViewParameters2
       Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
       ImageIndex = 5
       OnExecute = actPasteExecute
+    end
+  end
+  object cxStyleRepository: TcxStyleRepository
+    Left = 184
+    Top = 256
+    PixelsPerInch = 96
+    object cxStyleNotFound: TcxStyle
+      AssignedValues = [svColor]
+      Color = 8421631
     end
   end
 end
