@@ -338,7 +338,7 @@ inherited ViewParameters2: TViewParameters2
     object cxbeiSearch: TcxBarEditItem
       Caption = #1055#1086#1080#1089#1082':'
       Category = 0
-      Hint = #1055#1086#1080#1089#1082':'
+      Hint = #1055#1086#1080#1089#1082
       Visible = ivAlways
       OnEnter = cxbeiSearchEnter
       ShowCaption = True
@@ -493,6 +493,7 @@ inherited ViewParameters2: TViewParameters2
     end
     object actSearch: TAction
       Caption = #1053#1072#1081#1090#1080
+      Hint = #1055#1086#1080#1089#1082
       ImageIndex = 9
       OnExecute = actSearchExecute
     end
