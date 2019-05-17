@@ -339,7 +339,7 @@ inherited ViewParameters2: TViewParameters2
       Category = 0
     end
     object cxbeiSearch: TcxBarEditItem
-      Caption = #1055#1086#1080#1089#1082':'
+      Caption = #1055#1086#1080#1089#1082
       Category = 0
       Hint = #1055#1086#1080#1089#1082
       Visible = ivAlways
