@@ -451,33 +451,18 @@ begin
 end;
 
 procedure TViewBodyTypes.actShowDuplicateExecute(Sender: TObject);
-var
-  d: Boolean;
 begin
   Application.Hint := '';
-  d := not BodyTypesGroup.qBodyTypes2.ShowDuplicate;
-  cxGrid.BeginUpdate();
-  try
-    BodyTypesGroup.qBodyTypes2.W.TryPost;
-    BodyTypesGroup.qBodyKinds.W.TryPost;
 
-    BodyTypesGroup.qBodyTypes2.ShowDuplicate := d;
-    BodyTypesGroup.qBodyKinds.ShowDuplicate := d;
-
-    // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord();
-  finally
-    cxGrid.EndUpdate;
-  end;
-
-  actShowDuplicate.Checked := d;
-
+  BodyTypesGroup.Re_Open(not actShowDuplicate.Checked);
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord();
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord();
+  // PutInTheCenterFocusedRecord();
 
+  actShowDuplicate.Checked := not actShowDuplicate.Checked;
   // Обновляем представление
   UpdateView;
-
 end;
 
 procedure TViewBodyTypes.AfterConstruction;
@@ -856,10 +841,9 @@ begin
 
   AFolders := AFolders + ADocFieldInfo.Folder;
 
-  TDocument.Open(Handle, AFolders,
-    BodyTypesGroup.qBodyTypes2.W.Field(ADocFieldInfo.FieldName).AsString,
-    ADocFieldInfo.ErrorMessage, ADocFieldInfo.EmptyErrorMessage,
-    sBodyTypesFilesExt);
+  TDocument.Open(Handle, AFolders, BodyTypesGroup.qBodyTypes2.W.Field
+    (ADocFieldInfo.FieldName).AsString, ADocFieldInfo.ErrorMessage,
+    ADocFieldInfo.EmptyErrorMessage, sBodyTypesFilesExt);
 end;
 
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup2);

@@ -365,67 +365,22 @@ procedure TQueryBodyTypes2.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
-  if FShowDuplicate <> Value then
+  if FShowDuplicate = Value then
+    Exit;
+
+  FShowDuplicate := Value;
+
+  // Получаем базовый запрос
+  ASQL := SQL;
+  if FShowDuplicate then
   begin
-    FShowDuplicate := Value;
-
-    // Получаем базовый запрос
-    ASQL := SQL;
-    if FShowDuplicate then
-    begin
-      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
-      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
-    end;
-
-    FDQuery.Close;
-    FDQuery.SQL.Text := ASQL;
-    FDQuery.Open;
+    ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+    ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
   end;
+
+  FDQuery.Close;
+  FDQuery.SQL.Text := ASQL;
+  FDQuery.Open;
 end;
 
-// TODO: LocateOrAppend
-// procedure TQueryBodyTypes2.LocateOrAppend(AIDParentBodyType: Integer;
-// const ABodyType1, ABodyType2, AOutlineDrawing, ALandPattern, AVariation,
-// AImage: string);
-// var
-// AKeyFields: string;
-// OK: Boolean;
-// begin
-//
-// AKeyFields := Format('%s;%s;%s;%s', [IDParentBodyType1.FieldName,
-// BodyType1.FieldName, BodyType2.FieldName, Variations.FieldName]);
-//
-// OK := FDQuery.LocateEx(AKeyFields, VarArrayOf([AIDParentBodyType, ABodyType1,
-// ABodyType2, AVariation]), []);
-//
-// if not OK then
-// begin
-// FDQuery.Append;
-// IDParentBodyType1.Value := AIDParentBodyType;
-// BodyType1.Value := ABodyType1;
-// BodyType2.Value := ABodyType2;
-// Variations.Value := AVariation;
-// end
-// else
-// FDQuery.Edit;
-//
-// OutlineDrawing.Value := AOutlineDrawing;
-// LandPattern.Value := ALandPattern;
-// Image.Value := AImage;
-//
-// FDQuery.Post;
-//
-// end;
-
-{
-  procedure TQueryBodyTypes2.LocateOrAppend(AValue: string);
-  var
-  OK: Boolean;
-  begin
-  OK := FDQuery.LocateEx(IDParentBodyType1.FieldName, AValue, []);
-
-  if not OK then
-  AddNewValue(AValue);
-  end;
-}
 end.

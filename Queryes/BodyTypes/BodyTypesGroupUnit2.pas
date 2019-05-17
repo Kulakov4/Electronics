@@ -23,13 +23,14 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure LoadDataFromExcelTable(ABodyTypesExcelTable: TBodyTypesExcelTable;
-        AIDProducer: Integer);
+      AIDProducer: Integer);
+    procedure Re_Open(AShowDuplicate: Boolean);
     procedure Rollback; override;
     property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
     property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
     property qProducers: TQueryProducers read GetqProducers;
-    property QueryBodyTypesSimple: TQueryBodyTypesSimple read
-        GetQueryBodyTypesSimple;
+    property QueryBodyTypesSimple: TQueryBodyTypesSimple
+      read GetQueryBodyTypesSimple;
   end;
 
 implementation
@@ -51,8 +52,7 @@ end;
 
 destructor TBodyTypesGroup2.Destroy;
 begin
-  Assert(ComponentCount > 0);
-  ;
+  Assert(ComponentCount > 0);;
   inherited;
 end;
 
@@ -98,8 +98,8 @@ begin
   Result := FQueryBodyTypesSimple;
 end;
 
-procedure TBodyTypesGroup2.LoadDataFromExcelTable(ABodyTypesExcelTable :
-    TBodyTypesExcelTable; AIDProducer: Integer);
+procedure TBodyTypesGroup2.LoadDataFromExcelTable(ABodyTypesExcelTable
+  : TBodyTypesExcelTable; AIDProducer: Integer);
 var
   AField: TField;
   AProducerID: Integer;
@@ -117,7 +117,8 @@ begin
       if AIDProducer > 0 then
         AProducerID := AIDProducer
       else
-        AProducerID := (ABodyTypesExcelTable as TBodyTypesExcelTable2).IDProducer.AsInteger;
+        AProducerID := (ABodyTypesExcelTable as TBodyTypesExcelTable2)
+          .IDProducer.AsInteger;
 
       // ищем или добавляем корень - вид корпуса
       qBodyKinds.W.LocateOrAppend(ABodyTypesExcelTable.BodyKind.AsString);
@@ -154,6 +155,19 @@ begin
     ABodyTypesExcelTable.EnableControls;
   end;
 
+end;
+
+procedure TBodyTypesGroup2.Re_Open(AShowDuplicate: Boolean);
+begin
+  qBodyTypes2.W.TryPost;
+  qBodyKinds.W.TryPost;
+
+  SaveBookmark;
+
+  qBodyTypes2.ShowDuplicate := AShowDuplicate;
+  qBodyKinds.ShowDuplicate := AShowDuplicate;
+
+  RestoreBookmark;
 end;
 
 procedure TBodyTypesGroup2.Rollback;

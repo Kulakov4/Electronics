@@ -65,22 +65,22 @@ procedure TQueryBodyKinds.SetShowDuplicate(const Value: Boolean);
 var
   ASQL: String;
 begin
-  if FShowDuplicate <> Value then
+  if FShowDuplicate = Value then
+    Exit;
+
+  FShowDuplicate := Value;
+
+  // Получаем первоначальный запрос
+  ASQL := SQL;
+  if FShowDuplicate then
   begin
-    FShowDuplicate := Value;
-
-    // Получаем первоначальный запрос
-    ASQL := SQL;
-    if FShowDuplicate then
-    begin
-      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
-      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
-    end;
-
-    FDQuery.Close;
-    FDQuery.SQL.Text := ASQL;
-    FDQuery.Open;
+    ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+    ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
   end;
+
+  FDQuery.Close;
+  FDQuery.SQL.Text := ASQL;
+  FDQuery.Open;
 end;
 
 constructor TBodyKindW.Create(AOwner: TComponent);
