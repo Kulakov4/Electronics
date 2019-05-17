@@ -11,6 +11,7 @@ type
   private
     FEventList: TObjectList;
     FQList: TList<TQueryBaseEvents>;
+    function GetActive: Boolean;
     function GetChangeCount: Integer;
     function GetConnection: TFDCustomConnection;
   protected
@@ -34,6 +35,7 @@ type
     procedure RestoreBookmark;
     procedure TryOpen;
     procedure TryPost; virtual;
+    property Active: Boolean read GetActive;
     property ChangeCount: Integer read GetChangeCount;
     property Connection: TFDCustomConnection read GetConnection;
     property HaveAnyChanges: Boolean read GetHaveAnyChanges;
@@ -121,6 +123,20 @@ var
 begin
   for I := 0 to QList.Count - 1 do
     QList[I].FDQuery.EnableControls;
+end;
+
+function TQueryGroup2.GetActive: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to QList.Count - 1 do
+  begin
+    if not QList[I].FDQuery.Active then
+      Exit;
+  end;
+
+  Result := True;
 end;
 
 function TQueryGroup2.GetChangeCount: Integer;

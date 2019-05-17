@@ -262,30 +262,17 @@ begin
 end;
 
 procedure TViewDescriptions.actShowDuplicateExecute(Sender: TObject);
-var
-  d: Boolean;
 begin
   Application.Hint := '';
-  d := not DescriptionsGroup.qDescriptions.ShowDuplicate;
-  cxGrid.BeginUpdate();
-  try
-    DescriptionsGroup.qDescriptions.W.TryPost;
-    DescriptionsGroup.qDescriptionTypes.W.TryPost;
 
-    DescriptionsGroup.qDescriptions.ShowDuplicate := d;
-    DescriptionsGroup.qDescriptionTypes.ShowDuplicate := d;
+  DescriptionsGroup.Re_Open(not actShowDuplicate.Checked);
 
-    // Переносим фокус на первую выделенную запись
-    FocusSelectedRecord();
-  finally
-    cxGrid.EndUpdate;
-  end;
-
-  actShowDuplicate.Checked := d;
-
+  // Переносим фокус на первую выделенную запись
+  // FocusSelectedRecord();
   // Помещаем фокус в центр грида
-  PutInTheCenterFocusedRecord();
+  // PutInTheCenterFocusedRecord();
 
+  actShowDuplicate.Checked := not actShowDuplicate.Checked;
   // Обновляем представление
   UpdateView;
 end;
@@ -643,17 +630,13 @@ var
   OK: Boolean;
 begin
   AView := FocusedTableView;
-  OK := (DescriptionsGroup <> nil) and (AView <> nil);
+  OK := (DescriptionsGroup <> nil) and DescriptionsGroup.Active and
+    (AView <> nil);
 
-  actAddType.Enabled := OK and
-    (DescriptionsGroup.qDescriptionTypes.FDQuery.Active) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
+  actAddType.Enabled := OK and (not actShowDuplicate.Checked) and
     (AView.Level = cxGridLevel);
 
-  actAddDescription.Enabled := OK and
-    (DescriptionsGroup.qDescriptions.FDQuery.Active) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
-    ((AView.Level = cxGridLevel) or (AView.Level = cxGridLevel2));
+  actAddDescription.Enabled := OK and (not actShowDuplicate.Checked);
 
   // Удалять разрешаем только если что-то выделено
   actDeleteEx.Enabled := OK and (AView.Controller.SelectedRowCount > 0);
@@ -662,11 +645,12 @@ begin
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actLoadFromExcelDocument.Enabled := (DescriptionsGroup <> nil) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate);
+  actShowDuplicate.Enabled := OK and ((MainView.DataController.RowCount > 0) or
+    actShowDuplicate.Checked);
 
-  actExportToExcelDocument.Enabled := (DescriptionsGroup <> nil) and
-    (not DescriptionsGroup.qDescriptionTypes.ShowDuplicate) and
+  actLoadFromExcelDocument.Enabled := OK and (not actShowDuplicate.Checked);
+
+  actExportToExcelDocument.Enabled := OK and (not actShowDuplicate.Checked) and
     (DescriptionsGroup.qDescriptions.FDQuery.RecordCount > 0);
 
   if actShowDuplicate.Checked then

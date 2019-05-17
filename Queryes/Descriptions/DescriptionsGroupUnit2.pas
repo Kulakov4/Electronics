@@ -23,6 +23,7 @@ type
     procedure LoadDataFromExcelTable(ADescriptionsExcelTable
       : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
+    procedure Re_Open(AShowDuplicate: Boolean);
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
     property qDescriptionTypes: TQueryDescriptionTypes
       read GetqDescriptionTypes;
@@ -64,7 +65,8 @@ begin
   if qDescriptions.W.LocateByF(AFieldName, S,
     [lxoCaseInsensitive, lxoPartialKey]) then
   begin
-    qDescriptionTypes.W.LocateByPK(qDescriptions.W.IDComponentType.F.Value, True);
+    qDescriptionTypes.W.LocateByPK
+      (qDescriptions.W.IDComponentType.F.Value, True);
     // запоминаем что надо искать на первом уровне
     Result.Add(qDescriptionTypes.W.ComponentType.F.AsString);
     // запоминаем что надо искать на втором уровне
@@ -160,6 +162,19 @@ begin
     qDescriptionTypes.FDQuery.EnableControls;
     qDescriptions.FDQuery.EnableControls;
   end;
+end;
+
+procedure TDescriptionsGroup2.Re_Open(AShowDuplicate: Boolean);
+begin
+  qDescriptions.W.TryPost;
+  qDescriptionTypes.W.TryPost;
+
+  SaveBookmark;
+
+  qDescriptions.ShowDuplicate := AShowDuplicate;
+  qDescriptionTypes.ShowDuplicate := AShowDuplicate;
+
+  RestoreBookmark;
 end;
 
 end.

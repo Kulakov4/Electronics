@@ -902,8 +902,7 @@ var
   AView: TcxGridDBBandedTableView;
   OK: Boolean;
 begin
-  OK := (BodyTypesGroup <> nil) and (BodyTypesGroup.qBodyKinds.FDQuery.Active)
-    and (BodyTypesGroup.qBodyTypes2.FDQuery.Active);
+  OK := (BodyTypesGroup <> nil) and (BodyTypesGroup.Active);
 
   AView := FocusedTableView;
 
@@ -919,11 +918,11 @@ begin
 
   actLoadFromExcelDocument.Enabled := OK;
 
-  actExportToExcelDocument.Enabled := OK and (AView <> nil) and
-    (AView.DataController.RowCount > 0);
+  actExportToExcelDocument.Enabled := OK and
+    (MainView.DataController.RowCount > 0);
 
-  actShowDuplicate.Enabled := OK and (AView <> nil) and
-    (AView.DataController.RowCount > 0);
+  actShowDuplicate.Enabled := OK and ((MainView.DataController.RowCount > 0) or
+    actShowDuplicate.Checked);
 
   actCommit.Enabled := OK and (BodyTypesGroup.HaveAnyChanges);
 
