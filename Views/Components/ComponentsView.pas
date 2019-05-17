@@ -76,6 +76,7 @@ type
     procedure FocusTopLeftEx;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
+    procedure UpdateView; override;
     property ComponentsGroup: TComponentsGroup2 read GetComponentsGroup
       write SetComponentsGroup;
     property OnShowParametricTableEvent: TNotifyEventsEx
@@ -235,6 +236,12 @@ end;
 procedure TViewComponents.SetComponentsGroup(const Value: TComponentsGroup2);
 begin
   BaseCompGrp := Value;
+end;
+
+procedure TViewComponents.UpdateView;
+begin
+  inherited;
+  dxbrsbtmDelete.Enabled := actDeleteFromAllCategories.Enabled or actDeleteEx.Enabled;
 end;
 
 end.
