@@ -1065,6 +1065,9 @@ begin
     GridSort.Add(TSortVariant.Create(clValue, [clValue]));
     GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
 
+    // Применяем сортировку по производителю
+    ApplySort(MainView, clValue);
+
     // Подписываемся на сообщения об изменении кол-ва
     if UpdateCount = 0 then
       CreateCountEvents;
