@@ -73,7 +73,7 @@ type
     property qSearchParameter: TQuerySearchParameter read GetqSearchParameter;
   public
     constructor Create(AOwner: TComponent); override;
-    function ApplyFilter(AShowDuplicate: Boolean; ATableName: string): Integer;
+    function ApplyFilter(ATableName: string): Integer;
     function GetCheckedValues(const AFieldName: String): string;
     function Lookup(AValue: string): Integer;
     function SearchByTableName(const ATableName: string): Integer;
@@ -133,19 +133,14 @@ begin
   end;
 end;
 
-function TQueryParameters.ApplyFilter(AShowDuplicate: Boolean; ATableName:
-    string): Integer;
+function TQueryParameters.ApplyFilter(ATableName: string): Integer;
 var
   ASQL: string;
 begin
   // ѕолучаем первоначальный запрос
   ASQL := SQL;
-  if AShowDuplicate then
-  begin
-    ASQL := SQL;
-    ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
-    ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
-  end;
+  ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
 
   if ATableName.IsEmpty then
   begin
@@ -177,8 +172,8 @@ begin
   try
 
     // «апоминаем пол€, которые мы только-что отредактировали на клиенте
-    RH.Attach(FDQuery, Format('%s;%s;%s;%s;%s',
-      [W.PKFieldName, W.IsCustomParameter.FieldName, W.Checked.FieldName,
+    RH.Attach(FDQuery, Format('%s;%s;%s;%s;%s', [W.PKFieldName,
+      W.IsCustomParameter.FieldName, W.Checked.FieldName,
       W.ParamSubParamID.FieldName, W.Ord.FieldName]));
 
     // »щем параметр "по умолчанию" с таким-же табличным именем
@@ -232,8 +227,8 @@ begin
   RH := TRecordHolder.Create();
   try
     //  опируем пол€ в буфер
-    RH.Attach(FDQuery, Format('%s;%s;%s;%s',
-      [W.PKFieldName, W.IsCustomParameter.FieldName, W.Checked.FieldName,
+    RH.Attach(FDQuery, Format('%s;%s;%s;%s', [W.PKFieldName,
+      W.IsCustomParameter.FieldName, W.Checked.FieldName,
       W.ParamSubParamID.FieldName]));
 
     // »щем параметр "по умолчанию" с таким-же табличным именем

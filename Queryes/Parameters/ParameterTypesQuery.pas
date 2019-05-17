@@ -40,7 +40,7 @@ type
     function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
-    function ApplyFilter(AShowDuplicate: Boolean; ATableName: string): Integer;
+    function ApplyFilter(ATableName: string): Integer;
     function SearchByTableName(const ATableName: string): Integer;
     property W: TParameterTypeW read FW;
     { Public declarations }
@@ -62,19 +62,15 @@ begin
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
-function TQueryParameterTypes.ApplyFilter(AShowDuplicate: Boolean;
-  ATableName: string): Integer;
+function TQueryParameterTypes.ApplyFilter(ATableName: string): Integer;
 var
   ASQL: string;
 begin
   // Получаем первоначальный запрос
   ASQL := SQL;
-  if AShowDuplicate then
-  begin
-    ASQL := SQL;
-    ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
-    ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
-  end;
+  ASQL := SQL;
+  ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+  ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
 
   if ATableName.IsEmpty then
   begin

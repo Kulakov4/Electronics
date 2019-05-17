@@ -57,7 +57,6 @@ type
     actAddParameter: TAction;
     actCommit: TAction;
     actRollback: TAction;
-    actFilterByTableName: TAction;
     actExpand: TAction;
     dxBarButton1: TdxBarButton;
     actLoadFromExcelDocument: TAction;
@@ -66,7 +65,6 @@ type
     dxBarManagerBar1: TdxBar;
     cxbeiSearch: TcxBarEditItem;
     dxBarButton2: TdxBarButton;
-    actShowDuplicate: TAction;
     actExportToExcelDocument: TAction;
     dxBarButton3: TdxBarButton;
     dxBarButton4: TdxBarButton;
@@ -77,9 +75,6 @@ type
     dxBarButton8: TdxBarButton;
     dxBarButton9: TdxBarButton;
     dxBarButton10: TdxBarButton;
-    dxBarManagerBar2: TdxBar;
-    dxBarButton11: TdxBarButton;
-    dxBarButton12: TdxBarButton;
     dxBarManagerBar3: TdxBar;
     dxBarButton13: TdxBarButton;
     actDisableControls: TAction;
@@ -99,17 +94,26 @@ type
     actPaste: TAction;
     cxStyleRepository: TcxStyleRepository;
     cxStyleNotFound: TcxStyle;
+    dxBarManagerBar4: TdxBar;
+    dxbbClearFilter: TdxBarButton;
+    dxbbAllDuplicate: TdxBarButton;
+    dxbbDuplicate: TdxBarButton;
+    actClearFilter: TAction;
+    actAllDuplicate: TAction;
+    actDuplicate: TAction;
     procedure actAddParameterExecute(Sender: TObject);
     procedure actAddParameterTypeExecute(Sender: TObject);
+    procedure actAllDuplicateExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
     procedure actCheckDetailViewExecute(Sender: TObject);
+    procedure actClearFilterExecute(Sender: TObject);
     procedure actClearSelectionExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteParameterTypeExecute(Sender: TObject);
     procedure actDisableControlsExecute(Sender: TObject);
+    procedure actDuplicateExecute(Sender: TObject);
     procedure actEnableControlsExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
-    procedure actFilterByTableNameExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelSheetExecute(Sender: TObject);
     procedure actExpandExecute(Sender: TObject);
@@ -117,7 +121,6 @@ type
     procedure actReopenExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
-    procedure actShowDuplicateExecute(Sender: TObject);
     procedure cxGridDBBandedTableView2DragDrop(Sender, Source: TObject;
       X, Y: Integer);
     procedure cxGridDBBandedTableView2DragOver(Sender, Source: TObject;
@@ -161,11 +164,12 @@ type
   const
     FolderKey: String = 'Parameters';
     procedure LoadDataFromExcelTable(AData: TParametersExcelTable);
-    procedure OnAfterSearchEditEnter(var Message: TMessage); message
-        WM_SEARCH_EDIT_ENTER;
+    procedure OnAfterSearchEditEnter(var Message: TMessage);
+      message WM_SEARCH_EDIT_ENTER;
     procedure SetCheckedMode(const Value: Boolean);
     procedure SetParametersGrp(const Value: TParametersGroup2);
     procedure UpdateAutoTransaction;
+    procedure UpdateButtonDown;
     procedure UpdateTotalCount;
     { Private declarations }
   protected
@@ -177,7 +181,6 @@ type
     function CreateViewArr: TArray<TcxGridDBBandedTableView>; override;
     procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure LoadFromExcel(AFileName: string);
-    procedure LocateAndFocus(AParameterID: Integer);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -278,6 +281,37 @@ begin
   UpdateView;
 end;
 
+procedure TViewParameters2.actAllDuplicateExecute(Sender: TObject);
+var
+  OK: Boolean;
+  SS: TSaveSelection;
+begin
+  inherited;
+  Application.Hint := '';
+  if actAllDuplicate.Checked then
+    Exit;
+
+  SS := SaveSelection(GetDBBandedTableView(1), clID2.Index);
+  OK := ParametersGrp.ApplyAllDuplicateFilter;
+
+  if OK then
+  begin
+    SS.View := GetDBBandedTableView(1);
+    RestoreSelection(SS);
+    actAllDuplicate.Checked := True;
+  end
+  else
+  begin
+    TDialog.Create.DuplicateNotFound;
+    UpdateButtonDown;
+  end;
+
+  cxGrid.SetFocus;
+
+  // Обновляем представление
+  UpdateView;
+end;
+
 procedure TViewParameters2.actApplyBestFitExecute(Sender: TObject);
 begin
   inherited;
@@ -295,6 +329,30 @@ begin
 
   AIsOK := FDetailView.ViewInfo.HeaderViewInfo.BandsViewInfo.Count > 0;
   ShowMessage(BoolToStr(AIsOK, True));
+end;
+
+procedure TViewParameters2.actClearFilterExecute(Sender: TObject);
+var
+  SS: TSaveSelection;
+begin
+  inherited;
+  Application.Hint := '';
+  if actClearFilter.Checked then
+    Exit;
+
+  actClearFilter.Checked := True;
+
+  SS := SaveSelection(GetDBBandedTableView(1), clID2.Index);
+  ParametersGrp.ClearFilter;
+
+  // нажимаем кнопку "Без фильтра" - сделай отображение типов в свёрнутом виде.
+  //  MainView.ViewData.Collapse(True);
+  SS.View := GetDBBandedTableView(1);
+  RestoreSelection(SS);
+  cxGrid.SetFocus;
+  MyApplyBestFitForView(SS.View);
+
+  UpdateView;
 end;
 
 procedure TViewParameters2.actClearSelectionExecute(Sender: TObject);
@@ -331,6 +389,40 @@ begin
   ParametersGrp.DisableControls;
 end;
 
+procedure TViewParameters2.actDuplicateExecute(Sender: TObject);
+var
+  OK: Boolean;
+  SS: TSaveSelection;
+begin
+  inherited;
+  Application.Hint := '';
+  if actDuplicate.Checked then
+    Exit;
+
+  SS := SaveSelection(GetDBBandedTableView(1), clID2.Index);
+  OK := ParametersGrp.ApplyDuplicateFilter;
+
+  if OK then
+  begin
+    MainView.ViewData.Expand(True);
+
+    SS.View := GetDBBandedTableView(1);
+    RestoreSelection(SS);
+
+    actDuplicate.Checked := True;
+  end
+  else
+  begin
+    TDialog.Create.ParamDuplicateNotFound
+      (ParametersGrp.qParameters.W.TableName.F.AsString);
+    UpdateButtonDown;
+  end;
+
+  cxGrid.SetFocus;
+
+  UpdateView;
+end;
+
 procedure TViewParameters2.actEnableControlsExecute(Sender: TObject);
 begin
   inherited;
@@ -350,39 +442,6 @@ begin
     Exit;
 
   ExportViewToExcel(cxGridDBBandedTableView2, AFileName);
-end;
-
-procedure TViewParameters2.actFilterByTableNameExecute(Sender: TObject);
-var
-  AID: Variant;
-  ATableName: string;
-begin
-  Application.Hint := '';
-  ParametersGrp.qParameterTypes.W.TryPost;
-  ParametersGrp.qParameters.W.TryPost;
-
-  actFilterByTableName.Checked := not actFilterByTableName.Checked;
-  AID := ParametersGrp.qParameters.W.PK.Value;
-
-  ATableName := IfThen(actFilterByTableName.Checked,
-    ParametersGrp.qParameters.W.TableName.F.AsString, '');
-
-  BeginUpdate();
-  try
-    ParametersGrp.qParameterTypes.ApplyFilter(actShowDuplicate.Checked,
-      ATableName);
-    ParametersGrp.qParameters.ApplyFilter(actShowDuplicate.Checked, ATableName);
-  finally
-    EndUpdate;
-  end;
-
-  if actFilterByTableName.Checked then
-    MainView.ViewData.Expand(True)
-  else
-    LocateAndFocus(AID);
-
-  // Обновляем представление
-  UpdateView;
 end;
 
 procedure TViewParameters2.actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -454,48 +513,6 @@ begin
     Exit;
 
   Search(S);
-end;
-
-procedure TViewParameters2.actShowDuplicateExecute(Sender: TObject);
-var
-  AID: Variant;
-  ATableName: string;
-begin
-  inherited;
-
-  Application.Hint := '';
-  ParametersGrp.qParameterTypes.W.TryPost;
-  ParametersGrp.qParameters.W.TryPost;
-
-  AID := ParametersGrp.qParameters.W.PK.Value;
-
-  actShowDuplicate.Checked := not actShowDuplicate.Checked;
-
-  // Если Показать всё
-  if not actShowDuplicate.Checked then
-    actFilterByTableName.Checked := False;
-
-  ATableName := IfThen(actFilterByTableName.Checked,
-    ParametersGrp.qParameters.W.TableName.F.AsString, '');
-
-  BeginUpdate();
-  try
-    ParametersGrp.qParameterTypes.ApplyFilter(actShowDuplicate.Checked,
-      ATableName);
-    ParametersGrp.qParameters.ApplyFilter(actShowDuplicate.Checked, ATableName);
-  finally
-    EndUpdate;
-  end;
-
-  if actShowDuplicate.Checked then
-    LocateAndFocus(AID)
-  else
-    // нажимаем кнопку "Показать все" - сделай отображение типов в свёрнутом виде.
-    MainView.ViewData.Collapse(True);
-
-  // Обновляем представление
-  UpdateView;
-
 end;
 
 procedure TViewParameters2.ChangeParameterType(var Message: TMessage);
@@ -835,35 +852,6 @@ begin
   UpdateView;
 end;
 
-procedure TViewParameters2.LocateAndFocus(AParameterID: Integer);
-var
-  ARow: TcxGridMasterDataRow;
-  AView: TcxGridDBBandedTableView;
-begin
-  // Переходим на параметр и его тип
-  if not ParametersGrp.LocateAll(AParameterID) then
-    Exit; // Если такой параметр не попал под условие текущего фильтра
-
-  // Запись о типе - в цент
-  PutInTheCenterFocusedRecord(MainView);
-
-  // Разворачиваем запись
-  ARow := MainView.Controller.FocusedRow as TcxGridMasterDataRow;
-  Assert(ARow <> nil);
-  ARow.Expand(False);
-
-  AView := ARow.ActiveDetailGridView as TcxGridDBBandedTableView;
-
-  // Фокусируем его
-  AView.Focused := True;
-  // Запись о параметре - в центр
-  PutInTheCenterFocusedRecord(AView);
-
-  // Выделяем строку и столбец
-  AView.ViewData.Records[AView.Controller.FocusedRecordIndex].Selected := True;
-  AView.Columns[clValue.Index].Selected := True;
-end;
-
 procedure TViewParameters2.OnAfterSearchEditEnter(var Message: TMessage);
 begin
   inherited;
@@ -984,6 +972,13 @@ begin
   ParametersGrp.qParameters.AutoTransaction := FCheckedMode;
 end;
 
+procedure TViewParameters2.UpdateButtonDown;
+begin
+  dxbbClearFilter.Down := (dxbbClearFilter.Action as TAction).Checked;
+  dxbbAllDuplicate.Down := (dxbbAllDuplicate.Action as TAction).Checked;
+  dxbbDuplicate.Down := (dxbbDuplicate.Action as TAction).Checked;
+end;
+
 procedure TViewParameters2.UpdateTotalCount;
 begin
   // Общее число параметров
@@ -1015,7 +1010,7 @@ begin
     (AView.Controller.SelectedRowCount > 0);
 
   // Если у нас хоть один фильтр на параметрах, тип удалять нельзя
-  if (actFilterByTableName.Checked or actShowDuplicate.Checked) and
+  if (actAllDuplicate.Checked or actDuplicate.Checked) and
     (AView = MainView) then
     actDeleteEx.Enabled := False;
 
@@ -1030,11 +1025,9 @@ begin
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actFilterByTableName.Enabled := OK and
-    ((not FParametersGrp.qParameters.W.IsParamExist
-    (FParametersGrp.qParameters.W.TableName.FieldName)) or
-    ((AView <> nil) and (AView.Level = cxGridLevel2) and
-    (AView.ViewData.RowCount > 0)));
+  actDuplicate.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel2) and
+    (AView.ViewData.RowCount > 0);
+
 
   S := '';
 
@@ -1053,14 +1046,11 @@ begin
   if S.IsEmpty then
     S := 'Дубликат';
 
-  actFilterByTableName.Caption := IfThen(actFilterByTableName.Checked,
-    'Снять фильтр', S);
+  actDuplicate.Caption := S;
 
-  actShowDuplicate.Enabled := OK and
-    (actShowDuplicate.Checked or
-    (FParametersGrp.qParameters.FDQuery.RecordCount > 0));
-  actShowDuplicate.Caption := IfThen(actShowDuplicate.Checked, 'Показать всё',
-    'Все дубликаты');
+  actClearFilter.Enabled := OK;
+
+  actAllDuplicate.Enabled := OK;
 
   actSearch.Enabled := not VarToStrDef(cxbeiSearch.CurEditValue, '').IsEmpty;
 

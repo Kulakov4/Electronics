@@ -100,7 +100,7 @@ begin
             begin
               AfrmParameters.ViewParameters.Search
                 (ParametricErrorTable.W.ParameterName.F.AsString);
-              AfrmParameters.ViewParameters.actFilterByTableName.Execute;
+              AfrmParameters.ViewParameters.actDuplicate.Execute;
             end;
           end;
         Integer(petSubParamNotFound), Integer(petSubParamDuplicate):

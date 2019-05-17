@@ -4,7 +4,9 @@ inherited QueryParameters: TQueryParameters
   ExplicitWidth = 340
   ExplicitHeight = 86
   inherited Label1: TLabel
+    Width = 76
     Caption = 'Parameters'
+    ExplicitWidth = 76
   end
   inherited FDQuery: TFDQuery
     Indexes = <

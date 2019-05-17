@@ -290,10 +290,13 @@ begin
 
     // Будем клонировать курсоры
     TNotifyEventWrap.Create(AfterOpen, CloneAfterOpenOrRefresh, FCloneEvents);
-    TNotifyEventWrap.Create(AfterRefresh, CloneAfterOpenOrRefresh, FCloneEvents);
+    TNotifyEventWrap.Create(AfterRefresh, CloneAfterOpenOrRefresh,
+      FCloneEvents);
     // Будем закрывать курсоры
-    TNotifyEventWrap.Create(AfterClose, CloneAfterCloseOrBeforeRefresh, FCloneEvents);
-    TNotifyEventWrap.Create(BeforeRefresh, CloneAfterCloseOrBeforeRefresh, FCloneEvents);
+    TNotifyEventWrap.Create(AfterClose, CloneAfterCloseOrBeforeRefresh,
+      FCloneEvents);
+    TNotifyEventWrap.Create(BeforeRefresh, CloneAfterCloseOrBeforeRefresh,
+      FCloneEvents);
   end;
 
   Result := TFDMemTable.Create(nil); // Владельцем будет список
@@ -1146,7 +1149,12 @@ function TDSWrap.SaveBookmark: Boolean;
 begin
   Result := DataSet.Active and not DataSet.IsEmpty;
   if not Result then
+  begin
+    if FRecHolder <> nil then
+      FreeAndNil(FRecHolder);
+
     Exit;
+  end;
 
   if FRecHolder = nil then
     FRecHolder := TRecordHolder.Create(DataSet)

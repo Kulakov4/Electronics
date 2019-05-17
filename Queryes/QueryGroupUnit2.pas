@@ -30,6 +30,8 @@ type
     procedure RemoveClient; virtual;
     procedure ReOpen; virtual;
     procedure Rollback; virtual;
+    procedure SaveBookmark;
+    procedure RestoreBookmark;
     procedure TryOpen;
     procedure TryPost; virtual;
     property ChangeCount: Integer read GetChangeCount;
@@ -199,6 +201,22 @@ begin
   Connection.Rollback;
 
   RefreshData;
+end;
+
+procedure TQueryGroup2.SaveBookmark;
+var
+  I: Integer;
+begin
+  for I := 0 to QList.Count - 1 do
+    QList[I].Wrap.SaveBookmark;
+end;
+
+procedure TQueryGroup2.RestoreBookmark;
+var
+  I: Integer;
+begin
+  for I := 0 to QList.Count - 1 do
+    QList[I].Wrap.RestoreBookmark;
 end;
 
 procedure TQueryGroup2.TryOpen;

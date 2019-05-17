@@ -56,6 +56,8 @@ type
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
     procedure DollarOrEuroCourceUnknown;
+    procedure DuplicateNotFound;
+    procedure ParamDuplicateNotFound(ATableName: string);
     procedure ProducerNotFound(const AProducer: string);
     function ShowDialog(AOpenDialogClass: TOpenDialogClass;
       const AInitialDir, AInitialFileName: string;
@@ -208,6 +210,18 @@ procedure TDialog.DollarOrEuroCourceUnknown;
 begin
   Application.MessageBox(PChar('Не известен текущий курс Доллара или Евро'),
     PChar(sError), MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.DuplicateNotFound;
+begin
+  Application.MessageBox(PChar('Не найдено ни одного дубликата'), PChar(sError),
+    MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.ParamDuplicateNotFound(ATableName: string);
+begin
+  Application.MessageBox(PChar(Format('Параметр %s не имеет дубликатов',
+    [ATableName])), PChar(sError), MB_OK + MB_ICONSTOP);
 end;
 
 procedure TDialog.ProducerNotFound(const AProducer: string);

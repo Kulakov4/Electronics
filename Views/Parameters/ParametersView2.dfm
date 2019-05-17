@@ -257,34 +257,7 @@ inherited ViewParameters2: TViewParameters2
       Visible = True
       WholeRow = False
     end
-    object dxBarManagerBar2: TdxBar [2]
-      Caption = 'Duplicate'
-      CaptionButtons = <>
-      DockedDockingStyle = dsTop
-      DockedLeft = 257
-      DockedTop = 28
-      DockingStyle = dsTop
-      FloatLeft = 903
-      FloatTop = 0
-      FloatClientWidth = 0
-      FloatClientHeight = 0
-      Images = DMRepository.cxImageList
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxBarButton11'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton12'
-        end>
-      OneOnRow = False
-      Row = 1
-      UseOwnFont = False
-      Visible = True
-      WholeRow = False
-    end
-    object dxBarManagerBar3: TdxBar [3]
+    object dxBarManagerBar3: TdxBar [2]
       Caption = 'Test'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
@@ -329,6 +302,36 @@ inherited ViewParameters2: TViewParameters2
       Row = 2
       UseOwnFont = False
       Visible = False
+      WholeRow = False
+    end
+    object dxBarManagerBar4: TdxBar [3]
+      Caption = 'Duplicate2'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 257
+      DockedTop = 28
+      DockingStyle = dsTop
+      FloatLeft = 373
+      FloatTop = 104
+      FloatClientWidth = 89
+      FloatClientHeight = 72
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'dxbbClearFilter'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbAllDuplicate'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbDuplicate'
+        end>
+      OneOnRow = False
+      Row = 1
+      UseOwnFont = False
+      Visible = True
       WholeRow = False
     end
     object dxBarButton1: TdxBarButton
@@ -408,16 +411,6 @@ inherited ViewParameters2: TViewParameters2
       Category = 0
       PaintStyle = psCaptionGlyph
     end
-    object dxBarButton11: TdxBarButton
-      Action = actShowDuplicate
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
-    object dxBarButton12: TdxBarButton
-      Action = actFilterByTableName
-      Category = 0
-      PaintStyle = psCaptionGlyph
-    end
     object dxBarButton13: TdxBarButton
       Action = actDisableControls
       Category = 0
@@ -449,6 +442,27 @@ inherited ViewParameters2: TViewParameters2
     object dxBarButton20: TdxBarButton
       Action = actPaste
       Category = 0
+    end
+    object dxbbClearFilter: TdxBarButton
+      Action = actClearFilter
+      Category = 0
+      ButtonStyle = bsChecked
+      DropDownEnabled = False
+      GroupIndex = 1
+    end
+    object dxbbAllDuplicate: TdxBarButton
+      Action = actAllDuplicate
+      Category = 0
+      ButtonStyle = bsChecked
+      DropDownEnabled = False
+      GroupIndex = 1
+    end
+    object dxbbDuplicate: TdxBarButton
+      Action = actDuplicate
+      Category = 0
+      ButtonStyle = bsChecked
+      DropDownEnabled = False
+      GroupIndex = 1
     end
   end
   inherited ActionList: TActionList
@@ -497,16 +511,6 @@ inherited ViewParameters2: TViewParameters2
       ImageIndex = 9
       OnExecute = actSearchExecute
     end
-    object actShowDuplicate: TAction
-      Caption = #1042#1089#1077' '#1076#1091#1073#1083#1080#1082#1072#1090#1099
-      ImageIndex = 9
-      OnExecute = actShowDuplicateExecute
-    end
-    object actFilterByTableName: TAction
-      Caption = #1044#1091#1073#1083#1080#1082#1072#1090#1099
-      ImageIndex = 9
-      OnExecute = actFilterByTableNameExecute
-    end
     object actDisableControls: TAction
       Caption = 'actDisableControls'
       OnExecute = actDisableControlsExecute
@@ -541,6 +545,25 @@ inherited ViewParameters2: TViewParameters2
       Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
       ImageIndex = 5
       OnExecute = actPasteExecute
+    end
+    object actClearFilter: TAction
+      Caption = #1041#1077#1079' '#1092#1080#1083#1100#1090#1088#1072
+      Checked = True
+      GroupIndex = 1
+      Hint = #1055#1086#1082#1072#1079#1072#1090#1100' '#1074#1089#1077' '#1079#1072#1087#1080#1089#1080
+      OnExecute = actClearFilterExecute
+    end
+    object actAllDuplicate: TAction
+      Caption = #1042#1089#1077' '#1076#1091#1073#1083#1080#1082#1072#1090#1099
+      GroupIndex = 1
+      Hint = #1055#1086#1082#1072#1079#1072#1090#1100' '#1074#1089#1077' '#1076#1091#1073#1083#1080#1088#1091#1102#1097#1080#1077#1089#1103' '#1087#1072#1088#1072#1084#1077#1090#1088#1099
+      OnExecute = actAllDuplicateExecute
+    end
+    object actDuplicate: TAction
+      Caption = #1044#1091#1073#1083#1080#1082#1072#1090
+      GroupIndex = 1
+      Hint = #1055#1086#1082#1072#1079#1072#1090#1100' '#1076#1091#1073#1083#1080#1082#1072#1090' '#1074#1099#1073#1088#1072#1085#1085#1086#1075#1086' '#1087#1072#1088#1072#1084#1077#1090#1088#1072
+      OnExecute = actDuplicateExecute
     end
   end
   object cxStyleRepository: TcxStyleRepository

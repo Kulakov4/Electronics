@@ -15,6 +15,7 @@ type
       : TRecordCheck; stdcall;
   private
     FProductCategoryIDValue: Integer;
+    FqDuplicateParameters: TQueryParameters;
     FqParameterKinds: TQueryParameterKinds;
     FqParameters: TQueryParameters;
     FqParameterTypes: TQueryParameterTypes;
@@ -23,6 +24,9 @@ type
     procedure SetProductCategoryIDValue(const Value: Integer);
   public
     constructor Create(AOwner: TComponent); override;
+    function ApplyAllDuplicateFilter: Boolean;
+    function ApplyDuplicateFilter: Boolean;
+    procedure ClearFilter;
     procedure Commit; override;
     procedure DeleteParamType(AID: Integer);
     function Find(const AFieldName, S: string): TArray<String>;
@@ -49,6 +53,10 @@ begin
   FqParameterTypes := TQueryParameterTypes.Create(Self);
   // Параметры
   FqParameters := TQueryParameters.Create(Self);
+  FqParameters.Name := 'qParameters';
+
+  // Дубикаты параметров (чтобы узнать, есть они или их нет)
+  FqDuplicateParameters := TQueryParameters.Create(Self);
 
   QList.Add(qParameterTypes); // Тип каждого параметра
   QList.Add(qParameters); // Сами параметры
@@ -56,6 +64,44 @@ begin
   // Для каскадного удаления
   TNotifyEventWrap.Create(qParameterTypes.W.BeforeDelete, DoBeforeDelete,
     EventList);
+end;
+
+function TParametersGroup2.ApplyAllDuplicateFilter: Boolean;
+begin
+  // Сначала проверяем, есть дубликаты или их нет
+  FqDuplicateParameters.ApplyFilter('');
+  Result := FqDuplicateParameters.FDQuery.RecordCount > 0;
+  if not Result then
+    Exit;
+
+  SaveBookmark;
+
+  qParameterTypes.ApplyFilter('');
+  qParameters.ApplyFilter('');
+
+  RestoreBookmark;
+end;
+
+function TParametersGroup2.ApplyDuplicateFilter: Boolean;
+var
+  ATableName: string;
+begin
+  ATableName := qParameters.W.TableName.F.AsString;
+  Assert(not ATableName.IsEmpty);
+
+  // Сначала проверяем, есть ли вообще дубликаты
+  FqDuplicateParameters.ApplyFilter(ATableName);
+  Result := FqDuplicateParameters.FDQuery.RecordCount > 0;
+  if not Result then
+    Exit;
+
+  // Если дубликаты есть
+  SaveBookmark;
+
+  qParameterTypes.ApplyFilter(ATableName);
+  qParameters.ApplyFilter(ATableName);
+
+  RestoreBookmark;
 end;
 
 function TParametersGroup2.Check(AParametersExcelTable: TParametersExcelTable)
@@ -168,6 +214,18 @@ begin
       'Параметр с таким табличным именем уже есть в справочнике параметров';
     Exit;
   end;
+end;
+
+procedure TParametersGroup2.ClearFilter;
+begin
+  SaveBookmark;
+
+  qParameterTypes.FDQuery.SQL.Text := qParameterTypes.SQL;
+  qParameters.FDQuery.SQL.Text := qParameters.SQL;
+
+  TryOpen;
+
+  RestoreBookmark;
 end;
 
 procedure TParametersGroup2.Commit;
