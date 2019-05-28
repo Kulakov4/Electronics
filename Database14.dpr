@@ -246,7 +246,8 @@ uses
   MinWholeSaleForm in 'Views\Products\MinWholeSaleForm.pas' {frmMinWholeSale},
   SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame},
   LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData},
-  SelectionInt in 'Helpers\SelectionInt.pas';
+  SelectionInt in 'Helpers\SelectionInt.pas',
+  SearchBodyVariationQuery in 'Queryes\BodyTypes\SearchBodyVariationQuery.pas' {QrySearchBodyVariation: TFrame};
 
 {$R *.res}
 

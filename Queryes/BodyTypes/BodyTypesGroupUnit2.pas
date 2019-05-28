@@ -5,7 +5,7 @@ interface
 uses
   QueryGroupUnit2, System.Classes, NotifyEvents, BodyKindsQuery,
   BodyTypesQuery2, ProducersQuery, BodyTypesSimpleQuery,
-  BodyTypesExcelDataModule;
+  BodyTypesExcelDataModule, SearchBodyVariationQuery;
 
 type
   TBodyTypesGroup2 = class(TQueryGroup2)
@@ -13,12 +13,17 @@ type
     FqBodyKinds: TQueryBodyKinds;
     FqBodyTypes2: TQueryBodyTypes2;
     FqProducers: TQueryProducers;
+    FqSearchBodyVariation: TQrySearchBodyVariation;
     FQueryBodyTypesSimple: TQueryBodyTypesSimple;
     procedure DoAfterDelete(Sender: TObject);
     function GetqBodyKinds: TQueryBodyKinds;
     function GetqBodyTypes2: TQueryBodyTypes2;
     function GetqProducers: TQueryProducers;
+    function GetqSearchBodyVariation: TQrySearchBodyVariation;
     function GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
+  protected
+    property qSearchBodyVariation: TQrySearchBodyVariation
+      read GetqSearchBodyVariation;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -26,6 +31,7 @@ type
       AIDProducer: Integer);
     procedure Re_Open(AShowDuplicate: Boolean);
     procedure Rollback; override;
+    function Search(ABodyVariation: String): Boolean;
     property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
     property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
     property qProducers: TQueryProducers read GetqProducers;
@@ -36,7 +42,7 @@ type
 implementation
 
 uses
-  Data.DB;
+  Data.DB, System.Generics.Collections, System.SysUtils, FireDAC.Comp.DataSet;
 
 constructor TBodyTypesGroup2.Create(AOwner: TComponent);
 begin
@@ -86,6 +92,13 @@ begin
   if FqProducers = nil then
     FqProducers := TQueryProducers.Create(Self);
   Result := FqProducers;
+end;
+
+function TBodyTypesGroup2.GetqSearchBodyVariation: TQrySearchBodyVariation;
+begin
+  if FqSearchBodyVariation = nil then
+    FqSearchBodyVariation := TQrySearchBodyVariation.Create(Self);
+  Result := FqSearchBodyVariation;
 end;
 
 function TBodyTypesGroup2.GetQueryBodyTypesSimple: TQueryBodyTypesSimple;
@@ -174,6 +187,32 @@ procedure TBodyTypesGroup2.Rollback;
 begin
   inherited;
   qBodyTypes2.RefreshLinkedData;
+end;
+
+function TBodyTypesGroup2.Search(ABodyVariation: String): Boolean;
+begin
+  Assert(not ABodyVariation.IsEmpty);
+
+  Result := False;
+
+  // Если нашли такой вариант корпуса
+  if qSearchBodyVariation.SearchVariation(ABodyVariation) > 0 then
+  begin
+    // Запрещаем всем компонентам отображать данные
+    // Иначе cxGrid ведёт себя неадекватно
+    qBodyTypes2.W.DataSource.Enabled := False;
+    qBodyKinds.W.DataSource.Enabled := False;
+    try
+      qBodyTypes2.W.IDS.Locate(qSearchBodyVariation.W.IDS.F.AsString, [], True);
+      qBodyKinds.W.ID.Locate(qBodyTypes2.W.IDBodyKind.F.AsInteger, [], True);
+    finally
+      // Разрешаем всем компонентам отображать данные
+      qBodyKinds.W.DataSource.Enabled := True;
+      qBodyTypes2.W.DataSource.Enabled := True;
+    end;
+
+    Result := True;
+  end;
 end;
 
 end.

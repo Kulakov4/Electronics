@@ -1,31 +1,20 @@
-inherited QueryBodyTypes2: TQueryBodyTypes2
-  Width = 400
-  Height = 81
-  ExplicitWidth = 400
-  ExplicitHeight = 81
+inherited QrySearchBodyVariation: TQrySearchBodyVariation
   inherited Label1: TLabel
-    Width = 78
-    Caption = 'BodyTypes2'
-    ExplicitWidth = 78
+    Width = 136
+    Caption = 'SearchBodyVariation'
+    ExplicitWidth = 136
   end
   inherited FDQuery: TFDQuery
-    Indexes = <
-      item
-        Active = True
-        Selected = True
-        Name = 'idxOrder'
-        Fields = 'IDBodyKind'
-      end>
-    IndexName = 'idxOrder'
-    UpdateOptions.AssignedValues = [uvRefreshMode]
-    UpdateOptions.RefreshMode = rmAll
     SQL.Strings = (
+      'select *'
+      'from'
+      '('
       'select'
       '    '#39','#39' || GROUP_CONCAT(bv.ID, '#39','#39') || '#39','#39' IDS,'
       '    bv.IDBodyData,'
       '    bv.OutlineDrawing,'
       '    bv.LandPattern,'
-      '    GROUP_CONCAT(bv.Variation, '#39', '#39') Variations,'
+      '    '#39','#39' || GROUP_CONCAT(bv.Variation, '#39','#39') || '#39','#39' Variations,'
       '    bv.Image,'
       '    bv.JEDEC,'
       '    bv.OPTIONS,'
@@ -68,6 +57,8 @@ inherited QueryBodyTypes2: TQueryBodyTypes2
       '    BodyData,'
       '    Body,'
       '    IDBodyKind'
-      'order by IDBodyKind, Body, BodyData')
+      ')'
+      'where 0=0'
+      'order by IDBodyKind, IDBody, IDBodyData')
   end
 end

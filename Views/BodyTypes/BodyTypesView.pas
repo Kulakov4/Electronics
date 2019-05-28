@@ -32,7 +32,11 @@ uses
   Vcl.Grids, Vcl.DBGrids, System.Generics.Collections, GridSort,
   CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems,
   JEDECPopupForm, BodyVariationsJedecQuery, BodyTypesGroupUnit2,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxBarEditItem;
+
+const
+  WM_SEARCH_EDIT_ENTER = WM_USER + 13;
 
 type
   TViewBodyTypes = class(TfrmGrid)
@@ -90,6 +94,12 @@ type
     JEDEC1: TMenuItem;
     actOpenJEDECAll: TAction;
     N3: TMenuItem;
+    dxBarManagerBar2: TdxBar;
+    cxbeiSearch: TcxBarEditItem;
+    actSearch: TAction;
+    dxBarButton4: TdxBarButton;
+    cxStyleRepository: TcxStyleRepository;
+    cxStyleNotFound: TcxStyle;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actAddJEDECFileExecute(Sender: TObject);
@@ -107,11 +117,13 @@ type
     procedure actRollbackExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
     procedure actOpenOutlineDrawingExecute(Sender: TObject);
+    procedure actSearchExecute(Sender: TObject);
     procedure actShowDuplicateExecute(Sender: TObject);
     procedure clJEDECGetProperties(Sender: TcxCustomGridTableItem;
       ARecord: TcxCustomGridRecord; var AProperties: TcxCustomEditProperties);
     procedure clOutlineDrawingGetDataText(Sender: TcxCustomGridTableItem;
       ARecordIndex: Integer; var AText: string);
+    procedure cxbeiSearchEnter(Sender: TObject);
     procedure cxGridDBBandedTableView2ColumnHeaderClick
       (Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableView2CustomDrawColumnHeader
@@ -142,6 +154,8 @@ type
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
     procedure cxerpiJEDECPropertiesInitPopup(Sender: TObject);
     procedure cxerpiJEDECPropertiesCloseUp(Sender: TObject);
+    procedure cxbeiSearchPropertiesChange(Sender: TObject);
+    procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
   private
     FBodyTypesGroup: TBodyTypesGroup2;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -154,6 +168,9 @@ type
     procedure DoAfterDataChange(Sender: TObject);
     function GetfrmJEDECPopup: TfrmJEDECPopup;
     function GetProducerDisplayText: string;
+    procedure OnAfterSearchEditEnter(var Message: TMessage);
+      message WM_SEARCH_EDIT_ENTER;
+    procedure Search(ABodyVariation: String);
     procedure SetBodyTypesGroup(const Value: TBodyTypesGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
@@ -186,7 +203,7 @@ uses BodyTypesExcelDataModule, ImportErrorForm, DialogUnit,
   OpenDocumentUnit, ProjectConst, SettingsController, PathSettingsForm,
   System.Math, System.IOUtils, ProgressBarForm, DialogUnit2,
   BodyTypesSimpleQuery, ProducersForm, dxCore, LoadFromExcelFileHelper,
-  OpenJedecUnit, ExcelDataModule;
+  OpenJedecUnit, ExcelDataModule, cxMaskEdit;
 
 {$R *.dfm}
 
@@ -450,6 +467,19 @@ begin
   OpenDoc(TOutlineDrawing.Create);
 end;
 
+procedure TViewBodyTypes.actSearchExecute(Sender: TObject);
+var
+  S: String;
+begin
+  inherited;
+
+  S := VarToStrDef(cxbeiSearch.EditValue, '');
+  if S.IsEmpty then
+    Exit;
+
+  Search(S);
+end;
+
 procedure TViewBodyTypes.actShowDuplicateExecute(Sender: TObject);
 begin
   Application.Hint := '';
@@ -570,6 +600,29 @@ end;
 function TViewBodyTypes.CreateViewArr: TArray<TcxGridDBBandedTableView>;
 begin
   Result := [MainView, cxGridDBBandedTableView2];
+end;
+
+procedure TViewBodyTypes.cxbeiSearchEnter(Sender: TObject);
+begin
+  inherited;
+  if cxbeiSearch.StyleEdit <> nil then
+  begin
+    PostMessage(Handle, WM_SEARCH_EDIT_ENTER, 0, 0);
+  end;
+end;
+
+procedure TViewBodyTypes.cxbeiSearchPropertiesChange(Sender: TObject);
+begin
+  inherited;
+  actSearch.Enabled := not VarToStrDef(cxbeiSearch.CurEditValue, '').IsEmpty;
+end;
+
+procedure TViewBodyTypes.cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
+begin
+  inherited;
+  // Сохраняем то, что мы там наредактировали
+  (Sender as TcxTextEdit).PostEditValue;
+  actSearch.Execute;
 end;
 
 procedure TViewBodyTypes.cxerpiJEDECPropertiesCloseUp(Sender: TObject);
@@ -817,6 +870,14 @@ begin
   UpdateView;
 end;
 
+procedure TViewBodyTypes.OnAfterSearchEditEnter(var Message: TMessage);
+begin
+  inherited;
+  cxGrid.SetFocus;
+  cxbeiSearch.StyleEdit := nil;
+  cxbeiSearch.SetFocus();
+end;
+
 procedure TViewBodyTypes.OnGridRecordCellPopupMenu
   (AColumn: TcxGridDBBandedColumn; var AllowPopup: Boolean);
 begin
@@ -844,6 +905,68 @@ begin
   TDocument.Open(Handle, AFolders, BodyTypesGroup.qBodyTypes2.W.Field
     (ADocFieldInfo.FieldName).AsString, ADocFieldInfo.ErrorMessage,
     ADocFieldInfo.EmptyErrorMessage, sBodyTypesFilesExt);
+end;
+
+procedure TViewBodyTypes.Search(ABodyVariation: String);
+var
+  ACol: TcxGridDBBandedColumn;
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
+  AMaskEdit: TcxMaskEdit;
+  ASelStart: Integer;
+  AView: TcxGridDBBandedTableView;
+  OK: Boolean;
+  S: String;
+begin
+  // MainView.DataController.DataSource := nil;
+  // cxGridDBBandedTableView2.DataController.DataSource := nil;
+
+  OK := BodyTypesGroup.Search(ABodyVariation);
+
+  // MainView.DataController.DataSource := BodyTypesGroup.qBodyKinds.W.DataSource;
+  // cxGridDBBandedTableView2.DataController.DataSource :=
+  // BodyTypesGroup.qBodyTypes2.W.DataSource;
+
+  if OK then
+  begin
+    cxGrid.SetFocus;
+
+    AcxGridMasterDataRow := MainView.ViewData.Rows
+      [MainView.Controller.FocusedRowIndex] as TcxGridMasterDataRow;
+
+    AcxGridMasterDataRow.Expand(True);
+    if AcxGridMasterDataRow.ActiveDetailGridView <> nil then
+    begin
+      AView := AcxGridMasterDataRow.ActiveDetailGridView as
+        TcxGridDBBandedTableView;
+      AView.Focused := True;
+
+      PutInTheCenterFocusedRecord(AView);
+
+      ACol := AView.GetColumnByFieldName
+        (BodyTypesGroup.qBodyTypes2.W.Variations.FieldName);
+
+      S := VarToStrDef(AView.Controller.FocusedRow.Values[ACol.Index],
+        '').ToUpper;
+
+      ASelStart := S.IndexOf(ABodyVariation.ToUpper);
+      if ASelStart >= 0 then
+      begin
+        AView.Site.SetFocus(); // фокус устанавливать обязательно
+        AView.Controller.EditingController.ShowEdit(ACol);
+        if AView.Controller.EditingController.Edit <> nil then
+        begin
+          AMaskEdit := AView.Controller.EditingController.Edit as TcxMaskEdit;
+          AMaskEdit.SetSelection(ASelStart, ABodyVariation.Length);
+          AMaskEdit.Properties.ReadOnly := True;
+        end;
+      end;
+    end;
+  end;
+
+  if not OK then
+    cxbeiSearch.StyleEdit := cxStyleNotFound
+  else
+    cxbeiSearch.StyleEdit := nil;
 end;
 
 procedure TViewBodyTypes.SetBodyTypesGroup(const Value: TBodyTypesGroup2);

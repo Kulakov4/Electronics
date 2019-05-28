@@ -863,6 +863,11 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\SelectionInt.pas"/>
+        <DCCReference Include="Queryes\BodyTypes\SearchBodyVariationQuery.pas">
+            <Form>QrySearchBodyVariation</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

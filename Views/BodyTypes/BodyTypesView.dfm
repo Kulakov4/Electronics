@@ -7,9 +7,9 @@ inherited ViewBodyTypes: TViewBodyTypes
     Top = 56
     Width = 942
     Height = 525
-    ExplicitTop = 56
+    ExplicitTop = 84
     ExplicitWidth = 942
-    ExplicitHeight = 525
+    ExplicitHeight = 497
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
@@ -304,7 +304,7 @@ inherited ViewBodyTypes: TViewBodyTypes
       Caption = 'Custom 1'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
-      DockedLeft = 0
+      DockedLeft = 230
       DockedTop = 28
       DockingStyle = dsTop
       FloatLeft = 952
@@ -325,7 +325,34 @@ inherited ViewBodyTypes: TViewBodyTypes
           Visible = True
           ItemName = 'dxBarButton1'
         end>
-      OneOnRow = True
+      OneOnRow = False
+      Row = 1
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
+    end
+    object dxBarManagerBar2: TdxBar [2]
+      Caption = 'Search'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 0
+      DockedTop = 28
+      DockingStyle = dsTop
+      FloatLeft = 952
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'cxbeiSearch'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton4'
+        end>
+      OneOnRow = False
       Row = 1
       UseOwnFont = False
       Visible = True
@@ -393,6 +420,22 @@ inherited ViewBodyTypes: TViewBodyTypes
     object dxBarButton3: TdxBarButton
       Action = actApplyBestFit
       Category = 0
+    end
+    object cxbeiSearch: TcxBarEditItem
+      Caption = #1055#1086#1080#1089#1082
+      Category = 0
+      Hint = #1055#1086#1080#1089#1082
+      Visible = ivAlways
+      OnEnter = cxbeiSearchEnter
+      ShowCaption = True
+      PropertiesClassName = 'TcxTextEditProperties'
+      Properties.OnChange = cxbeiSearchPropertiesChange
+      Properties.OnEditValueChanged = cxbeiSearchPropertiesEditValueChanged
+    end
+    object dxBarButton4: TdxBarButton
+      Action = actSearch
+      Category = 0
+      PaintStyle = psCaptionGlyph
     end
   end
   inherited ActionList: TActionList
@@ -494,6 +537,11 @@ inherited ViewBodyTypes: TViewBodyTypes
       ImageIndex = 42
       OnExecute = actOpenJEDECAllExecute
     end
+    object actSearch: TAction
+      Caption = #1053#1072#1081#1090#1080
+      ImageIndex = 9
+      OnExecute = actSearchExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N3: TMenuItem
@@ -545,6 +593,15 @@ inherited ViewBodyTypes: TViewBodyTypes
           Kind = bkEllipsis
         end>
       Properties.Images = DMRepository.cxImageList
+    end
+  end
+  object cxStyleRepository: TcxStyleRepository
+    Left = 184
+    Top = 256
+    PixelsPerInch = 96
+    object cxStyleNotFound: TcxStyle
+      AssignedValues = [svColor]
+      Color = 8421631
     end
   end
 end

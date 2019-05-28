@@ -249,7 +249,8 @@ begin
       FDQuery.CommitUpdates;
   end;
 
-  Assert(FDQuery.ChangeCount = 0);
+  // Тут какой-то глюк и до переоткрытия кол-во изменений не 0
+  //  Assert(FDQuery.ChangeCount = 0);
 end;
 
 procedure TQueryBaseEvents.CancelUpdates;

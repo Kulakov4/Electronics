@@ -65,7 +65,7 @@ begin
   if AIDS.IsEmpty then
     Exit;
 
-  m := AIDS.Split([',']);
+  m := AIDS.Trim([',']).Split([',']);
   for S in m do
   begin
     AID := S.Trim.ToInteger();
@@ -99,7 +99,7 @@ begin
   QueryBodyData.LocateOrAppend(W.BodyData.F.Value, W.IDProducer.F.Value,
     QueryBodies.W.PK.Value);
 
-  AIDSS := '';
+  AIDSS := ',';
   // Анализируем варианты корпусов
   L := TStringList.Create;
   try
@@ -121,7 +121,15 @@ begin
       L.Add('');
     end;
 
-    AOLDIDS := ',' + W.IDS.F.AsString.Replace(' ', '') + ',';
+    AOLDIDS := W.IDS.F.AsString;
+    // Идентификаторы в начале и в конце должны быть обрамлены запятыми
+    if not AOLDIDS.IsEmpty then
+    begin
+      Assert(AOLDIDS[1] = ',');
+      Assert(AOLDIDS[AOLDIDS.Length] = ',');
+    end;
+
+    //AOLDIDS := ',' + W.IDS.F.AsString.Replace(' ', '') + ',';
 
     // Цикл по всем вариантам корпуса
     for I := 0 to L.Count - 1 do
@@ -136,8 +144,8 @@ begin
       // Удаляем этот идентификатор из старых
       AOLDIDS := AOLDIDS.Replace(',' + AID + ',', ',');
 
-      AIDSS := AIDSS + IfThen(AIDSS.IsEmpty, '', ', ');
-      AIDSS := AIDSS + AID;
+      // Добавляем этот идентификатор к новым
+      AIDSS := AIDSS + AID + ',';
 
       UpdateJEDEC;
       UpdateOptions;

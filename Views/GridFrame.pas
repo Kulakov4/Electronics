@@ -840,7 +840,7 @@ begin
         if i < 0 then
           Exit;
 
-        if not(GetDBBandedTableView(ALevel - 1).ViewData.Rows[i]
+        if not (AcxGridDBBandedTableView.ViewData.Rows[i]
           is TcxGridMasterDataRow) then
           Exit;
 

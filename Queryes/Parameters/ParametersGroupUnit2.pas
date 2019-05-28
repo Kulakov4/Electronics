@@ -264,27 +264,31 @@ var
 begin
   Assert(not AFieldName.IsEmpty);
   L := TList<String>.Create();
+  try
 
-  // Пытаемся искать среди параметров по какому-то полю
-  if qParameters.W.LocateByF(AFieldName, S, [lxoCaseInsensitive, lxoPartialKey])
-  then
-  begin
-    qParameterTypes.W.LocateByPK(qParameters.W.IDParameterType.F.Value, True);
-
-    // запоминаем что надо искать на первом уровне
-    L.Add(qParameterTypes.W.ParameterType.F.AsString);
-    // запоминаем что надо искать на втором уровне
-    L.Add(S);
-  end
-  else
-    // Пытаемся искать среди типов параметров
-    if qParameterTypes.W.LocateByF(qParameterTypes.W.ParameterType.FieldName, S,
+    // Пытаемся искать среди параметров по какому-то полю
+    if qParameters.W.LocateByF(AFieldName, S,
       [lxoCaseInsensitive, lxoPartialKey]) then
     begin
-      L.Add(S);
-    end;
+      qParameterTypes.W.LocateByPK(qParameters.W.IDParameterType.F.Value, True);
 
-  Result := L.ToArray;
+      // запоминаем что надо искать на первом уровне
+      L.Add(qParameterTypes.W.ParameterType.F.AsString);
+      // запоминаем что надо искать на втором уровне
+      L.Add(S);
+    end
+    else
+      // Пытаемся искать среди типов параметров
+      if qParameterTypes.W.LocateByF(qParameterTypes.W.ParameterType.FieldName,
+        S, [lxoCaseInsensitive, lxoPartialKey]) then
+      begin
+        L.Add(S);
+      end;
+
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
+  end;
 end;
 
 function TParametersGroup2.GetqParameterKinds: TQueryParameterKinds;
