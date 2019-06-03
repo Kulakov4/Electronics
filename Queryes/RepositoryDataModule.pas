@@ -31,6 +31,7 @@ type
     cxStyleRepository: TcxStyleRepository;
     cxHeaderStyle: TcxStyle;
     cxInactiveStyle: TcxStyle;
+    cxStyleNotFound: TcxStyle;
     procedure DataModuleDestroy(Sender: TObject);
     procedure dbConnectionAfterCommit(Sender: TObject);
     procedure dbConnectionAfterConnect(Sender: TObject);

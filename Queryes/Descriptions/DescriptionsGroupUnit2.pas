@@ -11,19 +11,24 @@ type
   TDescriptionsGroup2 = class(TQueryGroup2)
   private
     FqDescriptions: TQueryDescriptions;
+    FqDescriptions2: TQueryDescriptions;
     FqDescriptionTypes: TQueryDescriptionTypes;
     FqProducers: TQueryProducers;
     procedure DoAfterDelete(Sender: TObject);
     function GetqDescriptions: TQueryDescriptions;
+    function GetqDescriptions2: TQueryDescriptions;
     function GetqDescriptionTypes: TQueryDescriptionTypes;
     function GetqProducers: TQueryProducers;
+  protected
+    property qDescriptions2: TQueryDescriptions read GetqDescriptions2;
   public
     constructor Create(AOwner: TComponent); override;
     function Find(const AFieldName, S: string): TList<String>;
     procedure LoadDataFromExcelTable(ADescriptionsExcelTable
       : TDescriptionsExcelTable);
     procedure LocateDescription(AIDDescription: Integer);
-    procedure Re_Open(AShowDuplicate: Boolean);
+    function Re_Open(AShowDuplicate: Boolean;
+      const AComponentName: string): Boolean;
     property qDescriptions: TQueryDescriptions read GetqDescriptions;
     property qDescriptionTypes: TQueryDescriptionTypes
       read GetqDescriptionTypes;
@@ -86,9 +91,20 @@ end;
 function TDescriptionsGroup2.GetqDescriptions: TQueryDescriptions;
 begin
   if FqDescriptions = nil then
+  begin
     FqDescriptions := TQueryDescriptions.Create(Self);
+    FqDescriptions.Name := 'qDescriptions';
+  end;
 
   Result := FqDescriptions;
+end;
+
+function TDescriptionsGroup2.GetqDescriptions2: TQueryDescriptions;
+begin
+  if FqDescriptions2 = nil then
+    FqDescriptions2 := TQueryDescriptions.Create(Self);
+
+  Result := FqDescriptions2;
 end;
 
 function TDescriptionsGroup2.GetqDescriptionTypes: TQueryDescriptionTypes;
@@ -164,15 +180,21 @@ begin
   end;
 end;
 
-procedure TDescriptionsGroup2.Re_Open(AShowDuplicate: Boolean);
+function TDescriptionsGroup2.Re_Open(AShowDuplicate: Boolean;
+  const AComponentName: string): Boolean;
 begin
   qDescriptions.W.TryPost;
   qDescriptionTypes.W.TryPost;
 
+  // Сначала попытаемся применить фильтр на "запасном" запросе
+  Result := qDescriptions2.TryApplyFilter(AShowDuplicate, AComponentName);
+  if not Result then
+    Exit;
+
   SaveBookmark;
 
-  qDescriptions.ShowDuplicate := AShowDuplicate;
-  qDescriptionTypes.ShowDuplicate := AShowDuplicate;
+  qDescriptions.TryApplyFilter(AShowDuplicate, AComponentName);
+  qDescriptionTypes.TryApplyFilter(AShowDuplicate, AComponentName);
 
   RestoreBookmark;
 end;

@@ -7,9 +7,9 @@ inherited ViewBodyTypes: TViewBodyTypes
     Top = 56
     Width = 942
     Height = 525
-    ExplicitTop = 84
+    ExplicitTop = 56
     ExplicitWidth = 942
-    ExplicitHeight = 497
+    ExplicitHeight = 525
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
@@ -593,15 +593,6 @@ inherited ViewBodyTypes: TViewBodyTypes
           Kind = bkEllipsis
         end>
       Properties.Images = DMRepository.cxImageList
-    end
-  end
-  object cxStyleRepository: TcxStyleRepository
-    Left = 184
-    Top = 256
-    PixelsPerInch = 96
-    object cxStyleNotFound: TcxStyle
-      AssignedValues = [svColor]
-      Color = 8421631
     end
   end
 end

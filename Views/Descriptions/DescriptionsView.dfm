@@ -4,10 +4,12 @@ inherited ViewDescriptions: TViewDescriptions
   ExplicitWidth = 991
   ExplicitHeight = 510
   inherited cxGrid: TcxGrid
+    Top = 56
     Width = 991
-    Height = 463
+    Height = 435
+    ExplicitTop = 56
     ExplicitWidth = 991
-    ExplicitHeight = 463
+    ExplicitHeight = 435
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       DragMode = dmAutomatic
       OnDragDrop = cxGridDBBandedTableViewDragDrop
@@ -163,6 +165,11 @@ inherited ViewDescriptions: TViewDescriptions
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
+    DockControlHeights = (
+      0
+      0
+      56
+      0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item
@@ -197,6 +204,37 @@ inherited ViewDescriptions: TViewDescriptions
           Visible = True
           ItemName = 'dxbrbtnShowDuplicate'
         end>
+    end
+    object dxBarManagerBar1: TdxBar [1]
+      Caption = 'Filter'
+      CaptionButtons = <>
+      DockedDockingStyle = dsTop
+      DockedLeft = 0
+      DockedTop = 28
+      DockingStyle = dsTop
+      FloatLeft = 1001
+      FloatTop = 0
+      FloatClientWidth = 0
+      FloatClientHeight = 0
+      Images = DMRepository.cxImageList
+      ItemLinks = <
+        item
+          Visible = True
+          ItemName = 'cxbeiFilter'
+        end
+        item
+          Visible = True
+          ItemName = 'dxbbFilter'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton1'
+        end>
+      OneOnRow = True
+      Row = 1
+      UseOwnFont = False
+      Visible = True
+      WholeRow = False
     end
     object dxbrbtnAdd: TdxBarButton
       Action = actAddType
@@ -258,6 +296,25 @@ inherited ViewDescriptions: TViewDescriptions
       Hint = 'New Button'
       Visible = ivAlways
     end
+    object cxbeiFilter: TcxBarEditItem
+      Caption = #1060#1080#1083#1100#1090#1088
+      Category = 0
+      Hint = #1060#1080#1083#1100#1090#1088
+      Visible = ivAlways
+      OnEnter = cxbeiFilterEnter
+      ShowCaption = True
+      PropertiesClassName = 'TcxTextEditProperties'
+      Properties.OnChange = cxbeiFilterPropertiesChange
+      Properties.OnEditValueChanged = cxbeiFilterPropertiesEditValueChanged
+    end
+    object dxbbFilter: TdxBarButton
+      Action = actFilter
+      Category = 0
+    end
+    object dxBarButton1: TdxBarButton
+      Action = actClearFilter
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     object actAddType: TAction
@@ -294,6 +351,18 @@ inherited ViewDescriptions: TViewDescriptions
       Caption = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1086#1087#1080#1089#1072#1085#1080#1103
       ImageIndex = 6
       OnExecute = actExportToExcelDocumentExecute
+    end
+    object actFilter: TAction
+      Caption = #1054#1090#1092#1080#1083#1100#1090#1088#1086#1074#1072#1090#1100
+      Hint = #1054#1090#1092#1080#1083#1100#1090#1088#1086#1074#1072#1090#1100
+      ImageIndex = 49
+      OnExecute = actFilterExecute
+    end
+    object actClearFilter: TAction
+      Caption = #1054#1095#1080#1089#1090#1080#1090#1100' '#1092#1080#1083#1100#1090#1088
+      Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1092#1080#1083#1100#1090#1088
+      ImageIndex = 10
+      OnExecute = actClearFilterExecute
     end
   end
 end

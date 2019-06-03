@@ -39,17 +39,21 @@ type
       AProducerID: Integer): TRecordCheck; stdcall;
   private
     FCheckClone: TFDMemTable;
+    FFilterText: string;
     FShowDuplicate: Boolean;
     FW: TDescriptionW;
+    procedure ApplyFilter(AShowDuplicate: Boolean; const AFilterText: string);
     function GetCheckClone: TFDMemTable;
-    procedure SetShowDuplicate(const Value: Boolean);
     { Private declarations }
   protected
     function CreateDSWrap: TDSWrap; override;
     property CheckClone: TFDMemTable read GetCheckClone;
   public
     constructor Create(AOwner: TComponent); override;
-    property ShowDuplicate: Boolean read FShowDuplicate write SetShowDuplicate;
+    function TryApplyFilter(AShowDuplicate: Boolean; const AFilterText: string):
+        Boolean;
+    property FilterText: string read FFilterText;
+    property ShowDuplicate: Boolean read FShowDuplicate;
     property W: TDescriptionW read FW;
     { Public declarations }
   end;
@@ -66,6 +70,41 @@ begin
   FW := FDSWrap as TDescriptionW;
 
   AutoTransaction := False;
+end;
+
+procedure TQueryDescriptions.ApplyFilter(AShowDuplicate: Boolean; const
+    AFilterText: string);
+var
+  ASQL: String;
+begin
+
+  // Получаем первоначальный запрос
+  ASQL := SQL;
+
+  // Если нужно показать дубликаты
+  if AShowDuplicate then
+  begin
+    ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
+    ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
+  end;
+
+  // Если нужно показать отфильтровать по названию компонента
+  if not AFilterText.IsEmpty then
+  begin
+    ASQL := ASQL.Replace('/* Filter', '', [rfReplaceAll]);
+    ASQL := ASQL.Replace('Filter */', '', [rfReplaceAll]);
+  end;
+
+  FDQuery.Close;
+  FDQuery.SQL.Text := ASQL;
+
+  if not AFilterText.IsEmpty then
+  begin
+    SetParamType(W.ComponentName.FieldName, ptInput, ftWideString);
+    SetParameters([W.ComponentName.FieldName], [AFilterText + '%']);
+  end;
+
+  FDQuery.Open;
 end;
 
 function TQueryDescriptions.Check(const AComponentName, ADescription: String;
@@ -105,26 +144,28 @@ begin
   Result := FCheckClone;
 end;
 
-procedure TQueryDescriptions.SetShowDuplicate(const Value: Boolean);
+function TQueryDescriptions.TryApplyFilter(AShowDuplicate: Boolean; const
+    AFilterText: string): Boolean;
 var
   ASQL: String;
 begin
-  if FShowDuplicate <> Value then
+  Result := FDQuery.RecordCount > 0;
+
+  if (AShowDuplicate = FShowDuplicate) and (AFilterText = FFilterText) then
+    Exit;
+
+  ApplyFilter(AShowDuplicate, AFilterText);
+
+  Result := FDQuery.RecordCount > 0;
+
+  if Result then
   begin
-    FShowDuplicate := Value;
-
-    // Получаем первоначальный запрос
-    ASQL := SQL;
-    if FShowDuplicate then
-    begin
-      ASQL := ASQL.Replace('/* ShowDuplicate', '', [rfReplaceAll]);
-      ASQL := ASQL.Replace('ShowDuplicate */', '', [rfReplaceAll]);
-    end;
-
-    FDQuery.Close;
-    FDQuery.SQL.Text := ASQL;
-    FDQuery.Open;
-  end;
+    FShowDuplicate := AShowDuplicate;
+    FFilterText := AFilterText;
+  end
+  else
+    // Возвращаем старые значения
+    ApplyFilter(FShowDuplicate, FFilterText);
 end;
 
 constructor TDescriptionW.Create(AOwner: TComponent);

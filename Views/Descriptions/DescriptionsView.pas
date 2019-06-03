@@ -30,10 +30,12 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, HRTimer,
   DragHelper, dxCore, System.Generics.Collections,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  cxTextEdit, cxBarEditItem;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 11;
+  WM_FILTER_EDIT_ENTER = WM_USER + 13;
 
 type
   TViewDescriptions = class(TfrmGrid)
@@ -64,10 +66,18 @@ type
     dxbrbtnExportToExcelDocument: TdxBarButton;
     dxbrbtn1: TdxBarButton;
     clOrder: TcxGridDBBandedColumn;
+    dxBarManagerBar1: TdxBar;
+    cxbeiFilter: TcxBarEditItem;
+    dxbbFilter: TdxBarButton;
+    actFilter: TAction;
+    actClearFilter: TAction;
+    dxBarButton1: TdxBarButton;
     procedure actAddDescriptionExecute(Sender: TObject);
     procedure actAddTypeExecute(Sender: TObject);
+    procedure actClearFilterExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
+    procedure actFilterExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actRollbackExecute(Sender: TObject);
     procedure actShowDuplicateExecute(Sender: TObject);
@@ -75,6 +85,7 @@ type
       const AText: TCaption);
     procedure clIDComponentTypePropertiesEditValueChanged(Sender: TObject);
     procedure clIDComponentTypePropertiesCloseUp(Sender: TObject);
+    procedure cxbeiFilterEnter(Sender: TObject);
     procedure cxGridDBBandedTableView2ColumnHeaderClick
       (Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure cxGridDBBandedTableView2CustomDrawColumnHeader
@@ -93,6 +104,8 @@ type
       AItemIndex: Integer; const V1, V2: Variant; var Compare: Integer);
     procedure cxGridDBBandedTableView2StylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
+    procedure cxbeiFilterPropertiesChange(Sender: TObject);
+    procedure cxbeiFilterPropertiesEditValueChanged(Sender: TObject);
   private
     FDescriptionsGroup: TDescriptionsGroup2;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -103,6 +116,8 @@ type
   const
     FolderKey: String = 'Descriptions';
     procedure DoOnHaveAnyChanges(Sender: TObject);
+    procedure OnAfterSearchEditEnter(var Message: TMessage);
+      message WM_FILTER_EDIT_ENTER;
     procedure SetDescriptionsGroup(const Value: TDescriptionsGroup2);
     procedure UpdateTotalCount;
     { Private declarations }
@@ -185,6 +200,24 @@ begin
   UpdateView;
 end;
 
+procedure TViewDescriptions.actClearFilterExecute(Sender: TObject);
+var
+  OK: Boolean;
+begin
+  inherited;
+  cxbeiFilter.EditValue := '';
+
+  OK := DescriptionsGroup.Re_Open(actShowDuplicate.Checked,
+    VarToStrDef(cxbeiFilter.EditValue, ''));
+
+  if not OK then
+    cxbeiFilter.StyleEdit := RepositoryDataModule.DMRepository.cxStyleNotFound
+  else
+    cxbeiFilter.StyleEdit := nil;
+
+  UpdateView;
+end;
+
 procedure TViewDescriptions.actCommitExecute(Sender: TObject);
 begin
   // Мы просто завершаем транзакцию
@@ -227,6 +260,25 @@ begin
     end);
 end;
 
+procedure TViewDescriptions.actFilterExecute(Sender: TObject);
+var
+  AComponentName: string;
+  OK: Boolean;
+begin
+  inherited;
+  AComponentName := VarToStrDef(cxbeiFilter.EditValue, '');
+
+  OK := DescriptionsGroup.Re_Open(actShowDuplicate.Checked,
+    VarToStrDef(cxbeiFilter.EditValue, ''));
+
+  if not OK then
+    cxbeiFilter.StyleEdit := RepositoryDataModule.DMRepository.cxStyleNotFound
+  else
+    cxbeiFilter.StyleEdit := nil;
+
+  UpdateView;
+end;
+
 procedure TViewDescriptions.actLoadFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
@@ -265,14 +317,17 @@ procedure TViewDescriptions.actShowDuplicateExecute(Sender: TObject);
 begin
   Application.Hint := '';
 
-  DescriptionsGroup.Re_Open(not actShowDuplicate.Checked);
+  if DescriptionsGroup.Re_Open(not actShowDuplicate.Checked,
+    VarToStrDef(cxbeiFilter.EditValue, '')) then
+    actShowDuplicate.Checked := not actShowDuplicate.Checked
+  else
+    TDialog.Create.DuplicateNotFound;
 
   // Переносим фокус на первую выделенную запись
   // FocusSelectedRecord();
   // Помещаем фокус в центр грида
   // PutInTheCenterFocusedRecord();
 
-  actShowDuplicate.Checked := not actShowDuplicate.Checked;
   // Обновляем представление
   UpdateView;
 end;
@@ -396,6 +451,31 @@ end;
 function TViewDescriptions.CreateViewArr: TArray<TcxGridDBBandedTableView>;
 begin
   Result := [MainView, cxGridDBBandedTableView2];
+end;
+
+procedure TViewDescriptions.cxbeiFilterEnter(Sender: TObject);
+begin
+  inherited;
+  if cxbeiFilter.StyleEdit <> nil then
+  begin
+    PostMessage(Handle, WM_FILTER_EDIT_ENTER, 0, 0);
+  end;
+end;
+
+procedure TViewDescriptions.cxbeiFilterPropertiesChange(Sender: TObject);
+begin
+  inherited;
+  UpdateView;
+end;
+
+procedure TViewDescriptions.cxbeiFilterPropertiesEditValueChanged
+  (Sender: TObject);
+begin
+  inherited;
+  // Сохраняем то, что мы там наредактировали
+  (Sender as TcxTextEdit).PostEditValue;
+  UpdateView;
+  actFilter.Execute;
 end;
 
 procedure TViewDescriptions.cxGridDBBandedTableView2ColumnHeaderClick
@@ -582,6 +662,14 @@ begin
   end;
 end;
 
+procedure TViewDescriptions.OnAfterSearchEditEnter(var Message: TMessage);
+begin
+  inherited;
+  cxGrid.SetFocus;
+  cxbeiFilter.StyleEdit := nil;
+  cxbeiFilter.SetFocus();
+end;
+
 procedure TViewDescriptions.SetDescriptionsGroup(const Value
   : TDescriptionsGroup2);
 begin
@@ -657,6 +745,14 @@ begin
     actShowDuplicate.Caption := 'Показать всё'
   else
     actShowDuplicate.Caption := 'Показать дубликаты';
+
+  actFilter.Enabled := not VarToStrDef(cxbeiFilter.CurEditValue, '').IsEmpty;
+  if not actFilter.Enabled then
+    actFilter.Enabled := not DescriptionsGroup.qDescriptionTypes.
+      FilterText.IsEmpty;
+
+  actClearFilter.Enabled := not DescriptionsGroup.qDescriptionTypes.
+      FilterText.IsEmpty;
 
   UpdateTotalCount;
 end;

@@ -98,8 +98,6 @@ type
     cxbeiSearch: TcxBarEditItem;
     actSearch: TAction;
     dxBarButton4: TdxBarButton;
-    cxStyleRepository: TcxStyleRepository;
-    cxStyleNotFound: TcxStyle;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actAddJEDECFileExecute(Sender: TObject);
@@ -964,7 +962,7 @@ begin
   end;
 
   if not OK then
-    cxbeiSearch.StyleEdit := cxStyleNotFound
+    cxbeiSearch.StyleEdit := RepositoryDataModule.DMRepository.cxStyleNotFound
   else
     cxbeiSearch.StyleEdit := nil;
 end;
