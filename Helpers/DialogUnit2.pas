@@ -19,19 +19,6 @@ implementation
 
 uses DialogUnit, SettingsController, System.SysUtils, System.IOUtils;
 
-// TODO: SelectInLastFolder
-//class function TOpenExcelDialog.SelectInLastFolder(var AFileName: String;
-//AParentWnd: HWND): Boolean;
-//begin
-//Result := TDialog.Create.ShowDialog(TExcelFileOpenDialog,
-//  TSettings.Create.LastFolderForExcelFile, '', AFileName);
-//
-//if Result then
-//  // Сохраняем эту папку в настройках
-//  TSettings.Create.LastFolderForExcelFile :=
-//    TPath.GetDirectoryName(AFileName);
-//
-//end;
 
 class function TOpenExcelDialog.SelectInFolder(var AFileName: String;
     AParentWnd: HWND; const AFolderKey: String): Boolean;

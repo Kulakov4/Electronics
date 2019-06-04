@@ -26,7 +26,8 @@ uses
   Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, DuplicateCategoryQuery, NotifyEvents,
-  dxBarExtItems;
+  dxBarExtItems, cxDataControllerConditionalFormattingRulesManagerDialog,
+  dxBarBuiltInMenu;
 
 type
   TViewDuplicateCategory = class(TfrmGrid)

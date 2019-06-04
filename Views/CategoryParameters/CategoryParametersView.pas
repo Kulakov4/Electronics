@@ -665,7 +665,6 @@ var
   ARowIndex: Integer;
   ATargetRowIndex: Integer;
   AView: TcxGridDBBandedTableView;
-  AView2: TcxGridDBBandedTableView;
   IDList: TList<Integer>;
   SS: TSaveSelection;
 begin

@@ -247,7 +247,8 @@ uses
   SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame},
   LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData},
   SelectionInt in 'Helpers\SelectionInt.pas',
-  SearchBodyVariationQuery in 'Queryes\BodyTypes\SearchBodyVariationQuery.pas' {QrySearchBodyVariation: TFrame};
+  SearchBodyVariationQuery in 'Queryes\BodyTypes\SearchBodyVariationQuery.pas' {QrySearchBodyVariation: TFrame},
+  BodyKindsColorQuery in 'Queryes\BodyTypes\BodyKindsColorQuery.pas' {QryBodyKindsColor: TFrame};
 
 {$R *.res}
 

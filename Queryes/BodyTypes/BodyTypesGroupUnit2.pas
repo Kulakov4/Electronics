@@ -5,18 +5,20 @@ interface
 uses
   QueryGroupUnit2, System.Classes, NotifyEvents, BodyKindsQuery,
   BodyTypesQuery2, ProducersQuery, BodyTypesSimpleQuery,
-  BodyTypesExcelDataModule, SearchBodyVariationQuery;
+  BodyTypesExcelDataModule, SearchBodyVariationQuery, BodyKindsColorQuery;
 
 type
   TBodyTypesGroup2 = class(TQueryGroup2)
   private
     FqBodyKinds: TQueryBodyKinds;
+    FqBodyKindsColor: TQryBodyKindsColor;
     FqBodyTypes2: TQueryBodyTypes2;
     FqProducers: TQueryProducers;
     FqSearchBodyVariation: TQrySearchBodyVariation;
     FQueryBodyTypesSimple: TQueryBodyTypesSimple;
     procedure DoAfterDelete(Sender: TObject);
     function GetqBodyKinds: TQueryBodyKinds;
+    function GetqBodyKindsColor: TQryBodyKindsColor;
     function GetqBodyTypes2: TQueryBodyTypes2;
     function GetqProducers: TQueryProducers;
     function GetqSearchBodyVariation: TQrySearchBodyVariation;
@@ -33,6 +35,7 @@ type
     procedure Rollback; override;
     function Search(ABodyVariation: String): Boolean;
     property qBodyKinds: TQueryBodyKinds read GetqBodyKinds;
+    property qBodyKindsColor: TQryBodyKindsColor read GetqBodyKindsColor;
     property qBodyTypes2: TQueryBodyTypes2 read GetqBodyTypes2;
     property qProducers: TQueryProducers read GetqProducers;
     property QueryBodyTypesSimple: TQueryBodyTypesSimple
@@ -77,6 +80,14 @@ begin
     FqBodyKinds := TQueryBodyKinds.Create(Self);
 
   Result := FqBodyKinds;
+end;
+
+function TBodyTypesGroup2.GetqBodyKindsColor: TQryBodyKindsColor;
+begin
+  if FqBodyKindsColor = nil then
+    FqBodyKindsColor := TQryBodyKindsColor.Create(Self);
+
+  Result := FqBodyKindsColor;
 end;
 
 function TBodyTypesGroup2.GetqBodyTypes2: TQueryBodyTypes2;

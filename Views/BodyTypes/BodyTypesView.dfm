@@ -23,6 +23,7 @@ inherited ViewBodyTypes: TViewBodyTypes
         end>
       DataController.Summary.OnAfterSummary = cxGridDBBandedTableViewDataControllerSummaryAfterSummary
       OptionsBehavior.CellHints = True
+      Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       object clID: TcxGridDBBandedColumn
         DataBinding.FieldName = 'ID'
         Visible = False
@@ -52,6 +53,14 @@ inherited ViewBodyTypes: TViewBodyTypes
         VisibleForCustomization = False
         Position.BandIndex = 0
         Position.ColIndex = 2
+        Position.RowIndex = 0
+      end
+      object clColor: TcxGridDBBandedColumn
+        Caption = #1062#1074#1077#1090
+        DataBinding.FieldName = 'Color'
+        Visible = False
+        Position.BandIndex = 0
+        Position.ColIndex = 3
         Position.RowIndex = 0
       end
     end
@@ -298,6 +307,10 @@ inherited ViewBodyTypes: TViewBodyTypes
         item
           Visible = True
           ItemName = 'dxbrbtnRollback'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton5'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -437,6 +450,11 @@ inherited ViewBodyTypes: TViewBodyTypes
       Category = 0
       PaintStyle = psCaptionGlyph
     end
+    object dxBarButton5: TdxBarButton
+      Action = actColor
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   inherited ActionList: TActionList
     object actAdd: TAction
@@ -542,6 +560,12 @@ inherited ViewBodyTypes: TViewBodyTypes
       ImageIndex = 9
       OnExecute = actSearchExecute
     end
+    object actColor: TAction
+      Caption = #1042#1099#1073#1088#1072#1090#1100' '#1094#1074#1077#1090
+      Hint = #1042#1099#1073#1088#1072#1090#1100' '#1094#1074#1077#1090
+      ImageIndex = 50
+      OnExecute = actColorExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N3: TMenuItem
@@ -552,6 +576,9 @@ inherited ViewBodyTypes: TViewBodyTypes
     end
     object N2: TMenuItem
       Action = actAddJEDECFile
+    end
+    object N4: TMenuItem
+      Action = actColor
     end
   end
   inherited cxGridPopupMenu: TcxGridPopupMenu
@@ -594,5 +621,22 @@ inherited ViewBodyTypes: TViewBodyTypes
         end>
       Properties.Images = DMRepository.cxImageList
     end
+  end
+  object dxColorDialog: TdxColorDialog
+    Color = -16744448
+    Options.ColorPicker.Style = cpsGamutAndHueSlider
+    Left = 288
+    Top = 360
+  end
+  object ColorDialog: TColorDialog
+    CustomColors.Strings = (
+      'ColorA=FF0000')
+    Options = [cdAnyColor]
+    Left = 280
+    Top = 432
+  end
+  object cxLocalizer: TcxLocalizer
+    Left = 200
+    Top = 352
   end
 end

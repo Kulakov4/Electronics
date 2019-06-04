@@ -33,7 +33,7 @@ uses
   CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems,
   JEDECPopupForm, BodyVariationsJedecQuery, BodyTypesGroupUnit2,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  cxBarEditItem;
+  cxBarEditItem, cxColorComboBox, dxColorDialog, cxLocalization;
 
 const
   WM_SEARCH_EDIT_ENTER = WM_USER + 13;
@@ -98,10 +98,18 @@ type
     cxbeiSearch: TcxBarEditItem;
     actSearch: TAction;
     dxBarButton4: TdxBarButton;
+    clColor: TcxGridDBBandedColumn;
+    actColor: TAction;
+    dxColorDialog: TdxColorDialog;
+    N4: TMenuItem;
+    ColorDialog: TColorDialog;
+    dxBarButton5: TdxBarButton;
+    cxLocalizer: TcxLocalizer;
     procedure actAddBodyExecute(Sender: TObject);
     procedure actAddExecute(Sender: TObject);
     procedure actAddJEDECFileExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
+    procedure actColorExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
@@ -154,6 +162,9 @@ type
     procedure cxerpiJEDECPropertiesCloseUp(Sender: TObject);
     procedure cxbeiSearchPropertiesChange(Sender: TObject);
     procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
+    procedure cxGridDBBandedTableViewStylesGetContentStyle
+      (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+      AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
   private
     FBodyTypesGroup: TBodyTypesGroup2;
     FDragAndDropInfo: TDragAndDropInfo;
@@ -166,6 +177,7 @@ type
     procedure DoAfterDataChange(Sender: TObject);
     function GetfrmJEDECPopup: TfrmJEDECPopup;
     function GetProducerDisplayText: string;
+    procedure LocalizeDevExpress;
     procedure OnAfterSearchEditEnter(var Message: TMessage);
       message WM_SEARCH_EDIT_ENTER;
     procedure Search(ABodyVariation: String);
@@ -230,6 +242,8 @@ begin
     frmJEDECPopup;
 
   ApplyBestFitForDetail := True;
+
+  LocalizeDevExpress;
 end;
 
 destructor TViewBodyTypes.Destroy;
@@ -279,6 +293,40 @@ begin
   inherited;
   GetDBBandedTableView(1).GetColumnByFieldName(clJEDEC.DataBinding.FieldName)
     .ApplyBestFit();
+end;
+
+procedure TViewBodyTypes.actColorExecute(Sender: TObject);
+var
+  A: TArray<Integer>;
+  AHex: string;
+  ColorIndex: Char;
+begin
+  BodyTypesGroup.qBodyKindsColor.W.RefreshQuery;
+
+
+  ColorDialog.CustomColors.Clear;
+  ColorIndex := 'A';
+  BodyTypesGroup.qBodyKindsColor.FDQuery.First;
+  while not BodyTypesGroup.qBodyKindsColor.FDQuery.Eof do
+  begin
+    AHex := IntToHex(BodyTypesGroup.qBodyKindsColor.W.Color.F.AsInteger);
+    ColorDialog.CustomColors.Add(Format('Color%s=%s', [ColorIndex, AHex]));
+    BodyTypesGroup.qBodyKindsColor.FDQuery.Next;
+    Inc(ColorIndex);
+  end;
+
+  ColorDialog.Color := BodyTypesGroup.qBodyKinds.W.Color.F.AsInteger;
+
+  if not ColorDialog.Execute(Application.ActiveFormHandle) then
+    Exit;
+
+  A := GetSelectedIntValues(clID);
+  BodyTypesGroup.qBodyKinds.W.ApplyColor(A, ColorDialog.Color);
+
+  // Прячем выделение на главном табличном представлении
+  MainView.Controller.ClearSelection;
+  MainView.Controller.EditingController.HideEdit(False);
+
 end;
 
 procedure TViewBodyTypes.actCommitExecute(Sender: TObject);
@@ -815,6 +863,31 @@ begin
 
 end;
 
+procedure TViewBodyTypes.cxGridDBBandedTableViewStylesGetContentStyle
+  (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
+AItem: TcxCustomGridTableItem; var AStyle: TcxStyle);
+begin
+  inherited;
+  if ARecord = nil then
+    Exit;
+  if AItem = nil then
+    Exit; // эту проверку тоже полезно делать, если используете данный параметр
+  if not ARecord.IsData then
+    Exit;
+  { если нужно красить только одну колонку, то нужно проверять AItem
+    if AItem.Index = TcxGridDBTableView(Sender).GetColumnByFieldName('имя_столбца_из_TDataSet').Index then
+    if AItem.Index = dbgApartREGION_NAME.Index then
+
+  }
+
+  if not VarIsNull(ARecord.Values[clColor.Index]) then
+  begin
+    if not Assigned(AStyle) then
+      AStyle := TcxStyle.Create(Sender);
+    AStyle.Color := ARecord.Values[clColor.Index]; // закрашиваем фон
+  end;
+end;
+
 procedure TViewBodyTypes.DoAfterDataChange(Sender: TObject);
 begin
   UpdateView;
@@ -866,6 +939,21 @@ begin
     EndUpdate;
   end;
   UpdateView;
+end;
+
+procedure TViewBodyTypes.LocalizeDevExpress;
+var
+  AFileName: string;
+begin
+  // локализуем девэкспресс
+  AFileName := TPath.Combine(ExtractFilePath(ParamStr(0)),
+    sLocalizationFileName);
+  if FileExists(AFileName) then
+  begin
+    cxLocalizer.FileName := AFileName;
+    cxLocalizer.Active := True;
+    cxLocalizer.Locale := 1049;
+  end;
 end;
 
 procedure TViewBodyTypes.OnAfterSearchEditEnter(var Message: TMessage);
@@ -1056,6 +1144,8 @@ begin
   else
     actShowDuplicate.Caption := 'Показать дубликаты';
 
+  actColor.Enabled := OK and (AView.Level = cxGridLevel) and
+    (AView.Controller.SelectedRowCount > 0);
 end;
 
 procedure TViewBodyTypes.UploadDoc(ADocFieldInfo: TDocFieldInfo);

@@ -249,6 +249,7 @@ begin
   inherited Create(AOwner);
   FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
+  Application.ModalPopupMode := pmAuto;
 end;
 
 procedure TfrmMain.actComponentsTabExecute(Sender: TObject);

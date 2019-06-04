@@ -15,16 +15,18 @@ type
   private
     FBodyKind: TFieldWrap;
     FID: TFieldWrap;
+    FColor: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
+    procedure ApplyColor(AIDArr: TArray<Integer>; AColor: TColor);
     procedure LocateOrAppend(AValue: string);
     property BodyKind: TFieldWrap read FBodyKind;
     property ID: TFieldWrap read FID;
+    property Color: TFieldWrap read FColor;
   end;
 
   TQueryBodyKinds = class(TQueryOrder)
-    FDUpdateSQL: TFDUpdateSQL;
   private
     FShowDuplicate: Boolean;
     FW: TBodyKindW;
@@ -89,6 +91,7 @@ begin
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FOrd := TFieldWrap.Create(Self, 'Ord');
   FBodyKind := TFieldWrap.Create(Self, 'BodyKind');
+  FColor := TFieldWrap.Create(Self, 'Color');
 end;
 
 procedure TBodyKindW.AddNewValue(const AValue: string);
@@ -96,6 +99,25 @@ begin
   TryAppend;
   BodyKind.F.AsString := AValue;
   TryPost;
+end;
+
+procedure TBodyKindW.ApplyColor(AIDArr: TArray<Integer>; AColor: TColor);
+var
+  AID: Integer;
+begin
+  Assert(Length(AIDArr) > 0);
+
+  SaveBookmark;
+
+  for AID in AIDArr do
+  begin
+    ID.Locate(AID, [], True);
+    TryEdit;
+    Color.F.AsInteger := AColor;
+    TryPost;
+  end;
+
+  RestoreBookmark;
 end;
 
 procedure TBodyKindW.LocateOrAppend(AValue: string);

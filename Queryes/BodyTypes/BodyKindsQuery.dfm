@@ -15,8 +15,9 @@ inherited QueryBodyKinds: TQueryBodyKinds
         Fields = 'Ord'
       end>
     IndexName = 'idxOrder'
-    UpdateOptions.AssignedValues = [uvCheckRequired]
-    UpdateObject = FDUpdateSQL
+    UpdateOptions.AssignedValues = [uvRefreshMode, uvCheckRequired]
+    UpdateOptions.RefreshMode = rmAll
+    UpdateOptions.KeyFields = 'ID'
     SQL.Strings = (
       'select bk.*'
       'from BodyKinds bk'
@@ -35,27 +36,5 @@ inherited QueryBodyKinds: TQueryBodyKinds
       '    )'
       'ShowDuplicate */    '
       'order by bk.Ord')
-  end
-  object FDUpdateSQL: TFDUpdateSQL
-    InsertSQL.Strings = (
-      'INSERT INTO BODYKINDS'
-      '(BODYKIND, ORD)'
-      'VALUES (:NEW_BODYKIND, :NEW_ORD);'
-      'SELECT ID, ORD'
-      'FROM BODYKINDS'
-      'WHERE ID = LAST_INSERT_AUTOGEN()')
-    ModifySQL.Strings = (
-      'UPDATE BODYKINDS'
-      'SET BODYKIND = :NEW_BODYKIND, ORD = :NEW_ORD'
-      'WHERE ID = :OLD_ID;')
-    DeleteSQL.Strings = (
-      'DELETE FROM BODYKINDS'
-      'WHERE ID = :OLD_ID')
-    FetchRowSQL.Strings = (
-      'SELECT ID, BODYKIND, ORD'
-      'FROM BODYKINDS'
-      'WHERE ID = :ID')
-    Left = 144
-    Top = 24
   end
 end

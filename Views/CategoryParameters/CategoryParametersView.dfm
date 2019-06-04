@@ -6,7 +6,9 @@ inherited ViewCategoryParameters: TViewCategoryParameters
     Width = 1037
     Height = 416
     OnFocusedViewChanged = cxGridFocusedViewChanged
+    ExplicitTop = 56
     ExplicitWidth = 1037
+    ExplicitHeight = 416
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditing = cxGridDBBandedTableViewEditing
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged

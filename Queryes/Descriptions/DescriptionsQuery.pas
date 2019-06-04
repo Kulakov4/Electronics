@@ -146,8 +146,6 @@ end;
 
 function TQueryDescriptions.TryApplyFilter(AShowDuplicate: Boolean; const
     AFilterText: string): Boolean;
-var
-  ASQL: String;
 begin
   Result := FDQuery.RecordCount > 0;
 
