@@ -1318,7 +1318,7 @@ begin
   m := S.Split([' ']);
   if Length(m) = 0 then
   begin
-    TDialog.Create.ErrorMessageDialog('Имя файла должно содержать пробел');
+    TDialog.Create.ErrorMessageDialog('Имя файла не содержит идентификатора категории загрузки (или пробела)');
     Exit;
   end;
 
@@ -1327,7 +1327,7 @@ begin
     m[0].ToInteger;
   except
     TDialog.Create.ErrorMessageDialog
-      ('В начале имени файла должен быть код категории');
+      ('В начале имени файла должен быть идентификатор категории загрузки');
     Exit;
   end;
 
