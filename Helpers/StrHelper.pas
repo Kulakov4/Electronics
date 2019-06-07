@@ -5,11 +5,23 @@ interface
 uses System.Generics.Collections;
 
 Type
-  TMySplit = class
-    S: String;
-    X: String;
+
+  TMySplitRec = record
+    BracketInBalance: Boolean;
+    StringArray: TArray<String>;
+  end;
+
+  TBracket = class
   public
-    constructor Create(SS, XX: String);
+    LeftBracket: Char;
+    RightBracket: Char;
+    constructor Create(ALeftBracket, ARightBracket: Char);
+  end;
+
+  TBracketList = class(TObjectList<TBracket>)
+  public
+    function IsLeftBracket(AChar: Char): TBracket;
+    function IsRightBracket(AChar: Char): TBracket;
   end;
 
 function NameForm(X: Integer; const s1: String; const s2: String;
@@ -18,9 +30,10 @@ function DeleteDouble(const S: string; const AChar: Char): String;
 function Contain(const SubStr: String; const S: String;
   const ADelimiter: Char = ','): Boolean;
 function GetRelativeFileName(const AFullFileName, ARootDir: string): string;
-// Разбивает строку на строку и число
-function MySplit(const S: string): TList<TMySplit>;
-function ReplaceInSQL(const ASQL: String; const AStipulation: String; ANumber: Integer): String;
+// Разбивает строку с учётом того, что разделитель может оказаться в скобках
+function MySplit(const S: string; ADelimiter: Char): TMySplitRec;
+function ReplaceInSQL(const ASQL: String; const AStipulation: String;
+  ANumber: Integer): String;
 
 function GetWords(const S: String): String;
 function ReplaceNotKeyboadChars(const S: String): String;
@@ -29,7 +42,11 @@ implementation
 
 uses System.SysUtils, System.RegularExpressions;
 
-function ReplaceInSQL(const ASQL: String; const AStipulation: String; ANumber: Integer): String;
+Var
+  ABracketList: TBracketList;
+
+function ReplaceInSQL(const ASQL: String; const AStipulation: String;
+  ANumber: Integer): String;
 var
   ATemplate: string;
   lp: Integer;
@@ -141,44 +158,118 @@ begin
   until Result = SS;
 end;
 
-// Разбивает строку на строку и число
-function MySplit(const S: string): TList<TMySplit>;
-Var
+// Разбивает строку с учётом того, что разделитель может оказаться в скобках
+function MySplit(const S: string; ADelimiter: Char): TMySplitRec;
+var
+  ch: Char;
   i: Integer;
-
-  m: TMatchCollection;
-  Pattern: string;
-  RegEx: TRegEx;
+  Brackets: String;
+  ABracket: TBracket;
+  AList: TList<String>;
+  Str: string;
+  SubStr: string;
 begin
-  Result := nil;
-  if S.Trim.IsEmpty then
-    Exit;
+  Assert(ABracketList <> nil);
 
-  Pattern := '([\D]*)([\d]*)';
-  RegEx := TRegEx.Create(Pattern);
-  // Проверяем, соответствует ли строка шаблону
-  if RegEx.IsMatch(S) then
-  begin
-    m := RegEx.Matches(S, Pattern); // получаем коллекцию совпадений
-    // Должно быть минимум одно совпадение
-    Assert(m.Count >= 1);
+  Result.BracketInBalance := False;
 
-    Result := TList<TMySplit>.Create;
-    for i := 0 to m.Count - 1 do
+  Str := S;
+
+  AList := TList<String>.Create;
+  try
+    Brackets := '';
+
+    i := 0;
+    while i < Str.Length do
     begin
-      // Должно быть ровно 3 группы
-      Assert(m.Item[i].Groups.Count = 3);
-      // В первую группу попадает всё совпадение
-      Result.Add(TMySplit.Create(m.Item[i].Groups[1].Value,
-        m.Item[i].Groups[2].Value));
+      ch := Str.Chars[i];
+      // Может мы встретили левую скобку?
+      ABracket := ABracketList.IsLeftBracket(ch);
+      if ABracket <> nil then
+        Brackets := Brackets + ch
+      else
+      begin
+        // Может мы встретили правую скобку?
+        ABracket := ABracketList.IsRightBracket(ch);
+        if ABracket <> nil then
+        begin
+          // Если скобки не в балансе
+          if (Brackets.Length = 0) or
+            (Brackets.Chars[Brackets.Length - 1] <> ABracket.LeftBracket) then
+            Exit;
+
+          // Удаляем последнюю открытую скобку из строки
+          Brackets := Brackets.Substring(0, Brackets.Length - 1);
+        end;
+      end;
+
+      // Если очередной символ - это разделитель и все скобки закрылись
+      if (ch = ADelimiter) and (Brackets.Length = 0) then
+      begin
+        SubStr := Str.Substring(0, i).Trim;
+        if SubStr.Length > 0 then
+          AList.Add(SubStr);
+
+        Str := Str.Substring(i + 1);
+        i := 0;
+      end
+      else
+        Inc(i);
     end;
+
+    // Если не все открытые скобки закрылись
+    if Brackets.Length > 0 then
+      Exit;
+
+    SubStr := Str.Trim;
+    // Добавляем хвостик в котором не нашлось разделителей
+    if SubStr.Length > 0 then
+      AList.Add(SubStr);
+
+    Result.StringArray := AList.ToArray;
+    Result.BracketInBalance := True;
+  finally
+    FreeAndNil(AList);
   end;
 end;
 
-constructor TMySplit.Create(SS, XX: String);
+constructor TBracket.Create(ALeftBracket, ARightBracket: Char);
 begin
-  S := SS;
-  X := XX;
+  LeftBracket := ALeftBracket;
+  RightBracket := ARightBracket;
 end;
+
+function TBracketList.IsLeftBracket(AChar: Char): TBracket;
+begin
+  for Result in Self do
+  begin
+    if Result.LeftBracket = AChar then
+      Exit;
+  end;
+
+  Result := nil;
+end;
+
+function TBracketList.IsRightBracket(AChar: Char): TBracket;
+begin
+  for Result in Self do
+  begin
+    if Result.RightBracket = AChar then
+      Exit;
+  end;
+
+  Result := nil;
+end;
+
+initialization
+
+ABracketList := TBracketList.Create;
+ABracketList.Add(TBracket.Create('(', ')'));
+ABracketList.Add(TBracket.Create('{', '}'));
+ABracketList.Add(TBracket.Create('[', ']'));
+
+finalization
+
+FreeAndNil(ABracketList);
 
 end.

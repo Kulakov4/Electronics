@@ -23,7 +23,7 @@ uses
   System.SysUtils, ParametersValueQuery, ProgressInfo, System.Classes,
   FieldInfoUnit, System.Math, ProjectConst, MaxCategoryParameterOrderQuery,
   IDTempTableQuery, UpdateParamValueRec, SearchFamilyParamValuesQuery,
-  CategoryParametersQuery, SearchComponentParamSubParamsQuery;
+  CategoryParametersQuery, SearchComponentParamSubParamsQuery, StrHelper;
 
 // Добавляет параметры на вкладку параметры
 class procedure TParameterValues.LoadParameters(AProductCategoryIDArray
@@ -98,6 +98,7 @@ var
   AValue: String;
   i: Integer;
   Q: TQueryFamilyParamValues;
+  r: TMySplitRec;
   S: string;
 begin
   if AExcelTable.RecordCount = 0 then
@@ -149,30 +150,35 @@ begin
           if AValue.IsEmpty then
             continue;
 
-          // Делим строку на части по запятой
-          a := AValue.Split([',']);
-          for S in a do
+          // Делим строку на части по запятой (учитывая скобки)
+          r := MySplit(AValue, ',');
+          if r.BracketInBalance then
           begin
-            AValue := S.Trim;
-            if AValue.IsEmpty then
-              continue;
-
-            // Если загружаем значение для компонента (не для семейства)
-            if AExcelTable.IDParentComponent.AsInteger > 0 then
+            for S in r.StringArray do
             begin
-              if AUpdParamSubParamList.Search
-                (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID) = -1
-              then
+              AValue := S.Trim;
+              if AValue.IsEmpty then
+                continue;
+
+              // Если загружаем значение для компонента (не для семейства)
+              if AExcelTable.IDParentComponent.AsInteger > 0 then
               begin
-                AUpdParamSubParamList.Add
-                  (TUpdParamSubParam.Create
-                  (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID));
+                if AUpdParamSubParamList.Search
+                  (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID)
+                  = -1 then
+                begin
+                  AUpdParamSubParamList.Add
+                    (TUpdParamSubParam.Create
+                    (AExcelTable.IDParentComponent.AsInteger,
+                    AParamSubParamID));
+                end;
               end;
+
+              // Добавляем значение в таблицу значений связки параметра с подпараметром
+              AQueryParametersValue.W.LocateOrAppend(AValue);
+              AExcelTable.CallOnProcessEvent;
             end;
 
-            // Добавляем значение в таблицу значений связки параметра с подпараметром
-            AQueryParametersValue.W.LocateOrAppend(AValue);
-            AExcelTable.CallOnProcessEvent;
           end;
         end;
         AExcelTable.Next;
