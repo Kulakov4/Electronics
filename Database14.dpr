@@ -104,7 +104,6 @@ uses
   GridSort in 'Helpers\GridSort.pas',
   GridFrame in 'Views\GridFrame.pas' {frmGrid: TFrame},
   TreeListFrame in 'Views\TreeListFrame.pas' {frmTreeList: TFrame},
-  ModCheckDatabase in 'Helpers\ModCheckDatabase.pas',
   AutoBindingDocForm in 'Views\AutoBinding\AutoBindingDocForm.pas' {frmAutoBindingDoc},
   AutoBindingDescriptionForm in 'Views\AutoBinding\AutoBindingDescriptionForm.pas' {frmAutoBindingDescriptions},
   GridView in 'Views\GridView\GridView.pas' {ViewGrid: TFrame},
@@ -248,7 +247,8 @@ uses
   LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData},
   SelectionInt in 'Helpers\SelectionInt.pas',
   SearchBodyVariationQuery in 'Queryes\BodyTypes\SearchBodyVariationQuery.pas' {QrySearchBodyVariation: TFrame},
-  BodyKindsColorQuery in 'Queryes\BodyTypes\BodyKindsColorQuery.pas' {QryBodyKindsColor: TFrame};
+  BodyKindsColorQuery in 'Queryes\BodyTypes\BodyKindsColorQuery.pas' {QryBodyKindsColor: TFrame},
+  DataBaseUnit in 'Helpers\DataBaseUnit.pas';
 
 {$R *.res}
 

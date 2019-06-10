@@ -26,6 +26,7 @@ type
   protected
   public
     constructor Create(AOwner: TComponent); override;
+    class function GetDBVersion: Integer; static;
     property W: TVersionW read FW;
     { Public declarations }
   end;
@@ -42,6 +43,19 @@ constructor TQueryVersion.Create(AOwner: TComponent);
 begin
   inherited;
   FW := TVersionW.Create(FDQuery);
+end;
+
+class function TQueryVersion.GetDBVersion: Integer;
+var
+  Q: TQueryVersion;
+begin
+  Q := TQueryVersion.Create(nil);
+  try
+    Q.W.TryOpen;
+    Result := Q.W.Version.F.AsInteger;
+  finally
+    FreeAndNil(Q);
+  end;
 end;
 
 {$R *.dfm}

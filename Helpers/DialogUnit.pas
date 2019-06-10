@@ -39,6 +39,7 @@ type
     class var Instance: TDialog;
   public
     function AddManufacturerDialog(const AValue: String): Boolean;
+    function CreateNewDatabaseDialog: Boolean;
     procedure AutoBindNotFoundDialog;
     procedure AutoBindResultDialog(ACount: Integer);
     function ClearTreeDialog: Boolean;
@@ -52,6 +53,7 @@ type
     class function NewInstance: TObject; override;
     function CreateFolderDialog(const AValue: String): Integer;
     function ClearBasketDialog: Boolean;
+    function UpdateDataBaseDialog(AVer, AMaxVersion: Double): Boolean;
     function UseDefaultMinWholeSale(AMinWholeSale: Double): Integer;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
@@ -94,6 +96,14 @@ begin
     (PChar(Format('В справочнике производителей не найден производитель %s.' +
     #13#10 + #13#10 + 'Добавить "%s" в справочник?', [AValue, AValue])),
     'Добавление производителя', MB_YESNO + MB_ICONQUESTION) = IDYES;
+end;
+
+function TDialog.CreateNewDatabaseDialog: Boolean;
+begin
+  Result := Application.MessageBox
+    (PChar('В выбранной папке не найден файл базы данных.' + #13#10 + #13#10 +
+    'Создать пустую базу данных?'), 'Создание базы данных',
+    MB_YESNO + MB_ICONQUESTION) = IDYES;
 end;
 
 procedure TDialog.AutoBindNotFoundDialog;
@@ -190,6 +200,19 @@ begin
   Result := Application.MessageBox
     (PWideChar('Вы действительно хотите очистить корзину?'), 'Очистка корзины',
     MB_YESNO + MB_ICONQUESTION) = IDYES;
+end;
+
+function TDialog.UpdateDataBaseDialog(AVer, AMaxVersion: Double): Boolean;
+Var
+  FS: TFormatSettings;
+begin
+  FS.DecimalSeparator := '.';
+
+  Result := Application.MessageBox
+    (PChar(Format('Найдена база данных версии %s' + #13#10 + #13#10 +
+    'Необходимо обновить базу данных до версии %s.',
+    [FloatToStrF(AVer, ffGeneral, 1, 8, FS), FloatToStrF(AMaxVersion, ffGeneral,
+    1, 8, FS)])), 'Обновление базы данных', MB_YESNO + MB_ICONQUESTION) = IDYES;
 end;
 
 function TDialog.UseDefaultMinWholeSale(AMinWholeSale: Double): Integer;

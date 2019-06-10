@@ -87,7 +87,6 @@ end;
 class procedure TParameterValues.LoadParameterValues
   (AExcelTable: TParametricExcelTable; ANotifyEventRef: TNotifyEventRef);
 var
-  a: TArray<String>;
   AFieldInfo: TFieldInfo;
   AIDComponent: Integer;
   AParamSubParamID: Integer;

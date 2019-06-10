@@ -33,7 +33,6 @@ type
     FComponentsExGroup: TComponentsExGroup2;
     FComponentsGroup: TComponentsGroup2;
     FComponentsSearchGroup: TComponentsSearchGroup2;
-    FDataSetList: TList<TQueryBase>;
     FDescriptionsGroup: TDescriptionsGroup2;
     FEventList: TObjectList;
     FExtraChargeGroup: TExtraChargeGroup;
@@ -56,7 +55,6 @@ type
     FqTreeList: TQueryTreeList;
     FqVersion: TQueryVersion;
     FRefreshQList: TList;
-    procedure CloseConnection;
     procedure DoAfterBillContentApplyUpdates(Sender: TObject);
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
@@ -95,7 +93,6 @@ type
     function GetqVersion: TQueryVersion;
     function InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
       AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
-    procedure OpenConnection;
   protected
     procedure DoAfterChildCategoriesPostOrDelete(Sender: TObject);
     procedure DoAfterCommit(Sender: TObject);
@@ -111,10 +108,9 @@ type
     destructor Destroy; override;
     procedure AddBill(AQryProducts: TQueryProductsBase);
     class function Created: Boolean;
-    procedure CreateOrOpenDataBase(const AExeName: String);
-    function LoadExcelFileHeader(ARootTreeNode: TStringTreeNode; AFieldsInfo:
-        TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef):
-        TLoadExcelFileHeaderResult;
+    function LoadExcelFileHeader(ARootTreeNode: TStringTreeNode;
+      AFieldsInfo: TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef)
+      : TLoadExcelFileHeaderResult;
     class function NewInstance: TObject; override;
     property BodyTypesGroup: TBodyTypesGroup2 read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup2
@@ -136,8 +132,8 @@ type
     property qProductsBasket: TQueryProducts read GetqProductsBasket;
     property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
-    property qSearchDaughterCategories: TQuerySearchDaughterCategories read
-        GetqSearchDaughterCategories;
+    property qSearchDaughterCategories: TQuerySearchDaughterCategories
+      read GetqSearchDaughterCategories;
     property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     property qSubParameters: TQuerySubParameters2 read GetqSubParameters;
     property qTreeList: TQueryTreeList read GetqTreeList;
@@ -148,9 +144,9 @@ implementation
 
 uses
   RepositoryDataModule, SettingsController, System.SysUtils, System.IOUtils,
-  ProjectConst, ModCheckDatabase, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
+  ProjectConst, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
   SearchInterfaceUnit, ClearStorehouseProductsQuery, StrHelper,
-  ParametricExcelDataModule, DefaultParameters;
+  ParametricExcelDataModule, DefaultParameters, System.Types;
 
 var
   SingletonList: TObjectList;
@@ -163,46 +159,11 @@ begin
 
   FComponent := TComponent.Create(nil);
 
-  Assert(DMRepository <> nil);
-  Assert(not DMRepository.dbConnection.Connected);
-
   TNotifyEventWrap.Create(DMRepository.BeforeDestroy, DoBeforeRepDMDestroy,
     FEventList);
 
   FEventList := TObjectList.Create;
   FRefreshQList := TList.Create;
-
-  // СОздаём список наборов данных, кторые будем открывать
-  FDataSetList := TList<TQueryBase>.Create;
-
-  with FDataSetList do
-  begin
-    // Add(qTreeList);
-
-    // Add(BodyTypesGroup.qBodyKinds); // Виды корпусов
-    // Add(BodyTypesGroup.qBodyTypes2); // Типы корпусов
-
-    // Add(ProducersGroup.qProducerTypes); // Типы производителей
-    // Add(ProducersGroup.qProducers); // Производители
-
-    // Поиск на складе и редактирование найденного
-    // Add(qProductsSearch);
-
-    // Add(qStoreHouseList); // Склады - главное
-
-    // Поиск среди семейств
-    // Add(ComponentsSearchGroup.qFamilySearch);
-
-    // Поиск среди компонентов (подчинённое)
-    // Add(ComponentsSearchGroup.qComponentsSearch);
-
-    // вкладка параметры - список параметров
-    // Add(CategoryParametersGroup.qCategoryParameters);
-  end;
-  // Для компонентов указываем откуда брать производителя и корпус
-  // ComponentsGroup.Producers := ProducersGroup.qProducers;
-  // ComponentsSearchGroup.Producers := ProducersGroup.qProducers;
-  // ComponentsExGroup.Producers := ProducersGroup.qProducers;
 
   Assert(not qTreeList.FDQuery.Active);
   TNotifyEventWrap.Create(qTreeList.W.AfterOpen, DoAfterTreeListFirstOpen,
@@ -254,7 +215,6 @@ begin
 
   FreeAndNil(FEventList);
   FreeAndNil(FRefreshQList);
-  FreeAndNil(FDataSetList);
   inherited;
 end;
 
@@ -305,57 +265,9 @@ begin
 
 end;
 
-{ закрытие датасетов }
-procedure TDM.CloseConnection;
-var
-  I: Integer;
-begin
-  for I := FDataSetList.Count - 1 downto 0 do
-    FDataSetList[I].FDQuery.Close;
-
-  qTreeList.FDQuery.Close;
-
-  // Закрываем соединение с БД
-  DMRepository.dbConnection.Close;
-end;
-
 class function TDM.Created: Boolean;
 begin
   Result := SingletonList.Count > 0;
-end;
-
-procedure TDM.CreateOrOpenDataBase(const AExeName: String);
-var
-  ADatabaseFileName: string;
-  AEmptyDatabaseFileName: string;
-begin
-  Assert(not AExeName.IsEmpty);
-  ADatabaseFileName := TPath.Combine(TSettings.Create.databasePath,
-    sDefaultDatabaseFileName);
-
-  // если файл с бд не существует, скопировать из директории
-  if not TFile.Exists(ADatabaseFileName) then
-  begin
-    // определяемся с именем файла "пустой" базы данных
-    AEmptyDatabaseFileName := TPath.Combine(TPath.GetDirectoryName(AExeName),
-      sEmptyDatabaseFileName);
-
-    if not TFile.Exists(AEmptyDatabaseFileName) then
-      raise Exception.Create(Format('Не могу создать пустую базу данных.' +
-        #13#10 + 'Не найден файл %s', [sEmptyDatabaseFileName]));
-
-    TFile.Copy(AEmptyDatabaseFileName, ADatabaseFileName);
-  end;
-
-  // Закрываем старое соединение с БД
-  if DMRepository.dbConnection.Connected then
-    CloseConnection;
-
-  // Меняем путь до базы данных
-  DMRepository.dbConnection.Params.Database := ADatabaseFileName; // путь до БД
-
-  // Открываем новое соединение с БД
-  OpenConnection();
 end;
 
 procedure TDM.DoAfterBillContentApplyUpdates(Sender: TObject);
@@ -726,7 +638,8 @@ end;
 function TDM.GetqSearchDaughterCategories: TQuerySearchDaughterCategories;
 begin
   if FqSearchDaughterCategories = nil then
-    FqSearchDaughterCategories := TQuerySearchDaughterCategories.Create(FComponent);
+    FqSearchDaughterCategories := TQuerySearchDaughterCategories.Create
+      (FComponent);
 
   Result := FqSearchDaughterCategories;
 end;
@@ -776,9 +689,9 @@ begin
   Result := FqVersion;
 end;
 
-function TDM.LoadExcelFileHeader(ARootTreeNode: TStringTreeNode; AFieldsInfo:
-    TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef):
-    TLoadExcelFileHeaderResult;
+function TDM.LoadExcelFileHeader(ARootTreeNode: TStringTreeNode;
+AFieldsInfo: TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef)
+  : TLoadExcelFileHeaderResult;
 var
   AFieldName: string;
   AParametricErrorTable: TParametricErrorTable;
@@ -858,17 +771,17 @@ begin
     Result := ID_OK;
   {
     TDialog.Create.ErrorMessageDialog
-      ('Нет параметров, значения которых можно загрузить');
+    ('Нет параметров, значения которых можно загрузить');
 
-  Result := OK;}
+    Result := OK; }
 end;
 
 function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
-  AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
+AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
 
   function ProcessParamSearhResult(ACount: Integer;
-    AStringTreeNode: TStringTreeNode;
-    AParametricErrorTable: TParametricErrorTable): Boolean;
+  AStringTreeNode: TStringTreeNode;
+  AParametricErrorTable: TParametricErrorTable): Boolean;
   begin
     Result := True;
     if ACount = 1 then
@@ -891,8 +804,8 @@ function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
   end;
 
   function ProcessSubParamSearhResult(ACount: Integer;
-    AStringTreeNode: TStringTreeNode;
-    AParametricErrorTable: TParametricErrorTable): Boolean;
+  AStringTreeNode: TStringTreeNode;
+  AParametricErrorTable: TParametricErrorTable): Boolean;
   begin
     Result := True;
     if ACount = 1 then
@@ -916,8 +829,8 @@ function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
   end;
 
   function CheckUniqueSubParam(AParamSubParamID: Integer;
-    AIDList: TList<Integer>; AStringTreeNode: TStringTreeNode;
-    AParametricErrorTable: TParametricErrorTable): Boolean;
+  AIDList: TList<Integer>; AStringTreeNode: TStringTreeNode;
+  AParametricErrorTable: TParametricErrorTable): Boolean;
   begin
     Assert(AParamSubParamID > 0);
     Result := True;
@@ -1080,65 +993,6 @@ begin
   end;
 
   Result := Instance;
-end;
-
-{ открытие датасетов }
-procedure TDM.OpenConnection;
-var
-  AErrorMessage: string;
-  I: Integer;
-  x: Integer;
-begin
-  try
-    // Обновляем структуру БД
-    TDBMigration.UpdateDatabaseStructure(DMRepository.dbConnection,
-      TSettings.Create.DBMigrationFolder, DBVersion);
-  except
-    // При обновлении версии БД произошла какая-то ошибка
-    on E: Exception do
-    begin
-      AErrorMessage :=
-        Format('Ошибка при обновлении структуры базы данных.'#13#10'%s',
-        [E.Message]);
-      raise Exception.Create(AErrorMessage);
-    end;
-  end;
-
-  // Устанавливаем соединение с БД
-  DMRepository.dbConnection.Open();
-
-  AErrorMessage := '';
-  try
-    qVersion.W.RefreshQuery;
-    if qVersion.W.Version.F.AsInteger <> DBVersion then
-    begin
-      AErrorMessage := Format('Неверная версия базы данных (надо %d, имеем %d)',
-        [DBVersion, qVersion.W.Version.F.AsInteger]);
-    end;
-  except
-    // При проверке версии БД произошла какая-то ошибка
-    on E: Exception do
-    begin
-      AErrorMessage := E.Message;
-    end;
-  end;
-
-  if not AErrorMessage.IsEmpty then
-  begin
-    DMRepository.dbConnection.Close;
-    raise Exception.Create(AErrorMessage);
-  end;
-
-  if FDataSetList <> nil then
-  begin
-    for I := 0 to FDataSetList.Count - 1 do
-    begin
-      FDataSetList[I].FDQuery.Open;
-    end;
-  end;
-
-  x := TDefaultParameters.PackagePinsParamSubParamID;
-  Assert(x > 0);
 end;
 
 initialization

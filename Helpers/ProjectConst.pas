@@ -45,8 +45,8 @@ resourcestring
 
   sBodyTypesFilesExt = 'pdf;jpg;png;bmp;gif';
 
-  sDefaultDatabaseFileName = 'database_1.4.db';
-  sEmptyDatabaseFileName = 'database_empty_1.4.db';
+//  sDefaultDatabaseFileName = 'database_1.4.db';
+//  sEmptyDatabaseFileName = 'database_empty_1.4.db';
 
   sDoYouWantToDeleteCategoryParameter =
     'Вы действительно хотите убрать выделенные параметры из текущей категории?';
@@ -73,6 +73,7 @@ resourcestring
   sExtraChargeRangeError2 = 'Левая граница диапазона должна быть больше правой';
 
   sLocalizationFileName = 'Localization.ini';
+  sDriverName = 'SQLite';
 
   sProducerParamTableName = 'Producer';
   sPackagePinsParamTableName = 'Package / Pins';
@@ -91,8 +92,8 @@ resourcestring
   sTreeRootNodeName = 'Структура';
 
 const
-  DBVersion = 7;
-  ProgramVersion = 1.4;
+  DBVersion = 8;
+  ProgramVersion = 1.5;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
   DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
   OnReadProcessEventRecordCount = 100;

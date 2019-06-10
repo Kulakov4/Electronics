@@ -45,7 +45,7 @@ object frmPathSettings: TfrmPathSettings
     Height = 188
     Align = alTop
     TabOrder = 2
-    Properties.ActivePage = cxtshComponents
+    Properties.ActivePage = cxtshDatabase
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 184
     ClientRectLeft = 4
@@ -262,8 +262,6 @@ object frmPathSettings: TfrmPathSettings
     object cxtshBodyTypes: TcxTabSheet
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 0
-      ExplicitLeft = 5
-      ExplicitTop = 28
       object Label1: TLabel
         Left = 8
         Top = 33

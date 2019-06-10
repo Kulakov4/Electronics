@@ -239,7 +239,7 @@ uses
   ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule,
   FireDAC.Comp.DataSet, ComponentsGroupUnit2, ComponentsExcelDataModule,
   StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType,
-  LoadParametricDataForm;
+  LoadParametricDataForm, VersionQuery, DataBaseUnit;
 
 {$R *.dfm}
 
@@ -282,15 +282,15 @@ begin
   if AOldDataBasePath = ANewDataBasePath then
     Exit;
 
-  // FViewTreeList.BeginUpdate;
-  // try
-
   cxpcMain.ActivePage := nil;
   cxpcComp2.ActivePage := nil;
   cxpcCompGroupRight.ActivePage := nil;
   cxpcWareHouse2.ActivePage := nil;
 
-  TDM.Create.CreateOrOpenDataBase(Application.ExeName);
+  if not TDataBase.OpenDBConnection(DMRepository.dbConnection,
+    TSettings.Create.databasePath, TSettings.Create.DBMigrationFolder,
+    TPath.GetDirectoryName(Application.ExeName)) then
+    Exit;
 
   // обновляем доступность кнопки "Сохранить всё"
   DoOnHaveAnyChanges(nil);
@@ -301,11 +301,6 @@ begin
   // Искусственно вызываем событие
   if TDM.Create.qTreeList.FDQuery.Active then
     DoOnProductCategoriesChange(nil);
-
-  // finally
-  // FViewTreeList.EndUpdate;
-  // FViewTreeList.ExpandRoot;
-  // end;
 end;
 
 procedure TfrmMain.actShowBodyTypes2Execute(Sender: TObject);
@@ -819,8 +814,6 @@ begin
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
-var
-  OK: Boolean;
 begin
   // Создаём модуль репозитория
   Assert(DMRepository = nil);
@@ -859,57 +852,38 @@ begin
     DoOnAutoBindingDescription, FEventList);
 
   // Проверяем что путь до базы данных корректный
-  OK := CheckDataBasePath;
 
-  if OK then
-  begin
+  try
+    if not CheckDataBasePath then
+      raise EAbort.Create('CheckDataBasePath');
+
+    Assert(DMRepository <> nil);
     // Пока ещё соединение с БД должно быть закрыто
     Assert(not DMRepository.dbConnection.Connected);
-    repeat
-      try
-        // Создаём или открываем базу данных
-        TDM.Create.CreateOrOpenDataBase(Application.ExeName);
-        // DM2.CreateOrOpenDataBase;
-      except
-        on E: Exception do
-        begin
-          TDialog.Create.ErrorMessageDialog(E.Message);
-          // Снова предлагаем выбрать папку с БД
 
-          OK := ShowSettingsEditor = mrOk;
-        end;
-      end;
+    // Открываем соединение с базой данных
+    if not TDataBase.OpenDBConnection(DMRepository.dbConnection,
+      TSettings.Create.databasePath, TSettings.Create.DBMigrationFolder,
+      TPath.GetDirectoryName(Application.ExeName)) then
+      raise EAbort.Create('OpenDBConnection');
 
-    until (DMRepository.dbConnection.Connected) or (not OK);
+    // обновляем доступность кнопки "Сохранить всё"
+    DoOnHaveAnyChanges(nil);
+    TNotifyEventWrap.Create(QueryMonitor.OnHaveAnyChanges, DoOnHaveAnyChanges);
 
-    if OK then
-    begin
-      // обновляем доступность кнопки "Сохранить всё"
-      DoOnHaveAnyChanges(nil);
-      TNotifyEventWrap.Create(QueryMonitor.OnHaveAnyChanges,
-        DoOnHaveAnyChanges);
+    FLoadComplete := True;
 
-      FLoadComplete := True;
+    cxpcMain.ActivePage := cxtshComp;
+    cxpcComp2.ActivePage := cxtshCompGroup;
 
-      cxpcMain.ActivePage := cxtshComp;
-      cxpcComp2.ActivePage := cxtshCompGroup;
+    // Искусственно вызываем событие
+    if TDM.Create.qTreeList.FDQuery.Active then
+      DoOnProductCategoriesChange(nil);
 
-      // ComponentsFrame.cxpcComponents.ActivePage := ComponentsFrame.cxtsCategory;
-      // ProductsFrame.cxpcStorehouse.ActivePage := ProductsFrame.tsStorehouseProducts;
-
-      // Искусственно вызываем событие
-      if TDM.Create.qTreeList.FDQuery.Active then
-        DoOnProductCategoriesChange(nil);
-    end;
-  end;
-
-  // OK := OK and TProtect.Create.Check;
-  if not OK then
-  begin
+  except
     Application.ShowMainForm := False;
     Application.Terminate; // завершаем работу приложения
   end;
-
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
@@ -1318,7 +1292,8 @@ begin
   m := S.Split([' ']);
   if Length(m) = 0 then
   begin
-    TDialog.Create.ErrorMessageDialog('Имя файла не содержит идентификатора категории загрузки (или пробела)');
+    TDialog.Create.ErrorMessageDialog
+      ('Имя файла не содержит идентификатора категории загрузки (или пробела)');
     Exit;
   end;
 

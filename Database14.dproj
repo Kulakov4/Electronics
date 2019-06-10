@@ -436,7 +436,6 @@
             <Form>frmTreeList</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Helpers\ModCheckDatabase.pas"/>
         <DCCReference Include="Views\AutoBinding\AutoBindingDocForm.pas">
             <Form>frmAutoBindingDoc</Form>
         </DCCReference>
@@ -873,6 +872,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Helpers\DataBaseUnit.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
