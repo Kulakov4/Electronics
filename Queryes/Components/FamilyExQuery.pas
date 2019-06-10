@@ -14,13 +14,18 @@ uses
 
 type
   TFamilyExW = class(TFamilyW)
+  private
+    FAnalog: TFieldWrap;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure RefreshQuery; override;
+    property Analog: TFieldWrap read FAnalog;
   end;
 
   TQueryFamilyEx = class(TQueryFamily)
   private
     FOn_ApplyUpdate: TNotifyEventsEx;
+    function GetFamilyExW: TFamilyExW;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -33,6 +38,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    property FamilyExW: TFamilyExW read GetFamilyExW;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
   end;
@@ -81,6 +87,17 @@ end;
 function TQueryFamilyEx.CreateDSWrap: TDSWrap;
 begin
   Result := TFamilyExW.Create(FDQuery);
+end;
+
+function TQueryFamilyEx.GetFamilyExW: TFamilyExW;
+begin
+  Result := W as TFamilyExW;
+end;
+
+constructor TFamilyExW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FAnalog := TFieldWrap.Create(Self, 'Analog');
 end;
 
 procedure TFamilyExW.RefreshQuery;

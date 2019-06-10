@@ -61,7 +61,6 @@ type
     cxStyleBegin: TcxStyle;
     cxStyleEnd: TcxStyle;
     dxBarButton3: TdxBarButton;
-    clAnalog: TcxGridDBBandedColumn;
     clAnalog2: TcxGridDBBandedColumn;
     dxBarButton4: TdxBarButton;
     actRefresh: TAction;
@@ -170,6 +169,7 @@ type
       const ADisplayText: string);
     procedure DoOnValidate(Sender: TObject; var DisplayValue: Variant;
       var ErrorText: TCaption; var Error: Boolean);
+    function GetclAnalog: TcxGridDBBandedColumn;
     procedure UpdateColumn(AIDCategoryParam: Integer);
     function GetComponentsExGroup: TComponentsExGroup2;
     function GetqCategoryParameters: TQueryCategoryParameters2;
@@ -230,6 +230,7 @@ type
     procedure Unlock;
     procedure UpdateMinBandWindth(ABandInfo: TBandInfoEx);
     procedure UpdateView; override;
+    property clAnalog: TcxGridDBBandedColumn read GetclAnalog;
     property ComponentsExGroup: TComponentsExGroup2 read GetComponentsExGroup
       write SetComponentsExGroup;
     property Mark: string read FMark;
@@ -278,7 +279,8 @@ uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   GridExtension, DragHelper, System.Math, AnalogForm, AnalogQueryes,
   AnalogGridView, SearchProductByParamValuesQuery, NaturalSort,
   CategoryParametersGroupUnit2, FireDAC.Comp.Client, MoveHelper,
-  SubParametersForm, System.Types, TextRectHelper, GridViewForm;
+  SubParametersForm, System.Types, TextRectHelper, GridViewForm, DialogUnit,
+  FamilyExQuery;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
 begin
@@ -594,8 +596,12 @@ begin
       end;
 
       // Загружаем значения параметров для текущей категории
-      AnalogGroup.Load(AProductCategoryID, ARecHolder,
-        ComponentsExGroup.AllParameterFields);
+      if not AnalogGroup.Load(AProductCategoryID, ARecHolder,
+        ComponentsExGroup.AllParameterFields) then
+      begin
+        TDialog.Create.NoParametersForAnalog;
+        Exit;
+      end;
 
       AfrmAnalog := TfrmAnalog.Create(Self);
       try
@@ -1489,11 +1495,13 @@ end;
 
 function TViewParametricTable.CreateColInfoArray: TArray<TColInfo>;
 Var
-  W: TCustomComponentsW;
+  W: TFamilyExW;
 begin
-  W := BaseCompGrp.qBaseFamily.W;
-  Result := [TColInfo.Create(W.ID, 0), TColInfo.Create(W.Value, 0,
-    W.Value.DisplayLabel), TColInfo.Create(W.Producer, 1, W.Producer.FieldName),
+  W := ComponentsExGroup.qFamilyEx.FamilyExW;
+
+  Result := [TColInfo.Create(W.ID, 0), TColInfo.Create(W.Analog, 0),
+    TColInfo.Create(W.Value, 0, W.Value.DisplayLabel),
+    TColInfo.Create(W.Producer, 1, W.Producer.FieldName),
     TColInfo.Create(W.DescriptionComponentName, 2,
     W.DescriptionComponentName.FieldName), TColInfo.Create(W.Datasheet, 3,
     W.Datasheet.FieldName), TColInfo.Create(W.Diagram, 4, W.Diagram.FieldName),
@@ -1801,6 +1809,13 @@ begin
     Result := qCategoryParameters.W.Value.F.AsString;
 
   Result := DeleteDouble(Result, ' ');
+end;
+
+function TViewParametricTable.GetclAnalog: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName
+    (ComponentsExGroup.qFamilyEx.FamilyExW.Analog.FieldName);
+  Result.Caption := 'Аналог';
 end;
 
 procedure TViewParametricTable.UpdateColumn(AIDCategoryParam: Integer);

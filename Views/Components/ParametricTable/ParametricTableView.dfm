@@ -4,7 +4,9 @@ inherited ViewParametricTable: TViewParametricTable
   ExplicitWidth = 954
   inherited cxGrid: TcxGrid
     Width = 954
+    ExplicitTop = 0
     ExplicitWidth = 954
+    ExplicitHeight = 472
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue
@@ -22,15 +24,6 @@ inherited ViewParametricTable: TViewParametricTable
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
       OnBandPosChanged = cxGridDBBandedTableViewBandPosChanged
-      object clAnalog: TcxGridDBBandedColumn
-        Caption = #1040#1085#1072#1083#1086#1075
-        DataBinding.FieldName = 'Analog'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = -1
-        Position.ColIndex = -1
-        Position.RowIndex = -1
-      end
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue

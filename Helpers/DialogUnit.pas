@@ -58,6 +58,7 @@ type
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
     procedure DollarOrEuroCourceUnknown;
+    procedure NoParametersForAnalog;
     procedure DuplicateNotFound;
     procedure ParamDuplicateNotFound(ATableName: string);
     procedure ProducerNotFound(const AProducer: string);
@@ -232,6 +233,12 @@ end;
 procedure TDialog.DollarOrEuroCourceUnknown;
 begin
   Application.MessageBox(PChar('Не известен текущий курс Доллара или Евро'),
+    PChar(sError), MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.NoParametersForAnalog;
+begin
+  Application.MessageBox(PChar('Не найдено ни одного параметра для поиска аналога'),
     PChar(sError), MB_OK + MB_ICONSTOP);
 end;
 

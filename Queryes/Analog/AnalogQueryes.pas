@@ -77,8 +77,8 @@ type
     procedure CheckNear;
     procedure Clear(AParamSubParamID: Integer);
     function GetParamSubParamIDByFieldName(const AFieldName: String): Integer;
-    procedure Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder;
-      AAllParameterFields: TDictionary<Integer, String>);
+    function Load(AProductCategoryID: Integer; ARecHolder: TRecordHolder;
+      AAllParameterFields: TDictionary<Integer, String>): Boolean;
     procedure SetAsDefaultValues;
     procedure UpdateParameterValues(AParamSubParamID: Integer);
     property AllParameterFields: TDictionary<Integer, String>
@@ -250,8 +250,8 @@ begin
 
 end;
 
-function TAnalogGroup.GetParamSubParamIDByFieldName(const AFieldName: String):
-    Integer;
+function TAnalogGroup.GetParamSubParamIDByFieldName(const AFieldName
+  : String): Integer;
 begin
   Assert(not AFieldName.IsEmpty);
   Assert(FParamSubParamIDDic.ContainsKey(AFieldName));
@@ -259,8 +259,9 @@ begin
   Result := FParamSubParamIDDic[AFieldName];
 end;
 
-procedure TAnalogGroup.Load(AProductCategoryID: Integer;
-  ARecHolder: TRecordHolder; AAllParameterFields: TDictionary<Integer, String>);
+function TAnalogGroup.Load(AProductCategoryID: Integer;
+  ARecHolder: TRecordHolder;
+  AAllParameterFields: TDictionary<Integer, String>): Boolean;
 var
   AFieldList: TList<String>;
   AFieldName: string;
@@ -272,6 +273,7 @@ var
   i: Integer;
   S: string;
 begin
+  Result := False;
   Assert(ARecHolder <> nil);
 
   FAllParameterFields.Clear;
@@ -284,12 +286,13 @@ begin
   try
     // Ищем параметры используемые для поиска аналога
     CatParamsGroup.qCategoryParameters.SearchAnalog(AProductCategoryID);
+    CatParamsGroup.qCategoryParameters.FDQuery.First;
     while not CatParamsGroup.qCategoryParameters.FDQuery.Eof do
     begin
-      AParamSubParamID := CatParamsGroup.qCategoryParameters.W.
-        ParamSubParamID.F.AsInteger;
-      AIDParameterKind := CatParamsGroup.qCategoryParameters.W.
-        IDParameterKind.F.AsInteger;
+      AParamSubParamID := CatParamsGroup.qCategoryParameters.W.ParamSubParamID.
+        F.AsInteger;
+      AIDParameterKind := CatParamsGroup.qCategoryParameters.W.IDParameterKind.
+        F.AsInteger;
       // Имя поля в таблице определяющей выбранные значения для поиска аналога
       Assert(AAllParameterFields.ContainsKey(AParamSubParamID));
       AFieldName := AAllParameterFields[AParamSubParamID];
@@ -324,6 +327,10 @@ begin
       CatParamsGroup.qCategoryParameters.FDQuery.Next;
     end;
 
+    // Если не найдено ни одного поля, по которому можно искать аналог
+    if AFieldList.Count = 0 then
+      Exit;
+
     FFDMemTable.Close;
     FFDMemTable.FieldDefs.Clear;
     FFDMemTable.Name := 'asdsad';
@@ -352,6 +359,7 @@ begin
     end;
 
     FDMemTable.Post;
+    Result := True;
   finally
     FreeAndNil(ASortList);
     FreeAndNil(AFieldList);
