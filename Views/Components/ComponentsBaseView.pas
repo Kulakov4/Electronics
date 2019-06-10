@@ -749,8 +749,7 @@ end;
 
 procedure TViewComponentsBase.CreateColumnsBarButtons;
 begin
-  FColumnsBarButtons := TGVColumnsBarButtonsEx.Create(Self, dxbsColumns,
-    MainView, cxGridDBBandedTableView2);
+  // Меню будем создавать только после создания всех колонок
 end;
 
 function TViewComponentsBase.CreateViewArr: TArray<TcxGridDBBandedTableView>;
@@ -1071,6 +1070,10 @@ begin
     // Подписываемся на сообщения об изменении кол-ва
     if UpdateCount = 0 then
       CreateCountEvents;
+
+    // После того, как колоки созданы - создаём соответствующие пункты в меню
+    FColumnsBarButtons := TGVColumnsBarButtonsEx.Create(Self, dxbsColumns,
+      MainView, cxGridDBBandedTableView2);
   end
   else
   begin
