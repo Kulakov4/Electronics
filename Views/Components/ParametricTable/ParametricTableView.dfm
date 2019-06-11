@@ -4,9 +4,7 @@ inherited ViewParametricTable: TViewParametricTable
   ExplicitWidth = 954
   inherited cxGrid: TcxGrid
     Width = 954
-    ExplicitTop = 0
     ExplicitWidth = 954
-    ExplicitHeight = 472
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
       OnInitEditValue = cxGridDBBandedTableViewInitEditValue

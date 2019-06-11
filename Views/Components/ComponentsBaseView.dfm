@@ -6,6 +6,8 @@ inherited ViewComponentsBase: TViewComponentsBase
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
       OptionsCustomize.ColumnVertSizing = False
+      OptionsView.NavigatorOffset = 0
+      OptionsView.IndicatorWidth = 0
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
       OnColumnSizeChanged = cxGridDBBandedTableViewColumnSizeChanged
       OnLeftPosChanged = cxGridDBBandedTableViewLeftPosChanged

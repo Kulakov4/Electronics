@@ -840,8 +840,8 @@ begin
         if i < 0 then
           Exit;
 
-        if not (AcxGridDBBandedTableView.ViewData.Rows[i]
-          is TcxGridMasterDataRow) then
+        if not(AcxGridDBBandedTableView.ViewData.Rows[i] is TcxGridMasterDataRow)
+        then
           Exit;
 
         AcxGridMasterDataRow := GetDBBandedTableView(ALevel - 1).ViewData.Rows
@@ -1390,7 +1390,7 @@ end;
 
 procedure TfrmGrid.InitView(AView: TcxGridDBBandedTableView);
 begin
-//  AView.OptionsBehavior.ImmediateEditor := False;
+  AView.OptionsBehavior.ImmediateEditor := True;
   AView.OptionsView.FocusRect := False;
   // AView.Styles.Inactive := DMRepository.cxInactiveStyle;
 end;
@@ -1411,7 +1411,7 @@ end;
 
 function TfrmGrid.MyApplyBestFitForBand(ABand: TcxGridBand): Integer;
 const
-  MAGIC = 12;
+  MAGIC = 20;//12;
 var
   ABandHeight: Integer;
   ABandRect: TRect;
@@ -1449,9 +1449,11 @@ begin
 
     ACaption := AColumn.Caption;
 
-    // В каждой строке по слову
-    AColumn.Caption := GetWords(AColumn.Caption);
-
+    if not ACaption.Trim.IsEmpty then
+    begin
+      // В каждой строке по слову
+      AColumn.Caption := GetWords(AColumn.Caption);
+    end;
     ApplyBestFitForColumn(AColumn);
 
     // Возвращаем старый заголовок

@@ -191,7 +191,6 @@ type
     function GetfrmSubgroupListPopup: TfrmSubgroupListPopup;
     function GetProducerDisplayText: string;
     function GetqSubGroups: TfrmQuerySubGroups;
-    procedure PostMessageUpdateDetailColumnsWidth;
     procedure SetBaseCompGrp(const Value: TBaseComponentsGroup2);
     procedure SyncScrollbarPositions;
     procedure UpdateSelectedCount;
@@ -222,6 +221,7 @@ type
     procedure OnGridRecordCellPopupMenu(AColumn: TcxGridDBBandedColumn;
       var AllowPopup: Boolean); override;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
+    procedure PostMessageUpdateDetailColumnsWidth;
     procedure UpdateDetailColumnsWidth;
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property FocusedQuery: TQueryCustomComponents read GetFocusedQuery;
@@ -1397,6 +1397,7 @@ begin
   inherited;
   AView.OptionsData.Deleting := False;
   AView.OptionsData.DeletingConfirmation := False;
+//  AView.OptionsView.ExpandButtonsForEmptyDetails := False;
 end;
 
 procedure TViewComponentsBase.InternalRefreshData;

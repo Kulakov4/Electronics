@@ -140,6 +140,8 @@ type
     procedure cxGridDBBandedTableViewStylesGetHeaderStyle
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
     procedure cxbeiTableNamePropertiesChange(Sender: TObject);
+    procedure cxGridDBBandedTableViewColumnSizeChanged(Sender: TcxGridTableView;
+      AColumn: TcxGridColumn);
     // TODO: cxGridDBBandedTableViewDataControllerFilterChanged
     // procedure cxGridDBBandedTableViewDataControllerFilterChanged
     // (Sender: TObject);
@@ -1300,32 +1302,33 @@ procedure TViewParametricTable.DoOnMasterDetailChange;
 begin
   inherited;
   Assert(not FLockInfo.Locked);
-  if BaseCompGrp <> nil then
+  if BaseCompGrp = nil then
+    Exit;
+
+  FMark := ComponentsExGroup.Mark;
+
+  TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.BeforeOpen,
+    DoBeforeFamilyExOpen, FEventList);
+
+  TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.AfterOpen,
+    DoAfterFamilyExOpen, FEventList);
+
+  // Если бэнды по умолчанию ещё не инициализированы
+  if FBandsInfo.Count = 0 then
+    InitializeDefaultCreatedBands([MainView, GridView(cxGridLevel2)]);
+
+  // если данные открыты и не требуют обновления
+  if ComponentsExGroup.qFamilyEx.Actual then
   begin
-    FMark := ComponentsExGroup.Mark;
+    RecreateColumns;
+    PostMyApplyBestFitEvent;
+  end;
 
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.BeforeOpen,
-      DoBeforeFamilyExOpen, FEventList);
+  Assert(cxGridPopupMenu.PopupMenus.Count = 4);
 
-    TNotifyEventWrap.Create(ComponentsExGroup.qFamilyEx.W.AfterOpen,
-      DoAfterFamilyExOpen, FEventList);
-
-    // Если бэнды по умолчанию ещё не инициализированы
-    if FBandsInfo.Count = 0 then
-      InitializeDefaultCreatedBands([MainView, GridView(cxGridLevel2)]);
-
-    // если данные открыты и не требуют обновления
-    if ComponentsExGroup.qFamilyEx.Actual then
-    begin
-      RecreateColumns;
-      PostMyApplyBestFitEvent;
-    end;
-
-    Assert(cxGridPopupMenu.PopupMenus.Count = 4);
-
-    cxGridPopupMenu.PopupMenus.Items[2].GridView := MainView;
-    cxGridPopupMenu.PopupMenus.Items[3].GridView := MainView;
-  end
+  cxGridPopupMenu.PopupMenus.Items[2].GridView := MainView;
+  cxGridPopupMenu.PopupMenus.Items[3].GridView := MainView;
+  PostMessageUpdateDetailColumnsWidth;
 end;
 
 procedure TViewParametricTable.FilterByFamily(AFamily: string);
@@ -1705,6 +1708,13 @@ begin
   inherited;
   Application.Hint := '';
   ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
+end;
+
+procedure TViewParametricTable.cxGridDBBandedTableViewColumnSizeChanged
+  (Sender: TcxGridTableView; AColumn: TcxGridColumn);
+begin
+  inherited;
+  beep;
 end;
 
 procedure TViewParametricTable.DoAfterLoadData;
