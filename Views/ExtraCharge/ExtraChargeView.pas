@@ -281,6 +281,7 @@ begin
   ApplySort(cxGridDBBandedTableView2, clWholeSale);
   ApplySort(cxGridDBBandedTableView2, clWholeSale);
 
+  MainView.ViewData.Collapse(True);
   MyApplyBestFit;
   UpdateView;
 end;
