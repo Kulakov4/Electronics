@@ -8,6 +8,8 @@ uses
 type
   TDataBase = class(TObject)
   private
+  const
+    database: String = 'database';
     class procedure CreateNewDataBase(const ADataBaseFolder, AApplicationFolder
       : String); static;
     class function CreateTempDatabaseFileName: string; static;
@@ -64,6 +66,7 @@ var
   AMaxVer: Double;
   AMaxVerFileName: string;
   m: TStringDynArray;
+  p: Integer;
 begin
   Assert(not ADataBaseFolder.IsEmpty);
   Result := False;
@@ -76,8 +79,8 @@ begin
     Var
       AExt: String;
       AFile_Name: string;
-      StrArr: TArray<String>;
       AVer: Double;
+      SVer: String;
     begin
       Result := False;
       AExt := TPath.GetExtension(SearchRec.Name);
@@ -85,8 +88,17 @@ begin
       if AExt <> '.db' then
         Exit;
 
-      AFile_Name := TPath.GetFileNameWithoutExtension(SearchRec.Name);
-      if (AFile_Name.ToLower = 'database') and (AMaxVer = 0) then
+      AFile_Name := TPath.GetFileNameWithoutExtension(SearchRec.Name).ToLower;
+      p := AFile_Name.IndexOf(database);
+
+      // Имя файла базы данных должно начинаться с database
+      if p <> 0 then
+        Exit;
+
+      // Имя файла от версии отделено пробелом или нижним подчёркиванием
+      SVer := AFile_Name.Substring(database.Length).Trim([' ', '_']);
+
+      if (SVer = '') and (AMaxVer = 0) then
       begin
         AMaxVer := 1;
         AMaxVerFileName := SearchRec.Name;
@@ -94,11 +106,7 @@ begin
         Exit;
       end;
 
-      StrArr := AFile_Name.ToLower.Split(['_']);
-      if (Length(StrArr) <> 2) or (StrArr[0] <> 'database') then
-        Exit;
-
-      AVer := StrToFloatDef(StrArr[1].Replace('.', ','), 0);
+      AVer := StrToFloatDef(SVer.Replace('.', ','), 0);
 
       if AVer = 0 then
         Exit;
@@ -123,12 +131,12 @@ end;
 
 class function TDataBase.DatabaseFileName: string;
 begin
-  Result := Format('database_%.1f', [ProgramVersion]).Replace(',', '.') + '.db';
+  Result := Format('database %.1f', [ProgramVersion]).Replace(',', '.') + '.db';
 end;
 
 class function TDataBase.EmptyDatabaseFileName: string;
 begin
-  Result := Format('database_empty_%.1f', [ProgramVersion])
+  Result := Format('empty %.1f', [ProgramVersion])
     .Replace(',', '.') + '.db';
 end;
 
