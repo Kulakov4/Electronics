@@ -1292,8 +1292,7 @@ begin
   m := S.Split([' ']);
   if Length(m) = 0 then
   begin
-    TDialog.Create.ErrorMessageDialog
-      ('Имя файла не содержит идентификатора категории загрузки (или пробела)');
+    TDialog.Create.FileNameNotContainCategoryID;
     Exit;
   end;
 
@@ -1301,8 +1300,7 @@ begin
     // Проверяем что первая часть содержит целочисленный код категории
     m[0].ToInteger;
   except
-    TDialog.Create.ErrorMessageDialog
-      ('В начале имени файла должен быть идентификатор категории загрузки');
+    TDialog.Create.FileNameNotContainCategoryID;
     Exit;
   end;
 
@@ -1406,7 +1404,7 @@ begin
     for AFileName in AFileNames do
     begin
       S := TPath.GetFileNameWithoutExtension(AFileName);
-      AutomaticLoadErrorTable.LocateOrAppendData(S, NULL, '', '', '');
+      AutomaticLoadErrorTable.W.LocateOrAppendData(S, NULL, '', '', '');
     end;
     AutomaticLoadErrorTable.First;
 
@@ -1655,8 +1653,7 @@ begin
         m := AFileName.Split([' ']);
         if Length(m) = 1 then
         begin
-          TDialog.Create.ErrorMessageDialog
-            ('Имя файла должно содержать пробел');
+          TDialog.Create.FileNameNotContainCategoryID;
           Exit;
         end;
 
@@ -1664,8 +1661,7 @@ begin
           // Проверяем что первая часть содержит целочисленный код категории
           m[0].ToInteger;
         except
-          TDialog.Create.ErrorMessageDialog
-            ('Имя файла должно содержать пробел');
+          TDialog.Create.FileNameNotContainCategoryID;
           Exit;
         end;
 
@@ -1673,7 +1669,7 @@ begin
         if TDM.Create.qSearchCategory.SearchByExternalID(m[0]) = 0 then
         begin
           TDialog.Create.ErrorMessageDialog
-            (Format('Категория %s не найдена', [m[0]]));
+            (Format('Категория с идентификатором %s не найдена', [m[0]]));
           Exit;
         end;
 

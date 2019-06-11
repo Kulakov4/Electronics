@@ -50,10 +50,6 @@ object frmMain: TfrmMain
     object cxtshComp: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cxpcComp2: TcxPageControl
         Left = 0
         Top = 0
@@ -71,10 +67,6 @@ object frmMain: TfrmMain
         object cxtshCompGroup: TcxTabSheet
           Caption = #1055#1086' '#1075#1088#1091#1087#1087#1072#1084
           ImageIndex = 0
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlCompGroupLeft: TPanel
             Left = 0
             Top = 0
@@ -126,10 +118,6 @@ object frmMain: TfrmMain
               object cxtsCategoryComponents: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
                 ImageIndex = 1
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
               end
               object cxtsCategoryParameters: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099

@@ -60,6 +60,7 @@ type
     procedure DollarOrEuroCourceUnknown;
     procedure NoParametersForAnalog;
     procedure DuplicateNotFound;
+    procedure FileNameNotContainCategoryID;
     procedure ParamDuplicateNotFound(ATableName: string);
     procedure ProducerNotFound(const AProducer: string);
     function ShowDialog(AOpenDialogClass: TOpenDialogClass;
@@ -246,6 +247,12 @@ procedure TDialog.DuplicateNotFound;
 begin
   Application.MessageBox(PChar('Не найдено ни одного дубликата'), PChar(sError),
     MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.FileNameNotContainCategoryID;
+begin
+  Application.MessageBox(PChar('Имя файла не содержит идентификатора категории загрузки (или пробела)'),
+    PChar(sError), MB_OK + MB_ICONSTOP);
 end;
 
 procedure TDialog.ParamDuplicateNotFound(ATableName: string);
