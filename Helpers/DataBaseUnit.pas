@@ -169,6 +169,7 @@ end;
 class function TDataBase.OpenDBConnection(AConnection: TFDConnection;
 const ADataBaseFolder, ADBMigrationFolder, AApplicationFolder: String): Boolean;
 var
+  ADataBaseFileName: String;
   ADBVersion: Integer;
   AFileName: string;
   ANewFileName: string;
@@ -235,14 +236,17 @@ begin
       CreateNewDataBase(ADataBaseFolder, AApplicationFolder);
     end;
 
+    // Формируем полное имя базы данных
+    ADataBaseFileName := TPath.Combine(ADataBaseFolder, DatabaseFileName);
+
     // Если дошли до этого места, значит файл базы данных или был обновлён, или создан, или сразу существовал
-    if not TFile.Exists(DatabaseFileName) then
+    if not TFile.Exists(ADatabaseFileName) then
       raise Exception.CreateFmt('Не найден файл базы данных %s',
-        [DatabaseFileName]);
+        [ADatabaseFileName]);
 
     AConnection.DriverName := sDriverName;
     AConnection.Params.DriverID := sDriverName;
-    AConnection.Params.Database := DatabaseFileName;
+    AConnection.Params.Database := ADatabaseFileName;
     // Устанавливаем соединение с БД
     AConnection.Open();
 

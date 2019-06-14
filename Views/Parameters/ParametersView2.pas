@@ -306,7 +306,8 @@ begin
     UpdateButtonDown;
   end;
 
-  cxGrid.SetFocus;
+  if (ParentForm <> nil) and (ParentForm.Visible) then
+    cxGrid.SetFocus;
 
   // Обновляем представление
   UpdateView;
@@ -349,7 +350,9 @@ begin
   //  MainView.ViewData.Collapse(True);
   SS.View := GetDBBandedTableView(1);
   RestoreSelection(SS);
-  cxGrid.SetFocus;
+
+  if (ParentForm <> nil) and (ParentForm.Visible) then
+    cxGrid.SetFocus;
   MyApplyBestFitForView(SS.View);
 
   UpdateView;
@@ -418,7 +421,8 @@ begin
     UpdateButtonDown;
   end;
 
-  cxGrid.SetFocus;
+  if (ParentForm <> nil) and (ParentForm.Visible) then
+    cxGrid.SetFocus;
 
   UpdateView;
 end;
