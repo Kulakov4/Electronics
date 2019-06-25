@@ -1,4 +1,4 @@
-unit LoadParametricDataForm;
+unit LoadParametricForm;
 
 interface
 
@@ -26,7 +26,7 @@ uses
   System.Actions, Vcl.ActnList, cxCheckBox, cxMaskEdit, cxDropDownEdit;
 
 type
-  TfrmLoadParametricData = class(TForm)
+  TfrmLoadParametric = class(TForm)
     cxGroupBox1: TcxGroupBox;
     cxLabel1: TcxLabel;
     cxrbReplace: TcxRadioButton;
@@ -40,30 +40,23 @@ type
     actOpenFile: TAction;
     actOK: TAction;
     cxGroupBox3: TcxGroupBox;
-    cxcbLoadComponentGroup: TcxCheckBox;
-    cxcbShowParametricTable: TcxCheckBox;
     cxcbFileName: TcxComboBox;
     procedure actOKExecute(Sender: TObject);
     procedure actOpenFileExecute(Sender: TObject);
-    procedure cxcbLoadComponentGroupClick(Sender: TObject);
     procedure cxcbFileNamePropertiesChange(Sender: TObject);
   private const
     IniIdent: String = 'File';
 
   var
-    FIniSection: string;
     function GetFileName: string;
-    function GetLoadComponentGroup: Boolean;
     function GetReplace: Boolean;
-    function GetShowParametricTable: Boolean;
     { Private declarations }
   protected
+    FIniSection: string;
   public
-    constructor Create(AOwner: TComponent; AParametricTable: Boolean); reintroduce;
+    procedure AfterConstruction; override;
     property FileName: string read GetFileName;
-    property LoadComponentGroup: Boolean read GetLoadComponentGroup;
     property Replace: Boolean read GetReplace;
-    property ShowParametricTable: Boolean read GetShowParametricTable;
     { Public declarations }
   end;
 
@@ -74,24 +67,7 @@ uses
 
 {$R *.dfm}
 
-constructor TfrmLoadParametricData.Create(AOwner: TComponent; AParametricTable:
-    Boolean);
-begin
-  inherited Create(AOwner);
-  Caption := IfThen(AParametricTable, 'Загрузка параметрической таблицы',
-    'Загрузка параметрических данных');
-
-  FIniSection := IfThen(AParametricTable, 'ParametricTableFiles',
-    'ParametricDataFiles');
-
-  cxbtnOK.Enabled := False;
-
-  // Загружаем список последних файлов
-  cxcbFileName.Properties.Items.AddStrings
-    (TSettings.Create.LoadStrings(FIniSection, IniIdent));
-end;
-
-procedure TfrmLoadParametricData.actOKExecute(Sender: TObject);
+procedure TfrmLoadParametric.actOKExecute(Sender: TObject);
 var
   i: Integer;
 begin
@@ -113,7 +89,7 @@ begin
     TDialog.Create.ErrorMessageDialog(Format('Файл %s не найден', [FileName]));
 end;
 
-procedure TfrmLoadParametricData.actOpenFileExecute(Sender: TObject);
+procedure TfrmLoadParametric.actOpenFileExecute(Sender: TObject);
 var
   AFileName: string;
 begin
@@ -125,37 +101,31 @@ begin
   cxcbFileName.Text := AFileName;
 end;
 
-procedure TfrmLoadParametricData.cxcbFileNamePropertiesChange(Sender: TObject);
+procedure TfrmLoadParametric.AfterConstruction;
+begin
+  inherited;
+  cxbtnOK.Enabled := False;
+
+  Assert(not FIniSection.IsEmpty);
+
+  // Загружаем список последних файлов
+  cxcbFileName.Properties.Items.AddStrings
+    (TSettings.Create.LoadStrings(FIniSection, IniIdent));
+end;
+
+procedure TfrmLoadParametric.cxcbFileNamePropertiesChange(Sender: TObject);
 begin
   cxbtnOK.Enabled := cxcbFileName.Text <> '';
 end;
 
-procedure TfrmLoadParametricData.cxcbLoadComponentGroupClick(Sender: TObject);
-begin
-  cxcbShowParametricTable.Enabled := cxcbLoadComponentGroup.Checked;
-
-  if not cxcbShowParametricTable.Enabled then
-    cxcbShowParametricTable.Checked := False;
-end;
-
-function TfrmLoadParametricData.GetFileName: string;
+function TfrmLoadParametric.GetFileName: string;
 begin
   Result := cxcbFileName.Text;
 end;
 
-function TfrmLoadParametricData.GetLoadComponentGroup: Boolean;
-begin
-  Result := cxcbLoadComponentGroup.Checked;
-end;
-
-function TfrmLoadParametricData.GetReplace: Boolean;
+function TfrmLoadParametric.GetReplace: Boolean;
 begin
   Result := cxrbReplace.Checked;
-end;
-
-function TfrmLoadParametricData.GetShowParametricTable: Boolean;
-begin
-  Result := cxcbShowParametricTable.Checked;
 end;
 
 end.

@@ -857,8 +857,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Views\Components\ParametricTable\LoadParametricDataForm.pas">
-            <Form>frmLoadParametricData</Form>
+        <DCCReference Include="Views\Components\ParametricTable\LoadParametricForm.pas">
+            <Form>frmLoadParametric</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Helpers\SelectionInt.pas"/>
@@ -873,6 +873,14 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Helpers\DataBaseUnit.pas"/>
+        <DCCReference Include="Views\Components\ParametricTable\LoadParametricTable.pas">
+            <Form>frmLoadParametricTable</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\Components\ParametricTable\LoadParametricData.pas">
+            <Form>frmLoadParametricData</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

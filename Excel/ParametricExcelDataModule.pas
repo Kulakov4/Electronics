@@ -14,6 +14,7 @@ type
   TParametricExcelTable = class(TCustomExcelTable)
   private
     FComponentTypeSet: TComponentTypeSet;
+    FCopyCommonValueToFamily: Boolean;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     FReplace: Boolean;
     function GetComponentName: TField;
@@ -29,7 +30,8 @@ type
       read GetqSearchComponentOrFamily;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
-      AComponentTypeSet: TComponentTypeSet; AReplace: Boolean); reintroduce;
+        AComponentTypeSet: TComponentTypeSet; AReplace, ACopyCommonValueToFamily:
+        Boolean); reintroduce;
     function CheckRecord: Boolean; override;
     class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer)
       : String; static;
@@ -37,6 +39,7 @@ type
       out AParamSubParamID: Integer): Boolean;
     property ComponentName: TField read GetComponentName;
     property ComponentTypeSet: TComponentTypeSet read FComponentTypeSet;
+    property CopyCommonValueToFamily: Boolean read FCopyCommonValueToFamily;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
     property Replace: Boolean read FReplace;
@@ -45,6 +48,7 @@ type
   TParametricExcelDM = class(TExcelDM)
   private
     FComponentTypeSet: TComponentTypeSet;
+    FCopyCommonValueToFamily: Boolean;
     FFieldsInfo: TList<TFieldInfo>;
     FReplace: Boolean;
     function GetExcelTable: TParametricExcelTable;
@@ -53,8 +57,8 @@ type
     function CreateExcelTable: TCustomExcelTable; override;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
-      AComponentTypeSet: TComponentTypeSet; AReplace: Boolean);
-      reintroduce; overload;
+        AComponentTypeSet: TComponentTypeSet; AReplace, ACopyCommonValueToFamily:
+        Boolean); reintroduce; overload;
     property ExcelTable: TParametricExcelTable read GetExcelTable;
     { Public declarations }
   end;
@@ -70,9 +74,9 @@ uses ProgressInfo, System.Variants, ErrorType, RecordCheck;
 const
   FParamPrefix = 'Param';
 
-constructor TParametricExcelTable.Create(AOwner: TComponent;
-  AFieldsInfo: TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet;
-  AReplace: Boolean);
+constructor TParametricExcelTable.Create(AOwner: TComponent; AFieldsInfo:
+    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet; AReplace,
+    ACopyCommonValueToFamily: Boolean);
 var
   AFieldInfo: TFieldInfo;
 begin
@@ -82,6 +86,7 @@ begin
 
   FComponentTypeSet := AComponentTypeSet;
   FReplace := AReplace;
+  FCopyCommonValueToFamily := ACopyCommonValueToFamily;
 end;
 
 function TParametricExcelTable.CheckComponent: Boolean;
@@ -214,14 +219,15 @@ begin
   Result := FqSearchComponentOrFamily;
 end;
 
-constructor TParametricExcelDM.Create(AOwner: TComponent;
-  AFieldsInfo: TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet;
-  AReplace: Boolean);
+constructor TParametricExcelDM.Create(AOwner: TComponent; AFieldsInfo:
+    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet; AReplace,
+    ACopyCommonValueToFamily: Boolean);
 begin
   Assert(AFieldsInfo <> nil);
   FFieldsInfo := AFieldsInfo;
   FComponentTypeSet := AComponentTypeSet;
   FReplace := AReplace;
+  FCopyCommonValueToFamily := ACopyCommonValueToFamily;
 
   Create(AOwner);
 end;
@@ -230,7 +236,7 @@ function TParametricExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
   Assert(FFieldsInfo <> nil);
   Result := TParametricExcelTable.Create(Self, FFieldsInfo, FComponentTypeSet,
-    FReplace);
+    FReplace, FCopyCommonValueToFamily);
 end;
 
 function TParametricExcelDM.GetExcelTable: TParametricExcelTable;

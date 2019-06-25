@@ -244,11 +244,13 @@ uses
   CompFrameUnit in 'Views\CompFrameUnit.pas' {frmComp: TFrame},
   MinWholeSaleForm in 'Views\Products\MinWholeSaleForm.pas' {frmMinWholeSale},
   SearchFamOrCompoQuery in 'Queryes\Components\SearchFamOrCompoQuery.pas' {QuerySearchFamilyOrComp: TFrame},
-  LoadParametricDataForm in 'Views\Components\ParametricTable\LoadParametricDataForm.pas' {frmLoadParametricData},
+  LoadParametricForm in 'Views\Components\ParametricTable\LoadParametricForm.pas' {frmLoadParametric},
   SelectionInt in 'Helpers\SelectionInt.pas',
   SearchBodyVariationQuery in 'Queryes\BodyTypes\SearchBodyVariationQuery.pas' {QrySearchBodyVariation: TFrame},
   BodyKindsColorQuery in 'Queryes\BodyTypes\BodyKindsColorQuery.pas' {QryBodyKindsColor: TFrame},
-  DataBaseUnit in 'Helpers\DataBaseUnit.pas';
+  DataBaseUnit in 'Helpers\DataBaseUnit.pas',
+  LoadParametricTable in 'Views\Components\ParametricTable\LoadParametricTable.pas' {frmLoadParametricTable},
+  LoadParametricData in 'Views\Components\ParametricTable\LoadParametricData.pas' {frmLoadParametricData};
 
 {$R *.res}
 
@@ -256,6 +258,8 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TfrmLoadParametricTable, frmLoadParametricTable);
+  Application.CreateForm(TfrmLoadParametricData, frmLoadParametricData);
   Application.Run;
 
 end.

@@ -163,8 +163,8 @@ begin
               if AExcelTable.IDParentComponent.AsInteger > 0 then
               begin
                 if AUpdParamSubParamList.Search
-                  (AExcelTable.IDParentComponent.AsInteger, AParamSubParamID)
-                  = -1 then
+                  (AExcelTable.IDParentComponent.AsInteger,
+                  AParamSubParamID) = -1 then
                 begin
                   AUpdParamSubParamList.Add
                     (TUpdParamSubParam.Create
@@ -187,32 +187,40 @@ begin
       AExcelTable.EnableControls;
     end;
 
-    // Единственное значение выносим я ячейку семейства
-    Q := TQueryFamilyParamValues.Create(nil);
-    API := TProgressInfo.Create;
-    try
-      API.TotalRecords := AUpdParamSubParamList.Count;
-      i := 0;
-      for AUpdPSP in AUpdParamSubParamList do
-      begin
-        // Если найдено единственное значение
-        if Q.SearchEx(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID) = 1 then
+    // Если общее значение параметра компонентов семейства выводить в ячейку семейства
+    if AExcelTable.CopyCommonValueToFamily then
+    begin
+      // Единственное значение выносим я ячейку семейства
+      Q := TQueryFamilyParamValues.Create(nil);
+      API := TProgressInfo.Create;
+      try
+        API.TotalRecords := AUpdParamSubParamList.Count;
+        i := 0;
+        for AUpdPSP in AUpdParamSubParamList do
         begin
-          // Добавляем значение параметра для семейства
+          // Ищем этот параметр у семейства
           AQueryParametersValue.Search(AUpdPSP.FamilyID,
             AUpdPSP.ParamSubParamID);
-          AQueryParametersValue.W.LocateOrAppend(Q.W.Value.F.AsString);
+          // Если ячейка семейства пустая
+          if AQueryParametersValue.W.Value.F.AsString.Trim.IsEmpty then
+          begin
+            // Если найдено единственное значение
+            if Q.SearchEx(AUpdPSP.FamilyID, AUpdPSP.ParamSubParamID) = 1 then
+            begin
+              // Добавляем значение параметра для семейства
+              AQueryParametersValue.W.AddNewValue(Q.W.Value.F.AsString);
+            end;
+          end;
+          Inc(i);
+          API.ProcessRecords := i;
+          if Assigned(ANotifyEventRef) then
+            ANotifyEventRef(API);
         end;
-        Inc(i);
-        API.ProcessRecords := i;
-        if Assigned(ANotifyEventRef) then
-          ANotifyEventRef(API);
+      finally
+        FreeAndNil(Q);
+        FreeAndNil(API);
       end;
-    finally
-      FreeAndNil(Q);
-      FreeAndNil(API);
     end;
-
   finally
     FreeAndNil(AQueryParametersValue);
     FreeAndNil(AUpdParamSubParamList);

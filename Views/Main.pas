@@ -239,7 +239,8 @@ uses
   ExtraChargeForm, ExceptionHelper, System.StrUtils, DataModule,
   FireDAC.Comp.DataSet, ComponentsGroupUnit2, ComponentsExcelDataModule,
   StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType,
-  LoadParametricDataForm, VersionQuery, DataBaseUnit;
+  LoadParametricForm, VersionQuery, DataBaseUnit, LoadParametricData,
+  LoadParametricTable;
 
 {$R *.dfm}
 
@@ -1068,7 +1069,7 @@ begin
 
   FfrmProgressBar.Show;
 
-  // Если требуется загрузить только данные, но не сами параметры
+  // Если требуется загрузить параметрические данные
   ADataOnly := AParametricExcelTable.ComponentTypeSet = [ctComponent];
 
   // Перед записью первого листа создадим все необходимые параметры
@@ -1616,39 +1617,40 @@ end;
 
 procedure TfrmMain.LoadParametricData(AComponentTypeSet: TComponentTypeSet);
 var
-  ADataOnly: Boolean;
+  ACopyCommonValueToFamily: Boolean;
   AFieldsInfo: TFieldsInfo;
   AFileName: string;
-  AfrmLoadParametricData: TfrmLoadParametricData;
+  AfrmLoadParametric: TfrmLoadParametric;
   AParametricExcelDM: TParametricExcelDM;
   m: TArray<String>;
   rc: Integer;
 begin
 
-  // Если идёт загрузка только данных
-  ADataOnly := AComponentTypeSet = [ctComponent];
+  // Если идёт загрузка параметрических данных
+  if AComponentTypeSet = [ctComponent] then
+    AfrmLoadParametric := TfrmLoadParametricData.Create(Self)
+  else
+    AfrmLoadParametric := TfrmLoadParametricTable.Create(Self);
 
-  AfrmLoadParametricData := TfrmLoadParametricData.Create(Self, not ADataOnly);
   try
     // Если отказались от дальнейших действий
-    if AfrmLoadParametricData.ShowModal <> mrOk then
+    if AfrmLoadParametric.ShowModal <> mrOk then
       Exit;
 
     // Сохраняем эту папку в настройках
     TSettings.Create.ParametricDataFolder :=
-      TPath.GetDirectoryName(AfrmLoadParametricData.FileName);
+      TPath.GetDirectoryName(AfrmLoadParametric.FileName);
 
     AFieldsInfo := TFieldsInfo.Create();
     try
-      if not LoadExcelFileHeader(AfrmLoadParametricData.FileName, AFieldsInfo)
-      then
+      if not LoadExcelFileHeader(AfrmLoadParametric.FileName, AFieldsInfo) then
         Exit;
 
-      if not ADataOnly then
+      if AfrmLoadParametric is TfrmLoadParametricTable then
       begin
         // В начале имени файла - код категории в которую будем загружать параметры
         AFileName := TPath.GetFileNameWithoutExtension
-          (AfrmLoadParametricData.FileName);
+          (AfrmLoadParametric.FileName);
 
         m := AFileName.Split([' ']);
         if Length(m) = 1 then
@@ -1677,10 +1679,17 @@ begin
         rc := TDM.Create.qSearchDaughterCategories.SearchEx
           (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
         Assert(rc > 0);
-      end;
+
+        ACopyCommonValueToFamily := False;
+      end
+      else
+        ACopyCommonValueToFamily :=
+          (AfrmLoadParametric as TfrmLoadParametricData)
+          .CopyCommonValueToFamily;
 
       AParametricExcelDM := TParametricExcelDM.Create(Self, AFieldsInfo,
-        AComponentTypeSet, AfrmLoadParametricData.Replace);
+        AComponentTypeSet, AfrmLoadParametric.Replace,
+        ACopyCommonValueToFamily);
       FWriteProgress := TTotalProgress.Create;
       FfrmProgressBar := TfrmProgressBar3.Create(Self);
       try
@@ -1690,7 +1699,7 @@ begin
           DoOnTotalReadProgress);
 
         FfrmProgressBar.Show;
-        AParametricExcelDM.LoadExcelFile2(AfrmLoadParametricData.FileName);
+        AParametricExcelDM.LoadExcelFile2(AfrmLoadParametric.FileName);
 
       finally
         FreeAndNil(AParametricExcelDM);
@@ -1701,11 +1710,12 @@ begin
       FreeAndNil(AFieldsInfo);
     end;
 
-    if AfrmLoadParametricData.LoadComponentGroup or
+    if AfrmLoadParametric is TfrmLoadParametricTable and
+      ((AfrmLoadParametric as TfrmLoadParametricTable).LoadComponentGroup or
       (TDM.Create.qTreeList.W.ID.F.AsInteger = TDM.Create.qSearchCategory.W.ID.
-      F.AsInteger) then
+      F.AsInteger)) then
     begin
-      // Переходив на категорию в которую загружали значения параметров
+      // Переходим на категорию в которую загружали значения параметров
       TDM.Create.qTreeList.W.LocateByPK
         (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
 
@@ -1716,11 +1726,12 @@ begin
       TDM.Create.ComponentsExGroup.TryRefresh;
 
       // Показываем параметрическую таблицу в полноэкранном режиме
-      if AfrmLoadParametricData.ShowParametricTable then
+      if (AfrmLoadParametric as TfrmLoadParametricTable).ShowParametricTable
+      then
         ShowParametricTable;
     end;
   finally
-    FreeAndNil(AfrmLoadParametricData);
+    FreeAndNil(AfrmLoadParametric);
   end;
 end;
 
