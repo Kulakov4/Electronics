@@ -896,6 +896,8 @@ begin
 end;
 
 procedure TfrmMain.DoOnProductCategoriesChange(Sender: TObject);
+var
+  AExternalID: string;
 begin
   cxtsCategoryComponents.Enabled := not TDM.Create.qTreeList.W.IsRootFocused;
 
@@ -906,6 +908,12 @@ begin
 
   UpdateCaption;
 
+  AExternalID := ' ' + TDM.Create.qTreeList.W.ExternalID.F.AsString;
+  if AExternalID.TrimRight(['0']) = ' ' then
+    AExternalID := '';
+
+  cxtsCategory.Caption := Format('Содержимое функциональной группы%s',
+    [AExternalID]);
 end;
 
 procedure TfrmMain.DoOnProductLocate(Sender: TObject);
