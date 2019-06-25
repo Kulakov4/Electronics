@@ -160,6 +160,8 @@ type
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
     procedure cxGridDBBandedTableViewLeftPosChanged(Sender: TObject);
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
+      ADataController: TcxCustomDataController; ARecordIndex: Integer);
   private
     FBaseCompGrp: TBaseComponentsGroup2;
     FCountEvents: TObjectList;
@@ -868,7 +870,7 @@ procedure TViewComponentsBase.cxGridDBBandedTableView2CellClick
   AButton: TMouseButton; AShift: TShiftState; var AHandled: Boolean);
 begin
   inherited;
-  // UpdateDetailColumnsWidth;
+  UpdateDetailColumnsWidth;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableView2EditKeyDown
@@ -913,6 +915,13 @@ procedure TViewComponentsBase.cxGridDBBandedTableViewColumnSizeChanged
 begin
   inherited;
   PostMessageUpdateDetailColumnsWidth;
+end;
+
+procedure TViewComponentsBase.cxGridDBBandedTableViewDataControllerDetailExpanded(
+  ADataController: TcxCustomDataController; ARecordIndex: Integer);
+begin
+  inherited;
+  UpdateDetailColumnsWidth;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewEditKeyUp
