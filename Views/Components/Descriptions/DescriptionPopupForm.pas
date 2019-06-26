@@ -28,7 +28,7 @@ type
   TfrmDescriptionPopup = class(TfrmPopupForm)
     cxdbmDescriptions: TcxDBMemo;
     dxBarManager: TdxBarManager;
-    dxBarManagerBar1: TdxBar;
+    dxBarManagerBarMain: TdxBar;
     ActionList: TActionList;
     actSelect: TAction;
     dxBarButton1: TdxBarButton;
@@ -38,6 +38,7 @@ type
     procedure actClearExecute(Sender: TObject);
     procedure actSelectExecute(Sender: TObject);
     procedure FormHide(Sender: TObject);
+    procedure FormResize(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
     FDescriptionW: TDescriptionW;
@@ -116,6 +117,12 @@ end;
 procedure TfrmDescriptionPopup.FormHide(Sender: TObject);
 begin
   inherited;;
+end;
+
+procedure TfrmDescriptionPopup.FormResize(Sender: TObject);
+begin
+  inherited;
+  dxBarManagerBarMain.DockedLeft := ClientWidth - 10;
 end;
 
 procedure TfrmDescriptionPopup.FormShow(Sender: TObject);

@@ -1,6 +1,9 @@
 inherited frmDescriptionPopup: TfrmDescriptionPopup
   Caption = #1050#1088#1072#1090#1082#1086#1077' '#1086#1087#1080#1089#1072#1085#1080#1077
+  ClientWidth = 459
+  OnResize = FormResize
   OnShow = FormShow
+  ExplicitWidth = 475
   PixelsPerInch = 96
   TextHeight = 16
   object cxdbmDescriptions: TcxDBMemo
@@ -9,8 +12,9 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
     Align = alClient
     DataBinding.DataSource = DataSource
     TabOrder = 0
+    ExplicitWidth = 395
     Height = 272
-    Width = 395
+    Width = 459
   end
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET
@@ -25,6 +29,7 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
     Categories.Visibles = (
       True)
     PopupMenuLinks = <>
+    ShowHint = False
     UseSystemFont = True
     Left = 192
     Top = 152
@@ -34,14 +39,15 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
       0
       28
       0)
-    object dxBarManagerBar1: TdxBar
+    object dxBarManagerBarMain: TdxBar
+      AllowQuickCustomizing = False
       Caption = 'Main'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
-      DockedLeft = 0
+      DockedLeft = 333
       DockedTop = 0
       DockingStyle = dsTop
-      FloatLeft = 429
+      FloatLeft = 600
       FloatTop = 8
       FloatClientWidth = 0
       FloatClientHeight = 0
