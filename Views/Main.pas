@@ -174,6 +174,7 @@ type
     procedure DoOnLoadParametricTable(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
+    procedure DoOnStoreHouseListChange(Sender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
     procedure DoOnViewStoreHouseCanFocusRecord(Sender: TObject);
     function GetQueryMonitor: TQueryMonitor;
@@ -648,6 +649,8 @@ begin
 
   if ViewProductsSearch <> nil then
     ViewProductsSearch.CheckAndSaveChanges;
+
+  UpdateCaption;
 end;
 
 procedure TfrmMain.cxpcMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
@@ -675,6 +678,12 @@ begin
   begin
     TDM.Create.qStoreHouseList.AddClient;
     TDM.Create.qProducts.AddClient;
+
+    TNotifyEventWrap.Create(TDM.Create.qStoreHouseList.W.AfterScrollM,
+      DoOnStoreHouseListChange, FEventList);
+
+    TNotifyEventWrap.Create(TDM.Create.qStoreHouseList.W.AfterOpen,
+      DoOnStoreHouseListChange, FEventList);
 
     // Привязываем список складов к данным
     if FViewStoreHouse = nil then
@@ -1527,6 +1536,11 @@ begin
   end;
 end;
 
+procedure TfrmMain.DoOnStoreHouseListChange(Sender: TObject);
+begin
+  UpdateCaption;
+end;
+
 procedure TfrmMain.DoOnTotalReadProgress(ASender: TObject);
 var
   E: TExcelDMEvent;
@@ -1785,22 +1799,35 @@ var
   AFS: TFormatSettings;
   S: string;
 begin
-  if (TDM.Created) and (TDM.Create.qTreeList.FDQuery.RecordCount > 0) then
+  if not TDM.Created then
+    Exit;
+
+  AFS.DecimalSeparator := '.';
+  S := '';
+
+  // Если активна вкладка "Компоненты"
+  if (cxpcMain.ActivePage = cxtshComp) and
+    (TDM.Create.qTreeList.FDQuery.RecordCount > 0) then
   begin
     if not TDM.Create.qTreeList.W.IsRootFocused and not FCategoryPath.IsEmpty
     then
     begin
       S := MinimizeName(FCategoryPath, Canvas, Width - 200);
-      S := S.Trim(['\']).Replace('\', '-');
-
+      S := ' - ' + S.Trim(['\']).Replace('\', '-');
     end
     else
-      S := TDM.Create.qTreeList.W.Value.F.AsString;
-
-    AFS.DecimalSeparator := '.';
-    Caption := Format('%s %0.1f - %s',
-      [sMainFormCaption, ProgramVersion, S], AFS);
+      S := ' - ' + TDM.Create.qTreeList.W.Value.F.AsString;
   end;
+
+  // Если активна вкладка "Склады"
+  if (cxpcMain.ActivePage = cxtshWareHouse) and
+    (TDM.Create.qStoreHouseList.FDQuery.RecordCount > 0) then
+  begin
+    S := ' - ' + TDM.Create.qStoreHouseList.W.Title.F.AsString;
+  end;
+
+  // Меняем заголовок формы
+  Caption := Format('%s %0.1f%s', [sMainFormCaption, ProgramVersion, S], AFS);
 end;
 
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);

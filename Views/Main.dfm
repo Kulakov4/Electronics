@@ -39,7 +39,7 @@ object frmMain: TfrmMain
     Height = 588
     Align = alClient
     TabOrder = 5
-    Properties.ActivePage = cxtshComp
+    Properties.ActivePage = cxtshWareHouse
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcMainChange
     OnPageChanging = cxpcMainPageChanging
@@ -150,7 +150,7 @@ object frmMain: TfrmMain
         Height = 557
         Align = alClient
         TabOrder = 0
-        Properties.ActivePage = cxtshBill
+        Properties.ActivePage = cxtshWareHouse2
         Properties.CustomButtons.Buttons = <>
         OnPageChanging = cxpcWareHouse2PageChanging
         ClientRectBottom = 553
