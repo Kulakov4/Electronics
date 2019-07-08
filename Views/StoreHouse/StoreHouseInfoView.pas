@@ -34,41 +34,34 @@ type
     cxdbmAddress: TcxDBMemo;
     cxdbteAbbreviation: TcxDBTextEdit;
     cxdbmTitle: TcxDBMemo;
-    procedure FrameClick(Sender: TObject);
   private
-    FQueryStoreHouseList: TQueryStoreHouseList;
-    procedure SetQueryStoreHouseList(const Value: TQueryStoreHouseList);
+    FqStoreHouseList: TQueryStoreHouseList;
+    procedure SetqStoreHouseList(const Value: TQueryStoreHouseList);
   protected
   public
-    property QueryStoreHouseList: TQueryStoreHouseList read FQueryStoreHouseList
-      write SetQueryStoreHouseList;
+    property qStoreHouseList: TQueryStoreHouseList read FqStoreHouseList write
+        SetqStoreHouseList;
   end;
 
 implementation
 
 {$R *.dfm}
 
-procedure TViewStorehouseInfo.FrameClick(Sender: TObject);
+procedure TViewStorehouseInfo.SetqStoreHouseList(const Value:
+    TQueryStoreHouseList);
 begin
-  if QueryStoreHouseList <> nil then
-    QueryStoreHouseList.W.TryPost;
-end;
-
-procedure TViewStorehouseInfo.SetQueryStoreHouseList
-  (const Value: TQueryStoreHouseList);
-begin
-  if FQueryStoreHouseList <> Value then
+  if FqStoreHouseList <> Value then
   begin
-    FQueryStoreHouseList := Value;
+    FqStoreHouseList := Value;
 
-    if FQueryStoreHouseList <> nil then
+    if FqStoreHouseList <> nil then
     begin
-      cxdbmTitle.DataBinding.DataSource := FQueryStoreHouseList.W.DataSource;
+      cxdbmTitle.DataBinding.DataSource := FqStoreHouseList.W.DataSource;
       cxdbteAbbreviation.DataBinding.DataSource :=
-        FQueryStoreHouseList.W.DataSource;
+        FqStoreHouseList.W.DataSource;
       cxTeResponsible.DataBinding.DataSource :=
-        FQueryStoreHouseList.W.DataSource;
-      cxdbmAddress.DataBinding.DataSource := FQueryStoreHouseList.W.DataSource;
+        FqStoreHouseList.W.DataSource;
+      cxdbmAddress.DataBinding.DataSource := FqStoreHouseList.W.DataSource;
     end
     else
     begin

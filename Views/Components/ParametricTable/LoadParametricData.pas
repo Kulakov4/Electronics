@@ -37,9 +37,6 @@ type
     { Public declarations }
   end;
 
-var
-  frmLoadParametricData: TfrmLoadParametricData;
-
 implementation
 
 {$R *.dfm}

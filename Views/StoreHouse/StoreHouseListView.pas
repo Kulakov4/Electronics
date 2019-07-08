@@ -38,8 +38,11 @@ type
     N4: TMenuItem;
     cxStyleRepository1: TcxStyleRepository;
     cxStyleInactive: TcxStyle;
+    actStoreHouseInfo: TAction;
+    N5: TMenuItem;
     procedure actAddStorehouseExecute(Sender: TObject);
     procedure actRenameStorehouseExecute(Sender: TObject);
+    procedure actStoreHouseInfoExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewCanFocusRecord
       (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
       var AAllow: Boolean);
@@ -79,7 +82,7 @@ type
 implementation
 
 uses
-  ProjectConst;
+  ProjectConst, StoreHouseForm;
 
 {$R *.dfm}
 
@@ -117,6 +120,24 @@ begin
   UpdateView;
 end;
 
+procedure TViewStoreHouse.actStoreHouseInfoExecute(Sender: TObject);
+var
+  AfrmStoreHouse: TfrmStoreHouse;
+begin
+  inherited;
+  Assert(not qStoreHouseList.HaveAnyChanges);
+  Assert(not qStoreHouseList.FDQuery.CachedUpdates);
+  AfrmStoreHouse := TfrmStoreHouse.Create(Self);
+  qStoreHouseList.FDQuery.CachedUpdates := True;
+  try
+    AfrmStoreHouse.ViewStorehouseInfo.qStoreHouseList := qStoreHouseList;
+    AfrmStoreHouse.ShowModal;
+  finally
+    qStoreHouseList.FDQuery.CachedUpdates := False;
+    FreeAndNil(AfrmStoreHouse);
+  end;
+end;
+
 procedure TViewStoreHouse.cxGridDBBandedTableViewCanFocusRecord
   (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
   var AAllow: Boolean);
@@ -137,7 +158,8 @@ procedure TViewStoreHouse.cxGridDBBandedTableViewEditValueChanged
   (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
 begin
   inherited;
-  if FPosting then Exit;
+  if FPosting then
+    Exit;
 
   if VarToStrDef(MainView.Controller.EditingController.Edit.EditingValue, '') <> ''
   then
@@ -225,8 +247,13 @@ begin
   OK := (qStoreHouseList <> nil) and (qStoreHouseList.FDQuery.Active);
 
   actAddStorehouse.Enabled := OK;
+
   actDeleteEx.Enabled := OK and (MainView.Controller.SelectedRowCount > 0);
+
   actRenameStorehouse.Enabled := OK and
+    (MainView.Controller.SelectedRowCount = 1);
+
+  actStoreHouseInfo.Enabled := OK and
     (MainView.Controller.SelectedRowCount = 1);
 end;
 

@@ -40,9 +40,6 @@ type
     { Public declarations }
   end;
 
-var
-  frmLoadParametricTable: TfrmLoadParametricTable;
-
 implementation
 
 {$R *.dfm}

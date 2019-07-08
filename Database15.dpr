@@ -250,7 +250,8 @@ uses
   BodyKindsColorQuery in 'Queryes\BodyTypes\BodyKindsColorQuery.pas' {QryBodyKindsColor: TFrame},
   DataBaseUnit in 'Helpers\DataBaseUnit.pas',
   LoadParametricTable in 'Views\Components\ParametricTable\LoadParametricTable.pas' {frmLoadParametricTable},
-  LoadParametricData in 'Views\Components\ParametricTable\LoadParametricData.pas' {frmLoadParametricData};
+  LoadParametricData in 'Views\Components\ParametricTable\LoadParametricData.pas' {frmLoadParametricData},
+  StoreHouseForm in 'Views\StoreHouse\StoreHouseForm.pas' {frmStoreHouse};
 
 {$R *.res}
 
@@ -258,8 +259,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TfrmMain, frmMain);
-  Application.CreateForm(TfrmLoadParametricTable, frmLoadParametricTable);
-  Application.CreateForm(TfrmLoadParametricData, frmLoadParametricData);
   Application.Run;
 
 end.

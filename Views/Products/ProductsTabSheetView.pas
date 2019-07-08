@@ -188,8 +188,8 @@ end;
 procedure TProductsFrame.tsStorehouseInfoShow(Sender: TObject);
 begin
   // Привязываем информацию о складе к данным
-  if ViewStorehouseInfo.QueryStoreHouseList = nil then
-    ViewStorehouseInfo.QueryStoreHouseList := TDM.Create.qStoreHouseList;
+  if ViewStorehouseInfo.qStoreHouseList = nil then
+    ViewStorehouseInfo.qStoreHouseList := TDM.Create.qStoreHouseList;
 
   TDM.Create.qStoreHouseList.W.TryOpen;
 end;

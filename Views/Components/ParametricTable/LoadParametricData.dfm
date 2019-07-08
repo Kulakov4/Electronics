@@ -13,10 +13,12 @@ inherited frmLoadParametricData: TfrmLoadParametricData
   inherited cxbtnOK: TcxButton
     Top = 342
     TabOrder = 0
+    ExplicitTop = 342
   end
   inherited cxbtnCancel: TcxButton
     Top = 342
     TabOrder = 1
+    ExplicitTop = 342
   end
   inherited cxGroupBox3: TcxGroupBox
     ExplicitHeight = 82

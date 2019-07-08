@@ -33,6 +33,11 @@ inherited ViewStoreHouse: TViewStoreHouse
       ImageIndex = 11
       OnExecute = actRenameStorehouseExecute
     end
+    object actStoreHouseInfo: TAction
+      Caption = #1057#1074#1086#1081#1089#1090#1074#1072
+      ImageIndex = 18
+      OnExecute = actStoreHouseInfoExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N2: TMenuItem
@@ -43,6 +48,9 @@ inherited ViewStoreHouse: TViewStoreHouse
     end
     object N4: TMenuItem
       Action = actRenameStorehouse
+    end
+    object N5: TMenuItem
+      Action = actStoreHouseInfo
     end
   end
   inherited cxGridPopupMenu: TcxGridPopupMenu
