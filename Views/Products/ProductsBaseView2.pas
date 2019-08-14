@@ -246,8 +246,8 @@ type
     procedure DoOnCourceChange(Sender: TObject);
     procedure DoOnDollarCourceChange(Sender: TObject);
     procedure DoOnEuroCourceChange(Sender: TObject);
-    procedure ClearSelectionAfterOpenOrRefresh(var Message: TMessage); message
-        WM_AFTER_OPEN_OR_REFRESH;
+    procedure ClearSelectionAfterOpenOrRefresh(var Message: TMessage);
+      message WM_AFTER_OPEN_OR_REFRESH;
     procedure ExportToExcelDocument(const AFileName: String);
     function GetNodeID(ANode: TcxDBTreeListNode): TArray<Integer>;
     function GetW: TProductW; virtual; abstract;
@@ -365,6 +365,7 @@ begin
   cxDBTreeList.OptionsData.Deleting := False;
   cxDBTreeList.OptionsData.Inserting := False;
   cxDBTreeList.OptionsBehavior.ConfirmDelete := False;
+  cxDBTreeList.OptionsBehavior.ImmediateEditor := True;
 
   // cxDBTreeList.OnCustomDrawDataCell := nil;
 end;
@@ -652,26 +653,41 @@ end;
 procedure TViewProductsBase2.actOpenDatasheetExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TWareHouseDatasheetDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    OpenDoc(TComponentDatasheetDoc.Create)
+  else
+    OpenDoc(TWareHouseDatasheetDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDiagramExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TWareHouseDiagramDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    OpenDoc(TComponentDiagramDoc.Create)
+  else
+    OpenDoc(TWareHouseDiagramDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenDrawingExecute(Sender: TObject);
 begin
   inherited;
-  OpenDoc(TWareHouseDrawingDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    OpenDoc(TComponentDrawingDoc.Create)
+  else
+    OpenDoc(TWareHouseDrawingDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenImageExecute(Sender: TObject);
 begin
   inherited;
-
-  OpenDoc(TWareHouseImageDoc.Create);
+  // Если компонент из теоретической базы, то и документацию открываем оттуда
+  if IsFocusedNodeEquals(clChecked, 1) then
+    OpenDoc(TComponentImageDoc.Create)
+  else
+    OpenDoc(TWareHouseImageDoc.Create);
 end;
 
 procedure TViewProductsBase2.actOpenInParametricTableExecute(Sender: TObject);
@@ -1136,8 +1152,7 @@ begin
 
   cxDBTreeList.FullCollapse;
 
-
-  PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0 , 0);
+  PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0, 0);
   ClearSelection;
 
   UpdateView;
@@ -1215,8 +1230,8 @@ begin
   end;
 end;
 
-procedure TViewProductsBase2.ClearSelectionAfterOpenOrRefresh(var Message:
-    TMessage);
+procedure TViewProductsBase2.ClearSelectionAfterOpenOrRefresh
+  (var Message: TMessage);
 begin
   inherited;
   ClearSelection;
