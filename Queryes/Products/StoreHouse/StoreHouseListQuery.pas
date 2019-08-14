@@ -14,6 +14,8 @@ type
   TStoreHouseListW = class(TDSWrap)
   private
     FAbbreviation: TFieldWrap;
+    FAddress: TFieldWrap;
+    FResponsible: TFieldWrap;
     FTitle: TFieldWrap;
     FID: TFieldWrap;
   public
@@ -22,6 +24,8 @@ type
     function LocateByAbbreviation(const AAbbreviation: string): Boolean;
     function LocateOrAppend(const AValue: string): Boolean;
     property Abbreviation: TFieldWrap read FAbbreviation;
+    property Address: TFieldWrap read FAddress;
+    property Responsible: TFieldWrap read FResponsible;
     property Title: TFieldWrap read FTitle;
     property ID: TFieldWrap read FID;
   end;
@@ -67,11 +71,11 @@ begin
     raise Exception.Create('Не задано наименование склада');
 
   // Если сокращённое наименование не задано
-//  if (FDQuery.State = dsInsert) and W.Abbreviation.F.IsNull then
-//  begin
+  if (FDQuery.State = dsInsert) and W.Abbreviation.F.IsNull then
+  begin
     W.Abbreviation.F.AsString := DeleteDouble(W.Title.F.AsString, ' ')
       .Replace(' ', '');
-//  end;
+  end;
 
 end;
 
@@ -90,6 +94,8 @@ begin
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FAbbreviation := TFieldWrap.Create(Self, 'Abbreviation', 'Склад');
   FTitle := TFieldWrap.Create(Self, 'Title', 'Наименование');
+  FResponsible := TFieldWrap.Create(Self, 'Responsible');
+  FAddress := TFieldWrap.Create(Self, 'Address');
 end;
 
 procedure TStoreHouseListW.AddNewValue(const AValue: string);

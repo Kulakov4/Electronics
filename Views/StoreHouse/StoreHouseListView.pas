@@ -136,6 +136,7 @@ begin
     qStoreHouseList.FDQuery.CachedUpdates := False;
     FreeAndNil(AfrmStoreHouse);
   end;
+  UpdateView;
 end;
 
 procedure TViewStoreHouse.cxGridDBBandedTableViewCanFocusRecord

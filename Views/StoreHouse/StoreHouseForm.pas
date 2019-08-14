@@ -31,6 +31,7 @@ type
   protected
     procedure ApplyUpdates; override;
     procedure CancelUpdates; override;
+    procedure ClearFormVariable; override;
     function HaveAnyChanges: Boolean; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -59,6 +60,11 @@ end;
 procedure TfrmStoreHouse.CancelUpdates;
 begin
   ViewStorehouseInfo.qStoreHouseList.CancelUpdates;
+end;
+
+procedure TfrmStoreHouse.ClearFormVariable;
+begin
+  inherited;
 end;
 
 function TfrmStoreHouse.HaveAnyChanges: Boolean;

@@ -39,16 +39,16 @@ type
     procedure SetqStoreHouseList(const Value: TQueryStoreHouseList);
   protected
   public
-    property qStoreHouseList: TQueryStoreHouseList read FqStoreHouseList write
-        SetqStoreHouseList;
+    property qStoreHouseList: TQueryStoreHouseList read FqStoreHouseList
+      write SetqStoreHouseList;
   end;
 
 implementation
 
 {$R *.dfm}
 
-procedure TViewStorehouseInfo.SetqStoreHouseList(const Value:
-    TQueryStoreHouseList);
+procedure TViewStorehouseInfo.SetqStoreHouseList(const Value
+  : TQueryStoreHouseList);
 begin
   if FqStoreHouseList <> Value then
   begin
@@ -57,11 +57,20 @@ begin
     if FqStoreHouseList <> nil then
     begin
       cxdbmTitle.DataBinding.DataSource := FqStoreHouseList.W.DataSource;
+      cxdbmTitle.DataBinding.DataField := FqStoreHouseList.W.Title.FieldName;
+
       cxdbteAbbreviation.DataBinding.DataSource :=
         FqStoreHouseList.W.DataSource;
-      cxTeResponsible.DataBinding.DataSource :=
-        FqStoreHouseList.W.DataSource;
+      cxdbteAbbreviation.DataBinding.DataField :=
+        FqStoreHouseList.W.Abbreviation.FieldName;
+
+      cxTeResponsible.DataBinding.DataSource := FqStoreHouseList.W.DataSource;
+      cxTeResponsible.DataBinding.DataField :=
+        FqStoreHouseList.W.Responsible.FieldName;
+
       cxdbmAddress.DataBinding.DataSource := FqStoreHouseList.W.DataSource;
+      cxdbmAddress.DataBinding.DataField :=
+        FqStoreHouseList.W.Address.FieldName;
     end
     else
     begin

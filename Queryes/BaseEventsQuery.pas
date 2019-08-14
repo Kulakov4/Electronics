@@ -25,6 +25,7 @@ type
     FAfterCancelUpdates: TNotifyEventsEx;
     FBeforeApplyUpdates: TNotifyEventsEx;
     FAfterApplyUpdates: TNotifyEventsEx;
+    FAfterCommitUpdates: TNotifyEventsEx;
     FClientCount: Integer;
     FDebug: Boolean;
     FHaveAnyNotCommitedChanges: Boolean;
@@ -46,6 +47,7 @@ type
     function GetActual: Boolean;
     function GetBeforeApplyUpdates: TNotifyEventsEx;
     function GetAfterApplyUpdates: TNotifyEventsEx;
+    function GetAfterCommitUpdates: TNotifyEventsEx;
     procedure InitializeFields;
     procedure TryStartTransaction(Sender: TObject);
     procedure SetAutoTransaction(const Value: Boolean);
@@ -84,6 +86,7 @@ type
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property BeforeApplyUpdates: TNotifyEventsEx read GetBeforeApplyUpdates;
     property AfterApplyUpdates: TNotifyEventsEx read GetAfterApplyUpdates;
+    property AfterCommitUpdates: TNotifyEventsEx read GetAfterCommitUpdates;
     property ClientCount: Integer read FClientCount;
     property Debug: Boolean read FDebug write FDebug;
     property HaveAnyNotCommitedChanges: Boolean read FHaveAnyNotCommitedChanges;
@@ -247,10 +250,14 @@ begin
     // Если все изменения прошли без ошибок
     if FDQuery.ApplyUpdates() = 0 then
       FDQuery.CommitUpdates;
+
+    // Извещаем всех что CommitUpdates произошёл!
+    if FAfterCommitUpdates <> nil then
+      AfterCommitUpdates.CallEventHandlers(Self);
   end;
 
   // Тут какой-то глюк и до переоткрытия кол-во изменений не 0
-  //  Assert(FDQuery.ChangeCount = 0);
+  // Assert(FDQuery.ChangeCount = 0);
 end;
 
 procedure TQueryBaseEvents.CancelUpdates;
@@ -393,6 +400,16 @@ begin
     FDQuery.AfterApplyUpdates := DoAfterApplyUpdates;
   end;
   Result := FAfterApplyUpdates;
+end;
+
+function TQueryBaseEvents.GetAfterCommitUpdates: TNotifyEventsEx;
+begin
+  if FAfterCommitUpdates = nil then
+  begin
+    FAfterCommitUpdates := TNotifyEventsEx.Create(Self);
+  end;
+
+  Result := FAfterCommitUpdates;
 end;
 
 procedure TQueryBaseEvents.TryStartTransaction(Sender: TObject);
@@ -655,6 +672,9 @@ begin
   TNotifyEventWrap.Create(AQuery.FDSWrap.AfterPost, DoAfterCancelOrPost,
     FEventList);
   TNotifyEventWrap.Create(AQuery.AfterCancelUpdates, DoAfterCancelOrPost,
+    FEventList);
+
+  TNotifyEventWrap.Create(AQuery.AfterCommitUpdates, DoAfterCancelOrPost,
     FEventList);
 end;
 
