@@ -1039,8 +1039,9 @@ end;
 procedure TfrmMain.DoAfterLoadSheet(ASender: TObject);
 var
   A: TArray<Integer>;
-  ADataOnly: Boolean;
+  AFamily: Boolean;
   AfrmError: TfrmCustomError;
+  AfrmGridView: TfrmGridView;
   AParametricExcelTable: TParametricExcelTable;
   E: TExcelDMEvent;
   ne: TNotifyEventR;
@@ -1084,18 +1085,37 @@ begin
   if not OK then
     Exit;
 
+  FfrmProgressBar.Hide;
+  // ќтображаем окно с категори€ми
+  AfrmGridView := TfrmGridView.Create(nil);
+  try
+    AfrmGridView.Caption := ' атегории в которых содержатс€ загруженные семейства';
+    AfrmGridView.ViewGridEx.DataSet :=
+      AParametricExcelTable.ProductCategoriesMemTbl;
+    // ѕоказываем категории в которые будем добавл€ть параметры
+    OK := AfrmGridView.ShowModal = mrOk;
+  finally
+    FreeAndNil(AfrmGridView);
+  end;
+
+  if not OK then
+    Exit;
+
   FfrmProgressBar.Show;
 
-  // ≈сли требуетс€ загрузить параметрические данные
-  ADataOnly := AParametricExcelTable.ComponentTypeSet = [ctComponent];
+  // ≈сли требуетс€ загрузить параметрические таблицы дл€ семейств
+  AFamily := AParametricExcelTable.ComponentTypeSet = [ctFamily];
 
   // ѕеред записью первого листа создадим все необходимые параметры
-  if (E.SheetIndex = 1) and (not ADataOnly) then
+  if (E.SheetIndex = 1) and (AFamily) then
   begin
     // ƒолжна быть хот€-бы одна категори€, в которую будем добавл€ть параметры
-    Assert(TDM.Create.qSearchDaughterCategories.FDQuery.RecordCount >= 1);
+    Assert(AParametricExcelTable.ProductCategoriesMemTbl.RecordCount >= 1);
+    // Assert(TDM.Create.qSearchDaughterCategories.FDQuery.RecordCount >= 1);
 
-    A := TDM.Create.qSearchDaughterCategories.W.ID.AsIntArray;
+    A := AParametricExcelTable.ProductCategoriesMemTbl.W.ProductCategoryID.
+      AsIntArray;
+    // A := TDM.Create.qSearchDaughterCategories.W.ID.AsIntArray;
 
     // 1 ƒобавл€ем параметры в категорию
     E.ExcelTable.Process(
@@ -1698,10 +1718,9 @@ begin
         end;
 
         // »щем все дочерние категории
-        rc := TDM.Create.qSearchDaughterCategories.SearchEx
-          (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
-        Assert(rc > 0);
-
+        // rc := TDM.Create.qSearchDaughterCategories.SearchEx
+        // (TDM.Create.qSearchCategory.W.ID.F.AsInteger);
+        // Assert(rc > 0);
         ACopyCommonValueToFamily := False;
       end
       else

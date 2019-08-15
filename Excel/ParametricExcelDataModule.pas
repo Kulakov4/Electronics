@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, ExcelDataModule, Excel2010, Vcl.OleServer,
   CustomExcelTable, Data.DB, System.Generics.Collections,
   FieldInfoUnit, SearchComponentOrFamilyQuery, SearchFamily,
-  ComponentTypeSetUnit;
+  ComponentTypeSetUnit, SearchFamilyCategoriesQry, ProductCategoriesMemTable;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
@@ -15,7 +15,9 @@ type
   private
     FComponentTypeSet: TComponentTypeSet;
     FCopyCommonValueToFamily: Boolean;
+    FProductCategoriesMemTbl: TProductCategoriesMemTbl;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
+    FqSearchFamilyCategories: TQrySearchFamilyCategories;
     FReplace: Boolean;
     function GetComponentName: TField;
     // TODO: GetIDBodyType
@@ -23,15 +25,18 @@ type
     function GetIDComponent: TField;
     function GetIDParentComponent: TField;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
+    function GetqSearchFamilyCategories: TQrySearchFamilyCategories;
   protected
     function CheckComponent: Boolean;
     procedure CreateFieldDefs; override;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
       read GetqSearchComponentOrFamily;
+    property qSearchFamilyCategories: TQrySearchFamilyCategories
+      read GetqSearchFamilyCategories;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
-        AComponentTypeSet: TComponentTypeSet; AReplace, ACopyCommonValueToFamily:
-        Boolean); reintroduce;
+      AComponentTypeSet: TComponentTypeSet;
+      AReplace, ACopyCommonValueToFamily: Boolean); reintroduce;
     function CheckRecord: Boolean; override;
     class function GetFieldNameByParamSubParamID(AParamSubParamID: Integer)
       : String; static;
@@ -42,6 +47,8 @@ type
     property CopyCommonValueToFamily: Boolean read FCopyCommonValueToFamily;
     property IDComponent: TField read GetIDComponent;
     property IDParentComponent: TField read GetIDParentComponent;
+    property ProductCategoriesMemTbl: TProductCategoriesMemTbl
+      read FProductCategoriesMemTbl;
     property Replace: Boolean read FReplace;
   end;
 
@@ -57,8 +64,8 @@ type
     function CreateExcelTable: TCustomExcelTable; override;
   public
     constructor Create(AOwner: TComponent; AFieldsInfo: TList<TFieldInfo>;
-        AComponentTypeSet: TComponentTypeSet; AReplace, ACopyCommonValueToFamily:
-        Boolean); reintroduce; overload;
+      AComponentTypeSet: TComponentTypeSet;
+      AReplace, ACopyCommonValueToFamily: Boolean); reintroduce; overload;
     property ExcelTable: TParametricExcelTable read GetExcelTable;
     { Public declarations }
   end;
@@ -74,9 +81,9 @@ uses ProgressInfo, System.Variants, ErrorType, RecordCheck;
 const
   FParamPrefix = 'Param';
 
-constructor TParametricExcelTable.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet; AReplace,
-    ACopyCommonValueToFamily: Boolean);
+constructor TParametricExcelTable.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet;
+  AReplace, ACopyCommonValueToFamily: Boolean);
 var
   AFieldInfo: TFieldInfo;
 begin
@@ -87,6 +94,8 @@ begin
   FComponentTypeSet := AComponentTypeSet;
   FReplace := AReplace;
   FCopyCommonValueToFamily := ACopyCommonValueToFamily;
+
+  FProductCategoriesMemTbl := TProductCategoriesMemTbl.Create(Self);
 end;
 
 function TParametricExcelTable.CheckComponent: Boolean;
@@ -101,9 +110,29 @@ begin
   // Если надо искать только среди семейств
   if FComponentTypeSet = [ctFamily] then
   begin
-    // Ищем семейство компонентов
-    Result := qSearchComponentOrFamily.SearchFamily(ComponentName.AsString) > 0;
-    if not Result then
+    // Ищем семейство и категории в которые оно входит
+    Result := qSearchFamilyCategories.SearchFamily(ComponentName.AsString) > 0;
+
+    if Result then
+    begin
+      // запоминаем идентификаторы категорий в которые входит наш компонент
+      qSearchFamilyCategories.FDQuery.First;
+      while not qSearchFamilyCategories.FDQuery.Eof do
+      begin
+        FProductCategoriesMemTbl.Add
+          (qSearchFamilyCategories.W.ProductCategoryID.F.AsInteger,
+          qSearchFamilyCategories.W.ExternalID.F.AsString,
+          qSearchFamilyCategories.W.Category.F.AsString);
+        qSearchFamilyCategories.FDQuery.Next;
+      end;
+
+      Edit;
+      IDComponent.AsInteger := qSearchFamilyCategories.W.PK.AsInteger;
+      IDParentComponent.AsInteger := qSearchFamilyCategories.W.ParentProductID.
+        F.AsInteger;
+      Post;
+    end
+    else
       AErrorMessage := 'Семейство компонентов с таким именем не найдено';
   end;
 
@@ -112,27 +141,28 @@ begin
   begin
     Result := qSearchComponentOrFamily.SearchComponent
       (ComponentName.AsString) > 0;
-    if not Result then
+
+    if Result then
+    begin
+      Edit;
+      IDComponent.AsInteger := qSearchComponentOrFamily.W.PK.AsInteger;
+      IDParentComponent.AsInteger := qSearchComponentOrFamily.W.ParentProductID.
+        F.AsInteger;
+      Post;
+    end
+    else
       AErrorMessage := 'Компонент с таким именем не найден';
   end;
-
-  if FComponentTypeSet = [ctComponent, ctFamily] then
-  begin
+  {
+    if FComponentTypeSet = [ctComponent, ctFamily] then
+    begin
     Result := qSearchComponentOrFamily.SearchByValue
-      (ComponentName.AsString) > 0;
+    (ComponentName.AsString) > 0;
     if not Result then
-      AErrorMessage := 'Семейство или компонент с таким именем не найден';
-  end;
-
-  if Result then
-  begin
-    Edit;
-    IDComponent.AsInteger := qSearchComponentOrFamily.W.PK.AsInteger;
-    IDParentComponent.AsInteger := qSearchComponentOrFamily.W.ParentProductID.
-      F.AsInteger;
-    Post;
-  end
-  else
+    AErrorMessage := 'Семейство или компонент с таким именем не найден';
+    end;
+  }
+  if not Result then
   begin
     // Запоминаем, что в этой строке ошибка
     ARecordCheck.ErrorType := etError;
@@ -219,9 +249,20 @@ begin
   Result := FqSearchComponentOrFamily;
 end;
 
-constructor TParametricExcelDM.Create(AOwner: TComponent; AFieldsInfo:
-    TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet; AReplace,
-    ACopyCommonValueToFamily: Boolean);
+function TParametricExcelTable.GetqSearchFamilyCategories
+  : TQrySearchFamilyCategories;
+begin
+  if FqSearchFamilyCategories = nil then
+  begin
+    FqSearchFamilyCategories := TQrySearchFamilyCategories.Create(Self);
+  end;
+
+  Result := FqSearchFamilyCategories;
+end;
+
+constructor TParametricExcelDM.Create(AOwner: TComponent;
+  AFieldsInfo: TList<TFieldInfo>; AComponentTypeSet: TComponentTypeSet;
+  AReplace, ACopyCommonValueToFamily: Boolean);
 begin
   Assert(AFieldsInfo <> nil);
   FFieldsInfo := AFieldsInfo;

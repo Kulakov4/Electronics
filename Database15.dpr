@@ -251,7 +251,9 @@ uses
   DataBaseUnit in 'Helpers\DataBaseUnit.pas',
   LoadParametricTable in 'Views\Components\ParametricTable\LoadParametricTable.pas' {frmLoadParametricTable},
   LoadParametricData in 'Views\Components\ParametricTable\LoadParametricData.pas' {frmLoadParametricData},
-  StoreHouseForm in 'Views\StoreHouse\StoreHouseForm.pas' {frmStoreHouse};
+  StoreHouseForm in 'Views\StoreHouse\StoreHouseForm.pas' {frmStoreHouse},
+  SearchFamilyCategoriesQry in 'Queryes\Search\SearchFamilyCategoriesQry.pas' {QrySearchFamilyCategories: TFrame},
+  ProductCategoriesMemTable in 'Queryes\Components\ParametricTable\ProductCategoriesMemTable.pas';
 
 {$R *.res}
 
