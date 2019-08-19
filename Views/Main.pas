@@ -241,7 +241,7 @@ uses
   FireDAC.Comp.DataSet, ComponentsGroupUnit2, ComponentsExcelDataModule,
   StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType,
   LoadParametricForm, VersionQuery, DataBaseUnit, LoadParametricData,
-  LoadParametricTable;
+  LoadParametricTable, GridViewForm, CategoryGridView;
 
 {$R *.dfm}
 
@@ -1041,7 +1041,7 @@ var
   A: TArray<Integer>;
   AFamily: Boolean;
   AfrmError: TfrmCustomError;
-  AfrmGridView: TfrmGridView2;
+  AfrmGridView: TfrmGridView;
   AParametricExcelTable: TParametricExcelTable;
   E: TExcelDMEvent;
   ne: TNotifyEventR;
@@ -1085,24 +1085,6 @@ begin
   if not OK then
     Exit;
 
-  FfrmProgressBar.Hide;
-  // ќтображаем окно с категори€ми
-  AfrmGridView := TfrmGridView2.Create(nil);
-  try
-    AfrmGridView.Caption := 'Ќайденные категории';
-    AfrmGridView.ViewGridEx.DataSet :=
-      AParametricExcelTable.ProductCategoriesMemTbl;
-    // ѕоказываем категории в которые будем добавл€ть параметры
-    OK := AfrmGridView.ShowModal = mrOk;
-  finally
-    FreeAndNil(AfrmGridView);
-  end;
-
-  if not OK then
-    Exit;
-
-  FfrmProgressBar.Show;
-
   // ≈сли требуетс€ загрузить параметрические таблицы дл€ семейств
   AFamily := AParametricExcelTable.ComponentTypeSet = [ctFamily];
 
@@ -1111,11 +1093,36 @@ begin
   begin
     // ƒолжна быть хот€-бы одна категори€, в которую будем добавл€ть параметры
     Assert(AParametricExcelTable.ProductCategoriesMemTbl.RecordCount >= 1);
-    // Assert(TDM.Create.qSearchDaughterCategories.FDQuery.RecordCount >= 1);
 
-    A := AParametricExcelTable.ProductCategoriesMemTbl.W.ProductCategoryID.
-      AsIntArray;
-    // A := TDM.Create.qSearchDaughterCategories.W.ID.AsIntArray;
+    FfrmProgressBar.Hide;
+
+    // ќтображаем окно с категори€ми
+    AfrmGridView := TfrmGridView.Create(Self, 'Ќайденные категории',
+      [mmbContinue, mmbCancel]);
+    try
+      AfrmGridView.GridViewClass := TViewCategory;
+      (AfrmGridView.GridView as TViewCategory).ProductCategoriesMemTbl :=
+        AParametricExcelTable.ProductCategoriesMemTbl;
+
+      // ѕоказываем категории в которые будем добавл€ть параметры
+      OK := AfrmGridView.ShowModal = mrOk;
+    finally
+      FreeAndNil(AfrmGridView);
+    end;
+
+    // ѕолучаем идентификаторы выбранных категорий
+    A := AParametricExcelTable.ProductCategoriesMemTbl.GetChecked;
+
+    // Ќадо ли останавливать загрузку остальных листов
+    E.Terminate := not OK or (Length(A) = 0);
+
+    if Length(A) = 0 then
+      TDialog.Create.ErrorMessageDialog('Ќи одна категори€ не выбрана');
+
+    if E.Terminate then
+      Exit;
+
+    FfrmProgressBar.Show;
 
     // 1 ƒобавл€ем параметры в категорию
     E.ExcelTable.Process(

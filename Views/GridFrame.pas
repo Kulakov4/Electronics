@@ -248,6 +248,8 @@ type
     { Public declarations }
   end;
 
+  TGridViewClass = class of TfrmGrid;
+
 implementation
 
 {$R *.dfm}

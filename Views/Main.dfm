@@ -171,10 +171,6 @@ object frmMain: TfrmMain
     object cxtshWareHouse: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cxpcWareHouse2: TcxPageControl
         Left = 0
         Top = 0
@@ -192,10 +188,6 @@ object frmMain: TfrmMain
         object cxtshWareHouse2: TcxTabSheet
           Caption = #1057#1082#1083#1072#1076#1099
           ImageIndex = 0
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlStoreHouseLeft: TPanel
             Left = 0
             Top = 0

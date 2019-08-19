@@ -254,7 +254,8 @@ uses
   StoreHouseForm in 'Views\StoreHouse\StoreHouseForm.pas' {frmStoreHouse},
   SearchFamilyCategoriesQry in 'Queryes\Search\SearchFamilyCategoriesQry.pas' {QrySearchFamilyCategories: TFrame},
   ProductCategoriesMemTable in 'Queryes\Components\ParametricTable\ProductCategoriesMemTable.pas',
-  CategoryGridView in 'Views\Components\ParametricTable\CategoryGridView.pas' {ViewCategory: TFrame};
+  CategoryGridView in 'Views\Components\ParametricTable\CategoryGridView.pas' {ViewCategory: TFrame},
+  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView};
 
 {$R *.res}
 

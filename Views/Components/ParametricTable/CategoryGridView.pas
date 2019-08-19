@@ -3,7 +3,8 @@ unit CategoryGridView;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridFrame, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
@@ -26,19 +27,21 @@ uses
   System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
-  ProductCategoriesMemTable;
+  ProductCategoriesMemTable, cxCheckBox;
 
 type
   TViewCategory = class(TfrmGrid)
   private
     FProductCategoriesMemTbl: TProductCategoriesMemTbl;
+    function GetclChecked: TcxGridDBBandedColumn;
     procedure SetProductCategoriesMemTbl(const Value: TProductCategoriesMemTbl);
     { Private declarations }
   protected
     procedure InitColumns; virtual;
   public
-    property ProductCategoriesMemTbl: TProductCategoriesMemTbl read
-        FProductCategoriesMemTbl write SetProductCategoriesMemTbl;
+    property clChecked: TcxGridDBBandedColumn read GetclChecked;
+    property ProductCategoriesMemTbl: TProductCategoriesMemTbl
+      read FProductCategoriesMemTbl write SetProductCategoriesMemTbl;
     { Public declarations }
   end;
 
@@ -46,13 +49,27 @@ implementation
 
 {$R *.dfm}
 
-procedure TViewCategory.InitColumns;
+function TViewCategory.GetclChecked: TcxGridDBBandedColumn;
 begin
-  MainView.DataController.CreateAllItems(True);
+  Result := MainView.GetColumnByFieldName
+    (ProductCategoriesMemTbl.W.Checked.FieldName);
 end;
 
-procedure TViewCategory.SetProductCategoriesMemTbl(const Value:
-    TProductCategoriesMemTbl);
+procedure TViewCategory.InitColumns;
+begin
+  MainView.OptionsView.ColumnAutoWidth := False;
+  MainView.DataController.CreateAllItems(True);
+
+  clChecked.PropertiesClass := TcxCheckBoxProperties;
+  (clChecked.Properties as TcxCheckBoxProperties).ValueChecked := 1;
+  (clChecked.Properties as TcxCheckBoxProperties).ValueUnchecked := 0;
+  (clChecked.Properties as TcxCheckBoxProperties).ValueGrayed := NULL;
+
+  MyApplyBestFit;
+end;
+
+procedure TViewCategory.SetProductCategoriesMemTbl
+  (const Value: TProductCategoriesMemTbl);
 begin
   if FProductCategoriesMemTbl = Value then
     Exit;

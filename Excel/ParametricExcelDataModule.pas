@@ -76,7 +76,7 @@ implementation
 
 {$R *.dfm}
 
-uses ProgressInfo, System.Variants, ErrorType, RecordCheck;
+uses ProgressInfo, System.Variants, ErrorType, RecordCheck, FireDAC.Comp.Client;
 
 const
   FParamPrefix = 'Param';
