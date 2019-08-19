@@ -2160,7 +2160,8 @@ procedure TViewParametricTable.RecreateColumns;
 var
   qCatParams: TQryCategoryParameters;
 begin
-  FreeAndNil(FColumnsBarButtons);
+  if FColumnsBarButtons <> nil then
+    FreeAndNil(FColumnsBarButtons);
   try
 
     ComponentsExGroup.CatParamsGroup.LoadData;

@@ -204,7 +204,13 @@ begin
 end;
 
 destructor TGVColumnsBarButtons.Destroy;
+var
+  i: Integer;
 begin
+  // Удаляем ссылки на все добавленные кнопки
+  for i := FdxBarSubitem.ItemLinks.Count - 1 downto 0 do
+    FdxBarSubitem.ItemLinks.Delete(i);
+
   inherited;
   FreeAndNil(FGroupActions);
 end;

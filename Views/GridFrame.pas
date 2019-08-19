@@ -261,6 +261,7 @@ uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink,
 constructor TfrmGrid.Create(AOwner: TComponent);
 begin
   inherited;
+  FColumnsBarButtons := nil;
   FUpdateCount := 0;
   FEventList := TObjectList.Create;
   FStatusBarEmptyPanelIndex := -1;
