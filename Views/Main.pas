@@ -231,7 +231,7 @@ uses
   ParametricExcelDataModule, ParametricTableForm, BodyTypesForm, ProjectConst,
   PathSettingsForm, ImportErrorForm, cxGridDBBandedTableView,
   System.IOUtils, ImportProcessForm, ProgressBarForm,
-  Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm,
+  Vcl.FileCtrl, SearchDescriptionsQuery, TableWithProgress, GridViewForm2,
   TreeListQuery, AutoBindingDocForm, AutoBindingDescriptionForm,
   FireDAC.Comp.Client, AutoBinding, AllFamilyQuery, ProducersForm,
   ProductsBaseQuery, RecursiveTreeView,
@@ -1041,7 +1041,7 @@ var
   A: TArray<Integer>;
   AFamily: Boolean;
   AfrmError: TfrmCustomError;
-  AfrmGridView: TfrmGridView;
+  AfrmGridView: TfrmGridView2;
   AParametricExcelTable: TParametricExcelTable;
   E: TExcelDMEvent;
   ne: TNotifyEventR;
@@ -1087,9 +1087,9 @@ begin
 
   FfrmProgressBar.Hide;
   // ќтображаем окно с категори€ми
-  AfrmGridView := TfrmGridView.Create(nil);
+  AfrmGridView := TfrmGridView2.Create(nil);
   try
-    AfrmGridView.Caption := ' атегории в которых содержатс€ загруженные семейства';
+    AfrmGridView.Caption := 'Ќайденные категории';
     AfrmGridView.ViewGridEx.DataSet :=
       AParametricExcelTable.ProductCategoriesMemTbl;
     // ѕоказываем категории в которые будем добавл€ть параметры

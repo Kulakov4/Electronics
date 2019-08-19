@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridViewForm, cxGraphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridViewForm2, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
   dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -24,7 +24,7 @@ uses
   Vcl.ExtCtrls, NotifyEvents;
 
 type
-  TfrmGridViewAutoSize = class(TfrmGridView)
+  TfrmGridViewAutoSize = class(TfrmGridView2)
   private
     procedure DoOnAssignDataset(Sender: TObject);
     { Private declarations }

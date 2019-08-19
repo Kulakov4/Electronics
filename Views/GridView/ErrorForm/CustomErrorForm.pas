@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridViewForm, cxGraphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GridViewForm2, cxGraphics,
   cxLookAndFeels, cxLookAndFeelPainters, Vcl.Menus, dxSkinsCore, dxSkinBlack,
   dxSkinBlue, dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom,
   dxSkinDarkSide, dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
@@ -28,7 +28,7 @@ type
   TContinueType = (ctAll, ctSkip);
   TCustomErrorFormClass = class of TfrmCustomError;
 
-  TfrmCustomError = class(TfrmGridView)
+  TfrmCustomError = class(TfrmGridView2)
     lblStatus: TcxLabel;
     ErrorActionList: TActionList;
     actAll: TAction;

@@ -101,7 +101,7 @@ implementation
 
 uses
   ProjectConst, DialogUnit, RecursiveTreeQuery, RecursiveTreeView, DialogUnit2,
-  GridViewForm, LoadFromExcelFileHelper, TreeExcelDataModule, CustomErrorForm,
+  GridViewForm2, LoadFromExcelFileHelper, TreeExcelDataModule, CustomErrorForm,
   System.Types, System.UITypes, Vcl.StdCtrls, FireDAC.Comp.DataSet, cxEdit;
 
 {$R *.dfm}
@@ -178,7 +178,7 @@ end;
 procedure TViewTreeList.actLoadTreeFromExcelDocumentExecute(Sender: TObject);
 var
   AFileName: string;
-  AfrmGridView: TfrmGridView;
+  AfrmGridView: TfrmGridView2;
   AQueryRecursiveTree: TQueryRecursiveTree;
   OK: Boolean;
 begin
@@ -202,7 +202,7 @@ begin
     // Если есть категории, которые были добавлены
     if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
     begin
-      AfrmGridView := TfrmGridView.Create(Self);
+      AfrmGridView := TfrmGridView2.Create(Self);
       try
         AfrmGridView.Caption := 'Добавленные категории';
         AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
@@ -216,7 +216,7 @@ begin
     // Если есть категории, которые надо удалить
     if AQueryRecursiveTree.FDQuery.RecordCount > 0 then
     begin
-      AfrmGridView := TfrmGridView.Create(Self);
+      AfrmGridView := TfrmGridView2.Create(Self);
       try
         AfrmGridView.Caption := 'Удаление категорий';
         AfrmGridView.cxbtnOK.Caption := 'Удалить';

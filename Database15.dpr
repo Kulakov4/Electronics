@@ -150,7 +150,7 @@ uses
   AnalogGridView in 'Views\Analog\AnalogGridView.pas' {ViewAnalogGrid: TFrame},
   BandsInfo in 'Views\BandsInfo.pas',
   CustomGridViewForm in 'Views\GridView\CustomGridViewForm.pas' {frmCustomGridView},
-  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
+  GridViewForm2 in 'Views\GridView\GridViewForm2.pas' {frmGridView2},
   CustomErrorForm in 'Views\GridView\ErrorForm\CustomErrorForm.pas' {frmCustomError},
   ImportErrorForm in 'Views\GridView\ErrorForm\ImportErrorForm.pas' {frmImportError},
   AutoSizeGridViewForm in 'Views\GridView\AutoSizeGridViewForm.pas' {frmGridViewAutoSize},
@@ -253,7 +253,8 @@ uses
   LoadParametricData in 'Views\Components\ParametricTable\LoadParametricData.pas' {frmLoadParametricData},
   StoreHouseForm in 'Views\StoreHouse\StoreHouseForm.pas' {frmStoreHouse},
   SearchFamilyCategoriesQry in 'Queryes\Search\SearchFamilyCategoriesQry.pas' {QrySearchFamilyCategories: TFrame},
-  ProductCategoriesMemTable in 'Queryes\Components\ParametricTable\ProductCategoriesMemTable.pas';
+  ProductCategoriesMemTable in 'Queryes\Components\ParametricTable\ProductCategoriesMemTable.pas',
+  CategoryGridView in 'Views\Components\ParametricTable\CategoryGridView.pas' {ViewCategory: TFrame};
 
 {$R *.res}
 

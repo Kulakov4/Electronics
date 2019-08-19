@@ -1,4 +1,4 @@
-unit GridViewForm;
+unit GridViewForm2;
 
 interface
 
@@ -24,7 +24,7 @@ uses
   dxSkinXmas2008Blue, Vcl.StdCtrls, cxButtons;
 
 type
-  TfrmGridView = class(TfrmCustomGridView)
+  TfrmGridView2 = class(TfrmCustomGridView)
     cxbtnOK: TcxButton;
   private
     { Private declarations }
@@ -37,7 +37,7 @@ implementation
 
 {$R *.dfm}
 
-constructor TfrmGridView.Create(AOwner: TComponent);
+constructor TfrmGridView2.Create(AOwner: TComponent);
 begin
   inherited;
   pnlMain.Anchors := [akLeft, akTop, akRight, akBottom];

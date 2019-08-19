@@ -584,8 +584,8 @@
         <DCCReference Include="Views\GridView\CustomGridViewForm.pas">
             <Form>frmCustomGridView</Form>
         </DCCReference>
-        <DCCReference Include="Views\GridView\GridViewForm.pas">
-            <Form>frmGridView</Form>
+        <DCCReference Include="Views\GridView\GridViewForm2.pas">
+            <Form>frmGridView2</Form>
         </DCCReference>
         <DCCReference Include="Views\GridView\ErrorForm\CustomErrorForm.pas">
             <Form>frmCustomError</Form>
@@ -891,6 +891,11 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Queryes\Components\ParametricTable\ProductCategoriesMemTable.pas"/>
+        <DCCReference Include="Views\Components\ParametricTable\CategoryGridView.pas">
+            <Form>ViewCategory</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -281,7 +281,7 @@ uses NotifyEvents, System.StrUtils, RepositoryDataModule, cxFilterConsts,
   GridExtension, DragHelper, System.Math, AnalogForm, AnalogQueryes,
   AnalogGridView, SearchProductByParamValuesQuery, NaturalSort,
   CategoryParametersGroupUnit2, FireDAC.Comp.Client, MoveHelper,
-  SubParametersForm, System.Types, TextRectHelper, GridViewForm, DialogUnit,
+  SubParametersForm, System.Types, TextRectHelper, GridViewForm2, DialogUnit,
   FamilyExQuery;
 
 constructor TViewParametricTable.Create(AOwner: TComponent);
@@ -876,11 +876,11 @@ end;
 procedure TViewParametricTable.actShowCategoryParametersQueryExecute
   (Sender: TObject);
 var
-  AfrmGridView: TfrmGridView;
+  AfrmGridView: TfrmGridView2;
 begin
   inherited;
   Application.Hint := '';
-  AfrmGridView := TfrmGridView.Create(Self);
+  AfrmGridView := TfrmGridView2.Create(Self);
   try
     AfrmGridView.ViewGridEx.DataSet := qCategoryParameters.FDQuery;
     AfrmGridView.ShowModal;

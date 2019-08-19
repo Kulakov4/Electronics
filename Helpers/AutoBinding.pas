@@ -91,7 +91,7 @@ type
 
 implementation
 
-uses cxGridDbBandedTableView, GridViewForm, ProgressBarForm, System.SysUtils,
+uses cxGridDbBandedTableView, GridViewForm2, ProgressBarForm, System.SysUtils,
   System.IOUtils, DialogUnit, StrHelper, System.Types, SearchDescriptionsQuery,
   System.StrUtils, ProjectConst, SearchproductDescriptionQuery;
 
@@ -241,7 +241,7 @@ var
   AAbsentDocTable: TAbsentDocTable;
   AcxGridDBBandedColumn: TcxGridDBBandedColumn;
   ADocFilesTable: TDocFilesTable;
-  AfrmGridView: TfrmGridView;
+  AfrmGridView: TfrmGridView2;
   AErrorLinkedDocTable: TErrorLinkedDocTable;
   AIDParamSubParam: Integer;
   APossibleLinkDocTables: TDictionary<Integer, TPossibleLinkDocTable>;
@@ -306,7 +306,7 @@ begin
     if AErrorLinkedDocTable.RecordCount > 0 then
     begin
       // Отображаем список ошибок возникших при привязке
-      AfrmGridView := TfrmGridView.Create(nil);
+      AfrmGridView := TfrmGridView2.Create(nil);
       try
         with AfrmGridView do
         begin
@@ -343,7 +343,7 @@ begin
       // Если есть компоненты для которых отсутствует документация
       if AAbsentDocTable.RecordCount > 0 then
       begin
-        AfrmGridView := TfrmGridView.Create(nil);
+        AfrmGridView := TfrmGridView2.Create(nil);
         try
           AfrmGridView.Caption :=
             'Компоненты для которых отсутствует документация';
