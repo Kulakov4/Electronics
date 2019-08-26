@@ -915,6 +915,10 @@ begin
   FCategoryPath := FQuerySearchCategoriesPath.GetFullPath
     (TDM.Create.qTreeList.W.PK.AsInteger);
 
+  if (not FCategoryPath.IsEmpty) then
+    FCategoryPath := FCategoryPath + Format(' (%s)',
+      [TDM.Create.qTreeList.W.ExternalID.F.AsString]);
+
   UpdateCaption;
 
   AExternalID := ' ' + TDM.Create.qTreeList.W.ExternalID.F.AsString;

@@ -187,7 +187,7 @@ begin
     then
     begin
       // Если подходящий файл базы данных найден
-      Assert(AVersion <= ProgramVersion);
+      Assert(AVersion <= Double(ProgramVersion));
 
       if AVersion < ProgramVersion then
       begin
