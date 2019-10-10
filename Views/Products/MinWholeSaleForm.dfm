@@ -22,7 +22,7 @@ object frmMinWholeSale: TfrmMinWholeSale
   object cxLabel1: TcxLabel
     Left = 39
     Top = 25
-    Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100' '#1084#1080#1085#1080#1084#1072#1083#1100#1085#1091#1102' '#1086#1090#1087#1086#1074#1091#1102' '#1085#1072#1094#1077#1085#1082#1091'?'
+    Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100' '#1084#1080#1085#1080#1084#1072#1083#1100#1085#1091#1102' '#1086#1087#1090#1086#1074#1091#1102' '#1085#1072#1094#1077#1085#1082#1091'?'
   end
   object cxseMinWholeSale: TcxSpinEdit
     Left = 366
@@ -48,7 +48,6 @@ object frmMinWholeSale: TfrmMinWholeSale
     Default = True
     ModalResult = 1
     TabOrder = 1
-    ExplicitTop = 99
   end
   object cxbtnCancel: TcxButton
     Left = 239
@@ -60,7 +59,6 @@ object frmMinWholeSale: TfrmMinWholeSale
     Caption = #1053#1077#1090
     ModalResult = 2
     TabOrder = 2
-    ExplicitTop = 99
   end
   object cxcbSave: TcxCheckBox
     Left = 39
