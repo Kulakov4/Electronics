@@ -161,11 +161,13 @@ inherited ViewProducts2: TViewProducts2
         end>
     end
     inherited dxbsColumns: TdxBarSubItem
+      Hint = #1059#1087#1088#1072#1074#1083#1077#1085#1080#1077' '#1082#1086#1083#1086#1085#1082#1072#1084#1080
       ShowCaption = False
     end
     object dxBarSubItem1: TdxBarSubItem [4]
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100
       Category = 0
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100
       Visible = ivAlways
       ImageIndex = 1
       ShowCaption = False
@@ -260,6 +262,9 @@ inherited ViewProducts2: TViewProducts2
     object dxBarButton17: TdxBarButton [26]
       Action = actLoadFromExcelDocument
       Category = 0
+    end
+    inherited dxbbRubToDollar: TdxBarButton
+      Hint = #1055#1088#1080#1082#1088#1077#1087#1080#1090#1100' '#1079#1072#1082#1091#1087#1086#1095#1085#1091#1102' '#1094#1077#1085#1091' '#1074' '#8381' '#1082' '#1080#1079#1084#1077#1085#1077#1085#1080#1102' '#1082#1091#1088#1089#1072' $'
     end
   end
   inherited ActionList: TActionList
