@@ -293,7 +293,8 @@ implementation
 {$R *.dfm}
 
 uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
-  ParameterValuesUnit, StrHelper, System.StrUtils, ProjectConst, System.Math;
+  ParameterValuesUnit, StrHelper, System.StrUtils, ProjectConst, System.Math,
+  CurrencyUnit;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent);
 begin
@@ -509,7 +510,7 @@ begin
 
       AClone.RecNo := ARecNo;
       // Не должно происходить смещение записи при сохранении
-//      Assert(ARecNo = AClone.RecNo);
+      // Assert(ARecNo = AClone.RecNo);
 
       AClone.Next;
       ARecNo := AClone.RecNo;
@@ -567,7 +568,7 @@ procedure TQueryProductsBase.ApplyUpdates;
 begin
   Assert(FDQuery.CachedUpdates);
   // Возможно мы добавили производителя в раздел Склад и транзакция уже началась!!!
-//  Assert(not FDQuery.Connection.InTransaction);
+  // Assert(not FDQuery.Connection.InTransaction);
 
   W.TryPost;
   // тут должны быть несохранённые изменения
@@ -588,7 +589,7 @@ end;
 procedure TQueryProductsBase.CancelUpdates;
 begin
   Assert(FDQuery.CachedUpdates);
-//  Assert(not FDQuery.Connection.InTransaction);
+  // Assert(not FDQuery.Connection.InTransaction);
   FDataChange := False;
 
   // отменяем сделанные изменения в текущей записи на стороне клиента
@@ -929,33 +930,45 @@ begin
   if not AErrorMessage.IsEmpty then
     raise Exception.Create(AErrorMessage);
 
-  // Заполням курс доллара
-  if (W.Dollar.F.IsNull) and (DollarCource > 0) then
-    W.Dollar.F.AsFloat := DollarCource;
-
-  // Запоняе курс евро
-  if (W.Euro.F.IsNull) and (EuroCource > 0) then
-    W.Euro.F.AsFloat := EuroCource;
-
   // Заполняем дату загрузки, если она пустая
   if W.LoadDate.F.IsNull then
     W.LoadDate.F.AsString := FormatDateTime('dd.mm.yyyy', Date);;
 
+  // Заполням курс доллара на дату загрузки
+  if (W.Dollar.F.IsNull) then
+    try
+      W.Dollar.F.AsFloat := TMyCurrency.Create.GetCourses(2,
+        W.LoadDate.F.AsDateTime);
+    except
+      ; // В случае ошибки, оставляем поле пустым
+    end;
+
+  // Запоняе курс евро на дату загрузки
+  if (W.Euro.F.IsNull) then
+    try
+      W.Euro.F.AsFloat := TMyCurrency.Create.GetCourses(3,
+        W.LoadDate.F.AsDateTime);;
+    except
+      ; // В случае ошибки, оставляем поле пустым
+    end;
+
   // Пробуем заполнить значения полей из компонентской базы
   SetFieldValuesBeforePost;
 
-  // Если производитель не задан
-  if W.IDProducer.F.IsNull or (W.IDProducer.F.AsInteger = 0) then
-  begin
+  // Отказываемся от поиска производителя по наименованию
+  (*
+    // Если производитель не задан
+    if W.IDProducer.F.IsNull or (W.IDProducer.F.AsInteger = 0) then
+    begin
     // Ищем такой компонент с таким именем на складе
     rc := qSearchProduct.SearchByValue(W.Value.F.AsString);
     if rc > 0 then
-      // Заполняем код производителя
-      W.IDProducer.F.Value := qSearchProduct.W.IDProducer.F.Value
+    // Заполняем код производителя
+    W.IDProducer.F.Value := qSearchProduct.W.IDProducer.F.Value
     else
-      raise Exception.Create('Необходимо задать производителя');
-  end;
-
+    raise Exception.Create('Необходимо задать производителя');
+    end;
+  *)
   // Ищем такой продукт с тем же производителем
   // Если такой продукт уже есть
   if qSearchProduct.SearchByValue(W.Value.F.AsString,
@@ -1714,6 +1727,12 @@ begin
   // Для группы должно быть заполнено только наименование
   if IsGroup.F.AsInteger = 1 then
     Exit;
+
+  if IDProducer.F.IsNull or (IDProducer.F.AsInteger = 0) then
+  begin
+    Result := 'Необходимо задать производителя';
+    Exit;
+  end;
 
   if Amount.F.IsNull then
   begin
