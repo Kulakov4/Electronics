@@ -6,6 +6,10 @@ uses
   QueryGroupUnit2, System.Classes, NotifyEvents, ProducersQuery,
   ProducerTypesQuery, System.Generics.Collections, ProducersExcelDataModule;
 
+resourcestring
+  // Категория производителей которые добавляются на склад в ручную или из Excel Файла
+  sWareHouseDefaultProducerType = 'Склад';
+
 type
   TProducersGroup2 = class(TQueryGroup2)
   private

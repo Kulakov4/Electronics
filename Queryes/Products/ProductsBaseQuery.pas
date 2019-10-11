@@ -574,7 +574,14 @@ begin
   // тут должны быть несохранённые изменения
   // Assert(FDQuery.ChangeCount > 0);
 
-  FDQuery.Connection.StartTransaction;
+  // Если транзакция ещё не началась, то начинаем
+  if not FDQuery.Connection.InTransaction then
+  begin
+    if FDQuery.ChangeCount > 0 then
+      FDQuery.Connection.StartTransaction
+    else
+      Exit; // Если не чего сохранять
+  end;
 
   FDQuery.ApplyUpdates();
   FDQuery.CommitUpdates;
@@ -584,6 +591,9 @@ begin
 
   Assert(not FDQuery.UpdatesPending);
   Assert(FDQuery.ChangeCount = 0);
+
+  // Извещаем всех что CommitUpdates произошёл!
+  TryCallAfterCommitUpdatesEvent;
 end;
 
 procedure TQueryProductsBase.CancelUpdates;
@@ -902,7 +912,7 @@ end;
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
 var
   AErrorMessage: String;
-  rc: Integer;
+//  rc: Integer;
 begin
   if FDQuery.State = dsEdit then
   begin
@@ -1019,6 +1029,7 @@ end;
 procedure TQueryProductsBase.DoOnCommitUpdates(var Message: TMessage);
 begin
   inherited;
+  // Если изменились только вычисляемые поля или количество продаж, то сохраняем сделанные изменения сразу!
   FOnCommitUpdatePosted := False;
   ApplyUpdates;
 end;

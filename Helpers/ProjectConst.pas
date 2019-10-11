@@ -16,6 +16,9 @@ resourcestring
 
   sIsNotEnoughProductAmount = 'На складе недостаточное количество товара';
 
+  // Категория производителей которые добавляются на склад в ручную или из Excel Файла
+  sWareHouseDefaultProducerType = 'Склад';
+
   // Папка по умолчанию для хранения документации на складе
   sWareHouseFolder = 'Склад';
 

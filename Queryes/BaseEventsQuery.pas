@@ -75,6 +75,7 @@ type
       AForcibly: Boolean = False); overload;
     procedure MasterCascadeDelete;
     procedure RemoveClient;
+    procedure TryCallAfterCommitUpdatesEvent;
     procedure TryLoad;
     // TODO: TryPost
     // procedure TryPost; override;
@@ -82,10 +83,10 @@ type
     property Actual: Boolean read GetActual;
     property AutoTransaction: Boolean read FAutoTransaction
       write SetAutoTransaction;
-    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCancelUpdates: TNotifyEventsEx read FAfterCancelUpdates;
     property BeforeApplyUpdates: TNotifyEventsEx read GetBeforeApplyUpdates;
     property AfterApplyUpdates: TNotifyEventsEx read GetAfterApplyUpdates;
+    property AfterCommit: TNotifyEventsEx read FAfterCommit;
     property AfterCommitUpdates: TNotifyEventsEx read GetAfterCommitUpdates;
     property ClientCount: Integer read FClientCount;
     property Debug: Boolean read FDebug write FDebug;
@@ -566,6 +567,12 @@ begin
     end;
 
   end;
+end;
+
+procedure TQueryBaseEvents.TryCallAfterCommitUpdatesEvent;
+begin
+  if FAfterCommitUpdates <> nil then
+    FAfterCommitUpdates.CallEventHandlers(Self);
 end;
 
 procedure TQueryBaseEvents.TryLoad;

@@ -45,8 +45,8 @@ begin
 end;
 
 constructor TProductCategoriesMemTbl.Create(AOwner: TComponent);
-var
-  AFDIndex: TFDIndex;
+//var
+//  AFDIndex: TFDIndex;
 begin
   inherited;
   FW := TProductCategoriesW.Create(Self);

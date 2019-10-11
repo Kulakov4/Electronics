@@ -37,7 +37,6 @@ uses
 
 const
   WM_RESYNC_DATASET = WM_USER + 800;
-  WM_AFTER_APPLY_UPDATES = WM_USER + 801;
   WM_AFTER_OPEN_OR_REFRESH = WM_USER + 802;
 
 type
@@ -199,6 +198,8 @@ type
       AColumn: TcxTreeListColumn);
     procedure dxbcMinWholeSaleChange(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
+    procedure clIDProducerPropertiesNewLookupDisplayText(Sender: TObject;
+      const AText: TCaption);
   private
     FCountEvents: TObjectList;
     FcxTreeListBandHeaderCellViewInfo: TcxTreeListBandHeaderCellViewInfo;
@@ -212,8 +213,8 @@ type
 
   const
     KeyFolder: String = 'Products';
-    procedure DoAfterApplyUpdates(Sender: TObject);
     procedure DoAfterCancelUpdates(Sender: TObject);
+    procedure DoAfterCommitUpdates(Sender: TObject);
     procedure DoAfterDataChange(Sender: TObject);
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
@@ -260,8 +261,6 @@ type
       var AValue: Variant); virtual;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerсentToRate(APerсent: Double): Double;
-    procedure ProcessAfterApplyUpdatesMessage(var Message: TMessage);
-      message WM_AFTER_APPLY_UPDATES;
     function RateToPerсent(ARate: Double): Double;
     // TODO: SortList
     // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
@@ -518,15 +517,11 @@ begin
   // если есть записи, которые были добавлены
   if FqProductsBase.HaveInsertedProducts then
   begin
-    // X := TDialog.Create.UseDefaultMinWholeSale();
-    // Если отмена сохранения
-    // if X = IDCANCEL then
-
     AMinWholeSale := TSettings.Create.MinWholeSale;
     if TfrmMinWholeSale.DoShowModal(AMinWholeSale, ASave) then
     begin
       if ASave then
-        // Сохоаняем минимальную оптовую наценку по умолчанию в настройках
+        // Сохраняем минимальную оптовую наценку по умолчанию в настройках
         TSettings.Create.MinWholeSale := AMinWholeSale;
       // Применяем минимальную оптовую наценку
       FqProductsBase.ApplyMinWholeSale(AMinWholeSale);
@@ -1118,12 +1113,6 @@ begin
   UpdateView;
 end;
 
-procedure TViewProductsBase2.DoAfterApplyUpdates(Sender: TObject);
-begin
-  // Нужно ждать CommitUpdates чтобы очистить журнал изменений
-  PostMessage(Handle, WM_AFTER_APPLY_UPDATES, 0, 0);
-end;
-
 procedure TViewProductsBase2.DoAfterCancelUpdates(Sender: TObject);
 begin
   UpdateAllBarComboText;
@@ -1235,6 +1224,21 @@ procedure TViewProductsBase2.ClearSelectionAfterOpenOrRefresh
 begin
   inherited;
   ClearSelection;
+end;
+
+procedure TViewProductsBase2.clIDProducerPropertiesNewLookupDisplayText(
+  Sender: TObject; const AText: TCaption);
+begin
+  inherited;
+  if AText = '' then Exit;
+
+  // Ищем или добавляем такого производителя в справочнике производителей
+  qProductsBase.ProducersGroup.LocateOrAppend(AText, sWareHouseDefaultProducerType);
+end;
+
+procedure TViewProductsBase2.DoAfterCommitUpdates(Sender: TObject);
+begin
+  UpdateView;
 end;
 
 procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
@@ -1412,7 +1416,7 @@ begin
   Assert(FqProductsBase <> nil);
 
   InitializeLookupColumn(clIDProducer,
-    FqProductsBase.ProducersGroup.qProducers.W.DataSource, lsEditFixedList,
+    FqProductsBase.ProducersGroup.qProducers.W.DataSource, lsEditList,
     FqProductsBase.ProducersGroup.qProducers.W.Name.FieldName);
 end;
 
@@ -1558,13 +1562,6 @@ begin
   actBandWidth.Enabled := FcxTreeListBandHeaderCellViewInfo <> nil;
   actColumnAutoWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
   actColumnWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
-end;
-
-procedure TViewProductsBase2.ProcessAfterApplyUpdatesMessage
-  (var Message: TMessage);
-begin
-  inherited;
-  UpdateView;
 end;
 
 procedure TViewProductsBase2.ProcessResyncDataSetMessage(var Message: TMessage);
@@ -1713,8 +1710,8 @@ begin
     TNotifyEventWrap.Create(qProductsBase.Monitor.OnHaveAnyChanges,
       DoAfterDataChange, FEventList);
 
-    TNotifyEventWrap.Create(qProductsBase.AfterApplyUpdates,
-      DoAfterApplyUpdates, FEventList);
+    TNotifyEventWrap.Create(qProductsBase.AfterCommitUpdates,
+      DoAfterCommitUpdates, FEventList);
 
     TNotifyEventWrap.Create(qProductsBase.AfterCancelUpdates,
       DoAfterCancelUpdates, FEventList);

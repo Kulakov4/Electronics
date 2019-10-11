@@ -77,6 +77,8 @@ type
     procedure cxBarEditItem1PropertiesDrawItem(AControl: TcxCustomComboBox;
       ACanvas: TcxCanvas; AIndex: Integer; const ARect: TRect;
       AState: TOwnerDrawState);
+    procedure clIDProducerPropertiesNewLookupDisplayText(Sender: TObject;
+      const AText: TCaption);
   private
   const
     FolderKey: String = 'Products';
@@ -243,6 +245,13 @@ begin
   // ShowMessage('0');
   W.TryEdit;
   ShowMessage(Format('Время: %f', [FHRTimer.ReadTimer]));
+end;
+
+procedure TViewProducts2.clIDProducerPropertiesNewLookupDisplayText(
+  Sender: TObject; const AText: TCaption);
+begin
+  inherited;
+;
 end;
 
 function TViewProducts2.CreateProductView: TViewProductsBase2;

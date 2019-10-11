@@ -57,7 +57,7 @@ implementation
 
 uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
   ParameterValuesUnit, StoreHouseListQuery, IDTempTableQuery, StrHelper,
-  BaseQuery;
+  BaseQuery, ProducersGroupUnit2;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }
@@ -135,7 +135,7 @@ begin
     end;
 
     // 2) Ищем или добавляем такого производителя в справочнике производителей
-    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, 'Склад');
+    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, sWareHouseDefaultProducerType);
 
     AExcelTable.Next;
   end;
