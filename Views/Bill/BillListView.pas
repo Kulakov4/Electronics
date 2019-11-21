@@ -28,7 +28,7 @@ uses
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, BillQuery,
   cxDropDownEdit, dxDateTimeWheelPicker, cxBarEditItem, cxCalendar,
-  RepositoryDataModule;
+  RepositoryDataModule, System.Generics.Collections;
 
 type
   TViewBill = class(TfrmGrid)
@@ -43,14 +43,18 @@ type
     dxBarButton3: TdxBarButton;
     actApplyCustomFilter: TAction;
     cxbeiShippedComboBox: TcxBarEditItem;
+    cxGridDBBandedTableViewColumn1: TcxGridDBBandedColumn;
     procedure actApplyCustomFilterExecute(Sender: TObject);
     procedure actShipExecute(Sender: TObject);
     procedure cxbeiBeginDateChange(Sender: TObject);
     procedure cxbeiPeriodComboBoxPropertiesEditValueChanged(Sender: TObject);
     procedure cxbeiEndDateChange(Sender: TObject);
     procedure cxbeiShippedComboBoxPropertiesEditValueChanged(Sender: TObject);
+    procedure cxGridDBBandedTableViewEditing(Sender: TcxCustomGridTableView; AItem:
+        TcxCustomGridTableItem; var AAllow: Boolean);
   private
     FqBill: TQryBill;
+    FReadOnlyFieldList: TList<String>;
     function GetclBillDate: TcxGridDBBandedColumn;
     function GetclNumber: TcxGridDBBandedColumn;
     function GetW: TBillW;
@@ -60,6 +64,7 @@ type
     procedure MyDelete; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure UpdateView; override;
     property clBillDate: TcxGridDBBandedColumn read GetclBillDate;
     property clNumber: TcxGridDBBandedColumn read GetclNumber;
@@ -81,8 +86,16 @@ begin
   DeleteMessages.Add(cxGridLevel, 'Вы действительно хотите отменить счёт?');
 
   dxbmbPeriod.Visible := False;
+
+  FReadOnlyFieldList := TList<String>.Create;
 //  cxbeiBeginDate.EditValue := DateToStr(Date - 30);
 //  cxbeiEndDate.EditValue := DateToStr(Date);
+end;
+
+destructor TViewBill.Destroy;
+begin
+  FreeAndNil(FReadOnlyFieldList);
+  inherited;
 end;
 
 procedure TViewBill.actApplyCustomFilterExecute(Sender: TObject);
@@ -173,6 +186,17 @@ begin
   UpdateView;
 end;
 
+procedure TViewBill.cxGridDBBandedTableViewEditing(Sender:
+    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; var AAllow: Boolean);
+var
+  ACol: TcxGridDBBandedColumn;
+begin
+  inherited;
+  ACol := AItem as TcxGridDBBandedColumn;
+
+  AAllow := FReadOnlyFieldList.IndexOf(ACol.DataBinding.FieldName.ToUpper) = -1;
+end;
+
 function TViewBill.GetclBillDate: TcxGridDBBandedColumn;
 begin
   Result := MainView.GetColumnByFieldName(W.BillDate.FieldName);
@@ -222,6 +246,14 @@ begin
   MainView.DataController.DataSource := FqBill.W.DataSource;
   MainView.DataController.CreateAllItems(True);
 
+  FReadOnlyFieldList.Clear;
+  FReadOnlyFieldList.Add(W.Number.FieldName.ToUpper);
+  FReadOnlyFieldList.Add(W.BillDate.FieldName.ToUpper);
+//  FReadOnlyFieldList.Add(W.ShipmentDate.FieldName.ToUpper);
+  FReadOnlyFieldList.Add(W.Dollar.FieldName.ToUpper);
+  FReadOnlyFieldList.Add(W.Euro.FieldName.ToUpper);
+
+{
   MainView.OptionsBehavior.ImmediateEditor := False;
   MainView.OptionsSelection.CellMultiSelect := False;
   MainView.OptionsSelection.MultiSelect := False;
@@ -229,7 +261,7 @@ begin
 
   MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
   MainView.OptionsSelection.HideSelection := False;
-
+}
   MainView.OptionsView.ColumnAutoWidth := False;
 
   GridSort.Add(TSortVariant.Create(clNumber, [clNumber]));

@@ -39,6 +39,7 @@ type
   TQryBill = class(TQueryBaseEvents)
   private
     FW: TBillW;
+    procedure DoBeforePost(Sender: TObject);
     { Private declarations }
   protected
     function CreateDSWrap: TDSWrap; override;
@@ -61,6 +62,7 @@ constructor TQryBill.Create(AOwner: TComponent);
 begin
   inherited;
   FW := FDSWrap as TBillW;
+  TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 end;
 
 procedure TQryBill.CancelBill;
@@ -71,6 +73,17 @@ end;
 function TQryBill.CreateDSWrap: TDSWrap;
 begin
   Result := TBillW.Create(FDQuery);
+end;
+
+procedure TQryBill.DoBeforePost(Sender: TObject);
+begin
+  if W.BillDate.F.IsNull then
+    raise Exception.Create('Дата создания счёта не может быть пустой');
+
+  if (not W.ShipmentDate.F.IsNull) and
+    (W.ShipmentDate.F.AsDateTime < W.BillDate.F.AsDateTime) then
+    raise Exception.Create
+      ('Дата отгрузки не может быть меньше даты создания счёта');
 end;
 
 function TQryBill.SearchByPeriod(ABeginDate, AEndDate: TDate): Integer;

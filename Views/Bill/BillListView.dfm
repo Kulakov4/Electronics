@@ -2,6 +2,16 @@ inherited ViewBill: TViewBill
   inherited cxGrid: TcxGrid
     Top = 82
     Height = 390
+    ExplicitTop = 82
+    ExplicitHeight = 390
+    inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
+      OnEditing = cxGridDBBandedTableViewEditing
+      object cxGridDBBandedTableViewColumn1: TcxGridDBBandedColumn
+        Position.BandIndex = 0
+        Position.ColIndex = 0
+        Position.RowIndex = 0
+      end
+    end
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
