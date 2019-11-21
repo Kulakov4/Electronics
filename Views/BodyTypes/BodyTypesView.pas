@@ -696,7 +696,7 @@ procedure TViewBodyTypes.cxerpiJEDECPropertiesInitPopup(Sender: TObject);
 begin
   inherited;
   frmJEDECPopup.ViewBodyVariationJEDEC.Init
-    (BodyTypesGroup.qBodyTypes2.W.IDS.F.AsString,
+    (BodyTypesGroup.qBodyTypes2.W.IDS.F.AsString.Trim([',']),
     BodyTypesGroup.qBodyTypes2.qJedec);
 end;
 
