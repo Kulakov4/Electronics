@@ -570,8 +570,6 @@ begin
   // Assert(not FDQuery.Connection.InTransaction);
 
   W.TryPost;
-  // тут должны быть несохранённые изменения
-  // Assert(FDQuery.ChangeCount > 0);
 
   // Если транзакция ещё не началась, то начинаем
   if not FDQuery.Connection.InTransaction then
@@ -579,7 +577,7 @@ begin
     if FDQuery.ChangeCount > 0 then
       FDQuery.Connection.StartTransaction
     else
-      Exit; // Если не чего сохранять
+      Exit; // Если нечего сохранять
   end;
 
   FDQuery.ApplyUpdates();
@@ -769,10 +767,11 @@ begin
       BasketW.LocateByPK(APK);
       BasketW.SetSaleCount(0);
     end;
+
+    ApplyUpdates;
   finally
     FDQuery.EnableControls;
   end;
-  ApplyUpdates;
 end;
 
 procedure TQueryProductsBase.DeleteNode(AID: Integer);
