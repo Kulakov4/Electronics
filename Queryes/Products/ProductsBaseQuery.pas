@@ -179,7 +179,6 @@ type
     FOnCommitUpdatePosted: Boolean;
     FqStoreHouseList: TQueryStoreHouseList;
     FW: TProductW;
-
   class var
     FDollarCource: Double;
     FEuroCource: Double;

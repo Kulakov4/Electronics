@@ -299,7 +299,7 @@ uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
   HttpUnit, StrHelper, dxCore, CurrencyUnit, DBLookupComboBoxHelper,
-  DataModule, MaxBillNumberQuery, MinWholeSaleForm;
+  DataModule, MaxBillNumberQuery, MinWholeSaleForm, CreateBillForm;
 
 const
   clClickedColor = clRed;
@@ -534,17 +534,28 @@ begin
 end;
 
 procedure TViewProductsBase2.actCreateBillExecute(Sender: TObject);
+var
+  AfrmCreateBill: TFrmCreateBill;
 begin
   inherited;
-
-  if (FqProductsBase.DollarCource = 0) or (FqProductsBase.EuroCource = 0) then
-  begin
+  {
+    if (FqProductsBase.DollarCource = 0) or (FqProductsBase.EuroCource = 0) then
+    begin
     TDialog.Create.DollarOrEuroCourceUnknown;
     Exit;
-  end;
+    end;
+  }
 
-  // Создаём новый счёт
-  TDM.Create.AddBill(qProductsBase);
+  AfrmCreateBill := TFrmCreateBill.Create(nil);
+  try
+    if AfrmCreateBill.ShowModal <> mrOK then
+      Exit;
+
+    // Создаём новый счёт
+    TDM.Create.AddBill(qProductsBase, AfrmCreateBill);
+  finally
+    FreeAndNil(AfrmCreateBill);
+  end;
 end;
 
 procedure TViewProductsBase2.actDeleteExecute(Sender: TObject);
@@ -967,7 +978,7 @@ var
 begin
   inherited;
 
-  AStyle := nil;
+  // AStyle := nil;
 
   IsClearAllSelection := (AViewInfo.TreeList.SelectionCount = 0) and
     (not AViewInfo.Node.IsEditing);
@@ -1226,14 +1237,16 @@ begin
   ClearSelection;
 end;
 
-procedure TViewProductsBase2.clIDProducerPropertiesNewLookupDisplayText(
-  Sender: TObject; const AText: TCaption);
+procedure TViewProductsBase2.clIDProducerPropertiesNewLookupDisplayText
+  (Sender: TObject; const AText: TCaption);
 begin
   inherited;
-  if AText = '' then Exit;
+  if AText = '' then
+    Exit;
 
   // Ищем или добавляем такого производителя в справочнике производителей
-  qProductsBase.ProducersGroup.LocateOrAppend(AText, sWareHouseDefaultProducerType);
+  qProductsBase.ProducersGroup.LocateOrAppend(AText,
+    sWareHouseDefaultProducerType);
 end;
 
 procedure TViewProductsBase2.DoAfterCommitUpdates(Sender: TObject);

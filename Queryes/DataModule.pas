@@ -12,7 +12,8 @@ uses
   SubParametersQuery2, ExtraChargeGroupUnit, BillQuery, BillContentQuerySimple,
   BillContentQuery, ProductsBaseQuery, ExcelDataModule, ParametricErrorTable,
   SearchParameterQuery, ParamSubParamsQuery, SearchParamDefSubParamQuery,
-  FieldInfoUnit, SearchCategoryQuery, SearchDaughterCategoriesQuery;
+  FieldInfoUnit, SearchCategoryQuery, SearchDaughterCategoriesQuery,
+  BillInterface;
 
 type
   TLoadExcelFileHeaderResult = (ID_OK, ID_Cancel, ID_ParametricTableNotFound,
@@ -27,6 +28,7 @@ type
     class var Instance: TDM;
 
   var
+    FAfterAddBill: TNotifyEventsEx;
     FBodyTypesGroup: TBodyTypesGroup2;
     FCategoryParametersGroup: TCategoryParametersGroup2;
     FComponent: TComponent;
@@ -59,12 +61,12 @@ type
     procedure DoAfterProducerCommit(Sender: TObject);
     procedure DoAfterStoreHousePost(Sender: TObject);
     procedure DoBeforeBasketApplyUpdates(Sender: TObject);
-    procedure DoBeforeBillShip(Sender: TObject);
     procedure DoBeforeRepDMDestroy(Sender: TObject);
     procedure DoBeforeProductsApplyUpdates(Sender: TObject);
     procedure DoBeforeProductsSearchApplyUpdates(Sender: TObject);
     procedure DoOnCategoryParametersApplyUpdates(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
+    function GetAfterAddBill: TNotifyEventsEx;
     function GetBodyTypesGroup: TBodyTypesGroup2;
     function GetCategoryParametersGroup: TCategoryParametersGroup2;
     function GetComponentsExGroup: TComponentsExGroup2;
@@ -106,12 +108,13 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddBill(AQryProducts: TQueryProductsBase);
+    procedure AddBill(AQryProducts: TQueryProductsBase; ABillInt: IBill);
     class function Created: Boolean;
     function LoadExcelFileHeader(ARootTreeNode: TStringTreeNode;
       AFieldsInfo: TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef)
       : TLoadExcelFileHeaderResult;
     class function NewInstance: TObject; override;
+    property AfterAddBill: TNotifyEventsEx read GetAfterAddBill;
     property BodyTypesGroup: TBodyTypesGroup2 read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup2
       read GetCategoryParametersGroup;
@@ -146,7 +149,7 @@ uses
   RepositoryDataModule, SettingsController, System.SysUtils, System.IOUtils,
   ProjectConst, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
   SearchInterfaceUnit, ClearStorehouseProductsQuery, StrHelper,
-  ParametricExcelDataModule, DefaultParameters, System.Types;
+  ParametricExcelDataModule, DefaultParameters, System.Types, InsertEditMode;
 
 var
   SingletonList: TObjectList;
@@ -179,7 +182,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  qBillContent2.Master := qBill;
+//  qBillContent2.Master := qBill;
 
   // При редактировании дочерней категории нужно будет обновлять дерево
   TNotifyEventWrap.Create(qChildCategories.W.AfterPostM,
@@ -218,7 +221,7 @@ begin
   inherited;
 end;
 
-procedure TDM.AddBill(AQryProducts: TQueryProductsBase);
+procedure TDM.AddBill(AQryProducts: TQueryProductsBase; ABillInt: IBill);
 var
   ABillID: Integer;
   AStoreHouseProductID: Integer;
@@ -229,8 +232,7 @@ begin
   qBill.W.TryOpen;
 
   // Добавляем новый счёт
-  ABillID := qBill.W.AddBill(AQryProducts.DollarCource,
-    AQryProducts.EuroCource);
+  ABillID := qBill.W.Save(InsertMode, ABillInt);
   try
     AQryProducts.BasketW.DataSet.DisableControls;
     try
@@ -257,6 +259,20 @@ begin
       AQryProducts.BasketW.DataSet.EnableControls;
     end;
     AQryProducts.ApplyUpdates;
+
+    // Просим контент загрузить данные
+    qBillContent2.LoadContent(ABillID, ABillInt);
+
+    // Если при создании счёта была указана дата отгрузки
+    if ABillInt.ShipmentDate > 0 then
+    begin
+      // Меняем дату отгрузки и выполняем отгрузку
+      qBill.W.Save(EditMode, ABillInt);
+    end;
+    qBillContent2.CloseContent;
+
+    // Извещаем всех, что счёт был добавлен
+    AfterAddBill.CallEventHandlers(Self);
   except
     // Удаляем добавленный счёт
     qBill.W.LocateByPKAndDelete(ABillID);
@@ -400,11 +416,6 @@ begin
 
 end;
 
-procedure TDM.DoBeforeBillShip(Sender: TObject);
-begin
-  qBillContent2.ShipAll;
-end;
-
 procedure TDM.DoBeforeCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
@@ -455,6 +466,14 @@ end;
 procedure TDM.DoOnParamOrderChange(Sender: TObject);
 begin
   CategoryParametersGroup.RefreshData;
+end;
+
+function TDM.GetAfterAddBill: TNotifyEventsEx;
+begin
+  if FAfterAddBill = nil then
+    FAfterAddBill := TNotifyEventsEx.Create(Self);
+
+  Result := FAfterAddBill;
 end;
 
 function TDM.GetBodyTypesGroup: TBodyTypesGroup2;
@@ -561,7 +580,7 @@ begin
   if FqBill = nil then
   begin
     FqBill := TQryBill.Create(FComponent);
-    TNotifyEventWrap.Create(FqBill.W.BeforeShip, DoBeforeBillShip, FEventList);
+    FqBill.W.BillContent := qBillContent2;
     TNotifyEventWrap.Create(FqBill.W.BeforeDelete, DoBeforeBillDelete,
       FEventList);
   end;

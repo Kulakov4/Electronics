@@ -9,27 +9,32 @@ uses
   FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap,
-  ProductsBaseQuery, BillContentQuerySimple, BillQuery;
+  ProductsBaseQuery, BillContentQuerySimple, BillContentInterface,
+  BillInterface;
 
 type
   TBillContentW = class(TProductW)
   private
     FBillContentID: TFieldWrap;
     FBillID: TFieldWrap;
+    FDollar: TFieldWrap;
+    FEuro: TFieldWrap;
   protected
   public
     constructor Create(AOwner: TComponent); override;
     property BillContentID: TFieldWrap read FBillContentID;
     property BillID: TFieldWrap read FBillID;
+    property Dollar: TFieldWrap read FDollar;
+    property Euro: TFieldWrap read FEuro;
   end;
 
-  TQryBillContent = class(TQueryProductsBase)
+  TQryBillContent = class(TQueryProductsBase, IBillContent)
   private
+    FBill: IBill;
     FIsShipment: Boolean;
     FqBillContentSimple: TQueryBillContentSimple;
     FW: TBillContentW;
     function GetqBillContentSimple: TQueryBillContentSimple;
-    function GetQryBill: TQryBill;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -53,7 +58,8 @@ type
     procedure Ship;
     procedure ShipAll;
     procedure CalcelAllShip;
-    property QryBill: TQryBill read GetQryBill;
+    procedure CloseContent;
+    procedure LoadContent(ABillID: Integer; ABill: IBill);
     property W: TBillContentW read FW;
     { Public declarations }
   end;
@@ -87,8 +93,8 @@ end;
 function TQryBillContent.AllowEdit: Boolean;
 begin
   // Разрешаем редактирование только неотгруженного товара
-  Result := (QryBill <> nil) and (QryBill.FDQuery.RecordCount > 0) and
-    (QryBill.W.ShipmentDate.F.IsNull);
+  Result := (FBill <> nil) and (FBill.BillDate >= 0) and
+    (FBill.ShipmentDate <= 0);
 end;
 
 procedure TQryBillContent.ApplyDelete(ASender: TDataSet;
@@ -218,14 +224,12 @@ begin
 end;
 
 function TQryBillContent.GetExportFileName: string;
-var
-  AQryBill: TQryBill;
 begin
-  Assert(Master <> nil);
-  AQryBill := Master as TQryBill;
-  Assert(AQryBill.FDQuery.RecordCount > 0);
-  Result := Format('Счёт №%s от %s.xls', [AQryBill.W.Number.F.AsString,
-    FormatDateTime('dd.mm.yyyy', AQryBill.W.BillDate.F.AsDateTime)]);
+  Assert(FBill <> nil);
+  Assert(FBill.BillNumber > 0);
+
+  Result := Format('Счёт №%s от %s.xls', [FBill.BillNumberStr,
+    FormatDateTime('dd.mm.yyyy', FBill.BillDate)]);
   Assert(not Result.IsEmpty);
 end;
 
@@ -303,6 +307,12 @@ begin
   end;
 end;
 
+procedure TQryBillContent.CloseContent;
+begin
+  FDQuery.Close;
+  FBill := nil;
+end;
+
 procedure TQryBillContent.DoBeforePost(Sender: TObject);
 begin
   // Во время отгрузки на складе может остаться меньше чем отгрузили!!!
@@ -312,19 +322,20 @@ end;
 
 function TQryBillContent.GetDollarCource: Double;
 begin
-  Result := QryBill.W.Dollar.F.AsFloat;
+  Result := FBill.DollarCource;
 end;
 
 function TQryBillContent.GetEuroCource: Double;
 begin
-  Result := QryBill.W.Euro.F.AsFloat;
+  Result := FBill.EuroCource;
 end;
 
-function TQryBillContent.GetQryBill: TQryBill;
+procedure TQryBillContent.LoadContent(ABillID: Integer; ABill: IBill);
 begin
-  Assert(Master <> nil);
-  Assert(Master is TQryBill);
-  Result := (Master as TQryBill);
+  Assert(ABill <> nil);
+  FBill := ABill;
+
+  TryLoad2(ABillID);
 end;
 
 constructor TBillContentW.Create(AOwner: TComponent);

@@ -10,12 +10,18 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls;
 
 type
+  TMaxNumber = record
+    Number: Integer;
+    Width: Integer;
+  public
+  end;
+
   TQryMaxBillNumber = class(TQueryBase)
   private
     { Private declarations }
   protected
   public
-    class function Get_Max_Number: Integer; static;
+    class function Get_Max_Number: TMaxNumber; static;
     { Public declarations }
   end;
 
@@ -23,14 +29,21 @@ implementation
 
 {$R *.dfm}
 
-class function TQryMaxBillNumber.Get_Max_Number: Integer;
+class function TQryMaxBillNumber.Get_Max_Number: TMaxNumber;
 var
   Q: TQryMaxBillNumber;
 begin
+  Result.Number := 0;
+  Result.Width := 0;
+
   Q := TQryMaxBillNumber.Create(nil);
   try
     Q.FDQuery.Open;
-    Result := Q.FDQuery.FieldByName('MaxNumber').AsInteger;
+    if Q.FDQuery.RecordCount > 0 then
+    begin
+      Result.Number := Q.FDQuery.FieldByName('Number').AsInteger;
+      Result.Width := Q.FDQuery.FieldByName('Width').AsInteger;
+    end;
   finally
     FreeAndNil(Q);
   end;

@@ -8,29 +8,33 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery, NotifyEvents;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery, NotifyEvents,
+  BillInterface, InsertEditMode, BillContentInterface;
 
 type
   TBillW = class(TDSWrap)
   private
-    FBeforeShip: TNotifyEventsEx;
+    FBillContent: IBillContent;
     FID: TFieldWrap;
     FNumber: TFieldWrap;
     FBillDate: TFieldWrap;
+    FWidth: TFieldWrap;
     FShipmentDate: TFieldWrap;
     FDollar: TFieldWrap;
     FEuro: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function AddBill(const ADollarCource, AEuroCource: Double): Integer;
+    function Save(AMode: TMode; ABillInt: IBill): Integer;
     procedure ApplyNotShipmentFilter;
     procedure ApplyShipmentFilter;
-    procedure Ship;
-    property BeforeShip: TNotifyEventsEx read FBeforeShip;
+    procedure Ship(ADate: TDate);
+    procedure CancelShip;
+    property BillContent: IBillContent read FBillContent write FBillContent;
     property ID: TFieldWrap read FID;
     property Number: TFieldWrap read FNumber;
     property BillDate: TFieldWrap read FBillDate;
+    property Width: TFieldWrap read FWidth;
     property ShipmentDate: TFieldWrap read FShipmentDate;
     property Dollar: TFieldWrap read FDollar;
     property Euro: TFieldWrap read FEuro;
@@ -45,7 +49,8 @@ type
     function CreateDSWrap: TDSWrap; override;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CancelBill;
+    function SearchByNumber(ANumber: Integer): Integer;
+    class function SearchByNumberStatic(ANumber: Integer): Integer; static;
     function SearchByPeriod(ABeginDate, AEndDate: TDate): Integer;
     property W: TBillW read FW;
     { Public declarations }
@@ -65,11 +70,6 @@ begin
   TNotifyEventWrap.Create(W.BeforePost, DoBeforePost, W.EventList);
 end;
 
-procedure TQryBill.CancelBill;
-begin
-  // TODO -cMM: TQryBill.CancelBill default body inserted
-end;
-
 function TQryBill.CreateDSWrap: TDSWrap;
 begin
   Result := TBillW.Create(FDQuery);
@@ -84,6 +84,24 @@ begin
     (W.ShipmentDate.F.AsDateTime < W.BillDate.F.AsDateTime) then
     raise Exception.Create
       ('Дата отгрузки не может быть меньше даты создания счёта');
+end;
+
+function TQryBill.SearchByNumber(ANumber: Integer): Integer;
+begin
+  Assert(ANumber > 0);
+  Result := SearchEx([TParamRec.Create(W.Number.FullName, ANumber)]);
+end;
+
+class function TQryBill.SearchByNumberStatic(ANumber: Integer): Integer;
+var
+  Q: TQryBill;
+begin
+  Q := TQryBill.Create(nil);
+  try
+    Result := Q.SearchByNumber(ANumber);
+  finally
+    FreeAndNil(Q);
+  end;
 end;
 
 function TQryBill.SearchByPeriod(ABeginDate, AEndDate: TDate): Integer;
@@ -128,30 +146,47 @@ begin
   FShipmentDate := TFieldWrap.Create(Self, 'ShipmentDate', 'Дата отгрузки');
   FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс $');
   FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс €');
-
-  FBeforeShip := TNotifyEventsEx.Create(Self);
+  FWidth := TFieldWrap.Create(Self, 'Width');
 end;
 
 destructor TBillW.Destroy;
 begin
   inherited;
-  FreeAndNil(FBeforeShip);
 end;
 
-function TBillW.AddBill(const ADollarCource, AEuroCource: Double): Integer;
+function TBillW.Save(AMode: TMode; ABillInt: IBill): Integer;
 begin
-  TryAppend;
+  Assert(ABillInt <> nil);
+  Assert(BillContent <> nil);
+
+  if AMode = EditMode then
+    TryEdit
+  else
+    TryAppend;
   try
-    Number.F.Value := TQryMaxBillNumber.Get_Max_Number + 1;
-    BillDate.F.Value := Date; // Дата счёта - текущая дата
-    Dollar.F.Value := ADollarCource;
-    Euro.F.Value := AEuroCource;
+    Number.F.Value := ABillInt.BillNumber;
+    Width.F.Value := ABillInt.BillWidth;
+    BillDate.F.Value := ABillInt.BillDate;
+    Dollar.F.Value := ABillInt.DollarCource;
+    Euro.F.Value := ABillInt.EuroCource;
     TryPost;
     Result := PK.Value;
     Assert(Result > 0);
   except
     TryCancel;
     raise;
+  end;
+
+  // Выполняем операцию по отгрузке / отмене отгрузки
+  if AMode = EditMode then
+  begin
+    if (ABillInt.ShipmentDate > 0) and (ShipmentDate.F.AsDateTime <= 0) then
+      // Просим контент отгрузить товар и уменьшить его количество на складе
+      Ship(ABillInt.ShipmentDate)
+    else if (ABillInt.ShipmentDate <= 0) and (ShipmentDate.F.AsDateTime > 0)
+    then
+      // Просим контент отменить отгрузку товара и увеличить его количество на складе
+      CancelShip();
   end;
 end;
 
@@ -167,14 +202,31 @@ begin
   DataSet.Filtered := True;
 end;
 
-procedure TBillW.Ship;
+procedure TBillW.Ship(ADate: TDate);
 begin
   Assert(ShipmentDate.F.IsNull);
+  Assert(BillContent <> nil);
 
-  FBeforeShip.CallEventHandlers(Self);
+  if ADate < BillDate.F.AsDateTime then
+    raise Exception.Create
+      ('Дата отгрузки не может быть меньше даты создания счёта');
 
+  // Просим контент отгрузить товар и уменьшить его количество на складе
+  BillContent.ShipAll;
   TryEdit;
-  ShipmentDate.F.AsDateTime := Date;
+  ShipmentDate.F.AsDateTime := ADate;
+  TryPost;
+end;
+
+procedure TBillW.CancelShip;
+begin
+  Assert(not ShipmentDate.F.IsNull);
+  Assert(BillContent <> nil);
+
+  // Просим контент вернуть товар на склад
+  BillContent.CalcelAllShip;
+  TryEdit;
+  ShipmentDate.F.Value := NULL;
   TryPost;
 end;
 

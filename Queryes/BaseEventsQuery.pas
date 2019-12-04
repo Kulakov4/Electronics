@@ -42,6 +42,7 @@ type
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeApplyUpdates(Sender: TFDDataSet);
     procedure DoAfterApplyUpdates(Sender: TFDDataSet; AError: Integer);
+    procedure DoBeforeMasterScroll(Sender: TObject);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
     procedure DoBeforePost(Sender: TObject);
     function GetActual: Boolean;
@@ -76,9 +77,8 @@ type
     procedure MasterCascadeDelete;
     procedure RemoveClient;
     procedure TryCallAfterCommitUpdatesEvent;
-    procedure TryLoad;
-    // TODO: TryPost
-    // procedure TryPost; override;
+    procedure TryLoad(AIDParent: Integer);
+    procedure TryLoad2(AIDParent: Integer);
     procedure TryRefresh;
     property Actual: Boolean read GetActual;
     property AutoTransaction: Boolean read FAutoTransaction
@@ -305,7 +305,8 @@ begin
   // if S.StartsWith('QueryCategoryParameters2') then
   // beep;
 
-  TryLoad;
+  TryLoad(IfThen(FMaster.FDQuery.RecordCount > 0,
+    FMaster.Wrap.PK.AsInteger, -1));
 end;
 
 procedure TQueryBaseEvents.DoAfterOpen(Sender: TObject);
@@ -351,6 +352,14 @@ procedure TQueryBaseEvents.DoAfterApplyUpdates(Sender: TFDDataSet;
 begin
   Assert(FAfterApplyUpdates <> nil);
   FAfterApplyUpdates.CallEventHandlers(Self);
+end;
+
+procedure TQueryBaseEvents.DoBeforeMasterScroll(Sender: TObject);
+begin
+  // Перед тем, как мастер переместится на новую запись,
+  // нужно сохранить изменения в текущей
+  if FDQuery.Active then
+    Wrap.TryPost;
 end;
 
 procedure TQueryBaseEvents.DoBeforeOpenOrRefresh(Sender: TObject);
@@ -562,6 +571,9 @@ begin
     if FMaster <> nil then
     begin
       // Подписываемся на события нового мастера
+      TNotifyEventWrap.Create(FMaster.Wrap.BeforeScroll, DoBeforeMasterScroll,
+        FMasterEventList);
+
       TNotifyEventWrap.Create(FMaster.Wrap.AfterScrollM, DoAfterMasterScroll,
         FMasterEventList);
     end;
@@ -575,17 +587,17 @@ begin
     FAfterCommitUpdates.CallEventHandlers(Self);
 end;
 
-procedure TQueryBaseEvents.TryLoad;
+procedure TQueryBaseEvents.TryLoad(AIDParent: Integer);
 var
-  AIDParent: Integer;
+  // AIDParent: Integer;
   AParamValueChange: Boolean;
 begin
   Assert(DetailParameterName <> '');
 
-  Assert(FMaster <> nil);
+  //  Assert(FMaster <> nil);
 
-  AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
-    FMaster.Wrap.PK.AsInteger, -1);
+  // AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
+  // FMaster.Wrap.PK.AsInteger, -1);
 
   // Если значение параметра изменилось
   AParamValueChange := FDQuery.Params.ParamByName(DetailParameterName).AsInteger
@@ -597,6 +609,31 @@ begin
     FNeedLoad := True;
     Exit;
   end;
+
+  // Если наш запрос кто-то использует
+  // но параметр  НЕ изменился и запрос уже открыт
+  if (not AParamValueChange) and FDQuery.Active then
+  begin
+    Exit;
+  end;
+
+  if AParamValueChange then
+    FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
+
+  // Обновляем или открываем заново запрос
+  Wrap.RefreshQuery;
+end;
+
+procedure TQueryBaseEvents.TryLoad2(AIDParent: Integer);
+var
+  // AIDParent: Integer;
+  AParamValueChange: Boolean;
+begin
+  Assert(DetailParameterName <> '');
+
+  // Если значение параметра изменилось
+  AParamValueChange := FDQuery.Params.ParamByName(DetailParameterName).AsInteger
+    <> AIDParent;
 
   // Если наш запрос кто-то использует
   // но параметр  НЕ изменился и запрос уже открыт

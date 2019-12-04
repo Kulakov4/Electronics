@@ -161,6 +161,7 @@ type
     FViewStoreHouse: TViewStoreHouse;
     FViewTreeList: TViewTreeList;
     FWriteProgress: TTotalProgress;
+    procedure DoAfterAddBill(Sender: TObject);
     procedure DoAfterLoadSheet(ASender: TObject);
     procedure DoAfterTreeListSmartRefresh(Sender: TObject);
     procedure DoBeforeParametricTableActivate(Sender: TObject);
@@ -737,7 +738,7 @@ begin
   if NewPage = cxtshBill then
   begin
     TDM.Create.qBill.AddClient;
-    TDM.Create.qBillContent2.AddClient;
+//    TDM.Create.qBillContent2.AddClient;
 
     if FViewBill = nil then
     begin
@@ -758,7 +759,7 @@ begin
   // Если уходим со вкладки Счета
   if cxpcWareHouse2.ActivePage = cxtshBill then
   begin
-    TDM.Create.qBillContent2.RemoveClient;
+//    TDM.Create.qBillContent2.RemoveClient;
     TDM.Create.qBill.RemoveClient;
   end;
 
@@ -880,6 +881,8 @@ begin
     // обновляем доступность кнопки "Сохранить всё"
     DoOnHaveAnyChanges(nil);
     TNotifyEventWrap.Create(QueryMonitor.OnHaveAnyChanges, DoOnHaveAnyChanges);
+
+    TNotifyEventWrap.Create(TDM.Create.AfterAddBill, DoAfterAddBill);
 
     FLoadComplete := True;
 
@@ -1038,6 +1041,17 @@ procedure TfrmMain.dbtlCategoriesDragOver(Sender, Source: TObject;
   X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
   Accept := True;
+end;
+
+procedure TfrmMain.DoAfterAddBill(Sender: TObject);
+begin
+  // Переключаемся на вкладку Склады
+  cxpcMain.ActivePage := cxtshWareHouse;
+  // Переключаемся на вкладку Счета
+  cxpcWareHouse2.ActivePage := cxtshBill;
+  // Должно будет создастся представление всех счетов
+  Assert(ViewBill <> nil);
+  ViewBill.SelectFocusedBill;
 end;
 
 procedure TfrmMain.DoAfterLoadSheet(ASender: TObject);
@@ -1676,7 +1690,6 @@ var
   AfrmLoadParametric: TfrmLoadParametric;
   AParametricExcelDM: TParametricExcelDM;
   m: TArray<String>;
-  rc: Integer;
 begin
 
   // Если идёт загрузка параметрических данных

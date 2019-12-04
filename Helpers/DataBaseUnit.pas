@@ -33,7 +33,7 @@ implementation
 
 uses
   System.Types, System.IOUtils, System.SysUtils, ProjectConst, DialogUnit,
-  VersionQuery;
+  VersionQuery, Winapi.Windows;
 
 class procedure TDataBase.CreateNewDataBase(const ADataBaseFolder,
   AApplicationFolder: String);
@@ -175,7 +175,7 @@ var
   ANewFileName: string;
   AVersion: Double;
 begin
-  Result := False;
+//  Result := False;
   Assert(AConnection <> nil);
   Assert(not ADataBaseFolder.IsEmpty);
   Assert(not ADBMigrationFolder.IsEmpty);

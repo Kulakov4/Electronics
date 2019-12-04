@@ -6,6 +6,10 @@ inherited QryMaxBillNumber: TQryMaxBillNumber
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select ifnull(max(number), 0) MaxNumber from bill')
+      'select *'
+      'from bill'
+      
+        'where number = (select ifnull(max(number), 0) MaxNumber from bil' +
+        'l)')
   end
 end

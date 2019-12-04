@@ -6,11 +6,46 @@ inherited ViewBill: TViewBill
     ExplicitHeight = 390
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditing = cxGridDBBandedTableViewEditing
+      OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
       object cxGridDBBandedTableViewColumn1: TcxGridDBBandedColumn
         Position.BandIndex = 0
         Position.ColIndex = 0
         Position.RowIndex = 0
       end
+    end
+  end
+  object PopupPanel: TPanel [2]
+    Left = 248
+    Top = 304
+    Width = 161
+    Height = 97
+    TabOrder = 6
+    Visible = False
+    object Label1: TLabel
+      Left = 10
+      Top = 10
+      Width = 75
+      Height = 13
+      Caption = #1044#1072#1090#1072' '#1086#1090#1075#1088#1091#1079#1082#1080
+    end
+    object DateTimePicker: TDateTimePicker
+      Left = 10
+      Top = 34
+      Width = 138
+      Height = 21
+      Date = 43802.711747812500000000
+      Time = 43802.711747812500000000
+      TabOrder = 0
+    end
+    object cxPopupBtnOK: TcxButton
+      Left = 74
+      Top = 64
+      Width = 75
+      Height = 25
+      Caption = 'OK'
+      Default = True
+      TabOrder = 1
+      OnClick = cxPopupBtnOKClick
     end
   end
   inherited dxBarManager: TdxBarManager
@@ -28,11 +63,15 @@ inherited ViewBill: TViewBill
         end
         item
           Visible = True
-          ItemName = 'dxBarButton2'
+          ItemName = 'dxbbShip'
         end
         item
           Visible = True
           ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton4'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -98,12 +137,10 @@ inherited ViewBill: TViewBill
     object dxBarButton1: TdxBarButton
       Action = actDeleteEx
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
-    object dxBarButton2: TdxBarButton
+    object dxbbShip: TdxBarButton
       Action = actShip
       Category = 0
-      PaintStyle = psCaptionGlyph
     end
     object cxbeiPeriodComboBox: TcxBarEditItem
       Caption = #1055#1077#1088#1080#1086#1076
@@ -159,6 +196,10 @@ inherited ViewBill: TViewBill
       Properties.OnEditValueChanged = cxbeiShippedComboBoxPropertiesEditValueChanged
       InternalEditValue = #1042#1089#1077
     end
+    object dxBarButton4: TdxBarButton
+      Action = actEdit
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     inherited actDeleteEx: TAction
@@ -167,6 +208,7 @@ inherited ViewBill: TViewBill
     end
     object actShip: TAction
       Caption = #1054#1090#1075#1088#1091#1079#1080#1090#1100
+      Hint = #1054#1090#1075#1088#1091#1079#1080#1090#1100
       ImageIndex = 48
       OnExecute = actShipExecute
     end
@@ -176,5 +218,18 @@ inherited ViewBill: TViewBill
       ImageIndex = 28
       OnExecute = actApplyCustomFilterExecute
     end
+    object actEdit: TAction
+      Caption = #1048#1079#1084#1077#1085#1080#1090#1100
+      Hint = #1048#1079#1084#1077#1085#1080#1090#1100' '#1089#1095#1105#1090
+      ImageIndex = 18
+      OnExecute = actEditExecute
+    end
+  end
+  object dxCalloutPopup: TdxCalloutPopup
+    PopupControl = PopupPanel
+    OnHide = dxCalloutPopupHide
+    OnShow = dxCalloutPopupShow
+    Left = 144
+    Top = 208
   end
 end

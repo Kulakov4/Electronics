@@ -28,13 +28,14 @@ uses
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, BillQuery,
   cxDropDownEdit, dxDateTimeWheelPicker, cxBarEditItem, cxCalendar,
-  RepositoryDataModule, System.Generics.Collections;
+  RepositoryDataModule, System.Generics.Collections, dxCalloutPopup,
+  Vcl.ExtCtrls, Vcl.StdCtrls, cxButtons, BillInterface;
 
 type
-  TViewBill = class(TfrmGrid)
+  TViewBill = class(TfrmGrid, IBill)
     dxBarButton1: TdxBarButton;
     actShip: TAction;
-    dxBarButton2: TdxBarButton;
+    dxbbShip: TdxBarButton;
     dxBarManagerBar1: TdxBar;
     cxbeiPeriodComboBox: TcxBarEditItem;
     cxbeiBeginDate: TcxBarEditItem;
@@ -44,19 +45,49 @@ type
     actApplyCustomFilter: TAction;
     cxbeiShippedComboBox: TcxBarEditItem;
     cxGridDBBandedTableViewColumn1: TcxGridDBBandedColumn;
+    actEdit: TAction;
+    dxBarButton4: TdxBarButton;
+    dxCalloutPopup: TdxCalloutPopup;
+    PopupPanel: TPanel;
+    DateTimePicker: TDateTimePicker;
+    cxPopupBtnOK: TcxButton;
+    Label1: TLabel;
     procedure actApplyCustomFilterExecute(Sender: TObject);
+    procedure actEditExecute(Sender: TObject);
     procedure actShipExecute(Sender: TObject);
     procedure cxbeiBeginDateChange(Sender: TObject);
     procedure cxbeiPeriodComboBoxPropertiesEditValueChanged(Sender: TObject);
     procedure cxbeiEndDateChange(Sender: TObject);
     procedure cxbeiShippedComboBoxPropertiesEditValueChanged(Sender: TObject);
-    procedure cxGridDBBandedTableViewEditing(Sender: TcxCustomGridTableView; AItem:
-        TcxCustomGridTableItem; var AAllow: Boolean);
+    procedure OnNumberGetDisplayText(Sender: TcxCustomGridTableItem;
+      ARecord: TcxCustomGridRecord; var AText: string);
+    procedure cxGridDBBandedTableViewEditing(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; var AAllow: Boolean);
+    procedure cxGridDBBandedTableViewSelectionChanged
+      (Sender: TcxCustomGridTableView);
+    procedure cxPopupBtnOKClick(Sender: TObject);
+    procedure dxCalloutPopupHide(Sender: TObject);
+    procedure dxCalloutPopupShow(Sender: TObject);
+  strict private
+    function GetBillDate: TDate;
+    function GetBillID: Integer;
+    function GetBillNumber: Integer;
+    function GetBillNumberStr: String;
+    function GetBillWidth: Integer;
+    function GetDollarCource: Double;
+    function GetEuroCource: Double;
+    function GetShipmentDate: TDate;
   private
     FqBill: TQryBill;
-    FReadOnlyFieldList: TList<String>;
+    // FReadOnlyFieldList: TList<String>;
     function GetclBillDate: TcxGridDBBandedColumn;
+    // FReadOnlyFieldList: TList<String>;
+    function GetclID: TcxGridDBBandedColumn;
     function GetclNumber: TcxGridDBBandedColumn;
+    function GetclDollar: TcxGridDBBandedColumn;
+    function GetclEuro: TcxGridDBBandedColumn;
+    function GetclWidth: TcxGridDBBandedColumn;
+    function GetclShipmentDate: TcxGridDBBandedColumn;
     function GetW: TBillW;
     procedure SetqBill(const Value: TQryBill);
     { Private declarations }
@@ -65,9 +96,15 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure SelectFocusedBill;
     procedure UpdateView; override;
     property clBillDate: TcxGridDBBandedColumn read GetclBillDate;
+    property clID: TcxGridDBBandedColumn read GetclID;
     property clNumber: TcxGridDBBandedColumn read GetclNumber;
+    property clDollar: TcxGridDBBandedColumn read GetclDollar;
+    property clEuro: TcxGridDBBandedColumn read GetclEuro;
+    property clWidth: TcxGridDBBandedColumn read GetclWidth;
+    property clShipmentDate: TcxGridDBBandedColumn read GetclShipmentDate;
     property qBill: TQryBill read FqBill write SetqBill;
     property W: TBillW read GetW;
     { Public declarations }
@@ -76,7 +113,7 @@ type
 implementation
 
 uses
-  GridSort;
+  GridSort, CreateBillForm, InsertEditMode;
 
 {$R *.dfm}
 
@@ -87,14 +124,14 @@ begin
 
   dxbmbPeriod.Visible := False;
 
-  FReadOnlyFieldList := TList<String>.Create;
-//  cxbeiBeginDate.EditValue := DateToStr(Date - 30);
-//  cxbeiEndDate.EditValue := DateToStr(Date);
+  // FReadOnlyFieldList := TList<String>.Create;
+  // cxbeiBeginDate.EditValue := DateToStr(Date - 30);
+  // cxbeiEndDate.EditValue := DateToStr(Date);
 end;
 
 destructor TViewBill.Destroy;
 begin
-  FreeAndNil(FReadOnlyFieldList);
+  // FreeAndNil(FReadOnlyFieldList);
   inherited;
 end;
 
@@ -116,6 +153,21 @@ begin
   D2 := StrToDate(S2);
 
   qBill.SearchByPeriod(D1, D2); // За произвольный период
+end;
+
+procedure TViewBill.actEditExecute(Sender: TObject);
+var
+  AfrmCreateBill: TFrmCreateBill;
+begin
+  inherited;
+  AfrmCreateBill := TFrmCreateBill.Create(qBill);
+  try
+    if AfrmCreateBill.ShowModal = mrOK then
+      // Сохраняем изменения в счёте
+      qBill.W.Save(EditMode, AfrmCreateBill);
+  finally
+    FreeAndNil(AfrmCreateBill);
+  end;
 end;
 
 procedure TViewBill.cxbeiPeriodComboBoxPropertiesEditValueChanged
@@ -145,8 +197,8 @@ begin
   end;
 end;
 
-procedure TViewBill.cxbeiShippedComboBoxPropertiesEditValueChanged(
-  Sender: TObject);
+procedure TViewBill.cxbeiShippedComboBoxPropertiesEditValueChanged
+  (Sender: TObject);
 var
   AcxComboBox: TcxComboBox;
 begin
@@ -169,9 +221,22 @@ begin
 end;
 
 procedure TViewBill.actShipExecute(Sender: TObject);
+var
+  ABottomRight: TPoint;
+  ATopLeft: TPoint;
+  R: TRect;
 begin
   inherited;
-  qBill.W.Ship;
+
+  R := dxbrMain.Control.GetItemRect(dxbbShip.Links[0].Control);
+
+  ATopLeft := ScreenToClient(dxbrMain.Control.ClientToScreen(R.TopLeft));
+  ABottomRight := ScreenToClient(dxbrMain.Control.ClientToScreen
+    (R.BottomRight));
+
+  SetFocus;
+
+  dxCalloutPopup.Popup(Self, Rect(ATopLeft, ABottomRight));
 end;
 
 procedure TViewBill.cxbeiBeginDateChange(Sender: TObject);
@@ -186,15 +251,128 @@ begin
   UpdateView;
 end;
 
-procedure TViewBill.cxGridDBBandedTableViewEditing(Sender:
-    TcxCustomGridTableView; AItem: TcxCustomGridTableItem; var AAllow: Boolean);
+procedure TViewBill.OnNumberGetDisplayText(Sender: TcxCustomGridTableItem;
+  ARecord: TcxCustomGridRecord; var AText: string);
 var
-  ACol: TcxGridDBBandedColumn;
+  ANumber: Integer;
+  S: string;
+begin
+  if VarIsNull(ARecord.Values[clNumber.Index]) then
+    Exit;
+  if VarIsNull(ARecord.Values[clWidth.Index]) then
+    Exit;
+
+  ANumber := ARecord.Values[clNumber.Index];
+
+  S := '%.' + VarToStrDef(ARecord.Values[clWidth.Index], '0') + 'd';
+  AText := Format(S, [ANumber]);
+end;
+
+procedure TViewBill.cxGridDBBandedTableViewEditing
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  var AAllow: Boolean);
+// var
+// ACol: TcxGridDBBandedColumn;
 begin
   inherited;
-  ACol := AItem as TcxGridDBBandedColumn;
+  AAllow := False;
+  // ACol := AItem as TcxGridDBBandedColumn;
+  // AAllow := FReadOnlyFieldList.IndexOf(ACol.DataBinding.FieldName.ToUpper) = -1;
+end;
 
-  AAllow := FReadOnlyFieldList.IndexOf(ACol.DataBinding.FieldName.ToUpper) = -1;
+procedure TViewBill.cxGridDBBandedTableViewSelectionChanged
+  (Sender: TcxCustomGridTableView);
+begin
+  inherited;
+  if FqBill = nil then
+    Exit;
+
+  W.BillContent.LoadContent(GetBillID, Self);
+end;
+
+procedure TViewBill.cxPopupBtnOKClick(Sender: TObject);
+begin
+  inherited;
+  dxCalloutPopup.Close;
+  if DateTimePicker.Date <= 0 then
+    Exit;
+
+  qBill.W.Ship(DateTimePicker.Date);
+  UpdateView;
+end;
+
+procedure TViewBill.dxCalloutPopupHide(Sender: TObject);
+begin
+  inherited;
+  UpdateView;
+end;
+
+procedure TViewBill.dxCalloutPopupShow(Sender: TObject);
+begin
+  inherited;
+  DateTimePicker.Date := Date;
+end;
+
+function TViewBill.GetBillDate: TDate;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    Result := ARow.Values[clBillDate.Index];
+  end
+end;
+
+function TViewBill.GetBillID: Integer;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    Result := ARow.Values[clID.Index];
+  end
+end;
+
+function TViewBill.GetBillNumber: Integer;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    Result := ARow.Values[clNumber.Index];
+  end
+end;
+
+function TViewBill.GetBillNumberStr: String;
+var
+  ARow: TcxCustomGridRow;
+  W: Integer;
+begin
+  Result := '';
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    W := ARow.Values[clWidth.Index];
+    Result := Format('%.' + W.ToString + 'd', [GetBillNumber]);
+  end
+end;
+
+function TViewBill.GetBillWidth: Integer;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    Result := ARow.Values[clWidth.Index];
+  end
 end;
 
 function TViewBill.GetclBillDate: TcxGridDBBandedColumn;
@@ -203,10 +381,77 @@ begin
   Assert(Result <> nil);
 end;
 
+function TViewBill.GetclID: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.ID.FieldName);
+  Assert(Result <> nil);
+end;
+
 function TViewBill.GetclNumber: TcxGridDBBandedColumn;
 begin
   Result := MainView.GetColumnByFieldName(W.Number.FieldName);
   Assert(Result <> nil);
+end;
+
+function TViewBill.GetclDollar: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.Dollar.FieldName);
+  Assert(Result <> nil);
+end;
+
+function TViewBill.GetclEuro: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.Euro.FieldName);
+  Assert(Result <> nil);
+end;
+
+function TViewBill.GetclWidth: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.Width.FieldName);
+  Assert(Result <> nil);
+end;
+
+function TViewBill.GetclShipmentDate: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.ShipmentDate.FieldName);
+  Assert(Result <> nil);
+end;
+
+function TViewBill.GetDollarCource: Double;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    Result := ARow.Values[clDollar.Index];
+  end
+end;
+
+function TViewBill.GetEuroCource: Double;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    Result := ARow.Values[clEuro.Index];
+  end
+end;
+
+function TViewBill.GetShipmentDate: TDate;
+var
+  ARow: TcxCustomGridRow;
+begin
+  Result := 0;
+  if MainView.Controller.SelectedRowCount > 0 then
+  begin
+    ARow := MainView.Controller.SelectedRows[0];
+    if not VarIsNull(ARow.Values[clShipmentDate.Index]) then
+      Result := ARow.Values[clShipmentDate.Index];
+  end
 end;
 
 function TViewBill.GetW: TBillW;
@@ -233,6 +478,12 @@ begin
   inherited;
 end;
 
+procedure TViewBill.SelectFocusedBill;
+begin
+  ClearSelection;
+  SelectFocusedRecord(W.Number.FieldName);
+end;
+
 procedure TViewBill.SetqBill(const Value: TQryBill);
 begin
   if FqBill = Value then
@@ -245,23 +496,25 @@ begin
 
   MainView.DataController.DataSource := FqBill.W.DataSource;
   MainView.DataController.CreateAllItems(True);
+  {
+    FReadOnlyFieldList.Clear;
+    FReadOnlyFieldList.Add(W.Number.FieldName.ToUpper);
+    FReadOnlyFieldList.Add(W.BillDate.FieldName.ToUpper);
+    //  FReadOnlyFieldList.Add(W.ShipmentDate.FieldName.ToUpper);
+    FReadOnlyFieldList.Add(W.Dollar.FieldName.ToUpper);
+    FReadOnlyFieldList.Add(W.Euro.FieldName.ToUpper);
+  }
+  clNumber.OnGetDisplayText := OnNumberGetDisplayText;
 
-  FReadOnlyFieldList.Clear;
-  FReadOnlyFieldList.Add(W.Number.FieldName.ToUpper);
-  FReadOnlyFieldList.Add(W.BillDate.FieldName.ToUpper);
-//  FReadOnlyFieldList.Add(W.ShipmentDate.FieldName.ToUpper);
-  FReadOnlyFieldList.Add(W.Dollar.FieldName.ToUpper);
-  FReadOnlyFieldList.Add(W.Euro.FieldName.ToUpper);
+  {
+    MainView.OptionsBehavior.ImmediateEditor := False;
+    MainView.OptionsSelection.CellMultiSelect := False;
+    MainView.OptionsSelection.MultiSelect := False;
+    MainView.OptionsSelection.CellSelect := False;
 
-{
-  MainView.OptionsBehavior.ImmediateEditor := False;
-  MainView.OptionsSelection.CellMultiSelect := False;
-  MainView.OptionsSelection.MultiSelect := False;
-  MainView.OptionsSelection.CellSelect := False;
-
-  MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
-  MainView.OptionsSelection.HideSelection := False;
-}
+    MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
+    MainView.OptionsSelection.HideSelection := False;
+  }
   MainView.OptionsView.ColumnAutoWidth := False;
 
   GridSort.Add(TSortVariant.Create(clNumber, [clNumber]));
@@ -291,6 +544,9 @@ begin
 
   actShip.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount = 1) and (W.ShipmentDate.F.IsNull);
+
+  actEdit.Enabled := OK and (AView <> nil) and
+    (AView.Controller.SelectedRowCount = 1);
 
   actApplyCustomFilter.Enabled := not VarIsNull(cxbeiBeginDate.EditValue) and
     not VarIsNull(cxbeiEndDate.EditValue);

@@ -255,7 +255,11 @@ uses
   SearchFamilyCategoriesQry in 'Queryes\Search\SearchFamilyCategoriesQry.pas' {QrySearchFamilyCategories: TFrame},
   ProductCategoriesMemTable in 'Queryes\Components\ParametricTable\ProductCategoriesMemTable.pas',
   CategoryGridView in 'Views\Components\ParametricTable\CategoryGridView.pas' {ViewCategory: TFrame},
-  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView};
+  GridViewForm in 'Views\GridView\GridViewForm.pas' {frmGridView},
+  CreateBillForm in 'Views\Bill\CreateBillForm.pas' {FrmCreateBill},
+  BillInterface in 'Interfaces\BillInterface.pas',
+  InsertEditMode in 'Helpers\InsertEditMode.pas',
+  BillContentInterface in 'Interfaces\BillContentInterface.pas';
 
 {$R *.res}
 
