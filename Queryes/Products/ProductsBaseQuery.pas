@@ -918,7 +918,10 @@ begin
     // Проверяем что поле кол-во продаж <= поля кол-во
     AErrorMessage := W.CheckEditingRecord;
     if not AErrorMessage.IsEmpty then
+    begin
+      W.SaleCount.F.Value := W.SaleCount.F.OldValue;
       raise Exception.Create(AErrorMessage);
+    end;
 
     // Пробуем заполнить значения полей из компонентской базы
     SetFieldValuesBeforePost;
@@ -952,7 +955,7 @@ begin
       ; // В случае ошибки, оставляем поле пустым
     end;
 
-  // Запоняе курс евро на дату загрузки
+  // Запоняем курс евро на дату загрузки
   if (W.Euro.F.IsNull) then
     try
       W.Euro.F.AsFloat := TMyCurrency.Create.GetCourses(3,

@@ -14,7 +14,7 @@ resourcestring
 
   sDoDescriptionsBind = 'Выполняем прикрепление кратких описаний';
 
-  sIsNotEnoughProductAmount = 'На складе недостаточное количество товара';
+  sIsNotEnoughProductAmount = 'Данное значение превышает количество партии товара';
 
   // Категория производителей которые добавляются на склад в ручную или из Excel Файла
   sWareHouseDefaultProducerType = 'Склад';
