@@ -249,7 +249,7 @@ inherited ViewProductsBasket: TViewProductsBasket
   inherited ActionList: TActionList
     object actBasketDelete: TAction [25]
       Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1073#1088#1072#1090#1100' '#1090#1086#1074#1072#1088' '#1080#1079' '#1082#1088#1079#1080#1085#1099
+      Hint = #1059#1073#1088#1072#1090#1100' '#1090#1086#1074#1072#1088' '#1080#1079' '#1082#1086#1088#1079#1080#1085#1099
       ImageIndex = 2
       OnExecute = actBasketDeleteExecute
     end
