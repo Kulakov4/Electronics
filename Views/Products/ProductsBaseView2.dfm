@@ -137,7 +137,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 48
+    ExplicitTop = 54
     ExplicitWidth = 1177
     ExplicitHeight = 525
     object clID: TcxDBTreeListColumn
@@ -1002,8 +1002,8 @@ inherited ViewProductsBase2: TViewProductsBase2
       OnExecute = actOpenDiagramExecute
     end
     object actLoadDiagram: TAction [11]
-      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1080#1072#1075#1088#1072#1084#1084#1091
-      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1076#1080#1072#1075#1088#1072#1084#1084#1091
+      Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
+      Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1089#1093#1077#1084#1091
       OnExecute = actLoadDiagramExecute
     end
     object actOpenDrawing: TAction [12]
