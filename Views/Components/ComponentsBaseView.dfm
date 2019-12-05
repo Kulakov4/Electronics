@@ -166,7 +166,7 @@ inherited ViewComponentsBase: TViewComponentsBase
     PopupMenus = <
       item
         GridView = cxGridDBBandedTableView
-        HitTypes = [gvhtGridNone, gvhtGridTab, gvhtNone, gvhtTab, gvhtCell, gvhtExpandButton, gvhtRecord, gvhtNavigator, gvhtPreview, gvhtColumnHeader, gvhtColumnHeaderFilterButton, gvhtFilter, gvhtFooter, gvhtFooterCell, gvhtGroupFooter, gvhtGroupFooterCell, gvhtGroupByBox, gvhtIndicator, gvhtIndicatorHeader, gvhtIndicatorBandHeader, gvhtRowIndicator, gvhtRowLevelIndent, gvhtBand, gvhtBandHeader, gvhtRowCaption, gvhtSeparator, gvhtGroupSummary, gvhtFindPanel]
+        HitTypes = [gvhtGridNone, gvhtNone, gvhtCell]
         Index = 0
         PopupMenu = pmGrid
       end
