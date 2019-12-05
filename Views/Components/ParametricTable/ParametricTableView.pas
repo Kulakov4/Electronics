@@ -230,7 +230,7 @@ type
     procedure FilterByComponent(AComponent: string);
     procedure Lock;
     procedure Unlock;
-    procedure UpdateMinBandWindth(ABandInfo: TBandInfoEx);
+    function UpdateMinBandWindth(ABandInfo: TBandInfoEx): TRect;
     procedure UpdateView; override;
     property clAnalog: TcxGridDBBandedColumn read GetclAnalog;
     property ComponentsExGroup: TComponentsExGroup2 read GetComponentsExGroup
@@ -1090,36 +1090,36 @@ var
   L: TBandsInfo;
 begin
   inherited;
-  (***********************************************************
-  БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ НОВОЕ ПОЛОЖЕНИЕ БЭНДОВ В БД
-  (***********************************************************)
-{
-  // Ищем информацию о перемещаемом бэнде
-  ABandInfo := FBandsInfo.Search(ABand, True);
+  (* **********************************************************
+    БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ НОВОЕ ПОЛОЖЕНИЕ БЭНДОВ В БД
+    (********************************************************** *)
+  {
+    // Ищем информацию о перемещаемом бэнде
+    ABandInfo := FBandsInfo.Search(ABand, True);
 
-  // Получаем информацию о тех бэндах, положение которых изменилось
-  L := FBandsInfo.GetChangedColIndex;
-  try
+    // Получаем информацию о тех бэндах, положение которых изменилось
+    L := FBandsInfo.GetChangedColIndex;
+    try
     // Если переместили в другую группу или предыдущий запрос ещё не обработан
     if (L.HaveDifferentPos) or (BandTimer.Enabled) then
     begin
-      // Возвращаем колонки на место
-      for ABI in L do
-        ABI.Band.Position.ColIndex := ABI.ColIndex;
-      Exit;
+    // Возвращаем колонки на место
+    for ABI in L do
+    ABI.Band.Position.ColIndex := ABI.ColIndex;
+    Exit;
     end;
-  finally
+    finally
     FreeAndNil(L);
-  end;
+    end;
 
-  // Меняем позицию дочернего бэнда
-  (ABandInfo as TBandInfoEx).Bands[1].Position.ColIndex :=
+    // Меняем позицию дочернего бэнда
+    (ABandInfo as TBandInfoEx).Bands[1].Position.ColIndex :=
     ABand.Position.ColIndex;
 
-  // Сообщаем что изменение бэндов нужно будет дополнительно обработать
-  FBandInfo := ABandInfo;
-  BandTimer.Enabled := True;
-}
+    // Сообщаем что изменение бэндов нужно будет дополнительно обработать
+    FBandInfo := ABandInfo;
+    BandTimer.Enabled := True;
+  }
 end;
 
 var
@@ -1662,10 +1662,10 @@ procedure TViewParametricTable.cxGridDBBandedTableViewColumnPosChanged
 begin
   inherited;
   Application.Hint := '';
-  (***********************************************************
-  БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ ПОЛОЖЕНИЕ КОЛОНОК В БД
-  (***********************************************************)
-  //  ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
+  (* **********************************************************
+    БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ ПОЛОЖЕНИЕ КОЛОНОК В БД
+    (********************************************************** *)
+  // ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewColumnSizeChanged
@@ -2186,8 +2186,11 @@ var
   ABI: TBandInfo;
   ACaption: string;
   AID: Integer;
+  AMaxBandHeaderHeight: Integer;
+  R: TRect;
   S: string;
 begin
+  AMaxBandHeaderHeight := 0;
   for ABI in FBandsInfo do
   begin
     if not ABI.Band.Visible then
@@ -2210,9 +2213,13 @@ begin
       Continue;
 
     ABI.Band.Caption := ACaption;
-    // Ширина бэнда
-    UpdateMinBandWindth(ABI as TBandInfoEx);
+    // Обновляем минимальную ширина бэнда
+    R := UpdateMinBandWindth(ABI as TBandInfoEx);
+    if (R.Height + 10) > AMaxBandHeaderHeight then
+      AMaxBandHeaderHeight := R.Height + 10;
   end;
+  // Обновляем высоту всех бэндов
+  MainView.OptionsView.BandHeaderHeight := AMaxBandHeaderHeight;
 end;
 
 procedure TViewParametricTable.UpdateBandsPosition;
@@ -2553,19 +2560,30 @@ begin
   FColumnsInfo.UpdateGeneralIndexes(A);
 end;
 
-procedure TViewParametricTable.UpdateMinBandWindth(ABandInfo: TBandInfoEx);
+function TViewParametricTable.UpdateMinBandWindth
+  (ABandInfo: TBandInfoEx): TRect;
 var
   ABand: TcxGridBand;
-  R: TRect;
+  // ABandHeaderHeight: Integer;
 begin
   // Ширина бэнда
 
   ABand := ABandInfo.Band;
 
-  R := TTextRect.Calc(ABand.GridView.ViewInfo.Canvas.Canvas, ABand.Caption);
+  Result := TTextRect.Calc(ABand.GridView.ViewInfo.Canvas.Canvas,
+    ABand.Caption);
 
+  // Меняем ширину бэнда на первом и втором уровне
   for ABand in ABandInfo.Bands do
-    ABand.Width := R.Width + 10;
+    ABand.Width := Result.Width + 10;
+
+  // Вычисляем высоту бэнда
+  // ABandHeaderHeight := CalcBandHeight(ABand);
+
+  // Меняем высоту всех бэндов
+  // if MainView.OptionsView.BandHeaderHeight < (R.Height + 10) then
+  // MainView.OptionsView.BandHeaderHeight := R.Height + 10;
+
 end;
 
 procedure TViewParametricTable.UpdateView;
