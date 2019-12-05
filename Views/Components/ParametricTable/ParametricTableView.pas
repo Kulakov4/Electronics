@@ -1090,32 +1090,33 @@ var
   L: TBandsInfo;
 begin
   inherited;
-  (* **********************************************************
-    БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ НОВОЕ ПОЛОЖЕНИЕ БЭНДОВ В БД
-    (********************************************************** *)
-  {
-    // Ищем информацию о перемещаемом бэнде
-    ABandInfo := FBandsInfo.Search(ABand, True);
 
-    // Получаем информацию о тех бэндах, положение которых изменилось
-    L := FBandsInfo.GetChangedColIndex;
-    try
+  // Ищем информацию о перемещаемом бэнде
+  ABandInfo := FBandsInfo.Search(ABand, True);
+
+  // Получаем информацию о тех бэндах, положение которых изменилось
+  L := FBandsInfo.GetChangedColIndex;
+  try
     // Если переместили в другую группу или предыдущий запрос ещё не обработан
     if (L.HaveDifferentPos) or (BandTimer.Enabled) then
     begin
-    // Возвращаем колонки на место
-    for ABI in L do
-    ABI.Band.Position.ColIndex := ABI.ColIndex;
-    Exit;
+      // Возвращаем колонки на место
+      for ABI in L do
+        ABI.Band.Position.ColIndex := ABI.ColIndex;
+      Exit;
     end;
-    finally
+  finally
     FreeAndNil(L);
-    end;
+  end;
 
-    // Меняем позицию дочернего бэнда
-    (ABandInfo as TBandInfoEx).Bands[1].Position.ColIndex :=
+  // Меняем позицию дочернего бэнда
+  (ABandInfo as TBandInfoEx).Bands[1].Position.ColIndex :=
     ABand.Position.ColIndex;
 
+  (* ********************************************************* *)
+  // БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ НОВОЕ ПОЛОЖЕНИЕ БЭНДОВ В БД
+  (* ********************************************************* *)
+  {
     // Сообщаем что изменение бэндов нужно будет дополнительно обработать
     FBandInfo := ABandInfo;
     BandTimer.Enabled := True;
@@ -1662,10 +1663,10 @@ procedure TViewParametricTable.cxGridDBBandedTableViewColumnPosChanged
 begin
   inherited;
   Application.Hint := '';
-  (* **********************************************************
-    БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ ПОЛОЖЕНИЕ КОЛОНОК В БД
-    (********************************************************** *)
-  // ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
+  (* ********************************************************* *)
+  // БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ ПОЛОЖЕНИЕ КОЛОНОК В БД
+  (* ********************************************************* *)
+  ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewColumnSizeChanged
