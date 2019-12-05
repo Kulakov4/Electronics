@@ -1090,6 +1090,10 @@ var
   L: TBandsInfo;
 begin
   inherited;
+  (***********************************************************
+  БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ НОВОЕ ПОЛОЖЕНИЕ БЭНДОВ В БД
+  (***********************************************************)
+{
   // Ищем информацию о перемещаемом бэнде
   ABandInfo := FBandsInfo.Search(ABand, True);
 
@@ -1115,68 +1119,19 @@ begin
   // Сообщаем что изменение бэндов нужно будет дополнительно обработать
   FBandInfo := ABandInfo;
   BandTimer.Enabled := True;
+}
 end;
-
-
-// TODO: CreateFilter
-// procedure TViewParametricTable.CreateFilter(AColumn: TcxGridDBBandedColumn;
-// const AValue: string);
-// var
-// r: TcxFilterCriteriaItemList;
-// begin
-// r := MainView.DataController.Filter.Root;
-// r.Clear;
-// r.BoolOperatorKind := fboOr;
-//
-/// / Точное совпадение
-// r.AddItem(AColumn, foEqual, AValue, AValue);
-/// / В начале списка
-// r.AddItem(AColumn, foLike, AValue + #13#10 + '%', AValue);
-/// / В середине списка
-// r.AddItem(AColumn, foLike, '%' + #13#10 + AValue + #13#10 + '%', AValue);
-/// / В конце списка
-// r.AddItem(AColumn, foLike, '%' + #13#10 + AValue, AValue);
-//
-// MainView.DataController.Filter.Active := True;
-//
-// end;
 
 var
   FInChange: Boolean = false;
 
 procedure TViewParametricTable.
   cxGridDBBandedTableViewDataControllerFilterChanged(Sender: TObject);
-{
-  var
-  a: Boolean;
-  fc: TcxGridDBDataFilterCriteria;
-  fca: string;
-  ft: string;
-  ie: Boolean;
-  isf: Boolean;
-}
 begin
   if FLockDetailFilterChange then
     Exit;
 
   inherited;
-  {
-    fc := Sender as TcxGridDBDataFilterCriteria;
-    ft := fc.FilterText;
-    isf := fc.IsFiltering;
-    ie := fc.IsEmpty;
-    a := fc.Active;
-    fca := fc.FilterCaption;
-  }
-  {
-    FLockDetailFilterChange := True;
-    try
-    CreateDetailFilter;
-    finally
-    FLockDetailFilterChange := False;
-    end;
-  }
-  // cxGridDBBandedTableView2.DataController.Filter.Active := True;
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewInitEditValue
@@ -1707,7 +1662,10 @@ procedure TViewParametricTable.cxGridDBBandedTableViewColumnPosChanged
 begin
   inherited;
   Application.Hint := '';
-  ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
+  (***********************************************************
+  БОЛЬШЕ НЕ НУЖНО СОХРАНЯТЬ ПОЛОЖЕНИЕ КОЛОНОК В БД
+  (***********************************************************)
+  //  ProcessColumnMove(AColumn as TcxGridDBBandedColumn);
 end;
 
 procedure TViewParametricTable.cxGridDBBandedTableViewColumnSizeChanged
