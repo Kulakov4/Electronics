@@ -1077,15 +1077,19 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnPopup = PopupMenuPopup
     object N2: TMenuItem
       Action = actBandWidth
+      Visible = False
     end
     object N4: TMenuItem
       Action = actColumnWidth
+      Visible = False
     end
     object N3: TMenuItem
       Action = actColumnAutoWidth
+      Visible = False
     end
     object actColumnFilter1: TMenuItem
       Action = actColumnFilter
+      Visible = False
     end
   end
   object cxStyleRepository1: TcxStyleRepository
