@@ -222,7 +222,7 @@ type
     procedure EnableCalc;
     function GetDollarCource: Double; virtual;
     function GetEuroCource: Double; virtual;
-    function GetExportFileName: string; virtual; abstract;
+    function GetExportFileName: string; virtual;
     function GetHaveAnyChanges: Boolean; override;
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
@@ -1235,6 +1235,11 @@ begin
     // Если известен курс на день покупки
     if W.Euro.F.AsFloat > 0 then
       Result := W.Euro.F.AsFloat;
+end;
+
+function TQueryProductsBase.GetExportFileName: string;
+begin
+  Result := 'file.xls';
 end;
 
 function TQueryProductsBase.GetProducersGroup: TProducersGroup2;

@@ -228,7 +228,7 @@ begin
   Assert(FBill <> nil);
   Assert(FBill.BillNumber > 0);
 
-  Result := Format('Ñ÷¸ò ¹%s îò %s.xls', [FBill.BillNumberStr,
+  Result := Format('Ñ÷¸ò ¹%s îò %s.xlsx', [FBill.BillNumberStr,
     FormatDateTime('dd.mm.yyyy', FBill.BillDate)]);
   Assert(not Result.IsEmpty);
 end;

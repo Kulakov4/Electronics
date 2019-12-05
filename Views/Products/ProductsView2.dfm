@@ -84,10 +84,6 @@ inherited ViewProducts2: TViewProducts2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarSubItem1'
         end
         item

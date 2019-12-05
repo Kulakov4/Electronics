@@ -371,7 +371,7 @@ begin
   Assert(Master <> nil);
   AQueryStoreHouseList := Master as TQueryStoreHouseList;
   Assert(AQueryStoreHouseList.FDQuery.RecordCount > 0);
-  Result := Format('%s %s.xls', [AQueryStoreHouseList.W.Abbreviation.F.AsString,
+  Result := Format('%s %s.xls', [AQueryStoreHouseList.W.Title.F.AsString,
     FormatDateTime('dd.mm.yyyy', Date)]);
   Assert(not Result.IsEmpty);
 end;
