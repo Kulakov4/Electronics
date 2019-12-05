@@ -34,6 +34,8 @@ type
     FqExtraCharge: TQueryExtraCharge2;
     procedure SetqExtraCharge(const Value: TQueryExtraCharge2);
     { Private declarations }
+  protected
+    procedure InitView(AView: TcxGridDBBandedTableView); override;
   public
     property qExtraCharge: TQueryExtraCharge2 read FqExtraCharge
       write SetqExtraCharge;
@@ -43,6 +45,16 @@ type
 implementation
 
 {$R *.dfm}
+
+procedure TViewExtraChargeSimple.InitView(AView: TcxGridDBBandedTableView);
+begin
+  AView.OptionsBehavior.ImmediateEditor := False;
+  AView.OptionsView.FocusRect := False;
+  AView.OptionsSelection.MultiSelect := False;
+  AView.OptionsSelection.CellMultiSelect := False;
+  AView.OptionsSelection.CellSelect := False;
+  // AView.Styles.Inactive := DMRepository.cxInactiveStyle;
+end;
 
 procedure TViewExtraChargeSimple.SetqExtraCharge(const Value
   : TQueryExtraCharge2);
