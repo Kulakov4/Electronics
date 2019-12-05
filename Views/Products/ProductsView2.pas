@@ -236,6 +236,9 @@ begin
     Exit;
 
   LoadFromExcelDocument(AFileName);
+  UpdateView;
+  // Сразу пытаемся сохранить. Тут возникает диалог выбора оптовой наценки
+  actCommit.Execute;
 end;
 
 procedure TViewProducts2.actTryEditExecute(Sender: TObject);
