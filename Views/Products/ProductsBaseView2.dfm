@@ -119,8 +119,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     LookAndFeel.Kind = lfFlat
     LookAndFeel.NativeStyle = False
     OptionsBehavior.ImmediateEditor = False
-    OptionsCustomizing.BandMoving = False
     OptionsCustomizing.ColumnMoving = False
+    OptionsCustomizing.NestedBands = False
+    OptionsCustomizing.StackedColumns = False
     OptionsView.Bands = True
     OptionsView.CategorizedColumn = clValue
     OptionsView.Footer = True
@@ -136,7 +137,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 54
+    ExplicitTop = 48
     ExplicitWidth = 1177
     ExplicitHeight = 525
     object clID: TcxDBTreeListColumn

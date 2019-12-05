@@ -1444,7 +1444,8 @@ begin
   begin
     cxDBTreeList.Bands[i].Caption.MultiLine := True;
     cxDBTreeList.Bands[i].Caption.ShowEndEllipsis := False;
-    // cxDBTreeList.Bands[i].Expandable := tlbeNotExpandable
+    cxDBTreeList.Bands[i].Options.OnlyOwnColumns := True;
+//    cxDBTreeList.Bands[i].Expandable := tlbeNotExpandable;
 
     for j := 0 to cxDBTreeList.Bands[i].ColumnCount - 1 do
     begin
