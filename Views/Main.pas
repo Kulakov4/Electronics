@@ -456,9 +456,79 @@ end;
 
 procedure TfrmMain.cxpcCompGroupRightPageChanging(Sender: TObject;
   NewPage: TcxTabSheet; var AllowChange: Boolean);
+var
+  ADialogResult: Integer;
 begin
   if not FLoadComplete then
     Exit;
+
+  // Если уходим со вкладки Категория
+  if cxpcCompGroupRight.ActivePage = cxtsCategory then
+  begin
+    TDM.Create.qChildCategories.RemoveClient;
+  end;
+
+  // Если уходим со вкладки Содержимое
+  if cxpcCompGroupRight.ActivePage = cxtsCategoryComponents then
+  begin
+    // Если нужно сохранить изменения
+    if FViewComponents.actCommit.Enabled then
+    begin
+      ADialogResult := TDialog.Create.SaveDataDialog;
+      case ADialogResult of
+        idCancel: AllowChange := False;
+        idyes: FViewComponents.actCommit.Execute;
+        idno: FViewComponents.actCommit.Execute;
+      end;
+    end;
+
+    if AllowChange then
+      TDM.Create.ComponentsGroup.RemoveClient
+    else
+      Exit;
+  end;
+
+  // Если уходим со вкладки Параметры
+  if cxpcCompGroupRight.ActivePage = cxtsCategoryParameters then
+  begin
+    // Если нужно сохранить изменения
+    if FViewCategoryParameters.actApplyUpdates.Enabled then
+    begin
+      ADialogResult := TDialog.Create.SaveDataDialog;
+      case ADialogResult of
+        idCancel: AllowChange := False;
+        idyes: FViewCategoryParameters.actApplyUpdates.Execute;
+        idno: FViewCategoryParameters.actCancelUpdates.Execute;
+      end;
+    end;
+
+    if AllowChange then
+      TDM.Create.CategoryParametersGroup.RemoveClient
+    else
+      Exit;
+  end;
+
+  // если уходим с вкладки "Параметрическая таблица"
+  if (cxpcCompGroupRight.ActivePage = cxtsParametricTable) and
+    (NewPage <> cxtsParametricTable) then
+  begin
+    if ViewParametricTable.actCommit.Enabled then
+    begin
+      ADialogResult := TDialog.Create.SaveDataDialog;
+      case ADialogResult of
+        idCancel: AllowChange := False;
+        idyes: ViewParametricTable.actCommit.Execute;
+        idno: ViewParametricTable.actCommit.Execute;
+      end;
+    end;
+
+    if not AllowChange then
+      Exit;
+
+    TDM.Create.ComponentsExGroup.RemoveClient;
+    if FViewParametricTable <> nil then
+      ViewParametricTable.Lock;
+  end;
 
   // Если переходим на вкладку категория
   if NewPage = cxtsCategory then
@@ -474,12 +544,6 @@ begin
       ViewChildCategories.qChildCategories := TDM.Create.qChildCategories;
     end;
     ViewChildCategories.MainView.ApplyBestFit;
-  end;
-
-  // Если уходим со вкладки Категория
-  if cxpcCompGroupRight.ActivePage = cxtsCategory then
-  begin
-    TDM.Create.qChildCategories.RemoveClient;
   end;
 
   // Если переходим на вкладку Содержимое
@@ -503,12 +567,6 @@ begin
     ViewComponents.TryApplyBestFit;
   end;
 
-  // Если уходим со вкладки Содержимое
-  if cxpcCompGroupRight.ActivePage = cxtsCategoryComponents then
-  begin
-    TDM.Create.ComponentsGroup.RemoveClient;
-  end;
-
   // Если переходим на вкладку Параметры
   if NewPage = cxtsCategoryParameters then
   begin
@@ -524,12 +582,6 @@ begin
         TDM.Create.CategoryParametersGroup;
     end;
     ViewCategoryParameters.MyApplyBestFit;
-  end;
-
-  // Если уходим со вкладки Параметры
-  if cxpcCompGroupRight.ActivePage = cxtsCategoryParameters then
-  begin
-    TDM.Create.CategoryParametersGroup.RemoveClient;
   end;
 
   // если переходим на вкладку "Параметрическая таблица"
@@ -550,16 +602,6 @@ begin
     end
     else
       ViewParametricTable.Unlock;
-  end;
-
-  // если уходим с вкладки "Параметрическая таблица"
-  if (cxpcCompGroupRight.ActivePage = cxtsParametricTable) and
-    (NewPage <> cxtsParametricTable) then
-  begin
-    TDM.Create.ComponentsExGroup.RemoveClient;
-
-    if FViewParametricTable <> nil then
-      ViewParametricTable.Lock;
   end;
 
 end;
