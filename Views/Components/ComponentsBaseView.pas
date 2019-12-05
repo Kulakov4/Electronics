@@ -160,8 +160,8 @@ type
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
     procedure cxGridDBBandedTableViewLeftPosChanged(Sender: TObject);
-    procedure cxGridDBBandedTableViewDataControllerDetailExpanded(
-      ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridDBBandedTableViewDataControllerDetailExpanded
+      (ADataController: TcxCustomDataController; ARecordIndex: Integer);
   private
     FBaseCompGrp: TBaseComponentsGroup2;
     FCountEvents: TObjectList;
@@ -917,8 +917,9 @@ begin
   PostMessageUpdateDetailColumnsWidth;
 end;
 
-procedure TViewComponentsBase.cxGridDBBandedTableViewDataControllerDetailExpanded(
-  ADataController: TcxCustomDataController; ARecordIndex: Integer);
+procedure TViewComponentsBase.
+  cxGridDBBandedTableViewDataControllerDetailExpanded(ADataController
+  : TcxCustomDataController; ARecordIndex: Integer);
 begin
   inherited;
   UpdateDetailColumnsWidth;
@@ -1069,12 +1070,15 @@ begin
       FEventList);
     MyInitializeComboBoxColumn;
 
-    // Настраиваем сортировку
-    GridSort.Add(TSortVariant.Create(clValue, [clValue]));
-    GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
+    if GridSort.Count = 0 then
+    begin
+      // Настраиваем сортировку
+      GridSort.Add(TSortVariant.Create(clValue, [clValue]));
+      GridSort.Add(TSortVariant.Create(clProducer, [clProducer, clValue]));
 
-    // Применяем сортировку по производителю
-    ApplySort(MainView, clValue);
+      // Применяем сортировку по производителю
+      ApplySort(MainView, clValue);
+    end;
 
     // Подписываемся на сообщения об изменении кол-ва
     if UpdateCount = 0 then
@@ -1083,10 +1087,6 @@ begin
     // После того, как колоки созданы - создаём соответствующие пункты в меню
     FColumnsBarButtons := TGVColumnsBarButtonsEx.Create(Self, dxbsColumns,
       MainView, cxGridDBBandedTableView2);
-  end
-  else
-  begin
-    GridSort.Clear;
   end;
 
   UpdateView;
@@ -1406,7 +1406,7 @@ begin
   inherited;
   AView.OptionsData.Deleting := False;
   AView.OptionsData.DeletingConfirmation := False;
-//  AView.OptionsView.ExpandButtonsForEmptyDetails := False;
+  // AView.OptionsView.ExpandButtonsForEmptyDetails := False;
 end;
 
 procedure TViewComponentsBase.InternalRefreshData;

@@ -25,6 +25,7 @@ type
   TGridSort = class(TObject)
   private
     FSortDictionary: TDictionary<String, TSortVariant>;
+    function GetCount: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -34,6 +35,7 @@ type
     function GetSortVariant(AColumn: TcxGridColumn): TSortVariant; overload;
     function GetSortVariant(AColumn: TcxDBTreeListColumn)
       : TSortVariant; overload;
+    property Count: Integer read GetCount;
   end;
 
 implementation
@@ -116,6 +118,11 @@ function TGridSort.ContainsColumn(const AFieldName: string): Boolean;
 begin
   Assert(not AFieldName.IsEmpty);
   Result := FSortDictionary.ContainsKey(AFieldName);
+end;
+
+function TGridSort.GetCount: Integer;
+begin
+  Result := FSortDictionary.Count;
 end;
 
 function TGridSort.GetSortVariant(AColumn: TcxGridColumn): TSortVariant;
