@@ -137,6 +137,8 @@ type
     cxbeiTotalR: TcxBarEditItem;
     dxbbRubToDollar: TdxBarButton;
     actRubToDollar: TAction;
+    actCopyColumnHeader: TAction;
+    N5: TMenuItem;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -147,6 +149,7 @@ type
     procedure actColumnFilterExecute(Sender: TObject);
     procedure actColumnWidthExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
+    procedure actCopyColumnHeaderExecute(Sender: TObject);
     procedure actCreateBillExecute(Sender: TObject);
     procedure actDeleteExecute(Sender: TObject);
     procedure actExportToExcelDocumentExecute(Sender: TObject);
@@ -298,7 +301,7 @@ uses DialogUnit, RepositoryDataModule, NotifyEvents, System.IOUtils,
   SettingsController, Winapi.Shellapi,
   System.StrUtils, GridSort, cxTLExportLink, OpenDocumentUnit, ProjectConst,
   HttpUnit, StrHelper, dxCore, CurrencyUnit, DBLookupComboBoxHelper,
-  DataModule, MaxBillNumberQuery, MinWholeSaleForm, CreateBillForm;
+  DataModule, MaxBillNumberQuery, MinWholeSaleForm, CreateBillForm, Vcl.Clipbrd;
 
 const
   clClickedColor = clRed;
@@ -532,6 +535,33 @@ begin
   // Мы просто завершаем транзакцию
   FqProductsBase.ApplyUpdates;
   UpdateView;
+end;
+
+procedure TViewProductsBase2.actCopyColumnHeaderExecute(Sender: TObject);
+var
+  S: string;
+begin
+  inherited;
+
+  S := '';
+
+  // Если щелчок по заголовку бэнда
+  if FcxTreeListBandHeaderCellViewInfo <> nil then
+  begin
+    S := FcxTreeListBandHeaderCellViewInfo.Band.Caption.Text.Trim;
+  end;
+
+  // Если щелчок по заголовку колонки
+  if FcxTreeListColumnHeaderCellViewInfo <> nil then
+  begin
+    S := FcxTreeListColumnHeaderCellViewInfo.Column.Caption.Text.Trim;
+    if S.IsEmpty and (FcxTreeListColumnHeaderCellViewInfo.Band <> nil) then
+      S := FcxTreeListColumnHeaderCellViewInfo.Column.Position.Band.
+        Caption.Text;
+  end;
+
+  if not S.IsEmpty then
+    ClipBoard.AsText := S;
 end;
 
 procedure TViewProductsBase2.actCreateBillExecute(Sender: TObject);
@@ -1576,6 +1606,12 @@ begin
   actBandWidth.Enabled := FcxTreeListBandHeaderCellViewInfo <> nil;
   actColumnAutoWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
   actColumnWidth.Enabled := FcxTreeListColumnHeaderCellViewInfo <> nil;
+
+  actCopy.Visible := (FcxTreeListBandHeaderCellViewInfo = nil) and
+    (FcxTreeListColumnHeaderCellViewInfo = nil);
+
+  actCopyColumnHeader.Visible := (FcxTreeListBandHeaderCellViewInfo <> nil) or
+    (FcxTreeListColumnHeaderCellViewInfo <> nil);
 end;
 
 procedure TViewProductsBase2.ProcessResyncDataSetMessage(var Message: TMessage);
