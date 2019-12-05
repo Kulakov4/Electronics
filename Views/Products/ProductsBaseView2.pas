@@ -385,10 +385,12 @@ begin
     Exit;
   end;
 
+  cxDBTreeList.HideEdit;
+
   W.AddCategory;
 
-  // cxDBTreeList.ApplyBestFit;
   cxDBTreeList.SetFocus;
+  // cxDBTreeList.ApplyBestFit;
 
   // Переводим колонку в режим редактирования
   clValue.Editing := True;
