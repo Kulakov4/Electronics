@@ -1840,6 +1840,9 @@ procedure TfrmGrid.TryClearSelection(X, Y: Integer);
 var
   HT: TcxCustomGridHitTest;
 begin
+  if MainView = nil then
+    Exit;
+
   HT := MainView.ViewInfo.GetHitTest(X, Y);
   if HT is TcxGridViewNoneHitTest then
     ClearSelection;

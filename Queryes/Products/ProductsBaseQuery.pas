@@ -179,6 +179,7 @@ type
     FOnCommitUpdatePosted: Boolean;
     FqStoreHouseList: TQueryStoreHouseList;
     FW: TProductW;
+
   class var
     FDollarCource: Double;
     FEuroCource: Double;
@@ -910,7 +911,7 @@ end;
 procedure TQueryProductsBase.DoBeforePost(Sender: TObject);
 var
   AErrorMessage: String;
-//  rc: Integer;
+  // rc: Integer;
 begin
   if FDQuery.State = dsEdit then
   begin
@@ -1078,7 +1079,7 @@ begin
     else
     FCalcDic[AID] := t;
   *)
-  Inc(FCalcExecCount);
+  // Inc(FCalcExecCount);
 
   // Определяемся с курсом Доллара
   ADCource := GetDollarCource;
@@ -1086,7 +1087,7 @@ begin
   // Определяемся с курсом Евро
   // AECource := GetEuroCource;
 
-  // Розничная цена
+  // Закупочная цена в рублях. Она изменится если включена опция RubToDollar
   APriceR := W.PriceR.F.AsFloat;
 
   // Если закупочная цена была в рублях
@@ -1170,17 +1171,27 @@ begin
     if not W.MinWholeSale.F.IsNull then
       AWholeSale := W.MinWholeSale.F.Value;
 
-  // Оптовая цена в Рублях
-  W.PriceR2.F.Value := APriceR * (1 + AWholeSale / 100);
-  // Оптовая цена в Долларах
-  W.PriceD2.F.Value := W.PriceD.F.Value * (1 + AWholeSale / 100);
-  // Оптовая цена в Евро
-  W.PriceE2.F.Value := W.PriceE.F.Value * (1 + AWholeSale / 100);
+  // Если оптовая наценка применена
+  if AWholeSale > 0 then
+  begin
+    // Оптовая цена в Рублях
+    W.PriceR2.F.Value := APriceR * (1 + AWholeSale / 100);
+    // Оптовая цена в Долларах
+    W.PriceD2.F.Value := W.PriceD.F.Value * (1 + AWholeSale / 100);
+    // Оптовая цена в Евро
+    W.PriceE2.F.Value := W.PriceE.F.Value * (1 + AWholeSale / 100);
+  end
+  else
+  begin
+    W.PriceR2.F.Value := NULL;
+    W.PriceD2.F.Value := NULL;
+    W.PriceE2.F.Value := NULL;
+  end;
 
   // Если указано количество продаж
   if W.SaleCount.F.AsFloat > 0 then
   begin
-    if W.SaleCount.F.AsFloat <= 1 then
+    if (W.SaleCount.F.AsFloat <= 1) or (AWholeSale = 0) then
     begin
       // Собираемся продать 1 шт. - используем розничную цену
       W.SaleR.F.Value := W.PriceR1.F.Value;
