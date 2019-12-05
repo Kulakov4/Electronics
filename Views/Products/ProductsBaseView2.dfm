@@ -731,10 +731,6 @@ inherited ViewProductsBase2: TViewProductsBase2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
           ItemName = 'dxbbCreateBill'
         end
         item
@@ -924,10 +920,6 @@ inherited ViewProductsBase2: TViewProductsBase2
       Hint = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
       Visible = ivAlways
       PropertiesClassName = 'TcxDateEditProperties'
-    end
-    object dxBarButton12: TdxBarButton
-      Action = actClearSelection
-      Category = 0
     end
     object cxbeiTotalR: TcxBarEditItem
       Caption = #1048#1090#1086#1075#1086':'

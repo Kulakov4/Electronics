@@ -75,10 +75,6 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         end
         item
           Visible = True
-          ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
           ItemName = 'dxBarButton3'
         end
         item

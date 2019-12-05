@@ -134,7 +134,6 @@ type
     cxslSelectedColumn2: TcxStyle;
     cxbeiDate: TcxBarEditItem;
     Timer: TTimer;
-    dxBarButton12: TdxBarButton;
     cxbeiTotalR: TcxBarEditItem;
     dxbbRubToDollar: TdxBarButton;
     actRubToDollar: TAction;
