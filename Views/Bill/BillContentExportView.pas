@@ -1,10 +1,9 @@
-unit BillContentView;
+unit BillContentExportView;
 
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, ProductsBaseView2, cxGraphics,
   cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles,
   cxTL, cxMaskEdit, cxDBLookupComboBox, cxDropDownEdit, cxButtonEdit,
@@ -23,27 +22,26 @@ uses
   dxSkinSummer2008, dxSkinTheAsphaltWorld, dxSkinsDefaultPainters,
   dxSkinValentine, dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
-  dxSkinXmas2008Blue, cxDBExtLookupComboBox, Vcl.Menus, System.Actions,
-  Vcl.ActnList, dxBar, cxBarEditItem, cxClasses, Vcl.ComCtrls,
-  cxInplaceContainer, cxDBTL, cxTLData, BillContentQuery, ProductsBaseQuery,
-  cxCurrencyEdit, cxCalendar, Vcl.ExtCtrls;
+  dxSkinXmas2008Blue, cxDBExtLookupComboBox, cxCalendar, cxCurrencyEdit,
+  Vcl.ExtCtrls, Vcl.Menus, System.Actions, Vcl.ActnList, dxBar, cxBarEditItem,
+  cxClasses, Vcl.ComCtrls, cxInplaceContainer, cxDBTL, cxTLData,
+  BillContentExportQuery, ProductsBaseQuery;
 
 type
-  TViewBillContent = class(TViewProductsBase2)
-    dxBarButton1: TdxBarButton;
-    procedure cxDBTreeListEditing(Sender: TcxCustomTreeList;
-      AColumn: TcxTreeListColumn; var Allow: Boolean);
+  TViewBillContentExport = class(TViewProductsBase2)
+    clBillNumber: TcxDBTreeListColumn;
+    clBillDate: TcxDBTreeListColumn;
+    clShipmentDate: TcxDBTreeListColumn;
   private
-    function GetqBillContent: TQryBillContent;
-    procedure SetqBillContent(const Value: TQryBillContent);
+    function GetQueryBillContentExport: TQueryBillContentExport;
+    procedure SetQueryBillContentExport(const Value: TQueryBillContentExport);
     { Private declarations }
   protected
     function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
-    procedure InitializeColumns; override;
   public
-    property qBillContent: TQryBillContent read GetqBillContent
-      write SetqBillContent;
+    property QueryBillContentExport: TQueryBillContentExport read
+        GetQueryBillContentExport write SetQueryBillContentExport;
     { Public declarations }
   end;
 
@@ -51,41 +49,24 @@ implementation
 
 {$R *.dfm}
 
-function TViewBillContent.CreateProductView: TViewProductsBase2;
+function TViewBillContentExport.CreateProductView: TViewProductsBase2;
 begin
-  Result := TViewBillContent.Create(nil);
+  Result := TViewBillContentExport.Create(nil);
 end;
 
-procedure TViewBillContent.cxDBTreeListEditing(Sender: TcxCustomTreeList;
-  AColumn: TcxTreeListColumn; var Allow: Boolean);
+function TViewBillContentExport.GetQueryBillContentExport:
+    TQueryBillContentExport;
 begin
-  inherited;
-
-  Allow := (qBillContent <> nil) and (qBillContent.AllowEdit) and
-    (AColumn = clSaleCount);
+  Result := qProductsBase as TQueryBillContentExport;
 end;
 
-function TViewBillContent.GetqBillContent: TQryBillContent;
+function TViewBillContentExport.GetW: TProductW;
 begin
-  Result := qProductsBase as TQryBillContent;
+  Result := QueryBillContentExport.W;
 end;
 
-function TViewBillContent.GetW: TProductW;
-begin
-  Result := qBillContent.W;
-end;
-
-procedure TViewBillContent.InitializeColumns;
-begin
-  inherited;
-
-  Assert(qBillContent <> nil);
-
-  InitializeLookupColumn(clStorehouseId, qBillContent.qStoreHouseList.W.DataSource,
-    lsEditFixedList, qBillContent.qStoreHouseList.W.Abbreviation.FieldName);
-end;
-
-procedure TViewBillContent.SetqBillContent(const Value: TQryBillContent);
+procedure TViewBillContentExport.SetQueryBillContentExport(const Value:
+    TQueryBillContentExport);
 begin
   if qProductsBase = Value then
     Exit;
@@ -94,7 +75,6 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
-
 end;
 
 end.

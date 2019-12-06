@@ -49,6 +49,7 @@ type
     procedure SetqProducts(const Value: TQueryProducts);
     { Private declarations }
   protected
+    function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
     procedure InitializeColumns; override;
   public
@@ -105,6 +106,11 @@ procedure TViewProductsBasket.actCalcExecCountExecute(Sender: TObject);
 begin
   inherited;
   ShowMessage(Format('Calc exec count = %d', [qProducts.CalcExecCount]));
+end;
+
+function TViewProductsBasket.CreateProductView: TViewProductsBase2;
+begin
+  Result := TViewProductsBasket.Create(nil);
 end;
 
 procedure TViewProductsBasket.cxDBTreeListEditing(Sender: TcxCustomTreeList;

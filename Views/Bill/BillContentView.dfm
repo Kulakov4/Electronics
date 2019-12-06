@@ -87,10 +87,6 @@ inherited ViewBillContent: TViewBillContent
         end
         item
           Visible = True
-          ItemName = 'dxBarButton12'
-        end
-        item
-          Visible = True
           ItemName = 'cxbeiTotalR'
         end>
     end

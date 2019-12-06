@@ -251,7 +251,6 @@ type
     procedure DoOnEuroCourceChange(Sender: TObject);
     procedure ClearSelectionAfterOpenOrRefresh(var Message: TMessage);
       message WM_AFTER_OPEN_OR_REFRESH;
-    procedure ExportToExcelDocument(const AFileName: String);
     function GetNodeID(ANode: TcxDBTreeListNode): TArray<Integer>;
     function GetW: TProductW; virtual; abstract;
     procedure InitializeColumns; override;
@@ -284,6 +283,7 @@ type
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
+    procedure ExportToExcelDocument(const AFileName: String);
     function GetSelectedID: TArray<Integer>;
     function IsFocusedNodeEquals(AColumn: TcxDBTreeListColumn;
       AValue: Variant): Boolean;
@@ -1833,7 +1833,8 @@ end;
 
 procedure TViewProductsBase2.UpdateProductCount;
 begin
-  Assert(StatusBar.Panels.Count > 0);
+  if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then Exit;
+
   // На выбранном складе или в результате поиска без учёта групп
   StatusBar.Panels[0].Text :=
     Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
@@ -1865,6 +1866,8 @@ end;
 
 procedure TViewProductsBase2.UpdateSelectedCount;
 begin
+  if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then Exit;
+
   StatusBar.Panels[FSelectedCountPanelIndex].Text :=
     Format('%d', [cxDBTreeList.SelectionCount]);
 end;

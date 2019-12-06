@@ -1,10 +1,18 @@
-inherited ViewProductsBasket: TViewProductsBasket
+inherited ViewBillContentExport: TViewBillContentExport
   inherited cxDBTreeList: TcxDBTreeList
     Bands = <
       item
+        Caption.Text = #1053#1086#1084#1077#1088' '#1089#1095#1105#1090#1072
+      end
+      item
+        Caption.Text = #1044#1072#1090#1072' '#1089#1095#1105#1090#1072
+      end
+      item
+        Caption.Text = #1044#1072#1090#1072' '#1086#1090#1075#1088#1091#1079#1082#1080
+      end
+      item
         Caption.AlignHorz = taCenter
         Caption.Text = #1053#1072#1080#1084#1077#1085#1086#1074#1072#1085#1080#1077
-        FixedKind = tlbfLeft
       end
       item
         Caption.Text = #1057#1082#1083#1072#1076
@@ -102,14 +110,129 @@ inherited ViewProductsBasket: TViewProductsBasket
       item
         Caption.AlignHorz = taCenter
         Caption.Text = #1050#1086#1083'-'#1074#1086' '#1087#1088#1086#1076#1072#1078#1080
-        FixedKind = tlbfRight
       end
       item
         Caption.AlignHorz = taCenter
         Caption.Text = #1057#1090#1086#1080#1084#1086#1089#1090#1100
-        FixedKind = tlbfRight
       end>
+    inherited clID: TcxDBTreeListColumn
+      Position.BandIndex = 3
+    end
+    inherited clIsGroup: TcxDBTreeListColumn
+      Position.BandIndex = 3
+    end
+    inherited clIDComponentGroup: TcxDBTreeListColumn
+      Position.BandIndex = 3
+    end
+    inherited clValue: TcxDBTreeListColumn
+      Position.BandIndex = 3
+      SortOrder = soNone
+      SortIndex = -1
+    end
+    inherited clStoreHouseID: TcxDBTreeListColumn
+      Position.BandIndex = 4
+    end
+    inherited clIDProducer: TcxDBTreeListColumn
+      Position.BandIndex = 5
+    end
+    inherited clDescription: TcxDBTreeListColumn
+      Position.BandIndex = 6
+    end
+    inherited clDatasheet: TcxDBTreeListColumn
+      Position.BandIndex = 7
+    end
+    inherited clDiagram: TcxDBTreeListColumn
+      Position.BandIndex = 8
+    end
+    inherited clDrawing: TcxDBTreeListColumn
+      Position.BandIndex = 9
+    end
+    inherited clImage: TcxDBTreeListColumn
+      Position.BandIndex = 10
+    end
+    inherited clPackagePins: TcxDBTreeListColumn
+      Position.BandIndex = 11
+    end
+    inherited clReleaseDate: TcxDBTreeListColumn
+      Position.BandIndex = 12
+    end
+    inherited clAmount: TcxDBTreeListColumn
+      Position.BandIndex = 13
+    end
+    inherited clPackaging: TcxDBTreeListColumn
+      Position.BandIndex = 14
+    end
+    inherited clPriceR2: TcxDBTreeListColumn
+      Position.BandIndex = 15
+    end
+    inherited clPriceD2: TcxDBTreeListColumn
+      Position.BandIndex = 15
+    end
+    inherited clPriceR1: TcxDBTreeListColumn
+      Position.BandIndex = 16
+    end
+    inherited clPriceD1: TcxDBTreeListColumn
+      Position.BandIndex = 16
+    end
+    inherited clPriceR: TcxDBTreeListColumn
+      Position.BandIndex = 17
+    end
+    inherited clPriceD: TcxDBTreeListColumn
+      Position.BandIndex = 17
+    end
+    inherited clOriginCountryCode: TcxDBTreeListColumn
+      Position.BandIndex = 18
+    end
+    inherited clOriginCountry: TcxDBTreeListColumn
+      Position.BandIndex = 18
+    end
+    inherited clBatchNumber: TcxDBTreeListColumn
+      Position.BandIndex = 19
+    end
+    inherited clCustomsDeclarationNumber: TcxDBTreeListColumn
+      Position.BandIndex = 20
+    end
+    inherited clStorage: TcxDBTreeListColumn
+      Position.BandIndex = 21
+    end
+    inherited clStoragePlace: TcxDBTreeListColumn
+      Position.BandIndex = 21
+    end
+    inherited clSeller: TcxDBTreeListColumn
+      Position.BandIndex = 22
+    end
+    inherited clDocumentNumber: TcxDBTreeListColumn
+      Position.BandIndex = 23
+    end
+    inherited clBarcode: TcxDBTreeListColumn
+      Position.BandIndex = 24
+    end
+    inherited clIDCurrency: TcxDBTreeListColumn
+      Position.BandIndex = 5
+    end
+    inherited clChecked: TcxDBTreeListColumn
+      Position.BandIndex = 3
+    end
+    inherited clPriceE: TcxDBTreeListColumn
+      Position.BandIndex = 17
+    end
+    inherited clPriceE1: TcxDBTreeListColumn
+      Position.BandIndex = 16
+    end
+    inherited clPriceE2: TcxDBTreeListColumn
+      Position.BandIndex = 15
+    end
+    inherited clLoadDate: TcxDBTreeListColumn
+      Position.BandIndex = 25
+    end
+    inherited clDollar: TcxDBTreeListColumn
+      Position.BandIndex = 26
+    end
+    inherited clEuro: TcxDBTreeListColumn
+      Position.BandIndex = 26
+    end
     inherited clSaleCount: TcxDBTreeListColumn
+      Position.BandIndex = 27
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -118,6 +241,7 @@ inherited ViewProductsBasket: TViewProductsBasket
         end>
     end
     inherited clSaleR: TcxDBTreeListColumn
+      Position.BandIndex = 28
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -126,6 +250,7 @@ inherited ViewProductsBasket: TViewProductsBasket
         end>
     end
     inherited clSaleD: TcxDBTreeListColumn
+      Position.BandIndex = 28
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -134,6 +259,7 @@ inherited ViewProductsBasket: TViewProductsBasket
         end>
     end
     inherited clSaleE: TcxDBTreeListColumn
+      Position.BandIndex = 28
       Summary.FooterSummaryItems = <
         item
           AlignHorz = taLeftJustify
@@ -141,124 +267,39 @@ inherited ViewProductsBasket: TViewProductsBasket
           Kind = skSum
         end>
     end
+    object clBillNumber: TcxDBTreeListColumn
+      Caption.Text = ' '
+      DataBinding.FieldName = 'ShipmentDate'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 2
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clBillDate: TcxDBTreeListColumn
+      Caption.Text = ' '
+      DataBinding.FieldName = 'BillDate'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clShipmentDate: TcxDBTreeListColumn
+      Caption.Text = ' '
+      DataBinding.FieldName = 'Number'
+      Position.ColIndex = 0
+      Position.RowIndex = 0
+      Position.BandIndex = 0
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
   end
   inherited StatusBar: TStatusBar
-    Panels = <
-      item
-        Width = 100
-      end
-      item
-        Width = 100
-      end
-      item
-        Width = 100
-      end
-      item
-        Width = 100
-      end>
+    Visible = False
   end
   inherited dxBarManager: TdxBarManager
-    Top = 285
     PixelsPerInch = 96
-    inherited dxBarManagerBar1: TdxBar
-      ItemLinks = <
-        item
-          Visible = True
-          ItemName = 'dxbsColumns'
-        end
-        item
-          Visible = True
-          ItemName = 'cxbeiDate'
-        end
-        item
-          Visible = True
-          ItemName = 'cxbeiDollar'
-        end
-        item
-          Visible = True
-          ItemName = 'cxbeiEuro'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbRefreshCources'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton4'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton1'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton2'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton3'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton5'
-        end
-        item
-          Visible = True
-          ItemName = 'cxbeiTotalR'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbCreateBill'
-        end
-        item
-          Visible = True
-          ItemName = 'dxbbRubToDollar'
-        end>
-    end
-    inherited dxbsColumns: TdxBarSubItem
-      ShowCaption = False
-    end
-    inherited dxbbCreateBill: TdxBarButton
-      PaintStyle = psCaptionInMenu
-    end
-    object dxBarButton1: TdxBarButton [13]
-      Action = actBasketDelete
-      Category = 0
-    end
-    object dxBarButton2: TdxBarButton [14]
-      Action = actBasketClear
-      Category = 0
-    end
-    object dxBarButton4: TdxBarButton [15]
-      Action = actApplyBestFit
-      Category = 0
-    end
-    object dxBarButton3: TdxBarButton [18]
-      Action = actCommit
-      Category = 0
-    end
-    object dxBarButton5: TdxBarButton [19]
-      Action = actRollback
-      Category = 0
-    end
-  end
-  inherited ActionList: TActionList
-    object actBasketDelete: TAction [25]
-      Caption = #1059#1076#1072#1083#1080#1090#1100
-      Hint = #1059#1073#1088#1072#1090#1100' '#1090#1086#1074#1072#1088' '#1080#1079' '#1082#1086#1088#1079#1080#1085#1099
-      ImageIndex = 2
-      OnExecute = actBasketDeleteExecute
-    end
-    object actBasketClear: TAction [26]
-      Caption = #1054#1095#1080#1089#1090#1080#1090#1100
-      Hint = #1054#1095#1080#1089#1090#1080#1090#1100' '#1082#1086#1088#1079#1080#1085#1091
-      ImageIndex = 10
-      OnExecute = actBasketClearExecute
-    end
-    object actCalcExecCount: TAction [27]
-      Caption = 'actCalcExecCount'
-      OnExecute = actCalcExecCountExecute
-    end
   end
   inherited cxStyleRepository1: TcxStyleRepository
     PixelsPerInch = 96

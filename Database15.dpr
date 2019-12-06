@@ -259,7 +259,9 @@ uses
   CreateBillForm in 'Views\Bill\CreateBillForm.pas' {FrmCreateBill},
   BillInterface in 'Interfaces\BillInterface.pas',
   InsertEditMode in 'Helpers\InsertEditMode.pas',
-  BillContentInterface in 'Interfaces\BillContentInterface.pas';
+  BillContentInterface in 'Interfaces\BillContentInterface.pas',
+  BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
+  BillContentExportQuery in 'Queryes\Bill\BillContentExportQuery.pas' {QueryBillContentExport: TFrame};
 
 {$R *.res}
 

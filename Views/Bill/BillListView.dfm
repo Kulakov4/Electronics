@@ -72,6 +72,10 @@ inherited ViewBill: TViewBill
         item
           Visible = True
           ItemName = 'dxBarButton4'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton2'
         end>
     end
     object dxBarManagerBar1: TdxBar [1]
@@ -200,6 +204,10 @@ inherited ViewBill: TViewBill
       Action = actEdit
       Category = 0
     end
+    object dxBarButton2: TdxBarButton
+      Action = actExportToExcelDocument
+      Category = 0
+    end
   end
   inherited ActionList: TActionList
     inherited actDeleteEx: TAction
@@ -223,6 +231,12 @@ inherited ViewBill: TViewBill
       Hint = #1048#1079#1084#1077#1085#1080#1090#1100' '#1089#1095#1105#1090
       ImageIndex = 18
       OnExecute = actEditExecute
+    end
+    object actExportToExcelDocument: TAction
+      Caption = #1069#1082#1089#1087#1086#1088#1090
+      Hint = #1069#1082#1089#1087#1086#1088#1090#1080#1088#1086#1074#1072#1090#1100' '#1074' '#1076#1086#1082#1091#1084#1077#1085#1090' Excel'
+      ImageIndex = 6
+      OnExecute = actExportToExcelDocumentExecute
     end
   end
   object dxCalloutPopup: TdxCalloutPopup

@@ -52,8 +52,11 @@ type
     DateTimePicker: TDateTimePicker;
     cxPopupBtnOK: TcxButton;
     Label1: TLabel;
+    actExportToExcelDocument: TAction;
+    dxBarButton2: TdxBarButton;
     procedure actApplyCustomFilterExecute(Sender: TObject);
     procedure actEditExecute(Sender: TObject);
+    procedure actExportToExcelDocumentExecute(Sender: TObject);
     procedure actShipExecute(Sender: TObject);
     procedure cxbeiBeginDateChange(Sender: TObject);
     procedure cxbeiPeriodComboBoxPropertiesEditValueChanged(Sender: TObject);
@@ -79,6 +82,9 @@ type
     function GetShipmentDate: TDate;
   private
     FqBill: TQryBill;
+
+  const
+    KeyFolder: String = 'Bill';
     // FReadOnlyFieldList: TList<String>;
     function GetclBillDate: TcxGridDBBandedColumn;
     // FReadOnlyFieldList: TList<String>;
@@ -113,7 +119,8 @@ type
 implementation
 
 uses
-  GridSort, CreateBillForm, InsertEditMode;
+  GridSort, CreateBillForm, InsertEditMode, BillContentExportView,
+  BillContentExportQuery, DialogUnit, SettingsController, System.IOUtils;
 
 {$R *.dfm}
 
@@ -167,6 +174,43 @@ begin
       qBill.W.Save(EditMode, AfrmCreateBill);
   finally
     FreeAndNil(AfrmCreateBill);
+  end;
+end;
+
+procedure TViewBill.actExportToExcelDocumentExecute(Sender: TObject);
+var
+  AFileName: String;
+  AInitialFileName: string;
+  AQueryBillContentExport: TQueryBillContentExport;
+  AViewBillContentExport: TViewBillContentExport;
+begin
+  inherited;
+
+  Application.Hint := '';
+
+  AInitialFileName := Format('Счета %s.xlsx',
+    [FormatDateTime('dd.mm.yyyy', Date)]);
+
+  if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
+    TSettings.Create.GetFolderFoExcelFile(KeyFolder), AInitialFileName,
+    AFileName) then
+    Exit;
+
+  // Сохраняем этот путь в настройках
+  TSettings.Create.SetFolderForExcelFile(KeyFolder,
+    TPath.GetDirectoryName(AFileName));
+
+  AQueryBillContentExport := TQueryBillContentExport.Create(Self);
+  AViewBillContentExport := TViewBillContentExport.Create(Self);
+  try
+    AViewBillContentExport.Font.Assign(Font);
+    AQueryBillContentExport.W.TryOpen;
+
+    AViewBillContentExport.QueryBillContentExport := AQueryBillContentExport;
+    AViewBillContentExport.ExportToExcelDocument(AFileName);
+  finally
+    FreeAndNil(AViewBillContentExport);
+    FreeAndNil(AQueryBillContentExport);
   end;
 end;
 
@@ -550,6 +594,9 @@ begin
 
   actApplyCustomFilter.Enabled := not VarIsNull(cxbeiBeginDate.EditValue) and
     not VarIsNull(cxbeiEndDate.EditValue);
+
+  actExportToExcelDocument.Enabled := OK and (AView <> nil) and
+    (AView.ViewData.RowCount > 0);
 end;
 
 end.
