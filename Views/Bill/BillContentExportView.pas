@@ -29,8 +29,6 @@ uses
 
 type
   TViewBillContentExport = class(TViewProductsBase2)
-    clShipmentDate: TcxDBTreeListColumn;
-    clBillDate: TcxDBTreeListColumn;
     clBillNumber: TcxDBTreeListColumn;
   private
     function GetQueryBillContentExport: TQueryBillContentExport;
@@ -56,8 +54,10 @@ uses
 constructor TViewBillContentExport.Create(AOwner: TComponent);
 begin
   inherited;
+
   GridSort.Add(TSortVariant.Create(clBillNumber, [clBillNumber, clValue]));
   ApplySort(clBillNumber, soDescending);
+
 end;
 
 function TViewBillContentExport.CreateProductView: TViewProductsBase2;
