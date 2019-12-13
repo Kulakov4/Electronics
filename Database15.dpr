@@ -261,7 +261,8 @@ uses
   InsertEditMode in 'Helpers\InsertEditMode.pas',
   BillContentInterface in 'Interfaces\BillContentInterface.pas',
   BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
-  BillContentExportQuery in 'Queryes\Bill\BillContentExportQuery.pas' {QueryBillContentExport: TFrame};
+  BillContentExportQuery in 'Queryes\Bill\BillContentExportQuery.pas' {QueryBillContentExport: TFrame},
+  BillContentExportForm in 'Views\Bill\BillContentExportForm.pas' {FrmBillContentExport};
 
 {$R *.res}
 

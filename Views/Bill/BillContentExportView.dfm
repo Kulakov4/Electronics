@@ -115,6 +115,7 @@ inherited ViewBillContentExport: TViewBillContentExport
         Caption.AlignHorz = taCenter
         Caption.Text = #1057#1090#1086#1080#1084#1086#1089#1090#1100
       end>
+    OptionsView.ShowRoot = False
     inherited clID: TcxDBTreeListColumn
       Position.BandIndex = 3
     end
@@ -267,7 +268,7 @@ inherited ViewBillContentExport: TViewBillContentExport
           Kind = skSum
         end>
     end
-    object clBillNumber: TcxDBTreeListColumn
+    object clShipmentDate: TcxDBTreeListColumn
       Caption.Text = ' '
       DataBinding.FieldName = 'ShipmentDate'
       Position.ColIndex = 0
@@ -285,7 +286,7 @@ inherited ViewBillContentExport: TViewBillContentExport
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end
-    object clShipmentDate: TcxDBTreeListColumn
+    object clBillNumber: TcxDBTreeListColumn
       Caption.Text = ' '
       DataBinding.FieldName = 'Number'
       Position.ColIndex = 0

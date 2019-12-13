@@ -29,9 +29,9 @@ uses
 
 type
   TViewBillContentExport = class(TViewProductsBase2)
-    clBillNumber: TcxDBTreeListColumn;
-    clBillDate: TcxDBTreeListColumn;
     clShipmentDate: TcxDBTreeListColumn;
+    clBillDate: TcxDBTreeListColumn;
+    clBillNumber: TcxDBTreeListColumn;
   private
     function GetQueryBillContentExport: TQueryBillContentExport;
     procedure SetQueryBillContentExport(const Value: TQueryBillContentExport);
@@ -40,6 +40,7 @@ type
     function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
   public
+    constructor Create(AOwner: TComponent); override;
     property QueryBillContentExport: TQueryBillContentExport read
         GetQueryBillContentExport write SetQueryBillContentExport;
     { Public declarations }
@@ -47,7 +48,17 @@ type
 
 implementation
 
+uses
+  GridSort, dxCore;
+
 {$R *.dfm}
+
+constructor TViewBillContentExport.Create(AOwner: TComponent);
+begin
+  inherited;
+  GridSort.Add(TSortVariant.Create(clBillNumber, [clBillNumber, clValue]));
+  ApplySort(clBillNumber, soDescending);
+end;
 
 function TViewBillContentExport.CreateProductView: TViewProductsBase2;
 begin

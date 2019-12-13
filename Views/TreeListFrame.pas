@@ -213,8 +213,12 @@ begin
       end
       else
       begin
-        if Col.SortOrder <> soNone then
-          AColSortOrder := Col.SortOrder
+        // ≈сли применили другой вариант сортировки
+        if AdxSortOrder <> soNone then
+        begin
+          AColSortOrder := AdxSortOrder;
+          AdxSortOrder := soNone;
+        end
         else
           AColSortOrder := soAscending;
       end;

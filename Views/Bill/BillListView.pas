@@ -120,7 +120,8 @@ implementation
 
 uses
   GridSort, CreateBillForm, InsertEditMode, BillContentExportView,
-  BillContentExportQuery, DialogUnit, SettingsController, System.IOUtils;
+  BillContentExportQuery, DialogUnit, SettingsController, System.IOUtils,
+  BillContentExportForm;
 
 {$R *.dfm}
 
@@ -180,6 +181,7 @@ end;
 procedure TViewBill.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
+  AFrmBillContentExport: TFrmBillContentExport;
   AInitialFileName: string;
   AQueryBillContentExport: TQueryBillContentExport;
   AViewBillContentExport: TViewBillContentExport;
@@ -187,7 +189,22 @@ begin
   inherited;
 
   Application.Hint := '';
+{
+  AQueryBillContentExport := TQueryBillContentExport.Create(Self);
+  AFrmBillContentExport := TFrmBillContentExport.Create(Self);
+  try
+    AQueryBillContentExport.W.TryOpen;
 
+//    AFrmBillContentExport.ViewBillContentExport.Font.Assign(Fonf);
+    AFrmBillContentExport.ViewBillContentExport.QueryBillContentExport := AQueryBillContentExport;
+    AFrmBillContentExport.ShowModal;
+  finally
+    AFrmBillContentExport.Free;
+    AQueryBillContentExport.Free;
+  end;
+
+  Exit;
+}
   AInitialFileName := Format('—чета %s.xlsx',
     [FormatDateTime('dd.mm.yyyy', Date)]);
 
