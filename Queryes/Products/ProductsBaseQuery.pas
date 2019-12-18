@@ -87,7 +87,7 @@ type
       const AEuroCource: Double): String;
     function CheckEditingRecord: String; virtual;
     function GetStorehouseProductVirtualID(AID: Integer): Integer;
-    procedure InitFields;
+    procedure InitFields; virtual;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
   public const
@@ -217,6 +217,7 @@ type
     function CreateDSWrap: TDSWrap; override;
     procedure DisableCalc;
     procedure DoBeforePost(Sender: TObject); virtual;
+    procedure DoOnCalcFields; virtual;
     procedure DoOnCommitUpdates(var Message: TMessage);
       message WM_OnCommitUpdates;
     procedure EnableCalc;
@@ -224,6 +225,8 @@ type
     function GetEuroCource: Double; virtual;
     function GetExportFileName: string; virtual;
     function GetHaveAnyChanges: Boolean; override;
+    procedure InitFieldDefs; virtual;
+    property CalcStatus: Integer read FCalcStatus;
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
@@ -857,45 +860,7 @@ end;
 
 procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
 begin;
-  if FDQuery.FieldDefs.Count > 0 then
-  begin
-    FDQuery.FieldDefs.Clear;
-    FDQuery.Fields.Clear;
-  end;
-  FDQuery.FieldDefs.Update;
-
-  // Ссылка на выбранный диапазон оптовой наценки
-  // FDQuery.FieldDefs.Add(W.IDExtraCharge.FieldName, ftInteger);
-  // FDQuery.FieldDefs.Add(W.IDExtraChargeType.FieldName, ftInteger);
-
-  // Процент оптовой наценки - теперь постоянное поле
-  // FDQuery.FieldDefs.Add(W.Wholesale.FieldName, ftFloat);
-
-  // Процент РОЗНИЧНОЙ наценки
-  // FDQuery.FieldDefs.Add('Retail', ftInteger);
-
-  // Закупочная цена
-  FDQuery.FieldDefs.Add(W.PriceR.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.PriceD.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.PriceE.FieldName, ftFloat);
-
-  // Розничная цена
-  FDQuery.FieldDefs.Add(W.PriceR1.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.PriceD1.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.PriceE1.FieldName, ftFloat);
-
-  // Оптовая цена
-  FDQuery.FieldDefs.Add(W.PriceR2.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.PriceD2.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.PriceE2.FieldName, ftFloat);
-
-  // Количество продажи
-  // FDQuery.FieldDefs.Add(W.SaleCount.FieldName, ftFloat);
-  // Продажная цена
-  FDQuery.FieldDefs.Add(W.SaleR.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.SaleD.FieldName, ftFloat);
-  FDQuery.FieldDefs.Add(W.SaleE.FieldName, ftFloat);
-
+  InitFieldDefs;
   W.CreateDefaultFields(False);
 
   // Внутренние вычисляемые поля
@@ -1028,23 +993,7 @@ begin
   end;
 end;
 
-procedure TQueryProductsBase.DoOnCommitUpdates(var Message: TMessage);
-begin
-  inherited;
-  // Если изменились только вычисляемые поля или количество продаж, то сохраняем сделанные изменения сразу!
-  FOnCommitUpdatePosted := False;
-  ApplyUpdates;
-end;
-
-procedure TQueryProductsBase.EnableCalc;
-begin
-  Assert(FCalcStatus > 0);
-  Dec(FCalcStatus);
-  if FCalcStatus = 0 then
-    FDQueryCalcFields(FDQuery);
-end;
-
-procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
+procedure TQueryProductsBase.DoOnCalcFields;
 var
   // AContains: Boolean;
   ADCource: Double;
@@ -1056,6 +1005,7 @@ var
   // tt: Double;
 begin
   inherited;
+
   if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull)
   then
     Exit;
@@ -1214,6 +1164,28 @@ begin
   end;
 end;
 
+procedure TQueryProductsBase.DoOnCommitUpdates(var Message: TMessage);
+begin
+  inherited;
+  // Если изменились только вычисляемые поля или количество продаж, то сохраняем сделанные изменения сразу!
+  FOnCommitUpdatePosted := False;
+  ApplyUpdates;
+end;
+
+procedure TQueryProductsBase.EnableCalc;
+begin
+  Assert(FCalcStatus > 0);
+  Dec(FCalcStatus);
+  if FCalcStatus = 0 then
+    FDQueryCalcFields(FDQuery);
+end;
+
+procedure TQueryProductsBase.FDQueryCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  DoOnCalcFields;
+end;
+
 function TQueryProductsBase.GetDollarCource: Double;
 begin
   Result := 1;
@@ -1338,6 +1310,49 @@ begin
   finally
     W.DropClone(AClone);
   end;
+end;
+
+procedure TQueryProductsBase.InitFieldDefs;
+begin
+  if FDQuery.FieldDefs.Count > 0 then
+  begin
+    FDQuery.FieldDefs.Clear;
+    FDQuery.Fields.Clear;
+  end;
+  FDQuery.FieldDefs.Update;
+
+  // Ссылка на выбранный диапазон оптовой наценки
+  // FDQuery.FieldDefs.Add(W.IDExtraCharge.FieldName, ftInteger);
+  // FDQuery.FieldDefs.Add(W.IDExtraChargeType.FieldName, ftInteger);
+
+  // Процент оптовой наценки - теперь постоянное поле
+  // FDQuery.FieldDefs.Add(W.Wholesale.FieldName, ftFloat);
+
+  // Процент РОЗНИЧНОЙ наценки
+  // FDQuery.FieldDefs.Add('Retail', ftInteger);
+
+  // Закупочная цена
+  FDQuery.FieldDefs.Add(W.PriceR.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.PriceD.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.PriceE.FieldName, ftFloat);
+
+  // Розничная цена
+  FDQuery.FieldDefs.Add(W.PriceR1.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.PriceD1.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.PriceE1.FieldName, ftFloat);
+
+  // Оптовая цена
+  FDQuery.FieldDefs.Add(W.PriceR2.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.PriceD2.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.PriceE2.FieldName, ftFloat);
+
+  // Количество продажи
+  // FDQuery.FieldDefs.Add(W.SaleCount.FieldName, ftFloat);
+  // Продажная цена
+  FDQuery.FieldDefs.Add(W.SaleR.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.SaleD.FieldName, ftFloat);
+  FDQuery.FieldDefs.Add(W.SaleE.FieldName, ftFloat);
+
 end;
 
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;

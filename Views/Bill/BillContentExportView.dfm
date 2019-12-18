@@ -111,6 +111,7 @@ inherited ViewBillContentExport: TViewBillContentExport
         Visible = False
       end>
     DataController.ParentField = 'BillID'
+    OptionsView.CategorizedColumn = clValue2
     OptionsView.Footer = False
     inherited clValue: TcxDBTreeListColumn
       SortOrder = soNone
@@ -153,6 +154,15 @@ inherited ViewBillContentExport: TViewBillContentExport
       Position.ColIndex = 0
       Position.RowIndex = 0
       Position.BandIndex = 26
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
+    object clValue2: TcxDBTreeListColumn
+      Visible = False
+      DataBinding.FieldName = 'Value2'
+      Position.ColIndex = 5
+      Position.RowIndex = 0
+      Position.BandIndex = 0
       Summary.FooterSummaryItems = <>
       Summary.GroupFooterSummaryItems = <>
     end

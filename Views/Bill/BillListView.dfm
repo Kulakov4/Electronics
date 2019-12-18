@@ -7,11 +7,6 @@ inherited ViewBill: TViewBill
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnEditing = cxGridDBBandedTableViewEditing
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
-      object cxGridDBBandedTableViewColumn1: TcxGridDBBandedColumn
-        Position.BandIndex = 0
-        Position.ColIndex = 0
-        Position.RowIndex = 0
-      end
     end
   end
   object PopupPanel: TPanel [2]

@@ -30,6 +30,7 @@ uses
 type
   TViewBillContentExport = class(TViewProductsBase2)
     clBillNumber: TcxDBTreeListColumn;
+    clValue2: TcxDBTreeListColumn;
   private
     function GetQueryBillContentExport: TQueryBillContentExport;
     procedure SetQueryBillContentExport(const Value: TQueryBillContentExport);
@@ -37,6 +38,7 @@ type
   protected
     function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
+    procedure InitializeColumns; override;
   public
     constructor Create(AOwner: TComponent); override;
     property QueryBillContentExport: TQueryBillContentExport read
@@ -74,6 +76,17 @@ end;
 function TViewBillContentExport.GetW: TProductW;
 begin
   Result := QueryBillContentExport.W;
+end;
+
+procedure TViewBillContentExport.InitializeColumns;
+begin
+  inherited;
+
+  Assert(QueryBillContentExport <> nil);
+
+  InitializeLookupColumn(clStorehouseId,
+    QueryBillContentExport.qStoreHouseList.W.DataSource, lsEditFixedList,
+    QueryBillContentExport.qStoreHouseList.W.Abbreviation.FieldName);
 end;
 
 procedure TViewBillContentExport.SetQueryBillContentExport(const Value:

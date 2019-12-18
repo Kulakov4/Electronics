@@ -44,7 +44,6 @@ type
     dxBarButton3: TdxBarButton;
     actApplyCustomFilter: TAction;
     cxbeiShippedComboBox: TcxBarEditItem;
-    cxGridDBBandedTableViewColumn1: TcxGridDBBandedColumn;
     actEdit: TAction;
     dxBarButton4: TdxBarButton;
     dxCalloutPopup: TdxCalloutPopup;
@@ -181,32 +180,79 @@ end;
 procedure TViewBill.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
-  AFrmBillContentExport: TFrmBillContentExport;
+//  AFrmBillContentExport: TFrmBillContentExport;
   AInitialFileName: string;
-  AQueryBillContentExport: TQueryBillContentExport;
+  AItemIndex: Integer;
+  AProperties: TcxComboBoxProperties;
+  AValue: string;
+  qBillContentExport: TQueryBillContentExport;
   AViewBillContentExport: TViewBillContentExport;
+  D1: TDate;
+  D2: TDate;
+  S1: string;
+  S2: string;
+  // x: Integer;
 begin
   inherited;
 
   Application.Hint := '';
 {
-  AQueryBillContentExport := TQueryBillContentExport.Create(Self);
+  qBillContentExport := TQueryBillContentExport.Create(Self);
   AFrmBillContentExport := TFrmBillContentExport.Create(Self);
   try
-    AQueryBillContentExport.W.TryOpen;
+    qBillContentExport.W.TryOpen;
 
-//    AFrmBillContentExport.ViewBillContentExport.Font.Assign(Fonf);
-    AFrmBillContentExport.ViewBillContentExport.QueryBillContentExport := AQueryBillContentExport;
+    // AFrmBillContentExport.ViewBillContentExport.Font.Assign(Fonf);
+    AFrmBillContentExport.ViewBillContentExport.QueryBillContentExport :=
+      qBillContentExport;
     AFrmBillContentExport.ShowModal;
   finally
     AFrmBillContentExport.Free;
-    AQueryBillContentExport.Free;
+    qBillContentExport.Free;
   end;
 
   Exit;
 }
-  AInitialFileName := Format('Счета %s.xlsx',
-    [FormatDateTime('dd.mm.yyyy', Date)]);
+  D2 := Date;
+  D1 := Date;
+
+  AProperties := TcxComboBoxProperties(cxbeiPeriodComboBox.Properties);
+  AValue := VarToStr(cxbeiPeriodComboBox.EditValue);
+  AItemIndex := AProperties.Items.IndexOf(AValue);
+  case AItemIndex of
+    0:
+      begin
+        // Произвольный период
+        S1 := VarToStrDef(cxbeiBeginDate.EditValue, '');
+        S2 := VarToStrDef(cxbeiEndDate.EditValue, '');
+
+        if (S1 = '') or (S2 = '') then
+          raise Exception.Create('Не задан диапазон дат');
+
+        D1 := StrToDate(S1);
+        D2 := StrToDate(S2);
+        if D1 > D2 then
+        begin
+          D2 := StrToDate(S1);
+          D1 := StrToDate(S2);
+        end;
+      end;
+    1:
+      D1 := Date; // За сегодня
+    2:
+      D1 := Date - 7; // За 7 дней
+    3:
+      D1 := Date - 30; // За 30 дней
+    4:
+      D1 := Date - 365; // За 365 дней
+  end;
+
+  if D1 = D2 then
+    AInitialFileName := Format('Счета %s.xlsx',
+      [FormatDateTime('dd.mm.yyyy', D1)])
+  else
+    AInitialFileName := Format('Счета %s-%s.xlsx',
+      [FormatDateTime('dd.mm.yyyy', D1), FormatDateTime('dd.mm.yyyy', D2)]);
 
   if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
     TSettings.Create.GetFolderFoExcelFile(KeyFolder), AInitialFileName,
@@ -217,17 +263,32 @@ begin
   TSettings.Create.SetFolderForExcelFile(KeyFolder,
     TPath.GetDirectoryName(AFileName));
 
-  AQueryBillContentExport := TQueryBillContentExport.Create(Self);
+  qBillContentExport := TQueryBillContentExport.Create(Self);
   AViewBillContentExport := TViewBillContentExport.Create(Self);
   try
-    AViewBillContentExport.Font.Assign(Font);
-    AQueryBillContentExport.W.TryOpen;
+    // Фильтруем по периоду
+    qBillContentExport.SearchByPeriod(D1, D2);
+    // Фильтруем по виду отгрузки
+    AProperties := TcxComboBoxProperties(cxbeiShippedComboBox.Properties);
+    AValue := VarToStr(cxbeiShippedComboBox.EditValue);
+    AItemIndex := AProperties.Items.IndexOf(AValue);
+    case AItemIndex of
+      0:
+        qBillContentExport.FDQuery.Filtered := False;
+      1:
+        qBillContentExport.ExportW.ApplyShipmentFilter; // Отгруженные
+      2:
+        qBillContentExport.ExportW.ApplyNotShipmentFilter; // Неотгруженные
+    end;
 
-    AViewBillContentExport.QueryBillContentExport := AQueryBillContentExport;
+    AViewBillContentExport.Font.Assign(Font);
+    qBillContentExport.W.TryOpen;
+
+    AViewBillContentExport.QueryBillContentExport := qBillContentExport;
     AViewBillContentExport.ExportToExcelDocument(AFileName);
   finally
     FreeAndNil(AViewBillContentExport);
-    FreeAndNil(AQueryBillContentExport);
+    FreeAndNil(qBillContentExport);
   end;
 end;
 
