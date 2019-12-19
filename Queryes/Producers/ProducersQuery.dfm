@@ -9,6 +9,7 @@ inherited QueryProducers: TQueryProducers
     ExplicitWidth = 66
   end
   inherited FDQuery: TFDQuery
+    OnDeleteError = FDQueryDeleteError
     Indexes = <
       item
         Active = True

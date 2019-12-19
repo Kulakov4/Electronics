@@ -13,8 +13,8 @@ uses
 
 type
   TProducersW = class(TDSWrap)
-    procedure FDQueryCntGetText(Sender: TField; var Text: string; DisplayText:
-        Boolean);
+    procedure FDQueryCntGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
   private
     FCnt: TFieldWrap;
     FID: TFieldWrap;
@@ -34,6 +34,8 @@ type
   end;
 
   TQueryProducers = class(TQueryBaseEvents, IProducer)
+    procedure FDQueryDeleteError(DataSet: TDataSet; E: EDatabaseError;
+      var Action: TDataAction);
   strict private
     function Exist(const AProducerName: String): Boolean; stdcall;
     function GetProducerID(const AProducerName: String): Integer; stdcall;
@@ -55,7 +57,8 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, DefaultParameters, ProducerTypesQuery;
+uses RepositoryDataModule, DefaultParameters, ProducerTypesQuery,
+  FireDAC.Phys.SQLiteWrapper;
 
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
@@ -83,13 +86,29 @@ end;
 procedure TQueryProducers.DoBeforeOpen(Sender: TObject);
 begin
   // Заполняем код параметра "Производитель"
-  FDQuery.ParamByName( W.ProducerParamSubParamID.FieldName ).AsInteger :=
+  FDQuery.ParamByName(W.ProducerParamSubParamID.FieldName).AsInteger :=
     TDefaultParameters.ProducerParamSubParamID;
 end;
 
 function TQueryProducers.Exist(const AProducerName: String): Boolean;
 begin
   Result := GetProducerID(AProducerName) > 0;
+end;
+
+procedure TQueryProducers.FDQueryDeleteError(DataSet: TDataSet;
+  E: EDatabaseError; var Action: TDataAction);
+var
+  AE: ESQLiteNativeException;
+begin
+  inherited;
+  if not(E is ESQLiteNativeException) then
+    Exit;
+
+  AE := E as ESQLiteNativeException;
+  // Foreign Key Constraint Failed
+  if AE.ErrorCode = 787 then
+    E.Message :=
+      'Производитель присутствует на складе или в компонентной базе. Удаление невозможно.';
 end;
 
 function TQueryProducers.GetProducerID(const AProducerName: String): Integer;
@@ -103,10 +122,11 @@ begin
     Result := V;
 end;
 
-function TQueryProducers.Locate(AValue: string; TestResult: Boolean = False):
-    Boolean;
+function TQueryProducers.Locate(AValue: string;
+  TestResult: Boolean = False): Boolean;
 begin
-  Result := FDQuery.LocateEx(W.Name.FieldName, AValue.Trim, [lxoCaseInsensitive]);
+  Result := FDQuery.LocateEx(W.Name.FieldName, AValue.Trim,
+    [lxoCaseInsensitive]);
   if TestResult then
     Assert(Result);
 
@@ -121,13 +141,14 @@ begin
   FProducerTypeID := TFieldWrap.Create(Self, 'ProducerTypeID');
 
   // Параметры SQL запроса
-  FProducerParamSubParamID := TParamWrap.Create(Self, 'ProducerParamSubParamID');
+  FProducerParamSubParamID := TParamWrap.Create(Self,
+    'ProducerParamSubParamID');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
 end;
 
-procedure TProducersW.AddNewValue(const AValue: string; AProducerTypeID:
-    Integer);
+procedure TProducersW.AddNewValue(const AValue: string;
+  AProducerTypeID: Integer);
 begin
   Assert(AProducerTypeID > 0);
 
@@ -142,11 +163,11 @@ begin
   // Кол-во - только для чтения
   Cnt.F.ReadOnly := True;
   Cnt.F.OnGetText := FDQueryCntGetText;
-//  Name.DisplayLabel := 'Производитель';
+  // Name.DisplayLabel := 'Производитель';
 end;
 
 procedure TProducersW.FDQueryCntGetText(Sender: TField; var Text: string;
-    DisplayText: Boolean);
+  DisplayText: Boolean);
 begin
   if (not Sender.IsNull) and (Sender.AsFloat > 0) then
     Text := String.Format('%.0n', [Sender.AsFloat])

@@ -658,6 +658,7 @@ var
   AView: TcxGridDBBandedTableView;
   S: string;
 begin
+  Application.Hint := '';
   Assert(FDeleteMessages <> nil);
 
   AView := FocusedTableView;
