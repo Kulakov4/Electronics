@@ -513,7 +513,8 @@ begin
     (ProducersGroup.qProducers.FDQuery.Active);
 
   actAdd.Enabled := OK and (AView <> nil) and
-    (MainView.DataController.RecordCount > 0);
+    (MainView.Controller.SelectedRowCount = 1);
+
   actAddType.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel);
 
   // Удалять разрешаем только если что-то выделено
@@ -525,7 +526,7 @@ begin
   actRollback.Enabled := actCommit.Enabled;
 
   actExportToExcelDocument.Enabled := OK and
-    (ProducersGroup.qProducers.FDQuery.RecordCount > 0);
+    (AView.ViewData.RowCount > 0);
 
   UpdateTotalCount;
 end;
