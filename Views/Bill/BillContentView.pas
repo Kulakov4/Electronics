@@ -34,6 +34,7 @@ type
     procedure cxDBTreeListEditing(Sender: TcxCustomTreeList;
       AColumn: TcxTreeListColumn; var Allow: Boolean);
   private
+    procedure DoAfterLoad(Sender: TObject);
     function GetqBillContent: TQryBillContent;
     procedure SetqBillContent(const Value: TQryBillContent);
     { Private declarations }
@@ -49,6 +50,9 @@ type
 
 implementation
 
+uses
+  NotifyEvents;
+
 {$R *.dfm}
 
 function TViewBillContent.CreateProductView: TViewProductsBase2;
@@ -63,6 +67,11 @@ begin
 
   Allow := (qBillContent <> nil) and (qBillContent.AllowEdit) and
     (AColumn = clSaleCount);
+end;
+
+procedure TViewBillContent.DoAfterLoad(Sender: TObject);
+begin
+  MyApplyBestFit;
 end;
 
 function TViewBillContent.GetqBillContent: TQryBillContent;
@@ -95,6 +104,10 @@ begin
 
   qProductsBase := Value;
 
+  if qProductsBase = nil then
+    Exit;
+
+  TNotifyEventWrap.Create( Value.AfterLoad, DoAfterLoad, FEventList );
 end;
 
 end.

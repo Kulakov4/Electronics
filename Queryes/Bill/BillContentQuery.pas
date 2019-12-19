@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap,
   ProductsBaseQuery, BillContentQuerySimple, BillContentInterface,
-  BillInterface;
+  BillInterface, NotifyEvents;
 
 type
   TBillContentW = class(TProductW)
@@ -32,6 +32,7 @@ type
   strict private
     procedure CascadeDelete(ABillID: Integer);
   private
+    FAfterLoad: TNotifyEventsEx;
     FBill: IBill;
     FIsShipment: Boolean;
     FqBillContentSimple: TQueryBillContentSimple;
@@ -54,6 +55,7 @@ type
       read GetqBillContentSimple;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AfterConstruction; override;
     function AllowEdit: Boolean;
     procedure CancelShip;
@@ -62,6 +64,7 @@ type
     procedure CalcelAllShip;
     procedure CloseContent;
     procedure LoadContent(ABillID: Integer; ABill: IBill);
+    property AfterLoad: TNotifyEventsEx read FAfterLoad;
     property W: TBillContentW read FW;
     { Public declarations }
   end;
@@ -79,6 +82,14 @@ begin
   FW := FDSWrap as TBillContentW;
 
   DetailParameterName := W.BillID.FieldName;
+
+  FAfterLoad := TNotifyEventsEx.Create(Self);
+end;
+
+destructor TQryBillContent.Destroy;
+begin
+  inherited;
+  FreeAndNil(FAfterLoad);
 end;
 
 procedure TQryBillContent.AfterConstruction;
@@ -348,6 +359,7 @@ begin
   FBill := ABill;
 
   TryLoad2(ABillID);
+  FAfterLoad.CallEventHandlers(Self);
 end;
 
 constructor TBillContentW.Create(AOwner: TComponent);

@@ -765,6 +765,7 @@ begin
       TNotifyEventWrap.Create(TDM.Create.qProducts.OnLocate, DoOnProductLocate,
         FEventList);
     end;
+    ViewProducts.MyApplyBestFit;
   end;
 
   // Если уходим со вкладки Склады
