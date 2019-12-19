@@ -73,7 +73,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure FocusTopLeftEx;
     procedure LoadFromExcelDocument(const AFileName, AProducer: string);
     procedure LoadFromExcelFolder(const AFolderName, AProducer: string);
     procedure UpdateView; override;
@@ -121,12 +120,6 @@ begin
   FOnShowParametricTableEvent.CallEventHandlers(Self);
 
   UpdateView;
-end;
-
-procedure TViewComponents.FocusTopLeftEx;
-begin
-  MainView.ViewData.Collapse(True);
-  FocusTopLeft(clValue.DataBinding.FieldName);
 end;
 
 function TViewComponents.GetComponentsGroup: TComponentsGroup2;

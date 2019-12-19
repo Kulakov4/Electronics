@@ -21,7 +21,6 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsView.BandHeaders = True
       Styles.OnGetContentStyle = cxGridDBBandedTableViewStylesGetContentStyle
       OnColumnPosChanged = cxGridDBBandedTableViewColumnPosChanged
-      Bands = <>
       OnBandPosChanged = cxGridDBBandedTableViewBandPosChanged
     end
     inherited cxGridDBBandedTableView2: TcxGridDBBandedTableView

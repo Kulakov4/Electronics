@@ -159,6 +159,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CheckAndSaveChanges: Integer;
+    procedure FocusTopLeftEx;
     procedure UpdateView; override;
     property CatParamsGroup: TCategoryParametersGroup2 read FCatParamsGroup
       write SetCatParamsGroup;
@@ -584,6 +585,12 @@ begin
   inherited;
   FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
   // CatParamsGroup.qCatParams.ID.AsInteger;
+end;
+
+procedure TViewCategoryParameters.FocusTopLeftEx;
+begin
+  MainView.ViewData.Collapse(True);
+  FocusTopLeft(clValue.DataBinding.FieldName);
 end;
 
 function TViewCategoryParameters.GetQueryParameterPos: TQueryParameterPos;

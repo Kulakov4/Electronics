@@ -147,6 +147,10 @@ inherited ViewComponentsBase: TViewComponentsBase
       ImageIndex = 1
       OnExecute = actAddComponentExecute
     end
+    object actFocusTopLeft: TAction
+      Caption = 'actFocusTopLeft'
+      OnExecute = actFocusTopLeftExecute
+    end
   end
   inherited pmGrid: TPopupMenu
     object N2: TMenuItem

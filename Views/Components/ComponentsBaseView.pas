@@ -37,6 +37,7 @@ uses
 const
   // WM_ON_DETAIL_EXPANDED = WM_USER + 57;
   WM_UPDATE_DETAIL_COLUMNS_WIDTH = WM_USER + 58;
+  WM_FOCUS_TOP_LEFT = WM_USER + 59;
 
 type
   TColBtn = class(TObject)
@@ -97,10 +98,12 @@ type
     cxEditRepository1: TcxEditRepository;
     actAddFamily: TAction;
     actAddComponent: TAction;
+    actFocusTopLeft: TAction;
     procedure actAddComponentExecute(Sender: TObject);
     procedure actAddFamilyExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
     procedure actDeleteFromAllCategoriesExecute(Sender: TObject);
+    procedure actFocusTopLeftExecute(Sender: TObject);
     procedure actLoadDatasheetExecute(Sender: TObject);
     procedure actLoadDiagramExecute(Sender: TObject);
     procedure actLoadDrawingExecute(Sender: TObject);
@@ -209,6 +212,8 @@ type
     procedure DoAfterLoadData; virtual;
     procedure DoAfterOpenOrRefresh(Sender: TObject);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
+    procedure DoOnFocusTopLeft(var Message: TMessage);
+      message WM_FOCUS_TOP_LEFT;
     procedure DoOnHaveAnyChanges(Sender: TObject);
     procedure DoOnMasterDetailChange; virtual;
     procedure DoOnUpdateColumnsWidth(var Message: TMessage);
@@ -236,6 +241,7 @@ type
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
+    procedure FocusTopLeftEx;
     procedure TryApplyBestFit;
     procedure UpdateView; override;
     property BaseCompGrp: TBaseComponentsGroup2 read FBaseCompGrp
@@ -351,6 +357,12 @@ begin
   finally
     FDeleteFromAllCategories := False;
   end;
+end;
+
+procedure TViewComponentsBase.actFocusTopLeftExecute(Sender: TObject);
+begin
+  inherited;
+  FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName);
 end;
 
 procedure TViewComponentsBase.actLoadDatasheetExecute(Sender: TObject);
@@ -975,6 +987,8 @@ procedure TViewComponentsBase.DoAfterLoadData;
 begin
   PostMyApplyBestFitEvent;
   UpdateView;
+//  if not FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName) then
+    PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
 end;
 
 procedure TViewComponentsBase.DoAfterOpenOrRefresh(Sender: TObject);
@@ -993,6 +1007,12 @@ end;
 procedure TViewComponentsBase.DoOnDescriptionPopupHide(Sender: TObject);
 begin
   UpdateView;
+end;
+
+procedure TViewComponentsBase.DoOnFocusTopLeft(var Message: TMessage);
+begin
+  inherited;
+  FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName);
 end;
 
 procedure TViewComponentsBase.DoOnHaveAnyChanges(Sender: TObject);
@@ -1149,6 +1169,12 @@ begin
 
   ARow.MyExpand(False);
   Result.Focused := True;
+end;
+
+procedure TViewComponentsBase.FocusTopLeftEx;
+begin
+  MainView.ViewData.Collapse(True);
+  FocusTopLeft(clValue.DataBinding.FieldName);
 end;
 
 function TViewComponentsBase.GetclID: TcxGridDBBandedColumn;

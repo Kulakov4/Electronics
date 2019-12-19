@@ -190,7 +190,7 @@ type
     procedure FocusFirstSelectedRow(AView: TcxGridDBBandedTableView);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
     procedure FocusSelectedRecord; overload;
-    procedure FocusTopLeft(const AFieldName: string);
+    function FocusTopLeft(const AFieldName: string): Boolean;
     function GetColumns(AView: TcxGridDBBandedTableView)
       : TArray<TcxGridDBBandedColumn>;
     procedure PutInTheCenterFocusedRecord
@@ -1249,10 +1249,11 @@ begin
   AView.Controller.SelectedRows[0].Focused := True;
 end;
 
-procedure TfrmGrid.FocusTopLeft(const AFieldName: string);
+function TfrmGrid.FocusTopLeft(const AFieldName: string): Boolean;
 var
   AColumn: TcxGridDBBandedColumn;
 begin
+  Result := False;
   Assert(not AFieldName.IsEmpty);
   if MainView.ViewData.RowCount = 0 then
     Exit;
@@ -1261,6 +1262,7 @@ begin
   MainView.Controller.TopRowIndex := 0;
   MainView.Controller.LeftPos := 0;
   MainView.ViewData.Rows[0].Focused := True;
+  Result := MainView.ViewData.Rows[0].Focused;
   AColumn := MainView.GetColumnByFieldName(AFieldName);
   if AColumn <> nil then
     AColumn.Focused := True;

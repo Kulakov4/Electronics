@@ -476,9 +476,12 @@ begin
     begin
       ADialogResult := TDialog.Create.SaveDataDialog;
       case ADialogResult of
-        idCancel: AllowChange := False;
-        idyes: FViewComponents.actCommit.Execute;
-        idno: FViewComponents.actCommit.Execute;
+        idCancel:
+          AllowChange := False;
+        idyes:
+          FViewComponents.actCommit.Execute;
+        idno:
+          FViewComponents.actCommit.Execute;
       end;
     end;
 
@@ -496,9 +499,12 @@ begin
     begin
       ADialogResult := TDialog.Create.SaveDataDialog;
       case ADialogResult of
-        idCancel: AllowChange := False;
-        idyes: FViewCategoryParameters.actApplyUpdates.Execute;
-        idno: FViewCategoryParameters.actCancelUpdates.Execute;
+        idCancel:
+          AllowChange := False;
+        idyes:
+          FViewCategoryParameters.actApplyUpdates.Execute;
+        idno:
+          FViewCategoryParameters.actCancelUpdates.Execute;
       end;
     end;
 
@@ -516,9 +522,12 @@ begin
     begin
       ADialogResult := TDialog.Create.SaveDataDialog;
       case ADialogResult of
-        idCancel: AllowChange := False;
-        idyes: ViewParametricTable.actCommit.Execute;
-        idno: ViewParametricTable.actCommit.Execute;
+        idCancel:
+          AllowChange := False;
+        idyes:
+          ViewParametricTable.actCommit.Execute;
+        idno:
+          ViewParametricTable.actCommit.Execute;
       end;
     end;
 
@@ -565,6 +574,7 @@ begin
     end;
 
     ViewComponents.TryApplyBestFit;
+    ViewComponents.FocusTopLeftEx;
   end;
 
   // Если переходим на вкладку Параметры
@@ -582,6 +592,7 @@ begin
         TDM.Create.CategoryParametersGroup;
     end;
     ViewCategoryParameters.MyApplyBestFit;
+    ViewCategoryParameters.FocusTopLeftEx;
   end;
 
   // если переходим на вкладку "Параметрическая таблица"
@@ -602,6 +613,8 @@ begin
     end
     else
       ViewParametricTable.Unlock;
+
+    ViewParametricTable.FocusTopLeftEx;
   end;
 
 end;
@@ -780,7 +793,7 @@ begin
   if NewPage = cxtshBill then
   begin
     TDM.Create.qBill.AddClient;
-//    TDM.Create.qBillContent2.AddClient;
+    // TDM.Create.qBillContent2.AddClient;
 
     if FViewBill = nil then
     begin
@@ -801,7 +814,7 @@ begin
   // Если уходим со вкладки Счета
   if cxpcWareHouse2.ActivePage = cxtshBill then
   begin
-//    TDM.Create.qBillContent2.RemoveClient;
+    // TDM.Create.qBillContent2.RemoveClient;
     TDM.Create.qBill.RemoveClient;
   end;
 
@@ -852,11 +865,11 @@ begin
   if QueryMonitor.HaveAnyChanges then
   begin
     case TDialog.Create.SaveDataDialog of
-      IDYES:
+      idyes:
         QueryMonitor.ApplyUpdates;
-      IDNo:
+      idno:
         QueryMonitor.CancelUpdates;
-      IDCancel:
+      idCancel:
         Action := caNone;
     end;
   end;
@@ -1059,8 +1072,8 @@ procedure TfrmMain.OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
   ANode: TcxTreeListNode; var Allow: Boolean);
 begin
   Allow := ((ViewComponents = nil) or (ViewComponents.CheckAndSaveChanges <>
-    IDCancel)) and ((ViewCategoryParameters = nil) or
-    (ViewCategoryParameters.CheckAndSaveChanges <> IDCancel));
+    idCancel)) and ((ViewCategoryParameters = nil) or
+    (ViewCategoryParameters.CheckAndSaveChanges <> idCancel));
 end;
 
 procedure TfrmMain.dbtlCategoriesDragDrop(Sender, Source: TObject;
@@ -1645,7 +1658,7 @@ begin
     Exit;
 
   AOnCanFocusRecord := Sender as TOnCanFocusRecord;
-  AOnCanFocusRecord.Allow := ViewProducts.CheckAndSaveChanges <> IDCancel;
+  AOnCanFocusRecord.Allow := ViewProducts.CheckAndSaveChanges <> idCancel;
 end;
 
 procedure TfrmMain.FocusViewComponents;

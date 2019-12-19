@@ -1679,6 +1679,7 @@ end;
 procedure TViewParametricTable.DoAfterLoadData;
 begin
   // Мы по своему обрабатываем событие после загрузки данных
+  PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
 end;
 
 procedure TViewParametricTable.DoBeforeFamilyExOpen(Sender: TObject);
@@ -2180,6 +2181,7 @@ begin
   // Подключаем представление к данным
   BaseCompGrp := FLockInfo.BaseComponentsGroup;
   EndUpdate;
+//  PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
 end;
 
 procedure TViewParametricTable.UpdateBandsCaptions;
