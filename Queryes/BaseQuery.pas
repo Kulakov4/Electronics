@@ -196,12 +196,10 @@ procedure TQueryBase.DoOnQueryUpdateRecord(ASender: TDataSet;
   ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
   AOptions: TFDUpdateRowOptions);
 begin
-  AAction := eaApplied;
-
   if ARequest in [arDelete, arInsert, arUpdate] then
   begin
     // try
-    AAction := eaApplied;
+
     // Если произошло удаление
     if ARequest = arDelete then
     begin

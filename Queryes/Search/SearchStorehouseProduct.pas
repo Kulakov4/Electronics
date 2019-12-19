@@ -28,6 +28,8 @@ type
   end;
 
   TQuerySearchStorehouseProduct = class(TQueryBase)
+    procedure FDQueryUpdateError(ASender: TDataSet; AException: EFDException; ARow:
+        TFDDatSRow; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction);
   private
     FW: TSearchStoreHouseProductW;
     { Private declarations }
@@ -45,12 +47,29 @@ implementation
 
 {$R *.dfm}
 
-uses StrHelper;
+uses StrHelper, FireDAC.Phys.SQLiteWrapper;
 
 constructor TQuerySearchStorehouseProduct.Create(AOwner: TComponent);
 begin
   inherited;
   FW := TSearchStoreHouseProductW.Create(FDQuery);
+end;
+
+procedure TQuerySearchStorehouseProduct.FDQueryUpdateError(ASender: TDataSet;
+    AException: EFDException; ARow: TFDDatSRow; ARequest: TFDUpdateRequest; var
+    AAction: TFDErrorAction);
+var
+  AE: ESQLiteNativeException;
+  S: string;
+begin
+  inherited;
+  if not (AException is ESQLiteNativeException) then
+    Exit;
+
+  AE := AException as ESQLiteNativeException;
+  //UNIQUE constraint failed
+  if AE.ErrorCode = 2067 then
+    AException.Message := 'Строка(и) уже сохранена(ы) на складе';
 end;
 
 function TQuerySearchStorehouseProduct.SearchByGroupID(AStorehouseID,

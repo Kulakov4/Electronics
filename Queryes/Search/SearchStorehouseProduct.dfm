@@ -5,6 +5,7 @@ inherited QuerySearchStorehouseProduct: TQuerySearchStorehouseProduct
     ExplicitWidth = 120
   end
   inherited FDQuery: TFDQuery
+    OnUpdateError = FDQueryUpdateError
     SQL.Strings = (
       'select *'
       'from storehouseproducts'

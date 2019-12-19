@@ -584,17 +584,20 @@ begin
       Exit; // Если нечего сохранять
   end;
 
-  FDQuery.ApplyUpdates();
-  FDQuery.CommitUpdates;
+  // Если в ходе сохранения не было ошибок
+  if FDQuery.ApplyUpdates() = 0 then
+  begin
+    FDQuery.CommitUpdates;
 
-  FDQuery.Connection.Commit;
-  FDataChange := False;
+    FDQuery.Connection.Commit;
+    FDataChange := False;
 
-  Assert(not FDQuery.UpdatesPending);
-  Assert(FDQuery.ChangeCount = 0);
+    Assert(not FDQuery.UpdatesPending);
+    Assert(FDQuery.ChangeCount = 0);
 
-  // Извещаем всех что CommitUpdates произошёл!
-  TryCallAfterCommitUpdatesEvent;
+    // Извещаем всех что CommitUpdates произошёл!
+    TryCallAfterCommitUpdatesEvent;
+  end;
 end;
 
 procedure TQueryProductsBase.CancelUpdates;
