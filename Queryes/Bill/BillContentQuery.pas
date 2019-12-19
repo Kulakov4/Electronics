@@ -29,6 +29,8 @@ type
   end;
 
   TQryBillContent = class(TQueryProductsBase, IBillContent)
+  strict private
+    procedure CascadeDelete(ABillID: Integer);
   private
     FBill: IBill;
     FIsShipment: Boolean;
@@ -305,6 +307,16 @@ begin
   finally
     FDQuery.EnableControls;
   end;
+end;
+
+procedure TQryBillContent.CascadeDelete(ABillID: Integer);
+begin
+  // ѕровер€ем что у нас загружен именно этот контент
+  Assert(FDQuery.Params.ParamByName(DetailParameterName).AsInteger = ABillID);
+
+  //  аскадно удал€ем содержимое заказа
+  W.CascadeDelete(ABillID, W.BillID.FieldName);
+  ApplyUpdates;
 end;
 
 procedure TQryBillContent.CloseContent;

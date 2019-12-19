@@ -206,8 +206,7 @@ inherited ViewBill: TViewBill
   end
   inherited ActionList: TActionList
     inherited actDeleteEx: TAction
-      Caption = #1054#1090#1084#1077#1085#1080#1090#1100
-      Hint = #1054#1090#1084#1077#1085#1080#1090#1100' '#1089#1095#1105#1090
+      Hint = #1059#1076#1072#1083#1080#1090#1100' '#1089#1095#1105#1090
     end
     object actShip: TAction
       Caption = #1054#1090#1075#1088#1091#1079#1080#1090#1100

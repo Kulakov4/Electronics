@@ -586,14 +586,16 @@ procedure TViewBill.MyDelete;
 var
   ADeleteMessage: string;
 begin
-  Assert(MainView.Controller.SelectedRowCount = 1);
+//  Assert(MainView.Controller.SelectedRowCount = 1);
 
-  if W.ShipmentDate.F.IsNull then
-    ADeleteMessage := 'Вы действительно хотите отменить счёт?'
-  else
-    ADeleteMessage :=
-      'Вы действительно хотите отменить счёт и вернуть товар на склад?';
+//  if W.ShipmentDate.F.IsNull then
+//    ADeleteMessage := 'Вы действительно хотите отменить счёт?'
+//  else
+//    ADeleteMessage :=
+//      'Вы действительно хотите отменить счёт и вернуть товар на склад?';
 
+
+  ADeleteMessage := 'Действительно удалить выделенные счёта?';
   DeleteMessages.Clear;
   DeleteMessages.Add(cxGridLevel, ADeleteMessage);
 
@@ -662,7 +664,7 @@ begin
 
   // Выделено
   actDeleteEx.Enabled := OK and (AView <> nil) and
-    (AView.Controller.SelectedRowCount = 1);
+    (AView.Controller.SelectedRowCount > 0);
 
   actShip.Enabled := OK and (AView <> nil) and
     (AView.Controller.SelectedRowCount = 1) and (W.ShipmentDate.F.IsNull);

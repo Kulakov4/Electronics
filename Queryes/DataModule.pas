@@ -99,7 +99,6 @@ type
     procedure DoAfterChildCategoriesPostOrDelete(Sender: TObject);
     procedure DoAfterCommit(Sender: TObject);
     procedure DoAfterTreeListFirstOpen(Sender: TObject);
-    procedure DoBeforeBillDelete(Sender: TObject);
     procedure DoBeforeCommit(Sender: TObject);
     property qParamSubParams: TQueryParamSubParams read GetqParamSubParams;
     property qSearchParamDefSubParam: TQuerySearchParamDefSubParam
@@ -182,7 +181,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-//  qBillContent2.Master := qBill;
+  // qBillContent2.Master := qBill;
 
   // При редактировании дочерней категории нужно будет обновлять дерево
   TNotifyEventWrap.Create(qChildCategories.W.AfterPostM,
@@ -392,30 +391,6 @@ begin
   end;
 end;
 
-procedure TDM.DoBeforeBillDelete(Sender: TObject);
-var
-  AIDBill: Integer;
-begin
-  // Надо вернуть зарезервированный товар на склад перед удалением счёта
-
-  AIDBill := qBill.W.PK.Value;
-
-  // Если товар уже был отгружен
-  if not qBill.W.ShipmentDate.F.IsNull then
-  begin
-    // Отменяем отгрузку товара
-    qBillContent2.CalcelAllShip;
-  end;
-
-  // Каскадно удаляем содержимое заказа
-  qBillContent2.W.CascadeDelete(AIDBill, qBillContent2.W.BillID.FieldName);
-  qBillContent2.ApplyUpdates;
-
-  // cxGrid сместил запись, поэтому возвращаемся на место
-  qBill.W.LocateByPK(AIDBill, True);
-
-end;
-
 procedure TDM.DoBeforeCommit(Sender: TObject);
 begin
   // Применили изменения в параметрах - надо обновить параметры для категории
@@ -581,8 +556,6 @@ begin
   begin
     FqBill := TQryBill.Create(FComponent);
     FqBill.W.BillContent := qBillContent2;
-    TNotifyEventWrap.Create(FqBill.W.BeforeDelete, DoBeforeBillDelete,
-      FEventList);
   end;
 
   Result := FqBill;
@@ -709,7 +682,7 @@ begin
 end;
 
 function TDM.LoadExcelFileHeader(ARootTreeNode: TStringTreeNode;
-AFieldsInfo: TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef)
+  AFieldsInfo: TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef)
   : TLoadExcelFileHeaderResult;
 var
   AFieldName: string;
@@ -796,11 +769,11 @@ begin
 end;
 
 function TDM.InternalLoadExcelFileHeaderEx(ARootTreeNode: TStringTreeNode;
-AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
+  AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
 
   function ProcessParamSearhResult(ACount: Integer;
-  AStringTreeNode: TStringTreeNode;
-  AParametricErrorTable: TParametricErrorTable): Boolean;
+    AStringTreeNode: TStringTreeNode;
+    AParametricErrorTable: TParametricErrorTable): Boolean;
   begin
     Result := True;
     if ACount = 1 then
@@ -823,8 +796,8 @@ AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
   end;
 
   function ProcessSubParamSearhResult(ACount: Integer;
-  AStringTreeNode: TStringTreeNode;
-  AParametricErrorTable: TParametricErrorTable): Boolean;
+    AStringTreeNode: TStringTreeNode;
+    AParametricErrorTable: TParametricErrorTable): Boolean;
   begin
     Result := True;
     if ACount = 1 then
@@ -848,8 +821,8 @@ AParametricErrorTable: TParametricErrorTable): TArray<Integer>;
   end;
 
   function CheckUniqueSubParam(AParamSubParamID: Integer;
-  AIDList: TList<Integer>; AStringTreeNode: TStringTreeNode;
-  AParametricErrorTable: TParametricErrorTable): Boolean;
+    AIDList: TList<Integer>; AStringTreeNode: TStringTreeNode;
+    AParametricErrorTable: TParametricErrorTable): Boolean;
   begin
     Assert(AParamSubParamID > 0);
     Result := True;

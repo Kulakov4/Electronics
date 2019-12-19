@@ -22,6 +22,7 @@ type
     FShipmentDate: TFieldWrap;
     FDollar: TFieldWrap;
     FEuro: TFieldWrap;
+    procedure DoBeforeDelete(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -147,6 +148,8 @@ begin
   FDollar := TFieldWrap.Create(Self, 'Dollar', 'Курс $');
   FEuro := TFieldWrap.Create(Self, 'Euro', 'Курс €');
   FWidth := TFieldWrap.Create(Self, 'Width');
+
+  TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, EventList);
 end;
 
 destructor TBillW.Destroy;
@@ -228,6 +231,33 @@ begin
   TryEdit;
   ShipmentDate.F.Value := NULL;
   TryPost;
+end;
+
+procedure TBillW.DoBeforeDelete(Sender: TObject);
+var
+  ABillID: Integer;
+begin
+  Assert(Assigned(FBillContent));
+  Assert(ID.F.AsInteger > 0);
+  ABillID := ID.F.AsInteger;
+
+  // Решили что удаление счёта не приводит к отмене отгрузки товара
+  {
+    // Если товар уже был отгружен
+    if not ShipmentDate.F.IsNull then
+    begin
+    // Отменяем отгрузку товара
+    FBillContent.CalcelAllShip;
+    end;
+  }
+
+  // Содержимое заказа каскадно удаляется на сервере
+
+  // Каскадно удаляем содержимое заказа
+  // FBillContent.CascadeDelete(ABillID);
+
+  // Проверяем что запись никуда не сместилась
+  Assert(ID.F.AsInteger = ABillID);
 end;
 
 end.
