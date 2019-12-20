@@ -175,7 +175,7 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('JEDEC'));
   FieldsInfo.Add(TFieldInfo.Create('Options'));
   FieldsInfo.Add(TFieldInfo.Create('BodyKind', True,
-    'Тип корпуса не может быть пустым', True));
+    'Тип корпуса не может быть пустым', '', True));
 end;
 
 function TBodyTypesExcelDM.CreateExcelTable: TCustomExcelTable;

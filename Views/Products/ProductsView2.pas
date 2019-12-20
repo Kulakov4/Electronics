@@ -79,8 +79,7 @@ type
       AState: TOwnerDrawState);
     procedure clIDProducerPropertiesNewLookupDisplayText(Sender: TObject;
       const AText: TCaption);
-  private
-  const
+  private const
     FolderKey: String = 'Products';
     function GetqProducts: TQueryProducts;
     procedure SetqProducts(const Value: TQueryProducts);
@@ -250,11 +249,10 @@ begin
   ShowMessage(Format('Время: %f', [FHRTimer.ReadTimer]));
 end;
 
-procedure TViewProducts2.clIDProducerPropertiesNewLookupDisplayText(
-  Sender: TObject; const AText: TCaption);
+procedure TViewProducts2.clIDProducerPropertiesNewLookupDisplayText
+  (Sender: TObject; const AText: TCaption);
 begin
-  inherited;
-;
+  inherited;;
 end;
 
 function TViewProducts2.CreateProductView: TViewProductsBase2;
@@ -345,27 +343,70 @@ end;
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
 var
   AExcelTable: TProductsExcelTable;
+  ANode: TStringTreeNode;
+  ARootTreeNode: TStringTreeNode;
+  FieldsInfo: TFieldsInfo;
 begin
   Assert(not AFileName.IsEmpty);
 
-  BeginUpdate;
-  try
+  FieldsInfo := TFieldsInfo.Create;
+
+  FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', true,
+    'Группа компонентов не задана', 'Группа компонентов', true));
+  FieldsInfo.Add(TFieldInfo.Create('Value', true, 'Наименование не задано',
+    'Наименование'));
+  FieldsInfo.Add(TFieldInfo.Create('Producer', true, 'Производитель не задан',
+    'Производитель'));
+  FieldsInfo.Add(TFieldInfo.Create('PackagePins', False, '', 'Корпус'));
+  FieldsInfo.Add(TFieldInfo.Create('ReleaseDate', False, '', 'Дата выпуска'));
+  FieldsInfo.Add(TFieldInfo.Create('Amount', true, 'Количество не задано',
+    'Количество'));
+  FieldsInfo.Add(TFieldInfo.Create('Packaging', False, '', 'Упаковка'));
+  FieldsInfo.Add(TFieldInfo.Create('PriceR', False, '', ''));
+  FieldsInfo.Add(TFieldInfo.Create('PriceD'));
+  FieldsInfo.Add(TFieldInfo.Create('PriceE'));
+  FieldsInfo.Add(TFieldInfo.Create('OriginCountryCode', False, '',
+    'Цифровой код'));
+  FieldsInfo.Add(TFieldInfo.Create('OriginCountry', False, '', 'Название'));
+  FieldsInfo.Add(TFieldInfo.Create('BatchNumber', False, '', 'Номер партии'));
+  FieldsInfo.Add(TFieldInfo.Create('CustomsDeclarationNumber', False, '',
+    'Номер таможенной декларации'));
+  FieldsInfo.Add(TFieldInfo.Create('Storage', False, '', 'Стеллаж №'));
+  FieldsInfo.Add(TFieldInfo.Create('StoragePlace', False, '', 'Место №'));
+  FieldsInfo.Add(TFieldInfo.Create('Seller', False, '', 'Организация - продавец'));
+  FieldsInfo.Add(TFieldInfo.Create('DocumentNumber', False, '', '№ документа'));
+  FieldsInfo.Add(TFieldInfo.Create('Barcode', False, '', 'Цифровой код (Штрих-код)'));
+  FieldsInfo.Add(TFieldInfo.Create('LoadDate', False, '', 'Дата'));
+  FieldsInfo.Add(TFieldInfo.Create('Dollar', False, '', '$'));
+  FieldsInfo.Add(TFieldInfo.Create('Euro', False, '', '€'));
+
+  ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
+  // Цикл по всем дочерним узлам
+  for ANode in ARootTreeNode.Childs do
+  begin
+    // ANode.Value
+  end;
+
+  {
+    BeginUpdate;
+    try
     TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmCustomError,
-      procedure(ASender: TObject)
-      begin
-        qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
-      end,
-      procedure(ASender: TObject)
-      begin
-        AExcelTable := ASender as TProductsExcelTable;
-        // Инициализируем
-        AExcelTable.CheckDuplicate := qProducts;
-        AExcelTable.CurrencyInt := TMyCurrency.Create;
-      end);
-  finally
+    procedure(ASender: TObject)
+    begin
+    qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
+    end,
+    procedure(ASender: TObject)
+    begin
+    AExcelTable := ASender as TProductsExcelTable;
+    // Инициализируем
+    AExcelTable.CheckDuplicate := qProducts;
+    AExcelTable.CurrencyInt := TMyCurrency.Create;
+    end);
+    finally
     cxDBTreeList.FullCollapse;
     EndUpdate;
-  end;
+    end;
+  }
 end;
 
 procedure TViewProducts2.SetqProducts(const Value: TQueryProducts);

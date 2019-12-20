@@ -501,7 +501,7 @@ begin
     Exit;
 
   FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', True,
-    'Группа компонентов не задана', True));
+    'Группа компонентов не задана', '', True));
   FieldsInfo.Add(TFieldInfo.Create('Value', True, 'Наименование не задано'));
   FieldsInfo.Add(TFieldInfo.Create('Producer', True, 'Производитель не задан'));
   FieldsInfo.Add(TFieldInfo.Create('PackagePins'));

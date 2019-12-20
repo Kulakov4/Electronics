@@ -8,6 +8,7 @@ uses
 type
   TFieldInfo = class(TObject)
   private
+    FDisplayLabel: string;
     FErrorMessage: string;
     FFieldName: string;
     FIsCellUnion: Boolean;
@@ -16,8 +17,9 @@ type
   protected
   public
     constructor Create(AFieldName: string; ARequired: Boolean = False;
-      AErrorMessage: String = ''; AIsCellUnion: Boolean = False;
-      ASize: Integer = 1000);
+        AErrorMessage: String = ''; ADisplayLabel: String = ''; AIsCellUnion:
+        Boolean = False; ASize: Integer = 1000);
+    property DisplayLabel: string read FDisplayLabel;
     property ErrorMessage: string read FErrorMessage write FErrorMessage;
     property FieldName: string read FFieldName write FFieldName;
     property IsCellUnion: Boolean read FIsCellUnion write FIsCellUnion;
@@ -35,11 +37,12 @@ implementation
 uses System.SysUtils;
 
 constructor TFieldInfo.Create(AFieldName: string; ARequired: Boolean = False;
-  AErrorMessage: String = ''; AIsCellUnion: Boolean = False;
-  ASize: Integer = 1000);
+    AErrorMessage: String = ''; ADisplayLabel: String = ''; AIsCellUnion:
+    Boolean = False; ASize: Integer = 1000);
 begin
   Assert(not AFieldName.IsEmpty);
   FFieldName := AFieldName;
+  FDisplayLabel := ADisplayLabel;
   FRequired := ARequired;
   FErrorMessage := AErrorMessage;
   FIsCellUnion := AIsCellUnion;
