@@ -363,8 +363,8 @@ begin
     'Количество'));
   FieldsInfo.Add(TFieldInfo.Create('Packaging', False, '', 'Упаковка'));
   FieldsInfo.Add(TFieldInfo.Create('PriceR', False, '', ''));
-  FieldsInfo.Add(TFieldInfo.Create('PriceD'));
-  FieldsInfo.Add(TFieldInfo.Create('PriceE'));
+  FieldsInfo.Add(TFieldInfo.Create('PriceD', False, '', '$'));
+  FieldsInfo.Add(TFieldInfo.Create('PriceE', False, '', '€'));
   FieldsInfo.Add(TFieldInfo.Create('OriginCountryCode', False, '',
     'Цифровой код'));
   FieldsInfo.Add(TFieldInfo.Create('OriginCountry', False, '', 'Название'));
