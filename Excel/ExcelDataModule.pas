@@ -86,6 +86,7 @@ type
       : ExcelRange;
     function GetIndent: Integer; virtual;
     function HaveHeader(const ARow: Integer): Boolean; virtual;
+    procedure TryCreateExcelTable;
     function IsCellEmpty(ACell: OleVariant): Boolean;
     function IsEmptyRow(ARowIndex: Integer): Boolean;
     property Indent: Integer read GetIndent;
@@ -136,12 +137,7 @@ uses System.Variants, System.Math, ActiveX, ProjectConst, DBRecordHolder;
 constructor TExcelDM.Create(AOwner: TComponent);
 begin
   inherited;
-  FCustomExcelTable := CreateExcelTable;
-
-  if FCustomExcelTable <> nil then
-    FLastColIndex := FCustomExcelTable.FieldsInfo.Count
-  else
-    FLastColIndex := 0;
+  TryCreateExcelTable;
 
   FOnProgress := TNotifyEventsEx.Create(Self);
 
@@ -245,6 +241,19 @@ function TExcelDM.GetIndent: Integer;
 begin
   // отступ слева
   Result := 0;
+end;
+
+procedure TExcelDM.TryCreateExcelTable;
+begin
+  if FCustomExcelTable <> nil then
+    Exit;
+
+  FCustomExcelTable := CreateExcelTable;
+
+  if FCustomExcelTable <> nil then
+    FLastColIndex := FCustomExcelTable.FieldsInfo.Count
+  else
+    FLastColIndex := 0;
 end;
 
 function TExcelDM.IsCellEmpty(ACell: OleVariant): Boolean;

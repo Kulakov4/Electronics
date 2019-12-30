@@ -345,10 +345,10 @@ end;
 
 procedure TComponentsExcelTable.SetFieldsInfo;
 begin
-  FieldsInfo.Add(TFieldInfo.Create('FamilyName', False, '', '', True));
+  FieldsInfo.Add(TFieldInfo.Create('FamilyName', False, '', True));
   FieldsInfo.Add(TFieldInfo.Create('ComponentName', True,
     'Наименование компонента не должно быть пустым'));
-  FieldsInfo.Add(TFieldInfo.Create('SubGroup', False, '', '', True));
+  FieldsInfo.Add(TFieldInfo.Create('SubGroup', False, '', True));
 end;
 
 procedure TComponentsExcelTable.SetProducer(const Value: string);

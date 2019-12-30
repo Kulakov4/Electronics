@@ -135,7 +135,8 @@ begin
     end;
 
     // 2) »щем или добавл€ем такого производител€ в справочнике производителей
-    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString, sWareHouseDefaultProducerType);
+    ProducersGroup.LocateOrAppend(AExcelTable.Producer.AsString,
+      sWareHouseDefaultProducerType);
 
     AExcelTable.Next;
   end;
@@ -295,30 +296,16 @@ begin
   AIDProducer := ProducersGroup.qProducers.W.PK.AsInteger;
 
   // »щем на складе
-  AKeyFields := Format('%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s',
+  AKeyFields := Format('%s;%s;%s;%s;%s;%s;%s',
     [W.IsGroup.FieldName, W.IDComponentGroup.FieldName, W.Value.FieldName,
-    W.IDProducer.FieldName, W.PackagePins.FieldName, W.ReleaseDate.FieldName,
-    W.Amount.FieldName, W.Packaging.FieldName, W.Price.FieldName,
-    W.OriginCountryCode.FieldName, W.OriginCountry.FieldName,
-    W.BatchNumber.FieldName, W.CustomsDeclarationNumber.FieldName,
-    W.Storage.FieldName, W.StoragePlace.FieldName, W.Seller.FieldName,
-    W.DocumentNumber.FieldName, W.Barcode.FieldName]);
+    W.IDProducer.FieldName, W.Amount.FieldName, W.Price.FieldName,
+    W.LoadDate.FieldName]);
 
   V := FDQuery.LookupEx(AKeyFields,
     VarArrayOf([0, AIDComponentGroup, AProductsExcelTable.Value.AsString,
-    AIDProducer, AProductsExcelTable.PackagePins.AsString,
-    AProductsExcelTable.ReleaseDate.AsString,
-    AProductsExcelTable.Amount.AsInteger,
-    AProductsExcelTable.Packaging.AsString, AProductsExcelTable.Price.AsFloat,
-    AProductsExcelTable.OriginCountryCode.AsString,
-    AProductsExcelTable.OriginCountry.AsString,
-    AProductsExcelTable.BatchNumber.AsString,
-    AProductsExcelTable.CustomsDeclarationNumber.AsString,
-    AProductsExcelTable.Storage.AsString,
-    AProductsExcelTable.StoragePlace.AsString,
-    AProductsExcelTable.Seller.AsString,
-    AProductsExcelTable.DocumentNumber.AsString,
-    AProductsExcelTable.Barcode.AsString]), W.PKFieldName);
+    AIDProducer, AProductsExcelTable.Amount.AsInteger,
+    AProductsExcelTable.Price.AsFloat, AProductsExcelTable.LoadDate.AsString]
+    ), W.PKFieldName);
 
   Result := not VarIsNull(V);
 end;

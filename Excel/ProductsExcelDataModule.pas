@@ -12,32 +12,23 @@ type
   private
     FCheckDuplicate: ICheckDuplicate;
     FCurrencyInt: ICurrency;
+    FFieldsInfoArr: TArray<TFieldInfoEx>;
     function GetComponentGroup: TField;
     function GetDollar: TField;
     function GetEuro: TField;
     function GetLoadDate: TField;
-    function GetPackagePins: TField;
-    function GetReleaseDate: TField;
     function GetPriceR: TField;
     function GetPriceD: TField;
     function GetPriceE: TField;
     function GetProducer: TField;
     function GetAmount: TField;
-    function GetPackaging: TField;
-    function GetOriginCountryCode: TField;
-    function GetOriginCountry: TField;
-    function GetBatchNumber: TField;
-    function GetCustomsDeclarationNumber: TField;
-    function GetStorage: TField;
-    function GetStoragePlace: TField;
-    function GetSeller: TField;
-    function GetDocumentNumber: TField;
-    function GetBarcode: TField;
     function GetPrice: TField;
     function GetValue: TField;
   protected
     procedure SetFieldsInfo; override;
   public
+    constructor Create(AOwner: TComponent;
+      AFieldsInfoArr: TArray<TFieldInfoEx>); reintroduce;
     destructor Destroy; override;
     function CheckRecord: Boolean; override;
     property CheckDuplicate: ICheckDuplicate read FCheckDuplicate
@@ -46,23 +37,11 @@ type
     property Dollar: TField read GetDollar;
     property Euro: TField read GetEuro;
     property LoadDate: TField read GetLoadDate;
-    property PackagePins: TField read GetPackagePins;
-    property ReleaseDate: TField read GetReleaseDate;
     property PriceR: TField read GetPriceR;
     property PriceD: TField read GetPriceD;
     property PriceE: TField read GetPriceE;
     property Producer: TField read GetProducer;
     property Amount: TField read GetAmount;
-    property Packaging: TField read GetPackaging;
-    property OriginCountryCode: TField read GetOriginCountryCode;
-    property OriginCountry: TField read GetOriginCountry;
-    property BatchNumber: TField read GetBatchNumber;
-    property CustomsDeclarationNumber: TField read GetCustomsDeclarationNumber;
-    property Storage: TField read GetStorage;
-    property StoragePlace: TField read GetStoragePlace;
-    property Seller: TField read GetSeller;
-    property DocumentNumber: TField read GetDocumentNumber;
-    property Barcode: TField read GetBarcode;
     property CurrencyInt: ICurrency read FCurrencyInt write FCurrencyInt;
     property Price: TField read GetPrice;
     property Value: TField read GetValue;
@@ -70,12 +49,14 @@ type
 
   TProductsExcelDM = class(TExcelDM)
   private
+    FFieldsInfoArr: TArray<TFieldInfoEx>;
     function GetExcelTable: TProductsExcelTable;
     { Private declarations }
   protected
     function CreateExcelTable: TCustomExcelTable; override;
   public
     destructor Destroy; override;
+    procedure Init(AFieldsInfoArr: TArray<TFieldInfoEx>);
     property ExcelTable: TProductsExcelTable read GetExcelTable;
     { Public declarations }
   end;
@@ -96,12 +77,28 @@ end;
 
 function TProductsExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
-  Result := TProductsExcelTable.Create(Self)
+  if (FFieldsInfoArr <> nil) and (Length(FFieldsInfoArr) > 0) then
+    Result := TProductsExcelTable.Create(Self, FFieldsInfoArr)
+  else
+    Result := nil;
 end;
 
 function TProductsExcelDM.GetExcelTable: TProductsExcelTable;
 begin
   Result := CustomExcelTable as TProductsExcelTable;
+end;
+
+procedure TProductsExcelDM.Init(AFieldsInfoArr: TArray<TFieldInfoEx>);
+begin
+  FFieldsInfoArr := AFieldsInfoArr;
+  TryCreateExcelTable;
+end;
+
+constructor TProductsExcelTable.Create(AOwner: TComponent;
+  AFieldsInfoArr: TArray<TFieldInfoEx>);
+begin
+  inherited Create(AOwner);
+  FFieldsInfoArr := AFieldsInfoArr;
 end;
 
 destructor TProductsExcelTable.Destroy;
@@ -244,10 +241,10 @@ begin
     if TryStrToInt(LoadDate.AsString.Trim, x) then
     begin
       try
-        ALoadDate := TDate(LoadDate.AsInteger);
+        ALoadDate := TDate(x);
         TryEdit;
         // Переводим дату в строку
-        LoadDate.AsString := FormatDateTime('dd.mm.yyyy', Date);
+        LoadDate.AsString := FormatDateTime('dd.mm.yyyy', ALoadDate);
         TryPost;
       except
         Result := False;
@@ -353,7 +350,8 @@ begin
   begin
     ARecordCheck.Col := Value.Index + 1;
     ARecordCheck.ErrorMessage := 'Дубликат';
-    ARecordCheck.Description := 'Этот компонент уже был загружен на склад ранее';
+    ARecordCheck.Description :=
+      'Этот компонент уже был загружен на склад ранее';
     ProcessErrors(ARecordCheck);
     Exit;
   end;
@@ -379,16 +377,6 @@ begin
   Result := FieldByName('LoadDate');
 end;
 
-function TProductsExcelTable.GetPackagePins: TField;
-begin
-  Result := FieldByName('PackagePins');
-end;
-
-function TProductsExcelTable.GetReleaseDate: TField;
-begin
-  Result := FieldByName('ReleaseDate');
-end;
-
 function TProductsExcelTable.GetPriceR: TField;
 begin
   Result := FieldByName('PriceR');
@@ -412,56 +400,6 @@ end;
 function TProductsExcelTable.GetAmount: TField;
 begin
   Result := FieldByName('Amount');
-end;
-
-function TProductsExcelTable.GetPackaging: TField;
-begin
-  Result := FieldByName('Packaging');
-end;
-
-function TProductsExcelTable.GetOriginCountryCode: TField;
-begin
-  Result := FieldByName('OriginCountryCode');
-end;
-
-function TProductsExcelTable.GetOriginCountry: TField;
-begin
-  Result := FieldByName('OriginCountry');
-end;
-
-function TProductsExcelTable.GetBatchNumber: TField;
-begin
-  Result := FieldByName('BatchNumber');
-end;
-
-function TProductsExcelTable.GetCustomsDeclarationNumber: TField;
-begin
-  Result := FieldByName('CustomsDeclarationNumber');
-end;
-
-function TProductsExcelTable.GetStorage: TField;
-begin
-  Result := FieldByName('Storage');
-end;
-
-function TProductsExcelTable.GetStoragePlace: TField;
-begin
-  Result := FieldByName('StoragePlace');
-end;
-
-function TProductsExcelTable.GetSeller: TField;
-begin
-  Result := FieldByName('Seller');
-end;
-
-function TProductsExcelTable.GetDocumentNumber: TField;
-begin
-  Result := FieldByName('DocumentNumber');
-end;
-
-function TProductsExcelTable.GetBarcode: TField;
-begin
-  Result := FieldByName('Barcode');
 end;
 
 function TProductsExcelTable.GetPrice: TField;
@@ -496,12 +434,21 @@ begin
 end;
 
 procedure TProductsExcelTable.SetFieldsInfo;
+var
+  AFI: TFieldInfoEx;
 begin
   if FieldsInfo.Count > 0 then
     Exit;
 
+  for AFI in FFieldsInfoArr do
+  begin
+    if AFI.Exist then
+      FieldsInfo.Add(TFieldInfo.Create(AFI.FieldName, AFI.Required,
+        AFI.ErrorMessage, AFI.IsCellUnion, AFI.Size));
+  end;
+(*
   FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', True,
-    'Группа компонентов не задана', '', True));
+    'Группа компонентов не задана', True));
   FieldsInfo.Add(TFieldInfo.Create('Value', True, 'Наименование не задано'));
   FieldsInfo.Add(TFieldInfo.Create('Producer', True, 'Производитель не задан'));
   FieldsInfo.Add(TFieldInfo.Create('PackagePins'));
@@ -523,6 +470,7 @@ begin
   FieldsInfo.Add(TFieldInfo.Create('LoadDate'));
   FieldsInfo.Add(TFieldInfo.Create('Dollar'));
   FieldsInfo.Add(TFieldInfo.Create('Euro'));
+*)
 end;
 
 end.

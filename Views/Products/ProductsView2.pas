@@ -1,4 +1,4 @@
-unit ProductsView2;
+п»їunit ProductsView2;
 
 interface
 
@@ -226,17 +226,17 @@ begin
   if qProducts.Master.FDQuery.RecordCount = 0 then
   begin
     TDialog.Create.ErrorMessageDialog
-      ('Нет информации о текущем складе.'#13#10'Действие отменено');
+      ('РќРµС‚ РёРЅС„РѕСЂРјР°С†РёРё Рѕ С‚РµРєСѓС‰РµРј СЃРєР»Р°РґРµ.'#13#10'Р”РµР№СЃС‚РІРёРµ РѕС‚РјРµРЅРµРЅРѕ');
     Exit;
   end;
 
-  // Открываем диалог выбора excel файла из последнего места
+  // РћС‚РєСЂС‹РІР°РµРј РґРёР°Р»РѕРі РІС‹Р±РѕСЂР° excel С„Р°Р№Р»Р° РёР· РїРѕСЃР»РµРґРЅРµРіРѕ РјРµСЃС‚Р°
   if not TOpenExcelDialog.SelectInFolder(AFileName, Handle, FolderKey) then
     Exit;
 
   LoadFromExcelDocument(AFileName);
   UpdateView;
-  // Сразу пытаемся сохранить. Тут возникает диалог выбора оптовой наценки
+  // РЎСЂР°Р·Сѓ РїС‹С‚Р°РµРјСЃСЏ СЃРѕС…СЂР°РЅРёС‚СЊ. РўСѓС‚ РІРѕР·РЅРёРєР°РµС‚ РґРёР°Р»РѕРі РІС‹Р±РѕСЂР° РѕРїС‚РѕРІРѕР№ РЅР°С†РµРЅРєРё
   actCommit.Execute;
 end;
 
@@ -246,7 +246,7 @@ begin
   FHRTimer.StartTimer;
   // ShowMessage('0');
   W.TryEdit;
-  ShowMessage(Format('Время: %f', [FHRTimer.ReadTimer]));
+  ShowMessage(Format('Р’СЂРµРјСЏ: %f', [FHRTimer.ReadTimer]));
 end;
 
 procedure TViewProducts2.clIDProducerPropertiesNewLookupDisplayText
@@ -303,7 +303,7 @@ begin
   if x > 0 then
     Exit;
 
-  ErrorText := 'Редактируемое значение не является курсом валюты';
+  ErrorText := 'Р РµРґР°РєС‚РёСЂСѓРµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРµ СЏРІР»СЏРµС‚СЃСЏ РєСѓСЂСЃРѕРј РІР°Р»СЋС‚С‹';
   Error := true;
 end;
 
@@ -342,71 +342,141 @@ end;
 
 procedure TViewProducts2.LoadFromExcelDocument(const AFileName: String);
 var
+  AChildNode: TStringTreeNode;
+  AErrorList: TList<String>;
   AExcelTable: TProductsExcelTable;
+  AFI: TFieldInfoEx;
   ANode: TStringTreeNode;
   ARootTreeNode: TStringTreeNode;
-  FieldsInfo: TFieldsInfo;
+  FieldsInfo, FieldsInfo2: TFieldsInfoEx;
+  S: string;
 begin
   Assert(not AFileName.IsEmpty);
 
-  FieldsInfo := TFieldsInfo.Create;
+  FieldsInfo := TFieldsInfoEx.Create;
+  FieldsInfo2 := TFieldsInfoEx.Create;
 
-  FieldsInfo.Add(TFieldInfo.Create('ComponentGroup', true,
-    'Группа компонентов не задана', 'Группа компонентов', true));
-  FieldsInfo.Add(TFieldInfo.Create('Value', true, 'Наименование не задано',
-    'Наименование'));
-  FieldsInfo.Add(TFieldInfo.Create('Producer', true, 'Производитель не задан',
-    'Производитель'));
-  FieldsInfo.Add(TFieldInfo.Create('PackagePins', False, '', 'Корпус'));
-  FieldsInfo.Add(TFieldInfo.Create('ReleaseDate', False, '', 'Дата выпуска'));
-  FieldsInfo.Add(TFieldInfo.Create('Amount', true, 'Количество не задано',
-    'Количество'));
-  FieldsInfo.Add(TFieldInfo.Create('Packaging', False, '', 'Упаковка'));
-  FieldsInfo.Add(TFieldInfo.Create('PriceR', False, '', ''));
-  FieldsInfo.Add(TFieldInfo.Create('PriceD', False, '', '$'));
-  FieldsInfo.Add(TFieldInfo.Create('PriceE', False, '', '€'));
-  FieldsInfo.Add(TFieldInfo.Create('OriginCountryCode', False, '',
-    'Цифровой код'));
-  FieldsInfo.Add(TFieldInfo.Create('OriginCountry', False, '', 'Название'));
-  FieldsInfo.Add(TFieldInfo.Create('BatchNumber', False, '', 'Номер партии'));
-  FieldsInfo.Add(TFieldInfo.Create('CustomsDeclarationNumber', False, '',
-    'Номер таможенной декларации'));
-  FieldsInfo.Add(TFieldInfo.Create('Storage', False, '', 'Стеллаж №'));
-  FieldsInfo.Add(TFieldInfo.Create('StoragePlace', False, '', 'Место №'));
-  FieldsInfo.Add(TFieldInfo.Create('Seller', False, '', 'Организация - продавец'));
-  FieldsInfo.Add(TFieldInfo.Create('DocumentNumber', False, '', '№ документа'));
-  FieldsInfo.Add(TFieldInfo.Create('Barcode', False, '', 'Цифровой код (Штрих-код)'));
-  FieldsInfo.Add(TFieldInfo.Create('LoadDate', False, '', 'Дата'));
-  FieldsInfo.Add(TFieldInfo.Create('Dollar', False, '', '$'));
-  FieldsInfo.Add(TFieldInfo.Create('Euro', False, '', '€'));
+  FieldsInfo.Add(TFieldInfoEx.Create('ComponentGroup', true,
+    'Р“СЂСѓРїРїР° РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РЅРµ Р·Р°РґР°РЅР°', 'Р“СЂСѓРїРїР° РєРѕРјРїРѕРЅРµРЅС‚РѕРІ', true));
+  FieldsInfo.Add(TFieldInfoEx.Create('Value', true, 'РќР°РёРјРµРЅРѕРІР°РЅРёРµ РЅРµ Р·Р°РґР°РЅРѕ',
+    'РќР°РёРјРµРЅРѕРІР°РЅРёРµ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Producer', true, 'РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ РЅРµ Р·Р°РґР°РЅ',
+    'РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('PackagePins', False, '', 'РљРѕСЂРїСѓСЃ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('ReleaseDate', False, '', 'Р”Р°С‚Р° РІС‹РїСѓСЃРєР°'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Amount', true, 'РљРѕР»РёС‡РµСЃС‚РІРѕ РЅРµ Р·Р°РґР°РЅРѕ',
+    'РљРѕР»РёС‡РµСЃС‚РІРѕ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Packaging', False, '', 'РЈРїР°РєРѕРІРєР°'));
+  FieldsInfo.Add(TFieldInfoEx.Create('PriceR', False, '',
+    'Р—Р°РєСѓРїРѕС‡РЅР°СЏ С†РµРЅР° (Р±РµР· РќР”РЎ)|в‚Ѕ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('PriceD', False, '',
+    'Р—Р°РєСѓРїРѕС‡РЅР°СЏ С†РµРЅР° (Р±РµР· РќР”РЎ)|$'));
+  FieldsInfo.Add(TFieldInfoEx.Create('PriceE', False, '',
+    'Р—Р°РєСѓРїРѕС‡РЅР°СЏ С†РµРЅР° (Р±РµР· РќР”РЎ)|в‚¬'));
+  FieldsInfo.Add(TFieldInfoEx.Create('OriginCountryCode', False, '',
+    'РЎС‚СЂР°РЅР° РїСЂРѕРёСЃС…РѕР¶РґРµРЅРёСЏ|Р¦РёС„СЂРѕРІРѕР№ РєРѕРґ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('OriginCountry', False, '',
+    'РЎС‚СЂР°РЅР° РїСЂРѕРёСЃС…РѕР¶РґРµРЅРёСЏ|РќР°Р·РІР°РЅРёРµ'));
+  FieldsInfo.Add(TFieldInfoEx.Create('BatchNumber', False, '', 'РќРѕРјРµСЂ РїР°СЂС‚РёРё'));
+  FieldsInfo.Add(TFieldInfoEx.Create('CustomsDeclarationNumber', False, '',
+    'РќРѕРјРµСЂ С‚Р°РјРѕР¶РµРЅРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Storage', False, '',
+    'РњРµСЃС‚Рѕ С…СЂР°РЅРµРЅРёСЏ|РЎС‚РµР»Р»Р°Р¶ в„–'));
+  FieldsInfo.Add(TFieldInfoEx.Create('StoragePlace', False, '',
+    'РњРµСЃС‚Рѕ С…СЂР°РЅРµРЅРёСЏ|РњРµСЃС‚Рѕ в„–'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Seller', False, '',
+    'РћСЂРіР°РЅРёР·Р°С†РёСЏ - РїСЂРѕРґР°РІРµС†'));
+  FieldsInfo.Add(TFieldInfoEx.Create('DocumentNumber', False, '',
+    'в„– РґРѕРєСѓРјРµРЅС‚Р°'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Barcode', False, '',
+    'Р¦РёС„СЂРѕРІРѕР№ РєРѕРґ (РЁС‚СЂРёС…-РєРѕРґ)'));
+  FieldsInfo.Add(TFieldInfoEx.Create('LoadDate', False, '', 'Р”Р°С‚Р° Р·Р°РіСЂСѓР·РєРё'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Dollar', False, '', 'РљСѓСЂСЃС‹ РІР°Р»СЋС‚|$'));
+  FieldsInfo.Add(TFieldInfoEx.Create('Euro', False, '', 'РљСѓСЂСЃС‹ РІР°Р»СЋС‚|в‚¬'));
 
   ARootTreeNode := TExcelDM.LoadExcelFileHeader(AFileName);
-  // Цикл по всем дочерним узлам
+  AErrorList := TList<String>.Create;
+  // Р¦РёРєР» РїРѕ РІСЃРµРј РґРѕС‡РµСЂРЅРёРј СѓР·Р»Р°Рј
   for ANode in ARootTreeNode.Childs do
   begin
-    // ANode.Value
+    // Р•СЃР»Рё РµСЃС‚СЊ РґРѕС‡РµСЂРЅРёРµ РєРѕР»РѕРЅРєРё
+    if ANode.Childs.Count > 0 then
+    begin
+      for AChildNode in ANode.Childs do
+      begin
+        // РС‰РµРј РѕРїРёСЃР°РЅРёРµ СЌС‚РѕРіРѕ РїРѕР»СЏ
+        AFI := FieldsInfo.Find(ANode.Value.Trim + '|' +
+          AChildNode.Value.Trim, true);
+        if AFI <> nil then
+        begin
+          Assert(not AFI.Exist);
+          AFI.Exist := true;
+          FieldsInfo2.Add(AFI);
+        end
+        else
+          AErrorList.Add(ANode.Value.Trim + ' ' + AChildNode.Value.Trim)
+      end;
+    end
+    else
+    begin
+      // РС‰РµРј РѕРїРёСЃР°РЅРёРµ СЌС‚РѕРіРѕ РїРѕР»СЏ
+      AFI := FieldsInfo.Find(ANode.Value.Trim, False);
+      if AFI <> nil then
+      begin
+        Assert(not AFI.Exist);
+        AFI.Exist := true;
+        FieldsInfo2.Add(AFI);
+      end
+      else
+        AErrorList.Add(ANode.Value.Trim + ' ' + AChildNode.Value.Trim)
+    end;
   end;
 
-  {
-    BeginUpdate;
-    try
+  if AErrorList.Count > 0 then
+  begin
+    S := Format('РќРµ СЂР°СЃРїРѕР·РЅР°РЅРЅР°СЏ РєРѕР»РѕРЅРєР° РІ РґРѕРєСѓРјРµРЅС‚Рµ Excel.'#13#10'"%s"',
+      [AErrorList[0]]);
+
+    TDialog.Create.ErrorMessageDialog(S);
+    Exit;
+  end;
+
+  for AFI in FieldsInfo do
+  begin
+    // РћС‚СЃСѓС‚СЃРІСѓРµС‚ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёРµ РїРѕР»Рµ
+    if AFI.Required and not AFI.Exist then
+    begin
+      S := Format('РќРµ РЅР°Р№РґРµРЅР° РѕР±СЏР·Р°С‚РµР»СЊРЅР°СЏ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ РєРѕР»РѕРЅРєР°.'#13#10'"%s"',
+        [AFI.DisplayLabel.Replace('|', #13#10)]);
+
+      TDialog.Create.ErrorMessageDialog(S);
+      Exit;
+    end;
+  end;
+
+  BeginUpdate;
+  try
     TLoad.Create.LoadAndProcess(AFileName, TProductsExcelDM, TfrmCustomError,
-    procedure(ASender: TObject)
-    begin
-    qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
-    end,
-    procedure(ASender: TObject)
-    begin
-    AExcelTable := ASender as TProductsExcelTable;
-    // Инициализируем
-    AExcelTable.CheckDuplicate := qProducts;
-    AExcelTable.CurrencyInt := TMyCurrency.Create;
-    end);
-    finally
+      procedure(ASender: TObject)
+      begin
+        qProducts.LoadDataFromExcelTable(ASender as TProductsExcelTable);
+      end,
+      procedure(ASender: TObject)
+      begin
+        AExcelTable := ASender as TProductsExcelTable;
+        // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј
+        AExcelTable.CheckDuplicate := qProducts;
+        AExcelTable.CurrencyInt := TMyCurrency.Create;
+      end,
+      procedure(ASender: TObject)
+      begin
+        (ASender as TProductsExcelDM).Init(FieldsInfo2.ToArray);
+      end);
+  finally
     cxDBTreeList.FullCollapse;
     EndUpdate;
-    end;
-  }
+  end;
+
 end;
 
 procedure TViewProducts2.SetqProducts(const Value: TQueryProducts);
@@ -414,7 +484,7 @@ begin
   if qProductsBase = Value then
     Exit;
 
-  // Отписываемся от событий
+  // РћС‚РїРёСЃС‹РІР°РµРјСЃСЏ РѕС‚ СЃРѕР±С‹С‚РёР№
   FEventList.Clear;
 
   qProductsBase := Value;
@@ -424,7 +494,7 @@ procedure TViewProducts2.UpdateProductCount;
 begin
   inherited;
 
-  // обновляем количество продуктов на всех складах
+  // РѕР±РЅРѕРІР»СЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕРґСѓРєС‚РѕРІ РЅР° РІСЃРµС… СЃРєР»Р°РґР°С…
   StatusBar.Panels[3].Text := Format('%d', [qProducts.TotalCount]);
 end;
 
