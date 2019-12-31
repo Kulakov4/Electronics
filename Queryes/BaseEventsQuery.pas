@@ -749,8 +749,13 @@ begin
       FChangedQueries.Delete(i);
   end
   else
-    FChangedQueries.Add(Q);
-  // Запоминаем, что здесь есть не сохранённые изменения
+  begin
+    i := FChangedQueries.IndexOf(Q);
+    // Если этого запроса ещё нет в списке изменённых
+    if i = -1 then
+      FChangedQueries.Add(Q);
+  end;
+
 end;
 
 procedure TQueryMonitor.DoAfterEditOrInsert(Sender: TObject);
