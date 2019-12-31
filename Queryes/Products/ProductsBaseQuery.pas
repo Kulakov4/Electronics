@@ -381,6 +381,8 @@ var
 begin
   Assert(ASender = FDQuery);
 
+  AAction := eaApplied;
+
   // Список кодов продуктов которые мы удалили с текущего склада
   AProductIDS := TList<Integer>.Create;
   try
@@ -410,7 +412,7 @@ begin
         qSearchStorehouseProduct.FDQuery.Delete;
       end;
 
-      DeleteNotUsedProducts(AProductIDS);
+//      DeleteNotUsedProducts(AProductIDS);
     end
     else
     begin
@@ -425,7 +427,7 @@ begin
       qSearchStorehouseProduct.FDQuery.Delete;
 
       // Удаляем неиспользованные продукты
-      DeleteNotUsedProducts(AProductIDS);
+//      DeleteNotUsedProducts(AProductIDS);
     end;
   finally
     FreeAndNil(AProductIDS);
@@ -575,21 +577,19 @@ begin
 
   W.TryPost;
 
-  // Если транзакция ещё не началась, то начинаем
-  if not FDQuery.Connection.InTransaction then
-  begin
-    if FDQuery.ChangeCount > 0 then
-      FDQuery.Connection.StartTransaction
-    else
-      Exit; // Если нечего сохранять
-  end;
+  // Если нечего сохранять
+  if (not FDQuery.Connection.InTransaction) and (FDQuery.ChangeCount = 0) then
+    Exit;
 
   // Если в ходе сохранения не было ошибок
   if FDQuery.ApplyUpdates() = 0 then
   begin
     FDQuery.CommitUpdates;
 
-    FDQuery.Connection.Commit;
+    // Возможно мы добавили производителя в раздел Склад и транзакция уже началась!!!
+    if FDQuery.Connection.InTransaction then
+      FDQuery.Connection.Commit;
+
     FDataChange := False;
 
     Assert(not FDQuery.UpdatesPending);
@@ -788,7 +788,8 @@ begin
   // FDQuery.DisableControls;
   try
     // Ищем запись которую надо удалить
-    W.LocateByPK(AID, True);
+    if not W.LocateByPK(AID) then
+      Exit;   // Возможно запись удалили вместе с удалением группы
 
     // Если нужно удалить группу
     if W.IsGroup.F.AsInteger = 1 then

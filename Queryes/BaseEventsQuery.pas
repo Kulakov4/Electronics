@@ -104,6 +104,7 @@ type
     FEventList: TObjectList;
     FOnHaveAnyChanges: TNotifyEventsEx;
     FQueries: TList<TQueryBaseEvents>;
+    procedure CheckChangedQueries;
     procedure DoChangedListNotify(Sender: TObject; const Item: TQueryBaseEvents;
       Action: TCollectionNotification);
     function GetConnection: TFDCustomConnection;
@@ -594,7 +595,7 @@ var
 begin
   Assert(DetailParameterName <> '');
 
-  //  Assert(FMaster <> nil);
+  // Assert(FMaster <> nil);
 
   // AIDParent := IfThen(FMaster.FDQuery.RecordCount > 0,
   // FMaster.Wrap.PK.AsInteger, -1);
@@ -801,9 +802,16 @@ procedure TQueryMonitor.ApplyUpdates;
 var
   ACount: Integer;
   AQueryGroup: TQueryGroup2;
+  i: Integer;
   k: Integer;
   Q: TQueryBaseEvents;
 begin
+  if not HaveAnyChanges then
+    Exit;
+
+  // Дополнительно проверяем, что сохранение необходимо!!!
+  CheckChangedQueries;
+
   if not HaveAnyChanges then
     Exit;
 
@@ -812,7 +820,7 @@ begin
 
   FBeforeApplyUpdates.CallEventHandlers(Self);
 
-  while (FChangedQueries.Count > 0) and (k < ACount) do
+  while (FChangedQueries.Count > 0) do
   begin
     Q := FChangedQueries[0];
     if (Q.Owner <> nil) and (Q.Owner is TQueryGroup2) then
@@ -820,7 +828,6 @@ begin
       AQueryGroup := Q.Owner as TQueryGroup2;
       // Просим группу сохранить свои изменения
       AQueryGroup.ApplyUpdates;
-      Inc(k);
     end
     else
     begin
@@ -828,7 +835,11 @@ begin
       Q.ApplyUpdates;
     end;
 
-    Continue;
+    CheckChangedQueries;
+
+    // Если количество запросов нуждающихся в сохранении не уменьшилось
+    if FChangedQueries.Count = ACount then
+      break;
   end;
 
   TryCommit;
@@ -867,6 +878,21 @@ begin
   end;
 
   TryRollback;
+end;
+
+procedure TQueryMonitor.CheckChangedQueries;
+var
+  i: Integer;
+  Q: TQueryBaseEvents;
+begin
+  for i := FChangedQueries.Count - 1 downto 0 do
+  begin
+    Q := FChangedQueries[i];
+
+    // Если нет несохранённых изменений
+    if not Q.HaveAnyChanges then
+      FChangedQueries.Delete(i);
+  end;
 end;
 
 procedure TQueryMonitor.DoChangedListNotify(Sender: TObject;
