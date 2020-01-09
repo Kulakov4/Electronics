@@ -1891,8 +1891,6 @@ begin
   inherited;
   OK := (cxDBTreeList.DataController.DataSource <> nil) and
     (qProductsBase <> nil) and (qProductsBase.FDQuery.Active) and IsViewOK and
-  // (qProductsBase.Master <> nil) and (qProductsBase.Master.FDQuery.Active) and
-  // (qProductsBase.Master.FDQuery.RecordCount > 0) and
     (cxDBTreeList.DataController.DataSet <> nil);
 
   actCommit.Enabled := OK and qProductsBase.HaveAnyChanges;
@@ -1904,7 +1902,9 @@ begin
 
   actExportToExcelDocument.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
-  actAddCategory.Enabled := OK;
+
+  // Выбран какой-то склад!!!
+  actAddCategory.Enabled := OK and (qProductsBase.ParentValue > 0);
 
   actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.SelectionCount = 1);
