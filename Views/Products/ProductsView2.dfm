@@ -3,7 +3,6 @@ inherited ViewProducts2: TViewProducts2
   ExplicitWidth = 1206
   inherited cxDBTreeList: TcxDBTreeList
     Width = 1206
-    ExplicitTop = 48
     ExplicitWidth = 1206
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <

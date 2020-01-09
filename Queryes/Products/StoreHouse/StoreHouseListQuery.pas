@@ -14,6 +14,7 @@ uses
 type
   TStoreHouseListW = class(TDSWrap, IStorehouseList)
   strict private
+    function GetStoreHouseCount: Integer;
     function GetStoreHouseTitle: string;
   private
     FAbbreviation: TFieldWrap;
@@ -106,6 +107,11 @@ begin
   TryAppend;
   Title.F.AsString := AValue;
   TryPost;
+end;
+
+function TStoreHouseListW.GetStoreHouseCount: Integer;
+begin
+  Result := DataSet.RecordCount;
 end;
 
 function TStoreHouseListW.GetStoreHouseTitle: string;

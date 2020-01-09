@@ -499,9 +499,19 @@ begin
 end;
 
 procedure TViewProducts2.UpdateView;
+var
+  OK: Boolean;
 begin
   inherited;
+  OK := (cxDBTreeList.DataController.DataSource <> nil) and (qProducts <> nil)
+    and (qProducts.FDQuery.Active) and IsViewOK and
+    (cxDBTreeList.DataController.DataSet <> nil);
+
   actFilterAndExportToExcelDocument.Enabled := actExportToExcelDocument.Enabled;
+
+  // Есть хотя-бы один склад!  Предпологаем что у нас он всегда выделен!!!
+  actFullScreen.Enabled := OK and (qProducts.StorehouseListInt <> nil) and
+    (qProducts.StorehouseListInt.StoreHouseCount > 0);
 end;
 
 end.
