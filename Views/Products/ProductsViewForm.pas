@@ -8,7 +8,9 @@ uses
 
 type
   TfrmProducts = class(TfrmRoot)
+    procedure FormActivate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDeactivate(Sender: TObject);
   private
     FViewProducts2: TViewProducts2;
     { Private declarations }
@@ -34,11 +36,23 @@ begin
   FViewProducts2.actFullScreen.Visible := False;
 end;
 
+procedure TfrmProducts.FormActivate(Sender: TObject);
+begin
+  inherited;
+  ViewProducts2.DataSource.Enabled := True;
+end;
+
 procedure TfrmProducts.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   inherited;
   Action := caFree;
   frmProducts := nil;
+end;
+
+procedure TfrmProducts.FormDeactivate(Sender: TObject);
+begin
+  inherited;
+  ViewProducts2.DataSource.Enabled := False;
 end;
 
 end.

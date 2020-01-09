@@ -132,8 +132,10 @@ type
       var AllowChange: Boolean);
     procedure cxpcWareHouse2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
+    procedure FormActivate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDeactivate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure OnTreeListCanFocusNode(Sender: TcxCustomTreeList;
       ANode: TcxTreeListNode; var Allow: Boolean);
@@ -1667,6 +1669,20 @@ begin
   cxpcMain.ActivePage := cxtshComp;
   cxpcComp2.ActivePage := cxtshCompGroup;
   cxpcCompGroupRight.ActivePage := cxtsCategoryComponents;
+end;
+
+procedure TfrmMain.FormActivate(Sender: TObject);
+begin
+  if (ViewProducts <> nil) and (cxpcMain.ActivePage = cxtshWareHouse) and
+    (cxpcWareHouse2.ActivePage = cxtshWareHouse2) then
+    ViewProducts.DataSource.Enabled := True;
+end;
+
+procedure TfrmMain.FormDeactivate(Sender: TObject);
+begin
+  if (ViewProducts <> nil) and (cxpcMain.ActivePage = cxtshWareHouse) and
+    (cxpcWareHouse2.ActivePage = cxtshWareHouse2) then
+    ViewProducts.DataSource.Enabled := False;
 end;
 
 function TfrmMain.GetQueryMonitor: TQueryMonitor;

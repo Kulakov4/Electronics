@@ -139,6 +139,7 @@ type
     actRubToDollar: TAction;
     actCopyColumnHeader: TAction;
     N5: TMenuItem;
+    DataSource: TDataSource;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -1179,7 +1180,8 @@ end;
 procedure TViewProductsBase2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
   // Привязываем дерево к данным !!!
-  W.DataSource.Enabled := True;
+  //  W.DataSource.Enabled := True;
+  DataSource.Enabled := True;
 
   cxDBTreeList.FullCollapse;
 
@@ -1206,7 +1208,8 @@ procedure TViewProductsBase2.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
   // cxDBTreeList.DataController.DataSource := nil;
   // cxDBTreeList.BeginUpdate;
-  W.DataSource.Enabled := False;
+  //   W.DataSource.Enabled := False;
+  DataSource.Enabled := False;
 
   // cxDBTreeList.BeginUpdate;
   // cxDBTreeList.DataController.DataSource := nil;
@@ -1710,7 +1713,9 @@ begin
 
   BeginUpdate;
   try
-    cxDBTreeList.DataController.DataSource := W.DataSource;
+    DataSource.DataSet := qProductsBase.FDQuery;
+    cxDBTreeList.DataController.DataSource := DataSource;
+//    cxDBTreeList.DataController.DataSource := W.DataSource;
 
     InitializeColumns;
 

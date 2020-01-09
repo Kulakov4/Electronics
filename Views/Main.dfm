@@ -13,9 +13,11 @@ object frmMain: TfrmMain
   OldCreateOrder = False
   Position = poDesktopCenter
   Scaled = False
+  OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnDeactivate = FormDeactivate
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
@@ -190,18 +192,10 @@ object frmMain: TfrmMain
         object cxtshBasket: TcxTabSheet
           Caption = #1050#1086#1088#1079#1080#1085#1072
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object cxtshBill: TcxTabSheet
           Caption = #1057#1095#1077#1090#1072
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlBillLeft: TPanel
             Left = 0
             Top = 0
@@ -232,10 +226,6 @@ object frmMain: TfrmMain
         object cxtshSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 3
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
     end
