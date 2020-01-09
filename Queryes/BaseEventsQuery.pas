@@ -807,8 +807,6 @@ procedure TQueryMonitor.ApplyUpdates;
 var
   ACount: Integer;
   AQueryGroup: TQueryGroup2;
-  i: Integer;
-  k: Integer;
   Q: TQueryBaseEvents;
 begin
   if not HaveAnyChanges then
@@ -821,7 +819,6 @@ begin
     Exit;
 
   ACount := FChangedQueries.Count;
-  k := 0;
 
   FBeforeApplyUpdates.CallEventHandlers(Self);
 

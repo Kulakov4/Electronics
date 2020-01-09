@@ -8,10 +8,13 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery;
+  FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery,
+  StoreHouseListInterface;
 
 type
-  TStoreHouseListW = class(TDSWrap)
+  TStoreHouseListW = class(TDSWrap, IStorehouseList)
+  strict private
+    function GetStoreHouseTitle: string;
   private
     FAbbreviation: TFieldWrap;
     FAddress: TFieldWrap;
@@ -103,6 +106,11 @@ begin
   TryAppend;
   Title.F.AsString := AValue;
   TryPost;
+end;
+
+function TStoreHouseListW.GetStoreHouseTitle: string;
+begin
+  Result := Title.F.AsString;
 end;
 
 function TStoreHouseListW.LocateByAbbreviation(const AAbbreviation

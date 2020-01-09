@@ -587,6 +587,7 @@ begin
   begin
     FqProducts := TQueryProducts.Create(FComponent);
     qProducts.Master := qStoreHouseList;
+    qProducts.StorehouseListInt := qStoreHouseList.W;
 
     TNotifyEventWrap.Create(FqProducts.BeforeApplyUpdates,
       DoBeforeProductsApplyUpdates, FEventList);

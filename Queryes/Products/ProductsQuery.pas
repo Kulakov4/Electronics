@@ -12,7 +12,7 @@ uses
   System.Generics.Collections, ProductsBaseQuery,
   StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
   DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents,
-  CheckDuplicateInterface, CustomExcelTable;
+  CheckDuplicateInterface, CustomExcelTable, StoreHouseListInterface;
 
 type
   TQueryProducts = class(TQueryProductsBase, ICheckDuplicate)
@@ -22,6 +22,7 @@ type
     FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
     FqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
+    FStorehouseListInt: IStorehouseList;
     FTotalCount: Integer;
     class var FObjectCount: Integer;
     procedure DoAfterInsert(Sender: TObject);
@@ -48,6 +49,8 @@ type
       const AProducers: TList<String>); overload;
     function SearchByID(AIDArray: TArray<Integer>): Integer;
     function SearchForBasket: Integer;
+    property StorehouseListInt: IStorehouseList read FStorehouseListInt write
+        FStorehouseListInt;
     property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }

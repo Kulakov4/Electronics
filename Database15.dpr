@@ -262,7 +262,8 @@ uses
   BillContentInterface in 'Interfaces\BillContentInterface.pas',
   BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
   BillContentExportQuery in 'Queryes\Bill\BillContentExportQuery.pas' {QueryBillContentExport: TFrame},
-  BillContentExportForm in 'Views\Bill\BillContentExportForm.pas' {FrmBillContentExport};
+  BillContentExportForm in 'Views\Bill\BillContentExportForm.pas' {FrmBillContentExport},
+  StoreHouseListInterface in 'Interfaces\StoreHouseListInterface.pas';
 
 {$R *.res}
 

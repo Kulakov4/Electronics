@@ -60,7 +60,6 @@ procedure TQuerySearchStorehouseProduct.FDQueryUpdateError(ASender: TDataSet;
     AAction: TFDErrorAction);
 var
   AE: ESQLiteNativeException;
-  S: string;
 begin
   inherited;
   if not (AException is ESQLiteNativeException) then

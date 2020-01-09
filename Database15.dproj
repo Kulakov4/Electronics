@@ -921,6 +921,7 @@
             <Form>FrmBillContentExport</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Interfaces\StoreHouseListInterface.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

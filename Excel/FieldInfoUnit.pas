@@ -97,7 +97,6 @@ end;
 function TFieldsInfoEx.Find(const ADisplayLabel: string; AChild: Boolean):
     TFieldInfoEx;
 var
-  i: Integer;
   S: string;
 begin
   Assert(not ADisplayLabel.IsEmpty);
