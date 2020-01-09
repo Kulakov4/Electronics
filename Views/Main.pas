@@ -156,6 +156,7 @@ type
     FViewChildCategories: TViewChildCategories;
     FViewComponents: TViewComponents;
     FViewComponentsSearch: TViewComponentsSearch;
+    FViewEventList: TObjectList;
     FViewParametricTable: TViewParametricTable;
     FViewProducts: TViewProducts2;
     FViewProductsBasket: TViewProductsBasket;
@@ -292,10 +293,37 @@ begin
   cxpcCompGroupRight.ActivePage := nil;
   cxpcWareHouse2.ActivePage := nil;
 
+  // Отписываемся от всех событий представлени
+  FViewEventList.Clear;
+
+  // Уничтожаем все представления
+  if FViewComponents <> nil then
+    FreeAndNil(FViewComponents);
+
+  if FViewParametricTable <> nil then
+    FreeAndNil(FViewParametricTable);
+
+  if FViewTreeList <> nil then
+    FreeAndNil(FViewTreeList);
+
+  if FViewComponentsSearch <> nil then
+    FreeAndNil(FViewComponentsSearch);
+
+  if FViewStoreHouse <> nil then
+    FreeAndNil(FViewStoreHouse);
+
+  if FViewProducts <> nil then
+    FreeAndNil(FViewProducts);
+
+  if FViewProductsSearch <> nil then
+    FreeAndNil(FViewProductsSearch);
+
   if not TDataBase.OpenDBConnection(DMRepository.dbConnection,
     TSettings.Create.databasePath, TSettings.Create.DBMigrationFolder,
     TPath.GetDirectoryName(Application.ExeName)) then
     Exit;
+
+  Application.ProcessMessages;
 
   // обновляем доступность кнопки "Сохранить всё"
   DoOnHaveAnyChanges(nil);
@@ -418,6 +446,7 @@ procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   // Отписываемся от всех событий
   FreeAndNil(FEventList);
+  FreeAndNil(FViewEventList);
 end;
 
 procedure TfrmMain.btnFocusRootClick(Sender: TObject);
@@ -572,7 +601,7 @@ begin
 
       // Подписываемся на событие о отображении параметрической таблицы
       TNotifyEventWrap.Create(ViewComponents.OnShowParametricTableEvent,
-        DoOnShowParametricTable, FEventList);
+        DoOnShowParametricTable, FViewEventList);
     end;
 
     ViewComponents.TryApplyBestFit;
@@ -611,7 +640,7 @@ begin
 
       // Подписываемся чтобы искать компонент на складах
       TNotifyEventWrap.Create(TDM.Create.ComponentsExGroup.qComponentsEx.
-        OnLocate, DoOnComponentLocate, FEventList);
+        OnLocate, DoOnComponentLocate, FViewEventList);
     end
     else
       ViewParametricTable.Unlock;
@@ -631,6 +660,7 @@ begin
   if NewPage = cxtshCompGroup then
   begin
     TDM.Create.qTreeList.AddClient;
+    TDM.Create.qTreeList.FDQuery.First;
 
     if FViewTreeList = nil then
     begin
@@ -639,18 +669,19 @@ begin
       ViewTreeList.Parent := pnlCompGroupLeft;
       ViewTreeList.Align := alClient;
       ViewTreeList.qTreeList := TDM.Create.qTreeList;
+      ViewTreeList.ExpandRoot;
 
       // Устанавливаем обработчик события
       ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
-        DoAfterTreeListSmartRefresh, FEventList);
+        DoAfterTreeListSmartRefresh, FViewEventList);
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterScrollM,
-        DoOnProductCategoriesChange, FEventList);
+        DoOnProductCategoriesChange, FViewEventList);
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterOpen,
-        DoOnProductCategoriesChange, FEventList);
+        DoOnProductCategoriesChange, FViewEventList);
     end;
 
     if FcxpcCompGroupRightActivePage <> nil then
@@ -684,7 +715,7 @@ begin
 
       // Подписываемся на событие чтобы открывать найденную категорию
       TNotifyEventWrap.Create(TDM.Create.ComponentsSearchGroup.OnOpenCategory,
-        DoOnOpenCategory, FEventList);
+        DoOnOpenCategory, FViewEventList);
     end;
 
     ViewComponentsSearch.TryApplyBestFit;
@@ -738,10 +769,10 @@ begin
     TDM.Create.qProducts.AddClient;
 
     TNotifyEventWrap.Create(TDM.Create.qStoreHouseList.W.AfterScrollM,
-      DoOnStoreHouseListChange, FEventList);
+      DoOnStoreHouseListChange, FViewEventList);
 
     TNotifyEventWrap.Create(TDM.Create.qStoreHouseList.W.AfterOpen,
-      DoOnStoreHouseListChange, FEventList);
+      DoOnStoreHouseListChange, FViewEventList);
 
     // Привязываем список складов к данным
     if FViewStoreHouse = nil then
@@ -751,7 +782,7 @@ begin
       FViewStoreHouse.qStoreHouseList := TDM.Create.qStoreHouseList;
 
       TNotifyEventWrap.Create(FViewStoreHouse.OnCanFocusRecord,
-        DoOnViewStoreHouseCanFocusRecord, FEventList);
+        DoOnViewStoreHouseCanFocusRecord, FViewEventList);
     end;
 
     // Привязываем представление содержимого склада к данным
@@ -765,7 +796,7 @@ begin
 
       // Подписываемся чтобы искать компонент в параметрической таблице
       TNotifyEventWrap.Create(TDM.Create.qProducts.OnLocate, DoOnProductLocate,
-        FEventList);
+        FViewEventList);
     end;
     ViewProducts.MyApplyBestFit;
   end;
@@ -834,7 +865,7 @@ begin
       ViewProductsSearch.qProductsSearch := TDM.Create.qProductsSearch;
 
       TNotifyEventWrap.Create(TDM.Create.qProductsSearch.OnLocate,
-        DoOnProductLocate, FEventList);
+        DoOnProductLocate, FViewEventList);
     end;
   end;
 end;
@@ -901,8 +932,10 @@ begin
 
   Self.WindowState := wsNormal;
 
-  // Подписываемся на события
+  // Список событий общий
   FEventList := TObjectList.Create;
+  // Список событий представлений
+  FViewEventList := TObjectList.Create;
 
   FfrmComp := TfrmComp.Create(Self);
   FfrmComp.Parent := pnlLoad;
@@ -1025,19 +1058,6 @@ procedure TfrmMain.ShowParametricTable;
 begin
   if frmParametricTable = nil then
   begin
-    {
-      // Нам надо узнать, есть-ли у текущей категории подкатегории
-      rc := TSearchSubCategories.Search(DM2.qTreeList.PK.Value);
-      // Если у нашей категории есть подкатегории
-      if rc > 0 then
-      ACategoryPath := DM2.qTreeList.Value.AsString
-      else
-      begin
-      // Если в цепочке категорий мы последнее звено
-      ACategoryPath := FQuerySearchCategoriesPath.GetLastTreeNodes
-      (DM2.qTreeList.PK.Value, 2, '-');
-      end;
-    }
     // Создаём окно с параметрической таблицей
     frmParametricTable := TfrmParametricTable.Create(Self);
 
@@ -1051,9 +1071,6 @@ begin
     // Привязываем данные к представлению
     frmParametricTable.ViewParametricTable.ComponentsExGroup :=
       TDM.Create.ComponentsExGroup;
-
-    // предупреждаем, что нам потребуются данные этого запроса
-    // DM2.ComponentsExGroup.AddClient;
   end;
 
   frmParametricTable.Show;
