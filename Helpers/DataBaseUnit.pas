@@ -7,8 +7,7 @@ uses
 
 type
   TDataBase = class(TObject)
-  private
-  const
+  private const
     database: String = 'database';
     class procedure CreateNewDataBase(const ADataBaseFolder, AApplicationFolder
       : String); static;
@@ -136,8 +135,7 @@ end;
 
 class function TDataBase.EmptyDatabaseFileName: string;
 begin
-  Result := Format('empty %.1f', [ProgramVersion])
-    .Replace(',', '.') + '.db';
+  Result := Format('empty %.1f', [ProgramVersion]).Replace(',', '.') + '.db';
 end;
 
 class function TDataBase.GetUpdateScript(Version: Integer;
@@ -175,7 +173,7 @@ var
   ANewFileName: string;
   AVersion: Double;
 begin
-//  Result := False;
+  // Result := False;
   Assert(AConnection <> nil);
   Assert(not ADataBaseFolder.IsEmpty);
   Assert(not ADBMigrationFolder.IsEmpty);
@@ -220,7 +218,7 @@ begin
           end;
         end;
 
-        if not RenameFile(ANewFileName, DatabaseFileName) then
+        if not RenameFile(ANewFileName, ADatabaseFileName) then
           raise Exception.CreateFmt('Не могу переименовать файл %s в %s',
             [ANewFileName, DatabaseFileName]);
       end;
@@ -240,13 +238,59 @@ begin
     ADataBaseFileName := TPath.Combine(ADataBaseFolder, DatabaseFileName);
 
     // Если дошли до этого места, значит файл базы данных или был обновлён, или создан, или сразу существовал
-    if not TFile.Exists(ADatabaseFileName) then
+    if not TFile.Exists(ADataBaseFileName) then
       raise Exception.CreateFmt('Не найден файл базы данных %s',
-        [ADatabaseFileName]);
+        [ADataBaseFileName]);
 
     AConnection.DriverName := sDriverName;
     AConnection.Params.DriverID := sDriverName;
-    AConnection.Params.Database := ADatabaseFileName;
+    AConnection.Params.database := ADataBaseFileName;
+    // Устанавливаем соединение с БД
+    AConnection.Open();
+
+    // Проверяем версию БД в самой БД
+    ADBVersion := TQueryVersion.GetDBVersion;
+    if ADBVersion <> DBVersion then
+    begin
+
+      Result := TDialog.Create.UpdateDataBaseDialog2;
+      // Отказались от обновления БД
+      if not Result then
+        Exit;
+
+      AConnection.Close;
+
+      ANewFileName := TPath.Combine(ADataBaseFolder,
+        CreateTempDatabaseFileName);
+
+      TFile.Copy(AFileName, ANewFileName);
+      try
+        // Обновляем структуру БД
+        UpdateDatabaseStructure(ADBMigrationFolder, DBVersion, ANewFileName);
+
+      except
+        // При обновлении версии БД произошла какая-то ошибка
+        on E: Exception do
+        begin
+          // Удаляем временный файл
+          try
+            TFile.Delete(ANewFileName);
+          except
+            ;
+          end;
+          raise Exception.CreateFmt
+            ('Ошибка при обновлении структуры базы данных.'#13#10'%s',
+            [E.Message]);
+        end;
+      end;
+
+      TFile.Delete(ADataBaseFileName);
+
+      if not RenameFile(ANewFileName, ADatabaseFileName) then
+        raise Exception.CreateFmt('Не могу переименовать файл %s в %s',
+          [ANewFileName, ADatabaseFileName]);
+    end;
+
     // Устанавливаем соединение с БД
     AConnection.Open();
 
@@ -283,7 +327,7 @@ begin
   AUpdateConnection := TFDConnection.Create(nil);
   try
     AUpdateConnection.DriverName := sDriverName;
-    AUpdateConnection.Params.Database := ADataBaseFileName;
+    AUpdateConnection.Params.database := ADataBaseFileName;
     // AUpdateConnection.Params.DriverID := sDriverName;
     AUpdateConnection.Connected := True;
 

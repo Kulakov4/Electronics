@@ -54,6 +54,7 @@ type
     function CreateFolderDialog(const AValue: String): Integer;
     function ClearBasketDialog: Boolean;
     function UpdateDataBaseDialog(AVer, AMaxVersion: Double): Boolean;
+    function UpdateDataBaseDialog2: Boolean;
     function UseDefaultMinWholeSale(AMinWholeSale: Double): Integer;
     procedure DirectoryNotExistDialog(const AValue: String);
     procedure ExcelFilesNotFoundDialog;
@@ -217,6 +218,12 @@ begin
     1, 8, FS)])), 'Обновление базы данных', MB_YESNO + MB_ICONQUESTION) = IDYES;
 end;
 
+function TDialog.UpdateDataBaseDialog2: Boolean;
+begin
+  Result := Application.MessageBox(PChar('Необходимо обновить базу данных. Продолжить?'),
+    'Обновление базы данных', MB_YESNO + MB_ICONQUESTION) = IDYES;
+end;
+
 function TDialog.UseDefaultMinWholeSale(AMinWholeSale: Double): Integer;
 begin
   Assert(AMinWholeSale >= 0);
@@ -239,8 +246,9 @@ end;
 
 procedure TDialog.NoParametersForAnalog;
 begin
-  Application.MessageBox(PChar('Не найдено ни одного параметра для поиска аналога'),
-    PChar(sError), MB_OK + MB_ICONSTOP);
+  Application.MessageBox
+    (PChar('Не найдено ни одного параметра для поиска аналога'), PChar(sError),
+    MB_OK + MB_ICONSTOP);
 end;
 
 procedure TDialog.DuplicateNotFound;
@@ -251,7 +259,8 @@ end;
 
 procedure TDialog.FileNameNotContainCategoryID;
 begin
-  Application.MessageBox(PChar('Имя файла не содержит идентификатора категории загрузки (или пробела)'),
+  Application.MessageBox
+    (PChar('Имя файла не содержит идентификатора категории загрузки (или пробела)'),
     PChar(sError), MB_OK + MB_ICONSTOP);
 end;
 
