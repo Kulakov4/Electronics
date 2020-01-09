@@ -263,7 +263,8 @@ uses
   BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
   BillContentExportQuery in 'Queryes\Bill\BillContentExportQuery.pas' {QueryBillContentExport: TFrame},
   BillContentExportForm in 'Views\Bill\BillContentExportForm.pas' {FrmBillContentExport},
-  StoreHouseListInterface in 'Interfaces\StoreHouseListInterface.pas';
+  StoreHouseListInterface in 'Interfaces\StoreHouseListInterface.pas',
+  DelNotUsedProductsQuery in 'Queryes\Products\DelNotUsedProductsQuery.pas' {QueryDelNotUsedProducts2: TFrame};
 
 {$R *.res}
 

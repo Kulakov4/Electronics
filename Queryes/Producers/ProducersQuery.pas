@@ -21,6 +21,7 @@ type
     FName: TFieldWrap;
     FProducerParamSubParamID: TParamWrap;
     FProducerTypeID: TFieldWrap;
+    procedure DoBeforeDelete(Sender: TObject);
   protected
     procedure DoAfterOpen(Sender: TObject);
   public
@@ -58,7 +59,7 @@ implementation
 {$R *.dfm}
 
 uses RepositoryDataModule, DefaultParameters, ProducerTypesQuery,
-  FireDAC.Phys.SQLiteWrapper;
+  FireDAC.Phys.SQLiteWrapper, DelNotUsedProductsQuery;
 
 constructor TQueryProducers.Create(AOwner: TComponent);
 begin
@@ -145,6 +146,7 @@ begin
     'ProducerParamSubParamID');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
+  TNotifyEventWrap.Create(BeforeDelete, DoBeforeDelete, EventList);
 end;
 
 procedure TProducersW.AddNewValue(const AValue: string;
@@ -164,6 +166,15 @@ begin
   Cnt.F.ReadOnly := True;
   Cnt.F.OnGetText := FDQueryCntGetText;
   // Name.DisplayLabel := 'Производитель';
+end;
+
+procedure TProducersW.DoBeforeDelete(Sender: TObject);
+begin
+  if DataSet.RecordCount = 0 then
+    Exit;
+
+  // Удаляем неиспользуемые продукты этого производителя!!!
+  TQueryDelNotUsedProducts2.Delete(ID.F.AsInteger);
 end;
 
 procedure TProducersW.FDQueryCntGetText(Sender: TField; var Text: string;
