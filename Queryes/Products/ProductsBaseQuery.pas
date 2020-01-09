@@ -579,7 +579,10 @@ begin
 
   // Если нечего сохранять
   if (not FDQuery.Connection.InTransaction) and (FDQuery.ChangeCount = 0) then
+  begin
+    FDataChange := False;
     Exit;
+  end;
 
   // Если в ходе сохранения не было ошибок
   if FDQuery.ApplyUpdates() = 0 then
