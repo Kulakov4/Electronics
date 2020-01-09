@@ -606,6 +606,7 @@ procedure TViewBill.SelectFocusedBill;
 begin
   ClearSelection;
   SelectFocusedRecord(W.Number.FieldName);
+  UpdateView;
 end;
 
 procedure TViewBill.SetqBill(const Value: TQryBill);
