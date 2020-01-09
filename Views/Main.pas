@@ -1675,14 +1675,14 @@ procedure TfrmMain.FormActivate(Sender: TObject);
 begin
   if (ViewProducts <> nil) and (cxpcMain.ActivePage = cxtshWareHouse) and
     (cxpcWareHouse2.ActivePage = cxtshWareHouse2) then
-    ViewProducts.DataSource.Enabled := True;
+    ViewProducts.ConnectView;
 end;
 
 procedure TfrmMain.FormDeactivate(Sender: TObject);
 begin
   if (ViewProducts <> nil) and (cxpcMain.ActivePage = cxtshWareHouse) and
     (cxpcWareHouse2.ActivePage = cxtshWareHouse2) then
-    ViewProducts.DataSource.Enabled := False;
+    ViewProducts.DisconnectView;
 end;
 
 function TfrmMain.GetQueryMonitor: TQueryMonitor;

@@ -139,7 +139,6 @@ type
     actRubToDollar: TAction;
     actCopyColumnHeader: TAction;
     N5: TMenuItem;
-    DataSource: TDataSource;
     procedure actAddCategoryExecute(Sender: TObject);
     procedure actAddComponentExecute(Sender: TObject);
     procedure actApplyBestFitExecute(Sender: TObject);
@@ -283,6 +282,8 @@ type
     destructor Destroy; override;
     procedure BeginUpdate; override;
     function CheckAndSaveChanges: Integer;
+    procedure ConnectView;
+    procedure DisconnectView;
     procedure EndUpdate; override;
     procedure ExportToExcelDocument(const AFileName: String);
     function GetSelectedID: TArray<Integer>;
@@ -1180,8 +1181,7 @@ end;
 procedure TViewProductsBase2.DoAfterOpenOrRefresh(Sender: TObject);
 begin
   // ѕрив€зываем дерево к данным !!!
-  //  W.DataSource.Enabled := True;
-  DataSource.Enabled := True;
+  W.DataSource.Enabled := True;
 
   cxDBTreeList.FullCollapse;
 
@@ -1208,8 +1208,7 @@ procedure TViewProductsBase2.DoBeforeOpenOrRefresh(Sender: TObject);
 begin
   // cxDBTreeList.DataController.DataSource := nil;
   // cxDBTreeList.BeginUpdate;
-  //   W.DataSource.Enabled := False;
-  DataSource.Enabled := False;
+  W.DataSource.Enabled := False;
 
   // cxDBTreeList.BeginUpdate;
   // cxDBTreeList.DataController.DataSource := nil;
@@ -1281,6 +1280,16 @@ begin
   // »щем или добавл€ем такого производител€ в справочнике производителей
   qProductsBase.ProducersGroup.LocateOrAppend(AText,
     sWareHouseDefaultProducerType);
+end;
+
+procedure TViewProductsBase2.ConnectView;
+begin
+  cxDBTreeList.DataController.DataSource := W.DataSource;
+end;
+
+procedure TViewProductsBase2.DisconnectView;
+begin
+  cxDBTreeList.DataController.DataSource := nil;
 end;
 
 procedure TViewProductsBase2.DoAfterCommitUpdates(Sender: TObject);
@@ -1713,9 +1722,7 @@ begin
 
   BeginUpdate;
   try
-    DataSource.DataSet := qProductsBase.FDQuery;
-    cxDBTreeList.DataController.DataSource := DataSource;
-//    cxDBTreeList.DataController.DataSource := W.DataSource;
+    cxDBTreeList.DataController.DataSource := W.DataSource;
 
     InitializeColumns;
 

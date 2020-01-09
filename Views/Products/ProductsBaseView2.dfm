@@ -1149,8 +1149,4 @@ inherited ViewProductsBase2: TViewProductsBase2
     Left = 72
     Top = 200
   end
-  object DataSource: TDataSource
-    Left = 240
-    Top = 152
-  end
 end

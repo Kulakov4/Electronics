@@ -39,7 +39,7 @@ end;
 procedure TfrmProducts.FormActivate(Sender: TObject);
 begin
   inherited;
-  ViewProducts2.DataSource.Enabled := True;
+  ViewProducts2.ConnectView;
   // Выводим в заголовок формы название текущего склада
   Caption := ViewProducts2.qProducts.StorehouseListInt.StoreHouseTitle;
 end;
@@ -54,7 +54,7 @@ end;
 procedure TfrmProducts.FormDeactivate(Sender: TObject);
 begin
   inherited;
-  ViewProducts2.DataSource.Enabled := False;
+  ViewProducts2.DisconnectView;
 end;
 
 end.
