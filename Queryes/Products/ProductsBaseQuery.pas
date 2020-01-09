@@ -381,8 +381,6 @@ var
 begin
   Assert(ASender = FDQuery);
 
-  AAction := eaApplied;
-
   // Список кодов продуктов которые мы удалили с текущего склада
   AProductIDS := TList<Integer>.Create;
   try

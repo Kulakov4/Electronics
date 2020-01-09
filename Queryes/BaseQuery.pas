@@ -204,18 +204,21 @@ begin
     if ARequest = arDelete then
     begin
       ApplyDelete(ASender, ARequest, AAction, AOptions);
+      AAction := eaApplied;
     end;
 
     // Операция добавления записи на клиенте
     if ARequest = arInsert then
     begin
       ApplyInsert(ASender, ARequest, AAction, AOptions);
+      AAction := eaApplied;
     end;
 
     // Операция обновления записи на клиенте
     if ARequest = arUpdate then
     begin
       ApplyUpdate(ASender, ARequest, AAction, AOptions);
+      AAction := eaApplied;
     end;
     {
       except
