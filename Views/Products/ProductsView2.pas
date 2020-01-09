@@ -186,8 +186,6 @@ begin
     frmProducts := TfrmProducts.Create(Self);
     frmProducts.ViewProducts2.qProducts := qProducts;
   end;
-  // Выводим в заголовок формы название текущего склада
-  frmProducts.Caption := qProducts.StorehouseListInt.StoreHouseTitle;
   frmProducts.Show;
 end;
 
