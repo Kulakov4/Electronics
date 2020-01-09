@@ -1903,8 +1903,7 @@ begin
   actExportToExcelDocument.Enabled := OK and
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
-  // Выбран какой-то склад!!!
-  actAddCategory.Enabled := OK and (qProductsBase.ParentValue > 0);
+  actAddCategory.Enabled := OK;
 
   actAddComponent.Enabled := OK and (cxDBTreeList.FocusedNode <> nil) and
     (cxDBTreeList.SelectionCount = 1);

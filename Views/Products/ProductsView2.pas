@@ -512,6 +512,9 @@ begin
   // Есть хотя-бы один склад!  Предпологаем что у нас он всегда выделен!!!
   actFullScreen.Enabled := OK and (qProducts.StorehouseListInt <> nil) and
     (qProducts.StorehouseListInt.StoreHouseCount > 0);
+
+  // Выбран какой-то склад!!!
+  actAddCategory.Enabled := OK and (qProductsBase.ParentValue > 0);
 end;
 
 end.
