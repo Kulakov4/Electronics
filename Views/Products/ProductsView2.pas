@@ -352,6 +352,7 @@ var
   S: string;
 begin
   Assert(not AFileName.IsEmpty);
+  AChildNode := nil;
 
   FieldsInfo := TFieldsInfoEx.Create;
   FieldsInfo2 := TFieldsInfoEx.Create;
