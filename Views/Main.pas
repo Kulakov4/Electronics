@@ -768,10 +768,10 @@ begin
     TDM.Create.qStoreHouseList.AddClient;
     TDM.Create.qProducts.AddClient;
 
-    TNotifyEventWrap.Create(TDM.Create.qStoreHouseList.W.AfterScrollM,
+    TNotifyEventWrap.Create(TDM.Create.qProducts.W.AfterRefresh,
       DoOnStoreHouseListChange, FViewEventList);
 
-    TNotifyEventWrap.Create(TDM.Create.qStoreHouseList.W.AfterOpen,
+    TNotifyEventWrap.Create(TDM.Create.qProducts.W.AfterOpen,
       DoOnStoreHouseListChange, FViewEventList);
 
     // Привязываем список складов к данным
@@ -1953,9 +1953,10 @@ begin
 
   // Если активна вкладка "Склады"
   if (cxpcMain.ActivePage = cxtshWareHouse) and
-    (TDM.Create.qStoreHouseList.FDQuery.RecordCount > 0) then
+    (TDM.Create.qProducts.StorehouseListInt <> nil) and
+    not TDM.Create.qProducts.StorehouseListInt.StoreHouseTitle.IsEmpty then
   begin
-    S := ' - ' + TDM.Create.qStoreHouseList.W.Title.F.AsString;
+    S := ' - ' + TDM.Create.qProducts.StorehouseListInt.StoreHouseTitle;
   end;
 
   // Меняем заголовок формы

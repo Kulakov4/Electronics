@@ -7,7 +7,7 @@ inherited ViewStoreHouse: TViewStoreHouse
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnCanFocusRecord = cxGridDBBandedTableViewCanFocusRecord
       OnEditValueChanged = cxGridDBBandedTableViewEditValueChanged
-      Styles.Inactive = cxStyleInactive
+      OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
     end
   end
   inherited dxBarManager: TdxBarManager

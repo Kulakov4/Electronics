@@ -221,9 +221,8 @@ var
 begin
   Application.Hint := '';
 
-  Assert(qProducts.Master <> nil);
-
-  if qProducts.Master.FDQuery.RecordCount = 0 then
+  if (qProducts.StorehouseListInt = nil) or
+    (qProducts.StorehouseListInt.StoreHouseCount = 0) then
   begin
     TDialog.Create.ErrorMessageDialog
       ('Нет информации о текущем складе.'#13#10'Действие отменено');
@@ -510,12 +509,14 @@ begin
 
   actFilterAndExportToExcelDocument.Enabled := actExportToExcelDocument.Enabled;
 
-  // Есть хотя-бы один склад!  Предпологаем что у нас он всегда выделен!!!
-  actFullScreen.Enabled := OK and (qProducts.StorehouseListInt <> nil) and
-    (qProducts.StorehouseListInt.StoreHouseCount > 0);
+  // Выбран какой-то склад!!!
+  actFullScreen.Enabled := OK and (qProductsBase.ParentValue > 0);
 
   // Выбран какой-то склад!!!
   actAddCategory.Enabled := OK and (qProductsBase.ParentValue > 0);
+
+  // Выбран какой-то склад!!!
+  actLoadFromExcelDocument.Enabled := OK and (qProductsBase.ParentValue > 0);
 end;
 
 end.

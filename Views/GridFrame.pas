@@ -29,7 +29,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
   System.Generics.Collections, DragHelper, OrderQuery, GridSort,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  SelectionInt;
+  SelectionInt, dxDateRanges;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;

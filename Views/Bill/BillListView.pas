@@ -29,7 +29,7 @@ uses
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, BillQuery,
   cxDropDownEdit, dxDateTimeWheelPicker, cxBarEditItem, cxCalendar,
   RepositoryDataModule, System.Generics.Collections, dxCalloutPopup,
-  Vcl.ExtCtrls, Vcl.StdCtrls, cxButtons, BillInterface;
+  Vcl.ExtCtrls, Vcl.StdCtrls, cxButtons, BillInterface, dxDateRanges;
 
 type
   TViewBill = class(TfrmGrid, IBill)
