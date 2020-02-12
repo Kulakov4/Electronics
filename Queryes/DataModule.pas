@@ -586,8 +586,8 @@ begin
   if FqProducts = nil then
   begin
     FqProducts := TQueryProducts.Create(FComponent);
-    qProducts.Master := qStoreHouseList;
-    qProducts.StorehouseListInt := qStoreHouseList.W;
+//    qProducts.Master := qStoreHouseList;
+//    qProducts.StorehouseListInt := qStoreHouseList.W;
 
     TNotifyEventWrap.Create(FqProducts.BeforeApplyUpdates,
       DoBeforeProductsApplyUpdates, FEventList);
@@ -656,7 +656,10 @@ end;
 function TDM.GetqStoreHouseList: TQueryStoreHouseList;
 begin
   if FqStoreHouseList = nil then
+  begin
     FqStoreHouseList := TQueryStoreHouseList.Create(FComponent);
+    FqStoreHouseList.W.ProductsInt := qProducts
+  end;
   Result := FqStoreHouseList;
 end;
 

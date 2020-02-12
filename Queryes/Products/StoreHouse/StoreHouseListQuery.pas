@@ -9,7 +9,7 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
   FireDAC.Comp.Client, Vcl.StdCtrls, DSWrap, BaseEventsQuery,
-  StoreHouseListInterface;
+  StoreHouseListInterface, ProductsInterface;
 
 type
   TStoreHouseListW = class(TDSWrap, IStorehouseList)
@@ -22,6 +22,7 @@ type
     FResponsible: TFieldWrap;
     FTitle: TFieldWrap;
     FID: TFieldWrap;
+    FProductsInt: IProducts;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddNewValue(const AValue: string);
@@ -32,6 +33,7 @@ type
     property Responsible: TFieldWrap read FResponsible;
     property Title: TFieldWrap read FTitle;
     property ID: TFieldWrap read FID;
+    property ProductsInt: IProducts read FProductsInt write FProductsInt;
   end;
 
   TQueryStoreHouseList = class(TQueryBaseEvents)

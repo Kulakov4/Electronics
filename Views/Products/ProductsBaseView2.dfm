@@ -884,6 +884,7 @@ inherited ViewProductsBase2: TViewProductsBase2
       ShowCaption = True
       PropertiesClassName = 'TcxLookupComboBoxProperties'
       Properties.ListColumns = <>
+      Properties.ListOptions.ShowHeader = False
       Properties.OnChange = cxbeiExtraChargeTypePropertiesChange
     end
     object dxbcMinWholeSale: TdxBarCombo

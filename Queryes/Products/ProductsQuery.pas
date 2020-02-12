@@ -12,12 +12,15 @@ uses
   System.Generics.Collections, ProductsBaseQuery,
   StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
   DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents,
-  CheckDuplicateInterface, CustomExcelTable, StoreHouseListInterface;
+  CheckDuplicateInterface, CustomExcelTable, StoreHouseListInterface,
+  ProductsInterface;
 
 type
-  TQueryProducts = class(TQueryProductsBase, ICheckDuplicate)
+  TQueryProducts = class(TQueryProductsBase, ICheckDuplicate, IProducts)
   strict private
     function HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean; stdcall;
+    procedure LoadContent(AStoreHouseID: Integer; AStorehouseListInt:
+        IStorehouseList);
   private
     FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
@@ -49,8 +52,7 @@ type
       const AProducers: TList<String>); overload;
     function SearchByID(AIDArray: TArray<Integer>): Integer;
     function SearchForBasket: Integer;
-    property StorehouseListInt: IStorehouseList read FStorehouseListInt write
-        FStorehouseListInt;
+    property StorehouseListInt: IStorehouseList read FStorehouseListInt;
     property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
@@ -396,6 +398,15 @@ begin
     FNeedUpdateCount := false;
   end;
   Result := FTotalCount;
+end;
+
+procedure TQueryProducts.LoadContent(AStoreHouseID: Integer;
+    AStorehouseListInt: IStorehouseList);
+begin
+  Assert(AStorehouseListInt <> nil);
+  FStorehouseListInt := AStorehouseListInt;
+
+  TryLoad2(AStoreHouseID);
 end;
 
 function TQueryProducts.SearchByID(AIDArray: TArray<Integer>): Integer;
