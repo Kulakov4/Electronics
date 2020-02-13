@@ -4,9 +4,9 @@ inherited ViewProductsBase2: TViewProductsBase2
   ExplicitWidth = 1177
   ExplicitHeight = 598
   inherited cxDBTreeList: TcxDBTreeList
-    Top = 54
+    Top = 56
     Width = 1177
-    Height = 525
+    Height = 523
     Bands = <
       item
         Caption.AlignHorz = taCenter
@@ -137,9 +137,9 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 54
+    ExplicitTop = 56
     ExplicitWidth = 1177
-    ExplicitHeight = 525
+    ExplicitHeight = 523
     object clID: TcxDBTreeListColumn
       Visible = False
       Caption.AlignHorz = taCenter
@@ -702,11 +702,12 @@ inherited ViewProductsBase2: TViewProductsBase2
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False
+    UseSystemFont = False
     PixelsPerInch = 96
     DockControlHeights = (
       0
       0
-      54
+      56
       0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
@@ -758,6 +759,11 @@ inherited ViewProductsBase2: TViewProductsBase2
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Segoe UI'
+      Font.Style = []
       Images = DMRepository.cxImageList
       ItemLinks = <
         item
@@ -786,7 +792,7 @@ inherited ViewProductsBase2: TViewProductsBase2
         end>
       OneOnRow = True
       Row = 1
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end
@@ -860,8 +866,13 @@ inherited ViewProductsBase2: TViewProductsBase2
       Hint = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086', '#1096#1090'.'
       Visible = ivAlways
       ShowCaption = True
-      PropertiesClassName = 'TcxExtLookupComboBoxProperties'
-      Properties.OnChange = cxbeiExtraChargePropertiesChange
+      PropertiesClassName = 'TcxPopupEditProperties'
+      Properties.PopupAutoSize = False
+      Properties.PopupHeight = 300
+      Properties.PopupMinWidth = 350
+      Properties.PopupSysPanelStyle = True
+      Properties.PopupWidth = 400
+      Properties.ReadOnly = True
     end
     object dxbcWholeSale: TdxBarCombo
       Caption = #1054#1087#1090'. '#1085#1072#1094#1077#1085#1082#1072

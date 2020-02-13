@@ -28,7 +28,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, System.ImageList,
-  cxDataControllerConditionalFormattingRulesManagerDialog, cxImageList;
+  cxDataControllerConditionalFormattingRulesManagerDialog, cxImageList,
+  dxDateRanges;
 
 const
   WM_ON_CLOSE_POPUP = WM_USER + 98;

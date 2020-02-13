@@ -223,18 +223,17 @@ type
     procedure DoAfterOpenOrRefresh(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeOpenOrRefresh(Sender: TObject);
+    procedure DoOnCloseExtraChargesPopup(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     procedure DoOnRubToDollarChange(Sender: TObject);
     function GetIDExtraChargeType: Integer;
-    function GetIDExtraCharge: Integer;
     function GetViewExtraChargeSimple: TViewExtraChargeSimple;
     procedure ProcessResyncDataSetMessage(var Message: TMessage);
       message WM_RESYNC_DATASET;
     procedure ProcessSelectionChanged(var Message: TMessage);
       message WM_SELECTION_CHANGED;
-    procedure SaveBarComboValue(AdxBarCombo: TdxBarCombo;
-      const AFieldName: String);
-    procedure SetIDExtraCharge(const Value: Integer);
+    function SaveBarComboValue(AdxBarCombo: TdxBarCombo;
+      const AFieldName: String): Double;
     procedure SetIDExtraChargeType(const Value: Integer);
     procedure SetqProductsBase(const Value: TQueryProductsBase);
     procedure UpdateAllBarComboText;
@@ -272,8 +271,6 @@ type
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     property IDExtraChargeType: Integer read GetIDExtraChargeType
       write SetIDExtraChargeType;
-    property IDExtraCharge: Integer read GetIDExtraCharge
-      write SetIDExtraCharge;
     property ViewExtraChargeSimple: TViewExtraChargeSimple
       read GetViewExtraChargeSimple;
     property W: TProductW read GetW;
@@ -920,19 +917,21 @@ end;
 procedure TViewProductsBase2.cxbeiExtraChargePropertiesChange(Sender: TObject);
 begin
   inherited;
-  (Sender as TcxExtLookupComboBox).PostEditValue;
+  (*
+    (Sender as TcxExtLookupComboBox).PostEditValue;
 
-  // Ищем выбранную запись о диапазоне и оптовой наценке
-  qProductsBase.ExtraChargeGroup.qExtraCharge2.W.LocateByPK(IDExtraCharge);
+    // Ищем выбранную запись о диапазоне и оптовой наценке
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.LocateByPK(IDExtraCharge);
 
-  // Сохраняем выбранный диапазон и значение оптовой наценки
-  UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
+    // Сохраняем выбранный диапазон и значение оптовой наценки
+    UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
     [IDExtraChargeType, IDExtraCharge,
     qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value]);
 
-  // Выбираем это значение в выпадающем списке
-  UpdateBarComboText(dxbcWholeSale,
+    // Выбираем это значение в выпадающем списке
+    UpdateBarComboText(dxbcWholeSale,
     qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value);
+  *)
 end;
 
 procedure TViewProductsBase2.cxbeiExtraChargeTypePropertiesChange
@@ -942,11 +941,15 @@ var
   S: string;
 begin
   inherited;
+  if cxbeiExtraChargeType.Tag <> 0 then
+    Exit;
+
   (Sender as TcxLookupComboBox).PostEditValue;
 
   // Фильтруем оптовые наценки по типу
   qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
     (cxbeiExtraChargeType.EditValue);
+  ViewExtraChargeSimple.MainView.ApplyBestFit;
 
   // Помещаем пустое значение в качестве выбранного
   dxbcWholeSale.Tag := 1;
@@ -1297,6 +1300,34 @@ begin
   UpdateView;
 end;
 
+procedure TViewProductsBase2.DoOnCloseExtraChargesPopup(Sender: TObject);
+var
+  AIDExtraCharge: Integer;
+  AWholeSale: string;
+begin
+  AIDExtraCharge := qProductsBase.ExtraChargeGroup.qExtraCharge2.W.ID.
+    F.AsInteger;
+
+  cxbeiExtraCharge.EditValue := qProductsBase.ExtraChargeGroup.qExtraCharge2.W.
+    Range.F.AsString;
+
+  AWholeSale := qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.
+    F.AsString;
+
+  dxbcWholeSale.Tag := 1;
+  dxbcWholeSale.ItemIndex := dxbcWholeSale.Items.IndexOf(AWholeSale);
+  dxbcWholeSale.Tag := 0;
+
+  // Сохраняем выбранный диапазон и значение оптовой наценки
+  UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
+    [IDExtraChargeType, AIDExtraCharge,
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value]);
+
+  // Выбираем это значение в выпадающем списке
+  UpdateBarComboText(dxbcWholeSale,
+    qProductsBase.ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value);
+end;
+
 procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
 begin
   inherited;
@@ -1342,9 +1373,29 @@ begin
 end;
 
 procedure TViewProductsBase2.dxbcWholeSaleChange(Sender: TObject);
+var
+  AdxBarCombo: TdxBarCombo;
+  AValue: Double;
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo, W.WholeSale.FieldName);
+  AdxBarCombo := Sender as TdxBarCombo;
+
+  if AdxBarCombo.Tag <> 0 then
+    Exit;
+
+  AValue := SaveBarComboValue(AdxBarCombo, W.WholeSale.FieldName);
+
+  // Сохраняем выбранный диапазон и значение оптовой наценки
+  UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
+    [NULL, NULL, AValue]);
+
+  cxbeiExtraChargeType.Tag := 1;
+  cxbeiExtraChargeType.EditValue := NULL;
+  cxbeiExtraChargeType.Tag := 0;
+
+  // Фильтруем оптовые наценки по типу
+  qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType(0);
+  cxbeiExtraCharge.EditValue := NULL;
 end;
 
 procedure TViewProductsBase2.EndUpdate;
@@ -1380,11 +1431,6 @@ begin
     Result := 0
   else
     Result := cxbeiExtraChargeType.EditValue;
-end;
-
-function TViewProductsBase2.GetIDExtraCharge: Integer;
-begin
-  Result := cxbeiExtraCharge.EditValue;
 end;
 
 function TViewProductsBase2.GetNodeID(ANode: TcxDBTreeListNode)
@@ -1440,7 +1486,12 @@ end;
 function TViewProductsBase2.GetViewExtraChargeSimple: TViewExtraChargeSimple;
 begin
   if FViewExtraChargeSimple = nil then
+  begin
     FViewExtraChargeSimple := TViewExtraChargeSimple.Create(Self);
+    TNotifyEventWrap.Create(FViewExtraChargeSimple.OnClosePopup,
+      DoOnCloseExtraChargesPopup);
+    // FViewExtraChargeSimple.Parent := Panel1;
+  end;
 
   Result := FViewExtraChargeSimple;
 end;
@@ -1457,7 +1508,7 @@ begin
     cxDBTreeList.Bands[i].Caption.MultiLine := True;
     cxDBTreeList.Bands[i].Caption.ShowEndEllipsis := False;
     cxDBTreeList.Bands[i].Options.OnlyOwnColumns := True;
-//    cxDBTreeList.Bands[i].Expandable := tlbeNotExpandable;
+    // cxDBTreeList.Bands[i].Expandable := tlbeNotExpandable;
 
     for j := 0 to cxDBTreeList.Bands[i].ColumnCount - 1 do
     begin
@@ -1675,10 +1726,8 @@ begin
 
 end;
 
-procedure TViewProductsBase2.SaveBarComboValue(AdxBarCombo: TdxBarCombo;
-  const AFieldName: String);
-var
-  AValue: Double;
+function TViewProductsBase2.SaveBarComboValue(AdxBarCombo: TdxBarCombo;
+  const AFieldName: String): Double;
 begin
   Assert(AdxBarCombo <> nil);
   Assert(not AFieldName.IsEmpty);
@@ -1686,23 +1735,23 @@ begin
   if AdxBarCombo.Tag = 1 then
     Exit;
 
-  AValue := StrToFloatDef(AdxBarCombo.Text, 0);
+  Result := StrToFloatDef(AdxBarCombo.Text, 0);
 
-  if AValue < 0 then
-    AValue := 0;
+  if Result < 0 then
+    Result := 0;
 
-  UpdateFieldValue([W.Field(AFieldName)], [AValue]);
+  // Сохраняем выбранный диапазон и значение оптовой наценки
+  // UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
+  // [NULL, NULL, qProductsBase.ExtraChargeGroup.qExtraCharge2.W.
+  // WholeSale.F.Value]);
+
+  // UpdateFieldValue([W.Field(AFieldName)], [AValue]);
 
   // если ввели какое-то недопустимое значение или 0
-  if AValue = 0 then
+  if Result = 0 then
     UpdateBarComboText(AdxBarCombo, NULL);
 
   UpdateView;
-end;
-
-procedure TViewProductsBase2.SetIDExtraCharge(const Value: Integer);
-begin
-  cxbeiExtraCharge.EditValue := Value;
 end;
 
 procedure TViewProductsBase2.SetIDExtraChargeType(const Value: Integer);
@@ -1749,6 +1798,7 @@ begin
 
     // Фильтруем оптовые надбавки по типу
     FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType(0);
+    ViewExtraChargeSimple.MainView.ApplyBestFit;
 
     // Привязываем представление оптовых надбавок
     TDBLCB.InitProp(cxbeiExtraChargeType.Properties as
@@ -1760,13 +1810,19 @@ begin
 
     ViewExtraChargeSimple.qExtraCharge :=
       FqProductsBase.ExtraChargeGroup.qExtraCharge2;
-    TExtDBLCB.InitProp
+
+    ViewExtraChargeSimple.Font.Size := 9;
+
+    (cxbeiExtraCharge.Properties as TcxPopupEditproperties).PopupControl :=
+      ViewExtraChargeSimple;
+    (*
+      TExtDBLCB.InitProp
       (cxbeiExtraCharge.Properties as TcxExtLookupComboBoxProperties,
       ViewExtraChargeSimple.MainView,
       FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.PKFieldName,
       FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.FieldName,
       lsFixedList, True, True);
-
+    *)
     LoadWholeSale;
 
     // Просим монитор сообщать нам об изменении в БД
@@ -1808,6 +1864,8 @@ begin
 end;
 
 procedure TViewProductsBase2.UpdateAllBarComboText;
+var
+  ARange: Variant;
 begin
   if (W.DataSet.RecordCount > 0) and (cxDBTreeList.SelectionCount > 0) then
   begin
@@ -1824,9 +1882,22 @@ begin
       // Фильтруем оптовые наценки по типу
       qProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType
         (IDExtraChargeType);
+      ViewExtraChargeSimple.MainView.ApplyBestFit;
     end;
 
-    IDExtraCharge := W.IDExtraCharge.F.AsInteger;
+    ARange := NULL;
+    if W.IDExtraCharge.F.AsInteger > 0 then
+    begin
+      if qProductsBase.ExtraChargeGroup.qExtraCharge2.W.LocateByPK
+        (W.IDExtraCharge.F.AsInteger) then
+        ARange := qProductsBase.ExtraChargeGroup.qExtraCharge2.W.Range.
+          F.AsVariant;
+    end;
+
+    cxbeiExtraCharge.Tag := 1;
+    cxbeiExtraCharge.EditValue := ARange;
+    cxbeiExtraCharge.Tag := 0;
+    // IDExtraCharge := W.IDExtraCharge.F.AsInteger;
   end
   else
   begin
@@ -1845,7 +1916,8 @@ end;
 
 procedure TViewProductsBase2.UpdateProductCount;
 begin
-  if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then Exit;
+  if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then
+    Exit;
 
   // На выбранном складе или в результате поиска без учёта групп
   StatusBar.Panels[0].Text :=
@@ -1878,7 +1950,8 @@ end;
 
 procedure TViewProductsBase2.UpdateSelectedCount;
 begin
-  if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then Exit;
+  if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then
+    Exit;
 
   StatusBar.Panels[FSelectedCountPanelIndex].Text :=
     Format('%d', [cxDBTreeList.SelectionCount]);

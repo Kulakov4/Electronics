@@ -205,10 +205,6 @@ inherited ViewProducts2: TViewProducts2
       Action = actOpenInParametricTable
       Category = 0
     end
-    inherited cxbeiExtraCharge: TcxBarEditItem
-      Properties.DropDownAutoSize = True
-      Properties.GridMode = True
-    end
     object dxBarSubItem2: TdxBarSubItem [15]
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0

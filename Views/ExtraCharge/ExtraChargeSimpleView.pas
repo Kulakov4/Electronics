@@ -26,25 +26,65 @@ uses
   cxDBData, dxBarBuiltInMenu, cxGridCustomPopupMenu, cxGridPopupMenu, Vcl.Menus,
   System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, ExtraChargeQuery2;
+  cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, ExtraChargeQuery2,
+  dxDateRanges, cxDropDownEdit, NotifyEvents;
 
 type
   TViewExtraChargeSimple = class(TfrmGrid)
+    procedure cxGridDBBandedTableViewCellClick(Sender: TcxCustomGridTableView;
+        ACellViewInfo: TcxGridTableDataCellViewInfo; AButton: TMouseButton; AShift:
+        TShiftState; var AHandled: Boolean);
   private
+    FOnClosePopup: TNotifyEventsEx;
     FqExtraCharge: TQueryExtraCharge2;
+    function GetPopupWindow: TcxCustomEditPopupWindow;
     procedure SetqExtraCharge(const Value: TQueryExtraCharge2);
     { Private declarations }
   protected
     procedure InitView(AView: TcxGridDBBandedTableView); override;
+    property PopupWindow: TcxCustomEditPopupWindow read GetPopupWindow;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property qExtraCharge: TQueryExtraCharge2 read FqExtraCharge
       write SetqExtraCharge;
+    property OnClosePopup: TNotifyEventsEx read FOnClosePopup;
     { Public declarations }
   end;
 
 implementation
 
 {$R *.dfm}
+
+constructor TViewExtraChargeSimple.Create(AOwner: TComponent);
+begin
+  inherited;
+  FOnClosePopup := TNotifyEventsEx.Create(Self);
+
+end;
+
+destructor TViewExtraChargeSimple.Destroy;
+begin
+  FreeAndNil(FOnClosePopup);
+  inherited;
+end;
+
+procedure TViewExtraChargeSimple.cxGridDBBandedTableViewCellClick(Sender:
+    TcxCustomGridTableView; ACellViewInfo: TcxGridTableDataCellViewInfo;
+    AButton: TMouseButton; AShift: TShiftState; var AHandled: Boolean);
+begin
+  inherited;
+  PopupWindow.CloseUp;
+  FOnClosePopup.CallEventHandlers(Self);
+end;
+
+function TViewExtraChargeSimple.GetPopupWindow: TcxCustomEditPopupWindow;
+var
+  PopupWindow: TCustomForm;
+begin
+  PopupWindow := GetParentForm(Self);
+  Result := PopupWindow as TcxCustomEditPopupWindow;
+end;
 
 procedure TViewExtraChargeSimple.InitView(AView: TcxGridDBBandedTableView);
 begin
