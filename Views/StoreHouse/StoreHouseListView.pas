@@ -48,12 +48,15 @@ type
       var AAllow: Boolean);
     procedure cxGridDBBandedTableViewEditValueChanged
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
-    procedure cxGridDBBandedTableViewSelectionChanged(Sender:
-        TcxCustomGridTableView);
+    procedure cxGridDBBandedTableViewSelectionChanged
+      (Sender: TcxCustomGridTableView);
+    procedure cxGridEnter(Sender: TObject);
+    procedure cxGridExit(Sender: TObject);
   strict private
     function GetStoreHouseCount: Integer;
     function GetStoreHouseTitle: string;
   private
+    FInGrid: Boolean;
     FOnCanFocusRecord: TNotifyEventsEx;
     FPosting: Boolean;
     FqStoreHouseList: TQueryStoreHouseList;
@@ -69,6 +72,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure ClearSelection; override;
     procedure UpdateView; override;
     property clAbbreviation: TcxGridDBBandedColumn read GetclAbbreviation;
     property clTitle: TcxGridDBBandedColumn read GetclTitle;
@@ -148,6 +152,12 @@ begin
   UpdateView;
 end;
 
+procedure TViewStoreHouse.ClearSelection;
+begin
+  if FInGrid then
+    inherited;
+end;
+
 procedure TViewStoreHouse.cxGridDBBandedTableViewCanFocusRecord
   (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
   var AAllow: Boolean);
@@ -181,14 +191,26 @@ begin
   UpdateView;
 end;
 
-procedure TViewStoreHouse.cxGridDBBandedTableViewSelectionChanged(Sender:
-    TcxCustomGridTableView);
+procedure TViewStoreHouse.cxGridDBBandedTableViewSelectionChanged
+  (Sender: TcxCustomGridTableView);
 begin
   inherited;
   if FqStoreHouseList = nil then
     Exit;
 
   W.ProductsInt.LoadContent(GetStoreHouseID, Self);
+end;
+
+procedure TViewStoreHouse.cxGridEnter(Sender: TObject);
+begin
+  inherited;
+  FInGrid := True
+end;
+
+procedure TViewStoreHouse.cxGridExit(Sender: TObject);
+begin
+  inherited;
+  FInGrid := False
 end;
 
 procedure TViewStoreHouse.DoBeforeMonitorApplyUpdates(Sender: TObject);
@@ -277,15 +299,15 @@ begin
   MainView.DataController.CreateAllItems(True);
 
   MainView.OptionsBehavior.ImmediateEditor := False;
-//  MainView.OptionsSelection.CellMultiSelect := False;
-//  MainView.OptionsSelection.MultiSelect := False;
-  //MainView.OptionsSelection.CellSelect := False;
+  // MainView.OptionsSelection.CellMultiSelect := False;
+  // MainView.OptionsSelection.MultiSelect := False;
+  // MainView.OptionsSelection.CellSelect := False;
 
-//  MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
-//  MainView.OptionsSelection.HideSelection := False;
+  // MainView.OptionsSelection.UnselectFocusedRecordOnExit := False;
+  // MainView.OptionsSelection.HideSelection := False;
 
- // if MainView.Controller.FocusedRow <> nil then
- //   MainView.Controller.FocusedRow.Selected := True;
+  // if MainView.Controller.FocusedRow <> nil then
+  // MainView.Controller.FocusedRow.Selected := True;
 
   TNotifyEventWrap.Create(qStoreHouseList.Monitor.BeforeApplyUpdates,
     DoBeforeMonitorApplyUpdates, FEventList);

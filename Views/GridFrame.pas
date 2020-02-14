@@ -107,6 +107,7 @@ type
     procedure AfterKeyOrMouseDown(var Message: TMessage);
       message WM_AfterKeyOrMouseDown;
     procedure ApplyBestFitForColumn(AColumn: TcxGridDBBandedColumn); virtual;
+    procedure ClearSelectionForClick; virtual;
     procedure CreateColumnsBarButtons; virtual;
     procedure CreateFilterForExport(AView,
       ASource: TcxGridDBBandedTableView); virtual;
@@ -167,7 +168,7 @@ type
     function CalcBandHeight(ABand: TcxGridBand): Integer;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
-    procedure ClearSelection;
+    procedure ClearSelection; virtual;
     procedure ClearSort(AView: TcxGridTableView);
     procedure DisableCollapsingAndExpanding;
     procedure DoDragDrop(AcxGridSite: TcxGridSite;
@@ -494,7 +495,6 @@ var
   AView: TcxGridTableView;
   i: Integer;
 begin
-
   MainView.Controller.ClearSelection;
   MainView.Controller.EditingController.HideEdit(False);
 
@@ -514,6 +514,11 @@ begin
   end;
 
   UpdateView;
+end;
+
+procedure TfrmGrid.ClearSelectionForClick;
+begin
+  ClearSelection;
 end;
 
 function TfrmGrid.QueryInterface(const IID: TGUID; out Obj): HResult;
@@ -1848,7 +1853,7 @@ begin
 
   HT := MainView.ViewInfo.GetHitTest(X, Y);
   if HT is TcxGridViewNoneHitTest then
-    ClearSelection;
+    ClearSelectionForClick;
 end;
 
 function TfrmGrid.Value(AView: TcxGridDBBandedTableView;
