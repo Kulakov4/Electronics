@@ -211,6 +211,7 @@ type
     FqProductsBase: TQueryProductsBase;
     FReadOnlyColumns: TList<TcxDBTreeListColumn>;
     FResyncDataSetMessagePosted: Boolean;
+    FSelArr: TArray<Integer>;
     FViewExtraChargeSimple: TViewExtraChargeSimple;
 
   const
@@ -1152,6 +1153,7 @@ end;
 procedure TViewProductsBase2.cxDBTreeListSelectionChanged(Sender: TObject);
 begin
   inherited;
+
   if FPostSelectionChanged then
     Exit;
 
@@ -1701,8 +1703,43 @@ begin
 end;
 
 procedure TViewProductsBase2.ProcessSelectionChanged(var Message: TMessage);
+var
+  ASelList: TList<Integer>;
+  i: Integer;
+  IsEqual: Boolean;
+  SelArr: TArray<Integer>;
+  V: Variant;
 begin
   inherited;
+
+  ASelList := TList<Integer>.Create;
+
+  for i := 0 to cxDBTreeList.SelectionCount - 1 do
+  begin
+    V := cxDBTreeList.Selections[i].Values[clID.ItemIndex];
+    if not VarIsNull(V) then
+       ASelList.Add( V );
+  end;
+  SelArr := ASelList.ToArray;
+  ASelList.Free;
+
+  IsEqual := (Length(FSelArr) = Length(SelArr));
+  if IsEqual then
+  for I := Low(FSelArr) to High(FSelArr) do
+  begin
+    IsEqual := FSelArr[i] = SelArr[i];
+    if not IsEqual then
+      break;
+  end;
+
+  FSelArr := SelArr;
+
+  if IsEqual then
+  begin
+    FPostSelectionChanged := False;
+    Exit;
+  end;
+
   UpdateSelectedCount;
   UpdateAllBarComboText;
   UpdateView;
