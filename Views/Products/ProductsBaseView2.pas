@@ -1837,6 +1837,8 @@ begin
     CreateCountEvents;
 
     // Фильтруем оптовые надбавки по типу
+    FqProductsBase.ExtraChargeGroup.qExtraChargeType.W.TryOpen;
+    FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.TryOpen;
     FqProductsBase.ExtraChargeGroup.qExtraCharge2.W.FilterByType(0);
     ViewExtraChargeSimple.MainView.ApplyBestFit;
 
