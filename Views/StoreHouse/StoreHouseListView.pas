@@ -73,6 +73,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ClearSelection; override;
+    procedure FreeInt;
     procedure UpdateView; override;
     property clAbbreviation: TcxGridDBBandedColumn read GetclAbbreviation;
     property clTitle: TcxGridDBBandedColumn read GetclTitle;
@@ -233,6 +234,11 @@ begin
   finally
     FPosting := False;
   end;
+end;
+
+procedure TViewStoreHouse.FreeInt;
+begin
+  W.ProductsInt.FreeInt;
 end;
 
 function TViewStoreHouse.GetclAbbreviation: TcxGridDBBandedColumn;

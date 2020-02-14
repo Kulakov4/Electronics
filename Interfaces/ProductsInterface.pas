@@ -7,6 +7,7 @@ uses
 
 type
   IProducts = interface(IInterface)
+    procedure FreeInt;
     procedure LoadContent(AStoreHouseID: Integer; AStorehouseListInt:
         IStorehouseList);
   end;

@@ -310,7 +310,10 @@ begin
     FreeAndNil(FViewComponentsSearch);
 
   if FViewStoreHouse <> nil then
+  begin
+    FViewStoreHouse.FreeInt;
     FreeAndNil(FViewStoreHouse);
+  end;
 
   if FViewProducts <> nil then
     FreeAndNil(FViewProducts);

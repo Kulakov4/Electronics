@@ -18,6 +18,7 @@ uses
 type
   TQueryProducts = class(TQueryProductsBase, ICheckDuplicate, IProducts)
   strict private
+    procedure FreeInt;
     function HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean; stdcall;
     procedure LoadContent(AStoreHouseID: Integer; AStorehouseListInt:
         IStorehouseList);
@@ -321,7 +322,7 @@ begin
   if FNeedDecTotalCount and (not FNeedUpdateCount) then
   begin
     FNeedDecTotalCount := false;
-    Assert(FTotalCount > 0);
+    if FTotalCount > 0 then
     Dec(FTotalCount);
   end;
 end;
@@ -354,6 +355,11 @@ procedure TQueryProducts.DoBeforeDelete(Sender: TObject);
 begin
   FNeedDecTotalCount := (not FNeedUpdateCount) and (not W.IsGroup.F.IsNull) and
     (W.IsGroup.F.AsInteger = 0);
+end;
+
+procedure TQueryProducts.FreeInt;
+begin
+  FStorehouseListInt := nil;
 end;
 
 function TQueryProducts.GetExportFileName: string;
