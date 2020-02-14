@@ -670,6 +670,10 @@ begin
       // ƒобавл€ем в список все колонки, которые есть у cxGrid
       for i := 0 to FcxDBTreeList.ColumnCount - 1 do
       begin
+        if (FcxDBTreeList.Columns[i] as TcxDBTreeListColumn)
+          .DataBinding.FieldName = '' then
+          Continue;
+
         Assert(FcxDBTreeList.Columns[i].Position.Band <> nil);
         AColumns.Add(FcxDBTreeList.Columns[i]);
       end;

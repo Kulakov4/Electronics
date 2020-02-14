@@ -1516,8 +1516,11 @@ begin
       cxDBTreeList.Bands[i].Columns[j].Caption.ShowEndEllipsis := False;
 
       AColumn := cxDBTreeList.Bands[i].Columns[j] as TcxDBTreeListColumn;
-      ASortVariant := GridSort.GetSortVariant(AColumn);
-      AColumn.Options.Sorting := ASortVariant <> nil;
+      if AColumn.DataBinding.FieldName <> '' then
+      begin
+        ASortVariant := GridSort.GetSortVariant(AColumn);
+        AColumn.Options.Sorting := ASortVariant <> nil;
+      end;
     end;
   end;
 
