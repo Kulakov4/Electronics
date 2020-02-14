@@ -233,8 +233,7 @@ type
       message WM_RESYNC_DATASET;
     procedure ProcessSelectionChanged(var Message: TMessage);
       message WM_SELECTION_CHANGED;
-    function SaveBarComboValue(AdxBarCombo: TdxBarCombo;
-      const AFieldName: String): Double;
+    function SaveBarComboValue(AdxBarCombo: TdxBarCombo): Double;
     procedure SetIDExtraChargeType(const Value: Integer);
     procedure SetqProductsBase(const Value: TQueryProductsBase);
     procedure UpdateAllBarComboText;
@@ -1331,15 +1330,37 @@ begin
 end;
 
 procedure TViewProductsBase2.dxbcMinWholeSaleChange(Sender: TObject);
+var
+  AdxBarCombo: TdxBarCombo;
+  AValue: Double;
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo, W.MinWholeSale.FieldName);
+  AdxBarCombo := Sender as TdxBarCombo;
+  if AdxBarCombo.Tag = 1 then
+    Exit;
+
+  // Сохраняем значение в выпадающем списке
+  AValue := SaveBarComboValue(AdxBarCombo);
+
+  // Сохраняем значение в БД
+  UpdateFieldValue([W.MinWholeSale.F], [AValue]);
 end;
 
 procedure TViewProductsBase2.dxbcRetailChange(Sender: TObject);
+var
+  AdxBarCombo: TdxBarCombo;
+  AValue: Double;
 begin
   inherited;
-  SaveBarComboValue(Sender as TdxBarCombo, W.Retail.FieldName);
+  AdxBarCombo := Sender as TdxBarCombo;
+  if AdxBarCombo.Tag = 1 then
+    Exit;
+
+  // Сохраняем значение в выпадающем списке
+  AValue := SaveBarComboValue(AdxBarCombo);
+
+  // Сохраняем значение в БД
+  UpdateFieldValue([W.Retail.F], [AValue]);
 end;
 
 procedure TViewProductsBase2.dxbcRetailDrawItem(Sender: TdxBarCustomCombo;
@@ -1385,7 +1406,7 @@ begin
   if AdxBarCombo.Tag <> 0 then
     Exit;
 
-  AValue := SaveBarComboValue(AdxBarCombo, W.WholeSale.FieldName);
+  AValue := SaveBarComboValue(AdxBarCombo);
 
   // Сохраняем выбранный диапазон и значение оптовой наценки
   UpdateFieldValue([W.IDExtraChargeType.F, W.IDExtraCharge.F, W.WholeSale.F],
@@ -1766,11 +1787,9 @@ begin
 
 end;
 
-function TViewProductsBase2.SaveBarComboValue(AdxBarCombo: TdxBarCombo;
-  const AFieldName: String): Double;
+function TViewProductsBase2.SaveBarComboValue(AdxBarCombo: TdxBarCombo): Double;
 begin
   Assert(AdxBarCombo <> nil);
-  Assert(not AFieldName.IsEmpty);
 
   if AdxBarCombo.Tag = 1 then
     Exit;
