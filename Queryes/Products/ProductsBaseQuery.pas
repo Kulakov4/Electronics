@@ -410,7 +410,7 @@ begin
         qSearchStorehouseProduct.FDQuery.Delete;
       end;
 
-//      DeleteNotUsedProducts(AProductIDS);
+      // DeleteNotUsedProducts(AProductIDS);
     end
     else
     begin
@@ -425,7 +425,7 @@ begin
       qSearchStorehouseProduct.FDQuery.Delete;
 
       // Удаляем неиспользованные продукты
-//      DeleteNotUsedProducts(AProductIDS);
+      // DeleteNotUsedProducts(AProductIDS);
     end;
   finally
     FreeAndNil(AProductIDS);
@@ -790,7 +790,7 @@ begin
   try
     // Ищем запись которую надо удалить
     if not W.LocateByPK(AID) then
-      Exit;   // Возможно запись удалили вместе с удалением группы
+      Exit; // Возможно запись удалили вместе с удалением группы
 
     // Если нужно удалить группу
     if W.IsGroup.F.AsInteger = 1 then
