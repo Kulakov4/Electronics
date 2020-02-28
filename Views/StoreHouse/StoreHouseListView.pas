@@ -50,13 +50,10 @@ type
       (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem);
     procedure cxGridDBBandedTableViewSelectionChanged
       (Sender: TcxCustomGridTableView);
-    procedure cxGridEnter(Sender: TObject);
-    procedure cxGridExit(Sender: TObject);
   strict private
     function GetStoreHouseCount: Integer;
     function GetStoreHouseTitle: string;
   private
-    FInGrid: Boolean;
     FOnCanFocusRecord: TNotifyEventsEx;
     FPosting: Boolean;
     FqStoreHouseList: TQueryStoreHouseList;
@@ -72,7 +69,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure ClearSelection; override;
     procedure FreeInt;
     procedure UpdateView; override;
     property clAbbreviation: TcxGridDBBandedColumn read GetclAbbreviation;
@@ -153,12 +149,6 @@ begin
   UpdateView;
 end;
 
-procedure TViewStoreHouse.ClearSelection;
-begin
-  if FInGrid then
-    inherited;
-end;
-
 procedure TViewStoreHouse.cxGridDBBandedTableViewCanFocusRecord
   (Sender: TcxCustomGridTableView; ARecord: TcxCustomGridRecord;
   var AAllow: Boolean);
@@ -200,18 +190,6 @@ begin
     Exit;
 
   W.ProductsInt.LoadContent(GetStoreHouseID, Self);
-end;
-
-procedure TViewStoreHouse.cxGridEnter(Sender: TObject);
-begin
-  inherited;
-  FInGrid := True
-end;
-
-procedure TViewStoreHouse.cxGridExit(Sender: TObject);
-begin
-  inherited;
-  FInGrid := False
 end;
 
 procedure TViewStoreHouse.DoBeforeMonitorApplyUpdates(Sender: TObject);

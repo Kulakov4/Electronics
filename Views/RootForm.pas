@@ -84,10 +84,11 @@ var
 begin
   for i := 0 to AComponent.ComponentCount - 1 do
   begin
-//    if AComponent.Components[i] is TfrmGrid then
-//      (AComponent.Components[i] as TfrmGrid).ClearSelection;
+    // if AComponent.Components[i] is TfrmGrid then
+    // (AComponent.Components[i] as TfrmGrid).ClearSelection;
     if AComponent.Components[i].GetInterface(ISelection, ISel) then
-      ISel.ClearSelection;
+      if ISel.HaveFocus then
+        ISel.ClearSelection;
 
     // Ищем среди дочерних компонентов
     ClearSelection(AComponent.Components[i]);

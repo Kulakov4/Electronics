@@ -11,6 +11,8 @@ object frmGrid: TfrmGrid
     Height = 444
     Align = alClient
     TabOrder = 0
+    OnEnter = cxGridEnter
+    OnExit = cxGridExit
     LookAndFeel.Kind = lfFlat
     LookAndFeel.NativeStyle = False
     object cxGridDBBandedTableView: TcxGridDBBandedTableView

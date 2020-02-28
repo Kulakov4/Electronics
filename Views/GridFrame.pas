@@ -80,6 +80,10 @@ type
       (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
     procedure cxGridDBBandedTableViewDataControllerDetailExpanded
       (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridEnter(Sender: TObject);
+    procedure cxGridExit(Sender: TObject);
+  strict private
+    function GetHaveFocus: Boolean;
   private
     FAfterKeyOrMouseDownPosted: Boolean;
     FApplyBestFitForDetail: Boolean;
@@ -89,6 +93,7 @@ type
     FcxDataDetailExpandingEvent: TcxDataDetailExpandingEvent;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
     FGridSort: TGridSort;
+    FHaveFocus: Boolean;
     FLeftPos: Integer;
     FPostOnEnterFields: TList<String>;
     FSortSL: TList<String>;
@@ -595,6 +600,16 @@ procedure TfrmGrid.cxGridDBBandedTableViewStylesGetHeaderStyle
   (Sender: TcxGridTableView; AColumn: TcxGridColumn; var AStyle: TcxStyle);
 begin
   DoOnGetHeaderStyle(AColumn, AStyle);
+end;
+
+procedure TfrmGrid.cxGridEnter(Sender: TObject);
+begin
+  FHaveFocus := True;
+end;
+
+procedure TfrmGrid.cxGridExit(Sender: TObject);
+begin
+  FHaveFocus := False;
 end;
 
 procedure TfrmGrid.cxGridPopupMenuPopup(ASenderMenu: TComponent;
@@ -1291,6 +1306,11 @@ begin
   finally
     FreeAndNil(L);
   end;
+end;
+
+function TfrmGrid.GetHaveFocus: Boolean;
+begin
+  Result := FHaveFocus;
 end;
 
 function TfrmGrid.GetParentForm: TForm;

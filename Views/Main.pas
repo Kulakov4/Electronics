@@ -130,6 +130,7 @@ type
     procedure cxpcMainChange(Sender: TObject);
     procedure cxpcMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
+    procedure cxpcWareHouse2Click(Sender: TObject);
     procedure cxpcWareHouse2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure FormActivate(Sender: TObject);
@@ -757,6 +758,22 @@ begin
   if NewPage = cxtshWareHouse then
     if cxpcWareHouse2.ActivePage = nil then
       cxpcWareHouse2.ActivePage := cxtshWareHouse2;
+end;
+
+procedure TfrmMain.cxpcWareHouse2Click(Sender: TObject);
+var
+  X: Integer;
+begin
+  case cxpcWareHouse2.ActivePageIndex of
+    0:
+      FViewStoreHouse.ClearSelection;
+    1:
+      ViewProductsBasket.ClearSelection;
+    2:
+      FViewBill.ClearSelection;
+    3:
+      FViewProductsSearch.ClearSelection;
+  end;
 end;
 
 procedure TfrmMain.cxpcWareHouse2PageChanging(Sender: TObject;

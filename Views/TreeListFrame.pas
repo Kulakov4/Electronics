@@ -51,6 +51,8 @@ type
         TcxTreeListColumn);
     procedure cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
         TcxTreeListColumn; var Allow: Boolean);
+    procedure cxDBTreeListEnter(Sender: TObject);
+    procedure cxDBTreeListExit(Sender: TObject);
     procedure cxDBTreeListFocusedColumnChanged(Sender: TcxCustomTreeList;
         APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
@@ -63,9 +65,12 @@ type
     procedure cxDBTreeListStylesGetBandHeaderStyle(Sender: TcxCustomTreeList;
       ABand: TcxTreeListBand; var AStyle: TcxStyle);
     procedure StatusBarResize(Sender: TObject);
+  strict private
+    function GetHaveFocus: Boolean;
   private
     FBlockEvents: Integer;
     FGridSort: TGridSort;
+    FHaveFocus: Boolean;
 // TODO: FPostOnEnterFields
 //  FPostOnEnterFields: TList<String>;
     FSortVariant: TSortVariant;
@@ -334,6 +339,16 @@ begin
   UpdateView;
 end;
 
+procedure TfrmTreeList.cxDBTreeListEnter(Sender: TObject);
+begin
+  FHaveFocus := True;
+end;
+
+procedure TfrmTreeList.cxDBTreeListExit(Sender: TObject);
+begin
+  FHaveFocus := False;
+end;
+
 procedure TfrmTreeList.cxDBTreeListFocusedColumnChanged(Sender:
     TcxCustomTreeList; APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
 begin
@@ -458,6 +473,11 @@ begin
   begin
     ANode.Focused := True;
   end;
+end;
+
+function TfrmTreeList.GetHaveFocus: Boolean;
+begin
+  Result := FHaveFocus;
 end;
 
 function TfrmTreeList.GetSelectedValues(const AFieldName: String):
