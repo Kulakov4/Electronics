@@ -75,15 +75,15 @@ inherited ViewProductsSearch2: TViewProductsSearch2
         end
         item
           Visible = True
+          ItemName = 'dxBarButton1'
+        end
+        item
+          Visible = True
           ItemName = 'dxBarButton3'
         end
         item
           Visible = True
           ItemName = 'dxBarButton2'
-        end
-        item
-          Visible = True
-          ItemName = 'dxBarButton1'
         end
         item
           Visible = True
@@ -125,23 +125,19 @@ inherited ViewProductsSearch2: TViewProductsSearch2
       Action = actPasteFromBuffer
       Category = 0
     end
-    object dxBarButton2: TdxBarButton [11]
-      Action = actClear
-      Category = 0
-    end
-    object dxBarButton3: TdxBarButton [12]
+    object dxBarButton3: TdxBarButton [11]
       Action = actSearch
       Category = 0
     end
-    object dxBarButton4: TdxBarButton [13]
+    object dxBarButton4: TdxBarButton [12]
       Action = actCommit
       Category = 0
     end
-    object dxBarButton5: TdxBarButton [14]
+    object dxBarButton5: TdxBarButton [13]
       Action = actRollback
       Category = 0
     end
-    object dxBarSubItem1: TdxBarSubItem [15]
+    object dxBarSubItem1: TdxBarSubItem [14]
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0
       Visible = ivAlways
@@ -153,22 +149,27 @@ inherited ViewProductsSearch2: TViewProductsSearch2
           ItemName = 'dxBarButton6'
         end>
     end
-    object dxBarButton6: TdxBarButton [16]
+    object dxBarButton6: TdxBarButton [15]
       Action = actExportToExcelDocument
       Category = 0
     end
-    object dxBarButton7: TdxBarButton [17]
+    object dxBarButton7: TdxBarButton [16]
       Action = actOpenInParametricTable
       Category = 0
     end
-    object dxBarButton8: TdxBarButton [18]
+    object dxBarButton8: TdxBarButton [17]
       Action = actApplyBestFit
+      Category = 0
+    end
+    object dxBarButton2: TdxBarButton
+      Action = actClear
       Category = 0
     end
   end
   inherited ActionList: TActionList
     object actPasteFromBuffer: TAction [15]
       Caption = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072
+      Hint = #1042#1089#1090#1072#1074#1080#1090#1100' '#1080#1079' '#1073#1091#1092#1077#1088#1072' '#1086#1073#1084#1077#1085#1072
       ImageIndex = 5
       OnExecute = actPasteFromBufferExecute
     end

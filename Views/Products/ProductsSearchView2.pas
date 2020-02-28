@@ -33,7 +33,6 @@ type
   TViewProductsSearch2 = class(TViewProductsBase2)
     actPasteFromBuffer: TAction;
     dxBarButton1: TdxBarButton;
-    dxBarButton2: TdxBarButton;
     actClear: TAction;
     actSearch: TAction;
     dxBarButton3: TdxBarButton;
@@ -43,6 +42,7 @@ type
     dxBarButton6: TdxBarButton;
     dxBarButton7: TdxBarButton;
     dxBarButton8: TdxBarButton;
+    dxBarButton2: TdxBarButton;
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
