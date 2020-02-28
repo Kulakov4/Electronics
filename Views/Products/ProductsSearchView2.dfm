@@ -32,6 +32,15 @@ inherited ViewProductsSearch2: TViewProductsSearch2
           Kind = skSum
         end>
     end
+    object clStoreHouseID2: TcxDBTreeListColumn
+      Visible = False
+      DataBinding.FieldName = 'StorehouseId2'
+      Position.ColIndex = 1
+      Position.RowIndex = 0
+      Position.BandIndex = 1
+      Summary.FooterSummaryItems = <>
+      Summary.GroupFooterSummaryItems = <>
+    end
   end
   inherited StatusBar: TStatusBar
     Panels = <

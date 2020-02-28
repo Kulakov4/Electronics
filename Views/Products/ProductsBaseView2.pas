@@ -242,6 +242,7 @@ type
   protected
     FHRTimer: THRTimer;
     FSelectedCountPanelIndex: Integer;
+    procedure ApplyGridSort; virtual;
     procedure UpdateBarComboText(AdxBarCombo: TdxBarCombo; AValue: Variant);
     procedure CreateCountEvents;
     function CreateProductView: TViewProductsBase2; virtual; abstract;
@@ -325,10 +326,7 @@ begin
   // Какую панель растягивать
   StatusBarEmptyPanelIndex := 2;
 
-  GridSort.Add(TSortVariant.Create(clValue, [clValue]));
-  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
-  GridSort.Add(TSortVariant.Create(clLoadDate, [clLoadDate, clValue]));
-  ApplySort(clValue, soAscending);
+  ApplyGridSort;
 
   FCountEvents := TObjectList.Create;
 
@@ -785,6 +783,14 @@ procedure TViewProductsBase2.actRubToDollarExecute(Sender: TObject);
 begin
   inherited;
   qProductsBase.RubToDollar := not qProductsBase.RubToDollar;
+end;
+
+procedure TViewProductsBase2.ApplyGridSort;
+begin
+  GridSort.Add(TSortVariant.Create(clValue, [clValue]));
+  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
+  GridSort.Add(TSortVariant.Create(clLoadDate, [clLoadDate, clValue]));
+  ApplySort(clValue, soAscending);
 end;
 
 procedure TViewProductsBase2.BeginUpdate;

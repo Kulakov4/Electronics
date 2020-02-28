@@ -43,6 +43,7 @@ type
     dxBarButton7: TdxBarButton;
     dxBarButton8: TdxBarButton;
     dxBarButton2: TdxBarButton;
+    clStoreHouseID2: TcxDBTreeListColumn;
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
@@ -54,6 +55,7 @@ type
     procedure SetqProductsSearch(const Value: TQueryProductsSearch);
     { Private declarations }
   protected
+    procedure ApplyGridSort; override;
     function CreateProductView: TViewProductsBase2; override;
     function GetW: TProductW; override;
     procedure InitializeColumns; override;
@@ -68,7 +70,7 @@ type
 
 implementation
 
-uses ClipboardUnit, SearchInterfaceUnit, Vcl.Clipbrd;
+uses ClipboardUnit, SearchInterfaceUnit, Vcl.Clipbrd, GridSort, dxCore;
 
 {$R *.dfm}
 
@@ -110,6 +112,14 @@ procedure TViewProductsSearch2.actSearchExecute(Sender: TObject);
 begin
   inherited;
   Search(False);
+end;
+
+procedure TViewProductsSearch2.ApplyGridSort;
+begin
+  GridSort.Add(TSortVariant.Create(clValue, [clValue, clStoreHouseID2]));
+  GridSort.Add(TSortVariant.Create(clIDProducer, [clIDProducer, clValue]));
+  GridSort.Add(TSortVariant.Create(clLoadDate, [clLoadDate, clValue]));
+  ApplySort(clValue, soAscending);
 end;
 
 function TViewProductsSearch2.CreateProductView: TViewProductsBase2;
@@ -166,6 +176,10 @@ begin
   InitializeLookupColumn(clStorehouseId,
     qProductsSearch.qStoreHouseList.W.DataSource, lsEditFixedList,
     qProductsSearch.qStoreHouseList.W.Abbreviation.FieldName);
+
+  InitializeLookupColumn(clStorehouseId2,
+    qProductsSearch.qStoreHouseList.W.DataSource, lsEditFixedList,
+    qProductsSearch.qStoreHouseList.W.Title.FieldName);
 end;
 
 function TViewProductsSearch2.IsViewOK: Boolean;
