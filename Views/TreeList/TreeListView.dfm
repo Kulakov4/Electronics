@@ -13,6 +13,7 @@ inherited ViewTreeList: TViewTreeList
     OptionsBehavior.CellHints = False
     OptionsBehavior.ImmediateEditor = False
     OptionsBehavior.BestFitMaxRecordCount = 10
+    OptionsBehavior.CopyCaptionsToClipboard = False
     OptionsBehavior.DragDropText = True
     OptionsBehavior.ExpandOnIncSearch = True
     OptionsBehavior.IncSearch = True
@@ -85,7 +86,6 @@ inherited ViewTreeList: TViewTreeList
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
-    ExplicitWidth = 8
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False
@@ -121,7 +121,7 @@ inherited ViewTreeList: TViewTreeList
       Category = 0
     end
     object cxbeiSearch: TcxBarEditItem
-      Caption = #1055#1086#1080#1089#1082':'
+      Caption = #1055#1086#1080#1089#1082
       Category = 0
       Hint = #1055#1086#1080#1089#1082' '#1087#1086' '#1080#1076#1077#1085#1090#1080#1092#1080#1082#1072#1090#1086#1088#1091
       Visible = ivAlways
