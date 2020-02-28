@@ -32,7 +32,7 @@ uses
   CustomComponentsQuery, cxTextEdit, cxBlobEdit, cxRichEdit,
   DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit, ProjectConst,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  System.Contnrs, BaseComponentsGroupUnit2, DSWrap;
+  System.Contnrs, BaseComponentsGroupUnit2, DSWrap, dxDateRanges;
 
 const
   // WM_ON_DETAIL_EXPANDED = WM_USER + 57;
@@ -455,17 +455,20 @@ begin
 end;
 
 procedure TViewComponentsBase.actPasteFamilyExecute(Sender: TObject);
-var
-  m: TArray<String>;
 begin
-  m := TClb.Create.GetRowsAsArray;
-  if Length(m) = 0 then
+  // Если в буфере обмена ничего нет
+  if Clipboard.AsText.Trim.IsEmpty then
     Exit;
 
-  // Просим добавить родительские компоненты
-  BaseCompGrp.qBaseFamily.W.AppendRows
-    (BaseCompGrp.qBaseFamily.W.Value.FieldName, m);
-
+  MainView.BeginUpdate();
+  try
+    // Просим добавить родительские компоненты
+    BaseCompGrp.qBaseFamily.W.AppendRows
+      (BaseCompGrp.qBaseFamily.W.Value.FieldName, TClb.Create.GetRowsAsArray);
+  finally
+    MainView.EndUpdate;
+  end;
+  PostMyApplyBestFitEvent;
   PutInTheCenterFocusedRecord(MainView);
 
   UpdateView;
@@ -987,8 +990,8 @@ procedure TViewComponentsBase.DoAfterLoadData;
 begin
   PostMyApplyBestFitEvent;
   UpdateView;
-//  if not FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName) then
-    PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
+  // if not FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName) then
+  PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
 end;
 
 procedure TViewComponentsBase.DoAfterOpenOrRefresh(Sender: TObject);

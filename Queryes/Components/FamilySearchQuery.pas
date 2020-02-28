@@ -215,6 +215,8 @@ end;
 
 procedure TFamilySearchW.AppendRows(AFieldName: string; AValues:
     TArray<String>);
+var
+  new_array: TArray<String>;
 begin
   // Если вставлять нечего
   if Length(AValues) = 0 then
@@ -222,11 +224,17 @@ begin
 
   if Mode = SearchMode then
   begin
-    // Удаляем пустую строку
+    // Сохраняем первое значение в пустой строке
     if Value.F.AsString.IsEmpty then
-      DataSet.Delete;
+    begin
+      TryEdit;
+      Value.F.AsString := AValues[0];
+      TryPost;
+    end;
 
-    inherited;
+    new_array := TArray.Copy<String>(AValues, 2, Length(AValues));
+
+    inherited AppendRows(AFieldName, new_array);
   end;
 
 end;
