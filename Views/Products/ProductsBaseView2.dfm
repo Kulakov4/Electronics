@@ -976,6 +976,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     end
     object actAddComponent: TAction [4]
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090
+      Hint = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082#1086#1084#1087#1086#1085#1077#1085#1090
       ImageIndex = 1
       OnExecute = actAddComponentExecute
     end
@@ -1028,6 +1029,9 @@ inherited ViewProductsBase2: TViewProductsBase2
       Caption = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       Hint = #1047#1072#1075#1088#1091#1079#1080#1090#1100' '#1095#1077#1088#1090#1105#1078
       OnExecute = actLoadDrawingExecute
+    end
+    inherited actCopy: TAction
+      Hint = #1050#1086#1087#1080#1088#1086#1074#1072#1090#1100
     end
     object actRefreshCources: TAction
       Caption = #1054#1073#1085#1086#1074#1083#1077#1085#1080#1077' '#1082#1091#1088#1089#1086#1074' '#1074#1072#1083#1102#1090
@@ -1083,6 +1087,7 @@ inherited ViewProductsBase2: TViewProductsBase2
     end
     object actRubToDollar: TAction
       Caption = #8381'-$'
+      Hint = #1055#1088#1080#1082#1088#1077#1087#1080#1090#1100' '#1079#1072#1082#1091#1087#1086#1095#1085#1099#1077' '#1094#1077#1085#1099' '#1074' '#8381' '#1082' '#1082#1091#1088#1089#1091'$'
       OnExecute = actRubToDollarExecute
     end
     object actCopyColumnHeader: TAction

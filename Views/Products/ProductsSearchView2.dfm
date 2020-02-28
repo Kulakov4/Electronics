@@ -181,6 +181,7 @@ inherited ViewProductsSearch2: TViewProductsSearch2
     end
     object actSearch: TAction [17]
       Caption = #1055#1086#1080#1089#1082
+      Hint = #1055#1086#1080#1089#1082' '#1085#1072' '#1089#1082#1083#1072#1076#1072#1093
       ImageIndex = 9
       OnExecute = actSearchExecute
     end
