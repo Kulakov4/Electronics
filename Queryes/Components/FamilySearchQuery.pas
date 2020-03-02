@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   SearchInterfaceUnit, CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery,
-  DSWrap, SearchFamOrCompoQuery;
+  DSWrap, SearchFamOrCompoQuery, System.Generics.Collections;
 
 type
   TFamilySearchW = class(TBaseFamilyW)
@@ -25,6 +25,7 @@ type
   strict private
   private const
     FEmptyAmount = 1;
+
   var
     FGetModeClone: TFDMemTable;
     FClone: TFDMemTable;
@@ -38,15 +39,15 @@ type
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
+      var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyInsert(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     procedure ApplyUpdate(ASender: TDataSet; ARequest: TFDUpdateRequest;
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
     function GetHaveAnyChanges: Boolean; override;
-    property qSearchFamilyOrComp: TQuerySearchFamilyOrComp read
-        GetqSearchFamilyOrComp;
+    property qSearchFamilyOrComp: TQuerySearchFamilyOrComp
+      read GetqSearchFamilyOrComp;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AfterConstruction; override;
@@ -87,8 +88,9 @@ begin
   FDQuery.SQL.Text := ReplaceInSQL(SQL, '0=1', 0);
 end;
 
-procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
-  var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions);
+procedure TQueryFamilySearch.ApplyDelete(ASender: TDataSet;
+  ARequest: TFDUpdateRequest; var AAction: TFDErrorAction;
+  AOptions: TFDUpdateRowOptions);
 begin
   if FamilySearchW.Mode = RecordsMode then
     inherited;
@@ -198,25 +200,26 @@ begin
   Result := FqSearchFamilyOrComp;
 end;
 
-procedure TQueryFamilySearch.SearchByValue(AValues: TArray<String>; ALike:
-    Boolean);
+procedure TQueryFamilySearch.SearchByValue(AValues: TArray<String>;
+  ALike: Boolean);
 var
   AStipulation: string;
 begin
   // Готовим SQL запрос для поиска семейств
   qSearchFamilyOrComp.PrepareSearchByValue(AValues, ALike, True);
 
-  AStipulation := Format('%s in (%s)', [W.ID.FullName,
-    qSearchFamilyOrComp.FDQuery.SQL.Text]);
+  AStipulation := Format('%s in (%s)',
+    [W.ID.FullName, qSearchFamilyOrComp.FDQuery.SQL.Text]);
 
   FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
   W.RefreshQuery;
 end;
 
-procedure TFamilySearchW.AppendRows(AFieldName: string; AValues:
-    TArray<String>);
+procedure TFamilySearchW.AppendRows(AFieldName: string;
+  AValues: TArray<String>);
 var
-  new_array: TArray<String>;
+  AValues2: TArray<String>;
+  l: Integer;
 begin
   // Если вставлять нечего
   if Length(AValues) = 0 then
@@ -232,9 +235,13 @@ begin
       TryPost;
     end;
 
-    new_array := TArray.Copy<String>(AValues, 2, Length(AValues));
+    l := Length(AValues);
+    if l = 1 then
+      Exit;
 
-    inherited AppendRows(AFieldName, new_array);
+    SetLength(AValues2, Length(AValues) - 1);
+    TArray.Copy<String>(AValues, AValues2, 1, 0, l - 1);
+    inherited AppendRows(AFieldName, AValues2);
   end;
 
 end;
