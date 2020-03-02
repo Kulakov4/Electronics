@@ -785,8 +785,9 @@ begin
   // Если переходим на вкладку склады
   if NewPage = cxtshWareHouse2 then
   begin
-    TDM.Create.qStoreHouseList.AddClient;
-    TDM.Create.qProducts.AddClient;
+    TDM.Create.qStoreHouseList.W.TryOpen;
+//    TDM.Create.qStoreHouseList.AddClient;
+//    TDM.Create.qProducts.AddClient;
 
     TNotifyEventWrap.Create(TDM.Create.qProducts.W.AfterRefresh,
       DoOnStoreHouseListChange, FViewEventList);
@@ -824,8 +825,8 @@ begin
   // Если уходим со вкладки Склады
   if cxpcWareHouse2.ActivePage = cxtshWareHouse2 then
   begin
-    TDM.Create.qProducts.RemoveClient;
-    TDM.Create.qStoreHouseList.RemoveClient;
+//    TDM.Create.qProducts.RemoveClient;
+//    TDM.Create.qStoreHouseList.RemoveClient;
   end;
 
   // Если переходим на вкладку корзина
