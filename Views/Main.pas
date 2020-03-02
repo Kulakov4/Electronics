@@ -664,7 +664,7 @@ begin
   if NewPage = cxtshCompGroup then
   begin
     TDM.Create.qTreeList.AddClient;
-    TDM.Create.qTreeList.FDQuery.First;
+    // TDM.Create.qTreeList.FDQuery.First;
 
     if FViewTreeList = nil then
     begin
@@ -1643,14 +1643,10 @@ begin
   AExternalID := ASubGroup.Substring(0, I);
   TDM.Create.qTreeList.W.LocateByExternalID(AExternalID);
 
-  // Ждём, пока группа компонентов обновит свои данные!
-  Application.ProcessMessages;
-
   TDM.Create.ComponentsGroup.AddClient;
   try
-    // Ищем нужное нам семейство
-    TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.Locate(AFamilyCaption,
-      [lxoCaseInsensitive]);
+    // Ждём, пока группа компонентов обновит свои данные!
+    Application.ProcessMessages;
 
     // Переключаемся на вкладку "Компоненты"
     cxpcMain.ActivePage := cxtshComp;
@@ -1663,8 +1659,11 @@ begin
 
     // Ждём
     Application.ProcessMessages;
-
     Assert(ViewComponents <> nil);
+
+    // Ищем нужное нам семейство
+    TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.Locate(AFamilyCaption,
+      [lxoCaseInsensitive]);
 
     ViewComponents.cxGrid.SetFocus;
 

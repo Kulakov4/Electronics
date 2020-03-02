@@ -30,7 +30,7 @@ uses
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxTextEdit,
   cxBlobEdit, cxDataControllerConditionalFormattingRulesManagerDialog,
-  dxBarBuiltInMenu;
+  dxBarBuiltInMenu, dxDateRanges;
 
 type
   TViewComponentsSearch = class(TViewComponentsBase)
@@ -202,14 +202,14 @@ begin
   MainView.BeginUpdate(lsimPending);
   try
     ComponentsSearchGroup.Search(ALike);
-    UpdateView;
-
     MainView.ViewData.Collapse(True);
   finally
     MainView.EndUpdate;
   end;
+  SelectFocusedRecord(ComponentsSearchGroup.qFamilySearch.W.Value.FieldName);
   FocusColumnEditor(0, ComponentsSearchGroup.qFamilySearch.W.Value.FieldName);
   PostMyApplyBestFitEvent;
+  UpdateView;
 end;
 
 procedure TViewComponentsSearch.SetComponentsSearchGroup

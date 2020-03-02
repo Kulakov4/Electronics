@@ -32,7 +32,8 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   System.Generics.Collections, CustomComponentsQuery,
   cxTextEdit, cxBlobEdit,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  dxDateRanges;
 
 {$WARN UNIT_PLATFORM OFF}
 
