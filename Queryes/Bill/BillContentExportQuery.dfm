@@ -10,7 +10,7 @@ inherited QueryBillContentExport: TQueryBillContentExport
       'from'
       '('
       'select'
-      '    cast (b.id as INTEGER) ID,'
+      '    b.id as ID,'
       '    1 IsGroup,    '
       
         '    '#39#1057#1095#1105#1090' '#8470#39' || b.Number || '#39' '#1086#1090' '#39' || strftime('#39'%d.%m.%Y'#39', b.Bil' +
@@ -61,7 +61,7 @@ inherited QueryBillContentExport: TQueryBillContentExport
       'from Bill b '
       'union'
       'select'
-      '       cast (-sp.Id -100000 as INTEGER) ID,'
+      '       bc.BillID || '#39'_'#39' || sp.Id ID,'
       '       0 IsGroup,       '
       '       p.Value,'
       '       bc.BillID,'

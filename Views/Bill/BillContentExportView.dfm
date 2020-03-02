@@ -44,7 +44,7 @@ inherited ViewBillContentExport: TViewBillContentExport
       end
       item
         Caption.AlignHorz = taCenter
-        Caption.Text = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086
+        Caption.Text = #1054#1089#1090#1072#1090#1086#1082
       end
       item
         Caption.AlignHorz = taCenter

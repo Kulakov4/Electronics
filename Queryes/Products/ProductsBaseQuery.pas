@@ -1042,9 +1042,6 @@ begin
   // Определяемся с курсом Евро
   // AECource := GetEuroCource;
 
-  // Закупочная цена в рублях. Она изменится если включена опция RubToDollar
-  APriceR := W.PriceR.F.AsFloat;
-
   // Если закупочная цена была в рублях
   if W.IDCurrency.F.AsInteger = 1 then
   begin
@@ -1064,6 +1061,9 @@ begin
       W.PriceE.F.Value := W.Price.F.AsFloat / W.Euro.F.AsFloat
     else
       W.PriceE.F.Value := NULL;
+
+    // Закупочная цена в рублях. Она изменится если включена опция RubToDollar
+    APriceR := W.PriceR.F.AsFloat;
 
     // *************************************************************************
     // Розничная цена
@@ -1091,6 +1091,9 @@ begin
         W.Euro.F.AsFloat
     else
       W.PriceE.F.Value := NULL;
+
+    // Закупочная цена в рублях.
+    APriceR := W.PriceR.F.AsFloat;
   end;
 
   // Если исходная цена была в евро
@@ -1109,6 +1112,9 @@ begin
       W.PriceD.F.Value := NULL;
 
     W.PriceE.F.Value := W.Price.F.Value;
+
+    // Закупочная цена в рублях.
+    APriceR := W.PriceR.F.AsFloat;
   end;
 
   // Розничная цена в рублях

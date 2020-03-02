@@ -84,6 +84,7 @@ type
 
   const
     KeyFolder: String = 'Bill';
+    procedure FilterBill(APeriodIndex: Integer);
     // FReadOnlyFieldList: TList<String>;
     function GetclBillDate: TcxGridDBBandedColumn;
     // FReadOnlyFieldList: TList<String>;
@@ -180,7 +181,6 @@ end;
 procedure TViewBill.actExportToExcelDocumentExecute(Sender: TObject);
 var
   AFileName: String;
-//  AFrmBillContentExport: TFrmBillContentExport;
   AInitialFileName: string;
   AItemIndex: Integer;
   AProperties: TcxComboBoxProperties;
@@ -191,34 +191,44 @@ var
   D2: TDate;
   S1: string;
   S2: string;
-  // x: Integer;
+
+//  AFrmBillContentExport: TFrmBillContentExport;
 begin
   inherited;
 
   Application.Hint := '';
-{
-  qBillContentExport := TQueryBillContentExport.Create(Self);
-  AFrmBillContentExport := TFrmBillContentExport.Create(Self);
-  try
+  (*
+    qBillContentExport := TQueryBillContentExport.Create(Self);
+    AFrmBillContentExport := TFrmBillContentExport.Create(Self);
+    try
     qBillContentExport.W.TryOpen;
 
-    // AFrmBillContentExport.ViewBillContentExport.Font.Assign(Fonf);
+    AFrmBillContentExport.ViewBillContentExport.Font.Assign(Font);
     AFrmBillContentExport.ViewBillContentExport.QueryBillContentExport :=
-      qBillContentExport;
+    qBillContentExport;
     AFrmBillContentExport.ShowModal;
-  finally
+    finally
     AFrmBillContentExport.Free;
     qBillContentExport.Free;
-  end;
+    end;
 
-  Exit;
-}
+    Exit;
+    (* *)
+
   D2 := Date;
   D1 := Date;
 
   AProperties := TcxComboBoxProperties(cxbeiPeriodComboBox.Properties);
   AValue := VarToStr(cxbeiPeriodComboBox.EditValue);
   AItemIndex := AProperties.Items.IndexOf(AValue);
+  {
+    0 - Произвольно
+    1- Сегодня
+    2- 7 дней
+    3- 30 дней
+    4- 90 дней
+    5- 365 дней
+  }
   case AItemIndex of
     0:
       begin
@@ -244,6 +254,8 @@ begin
     3:
       D1 := Date - 30; // За 30 дней
     4:
+      D1 := Date - 90; // За 90 дней
+    5:
       D1 := Date - 365; // За 365 дней
   end;
 
@@ -307,16 +319,8 @@ begin
   AcxComboBox.PostEditValue;
   dxbmbPeriod.Visible := AcxComboBox.ItemIndex = 0;
 
-  case AcxComboBox.ItemIndex of
-    1:
-      qBill.SearchByPeriod(Date, Date); // Сегодня
-    2:
-      qBill.SearchByPeriod(Date - 7, Date); // За 7 дней
-    3:
-      qBill.SearchByPeriod(Date - 30, Date); // За 30 дней
-    4:
-      qBill.SearchByPeriod(Date - 365, Date); // За 365 дней
-  end;
+  FilterBill(AcxComboBox.ItemIndex);
+  UpdateView;
 end;
 
 procedure TViewBill.cxbeiShippedComboBoxPropertiesEditValueChanged
@@ -433,6 +437,24 @@ procedure TViewBill.dxCalloutPopupShow(Sender: TObject);
 begin
   inherited;
   DateTimePicker.Date := Date;
+end;
+
+procedure TViewBill.FilterBill(APeriodIndex: Integer);
+begin
+  if qBill = nil then
+    Exit;
+
+  case APeriodIndex of
+    1:
+      qBill.SearchByPeriod(Date, Date); // Сегодня
+    2:
+      qBill.SearchByPeriod(Date - 7, Date); // За 7 дней
+    3:
+      qBill.SearchByPeriod(Date - 30, Date); // За 30 дней
+    4:
+      qBill.SearchByPeriod(Date - 365, Date); // За 365 дней
+  end;
+
 end;
 
 function TViewBill.GetBillDate: TDate;
@@ -586,14 +608,13 @@ procedure TViewBill.MyDelete;
 var
   ADeleteMessage: string;
 begin
-//  Assert(MainView.Controller.SelectedRowCount = 1);
+  // Assert(MainView.Controller.SelectedRowCount = 1);
 
-//  if W.ShipmentDate.F.IsNull then
-//    ADeleteMessage := 'Вы действительно хотите отменить счёт?'
-//  else
-//    ADeleteMessage :=
-//      'Вы действительно хотите отменить счёт и вернуть товар на склад?';
-
+  // if W.ShipmentDate.F.IsNull then
+  // ADeleteMessage := 'Вы действительно хотите отменить счёт?'
+  // else
+  // ADeleteMessage :=
+  // 'Вы действительно хотите отменить счёт и вернуть товар на склад?';
 
   ADeleteMessage := 'Действительно удалить выделенные счёта?';
   DeleteMessages.Clear;
@@ -610,6 +631,10 @@ begin
 end;
 
 procedure TViewBill.SetqBill(const Value: TQryBill);
+var
+  AItemIndex: Integer;
+  AProperties: TcxComboBoxProperties;
+  AValue: String;
 begin
   if FqBill = Value then
     Exit;
@@ -618,6 +643,12 @@ begin
 
   if FqBill = nil then
     Exit;
+
+  AProperties := TcxComboBoxProperties(cxbeiPeriodComboBox.Properties);
+  AValue := VarToStr(cxbeiPeriodComboBox.EditValue);
+  AItemIndex := AProperties.Items.IndexOf(AValue);
+  // Фильтруем счета в соответствии с выбранным диапазоном
+  FilterBill(AItemIndex);
 
   MainView.DataController.DataSource := FqBill.W.DataSource;
   MainView.DataController.CreateAllItems(True);
