@@ -180,7 +180,7 @@ begin
   // Предполагаем что при поиске
   // записи на склад не вставляются и проверка не нужна!!!
 
-  if FDQuery.State = dsEdit then
+  if (FDQuery.State = dsEdit) and (GetCurrentMode = RecordsMode) then
     inherited;
 end;
 
