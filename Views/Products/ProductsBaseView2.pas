@@ -38,6 +38,7 @@ uses
 const
   WM_RESYNC_DATASET = WM_USER + 800;
   WM_AFTER_OPEN_OR_REFRESH = WM_USER + 802;
+  WM_FULL_COLLAPSE = WM_USER + 803;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -258,6 +259,7 @@ type
     function IsSyncToDataSet: Boolean; override;
     function IsViewOK: Boolean; virtual;
     procedure LoadWholeSale;
+    procedure OnFullCollapse(var Message: TMessage); message WM_FULL_COLLAPSE;
     procedure OnInitEditValue(Sender, AItem: TObject; AEdit: TcxCustomEdit;
       var AValue: Variant); virtual;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
@@ -1193,7 +1195,8 @@ begin
   // Привязываем дерево к данным !!!
   W.DataSource.Enabled := True;
 
-  cxDBTreeList.FullCollapse;
+  PostMessage(Handle, WM_FULL_COLLAPSE, 0, 0);
+//  cxDBTreeList.FullCollapse;
 
   PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0, 0);
   ClearSelection;
@@ -1631,6 +1634,11 @@ begin
   finally
     dxbcWholeSale.Items.EndUpdate;
   end;
+end;
+
+procedure TViewProductsBase2.OnFullCollapse(var Message: TMessage);
+begin
+  cxDBTreeList.FullCollapse;
 end;
 
 procedure TViewProductsBase2.OnInitEditValue(Sender, AItem: TObject;
