@@ -101,6 +101,7 @@ type
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure SetSaleCount(ASaleCount: Double);
     function GetStorehouseProductID(AVirtualID: Integer): Integer;
+    procedure RefreshQuery; override;
     procedure TunePriceFields(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
     property ID: TFieldWrap read FID;
@@ -318,12 +319,6 @@ begin
 
   // Будем сами обновлять запись
   FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
-
-  // Текущий курс доллара по отношению к рублю загружаем из хранилища настроек
-  // FDollarCource := TSettings.Create.DollarCource;
-
-  // По умолчанию мы не в режиме автоматических транзакций
-  // AutoTransaction := False;
 
   // Будем кэшировать все изменения
   FDQuery.CachedUpdates := True;
@@ -867,13 +862,6 @@ procedure TQueryProductsBase.DoBeforeOpen(Sender: TObject);
 begin;
   InitFieldDefs;
   W.CreateDefaultFields(False);
-
-  // Внутренние вычисляемые поля
-  // W.IDExtraCharge.F.FieldKind := fkInternalCalc;
-  // W.IDExtraChargeType.F.FieldKind := fkInternalCalc;
-  // Оптовая наценка - теперь постоянное поле
-  // W.Wholesale.F.FieldKind := fkInternalCalc;
-
   W.InitFields;
   FDataChange := False;
 end;
@@ -1332,16 +1320,6 @@ begin
   end;
   FDQuery.FieldDefs.Update;
 
-  // Ссылка на выбранный диапазон оптовой наценки
-  // FDQuery.FieldDefs.Add(W.IDExtraCharge.FieldName, ftInteger);
-  // FDQuery.FieldDefs.Add(W.IDExtraChargeType.FieldName, ftInteger);
-
-  // Процент оптовой наценки - теперь постоянное поле
-  // FDQuery.FieldDefs.Add(W.Wholesale.FieldName, ftFloat);
-
-  // Процент РОЗНИЧНОЙ наценки
-  // FDQuery.FieldDefs.Add('Retail', ftInteger);
-
   // Закупочная цена
   FDQuery.FieldDefs.Add(W.PriceR.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.PriceD.FieldName, ftFloat);
@@ -1357,13 +1335,10 @@ begin
   FDQuery.FieldDefs.Add(W.PriceD2.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.PriceE2.FieldName, ftFloat);
 
-  // Количество продажи
-  // FDQuery.FieldDefs.Add(W.SaleCount.FieldName, ftFloat);
   // Продажная цена
   FDQuery.FieldDefs.Add(W.SaleR.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.SaleD.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.SaleE.FieldName, ftFloat);
-
 end;
 
 procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
@@ -1916,6 +1891,18 @@ begin
   // Assert(FVirtualIDOffset < 0);
   Assert(AID > 0);
   Result := (AID * -1) + VirtualIDOffset;
+end;
+
+procedure TProductW.RefreshQuery;
+begin
+  DataSet.DisableControls;
+  try
+    DataSet.Close;
+    DataSet.Open;
+    NeedRefresh := False;
+  finally
+    DataSet.EnableControls;
+  end;
 end;
 
 procedure TProductW.TunePriceFields(const AFields: Array of TField);
