@@ -137,9 +137,8 @@ inherited ViewProductsBase2: TViewProductsBase2
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
-    ExplicitTop = 56
     ExplicitWidth = 1177
-    ExplicitHeight = 523
+    ExplicitHeight = 551
     object clID: TcxDBTreeListColumn
       Visible = False
       Caption.AlignHorz = taCenter

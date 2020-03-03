@@ -349,13 +349,16 @@ end;
 
 destructor TQueryProductsBase.Destroy;
 begin
-  W.DropClone(FBasket);
+  if FBasket <> nil then
+    W.DropClone(FBasket);
+
   FBasket := nil;
 
   // FreeAndNil(FOnDollarCourceChange);
   // FreeAndNil(FOnEuroCourceChange);
 
-  W.DropClone(FNotGroupClone);
+  if FNotGroupClone <> nil then
+    W.DropClone(FNotGroupClone);
   FNotGroupClone := nil;
 
   FreeAndNil(FAutoSaveFieldNameList);
@@ -1030,6 +1033,7 @@ begin
   // Определяемся с курсом Евро
   // AECource := GetEuroCource;
 
+  APriceR := 0;
   // Если закупочная цена была в рублях
   if W.IDCurrency.F.AsInteger = 1 then
   begin

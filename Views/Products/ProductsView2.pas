@@ -488,6 +488,16 @@ begin
   FEventList.Clear;
 
   qProductsBase := Value;
+
+(*
+  cxDBTreeList.DataController.DataSource := nil;
+  if qProductsBase <> nil then
+  begin
+    cxDBTreeList1.DataController.KeyField := W.PKFieldName;
+    cxDBTreeList1.DataController.ParentField := W.IDComponentGroup.FieldName;
+    cxDBTreeList1.DataController.DataSource := W.DataSource;
+  end;
+*)
 end;
 
 procedure TViewProducts2.UpdateProductCount;

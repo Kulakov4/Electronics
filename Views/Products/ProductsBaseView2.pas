@@ -1745,19 +1745,19 @@ begin
   begin
     V := cxDBTreeList.Selections[i].Values[clID.ItemIndex];
     if not VarIsNull(V) then
-       ASelList.Add( V );
+      ASelList.Add(V);
   end;
   SelArr := ASelList.ToArray;
   ASelList.Free;
 
   IsEqual := (Length(FSelArr) = Length(SelArr));
   if IsEqual then
-  for I := Low(FSelArr) to High(FSelArr) do
-  begin
-    IsEqual := FSelArr[i] = SelArr[i];
-    if not IsEqual then
-      break;
-  end;
+    for i := Low(FSelArr) to High(FSelArr) do
+    begin
+      IsEqual := FSelArr[i] = SelArr[i];
+      if not IsEqual then
+        break;
+    end;
 
   FSelArr := SelArr;
 
@@ -1986,9 +1986,10 @@ begin
   if (not StatusBar.Visible) or (StatusBar.Panels.Count = 0) then
     Exit;
 
-  // На выбранном складе или в результате поиска без учёта групп
-  StatusBar.Panels[0].Text :=
-    Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
+  if qProductsBase.NotGroupClone <> nil then
+    // На выбранном складе или в результате поиска без учёта групп
+    StatusBar.Panels[0].Text :=
+      Format('%d', [qProductsBase.NotGroupClone.RecordCount]);
 end;
 
 procedure TViewProductsBase2.UpdateFieldValue(AFields: TArray<TField>;
