@@ -101,7 +101,6 @@ type
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure SetSaleCount(ASaleCount: Double);
     function GetStorehouseProductID(AVirtualID: Integer): Integer;
-    procedure RefreshQuery; override;
     procedure TunePriceFields(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
     property ID: TFieldWrap read FID;
@@ -1895,18 +1894,6 @@ begin
   // Assert(FVirtualIDOffset < 0);
   Assert(AID > 0);
   Result := (AID * -1) + VirtualIDOffset;
-end;
-
-procedure TProductW.RefreshQuery;
-begin
-  DataSet.DisableControls;
-  try
-    DataSet.Close;
-    DataSet.Open;
-    NeedRefresh := False;
-  finally
-    DataSet.EnableControls;
-  end;
 end;
 
 procedure TProductW.TunePriceFields(const AFields: Array of TField);

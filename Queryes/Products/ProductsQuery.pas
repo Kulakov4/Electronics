@@ -20,8 +20,8 @@ type
   strict private
     procedure FreeInt;
     function HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean; stdcall;
-    procedure LoadContent(AStoreHouseID: Integer; AStorehouseListInt:
-        IStorehouseList);
+    procedure LoadContent(AStoreHouseID: Integer;
+      AStorehouseListInt: IStorehouseList);
   private
     FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
@@ -53,6 +53,7 @@ type
       const AProducers: TList<String>); overload;
     function SearchByID(AIDArray: TArray<Integer>): Integer;
     function SearchForBasket: Integer;
+    procedure TryLoadEx(AIDParent: Integer);
     property StorehouseListInt: IStorehouseList read FStorehouseListInt;
     property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
@@ -310,8 +311,8 @@ begin
   V := FDQuery.LookupEx(AKeyFields,
     VarArrayOf([0, AIDComponentGroup, AProductsExcelTable.Value.AsString,
     AIDProducer, AProductsExcelTable.Amount.AsInteger,
-    AProductsExcelTable.Price.AsFloat, AProductsExcelTable.LoadDate.AsString]
-    ), W.PKFieldName);
+    AProductsExcelTable.Price.AsFloat, AProductsExcelTable.LoadDate.AsString]),
+    W.PKFieldName);
 
   Result := not VarIsNull(V);
 end;
@@ -323,7 +324,7 @@ begin
   begin
     FNeedDecTotalCount := false;
     if FTotalCount > 0 then
-    Dec(FTotalCount);
+      Dec(FTotalCount);
   end;
 end;
 
@@ -407,12 +408,12 @@ begin
 end;
 
 procedure TQueryProducts.LoadContent(AStoreHouseID: Integer;
-    AStorehouseListInt: IStorehouseList);
+  AStorehouseListInt: IStorehouseList);
 begin
   Assert(AStorehouseListInt <> nil);
   FStorehouseListInt := AStorehouseListInt;
 
-  TryLoad2(AStoreHouseID);
+  TryLoadEx(AStoreHouseID);
 end;
 
 function TQueryProducts.SearchByID(AIDArray: TArray<Integer>): Integer;
@@ -446,6 +447,50 @@ begin
   Result := SearchEx([TParamRec.Create(W.SaleCount.FullName, 0, ftFloat,
     false, '>')]);
   W.ApplySaleCountFilter;
+end;
+
+procedure TQueryProducts.TryLoadEx(AIDParent: Integer);
+var
+  AParamValueChange: Boolean;
+  ASQL: string;
+begin
+  Assert(DetailParameterName <> '');
+
+  // Если значение параметра изменилось
+  AParamValueChange := FDQuery.Params.ParamByName(DetailParameterName).AsInteger
+    <> AIDParent;
+
+  // Если наш запрос кто-то использует
+  // но параметр  НЕ изменился и запрос уже открыт
+  if (not AParamValueChange) and FDQuery.Active then
+  begin
+    Exit;
+  end;
+
+  // КОСТЫЛЬ. ЧТОБЫ ИЗБЕЖАТЬ СТРАШНОГО ГЛЮКА
+  if (FDQuery.Active) and (FDQuery.RecordCount = 0) then
+  begin
+    FDQuery.DisableControls;
+    try
+      FDQuery.Close;
+      ASQL := FDQuery.SQL.Text;
+      FDQuery.SQL.Text := '';
+      FDQuery.SQL.Text := ASQL;
+      SetParamType(W.StorehouseId.FieldName);
+      FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
+      FDQuery.Open;
+    finally
+      FDQuery.EnableControls;
+    end;
+  end
+  else
+  begin
+    if AParamValueChange then
+      FDQuery.Params.ParamByName(DetailParameterName).AsInteger := AIDParent;
+
+    // Обновляем или открываем заново запрос
+    Wrap.RefreshQuery;
+  end;
 end;
 
 end.
