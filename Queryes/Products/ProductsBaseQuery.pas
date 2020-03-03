@@ -674,10 +674,12 @@ begin
 
     // Заполняем пустые поля из найденного компонента
     UpdateFields([W.Datasheet.F, W.Diagram.F, W.Drawing.F, W.Image.F,
-      W.DescriptionID.F], [qSearchFamily.W.Datasheet.F.Value,
-      qSearchFamily.W.Diagram.F.Value, qSearchFamily.W.Drawing.F.Value,
-      qSearchFamily.W.Image.F.Value,
-      qSearchFamily.W.DescriptionID.F.Value], True);
+      W.DescriptionID.F, W.DescriptionComponentName.F, W.Description.F],
+      [qSearchFamily.W.Datasheet.F.Value, qSearchFamily.W.Diagram.F.Value,
+      qSearchFamily.W.Drawing.F.Value, qSearchFamily.W.Image.F.Value,
+      qSearchFamily.W.DescriptionID.F.Value,
+      qSearchFamily.W.DescriptionComponentName.F.Value,
+      qSearchFamily.W.Description.F.Value], True);
   end;
 end;
 
