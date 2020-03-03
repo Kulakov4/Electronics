@@ -473,10 +473,9 @@ begin
         (ASender as TProductsExcelDM).Init(FieldsInfo2.ToArray);
       end);
   finally
-    cxDBTreeList.FullCollapse;
     EndUpdate;
   end;
-
+  PostFullCollapseMessage;
 end;
 
 procedure TViewProducts2.SetqProducts(const Value: TQueryProducts);

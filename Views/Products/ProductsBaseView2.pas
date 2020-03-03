@@ -38,6 +38,7 @@ uses
 const
   WM_RESYNC_DATASET = WM_USER + 800;
   WM_AFTER_OPEN_OR_REFRESH = WM_USER + 802;
+  WM_FULL_COLLAPSE = WM_USER + 803;
 
 type
   TViewProductsBase2 = class(TfrmTreeList)
@@ -258,10 +259,12 @@ type
     function IsSyncToDataSet: Boolean; override;
     function IsViewOK: Boolean; virtual;
     procedure LoadWholeSale;
+    procedure OnFullCollapse(var Message: TMessage); message WM_FULL_COLLAPSE;
     procedure OnInitEditValue(Sender, AItem: TObject; AEdit: TcxCustomEdit;
       var AValue: Variant); virtual;
     procedure OpenDoc(ADocFieldInfo: TDocFieldInfo);
     function PerñentToRate(APerñent: Double): Double;
+    procedure PostFullCollapseMessage;
     function RateToPerñent(ARate: Double): Double;
     // TODO: SortList
     // function SortList(AList: TList<TProductRecord>; ASortMode: Integer)
@@ -1193,6 +1196,7 @@ begin
   // Ïðèâÿçûâàåì äåðåâî ê äàííûì !!!
   W.DataSource.Enabled := True;
 
+  PostFullCollapseMessage;
   PostMessage(Handle, WM_AFTER_OPEN_OR_REFRESH, 0, 0);
   ClearSelection;
 
@@ -1269,7 +1273,6 @@ procedure TViewProductsBase2.ClearSelectionAfterOpenOrRefresh
 begin
   inherited;
   ClearSelection;
-  cxDBTreeList.FullCollapse;
 end;
 
 procedure TViewProductsBase2.clIDProducerPropertiesNewLookupDisplayText
@@ -1625,6 +1628,11 @@ begin
   end;
 end;
 
+procedure TViewProductsBase2.OnFullCollapse(var Message: TMessage);
+begin
+  cxDBTreeList.FullCollapse;
+end;
+
 procedure TViewProductsBase2.OnInitEditValue(Sender, AItem: TObject;
   AEdit: TcxCustomEdit; var AValue: Variant);
 var
@@ -1700,6 +1708,11 @@ begin
 
   actCopyColumnHeader.Visible := (FcxTreeListBandHeaderCellViewInfo <> nil) or
     (FcxTreeListColumnHeaderCellViewInfo <> nil);
+end;
+
+procedure TViewProductsBase2.PostFullCollapseMessage;
+begin
+  PostMessage(Handle, WM_FULL_COLLAPSE, 0, 0);
 end;
 
 procedure TViewProductsBase2.ProcessResyncDataSetMessage(var Message: TMessage);
