@@ -131,6 +131,8 @@ type
     procedure cxpcMainPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure cxpcWareHouse2Click(Sender: TObject);
+    procedure cxpcWareHouse2MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure cxpcWareHouse2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure FormActivate(Sender: TObject);
@@ -164,6 +166,7 @@ type
     FViewProductsSearch: TViewProductsSearch2;
     FViewStoreHouse: TViewStoreHouse;
     FViewTreeList: TViewTreeList;
+    FWareHousePageWasChange: Boolean;
     FWriteProgress: TTotalProgress;
     procedure DoAfterAddBill(Sender: TObject);
     procedure DoAfterLoadSheet(ASender: TObject);
@@ -764,6 +767,10 @@ procedure TfrmMain.cxpcWareHouse2Click(Sender: TObject);
 var
   X: Integer;
 begin
+  // Если этот клик привёл к тому, что страница изменилась то не снимаем выделение
+  if FWareHousePageWasChange then
+    Exit;
+
   case cxpcWareHouse2.ActivePageIndex of
     0:
       FViewStoreHouse.ClearSelection;
@@ -776,18 +783,26 @@ begin
   end;
 end;
 
+procedure TfrmMain.cxpcWareHouse2MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  FWareHousePageWasChange := False;
+end;
+
 procedure TfrmMain.cxpcWareHouse2PageChanging(Sender: TObject;
   NewPage: TcxTabSheet; var AllowChange: Boolean);
 begin
   if not FLoadComplete then
     Exit;
 
+  FWareHousePageWasChange := True;
+
   // Если переходим на вкладку склады
   if NewPage = cxtshWareHouse2 then
   begin
     TDM.Create.qStoreHouseList.W.TryOpen;
-//    TDM.Create.qStoreHouseList.AddClient;
-//    TDM.Create.qProducts.AddClient;
+    // TDM.Create.qStoreHouseList.AddClient;
+    // TDM.Create.qProducts.AddClient;
 
     TNotifyEventWrap.Create(TDM.Create.qProducts.W.AfterRefresh,
       DoOnStoreHouseListChange, FViewEventList);
@@ -825,8 +840,8 @@ begin
   // Если уходим со вкладки Склады
   if cxpcWareHouse2.ActivePage = cxtshWareHouse2 then
   begin
-//    TDM.Create.qProducts.RemoveClient;
-//    TDM.Create.qStoreHouseList.RemoveClient;
+    // TDM.Create.qProducts.RemoveClient;
+    // TDM.Create.qStoreHouseList.RemoveClient;
   end;
 
   // Если переходим на вкладку корзина
