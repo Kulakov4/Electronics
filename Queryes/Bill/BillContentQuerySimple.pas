@@ -16,14 +16,23 @@ type
     FBillID: TFieldWrap;
     FID: TFieldWrap;
     FSaleCount: TFieldWrap;
+    FCalcPriceR: TFieldWrap;
+    FRetail: TFieldWrap;
+    FWholeSale: TFieldWrap;
     FStoreHouseProductID: TFieldWrap;
+    FMarkup: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AddContent(ABillID, AStoreHouseProductID, ASaleCount: Integer);
+    procedure AddContent(ABillID, AStoreHouseProductID, ASaleCount: Integer;
+        ACalcPriceR, ARetail, AWholeSale, AMarkup: Double);
     property BillID: TFieldWrap read FBillID;
     property ID: TFieldWrap read FID;
     property SaleCount: TFieldWrap read FSaleCount;
+    property CalcPriceR: TFieldWrap read FCalcPriceR;
+    property Retail: TFieldWrap read FRetail;
+    property WholeSale: TFieldWrap read FWholeSale;
     property StoreHouseProductID: TFieldWrap read FStoreHouseProductID;
+    property Markup: TFieldWrap read FMarkup;
   end;
 
   TQueryBillContentSimple = class(TQueryBaseEvents)
@@ -70,11 +79,15 @@ begin
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FBillID := TFieldWrap.Create(Self, 'BillID');
   FSaleCount := TFieldWrap.Create(Self, 'SaleCount');
+  FCalcPriceR := TFieldWrap.Create(Self, 'CalcPriceR');
+  FRetail := TFieldWrap.Create(Self, 'Retail');
+  FWholeSale := TFieldWrap.Create(Self, 'WholeSale');
+  FMarkup := TFieldWrap.Create(Self, 'Markup');
   FStoreHouseProductID := TFieldWrap.Create(Self, 'StoreHouseProductID');
 end;
 
 procedure TBillContentSimpleW.AddContent(ABillID, AStoreHouseProductID,
-  ASaleCount: Integer);
+    ASaleCount: Integer; ACalcPriceR, ARetail, AWholeSale, AMarkup: Double);
 begin
   Assert(ABillID > 0);
   Assert(AStoreHouseProductID > 0);
@@ -85,6 +98,10 @@ begin
     BillID.F.AsInteger := ABillID;
     StoreHouseProductID.F.AsInteger := AStoreHouseProductID;
     SaleCount.F.Value := ASaleCount;
+    CalcPriceR.F.Value := ACalcPriceR;
+    Retail.F.Value := ARetail;
+    WholeSale.F.Value := AWholeSale;
+    Markup.F.Value := AMarkup;
     TryPost;
   except
     TryCancel;

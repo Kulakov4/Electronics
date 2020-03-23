@@ -75,7 +75,7 @@ object DMRepository: TDMRepository
       'Synchronous=Full'
       'StringFormat=Unicode'
       'LockingMode=Normal'
-      'Database=C:\Public\ElectronicDB\database.db'
+      'Database=C:\Electronics DB\Main\database 1.6.db'
       'MonitorBy=FlatFile'
       'DriverID=SQLite')
     LoginPrompt = False

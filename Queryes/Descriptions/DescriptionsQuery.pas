@@ -12,7 +12,7 @@ uses
   BaseEventsQuery;
 
 type
-  TDescriptionW = class(TDSWrap)
+  TDescrW = class(TDSWrap)
   private
     FComponentName: TFieldWrap;
     FDescription: TFieldWrap;
@@ -41,7 +41,7 @@ type
     FCheckClone: TFDMemTable;
     FFilterText: string;
     FShowDuplicate: Boolean;
-    FW: TDescriptionW;
+    FW: TDescrW;
     procedure ApplyFilter(AShowDuplicate: Boolean; const AFilterText: string);
     function GetCheckClone: TFDMemTable;
     { Private declarations }
@@ -54,7 +54,7 @@ type
         Boolean;
     property FilterText: string read FFilterText;
     property ShowDuplicate: Boolean read FShowDuplicate;
-    property W: TDescriptionW read FW;
+    property W: TDescrW read FW;
     { Public declarations }
   end;
 
@@ -67,7 +67,7 @@ uses RepositoryDataModule, NotifyEvents, StrHelper, ErrorType;
 constructor TQueryDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
-  FW := FDSWrap as TDescriptionW;
+  FW := FDSWrap as TDescrW;
 
   AutoTransaction := False;
 end;
@@ -133,7 +133,7 @@ end;
 
 function TQueryDescriptions.CreateDSWrap: TDSWrap;
 begin
-  Result := TDescriptionW.Create(FDQuery);
+  Result := TDescrW.Create(FDQuery);
 end;
 
 function TQueryDescriptions.GetCheckClone: TFDMemTable;
@@ -166,7 +166,7 @@ begin
     ApplyFilter(FShowDuplicate, FFilterText);
 end;
 
-constructor TDescriptionW.Create(AOwner: TComponent);
+constructor TDescrW.Create(AOwner: TComponent);
 begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);

@@ -10,10 +10,11 @@ uses
   ChildCategoriesQuery, ProductsQuery, ComponentsExGroupUnit2,
   ComponentsGroupUnit2, ParametersGroupUnit2, DescriptionsGroupUnit2,
   SubParametersQuery2, ExtraChargeGroupUnit, BillQuery, BillContentQuerySimple,
-  BillContentQuery, ProductsBaseQuery, ExcelDataModule, ParametricErrorTable,
+  ProductsBaseQuery, ExcelDataModule, ParametricErrorTable,
   SearchParameterQuery, ParamSubParamsQuery, SearchParamDefSubParamQuery,
   FieldInfoUnit, SearchCategoryQuery, SearchDaughterCategoriesQuery,
-  BillInterface;
+  BillInterface, BillContentQry, ProductsSearchViewModel, ProductsViewModel,
+  BillContentViewModel;
 
 type
   TLoadExcelFileHeaderResult = (ID_OK, ID_Cancel, ID_ParametricTableNotFound,
@@ -29,6 +30,7 @@ type
 
   var
     FAfterAddBill: TNotifyEventsEx;
+    FBillContentViewModel: TBillContentViewModel;
     FBodyTypesGroup: TBodyTypesGroup2;
     FCategoryParametersGroup: TCategoryParametersGroup2;
     FComponent: TComponent;
@@ -40,14 +42,13 @@ type
     FExtraChargeGroup: TExtraChargeGroup;
     FParametersGroup: TParametersGroup2;
     FProducersGroup: TProducersGroup2;
+    FProductsBasketViewModel: TProductsViewModel;
+    FProductsSearchViewModel: TProductsSearchViewModel;
+    FProductsViewModel: TProductsViewModel;
     FqBillContentSimple: TQueryBillContentSimple;
     FqChildCategories: TQueryChildCategories;
     FqBill: TQryBill;
-    FqBillContent2: TQryBillContent;
     FqParamSubParams: TQueryParamSubParams;
-    FqProducts: TQueryProducts;
-    FqProductsBasket: TQueryProducts;
-    FqProductsSearch: TQueryProductsSearch;
     FqSearchCategory: TQuerySearchCategory;
     FqSearchDaughterCategories: TQuerySearchDaughterCategories;
     FqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
@@ -67,6 +68,7 @@ type
     procedure DoOnCategoryParametersApplyUpdates(Sender: TObject);
     procedure DoOnParamOrderChange(Sender: TObject);
     function GetAfterAddBill: TNotifyEventsEx;
+    function GetBillContentViewModel: TBillContentViewModel;
     function GetBodyTypesGroup: TBodyTypesGroup2;
     function GetCategoryParametersGroup: TCategoryParametersGroup2;
     function GetComponentsExGroup: TComponentsExGroup2;
@@ -77,14 +79,13 @@ type
     function GetNFFieldName(AStringTreeNodeID: Integer): string;
     function GetParametersGroup: TParametersGroup2;
     function GetProducersGroup: TProducersGroup2;
+    function GetProductsBasketViewModel: TProductsViewModel;
+    function GetProductsSearchViewModel: TProductsSearchViewModel;
+    function GetProductsViewModel: TProductsViewModel;
     function GetqBillContentSimple: TQueryBillContentSimple;
     function GetqChildCategories: TQueryChildCategories;
     function GetqBill: TQryBill;
-    function GetqBillContent2: TQryBillContent;
     function GetqParamSubParams: TQueryParamSubParams;
-    function GetqProducts: TQueryProducts;
-    function GetqProductsBasket: TQueryProducts;
-    function GetqProductsSearch: TQueryProductsSearch;
     function GetqSearchCategory: TQuerySearchCategory;
     function GetqSearchDaughterCategories: TQuerySearchDaughterCategories;
     function GetqSearchParamDefSubParam: TQuerySearchParamDefSubParam;
@@ -114,6 +115,8 @@ type
       : TLoadExcelFileHeaderResult;
     class function NewInstance: TObject; override;
     property AfterAddBill: TNotifyEventsEx read GetAfterAddBill;
+    property BillContentViewModel: TBillContentViewModel
+      read GetBillContentViewModel;
     property BodyTypesGroup: TBodyTypesGroup2 read GetBodyTypesGroup;
     property CategoryParametersGroup: TCategoryParametersGroup2
       read GetCategoryParametersGroup;
@@ -125,14 +128,15 @@ type
     property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
     property ParametersGroup: TParametersGroup2 read GetParametersGroup;
     property ProducersGroup: TProducersGroup2 read GetProducersGroup;
+    property ProductsBasketViewModel: TProductsViewModel
+      read GetProductsBasketViewModel;
+    property ProductsSearchViewModel: TProductsSearchViewModel
+      read GetProductsSearchViewModel;
+    property ProductsViewModel: TProductsViewModel read GetProductsViewModel;
     property qBillContentSimple: TQueryBillContentSimple
       read GetqBillContentSimple;
     property qChildCategories: TQueryChildCategories read GetqChildCategories;
     property qBill: TQryBill read GetqBill;
-    property qBillContent2: TQryBillContent read GetqBillContent2;
-    property qProducts: TQueryProducts read GetqProducts;
-    property qProductsBasket: TQueryProducts read GetqProductsBasket;
-    property qProductsSearch: TQueryProductsSearch read GetqProductsSearch;
     property qSearchCategory: TQuerySearchCategory read GetqSearchCategory;
     property qSearchDaughterCategories: TQuerySearchDaughterCategories
       read GetqSearchDaughterCategories;
@@ -148,7 +152,8 @@ uses
   RepositoryDataModule, SettingsController, System.SysUtils, System.IOUtils,
   ProjectConst, FireDAC.Comp.Client, FireDAC.Comp.DataSet,
   SearchInterfaceUnit, ClearStorehouseProductsQuery, StrHelper,
-  ParametricExcelDataModule, DefaultParameters, System.Types, InsertEditMode;
+  ParametricExcelDataModule, DefaultParameters, System.Types, InsertEditMode,
+  System.Math;
 
 var
   SingletonList: TObjectList;
@@ -181,7 +186,7 @@ begin
   ComponentsExGroup.qComponentsEx.Master := qTreeList;
   ComponentsExGroup.qFamilyEx.Master := qTreeList;
 
-  // qBillContent2.Master := qBill;
+  // qBillContent.Master := qBill;
 
   // При редактировании дочерней категории нужно будет обновлять дерево
   TNotifyEventWrap.Create(qChildCategories.W.AfterPostM,
@@ -247,7 +252,13 @@ begin
 
         // Добавляем товар в заказ
         qBillContentSimple.W.AddContent(ABillID, AStoreHouseProductID,
-          AQryProducts.BasketW.SaleCount.F.Value);
+          AQryProducts.BasketW.SaleCount.F.Value,
+          AQryProducts.BasketW.CalcPriceR.F.Value,
+          AQryProducts.BasketW.Retail.F.Value,
+          ifThen(AQryProducts.BasketW.WholeSale.F.AsFloat > 0,
+          AQryProducts.BasketW.WholeSale.F.AsFloat,
+          AQryProducts.BasketW.MinWholeSale.F.AsFloat),
+          AQryProducts.BasketW.Markup.F.Value);
 
         // Тут товар исчезает из корзины !!!
         AQryProducts.BasketW.SetSaleCount(0);
@@ -260,7 +271,7 @@ begin
     AQryProducts.ApplyUpdates;
 
     // Просим контент загрузить данные
-    qBillContent2.LoadContent(ABillID, ABillInt);
+    BillContentViewModel.qBillContent.LoadContent(ABillID);
 
     // Если при создании счёта была указана дата отгрузки
     if ABillInt.ShipmentDate > 0 then
@@ -268,7 +279,6 @@ begin
       // Меняем дату отгрузки и выполняем отгрузку
       qBill.W.Save(EditMode, ABillInt);
     end;
-    qBillContent2.CloseContent;
 
     // Извещаем всех, что счёт был добавлен
     AfterAddBill.CallEventHandlers(Self);
@@ -292,14 +302,18 @@ begin
   AList := TList<TQueryProductsBase>.Create;
   try
 
-    if (FqProducts <> nil) and (FqProducts.FDQuery.Active) then
-      AList.Add(qProducts);
-    if (qProductsSearch <> nil) and (qProductsSearch.FDQuery.Active) then
-      AList.Add(qProductsSearch);
+    if (FProductsViewModel <> nil) and
+      (ProductsViewModel.qProducts.FDQuery.Active) then
+      AList.Add(ProductsViewModel.qProducts);
+
+    if (FProductsSearchViewModel <> nil) and
+      (ProductsSearchViewModel.qProductsSearch.FDQuery.Active) then
+      AList.Add(ProductsSearchViewModel.qProductsSearch);
 
     // Обновляем количество товара в других наборах данных
     if AList.Count > 0 then
-      TQueryProductsBase.UpdateAmount(qBillContent2, AList.ToArray);
+      TQueryProductsBase.UpdateAmount(BillContentViewModel.qBillContent,
+        AList.ToArray);
   finally
     FreeAndNil(AList);
   end;
@@ -337,22 +351,30 @@ end;
 
 procedure TDM.DoAfterProducerCommit(Sender: TObject);
 begin
-  // Произощёл коммит в справочнике производителей
+  // Произошол коммит в справочнике производителей
 
   // Просим обновить данные о производителях в других местах
-  qProductsSearch.ProducersGroup.ReOpen;
-  qProducts.ProducersGroup.ReOpen;
-  DescriptionsGroup.qProducers.W.RefreshQuery;
+  if FProductsSearchViewModel <> nil then
+    ProductsSearchViewModel.ProducersGroup.ReOpen;
 
-  ComponentsGroup.Producers.W.RefreshQuery;
-  ComponentsSearchGroup.Producers.W.RefreshQuery;
+  if FProductsViewModel <> nil then
+    ProductsViewModel.ProducersGroup.ReOpen;
+
+  if FDescriptionsGroup <> nil then
+    DescriptionsGroup.qProducers.W.RefreshQuery;
+
+  if FComponentsGroup <> nil then
+    FComponentsGroup.Producers.W.RefreshQuery;
+
+  if FComponentsSearchGroup <> nil then
+    ComponentsSearchGroup.Producers.W.RefreshQuery;
 end;
 
 procedure TDM.DoAfterStoreHousePost(Sender: TObject);
 begin
   // Произошло сохранение скалада
   // Обновляем выпадающий список складов
-  qProductsSearch.qStoreHouseList.W.RefreshQuery;
+  ProductsSearchViewModel.qStoreHouseList.W.RefreshQuery;
 end;
 
 procedure TDM.DoAfterTreeListFirstOpen(Sender: TObject);
@@ -378,14 +400,18 @@ begin
   AList := TList<TQueryProductsBase>.Create;
   try
 
-    if (FqProducts <> nil) and (FqProducts.FDQuery.Active) then
-      AList.Add(qProducts);
-    if (qProductsSearch <> nil) and (qProductsSearch.FDQuery.Active) then
-      AList.Add(qProductsSearch);
+    if (FProductsViewModel <> nil) and
+      (FProductsViewModel.qProducts.FDQuery.Active) then
+      AList.Add(FProductsViewModel.qProducts);
+
+    if (ProductsSearchViewModel <> nil) and
+      (ProductsSearchViewModel.qProductsSearch.FDQuery.Active) then
+      AList.Add(ProductsSearchViewModel.qProductsSearch);
 
     // Обновляем корзины других наборов данных
     if AList.Count > 0 then
-      TQueryProductsBase.UpdateSaleCount(qProductsBasket, AList.ToArray);
+      TQueryProductsBase.UpdateSaleCount(ProductsBasketViewModel.qProducts,
+        AList.ToArray);
   finally
     FreeAndNil(AList);
   end;
@@ -418,17 +444,22 @@ end;
 
 procedure TDM.DoBeforeProductsApplyUpdates(Sender: TObject);
 begin
-  if (FqProductsSearch <> nil) and (FqProductsSearch.FDQuery.Active) then
+  if (FProductsSearchViewModel <> nil) and
+    (FProductsSearchViewModel.qProductsSearch.FDQuery.Active) then
     // Обновляем корзины других наборов данных
-    TQueryProductsBase.UpdateSaleCount(qProducts, [qProductsSearch]);
+    TQueryProductsBase.UpdateSaleCount(ProductsViewModel.qProducts,
+      [ProductsSearchViewModel.qProductsSearch]);
 end;
 
 procedure TDM.DoBeforeProductsSearchApplyUpdates(Sender: TObject);
 begin
-  if (FqProducts <> nil) and (FqProducts.FDQuery.Active) and
-    (qProductsSearch.ProductSearchW.Mode = RecordsMode) then
+  if (FProductsViewModel <> nil) and
+    (FProductsViewModel.qProducts.FDQuery.Active) and
+    (FProductsSearchViewModel.qProductsSearch.ProductSearchW.Mode = RecordsMode)
+  then
     // Обновляем корзины других наборов данных
-    TQueryProductsBase.UpdateSaleCount(qProductsSearch, [qProducts]);
+    TQueryProductsBase.UpdateSaleCount(FProductsSearchViewModel.qProductsSearch,
+      [FProductsViewModel.qProducts]);
 end;
 
 procedure TDM.DoOnCategoryParametersApplyUpdates(Sender: TObject);
@@ -449,6 +480,19 @@ begin
     FAfterAddBill := TNotifyEventsEx.Create(Self);
 
   Result := FAfterAddBill;
+end;
+
+function TDM.GetBillContentViewModel: TBillContentViewModel;
+begin
+  if FBillContentViewModel = nil then
+  begin
+    FBillContentViewModel := TBillContentViewModel.Create(FComponent);
+    TNotifyEventWrap.Create
+      (FBillContentViewModel.qBillContent.AfterApplyUpdates,
+      DoAfterBillContentApplyUpdates, FEventList);
+  end;
+
+  Result := FBillContentViewModel;
 end;
 
 function TDM.GetBodyTypesGroup: TBodyTypesGroup2;
@@ -531,6 +575,44 @@ begin
   Result := FProducersGroup;
 end;
 
+function TDM.GetProductsBasketViewModel: TProductsViewModel;
+begin
+  if FProductsBasketViewModel = nil then
+  begin
+    FProductsBasketViewModel := TProductsViewModel.Create(FComponent);
+    TNotifyEventWrap.Create
+      (FProductsBasketViewModel.qProducts.BeforeApplyUpdates,
+      DoBeforeBasketApplyUpdates, FEventList);
+  end;
+
+  Result := FProductsBasketViewModel;
+end;
+
+function TDM.GetProductsSearchViewModel: TProductsSearchViewModel;
+begin
+  if FProductsSearchViewModel = nil then
+  begin
+    FProductsSearchViewModel := TProductsSearchViewModel.Create(FComponent);
+    TNotifyEventWrap.Create(FProductsSearchViewModel.qProductsSearch.
+      BeforeApplyUpdates, DoBeforeProductsSearchApplyUpdates);
+  end;
+
+  Result := FProductsSearchViewModel;
+end;
+
+function TDM.GetProductsViewModel: TProductsViewModel;
+begin
+  if FProductsViewModel = nil then
+  begin
+    FProductsViewModel := TProductsViewModel.Create(FComponent);
+    TNotifyEventWrap.Create(FProductsViewModel.qProducts.BeforeApplyUpdates,
+      DoBeforeProductsApplyUpdates, FEventList);
+
+  end;
+
+  Result := FProductsViewModel;
+end;
+
 function TDM.GetqBillContentSimple: TQueryBillContentSimple;
 begin
   if FqBillContentSimple = nil then
@@ -555,22 +637,10 @@ begin
   if FqBill = nil then
   begin
     FqBill := TQryBill.Create(FComponent);
-    FqBill.W.BillContent := qBillContent2;
+    FqBill.W.BillContent := BillContentViewModel.qBillContent;
   end;
 
   Result := FqBill;
-end;
-
-function TDM.GetqBillContent2: TQryBillContent;
-begin
-  if FqBillContent2 = nil then
-  begin
-    FqBillContent2 := TQryBillContent.Create(FComponent);
-    TNotifyEventWrap.Create(FqBillContent2.AfterApplyUpdates,
-      DoAfterBillContentApplyUpdates, FEventList);
-  end;
-
-  Result := FqBillContent2;
 end;
 
 function TDM.GetqParamSubParams: TQueryParamSubParams;
@@ -579,45 +649,6 @@ begin
     FqParamSubParams := TQueryParamSubParams.Create(FComponent);
 
   Result := FqParamSubParams;
-end;
-
-function TDM.GetqProducts: TQueryProducts;
-begin
-  if FqProducts = nil then
-  begin
-    FqProducts := TQueryProducts.Create(FComponent);
-//    qProducts.Master := qStoreHouseList;
-//    qProducts.StorehouseListInt := qStoreHouseList.W;
-
-    TNotifyEventWrap.Create(FqProducts.BeforeApplyUpdates,
-      DoBeforeProductsApplyUpdates, FEventList);
-  end;
-
-  Result := FqProducts;
-end;
-
-function TDM.GetqProductsBasket: TQueryProducts;
-begin
-  if FqProductsBasket = nil then
-  begin
-    FqProductsBasket := TQueryProducts.Create(FComponent);
-    TNotifyEventWrap.Create(FqProductsBasket.BeforeApplyUpdates,
-      DoBeforeBasketApplyUpdates, FEventList);
-  end;
-
-  Result := FqProductsBasket;
-end;
-
-function TDM.GetqProductsSearch: TQueryProductsSearch;
-begin
-  if FqProductsSearch = nil then
-  begin
-    FqProductsSearch := TQueryProductsSearch.Create(FComponent);
-    TNotifyEventWrap.Create(FqProductsSearch.BeforeApplyUpdates,
-      DoBeforeProductsSearchApplyUpdates, FEventList);
-  end;
-
-  Result := FqProductsSearch;
 end;
 
 function TDM.GetqSearchCategory: TQuerySearchCategory;
@@ -658,7 +689,7 @@ begin
   if FqStoreHouseList = nil then
   begin
     FqStoreHouseList := TQueryStoreHouseList.Create(FComponent);
-    FqStoreHouseList.W.ProductsInt := qProducts
+    FqStoreHouseList.W.ProductsInt := ProductsViewModel;
   end;
   Result := FqStoreHouseList;
 end;

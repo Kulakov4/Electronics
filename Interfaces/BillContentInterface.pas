@@ -8,11 +8,11 @@ uses
 type
   IBillContent = interface(IInterface)
     procedure CalcelAllShip;
-    procedure CancelShip;
-    procedure CascadeDelete(ABillID: Integer);
-    procedure Ship;
+//    procedure CancelShip;
+//    procedure CascadeDelete(ABillID: Integer);
+//    procedure Ship;
     procedure ShipAll;
-    procedure LoadContent(ABillID: Integer; ABill: IBill);
+    procedure LoadContent(ABillID: Integer);
   end;
 
 implementation

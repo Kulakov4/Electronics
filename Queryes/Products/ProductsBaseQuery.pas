@@ -12,8 +12,8 @@ uses
   SearchProductParameterValuesQuery, SearchProductQuery, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents, SearchComponentGroup,
-  SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2, ExtraChargeGroupUnit,
-  DSWrap, DescriptionsQueryWrap, BaseEventsQuery, StoreHouseListQuery, HRTimer;
+  SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2,  DSWrap, DescriptionsQueryWrap, BaseEventsQuery, StoreHouseListQuery, HRTimer,
+  ProductsBaseQuery0;
 
 const
   WM_OnCommitUpdates = WM_USER + 169;
@@ -31,27 +31,20 @@ type
     ComponentName: String;
   end;
 
-  TProductW = class(TDescriptionW)
+  TProductW = class(TBaseProductsW)
   private
-    FAmount: TFieldWrap;
-    FID: TFieldWrap;
     FBarcode: TFieldWrap;
     FBatchNumber: TFieldWrap;
     FChecked: TFieldWrap;
     FCustomsDeclarationNumber: TFieldWrap;
-    FDatasheet: TFieldWrap;
-    FDiagram: TFieldWrap;
     FDocumentNumber: TFieldWrap;
     FDollar: TFieldWrap;
-    FDrawing: TFieldWrap;
     FEuro: TFieldWrap;
     FIDComponentGroup: TFieldWrap;
     FIDCurrency: TFieldWrap;
     FIDExtraCharge: TFieldWrap;
     FIDExtraChargeType: TFieldWrap;
     FIDProducer: TFieldWrap;
-    FImage: TFieldWrap;
-    FIsGroup: TFieldWrap;
     FLoadDate: TFieldWrap;
     FMinWholeSale: TFieldWrap;
     FOriginCountry: TFieldWrap;
@@ -59,15 +52,8 @@ type
     FPackagePins: TFieldWrap;
     FPackaging: TFieldWrap;
     FPrice: TFieldWrap;
-    FPriceD: TFieldWrap;
-    FPriceD1: TFieldWrap;
-    FPriceD2: TFieldWrap;
-    FPriceE: TFieldWrap;
-    FPriceE1: TFieldWrap;
-    FPriceE2: TFieldWrap;
-    FPriceR: TFieldWrap;
-    FPriceR1: TFieldWrap;
-    FPriceR2: TFieldWrap;
+    FCalcPriceR: TFieldWrap;
+    FMarkup: TFieldWrap;
     FProductID: TFieldWrap;
     FReleaseDate: TFieldWrap;
     FRetail: TFieldWrap;
@@ -81,13 +67,11 @@ type
     FStorehouseId: TFieldWrap;
     FValue: TFieldWrap;
     FWholeSale: TFieldWrap;
-    procedure DoAfterOpen(Sender: TObject);
   protected
-    function CheckInsertingRecord(ADollarCource: Double;
-      const AEuroCource: Double): String;
+    function CheckInsertingRecord: String;
     function CheckEditingRecord: String; virtual;
     function GetStorehouseProductVirtualID(AID: Integer): Integer;
-    procedure InitFields; virtual;
+    procedure InitFields; override;
     procedure OnDatasheetGetText(Sender: TField; var Text: String;
       DisplayText: Boolean);
   public const
@@ -101,27 +85,20 @@ type
     function LookupComponentGroup(const AComponentGroup: string): Variant;
     procedure SetSaleCount(ASaleCount: Double);
     function GetStorehouseProductID(AVirtualID: Integer): Integer;
-    procedure TunePriceFields(const AFields: Array of TField);
-    property Amount: TFieldWrap read FAmount;
-    property ID: TFieldWrap read FID;
+    procedure SetInternalCalc(const AFields: Array of TField);
     property Barcode: TFieldWrap read FBarcode;
     property BatchNumber: TFieldWrap read FBatchNumber;
     property Checked: TFieldWrap read FChecked;
     property CustomsDeclarationNumber: TFieldWrap
       read FCustomsDeclarationNumber;
-    property Datasheet: TFieldWrap read FDatasheet;
-    property Diagram: TFieldWrap read FDiagram;
     property DocumentNumber: TFieldWrap read FDocumentNumber;
     property Dollar: TFieldWrap read FDollar;
-    property Drawing: TFieldWrap read FDrawing;
     property Euro: TFieldWrap read FEuro;
     property IDComponentGroup: TFieldWrap read FIDComponentGroup;
     property IDCurrency: TFieldWrap read FIDCurrency;
     property IDExtraCharge: TFieldWrap read FIDExtraCharge;
     property IDExtraChargeType: TFieldWrap read FIDExtraChargeType;
     property IDProducer: TFieldWrap read FIDProducer;
-    property Image: TFieldWrap read FImage;
-    property IsGroup: TFieldWrap read FIsGroup;
     property LoadDate: TFieldWrap read FLoadDate;
     property MinWholeSale: TFieldWrap read FMinWholeSale;
     property OriginCountry: TFieldWrap read FOriginCountry;
@@ -129,15 +106,8 @@ type
     property PackagePins: TFieldWrap read FPackagePins;
     property Packaging: TFieldWrap read FPackaging;
     property Price: TFieldWrap read FPrice;
-    property PriceD: TFieldWrap read FPriceD;
-    property PriceD1: TFieldWrap read FPriceD1;
-    property PriceD2: TFieldWrap read FPriceD2;
-    property PriceE: TFieldWrap read FPriceE;
-    property PriceE1: TFieldWrap read FPriceE1;
-    property PriceE2: TFieldWrap read FPriceE2;
-    property PriceR: TFieldWrap read FPriceR;
-    property PriceR1: TFieldWrap read FPriceR1;
-    property PriceR2: TFieldWrap read FPriceR2;
+    property CalcPriceR: TFieldWrap read FCalcPriceR;
+    property Markup: TFieldWrap read FMarkup;
     property ProductID: TFieldWrap read FProductID;
     property ReleaseDate: TFieldWrap read FReleaseDate;
     property Retail: TFieldWrap read FRetail;
@@ -153,7 +123,7 @@ type
     property WholeSale: TFieldWrap read FWholeSale;
   end;
 
-  TQueryProductsBase = class(TQueryBaseEvents)
+  TQueryProductsBase = class(TQryProductsBase0)
     procedure DataSourceDataChange(Sender: TObject; Field: TField);
     procedure FDQueryCalcFields(DataSet: TDataSet);
   private
@@ -165,26 +135,19 @@ type
     FCalcStatus: Integer;
     FCalcTimer: THRTimer;
     FDataChange: Boolean;
-    FNotGroupClone: TFDMemTable;
     FOnLocate: TNotifyEventsEx;
-    FProducersGroup: TProducersGroup2;
     FqSearchComponentGroup: TQuerySearchComponentGroup;
     FqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     FqSearchFamily: TQuerySearchFamily;
     FqSearchProduct: TQuerySearchProduct;
     FqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
-    FExtraChargeGroup: TExtraChargeGroup;
     FHRTimer: THRTimer;
     FID: Integer;
     FOnCommitUpdatePosted: Boolean;
-    FqStoreHouseList: TQueryStoreHouseList;
+    FProducersGroup: TProducersGroup2;
     FW: TProductW;
 
   class var
-    FDollarCource: Double;
-    FEuroCource: Double;
-    FOnDollarCourceChange: TNotifyEventsEx;
-    FOnEuroCourceChange: TNotifyEventsEx;
     FOnRubToDollarChange: TNotifyEventsEx;
     FRubToDollar: Boolean;
     procedure SetFieldValuesBeforePost;
@@ -193,16 +156,11 @@ type
     procedure DoAfterInsert(Sender: TObject);
     procedure DoAfterOpen(Sender: TObject);
     procedure DoBeforeOpen(Sender: TObject);
-    function GetProducersGroup: TProducersGroup2;
-    function GetExtraChargeGroup: TExtraChargeGroup;
     function GetqSearchComponentGroup: TQuerySearchComponentGroup;
     function GetqSearchComponentOrFamily: TQuerySearchComponentOrFamily;
     function GetqSearchFamily: TQuerySearchFamily;
     function GetqSearchProduct: TQuerySearchProduct;
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
-    function GetqStoreHouseList: TQueryStoreHouseList;
-    class procedure SetDollarCource(const Value: Double); static;
-    class procedure SetEuroCource(const Value: Double); static;
     class procedure SetRubToDollar(const Value: Boolean); static;
     // TODO: SplitComponentName
     // function SplitComponentName(const S: string): TComponentNameParts;
@@ -223,10 +181,10 @@ type
     procedure EnableCalc;
     function GetDollarCource: Double; virtual;
     function GetEuroCource: Double; virtual;
-    function GetExportFileName: string; virtual;
     function GetHaveAnyChanges: Boolean; override;
     procedure InitFieldDefs; virtual;
     property CalcStatus: Integer read FCalcStatus;
+    property ProducersGroup: TProducersGroup2 read FProducersGroup;
     property qSearchComponentGroup: TQuerySearchComponentGroup
       read GetqSearchComponentGroup;
     property qSearchComponentOrFamily: TQuerySearchComponentOrFamily
@@ -236,7 +194,8 @@ type
     property qSearchStorehouseProduct: TQuerySearchStorehouseProduct
       read GetqSearchStorehouseProduct;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; AProducersGroup: TProducersGroup2);
+      reintroduce; virtual;
     destructor Destroy; override;
     procedure ApplyMinWholeSale(AMinWholeSale: Double);
     procedure ApplyUpdates; override;
@@ -246,32 +205,19 @@ type
     procedure DeleteNode(AID: Integer);
     procedure DeleteNotUsedProducts(AProductIDS: TList<Integer>);
     function HaveInsertedProducts: Boolean;
-    procedure LoadDocFile(const AFileName: String;
-      ADocFieldInfo: TDocFieldInfo);
     function LocateInComponents: Boolean;
-    procedure SaveExtraCharge;
+    procedure SaveExtraCharge(AIDExtraCharge: Integer; AWholeSale: Double);
     class procedure UpdateSaleCount(ASourceProductQry: TQueryProductsBase;
       AArray: TArray<TQueryProductsBase>); static;
     procedure UpdateFieldValue(AID: Integer; AFields: TArray<TField>;
       AValues: TArray<Variant>; AUpdatedIDList: TList<Integer>);
-    class procedure UpdateAmount(ASourceProductQry: TQueryProductsBase;
+    class procedure UpdateAmount(ASourceProductQry: TQryProductsBase0;
       AArray: TArray<TQueryProductsBase>); static;
-    property ExportFileName: string read GetExportFileName;
-    property NotGroupClone: TFDMemTable read FNotGroupClone;
-    property ProducersGroup: TProducersGroup2 read GetProducersGroup;
-    class property DollarCource: Double read FDollarCource
-      write SetDollarCource;
-    class property EuroCource: Double read FEuroCource write SetEuroCource;
-    class property OnDollarCourceChange: TNotifyEventsEx
-      read FOnDollarCourceChange;
-    class property OnEuroCourceChange: TNotifyEventsEx read FOnEuroCourceChange;
     property Basket: TFDMemTable read FBasket;
     property BasketW: TProductW read FBasketW;
     property CalcExecCount: Integer read FCalcExecCount write FCalcExecCount;
-    property ExtraChargeGroup: TExtraChargeGroup read GetExtraChargeGroup;
     class property OnRubToDollarChange: TNotifyEventsEx
       read FOnRubToDollarChange;
-    property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     class property RubToDollar: Boolean read FRubToDollar write SetRubToDollar;
     property W: TProductW read FW;
     property OnLocate: TNotifyEventsEx read FOnLocate;
@@ -299,9 +245,13 @@ uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
   ParameterValuesUnit, StrHelper, System.StrUtils, ProjectConst, System.Math,
   CurrencyUnit;
 
-constructor TQueryProductsBase.Create(AOwner: TComponent);
+constructor TQueryProductsBase.Create(AOwner: TComponent;
+  AProducersGroup: TProducersGroup2);
 begin
-  inherited;
+  inherited Create(AOwner);
+  Assert(AProducersGroup <> nil);
+  FProducersGroup := AProducersGroup;
+
   FW := FDSWrap as TProductW;
   FOnLocate := TNotifyEventsEx.Create(Self);
 
@@ -326,12 +276,8 @@ begin
 
   FCalcStatus := 0;
 
-  FNotGroupClone := W.AddClone(Format('%s = 0', [W.IsGroup.FieldName]));
-
-  if FOnDollarCourceChange = nil then
+  if FOnRubToDollarChange = nil then
   begin
-    FOnDollarCourceChange := TNotifyEventsEx.Create(Self);
-    FOnEuroCourceChange := TNotifyEventsEx.Create(Self);
     FOnRubToDollarChange := TNotifyEventsEx.Create(Self);
   end;
 
@@ -355,10 +301,6 @@ begin
 
   // FreeAndNil(FOnDollarCourceChange);
   // FreeAndNil(FOnEuroCourceChange);
-
-  if FNotGroupClone <> nil then
-    W.DropClone(FNotGroupClone);
-  FNotGroupClone := nil;
 
   FreeAndNil(FAutoSaveFieldNameList);
 
@@ -624,7 +566,7 @@ begin
       W.RefreshQuery;
     end;
 
-    ProducersGroup.ReOpen;
+    FProducersGroup.ReOpen;
 
     W.RestoreBookmark;
   finally
@@ -640,11 +582,11 @@ begin
   if W.IDProducer.F.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    ProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
+    FProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
 
     // Ищем компонент в теоретической базе данных
     rc := qSearchComponentOrFamily.SearchComponentWithProducer
-      (W.Value.F.AsString, ProducersGroup.qProducers.W.Name.F.AsString);
+      (W.Value.F.AsString, FProducersGroup.qProducers.W.Name.F.AsString);
   end
   else
   begin
@@ -654,11 +596,11 @@ begin
     if rc > 0 then
     begin
       // Ищем в справочнике такого производителя
-      ProducersGroup.qProducers.Locate
+      FProducersGroup.qProducers.Locate
         (qSearchComponentOrFamily.W.Producer.F.AsString, True);
 
       // Заполняем поле "Код производителя"
-      W.IDProducer.F.Value := ProducersGroup.qProducers.W.PK.Value;
+      W.IDProducer.F.Value := FProducersGroup.qProducers.W.PK.Value;
     end;
   end;
 
@@ -900,7 +842,7 @@ begin
     Exit;
 
   // Проверяем запись на наличие ошибок
-  AErrorMessage := W.CheckInsertingRecord(DollarCource, EuroCource);
+  AErrorMessage := W.CheckInsertingRecord;
   if not AErrorMessage.IsEmpty then
     raise Exception.Create(AErrorMessage);
 
@@ -992,47 +934,17 @@ end;
 
 procedure TQueryProductsBase.DoOnCalcFields;
 var
-  // AContains: Boolean;
   ADCource: Double;
-  // AECource: Double;
   APriceR: Double;
-  // AID: Integer;
   AWholeSale: Double;
-  // t: Double;
-  // tt: Double;
 begin
   inherited;
 
   if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull)
   then
     Exit;
-  (*
-    AID := W.PK.AsInteger;
-
-    t := FCalcTimer.ReadTimer;
-    AContains := FCalcDic.ContainsKey(AID);
-
-    if AContains then
-    begin
-    //    tt := FCalcDic[AID];
-    {
-    if tt > (t - 900) then
-    Exit;
-    }
-    end;
-
-    if not AContains then
-    FCalcDic.Add(AID, t)
-    else
-    FCalcDic[AID] := t;
-  *)
-  // Inc(FCalcExecCount);
-
   // Определяемся с курсом Доллара
   ADCource := GetDollarCource;
-
-  // Определяемся с курсом Евро
-  // AECource := GetEuroCource;
 
   APriceR := 0;
   // Если закупочная цена была в рублях
@@ -1110,6 +1022,9 @@ begin
     APriceR := W.PriceR.F.AsFloat;
   end;
 
+  // Запоминаем закупочную цену в рублях с учётом возможного изменения курса доллара
+  W.CalcPriceR.F.AsFloat := APriceR;
+
   // Розничная цена в рублях
   W.PriceR1.F.Value := APriceR * (1 + W.Retail.F.Value / 100);
   // Розничная цена в долларах
@@ -1151,6 +1066,8 @@ begin
       W.SaleR.F.Value := W.PriceR1.F.Value;
       W.SaleD.F.Value := W.PriceD1.F.Value;
       W.SaleE.F.Value := W.PriceE1.F.Value;
+      // Запоминаем, что отпускная цена - это розничная цена
+      W.Markup.F.Value := W.Retail.F.Value;
     end
     else
     begin
@@ -1158,6 +1075,8 @@ begin
       W.SaleR.F.Value := W.PriceR2.F.AsFloat * W.SaleCount.F.AsFloat;
       W.SaleD.F.Value := W.PriceD2.F.AsFloat * W.SaleCount.F.AsFloat;
       W.SaleE.F.Value := W.PriceE2.F.AsFloat * W.SaleCount.F.AsFloat;
+      // Запоминаем, что отпускная цена - это оптовая цена
+      W.Markup.F.Value := AWholeSale;
     end;
   end
   else
@@ -1213,32 +1132,6 @@ begin
       Result := W.Euro.F.AsFloat;
 end;
 
-function TQueryProductsBase.GetExportFileName: string;
-begin
-  Result := 'file.xls';
-end;
-
-function TQueryProductsBase.GetProducersGroup: TProducersGroup2;
-begin
-  if FProducersGroup = nil then
-  begin
-    FProducersGroup := TProducersGroup2.Create(Self);
-    FProducersGroup.ReOpen;
-  end;
-
-  Result := FProducersGroup;
-end;
-
-function TQueryProductsBase.GetExtraChargeGroup: TExtraChargeGroup;
-begin
-  if FExtraChargeGroup = nil then
-  begin
-    FExtraChargeGroup := TExtraChargeGroup.Create(Self);
-    FExtraChargeGroup.ReOpen;
-  end;
-  Result := FExtraChargeGroup;
-end;
-
 // Есть-ли изменения не сохранённые в БД
 function TQueryProductsBase.GetHaveAnyChanges: Boolean;
 begin
@@ -1290,16 +1183,6 @@ begin
   Result := FqSearchStorehouseProduct;
 end;
 
-function TQueryProductsBase.GetqStoreHouseList: TQueryStoreHouseList;
-begin
-  if FqStoreHouseList = nil then
-  begin
-    FqStoreHouseList := TQueryStoreHouseList.Create(Self);
-    FqStoreHouseList.FDQuery.Open;
-  end;
-  Result := FqStoreHouseList;
-end;
-
 function TQueryProductsBase.HaveInsertedProducts: Boolean;
 var
   AClone: TFDMemTable;
@@ -1325,6 +1208,12 @@ begin
   end;
   FDQuery.FieldDefs.Update;
 
+  // Закупочна цена в рублях с учётом поправки на рост курса доллара
+  FDQuery.FieldDefs.Add(W.CalcPriceR.FieldName, ftFloat);
+
+  // Процент наценки используемый при продаже
+  FDQuery.FieldDefs.Add(W.Markup.FieldName, ftFloat);
+
   // Закупочная цена
   FDQuery.FieldDefs.Add(W.PriceR.FieldName, ftFloat);
   FDQuery.FieldDefs.Add(W.PriceD.FieldName, ftFloat);
@@ -1346,23 +1235,6 @@ begin
   FDQuery.FieldDefs.Add(W.SaleE.FieldName, ftFloat);
 end;
 
-procedure TQueryProductsBase.LoadDocFile(const AFileName: String;
-  ADocFieldInfo: TDocFieldInfo);
-var
-  OK: Boolean;
-  S: String;
-begin
-  if not AFileName.IsEmpty then
-  begin
-    // В БД храним путь до файла относительно папки с документацией
-    S := GetRelativeFileName(AFileName, ADocFieldInfo.Folder);
-    OK := W.TryEdit;
-    FDQuery.FieldByName(ADocFieldInfo.FieldName).AsString := S;
-    if OK then
-      W.TryPost;
-  end;
-end;
-
 function TQueryProductsBase.LocateInComponents: Boolean;
 var
   AIDCategory: Integer;
@@ -1375,10 +1247,10 @@ begin
   if W.IDProducer.F.AsInteger > 0 then
   begin
     // Ищем производителя по коду
-    ProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
+    FProducersGroup.qProducers.W.LocateByPK(W.IDProducer.F.AsInteger, True);
 
     rc := qSearchComponentOrFamily.SearchComponentWithProducer
-      (W.Value.F.AsString, ProducersGroup.qProducers.W.Name.F.AsString);
+      (W.Value.F.AsString, FProducersGroup.qProducers.W.Name.F.AsString);
   end;
   if rc > 0 then
   begin
@@ -1407,34 +1279,17 @@ begin
   end;
 end;
 
-procedure TQueryProductsBase.SaveExtraCharge;
+procedure TQueryProductsBase.SaveExtraCharge(AIDExtraCharge: Integer;
+    AWholeSale: Double);
 begin
-  Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
+//  Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
   W.TryEdit;
-  W.IDExtraCharge.F.AsInteger := ExtraChargeGroup.qExtraCharge2.W.PK.AsInteger;
+  W.IDExtraCharge.F.AsInteger := AIDExtraCharge;
+   (*ExtraChargeGroup.qExtraCharge2.W.PK.AsInteger;*)
+
   // Меняем процент оптовой наценки
-  W.WholeSale.F.Value := ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value;
+  W.WholeSale.F.Value := AWholeSale;(*ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value;*)
   W.TryPost;
-end;
-
-class procedure TQueryProductsBase.SetDollarCource(const Value: Double);
-begin
-  if FDollarCource = Value then
-    Exit;
-
-  FDollarCource := Value;
-  // Извещаем представления
-  FOnDollarCourceChange.CallEventHandlers(nil);
-end;
-
-class procedure TQueryProductsBase.SetEuroCource(const Value: Double);
-begin
-  if FEuroCource = Value then
-    Exit;
-
-  FEuroCource := Value;
-  // Извещаем представления
-  FOnEuroCourceChange.CallEventHandlers(nil);
 end;
 
 class procedure TQueryProductsBase.SetRubToDollar(const Value: Boolean);
@@ -1593,53 +1448,53 @@ begin
 end;
 
 class procedure TQueryProductsBase.UpdateAmount(ASourceProductQry
-  : TQueryProductsBase; AArray: TArray<TQueryProductsBase>);
+  : TQryProductsBase0; AArray: TArray<TQueryProductsBase>);
 var
-  AFDUpdateRecordTypes: TFDUpdateRecordTypes;
-  AFiltered: Boolean;
+  AClone: TFDMemTable;
   AQryProductsBase: TQueryProductsBase;
+  Wr: TBaseProductsW;
 begin
   // Работаем с клоном !!!
-  AFDUpdateRecordTypes := ASourceProductQry.Basket.FilterChanges;
-  AFiltered := ASourceProductQry.Basket.Filtered;
-
-  // Обрабатываем изменённые в корзине записи
-  ASourceProductQry.Basket.FilterChanges := [rtModified];
-  ASourceProductQry.Basket.Filtered := False;
-  ASourceProductQry.Basket.First;
-  while not ASourceProductQry.Basket.Eof do
-  begin
-    // Если в источнике изменилось кол-во
-    if ASourceProductQry.BasketW.Amount.F.OldValue <>
-      ASourceProductQry.BasketW.Amount.F.Value then
+  AClone := ASourceProductQry.Wrap.AddClone('');
+  Wr := TBaseProductsW.Create(AClone);
+  try
+    // Обрабатываем изменённые в счёте записи
+    AClone.FilterChanges := [rtModified];
+    AClone.Filtered := False;
+    AClone.First;
+    while not AClone.Eof do
     begin
-      for AQryProductsBase in AArray do
+      // Если в источнике изменилось кол-во
+      if Wr.Amount.F.OldValue <> Wr.Amount.F.Value then
       begin
-        AQryProductsBase.Basket.Filtered := False;
-        if AQryProductsBase.BasketW.LocateByPK
-          (ASourceProductQry.BasketW.PK.AsInteger) then
+        for AQryProductsBase in AArray do
         begin
-          AQryProductsBase.BasketW.TryEdit;
-          AQryProductsBase.BasketW.Amount.F.Value :=
-            ASourceProductQry.BasketW.Amount.F.Value;
-          AQryProductsBase.BasketW.TryPost;
+          AQryProductsBase.Basket.Filtered := False;
+          if AQryProductsBase.BasketW.LocateByPK
+            (Wr.PK.AsInteger) then
+          begin
+            AQryProductsBase.BasketW.TryEdit;
+            AQryProductsBase.BasketW.Amount.F.Value :=
+              Wr.Amount.F.Value;
+            AQryProductsBase.BasketW.TryPost;
+          end;
         end;
       end;
+
+      AClone.Next;
     end;
 
-    ASourceProductQry.Basket.Next;
+    for AQryProductsBase in AArray do
+    begin
+      // Возвращаем фильтры на корзины
+      AQryProductsBase.Basket.Filtered := True;
+      // Очищаем кэш изменений, не сохраняя их на сервер
+      AQryProductsBase.FDQuery.CommitUpdates;
+    end;
+  finally
+    ASourceProductQry.Wrap.DropClone(AClone);
   end;
 
-  ASourceProductQry.Basket.Filtered := AFiltered;
-  ASourceProductQry.Basket.FilterChanges := AFDUpdateRecordTypes;
-
-  for AQryProductsBase in AArray do
-  begin
-    // Возвращаем фильтры на корзины
-    AQryProductsBase.Basket.Filtered := True;
-    // Очищаем кэш изменений, не сохраняя их на сервер
-    AQryProductsBase.FDQuery.CommitUpdates;
-  end;
 end;
 
 constructor TLocateObject.Create(const AIDCategory: Integer;
@@ -1658,26 +1513,19 @@ end;
 constructor TProductW.Create(AOwner: TComponent);
 begin
   inherited;
-  FID := TFieldWrap.Create(Self, 'ID', '', True);
-  FAmount := TFieldWrap.Create(Self, 'Amount');
   FBarcode := TFieldWrap.Create(Self, 'Barcode');
   FBatchNumber := TFieldWrap.Create(Self, 'BatchNumber');
   FChecked := TFieldWrap.Create(Self, 'Checked');
   FCustomsDeclarationNumber := TFieldWrap.Create(Self,
     'CustomsDeclarationNumber');
-  FDatasheet := TFieldWrap.Create(Self, 'Datasheet');
-  FDiagram := TFieldWrap.Create(Self, 'Diagram');
   FDocumentNumber := TFieldWrap.Create(Self, 'DocumentNumber');
   FDollar := TFieldWrap.Create(Self, 'Dollar');
-  FDrawing := TFieldWrap.Create(Self, 'Drawing');
   FEuro := TFieldWrap.Create(Self, 'Euro');
   FIDComponentGroup := TFieldWrap.Create(Self, 'IDComponentGroup');
   FIDCurrency := TFieldWrap.Create(Self, 'IDCurrency');
   FIDExtraCharge := TFieldWrap.Create(Self, 'IDExtraCharge');
   FIDExtraChargeType := TFieldWrap.Create(Self, 'IDExtraChargeType');
   FIDProducer := TFieldWrap.Create(Self, 'IDProducer');
-  FImage := TFieldWrap.Create(Self, 'Image');
-  FIsGroup := TFieldWrap.Create(Self, 'IsGroup');
   FLoadDate := TFieldWrap.Create(Self, 'LoadDate');
   FMinWholeSale := TFieldWrap.Create(Self, 'MinWholeSale');
   FOriginCountry := TFieldWrap.Create(Self, 'OriginCountry');
@@ -1685,15 +1533,6 @@ begin
   FPackagePins := TFieldWrap.Create(Self, 'PackagePins');
   FPackaging := TFieldWrap.Create(Self, 'Packaging');
   FPrice := TFieldWrap.Create(Self, 'Price');
-  FPriceD := TFieldWrap.Create(Self, 'PriceD');
-  FPriceD1 := TFieldWrap.Create(Self, 'PriceD1');
-  FPriceD2 := TFieldWrap.Create(Self, 'PriceD2');
-  FPriceE := TFieldWrap.Create(Self, 'PriceE');
-  FPriceE1 := TFieldWrap.Create(Self, 'PriceE1');
-  FPriceE2 := TFieldWrap.Create(Self, 'PriceE2');
-  FPriceR := TFieldWrap.Create(Self, 'PriceR');
-  FPriceR1 := TFieldWrap.Create(Self, 'PriceR1');
-  FPriceR2 := TFieldWrap.Create(Self, 'PriceR2');
   FProductID := TFieldWrap.Create(Self, 'ProductID');
   FReleaseDate := TFieldWrap.Create(Self, 'ReleaseDate');
   FRetail := TFieldWrap.Create(Self, 'Retail');
@@ -1707,10 +1546,8 @@ begin
   FStorehouseId := TFieldWrap.Create(Self, 'StorehouseId');
   FValue := TFieldWrap.Create(Self, 'p.Value');
   FWholeSale := TFieldWrap.Create(Self, 'WholeSale');
-
-  TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
-  if DataSet.Active then
-    InitFields;
+  FCalcPriceR := TFieldWrap.Create(Self, 'CalcPriceR');
+  FMarkup := TFieldWrap.Create(Self, 'Markup');
 end;
 
 procedure TProductW.AddCategory;
@@ -1743,8 +1580,7 @@ begin
   DataSet.Filtered := True;
 end;
 
-function TProductW.CheckInsertingRecord(ADollarCource: Double;
-  const AEuroCource: Double): String;
+function TProductW.CheckInsertingRecord: String;
 var
   k: Integer;
 begin
@@ -1801,18 +1637,6 @@ begin
     Result := 'Закупочная цена должна быть задана один раз';
     Exit;
   end;
-
-  if (Dollar.F.IsNull) and (ADollarCource = 0) then
-  begin
-    Result := 'Не задан курс доллара';
-    Exit;
-  end;
-
-  if (Euro.F.IsNull) and (AEuroCource = 0) then
-  begin
-    Result := 'Не задан курс евро';
-    Exit;
-  end;
 end;
 
 function TProductW.CheckEditingRecord: String;
@@ -1832,23 +1656,13 @@ begin
     raise Exception.Create(sIsNotEnoughProductAmount);
 end;
 
-procedure TProductW.DoAfterOpen(Sender: TObject);
-begin
-  SetFieldsRequired(False);
-  SetFieldsReadOnly(False);
-
-  InitFields;
-end;
-
 procedure TProductW.InitFields;
 begin
-  Datasheet.F.OnGetText := OnDatasheetGetText;
-  Diagram.F.OnGetText := OnDatasheetGetText;
-  Drawing.F.OnGetText := OnDatasheetGetText;
-  Image.F.OnGetText := OnDatasheetGetText;
+  inherited;
 
-  TunePriceFields([PriceD.F, PriceR.F, PriceE.F, PriceD1.F, PriceR1.F,
-    PriceE1.F, PriceD2.F, PriceR2.F, PriceE2.F, SaleR.F, SaleD.F, SaleE.F]);
+  SetInternalCalc([Markup.F, CalcPriceR.F, PriceD.F, PriceR.F, PriceE.F,
+    PriceD1.F, PriceR1.F, PriceE1.F, PriceD2.F, PriceR2.F, PriceE2.F, SaleR.F,
+    SaleD.F, SaleE.F]);
 end;
 
 function TProductW.LookupComponentGroup(const AComponentGroup: string): Variant;
@@ -1898,7 +1712,7 @@ begin
   Result := (AID * -1) + VirtualIDOffset;
 end;
 
-procedure TProductW.TunePriceFields(const AFields: Array of TField);
+procedure TProductW.SetInternalCalc(const AFields: Array of TField);
 var
   I: Integer;
 begin
@@ -1907,8 +1721,6 @@ begin
   for I := Low(AFields) to High(AFields) do
   begin
     AFields[I].FieldKind := fkInternalCalc;
-    // (AFields[I] as TNumericField).DisplayFormat := '#.00';
-    (AFields[I] as TNumericField).DisplayFormat := '###,##0.00';
   end;
 end;
 

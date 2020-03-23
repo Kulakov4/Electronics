@@ -10,7 +10,8 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
-  StoreHouseListQuery, NotifyEvents, System.Generics.Collections, DSWrap;
+  StoreHouseListQuery, NotifyEvents, System.Generics.Collections, DSWrap,
+  ProducersGroupUnit2;
 
 type
   TProductSearchW = class(TProductW)
@@ -46,12 +47,12 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
     procedure DoBeforePost(Sender: TObject); override;
-    function GetExportFileName: string; override;
     function GetHaveAnyChanges: Boolean; override;
     // procedure SetConditionSQL(const AConditionSQL, AMark: String;
     // ANotifyEventRef: TNotifyEventRef = nil);
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; AProducersGroup: TProducersGroup2);
+        override;
     destructor Destroy; override;
     procedure AfterConstruction; override;
     procedure ClearSearchResult;
@@ -72,7 +73,8 @@ implementation
 
 uses System.Math, RepositoryDataModule, System.StrUtils, StrHelper;
 
-constructor TQueryProductsSearch.Create(AOwner: TComponent);
+constructor TQueryProductsSearch.Create(AOwner: TComponent; AProducersGroup:
+    TProducersGroup2);
 begin
   inherited;
 
@@ -242,12 +244,6 @@ begin
   end;
 
   FDQuery.Open;
-end;
-
-function TQueryProductsSearch.GetExportFileName: string;
-begin
-  Result := Format('Поиск %s.xls', [FormatDateTime('dd.mm.yyyy', Date)]);
-  Assert(not Result.IsEmpty);
 end;
 
 // Есть-ли изменения не сохранённые в БД

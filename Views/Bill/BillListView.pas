@@ -119,9 +119,9 @@ type
 implementation
 
 uses
-  GridSort, CreateBillForm, InsertEditMode, BillContentExportView,
-  BillContentExportQuery, DialogUnit, SettingsController, System.IOUtils,
-  BillContentExportForm;
+  GridSort, CreateBillForm, InsertEditMode, BillContentExportQuery, DialogUnit,
+  SettingsController, System.IOUtils, BillContentExportForm,
+  ProducersGroupUnit2;
 
 {$R *.dfm}
 
@@ -183,16 +183,17 @@ var
   AFileName: String;
   AInitialFileName: string;
   AItemIndex: Integer;
+  AProducersGroup: TProducersGroup2;
   AProperties: TcxComboBoxProperties;
   AValue: string;
   qBillContentExport: TQueryBillContentExport;
-  AViewBillContentExport: TViewBillContentExport;
+//  AViewBillContentExport: TViewBillContentExport;
   D1: TDate;
   D2: TDate;
   S1: string;
   S2: string;
 
-//  AFrmBillContentExport: TFrmBillContentExport;
+  // AFrmBillContentExport: TFrmBillContentExport;
 begin
   inherited;
 
@@ -275,8 +276,9 @@ begin
   TSettings.Create.SetFolderForExcelFile(KeyFolder,
     TPath.GetDirectoryName(AFileName));
 
-  qBillContentExport := TQueryBillContentExport.Create(Self);
-  AViewBillContentExport := TViewBillContentExport.Create(Self);
+  AProducersGroup := TProducersGroup2.Create(Self);
+  qBillContentExport := TQueryBillContentExport.Create(Self, AProducersGroup);
+//  AViewBillContentExport := TViewBillContentExport.Create(Self);
   try
     // Фильтруем по периоду
     qBillContentExport.SearchByPeriod(D1, D2);
@@ -293,14 +295,15 @@ begin
         qBillContentExport.ExportW.ApplyNotShipmentFilter; // Неотгруженные
     end;
 
-    AViewBillContentExport.Font.Assign(Font);
+//    AViewBillContentExport.Font.Assign(Font);
     qBillContentExport.W.TryOpen;
 
-    AViewBillContentExport.QueryBillContentExport := qBillContentExport;
-    AViewBillContentExport.ExportToExcelDocument(AFileName);
+//    AViewBillContentExport.QueryBillContentExport := qBillContentExport;
+//    AViewBillContentExport.ExportToExcelDocument(AFileName);
   finally
-    FreeAndNil(AViewBillContentExport);
+//    FreeAndNil(AViewBillContentExport);
     FreeAndNil(qBillContentExport);
+    FreeAndNil(AProducersGroup);
   end;
 end;
 
@@ -413,7 +416,7 @@ begin
   if FqBill = nil then
     Exit;
 
-  W.BillContent.LoadContent(GetBillID, Self);
+  W.BillContent.LoadContent(GetBillID);
 end;
 
 procedure TViewBill.cxPopupBtnOKClick(Sender: TObject);
@@ -452,6 +455,8 @@ begin
     3:
       qBill.SearchByPeriod(Date - 30, Date); // За 30 дней
     4:
+      qBill.SearchByPeriod(Date - 90, Date); // За 90 дней
+    5:
       qBill.SearchByPeriod(Date - 365, Date); // За 365 дней
   end;
 

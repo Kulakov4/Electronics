@@ -18,6 +18,7 @@ type
     FID: TFieldWrap;
     FRange: TFieldWrap;
     FWholeSale: TFieldWrap;
+  protected
   public
     constructor Create(AOwner: TComponent); override;
     procedure FilterByType(AIDExtraRangeType: Integer);

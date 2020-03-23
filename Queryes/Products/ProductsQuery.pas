@@ -4,29 +4,24 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, FireDAC.Stan.Intf,
-  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
-  Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
-  System.Generics.Collections, ProductsBaseQuery,
-  StoreHouseProductsCountQuery, RepositoryDataModule, cxGridDBBandedTableView,
-  DBRecordHolder, ApplyQueryFrame, ProductsExcelDataModule, NotifyEvents,
-  CheckDuplicateInterface, CustomExcelTable, StoreHouseListInterface,
-  ProductsInterface;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
+  FireDAC.Stan.Async, FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client, Vcl.StdCtrls, System.Generics.Collections,
+  ProductsBaseQuery, StoreHouseProductsCountQuery, RepositoryDataModule,
+  cxGridDBBandedTableView, DBRecordHolder, ApplyQueryFrame,
+  ProductsExcelDataModule, NotifyEvents, CheckDuplicateInterface,
+  CustomExcelTable, StoreHouseListInterface, ProducersGroupUnit2;
 
 type
-  TQueryProducts = class(TQueryProductsBase, ICheckDuplicate, IProducts)
+  TQueryProducts = class(TQueryProductsBase, ICheckDuplicate)
   strict private
-    procedure FreeInt;
     function HaveDuplicate(AExcelTable: TCustomExcelTable): Boolean; stdcall;
-    procedure LoadContent(AStoreHouseID: Integer;
-      AStorehouseListInt: IStorehouseList);
   private
     FNeedDecTotalCount: Boolean;
     FNeedUpdateCount: Boolean;
     FqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
-    FStorehouseListInt: IStorehouseList;
     FTotalCount: Integer;
     class var FObjectCount: Integer;
     procedure DoAfterInsert(Sender: TObject);
@@ -35,27 +30,25 @@ type
     // TODO: DoBeforeOpen
     // procedure DoBeforeOpen(Sender: TObject);
     function GetqStoreHouseProductsCount: TQueryStoreHouseProductsCount;
-    function GetStoreHouseName: string;
     function GetTotalCount: Integer;
+    procedure TryLoadEx(AIDParent: Integer);
     { Private declarations }
   protected
     procedure DoAfterDelete(Sender: TObject);
     procedure DoAfterPost(Sender: TObject);
     procedure DoBeforeDelete(Sender: TObject);
-    function GetExportFileName: string; override;
     property qStoreHouseProductsCount: TQueryStoreHouseProductsCount
       read GetqStoreHouseProductsCount;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent;
+      AProducersGroup: TProducersGroup2); override;
     procedure AfterConstruction; override;
     procedure LoadDataFromExcelTable(AExcelTable: TProductsExcelTable);
     procedure AppendRows(AValues: TList<String>;
       const AProducers: TList<String>); overload;
+    procedure LoadContent(AStoreHouseID: Integer);
     function SearchByID(AIDArray: TArray<Integer>): Integer;
     function SearchForBasket: Integer;
-    procedure TryLoadEx(AIDParent: Integer);
-    property StorehouseListInt: IStorehouseList read FStorehouseListInt;
-    property StoreHouseName: string read GetStoreHouseName;
     property TotalCount: Integer read GetTotalCount;
     { Public declarations }
   end;
@@ -64,14 +57,15 @@ implementation
 
 uses System.Generics.Defaults, System.Types, System.StrUtils, System.Math,
   ParameterValuesUnit, StoreHouseListQuery, IDTempTableQuery, StrHelper,
-  BaseQuery, ProducersGroupUnit2;
+  BaseQuery;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseComponents }
 
-constructor TQueryProducts.Create(AOwner: TComponent);
+constructor TQueryProducts.Create(AOwner: TComponent;
+  AProducersGroup: TProducersGroup2);
 begin
-  inherited Create(AOwner);
+  inherited Create(AOwner, AProducersGroup);
   Inc(FObjectCount);
   Name := Format('QueryProducts_%d', [FObjectCount]);
 
@@ -358,23 +352,6 @@ begin
     (W.IsGroup.F.AsInteger = 0);
 end;
 
-procedure TQueryProducts.FreeInt;
-begin
-  FStorehouseListInt := nil;
-end;
-
-function TQueryProducts.GetExportFileName: string;
-var
-  AQueryStoreHouseList: TQueryStoreHouseList;
-begin
-  Assert(Master <> nil);
-  AQueryStoreHouseList := Master as TQueryStoreHouseList;
-  Assert(AQueryStoreHouseList.FDQuery.RecordCount > 0);
-  Result := Format('%s %s.xls', [AQueryStoreHouseList.W.Title.F.AsString,
-    FormatDateTime('dd.mm.yyyy', Date)]);
-  Assert(not Result.IsEmpty);
-end;
-
 function TQueryProducts.GetqStoreHouseProductsCount
   : TQueryStoreHouseProductsCount;
 begin
@@ -384,15 +361,6 @@ begin
     FqStoreHouseProductsCount.FDQuery.Connection := FDQuery.Connection;
   end;
   Result := FqStoreHouseProductsCount;
-end;
-
-function TQueryProducts.GetStoreHouseName: string;
-var
-  AQueryStoreHouseList: TQueryStoreHouseList;
-begin
-  Assert(Master <> nil);
-  AQueryStoreHouseList := Master as TQueryStoreHouseList;
-  Result := AQueryStoreHouseList.W.Title.F.AsString;
 end;
 
 function TQueryProducts.GetTotalCount: Integer;
@@ -407,12 +375,8 @@ begin
   Result := FTotalCount;
 end;
 
-procedure TQueryProducts.LoadContent(AStoreHouseID: Integer;
-  AStorehouseListInt: IStorehouseList);
+procedure TQueryProducts.LoadContent(AStoreHouseID: Integer);
 begin
-  Assert(AStorehouseListInt <> nil);
-  FStorehouseListInt := AStorehouseListInt;
-
   TryLoadEx(AStoreHouseID);
 end;
 

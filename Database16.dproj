@@ -535,22 +535,6 @@
         </DCCReference>
         <DCCReference Include="Helpers\AutoBinding.pas"/>
         <DCCReference Include="Helpers\BindDocUnit.pas"/>
-        <DCCReference Include="Views\Products\ProductsBaseView2.pas">
-            <Form>ViewProductsBase2</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsSearchView2.pas">
-            <Form>ViewProductsSearch2</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsView2.pas">
-            <Form>ViewProducts2</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Products\ProductsTabSheetView.pas">
-            <Form>ProductsFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\TreeList\RecursiveTreeQuery.pas">
             <Form>QueryRecursiveTree</Form>
             <DesignClass>TFrame</DesignClass>
@@ -811,11 +795,6 @@
         <DCCReference Include="Queryes\DSWrap.pas"/>
         <DCCReference Include="Queryes\DescriptionsQueryWrap.pas"/>
         <DCCReference Include="Queryes\Analog\AnalogQueryes.pas"/>
-        <DCCReference Include="Views\Products\ProductsBasketView.pas">
-            <Form>ViewProductsBasket</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\StoreHouse\StoreHouseListView.pas">
             <Form>ViewStoreHouse</Form>
             <FormType>dfm</FormType>
@@ -823,16 +802,6 @@
         </DCCReference>
         <DCCReference Include="Views\Bill\BillListView.pas">
             <Form>ViewBill</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Queryes\Bill\BillContentQuery.pas">
-            <Form>QryBillContent</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="Views\Bill\BillContentView.pas">
-            <Form>ViewBillContent</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -905,11 +874,6 @@
         <DCCReference Include="Interfaces\BillInterface.pas"/>
         <DCCReference Include="Helpers\InsertEditMode.pas"/>
         <DCCReference Include="Interfaces\BillContentInterface.pas"/>
-        <DCCReference Include="Views\Bill\BillContentExportView.pas">
-            <Form>ViewBillContentExport</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Queryes\Bill\BillContentExportQuery.pas">
             <Form>QueryBillContentExport</Form>
             <FormType>dfm</FormType>
@@ -928,6 +892,56 @@
         <DCCReference Include="Interfaces\ProductsInterface.pas"/>
         <DCCReference Include="Queryes\Bill\BillContentExportQry.pas">
             <Form>QryBillContentExport</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsBaseView0.pas">
+            <Form>ViewProductsBase0</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductsBaseQuery0.pas">
+            <Form>QryProductsBase0</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Bill\BillContentQry.pas">
+            <Form>QueryBillContent</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Bill\BillContentView2.pas">
+            <Form>ViewBillContent2</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsBaseView1.pas">
+            <Form>ViewProductsBase1</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\ProductsBaseQuery1.pas">
+            <Form>QryProductsBase1</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Queryes\Products\BaseProductsViewModel.pas"/>
+        <DCCReference Include="Queryes\Products\ProductsViewModel.pas"/>
+        <DCCReference Include="Queryes\Products\ProductsSearchViewModel.pas"/>
+        <DCCReference Include="Queryes\Bill\BillContentViewModel.pas"/>
+        <DCCReference Include="Queryes\Products\BaseProductsViewModel1.pas"/>
+        <DCCReference Include="Views\Products\ProductsView.pas">
+            <Form>ViewProducts</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsSearchView.pas">
+            <Form>ViewProductsSearch</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Views\Products\ProductsBasketView2.pas">
+            <Form>ViewProductsBasket2</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>

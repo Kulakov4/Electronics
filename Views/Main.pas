@@ -36,14 +36,13 @@ uses
   dxSkinWhiteprint, dxSkinXmas2008Blue, DocFieldInfo,
   System.Generics.Collections, CustomErrorTable, Data.DB, System.Classes,
   SearchCategoriesPathQuery, FieldInfoUnit, CategoryParametersView,
-  StoreHouseInfoView, ProductsTabSheetView,
-  Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView, System.SysUtils,
-  BaseEventsQuery, cxDataControllerConditionalFormattingRulesManagerDialog,
-  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP,
-  ChildCategoriesView, StoreHouseListView, ProductsBasketView,
-  ProductsSearchView2, ProductsView2, BillListView, BillContentView,
-  Vcl.ToolWin, CompFrameUnit, ComponentTypeSetUnit, ProgressBarForm3,
-  ProgressInfo;
+  StoreHouseInfoView, Vcl.AppEvnts, HintWindowEx, ProtectUnit, TreeListView,
+  System.SysUtils, BaseEventsQuery,
+  cxDataControllerConditionalFormattingRulesManagerDialog, IdBaseComponent,
+  IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, ChildCategoriesView,
+  StoreHouseListView, BillListView, Vcl.ToolWin, CompFrameUnit,
+  ComponentTypeSetUnit, ProgressBarForm3, ProgressInfo, BillContentView2,
+  ProductsView, ProductsSearchView, ProductsBasketView2;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -154,16 +153,16 @@ type
     FLoadComplete: Boolean;
     FQuerySearchCategoriesPath: TQuerySearchCategoriesPath;
     FViewBill: TViewBill;
-    FViewBillContent: TViewBillContent;
+    FViewBillContent: TViewBillContent2;
     FViewCategoryParameters: TViewCategoryParameters;
     FViewChildCategories: TViewChildCategories;
     FViewComponents: TViewComponents;
     FViewComponentsSearch: TViewComponentsSearch;
     FViewEventList: TObjectList;
     FViewParametricTable: TViewParametricTable;
-    FViewProducts: TViewProducts2;
-    FViewProductsBasket: TViewProductsBasket;
-    FViewProductsSearch: TViewProductsSearch2;
+    FViewProducts: TViewProducts;
+    FViewProductsBasket: TViewProductsBasket2;
+    FViewProductsSearch: TViewProductsSearch;
     FViewStoreHouse: TViewStoreHouse;
     FViewTreeList: TViewTreeList;
     FWareHousePageWasChange: Boolean;
@@ -211,7 +210,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function CheckDataBasePath: Boolean;
     property ViewBill: TViewBill read FViewBill;
-    property ViewBillContent: TViewBillContent read FViewBillContent;
+    property ViewBillContent: TViewBillContent2 read FViewBillContent;
     property ViewCategoryParameters: TViewCategoryParameters
       read FViewCategoryParameters;
     property ViewChildCategories: TViewChildCategories
@@ -221,9 +220,9 @@ type
       read FViewComponentsSearch;
     property ViewParametricTable: TViewParametricTable
       read FViewParametricTable;
-    property ViewProducts: TViewProducts2 read FViewProducts;
-    property ViewProductsBasket: TViewProductsBasket read FViewProductsBasket;
-    property ViewProductsSearch: TViewProductsSearch2 read FViewProductsSearch;
+    property ViewProducts: TViewProducts read FViewProducts;
+    property ViewProductsBasket: TViewProductsBasket2 read FViewProductsBasket;
+    property ViewProductsSearch: TViewProductsSearch read FViewProductsSearch;
     property ViewStoreHouse: TViewStoreHouse read FViewStoreHouse;
     { Public declarations }
   end;
@@ -764,8 +763,6 @@ begin
 end;
 
 procedure TfrmMain.cxpcWareHouse2Click(Sender: TObject);
-var
-  X: Integer;
 begin
   // Если этот клик привёл к тому, что страница изменилась то не снимаем выделение
   if FWareHousePageWasChange then
@@ -804,10 +801,10 @@ begin
     // TDM.Create.qStoreHouseList.AddClient;
     // TDM.Create.qProducts.AddClient;
 
-    TNotifyEventWrap.Create(TDM.Create.qProducts.W.AfterRefresh,
-      DoOnStoreHouseListChange, FViewEventList);
+    TNotifyEventWrap.Create(TDM.Create.ProductsViewModel.qProducts.W.
+      AfterRefresh, DoOnStoreHouseListChange, FViewEventList);
 
-    TNotifyEventWrap.Create(TDM.Create.qProducts.W.AfterOpen,
+    TNotifyEventWrap.Create(TDM.Create.ProductsViewModel.qProducts.W.AfterOpen,
       DoOnStoreHouseListChange, FViewEventList);
 
     // Привязываем список складов к данным
@@ -824,15 +821,15 @@ begin
     // Привязываем представление содержимого склада к данным
     if FViewProducts = nil then
     begin
-      FViewProducts := TViewProducts2.Create(Self);
+      FViewProducts := TViewProducts.Create(Self);
       FViewProducts.Parent := pnlStoreHouseRight;
       FViewProducts.Align := alClient;
 
-      ViewProducts.qProducts := TDM.Create.qProducts;
+      ViewProducts.ProductsModel := TDM.Create.ProductsViewModel;
 
       // Подписываемся чтобы искать компонент в параметрической таблице
-      TNotifyEventWrap.Create(TDM.Create.qProducts.OnLocate, DoOnProductLocate,
-        FViewEventList);
+      TNotifyEventWrap.Create(TDM.Create.ProductsViewModel.qProducts.OnLocate,
+        DoOnProductLocate, FViewEventList);
     end;
     ViewProducts.MyApplyBestFit;
   end;
@@ -848,14 +845,14 @@ begin
   if NewPage = cxtshBasket then
   begin
     // Обновляем содержимое корзины
-    TDM.Create.qProductsBasket.SearchForBasket;
+    TDM.Create.ProductsBasketViewModel.qProducts.SearchForBasket;
 
     if FViewProductsBasket = nil then
     begin
-      FViewProductsBasket := TViewProductsBasket.Create(Self);
+      FViewProductsBasket := TViewProductsBasket2.Create(Self);
       FViewProductsBasket.Parent := cxtshBasket;
       FViewProductsBasket.Align := alClient;
-      ViewProductsBasket.qProducts := TDM.Create.qProductsBasket;
+      ViewProductsBasket.BasketViewModel := TDM.Create.ProductsBasketViewModel;
     end;
   end;
 
@@ -874,10 +871,10 @@ begin
 
     if FViewBillContent = nil then
     begin
-      FViewBillContent := TViewBillContent.Create(Self);
+      FViewBillContent := TViewBillContent2.Create(Self);
       FViewBillContent.Parent := pnlBillCenter;
       FViewBillContent.Align := alClient;
-      FViewBillContent.qBillContent := TDM.Create.qBillContent2;
+      FViewBillContent.BillContentModel := TDM.Create.BillContentViewModel;
     end;
   end;
 
@@ -891,16 +888,17 @@ begin
   // Если переходим на вкладку поиск
   if NewPage = cxtshSearch then
   begin
-    TDM.Create.qProductsSearch.W.TryOpen;
+    TDM.Create.ProductsSearchViewModel.qProductsSearch.W.TryOpen;
 
     if FViewProductsSearch = nil then
     begin
-      FViewProductsSearch := TViewProductsSearch2.Create(Self);
+      FViewProductsSearch := TViewProductsSearch.Create(Self);
       FViewProductsSearch.Parent := cxtshSearch;
       FViewProductsSearch.Align := alClient;
-      ViewProductsSearch.qProductsSearch := TDM.Create.qProductsSearch;
+      ViewProductsSearch.SearchViewModel := TDM.Create.ProductsSearchViewModel;
 
-      TNotifyEventWrap.Create(TDM.Create.qProductsSearch.OnLocate,
+      TNotifyEventWrap.Create
+        (TDM.Create.ProductsSearchViewModel.qProductsSearch.OnLocate,
         DoOnProductLocate, FViewEventList);
     end;
   end;
@@ -915,7 +913,7 @@ begin
   l := Sender as TList<String>;
   Assert(l.Count > 0);
 
-  TDM.Create.qProductsSearch.Search(l);
+  TDM.Create.ProductsSearchViewModel.qProductsSearch.Search(l);
 
   // Переключаемся на вкладку склады
   cxpcMain.ActivePage := cxtshWareHouse;
@@ -1988,10 +1986,11 @@ begin
 
   // Если активна вкладка "Склады"
   if (cxpcMain.ActivePage = cxtshWareHouse) and
-    (TDM.Create.qProducts.StorehouseListInt <> nil) and
-    not TDM.Create.qProducts.StorehouseListInt.StoreHouseTitle.IsEmpty then
+    (TDM.Create.ProductsViewModel.StorehouseListInt <> nil) and
+    not TDM.Create.ProductsViewModel.StorehouseListInt.StoreHouseTitle.IsEmpty
+  then
   begin
-    S := ' - ' + TDM.Create.qProducts.StorehouseListInt.StoreHouseTitle;
+    S := ' - ' + TDM.Create.ProductsViewModel.StorehouseListInt.StoreHouseTitle;
   end;
 
   // Меняем заголовок формы

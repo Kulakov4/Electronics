@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, ProductsView2;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, ProductsView;
 
 type
   TfrmProducts = class(TfrmRoot)
@@ -12,11 +12,11 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDeactivate(Sender: TObject);
   private
-    FViewProducts2: TViewProducts2;
+    FViewProducts: TViewProducts;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    property ViewProducts2: TViewProducts2 read FViewProducts2;
+    property ViewProducts: TViewProducts read FViewProducts;
     { Public declarations }
   end;
 
@@ -30,18 +30,18 @@ implementation
 constructor TfrmProducts.Create(AOwner: TComponent);
 begin
   inherited;
-  FViewProducts2 := TViewProducts2.Create(Self);
-  FViewProducts2.Parent := Self;
-  FViewProducts2.Align := alClient;
-  FViewProducts2.actFullScreen.Visible := False;
+  FViewProducts := TViewProducts.Create(Self);
+  FViewProducts.Parent := Self;
+  FViewProducts.Align := alClient;
+  FViewProducts.actFullScreen.Visible := False;
 end;
 
 procedure TfrmProducts.FormActivate(Sender: TObject);
 begin
   inherited;
-  ViewProducts2.ConnectView;
+  ViewProducts.ConnectView;
   // Выводим в заголовок формы название текущего склада
-  Caption := ViewProducts2.qProducts.StorehouseListInt.StoreHouseTitle;
+  Caption := ViewProducts.ProductsModel.StorehouseListInt.StoreHouseTitle;
 end;
 
 procedure TfrmProducts.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -54,7 +54,7 @@ end;
 procedure TfrmProducts.FormDeactivate(Sender: TObject);
 begin
   inherited;
-  ViewProducts2.DisconnectView;
+  ViewProducts.DisconnectView;
 end;
 
 end.
