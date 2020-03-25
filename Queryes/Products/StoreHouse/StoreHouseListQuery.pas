@@ -38,8 +38,11 @@ type
 
   TQueryStoreHouseList = class(TQueryBaseEvents)
     FDUpdateSQL: TFDUpdateSQL;
-    procedure FDQueryUpdateError(ASender: TDataSet; AException: EFDException; ARow:
-        TFDDatSRow; ARequest: TFDUpdateRequest; var AAction: TFDErrorAction);
+    procedure FDQueryDeleteError(DataSet: TDataSet; E: EDatabaseError;
+      var Action: TDataAction);
+    procedure FDQueryUpdateError(ASender: TDataSet; AException: EFDException;
+      ARow: TFDDatSRow; ARequest: TFDUpdateRequest;
+      var AAction: TFDErrorAction);
   private
     FW: TStoreHouseListW;
     procedure DoBeforePost(Sender: TObject);
@@ -54,7 +57,7 @@ type
 
 implementation
 
-uses NotifyEvents, RepositoryDataModule, StrHelper;
+uses NotifyEvents, RepositoryDataModule, StrHelper, FireDAC.Phys.SQLiteWrapper;
 
 {$R *.dfm}
 { TfrmQueryStoreHouseList }
@@ -85,12 +88,28 @@ begin
 
 end;
 
-procedure TQueryStoreHouseList.FDQueryUpdateError(ASender: TDataSet;
-    AException: EFDException; ARow: TFDDatSRow; ARequest: TFDUpdateRequest; var
-    AAction: TFDErrorAction);
+procedure TQueryStoreHouseList.FDQueryDeleteError(DataSet: TDataSet;
+  E: EDatabaseError; var Action: TDataAction);
+var
+  ASQLiteNativeException: ESQLiteNativeException;
+  S: string;
 begin
   inherited;
-  if AException.Message ='[FireDAC][Phys][SQLite] ERROR: UNIQUE constraint failed: Storehouse.Title' then
+  if not(E is ESQLiteNativeException) then
+    Exit;
+
+  ASQLiteNativeException := E as ESQLiteNativeException;
+  if ASQLiteNativeException.ErrorCode = 787 then
+      E.Message := 'Ќельз€ удалить склад, т.к. есть св€занные с ним счета.'
+end;
+
+procedure TQueryStoreHouseList.FDQueryUpdateError(ASender: TDataSet;
+  AException: EFDException; ARow: TFDDatSRow; ARequest: TFDUpdateRequest;
+  var AAction: TFDErrorAction);
+begin
+  inherited;
+  if AException.Message = '[FireDAC][Phys][SQLite] ERROR: UNIQUE constraint failed: Storehouse.Title'
+  then
     AException.Message := 'Ќаименование склада должно быть уникальным';
 end;
 

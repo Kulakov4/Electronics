@@ -5,6 +5,7 @@ inherited QueryStoreHouseList: TQueryStoreHouseList
     ExplicitWidth = 99
   end
   inherited FDQuery: TFDQuery
+    OnDeleteError = FDQueryDeleteError
     UpdateObject = FDUpdateSQL
     SQL.Strings = (
       'select * from Storehouse order by Title')
@@ -37,7 +38,7 @@ inherited QueryStoreHouseList: TQueryStoreHouseList
       'SELECT ID, EXTERNALID, TITLE, RESPONSIBLE, ADDRESS, ABBREVIATION'
       'FROM STOREHOUSE'
       'WHERE ID = :ID')
-    Left = 75
+    Left = 67
     Top = 25
   end
 end

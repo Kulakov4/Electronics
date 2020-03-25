@@ -31,6 +31,7 @@ type
     FPriceR: TFieldWrap;
     FPriceR1: TFieldWrap;
     FPriceR2: TFieldWrap;
+    procedure AfterConstruction; override;
     procedure DoAfterOpen(Sender: TObject);
   protected
     procedure InitFields; virtual;
@@ -167,6 +168,11 @@ begin
   FPriceR2 := TFieldWrap.Create(Self, 'PriceR2');
 
   TNotifyEventWrap.Create(AfterOpen, DoAfterOpen, EventList);
+end;
+
+procedure TBaseProductsW.AfterConstruction;
+begin
+  inherited;
   if DataSet.Active then
     InitFields;
 end;
