@@ -252,13 +252,13 @@ begin
 
         // Добавляем товар в заказ
         qBillContentSimple.W.AddContent(ABillID, AStoreHouseProductID,
-          AQryProducts.BasketW.SaleCount.F.Value,
-          AQryProducts.BasketW.CalcPriceR.F.Value,
-          AQryProducts.BasketW.Retail.F.Value,
+          AQryProducts.BasketW.SaleCount.F.AsInteger,
+          AQryProducts.BasketW.CalcPriceR.F.AsFloat,
+          AQryProducts.BasketW.Retail.F.AsFloat,
           ifThen(AQryProducts.BasketW.WholeSale.F.AsFloat > 0,
           AQryProducts.BasketW.WholeSale.F.AsFloat,
           AQryProducts.BasketW.MinWholeSale.F.AsFloat),
-          AQryProducts.BasketW.Markup.F.Value);
+          AQryProducts.BasketW.Markup.F.AsFloat);
 
         // Тут товар исчезает из корзины !!!
         AQryProducts.BasketW.SetSaleCount(0);

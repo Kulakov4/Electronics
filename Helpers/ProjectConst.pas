@@ -95,7 +95,7 @@ resourcestring
   sTreeRootNodeName = 'Структура';
 
 const
-  DBVersion = 9;
+  DBVersion = 10;
   ProgramVersion = 1.6;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
   DefaultRate = 60; // Курс доллара к рублю "по умолчанию"
