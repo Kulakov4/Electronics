@@ -42,11 +42,9 @@ type
     FAfterLoad: TNotifyEventsEx;
     FqBillContentSimple: TQueryBillContentSimple;
     FqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
-    FqStoreHouseList: TQueryStoreHouseList;
     FW: TBillContW;
     function GetqBillContentSimple: TQueryBillContentSimple;
     function GetqSearchStorehouseProduct: TQuerySearchStorehouseProduct;
-    function GetqStoreHouseList: TQueryStoreHouseList;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -68,7 +66,6 @@ type
     procedure Ship;
     procedure ShipAll;
     property AfterLoad: TNotifyEventsEx read FAfterLoad;
-    property qStoreHouseList: TQueryStoreHouseList read GetqStoreHouseList;
     property W: TBillContW read FW;
     { Public declarations }
   end;
@@ -216,16 +213,6 @@ begin
   if FqSearchStorehouseProduct = nil then
     FqSearchStorehouseProduct := TQuerySearchStorehouseProduct.Create(Self);
   Result := FqSearchStorehouseProduct;
-end;
-
-function TQueryBillContent.GetqStoreHouseList: TQueryStoreHouseList;
-begin
-  if FqStoreHouseList = nil then
-  begin
-    FqStoreHouseList := TQueryStoreHouseList.Create(Self);
-    FqStoreHouseList.FDQuery.Open;
-  end;
-  Result := FqStoreHouseList;
 end;
 
 procedure TQueryBillContent.LoadContent(ABillID: Integer);

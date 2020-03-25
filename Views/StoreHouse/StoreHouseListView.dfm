@@ -2,8 +2,6 @@ inherited ViewStoreHouse: TViewStoreHouse
   inherited cxGrid: TcxGrid
     Top = 0
     Height = 472
-    OnEnter = cxGridEnter
-    OnExit = cxGridExit
     ExplicitTop = 0
     ExplicitHeight = 472
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView

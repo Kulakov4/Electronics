@@ -264,7 +264,6 @@ uses
   BillContentQry in 'Queryes\Bill\BillContentQry.pas' {QueryBillContent: TFrame},
   BillContentView2 in 'Views\Bill\BillContentView2.pas' {ViewBillContent2: TFrame},
   ProductsBaseView1 in 'Views\Products\ProductsBaseView1.pas' {ViewProductsBase1: TFrame},
-  ProductsBaseQuery1 in 'Queryes\Products\ProductsBaseQuery1.pas' {QryProductsBase1: TFrame},
   BaseProductsViewModel in 'Queryes\Products\BaseProductsViewModel.pas',
   ProductsViewModel in 'Queryes\Products\ProductsViewModel.pas',
   ProductsSearchViewModel in 'Queryes\Products\ProductsSearchViewModel.pas',

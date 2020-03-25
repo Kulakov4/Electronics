@@ -135,6 +135,8 @@ var
   AfrmStoreHouse: TfrmStoreHouse;
 begin
   inherited;
+  if qStoreHouseList.HaveAnyChanges then
+    qStoreHouseList.ApplyUpdates;
   Assert(not qStoreHouseList.HaveAnyChanges);
   Assert(not qStoreHouseList.FDQuery.CachedUpdates);
   AfrmStoreHouse := TfrmStoreHouse.Create(Self);
