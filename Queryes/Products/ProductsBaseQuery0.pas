@@ -31,7 +31,6 @@ type
     FPriceR: TFieldWrap;
     FPriceR1: TFieldWrap;
     FPriceR2: TFieldWrap;
-    procedure AfterConstruction; override;
     procedure DoAfterOpen(Sender: TObject);
   protected
     procedure InitFields; virtual;
@@ -39,6 +38,7 @@ type
       DisplayText: Boolean);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure AfterConstruction; override;
     procedure SetDisplayFormat(const AFields: Array of TField);
     property Amount: TFieldWrap read FAmount;
     property Datasheet: TFieldWrap read FDatasheet;

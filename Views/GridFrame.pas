@@ -29,7 +29,7 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter, cxDropDownEdit,
   System.Generics.Collections, DragHelper, OrderQuery, GridSort,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  SelectionInt, dxDateRanges;
+  SelectionInt, dxDateRanges, DSWrap, NotifyEvents;
 
 const
   WM_MY_APPLY_BEST_FIT = WM_USER + 109;
@@ -86,23 +86,26 @@ type
     function GetHaveFocus: Boolean;
   private
     FAfterKeyOrMouseDownPosted: Boolean;
+    FAfterOpenE: TNotifyEventWrap;
     FApplyBestFitForDetail: Boolean;
     FApplyBestFitMultiLine: Boolean;
     FApplyBestFitPosted: Boolean;
     FcxDataDetailCollapsingEvent: TcxDataDetailExpandingEvent;
     FcxDataDetailExpandingEvent: TcxDataDetailExpandingEvent;
     FDeleteMessages: TDictionary<TcxGridLevel, String>;
+    FDSWrap: TDSWrap;
     FGridSort: TGridSort;
     FHaveFocus: Boolean;
     FLeftPos: Integer;
     FPostOnEnterFields: TList<String>;
-    FSortSL: TList<String>;
     FStartDragLevel: TcxGridLevel;
     FStatusBarEmptyPanelIndex: Integer;
     FUpdateCount: Cardinal;
     FViewArr: TArray<TcxGridDBBandedTableView>;
+    procedure DoAfterOpen(Sender: TObject);
     function GetMainView: TcxGridDBBandedTableView;
     function GetParentForm: TForm;
+    procedure SetDSWrap(const Value: TDSWrap);
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
@@ -131,6 +134,7 @@ type
     procedure DoOnMyApplyBestFit(var Message: TMessage);
       message WM_MY_APPLY_BEST_FIT;
     function GetFocusedTableView: TcxGridDBBandedTableView;
+    procedure InitColumns(AView: TcxGridDBBandedTableView); virtual;
     procedure InitializeLookupColumn(AColumn: TcxGridDBBandedColumn;
       ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
       const AListFieldNames: string;
@@ -161,7 +165,6 @@ type
       var AllowPopup: Boolean); virtual;
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
-    property SortSL: TList<String> read FSortSL;
     property ViewArr: TArray<TcxGridDBBandedTableView> read FViewArr;
   public
     constructor Create(AOwner: TComponent); override;
@@ -170,6 +173,12 @@ type
     procedure ApplyBestFitFocusedBand; virtual;
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
+    function GetFocusedValue(const AFieldName: string): Variant;
+    function GetSelectedValues(AColumn: TcxGridDBBandedColumn): TArray<Variant>;
+        overload;
+    function GetSelectedValues(AView: TcxGridDBBandedTableView; AColumnIndex:
+        Integer): TArray<Variant>; overload;
+    function GetSelectedValues(const AFieldName: string): TArray<Variant>; overload;
     function CalcBandHeight(ABand: TcxGridBand): Integer;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
@@ -196,7 +205,9 @@ type
     procedure FocusFirstSelectedRow(AView: TcxGridDBBandedTableView);
     procedure FocusSelectedRecord(AView: TcxGridDBBandedTableView); overload;
     procedure FocusSelectedRecord; overload;
-    function FocusTopLeft(const AFieldName: string): Boolean;
+    procedure FocusTopLeft(const AFieldName: string); overload;
+    procedure FocusTopLeft(AColumn: TcxGridBandedColumn); overload;
+    procedure FocusTopLeft; overload;
     function GetColumns(AView: TcxGridDBBandedTableView)
       : TArray<TcxGridDBBandedColumn>;
     procedure PutInTheCenterFocusedRecord
@@ -242,6 +253,7 @@ type
       write FApplyBestFitMultiLine;
     property DeleteMessages: TDictionary<TcxGridLevel, String>
       read FDeleteMessages;
+    property DSWrap: TDSWrap read FDSWrap write SetDSWrap;
     property FocusedTableView: TcxGridDBBandedTableView
       read GetFocusedTableView;
     property GridSort: TGridSort read FGridSort;
@@ -277,13 +289,11 @@ begin
   FGridSort := TGridSort.Create;
 
   FDeleteMessages := TDictionary<TcxGridLevel, String>.Create;
-  FSortSL := TList<String>.Create;
   FApplyBestFitForDetail := False;
 end;
 
 destructor TfrmGrid.Destroy;
 begin
-  FreeAndNil(FSortSL);
   FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FEventList);
   FreeAndNil(FGridSort);
@@ -630,6 +640,16 @@ begin
   MainView.DataController.OnDetailExpanding := DoCancelDetailExpanding;
   MainView.DataController.OnDetailCollapsing := DoCancelDetailExpanding;
   // MainView.OnCanFocusRecord := DoCancelFocusRecord;
+end;
+
+procedure TfrmGrid.DoAfterOpen(Sender: TObject);
+begin
+  MainView.DataController.CreateAllItems(True);
+  InitColumns(MainView);
+
+  // Если была подписка на событие - отписываемся!
+  if Assigned(FAfterOpenE) then
+    FreeAndNil(FAfterOpenE);
 end;
 
 procedure TfrmGrid.DoCancelDetailExpanding(ADataController
@@ -1270,23 +1290,36 @@ begin
   AView.Controller.SelectedRows[0].Focused := True;
 end;
 
-function TfrmGrid.FocusTopLeft(const AFieldName: string): Boolean;
+procedure TfrmGrid.FocusTopLeft(const AFieldName: string);
 var
   AColumn: TcxGridDBBandedColumn;
 begin
-  Result := False;
-  Assert(not AFieldName.IsEmpty);
-  if MainView.ViewData.RowCount = 0 then
+  AColumn := MainView.GetColumnByFieldName(AFieldName);
+  FocusTopLeft(AColumn);
+end;
+
+procedure TfrmGrid.FocusTopLeft(AColumn: TcxGridBandedColumn);
+begin
+  Assert(AColumn <> nil);
+  if AColumn.GridView.ViewData.RowCount = 0 then
     Exit;
 
   MainView.Controller.ClearSelection;
   MainView.Controller.TopRowIndex := 0;
   MainView.Controller.LeftPos := 0;
   MainView.ViewData.Rows[0].Focused := True;
-  Result := MainView.ViewData.Rows[0].Focused;
-  AColumn := MainView.GetColumnByFieldName(AFieldName);
   if AColumn <> nil then
     AColumn.Focused := True;
+end;
+
+procedure TfrmGrid.FocusTopLeft;
+var
+  AColumn: TcxGridBandedColumn;
+begin
+  if MainView.VisibleColumnCount = 0 then
+    Exit;
+  AColumn := MainView.VisibleColumns[0];
+  FocusTopLeft(AColumn);
 end;
 
 function TfrmGrid.GetColumns(AView: TcxGridDBBandedTableView)
@@ -1402,6 +1435,11 @@ begin
   end;
 end;
 
+procedure TfrmGrid.InitColumns(AView: TcxGridDBBandedTableView);
+begin
+  // TODO -cMM: TfrmGrid.InitColumns default body inserted
+end;
+
 function TfrmGrid.GetSelectedRowIndexesForMove(AView: TcxGridDBBandedTableView;
   AUp: Boolean; var AArray: TArray<Integer>;
   var ATargetRowIndex: Integer): Boolean;
@@ -1442,7 +1480,7 @@ end;
 
 function TfrmGrid.MyApplyBestFitForBand(ABand: TcxGridBand): Integer;
 const
-  MAGIC = 20;//12;
+  MAGIC = 20; // 12;
 var
   ABandHeight: Integer;
   ABandRect: TRect;
@@ -1827,12 +1865,93 @@ begin
   end;
 end;
 
+function TfrmGrid.GetFocusedValue(const AFieldName: string): Variant;
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  Result := NULL;
+  AColumn := MainView.GetColumnByFieldName(AFieldName);
+  if (AColumn = nil) or (MainView.Controller.FocusedRow = nil) then
+    Exit;
+
+  Result := MainView.Controller.FocusedRow.Values[AColumn.Index];
+end;
+
+function TfrmGrid.GetSelectedValues(AColumn: TcxGridDBBandedColumn):
+    TArray<Variant>;
+begin
+  Assert(AColumn <> nil);
+  Result := GetSelectedValues(AColumn.GridView as TcxGridDBBandedTableView,
+    AColumn.Index);
+end;
+
+function TfrmGrid.GetSelectedValues(AView: TcxGridDBBandedTableView;
+    AColumnIndex: Integer): TArray<Variant>;
+var
+  i: Integer;
+  L: TList<Variant>;
+begin
+  Assert(AView <> nil);
+
+  L := TList<Variant>.Create;
+  try
+    for i := 0 to AView.Controller.SelectedRowCount - 1 do
+    begin
+      L.Add(AView.Controller.SelectedRows[i].Values[AColumnIndex]);
+    end;
+    Result := L.ToArray;
+  finally
+    FreeAndNil(L);
+  end;
+end;
+
+function TfrmGrid.GetSelectedValues(const AFieldName: string): TArray<Variant>;
+var
+  AColumn: TcxGridDBBandedColumn;
+begin
+  Result := nil;
+  Assert(not AFieldName.IsEmpty);
+  AColumn := MainView.GetColumnByFieldName(AFieldName);
+  if AColumn = nil then
+    Exit;
+
+  Result := GetSelectedValues(AColumn.GridView as TcxGridDBBandedTableView,
+    AColumn.Index);
+end;
+
 procedure TfrmGrid.SelectFocusedRecord(const AFieldName: String);
 begin
   if MainView.Controller.FocusedRow <> nil then
     MainView.Controller.FocusedRow.Selected := True;
 
   MainView.GetColumnByFieldName(AFieldName).Selected := True;
+end;
+
+procedure TfrmGrid.SetDSWrap(const Value: TDSWrap);
+begin
+  if FDSWrap = Value then
+    Exit;
+
+  FEventList.Clear;
+  FDSWrap := Value;
+
+  if FDSWrap = nil then
+  begin
+    MainView.DataController.DataSource := nil;
+  end
+  else
+  begin
+    MainView.DataController.DataSource := FDSWrap.DataSource;
+    if FDSWrap.DataSet.Active then
+    begin
+      // Создаём и инициализируем колонки
+      DoAfterOpen(nil);
+    end
+    else
+    begin
+      FAfterOpenE := TNotifyEventWrap.Create(FDSWrap.AfterOpen, DoAfterOpen);
+    end;
+  end;
 end;
 
 procedure TfrmGrid.SetStatusBarEmptyPanelIndex(const Value: Integer);

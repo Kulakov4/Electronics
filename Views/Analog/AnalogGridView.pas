@@ -32,7 +32,7 @@ uses
   cxCheckBox, cxLabel, ParameterKindEnum, PopupAnalogGridView,
   RepositoryDataModule, CategoryParametersQuery2,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  cxImageList;
+  cxImageList, dxDateRanges;
 
 const
   WM_AFTER_INIT_EDIT = WM_USER + 1;
@@ -90,7 +90,7 @@ type
     function GetBandCaption(qryCategoryParameters : TQueryCategoryParameters2):
         string;
     function IsMemoEditorHide: Boolean;
-    procedure InitColumns; override;
+    procedure InitColumns(AView: TcxGridDBBandedTableView); override;
     procedure UpdateBandsCaptions;
   public
     constructor Create(AOwner: TComponent); override;
@@ -174,7 +174,6 @@ end;
 
 procedure TViewAnalogGrid.actShowPopupExecute(Sender: TObject);
 var
-  AColumn: TcxGridDBBandedColumn;
   AParamSubParamID: Integer;
   AParamValues: TParamValues;
   R: TRect;
@@ -191,19 +190,7 @@ begin
     (AParamSubParamID);
   Assert(AParamValues <> nil);
 
-  ViewGridPopupAnalog.DataSet := AParamValues.Table;
-  AColumn := ViewGridPopupAnalog.MainView.GetColumnByFieldName
-    (AParamValues.Table.Checked.FieldName);
-  Assert(AColumn <> nil);
-  AColumn.PropertiesClass := TcxCheckBoxProperties;
-  (AColumn.Properties as TcxCheckBoxProperties).ValueChecked := 1;
-  (AColumn.Properties as TcxCheckBoxProperties).ValueUnchecked := 0;
-  (AColumn.Properties as TcxCheckBoxProperties).ImmediatePost := True;
-
-  AColumn := ViewGridPopupAnalog.MainView.GetColumnByFieldName
-    (AParamValues.Table.Value.FieldName);
-  Assert(AColumn <> nil);
-  AColumn.PropertiesClass := TcxLabelProperties;
+  ViewGridPopupAnalog.W := AParamValues.Table.W;
 
   PopupPanel.Width :=
     Max(ViewGridPopupAnalog.MainView.ViewInfo.HeaderViewInfo.Width + 20,
@@ -572,11 +559,12 @@ begin
   cxEditorButton.Visible := not Result;
 end;
 
-procedure TViewAnalogGrid.InitColumns;
+procedure TViewAnalogGrid.InitColumns(AView: TcxGridDBBandedTableView);
 var
   ABandInfo: TBandInfo;
   qCatParams: TQryCategoryParameters;
 begin
+  inherited;
   FreeAndNil(FColumnsBarButtons);
 
   AnalogGroup.CatParamsGroup.LoadData;
@@ -620,10 +608,12 @@ begin
   FAnalogGroup := Value;
 
   if FAnalogGroup = nil then
+  begin
+    DSWrap := nil;
     Exit;
+  end;
 
-  DataSet := FAnalogGroup.FDMemTable;
-
+  DSWrap := FAnalogGroup.W;
 end;
 
 procedure TViewAnalogGrid.SetUseTableName(const Value: Boolean);

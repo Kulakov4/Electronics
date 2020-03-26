@@ -1189,7 +1189,7 @@ begin
     FfrmProgressBar.Hide;
     AfrmError := TfrmCustomError.Create(nil);
     try
-      AfrmError.ViewGridEx.DataSet := E.ExcelTable.Errors;
+      AfrmError.ViewGridEx.DSWrap := E.ExcelTable.Errors.W;
       // Показываем ошибки
       OK := AfrmError.ShowModal = mrOk;
       if OK then
@@ -1228,8 +1228,8 @@ begin
       [mmbContinue, mmbCancel]);
     try
       AfrmGridView.GridViewClass := TViewCategory;
-      (AfrmGridView.GridView as TViewCategory).ProductCategoriesMemTbl :=
-        AParametricExcelTable.ProductCategoriesMemTbl;
+      (AfrmGridView.GridView as TViewCategory).W :=
+        AParametricExcelTable.ProductCategoriesMemTbl.W;
 
       // Показываем категории в которые будем добавлять параметры
       OK := AfrmGridView.ShowModal = mrOk;
@@ -1585,7 +1585,7 @@ begin
 
     frmImportProcess := TfrmImportProcess.Create(Self);
     frmImportProcess.Caption := 'Загрузка компонентов';
-    frmImportProcess.ViewGridEx.DataSet := AutomaticLoadErrorTable;
+    frmImportProcess.ViewGridEx.DSWrap := AutomaticLoadErrorTable.W;
     frmImportProcess.ViewGridEx.ApplyBestFitOnUpdateData := True;
     // Показываем отчёт
     frmImportProcess.Show;
@@ -1782,8 +1782,8 @@ begin
       begin
         AfrmParametricTableError := TfrmParametricTableError.Create(Self);
         try
-          AfrmParametricTableError.ViewParametricTableError.DataSet :=
-            AParametricErrorTable;
+          AfrmParametricTableError.ViewParametricTableError.DSWrap :=
+            AParametricErrorTable.W;
           // Показываем что мы собираемся привязывать
           Result := AfrmParametricTableError.ShowModal = mrOk;
         finally

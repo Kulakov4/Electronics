@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, DocFieldInfo, System.Generics.Collections,
   FireDAC.Comp.Client, TableWithProgress, Data.DB,
-  SearchProductParameterValuesQuery, DocBindExcelDataModule;
+  SearchProductParameterValuesQuery, DocBindExcelDataModule, DSWrap;
 
 type
   MySplitRec = record
@@ -26,17 +26,25 @@ type
     property RootFolder: TField read GetRootFolder;
   end;
 
-  TAbsentDocTable = class(TFDMemTable)
+  TAbsentDocTableW = class(TDSWrap)
   private
-    function GetComponentName: TField;
-    function GetFolder: TField;
-    function GetDescription: TField;
+    FComponentName: TFieldWrap;
+    FDescription: TFieldWrap;
+    FFolder: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AddError(const AFolder, AComponentName, AErrorMessage: string);
-    property ComponentName: TField read GetComponentName;
-    property Folder: TField read GetFolder;
-    property Description: TField read GetDescription;
+    property ComponentName: TFieldWrap read FComponentName;
+    property Description: TFieldWrap read FDescription;
+    property Folder: TFieldWrap read FFolder;
+  end;
+
+  TAbsentDocTable = class(TFDMemTable)
+  private
+    FW: TAbsentDocTableW;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TAbsentDocTableW read FW;
   end;
 
   TPossibleLinkDocTable = class(TTableWithProgress)
@@ -54,17 +62,24 @@ type
     property RootFolder: TField read GetRootFolder;
   end;
 
-type
-  TErrorLinkedDocTable = class(TTableWithProgress)
+  TErrorLinkedDocTableW = class(TDSWrap)
   private
-    function GetComponentName: TField;
-    function GetFolder: TField;
-    function GetErrorMessage: TField;
+    FFolder: TFieldWrap;
+    FErrorMessage: TFieldWrap;
+    FComponentName: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
-    property ComponentName: TField read GetComponentName;
-    property Folder: TField read GetFolder;
-    property ErrorMessage: TField read GetErrorMessage;
+    property Folder: TFieldWrap read FFolder;
+    property ErrorMessage: TFieldWrap read FErrorMessage;
+    property ComponentName: TFieldWrap read FComponentName;
+  end;
+
+  TErrorLinkedDocTable = class(TTableWithProgress)
+  private
+    FW: TErrorLinkedDocTableW;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TErrorLinkedDocTableW read FW;
   end;
 
   TAutoBind = class(TObject)
@@ -311,7 +326,7 @@ begin
         with AfrmGridView do
         begin
           Caption := 'Ошибки автоматического прикрепления файлов документации';
-          ViewGridEx.DataSet := AErrorLinkedDocTable;
+          ViewGridEx.DSWrap := AErrorLinkedDocTable.W;
           // Показываем что мы собираемся привязывать
           ShowModal;
         end;
@@ -347,9 +362,10 @@ begin
         try
           AfrmGridView.Caption :=
             'Компоненты для которых отсутствует документация';
-          AfrmGridView.ViewGridEx.DataSet := AAbsentDocTable;
+          AfrmGridView.ViewGridEx.DSWrap := AAbsentDocTable.W;
+          // группируем по папке
           AcxGridDBBandedColumn := AfrmGridView.ViewGridEx.MainView.
-            GetColumnByFieldName(AAbsentDocTable.Folder.FieldName);
+            GetColumnByFieldName(AAbsentDocTable.W.Folder.FieldName);
           Assert(AcxGridDBBandedColumn <> nil);
           AcxGridDBBandedColumn.GroupIndex := 0;
           AcxGridDBBandedColumn.Visible := False;
@@ -419,7 +435,7 @@ begin
         end;
 
         if AErrorMessage <> '' then
-          Result.AddError(AFolder, AComponentsClone.FieldByName('Value')
+          Result.W.AddError(AFolder, AComponentsClone.FieldByName('Value')
             .AsString, AErrorMessage);
 
         AComponentsClone.Next;
@@ -462,10 +478,10 @@ const ANoRange: Boolean): TErrorLinkedDocTable;
     end;
 
     Result.Append;
-    Result.ComponentName.AsString :=
+    Result.W.ComponentName.F.AsString :=
       APossibleLinkDocTable.ComponentName.AsString;
-    Result.Folder.AsString := AFolder;
-    Result.ErrorMessage.AsString :=
+    Result.W.Folder.F.AsString := AFolder;
+    Result.W.ErrorMessage.F.AsString :=
       Format('Несколько возможных файлов (%s)', [S]);
     Result.Post;
   end;
@@ -614,44 +630,13 @@ end;
 constructor TAbsentDocTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('Folder', ftWideString, 100);
-  FieldDefs.Add('ComponentName', ftWideString, 100);
-  FieldDefs.Add('Description', ftWideString, 150);
+  FW := TAbsentDocTableW.Create(Self);
+  FieldDefs.Add(W.Folder.FieldName, ftWideString, 100);
+  FieldDefs.Add(W.ComponentName.FieldName, ftWideString, 100);
+  FieldDefs.Add(W.Description.FieldName, ftWideString, 150);
   CreateDataSet;
 
   Open;
-
-  Folder.DisplayLabel := 'Папка';
-  ComponentName.DisplayLabel := 'Имя компонента';
-  Description.DisplayLabel := 'Описание';
-end;
-
-procedure TAbsentDocTable.AddError(const AFolder, AComponentName,
-  AErrorMessage: string);
-begin
-  Assert(Active);
-
-  Append;
-  Folder.AsString := AFolder;
-  ComponentName.AsString := AComponentName;
-  // Error.AsString := ErrorMessage;
-  Description.AsString := AErrorMessage;
-  Post;
-end;
-
-function TAbsentDocTable.GetComponentName: TField;
-begin
-  Result := FieldByName('ComponentName');
-end;
-
-function TAbsentDocTable.GetFolder: TField;
-begin
-  Result := FieldByName('Folder');
-end;
-
-function TAbsentDocTable.GetDescription: TField;
-begin
-  Result := FieldByName('Description');
 end;
 
 constructor TDocFilesTable.Create(AOwner: TComponent);
@@ -769,31 +754,42 @@ end;
 constructor TErrorLinkedDocTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('ComponentName', ftWideString, 200);
-  FieldDefs.Add('Folder', ftWideString, 500);
-  FieldDefs.Add('ErrorMessage', ftWideString, 1000);
+  FW := TErrorLinkedDocTableW.Create(Self);
+
+  FieldDefs.Add(W.ComponentName.FieldName, ftWideString, 200);
+  FieldDefs.Add(W.Folder.FieldName, ftWideString, 500);
+  FieldDefs.Add(W.ErrorMessage.FieldName, ftWideString, 1000);
   CreateDataSet;
 
   Open;
-
-  Folder.DisplayLabel := 'Папка';
-  ComponentName.DisplayLabel := 'Имя компонента';
-  ErrorMessage.DisplayLabel := 'Сообщение об ошибке';
 end;
 
-function TErrorLinkedDocTable.GetComponentName: TField;
+constructor TErrorLinkedDocTableW.Create(AOwner: TComponent);
 begin
-  Result := FieldByName('ComponentName');
+  inherited;
+  FComponentName := TFieldWrap.Create(Self, 'ComponentName', 'Имя компонента');
+  FErrorMessage := TFieldWrap.Create(Self, 'ErrorMessage', 'Сообщение об ошибке');
+  FFolder := TFieldWrap.Create(Self, 'Folder', 'Папка');
 end;
 
-function TErrorLinkedDocTable.GetFolder: TField;
+constructor TAbsentDocTableW.Create(AOwner: TComponent);
 begin
-  Result := FieldByName('Folder');
+  inherited;
+  FComponentName := TFieldWrap.Create(Self, 'ComponentName', 'Имя компонента');
+  FDescription := TFieldWrap.Create(Self, 'Description', 'Описание');
+  FFolder := TFieldWrap.Create(Self, 'Folder', 'Папка');
 end;
 
-function TErrorLinkedDocTable.GetErrorMessage: TField;
+procedure TAbsentDocTableW.AddError(const AFolder, AComponentName,
+    AErrorMessage: string);
 begin
-  Result := FieldByName('ErrorMessage');
+  Assert(Active);
+
+  TryAppend;
+  Folder.F.AsString := AFolder;
+  ComponentName.F.AsString := AComponentName;
+  Description.F.AsString := AErrorMessage;
+  TryPost;
 end;
 
 end.

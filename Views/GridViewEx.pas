@@ -28,7 +28,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, System.ImageList, Vcl.ImgList, Vcl.ExtCtrls,
   NotifyEvents, cxDataControllerConditionalFormattingRulesManagerDialog,
-  dxBarBuiltInMenu, cxImageList;
+  dxBarBuiltInMenu, cxImageList, dxDateRanges;
 
 const
   WM_ON_UPDATE_DATA = WM_USER + 125;
@@ -42,15 +42,19 @@ type
     procedure UpdateDataTimerTimer(Sender: TObject);
   private
     FApplyBestFitOnUpdateData: Boolean;
-    FDataSet: TDataSet;
+    // TODO: FOnAssignDataSet
+    /// / TODO: FDataSet
+    /// /  FDataSet: TDataSet;
     FOnAssignDataSet: TNotifyEventsEx;
     FOnUpdateDataPost: Boolean;
-    procedure SetDataSet(const Value: TDataSet);
+    // TODO: SetDataSet
+    // procedure SetDataSet(const Value: TDataSet);
     { Private declarations }
   protected
-    procedure AssignDataSet; virtual;
+    // TODO: AssignDataSet
+    // procedure AssignDataSet; virtual;
     procedure DoOnUpdateData(var Message: TMessage); message WM_ON_UPDATE_DATA;
-    procedure InitColumns; virtual;
+    procedure InitColumns(AView: TcxGridDBBandedTableView); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -58,7 +62,9 @@ type
     procedure UpdateView; override;
     property ApplyBestFitOnUpdateData: Boolean read FApplyBestFitOnUpdateData
       write FApplyBestFitOnUpdateData;
-    property DataSet: TDataSet read FDataSet write SetDataSet;
+    // TODO: OnAssignDataSet
+    /// / TODO: DataSet
+    /// /  property DataSet: TDataSet read FDataSet write SetDataSet;
     property OnAssignDataSet: TNotifyEventsEx read FOnAssignDataSet;
     { Public declarations }
   end;
@@ -80,19 +86,20 @@ begin
   inherited;
 end;
 
-procedure TViewGridEx.AssignDataSet;
-begin
-  inherited;
-  DataSource.DataSet := FDataSet;
-  // Подключаем представление к данным
-  MainView.DataController.DataSource := DataSource;
-  InitColumns;
-  MyCreateColumnsBarButtons;
-
-  MyApplyBestFit;
-  UpdateStatusBar;
-  UpdateView;
-end;
+// TODO: AssignDataSet
+// procedure TViewGridEx.AssignDataSet;
+// begin
+// inherited;
+// DataSource.DataSet := FDataSet;
+/// / Подключаем представление к данным
+// MainView.DataController.DataSource := DataSource;
+// InitColumns;
+// MyCreateColumnsBarButtons;
+//
+// MyApplyBestFit;
+// UpdateStatusBar;
+// UpdateView;
+// end;
 
 procedure TViewGridEx.DataSourceUpdateData(Sender: TObject);
 begin
@@ -111,27 +118,28 @@ begin
   FOnUpdateDataPost := False;
 end;
 
-procedure TViewGridEx.InitColumns;
+procedure TViewGridEx.InitColumns(AView: TcxGridDBBandedTableView);
 begin
-  MainView.DataController.CreateAllItems(True);
-end;
-
-procedure TViewGridEx.SetDataSet(const Value: TDataSet);
-begin
-  if FDataSet = Value then
-    Exit;
-
-  FDataSet := Value;
-  if FDataSet <> nil then
-  begin
-    AssignDataSet;
-  end
-  else
-  begin
-    DataSource.DataSet := nil;
-  end;
   FOnAssignDataSet.CallEventHandlers(Self);
 end;
+
+// TODO: SetDataSet
+// procedure TViewGridEx.SetDataSet(const Value: TDataSet);
+// begin
+// if FDataSet = Value then
+// Exit;
+//
+// FDataSet := Value;
+// if FDataSet <> nil then
+// begin
+// AssignDataSet;
+// end
+// else
+// begin
+// DataSource.DataSet := nil;
+// end;
+// FOnAssignDataSet.CallEventHandlers(Self);
+// end;
 
 procedure TViewGridEx.UpdateDataTimerTimer(Sender: TObject);
 begin
@@ -142,14 +150,15 @@ end;
 
 procedure TViewGridEx.UpdateStatusBar;
 begin
-  if (DataSet <> nil) and (DataSet.Active) then
+  if (DSWrap <> nil) and (DSWrap.DataSet.Active) then
     StatusBar.Panels[0].Text := Format('Всего записей: %d',
-      [DataSet.RecordCount]);
+      [DSWrap.DataSet.RecordCount]);
 end;
 
 procedure TViewGridEx.UpdateView;
 begin
-  actExportToExcel.Enabled := (DataSet <> nil) and (DataSet.RecordCount > 0);
+  actExportToExcel.Enabled := (DSWrap <> nil) and
+    (DSWrap.DataSet.RecordCount > 0);
 end;
 
 end.

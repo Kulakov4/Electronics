@@ -27,18 +27,67 @@ uses
   Vcl.ComCtrls, cxGridLevel, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  cxImageList;
+  cxImageList, dxDateRanges, AnalogQueryes;
 
 type
   TViewGridPopupAnalog = class(TViewGridEx)
   private
+    function GetclChecked: TcxGridDBBandedColumn;
+    function GetclValue: TcxGridDBBandedColumn;
+    function GetW: TParameterValuesTableW;
+    procedure SetW(const Value: TParameterValuesTableW);
     { Private declarations }
+  protected
+    procedure InitColumns(AView: TcxGridDBBandedTableView); override;
   public
+    property clChecked: TcxGridDBBandedColumn read GetclChecked;
+    property clValue: TcxGridDBBandedColumn read GetclValue;
+    property W: TParameterValuesTableW read GetW write SetW;
     { Public declarations }
   end;
 
 implementation
 
+uses
+  cxCheckBox, cxLabel;
+
 {$R *.dfm}
+
+function TViewGridPopupAnalog.GetclChecked: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.Checked.FieldName);
+end;
+
+function TViewGridPopupAnalog.GetclValue: TcxGridDBBandedColumn;
+begin
+  Result := MainView.GetColumnByFieldName(W.Value.FieldName);
+end;
+
+function TViewGridPopupAnalog.GetW: TParameterValuesTableW;
+begin
+  Result := DSWrap as TParameterValuesTableW;
+end;
+
+procedure TViewGridPopupAnalog.InitColumns(AView: TcxGridDBBandedTableView);
+var
+  AcxCheckBoxProperties: TcxCheckBoxProperties;
+begin
+  inherited;
+  clChecked.PropertiesClass := TcxCheckBoxProperties;
+  AcxCheckBoxProperties := clChecked.Properties as TcxCheckBoxProperties;
+  AcxCheckBoxProperties.ValueChecked := 1;
+  AcxCheckBoxProperties.ValueUnchecked := 0;
+  AcxCheckBoxProperties.ImmediatePost := True;
+
+  clValue.PropertiesClass := TcxLabelProperties;
+end;
+
+procedure TViewGridPopupAnalog.SetW(const Value: TParameterValuesTableW);
+begin
+  if DSWrap = Value then
+    Exit;
+
+  DSWrap := Value;
+end;
 
 end.

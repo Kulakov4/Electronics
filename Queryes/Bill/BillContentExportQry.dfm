@@ -54,13 +54,23 @@ inherited QryBillContentExport: TQryBillContentExport
       '       p.DescriptionID,'
       '       d.ComponentName DescriptionComponentName,'
       '       d.Description,'
-      '       case when pr.ID is null then 0 else 1 end Checked'
+      '       case when pr.ID is null then 0 else 1 end Checked,'
+      '       bcsum.SumSaleR'
       'from StorehouseProducts sp'
       'join Products2 p on sp.ProductId = p.id'
       'join BillContent bc on bc.StorehouseProductID = sp.Id'
       'join Bill b on bc.BillID = b.ID'
       'left join Products pr on p.Value = pr.Value'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
+      'JOIN'
+      '('
+      '           SELECT bc.BillID,'
+      
+        '                  sum(bc.CalcPriceR * bc.SaleCount * (1 + bc.Ret' +
+        'ail/100.0) ) SumSaleR-- '#1087#1088#1086#1076#1072#1078#1085#1072#1103' '#1094#1077#1085#1072' '#1074' '#1088#1091#1073'.'
+      '             FROM BillContent bc'
+      '            GROUP BY bc.BillID'
+      ') bcsum on bcsum.BillID = bc.billid'
       'order by BillNumber desc, p.Value')
   end
 end

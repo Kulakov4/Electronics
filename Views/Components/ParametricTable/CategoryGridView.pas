@@ -27,21 +27,21 @@ uses
   System.Actions, Vcl.ActnList, dxBar, cxClasses, Vcl.ComCtrls, cxGridLevel,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid,
-  ProductCategoriesMemTable, cxCheckBox;
+  ProductCategoriesMemTable, cxCheckBox, dxDateRanges;
 
 type
   TViewCategory = class(TfrmGrid)
   private
-    FProductCategoriesMemTbl: TProductCategoriesMemTbl;
     function GetclChecked: TcxGridDBBandedColumn;
-    procedure SetProductCategoriesMemTbl(const Value: TProductCategoriesMemTbl);
+    function GetW: TProductCategoriesW;
+    procedure SetW(const Value: TProductCategoriesW);
     { Private declarations }
   protected
-    procedure InitColumns; virtual;
+    procedure InitColumns(AView: TcxGridDBBandedTableView); override;
+    procedure InitView(AView: TcxGridDBBandedTableView); override;
   public
     property clChecked: TcxGridDBBandedColumn read GetclChecked;
-    property ProductCategoriesMemTbl: TProductCategoriesMemTbl
-      read FProductCategoriesMemTbl write SetProductCategoriesMemTbl;
+    property W: TProductCategoriesW read GetW write SetW;
     { Public declarations }
   end;
 
@@ -51,15 +51,16 @@ implementation
 
 function TViewCategory.GetclChecked: TcxGridDBBandedColumn;
 begin
-  Result := MainView.GetColumnByFieldName
-    (ProductCategoriesMemTbl.W.Checked.FieldName);
+  Result := MainView.GetColumnByFieldName(W.Checked.FieldName);
 end;
 
-procedure TViewCategory.InitColumns;
+function TViewCategory.GetW: TProductCategoriesW;
 begin
-  MainView.OptionsView.ColumnAutoWidth := False;
-  MainView.DataController.CreateAllItems(True);
+  Result := DSWrap as TProductCategoriesW;
+end;
 
+procedure TViewCategory.InitColumns(AView: TcxGridDBBandedTableView);
+begin
   clChecked.PropertiesClass := TcxCheckBoxProperties;
   (clChecked.Properties as TcxCheckBoxProperties).ValueChecked := 1;
   (clChecked.Properties as TcxCheckBoxProperties).ValueUnchecked := 0;
@@ -68,22 +69,18 @@ begin
   MyApplyBestFit;
 end;
 
-procedure TViewCategory.SetProductCategoriesMemTbl
-  (const Value: TProductCategoriesMemTbl);
+procedure TViewCategory.InitView(AView: TcxGridDBBandedTableView);
 begin
-  if FProductCategoriesMemTbl = Value then
+  inherited;
+  AView.OptionsView.ColumnAutoWidth := False;
+end;
+
+procedure TViewCategory.SetW(const Value: TProductCategoriesW);
+begin
+  if DSWrap = Value then
     Exit;
 
-  FProductCategoriesMemTbl := Value;
-
-  if FProductCategoriesMemTbl = nil then
-  begin
-    MainView.DataController.DataSource := nil;
-    Exit;
-  end;
-
-  MainView.DataController.DataSource := FProductCategoriesMemTbl.W.DataSource;
-  InitColumns;
+  DSWrap := Value;
 end;
 
 end.

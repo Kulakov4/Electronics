@@ -58,7 +58,7 @@ begin
       if not e.ExcelTable.SkipAllActionCaption.IsEmpty then
         AfrmError.actSkip.Caption := e.ExcelTable.SkipAllActionCaption;
 
-      AfrmError.ViewGridEx.DataSet := e.ExcelTable.Errors;
+      AfrmError.ViewGridEx.DSWrap := e.ExcelTable.Errors.W;
       // Показываем ошибки
       OK := AfrmError.ShowModal = mrOk;
       if OK then

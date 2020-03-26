@@ -29,7 +29,8 @@ uses
   cxGridDBBandedTableView, cxGrid, ParameterPosQuery, DragHelper, cxCheckBox,
   CategoryParametersQuery2, CategoryParametersGroupUnit2,
   SearchParamSubParamQuery, Vcl.Grids, Vcl.DBGrids,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  dxDateRanges;
 
 type
   TViewCategoryParameters = class(TfrmGrid)
@@ -739,7 +740,7 @@ begin
       EndUpdate;
     end;
     MainView.ViewData.Collapse(True);
-    FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
+//    FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
     MyApplyBestFit;
 
     TNotifyEventWrap.Create(FCatParamsGroup.BeforeUpdateData,

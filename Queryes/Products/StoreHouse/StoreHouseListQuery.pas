@@ -92,7 +92,6 @@ procedure TQueryStoreHouseList.FDQueryDeleteError(DataSet: TDataSet;
   E: EDatabaseError; var Action: TDataAction);
 var
   ASQLiteNativeException: ESQLiteNativeException;
-  S: string;
 begin
   inherited;
   if not(E is ESQLiteNativeException) then

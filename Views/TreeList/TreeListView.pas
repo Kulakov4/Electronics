@@ -205,7 +205,7 @@ begin
       AfrmGridView := TfrmGridView2.Create(Self);
       try
         AfrmGridView.Caption := 'Добавленные категории';
-        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ViewGridEx.DSWrap := AQueryRecursiveTree.W;
         AfrmGridView.ShowModal;
       finally
         FreeAndNil(AfrmGridView);
@@ -220,7 +220,7 @@ begin
       try
         AfrmGridView.Caption := 'Удаление категорий';
         AfrmGridView.cxbtnOK.Caption := 'Удалить';
-        AfrmGridView.ViewGridEx.DataSet := AQueryRecursiveTree.FDQuery;
+        AfrmGridView.ViewGridEx.DSWrap := AQueryRecursiveTree.W;
         OK := AfrmGridView.ShowModal = mrOk;
       finally
         FreeAndNil(AfrmGridView);

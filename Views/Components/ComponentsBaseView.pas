@@ -220,7 +220,7 @@ type
       message WM_UPDATE_DETAIL_COLUMNS_WIDTH;
     function ExpandDetail: TcxGridDBBandedTableView;
     procedure InitBands;
-    procedure InitColumns; virtual;
+    procedure InitComponentsColumns; virtual;
     procedure InitView(AView: TcxGridDBBandedTableView); override;
     procedure InternalRefreshData; override;
     procedure MyDelete; override;
@@ -808,7 +808,7 @@ begin
     end;
   end;
 
-  InitColumns;
+  InitComponentsColumns;
   InitBands;
 end;
 
@@ -1324,7 +1324,7 @@ begin
   end;
 end;
 
-procedure TViewComponentsBase.InitColumns;
+procedure TViewComponentsBase.InitComponentsColumns;
 var
   ACol: TcxGridDBBandedColumn;
   AColBtn: TColBtn;

@@ -6,17 +6,18 @@ uses
   CategoryParametersGroupUnit2, DBRecordHolder,
   FireDAC.Comp.Client, QueryGroupUnit2, System.Classes,
   UniqueParameterValuesQuery, Data.DB, System.Generics.Collections,
-  TableWithProgress;
+  TableWithProgress, DSWrap;
 
 type
-  TParameterValuesTable = class(TTableWithProgress)
+  TParameterValuesTableW = class(TDSWrap)
   private
+    FID: TFieldWrap;
+    FValue: TFieldWrap;
+    FChecked: TFieldWrap;
     FDefaultCheckedValues: string;
     procedure CheckNearNumerical;
     procedure CheckNearSubStr;
-    function GetChecked: TField;
-    function GetID: TField;
-    function GetValue: TField;
+    procedure FilterChecked;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AppendRec(const AID: Integer; const AValue: string);
@@ -28,11 +29,19 @@ type
       const AQuote: Char): String;
     procedure SetAsDefaultValues;
     procedure UncheckAll;
-    property Checked: TField read GetChecked;
+    property ID: TFieldWrap read FID;
+    property Value: TFieldWrap read FValue;
+    property Checked: TFieldWrap read FChecked;
     property DefaultCheckedValues: string read FDefaultCheckedValues
       write FDefaultCheckedValues;
-    property ID: TField read GetID;
-    property Value: TField read GetValue;
+  end;
+
+  TParameterValuesTable = class(TTableWithProgress)
+  private
+    FW: TParameterValuesTableW;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property W: TParameterValuesTableW read FW;
   end;
 
   TParamValues = class(TObject)
@@ -65,10 +74,13 @@ type
     FProductCategoryID: Integer;
     FqUniqueParameterValues: TQueryUniqueParameterValues;
     FTempTableName: String;
+    FW: TDSWrap;
 
   const
     FFieldPrefix: string = 'Field';
     { Private declarations }
+  protected
+    property FDMemTable: TFDMemTable read FFDMemTable;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -84,11 +96,11 @@ type
     property AllParameterFields: TDictionary<Integer, String>
       read FAllParameterFields;
     property CatParamsGroup: TCategoryParametersGroup2 read FCatParamsGroup;
-    property FDMemTable: TFDMemTable read FFDMemTable;
     property ParamValuesList: TParamValuesList read FParamValuesList;
     property qUniqueParameterValues: TQueryUniqueParameterValues
       read FqUniqueParameterValues;
     property TempTableName: String read FTempTableName;
+    property W: TDSWrap read FW;
     { Public declarations }
   end;
 
@@ -139,6 +151,7 @@ begin
   FAllParameterFields := TDictionary<Integer, String>.Create;
   FParamSubParamIDDic := TDictionary<String, Integer>.Create;
   FTempTableName := 'search_analog_temp_table';
+  FW := TDSWrap.Create(FDMemTable);
 end;
 
 destructor TAnalogGroup.Destroy;
@@ -164,13 +177,13 @@ begin
   // Цикл по всем отфильтрованным значениям параметров
   for AParamValues in ParamValuesList do
   begin
-    ACheckedValues := AParamValues.Table.GetCheckedValues(',', '''');
+    ACheckedValues := AParamValues.Table.W.GetCheckedValues(',', '''');
     // Если по этому параметру не надо фильтровать
     if ACheckedValues.IsEmpty then
       Continue;
 
     S := Q.GetSQL(AParamValues.ParamSubParamID,
-      AParamValues.Table.GetCheckedValues(',', ''''));
+      AParamValues.Table.W.GetCheckedValues(',', ''''));
 
     if not ASQL.IsEmpty then
       ASQL := ASQL + #13#10'intersect'#13#10;
@@ -214,7 +227,7 @@ begin
   // Цикл по всем значениям параметров
   for AParamValues in ParamValuesList do
   begin
-    AParamValues.Table.CheckDefault;
+    AParamValues.Table.W.CheckDefault;
     UpdateParameterValues(AParamValues.ParamSubParamID);
   end;
 end;
@@ -226,7 +239,7 @@ begin
   // Цикл по всем значениям параметров
   for AParamValues in ParamValuesList do
   begin
-    AParamValues.Table.CheckNear(AParamValues.ParameterKindID);
+    AParamValues.Table.W.CheckNear(AParamValues.ParameterKindID);
     UpdateParameterValues(AParamValues.ParamSubParamID);
   end;
 end;
@@ -240,7 +253,7 @@ begin
   AParamValues := ParamValuesList.FindByParamSubParamID(AParamSubParamID);
   Assert(AParamValues <> nil);
 
-  AParamValues.Table.UncheckAll;
+  AParamValues.Table.W.UncheckAll;
 
   Assert(AllParameterFields.ContainsKey(AParamSubParamID));
 
@@ -320,7 +333,7 @@ begin
 
       for i := 0 to ASortList.Count - 1 do
       begin
-        AParamValues.Table.AppendRec(i, ASortList[i]);
+        AParamValues.Table.W.AppendRec(i, ASortList[i]);
       end;
 
       ParamValuesList.Add(AParamValues);
@@ -352,10 +365,10 @@ begin
       F.Value := ARecHolder.Items[i].Value;
       AParamSubParamID := GetParamSubParamIDByFieldName(F.FieldName);
       AParamValues := ParamValuesList.FindByParamSubParamID(AParamSubParamID);
-      AParamValues.Table.CheckRecords(F.Value);
+      AParamValues.Table.W.CheckRecords(F.Value);
 
       // Запоминаем эти значения для поиска полного аналога
-      AParamValues.Table.DefaultCheckedValues := F.Value;
+      AParamValues.Table.W.DefaultCheckedValues := F.Value;
     end;
 
     FDMemTable.Post;
@@ -373,7 +386,7 @@ begin
   // Цикл по всем значениям параметров
   for AParamValues in ParamValuesList do
   begin
-    AParamValues.Table.SetAsDefaultValues;
+    AParamValues.Table.W.SetAsDefaultValues;
   end;
 end;
 
@@ -386,7 +399,7 @@ begin
   AParamValues := ParamValuesList.FindByParamSubParamID(AParamSubParamID);
   Assert(AParamValues <> nil);
 
-  AValues := AParamValues.Table.GetCheckedValues(#13#10, #0);
+  AValues := AParamValues.Table.W.GetCheckedValues(#13#10, #0);
 
   Assert(AllParameterFields.ContainsKey(AParamSubParamID));
 
@@ -398,33 +411,42 @@ end;
 constructor TParameterValuesTable.Create(AOwner: TComponent);
 begin
   inherited;
-  FieldDefs.Add('ID', ftInteger, 0, True);
-  FieldDefs.Add('Checked', ftInteger, 0, True);
-  FieldDefs.Add('Value', ftWideString, 200, True);
+  FW := TParameterValuesTableW.Create(Self);
+
+  FieldDefs.Add(W.ID.FieldName, ftInteger, 0, True);
+  FieldDefs.Add(W.Checked.FieldName, ftInteger, 0, True);
+  FieldDefs.Add(W.Value.FieldName, ftWideString, 200, True);
 
   CreateDataSet;
-  ID.Visible := False;
 end;
 
-procedure TParameterValuesTable.AppendRec(const AID: Integer;
+constructor TParameterValuesTableW.Create(AOwner: TComponent);
+begin
+  inherited;
+  FID := TFieldWrap.Create(Self, 'ID', '', True);
+  FValue := TFieldWrap.Create(Self, 'Value', 'Значение');
+  FChecked := TFieldWrap.Create(Self, 'Checked', 'X');
+end;
+
+procedure TParameterValuesTableW.AppendRec(const AID: Integer;
   const AValue: string);
 begin
   Assert(not AValue.IsEmpty);
 
-  Append;
-  ID.AsInteger := AID;
-  Checked.AsInteger := 0;
-  Value.AsString := AValue;
-  Post;
+  TryAppend;
+  ID.F.AsInteger := AID;
+  Checked.F.AsInteger := 0;
+  Value.F.AsString := AValue;
+  TryPost;
 end;
 
-procedure TParameterValuesTable.CheckDefault;
+procedure TParameterValuesTableW.CheckDefault;
 begin
   UncheckAll;
   CheckRecords(FDefaultCheckedValues);
 end;
 
-procedure TParameterValuesTable.CheckNear(AParameterKindID: Integer);
+procedure TParameterValuesTableW.CheckNear(AParameterKindID: Integer);
 begin
   Assert(AParameterKindID > Integer(Неиспользуется));
   Assert(AParameterKindID <= Integer(Строковый_частичный));
@@ -441,13 +463,13 @@ begin
   end;
 end;
 
-procedure TParameterValuesTable.CheckNearNumerical;
+procedure TParameterValuesTableW.CheckNearNumerical;
 var
   AID: Integer;
   i: Integer;
 begin
   // Выделяет галочками ближайшие значения
-  DisableControls;
+  DataSet.DisableControls;
   try
     CheckDefault;
     AID := 0;
@@ -457,25 +479,25 @@ begin
     begin
       // Переходим к следующей записи
       Inc(i);
-      RecNo := i;
-      if Checked.AsInteger = 0 then
+      DataSet.RecNo := i;
+      if Checked.F.AsInteger = 0 then
         Continue;
 
       // Отмечаем предшествующую запись
       if i > 1 then
       begin
-        RecNo := i - 1;
+        DataSet.RecNo := i - 1;
         CheckRecord(True);
       end;
 
       // Отмечаем следующую запись
       if i < RecordCount then
       begin
-        RecNo := i + 1;
+        DataSet.RecNo := i + 1;
         CheckRecord(True);
       end;
 
-      AID := ID.AsInteger;
+      AID := ID.F.AsInteger;
 
       // Пропускаем одну запись
       Inc(i);
@@ -483,14 +505,14 @@ begin
 
     // Переходим на последнюю отмеченную запись
     if AID > 0 then
-      LocateEx(ID.FieldName, AID, []);
+      ID.Locate(AID, [])
   finally
-    EnableControls;
+    DataSet.EnableControls;
   end;
 
 end;
 
-procedure TParameterValuesTable.CheckNearSubStr;
+procedure TParameterValuesTableW.CheckNearSubStr;
 var
   i: Integer;
   m: TArray<string>;
@@ -503,48 +525,47 @@ begin
   m := FDefaultCheckedValues.Split([#13]);
 
   // Выделяет галочками строки содержащие выбранные
-  DisableControls;
+  DataSet.DisableControls;
   try
     CheckDefault;
-    First;
-    while not Eof do
+    DataSet.First;
+    while not DataSet.Eof do
     begin
-      if Checked.AsInteger = 0 then
+      if Checked.F.AsInteger = 0 then
       begin
         // Цикл по всем подстрокам
         for i := Low(m) to High(m) do
         begin
           S := m[i].Trim([#10, ' ']).ToUpperInvariant;
-          V := Value.AsString.ToUpperInvariant;
+          V := Value.F.AsString.ToUpperInvariant;
           // Нашли подстроку
           if V.IndexOf(S) >= 0 then
             CheckRecord(True);
         end;
       end;
-      Next;
+      DataSet.Next;
     end;
 
   finally
-    EnableControls;
+    DataSet.EnableControls;
   end;
 
 end;
 
-procedure TParameterValuesTable.CheckRecord(const AChecked: Boolean);
+procedure TParameterValuesTableW.CheckRecord(const AChecked: Boolean);
 begin
-  Edit;
-  Checked.AsInteger := IfThen(AChecked, 1, 0);
-  Post;
+  TryEdit;
+  Checked.F.AsInteger := IfThen(AChecked, 1, 0);
+  TryPost;
 end;
 
-procedure TParameterValuesTable.CheckRecords(const AValues: string);
+procedure TParameterValuesTableW.CheckRecords(const AValues: string);
 var
   i: Integer;
   m: TArray<String>;
-  OK: Boolean;
   S: string;
 begin
-  DisableControls;
+  DataSet.DisableControls;
   try
     m := AValues.Split([#13, #10]);
     for i := Low(m) to High(m) do
@@ -552,85 +573,71 @@ begin
       S := m[i].Trim([#13, #10, ' ']);
       if S.IsEmpty then
         Continue;
-
-      OK := LocateEx(Value.FieldName, S, []);
-      Assert(OK);
+      Value.Locate(S, [], True);
       CheckRecord(True);
     end;
   finally
-    EnableControls;
+    DataSet.EnableControls;
   end;
 end;
 
-function TParameterValuesTable.GetChecked: TField;
+procedure TParameterValuesTableW.FilterChecked;
 begin
-  Result := FieldByName('Checked');
+  DataSet.Filter := Format('%s = 1', [Checked.FieldName]);
+  DataSet.Filtered := True;
 end;
 
-function TParameterValuesTable.GetCheckedValues(const ADelimiter: string;
+function TParameterValuesTableW.GetCheckedValues(const ADelimiter: string;
   const AQuote: Char): String;
 var
   AClone: TFDMemTable;
+  ACloneWrap: TParameterValuesTableW;
   AQuoteStr: string;
 begin
   Assert(not ADelimiter.IsEmpty);
 
-  if State in [dsEdit, dsInsert] then
-    Post;
+  TryPost;
 
   AQuoteStr := IfThen(AQuote = #0, '', AQuote);
 
-  AClone := TFDMemTable.Create(Self);
+  AClone := AddClone('');
   try
-    AClone.CloneCursor(Self);
-    AClone.Filter := Format('%s=1', [Checked.FieldName]);
-    AClone.Filtered := True;
-    AClone.First;
+    ACloneWrap := TParameterValuesTableW.Create(AClone);
+    ACloneWrap.FilterChecked;
+
     Result := '';
     while not AClone.Eof do
     begin
-      if not Result.IsEmpty then
-        Result := Result + ADelimiter;
-
+      Result := Result + IfThen(Result.IsEmpty, '', ADelimiter);
       Result := Format('%s%s%s%s', [Result, AQuoteStr,
-        AClone.FieldByName(Value.FieldName).AsString, AQuoteStr]);
+        ACloneWrap.Value.F.AsString, AQuoteStr]);
 
       AClone.Next;
     end;
   finally
-    FreeAndNil(AClone);
+    DropClone(AClone);
   end;
 end;
 
-function TParameterValuesTable.GetID: TField;
-begin
-  Result := FieldByName('ID');
-end;
-
-function TParameterValuesTable.GetValue: TField;
-begin
-  Result := FieldByName('Value');
-end;
-
-procedure TParameterValuesTable.SetAsDefaultValues;
+procedure TParameterValuesTableW.SetAsDefaultValues;
 begin
   // Делаем выбранные сейчас значения - значениями по умолчанию
   FDefaultCheckedValues := GetCheckedValues(#13#10, #0)
 end;
 
-procedure TParameterValuesTable.UncheckAll;
+procedure TParameterValuesTableW.UncheckAll;
 begin
-  DisableControls;
+  DataSet.DisableControls;
   try
-    First;
-    while not Eof do
+    DataSet.First;
+    while not DataSet.Eof do
     begin
-      if Checked.AsInteger = 1 then
+      if Checked.F.AsInteger = 1 then
         CheckRecord(False);
-      Next;
+      DataSet.Next;
     end;
   finally
-    EnableControls;
+    DataSet.EnableControls;
   end;
 end;
 

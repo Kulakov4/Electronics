@@ -47,7 +47,7 @@ type
 implementation
 
 uses
-  NotifyEvents;
+  NotifyEvents, ParametricErrorTable;
 
 {$R *.dfm}
 
@@ -71,8 +71,8 @@ end;
 
 procedure TfrmParametricTableError.DoOnAssignDataSet(Sender: TObject);
 begin
-  TNotifyEventWrap.Create(FViewParametricTableError.ParametricErrorTable.W.
-    OnFixError, DoOnFixError, FEvents);
+  TNotifyEventWrap.Create(FViewParametricTableError.W.OnFixError,
+    DoOnFixError, FEvents);
   UpdateView;
 end;
 
@@ -86,9 +86,9 @@ begin
   // Кнопка "Далее" активна,
   // если в списке ошибок нет ошибок связанных с дублированием параметра
 
-  cxButtonNext.Enabled := (FViewParametricTableError.ParametricErrorTable <>
-    nil) and (FViewParametricTableError.ParametricErrorTable.
-    ParamDuplicateClone.RecordCount = 0);
+  cxButtonNext.Enabled := (FViewParametricTableError.DSWrap <> nil) and
+    ((FViewParametricTableError.W.DataSet as TParametricErrorTable)
+    .ParamDuplicateClone.RecordCount = 0);
 end;
 
 end.

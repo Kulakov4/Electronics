@@ -33,7 +33,7 @@ uses
   CustomErrorForm, NaturalSort, DocFieldInfo, cxEditRepositoryItems,
   JEDECPopupForm, BodyVariationsJedecQuery, BodyTypesGroupUnit2,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  cxBarEditItem, cxColorComboBox, dxColorDialog, cxLocalization;
+  cxBarEditItem, cxColorComboBox, dxColorDialog, cxLocalization, dxDateRanges;
 
 const
   WM_SEARCH_EDIT_ENTER = WM_USER + 13;
@@ -171,6 +171,7 @@ type
     FfrmJEDECPopup: TfrmJEDECPopup;
     FHRTimer: THRTimer;
     FNaturalStringComparer: TNaturalStringComparer;
+    FSortSL: TList<String>;
 
   const
     FolderKey: String = 'BodyTypes';
@@ -194,6 +195,7 @@ type
     procedure UploadDoc(ADocFieldInfo: TDocFieldInfo);
     procedure UploadJEDEC(Add: Boolean);
     property frmJEDECPopup: TfrmJEDECPopup read GetfrmJEDECPopup;
+    property SortSL: TList<String> read FSortSL;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -244,12 +246,14 @@ begin
   ApplyBestFitForDetail := True;
 
   LocalizeDevExpress;
+  FSortSL := TList<String>.Create;
 end;
 
 destructor TViewBodyTypes.Destroy;
 begin
   FreeAndNil(FNaturalStringComparer);
   FreeAndNil(FDragAndDropInfo);
+  FreeAndNil(FSortSL);
   inherited;
 end;
 

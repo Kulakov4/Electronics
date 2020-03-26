@@ -36,7 +36,7 @@ uses
   BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
   CategoryParametersQuery2, cxCheckBox, cxBarEditItem,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  BaseComponentsGroupUnit2, DSWrap;
+  BaseComponentsGroupUnit2, DSWrap, dxDateRanges;
 
 type
   TParametricTableLockInfo = class
@@ -153,6 +153,7 @@ type
     FMark: string;
     FColMoveArray: TArray<TPair<Integer, Integer>>;
     FLockInfo: TParametricTableLockInfo;
+    FSortSL: TList<String>;
     procedure CreateColumn(AViewArray: TArray<TcxGridDBBandedTableView>;
       AIDList: TArray<Integer>;
       qCategoryParameters: TQueryCategoryParameters2); overload;
@@ -204,7 +205,7 @@ type
     procedure DropColumn(AIDCategoryParam: Integer);
     function GetBandCaption(qryCategoryParameters
       : TQueryCategoryParameters2): string;
-    procedure InitColumns; override;
+    procedure InitComponentsColumns; override;
     procedure InitializeBandInfo(ABandInfo: TBandInfoEx;
       const AIDList: TArray<Integer>;
       qCategoryParameters2: TQueryCategoryParameters2);
@@ -222,6 +223,7 @@ type
     procedure UpdateGeneralIndexes;
     property qCategoryParameters: TQueryCategoryParameters2
       read GetqCategoryParameters;
+    property SortSL: TList<String> read FSortSL;
     property UseTableName: Boolean read GetUseTableName write SetUseTableName;
   public
     constructor Create(AOwner: TComponent); override;
@@ -295,6 +297,7 @@ begin
   FColumnsInfo := TColumnsInfo.Create;
 
   ApplyBestFitMultiLine := True;
+  FSortSL := TList<String>.Create;
 end;
 
 destructor TViewParametricTable.Destroy;
@@ -317,6 +320,8 @@ begin
   FreeAndNil(FColumnsInfo);
 
   FreeAndNil(FLockInfo);
+
+  FreeAndNil(FSortSL);
 
   inherited;
 end;
@@ -882,7 +887,7 @@ begin
   Application.Hint := '';
   AfrmGridView := TfrmGridView2.Create(Self);
   try
-    AfrmGridView.ViewGridEx.DataSet := qCategoryParameters.FDQuery;
+    AfrmGridView.ViewGridEx.DSWrap := qCategoryParameters.Wrap;
     AfrmGridView.ShowModal;
   finally
     FreeAndNil(AfrmGridView);
@@ -1823,7 +1828,7 @@ begin
   Result := b;
 end;
 
-procedure TViewParametricTable.InitColumns;
+procedure TViewParametricTable.InitComponentsColumns;
 var
   ACol: TcxGridDBBandedColumn;
   AView: TcxGridDBBandedTableView;

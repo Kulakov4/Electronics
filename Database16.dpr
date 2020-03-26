@@ -271,7 +271,8 @@ uses
   BaseProductsViewModel1 in 'Queryes\Products\BaseProductsViewModel1.pas',
   ProductsView in 'Views\Products\ProductsView.pas' {ViewProducts: TFrame},
   ProductsSearchView in 'Views\Products\ProductsSearchView.pas' {ViewProductsSearch: TFrame},
-  ProductsBasketView2 in 'Views\Products\ProductsBasketView2.pas' {ViewProductsBasket2: TFrame};
+  ProductsBasketView2 in 'Views\Products\ProductsBasketView2.pas' {ViewProductsBasket2: TFrame},
+  BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame};
 
 {$R *.res}
 

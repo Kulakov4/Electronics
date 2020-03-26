@@ -30,7 +30,7 @@ uses
   cxButtonEdit, ParametersForm, ParametricErrorTable, DialogUnit,
   ParametersGroupUnit2, System.UITypes,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  cxImageList;
+  cxImageList, dxDateRanges;
 
 type
   TViewParametricTableError = class(TViewGridEx)
@@ -38,11 +38,11 @@ type
     actFix: TAction;
     procedure actFixExecute(Sender: TObject);
   private
-    function GetParametricErrorTable: TParametricErrorTable;
+    function GetW: TParametricErrorTableW;
+    procedure SetW(const Value: TParametricErrorTableW);
     { Private declarations }
   public
-    property ParametricErrorTable: TParametricErrorTable
-      read GetParametricErrorTable;
+    property W: TParametricErrorTableW read GetW write SetW;
     { Public declarations }
   end;
 
@@ -62,7 +62,7 @@ var
   ErrMsg: String;
   PKFieldName: String;
 begin
-  Assert(ParametricErrorTable <> nil);
+  Assert(DSWrap <> nil);
   F := nil;
 
   AParametersGroup := TParametersGroup2.Create(nil);
@@ -78,7 +78,7 @@ begin
       AfrmParameters.ViewSubParameters.QuerySubParameters := AqSubParameters;
 
       OK := True;
-      case ParametricErrorTable.W.ErrorType.F.AsInteger of
+      case W.ErrorType.F.AsInteger of
         Integer(petNotUnique):
           begin
             OK := False;
@@ -95,11 +95,11 @@ begin
             ErrMsg := 'Табличное имя выбранного параметра не совпадает с заголовком в Excel файле';
             PKFieldName := AParametersGroup.qParameters.W.PKFieldName;
 
-            if ParametricErrorTable.W.ErrorType.F.AsInteger = Integer
+            if W.ErrorType.F.AsInteger = Integer
               (petParamDuplicate) then
             begin
               AfrmParameters.ViewParameters.Search
-                (ParametricErrorTable.W.ParameterName.F.AsString);
+                (W.ParameterName.F.AsString);
               AfrmParameters.ViewParameters.actDuplicate.Execute;
             end;
           end;
@@ -124,14 +124,14 @@ begin
         (F.DataSet.RecordCount = 0) then
         Exit;
 
-      if F.AsString <> ParametricErrorTable.W.ParameterName.F.AsString then
+      if F.AsString <> W.ParameterName.F.AsString then
       begin
         TDialog.Create.ErrorMessageDialog(ErrMsg);
         Exit;
       end;
 
       // Фиксим ошибку
-      ParametricErrorTable.W.Fix(F.DataSet.FieldByName(PKFieldName).AsInteger);
+      W.Fix(F.DataSet.FieldByName(PKFieldName).AsInteger);
 
     finally
       FreeAndNil(AfrmParameters);
@@ -142,13 +142,17 @@ begin
   end;
 end;
 
-function TViewParametricTableError.GetParametricErrorTable
-  : TParametricErrorTable;
+function TViewParametricTableError.GetW: TParametricErrorTableW;
 begin
-  if DataSet = nil then
-    Result := nil
-  else
-    Result := DataSet as TParametricErrorTable;
+  Result := DSWrap as TParametricErrorTableW;
+end;
+
+procedure TViewParametricTableError.SetW(const Value: TParametricErrorTableW);
+begin
+  if DSWrap = Value then
+    Exit;
+
+  DSWrap := Value;
 end;
 
 end.

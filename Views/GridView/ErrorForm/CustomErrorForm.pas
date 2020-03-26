@@ -86,8 +86,8 @@ end;
 
 function TfrmCustomError.GetErrorTable: TCustomErrorTable;
 begin
-  if ViewGridEx.DataSet <> nil then
-    Result := ViewGridEx.DataSet as TCustomErrorTable
+  if ViewGridEx.DSWrap <> nil then
+    Result := ViewGridEx.DsWrap.DataSet as TCustomErrorTable
   else
     Result := nil;
 end;
