@@ -272,7 +272,8 @@ uses
   ProductsView in 'Views\Products\ProductsView.pas' {ViewProducts: TFrame},
   ProductsSearchView in 'Views\Products\ProductsSearchView.pas' {ViewProductsSearch: TFrame},
   ProductsBasketView2 in 'Views\Products\ProductsBasketView2.pas' {ViewProductsBasket2: TFrame},
-  BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame};
+  BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
+  ColInfo in 'Helpers\ColInfo.pas';
 
 {$R *.res}
 

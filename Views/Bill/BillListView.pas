@@ -121,7 +121,7 @@ implementation
 uses
   GridSort, CreateBillForm, InsertEditMode, BillContentExportQuery, DialogUnit,
   SettingsController, System.IOUtils, BillContentExportForm,
-  ProducersGroupUnit2;
+  ProducersGroupUnit2, BillContentExportQry, BillContentExportView;
 
 {$R *.dfm}
 
@@ -183,38 +183,38 @@ var
   AFileName: String;
   AInitialFileName: string;
   AItemIndex: Integer;
-  AProducersGroup: TProducersGroup2;
   AProperties: TcxComboBoxProperties;
   AValue: string;
-  qBillContentExport: TQueryBillContentExport;
-//  AViewBillContentExport: TViewBillContentExport;
+//  qBillContentExport: TQueryBillContentExport;
+  qBillContentExport2: TQryBillContentExport;
+  AViewBillContentExport: TViewBillContentExport;
   D1: TDate;
   D2: TDate;
   S1: string;
   S2: string;
 
-  // AFrmBillContentExport: TFrmBillContentExport;
+  AFrmBillContentExport: TFrmBillContentExport;
 begin
   inherited;
 
   Application.Hint := '';
-  (*
-    qBillContentExport := TQueryBillContentExport.Create(Self);
-    AFrmBillContentExport := TFrmBillContentExport.Create(Self);
-    try
-    qBillContentExport.W.TryOpen;
+(*
+  qBillContentExport2 := TQryBillContentExport.Create(Self);
+  AFrmBillContentExport := TFrmBillContentExport.Create(Self);
+  try
+    qBillContentExport2.W.TryOpen;
 
     AFrmBillContentExport.ViewBillContentExport.Font.Assign(Font);
-    AFrmBillContentExport.ViewBillContentExport.QueryBillContentExport :=
-    qBillContentExport;
+    AFrmBillContentExport.ViewBillContentExport.W :=
+      qBillContentExport2.W;
     AFrmBillContentExport.ShowModal;
-    finally
+  finally
     AFrmBillContentExport.Free;
-    qBillContentExport.Free;
-    end;
+    qBillContentExport2.Free;
+  end;
 
-    Exit;
-    (* *)
+  Exit;
+  (* *)
 
   D2 := Date;
   D1 := Date;
@@ -276,34 +276,32 @@ begin
   TSettings.Create.SetFolderForExcelFile(KeyFolder,
     TPath.GetDirectoryName(AFileName));
 
-  AProducersGroup := TProducersGroup2.Create(Self);
-  qBillContentExport := TQueryBillContentExport.Create(Self, AProducersGroup);
-//  AViewBillContentExport := TViewBillContentExport.Create(Self);
+  qBillContentExport2 := TQryBillContentExport.Create(Self);
+  AViewBillContentExport := TViewBillContentExport.Create(Self);
   try
     // Фильтруем по периоду
-    qBillContentExport.SearchByPeriod(D1, D2);
+    qBillContentExport2.SearchByPeriod(D1, D2);
     // Фильтруем по виду отгрузки
     AProperties := TcxComboBoxProperties(cxbeiShippedComboBox.Properties);
     AValue := VarToStr(cxbeiShippedComboBox.EditValue);
     AItemIndex := AProperties.Items.IndexOf(AValue);
     case AItemIndex of
       0:
-        qBillContentExport.FDQuery.Filtered := False;
+        qBillContentExport2.FDQuery.Filtered := False;
       1:
-        qBillContentExport.ExportW.ApplyShipmentFilter; // Отгруженные
+        qBillContentExport2.W.ApplyShipmentFilter; // Отгруженные
       2:
-        qBillContentExport.ExportW.ApplyNotShipmentFilter; // Неотгруженные
+        qBillContentExport2.W.ApplyNotShipmentFilter; // Неотгруженные
     end;
 
-//    AViewBillContentExport.Font.Assign(Font);
-    qBillContentExport.W.TryOpen;
+    AViewBillContentExport.Font.Assign(Font);
+    qBillContentExport2.W.TryOpen;
 
-//    AViewBillContentExport.QueryBillContentExport := qBillContentExport;
-//    AViewBillContentExport.ExportToExcelDocument(AFileName);
+    AViewBillContentExport.W := qBillContentExport2.W;
+    AViewBillContentExport.Export(AFileName);
   finally
-//    FreeAndNil(AViewBillContentExport);
-    FreeAndNil(qBillContentExport);
-    FreeAndNil(AProducersGroup);
+    FreeAndNil(AViewBillContentExport);
+    FreeAndNil(qBillContentExport2);
   end;
 end;
 

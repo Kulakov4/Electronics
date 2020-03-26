@@ -11,6 +11,7 @@ object FrmBillContentExport: TFrmBillContentExport
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnShow = FormShow
   DesignSize = (
     635
     312)
@@ -32,5 +33,6 @@ object FrmBillContentExport: TFrmBillContentExport
     Height = 25
     Caption = 'Button1'
     TabOrder = 1
+    OnClick = Button1Click
   end
 end

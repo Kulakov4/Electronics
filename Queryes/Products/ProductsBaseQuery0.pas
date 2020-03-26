@@ -207,7 +207,7 @@ procedure TBaseProductsW.SetDisplayFormat(const AFields: Array of TField);
 var
   I: Integer;
 begin
-  Assert(High(AFields) > 0);
+  Assert(Length(AFields) > 0);
 
   for I := Low(AFields) to High(AFields) do
   begin

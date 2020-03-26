@@ -1703,7 +1703,7 @@ begin
     end;
   end
   else
-    AView.ApplyBestFit(nil, True, True);
+    AView.ApplyBestFit();
 
 end;
 

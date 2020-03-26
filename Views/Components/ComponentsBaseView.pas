@@ -32,7 +32,7 @@ uses
   CustomComponentsQuery, cxTextEdit, cxBlobEdit, cxRichEdit,
   DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit, ProjectConst,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  System.Contnrs, BaseComponentsGroupUnit2, DSWrap, dxDateRanges;
+  System.Contnrs, BaseComponentsGroupUnit2, DSWrap, dxDateRanges, ColInfo;
 
 const
   // WM_ON_DETAIL_EXPANDED = WM_USER + 57;
@@ -51,19 +51,6 @@ type
     property Col: TcxGridDBBandedColumn read FCol;
     property LoadAction: TAction read FLoadAction;
     property OpenAction: TAction read FOpenAction;
-  end;
-
-  TColInfo = class(TObject)
-  private
-    FBandCaption: String;
-    FBandIndex: Integer;
-    FFieldWrap: TFieldWrap;
-  public
-    constructor Create(AFieldWrap: TFieldWrap; ABandIndex: Integer;
-      ABandCaption: String = '');
-    property BandCaption: String read FBandCaption;
-    property BandIndex: Integer read FBandIndex;
-    property FieldWrap: TFieldWrap read FFieldWrap;
   end;
 
   TViewComponentsBase = class(TfrmGrid)
@@ -1843,14 +1830,6 @@ begin
   FCol := ACol;
   FOpenAction := AOpenAction;
   FLoadAction := ALoadAction;
-end;
-
-constructor TColInfo.Create(AFieldWrap: TFieldWrap; ABandIndex: Integer;
-  ABandCaption: String = '');
-begin
-  FFieldWrap := AFieldWrap;
-  FBandIndex := ABandIndex;
-  FBandCaption := ABandCaption;
 end;
 
 end.

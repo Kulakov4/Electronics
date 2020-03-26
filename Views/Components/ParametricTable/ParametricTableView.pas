@@ -36,7 +36,7 @@ uses
   BaseQuery, ParameterKindEnum, Vcl.Clipbrd, cxButtons,
   CategoryParametersQuery2, cxCheckBox, cxBarEditItem,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  BaseComponentsGroupUnit2, DSWrap, dxDateRanges;
+  BaseComponentsGroupUnit2, DSWrap, dxDateRanges, ColInfo;
 
 type
   TParametricTableLockInfo = class
