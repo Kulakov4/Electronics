@@ -84,6 +84,9 @@ begin
 
   DetailParameterName := W.BillID.FieldName;
   FAfterLoad := TNotifyEventsEx.Create(Self);
+
+  // Будем сами обновлять запись
+  FDQuery.OnUpdateRecord := DoOnQueryUpdateRecord;
 end;
 
 destructor TQueryBillContent.Destroy;

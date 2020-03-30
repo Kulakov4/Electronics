@@ -114,7 +114,7 @@ procedure TViewBillContentExport.cxGridDBBandedTableViewCustomDrawGroupCell
 var
   ARect: TRect;
   AText: string;
-  i: Integer;
+//  i: Integer;
 begin
   inherited;
   // Определяемся с тексом

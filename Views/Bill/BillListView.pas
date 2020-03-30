@@ -193,7 +193,7 @@ var
   S1: string;
   S2: string;
 
-  AFrmBillContentExport: TFrmBillContentExport;
+//AFrmBillContentExport: TFrmBillContentExport;
 begin
   inherited;
 

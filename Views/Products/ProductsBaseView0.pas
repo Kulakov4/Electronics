@@ -195,6 +195,7 @@ type
     procedure DoOnEuroCourceChange(Sender: TObject);
     procedure ClearSelectionAfterOpenOrRefresh(var Message: TMessage);
       message WM_AFTER_OPEN_OR_REFRESH;
+    procedure DoOnSelectionChange; virtual;
     function GetNodeID(ANode: TcxDBTreeListNode): TArray<Integer>;
     function GetW: TBaseProductsW; virtual;
     procedure InitializeColumns; override;
@@ -871,6 +872,11 @@ begin
   UpdateView;
 end;
 
+procedure TViewProductsBase0.DoOnSelectionChange;
+begin
+  UpdateSelectedCount;
+end;
+
 procedure TViewProductsBase0.EndUpdate;
 begin
   inherited;
@@ -1155,9 +1161,9 @@ begin
     Exit;
   end;
 
-  UpdateSelectedCount;
-  UpdateView;
+  DoOnSelectionChange;
 
+  UpdateView;
   FPostSelectionChanged := False;
 end;
 

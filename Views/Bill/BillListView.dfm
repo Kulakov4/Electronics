@@ -28,8 +28,8 @@ inherited ViewBill: TViewBill
       Top = 34
       Width = 138
       Height = 21
-      Date = 43802.711747812500000000
-      Time = 43802.711747812500000000
+      Date = 43802.000000000000000000
+      Time = 0.711747812500107100
       TabOrder = 0
     end
     object cxPopupBtnOK: TcxButton

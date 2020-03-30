@@ -57,6 +57,7 @@ type
     procedure UpdateAllBarComboText;
     { Private declarations }
   protected
+    procedure DoOnSelectionChange; override;
     procedure LoadWholeSale;
     procedure UpdateFieldValue(AFields: TArray<TField>;
       AValues: TArray<Variant>);
@@ -323,6 +324,12 @@ begin
     FResyncDataSetMessagePosted := True;
     PostMessage(Handle, WM_RESYNC_DATASET, 0, 0);
   end;
+end;
+
+procedure TViewProductsBase1.DoOnSelectionChange;
+begin
+  inherited;
+  UpdateAllBarComboText;
 end;
 
 procedure TViewProductsBase1.dxbcMinWholeSaleChange(Sender: TObject);
@@ -609,8 +616,8 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (cxDBTreeList.DataController.DataSource <> nil) and
-    (Model <> nil) and (Model.qProductsBase.FDQuery.Active) and IsViewOK and
+  OK := (cxDBTreeList.DataController.DataSource <> nil) and (Model <> nil) and
+    (Model.qProductsBase.FDQuery.Active) and IsViewOK and
     (cxDBTreeList.DataController.DataSet <> nil);
 
   actOpenInParametricTable.Enabled := OK and (cxDBTreeList.FocusedNode <> nil)
@@ -625,7 +632,8 @@ begin
     (cxDBTreeList.DataController.DataSet.RecordCount > 0);
 
   actCreateBill.Enabled := OK and (Model.qProductsBase.BasketW <> nil) and
-    (Model.qProductsBase.BasketW.RecordCount > 0) and (W.DataSet.State = dsBrowse);
+    (Model.qProductsBase.BasketW.RecordCount > 0) and
+    (W.DataSet.State = dsBrowse);
   { and (FqProductsBase.DollarCource > 0) and (FqProductsBase.EuroCource > 0) };
 
   actClearPrice.Enabled := OK and

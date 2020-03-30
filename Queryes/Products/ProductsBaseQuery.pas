@@ -1660,6 +1660,8 @@ procedure TProductW.InitFields;
 begin
   inherited;
 
+  SetDisplayFormat([SaleR.F, SaleD.F, SaleE.F]);
+
   SetInternalCalc([Markup.F, CalcPriceR.F, PriceD.F, PriceR.F, PriceE.F,
     PriceD1.F, PriceR1.F, PriceE1.F, PriceD2.F, PriceR2.F, PriceE2.F, SaleR.F,
     SaleD.F, SaleE.F]);
