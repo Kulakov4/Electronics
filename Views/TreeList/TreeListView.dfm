@@ -13,7 +13,6 @@ inherited ViewTreeList: TViewTreeList
     OptionsBehavior.CellHints = False
     OptionsBehavior.ImmediateEditor = False
     OptionsBehavior.BestFitMaxRecordCount = 10
-    OptionsBehavior.CopyCaptionsToClipboard = False
     OptionsBehavior.DragDropText = True
     OptionsBehavior.ExpandOnIncSearch = True
     OptionsBehavior.IncSearch = True
@@ -86,7 +85,6 @@ inherited ViewTreeList: TViewTreeList
     Control = pnlBottom
     OnAfterOpen = cxSplitterAfterOpen
     OnAfterClose = cxSplitterAfterClose
-    ExplicitWidth = 8
   end
   inherited dxBarManager: TdxBarManager
     ShowHint = False

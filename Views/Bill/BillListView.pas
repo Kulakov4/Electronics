@@ -121,7 +121,8 @@ implementation
 uses
   GridSort, CreateBillForm, InsertEditMode, BillContentExportQuery, DialogUnit,
   SettingsController, System.IOUtils, BillContentExportForm,
-  ProducersGroupUnit2, BillContentExportQry, BillContentExportView;
+  ProducersGroupUnit2, BillContentExportQry, BillContentExportView,
+  ExcelDataModule;
 
 {$R *.dfm}
 
@@ -299,6 +300,8 @@ begin
 
     AViewBillContentExport.W := qBillContentExport2.W;
     AViewBillContentExport.Export(AFileName);
+    // Делаем заморозку заголовка
+    TExcelDM.FreezePanes(AFileName);
   finally
     FreeAndNil(AViewBillContentExport);
     FreeAndNil(qBillContentExport2);

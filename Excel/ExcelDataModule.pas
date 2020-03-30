@@ -68,6 +68,7 @@ type
     FBeforeLoadSheet: TNotifyEventsEx;
     FOnProgress: TNotifyEventsEx;
     FOnTotalProgress: TNotifyEventsEx;
+    procedure FreezePanelsInternal;
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
@@ -94,6 +95,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ConnectToSheet(ASheetIndex: Integer = -1);
+    class procedure FreezePanes(const AFileName: string); static;
+    procedure FreezePanesEx(const AFileName: string);
     procedure LoadExcelFile2(const AFileName: string;
       ANotifyEventRef: TNotifyEventRef = nil);
     class function LoadExcelFileHeader(const AFileName: string)
@@ -180,6 +183,50 @@ function TExcelDM.CreateExcelTable: TCustomExcelTable;
 begin
   // Assert(False);
   Result := nil;
+end;
+
+procedure TExcelDM.FreezePanelsInternal;
+var
+  AWindowsCount: Integer;
+//  ACell: Variant;
+  R: ExcelRange;
+  W: Excel2010.Window;
+begin
+//  ACell := EWS.Cells.Item[1, 1];
+//  R := EWS.Range['C4', EmptyParam];
+//  R.Select;
+//  AWindowsCount := EA.Windows.Count;
+//  W := EA.Windows.Item[AWindowsCount];
+//  W.FreezePanes := True;
+
+  EA.ActiveWindow.SplitRow := 2;
+  EA.ActiveWindow.SplitColumn := 2;
+  EA.ActiveWindow.FreezePanes := True;
+end;
+
+class procedure TExcelDM.FreezePanes(const AFileName: string);
+var
+  AExcelDM: TExcelDM;
+begin
+  AExcelDM := TExcelDM.Create(nil);
+  try
+    AExcelDM.FreezePanesEx(AFileName);
+  finally
+    FreeAndNil(AExcelDM);
+  end;
+end;
+
+procedure TExcelDM.FreezePanesEx(const AFileName: string);
+begin
+  InternalLoadExcelFile(AFileName);
+  try
+    ConnectToSheet(1);
+    EA.Visible[0] := True;
+    FreezePanelsInternal;
+  finally
+//    EA.Quit;
+    EA.Disconnect;
+  end;
 end;
 
 function TExcelDM.GetCellsColor(ACell: OleVariant): TColor;

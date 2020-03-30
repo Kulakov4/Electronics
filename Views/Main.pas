@@ -9,7 +9,7 @@ uses
   Dialogs, dxSkinsdxBarPainter, dxBar, cxClasses,
   Menus, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
   cxCustomData, cxStyles, cxTL, cxTLdxBarBuiltInMenu, dxSkinscxPCPainter,
-  cxPCdxBarPopupMenu, cxPC, cxSplitter, StdCtrls, cxButtons, cxInplaceContainer,
+  cxPC, cxSplitter, StdCtrls, cxButtons, cxInplaceContainer,
   cxTLData, cxDBTL, ExtCtrls, dxSkinsdxStatusBarPainter, dxStatusBar,
   cxFilter, cxData, cxDataStorage, cxEdit, cxDBData, cxGridLevel,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView, cxGridDBTableView,
