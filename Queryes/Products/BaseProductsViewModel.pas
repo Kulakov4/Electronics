@@ -15,6 +15,8 @@ type
   class var
     FProducersGroup: TProducersGroup2;
   protected
+  class var
+    FInstanceCount: Integer;
     function CreateProductsQuery: TQryProductsBase0; virtual;
     function GetExportFileName: string; virtual;
   public
@@ -34,6 +36,7 @@ uses
 constructor TBaseProductsViewModel.Create(AOwner: TComponent);
 begin
   inherited;
+  Inc(FInstanceCount);
   if FProducersGroup = nil then
   begin
     FProducersGroup := TProducersGroup2.Create(Self);
@@ -48,6 +51,13 @@ end;
 
 destructor TBaseProductsViewModel.Destroy;
 begin
+  Dec(FInstanceCount);
+
+  if (FInstanceCount = 0) and (FProducersGroup <> nil) then
+  begin
+    FreeAndNil(FProducersGroup);
+  end;
+
   if FNotGroupClone <> nil then
     qProductsBase0.BPW.DropClone(FNotGroupClone);
   FNotGroupClone := nil;

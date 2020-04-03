@@ -110,6 +110,7 @@ type
     destructor Destroy; override;
     procedure AddBill(AQryProducts: TQueryProductsBase; ABillInt: IBill);
     class function Created: Boolean;
+    class procedure FreeDataModule; static;
     function LoadExcelFileHeader(ARootTreeNode: TStringTreeNode;
       AFieldsInfo: TFieldsInfo; AShowErrorDialogRef: TShowErrorDialogRef)
       : TLoadExcelFileHeaderResult;
@@ -472,6 +473,12 @@ end;
 procedure TDM.DoOnParamOrderChange(Sender: TObject);
 begin
   CategoryParametersGroup.RefreshData;
+end;
+
+class procedure TDM.FreeDataModule;
+begin
+  SingletonList.Clear;
+  Instance := nil;
 end;
 
 function TDM.GetAfterAddBill: TNotifyEventsEx;

@@ -334,8 +334,12 @@ begin
   // обновляем доступность кнопки "Сохранить всё"
   DoOnHaveAnyChanges(nil);
 
+  // Разрушаем модуль данных
+  TDM.FreeDataModule;
+
   cxpcMain.ActivePage := cxtshComp;
   cxpcComp2.ActivePage := cxtshCompGroup;
+
 
   // Искусственно вызываем событие
   if TDM.Create.qTreeList.FDQuery.Active then
