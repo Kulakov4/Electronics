@@ -12,10 +12,20 @@ uses
   ComponentsQuery, System.Generics.Collections, DSWrap;
 
 type
+  TComponentsExW = class(TComponentsW)
+  private
+    FAnalog: TFieldWrap;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure RefreshQuery; override;
+    property Analog: TFieldWrap read FAnalog;
+  end;
+
   TQueryComponentsEx = class(TQueryComponents)
   private
     FOnLocate: TNotifyEventsEx;
     FOn_ApplyUpdate: TNotifyEventsEx;
+    function GetWEx: TComponentsExW;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -29,18 +39,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure LocateInStorehouse;
+    property WEx: TComponentsExW read GetWEx;
     property OnLocate: TNotifyEventsEx read FOnLocate;
     property On_ApplyUpdate: TNotifyEventsEx read FOn_ApplyUpdate;
     { Public declarations }
-  end;
-
-  TComponentsExW = class(TComponentsW)
-  private
-    FAnalog: TFieldWrap;
-  public
-    constructor Create(AOwner: TComponent); override;
-    procedure RefreshQuery; override;
-    property Analog: TFieldWrap read FAnalog;
   end;
 
 implementation
@@ -90,6 +92,11 @@ end;
 function TQueryComponentsEx.CreateDSWrap: TDSWrap;
 begin
   Result := TComponentsExW.Create(FDQuery);
+end;
+
+function TQueryComponentsEx.GetWEx: TComponentsExW;
+begin
+   Result := W as TComponentsExW;
 end;
 
 procedure TQueryComponentsEx.LocateInStorehouse;

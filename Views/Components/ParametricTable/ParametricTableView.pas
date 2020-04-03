@@ -61,7 +61,6 @@ type
     cxStyleBegin: TcxStyle;
     cxStyleEnd: TcxStyle;
     dxBarButton3: TdxBarButton;
-    clAnalog2: TcxGridDBBandedColumn;
     dxBarButton4: TdxBarButton;
     actRefresh: TAction;
     dxBarButton5: TdxBarButton;
@@ -745,6 +744,7 @@ begin
     end;
 
     Assert(clID.Index = clID2.Index);
+
     m := GetSelectedIntValues(AView, clID.Index);
 
     BeginUpdate;
@@ -956,7 +956,7 @@ begin
   FilterRoot.Clear;
 
   AColumn := GridView(cxGridLevel2).GetColumnByFieldName
-    (clAnalog2.DataBinding.FieldName);
+    (ComponentsExGroup.qComponentsEx.WEx.Analog.FieldName);
 
   FilterRoot.AddItem(AColumn, foEqual, 1, 'Да');
   GridView(cxGridLevel2).DataController.Filter.Active := True;
@@ -2186,7 +2186,7 @@ begin
   // Подключаем представление к данным
   BaseCompGrp := FLockInfo.BaseComponentsGroup;
   EndUpdate;
-//  PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
+  // PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
 end;
 
 procedure TViewParametricTable.UpdateBandsCaptions;

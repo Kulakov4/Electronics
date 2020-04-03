@@ -30,15 +30,6 @@ inherited ViewParametricTable: TViewParametricTable
       OptionsBehavior.BandHeaderHints = False
       OptionsData.Deleting = False
       OptionsView.CellAutoHeight = True
-      object clAnalog2: TcxGridDBBandedColumn
-        Caption = #1040#1085#1072#1083#1086#1075
-        DataBinding.FieldName = 'Analog'
-        Visible = False
-        VisibleForCustomization = False
-        Position.BandIndex = -1
-        Position.ColIndex = -1
-        Position.RowIndex = -1
-      end
     end
   end
   inherited StatusBar: TStatusBar
