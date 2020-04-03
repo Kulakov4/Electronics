@@ -30,6 +30,7 @@ type
     cxPageControl: TcxPageControl;
     cxtsParameters: TcxTabSheet;
     cxtsSubParameters: TcxTabSheet;
+    procedure cxPageControlChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure cxPageControlPageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
@@ -95,6 +96,16 @@ end;
 procedure TfrmParameters.ClearFormVariable;
 begin
   frmParameters := nil;
+end;
+
+procedure TfrmParameters.cxPageControlChange(Sender: TObject);
+begin
+  inherited;
+  if cxPageControl.ActivePage = cxtsSubParameters then
+    ViewSubParameters.FocusTopLeft;
+
+  if cxPageControl.ActivePage = cxtsParameters then
+    ViewParameters.FocusTopLeft();
 end;
 
 procedure TfrmParameters.cxPageControlPageChanging(Sender: TObject;

@@ -281,6 +281,9 @@ var
   ANewDataBasePath: string;
   AOldDataBasePath: string;
 begin
+  if actSaveAll.Enabled then
+    actSaveAll.Execute;
+
   AOldDataBasePath := TSettings.Create.databasePath;
   if not ShowSettingsEditor = mrOk then
     Exit;
