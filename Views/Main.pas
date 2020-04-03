@@ -303,6 +303,24 @@ begin
   FViewEventList.Clear;
 
   // ”ничтожаем все представлени€
+  if frmParameters <> nil then
+    FreeAndNil(frmParameters);
+
+  if frmBodyTypes <> nil then
+    FreeAndNil(frmBodyTypes);
+
+  if frmProducers <> nil then
+    FreeAndNil(frmProducers);
+
+  if frmExtraCharge <> nil then
+    FreeAndNil(frmExtraCharge);
+
+  if frmParametricTable <> nil then
+    FreeAndNil(frmParametricTable);
+
+  if frmDescriptions <> nil then
+    FreeAndNil(frmDescriptions);
+
   if FViewComponents <> nil then
     FreeAndNil(FViewComponents);
 
