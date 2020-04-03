@@ -1531,7 +1531,7 @@ begin
     (AColumn.DataBinding.FieldName = clProducer.DataBinding.FieldName);
   actPasteProducer.Enabled := actPasteProducer.Visible and IsText;
 
-  actPastePackagePins.Visible := (AColumn <> nil) and
+  actPastePackagePins.Visible := (AColumn <> nil) and (clPackagePins <> nil) and
     (AColumn.DataBinding.FieldName = clPackagePins.DataBinding.FieldName);
   actPastePackagePins.Enabled := actPastePackagePins.Visible and IsText;
 
