@@ -202,6 +202,10 @@ begin
   EA.ActiveWindow.SplitRow := 2;
   EA.ActiveWindow.SplitColumn := 2;
   EA.ActiveWindow.FreezePanes := True;
+  // Для того, чтобы не было предупреждения о том,
+  // что сохранение в старом формате ведёт к потере точности
+  EWB.Application.DisplayAlerts[0] := False;
+  EWB.Save;
 end;
 
 class procedure TExcelDM.FreezePanes(const AFileName: string);

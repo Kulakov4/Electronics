@@ -36,7 +36,7 @@ type
   protected
     procedure InitColumns(AView: TcxGridDBBandedTableView); override;
   public
-    procedure Export(const AFileName: string);
+    function Export(const AFileName: string): String;
     property clBillTitle: TcxGridDBBandedColumn read GetclBillTitle;
     property clSumSaleR: TcxGridDBBandedColumn read GetclSumSaleR;
     property clBillNumber: TcxGridDBBandedColumn read GetclBillNumber;
@@ -48,7 +48,7 @@ type
 implementation
 
 uses
-  cxGridExportLink, System.Generics.Collections, GridSort;
+  cxGridExportLink, System.Generics.Collections, GridSort, System.IOUtils;
 
 {$R *.dfm}
 
@@ -132,12 +132,18 @@ begin
   ADone := True;
 end;
 
-procedure TViewBillContentExport.Export(const AFileName: string);
+function TViewBillContentExport.Export(const AFileName: string): String;
+var
+  AFileExt: string;
 begin
   MainView.DataController.Groups.FullExpand;
   MainView.ApplyBestFit;
+  AFileExt := 'xls';
+  Result := TPath.ChangeExtension(AFileName, AFileExt);
+
   // Ёкспортируем в Excel
-  ExportGridToExcel(AFileName, cxGrid);
+  ExportGridToExcel(Result, cxGrid, True, True, True, AFileExt);
+
   // ExportViewToExcel(MainView, 'C:\Electronics DB\test.xls');
 end;
 

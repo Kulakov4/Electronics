@@ -262,10 +262,10 @@ begin
   end;
 
   if D1 = D2 then
-    AInitialFileName := Format('Счета %s.xls',
+    AInitialFileName := Format('Счета %s',
       [FormatDateTime('dd.mm.yyyy', D1)])
   else
-    AInitialFileName := Format('Счета %s-%s.xls',
+    AInitialFileName := Format('Счета %s-%s',
       [FormatDateTime('dd.mm.yyyy', D1), FormatDateTime('dd.mm.yyyy', D2)]);
 
   if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,
@@ -296,10 +296,11 @@ begin
     end;
 
     AViewBillContentExport.Font.Assign(Font);
+    AViewBillContentExport.Font.Size := 10;
     qBillContentExport2.W.TryOpen;
 
     AViewBillContentExport.W := qBillContentExport2.W;
-    AViewBillContentExport.Export(AFileName);
+    AFileName := AViewBillContentExport.Export(AFileName);
     // Делаем заморозку заголовка
     TExcelDM.FreezePanes(AFileName);
   finally
