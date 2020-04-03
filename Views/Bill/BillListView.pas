@@ -262,10 +262,10 @@ begin
   end;
 
   if D1 = D2 then
-    AInitialFileName := Format('—чета %s.xlsx',
+    AInitialFileName := Format('—чета %s.xls',
       [FormatDateTime('dd.mm.yyyy', D1)])
   else
-    AInitialFileName := Format('—чета %s-%s.xlsx',
+    AInitialFileName := Format('—чета %s-%s.xls',
       [FormatDateTime('dd.mm.yyyy', D1), FormatDateTime('dd.mm.yyyy', D2)]);
 
   if not TDialog.Create.ShowDialog(TExcelFileSaveDialog,

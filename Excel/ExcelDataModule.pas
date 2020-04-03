@@ -68,7 +68,7 @@ type
     FBeforeLoadSheet: TNotifyEventsEx;
     FOnProgress: TNotifyEventsEx;
     FOnTotalProgress: TNotifyEventsEx;
-    procedure FreezePanelsInternal;
+    procedure FreezePanesInternal;
     function GetCellsColor(ACell: OleVariant): TColor;
     procedure InternalLoadExcelFile(const AFileName: string);
     function IsRangeEmpty(AExcelRange: ExcelRange): Boolean;
@@ -185,12 +185,12 @@ begin
   Result := nil;
 end;
 
-procedure TExcelDM.FreezePanelsInternal;
-var
-  AWindowsCount: Integer;
+procedure TExcelDM.FreezePanesInternal;
+//var
+//  AWindowsCount: Integer;
 //  ACell: Variant;
-  R: ExcelRange;
-  W: Excel2010.Window;
+//  R: ExcelRange;
+//  W: Excel2010.Window;
 begin
 //  ACell := EWS.Cells.Item[1, 1];
 //  R := EWS.Range['C4', EmptyParam];
@@ -222,7 +222,7 @@ begin
   try
     ConnectToSheet(1);
     EA.Visible[0] := True;
-    FreezePanelsInternal;
+    FreezePanesInternal;
   finally
 //    EA.Quit;
     EA.Disconnect;
