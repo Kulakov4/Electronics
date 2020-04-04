@@ -13,7 +13,6 @@ object frmPathSettings: TfrmPathSettings
   Font.Style = []
   OldCreateOrder = True
   Position = poOwnerFormCenter
-  Scaled = False
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   DesignSize = (
@@ -52,7 +51,7 @@ object frmPathSettings: TfrmPathSettings
     Height = 200
     Align = alTop
     TabOrder = 2
-    Properties.ActivePage = cxtsWareHouse
+    Properties.ActivePage = cxtshComponents
     Properties.CustomButtons.Buttons = <>
     ClientRectBottom = 196
     ClientRectLeft = 4
