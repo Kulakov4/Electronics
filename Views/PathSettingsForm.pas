@@ -124,7 +124,8 @@ type
 
 implementation
 
-uses SettingsController, System.IOUtils, Vcl.FileCtrl, FormsHelper;
+uses SettingsController, System.IOUtils, Vcl.FileCtrl, FormsHelper,
+  ProjectConst;
 
 {$R *.dfm}
 
@@ -148,7 +149,7 @@ begin
   FTextBoxes.Add(cxteWareHouseDiagramFolder);
 
   LoadFromSettings;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 destructor TfrmPathSettings.Destroy;

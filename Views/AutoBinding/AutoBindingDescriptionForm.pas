@@ -45,14 +45,14 @@ type
 implementation
 
 uses
-  FormsHelper;
+  FormsHelper, ProjectConst;
 
 {$R *.dfm}
 
 constructor TfrmAutoBindingDescriptions.Create(AOwner: TComponent);
 begin
   inherited;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 procedure TfrmAutoBindingDescriptions.actAllUpdate(Sender: TObject);

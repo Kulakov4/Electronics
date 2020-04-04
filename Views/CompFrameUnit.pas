@@ -79,7 +79,7 @@ implementation
 
 {$R *.dfm}
 
-uses RepositoryDataModule, FormsHelper;
+uses RepositoryDataModule, FormsHelper, ProjectConst;
 
 constructor TfrmComp.Create(AOwner: TComponent);
 begin
@@ -90,7 +90,7 @@ begin
   FOnLoadParametricData := TNotifyEventsEx.Create(Self);
   FOnAutoBindingDoc := TNotifyEventsEx.Create(Self);
   FOnAutoBindingDescription := TNotifyEventsEx.Create(Self);
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 destructor TfrmComp.Destroy;

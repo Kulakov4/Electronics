@@ -126,7 +126,7 @@ type
 implementation
 
 uses RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math,
-  StrHelper, TextRectHelper, DBLookupComboBoxHelper, FormsHelper;
+  StrHelper, TextRectHelper, DBLookupComboBoxHelper, FormsHelper, ProjectConst;
 
 {$R *.dfm}
 
@@ -142,7 +142,7 @@ begin
     cxDBTreeListStylesGetBandHeaderStyle;
 
   FEnableClearSelection := True;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 destructor TfrmTreeList.Destroy;

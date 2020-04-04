@@ -14,8 +14,7 @@ type
   public
     class function FormStatsToString(form: TForm): string; static;
     class procedure StringToFormStats(sForm: string; form: TForm); static;
-    class procedure SetFont(AContainer: TComponent; AFontSize: Integer = 10);
-        static;
+    class procedure SetFont(AContainer: TComponent; AFontSize: Integer); static;
   end;
 
 implementation
@@ -73,8 +72,8 @@ begin
   end;
 end;
 
-class procedure TFormsHelper.SetFont(AContainer: TComponent; AFontSize: Integer
-    = 10);
+class procedure TFormsHelper.SetFont(AContainer: TComponent; AFontSize:
+    Integer);
 var
   AComponent: TComponent;
   AdxBar: TdxBar;

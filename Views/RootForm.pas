@@ -34,7 +34,7 @@ var
 implementation
 
 uses
-  System.Generics.Collections, SelectionInt;
+  System.Generics.Collections, SelectionInt, ProjectConst;
 
 {$R *.dfm}
 
@@ -69,7 +69,7 @@ begin
     TFormsHelper.StringToFormStats(TSettings.Create.GetValue('Forms',
       Name), Self);
 
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 procedure TfrmRoot.FormClose(Sender: TObject; var Action: TCloseAction);

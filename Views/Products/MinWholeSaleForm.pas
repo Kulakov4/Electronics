@@ -48,14 +48,14 @@ type
 implementation
 
 uses
-  FormsHelper;
+  FormsHelper, ProjectConst;
 
 {$R *.dfm}
 
 constructor TfrmMinWholeSale.Create(AOwner: TComponent);
 begin
   inherited;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 function TfrmMinWholeSale.GetMinWholeSale: Double;

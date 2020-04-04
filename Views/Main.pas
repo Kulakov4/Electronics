@@ -256,6 +256,7 @@ constructor TfrmMain.Create(AOwner: TComponent);
 begin
   Application.HintHidePause := 10000;
   inherited Create(AOwner);
+  Screen.HintFont.Size := ProjectConst.BaseFontSize;
   FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
   Application.ModalPopupMode := pmAuto;

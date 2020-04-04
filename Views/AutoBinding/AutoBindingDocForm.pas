@@ -58,7 +58,7 @@ type
 implementation
 
 uses
-  FormsHelper;
+  FormsHelper, ProjectConst;
 
 {$R *.dfm}
 
@@ -66,7 +66,7 @@ constructor TfrmAutoBindingDoc.Create(AOwner: TComponent);
 begin
   inherited;
   FDocs := TList<TDocFieldInfo>.Create;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 destructor TfrmAutoBindingDoc.Destroy;

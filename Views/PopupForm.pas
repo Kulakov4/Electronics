@@ -29,7 +29,7 @@ type
 implementation
 
 uses
-  FormsHelper;
+  FormsHelper, ProjectConst;
 
 {$R *.dfm}
 
@@ -39,7 +39,7 @@ begin
   FCloseOnEscape := True;
 
   FOnHide := TNotifyEventsEx.Create(Self);
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 destructor TfrmPopupForm.Destroy;

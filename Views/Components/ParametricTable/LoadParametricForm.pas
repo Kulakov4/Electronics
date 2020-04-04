@@ -64,14 +64,15 @@ type
 implementation
 
 uses
-  DialogUnit, SettingsController, System.IOUtils, System.StrUtils, FormsHelper;
+  DialogUnit, SettingsController, System.IOUtils, System.StrUtils, FormsHelper,
+  ProjectConst;
 
 {$R *.dfm}
 
 constructor TfrmLoadParametric.Create(AOwner: TComponent);
 begin
   inherited;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 procedure TfrmLoadParametric.actOKExecute(Sender: TObject);

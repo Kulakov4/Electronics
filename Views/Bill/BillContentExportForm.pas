@@ -27,7 +27,7 @@ type
 implementation
 
 uses
-  FormsHelper;
+  FormsHelper, ProjectConst;
 
 {$R *.dfm}
 
@@ -37,7 +37,7 @@ begin
   FViewBillContentExport := TViewBillContentExport.Create(Self);
   FViewBillContentExport.Align := alClient;
   FViewBillContentExport.Parent := Panel1;
-  TFormsHelper.SetFont(Self);
+  TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
 procedure TFrmBillContentExport.Button1Click(Sender: TObject);

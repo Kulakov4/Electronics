@@ -33,7 +33,6 @@ object frmMain: TfrmMain
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
-    ExplicitWidth = 1215
   end
   object cxpcMain: TcxPageControl
     Left = 0
@@ -46,7 +45,6 @@ object frmMain: TfrmMain
     Properties.CustomButtons.Buttons = <>
     OnChange = cxpcMainChange
     OnPageChanging = cxpcMainPageChanging
-    ExplicitWidth = 1215
     ClientRectBottom = 584
     ClientRectLeft = 4
     ClientRectRight = 1340
@@ -54,7 +52,6 @@ object frmMain: TfrmMain
     object cxtshComp: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 0
-      ExplicitWidth = 1207
       object cxpcComp2: TcxPageControl
         Left = 0
         Top = 0
@@ -65,7 +62,6 @@ object frmMain: TfrmMain
         Properties.ActivePage = cxtshCompGroup
         Properties.CustomButtons.Buttons = <>
         OnPageChanging = cxpcComp2PageChanging
-        ExplicitWidth = 1207
         ClientRectBottom = 553
         ClientRectLeft = 4
         ClientRectRight = 1332
@@ -73,7 +69,6 @@ object frmMain: TfrmMain
         object cxtshCompGroup: TcxTabSheet
           Caption = #1055#1086' '#1075#1088#1091#1087#1087#1072#1084
           ImageIndex = 0
-          ExplicitWidth = 1199
           object pnlCompGroupLeft: TPanel
             Left = 0
             Top = 0
@@ -100,7 +95,6 @@ object frmMain: TfrmMain
             Height = 526
             Align = alClient
             TabOrder = 2
-            ExplicitWidth = 938
             object cxpcCompGroupRight: TcxPageControl
               Left = 1
               Top = 1
@@ -111,7 +105,6 @@ object frmMain: TfrmMain
               Properties.ActivePage = cxtsCategory
               Properties.CustomButtons.Buttons = <>
               OnPageChanging = cxpcCompGroupRightPageChanging
-              ExplicitWidth = 936
               ClientRectBottom = 520
               ClientRectLeft = 4
               ClientRectRight = 1061
@@ -119,7 +112,6 @@ object frmMain: TfrmMain
               object cxtsCategory: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
                 ImageIndex = 0
-                ExplicitWidth = 928
               end
               object cxtsCategoryComponents: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
@@ -176,7 +168,7 @@ object frmMain: TfrmMain
       object cxpcWareHouse2: TcxPageControl
         Left = 0
         Top = 0
-        Width = 1207
+        Width = 1336
         Height = 557
         Align = alClient
         TabOrder = 0
@@ -185,9 +177,10 @@ object frmMain: TfrmMain
         OnClick = cxpcWareHouse2Click
         OnMouseDown = cxpcWareHouse2MouseDown
         OnPageChanging = cxpcWareHouse2PageChanging
+        ExplicitWidth = 1207
         ClientRectBottom = 553
         ClientRectLeft = 4
-        ClientRectRight = 1203
+        ClientRectRight = 1332
         ClientRectTop = 27
         object cxtshWareHouse2: TcxTabSheet
           Caption = #1057#1082#1083#1072#1076#1099

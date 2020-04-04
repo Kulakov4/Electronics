@@ -28,6 +28,7 @@ uses System.sysutils;
 constructor THintWindowEx.Create(AOwner: TComponent);
 begin
   inherited;
+//  Canvas.Font.Size := 14;
   FShowTimer := TTimer.Create(self);
   FShowTimer.Interval := Application.HintPause;
 
@@ -45,12 +46,11 @@ end;
 
 procedure THintWindowEx.DoActivateHint(const AHint: string);
 begin
-  // force remove of the "old" hint window
+  // Отменяем показ предыдущего хинта
   HideTime(self);
 
   if (AHint.IsEmpty) then
   begin
-    // Отменяем показ предыдущего хинта
     FShowTimer.OnTimer := nil;
     FHideTimer.OnTimer := nil;
     Exit;
