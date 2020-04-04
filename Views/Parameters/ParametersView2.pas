@@ -28,7 +28,7 @@ uses
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridBandedTableView, cxGridDBBandedTableView, cxGrid, ParametersGroupUnit2,
   NotifyEvents, ParametersExcelDataModule, cxTextEdit, cxBarEditItem,
-  DragHelper, HRTimer, cxBlobEdit, cxDBLookupComboBox, cxCheckBox;
+  DragHelper, HRTimer, cxBlobEdit, cxDBLookupComboBox, cxCheckBox, dxDateRanges;
 
 const
   // Когда попытались вести новый тип параметра
@@ -283,6 +283,7 @@ end;
 
 procedure TViewParameters2.actAllDuplicateExecute(Sender: TObject);
 var
+  AView: TcxGridDBBandedTableView;
   OK: Boolean;
   SS: TSaveSelection;
 begin
@@ -291,13 +292,20 @@ begin
   if actAllDuplicate.Checked then
     Exit;
 
-  SS := SaveSelection(GetDBBandedTableView(1), clID2.Index);
+  AView := GetDBBandedTableView(1);
+
+  if AView <> nil then
+    SS := SaveSelection(AView, clID2.Index);
+
   OK := ParametersGrp.ApplyAllDuplicateFilter;
 
   if OK then
   begin
-    SS.View := GetDBBandedTableView(1);
-    RestoreSelection(SS);
+    if AView <> nil then
+    begin
+      SS.View := GetDBBandedTableView(1);
+      RestoreSelection(SS);
+    end;
     actAllDuplicate.Checked := True;
   end
   else
@@ -347,7 +355,7 @@ begin
   ParametersGrp.ClearFilter;
 
   // нажимаем кнопку "Без фильтра" - сделай отображение типов в свёрнутом виде.
-  //  MainView.ViewData.Collapse(True);
+  // MainView.ViewData.Collapse(True);
   SS.View := GetDBBandedTableView(1);
   RestoreSelection(SS);
 
@@ -1014,8 +1022,8 @@ begin
     (AView.Controller.SelectedRowCount > 0);
 
   // Если у нас хоть один фильтр на параметрах, тип удалять нельзя
-  if (actAllDuplicate.Checked or actDuplicate.Checked) and
-    (AView = MainView) then
+  if (actAllDuplicate.Checked or actDuplicate.Checked) and (AView = MainView)
+  then
     actDeleteEx.Enabled := False;
 
   actLoadFromExcelDocument.Enabled := OK;
@@ -1029,9 +1037,8 @@ begin
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actDuplicate.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel2) and
-    (AView.ViewData.RowCount > 0);
-
+  actDuplicate.Enabled := OK and (AView <> nil) and (AView.Level = cxGridLevel2)
+    and (AView.ViewData.RowCount > 0);
 
   S := '';
 
