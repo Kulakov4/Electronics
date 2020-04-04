@@ -28,6 +28,9 @@ type
 
 implementation
 
+uses
+  FormsHelper;
+
 {$R *.dfm}
 
 constructor TfrmPopupForm.Create(AOwner: TComponent);
@@ -36,6 +39,7 @@ begin
   FCloseOnEscape := True;
 
   FOnHide := TNotifyEventsEx.Create(Self);
+  TFormsHelper.SetFont(Self);
 end;
 
 destructor TfrmPopupForm.Destroy;

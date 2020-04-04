@@ -274,7 +274,7 @@ implementation
 
 uses RepositoryDataModule, System.Math, cxDBLookupComboBox, cxGridExportLink,
   dxCore, DialogUnit, StrHelper, System.Types, TextRectHelper,
-  DBLookupComboBoxHelper;
+  DBLookupComboBoxHelper, FormsHelper;
 
 constructor TfrmGrid.Create(AOwner: TComponent);
 begin
@@ -290,6 +290,8 @@ begin
 
   FDeleteMessages := TDictionary<TcxGridLevel, String>.Create;
   FApplyBestFitForDetail := False;
+
+  TFormsHelper.SetFont(Self);
 end;
 
 destructor TfrmGrid.Destroy;

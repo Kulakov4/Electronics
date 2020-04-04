@@ -248,7 +248,7 @@ uses
   FireDAC.Comp.DataSet, ComponentsGroupUnit2, ComponentsExcelDataModule,
   StrHelper, ParametricErrorTable, ParametricTableErrorForm, ErrorType,
   LoadParametricForm, VersionQuery, DataBaseUnit, LoadParametricData,
-  LoadParametricTable, GridViewForm, CategoryGridView;
+  LoadParametricTable, GridViewForm, CategoryGridView, FormsHelper;
 
 {$R *.dfm}
 
@@ -999,6 +999,7 @@ begin
   FfrmComp := TfrmComp.Create(Self);
   FfrmComp.Parent := pnlLoad;
   FfrmComp.Align := alClient;
+
   TNotifyEventWrap.Create(FfrmComp.OnLoadCompFromExcelFolder,
     DoOnLoadCompFromExcelFolder, FEventList);
   TNotifyEventWrap.Create(FfrmComp.OnLoadCompFromExcelDocument,

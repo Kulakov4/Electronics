@@ -26,15 +26,18 @@ type
 
 implementation
 
+uses
+  FormsHelper;
+
 {$R *.dfm}
 
 constructor TFrmBillContentExport.Create(AOwner: TComponent);
 begin
   inherited;
-
   FViewBillContentExport := TViewBillContentExport.Create(Self);
   FViewBillContentExport.Align := alClient;
   FViewBillContentExport.Parent := Panel1;
+  TFormsHelper.SetFont(Self);
 end;
 
 procedure TFrmBillContentExport.Button1Click(Sender: TObject);

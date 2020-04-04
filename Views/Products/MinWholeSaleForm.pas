@@ -37,6 +37,7 @@ type
     procedure SetMinWholeSale(const Value: Double);
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     class function DoShowModal(var ADefMinWholeSale: Double; var ASave: Boolean):
         Boolean; static;
     property MinWholeSale: Double read GetMinWholeSale write SetMinWholeSale;
@@ -46,7 +47,16 @@ type
 
 implementation
 
+uses
+  FormsHelper;
+
 {$R *.dfm}
+
+constructor TfrmMinWholeSale.Create(AOwner: TComponent);
+begin
+  inherited;
+  TFormsHelper.SetFont(Self);
+end;
 
 function TfrmMinWholeSale.GetMinWholeSale: Double;
 begin

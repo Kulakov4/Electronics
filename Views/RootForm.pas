@@ -68,6 +68,8 @@ begin
   if FAutoSaveFormSize then
     TFormsHelper.StringToFormStats(TSettings.Create.GetValue('Forms',
       Name), Self);
+
+  TFormsHelper.SetFont(Self);
 end;
 
 procedure TfrmRoot.FormClose(Sender: TObject; var Action: TCloseAction);

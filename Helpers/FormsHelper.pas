@@ -3,7 +3,7 @@ unit FormsHelper;
 interface
 
 uses
-  Vcl.Forms, System.SysUtils;
+  Vcl.Forms, System.SysUtils, System.Classes;
 
 type
   TFormsHelper = class(TObject)
@@ -14,9 +14,14 @@ type
   public
     class function FormStatsToString(form: TForm): string; static;
     class procedure StringToFormStats(sForm: string; form: TForm); static;
+    class procedure SetFont(AContainer: TComponent; AFontSize: Integer = 10);
+        static;
   end;
 
 implementation
+
+uses
+  dxBar;
 
 // Перевести форму в строку оформления
 class function TFormsHelper.FormStatsToString(form: TForm): string;
@@ -65,6 +70,32 @@ begin
     end;
   except
     // если не удалось перевести строку - игнорировать её
+  end;
+end;
+
+class procedure TFormsHelper.SetFont(AContainer: TComponent; AFontSize: Integer
+    = 10);
+var
+  AComponent: TComponent;
+  AdxBar: TdxBar;
+  i: Integer;
+begin
+  if AContainer is TFrame then
+    (AContainer as TFrame).Font.Size := AFontSize;
+
+  if AContainer is TForm then
+    (AContainer as TForm).Font.Size := AFontSize;
+
+  for i := 0 to AContainer.ComponentCount - 1 do
+  begin
+    AComponent := AContainer.Components[i];
+    if AComponent is TdxBar then
+    begin
+      AdxBar := AComponent as TdxBar;
+      AdxBar.BarManager.UseSystemFont := False;
+      AdxBar.BarManager.Scaled := False;
+      AdxBar.Font.Size := AFontSize;
+    end;
   end;
 end;
 

@@ -57,12 +57,16 @@ type
 
 implementation
 
+uses
+  FormsHelper;
+
 {$R *.dfm}
 
 constructor TfrmAutoBindingDoc.Create(AOwner: TComponent);
 begin
   inherited;
   FDocs := TList<TDocFieldInfo>.Create;
+  TFormsHelper.SetFont(Self);
 end;
 
 destructor TfrmAutoBindingDoc.Destroy;

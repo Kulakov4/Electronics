@@ -11,7 +11,8 @@ uses
   cxTLdxBarBuiltInMenu, dxSkinsCore, dxSkinsDefaultPainters, cxCalendar,
   cxCurrencyEdit, Vcl.ExtCtrls, Vcl.Menus, System.Actions, Vcl.ActnList, dxBar,
   cxBarEditItem, cxClasses, Vcl.ComCtrls, cxInplaceContainer, cxDBTL, cxTLData,
-  ProductsViewModel, ProductsBaseView0;
+  ProductsViewModel, ProductsBaseView0,
+  cxDataControllerConditionalFormattingRulesManagerDialog;
 
 type
   TViewProducts = class(TViewProductsBase1)

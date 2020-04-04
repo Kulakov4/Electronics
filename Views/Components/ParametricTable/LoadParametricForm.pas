@@ -54,6 +54,7 @@ type
   protected
     FIniSection: string;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure AfterConstruction; override;
     property FileName: string read GetFileName;
     property Replace: Boolean read GetReplace;
@@ -63,9 +64,15 @@ type
 implementation
 
 uses
-  DialogUnit, SettingsController, System.IOUtils, System.StrUtils;
+  DialogUnit, SettingsController, System.IOUtils, System.StrUtils, FormsHelper;
 
 {$R *.dfm}
+
+constructor TfrmLoadParametric.Create(AOwner: TComponent);
+begin
+  inherited;
+  TFormsHelper.SetFont(Self);
+end;
 
 procedure TfrmLoadParametric.actOKExecute(Sender: TObject);
 var

@@ -233,6 +233,7 @@ object frmMain: TfrmMain
     end
   end
   object bmMain: TdxBarManager
+    Scaled = False
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
     Font.Height = -12

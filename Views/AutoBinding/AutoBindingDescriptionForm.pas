@@ -38,12 +38,22 @@ type
   private
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
     { Public declarations }
   end;
 
 implementation
 
+uses
+  FormsHelper;
+
 {$R *.dfm}
+
+constructor TfrmAutoBindingDescriptions.Create(AOwner: TComponent);
+begin
+  inherited;
+  TFormsHelper.SetFont(Self);
+end;
 
 procedure TfrmAutoBindingDescriptions.actAllUpdate(Sender: TObject);
 begin
