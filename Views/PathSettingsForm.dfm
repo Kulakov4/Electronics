@@ -3,7 +3,7 @@ object frmPathSettings: TfrmPathSettings
   Top = 0
   BorderStyle = bsDialog
   Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
-  ClientHeight = 239
+  ClientHeight = 246
   ClientWidth = 788
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,44 +16,52 @@ object frmPathSettings: TfrmPathSettings
   Scaled = False
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
+  DesignSize = (
+    788
+    246)
   PixelsPerInch = 96
   TextHeight = 16
   object cxButton4: TcxButton
     Left = 196
-    Top = 198
+    Top = 206
     Width = 185
     Height = 33
+    Anchors = [akLeft, akBottom]
     Caption = #1054#1050
     Default = True
     ModalResult = 1
     TabOrder = 0
+    ExplicitTop = 198
   end
   object cxButton5: TcxButton
     Left = 406
-    Top = 198
+    Top = 206
     Width = 185
     Height = 33
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = #1054#1090#1084#1077#1085#1072
     ModalResult = 2
     TabOrder = 1
+    ExplicitTop = 198
   end
   object cxPageControl: TcxPageControl
     Left = 0
     Top = 0
     Width = 788
-    Height = 188
+    Height = 200
     Align = alTop
     TabOrder = 2
-    Properties.ActivePage = cxtshDatabase
+    Properties.ActivePage = cxtsWareHouse
     Properties.CustomButtons.Buttons = <>
-    ClientRectBottom = 184
+    ClientRectBottom = 196
     ClientRectLeft = 4
     ClientRectRight = 784
     ClientRectTop = 27
     object cxtshDatabase: TcxTabSheet
       Caption = #1041#1072#1079#1072' '#1076#1072#1085#1085#1099#1093
       ImageIndex = 2
+      ExplicitHeight = 157
       object Label8: TLabel
         Left = 8
         Top = 33
@@ -62,11 +70,11 @@ object frmPathSettings: TfrmPathSettings
         Caption = #1055#1091#1090#1100' '#1076#1086' '#1087#1072#1087#1082#1080' '#1089' '#1041#1044':'
       end
       object cxteDataBasePath: TcxTextEdit
-        Left = 144
+        Left = 184
         Top = 29
         Properties.ReadOnly = True
         TabOrder = 0
-        Width = 537
+        Width = 497
       end
       object cxButton10: TcxButton
         Left = 696
@@ -86,10 +94,7 @@ object frmPathSettings: TfrmPathSettings
     object cxtshComponents: TcxTabSheet
       Caption = #1050#1086#1084#1087#1086#1085#1077#1085#1090#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 157
       object Label4: TLabel
         Left = 8
         Top = 33
@@ -178,10 +183,7 @@ object frmPathSettings: TfrmPathSettings
     object cxtsWareHouse: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076
       ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 161
       object Label9: TLabel
         Left = 8
         Top = 33
@@ -270,10 +272,7 @@ object frmPathSettings: TfrmPathSettings
     object cxtshBodyTypes: TcxTabSheet
       Caption = #1050#1086#1088#1087#1091#1089#1085#1099#1077' '#1076#1072#1085#1085#1099#1077
       ImageIndex = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 157
       object Label1: TLabel
         Left = 8
         Top = 33
