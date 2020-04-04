@@ -255,8 +255,11 @@ uses
 constructor TfrmMain.Create(AOwner: TComponent);
 begin
   Application.HintHidePause := 10000;
-  inherited Create(AOwner);
   Screen.HintFont.Size := ProjectConst.BaseFontSize;
+  Screen.MenuFont.Size := ProjectConst.BaseFontSize;
+
+  inherited Create(AOwner);
+
   FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
   Application.ModalPopupMode := pmAuto;
