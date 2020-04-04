@@ -24,10 +24,18 @@ inherited frmParameters: TfrmParameters
       object cxtsParameters: TcxTabSheet
         Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
         ImageIndex = 0
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
       end
       object cxtsSubParameters: TcxTabSheet
         Caption = #1055#1086#1076#1087#1072#1088#1072#1084#1077#1090#1088#1099
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
       end
     end
   end

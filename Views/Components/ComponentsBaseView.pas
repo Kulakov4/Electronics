@@ -349,7 +349,7 @@ end;
 procedure TViewComponentsBase.actFocusTopLeftExecute(Sender: TObject);
 begin
   inherited;
-  FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName);
+  FocusTopLeft;
 end;
 
 procedure TViewComponentsBase.actLoadDatasheetExecute(Sender: TObject);
@@ -977,7 +977,6 @@ procedure TViewComponentsBase.DoAfterLoadData;
 begin
   PostMyApplyBestFitEvent;
   UpdateView;
-  // if not FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName) then
   PostMessage(Handle, WM_FOCUS_TOP_LEFT, 0, 0);
 end;
 
@@ -1002,7 +1001,7 @@ end;
 procedure TViewComponentsBase.DoOnFocusTopLeft(var Message: TMessage);
 begin
   inherited;
-  FocusTopLeft(FBaseCompGrp.qBaseFamily.W.Value.FieldName);
+  FocusTopLeft;
 end;
 
 procedure TViewComponentsBase.DoOnHaveAnyChanges(Sender: TObject);
@@ -1164,7 +1163,7 @@ end;
 procedure TViewComponentsBase.FocusTopLeftEx;
 begin
   MainView.ViewData.Collapse(True);
-  FocusTopLeft(clValue.DataBinding.FieldName);
+  FocusTopLeft;
 end;
 
 function TViewComponentsBase.GetclID: TcxGridDBBandedColumn;

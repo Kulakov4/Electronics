@@ -686,7 +686,7 @@ begin
   ApplySort(MainView, clNumber);
 
   // Фокусируем верхнюю запись в гриде
-  FocusTopLeft(W.Number.FieldName);
+  FocusTopLeft;
 
   UpdateView;
 

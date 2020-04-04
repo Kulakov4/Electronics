@@ -875,7 +875,7 @@ procedure TViewParametricTable.actRefreshExecute(Sender: TObject);
 begin
   inherited;
   RefreshData;
-  FocusTopLeft(clValue.DataBinding.FieldName);
+  FocusTopLeft;
 end;
 
 procedure TViewParametricTable.actShowCategoryParametersQueryExecute

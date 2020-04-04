@@ -475,7 +475,7 @@ begin
   if CatParamsGroup.FullUpdate then
   begin
     EndUpdate;
-    FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
+    FocusTopLeft;
     UpdateView;
 
     // CatParamsGroup.qCatParams.ID.AsInteger;
@@ -584,14 +584,13 @@ end;
 procedure TViewCategoryParameters.dxBarButton23Click(Sender: TObject);
 begin
   inherited;
-  FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
-  // CatParamsGroup.qCatParams.ID.AsInteger;
+  FocusTopLeft;
 end;
 
 procedure TViewCategoryParameters.FocusTopLeftEx;
 begin
   MainView.ViewData.Collapse(True);
-  FocusTopLeft(clValue.DataBinding.FieldName);
+  FocusTopLeft;
 end;
 
 function TViewCategoryParameters.GetQueryParameterPos: TQueryParameterPos;
@@ -740,7 +739,6 @@ begin
       EndUpdate;
     end;
     MainView.ViewData.Collapse(True);
-//    FocusTopLeft(CatParamsGroup.qCategoryParameters.W.Name.FieldName);
     MyApplyBestFit;
 
     TNotifyEventWrap.Create(FCatParamsGroup.BeforeUpdateData,

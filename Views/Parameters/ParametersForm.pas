@@ -105,7 +105,7 @@ begin
     ViewSubParameters.FocusTopLeft;
 
   if cxPageControl.ActivePage = cxtsParameters then
-    ViewParameters.FocusTopLeft();
+    ViewParameters.FocusTopLeft;
 end;
 
 procedure TfrmParameters.cxPageControlPageChanging(Sender: TObject;

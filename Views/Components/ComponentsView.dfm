@@ -39,7 +39,7 @@ inherited ViewComponents: TViewComponents
       Caption = 'Second'
       CaptionButtons = <>
       DockedDockingStyle = dsTop
-      DockedLeft = 448
+      DockedLeft = 449
       DockedTop = 0
       DockingStyle = dsTop
       FloatLeft = 903

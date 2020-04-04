@@ -110,7 +110,7 @@ procedure TViewComponents.actRefreshExecute(Sender: TObject);
 begin
   inherited;
   RefreshData;
-  FocusTopLeft(clValue.DataBinding.FieldName);
+  FocusTopLeft;
 end;
 
 procedure TViewComponents.actShowParametricTableExecute(Sender: TObject);
@@ -148,7 +148,7 @@ begin
   finally
     EndUpdate;
   end;
-  FocusTopLeft(clValue.DataBinding.FieldName);
+  FocusTopLeft;
 
   UpdateView;
 end;
@@ -222,7 +222,7 @@ begin
 
   // “ут некоторые узлы почему-то разворачиваютс€
   MainView.ViewData.Collapse(True);
-  FocusTopLeft(clValue.DataBinding.FieldName);
+  FocusTopLeft;
 
   UpdateView;
 end;
