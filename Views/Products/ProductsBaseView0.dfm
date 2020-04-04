@@ -785,6 +785,7 @@ inherited ViewProductsBase0: TViewProductsBase0
       Category = 0
       Hint = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
       Visible = ivAlways
+      Width = 110
       PropertiesClassName = 'TcxDateEditProperties'
     end
     object cxbeiTotalR: TcxBarEditItem
