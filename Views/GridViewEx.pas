@@ -28,7 +28,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridBandedTableView,
   cxGridDBBandedTableView, cxGrid, System.ImageList, Vcl.ImgList, Vcl.ExtCtrls,
   NotifyEvents, cxDataControllerConditionalFormattingRulesManagerDialog,
-  dxBarBuiltInMenu, cxImageList, dxDateRanges;
+  dxBarBuiltInMenu, cxImageList, dxDateRanges, DSWrap;
 
 const
   WM_ON_UPDATE_DATA = WM_USER + 125;
@@ -54,7 +54,7 @@ type
     // TODO: AssignDataSet
     // procedure AssignDataSet; virtual;
     procedure DoOnUpdateData(var Message: TMessage); message WM_ON_UPDATE_DATA;
-    procedure InitColumns(AView: TcxGridDBBandedTableView); override;
+    procedure SetDSWrap(const Value: TDSWrap); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -118,8 +118,19 @@ begin
   FOnUpdateDataPost := False;
 end;
 
-procedure TViewGridEx.InitColumns(AView: TcxGridDBBandedTableView);
+procedure TViewGridEx.SetDSWrap(const Value: TDSWrap);
 begin
+  if DSWrap = Value then
+    Exit;
+
+  if (DSWrap <> nil) and (Assigned(DSWrap.DataSource.OnUpdateData)) then
+    DSWrap.DataSource.OnUpdateData := nil;
+
+  inherited;
+
+  if (DSWrap <> nil) and (not Assigned(DSWrap.DataSource.OnUpdateData)) then
+    DSWrap.DataSource.OnUpdateData := DataSourceUpdateData;
+
   FOnAssignDataSet.CallEventHandlers(Self);
 end;
 

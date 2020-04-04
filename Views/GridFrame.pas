@@ -105,7 +105,6 @@ type
     procedure DoAfterOpen(Sender: TObject);
     function GetMainView: TcxGridDBBandedTableView;
     function GetParentForm: TForm;
-    procedure SetDSWrap(const Value: TDSWrap);
     procedure SetStatusBarEmptyPanelIndex(const Value: Integer);
     { Private declarations }
   protected
@@ -165,6 +164,7 @@ type
       var AllowPopup: Boolean); virtual;
     function SameCol(AColumn1: TcxGridColumn;
       AColumn2: TcxGridDBBandedColumn): Boolean;
+    procedure SetDSWrap(const Value: TDSWrap); virtual;
     property ViewArr: TArray<TcxGridDBBandedTableView> read FViewArr;
   public
     constructor Create(AOwner: TComponent); override;
