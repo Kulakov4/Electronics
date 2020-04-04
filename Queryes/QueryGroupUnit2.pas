@@ -105,8 +105,8 @@ end;
 procedure TQueryGroup2.Commit;
 begin
   ApplyUpdates;
-  Assert(Connection.InTransaction);
-  Connection.Commit;
+  if Connection.InTransaction then
+    Connection.Commit;
 end;
 
 procedure TQueryGroup2.DisableControls;
