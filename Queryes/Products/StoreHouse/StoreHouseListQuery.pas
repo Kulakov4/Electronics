@@ -82,7 +82,7 @@ begin
   W.Title.F.AsString := DeleteDouble(W.Title.F.AsString, ' ').Trim;
 
   // Если сокращённое наименование не задано
-  if (FDQuery.State = dsInsert) and W.Abbreviation.F.IsNull then
+  if W.Abbreviation.F.AsString.Trim.IsEmpty then
   begin
     W.Abbreviation.F.AsString := W.Title.F.AsString;
   end;
