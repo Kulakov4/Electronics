@@ -5,15 +5,15 @@ object frmRoot: TfrmRoot
   ClientHeight = 299
   ClientWidth = 635
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
 end

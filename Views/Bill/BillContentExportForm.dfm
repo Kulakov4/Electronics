@@ -5,10 +5,10 @@ object FrmBillContentExport: TFrmBillContentExport
   ClientHeight = 312
   ClientWidth = 635
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = False
   OnShow = FormShow
@@ -16,7 +16,7 @@ object FrmBillContentExport: TFrmBillContentExport
     635
     312)
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 18
   object Panel1: TPanel
     Left = 8
     Top = 32

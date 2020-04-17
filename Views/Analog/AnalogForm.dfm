@@ -4,10 +4,13 @@ inherited frmAnalog: TfrmAnalog
   ClientWidth = 788
   Constraints.MinHeight = 300
   Constraints.MinWidth = 300
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Height = -15
+  Font.Name = 'Calibri'
   ExplicitWidth = 804
   ExplicitHeight = 355
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object pnlMain: TPanel
     Left = 0
     Top = 0

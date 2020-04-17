@@ -1,7 +1,10 @@
 inherited frmCustomGridView: TfrmCustomGridView
   Caption = 'frmCustomGridView'
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Height = -15
+  Font.Name = 'Calibri'
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object pnlMain: TPanel
     Left = 0
     Top = 0

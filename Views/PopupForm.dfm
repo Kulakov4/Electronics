@@ -5,14 +5,13 @@ object frmPopupForm: TfrmPopupForm
   ClientHeight = 300
   ClientWidth = 395
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = False
-  Scaled = False
   OnHide = FormHide
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
 end

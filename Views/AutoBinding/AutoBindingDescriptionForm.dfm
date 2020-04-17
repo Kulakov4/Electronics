@@ -6,10 +6,10 @@ object frmAutoBindingDescriptions: TfrmAutoBindingDescriptions
   ClientHeight = 146
   ClientWidth = 501
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -17,7 +17,7 @@ object frmAutoBindingDescriptions: TfrmAutoBindingDescriptions
     501
     146)
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object cxbtnAllDB: TcxButton
     Left = 8
     Top = 98

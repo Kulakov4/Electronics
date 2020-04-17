@@ -6,19 +6,18 @@ object frmLoadParametric: TfrmLoadParametric
   ClientHeight = 414
   ClientWidth = 520
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = True
   Position = poOwnerFormCenter
-  Scaled = False
   DesignSize = (
     520
     414)
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object cxGroupBox1: TcxGroupBox
     Left = 15
     Top = 13

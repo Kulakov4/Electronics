@@ -4,36 +4,28 @@ object frmMinWholeSale: TfrmMinWholeSale
   BorderStyle = bsDialog
   Caption = #1052#1080#1085#1080#1084#1072#1083#1100#1085#1072#1103' '#1086#1087#1090#1086#1074#1072#1103' '#1085#1072#1094#1077#1085#1082#1072
   ClientHeight = 190
-  ClientWidth = 454
+  ClientWidth = 464
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
-  OnCreate = FormCreate
   DesignSize = (
-    454
+    464
     190)
   PixelsPerInch = 96
-  TextHeight = 16
-  object Label1: TLabel
-    Left = 336
-    Top = 16
-    Width = 37
-    Height = 16
-    Caption = 'Label1'
-  end
+  TextHeight = 18
   object cxLabel1: TcxLabel
-    Left = 39
+    Left = 36
     Top = 25
     Caption = #1055#1088#1080#1084#1077#1085#1080#1090#1100' '#1084#1080#1085#1080#1084#1072#1083#1100#1085#1091#1102' '#1086#1087#1090#1086#1074#1091#1102' '#1085#1072#1094#1077#1085#1082#1091'?'
   end
   object cxseMinWholeSale: TcxSpinEdit
-    Left = 366
-    Top = 60
+    Left = 394
+    Top = 59
     Properties.AssignedValues.MinValue = True
     Properties.MaxValue = 300.000000000000000000
     Properties.ValueType = vtFloat
@@ -46,7 +38,7 @@ object frmMinWholeSale: TfrmMinWholeSale
     Caption = #1056#1072#1079#1084#1077#1088' '#1084#1080#1085#1080#1084#1072#1083#1100#1085#1086#1081' '#1086#1087#1090#1086#1074#1086#1081' '#1085#1072#1094#1077#1085#1082#1080' ('#1074' '#1087#1088#1086#1094#1077#1085#1090#1072#1093'):'
   end
   object cxbtnYes: TcxButton
-    Left = 39
+    Left = 43
     Top = 136
     Width = 177
     Height = 37
@@ -57,7 +49,7 @@ object frmMinWholeSale: TfrmMinWholeSale
     TabOrder = 1
   end
   object cxbtnCancel: TcxButton
-    Left = 239
+    Left = 243
     Top = 136
     Width = 177
     Height = 37
@@ -68,7 +60,7 @@ object frmMinWholeSale: TfrmMinWholeSale
     TabOrder = 2
   end
   object cxcbSave: TcxCheckBox
-    Left = 39
+    Left = 36
     Top = 96
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1101#1090#1086' '#1079#1085#1072#1095#1077#1085#1080#1077' '#1082#1072#1082' '#1079#1085#1072#1095#1077#1085#1080#1077' "'#1087#1086' '#1091#1084#1086#1083#1095#1072#1085#1080#1102'"'
     State = cbsChecked

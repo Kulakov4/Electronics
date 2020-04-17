@@ -4,8 +4,9 @@ inherited ViewProductsBase0: TViewProductsBase0
   ExplicitWidth = 1177
   ExplicitHeight = 598
   inherited cxDBTreeList: TcxDBTreeList
+    Top = 29
     Width = 1177
-    Height = 551
+    Height = 550
     Bands = <
       item
         Caption.AlignHorz = taCenter
@@ -136,8 +137,9 @@ inherited ViewProductsBase0: TViewProductsBase0
     OnInitEditValue = cxDBTreeListInitEditValue
     OnIsGroupNode = cxDBTreeListIsGroupNode
     OnSelectionChanged = cxDBTreeListSelectionChanged
+    ExplicitTop = 29
     ExplicitWidth = 1177
-    ExplicitHeight = 551
+    ExplicitHeight = 550
     object clID: TcxDBTreeListColumn
       Visible = False
       Caption.AlignHorz = taCenter
@@ -715,6 +717,11 @@ inherited ViewProductsBase0: TViewProductsBase0
     ShowHint = False
     UseSystemFont = False
     PixelsPerInch = 96
+    DockControlHeights = (
+      0
+      0
+      29
+      0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
         item
@@ -757,7 +764,7 @@ inherited ViewProductsBase0: TViewProductsBase0
       Visible = ivAlways
       OnChange = cxbeiDollarChange
       ShowCaption = True
-      Width = 70
+      Width = 65
       PropertiesClassName = 'TcxMaskEditProperties'
       Properties.BeepOnError = True
       Properties.MaskKind = emkRegExpr
@@ -775,7 +782,7 @@ inherited ViewProductsBase0: TViewProductsBase0
       Visible = ivAlways
       OnChange = cxbeiEuroChange
       ShowCaption = True
-      Width = 70
+      Width = 65
       PropertiesClassName = 'TcxMaskEditProperties'
       Properties.MaskKind = emkRegExpr
       Properties.EditMask = '(\d+\,?\d?\d?\d?\d?)'
@@ -786,7 +793,6 @@ inherited ViewProductsBase0: TViewProductsBase0
       Category = 0
       Hint = #1058#1077#1082#1091#1097#1072#1103' '#1076#1072#1090#1072
       Visible = ivAlways
-      Width = 110
       PropertiesClassName = 'TcxDateEditProperties'
     end
     object cxbeiTotalR: TcxBarEditItem
@@ -795,6 +801,7 @@ inherited ViewProductsBase0: TViewProductsBase0
       Hint = #1048#1090#1086#1075#1086':'
       Visible = ivAlways
       ShowCaption = True
+      Width = 110
       PropertiesClassName = 'TcxCurrencyEditProperties'
     end
     object dxBarButton1: TdxBarButton

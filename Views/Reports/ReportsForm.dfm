@@ -1,7 +1,10 @@
 inherited frmReports: TfrmReports
   Caption = #1054#1090#1095#1105#1090
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Height = -15
+  Font.Name = 'Calibri'
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   inline ViewReports: TViewReports
     Left = 0
     Top = 0
@@ -31,11 +34,7 @@ inherited frmReports: TfrmReports
       ExplicitWidth = 635
     end
     inherited dxBarManager: TdxBarManager
-      DockControlHeights = (
-        0
-        0
-        56
-        0)
+      PixelsPerInch = 96
     end
     inherited cxGridPopupMenu: TcxGridPopupMenu
       PopupMenus = <

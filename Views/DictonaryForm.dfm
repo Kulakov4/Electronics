@@ -7,19 +7,18 @@ object frmDictonary: TfrmDictonary
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 350
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = RUSSIAN_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Height = -15
+  Font.Name = 'Calibri'
   Font.Style = []
   OldCreateOrder = False
-  Scaled = False
   OnClose = FormClose
   DesignSize = (
     790
     478)
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object Panel1: TPanel
     Left = 0
     Top = 0

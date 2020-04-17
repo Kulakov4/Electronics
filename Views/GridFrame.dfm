@@ -3,6 +3,12 @@ object frmGrid: TfrmGrid
   Top = 0
   Width = 893
   Height = 491
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -15
+  Font.Name = 'Calibri'
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
   object cxGrid: TcxGrid
     Left = 0
@@ -48,6 +54,8 @@ object frmGrid: TfrmGrid
     Width = 893
     Height = 19
     Panels = <>
+    ParentFont = True
+    UseSystemFont = False
     OnResize = StatusBarResize
   end
   object dxBarManager: TdxBarManager
@@ -84,6 +92,11 @@ object frmGrid: TfrmGrid
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
       Images = DMRepository.cxImageList
       ItemLinks = <
         item
@@ -92,7 +105,7 @@ object frmGrid: TfrmGrid
         end>
       OneOnRow = True
       Row = 0
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end

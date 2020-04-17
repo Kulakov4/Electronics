@@ -3,6 +3,12 @@ object frmTreeList: TfrmTreeList
   Top = 0
   Width = 320
   Height = 240
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -15
+  Font.Name = 'Calibri'
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
   object cxDBTreeList: TcxDBTreeList
     Left = 0
@@ -39,7 +45,10 @@ object frmTreeList: TfrmTreeList
     Width = 320
     Height = 19
     Panels = <>
+    ParentFont = True
+    UseSystemFont = False
     OnResize = StatusBarResize
+    ExplicitTop = 227
   end
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET
@@ -74,6 +83,11 @@ object frmTreeList: TfrmTreeList
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
       Images = DMRepository.cxImageList
       ItemLinks = <
         item
@@ -82,7 +96,7 @@ object frmTreeList: TfrmTreeList
         end>
       OneOnRow = True
       Row = 0
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end

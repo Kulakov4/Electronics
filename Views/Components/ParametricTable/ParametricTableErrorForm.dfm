@@ -2,10 +2,13 @@ inherited frmParametricTableError: TfrmParametricTableError
   Caption = #1054#1096#1080#1073#1082#1080' '#1089#1088#1077#1076#1080' '#1087#1072#1088#1072#1084#1077#1090#1088#1086#1074
   ClientHeight = 394
   ClientWidth = 717
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Height = -15
+  Font.Name = 'Calibri'
   ExplicitWidth = 733
   ExplicitHeight = 433
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object pnlMain: TPanel
     Left = 0
     Top = 0

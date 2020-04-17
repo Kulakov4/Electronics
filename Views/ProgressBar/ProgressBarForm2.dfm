@@ -3,13 +3,16 @@ inherited frmProgressBar2: TfrmProgressBar2
   Caption = #1054#1073#1088#1072#1073#1086#1090#1082#1072' '#1076#1072#1085#1085#1099#1093
   ClientHeight = 153
   ClientWidth = 526
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Height = -15
+  Font.Name = 'Calibri'
   FormStyle = fsStayOnTop
   Position = poScreenCenter
   PrintScale = poNone
   ExplicitWidth = 532
   ExplicitHeight = 182
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object pbRead: TcxProgressBar
     Left = 16
     Top = 34

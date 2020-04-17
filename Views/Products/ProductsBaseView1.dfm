@@ -1,9 +1,9 @@
 inherited ViewProductsBase1: TViewProductsBase1
   inherited cxDBTreeList: TcxDBTreeList
-    Top = 54
-    Height = 525
-    ExplicitTop = 54
-    ExplicitHeight = 525
+    Top = 58
+    Height = 521
+    ExplicitTop = 58
+    ExplicitHeight = 521
     inherited clSaleCount: TcxDBTreeListColumn
       Summary.FooterSummaryItems = <
         item
@@ -37,12 +37,15 @@ inherited ViewProductsBase1: TViewProductsBase1
         end>
     end
   end
+  inherited StatusBar: TStatusBar
+    ExplicitTop = 585
+  end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
     DockControlHeights = (
       0
       0
-      54
+      58
       0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
@@ -84,12 +87,17 @@ inherited ViewProductsBase1: TViewProductsBase1
       CaptionButtons = <>
       DockedDockingStyle = dsTop
       DockedLeft = 0
-      DockedTop = 28
+      DockedTop = 29
       DockingStyle = dsTop
       FloatLeft = 1187
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
       ItemLinks = <
         item
           Visible = True
@@ -113,7 +121,7 @@ inherited ViewProductsBase1: TViewProductsBase1
         end>
       OneOnRow = True
       Row = 1
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end

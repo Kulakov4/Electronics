@@ -72,24 +72,25 @@ begin
   end;
 end;
 
-class procedure TFormsHelper.SetFont(AContainer: TComponent; AFontSize:
-    Integer);
+class procedure TFormsHelper.SetFont(AContainer: TComponent;
+  AFontSize: Integer);
 var
   AComponent: TComponent;
   AdxBar: TdxBar;
-  AForm: TForm;
+  // AForm: TForm;
   i: Integer;
 begin
   Exit;
-  if AContainer is TFrame then
+  (*
+    if AContainer is TFrame then
     (AContainer as TFrame).Font.Size := AFontSize;
 
-  if AContainer is TForm then
-  begin
+    if AContainer is TForm then
+    begin
     AForm := (AContainer as TForm);
     AForm.Font.Size := AFontSize;
-  end;
-
+    end;
+  *)
   for i := 0 to AContainer.ComponentCount - 1 do
   begin
     AComponent := AContainer.Components[i];
@@ -97,8 +98,12 @@ begin
     begin
       AdxBar := AComponent as TdxBar;
       AdxBar.BarManager.UseSystemFont := False;
-      AdxBar.BarManager.Scaled := False;
-      AdxBar.Font.Size := AFontSize;
+      AdxBar.BarManager.Scaled := True;
+      if AdxBar.Font.Size <> 13 then
+      begin
+        AdxBar.Font.Name := 'Calibry';
+        AdxBar.Font.Size := 13;
+      end;
     end;
   end;
 end;
