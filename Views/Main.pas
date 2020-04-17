@@ -260,6 +260,7 @@ begin
 
   Screen.HintFont.Assign(Font);
   Screen.MenuFont.Assign(Font);
+  Screen.MessageFont.Assign(Font);
 //  Screen.HintFont.Size := Font.Size; //ProjectConst.BaseFontSize;
 //  Screen.MenuFont.Size := Font.Size; //ProjectConst.BaseFontSize;
 
