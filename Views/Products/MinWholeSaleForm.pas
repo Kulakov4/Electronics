@@ -31,6 +31,8 @@ type
     cxbtnYes: TcxButton;
     cxbtnCancel: TcxButton;
     cxcbSave: TcxCheckBox;
+    Label1: TLabel;
+    procedure FormCreate(Sender: TObject);
   private
     function GetMinWholeSale: Double;
     function GetSave: Boolean;
@@ -55,7 +57,12 @@ uses
 constructor TfrmMinWholeSale.Create(AOwner: TComponent);
 begin
   inherited;
-  TFormsHelper.SetFont(Self, BaseFontSize);
+//  TFormsHelper.SetFont(Self, BaseFontSize);
+end;
+
+procedure TfrmMinWholeSale.FormCreate(Sender: TObject);
+begin
+  Label1.Caption := Format('%s %d', [Font.Name, Font.Size]);
 end;
 
 function TfrmMinWholeSale.GetMinWholeSale: Double;

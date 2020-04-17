@@ -22,14 +22,10 @@ type
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure AfterConstruction; override;
     property AutoSaveFormSize: Boolean read FAutoSaveFormSize
       write SetAutoSaveFormSize;
     { Public declarations }
   end;
-
-var
-  frmRoot: TfrmRoot;
 
 implementation
 
@@ -42,12 +38,6 @@ constructor TfrmRoot.Create(AOwner: TComponent);
 begin
   inherited;
   FAutoSaveFormSize := True;
-end;
-
-procedure TfrmRoot.AfterConstruction;
-begin
-  inherited;
-  // Scaled := True;
 end;
 
 { Сделать форму независимой от основного окна программы }

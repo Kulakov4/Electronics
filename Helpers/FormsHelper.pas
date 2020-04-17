@@ -77,13 +77,18 @@ class procedure TFormsHelper.SetFont(AContainer: TComponent; AFontSize:
 var
   AComponent: TComponent;
   AdxBar: TdxBar;
+  AForm: TForm;
   i: Integer;
 begin
+  Exit;
   if AContainer is TFrame then
     (AContainer as TFrame).Font.Size := AFontSize;
 
   if AContainer is TForm then
-    (AContainer as TForm).Font.Size := AFontSize;
+  begin
+    AForm := (AContainer as TForm);
+    AForm.Font.Size := AFontSize;
+  end;
 
   for i := 0 to AContainer.ComponentCount - 1 do
   begin

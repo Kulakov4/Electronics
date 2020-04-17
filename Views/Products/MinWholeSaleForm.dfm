@@ -13,12 +13,19 @@ object frmMinWholeSale: TfrmMinWholeSale
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
-  Scaled = False
+  OnCreate = FormCreate
   DesignSize = (
     454
     190)
   PixelsPerInch = 96
   TextHeight = 16
+  object Label1: TLabel
+    Left = 336
+    Top = 16
+    Width = 37
+    Height = 16
+    Caption = 'Label1'
+  end
   object cxLabel1: TcxLabel
     Left = 39
     Top = 25

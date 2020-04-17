@@ -255,10 +255,11 @@ uses
 constructor TfrmMain.Create(AOwner: TComponent);
 begin
   Application.HintHidePause := 10000;
-  Screen.HintFont.Size := ProjectConst.BaseFontSize;
-  Screen.MenuFont.Size := ProjectConst.BaseFontSize;
 
   inherited Create(AOwner);
+
+  Screen.HintFont.Size := Font.Size; //ProjectConst.BaseFontSize;
+  Screen.MenuFont.Size := Font.Size; //ProjectConst.BaseFontSize;
 
   FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
@@ -2024,7 +2025,7 @@ begin
   end;
 
   // Меняем заголовок формы
-  Caption := Format('%s %0.1f%s', [sMainFormCaption, ProgramVersion, S], AFS);
+  Caption := Format('%s %d %s %0.1f%s', [Font.Name, Font.Size, sMainFormCaption, ProgramVersion, S], AFS);
 end;
 
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
