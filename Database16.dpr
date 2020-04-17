@@ -274,7 +274,8 @@ uses
   ProductsBasketView2 in 'Views\Products\ProductsBasketView2.pas' {ViewProductsBasket2: TFrame},
   BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
   ColInfo in 'Helpers\ColInfo.pas',
-  UpdateStoreHouseProductsCategoryQry in 'Queryes\Products\UpdateStoreHouseProductsCategoryQry.pas' {QryUpdateStoreHouseProductsCategory: TFrame};
+  UpdateStoreHouseProductsCategoryQry in 'Queryes\Products\UpdateStoreHouseProductsCategoryQry.pas' {QryUpdateStoreHouseProductsCategory: TFrame},
+  cxTreeListHelper in 'Helpers\cxTreeListHelper.pas';
 
 {$R *.res}
 

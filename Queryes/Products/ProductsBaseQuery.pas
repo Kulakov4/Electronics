@@ -483,7 +483,7 @@ begin
         qSearchComponentGroup.W.Add(W.Value.F.AsString);
 
       // Обновляем в БД код категории у товаров текущего склада и текущей категории
-      TQryUpdateStoreHouseProductsCategory.Update(W.StorehouseId.F.AsInteger,
+      TQryUpdateStoreHouseProductsCategory.ExecQry(W.StorehouseId.F.AsInteger,
         qSearchComponentGroup.W.ID.F.AsInteger, W.ID.F.AsInteger);
 
       WW := TProductW.Create(W.AddClone(Format('%s = %d',

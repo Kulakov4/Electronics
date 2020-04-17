@@ -47,18 +47,18 @@ type
     procedure cxDBTreeListCustomDrawDataCell(Sender: TcxCustomTreeList;
       ACanvas: TcxCanvas; AViewInfo: TcxTreeListEditCellViewInfo;
       var ADone: Boolean);
-    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
-        TcxTreeListColumn);
-    procedure cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
-        TcxTreeListColumn; var Allow: Boolean);
+    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn);
+    procedure cxDBTreeListEditing(Sender: TcxCustomTreeList;
+      AColumn: TcxTreeListColumn; var Allow: Boolean);
     procedure cxDBTreeListEnter(Sender: TObject);
     procedure cxDBTreeListExit(Sender: TObject);
     procedure cxDBTreeListFocusedColumnChanged(Sender: TcxCustomTreeList;
-        APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
+      APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
     procedure cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
-        APrevFocusedNode, AFocusedNode: TcxTreeListNode);
-    procedure cxDBTreeListMouseDown(Sender: TObject; Button: TMouseButton; Shift:
-        TShiftState; X, Y: Integer);
+      APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+    procedure cxDBTreeListMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
 
     procedure cxDBTreeListMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
@@ -71,8 +71,8 @@ type
     FBlockEvents: Integer;
     FGridSort: TGridSort;
     FHaveFocus: Boolean;
-// TODO: FPostOnEnterFields
-//  FPostOnEnterFields: TList<String>;
+    // TODO: FPostOnEnterFields
+    // FPostOnEnterFields: TList<String>;
     FSortVariant: TSortVariant;
     FStatusBarEmptyPanelIndex: Integer;
     FUpdateCount: Cardinal;
@@ -86,9 +86,10 @@ type
     procedure CreateColumnsBarButtons; virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InitializeColumns; virtual;
-    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn; ADataSource:
-        TDataSource; ADropDownListStyle: TcxEditDropDownListStyle; const
-        AListFieldNames: string; const AKeyFieldNames: string = 'ID'); overload;
+    procedure InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
+      ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+      const AListFieldNames: string;
+      const AKeyFieldNames: string = 'ID'); overload;
     procedure InternalApplySort(ASortedColumns: TArray < TPair <
       TcxDBTreeListColumn, TdxSortOrder >> );
     procedure InternalRefreshData; virtual;
@@ -101,7 +102,6 @@ type
       AdxSortOrder: TdxSortOrder = soNone);
     procedure BeginBlockEvents;
     procedure BeginUpdate; virtual;
-    function CalcBandHeight(ABand: TcxTreeListBand): Integer;
     procedure ClearSelection;
     procedure ClearSort;
     procedure DoOnGetHeaderStyle(ABand: TcxTreeListBand; var AStyle: TcxStyle);
@@ -111,12 +111,13 @@ type
       : Variant;
     procedure FocusFirstNode;
     function GetSelectedValues(const AFieldName: String): TArray<Variant>;
-    procedure MyApplyBestFit;
+    procedure MyApplyBestFit; overload;
+    procedure MyApplyBestFit(ABand: TcxTreeListBand); overload;
     procedure RefreshData;
     procedure UpdateView; virtual;
     property GridSort: TGridSort read FGridSort;
-// TODO: PostOnEnterFields
-//  property PostOnEnterFields: TList<String> read FPostOnEnterFields;
+    // TODO: PostOnEnterFields
+    // property PostOnEnterFields: TList<String> read FPostOnEnterFields;
     property StatusBarEmptyPanelIndex: Integer read FStatusBarEmptyPanelIndex
       write SetStatusBarEmptyPanelIndex;
     property UpdateCount: Cardinal read FUpdateCount;
@@ -126,7 +127,8 @@ type
 implementation
 
 uses RepositoryDataModule, Vcl.Clipbrd, System.Types, System.Math,
-  StrHelper, TextRectHelper, DBLookupComboBoxHelper, FormsHelper, ProjectConst;
+  StrHelper, TextRectHelper, DBLookupComboBoxHelper, FormsHelper, ProjectConst,
+  cxTreeListHelper;
 
 {$R *.dfm}
 
@@ -134,7 +136,7 @@ constructor TfrmTreeList.Create(AOwner: TComponent);
 begin
   inherited;
   // Список полей при редактировании которых Enter - сохранение
-//  FPostOnEnterFields := TList<String>.Create;
+  // FPostOnEnterFields := TList<String>.Create;
   FEventList := TObjectList.Create;
 
   FGridSort := TGridSort.Create;
@@ -147,7 +149,7 @@ end;
 
 destructor TfrmTreeList.Destroy;
 begin
-//  FreeAndNil(FPostOnEnterFields);
+  // FreeAndNil(FPostOnEnterFields);
   FreeAndNil(FGridSort);
   FreeAndNil(FEventList);
   inherited;
@@ -253,31 +255,6 @@ begin
     cxDBTreeList.BeginUpdate();
 end;
 
-function TfrmTreeList.CalcBandHeight(ABand: TcxTreeListBand): Integer;
-const
-  MAGIC = 10;
-var
-  ABandHeight: Integer;
-  ABandWidth: Integer;
-  ACanvas: TCanvas;
-  R: TRect;
-begin
-  ACanvas := ABand.TreeList.Canvas.Canvas;
-
-  Assert(ABand <> nil);
-
-  // Получаем текущую ширину бэнда
-  ABandWidth := ABand.DisplayWidth;
-
-  // Высота текста заголовка бэнда
-  ABandHeight := ACanvas.TextHeight(ABand.Caption.Text);
-
-  R := TTextRect.Calc(ACanvas, ABand.Caption.Text,
-    Rect(0, 0, ABandWidth, ABandHeight));
-
-  Result := MAGIC + R.Height;
-end;
-
 procedure TfrmTreeList.ClearSelection;
 begin
   if not FEnableClearSelection then
@@ -328,14 +305,14 @@ begin
   { }
 end;
 
-procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList; AColumn:
-    TcxTreeListColumn);
+procedure TfrmTreeList.cxDBTreeListEdited(Sender: TcxCustomTreeList;
+  AColumn: TcxTreeListColumn);
 begin
   UpdateView;
 end;
 
-procedure TfrmTreeList.cxDBTreeListEditing(Sender: TcxCustomTreeList; AColumn:
-    TcxTreeListColumn; var Allow: Boolean);
+procedure TfrmTreeList.cxDBTreeListEditing(Sender: TcxCustomTreeList;
+  AColumn: TcxTreeListColumn; var Allow: Boolean);
 begin
   UpdateView;
 end;
@@ -350,20 +327,21 @@ begin
   FHaveFocus := False;
 end;
 
-procedure TfrmTreeList.cxDBTreeListFocusedColumnChanged(Sender:
-    TcxCustomTreeList; APrevFocusedColumn, AFocusedColumn: TcxTreeListColumn);
+procedure TfrmTreeList.cxDBTreeListFocusedColumnChanged
+  (Sender: TcxCustomTreeList; APrevFocusedColumn, AFocusedColumn
+  : TcxTreeListColumn);
 begin
   UpdateView;
 end;
 
-procedure TfrmTreeList.cxDBTreeListFocusedNodeChanged(Sender:
-    TcxCustomTreeList; APrevFocusedNode, AFocusedNode: TcxTreeListNode);
+procedure TfrmTreeList.cxDBTreeListFocusedNodeChanged(Sender: TcxCustomTreeList;
+  APrevFocusedNode, AFocusedNode: TcxTreeListNode);
 begin
   UpdateView;
 end;
 
-procedure TfrmTreeList.cxDBTreeListMouseDown(Sender: TObject; Button:
-    TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TfrmTreeList.cxDBTreeListMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   HT: TcxTreeListHitTest;
 begin
@@ -481,12 +459,12 @@ begin
   Result := FHaveFocus;
 end;
 
-function TfrmTreeList.GetSelectedValues(const AFieldName: String):
-    TArray<Variant>;
+function TfrmTreeList.GetSelectedValues(const AFieldName: String)
+  : TArray<Variant>;
 var
   AColumn: TcxDBTreeListColumn;
   AList: TList<Variant>;
-  i: Integer;
+  I: Integer;
 begin
   Assert(not AFieldName.IsEmpty);
   AColumn := cxDBTreeList.GetColumnByFieldName(AFieldName);
@@ -494,9 +472,9 @@ begin
 
   AList := TList<Variant>.Create;
   try
-    for i := 0 to cxDBTreeList.SelectionCount - 1 do
+    for I := 0 to cxDBTreeList.SelectionCount - 1 do
     begin
-      AList.Add(cxDBTreeList.Selections[i].Values[AColumn.ItemIndex]);
+      AList.Add(cxDBTreeList.Selections[I].Values[AColumn.ItemIndex]);
     end;
 
     Result := AList.ToArray;
@@ -511,8 +489,8 @@ begin
 end;
 
 procedure TfrmTreeList.InitializeLookupColumn(AColumn: TcxDBTreeListColumn;
-    ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
-    const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
+  ADataSource: TDataSource; ADropDownListStyle: TcxEditDropDownListStyle;
+  const AListFieldNames: string; const AKeyFieldNames: string = 'ID');
 begin
   Assert(AColumn <> nil);
   AColumn.PropertiesClass := TcxLookupComboBoxProperties;
@@ -555,94 +533,13 @@ begin
 end;
 
 procedure TfrmTreeList.MyApplyBestFit;
-const
-  MAGIC = 12;
-var
-  ABand: TcxTreeListBand;
-  ABandHeight: Integer;
-  ABandRect: TRect;
-  ABandWidth: Integer;
-  ACanvas: TCanvas;
-  ACaption: string;
-  AColumn: TcxTreeListColumn;
-  AColumnRect: TRect;
-  AMaxBandHeight: Integer;
-  AMinColWidth: Integer;
-  I: Integer;
-  j: Integer;
 begin
-  cxDBTreeList.BeginUpdate;
-  try
-    AMaxBandHeight := 0;
-    ACanvas := cxDBTreeList.Canvas.Canvas;
-    for I := 0 to cxDBTreeList.Bands.Count - 1 do
-    begin
-      ABand := cxDBTreeList.Bands[I];
-      if not ABand.Visible then
-        Continue;
+  TcxTreeListHelper.MyApplyBestFit(cxDBTreeList);
+end;
 
-      // Предпологаем что дочерних бэндов нет!!!
-      Assert(ABand.ChildBandCount = 0);
-
-      for j := 0 to ABand.ColumnCount - 1 do
-      begin
-        AColumn := ABand.Columns[j] as TcxTreeListColumn;
-        if not AColumn.Visible then
-          Continue;
-
-        // Пусть ширина бэнда подстраивается под ширину колонок
-        ABand.Width := 0;
-
-        // Определяемся с минимальной шириной колонки
-        AMinColWidth := 0;
-        ACaption := AColumn.Caption.Text;
-        // Если заголовок колонки не пустой
-        if not ACaption.Trim.IsEmpty then
-        begin
-          // Колонка вычисляет свою оптимальную ширину без учёта переноса на новую строку!!!
-          // Вычисляем минимальную ширину колонки
-          AColumnRect := TTextRect.Calc(ACanvas, ACaption);
-          AMinColWidth := AColumnRect.Width + MAGIC;
-        end;
-
-        // Находим оптимальную ширину колонки без учёта её заголовка
-        AColumn.Caption.Text := ' ';
-        AColumn.ApplyBestFit;
-
-        if AColumn.DisplayWidth < AMinColWidth then
-          AColumn.DisplayWidth := AMinColWidth;
-
-        if AColumn.Caption.Text <> ACaption then
-          AColumn.Caption.Text := ACaption;
-
-        // Вычисляем минимальную ширину бэнда
-        ABandRect := TTextRect.Calc(ACanvas, ABand.Caption.Text);
-        // Получаем реальную ширину бэнда
-        ABandWidth := ABand.DisplayWidth;
-
-        // Если сейчас ширины бэнда не достаточно, для размещения самого длинного слова его заголовка
-        if ABandWidth < (ABandRect.Width + MAGIC) then
-        begin
-          ABand.Width := ABandRect.Width + MAGIC;
-          ABandWidth := ABand.DisplayWidth;
-          Assert(ABandWidth >= ABandRect.Width);
-        end;
-
-        // Вычисляем, какая должна быть высота бэнда, если оставить неизменной его ширину
-        ABandHeight := CalcBandHeight(ABand);
-
-        AMaxBandHeight := IfThen(ABandHeight > AMaxBandHeight, ABandHeight,
-          AMaxBandHeight);
-
-      end;
-
-      if AMaxBandHeight > 0 then
-        cxDBTreeList.OptionsView.BandLineHeight := AMaxBandHeight;
-
-    end;
-  finally
-    cxDBTreeList.EndUpdate;
-  end;
+procedure TfrmTreeList.MyApplyBestFit(ABand: TcxTreeListBand);
+begin
+  TcxTreeListHelper.MyApplyBestFit(ABand);
 end;
 
 procedure TfrmTreeList.RefreshData;

@@ -72,6 +72,11 @@ constructor TViewProducts.Create(AOwner: TComponent);
 begin
   inherited;
   Name := 'ViewProducts';
+
+  // Чтобы производителя не было в меню "Колонки"
+  // В InitializeColumns это добавить нельзя т.к. меню колонки будет уже создано
+  clStoreHouseID.Options.Customizing := False;
+  clStoreHouseID.Position.Band.Options.Customizing := False;
 end;
 
 procedure TViewProducts.actAddCategoryExecute(Sender: TObject);

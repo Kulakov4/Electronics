@@ -15,8 +15,8 @@ type
   private
     { Private declarations }
   public
-    class procedure Update(AStoreHouseId, ANewCategoryId, AOldCategoryId
-      : Integer); static;
+    class procedure ExecQry(AStoreHouseId, ANewCategoryId, AOldCategoryId :
+        Integer); static;
     procedure UpdateStoreHouseProductsCategory(AStoreHouseId, ANewCategoryId,
       AOldCategoryId: Integer);
     { Public declarations }
@@ -26,8 +26,8 @@ implementation
 
 {$R *.dfm}
 
-class procedure TQryUpdateStoreHouseProductsCategory.Update(AStoreHouseId,
-  ANewCategoryId, AOldCategoryId: Integer);
+class procedure TQryUpdateStoreHouseProductsCategory.ExecQry(AStoreHouseId,
+    ANewCategoryId, AOldCategoryId : Integer);
 var
   Q: TQryUpdateStoreHouseProductsCategory;
 begin

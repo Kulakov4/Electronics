@@ -14,6 +14,7 @@ inherited ViewProductsBase0: TViewProductsBase0
         FixedKind = tlbfLeft
       end
       item
+        Caption.AlignHorz = taCenter
         Caption.Text = #1057#1082#1083#1072#1076
       end
       item

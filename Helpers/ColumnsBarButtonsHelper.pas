@@ -185,7 +185,7 @@ type
 
 implementation
 
-uses System.SysUtils, System.Generics.Defaults;
+uses System.SysUtils, System.Generics.Defaults, cxTreeListHelper;
 
 { TGVColumnsBarButtons }
 
@@ -748,7 +748,8 @@ begin
   FcxTreeListBand.Visible := Checked;
 
   if FcxTreeListBand.Visible then
-    FcxTreeListBand.ApplyBestFit();
+    TcxTreeListHelper.MyApplyBestFit(FcxTreeListBand);
+//    FcxTreeListBand.ApplyBestFit();
 end;
 
 function TTLBandAction.GetDBTreeList: TcxDBTreeList;
