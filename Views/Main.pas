@@ -258,8 +258,10 @@ begin
 
   inherited Create(AOwner);
 
-  Screen.HintFont.Size := Font.Size; //ProjectConst.BaseFontSize;
-  Screen.MenuFont.Size := Font.Size; //ProjectConst.BaseFontSize;
+  Screen.HintFont.Assign(Font);
+  Screen.MenuFont.Assign(Font);
+//  Screen.HintFont.Size := Font.Size; //ProjectConst.BaseFontSize;
+//  Screen.MenuFont.Size := Font.Size; //ProjectConst.BaseFontSize;
 
   FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
