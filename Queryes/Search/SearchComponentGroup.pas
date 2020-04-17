@@ -17,6 +17,7 @@ type
     FID: TFieldWrap;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure Add(const AComponentGroup: string);
     property ComponentGroup: TFieldWrap read FComponentGroup;
     property ID: TFieldWrap read FID;
   end;
@@ -27,7 +28,6 @@ type
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
-    procedure Append(const AComponentGroup: string);
     function SearchByID(const AID: Integer;
       const ATestResult: Boolean = False): Integer;
     function SearchByValue(const AComponentGroup: string): Integer;
@@ -45,14 +45,6 @@ constructor TQuerySearchComponentGroup.Create(AOwner: TComponent);
 begin
   inherited;
   FW := TSearchComponentGroupW.Create(FDQuery);
-end;
-
-procedure TQuerySearchComponentGroup.Append(const AComponentGroup: string);
-begin
-  Assert(not AComponentGroup.IsEmpty);
-  W.TryAppend;
-  W.ComponentGroup.F.Value := AComponentGroup;
-  W.TryPost;
 end;
 
 function TQuerySearchComponentGroup.SearchByID(const AID: Integer;
@@ -80,6 +72,19 @@ begin
   inherited;
   FID := TFieldWrap.Create(Self, 'ID', '', True);
   FComponentGroup := TFieldWrap.Create(Self, 'ComponentGroup');
+end;
+
+procedure TSearchComponentGroupW.Add(const AComponentGroup: string);
+begin
+  Assert(not AComponentGroup.IsEmpty);
+  TryAppend;
+  try
+    ComponentGroup.F.AsString := AComponentGroup;
+    TryPost;
+  except
+    TryCancel;
+    raise;
+  end;
 end;
 
 end.

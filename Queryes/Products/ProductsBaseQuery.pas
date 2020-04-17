@@ -12,7 +12,8 @@ uses
   SearchProductParameterValuesQuery, SearchProductQuery, CustomComponentsQuery,
   SearchComponentOrFamilyQuery, System.Generics.Collections,
   SearchStorehouseProduct, ProducersQuery, NotifyEvents, SearchComponentGroup,
-  SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2,  DSWrap, DescriptionsQueryWrap, BaseEventsQuery, StoreHouseListQuery, HRTimer,
+  SearchFamily, ProducersGroupUnit2, ExtraChargeQuery2, DSWrap,
+  DescriptionsQueryWrap, BaseEventsQuery, StoreHouseListQuery, HRTimer,
   ProductsBaseQuery0;
 
 const
@@ -243,7 +244,7 @@ implementation
 
 uses DBRecordHolder, System.IOUtils, SettingsController, RepositoryDataModule,
   ParameterValuesUnit, StrHelper, System.StrUtils, ProjectConst, System.Math,
-  CurrencyUnit;
+  CurrencyUnit, UpdateStoreHouseProductsCategoryQry;
 
 constructor TQueryProductsBase.Create(AOwner: TComponent;
   AProducersGroup: TProducersGroup2);
@@ -388,7 +389,7 @@ begin
     // Ищем такую группу компонентов в справочнике
     rc := qSearchComponentGroup.SearchByValue(W.Value.F.AsString);
     if rc = 0 then
-      qSearchComponentGroup.Append(W.Value.F.AsString);
+      qSearchComponentGroup.W.Add(W.Value.F.AsString);
 
     // Заполняем первичный ключ
     FetchFields([W.PK.FieldName], [qSearchComponentGroup.W.PK.Value], ARequest,
@@ -467,6 +468,7 @@ procedure TQueryProductsBase.ApplyUpdate(ASender: TDataSet;
   AOptions: TFDUpdateRowOptions);
 var
   ARH: TRecordHolder;
+  WW: TProductW;
 begin
   Assert(ASender = FDQuery);
 
@@ -474,17 +476,33 @@ begin
   try
     if W.IsGroup.F.AsInteger = 1 then
     begin
-      Assert(W.PK.Value > 0);
-      // Ищем такую группу
-      if qSearchComponentGroup.SearchByID(W.PK.Value) = 0 then
-        Exit;
+      Assert(not W.Value.F.AsString.IsEmpty);
 
-      // Будем обновлять одно поле
-      ARH.Clear;
-      TFieldHolder.Create(ARH, qSearchComponentGroup.W.ComponentGroup.FieldName,
-        W.Value.F.AsString);
+      // Находим или создаём группу с новым именем
+      if qSearchComponentGroup.SearchByValue(W.Value.F.AsString) = 0 then
+        qSearchComponentGroup.W.Add(W.Value.F.AsString);
 
-      qSearchComponentGroup.W.UpdateRecord(ARH);
+      // Обновляем в БД код категории у товаров текущего склада и текущей категории
+      TQryUpdateStoreHouseProductsCategory.Update(W.StorehouseId.F.AsInteger,
+        qSearchComponentGroup.W.ID.F.AsInteger, W.ID.F.AsInteger);
+
+      WW := TProductW.Create(W.AddClone(Format('%s = %d',
+        [W.IDComponentGroup.FieldName, W.ID.F.AsInteger])));
+      try
+        while not WW.DataSet.Eof do
+        begin
+          WW.TryEdit;
+          WW.IDComponentGroup.F.AsInteger :=
+            qSearchComponentGroup.W.ID.F.AsInteger;
+          WW.TryPost;
+        end;
+      finally
+        W.DropClone(WW.DataSet as TFDMemTable);
+      end;
+
+      // Заполняем первичный ключ
+      FetchFields([W.PK.FieldName], [qSearchComponentGroup.W.PK.Value],
+        ARequest, AAction, AOptions);
     end
     else
     begin
@@ -1280,15 +1298,16 @@ begin
 end;
 
 procedure TQueryProductsBase.SaveExtraCharge(AIDExtraCharge: Integer;
-    AWholeSale: Double);
+  AWholeSale: Double);
 begin
-//  Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
+  // Assert(ExtraChargeGroup.qExtraCharge2.FDQuery.RecordCount > 0);
   W.TryEdit;
   W.IDExtraCharge.F.AsInteger := AIDExtraCharge;
-   (*ExtraChargeGroup.qExtraCharge2.W.PK.AsInteger;*)
+  (* ExtraChargeGroup.qExtraCharge2.W.PK.AsInteger; *)
 
   // Меняем процент оптовой наценки
-  W.WholeSale.F.Value := AWholeSale;(*ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value;*)
+  W.WholeSale.F.Value := AWholeSale;
+  (* ExtraChargeGroup.qExtraCharge2.W.WholeSale.F.Value; *)
   W.TryPost;
 end;
 
@@ -1470,12 +1489,10 @@ begin
         for AQryProductsBase in AArray do
         begin
           AQryProductsBase.Basket.Filtered := False;
-          if AQryProductsBase.BasketW.LocateByPK
-            (Wr.PK.AsInteger) then
+          if AQryProductsBase.BasketW.LocateByPK(Wr.PK.AsInteger) then
           begin
             AQryProductsBase.BasketW.TryEdit;
-            AQryProductsBase.BasketW.Amount.F.Value :=
-              Wr.Amount.F.Value;
+            AQryProductsBase.BasketW.Amount.F.Value := Wr.Amount.F.Value;
             AQryProductsBase.BasketW.TryPost;
           end;
         end;

@@ -698,6 +698,7 @@ begin
   Sender.Post;
   // Мы просто завершаем транзакцию
   M.qProductsBase0.ApplyUpdates;
+
   UpdateView;
 end;
 
