@@ -2024,7 +2024,7 @@ begin
   end;
 
   // Меняем заголовок формы
-  Caption := Format('%s %0.1f%s', [sMainFormCaption, ProgramVersion, S], AFS);
+  Caption := Format('%s %d %s %0.1f%s', [Font.Name, Font.Size, sMainFormCaption, ProgramVersion, S], AFS);
 end;
 
 procedure TfrmMain.ViewComponentsactOpenDatasheetExecute(Sender: TObject);
