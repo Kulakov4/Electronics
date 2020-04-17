@@ -747,6 +747,7 @@ inherited ViewProductsBase0: TViewProductsBase0
         end>
     end
     inherited dxbsColumns: TdxBarSubItem
+      Hint = #1050#1086#1083#1086#1085#1082#1080
       ShowCaption = False
     end
     object cxbeiDollar: TcxBarEditItem
