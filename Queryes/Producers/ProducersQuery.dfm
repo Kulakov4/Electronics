@@ -16,6 +16,10 @@ inherited QueryProducers: TQueryProducers
         Selected = True
         Name = 'idxOrder'
         Fields = 'ProducerTypeID;Name'
+      end
+      item
+        Name = 'idxName'
+        Fields = 'Name'
       end>
     IndexName = 'idxOrder'
     SQL.Strings = (

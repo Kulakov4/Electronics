@@ -201,6 +201,8 @@ inherited ViewProductsBase0: TViewProductsBase0
     object clIDProducer: TcxDBTreeListColumn
       PropertiesClassName = 'TcxLookupComboBoxProperties'
       Properties.ListColumns = <>
+      Properties.ListOptions.AnsiSort = True
+      Properties.ListOptions.ShowHeader = False
       Properties.OnNewLookupDisplayText = clIDProducerPropertiesNewLookupDisplayText
       Caption.AlignHorz = taCenter
       Caption.Text = ' '

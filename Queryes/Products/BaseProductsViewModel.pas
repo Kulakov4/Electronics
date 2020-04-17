@@ -40,6 +40,10 @@ begin
   if FProducersGroup = nil then
   begin
     FProducersGroup := TProducersGroup2.Create(Self);
+
+    // Чтобы в выпадающем списке была сортировка по имени производителя
+    FProducersGroup.qProducers.OrderByProducerName;
+
     FProducersGroup.ReOpen;
   end;
 

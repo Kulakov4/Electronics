@@ -990,9 +990,12 @@ begin
 
   Assert(FM <> nil);
 
-  InitializeLookupColumn(clIDProducer,
-    M.ProducersGroup.qProducers.W.DataSource, lsEditList,
-    M.ProducersGroup.qProducers.W.Name.FieldName);
+  InitializeLookupColumn(clIDProducer, M.ProducersGroup.qProducers.W.DataSource,
+    lsEditList, M.ProducersGroup.qProducers.W.Name.FieldName);
+
+  // Прячем заголовок
+  (clIDProducer.Properties as TcxLookupComboBoxProperties)
+    .ListOptions.ShowHeader := False;
 end;
 
 procedure TViewProductsBase0.InternalRefreshData;
@@ -1242,8 +1245,7 @@ begin
 
   if M.NotGroupClone <> nil then
     // На выбранном складе или в результате поиска без учёта групп
-    StatusBar.Panels[0].Text :=
-      Format('%d', [M.NotGroupClone.RecordCount]);
+    StatusBar.Panels[0].Text := Format('%d', [M.NotGroupClone.RecordCount]);
 end;
 
 procedure TViewProductsBase0.UpdateSelectedCount;
@@ -1260,8 +1262,8 @@ var
   OK: Boolean;
 begin
   inherited;
-  OK := (cxDBTreeList.DataController.DataSource <> nil) and
-    (FM <> nil) and (M.qProductsBase0.FDQuery.Active) and IsViewOK and
+  OK := (cxDBTreeList.DataController.DataSource <> nil) and (FM <> nil) and
+    (M.qProductsBase0.FDQuery.Active) and IsViewOK and
     (cxDBTreeList.DataController.DataSet <> nil);
 
   actExportToExcelDocument.Enabled := OK and

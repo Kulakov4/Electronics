@@ -50,6 +50,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure CancelUpdates; override;
     function Locate(AValue: string; TestResult: Boolean = False): Boolean;
+    procedure OrderByProducerName;
     property W: TProducersW read FW;
     { Public declarations }
   end;
@@ -131,6 +132,14 @@ begin
   if TestResult then
     Assert(Result);
 
+end;
+
+procedure TQueryProducers.OrderByProducerName;
+begin
+  Assert(FDQuery.Indexes.Count = 2);
+  Assert(FDQuery.Indexes[1].Name = 'idxName');
+  FDQuery.Indexes[1].Active := True;
+  FDQuery.Indexes[1].Selected := True;
 end;
 
 constructor TProducersW.Create(AOwner: TComponent);
