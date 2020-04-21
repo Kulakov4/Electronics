@@ -245,6 +245,7 @@ inherited ViewProducts: TViewProducts
     object dxBarSubItem3: TdxBarSubItem
       Caption = #1069#1082#1089#1087#1086#1088#1090
       Category = 0
+      Hint = #1069#1082#1089#1087#1086#1088#1090
       Visible = ivAlways
       ImageIndex = 6
       ShowCaption = False
