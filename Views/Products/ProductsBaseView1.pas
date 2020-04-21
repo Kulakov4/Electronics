@@ -460,7 +460,8 @@ var
   AWholeSale: string;
   AWholeSaleList: TArray<String>;
 begin
-  AWholeSaleList := Model.ExtraChargeGroup.qExtraCharge2.W.GetWholeSaleList;
+  AWholeSaleList := ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50',
+    '55', '60', '65', '70', '75', '80', '85', '90', '95', '100'];
 
   dxbcWholeSale.Items.BeginUpdate;
   try
@@ -529,7 +530,7 @@ begin
     Model.ExtraChargeGroup.qExtraChargeType.W.Name.FieldName, lsFixedList);
 
   ViewExtraChargeSimple.qExtraCharge := Model.ExtraChargeGroup.qExtraCharge2;
-  ViewExtraChargeSimple.Font.Size := 9;
+//  ViewExtraChargeSimple.Font.Size := 9;
 
   (cxbeiExtraCharge.Properties as TcxPopupEditproperties).PopupControl :=
     ViewExtraChargeSimple;
