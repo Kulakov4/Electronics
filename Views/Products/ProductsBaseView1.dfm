@@ -37,9 +37,6 @@ inherited ViewProductsBase1: TViewProductsBase1
         end>
     end
   end
-  inherited StatusBar: TStatusBar
-    ExplicitTop = 585
-  end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
     DockControlHeights = (
@@ -126,9 +123,9 @@ inherited ViewProductsBase1: TViewProductsBase1
       WholeRow = False
     end
     object cxbeiExtraChargeType: TcxBarEditItem
-      Caption = #1057#1090#1086#1080#1084#1086#1089#1090#1100
+      Caption = #1062#1077#1085#1072
       Category = 0
-      Hint = #1057#1090#1086#1080#1084#1086#1089#1090#1100
+      Hint = #1062#1077#1085#1072
       Visible = ivAlways
       ShowCaption = True
       PropertiesClassName = 'TcxLookupComboBoxProperties'
