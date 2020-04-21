@@ -6,7 +6,7 @@ inherited QryBill: TQryBill
   end
   inherited FDQuery: TFDQuery
     SQL.Strings = (
-      'select *'
+      'select ID, Number, BillDate, Dollar, Euro, ShipmentDate, Width'
       'from bill'
       'where (0=0) and (1=1)')
   end
