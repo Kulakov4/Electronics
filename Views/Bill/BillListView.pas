@@ -296,7 +296,7 @@ begin
     end;
 
     AViewBillContentExport.Font.Assign(Font);
-    AViewBillContentExport.Font.Size := 10;
+//    AViewBillContentExport.Font.Size := 10;
     qBillContentExport2.W.TryOpen;
 
     AViewBillContentExport.W := qBillContentExport2.W;

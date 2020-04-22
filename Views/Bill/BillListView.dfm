@@ -19,8 +19,8 @@ inherited ViewBill: TViewBill
     object Label1: TLabel
       Left = 10
       Top = 10
-      Width = 75
-      Height = 13
+      Width = 88
+      Height = 18
       Caption = #1044#1072#1090#1072' '#1086#1090#1075#1088#1091#1079#1082#1080
     end
     object DateTimePicker: TDateTimePicker
@@ -28,8 +28,8 @@ inherited ViewBill: TViewBill
       Top = 34
       Width = 138
       Height = 21
-      Date = 43802.000000000000000000
-      Time = 0.711747812500107100
+      Date = 43802.711747812500000000
+      Time = 43802.711747812500000000
       TabOrder = 0
     end
     object cxPopupBtnOK: TcxButton
