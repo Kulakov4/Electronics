@@ -266,7 +266,7 @@ begin
   Model.ExtraChargeGroup.qExtraCharge2.W.FilterByType
     (cxbeiExtraChargeType.EditValue);
   ViewExtraChargeSimple.MainView.ApplyBestFit;
-
+(*
   // ѕомещаем пустое значение в качестве выбранного
   dxbcWholeSale.Tag := 1;
   try
@@ -282,7 +282,7 @@ begin
   finally
     dxbcWholeSale.Tag := 0;
   end;
-
+*)
 end;
 
 procedure TViewProductsBase1.DoAfterCancelUpdates(Sender: TObject);
