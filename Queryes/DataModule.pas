@@ -254,12 +254,27 @@ begin
         // Добавляем товар в заказ
         qBillContentSimple.W.AddContent(ABillID, AStoreHouseProductID,
           AQryProducts.BasketW.SaleCount.F.AsInteger,
-          AQryProducts.BasketW.CalcPriceR.F.AsFloat,
           AQryProducts.BasketW.Retail.F.AsFloat,
           ifThen(AQryProducts.BasketW.WholeSale.F.AsFloat > 0,
           AQryProducts.BasketW.WholeSale.F.AsFloat,
           AQryProducts.BasketW.MinWholeSale.F.AsFloat),
-          AQryProducts.BasketW.Markup.F.AsFloat);
+
+          AQryProducts.BasketW.PriceR.F.AsFloat,
+          AQryProducts.BasketW.PriceD.F.AsFloat,
+          AQryProducts.BasketW.PriceE.F.AsFloat,
+
+          AQryProducts.BasketW.PriceR1.F.AsFloat,
+          AQryProducts.BasketW.PriceD1.F.AsFloat,
+          AQryProducts.BasketW.PriceE1.F.AsFloat,
+
+          AQryProducts.BasketW.PriceR2.F.AsFloat,
+          AQryProducts.BasketW.PriceD2.F.AsFloat,
+          AQryProducts.BasketW.PriceE2.F.AsFloat,
+
+          AQryProducts.BasketW.SaleR.F.AsFloat,
+          AQryProducts.BasketW.SaleD.F.AsFloat,
+          AQryProducts.BasketW.SaleE.F.AsFloat
+          );
 
         // Тут товар исчезает из корзины !!!
         AQryProducts.BasketW.SetSaleCount(0);

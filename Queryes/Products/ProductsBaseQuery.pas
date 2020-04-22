@@ -53,8 +53,6 @@ type
     FPackagePins: TFieldWrap;
     FPackaging: TFieldWrap;
     FPrice: TFieldWrap;
-    FCalcPriceR: TFieldWrap;
-    FMarkup: TFieldWrap;
     FProductID: TFieldWrap;
     FReleaseDate: TFieldWrap;
     FRetail: TFieldWrap;
@@ -107,8 +105,6 @@ type
     property PackagePins: TFieldWrap read FPackagePins;
     property Packaging: TFieldWrap read FPackaging;
     property Price: TFieldWrap read FPrice;
-    property CalcPriceR: TFieldWrap read FCalcPriceR;
-    property Markup: TFieldWrap read FMarkup;
     property ProductID: TFieldWrap read FProductID;
     property ReleaseDate: TFieldWrap read FReleaseDate;
     property Retail: TFieldWrap read FRetail;
@@ -953,18 +949,52 @@ end;
 procedure TQueryProductsBase.DoOnCalcFields;
 var
   ADCource: Double;
-  APriceR: Double;
+  AECource: Double;
+  APurchasePrice: Double;
+  ARetailPrice: Double;
   AWholeSale: Double;
+  AWholeSalePrice: Double;
 begin
   inherited;
 
   if (FCalcStatus > 0) or (W.IDCurrency.F.AsInteger = 0) or (W.Price.F.IsNull)
   then
     Exit;
-  // Определяемся с курсом Доллара
-  ADCource := GetDollarCource;
 
-  APriceR := 0;
+  // Определяемся с курсом Доллара на сегодняшний день (если нет - на день покупки)
+  ADCource := GetDollarCource;
+  // Определяемся с курсом Евро на сегодняшний день (если нет - на день покупки)
+  AECource := GetEuroCource;
+
+  // Закупочная цена в исходной валюте
+  APurchasePrice := W.Price.F.Value;
+  // Если закупка была в Рублях и курс Доллара вырос
+  // и мы хотим пересчитать закупочную цену по новому курсу
+  if (W.IDCurrency.F.AsInteger = 1) and RubToDollar and (ADCource > 0) and
+    (W.Dollar.F.AsFloat > 0) and (ADCource > W.Dollar.F.AsFloat) then
+    // Закупочную цену в Долларах на момент покупки переводим в Рубли по сегодняшнему курсу
+    APurchasePrice := W.PriceD.F.Value * ADCource;
+
+  // Розничная цена в исходной валюте
+  if W.Retail.F.Value > 0 then
+    ARetailPrice := APurchasePrice * (1 + W.Retail.F.Value / 100)
+  else
+    ARetailPrice := 0;
+
+  AWholeSale := W.WholeSale.F.AsFloat;
+
+  // Если оптовая наценка не задана берём минимальную оптовую наценку
+  if AWholeSale = 0 then
+    // Если минимальная оптовая наценка задана
+    if not W.MinWholeSale.F.IsNull then
+      AWholeSale := W.MinWholeSale.F.Value;
+
+  // Оптовая цена в исходной валюте
+  if AWholeSale > 0 then
+    AWholeSalePrice := APurchasePrice * (1 + AWholeSale / 100)
+  else
+    AWholeSalePrice := 0;
+
   // Если закупочная цена была в рублях
   if W.IDCurrency.F.AsInteger = 1 then
   begin
@@ -985,95 +1015,166 @@ begin
     else
       W.PriceE.F.Value := NULL;
 
-    // Закупочная цена в рублях. Она изменится если включена опция RubToDollar
-    APriceR := W.PriceR.F.AsFloat;
-
     // *************************************************************************
     // Розничная цена
     // *************************************************************************
-    // Если курс Доллара вырос и мы хотим пересчитать закупочную цену по новому курсу
-    if RubToDollar and (ADCource > 0) and (W.Dollar.F.AsFloat > 0) and
-      (ADCource > W.Dollar.F.AsFloat) then
-      // Закупочную цену в Долларах на момент покупки переводим в Рубли по сегодняшнему курсу
-      APriceR := W.PriceD.F.Value * ADCource;
+    if ARetailPrice > 0 then
+    begin
+      // Розничная цена в рублях
+      W.PriceR1.F.Value := ARetailPrice;
+      // Розничную цену в Долларах пересчитываем по текущему курсу
+      W.PriceD1.F.Value := ARetailPrice / ADCource;
+      // Розничную цену в Евро пересчитываем по текущему курсу Евро
+      W.PriceE1.F.Value := ARetailPrice / AECource;
+    end;
+
+    // *************************************************************************
+    // Оптовая цена
+    // *************************************************************************
+    if AWholeSalePrice > 0 then
+    begin
+      // Оптовая цена в рублях
+      W.PriceR2.F.Value := AWholeSalePrice;
+      // Оптовую цену в Долларах пересчитываем по текущему курсу Доллара
+      W.PriceD2.F.Value := AWholeSalePrice / ADCource;
+      // Оптовую цену в Евро пересчитываем по текущему курсу Евро
+      W.PriceE2.F.Value := AWholeSalePrice / AECource;
+    end;
   end;
 
   // Если исходная цена была в долларах
   if W.IDCurrency.F.AsInteger = 2 then
   begin
-    // Расчитываем цену в Рублях по курсу Доллара на момент покупки
+    // *************************************************************************
+    // Закупочная цена
+    // *************************************************************************
+
+    // Расчитываем закупочную цену в Рублях по курсу Доллара на момент покупки
     if W.Dollar.F.AsFloat > 0 then
       W.PriceR.F.Value := W.Price.F.Value * W.Dollar.F.AsFloat
     else
       W.PriceR.F.Value := NULL;
 
+    // Закупочная цена в Долларах на момент покупки известна
     W.PriceD.F.Value := W.Price.F.Value;
 
+    // Расчитываем закупочную цену в Евро по курсу Доллара и Евро на момент покупки
     if (W.Dollar.F.AsFloat > 0) and (W.Euro.F.AsFloat > 0) then
       W.PriceE.F.Value := W.Price.F.Value * W.Dollar.F.AsFloat /
         W.Euro.F.AsFloat
     else
       W.PriceE.F.Value := NULL;
 
-    // Закупочная цена в рублях.
-    APriceR := W.PriceR.F.AsFloat;
+    // *************************************************************************
+    // Розничная цена
+    // *************************************************************************
+    if ARetailPrice > 0 then
+    begin
+      // Розничная цена в Долларах
+      W.PriceD1.F.Value := ARetailPrice;
+      // Розничную цену в Рублях пересчитываем по текущему курсу Доллара
+      W.PriceR1.F.Value := ARetailPrice * ADCource;
+      // Розничную цену в Евро пересчитываем по текущему курсу доллара и евро
+      W.PriceE1.F.Value := ARetailPrice * ADCource / AECource;
+    end;
+
+    // *************************************************************************
+    // Оптовая цена
+    // *************************************************************************
+    if AWholeSalePrice > 0 then
+    begin
+      // Оптовая цена в Долларах
+      W.PriceD2.F.Value := AWholeSalePrice;
+      // Оптовую цену в Рублях пересчитываем по текущему курсу Доллара
+      W.PriceR2.F.Value := AWholeSalePrice * ADCource;
+      // Оптовую цену в Евро пересчитываем по текущему курсу Доллара и Евро
+      W.PriceE2.F.Value := AWholeSalePrice * ADCource / AECource;
+    end;
   end;
 
   // Если исходная цена была в евро
   if W.IDCurrency.F.AsInteger = 3 then
   begin
-    // Расчитываем цену в Рублях по курсу Евро на момент покупки
+    // *************************************************************************
+    // Закупочная цена
+    // *************************************************************************
+
+    // Расчитываем закупочную цену в Рублях по курсу Евро на момент покупки
     if W.Euro.F.AsFloat > 0 then
       W.PriceR.F.Value := W.Price.F.Value * W.Euro.F.AsFloat
     else
       W.PriceR.F.Value := NULL;
 
+    // Расчитываем закупочную цену в Долларах по курсу Евро и Доллара на момент покупки
     if (W.Dollar.F.AsFloat > 0) and (W.Euro.F.AsFloat > 0) then
       W.PriceD.F.Value := W.Price.F.Value * W.Euro.F.AsFloat /
         W.Dollar.F.AsFloat
     else
       W.PriceD.F.Value := NULL;
 
+    // Закупочная цена в Евро известна
     W.PriceE.F.Value := W.Price.F.Value;
 
-    // Закупочная цена в рублях.
-    APriceR := W.PriceR.F.AsFloat;
+    // *************************************************************************
+    // Розничная цена
+    // *************************************************************************
+    if ARetailPrice > 0 then
+    begin
+      // Розничная цена в Евро
+      W.PriceE1.F.Value := ARetailPrice;
+      // Розничную цену в Рублях пересчитываем по текущему курсу Евро
+      W.PriceR1.F.Value := ARetailPrice * AECource;
+      // Розничную цену в Долларах пересчитываем по текущему курсу Доллара и Евро
+      W.PriceD1.F.Value := ARetailPrice * AECource / ADCource;
+    end;
+
+    // *************************************************************************
+    // Оптовая цена
+    // *************************************************************************
+    if AWholeSalePrice > 0 then
+    begin
+      // Оптовая цена в Евро
+      W.PriceE2.F.Value := AWholeSalePrice;
+      // Оптовую цену в Рублях пересчитываем по текущему курсу Евро
+      W.PriceR2.F.Value := AWholeSalePrice * AECource;
+      // Оптовую цену в Долларах пересчитываем по текущему курсу Доллара и Евро
+      W.PriceD2.F.Value := AWholeSalePrice * AECource / ADCource;
+    end;
   end;
 
-  // Запоминаем закупочную цену в рублях с учётом возможного изменения курса доллара
-  W.CalcPriceR.F.AsFloat := APriceR;
+  (*
+    // Розничная цена в рублях
+    W.PriceR1.F.Value := APriceR * (1 + W.Retail.F.Value / 100);
+    // Розничная цена в долларах
+    W.PriceD1.F.Value := W.PriceD.F.Value * (1 + W.Retail.F.Value / 100);
+    // Розничная цена в Евро
+    W.PriceE1.F.Value := W.PriceE.F.Value * (1 + W.Retail.F.Value / 100);
 
-  // Розничная цена в рублях
-  W.PriceR1.F.Value := APriceR * (1 + W.Retail.F.Value / 100);
-  // Розничная цена в долларах
-  W.PriceD1.F.Value := W.PriceD.F.Value * (1 + W.Retail.F.Value / 100);
-  // Розничная цена в Евро
-  W.PriceE1.F.Value := W.PriceE.F.Value * (1 + W.Retail.F.Value / 100);
+    AWholeSale := W.WholeSale.F.AsFloat;
 
-  AWholeSale := W.WholeSale.F.AsFloat;
-
-  // Если оптовая наценка не задана берём минимальную оптовую наценку
-  if AWholeSale = 0 then
+    // Если оптовая наценка не задана берём минимальную оптовую наценку
+    if AWholeSale = 0 then
     // Если минимальная оптовая наценка задана
     if not W.MinWholeSale.F.IsNull then
-      AWholeSale := W.MinWholeSale.F.Value;
+    AWholeSale := W.MinWholeSale.F.Value;
 
-  // Если оптовая наценка применена
-  if AWholeSale > 0 then
-  begin
+    // Если оптовая наценка применена
+    if AWholeSale > 0 then
+    begin
     // Оптовая цена в Рублях
     W.PriceR2.F.Value := APriceR * (1 + AWholeSale / 100);
     // Оптовая цена в Долларах
     W.PriceD2.F.Value := W.PriceD.F.Value * (1 + AWholeSale / 100);
     // Оптовая цена в Евро
     W.PriceE2.F.Value := W.PriceE.F.Value * (1 + AWholeSale / 100);
-  end
-  else
-  begin
+    end
+    else
+    begin
     W.PriceR2.F.Value := NULL;
     W.PriceD2.F.Value := NULL;
     W.PriceE2.F.Value := NULL;
-  end;
+    end;
+  *)
 
   // Если указано количество продаж
   if W.SaleCount.F.AsFloat > 0 then
@@ -1084,8 +1185,6 @@ begin
       W.SaleR.F.Value := W.PriceR1.F.Value;
       W.SaleD.F.Value := W.PriceD1.F.Value;
       W.SaleE.F.Value := W.PriceE1.F.Value;
-      // Запоминаем, что отпускная цена - это розничная цена
-      W.Markup.F.Value := W.Retail.F.Value;
     end
     else
     begin
@@ -1093,8 +1192,6 @@ begin
       W.SaleR.F.Value := W.PriceR2.F.AsFloat * W.SaleCount.F.AsFloat;
       W.SaleD.F.Value := W.PriceD2.F.AsFloat * W.SaleCount.F.AsFloat;
       W.SaleE.F.Value := W.PriceE2.F.AsFloat * W.SaleCount.F.AsFloat;
-      // Запоминаем, что отпускная цена - это оптовая цена
-      W.Markup.F.Value := AWholeSale;
     end;
   end
   else
@@ -1225,12 +1322,6 @@ begin
     FDQuery.Fields.Clear;
   end;
   FDQuery.FieldDefs.Update;
-
-  // Закупочна цена в рублях с учётом поправки на рост курса доллара
-  FDQuery.FieldDefs.Add(W.CalcPriceR.FieldName, ftFloat);
-
-  // Процент наценки используемый при продаже
-  FDQuery.FieldDefs.Add(W.Markup.FieldName, ftFloat);
 
   // Закупочная цена
   FDQuery.FieldDefs.Add(W.PriceR.FieldName, ftFloat);
@@ -1563,8 +1654,6 @@ begin
   FStorehouseId := TFieldWrap.Create(Self, 'StorehouseId');
   FValue := TFieldWrap.Create(Self, 'p.Value');
   FWholeSale := TFieldWrap.Create(Self, 'WholeSale');
-  FCalcPriceR := TFieldWrap.Create(Self, 'CalcPriceR');
-  FMarkup := TFieldWrap.Create(Self, 'Markup');
 end;
 
 procedure TProductW.AddCategory;
@@ -1679,9 +1768,8 @@ begin
 
   SetDisplayFormat([SaleR.F, SaleD.F, SaleE.F]);
 
-  SetInternalCalc([Markup.F, CalcPriceR.F, PriceD.F, PriceR.F, PriceE.F,
-    PriceD1.F, PriceR1.F, PriceE1.F, PriceD2.F, PriceR2.F, PriceE2.F, SaleR.F,
-    SaleD.F, SaleE.F]);
+  SetInternalCalc([PriceD.F, PriceR.F, PriceE.F, PriceD1.F, PriceR1.F,
+    PriceE1.F, PriceD2.F, PriceR2.F, PriceE2.F, SaleR.F, SaleD.F, SaleE.F]);
 end;
 
 function TProductW.LookupComponentGroup(const AComponentGroup: string): Variant;

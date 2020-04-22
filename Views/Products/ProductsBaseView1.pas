@@ -251,9 +251,9 @@ end;
 
 procedure TViewProductsBase1.cxbeiExtraChargeTypePropertiesChange
   (Sender: TObject);
-var
-  A: TArray<String>;
-  S: string;
+//var
+//  A: TArray<String>;
+//  S: string;
 begin
   inherited;
 
