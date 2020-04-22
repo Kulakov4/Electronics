@@ -32,8 +32,10 @@ type
     FDiagram: TFieldWrap;
     FDocumentNumber: TFieldWrap;
     FDollar: TFieldWrap;
+    FBillDollar: TFieldWrap;
     FDrawing: TFieldWrap;
     FEuro: TFieldWrap;
+    FBillEuro: TFieldWrap;
     FImage: TFieldWrap;
     FLoadDate: TFieldWrap;
     FOriginCountry: TFieldWrap;
@@ -89,8 +91,10 @@ type
     property Diagram: TFieldWrap read FDiagram;
     property DocumentNumber: TFieldWrap read FDocumentNumber;
     property Dollar: TFieldWrap read FDollar;
+    property BillDollar: TFieldWrap read FBillDollar;
     property Drawing: TFieldWrap read FDrawing;
     property Euro: TFieldWrap read FEuro;
+    property BillEuro: TFieldWrap read FBillEuro;
     property Image: TFieldWrap read FImage;
     property LoadDate: TFieldWrap read FLoadDate;
     property OriginCountry: TFieldWrap read FOriginCountry;
@@ -192,6 +196,9 @@ begin
 
   FSaleCount := TFieldWrap.Create(Self, 'SaleCount', 'Кол-во продажи');
 
+  FBillDollar := TFieldWrap.Create(Self, 'BillDollar', '$');
+  FBillEuro := TFieldWrap.Create(Self, 'BillEuro', '€');
+
   FSaleR := TFieldWrap.Create(Self, 'SaleR', '₽');
   FSaleD := TFieldWrap.Create(Self, 'SaleD', '$');
   FSaleE := TFieldWrap.Create(Self, 'SaleE', '€');
@@ -217,6 +224,8 @@ begin
 end;
 
 procedure TBillContentExportW.InitFields;
+var
+  i: Integer;
 begin
   SetDisplayFormat([PriceR2.F, PriceD2.F, PriceE2.F, PriceR1.F, PriceD1.F,
     PriceE1.F, PriceR.F, PriceD.F, PriceE.F, SaleR.F, SaleD.F, SaleE.F,
@@ -228,6 +237,16 @@ begin
   Image.F.OnGetText := OnDataSheetGetText;
 
   BillTitle.F.FieldKind := fkInternalCalc;
+
+  // делаем выравнивание всех полей по левому краю
+  for i := 0 to DataSet.FieldCount - 1 do
+  begin
+    // Колонка итого останется выровненной по правому краю
+    if DataSet.Fields[i] = SumSaleR.F then
+      Continue;
+
+    DataSet.Fields[i].Alignment := taLeftJustify;
+  end;
 end;
 
 procedure TBillContentExportW.OnDataSheetGetText(Sender: TField;

@@ -194,7 +194,7 @@ var
   S1: string;
   S2: string;
 
-//AFrmBillContentExport: TFrmBillContentExport;
+//  AFrmBillContentExport: TFrmBillContentExport;
 begin
   inherited;
 
@@ -205,7 +205,7 @@ begin
   try
     qBillContentExport2.W.TryOpen;
 
-    AFrmBillContentExport.ViewBillContentExport.Font.Assign(Font);
+//    AFrmBillContentExport.ViewBillContentExport.Font.Assign(Font);
     AFrmBillContentExport.ViewBillContentExport.W :=
       qBillContentExport2.W;
     AFrmBillContentExport.ShowModal;

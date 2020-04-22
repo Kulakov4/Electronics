@@ -114,7 +114,7 @@ procedure TViewBillContentExport.cxGridDBBandedTableViewCustomDrawGroupCell
 var
   ARect: TRect;
   AText: string;
-//  i: Integer;
+  // i: Integer;
 begin
   inherited;
   // Определяемся с тексом
@@ -218,6 +218,9 @@ begin
   CreateBandForColumns([W.Dollar.FieldName, W.Euro.FieldName], 'Курсы валют');
 
   CreateBandForColumn(W.SaleCount.FieldName);
+
+  CreateBandForColumns([W.BillDollar.FieldName, W.BillEuro.FieldName],
+    'Курсы валют');
 
   CreateBandForColumns([W.SaleR.FieldName, W.SaleD.FieldName,
     W.SaleE.FieldName], 'Стоимость');
