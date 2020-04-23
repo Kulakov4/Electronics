@@ -1,7 +1,7 @@
 inherited ViewBill: TViewBill
   inherited cxGrid: TcxGrid
-    Top = 82
-    Height = 390
+    Top = 86
+    Height = 386
     ExplicitTop = 82
     ExplicitHeight = 390
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
@@ -28,8 +28,8 @@ inherited ViewBill: TViewBill
       Top = 34
       Width = 138
       Height = 21
-      Date = 43802.711747812500000000
-      Time = 43802.711747812500000000
+      Date = 43802.000000000000000000
+      Time = 0.711747812500107100
       TabOrder = 0
     end
     object cxPopupBtnOK: TcxButton
@@ -48,7 +48,7 @@ inherited ViewBill: TViewBill
     DockControlHeights = (
       0
       0
-      82
+      86
       0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
@@ -84,18 +84,25 @@ inherited ViewBill: TViewBill
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
       ItemLinks = <
         item
           Visible = True
           ItemName = 'cxbeiPeriodComboBox'
         end
         item
+          UserDefine = [udWidth]
+          UserWidth = 117
           Visible = True
           ItemName = 'cxbeiShippedComboBox'
         end>
       OneOnRow = True
       Row = 1
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end
@@ -104,15 +111,22 @@ inherited ViewBill: TViewBill
       CaptionButtons = <>
       DockedDockingStyle = dsTop
       DockedLeft = 0
-      DockedTop = 54
+      DockedTop = 57
       DockingStyle = dsTop
       FloatLeft = 903
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
       Images = DMRepository.cxImageList
       ItemLinks = <
         item
+          UserDefine = [udWidth]
+          UserWidth = 87
           Visible = True
           ItemName = 'cxbeiBeginDate'
         end
@@ -126,7 +140,7 @@ inherited ViewBill: TViewBill
         end>
       OneOnRow = True
       Row = 2
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end
@@ -164,7 +178,7 @@ inherited ViewBill: TViewBill
       Hint = #1044#1072#1090#1072' '#1085#1072#1095#1072#1083#1072
       Visible = ivAlways
       OnChange = cxbeiBeginDateChange
-      Width = 80
+      Width = 90
       PropertiesClassName = 'TcxDateEditProperties'
     end
     object cxbeiEndDate: TcxBarEditItem
@@ -173,7 +187,7 @@ inherited ViewBill: TViewBill
       Hint = #1044#1072#1090#1072' '#1086#1082#1086#1085#1095#1072#1085#1080#1103
       Visible = ivAlways
       OnChange = cxbeiEndDateChange
-      Width = 80
+      Width = 90
       PropertiesClassName = 'TcxDateEditProperties'
     end
     object dxBarButton3: TdxBarButton

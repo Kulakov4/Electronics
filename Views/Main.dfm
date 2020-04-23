@@ -71,14 +71,14 @@ object frmMain: TfrmMain
           object pnlCompGroupLeft: TPanel
             Left = 0
             Top = 0
-            Width = 253
+            Width = 260
             Height = 522
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
           end
           object cxspltrMain: TcxSplitter
-            Left = 253
+            Left = 260
             Top = 0
             Width = 8
             Height = 522
@@ -86,55 +86,51 @@ object frmMain: TfrmMain
             PositionAfterOpen = 200
             AutoSnap = True
             Control = pnlCompGroupLeft
+            ExplicitLeft = 253
           end
           object pnlCompGroupRight: TPanel
-            Left = 261
+            Left = 268
             Top = 0
-            Width = 1067
+            Width = 1060
             Height = 522
             Align = alClient
             TabOrder = 2
+            ExplicitLeft = 261
+            ExplicitWidth = 1067
             object cxpcCompGroupRight: TcxPageControl
               Left = 1
               Top = 1
-              Width = 1065
+              Width = 1058
               Height = 520
               Align = alClient
               TabOrder = 0
               Properties.ActivePage = cxtsCategory
               Properties.CustomButtons.Buttons = <>
               OnPageChanging = cxpcCompGroupRightPageChanging
+              ExplicitWidth = 1065
               ClientRectBottom = 516
               ClientRectLeft = 4
-              ClientRectRight = 1061
+              ClientRectRight = 1054
               ClientRectTop = 29
               object cxtsCategory: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1092#1091#1085#1082#1094#1080#1086#1085#1072#1083#1100#1085#1086#1081' '#1075#1088#1091#1087#1087#1099
                 ImageIndex = 0
+                ExplicitWidth = 1057
               end
               object cxtsCategoryComponents: TcxTabSheet
                 Caption = #1057#1086#1076#1077#1088#1078#1080#1084#1086#1077' '#1075#1088#1091#1087#1087#1099' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074
                 ImageIndex = 1
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
+                ExplicitWidth = 1057
               end
               object cxtsCategoryParameters: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099
                 ImageIndex = 2
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
+                ExplicitWidth = 1057
               end
               object cxtsParametricTable: TcxTabSheet
                 Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1080#1095#1077#1089#1082#1072#1103' '#1090#1072#1073#1083#1080#1094#1072
                 ImageIndex = 3
-                ExplicitLeft = 0
-                ExplicitTop = 0
-                ExplicitWidth = 0
-                ExplicitHeight = 0
+                ExplicitWidth = 1057
               end
             end
           end
@@ -142,10 +138,6 @@ object frmMain: TfrmMain
         object cxtshCompSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
       object pnlLoad: TPanel
@@ -160,10 +152,6 @@ object frmMain: TfrmMain
     object cxtshWareHouse: TcxTabSheet
       Caption = #1057#1082#1083#1072#1076#1099
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object cxpcWareHouse2: TcxPageControl
         Left = 0
         Top = 0
@@ -176,7 +164,6 @@ object frmMain: TfrmMain
         OnClick = cxpcWareHouse2Click
         OnMouseDown = cxpcWareHouse2MouseDown
         OnPageChanging = cxpcWareHouse2PageChanging
-        ExplicitHeight = 557
         ClientRectBottom = 551
         ClientRectLeft = 4
         ClientRectRight = 1332
@@ -184,86 +171,76 @@ object frmMain: TfrmMain
         object cxtshWareHouse2: TcxTabSheet
           Caption = #1057#1082#1083#1072#1076#1099
           ImageIndex = 0
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlStoreHouseLeft: TPanel
             Left = 0
             Top = 0
-            Width = 253
-            Height = 526
+            Width = 260
+            Height = 522
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
           end
           object cxSplitterStoreHouse: TcxSplitter
-            Left = 253
+            Left = 260
             Top = 0
             Width = 8
-            Height = 526
+            Height = 522
             HotZoneClassName = 'TcxSimpleStyle'
             Control = pnlStoreHouseLeft
+            ExplicitLeft = 253
           end
           object pnlStoreHouseRight: TPanel
-            Left = 261
+            Left = 268
             Top = 0
-            Width = 1067
-            Height = 526
+            Width = 1060
+            Height = 522
             Align = alClient
             BevelOuter = bvNone
             TabOrder = 2
+            ExplicitLeft = 261
+            ExplicitWidth = 1067
           end
         end
         object cxtshBasket: TcxTabSheet
           Caption = #1050#1086#1088#1079#1080#1085#1072
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
         object cxtshBill: TcxTabSheet
           Caption = #1057#1095#1077#1090#1072
           ImageIndex = 2
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object pnlBillLeft: TPanel
             Left = 0
             Top = 0
-            Width = 253
-            Height = 526
+            Width = 260
+            Height = 522
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
           end
           object cxSplitter1: TcxSplitter
-            Left = 253
+            Left = 260
             Top = 0
             Width = 8
-            Height = 526
+            Height = 522
             HotZoneClassName = 'TcxSimpleStyle'
             Control = pnlBillLeft
+            ExplicitLeft = 253
           end
           object pnlBillCenter: TPanel
-            Left = 261
+            Left = 268
             Top = 0
-            Width = 1067
-            Height = 526
+            Width = 1060
+            Height = 522
             Align = alClient
             BevelOuter = bvNone
             TabOrder = 2
+            ExplicitLeft = 261
+            ExplicitWidth = 1067
           end
         end
         object cxtshSearch: TcxTabSheet
           Caption = #1055#1086#1080#1089#1082
           ImageIndex = 3
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
         end
       end
     end
