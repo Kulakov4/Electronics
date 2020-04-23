@@ -95,7 +95,7 @@ resourcestring
   sTreeRootNodeName = 'Структура';
 
 const
-  DBVersion = 10;
+  DBVersion = 11;
   BaseFontSize = 11;
   ProgramVersion = 1.6;
   DragDropTimeOut = 200; // Защита от случайного перетаскивания
