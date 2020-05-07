@@ -26,8 +26,14 @@ uses System.sysutils;
 { THintWindowEx }
 
 constructor THintWindowEx.Create(AOwner: TComponent);
+var
+  fs: Integer;
+  S: String;
 begin
   inherited;
+  fs := Canvas.Font.Size;
+  S := Canvas.Font.Name;
+
 //  Canvas.Font.Size := 14;
   FShowTimer := TTimer.Create(self);
   FShowTimer.Interval := Application.HintPause;

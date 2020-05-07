@@ -39,7 +39,7 @@ object frmLoadParametric: TfrmLoadParametric
     object cxrbReplace: TcxRadioButton
       Left = 16
       Top = 79
-      Width = 273
+      Width = 470
       Height = 17
       Caption = #1047#1072#1084#1077#1085#1080#1090#1100' '#1080#1084#1077#1102#1097#1080#1077#1089#1103' '#1079#1085#1072#1095#1077#1085#1080#1103' '#1085#1086#1074#1099#1084#1080
       Checked = True
@@ -49,7 +49,7 @@ object frmLoadParametric: TfrmLoadParametric
     object cxrbAdd: TcxRadioButton
       Left = 16
       Top = 110
-      Width = 273
+      Width = 470
       Height = 17
       Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1082' '#1080#1084#1077#1102#1097#1080#1084#1089#1103' '#1079#1085#1072#1095#1077#1085#1080#1103#1084' '#1085#1086#1074#1099#1077
       TabOrder = 2
