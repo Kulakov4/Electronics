@@ -169,6 +169,7 @@ type
     FWriteProgress: TTotalProgress;
     procedure DoAfterAddBill(Sender: TObject);
     procedure DoAfterLoadSheet(ASender: TObject);
+    procedure DoAfterTreeListSearch(Sender: TObject);
     procedure DoAfterTreeListSmartRefresh(Sender: TObject);
     procedure DoBeforeParametricTableActivate(Sender: TObject);
     procedure DoBeforeParametricTableDeactivate(Sender: TObject);
@@ -261,8 +262,8 @@ begin
   Screen.HintFont.Assign(Font);
   Screen.MenuFont.Assign(Font);
   Screen.MessageFont.Assign(Font);
-//  Screen.HintFont.Size := Font.Size; //ProjectConst.BaseFontSize;
-//  Screen.MenuFont.Size := Font.Size; //ProjectConst.BaseFontSize;
+  // Screen.HintFont.Size := Font.Size; //ProjectConst.BaseFontSize;
+  // Screen.MenuFont.Size := Font.Size; //ProjectConst.BaseFontSize;
 
   FHintWindowEx := THintWindowEx.Create(Self);
   FQuerySearchCategoriesPath := TQuerySearchCategoriesPath.Create(Self);
@@ -368,7 +369,6 @@ begin
 
   cxpcMain.ActivePage := cxtshComp;
   cxpcComp2.ActivePage := cxtshCompGroup;
-
 
   // Искусственно вызываем событие
   if TDM.Create.qTreeList.FDQuery.Active then
@@ -712,6 +712,8 @@ begin
 
       // Устанавливаем обработчик события
       ViewTreeList.cxDBTreeList.OnCanFocusNode := OnTreeListCanFocusNode;
+
+      TNotifyEventWrap.Create(ViewTreeList.AfterSearch, DoAfterTreeListSearch);
 
       TNotifyEventWrap.Create(TDM.Create.qTreeList.W.AfterSmartRefresh,
         DoAfterTreeListSmartRefresh, FViewEventList);
@@ -1334,6 +1336,12 @@ begin
   finally
     FreeAndNil(ne);
   end;
+end;
+
+procedure TfrmMain.DoAfterTreeListSearch(Sender: TObject);
+begin
+  // После поиска в дереве компонентов переходим на вкладку Содержимое группы компонентов
+  cxpcCompGroupRight.ActivePage := cxtsCategoryComponents;
 end;
 
 procedure TfrmMain.DoAfterTreeListSmartRefresh(Sender: TObject);

@@ -4,8 +4,9 @@ inherited ViewTreeList: TViewTreeList
   ExplicitWidth = 377
   ExplicitHeight = 420
   inherited cxDBTreeList: TcxDBTreeList
+    Top = 29
     Width = 377
-    Height = 220
+    Height = 219
     Bands = <
       item
       end>
@@ -28,7 +29,7 @@ inherited ViewTreeList: TViewTreeList
     OnExpanded = cxDBTreeListExpanded
     OnMouseUp = cxDBTreeListMouseUp
     ExplicitWidth = 377
-    ExplicitHeight = 220
+    ExplicitHeight = 219
     object clID: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'ID'
@@ -89,6 +90,11 @@ inherited ViewTreeList: TViewTreeList
   inherited dxBarManager: TdxBarManager
     ShowHint = False
     PixelsPerInch = 96
+    DockControlHeights = (
+      0
+      0
+      29
+      0)
     inherited dxBarManagerBar1: TdxBar
       ItemLinks = <
         item

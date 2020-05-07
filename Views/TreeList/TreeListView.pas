@@ -76,11 +76,13 @@ type
     procedure cxbeiSearchPropertiesChange(Sender: TObject);
     procedure cxbeiSearchPropertiesEditValueChanged(Sender: TObject);
   private
+    FAfterSearch: TNotifyEventsEx;
     FqTreeList: TQueryTreeList;
     FViewDuplicateCategory: TViewDuplicateCategory;
 
   const
     KeyFolder: String = 'TreeList';
+    function GetAfterSearch: TNotifyEventsEx;
     function GetLevel(ANode: TcxTreeListNode): Integer;
     procedure SetqTreeList(const Value: TQueryTreeList);
     { Private declarations }
@@ -91,8 +93,10 @@ type
       read FViewDuplicateCategory;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure ExpandRoot;
     procedure UpdateView; override;
+    property AfterSearch: TNotifyEventsEx read GetAfterSearch;
     property qTreeList: TQueryTreeList read FqTreeList write SetqTreeList;
     { Public declarations }
   end;
@@ -121,6 +125,14 @@ begin
   (cxbeiSearch.Properties as TcxTextEditProperties).ImmediateUpdateText := True;
 
   FEnableClearSelection := False;
+end;
+
+destructor TViewTreeList.Destroy;
+begin
+  if FAfterSearch <> nil then
+    FreeAndNil(FAfterSearch);
+
+  inherited;
 end;
 
 procedure TViewTreeList.actAddExecute(Sender: TObject);
@@ -278,7 +290,12 @@ begin
     Exit;
 
   // »щем
-  if not qTreeList.W.LocateByExternalID(AExternalID, [lxoPartialKey]) then
+  if qTreeList.W.LocateByExternalID(AExternalID, [lxoPartialKey]) then
+  begin
+    if FAfterSearch <> nil then
+      FAfterSearch.CallEventHandlers(Self);
+  end
+  else
     TDialog.Create.CategoryNotExist(AExternalID);
 end;
 
@@ -387,6 +404,14 @@ procedure TViewTreeList.ExpandRoot;
 begin
   Assert(cxDBTreeList.Root.Count >= 1);
   cxDBTreeList.Root.Items[0].Expand(False);
+end;
+
+function TViewTreeList.GetAfterSearch: TNotifyEventsEx;
+begin
+  if FAfterSearch = nil then
+    FAfterSearch := TNotifyEventsEx.Create(Self);
+
+  Result := FAfterSearch;
 end;
 
 function TViewTreeList.GetLevel(ANode: TcxTreeListNode): Integer;
