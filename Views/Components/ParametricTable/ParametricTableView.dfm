@@ -3,7 +3,9 @@ inherited ViewParametricTable: TViewParametricTable
   ParentShowHint = False
   ExplicitWidth = 954
   inherited cxGrid: TcxGrid
+    Top = 29
     Width = 954
+    Height = 443
     ExplicitWidth = 954
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnMouseMove = cxGridDBBandedTableViewMouseMove
@@ -38,6 +40,11 @@ inherited ViewParametricTable: TViewParametricTable
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
+    DockControlHeights = (
+      0
+      0
+      29
+      0)
     inherited dxbrMain: TdxBar
       ItemLinks = <
         item

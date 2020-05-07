@@ -1035,11 +1035,19 @@ end;
 procedure TViewParametricTable.DoOnUserFilteringEx
   (Sender: TcxCustomGridTableItem; AFilterList: TcxFilterCriteriaItemList;
   const AValue: Variant; const ADisplayText: string);
-// var
-// AMyFilterList: TcxFilterCriteriaItemList;
+var
+  ACol: TcxGridDBBandedColumn;
+  AMyFilterList: TcxFilterCriteriaItemList;
 begin
+  ACol := Sender as TcxGridDBBandedColumn;
+
+  AMyFilterList := ACol.GridView.DataController.Filter.root;
+  AMyFilterList.BoolOperatorKind := fboOr;
+
   // Содержит
-  AFilterList.AddItem(Sender, foLike, AValue, ADisplayText);
+  // AFilterList.AddItem(Sender, foLike, AValue, ADisplayText);
+  AMyFilterList.AddItem(Sender, foLike, AValue, ADisplayText);
+
   UpdateFiltersAction;
 
   {
