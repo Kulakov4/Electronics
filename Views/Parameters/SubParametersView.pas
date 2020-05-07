@@ -29,7 +29,7 @@ uses
   cxGridDBBandedTableView, cxGrid, SubParametersExcelDataModule,
   SubParametersQuery2, cxCheckBox, HRTimer, DragHelper, cxDropDownEdit,
   cxBarEditItem, cxDataControllerConditionalFormattingRulesManagerDialog,
-  dxBarBuiltInMenu;
+  dxBarBuiltInMenu, dxDateRanges;
 
 type
   TSortMode = (smManual, smAlphabet);
@@ -187,8 +187,8 @@ begin
   try
     // Отменяем все сделанные изменения
     FQuerySubParameters.CancelUpdates;
-    Assert(FQuerySubParameters.FDQuery.Connection.InTransaction);
-    FQuerySubParameters.FDQuery.Connection.Rollback;
+    if FQuerySubParameters.FDQuery.Connection.InTransaction then
+      FQuerySubParameters.FDQuery.Connection.Rollback;
     Assert(not FQuerySubParameters.FDQuery.Connection.InTransaction);
 
     FQuerySubParameters.W.SmartRefresh;
