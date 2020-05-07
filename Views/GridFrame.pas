@@ -152,6 +152,7 @@ type
       var AllowPopup: Boolean); virtual;
     procedure DoStatusBarResize(AEmptyPanelIndex: Integer);
     procedure InitView(AView: TcxGridDBBandedTableView); virtual;
+    procedure InternalClearSelection;
     procedure InternalRefreshData; virtual;
     procedure MyDelete; virtual;
     procedure OnGridBandHeaderPopupMenu(ABand: TcxGridBand;
@@ -174,11 +175,12 @@ type
     procedure ApplySort(Sender: TcxGridTableView; AColumn: TcxGridColumn);
     procedure BeginUpdate; virtual;
     function GetFocusedValue(const AFieldName: string): Variant;
-    function GetSelectedValues(AColumn: TcxGridDBBandedColumn): TArray<Variant>;
-        overload;
-    function GetSelectedValues(AView: TcxGridDBBandedTableView; AColumnIndex:
-        Integer): TArray<Variant>; overload;
-    function GetSelectedValues(const AFieldName: string): TArray<Variant>; overload;
+    function GetSelectedValues(AColumn: TcxGridDBBandedColumn)
+      : TArray<Variant>; overload;
+    function GetSelectedValues(AView: TcxGridDBBandedTableView;
+      AColumnIndex: Integer): TArray<Variant>; overload;
+    function GetSelectedValues(const AFieldName: string)
+      : TArray<Variant>; overload;
     function CalcBandHeight(ABand: TcxGridBand): Integer;
     procedure ChooseTopRecord(AView: TcxGridTableView; ARecordIndex: Integer);
     procedure ChooseTopRecord1(AView: TcxGridTableView; ARecordIndex: Integer);
@@ -507,30 +509,8 @@ begin
 end;
 
 procedure TfrmGrid.ClearSelection;
-var
-  AcxGridMasterDataRow: TcxGridMasterDataRow;
-  AView: TcxGridTableView;
-  i: Integer;
 begin
-  MainView.Controller.ClearSelection;
-  MainView.Controller.EditingController.HideEdit(False);
-
-  if (MainView.ViewData.RowCount > 0) and
-    (MainView.ViewData.Rows[0] is TcxGridMasterDataRow) then
-  begin
-    for i := 0 to MainView.ViewData.RowCount - 1 do
-    begin
-      AcxGridMasterDataRow := MainView.ViewData.Rows[i] as TcxGridMasterDataRow;
-      AView := AcxGridMasterDataRow.ActiveDetailGridView as TcxGridTableView;
-      if AView <> nil then
-      begin
-        AView.Controller.ClearSelection;
-        AView.Controller.EditingController.HideEdit(False);
-      end;
-    end;
-  end;
-
-  UpdateView;
+  InternalClearSelection;
 end;
 
 procedure TfrmGrid.ClearSelectionForClick;
@@ -1879,8 +1859,8 @@ begin
   Result := MainView.Controller.FocusedRow.Values[AColumn.Index];
 end;
 
-function TfrmGrid.GetSelectedValues(AColumn: TcxGridDBBandedColumn):
-    TArray<Variant>;
+function TfrmGrid.GetSelectedValues(AColumn: TcxGridDBBandedColumn)
+  : TArray<Variant>;
 begin
   Assert(AColumn <> nil);
   Result := GetSelectedValues(AColumn.GridView as TcxGridDBBandedTableView,
@@ -1888,7 +1868,7 @@ begin
 end;
 
 function TfrmGrid.GetSelectedValues(AView: TcxGridDBBandedTableView;
-    AColumnIndex: Integer): TArray<Variant>;
+  AColumnIndex: Integer): TArray<Variant>;
 var
   i: Integer;
   L: TList<Variant>;
@@ -1919,6 +1899,41 @@ begin
 
   Result := GetSelectedValues(AColumn.GridView as TcxGridDBBandedTableView,
     AColumn.Index);
+end;
+
+procedure TfrmGrid.InternalClearSelection;
+  procedure ClearSelectionForView(AView: TcxGridTableView);
+  begin
+    if AView.Controller.EditingController.IsEditing then
+      AView.Controller.EditingController.HideEdit(True);
+
+    AView.Controller.ClearSelection;
+  end;
+
+var
+  AcxGridMasterDataRow: TcxGridMasterDataRow;
+  AView: TcxGridTableView;
+  i: Integer;
+begin
+  ClearSelectionForView(MainView);
+
+  if (MainView.ViewData.RowCount > 0) and
+    (MainView.ViewData.Rows[0] is TcxGridMasterDataRow) then
+  begin
+    for i := 0 to MainView.ViewData.RowCount - 1 do
+    begin
+      AcxGridMasterDataRow := MainView.ViewData.Rows[i] as TcxGridMasterDataRow;
+
+      if not AcxGridMasterDataRow.Expanded then
+        Continue;
+
+      AView := AcxGridMasterDataRow.ActiveDetailGridView as TcxGridTableView;
+      if AView <> nil then
+        ClearSelectionForView(AView);
+    end;
+  end;
+
+  UpdateView;
 end;
 
 procedure TfrmGrid.SelectFocusedRecord(const AFieldName: String);

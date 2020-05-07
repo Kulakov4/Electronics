@@ -29,7 +29,8 @@ uses
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
   cxMemo, ProducersGroupUnit2, cxDBLookupComboBox, DragHelper, HRTimer,
   ColumnsBarButtonsHelper, System.Generics.Collections,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  dxDateRanges;
 
 const
   WM_AFTER_SET_NEW_VALUE = WM_USER + 18;
