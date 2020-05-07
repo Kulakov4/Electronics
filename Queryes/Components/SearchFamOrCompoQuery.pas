@@ -48,8 +48,8 @@ begin
     ANewStipulation := 'upper(Value) ' +
       IfThen(ALike, 'like ' + QuotedStr(AUpperS + '%'),
       '= ' + QuotedStr(AUpperS));
-    AStipulation := IfThen(AStipulation.IsEmpty, '', ' or ');
-    AStipulation := AStipulation + ANewStipulation;
+    AStipulation := AStipulation + IfThen(AStipulation.IsEmpty, '', ' or ') +
+      ANewStipulation;
   end;
 
   // Делаем замену в первоначальном SQL запросе
@@ -66,14 +66,14 @@ begin
   Result := SearchEx(AFamily, False, True);
 end;
 
-function TQuerySearchFamilyOrComp.SearchComponent(const AComponent: String):
-    Integer;
+function TQuerySearchFamilyOrComp.SearchComponent(const AComponent
+  : String): Integer;
 begin
   Result := SearchEx(AComponent, False, False);
 end;
 
-function TQuerySearchFamilyOrComp.SearchEx(const AValue: String; ALike,
-    AFamily: Boolean): Integer;
+function TQuerySearchFamilyOrComp.SearchEx(const AValue: String;
+  ALike, AFamily: Boolean): Integer;
 begin
   Assert(not AValue.IsEmpty);
 

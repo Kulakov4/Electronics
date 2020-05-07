@@ -72,7 +72,7 @@ var
   AStipulation1: string;
   AStipulation2: string;
 begin
-  // √отовим SQL запрос дл€ поиска семейств
+  // √отовим SQL запрос дл€ поиска семейств по названию
   qSearchFamilyOrComp.PrepareSearchByValue(AValues, ALike, True);
 
   AStipulation1 := Format('%s in (%s)', [W.ParentProductID.FullName,

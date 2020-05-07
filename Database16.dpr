@@ -275,7 +275,8 @@ uses
   BillContentExportView in 'Views\Bill\BillContentExportView.pas' {ViewBillContentExport: TFrame},
   ColInfo in 'Helpers\ColInfo.pas',
   UpdateStoreHouseProductsCategoryQry in 'Queryes\Products\UpdateStoreHouseProductsCategoryQry.pas' {QryUpdateStoreHouseProductsCategory: TFrame},
-  cxTreeListHelper in 'Helpers\cxTreeListHelper.pas';
+  cxTreeListHelper in 'Helpers\cxTreeListHelper.pas',
+  SearchFamilyQuery in 'Queryes\Components\SearchFamilyQuery.pas' {QrySearchFamily: TFrame};
 
 {$R *.res}
 

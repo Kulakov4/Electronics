@@ -10,7 +10,7 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   SearchInterfaceUnit, CustomComponentsQuery, ApplyQueryFrame, BaseFamilyQuery,
-  DSWrap, SearchFamOrCompoQuery, System.Generics.Collections;
+  DSWrap, SearchFamOrCompoQuery, System.Generics.Collections, SearchFamilyQuery;
 
 type
   TFamilySearchW = class(TBaseFamilyW)
@@ -29,12 +29,14 @@ type
   var
     FGetModeClone: TFDMemTable;
     FClone: TFDMemTable;
+    FqSearchFamily: TQrySearchFamily;
     FqSearchFamilyOrComp: TQuerySearchFamilyOrComp;
     procedure DoAfterOpen(Sender: TObject);
     function GetCurrentMode: TContentMode;
     function GetFamilySearchW: TFamilySearchW;
     function GetIsClearEnabled: Boolean;
     function GetIsSearchEnabled: Boolean;
+    function GetqSearchFamily: TQrySearchFamily;
     function GetqSearchFamilyOrComp: TQuerySearchFamilyOrComp;
     { Private declarations }
   protected
@@ -46,8 +48,9 @@ type
       var AAction: TFDErrorAction; AOptions: TFDUpdateRowOptions); override;
     function CreateDSWrap: TDSWrap; override;
     function GetHaveAnyChanges: Boolean; override;
-    property qSearchFamilyOrComp: TQuerySearchFamilyOrComp
-      read GetqSearchFamilyOrComp;
+    property qSearchFamily: TQrySearchFamily read GetqSearchFamily;
+    property qSearchFamilyOrComp: TQuerySearchFamilyOrComp read
+        GetqSearchFamilyOrComp;
   public
     constructor Create(AOwner: TComponent); override;
     procedure AfterConstruction; override;
@@ -192,6 +195,14 @@ begin
   Result := (FamilySearchW.Mode = SearchMode) and (FClone.RecordCount > 0);
 end;
 
+function TQueryFamilySearch.GetqSearchFamily: TQrySearchFamily;
+begin
+  if FqSearchFamily = nil then
+    FqSearchFamily := TQrySearchFamily.Create(Self);
+
+  Result := FqSearchFamily;
+end;
+
 function TQueryFamilySearch.GetqSearchFamilyOrComp: TQuerySearchFamilyOrComp;
 begin
   if FqSearchFamilyOrComp = nil then
@@ -204,12 +215,22 @@ procedure TQueryFamilySearch.SearchByValue(AValues: TArray<String>;
   ALike: Boolean);
 var
   AStipulation: string;
+  AStipulation1: string;
+  AStipulation2: string;
 begin
-  // Готовим SQL запрос для поиска семейств
+  // Готовим SQL запрос для поиска семейств по названию
   qSearchFamilyOrComp.PrepareSearchByValue(AValues, ALike, True);
 
-  AStipulation := Format('%s in (%s)',
-    [W.ID.FullName, qSearchFamilyOrComp.FDQuery.SQL.Text]);
+  AStipulation1 := Format('%s in (%s)', [W.ID.FullName,
+    qSearchFamilyOrComp.FDQuery.SQL.Text]);
+
+  // Готовим SQL запрос для поиска семейств по входящим в них компонентам
+  qSearchFamily.PrepareSearchByValue(AValues, ALike);
+
+  AStipulation2 := Format('%s in (%s)',
+    [W.ID.FullName, qSearchFamily.FDQuery.SQL.Text]);
+
+  AStipulation := Format('%s or %s', [AStipulation1, AStipulation2]);
 
   FDQuery.SQL.Text := ReplaceInSQL(SQL, AStipulation, 0);
   W.RefreshQuery;
