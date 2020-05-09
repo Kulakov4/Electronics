@@ -201,7 +201,7 @@ begin
   if not Model.qProductsBase.LocateInComponents then
   begin
     TDialog.Create.ErrorMessageDialog
-      (Format('Компонент %s не найден в теоретической базе',
+      (Format('Компонент %s отсутствует в Компонентной базе',
       [ProductW.Value.F.AsString]));
     Exit;
   end;

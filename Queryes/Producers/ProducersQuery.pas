@@ -110,7 +110,7 @@ begin
   // Foreign Key Constraint Failed
   if AE.ErrorCode = 787 then
     E.Message :=
-      'Производитель присутствует на складе или в компонентной базе. Удаление невозможно.';
+      'Производитель присутствует на складе или в Компонентной базе. Удаление невозможно.';
 end;
 
 function TQueryProducers.GetProducerID(const AProducerName: String): Integer;
