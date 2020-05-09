@@ -5,14 +5,14 @@ inherited frmDescriptionPopup: TfrmDescriptionPopup
   OnShow = FormShow
   ExplicitWidth = 475
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 18
   object cxdbmDescriptions: TcxDBMemo
     Left = 0
     Top = 28
     Align = alClient
     DataBinding.DataSource = DataSource
+    Properties.ScrollBars = ssVertical
     TabOrder = 0
-    ExplicitWidth = 395
     Height = 272
     Width = 459
   end
