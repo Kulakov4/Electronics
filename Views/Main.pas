@@ -42,7 +42,7 @@ uses
   IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, ChildCategoriesView,
   StoreHouseListView, BillListView, Vcl.ToolWin, CompFrameUnit,
   ComponentTypeSetUnit, ProgressBarForm3, ProgressInfo, BillContentView2,
-  ProductsView, ProductsSearchView, ProductsBasketView2;
+  ProductsView, ProductsSearchView, ProductsBasketView2, TreeListFrame;
 
 type
   TfrmMain = class(TfrmRoot)
@@ -134,6 +134,10 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure cxpcWareHouse2PageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
+    procedure cxtshBasketShow(Sender: TObject);
+    procedure cxtshBillShow(Sender: TObject);
+    procedure cxtshSearchShow(Sender: TObject);
+    procedure cxtshWareHouse2Show(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -144,6 +148,7 @@ type
     procedure ViewComponentsactOpenDatasheetExecute(Sender: TObject);
   private
     FCategoryPath: string;
+    FCreatedTreeList: TfrmTreeList;
     // FComponentsFrame: TComponentsFrame;
     FcxpcCompGroupRightActivePage: TcxTabSheet;
     FEventList: TObjectList;
@@ -828,6 +833,7 @@ begin
     Exit;
 
   FWareHousePageWasChange := True;
+  FCreatedTreeList := nil;
 
   // Если переходим на вкладку склады
   if NewPage = cxtshWareHouse2 then
@@ -865,8 +871,9 @@ begin
       // Подписываемся чтобы искать компонент в параметрической таблице
       TNotifyEventWrap.Create(TDM.Create.ProductsViewModel.qProducts.OnLocate,
         DoOnProductLocate, FViewEventList);
+
+      FCreatedTreeList := ViewProducts;
     end;
-    ViewProducts.MyApplyBestFit;
   end;
 
   // Если уходим со вкладки Склады
@@ -888,6 +895,8 @@ begin
       FViewProductsBasket.Parent := cxtshBasket;
       FViewProductsBasket.Align := alClient;
       ViewProductsBasket.BasketViewModel := TDM.Create.ProductsBasketViewModel;
+
+      FCreatedTreeList := ViewProductsBasket;
     end;
   end;
 
@@ -910,6 +919,8 @@ begin
       FViewBillContent.Parent := pnlBillCenter;
       FViewBillContent.Align := alClient;
       FViewBillContent.BillContentModel := TDM.Create.BillContentViewModel;
+
+      FCreatedTreeList := FViewBillContent;
     end;
   end;
 
@@ -935,8 +946,34 @@ begin
       TNotifyEventWrap.Create
         (TDM.Create.ProductsSearchViewModel.qProductsSearch.OnLocate,
         DoOnProductLocate, FViewEventList);
+
+      FCreatedTreeList := ViewProductsSearch;
     end;
   end;
+end;
+
+procedure TfrmMain.cxtshBasketShow(Sender: TObject);
+begin
+  if FCreatedTreeList <> nil then
+    FCreatedTreeList.MyApplyBestFit;
+end;
+
+procedure TfrmMain.cxtshBillShow(Sender: TObject);
+begin
+  if FCreatedTreeList <> nil then
+    FCreatedTreeList.MyApplyBestFit;
+end;
+
+procedure TfrmMain.cxtshSearchShow(Sender: TObject);
+begin
+  if FCreatedTreeList <> nil then
+    FCreatedTreeList.MyApplyBestFit;
+end;
+
+procedure TfrmMain.cxtshWareHouse2Show(Sender: TObject);
+begin
+  if FCreatedTreeList <> nil then
+    FCreatedTreeList.MyApplyBestFit;
 end;
 
 procedure TfrmMain.DoOnComponentLocate(Sender: TObject);

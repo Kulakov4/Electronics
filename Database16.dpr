@@ -276,7 +276,8 @@ uses
   ColInfo in 'Helpers\ColInfo.pas',
   UpdateStoreHouseProductsCategoryQry in 'Queryes\Products\UpdateStoreHouseProductsCategoryQry.pas' {QryUpdateStoreHouseProductsCategory: TFrame},
   cxTreeListHelper in 'Helpers\cxTreeListHelper.pas',
-  SearchFamilyQuery in 'Queryes\Components\SearchFamilyQuery.pas' {QrySearchFamily: TFrame};
+  SearchFamilyQuery in 'Queryes\Components\SearchFamilyQuery.pas' {QrySearchFamily: TFrame},
+  ProductsSearchQry in 'Queryes\Products\Search\ProductsSearchQry.pas' {QryProductsSearch: TFrame};
 
 {$R *.res}
 

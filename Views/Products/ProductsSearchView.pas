@@ -11,7 +11,11 @@ uses
   dxSkinsCore, dxSkinsDefaultPainters, cxCalendar, cxCurrencyEdit, Vcl.ExtCtrls,
   Vcl.Menus, System.Actions, Vcl.ActnList, dxBar, cxBarEditItem, cxClasses,
   Vcl.ComCtrls, cxInplaceContainer, cxDBTL, cxTLData, ProductsSearchViewModel,
-  ProductsBaseView0;
+  ProductsBaseView0, cxDataControllerConditionalFormattingRulesManagerDialog,
+  Vcl.StdCtrls;
+
+const
+  WM_FOCUS_VALUE = WM_USER + 369;
 
 type
   TViewProductsSearch = class(TViewProductsBase1)
@@ -32,16 +36,18 @@ type
     procedure actClearExecute(Sender: TObject);
     procedure actPasteFromBufferExecute(Sender: TObject);
     procedure actSearchExecute(Sender: TObject);
-    procedure cxDBTreeListEdited(Sender: TcxCustomTreeList;
-      AColumn: TcxTreeListColumn);
+    procedure cxDBTreeListKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     function GetSearchViewModel: TProductsSearchViewModel;
+    procedure PostFocusValueColumnMessage;
     procedure Search(ALike: Boolean);
     procedure SetSearchViewModel(const Value: TProductsSearchViewModel);
     { Private declarations }
   protected
     procedure ApplyGridSort; override;
     function CreateProductView: TViewProductsBase0; override;
+    procedure FocusValueMsg(var Message: TMessage); message WM_FOCUS_VALUE;
     procedure InitializeColumns; override;
     function IsViewOK: Boolean; override;
   public
@@ -56,7 +62,7 @@ implementation
 
 uses
   SearchInterfaceUnit, Vcl.Clipbrd, ClipboardUnit, GridSort, dxCore,
-  RepositoryDataModule;
+  RepositoryDataModule, DialogUnit;
 
 {$R *.dfm}
 
@@ -69,11 +75,12 @@ begin
   cxDBTreeList.BeginUpdate;
   try
     SearchViewModel.qProductsSearch.ClearSearchResult;
+
     UpdateView;
   finally
     cxDBTreeList.EndUpdate;
   end;
-  FocusValueColumn;
+  PostFocusValueColumnMessage;
 end;
 
 procedure TViewProductsSearch.actPasteFromBufferExecute(Sender: TObject);
@@ -88,17 +95,36 @@ begin
     SearchViewModel.qProductsSearch.W.AppendRows
       (SearchViewModel.qProductsSearch.W.Value.FieldName,
       TClb.Create.GetRowsAsArray);
+
     UpdateView;
 
   finally
     cxDBTreeList.EndUpdate;
   end;
+  MyApplyBestFit(clValue.Position.Band);
 end;
 
 procedure TViewProductsSearch.actSearchExecute(Sender: TObject);
 begin
   inherited;
-  Search(False);
+
+  if (SearchViewModel = nil) or
+    (SearchViewModel.qProductsSearch.ProductSearchW.Mode <> SearchMode) then
+    Exit;
+
+  if clValue.Editing then
+  begin
+    // завершаем редактирование наименования
+    cxDBTreeList.FocusedNode.EndEdit(False);
+  end;
+
+  if VarToStrDef(clValue.Value, '') <> '' then
+    Search(False)
+  else
+  begin
+    TDialog.Create.ProductSearchIsEmpty;
+    PostFocusValueColumnMessage;
+  end;
 end;
 
 procedure TViewProductsSearch.ApplyGridSort;
@@ -114,33 +140,45 @@ begin
   Result := TViewProductsSearch.Create(nil);
 end;
 
-procedure TViewProductsSearch.cxDBTreeListEdited(Sender: TcxCustomTreeList;
-  AColumn: TcxTreeListColumn);
+procedure TViewProductsSearch.cxDBTreeListKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
 begin
-  if SearchViewModel.qProductsSearch.ProductSearchW.Mode = SearchMode then
-  begin
-    if cxDBTreeList.LockUpdate > 0 then
-      Exit;
+  inherited;
+  if (Key <> 13) or (SearchViewModel = nil) then
+    Exit;
 
-    // Если закончили редактирование наименования
-    if (AColumn as TcxDBTreeListColumn).DataBinding.FieldName = clValue.
-      DataBinding.FieldName then
-    begin
-      if VarToStrDef(FocusedNodeValue(AColumn as TcxDBTreeListColumn), '') <> ''
-      then
-        Search(True);
-    end;
-  end
-  else
-    inherited;
+  if not cxDBTreeList.IsEditing or not clValue.Editing then
+    Exit;
+
+  if (SearchViewModel.qProductsSearch.ProductSearchW.Mode <> SearchMode) then
+    Exit;
+
+  // завершаем редактирование наименования
+  cxDBTreeList.FocusedNode.EndEdit(False);
+
+  if (VarToStrDef(clValue.EditValue, '') = '') or
+    (VarToStrDef(clValue.Value, '') = '') then
+    Exit;
+
+  // Если закончили редактирование наименования
+  Search(True);
 end;
 
 procedure TViewProductsSearch.FocusValueColumn;
 begin
   cxDBTreeList.SetFocus;
+  clValue.Focused := True;
 
   // Переводим колонку в режим редактирования
   clValue.Editing := True;
+
+  // cxDBTreeList.ShowEdit;
+end;
+
+procedure TViewProductsSearch.FocusValueMsg(var Message: TMessage);
+begin
+  inherited;
+  FocusValueColumn;
 end;
 
 function TViewProductsSearch.GetSearchViewModel: TProductsSearchViewModel;
@@ -158,7 +196,7 @@ begin
     SearchViewModel.qStoreHouseList.W.DataSource, lsEditFixedList,
     SearchViewModel.qStoreHouseList.W.Abbreviation.FieldName);
 
-  InitializeLookupColumn(clStorehouseId2,
+  InitializeLookupColumn(clStoreHouseID2,
     SearchViewModel.qStoreHouseList.W.DataSource, lsEditFixedList,
     SearchViewModel.qStoreHouseList.W.Title.FieldName);
 end;
@@ -169,23 +207,33 @@ begin
     (SearchViewModel.qProductsSearch.ProductSearchW.Mode = RecordsMode);
 end;
 
+procedure TViewProductsSearch.PostFocusValueColumnMessage;
+begin
+  PostMessage(Handle, WM_FOCUS_VALUE, 0, 0);
+end;
+
 procedure TViewProductsSearch.Search(ALike: Boolean);
+var
+  OK: Boolean;
 begin
   cxDBTreeList.BeginUpdate;
   try
     CheckAndSaveChanges;
-
-    SearchViewModel.qProductsSearch.DoSearch(ALike);
-
+    OK := SearchViewModel.qProductsSearch.DoSearch(ALike);
   finally
     cxDBTreeList.EndUpdate;
   end;
-  MyApplyBestFit;
-  // cxDBTreeList.FullExpand;
 
-  cxDBTreeList.SetFocus;
-  // Переводим колонку в режим редактирования
-  clValue.Editing := True;
+  if OK then
+  begin
+    MyApplyBestFit;
+    // cxDBTreeList.FullExpand;
+  end
+  else
+  begin
+    TDialog.Create.ProductSearchNotFoundDialog;
+    PostFocusValueColumnMessage;
+  end;
 
   UpdateView;
 end;
@@ -197,26 +245,30 @@ begin
     Exit;
 
   Model := Value;
+
+  if Model <> nil then
+    PostFocusValueColumnMessage
 end;
 
 procedure TViewProductsSearch.UpdateView;
 var
-  Ok: Boolean;
+  OK: Boolean;
 begin
   inherited;
-  Ok := (SearchViewModel <> nil) and
+  OK := (SearchViewModel <> nil) and
     (SearchViewModel.qProductsSearch.FDQuery.Active);
 
-  actClear.Enabled := Ok and SearchViewModel.qProductsSearch.IsClearEnabled;
+  actClear.Enabled := OK;
 
-  actSearch.Enabled := Ok and SearchViewModel.qProductsSearch.IsSearchEnabled;
+  actSearch.Enabled := OK and
+    (SearchViewModel.qProductsSearch.ProductSearchW.Mode = SearchMode);
 
-  actCommit.Enabled := Ok and SearchViewModel.qProductsSearch.HaveAnyChanges and
+  actCommit.Enabled := OK and SearchViewModel.qProductsSearch.HaveAnyChanges and
     (SearchViewModel.qProductsSearch.ProductSearchW.Mode = RecordsMode);
 
   actRollback.Enabled := actCommit.Enabled;
 
-  actPasteFromBuffer.Enabled := Ok and
+  actPasteFromBuffer.Enabled := OK and
     (SearchViewModel.qProductsSearch.ProductSearchW.Mode = SearchMode);
 
 
@@ -228,7 +280,7 @@ begin
 
   actExportToExcelDocument.Caption := 'В документ Excel';
   actExportToExcelDocument.Hint := 'Экспортировать в документ Excel';
-  actExportToExcelDocument.Enabled := Ok and
+  actExportToExcelDocument.Enabled := OK and
     (SearchViewModel.qProductsSearch.FDQuery.RecordCount > 0) and
     (SearchViewModel.qProductsSearch.ProductSearchW.Mode = RecordsMode);
 end;

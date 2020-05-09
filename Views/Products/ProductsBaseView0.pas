@@ -1229,7 +1229,8 @@ begin
   if M.qProductsBase0.DollarCource = 0 then
     actRefreshCources.Execute;
 
-  MyApplyBestFit;
+//  MyApplyBestFit; лучше это делать при преходе на вкладку
+
 end;
 
 procedure TViewProductsBase0.TimerTimer(Sender: TObject);

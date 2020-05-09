@@ -1,15 +1,10 @@
-inherited QueryProductsSearch: TQueryProductsSearch
-  Width = 190
-  Height = 83
-  ExplicitWidth = 190
-  ExplicitHeight = 83
+inherited QryProductsSearch: TQryProductsSearch
   inherited Label1: TLabel
-    Width = 103
-    Caption = 'ProductsSearch'
-    ExplicitWidth = 103
+    Width = 155
+    Caption = 'ProductsSearchInternal'
+    ExplicitWidth = 155
   end
   inherited FDQuery: TFDQuery
-    UpdateOptions.AssignedValues = [uvRefreshDelete]
     SQL.Strings = (
       'select *'
       'from'
@@ -56,7 +51,7 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '    NULL Description,'
       '    0 Checked'
       'from StorehouseProducts sp '
-      'join Products2 p on sp.ProductId = p.id'
+      'join Products2 p on sp.ProductId = p.id and (1=1)'
       'join ComponentGroups cg on sp.IDComponentGroup = cg.id'
       'where sp.Amount > 0'
       'union'
@@ -102,13 +97,12 @@ inherited QueryProductsSearch: TQueryProductsSearch
       '       d.Description,'
       '       case when pr.ID is null then 0 else 1 end Checked'
       'from StorehouseProducts sp'
-      'join Products2 p on sp.ProductId = p.id'
+      'join Products2 p on sp.ProductId = p.id and (2=2)'
       'left join Products pr on p.Value = pr.Value'
       'LEFT JOIN Descriptions2 d on p.DescriptionId = d.ID'
       'where sp.Amount > 0'
       ')'
-      'where Id = 0'
+      'where 0=0'
       'order by IsGroup desc, Value')
-    Left = 81
   end
 end

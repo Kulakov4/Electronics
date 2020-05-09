@@ -11,7 +11,7 @@ uses
   Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls,
   ProductsBaseQuery, SearchInterfaceUnit, ApplyQueryFrame,
   StoreHouseListQuery, NotifyEvents, System.Generics.Collections, DSWrap,
-  ProducersGroupUnit2;
+  ProducersGroupUnit2, ProductsSearchQry;
 
 type
   TProductSearchW = class(TProductW)
@@ -25,18 +25,13 @@ type
   TQueryProductsSearch = class(TQueryProductsBase)
   strict private
   private
-    FClone: TFDMemTable;
-    FGetModeClone: TFDMemTable;
     FOnBeginUpdate: TNotifyEventsEx;
     FOnEndUpdate: TNotifyEventsEx;
+    FqProductsSearch: TQryProductsSearch;
 
-  const
-    FEmptyAmount = 1;
-    function GetCurrentMode: TContentMode;
     procedure DoAfterOpen(Sender: TObject);
-    function GetIsClearEnabled: Boolean;
-    function GetIsSearchEnabled: Boolean;
     function GetProductSearchW: TProductSearchW;
+    function GetqProductsSearch: TQryProductsSearch;
     { Private declarations }
   protected
     procedure ApplyDelete(ASender: TDataSet; ARequest: TFDUpdateRequest;
@@ -48,19 +43,16 @@ type
     function CreateDSWrap: TDSWrap; override;
     procedure DoBeforePost(Sender: TObject); override;
     function GetHaveAnyChanges: Boolean; override;
+    property qProductsSearch: TQryProductsSearch read GetqProductsSearch;
     // procedure SetConditionSQL(const AConditionSQL, AMark: String;
     // ANotifyEventRef: TNotifyEventRef = nil);
   public
-    constructor Create(AOwner: TComponent; AProducersGroup: TProducersGroup2);
-        override;
+    constructor Create(AOwner: TComponent;
+      AProducersGroup: TProducersGroup2); override;
     destructor Destroy; override;
-    procedure AfterConstruction; override;
     procedure ClearSearchResult;
-    procedure DoSearch(ALike: Boolean);
+    function DoSearch(ALike: Boolean): Boolean;
     procedure Search(AValues: TList<String>); overload;
-    procedure SetSQLForSearch;
-    property IsClearEnabled: Boolean read GetIsClearEnabled;
-    property IsSearchEnabled: Boolean read GetIsSearchEnabled;
     property OnBeginUpdate: TNotifyEventsEx read FOnBeginUpdate;
     property OnEndUpdate: TNotifyEventsEx read FOnEndUpdate;
     property ProductSearchW: TProductSearchW read GetProductSearchW;
@@ -73,20 +65,16 @@ implementation
 
 uses System.Math, RepositoryDataModule, System.StrUtils, StrHelper;
 
-constructor TQueryProductsSearch.Create(AOwner: TComponent; AProducersGroup:
-    TProducersGroup2);
+constructor TQueryProductsSearch.Create(AOwner: TComponent;
+  AProducersGroup: TProducersGroup2);
 begin
   inherited;
 
   // В режиме поиска - транзакции автоматом
   AutoTransaction := True;
 
-  // Создаём два клона
-  FGetModeClone := W.AddClone(Format('%s < %d', [W.PKFieldName,
-    W.VirtualIDOffset]));
-  FClone := W.AddClone(Format('%s <> null', [W.Value.FieldName]));
-
   TNotifyEventWrap.Create(W.AfterOpen, DoAfterOpen, W.EventList);
+  TNotifyEventWrap.Create(W.AfterRefresh, DoAfterOpen, W.EventList);
 
   FOnBeginUpdate := TNotifyEventsEx.Create(Self);
   FOnEndUpdate := TNotifyEventsEx.Create(Self);
@@ -97,14 +85,6 @@ begin
   FreeAndNil(FOnBeginUpdate);
   FreeAndNil(FOnEndUpdate);
   inherited;
-end;
-
-procedure TQueryProductsSearch.AfterConstruction;
-begin
-  // Сохраняем первоначальный SQL
-  inherited;
-
-  SetSQLForSearch;
 end;
 
 procedure TQueryProductsSearch.ApplyDelete(ASender: TDataSet;
@@ -130,17 +110,8 @@ begin
     inherited;
 end;
 
-function TQueryProductsSearch.GetCurrentMode: TContentMode;
-begin
-  if (FDQuery.RecordCount = 0) or (FGetModeClone.RecordCount > 0) then
-    Result := RecordsMode
-  else
-    Result := SearchMode;
-end;
-
 procedure TQueryProductsSearch.ClearSearchResult;
 begin
-  SetSQLForSearch;
   W.RefreshQuery;
 end;
 
@@ -150,50 +121,42 @@ begin
 end;
 
 procedure TQueryProductsSearch.DoAfterOpen(Sender: TObject);
-var
-  I: Integer;
 begin
   W.SetFieldsRequired(False);
   W.SetFieldsReadOnly(False);
 
-  // Добавляем пустую запись для поиска, если она необходима
-  // AutoTransaction := True;
-
-  for I := FDQuery.RecordCount to FEmptyAmount - 1 do
+  if FDQuery.RecordCount > 0 then
+    ProductSearchW.FMode := RecordsMode
+  else
   begin
+    ProductSearchW.FMode := SearchMode;
     FDQuery.Append;
     W.Value.F.AsString := '';
     FDQuery.Post;
     FDQuery.ApplyUpdates();
     FDQuery.CommitUpdates;
+    // На самом деле никаких изменений в БД не пойдёт.
+    // Запись добавиться только на стороне клиента
+    FDQuery.First;
   end;
-
-  FDQuery.First;
-
-  // Вычисляем в какой режим мы перешли
-  ProductSearchW.FMode := GetCurrentMode;
-
-  // Выбираем нужный режим транзакции
-  // AutoTransaction := ProductSearchW.Mode = SearchMode;
 end;
 
 procedure TQueryProductsSearch.DoBeforePost(Sender: TObject);
 begin
   // Предполагаем что при поиске
   // записи на склад не вставляются и проверка не нужна!!!
+  if (FDQuery.State <> dsEdit) or (ProductSearchW.FMode = SearchMode) then
+    Exit;
 
-  if (FDQuery.State = dsEdit) and (GetCurrentMode = RecordsMode) then
-    inherited;
+  inherited;
 end;
 
-procedure TQueryProductsSearch.DoSearch(ALike: Boolean);
+function TQueryProductsSearch.DoSearch(ALike: Boolean): Boolean;
 var
-  AConditionSQL: string;
-  ANewSQL: string;
   m: TArray<String>;
-  p: Integer;
   s: string;
 begin
+  Assert(ProductSearchW.FMode = SearchMode);
   W.TryPost;
 
   // Формируем через запятую список из значений поля Value
@@ -203,47 +166,32 @@ begin
   if s = '' then
     ALike := True;
 
-  if ALike then
-  begin
-    AConditionSQL := '';
-    m := s.Split([',']);
-    // Формируем несколько условий
-    for s in m do
-    begin
-      AConditionSQL := IfThen(AConditionSQL.IsEmpty, '', ' or ');
-      AConditionSQL := AConditionSQL + Format('%s like %s',
-        [W.Value.FullName, QuotedStr(s + '%')]);
-    end;
+  m := s.Split([',']);
 
-    // if not AConditionSQL.IsEmpty then
-    // AConditionSQL := Format(' and (%s)', [AConditionSQL]);
-  end
-  else
-  begin
-    AConditionSQL := Format('instr('',''||:%s||'','', '',''||%s||'','') > 0',
-      [W.Value.FieldName, W.Value.FullName]);
-    // ' and (instr('',''||:Value||'','', '',''||p.Value||'','') > 0)';
+  qProductsSearch.Search(m, ALike);
+  Result := qProductsSearch.FDQuery.RecordCount > 0;
+
+  if not Result then
+    Exit;
+
+  W.DeleteAll;
+  FDQuery.BeginBatch();
+  try
+    W.CopyFrom(qProductsSearch.FDQuery);
+  finally
+    FDQuery.EndBatch;
   end;
+  FDQuery.ApplyUpdates();
+  FDQuery.CommitUpdates;
 
-  if AConditionSQL <> '' then
-  begin
-    p := SQL.IndexOf('1=1');
-    Assert(p > 0);
-    ANewSQL := SQL.Replace('1=1', AConditionSQL);
-    p := ANewSQL.IndexOf('2=2');
-    Assert(p > 0);
-    ANewSQL := ANewSQL.Replace('2=2', AConditionSQL);
-  end;
+  qProductsSearch.FDQuery.Close;
+  FreeAndNil(FqProductsSearch);
 
-  FDQuery.Close;
-  FDQuery.SQL.Text := ANewSQL;
+  FDQuery.First;
+  Assert(FDQuery.RecordCount > 0);
 
-  if not ALike then
-  begin
-    SetParamTypeEx(W.Value.FieldName, s, ptInput, ftWideString);
-  end;
-
-  FDQuery.Open;
+  // Переходим в режим записей
+  ProductSearchW.FMode := RecordsMode;
 end;
 
 // Есть-ли изменения не сохранённые в БД
@@ -261,24 +209,17 @@ begin
   end;
 end;
 
-function TQueryProductsSearch.GetIsClearEnabled: Boolean;
-begin
-  Result := (ProductSearchW.Mode = RecordsMode);
-
-  if not Result then
-  begin
-    Result := FClone.RecordCount > 0;
-  end;
-end;
-
-function TQueryProductsSearch.GetIsSearchEnabled: Boolean;
-begin
-  Result := (ProductSearchW.Mode = SearchMode) and (FClone.RecordCount > 0);
-end;
-
 function TQueryProductsSearch.GetProductSearchW: TProductSearchW;
 begin
   Result := W as TProductSearchW;
+end;
+
+function TQueryProductsSearch.GetqProductsSearch: TQryProductsSearch;
+begin
+  if FqProductsSearch = nil then
+    FqProductsSearch := TQryProductsSearch.Create(Self);
+
+  Result := FqProductsSearch;
 end;
 
 procedure TQueryProductsSearch.Search(AValues: TList<String>);
@@ -296,16 +237,6 @@ begin
   finally
     FOnEndUpdate.CallEventHandlers(Self);
   end;
-end;
-
-procedure TQueryProductsSearch.SetSQLForSearch;
-var
-  p: Integer;
-begin
-  // Меняем запрос чтобы изначально не выбиралось ни одной записи
-  p := SQL.IndexOf('0=0');
-  Assert(p > 0);
-  FDQuery.SQL.Text := SQL.Replace('0=0', Format('%s=0', [W.ID.FieldName]));
 end;
 
 procedure TProductSearchW.AppendRows(AFieldName: string;

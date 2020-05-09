@@ -41,6 +41,7 @@ type
     function AddManufacturerDialog(const AValue: String): Boolean;
     function CreateNewDatabaseDialog: Boolean;
     procedure AutoBindNotFoundDialog;
+    procedure ProductSearchNotFoundDialog;
     procedure AutoBindResultDialog(ACount: Integer);
     function ClearTreeDialog: Boolean;
     procedure BodyNotFoundDialog(const AValue: String);
@@ -64,6 +65,7 @@ type
     procedure FileNameNotContainCategoryID;
     procedure ParamDuplicateNotFound(ATableName: string);
     procedure ProducerNotFound(const AProducer: string);
+    procedure ProductSearchIsEmpty;
     function ShowDialog(AOpenDialogClass: TOpenDialogClass;
       const AInitialDir, AInitialFileName: string;
       var AFileName: String): Boolean;
@@ -114,6 +116,13 @@ begin
   Application.MessageBox
     (PChar('В справочнике кратких описаний не найдено ни одной подходящей записи'),
     'Результат автоматической привязки', MB_OK);
+end;
+
+procedure TDialog.ProductSearchNotFoundDialog;
+begin
+  Application.MessageBox
+    (PChar('Компонент отсутствует в Складской базе.'),
+    'Поиск в Складской базе', MB_OK);
 end;
 
 procedure TDialog.AutoBindResultDialog(ACount: Integer);
@@ -275,6 +284,13 @@ begin
   Application.MessageBox
     (PWideChar(Format('В справочнике производителей не найден производитель %s',
     [AProducer])), PWideChar('Не найден производитель'), MB_OK + MB_ICONSTOP);
+end;
+
+procedure TDialog.ProductSearchIsEmpty;
+begin
+  Application.MessageBox
+    (PChar('Введите значение для поиска.'),
+    'Поиск в Складской базе', MB_OK);
 end;
 
 function TDialog.ShowDialog(AOpenDialogClass: TOpenDialogClass;

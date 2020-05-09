@@ -127,6 +127,7 @@ type
       AFromClientOnly: Boolean = False); virtual;
     procedure ClearFields(AFieldList: TArray<String>; AIDList: TArray<Integer>);
     procedure ClearFilter;
+    procedure CopyFrom(ADataSet: TDataSet);
     procedure CreateDefaultFields(AUpdate: Boolean);
     procedure DeleteAll;
     procedure DropClone(AClone: TFDMemTable);
@@ -565,6 +566,31 @@ begin
 
   AClone.Filter := AFilter;
   AClone.Filtered := True;
+end;
+
+procedure TDSWrap.CopyFrom(ADataSet: TDataSet);
+var
+  F: TField;
+  FF: TField;
+begin
+  if not ADataSet.Active then
+    Exit;
+
+  ADataSet.First;
+  while not ADataSet.Eof do
+  begin
+    TryAppend;
+    for F in DataSet.Fields do
+    begin
+      FF := ADataSet.FindField(F.FieldName);
+      if FF = nil then
+        Continue;
+
+      F.Value := FF.Value;
+    end;
+    TryPost;
+    ADataSet.Next;
+  end;
 end;
 
 procedure TDSWrap.CreateDefaultFields(AUpdate: Boolean);

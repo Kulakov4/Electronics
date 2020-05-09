@@ -1,5 +1,6 @@
 inherited ViewProductsSearch: TViewProductsSearch
   inherited cxDBTreeList: TcxDBTreeList
+    OnKeyDown = cxDBTreeListKeyDown
     object clStoreHouseID2: TcxDBTreeListColumn
       Visible = False
       DataBinding.FieldName = 'StorehouseId2'
