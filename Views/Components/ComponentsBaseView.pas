@@ -32,7 +32,8 @@ uses
   CustomComponentsQuery, cxTextEdit, cxBlobEdit, cxRichEdit,
   DescriptionPopupForm, DocFieldInfo, OpenDocumentUnit, ProjectConst,
   cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
-  System.Contnrs, BaseComponentsGroupUnit2, DSWrap, dxDateRanges, ColInfo;
+  System.Contnrs, BaseComponentsGroupUnit2, DSWrap, dxDateRanges, ColInfo,
+  Vcl.ExtCtrls, Vcl.StdCtrls;
 
 const
   // WM_ON_DETAIL_EXPANDED = WM_USER + 57;
@@ -86,6 +87,7 @@ type
     actAddFamily: TAction;
     actAddComponent: TAction;
     actFocusTopLeft: TAction;
+    TimerSyncScrollBars: TTimer;
     procedure actAddComponentExecute(Sender: TObject);
     procedure actAddFamilyExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -152,6 +154,7 @@ type
     procedure cxGridDBBandedTableViewLeftPosChanged(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerDetailExpanded
       (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure TimerSyncScrollBarsTimer(Sender: TObject);
   private
     FBaseCompGrp: TBaseComponentsGroup2;
     FCountEvents: TObjectList;
@@ -887,7 +890,7 @@ procedure TViewComponentsBase.cxGridDBBandedTableView2LeftPosChanged
   (Sender: TObject);
 begin
   inherited;
-  SyncScrollbarPositions;
+  // SyncScrollbarPositions;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewBandSizeChanged
@@ -957,7 +960,9 @@ procedure TViewComponentsBase.cxGridDBBandedTableViewLeftPosChanged
   (Sender: TObject);
 begin
   inherited;
-  SyncScrollbarPositions;
+  // Если мы немедленно пытаемся синхронизировать позиции скроллбаров
+  // то прерывается процесс сколлинга
+  TimerSyncScrollBars.Enabled := True;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewSelectionChanged
@@ -1603,6 +1608,16 @@ begin
   finally
     FIsSyncScrollbars := False;
   end;
+end;
+
+procedure TViewComponentsBase.TimerSyncScrollBarsTimer(Sender: TObject);
+begin
+  // Если левая кнопка мыши всё ещё нажата, то ждём отпускания
+  if GetAsyncKeyState (VK_LBUTTON) and $8000 <> 0 then
+    Exit;
+
+  SyncScrollbarPositions;
+  TimerSyncScrollBars.Enabled := False;
 end;
 
 procedure TViewComponentsBase.TryApplyBestFit;

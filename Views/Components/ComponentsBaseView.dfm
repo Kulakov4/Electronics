@@ -224,4 +224,11 @@ inherited ViewComponentsBase: TViewComponentsBase
     Top = 280
     PixelsPerInch = 96
   end
+  object TimerSyncScrollBars: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = TimerSyncScrollBarsTimer
+    Left = 96
+    Top = 128
+  end
 end
