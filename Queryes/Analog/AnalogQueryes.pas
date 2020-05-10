@@ -350,7 +350,7 @@ begin
     // Создаём набор данныых в памяти
     for S in AFieldList do
     begin
-      FFDMemTable.FieldDefs.Add(S, ftString, 200);
+      FFDMemTable.FieldDefs.Add(S, ftWideString, 200);
     end;
     FDMemTable.CreateDataSet;
 
