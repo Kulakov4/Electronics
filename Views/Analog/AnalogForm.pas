@@ -27,6 +27,7 @@ type
   TfrmAnalog = class(TfrmRoot)
     pnlMain: TPanel;
     cxbtnOK: TcxButton;
+    procedure FormShow(Sender: TObject);
   private
     FViewAnalogGrid: TViewAnalogGrid;
     { Private declarations }
@@ -44,8 +45,13 @@ constructor TfrmAnalog.Create(AOwner: TComponent);
 begin
   inherited;
   FViewAnalogGrid := TViewAnalogGrid.Create(Self);
-  FViewAnalogGrid.Parent := pnlMain;
-  FViewAnalogGrid.Align := alClient;
+  FViewAnalogGrid.Place(pnlMain);
+end;
+
+procedure TfrmAnalog.FormShow(Sender: TObject);
+begin
+  inherited;
+  ViewAnalogGrid.MyApplyBestFit;
 end;
 
 end.

@@ -4,9 +4,7 @@ inherited frmAnalog: TfrmAnalog
   ClientWidth = 788
   Constraints.MinHeight = 300
   Constraints.MinWidth = 300
-  Font.Charset = RUSSIAN_CHARSET
-  Font.Height = -15
-  Font.Name = 'Calibri'
+  OnShow = FormShow
   ExplicitWidth = 804
   ExplicitHeight = 355
   PixelsPerInch = 96
