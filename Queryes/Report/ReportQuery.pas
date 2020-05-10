@@ -49,6 +49,7 @@ uses NotifyEvents, DefaultParameters;
 constructor TQueryReports.Create(AOwner: TComponent);
 begin
   inherited;
+  FW := Wrap as TReportW;
   TNotifyEventWrap.Create(W.BeforeOpen, DoBeforeOpen, W.EventList);
 end;
 
@@ -83,11 +84,11 @@ end;
 constructor TReportW.Create(AOwner: TComponent);
 begin
   inherited;
-  FИзображение := TFieldWrap.Create(Self, 'Изображение');
-  FОписание := TFieldWrap.Create(Self, 'Описание');
-  FСпецификация := TFieldWrap.Create(Self, 'Спецификация');
-  FСхема := TFieldWrap.Create(Self, 'Схема');
-  FЧертёж := TFieldWrap.Create(Self, 'Чертёж');
+  FИзображение := TFieldWrap.Create(Self, 'Изображение', 'Изображение');
+  FОписание := TFieldWrap.Create(Self, 'Описание', 'Описание');
+  FСпецификация := TFieldWrap.Create(Self, 'Спецификация', 'Спецификация');
+  FСхема := TFieldWrap.Create(Self, 'Схема', 'Схема');
+  FЧертёж := TFieldWrap.Create(Self, 'Чертёж', 'Чертёж');
 end;
 
 end.

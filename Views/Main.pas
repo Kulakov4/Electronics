@@ -186,6 +186,7 @@ type
     procedure DoOnLoadParametricData(Sender: TObject);
     procedure DoOnLoadParametricTable(Sender: TObject);
     procedure DoOnProductCategoriesChange(Sender: TObject);
+    procedure DoOnReport(Sender: TObject);
     procedure DoOnShowParametricTable(Sender: TObject);
     procedure DoOnStoreHouseListChange(Sender: TObject);
     procedure DoOnTotalReadProgress(ASender: TObject);
@@ -1059,6 +1060,8 @@ begin
     FEventList);
   TNotifyEventWrap.Create(FfrmComp.OnAutoBindingDescription,
     DoOnAutoBindingDescription, FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnReport,
+    DoOnReport, FEventList);
 
   // Проверяем что путь до базы данных корректный
 
@@ -1765,6 +1768,29 @@ begin
       (TDM.Create.ComponentsGroup.qFamily.FamilyW.Value.FieldName);
   finally
     TDM.Create.ComponentsGroup.RemoveClient;
+  end;
+end;
+
+procedure TfrmMain.DoOnReport(Sender: TObject);
+var
+  AQueryReports: TQueryReports;
+  frmReports: TfrmReports;
+begin
+  Application.Hint := '';
+  frmReports := TfrmReports.Create(Self);
+  try
+    AQueryReports := TQueryReports.Create(Self);
+    try
+      AQueryReports.FDQuery.Open;
+
+      frmReports.ViewReports.QueryReports := AQueryReports;
+
+      frmReports.ShowModal;
+    finally
+      FreeAndNil(AQueryReports);
+    end;
+  finally
+    FreeAndNil(frmReports);
   end;
 end;
 

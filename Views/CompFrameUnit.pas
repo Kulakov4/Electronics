@@ -46,12 +46,15 @@ type
     actAutoBindingDescriptions: TAction;
     dxBarButton6: TdxBarButton;
     dxBarButton7: TdxBarButton;
+    dxBarButton8: TdxBarButton;
+    actReport: TAction;
     procedure actAutoBindingDescriptionsExecute(Sender: TObject);
     procedure actAutoBindingDocExecute(Sender: TObject);
     procedure actLoadFromExcelDocumentExecute(Sender: TObject);
     procedure actLoadFromExcelFolderExecute(Sender: TObject);
     procedure actLoadParametricDataExecute(Sender: TObject);
     procedure actLoadParametricTableExecute(Sender: TObject);
+    procedure actReportExecute(Sender: TObject);
   private
     FOnLoadCompFromExcelFolder: TNotifyEventsEx;
     FOnLoadCompFromExcelDocument: TNotifyEventsEx;
@@ -59,6 +62,7 @@ type
     FOnLoadParametricData: TNotifyEventsEx;
     FOnAutoBindingDoc: TNotifyEventsEx;
     FOnAutoBindingDescription: TNotifyEventsEx;
+    FOnReport: TNotifyEventsEx;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -72,6 +76,7 @@ type
     property OnAutoBindingDoc: TNotifyEventsEx read FOnAutoBindingDoc;
     property OnAutoBindingDescription: TNotifyEventsEx read
         FOnAutoBindingDescription;
+    property OnReport: TNotifyEventsEx read FOnReport;
     { Public declarations }
   end;
 
@@ -90,6 +95,8 @@ begin
   FOnLoadParametricData := TNotifyEventsEx.Create(Self);
   FOnAutoBindingDoc := TNotifyEventsEx.Create(Self);
   FOnAutoBindingDescription := TNotifyEventsEx.Create(Self);
+  FOnReport := TNotifyEventsEx.Create(Self);
+
   TFormsHelper.SetFont(Self, BaseFontSize);
 end;
 
@@ -102,6 +109,7 @@ begin
   FreeAndNil(FOnLoadParametricData);
   FreeAndNil(FOnAutoBindingDoc);
   FreeAndNil(FOnAutoBindingDescription);
+  FreeAndNil(FOnReport);
 end;
 
 procedure TfrmComp.actAutoBindingDescriptionsExecute(Sender: TObject);
@@ -132,6 +140,11 @@ end;
 procedure TfrmComp.actLoadParametricTableExecute(Sender: TObject);
 begin
   FOnLoadParametricTable.CallEventHandlers(Self);
+end;
+
+procedure TfrmComp.actReportExecute(Sender: TObject);
+begin
+  FOnReport.CallEventHandlers(Self);
 end;
 
 end.

@@ -28,7 +28,8 @@ uses
   dxSkinVisualStudio2013Blue, dxSkinVisualStudio2013Dark,
   dxSkinVisualStudio2013Light, dxSkinVS2010, dxSkinWhiteprint,
   dxSkinXmas2008Blue, dxSkinscxPCPainter, dxSkinsdxBarPainter,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu;
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxBarBuiltInMenu,
+  dxDateRanges;
 
 type
   TViewReports = class(TfrmGrid)

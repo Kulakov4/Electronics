@@ -3,6 +3,12 @@ object frmComp: TfrmComp
   Top = 0
   Width = 320
   Height = 240
+  Font.Charset = RUSSIAN_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -15
+  Font.Name = 'Calibri'
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
   object dxBarManager: TdxBarManager
     Font.Charset = DEFAULT_CHARSET
@@ -37,6 +43,11 @@ object frmComp: TfrmComp
       FloatTop = 0
       FloatClientWidth = 0
       FloatClientHeight = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
       Images = DMRepository.cxImageList
       ItemLinks = <
         item
@@ -46,10 +57,14 @@ object frmComp: TfrmComp
         item
           Visible = True
           ItemName = 'dxBarSubItem5'
+        end
+        item
+          Visible = True
+          ItemName = 'dxBarButton8'
         end>
       OneOnRow = True
       Row = 0
-      UseOwnFont = False
+      UseOwnFont = True
       Visible = True
       WholeRow = False
     end
@@ -156,6 +171,11 @@ object frmComp: TfrmComp
       Action = actAutoBindingDescriptions
       Category = 0
     end
+    object dxBarButton8: TdxBarButton
+      Action = actReport
+      Category = 0
+      PaintStyle = psCaptionGlyph
+    end
   end
   object ActionList: TActionList
     Images = DMRepository.cxImageList
@@ -216,6 +236,11 @@ object frmComp: TfrmComp
         #1075#1086' '#1086#1087#1080#1089#1072#1085#1080#1103' '#1082#1072#1078#1076#1086#1084#1091' '#1089#1077#1084#1077#1081#1089#1090#1074#1091' '#1082#1086#1084#1087#1086#1085#1077#1085#1090#1086#1074'.'
       ImageIndex = 29
       OnExecute = actAutoBindingDescriptionsExecute
+    end
+    object actReport: TAction
+      Caption = #1054#1090#1095#1105#1090
+      ImageIndex = 19
+      OnExecute = actReportExecute
     end
   end
 end
