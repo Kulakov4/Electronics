@@ -21,20 +21,20 @@ type
 
 implementation
 
-uses System.sysutils;
+uses System.sysutils, TextRectHelper;
 
 { THintWindowEx }
 
 constructor THintWindowEx.Create(AOwner: TComponent);
-//var
-//  fs: Integer;
-//  S: String;
+// var
+// fs: Integer;
+// S: String;
 begin
   inherited;
-//  fs := Canvas.Font.Size;
-//  S := Canvas.Font.Name;
+  // fs := Canvas.Font.Size;
+  // S := Canvas.Font.Name;
 
-//  Canvas.Font.Size := 14;
+  // Canvas.Font.Size := 14;
   FShowTimer := TTimer.Create(self);
   FShowTimer.Interval := Application.HintPause;
 
@@ -80,7 +80,6 @@ var
   R: TRect;
   wdth: integer;
   hght: integer;
-  n: Integer;
 begin
   FShowTimer.OnTimer := nil;
 
@@ -91,18 +90,12 @@ begin
   end;
 
   // position and resize
-  wdth := Canvas.TextWidth(FHint);
-  hght := Canvas.TextHeight(FHint);
-  if wdth > 600 then
-  begin
-    n := wdth div 600;
-    if frac(wdth / 600) > 0 then
-      Inc(n);
-
-    hght := hght * n;
-    wdth := 600;
-  end;
-
+  R.SetLocation(0, 0);
+  R.Width := 600;
+  R.Height := 100;
+  R := TTextRect.Calc(Canvas, FHint, R);
+  wdth := R.Width;
+  hght := R.Height;
 
   R.Left := Mouse.CursorPos.X + 16;
   R.Top := Mouse.CursorPos.Y + 16;

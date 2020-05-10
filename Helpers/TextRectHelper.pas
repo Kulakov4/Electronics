@@ -8,10 +8,10 @@ uses
 type
   TTextRect = class(TObject)
   public
-    class function Calc(ACanvas: TCanvas; const S: String; AMinWidth: Integer = 0):
-        TRect; overload; static;
+    class function Calc(ACanvas: TCanvas; const S: String;
+      AMinWidth: Integer = 0): TRect; overload; static;
     class function Calc(ACanvas: TCanvas; const S: String; ARect: TRect): TRect;
-        overload; static;
+      overload; static;
   end;
 
 implementation
@@ -19,8 +19,8 @@ implementation
 uses
   System.SysUtils, System.Math, Winapi.Windows;
 
-class function TTextRect.Calc(ACanvas: TCanvas; const S: String; AMinWidth:
-    Integer = 0): TRect;
+class function TTextRect.Calc(ACanvas: TCanvas; const S: String;
+  AMinWidth: Integer = 0): TRect;
 var
   ATextHeight: Integer;
   AMaxWidth: Integer;
@@ -49,8 +49,8 @@ begin
   Result := Calc(ACanvas, S, Rect(0, 0, AMaxWidth, ATextHeight));
 end;
 
-class function TTextRect.Calc(ACanvas: TCanvas; const S: String; ARect: TRect):
-    TRect;
+class function TTextRect.Calc(ACanvas: TCanvas; const S: String;
+  ARect: TRect): TRect;
 var
   Flags: Integer;
 begin
@@ -58,6 +58,20 @@ begin
   Result := ARect;
 
   Flags := DT_CALCRECT or DT_WORDBREAK;
+  (*
+    DT_CALCRECT
+    Выясняет ширину и высоту прямоугольника.
+    Если имеется несколько строк текста, функция DrawText использует ширину
+    прямоугольника, указанную параметром lpRect и продлевает основу
+    прямоугольника, чтобы ограничить последнюю строку текста.
+    Если самое большое слово шире, чем прямоугольник, ширина дополняется.
+    Если текст - меньше, чем ширина прямоугольника,
+    ширина уменьшается. Если есть только одна строка текста,
+    DrawText изменяет правую сторону прямоугольника так,
+    чтобы она ограничивала последнюю букву в строке.
+    И в том, и в другом случае, DrawText возвращает значение высоты
+    отформатированного текста, но не выводит текст.
+  *)
 
   DrawTextW(ACanvas.Handle, S, S.Length, Result, Flags);
 end;
