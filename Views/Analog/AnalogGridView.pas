@@ -191,6 +191,7 @@ begin
   Assert(AParamValues <> nil);
 
   ViewGridPopupAnalog.W := AParamValues.Table.W;
+  ViewGridPopupAnalog.MyApplyBestFit;
 
   PopupPanel.Width :=
     Max(ViewGridPopupAnalog.MainView.ViewInfo.HeaderViewInfo.Width + 20,
@@ -203,30 +204,8 @@ begin
   R := FcxMemo.BoundsRect;
 
   R.Left := 5 + R.Left;
-  // R.Right := cxEditorButton.Left + R.Right;
-  // R.Top := cxEditorButton.Top + R.Top;
-  // R.Bottom := cxEditorButton.Top + R.Bottom;
+
   dxCalloutPopup1.Popup(cxEditorButton.Parent, R);
-
-  {
-    AfrmGridViewAutoSize := TfrmGridViewAutoSize.Create(Self);
-    try
-    AfrmGridViewAutoSize.Caption := AParamValues.Caption;
-    AfrmGridViewAutoSize.ViewGridEx.DataSet := AParamValues.Table;
-    AfrmGridViewAutoSize.Constraints.MinWidth :=
-    ;
-
-
-    R := FcxMemo.GetVisibleBounds;
-    p := cxEditorButton.Parent.ClientToScreen( Point( FcxMemo.Left, FcxMemo.Top + R.BottomRight.Y ) );
-    AfrmGridViewAutoSize.Left := p.X;
-    AfrmGridViewAutoSize.Top := p.Y;
-    AfrmGridViewAutoSize.ShowModal;
-
-    finally
-    FreeAndNil(AfrmGridViewAutoSize);
-    end;
-  }
 end;
 
 procedure TViewAnalogGrid.AfterInitEdit(var Message: TMessage);

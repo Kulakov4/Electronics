@@ -37,6 +37,12 @@ inherited ViewAnalogGrid: TViewAnalogGrid
       Width = 696
       Height = 270
       Align = alClient
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       ExplicitLeft = 1
       ExplicitTop = 1
