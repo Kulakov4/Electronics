@@ -928,6 +928,7 @@ procedure TViewComponentsBase.
 begin
   inherited;
   UpdateDetailColumnsWidth;
+  SyncScrollbarPositions;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewEditKeyUp
