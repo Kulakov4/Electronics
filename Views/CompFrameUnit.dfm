@@ -23,6 +23,8 @@ object frmComp: TfrmComp
     Categories.Visibles = (
       True)
     PopupMenuLinks = <>
+    ShowHint = False
+    ShowHintForDisabledItems = False
     UseSystemFont = True
     Left = 32
     Top = 48
