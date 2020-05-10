@@ -495,10 +495,6 @@
         <DCCReference Include="Views\Components\SubGroup\SubGroupListPopupForm.pas">
             <Form>frmSubgroupListPopup</Form>
         </DCCReference>
-        <DCCReference Include="Views\Components\ComponentsParentView.pas">
-            <Form>ViewComponentsParent</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="Views\Components\Descriptions\DescriptionPopupForm.pas">
             <Form>frmDescriptionPopup</Form>
         </DCCReference>

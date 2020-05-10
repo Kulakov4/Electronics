@@ -4,9 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm, GridFrame,
-  ComponentsParentView, ParametricTableView, NotifyEvents, ComponentsBaseView;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, RootForm,
+  GridFrame, ParametricTableView, NotifyEvents, ComponentsBaseView;
 
 {$WARN UNIT_PLATFORM OFF}
 
@@ -31,7 +30,8 @@ type
     destructor Destroy; override;
     property BeforeClose: TNotifyEventsEx read FBeforeClose;
     property CategoryPath: string read FCategoryPath write SetCategoryPath;
-    property ViewParametricTable: TViewParametricTable read FViewParametricTable;
+    property ViewParametricTable: TViewParametricTable
+      read FViewParametricTable;
     property OnDeactivate: TNotifyEventsEx read FOnDeactivate;
     property OnActivate: TNotifyEventsEx read FOnActivate;
     { Public declarations }

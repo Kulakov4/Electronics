@@ -5,29 +5,28 @@ interface
 {$WARN UNIT_PLATFORM OFF}
 
 uses
-  Windows, Messages, Variants, Graphics, Controls, Forms,
-  Dialogs, dxSkinsdxBarPainter, dxBar, cxClasses,
-  Menus, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
-  cxCustomData, cxStyles, cxTL, cxTLdxBarBuiltInMenu, dxSkinscxPCPainter,
-  cxPC, cxSplitter, StdCtrls, cxButtons, cxInplaceContainer,
-  cxTLData, cxDBTL, ExtCtrls, dxSkinsdxStatusBarPainter, dxStatusBar,
-  cxFilter, cxData, cxDataStorage, cxEdit, cxDBData, cxGridLevel,
-  cxGridCustomView, cxGridCustomTableView, cxGridTableView, cxGridDBTableView,
-  cxGrid, cxMaskEdit, ComCtrls, dxtree, dxdbtree, dxBarBuiltInMenu,
-  cxTextEdit, cxBlobEdit, cxLabel, cxMemo, cxNavigator, RootForm,
-  System.UITypes, System.Types, System.Contnrs, NotifyEvents, System.Actions,
-  Vcl.ActnList, dxSkinsCore, dxSkinsDefaultPainters, GridFrame,
-  ComponentsBaseView, ComponentsView, ComponentsSearchView,
-  ComponentsParentView, ParametricTableView, CustomExcelTable,
-  ExcelDataModule, ParameterValuesUnit, dxSkinBlack, dxSkinBlue,
-  dxSkinBlueprint, dxSkinCaramel, dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide,
-  dxSkinDevExpressDarkStyle, dxSkinDevExpressStyle, dxSkinFoggy,
-  dxSkinGlassOceans, dxSkinHighContrast, dxSkiniMaginary, dxSkinLilian,
-  dxSkinLiquidSky, dxSkinLondonLiquidSky, dxSkinMcSkin, dxSkinMetropolis,
-  dxSkinMetropolisDark, dxSkinMoneyTwins, dxSkinOffice2007Black,
-  dxSkinOffice2007Blue, dxSkinOffice2007Green, dxSkinOffice2007Pink,
-  dxSkinOffice2007Silver, dxSkinOffice2010Black, dxSkinOffice2010Blue,
-  dxSkinOffice2010Silver, dxSkinOffice2013DarkGray, dxSkinOffice2013LightGray,
+  Windows, Messages, Variants, Graphics, Controls, Forms, Dialogs,
+  dxSkinsdxBarPainter, dxBar, cxClasses, Menus, cxGraphics, cxControls,
+  cxLookAndFeels, cxLookAndFeelPainters, cxCustomData, cxStyles, cxTL,
+  cxTLdxBarBuiltInMenu, dxSkinscxPCPainter, cxPC, cxSplitter, StdCtrls,
+  cxButtons, cxInplaceContainer, cxTLData, cxDBTL, ExtCtrls,
+  dxSkinsdxStatusBarPainter, dxStatusBar, cxFilter, cxData, cxDataStorage,
+  cxEdit, cxDBData, cxGridLevel, cxGridCustomView, cxGridCustomTableView,
+  cxGridTableView, cxGridDBTableView, cxGrid, cxMaskEdit, ComCtrls, dxtree,
+  dxdbtree, dxBarBuiltInMenu, cxTextEdit, cxBlobEdit, cxLabel, cxMemo,
+  cxNavigator, RootForm, System.UITypes, System.Types, System.Contnrs,
+  NotifyEvents, System.Actions, Vcl.ActnList, dxSkinsCore,
+  dxSkinsDefaultPainters, GridFrame, ComponentsBaseView, ComponentsView,
+  ComponentsSearchView, ParametricTableView, CustomExcelTable, ExcelDataModule,
+  ParameterValuesUnit, dxSkinBlack, dxSkinBlue, dxSkinBlueprint, dxSkinCaramel,
+  dxSkinCoffee, dxSkinDarkRoom, dxSkinDarkSide, dxSkinDevExpressDarkStyle,
+  dxSkinDevExpressStyle, dxSkinFoggy, dxSkinGlassOceans, dxSkinHighContrast,
+  dxSkiniMaginary, dxSkinLilian, dxSkinLiquidSky, dxSkinLondonLiquidSky,
+  dxSkinMcSkin, dxSkinMetropolis, dxSkinMetropolisDark, dxSkinMoneyTwins,
+  dxSkinOffice2007Black, dxSkinOffice2007Blue, dxSkinOffice2007Green,
+  dxSkinOffice2007Pink, dxSkinOffice2007Silver, dxSkinOffice2010Black,
+  dxSkinOffice2010Blue, dxSkinOffice2010Silver, dxSkinOffice2013DarkGray,
+  dxSkinOffice2013LightGray,
   dxSkinOffice2013White, dxSkinOffice2016Colorful, dxSkinOffice2016Dark,
   dxSkinPumpkin, dxSkinSeven, dxSkinSevenClassic, dxSkinSharp, dxSkinSharpPlus,
   dxSkinSilver, dxSkinSpringTime, dxSkinStardust, dxSkinSummer2008,
@@ -1060,8 +1059,7 @@ begin
     FEventList);
   TNotifyEventWrap.Create(FfrmComp.OnAutoBindingDescription,
     DoOnAutoBindingDescription, FEventList);
-  TNotifyEventWrap.Create(FfrmComp.OnReport,
-    DoOnReport, FEventList);
+  TNotifyEventWrap.Create(FfrmComp.OnReport, DoOnReport, FEventList);
 
   // Проверяем что путь до базы данных корректный
 
