@@ -61,8 +61,11 @@ type
     procedure actShowPopupExecute(Sender: TObject);
     procedure cxGridDBBandedTableViewInitEdit(Sender: TcxCustomGridTableView;
       AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
+    procedure cxGridDBBandedTableViewLeftPosChanged(Sender: TObject);
     procedure cxGridDBBandedTableViewMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
+    procedure cxGridDBBandedTableViewUpdateEdit(Sender: TcxCustomGridTableView;
+      AItem: TcxCustomGridTableItem; AEdit: TcxCustomEdit);
     procedure dxCalloutPopup1Hide(Sender: TObject);
     procedure EditorTimerTimer(Sender: TObject);
   private
@@ -87,8 +90,8 @@ type
     procedure AfterInitEdit(var Message: TMessage); message WM_AFTER_INIT_EDIT;
     procedure CreateColumnsForBand(AIDCategoryParam: Integer);
     procedure DoAfterInitMemo;
-    function GetBandCaption(qryCategoryParameters : TQueryCategoryParameters2):
-        string;
+    function GetBandCaption(qryCategoryParameters
+      : TQueryCategoryParameters2): string;
     function IsMemoEditorHide: Boolean;
     procedure InitColumns(AView: TcxGridDBBandedTableView); override;
     procedure UpdateBandsCaptions;
@@ -272,15 +275,17 @@ begin
     ABandInfo.IsDefault := qCategoryParameters.W.IsDefault.F.AsInteger = 1;
     // Параметр "по умолчанию" всегда в отдельно бэнде
     if qCategoryParameters.W.IsDefault.F.AsInteger = 1 then
-      ABandInfo.IDParamSubParam := qCategoryParameters.W.ParamSubParamId.F.
-        AsInteger;
+      ABandInfo.IDParamSubParam := qCategoryParameters.W.ParamSubParamId.
+        F.AsInteger;
 
     // Связан ли он с подпараметром по умолчанию
     ABandInfo.IDParameter := qCategoryParameters.W.IDParameter.F.AsInteger;
     // Параметр, с которым связан бэнд
     // Подпараметр по "умолчанию"
-    ABandInfo.DefaultVisible := qCategoryParameters.W.IsAttribute.F.AsInteger = 1;
-    ABandInfo.IDParameterKind := qCategoryParameters.W.IDParameterKind.F.AsInteger;
+    ABandInfo.DefaultVisible := qCategoryParameters.W.IsAttribute.F.
+      AsInteger = 1;
+    ABandInfo.IDParameterKind := qCategoryParameters.W.IDParameterKind.
+      F.AsInteger;
     ABandInfo.Pos := qCategoryParameters.W.PosID.F.AsInteger;
 
     // Инициализируем сами бэнды
@@ -371,8 +376,9 @@ begin
       end;
       // Сохраняем информацию о созданных или уже существующих колонках
       FColumnsInfo.Add(TColumnInfoEx.Create(AColumnList.ToArray,
-        qCategoryParameters.W.PK.AsInteger, qCategoryParameters.W.Ord.F.AsInteger,
-        ABandInfo.DefaultCreated, qCategoryParameters.W.IsDefault.F.AsInteger = 1));
+        qCategoryParameters.W.PK.AsInteger,
+        qCategoryParameters.W.Ord.F.AsInteger, ABandInfo.DefaultCreated,
+        qCategoryParameters.W.IsDefault.F.AsInteger = 1));
     finally
       FreeAndNil(AColumnList);
     end;
@@ -429,7 +435,19 @@ begin
   FcxGridDBBandedColumn := AItem as TcxGridDBBandedColumn;
 
   FcxMemo := AEdit as TcxMemo;
+
+  // FcxMemo.Left = 30000
+  // Поэтому просто ждём когда cxMemo появится в нужно месте
   PostMessage(Handle, WM_AFTER_INIT_EDIT, 0, 0);
+end;
+
+procedure TViewAnalogGrid.cxGridDBBandedTableViewLeftPosChanged
+  (Sender: TObject);
+begin
+  inherited;
+  // FcxMemo.Left = 30000 во время перемещения полосы прокрутки
+  // Поэтому просто прячем кнопку которая должна быть сверху cxMemo
+  cxEditorButton.Visible := False;
 end;
 
 procedure TViewAnalogGrid.cxGridDBBandedTableViewMouseMove(Sender: TObject;
@@ -452,6 +470,22 @@ begin
     cxGrid.Hint := (H as TcxGridColumnHeaderHitTest).Column.AlternateCaption;
   end
 
+end;
+
+procedure TViewAnalogGrid.cxGridDBBandedTableViewUpdateEdit
+  (Sender: TcxCustomGridTableView; AItem: TcxCustomGridTableItem;
+  AEdit: TcxCustomEdit);
+begin
+  inherited;
+
+  if not(AEdit is TcxMemo) then
+    Exit;
+
+  FcxGridDBBandedColumn := AItem as TcxGridDBBandedColumn;
+
+  FcxMemo := AEdit as TcxMemo;
+
+  DoAfterInitMemo;
 end;
 
 procedure TViewAnalogGrid.DeleteBands;
@@ -507,12 +541,17 @@ end;
 procedure TViewAnalogGrid.EditorTimerTimer(Sender: TObject);
 begin
   inherited;
+
+  // Если считаем что текстовый редактор должен быть спрятан
   if IsMemoEditorHide then
+  begin
+    cxEditorButton.Visible := False;
     EditorTimer.Enabled := False;
+  end;
 end;
 
-function TViewAnalogGrid.GetBandCaption(qryCategoryParameters :
-    TQueryCategoryParameters2): string;
+function TViewAnalogGrid.GetBandCaption(qryCategoryParameters
+  : TQueryCategoryParameters2): string;
 begin
   Assert(qryCategoryParameters <> nil);
   Assert(qryCategoryParameters.FDQuery.RecordCount > 0);
@@ -535,7 +574,6 @@ begin
   // спрятан ли текстовый редактор
   Result := (FcxMemo = nil) or ((FcxMemo <> nil) and (FcxMemo.Parent = nil) and
     (not cxEditorButton.Focused));
-  cxEditorButton.Visible := not Result;
 end;
 
 procedure TViewAnalogGrid.InitColumns(AView: TcxGridDBBandedTableView);
@@ -621,7 +659,7 @@ begin
     // Меняем заголовок бэнда
     ACaption := GetBandCaption(qCategoryParameters);
     if ACaption = ABI.Band.Caption then
-      Continue;
+      continue;
 
     ABI.Band.Caption := ACaption;
     // Ширина бэнда
