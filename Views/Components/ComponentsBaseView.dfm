@@ -1,5 +1,8 @@
 inherited ViewComponentsBase: TViewComponentsBase
   inherited cxGrid: TcxGrid
+    Height = 427
+    OnResize = cxGridResize
+    ExplicitHeight = 427
     inherited cxGridDBBandedTableView: TcxGridDBBandedTableView
       OnCellClick = cxGridDBBandedTableViewCellClick
       OnEditKeyUp = cxGridDBBandedTableViewEditKeyUp
@@ -7,6 +10,7 @@ inherited ViewComponentsBase: TViewComponentsBase
       OnSelectionChanged = cxGridDBBandedTableViewSelectionChanged
       OptionsCustomize.ColumnVertSizing = False
       OptionsView.NavigatorOffset = 0
+      OptionsView.ScrollBars = ssVertical
       OptionsView.IndicatorWidth = 0
       OnColumnHeaderClick = cxGridDBBandedTableViewColumnHeaderClick
       OnColumnSizeChanged = cxGridDBBandedTableViewColumnSizeChanged
@@ -47,6 +51,19 @@ inherited ViewComponentsBase: TViewComponentsBase
       item
         Width = 150
       end>
+  end
+  object GridScrollBar: TScrollBar [2]
+    Left = 0
+    Top = 455
+    Width = 893
+    Height = 17
+    Align = alBottom
+    DoubleBuffered = True
+    Max = 1000
+    PageSize = 0
+    ParentDoubleBuffered = False
+    TabOrder = 6
+    OnScroll = GridScrollBarScroll
   end
   inherited dxBarManager: TdxBarManager
     PixelsPerInch = 96
@@ -226,7 +243,7 @@ inherited ViewComponentsBase: TViewComponentsBase
   end
   object TimerSyncScrollBars: TTimer
     Enabled = False
-    Interval = 200
+    Interval = 50
     OnTimer = TimerSyncScrollBarsTimer
     Left = 96
     Top = 128

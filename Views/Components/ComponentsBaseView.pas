@@ -88,6 +88,7 @@ type
     actAddComponent: TAction;
     actFocusTopLeft: TAction;
     TimerSyncScrollBars: TTimer;
+    GridScrollBar: TScrollBar;
     procedure actAddComponentExecute(Sender: TObject);
     procedure actAddFamilyExecute(Sender: TObject);
     procedure actCommitExecute(Sender: TObject);
@@ -154,6 +155,9 @@ type
     procedure cxGridDBBandedTableViewLeftPosChanged(Sender: TObject);
     procedure cxGridDBBandedTableViewDataControllerDetailExpanded
       (ADataController: TcxCustomDataController; ARecordIndex: Integer);
+    procedure cxGridResize(Sender: TObject);
+    procedure GridScrollBarScroll(Sender: TObject; ScrollCode: TScrollCode;
+      var ScrollPos: Integer);
     procedure TimerSyncScrollBarsTimer(Sender: TObject);
   private
     FBaseCompGrp: TBaseComponentsGroup2;
@@ -166,6 +170,7 @@ type
     FMessageUpdateDetailColumnsPosted: Boolean;
     FNeedApplyBestFit: Boolean;
     FqSubGroups: TfrmQuerySubGroups;
+    FScrollPos: Integer;
     procedure DoAfterCommit(Sender: TObject);
     procedure DoOnDescriptionPopupHide(Sender: TObject);
     procedure DoOnUpdateComponentsCount(Sender: TObject);
@@ -211,6 +216,7 @@ type
     function ExpandDetail: TcxGridDBBandedTableView;
     procedure InitBands;
     procedure InitComponentsColumns; virtual;
+    procedure InitScrollBar;
     procedure InitView(AView: TcxGridDBBandedTableView); override;
     procedure InternalRefreshData; override;
     procedure MyDelete; override;
@@ -232,6 +238,7 @@ type
     function CheckAndSaveChanges: Integer;
     procedure EndUpdate; override;
     procedure FocusTopLeftEx;
+    procedure MyApplyBestFitForView(AView: TcxGridDBBandedTableView); override;
     procedure TryApplyBestFit;
     procedure UpdateView; override;
     property BaseCompGrp: TBaseComponentsGroup2 read FBaseCompGrp
@@ -962,8 +969,10 @@ procedure TViewComponentsBase.cxGridDBBandedTableViewLeftPosChanged
 begin
   inherited;
   // Если мы немедленно пытаемся синхронизировать позиции скроллбаров
-  // то прерывается процесс сколлинга
-  TimerSyncScrollBars.Enabled := True;
+  // то прерывается процесс сколлинга осуществляемый внутренним скроллбаром
+  // поэтому для скроллинга используется внешний скроллбар
+
+  SyncScrollbarPositions;
 end;
 
 procedure TViewComponentsBase.cxGridDBBandedTableViewSelectionChanged
@@ -971,6 +980,12 @@ procedure TViewComponentsBase.cxGridDBBandedTableViewSelectionChanged
 begin
   inherited;
   UpdateSelectedCount;
+end;
+
+procedure TViewComponentsBase.cxGridResize(Sender: TObject);
+begin
+  inherited;
+  InitScrollBar;
 end;
 
 procedure TViewComponentsBase.DoAfterCommit(Sender: TObject);
@@ -1293,6 +1308,17 @@ begin
   Result := FqSubGroups;
 end;
 
+procedure TViewComponentsBase.GridScrollBarScroll(Sender: TObject;
+  ScrollCode: TScrollCode; var ScrollPos: Integer);
+begin
+  inherited;
+  FScrollPos := ScrollPos;
+  TimerSyncScrollBars.Enabled := False;
+  TimerSyncScrollBars.Enabled := True;
+  // MainView.Controller.LeftPos := ScrollPos;
+  // MainView.Controller.Scroll(sbHorizontal, ScrollCode, ScrollPos);
+end;
+
 procedure TViewComponentsBase.InitBands;
 var
   ABand: TcxGridBand;
@@ -1422,6 +1448,23 @@ begin
   end;
 end;
 
+procedure TViewComponentsBase.InitScrollBar;
+var
+  AMax: Integer;
+begin
+  AMax := MainView.ViewInfo.HeaderViewInfo.Width;
+  Assert(AMax > 0);
+
+  GridScrollBar.Visible := cxGrid.ClientWidth < AMax;
+  if not GridScrollBar.Visible then
+    Exit;
+
+  GridScrollBar.Max := AMax;
+  GridScrollBar.PageSize := cxGrid.ClientWidth;
+  GridScrollBar.LargeChange := GridScrollBar.PageSize;
+  GridScrollBar.SmallChange := 10;
+end;
+
 procedure TViewComponentsBase.InitView(AView: TcxGridDBBandedTableView);
 begin
   inherited;
@@ -1435,6 +1478,13 @@ begin
   Assert(BaseCompGrp <> nil);
   BaseCompGrp.RefreshData;
   MainView.ViewData.Collapse(True);
+end;
+
+procedure TViewComponentsBase.MyApplyBestFitForView
+  (AView: TcxGridDBBandedTableView);
+begin
+  inherited;
+  InitScrollBar;
 end;
 
 procedure TViewComponentsBase.MyDelete;
@@ -1614,10 +1664,11 @@ end;
 procedure TViewComponentsBase.TimerSyncScrollBarsTimer(Sender: TObject);
 begin
   // Если левая кнопка мыши всё ещё нажата, то ждём отпускания
-  if GetAsyncKeyState (VK_LBUTTON) and $8000 <> 0 then
-    Exit;
+  // if GetAsyncKeyState(VK_LBUTTON) and $8000 <> 0 then
+  // Exit;
 
-  SyncScrollbarPositions;
+  // Осуществляем скролл
+  MainView.Controller.LeftPos := FScrollPos;
   TimerSyncScrollBars.Enabled := False;
 end;
 
